@@ -110,8 +110,8 @@ public class ConcreteUsageParameterMBeanGenerator {
         ctClass.setSuperclass(usageMBeanImplClass);
         ConcreteClassGeneratorUtils.createInterfaceLinks(ctClass,new CtClass[]{ctInterface});
         
-        if (logger.isDebugEnabled()) {
-        	logger.debug("generating "+concreteMBeanInterfaceName+" and "+concreteMBeanClassName);
+        if (logger.isTraceEnabled()) {
+        	logger.trace("generating "+concreteMBeanInterfaceName+" and "+concreteMBeanClassName);
         }
         
         // create constructor
@@ -127,9 +127,9 @@ public class ConcreteUsageParameterMBeanGenerator {
 
         String deploymentPathStr = component.getDeploymentDir().getAbsolutePath();
         ctInterface.writeFile(deploymentPathStr);
-        logger.debug("Writing file " + concreteMBeanInterfaceName);
+        logger.trace("Writing file " + concreteMBeanInterfaceName);
         ctClass.writeFile(deploymentPathStr);
-        logger.debug("Writing file " + concreteMBeanClassName);
+        logger.trace("Writing file " + concreteMBeanClassName);
                 
         component.setUsageParametersMBeanConcreteInterface(Thread.currentThread().getContextClassLoader().loadClass(concreteMBeanInterfaceName));
         component.setUsageParametersMBeanImplConcreteClass(Thread.currentThread().getContextClassLoader().loadClass(concreteMBeanClassName));
@@ -153,8 +153,9 @@ public class ConcreteUsageParameterMBeanGenerator {
                     + "return (("+component.getUsageParametersConcreteClass().getName()+")getUsageParameter()).get" + methodName.substring("increment".length()
                             ) + "(reset);"
                     + "}";
-            if ( logger.isDebugEnabled())
-                 logger.debug("METHOD BODY " + body);
+            if (logger.isTraceEnabled()) {
+            	logger.trace("METHOD BODY " + body);
+            }
             CtMethod newmethod = CtNewMethod.make(body, ctClass);
             ctClass.addMethod(newmethod);
         } else if (methodName.startsWith("sample")) {
@@ -162,7 +163,7 @@ public class ConcreteUsageParameterMBeanGenerator {
             + "( boolean  reset ) throws " + ManagementException.class.getName()+ " {"
             + "return (("+component.getUsageParametersConcreteClass().getName()+")getUsageParameter()).get" + methodName.substring("sample".length()) + "(reset);"
             + "}";
-            logger.debug("METHOD BODY " + body);
+            logger.trace("METHOD BODY " + body);
             CtMethod newmethod = CtNewMethod.make(body, ctClass);
             ctClass.addMethod(newmethod);
             

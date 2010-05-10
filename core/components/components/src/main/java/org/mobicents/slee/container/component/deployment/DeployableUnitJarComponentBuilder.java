@@ -326,7 +326,7 @@ public class DeployableUnitJarComponentBuilder {
 			throws DeploymentException {
 
 		ZipEntry zipFileEntry = containingJar.getEntry(fileName);
-		logger.debug("Extracting file " + fileName + " from "
+		logger.trace("Extracting file " + fileName + " from "
 				+ containingJar.getName());
 		if (zipFileEntry == null) {
 			throw new DeploymentException("Error extracting jar file  "
@@ -371,7 +371,7 @@ public class DeployableUnitJarComponentBuilder {
 
 			for (JarEntry entry = jarIs.getNextJarEntry(); jarIs.available() > 0
 					&& entry != null; entry = jarIs.getNextJarEntry()) {
-				logger.debug("jar entry = " + entry.getName());
+				logger.trace("jar entry = " + entry.getName());
 
 				if (entry.isDirectory()) {
 					// Create jar directories.
@@ -384,7 +384,7 @@ public class DeployableUnitJarComponentBuilder {
 									+ dir.getAbsolutePath());
 						}
 					} else
-						logger.debug("Created directory"
+						logger.trace("Created directory"
 								+ dir.getAbsolutePath());
 				} else // unzip files
 				{
@@ -397,7 +397,7 @@ public class DeployableUnitJarComponentBuilder {
 							throw new IOException("Failed to create directory "
 									+ dir.getAbsolutePath());
 						} else
-							logger.debug("Created directory"
+							logger.trace("Created directory"
 									+ dir.getAbsolutePath());
 					}
 					pipeStream(jarFile.getInputStream(entry),

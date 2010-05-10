@@ -124,9 +124,8 @@ public class SbbAbstractMethodHandler {
 			throw new IllegalStateException(
 					"Could not invoke getChildRelation Method, Sbb Object is not in the READY state!");
 
-		if (logger.isDebugEnabled()) {
-			logger
-					.debug("ChildRelation Interceptor:"
+		if (logger.isTraceEnabled()) {
+			logger.trace("ChildRelation Interceptor:"
 							+ childRelationMethodName);
 		}
 
@@ -207,8 +206,8 @@ public class SbbAbstractMethodHandler {
 		// method, check it's state
 		ActivityContext ac = ((org.mobicents.slee.container.activity.ActivityContextInterface) aci)
 				.getActivityContext();
-		if (logger.isDebugEnabled()) {
-			logger.debug("invoke(): firing event on "
+		if (logger.isTraceEnabled()) {
+			logger.trace("invoke(): firing event on "
 					+ ac);
 		}
 		
@@ -274,8 +273,8 @@ public class SbbAbstractMethodHandler {
 
 	public static Object getSbbUsageParameterSet(SbbEntity sbbEntity, String name)
 			throws UnrecognizedUsageParameterSetNameException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("getSbbUsageParameterSet(): serviceId = "
+		if (logger.isTraceEnabled()) {
+			logger.trace("getSbbUsageParameterSet(): serviceId = "
 					+ sbbEntity.getServiceId() + " , sbbID = "
 					+ sbbEntity.getSbbId() + " , name = " + name);
 		}
@@ -284,8 +283,8 @@ public class SbbAbstractMethodHandler {
 	}
 
 	public static Object getDefaultSbbUsageParameterSet(SbbEntity sbbEntity) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("getDefaultSbbUsageParameterSet(): "
+		if (logger.isTraceEnabled()) {
+			logger.trace("getDefaultSbbUsageParameterSet(): "
 					+ sbbEntity.getServiceId() + " sbbID = "
 					+ sbbEntity.getSbbId());
 		}

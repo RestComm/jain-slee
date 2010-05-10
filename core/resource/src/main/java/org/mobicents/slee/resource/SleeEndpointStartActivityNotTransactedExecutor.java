@@ -2,7 +2,6 @@ package org.mobicents.slee.resource;
 
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityHandle;
-import javax.slee.resource.StartActivityException;
 import javax.transaction.Transaction;
 
 import org.mobicents.slee.container.SleeContainer;
@@ -29,11 +28,10 @@ public class SleeEndpointStartActivityNotTransactedExecutor extends
 	 * Executes a non transacted start activity operation.
 	 * @param handle
 	 * @param activityFlags
-	 * @throws StartActivityException
 	 * @throws SLEEException
 	 */
 	void execute(final ActivityHandle handle, final int activityFlags)
-			throws StartActivityException, SLEEException {
+			throws SLEEException {
 
 		final Transaction tx = super.suspendTransaction();
 		try {

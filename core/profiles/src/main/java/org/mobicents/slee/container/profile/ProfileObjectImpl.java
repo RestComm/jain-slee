@@ -146,8 +146,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	public void setProfileContext(ProfileContextImpl profileContext) {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("[setProfileContext] "+this);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[setProfileContext] "+this);
 		}
 
 		if (profileContext == null) {
@@ -237,8 +237,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	private void profileInitialize(String profileName) {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("[profileInitialize] "+this+" , profileName = "+profileName);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[profileInitialize] "+this+" , profileName = "+profileName);
 		}
 				
 		if (this.state != ProfileObjectState.POOLED) {
@@ -263,8 +263,8 @@ public class ProfileObjectImpl implements ProfileObject {
 		}
 		else {
 			// load the default profile entity
-			if (logger.isDebugEnabled()) {
-				logger.debug("Copying state from default profile on object "+this);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Copying state from default profile on object "+this);
 			}
 			profileEntity = cloneEntity(profileTable.getDefaultProfileEntity());
 			profileEntity.setProfileName(profileName);
@@ -281,8 +281,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	private void profilePostCreate() throws CreateException {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("[profilePostCreate] "+this);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[profilePostCreate] "+this);
 		}
 		
 		if (this.state != ProfileObjectState.POOLED && this.state != ProfileObjectState.PROFILE_INITIALIZATION) {
@@ -328,8 +328,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	private void profileActivate() {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("[profileActivate] "+this);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[profileActivate] "+this);
 		}
 		
 		if (state != ProfileObjectState.POOLED) {
@@ -353,8 +353,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	private void profileLoad(String profileName) throws UnrecognizedProfileNameException {
 				
-		if(logger.isDebugEnabled()) {
-			logger.debug("[profileLoad] "+this+" , profileName = "+profileName);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[profileLoad] "+this+" , profileName = "+profileName);
 		}
 		
 		ProfileEntity profileEntity = loadProfileEntity(profileName);
@@ -368,8 +368,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	private void profileLoad(ProfileEntity profileEntity) {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("[profileLoad] "+this+" , profileEntity = "+profileEntity);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[profileLoad] "+this+" , profileEntity = "+profileEntity);
 		}
 		
 		if (state != ProfileObjectState.READY) {
@@ -399,8 +399,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	public void profileVerify() throws ProfileVerificationException {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("[profileVerify] "+this);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[profileVerify] "+this);
 		}
 		
 		profileStore();
@@ -441,8 +441,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	public void profileStore() {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("[profileStore] "+this);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[profileStore] "+this);
 		}
 		
 		if (state != ProfileObjectState.READY) {
@@ -473,8 +473,8 @@ public class ProfileObjectImpl implements ProfileObject {
 			// FIXME tests/profiles/lifecycle/Test1110227Test.xml enforces profileStore to be called before every profilePassivate(), doing this here to enfore it happens
 			profileStore();
 			
-			if(logger.isDebugEnabled()) {
-				logger.debug("[profilePassivate] "+this);
+			if(logger.isTraceEnabled()) {
+				logger.trace("[profilePassivate] "+this);
 			}
 
 			if (this.profileEntity.getProfileName() != null) {
@@ -508,8 +508,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	public void profileRemove(boolean invokeConcreteSbb, boolean isUninstall) {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("[profileRemove] "+this);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[profileRemove] "+this);
 		}
 		
 		if (state != ProfileObjectState.READY) {
@@ -530,8 +530,8 @@ public class ProfileObjectImpl implements ProfileObject {
 		if (profileTable.doesFireEvents() && profileEntity.getProfileName() != null && profileEntitySnapshot != null) {
 			// fire event
 			AbstractProfileEvent event = new ProfileRemovedEventImpl(profileEntity,profileTable.getProfileManagement());
-			if (logger.isDebugEnabled()) {
-				logger.debug("firing profile removed event for profile named "+profileEntity);
+			if (logger.isTraceEnabled()) {
+				logger.trace("firing profile removed event for profile named "+profileEntity);
 			}
 			profileTable.getActivityContext().fireEvent(event.getEventTypeID(), event,
 					event.getProfileAddress(), null, null,null,null);
@@ -557,8 +557,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	public void unsetProfileContext() {
 
-		if(logger.isDebugEnabled())	{
-			logger.debug("[unsetProfileContext] "+this);
+		if(logger.isTraceEnabled()) {
+			logger.trace("[unsetProfileContext] "+this);
 		}
 
 		if (state == ProfileObjectState.POOLED  && profileConcreteClassInfo.isInvokeUnsetProfileContext()) {
@@ -715,8 +715,8 @@ public class ProfileObjectImpl implements ProfileObject {
 	 */
 	private void persistProfileConcrete() {
 		if (profileEntity.isCreate()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Persisting "+this);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Persisting "+this);
 				
 			}			
 			if (profileEntity.getProfileName() != null) {
@@ -756,8 +756,8 @@ public class ProfileObjectImpl implements ProfileObject {
 						if (persisted) {
 							event = new ProfileAddedEventImpl(profileEntity,profileTable.getProfileManagement());
 							persisted = false;
-							if (logger.isDebugEnabled()) {
-								logger.debug("firing profile added event for profile named "+profileEntity);
+							if (logger.isTraceEnabled()) {
+								logger.trace("firing profile added event for profile named "+profileEntity);
 							}
 						}
 						else {
@@ -766,8 +766,8 @@ public class ProfileObjectImpl implements ProfileObject {
 					}
 					else {
 						event = new ProfileUpdatedEventImpl(profileEntitySnapshot,profileEntity,profileTable.getProfileManagement());		
-						if (logger.isDebugEnabled()) {
-							logger.debug("firing profile updated event for profile named "+profileEntity);
+						if (logger.isTraceEnabled()) {
+							logger.trace("firing profile updated event for profile named "+profileEntity);
 						}
 					}
 					ac.fireEvent(event.getEventTypeID(), event,

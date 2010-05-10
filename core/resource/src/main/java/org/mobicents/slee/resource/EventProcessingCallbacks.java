@@ -61,7 +61,7 @@ public class EventProcessingCallbacks implements EventProcessingFailedCallback,
 	 * eventProcessingFailed(javax.slee.resource.FailureReason)
 	 */
 	public void eventProcessingFailed(FailureReason failureReason) {
-		raEntity.eventProcessingFailed(activityHandle, fireableEventType,
+		raEntity.getResourceAdaptorObject().eventProcessingFailed(activityHandle, fireableEventType,
 				failureReason, address, receivableService, eventFlags,
 				failureReason);
 	}
@@ -73,7 +73,7 @@ public class EventProcessingCallbacks implements EventProcessingFailedCallback,
 	 * eventProcessingSucceed()
 	 */
 	public void eventProcessingSucceed() {
-		raEntity.eventProcessingSucceed(activityHandle, fireableEventType,
+		raEntity.getResourceAdaptorObject().eventProcessingSuccessful(activityHandle, fireableEventType,
 				event, address, receivableService, eventFlags);
 	}
 
@@ -81,7 +81,7 @@ public class EventProcessingCallbacks implements EventProcessingFailedCallback,
 	 * @see org.mobicents.slee.container.event.EventUnreferencedCallback#eventUnreferenced()
 	 */
 	public void eventUnreferenced() {
-		raEntity.eventUnreferenced(activityHandle, fireableEventType,
+		raEntity.getResourceAdaptorObject().eventUnreferenced(activityHandle, fireableEventType,
 				event, address, receivableService, eventFlags);
 	}
 

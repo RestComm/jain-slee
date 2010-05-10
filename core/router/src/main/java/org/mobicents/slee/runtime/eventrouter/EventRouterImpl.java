@@ -7,6 +7,7 @@ import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
 import org.mobicents.slee.container.eventrouter.EventRouterExecutorMapper;
 import org.mobicents.slee.container.eventrouter.stats.EventRouterStatistics;
 import org.mobicents.slee.container.management.jmx.EventRouterConfiguration;
+import org.mobicents.slee.runtime.eventrouter.stats.EventRouterStatisticsImpl;
 
 /**
  * 
@@ -74,6 +75,8 @@ public class EventRouterImpl extends AbstractSleeContainerModule implements Even
 		} catch (Throwable e) {
 			throw new IllegalStateException("Unable to create event router executor mapper class instance",e);
 		}		
+		// create stats
+		statistics = new EventRouterStatisticsImpl(this);
 	}
 	
 	@Override

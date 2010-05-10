@@ -89,8 +89,8 @@ public class SbbObjectPoolManagementImpl implements SbbObjectPoolManagementImplM
 	public void createObjectPool(final ServiceID serviceID, final SbbComponent sbbComponent,
 			final SleeTransactionManager sleeTransactionManager) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Creating Pool for  " + serviceID +" and "+ sbbComponent);
+		if (logger.isTraceEnabled()) {
+            logger.trace("Creating Pool for  " + serviceID +" and "+ sbbComponent);
 		}
 
 		createObjectPool(serviceID,sbbComponent);
@@ -153,8 +153,8 @@ public class SbbObjectPoolManagementImpl implements SbbObjectPoolManagementImplM
 	public void removeObjectPool(final ServiceID serviceID, final SbbComponent sbbComponent,
 			final SleeTransactionManager sleeTransactionManager) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removing Pool for " + serviceID + "and " + sbbComponent);
+		if (logger.isTraceEnabled()) {
+            logger.trace("Removing Pool for " + serviceID + "and " + sbbComponent);
 		}
 
 		removeObjectPool(serviceID,sbbComponent.getSbbID());

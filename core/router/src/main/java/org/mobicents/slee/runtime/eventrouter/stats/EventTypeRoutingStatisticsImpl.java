@@ -47,6 +47,14 @@ public class EventTypeRoutingStatisticsImpl implements
 
 	/*
 	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.eventrouter.stats.EventTypeRoutingStatistics#getAverageEventRoutingTime()
+	 */
+	public long getAverageEventRoutingTime() {
+		return routingTime == 0L ? 0L : routingTime / eventsRouted;
+	}
+	
+	/*
+	 * (non-Javadoc)
 	 * 
 	 * @see
 	 * org.mobicents.slee.runtime.eventrouter.stats.EventTypeRoutingStatistics
@@ -105,4 +113,12 @@ public class EventTypeRoutingStatisticsImpl implements
 				.equals(((EventTypeRoutingStatisticsImpl) obj).eventTypeID);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return eventTypeID+" routing statistics: EVENTS = "+eventsRouted+", TIME = "+routingTime+", AVERAGE "+getAverageEventRoutingTime();
+	}
 }

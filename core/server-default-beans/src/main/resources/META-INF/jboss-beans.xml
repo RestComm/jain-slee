@@ -17,15 +17,12 @@
       <property name="lockParentForChildInsertRemove">false</property>
       <property name="lockAcquisitionTimeout">15000</property>
       <property name="useLockStriping">false</property>
-      
-      <demand>RealTransactionManager</demand>
    </bean>
    
 	<bean name="Mobicents.JAINSLEE.Cache" class="org.mobicents.cache.MobicentsCache">
 		<constructor>
           <parameter class="org.jboss.cache.config.Configuration"><inject bean="Mobicents.JAINSLEE.CacheConfig"/></parameter> 
      	</constructor>		
-     	<demand>Mobicents.JAINSLEE.CacheConfig</demand>	
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.JBossCacheJmxWrapper" class="org.jboss.cache.jmx.CacheJmxWrapper">
@@ -33,7 +30,6 @@
       <constructor>
           <parameter><value-factory bean="Mobicents.JAINSLEE.Cache" method="getJBossCache"/></parameter>
       </constructor>
-      <demand>Mobicents.JAINSLEE.Cache</demand>	      
    </bean>
    	
 	<bean name="Mobicents.JAINSLEE.Cluster" class="org.mobicents.cluster.DefaultMobicentsCluster">
@@ -42,8 +38,6 @@
 			<parameter><inject bean="RealTransactionManager"/></parameter>
 			<parameter><null/></parameter>
 		</constructor>	
-		<demand>Mobicents.JAINSLEE.Cache</demand>
-		<demand>RealTransactionManager</demand>					
 	</bean>
 	
 	<bean name="Mobicents.JAINSLEE.TransactionManagerMBean"
@@ -54,7 +48,6 @@
 				<inject bean="RealTransactionManager" />
 			</parameter>
 		</constructor>
-		<demand>RealTransactionManager</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.TraceMBean"
@@ -65,7 +58,6 @@
 				<inject bean="Mobicents.JAINSLEE.TransactionManagerMBean" />
 			</parameter>
 		</constructor>
-		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.AlarmMBean"
@@ -79,8 +71,6 @@
 				<inject bean="Mobicents.JAINSLEE.TraceMBean" />
 			</parameter>
 		</constructor>
-		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
-		<demand>Mobicents.JAINSLEE.TraceMBean</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig" class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
@@ -115,7 +105,7 @@
 			<parameter>
 				<inject bean="Mobicents.JAINSLEE.ClassLoadingConfiguration" />
 			</parameter>
-		</constructor>	
+		</constructor>
 	</bean>	
 	
 	<bean name="Mobicents.JAINSLEE.SbbManagement"
@@ -136,12 +126,12 @@
 				<inject bean="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig" />
 				<!-- <inject bean="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig" /> -->
 			</parameter>
-		</constructor>	
+		</constructor>
 	</bean>	
 	
 	<bean name="Mobicents.JAINSLEE.EventRouterConfiguration"
 		class="org.mobicents.slee.container.management.jmx.EventRouterConfiguration">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee.config:name=EventRouter",exposedInterface=org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean.class,registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=EventRouterConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean.class,registerDirectly=true)</annotation>
 		<property name="eventRouterThreads">8</property>
 		<property name="collectStats">true</property>
 		<property name="executorMapperClassName">org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper</property>
@@ -155,6 +145,16 @@
 			</parameter>
 		</constructor>	
 	</bean>			
+	
+	<bean name="Mobicents.JAINSLEE.EventRouterStatistics"
+		class="org.mobicents.slee.container.management.jmx.EventRouterStatistics">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=EventRouterStatistics",exposedInterface=org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean.class,registerDirectly=true)</annotation>
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.EventRouter" />
+			</parameter>
+		</constructor>	
+	</bean>		
 		
 	<bean name="Mobicents.JAINSLEE.TimerFacilityConfiguration"
 		class="org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration">
@@ -197,7 +197,7 @@
 			<parameter>
 				<inject bean="Mobicents.JAINSLEE.UsageMbeans.Config" />
 			</parameter>
-		</constructor>	
+		</constructor>
 	</bean>			
 
 	<bean name="Mobicents.JAINSLEE.SbbEntityFactory"
@@ -217,69 +217,27 @@
 						
 	<bean name="Mobicents.JAINSLEE.Container" class="org.mobicents.slee.container.SleeContainer">
 		<constructor>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.ComponentsManagement" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.SbbManagement" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.ServiceManagement" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.ResourceManagement" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.ProfileManagement" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.EventContextFactory" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.EventRouter" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.TimerFacility" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.ActivityContextFactory" />
-			</parameter>
-				<parameter>
-				<inject bean="Mobicents.JAINSLEE.ActivityContextNamingFacility" />
-			</parameter>
-				<parameter>
-				<inject bean="Mobicents.JAINSLEE.NullActivityContextInterfaceFactory" />
-			</parameter>
-				<parameter>
-				<inject bean="Mobicents.JAINSLEE.NullActivityFactory" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.RmiServerInterface" />
-			</parameter>
-			
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.TransactionManagerMBean" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.Cluster" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.AlarmMBean" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.TraceMBean" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.UsageParametersManagement" />
-			</parameter>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.SbbEntityFactory" />
-			</parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.ComponentsManagement" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.SbbManagement" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.ServiceManagement" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.ResourceManagement" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.ProfileManagement" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.EventContextFactory" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.EventRouter" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.TimerFacility" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.ActivityContextFactory" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.ActivityContextNamingFacility" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.NullActivityContextInterfaceFactory" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.NullActivityFactory" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.RmiServerInterface" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.TransactionManagerMBean" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.Cluster" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.Cache"/></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.AlarmMBean" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.TraceMBean" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.UsageParametersManagement" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.SbbEntityFactory" /></parameter>
 		</constructor>
-		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
-		<demand>Mobicents.JAINSLEE.Cluster</demand>		
-		<demand>Mobicents.JAINSLEE.AlarmMBean</demand>
-		<demand>Mobicents.JAINSLEE.TraceMBean</demand>
 		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>
 	</bean>
 
@@ -291,7 +249,6 @@
 				<inject bean="Mobicents.JAINSLEE.Container" />
 			</parameter>
 		</constructor>
-		<demand>Mobicents.JAINSLEE.Container</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.ServiceManagementMBean"
@@ -302,7 +259,6 @@
 				<inject bean="Mobicents.JAINSLEE.Container" />
 			</parameter>
 		</constructor>
-		<demand>Mobicents.JAINSLEE.Container</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.ProfileProvisoningMBean"
@@ -313,7 +269,6 @@
 				<inject bean="Mobicents.JAINSLEE.Container" />
 			</parameter>
 		</constructor>
-		<demand>Mobicents.JAINSLEE.Container</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.ResourceManagementMBean"
@@ -324,7 +279,6 @@
 				<inject bean="Mobicents.JAINSLEE.Container" />
 			</parameter>
 		</constructor>
-		<demand>Mobicents.JAINSLEE.Container</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.SbbEntitiesMBean"
@@ -335,7 +289,6 @@
 				<inject bean="Mobicents.JAINSLEE.Container" />
 			</parameter>
 		</constructor>
-		<demand>Mobicents.JAINSLEE.Container</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.ActivityManagementMBean"
@@ -346,7 +299,6 @@
 				<inject bean="Mobicents.JAINSLEE.Container" />
 			</parameter>
 		</constructor>
-		<demand>Mobicents.JAINSLEE.Container</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.SleeManagement"
@@ -381,14 +333,6 @@
 			<value-factory bean="Mobicents.JAINSLEE.ActivityManagementMBean"
 				method="getObjectName" />
 		</property>
-		<demand>Mobicents.JAINSLEE.Container</demand>
-		<demand>Mobicents.JAINSLEE.DeploymentMBean</demand>
-		<demand>Mobicents.JAINSLEE.ServiceManagementMBean</demand>
-		<demand>Mobicents.JAINSLEE.ProfileProvisoningMBean</demand>
-		<demand>Mobicents.JAINSLEE.ResourceManagementMBean</demand>
-		<demand>Mobicents.JAINSLEE.SbbEntitiesMBean</demand>
-		<demand>Mobicents.JAINSLEE.ActivityManagementMBean</demand>
-		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.DeployerMBean"

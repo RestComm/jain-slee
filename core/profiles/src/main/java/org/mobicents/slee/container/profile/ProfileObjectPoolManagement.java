@@ -87,8 +87,8 @@ public class ProfileObjectPoolManagement implements ProfileObjectPoolManagementM
 	public void createObjectPool(final ProfileTableImpl profileTable,
 			final SleeTransactionManager sleeTransactionManager) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Creating Pool for " + profileTable);
+		if (logger.isTraceEnabled()) {
+            logger.trace("Creating Pool for " + profileTable);
 		}
 
 		createObjectPool(profileTable);
@@ -151,8 +151,8 @@ public class ProfileObjectPoolManagement implements ProfileObjectPoolManagementM
 		
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Removing Pool for " + profileTable);
+				if (logger.isTraceEnabled()) {
+		            logger.trace("Removing Pool for " + profileTable);
 				}
 
 				removeObjectPool(profileTable);

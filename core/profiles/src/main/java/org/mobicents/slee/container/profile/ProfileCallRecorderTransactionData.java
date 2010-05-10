@@ -71,8 +71,8 @@ public class ProfileCallRecorderTransactionData {
     
 	  String key = makeKey(po);
 	  
-		if (logger.isDebugEnabled()) {
-			logger.debug("Recording call to profile. Key[" + key + "]");
+		if (logger.isTraceEnabled()) {
+			logger.trace("Recording call to profile. Key[" + key + "]");
 		}
 		
 		final TransactionContext txContext = sleeTransactionManager.getTransactionContext();
@@ -111,8 +111,8 @@ public class ProfileCallRecorderTransactionData {
 
 		String key = makeKey(po);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removing call to profile. Key[" + key + "]");
+		if (logger.isTraceEnabled()) {
+			logger.trace("Removing call to profile. Key[" + key + "]");
 		}
 
 		final TransactionContext txContext = sleeTransactionManager.getTransactionContext();
@@ -146,8 +146,8 @@ public class ProfileCallRecorderTransactionData {
 
 	public static NotificationSourceWrapper getCurrentNotificationSource() throws TransactionRequiredLocalException, SLEEException
 	{
-		if(logger.isDebugEnabled()) {
-			logger.debug("Trying to get Notification source for profile table.");
+		if(logger.isTraceEnabled()) {
+			logger.trace("Trying to get Notification source for profile table.");
 		}
 
 		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();

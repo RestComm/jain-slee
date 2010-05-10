@@ -71,8 +71,8 @@ public class ConcreteProfileEntityFactoryGenerator {
 			  	" profileEntity.setProfileName($2); " +
 			  	" return profileEntity; " +
 			  "}";
-		  if (logger.isDebugEnabled()) {
-			  logger.debug( "\nAdding method named "+newInstanceMethodCopy.getName()+" with body "+newInstanceMethodCopy+" , into class " + className );
+		  if (logger.isTraceEnabled()) {
+			  logger.trace( "\nAdding method named "+newInstanceMethodCopy.getName()+" with body "+newInstanceMethodCopy+" , into class " + className );
 		  }
 		  newInstanceMethodCopy.setBody(newInstanceMethodCopyBody);
 		  ctClass.addMethod(newInstanceMethodCopy);
@@ -180,8 +180,8 @@ public class ConcreteProfileEntityFactoryGenerator {
 			  		  }
 		  // body footer
 		  copyAttributesMethodCopyBody += " }";
-		  if (logger.isDebugEnabled()) {
-			  logger.debug( "\nAdding method named "+copyAttributesMethodCopy.getName()+" with body "+copyAttributesMethodCopyBody+" , into class " + className );
+		  if (logger.isTraceEnabled()) {
+			  logger.trace( "\nAdding method named "+copyAttributesMethodCopy.getName()+" with body "+copyAttributesMethodCopyBody+" , into class " + className );
 		  }
 		  copyAttributesMethodCopy.setBody(copyAttributesMethodCopyBody);
 		  ctClass.addMethod(copyAttributesMethodCopy);
@@ -189,8 +189,9 @@ public class ConcreteProfileEntityFactoryGenerator {
       String deployDir = profileComponent.getDeploymentDir().getAbsolutePath();
       
       // write class
-      if (logger.isDebugEnabled())
-    	  logger.debug( "Writing ProfileEntityFactory generated class ( "+ctClass.getName()+" ) to: " + deployDir );
+      if (logger.isTraceEnabled()) {
+		  logger.trace( "Writing ProfileEntityFactory generated class ( "+ctClass.getName()+" ) to: " + deployDir );
+      }
       ctClass.writeFile( deployDir );
       return Thread.currentThread().getContextClassLoader().loadClass(className);      
       

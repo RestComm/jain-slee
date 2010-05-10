@@ -1,5 +1,6 @@
 package org.mobicents.slee.runtime.sbbentity;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -33,7 +34,8 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	private static final Logger logger = Logger
 			.getLogger(SbbEntityFactoryImpl.class);
 
-
+	private static final boolean doTraceLogs = logger.isTraceEnabled();
+	
 	protected SbbEntityLockFacility lockFacility;
 
 	/* (non-Javadoc)
@@ -127,8 +129,8 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		
 		if (sbbEntity == null) {
 			
-			if (logger.isDebugEnabled())
-				logger.debug("Loading sbb entity " + sbbeId + " from cache");
+			if (doTraceLogs)
+				logger.trace("Loading sbb entity " + sbbeId + " from cache");
 			
 			// not found in tx, get from cache
 			sbbEntity = new SbbEntityImpl(sbbeId,this);
@@ -236,8 +238,8 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	 * @throws SLEEException
 	 */
 	private static void lockOrFail(ReentrantLock lock, String sbbeId) throws SLEEException {
-		if (logger.isDebugEnabled()) {
-			logger.debug(Thread.currentThread()+" trying to acquire lock "+lock+" for sbb entity with id "+sbbeId);
+		if (doTraceLogs) {
+			logger.trace(Thread.currentThread()+" trying to acquire lock "+lock+" for sbb entity with id "+sbbeId);
 		}
 		boolean locked;
 		try { 
@@ -249,8 +251,8 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		if (!locked) {
 			throw new SLEEException("timeout while acquiring lock "+lock+" for sbb entity with id "+sbbeId);
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug(Thread.currentThread()+" acquired lock "+lock+" for sbb entity with id "+sbbeId);
+		if (doTraceLogs) {
+			logger.trace(Thread.currentThread()+" acquired lock "+lock+" for sbb entity with id "+sbbeId);
 		}
 	}
 	
@@ -264,7 +266,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 			return cacheData.getSbbEntities();
 		}
 		else {
-			return null;
+			return Collections.emptySet();
 		}
 	}
 }

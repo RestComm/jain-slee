@@ -103,4 +103,15 @@ public interface EventRouterExecutorStatistics {
 	 */
 	public long getMiscTasksExecutingTime();
 
+	/**
+	 * Retrieves the average time spent to route one event.
+	 * @return
+	 */
+	public long getAverageEventRoutingTime();
+	
+	/**
+	 * Retrieves the average time spent to route one event of the specified type.
+	 * @return
+	 */
+	public long getAverageEventRoutingTime(EventTypeID eventTypeID);
 }

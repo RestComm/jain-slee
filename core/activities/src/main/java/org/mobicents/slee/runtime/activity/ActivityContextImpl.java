@@ -69,7 +69,7 @@ public class ActivityContextImpl implements ActivityContext {
 	private static final SbbEntityComparator sbbEntityComparator = new SbbEntityComparator(sleeContainer.getSbbEntityFactory());
 
 	private final ActivityContextFactoryImpl factory;
-	
+		
 	public ActivityContextImpl(final ActivityContextHandle activityContextHandle, ActivityContextCacheData cacheData, boolean updateAccessTime, Integer activityFlags,ActivityContextFactoryImpl factory) {
 		this(activityContextHandle,cacheData,false,factory);
 		// ac creation, create cache data and set activity flags
@@ -154,8 +154,8 @@ public class ActivityContextImpl implements ActivityContext {
 	public void setDataAttribute(String key, Object newValue) {
 		cacheData.setCmpAttribute(key,newValue);
 		if (logger.isDebugEnabled()) {
-			logger.debug("ac "+getActivityContextHandle()+" cmp attribute set : attr name = " + key
-					+ " , attr value = " + newValue);
+			logger.debug("Activity context with handle "+getActivityContextHandle()+" set cmp attribute named " + key
+					+ " to value " + newValue);
 		}
 	}
 
@@ -318,9 +318,9 @@ public class ActivityContextImpl implements ActivityContext {
 			// waste time in checking if the flags requested such process 
 			cacheData.setCheckingReferences(false);
 		}
-		if (logger.isDebugEnabled()) {
+		if (logger.isTraceEnabled()) {
 			logger
-					.debug("attachement from sbb entity "+sbbEntityId+" to ac "+getActivityContextHandle()+" result: "+attached);
+					.trace("Attachement from sbb entity "+sbbEntityId+" to AC "+getActivityContextHandle()+" result: "+attached);
 		}
 		return attached;
 	}
@@ -338,9 +338,9 @@ public class ActivityContextImpl implements ActivityContext {
 			if (ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
 				scheduleCheckForUnreferencedActivity(sleeContainer.getTransactionManager().getTransactionContext());				
 			}
-			if (logger.isDebugEnabled()) {
+			if (logger.isTraceEnabled()) {
 				logger
-						.debug("detached sbb entity "+sbbEntityId+" from ac "+getActivityContextHandle());
+				.trace("Detached sbb entity "+sbbEntityId+" from AC with handle "+getActivityContextHandle());
 			}
 		}	
 	}
@@ -457,7 +457,7 @@ public class ActivityContextImpl implements ActivityContext {
 	 */
 	public void endActivity() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Ending ac "+this);
+			logger.debug("Ending activity context with handle "+getActivityContextHandle());
 		}
 		if (cacheData.setEnding(true)) {
 			fireEvent(sleeContainer.getEventContextFactory().createActivityEndEventContext(this, new ActivityEndEventUnreferencedCallback(getActivityContextHandle(),factory)),sleeContainer.getTransactionManager().getTransactionContext());	
@@ -477,19 +477,7 @@ public class ActivityContextImpl implements ActivityContext {
 		case RA:
 			// external activity, notify RA that the activity has ended
 			final int activityFlags = getActivityFlags();
-			TransactionalAction action = new TransactionalAction() {
-				public void execute() {
-					try {
-						((ResourceAdaptorActivityContextHandle)activityContextHandle).getResourceAdaptorEntity().activityEnded(activityContextHandle.getActivityHandle(),activityFlags);
-					}
-					catch (Throwable e) {
-						logger.error(e.getMessage(),e);
-					}					
-				}
-			};
-			txContext = sleeContainer.getTransactionManager().getTransactionContext();
-			txContext.getAfterCommitActions().add(action);
-						
+			((ResourceAdaptorActivityContextHandle)activityContextHandle).getResourceAdaptorEntity().activityEnded(activityContextHandle.getActivityHandle(),activityFlags);
 			break;
 		
 		case NULL:
@@ -518,14 +506,18 @@ public class ActivityContextImpl implements ActivityContext {
 	}
 	
 	private void fireEvent(EventContext event,TransactionContext txContext) {
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Firing "+event);
+		}
+		
 		final ActivityEventQueueManager aeqm = event.getLocalActivityContext().getEventQueueManager();
 		if (aeqm != null) {
 			if (txContext != null) {
-				final CommitEventContextAction commitAction = new CommitEventContextAction(event, aeqm);
 				// put event as pending in ac event queue manager
 				aeqm.pending(event);
 				// add tx actions to commit or rollback
-				txContext.getAfterCommitPriorityActions().add(commitAction);
+				txContext.getAfterCommitPriorityActions().add(new CommitEventContextAction(event, aeqm));
 				txContext.getAfterRollbackActions().add(
 						new RollbackEventContextAction(event,aeqm));
 			}
@@ -593,8 +585,8 @@ public class ActivityContextImpl implements ActivityContext {
 				txLocalData.put(activityUnreferenced1stCheckKey, MAP_VALUE);		
 			}
 			
-			if (logger.isDebugEnabled()) {
-				logger.debug("schedule checking for unreferenced activity on ac "+this.getActivityContextHandle());
+			if (logger.isTraceEnabled()) {
+				logger.trace("Schedule checking for unreferenced activity on ac "+this.getActivityContextHandle());
 			}
 			
 			TransactionalAction implicitEndCheck = new TransactionalAction() {
@@ -608,8 +600,8 @@ public class ActivityContextImpl implements ActivityContext {
 	}
 	
 	private void unreferencedActivity1stCheck(TransactionContext txContext) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("1st check for unreferenced activity on ac "+this.getActivityContextHandle());
+		if (logger.isTraceEnabled()) {
+			logger.trace("1st check for unreferenced activity on ac "+this.getActivityContextHandle());
 		}
 		
 		if (!isEnding()) {
@@ -636,7 +628,7 @@ public class ActivityContextImpl implements ActivityContext {
 		// final verification
 		if (cacheData.isCheckingReferences()) {
 			if (logger.isDebugEnabled()) {
-				logger.debug(toString() + " is unreferenced");
+				logger.debug("Activity Context with handle "+getActivityContextHandle() + " is now unreferenced");
 			}
 			switch (activityContextHandle.getActivityType()) {
 			case RA:

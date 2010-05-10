@@ -197,8 +197,8 @@ public class ConcreteActivityContextInterfaceGenerator {
 							+ "> to implement in sbb aci interface");
 				}
 
-				if (logger.isDebugEnabled()) {
-					logger.debug("Generated method "
+				if (logger.isTraceEnabled()) {
+		            logger.trace("Generated method "
 							+ interfaceMethod.getName() + " , body = "
 							+ concreteMethodBody);
 				}

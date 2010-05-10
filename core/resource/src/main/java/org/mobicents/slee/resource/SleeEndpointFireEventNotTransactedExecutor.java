@@ -33,7 +33,8 @@ public class SleeEndpointFireEventNotTransactedExecutor extends
 	/**
 	 * Executes a non transacted fire event operation.
 	 * 
-	 * @param handle
+	 * @param realHandle
+	 * @param refHandle
 	 * @param eventType
 	 * @param event
 	 * @param address
@@ -44,7 +45,7 @@ public class SleeEndpointFireEventNotTransactedExecutor extends
 	 * @throws SLEEException
 	 * @throws UnrecognizedActivityHandleException
 	 */
-	void execute(final ActivityHandle handle,
+	void execute(final ActivityHandle realHandle, final ActivityHandle refHandle,
 			final FireableEventType eventType, final Object event,
 			final Address address, final ReceivableService receivableService,
 			final int eventFlags) throws ActivityIsEndingException,
@@ -54,9 +55,9 @@ public class SleeEndpointFireEventNotTransactedExecutor extends
 		// suspend the tx and activity if there is a tx
 		// suspend also the activity to block the event
 		// till the tx ends (may have pending changes to the activity context)
-		final Transaction tx = super.suspendTransactionAndActivity(handle);
+		final Transaction tx = super.suspendTransactionAndActivity(refHandle);
 		try {
-			sleeEndpoint._fireEvent(handle, eventType, event, address,
+			sleeEndpoint._fireEvent(realHandle, refHandle, eventType, event, address,
 					receivableService, eventFlags);
 		} finally {
 			if (tx != null) {

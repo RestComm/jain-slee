@@ -67,11 +67,15 @@ public class EventRouterExecutorStatisticsImpl implements
 	 *            the time spent to route the event, in milliseconds
 	 */
 	public void eventRouted(EventTypeID eventTypeID, long routingTime) {
-		final EventTypeRoutingStatisticsImpl eventTypeRoutingStatistics = getEventTypeRoutingStatistics(eventTypeID);
-		if (eventTypeRoutingStatistics != null) {
-			eventTypeRoutingStatistics.eventRouted(routingTime);
-			taskExecuted(routingTime);
+		EventTypeRoutingStatisticsImpl eventTypeRoutingStatistics = eventTypeRoutingStatisticsMap.get(eventTypeID);
+		if (eventTypeRoutingStatistics == null) {
+			synchronized (eventTypeRoutingStatisticsMap) {
+				eventTypeRoutingStatistics = new EventTypeRoutingStatisticsImpl(eventTypeID);
+				eventTypeRoutingStatisticsMap.put(eventTypeID, eventTypeRoutingStatistics); 
+			}
 		}
+		eventTypeRoutingStatistics.eventRouted(routingTime);
+		taskExecuted(routingTime);
 	}
 
 	/*
@@ -91,6 +95,30 @@ public class EventRouterExecutorStatisticsImpl implements
 	 */
 	public int getActivitiesMapped() {
 		return activitiesMapped.get();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.eventrouter.stats.EventRouterExecutorStatistics#getAverageEventRoutingTime()
+	 */
+	public long getAverageEventRoutingTime() {
+		long time = 0L;
+		long events = 0L;
+		for(EventTypeRoutingStatistics eventTypeRoutingStatistics : eventTypeRoutingStatisticsMap.values()) {
+			time += eventTypeRoutingStatistics.getRoutingTime();
+			events += eventTypeRoutingStatistics.getEventsRouted();
+		}
+		return time == 0L ? 0L : time / events;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.eventrouter.stats.EventRouterExecutorStatistics#getAverageEventRoutingTime(javax.slee.EventTypeID)
+	 */
+	public long getAverageEventRoutingTime(EventTypeID eventTypeID) {
+		final EventTypeRoutingStatistics eventTypeRoutingStatistics = getEventTypeRoutingStatistics(eventTypeID);
+		return eventTypeRoutingStatistics == null ? 0L
+				: eventTypeRoutingStatistics.getAverageEventRoutingTime();
 	}
 	
 	/*
@@ -209,4 +237,23 @@ public class EventRouterExecutorStatisticsImpl implements
 		taskExecuted(executionTime);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Activities mapped: ").append(getActivitiesMapped()).append('\n');
+		for (EventTypeRoutingStatistics eventTypeRoutingStatistics : eventTypeRoutingStatisticsMap.values()) {
+			sb.append(eventTypeRoutingStatistics).append('\n');
+		}
+		sb.append("Average event routing time: ").append(getAverageEventRoutingTime()).append('\n');
+		sb.append("Executed Tasks: ").append(getExecutedTasks()).append('\n');
+		sb.append("Executing Time: ").append(getExecutingTime()).append('\n');
+		sb.append("Idle Time: ").append(getIdleTime()).append('\n');
+		sb.append("Misc Tasks Executed: ").append(getMiscTasksExecuted()).append('\n');
+		sb.append("Misc Tasks Executing Time: ").append(getMiscTasksExecutingTime()).append('\n');
+		return sb.toString();
+	}
 }

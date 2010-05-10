@@ -18,6 +18,7 @@ import org.jboss.mx.util.MBeanServerLocator;
 import org.jboss.util.naming.Util;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
+import org.mobicents.cache.MobicentsCache;
 import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentRepository;
@@ -152,6 +153,8 @@ public class SleeContainer {
 
 	private final EventContextFactory eventContextFactory;
 
+	private final MobicentsCache localCache; 
+	
 	/**
 	 * Creates a new instance of SleeContainer -- This is called from the
 	 * SleeManagementMBean to get the whole thing running.
@@ -172,7 +175,7 @@ public class SleeContainer {
 			NullActivityFactory nullActivityFactory,
 			RmiServerInterface rmiServerInterface,
 			SleeTransactionManager sleeTransactionManager,
-			MobicentsCluster cluster, AlarmManagement alarmMBeanImpl,
+			MobicentsCluster cluster, MobicentsCache localCache, AlarmManagement alarmMBeanImpl,
 			TraceManagement traceMBeanImpl,
 			UsageParametersManagement usageParametersManagement,
 			SbbEntityFactory sbbEntityFactory) throws Exception {
@@ -194,6 +197,7 @@ public class SleeContainer {
 		this.cluster = cluster;
 		cluster.getMobicentsCache().setReplicationClassLoader(
 				this.replicationClassLoader);
+		this.localCache = localCache;
 
 		this.uuidGenerator = new MobicentsUUIDGenerator(cluster
 				.getMobicentsCache().isLocalMode());
@@ -297,6 +301,14 @@ public class SleeContainer {
 		return cluster;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public MobicentsCache getLocalCache() {
+		return localCache;
+	}
+	
 	/**
 	 * @return the componentManagement
 	 */

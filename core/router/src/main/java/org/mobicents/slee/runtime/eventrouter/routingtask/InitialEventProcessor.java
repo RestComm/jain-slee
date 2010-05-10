@@ -209,8 +209,8 @@ public class InitialEventProcessor {
 
 		SbbEntity sbbEntity = null;
 		
-		if (logger.isDebugEnabled()) {
-			logger.debug("Initial event processing for " + serviceComponent+" and "+deferredEvent);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Initial event processing for " + serviceComponent+" and "+deferredEvent);
 		}
 
 		/*

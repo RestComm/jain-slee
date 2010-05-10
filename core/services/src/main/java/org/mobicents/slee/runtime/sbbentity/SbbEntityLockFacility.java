@@ -17,6 +17,7 @@ import org.mobicents.slee.container.SleeContainer;
 public class SbbEntityLockFacility {
 
 	private static final Logger logger = Logger.getLogger(SbbEntityLockFacility.class);
+	private boolean doTraceLogs = logger.isTraceEnabled();
 	
 	/**
 	 * 
@@ -48,8 +49,8 @@ public class SbbEntityLockFacility {
 			final ReentrantLock newLock = new ReentrantLock();
 			lock = locks.putIfAbsent(sbbEntityId, newLock);
 			if (lock == null) {
-				if(logger.isDebugEnabled()) {
-					logger.debug(Thread.currentThread()+" put of lock "+newLock+" for "+sbbEntityId);
+				if(doTraceLogs) {
+					logger.trace(Thread.currentThread()+" put of lock "+newLock+" for "+sbbEntityId);
 				}
 				lock = newLock;
 			}
@@ -63,8 +64,8 @@ public class SbbEntityLockFacility {
 	 * @return
 	 */
 	public ReentrantLock remove(String sbbEntityId) {
-		if(logger.isDebugEnabled()) {
-			logger.debug(Thread.currentThread()+" removed lock for "+sbbEntityId);
+		if(doTraceLogs) {
+			logger.trace(Thread.currentThread()+" removed lock for "+sbbEntityId);
 		}
 		return locks.remove(sbbEntityId);
 	}

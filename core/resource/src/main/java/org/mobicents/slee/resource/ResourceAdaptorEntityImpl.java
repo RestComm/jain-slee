@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
 
-import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
@@ -19,7 +18,6 @@ import javax.slee.management.SleeState;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
-import javax.slee.resource.FailureReason;
 import javax.slee.resource.FireableEventType;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.Marshaler;
@@ -34,10 +32,10 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.management.ResourceManagementImpl;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
 import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandle;
 import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.container.resource.ResourceAdaptorObject;
 import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContextImpl;
@@ -71,13 +69,18 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	/**
 	 * the ra object
 	 */
-	private final ResourceAdaptorObject object;
+	private final ResourceAdaptorObjectImpl object;
 
 	/**
 	 * the slee container
 	 */
-	private SleeContainer sleeContainer;
-
+	private final SleeContainer sleeContainer;
+	
+	/**
+	 * 
+	 */
+	private final ResourceManagementImpl resourceManagement;
+	
 	/**
 	 * Notification source of this RA Entity
 	 */
@@ -102,7 +105,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * the ra allowed event types, cached here for optimal runtime performance
 	 */
 	private final Set<EventTypeID> allowedEventTypes;
-
+		
 	/**
 	 * Creates a new entity with the specified name, for the specified ra
 	 * component and with the provided entity config properties. The entity
@@ -112,19 +115,20 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * @param name
 	 * @param component
 	 * @param entityProperties
-	 * @param sleeContainer
+	 * @param resourceManagement
 	 * @throws InvalidConfigurationException
 	 * @throws InvalidArgumentException
 	 */
 	@SuppressWarnings("unchecked")
 	public ResourceAdaptorEntityImpl(String name,
 			ResourceAdaptorComponent component,
-			ConfigProperties entityProperties, SleeContainer sleeContainer,
+			ConfigProperties entityProperties, ResourceManagementImpl resourceManagement,
 			ResourceAdaptorEntityNotification notificationSource)
 			throws InvalidConfigurationException, InvalidArgumentException {
 		this.name = name;
 		this.component = component;
-		this.sleeContainer = sleeContainer;
+		this.resourceManagement = resourceManagement;
+		this.sleeContainer = resourceManagement.getSleeContainer();
 		this.notificationSource = notificationSource;
 		this.alarmFacility = sleeContainer.getAlarmManagement().newAlarmFacility(notificationSource);
 		// create ra object
@@ -134,11 +138,11 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 			Thread.currentThread().setContextClassLoader(
 					component.getClassLoader());
 			ResourceAdaptor ra = (ResourceAdaptor) this.component.getResourceAdaptorClass().newInstance();
-			object = new ResourceAdaptorObjectImpl(ra, component
+			object = new ResourceAdaptorObjectImpl(this,ra, component
 					.getDefaultConfigPropertiesInstance());
 		} catch (Exception e) {
 			throw new SLEEException(
-					"unable to create instance of ra object for " + component);
+					"unable to create instance of ra object for " + component,e);
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentClassLoader);
 		}
@@ -450,7 +454,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * 
 	 * @return
 	 */
-	public ResourceAdaptorObject getResourceAdaptorObject() {
+	public ResourceAdaptorObjectImpl getResourceAdaptorObject() {
 		return object;
 	}
 
@@ -567,23 +571,6 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		return allowedEventTypes;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.ResourceAdaptorEntity#eventProcessingSucceed(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int)
-	 */
-	public void eventProcessingSucceed(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
-		object.eventProcessingSuccessful(handle, eventType, event, address, service, flags);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.resource.ResourceAdaptorEntity#eventProcessingFailed(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int, javax.slee.resource.FailureReason)
-	 */
-	public void eventProcessingFailed(ActivityHandle handle,
-			FireableEventType eventType, Object event, Address address,
-			ReceivableService service, int flags, FailureReason reason) {
-		object.eventProcessingFailed(handle, eventType, event, address, service, flags, reason);		
-	}
-
 	public FireableEventType getFireableEventType(EventTypeID eventTypeID) {
 		FireableEventType eventType = null;
 		try {
@@ -608,13 +595,21 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		return receivableService;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.resource.ResourceAdaptorEntity#eventUnreferenced(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int)
+	/**
+	 * if it is a handle reference it gets the refered handle
+	 * @param handle
+	 * @return
 	 */
-	public void eventUnreferenced(ActivityHandle handle,
-			FireableEventType eventType, Object event, Address address,
-			ReceivableService service, int flags) {
-		object.eventUnreferenced(handle, eventType, event, address, service, flags);		
+	ActivityHandle derreferActivityHandle(ActivityHandle handle) {
+		ActivityHandle ah = null;
+		if (resourceManagement.getHandleReferenceFactory() != null && handle.getClass() == ActivityHandleReference.class) {
+			ActivityHandleReference ahReference = (ActivityHandleReference) handle;
+			ah = resourceManagement.getHandleReferenceFactory().getActivityHandle(ahReference);
+		}
+		else {
+			ah = handle;
+		}
+		return ah;
 	}
 
 	/**
@@ -623,25 +618,33 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * @param activityFlags
 	 */
 	public void activityEnded(final ActivityHandle handle, int activityFlags) {
+		ActivityHandle ah = null;
+		if (ActivityFlags.hasSleeMayMarshal(activityFlags)) {
+			// handle is not a reference
+			ah = handle;
+		}
+		else {
+			if (resourceManagement.getHandleReferenceFactory() == null) {
+				// local mode, handle is not a reference
+				ah = handle;
+			}
+			else {
+				// handle is a ref, derrefer and remove the ref
+				ah = resourceManagement.getHandleReferenceFactory().removeActivityHandleReference((ActivityHandleReference) handle);
+			}
+		}
 		if (ActivityFlags.hasRequestEndedCallback(activityFlags)) {
-			object.activityEnded(handle);
+			object.activityEnded(ah);
 		}
 		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
 			// the ra object is stopping, check if the timer task is still
 			// needed
-			// this needs to be done in a different thread cause this callback
-			// in on tx action after commit
-			Runnable runnable = new Runnable() {
-				public void run() {
-					if (!hasActivites(handle)) {
-						if (timerTask != null) {
-							timerTask.cancel();
-						}
-						allActivitiesEnded();
-					}
+			if (!hasActivites(handle)) {
+				if (timerTask != null) {
+					timerTask.cancel();
 				}
-			};
-			new Thread(runnable).start();
+				allActivitiesEnded();				
+			}
 		}
 	}
 	
@@ -651,5 +654,13 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	public ActivityContextHandle getActivityContextHandle(
 			ActivityHandle activityHandle) {
 		return new ResourceAdaptorActivityContextHandleImpl(this, activityHandle);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public ActivityHandleReferenceFactory getHandleReferenceFactory() {
+		return resourceManagement.getHandleReferenceFactory();
 	}
 }

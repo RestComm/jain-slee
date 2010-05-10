@@ -29,8 +29,8 @@ public class ProfileObjectPool {
 		} catch (Throwable e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("borrowed object "+obj + " from " + this);
+		if (logger.isTraceEnabled()) {
+			logger.trace("borrowed object "+obj + " from " + this);
 		}
 		return obj; 
 	}
@@ -42,8 +42,8 @@ public class ProfileObjectPool {
 			} catch (Exception e) {
 				throw new SLEEException(e.getMessage(),e);
 			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("returned object "+profileObject + " to " + this);
+			if (logger.isTraceEnabled()) {
+				logger.trace("returned object "+profileObject + " to " + this);
 			}
 		}
 		else {
@@ -57,8 +57,8 @@ public class ProfileObjectPool {
 	}
 
 	public void close() throws Exception {
-		if (logger.isDebugEnabled()) {
-			logger.debug("close() " + this);
+		if (logger.isTraceEnabled()) {
+			logger.trace("close() " + this);
 		}
 		pool.close();		
 	}
@@ -69,8 +69,8 @@ public class ProfileObjectPool {
 		} catch (Exception e) {
 			throw new SLEEException(e.getMessage(),e);
 		}			
-		if (logger.isDebugEnabled()) {
-			logger.debug("invalidated object "+obj + " to " + this);
+		if (logger.isTraceEnabled()) {
+			logger.trace("invalidated object "+obj + " to " + this);
 		}
 	}
 }

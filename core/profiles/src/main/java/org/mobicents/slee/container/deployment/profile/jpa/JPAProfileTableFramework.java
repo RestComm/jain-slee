@@ -131,8 +131,8 @@ public class JPAProfileTableFramework {
       return;
     }
 
-    if(logger.isDebugEnabled()) {
-      logger.debug( "Storing into backend storage profile table " + profileTable );
+    if(logger.isTraceEnabled()) {
+      logger.trace( "Storing into backend storage profile table " + profileTable );
     }
 
     EntityManager em = null;
@@ -151,8 +151,8 @@ public class JPAProfileTableFramework {
   }
 
   public void removeProfileTable(String profileTableName) {
-    if(logger.isDebugEnabled()) {
-      logger.debug( "Removing from backend storage profile table" + profileTableName );
+    if(logger.isTraceEnabled()) {
+      logger.trace( "Removing from backend storage profile table" + profileTableName );
     }
 
     EntityManager em = null;
@@ -174,8 +174,8 @@ public class JPAProfileTableFramework {
   }
 
   public void renameProfileTable(String oldProfileTableName, String newProfileTableName) {
-    if(logger.isDebugEnabled()) {
-      logger.debug("Renaming " + oldProfileTableName + " to " + newProfileTableName + " in backend storage.");
+    if(logger.isTraceEnabled()) {
+      logger.trace("Renaming " + oldProfileTableName + " to " + newProfileTableName + " in backend storage.");
     }
 
     EntityManager em = null;
@@ -227,13 +227,13 @@ public class JPAProfileTableFramework {
   
   public void loadProfileTables(ProfileSpecificationComponent component) throws SLEEException, ProfileTableAlreadyExistsException {
    
-	if(logger.isDebugEnabled()) {
-      logger.debug("Loading from backend storage profile tables for " + component.getProfileSpecificationID());
+	if(logger.isTraceEnabled()) {
+      logger.trace("Loading from backend storage profile tables for " + component.getProfileSpecificationID());
     }
 
 	for(String profileTableName : _getProfileTableNames(component.getProfileSpecificationID())) {
 		if(logger.isDebugEnabled()) {
-			logger.debug("Table [" + profileTableName + "] found in storage.");
+			logger.debug("Profile Table named " + profileTableName + " found in JPA data source.");
 		}
 		synchronized (isLoading) {
 			isLoading = true;

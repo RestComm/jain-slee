@@ -44,7 +44,7 @@ public class EventRouterConfiguration implements
 	 * @see org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean#setCollectStats(boolean)
 	 */
 	public void setCollectStats(boolean collectStats) {
-		if (this.collectStats == null) {
+		if (this.collectStats != null) {
 			logger.warn("Setting collectStats property to "
 				+ collectStats
 				+ ". If called with server running a stop and start is need to apply changes.");
@@ -56,7 +56,7 @@ public class EventRouterConfiguration implements
 	 * @see org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean#setEventRouterThreads(int)
 	 */
 	public void setEventRouterThreads(int value) {
-		if (this.eventRouterThreads == null) {
+		if (this.eventRouterThreads != null) {
 			logger.warn("Setting eventRouterThreads property to "
 				+ value
 				+ ". If called with server running a stop and start is need to apply changes.");
@@ -70,7 +70,7 @@ public class EventRouterConfiguration implements
 	public void setExecutorMapperClassName(String className)
 			throws ClassNotFoundException {
 		Class.forName(className);
-		if (this.executorMapperClassName == null) {
+		if (this.executorMapperClassName != null) {
 			logger
 			.warn("Setting executorMapperClassName property to "
 					+ className

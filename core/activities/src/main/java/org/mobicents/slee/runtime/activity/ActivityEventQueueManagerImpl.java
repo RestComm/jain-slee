@@ -56,6 +56,8 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 	 */
 	private final LocalActivityContext localAC;
 
+	private boolean doTraceLogs = logger.isTraceEnabled();
+	
 	public ActivityEventQueueManagerImpl(
 			LocalActivityContext localAC) {
 		this.localAC = localAC;
@@ -77,9 +79,9 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 	 */
 	public void pending(EventContext event) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("pending event of type " + event.getEventTypeId()
-					+ " for "
+		if (doTraceLogs) {
+			logger.trace("Pending event of type " + event.getEventTypeId()
+					+ " in AC with handle "
 					+ event.getActivityContextHandle());
 		}
 
@@ -142,9 +144,9 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 
 	private void commitAndNotSuspended(EventContext event) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("committing event of type " + event.getEventTypeId()
-					+ " for "
+		if (doTraceLogs) {
+			logger.trace("Commiting event of type " + event.getEventTypeId()
+					+ " in AC with handle "
 					+ event.getActivityContextHandle());
 		}
 
@@ -193,9 +195,9 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 	 */
 	public void rollback(EventContext event) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("rolling back event of type " + event.getEventTypeId()
-					+ " for "
+		if (doTraceLogs) {
+			logger.trace("Rolled back event of type " + event.getEventTypeId()
+					+ " in AC with handle "
 					+ event.getActivityContextHandle());
 		}
 

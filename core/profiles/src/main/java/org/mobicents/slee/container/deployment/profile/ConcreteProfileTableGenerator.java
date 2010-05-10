@@ -130,11 +130,7 @@ public class ConcreteProfileTableGenerator {
     //write and store
     try {
       // @@2.4 +  -> 3.4 + 
-      profileTableConcreteClass.writeFile(component.getDeploymentDir().getAbsolutePath());
-
-      if (logger.isDebugEnabled()) {
-        logger.debug("Concrete Class " + profileTableConcreteClass.getName() + " generated in the following path " + component.getDeploymentDir().getAbsolutePath());
-      }
+      profileTableConcreteClass.writeFile(component.getDeploymentDir().getAbsolutePath());      
     }
     catch (Exception e) {
       throw new SLEEException("Unexpected exception generating ProfileTableConcrete Class.", e);
@@ -170,9 +166,9 @@ public class ConcreteProfileTableGenerator {
 
   private void instrumentQuery(CtClass profileTableConcreteClass, CtMethod iMethod, String interceptorQuery) throws Exception
   {
-    if(logger.isDebugEnabled())
+    if(logger.isTraceEnabled())
     {
-      logger.debug("About to instrument query method: " + iMethod.getName() + ", into: " + profileTableConcreteClass);
+      logger.trace("About to instrument query method: " + iMethod.getName() + ", into: " + profileTableConcreteClass);
     }
 
     CtMethod method = CtNewMethod.copy(iMethod, profileTableConcreteClass, null);
@@ -191,9 +187,9 @@ public class ConcreteProfileTableGenerator {
 
     String body = "{ return " + _INTERCEPTOR_QUERY + "(this,\"" + queryName + "\",$args); }";
 
-    if(logger.isDebugEnabled())
+    if(logger.isTraceEnabled())
     {
-      logger.debug("Instrument query method: " + method.getName() + ", into: " + profileTableConcreteClass + ", with body:\n" + body);
+      logger.trace("Instrument query method: " + method.getName() + ", into: " + profileTableConcreteClass + ", with body:\n" + body);
     }
 
     method.setBody(body);

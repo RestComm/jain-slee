@@ -14,6 +14,7 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.resource.ResourceAdaptorObject;
 import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
@@ -42,15 +43,24 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 */
 	private ConfigProperties configProperties;
 
+	private final ResourceAdaptorEntityImpl raEntity;
+	
+	private MarshallerWrapper marshaler;
+	
+	private final static Logger logger = Logger.getLogger(ResourceAdaptorObjectImpl.class);
+	private static boolean doTraceLogs = logger.isTraceEnabled();
+	
 	/**
 	 * Creates a new instance, for the specified ra object and with the
-	 * specified configuration properties
+	 * specified configuration properties.
 	 * 
+	 * @param raAdaptorEntity
 	 * @param object
 	 * @param configProperties
 	 */
-	public ResourceAdaptorObjectImpl(ResourceAdaptor object,
+	public ResourceAdaptorObjectImpl(ResourceAdaptorEntityImpl raEntity, ResourceAdaptor object,
 			ConfigProperties configProperties) {
+		this.raEntity = raEntity;
 		this.object = object;
 		this.configProperties = configProperties;
 	}
@@ -75,17 +85,17 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 
 	// OPERATIONS ON RA OBJECT
 
-	/**
-	 * Sets the ra context. If the operation succeeds the ra will transition to
-	 * UNCONFIGURED state.
-	 * 
-	 * @param context
-	 *            the context to provide to the ra object
-	 * @throws InvalidStateException
-	 *             if the ra object is not in null state
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#setResourceAdaptorContext(javax.slee.resource.ResourceAdaptorContext)
 	 */
 	public void setResourceAdaptorContext(ResourceAdaptorContext context)
 			throws InvalidStateException {
+		
+		if (doTraceLogs) {
+			logger.trace("setResourceAdaptorContext( context = "+context+" )");
+		}
+		
 		if (state == null) {
 			state = ResourceAdaptorObjectState.UNCONFIGURED;
 			object.setResourceAdaptorContext(context);
@@ -93,38 +103,39 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
 	}
-	/**
-	 * Sets the ft ra context. 
-	 * 
-	 * @param context
-	 *            the context to provide to the ra object
-	 * @throws IllegalArgumentException
-	 *             if the ra object is not fault tolerant
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#setFaultTolerantResourceAdaptorContext(org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext)
 	 */
 	@SuppressWarnings("unchecked")
 	public void setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext<Serializable, Serializable> context)
 			throws IllegalArgumentException {
-		//FIXME: we dont check for state?
-			if(isFaultTolerant())
-			{
-				((FaultTolerantResourceAdaptor<Serializable, Serializable>)this.object).setFaultTolerantResourceAdaptorContext(context);
-			}else
-			{
-				throw new IllegalArgumentException("RA Object is not fault tolerant!");
-			}
+		
+		if (doTraceLogs) {
+			logger.trace("setFaultTolerantResourceAdaptorContext( context = "+context+" )");
+		}
+		
+		if(isFaultTolerant()) {
+			((FaultTolerantResourceAdaptor<Serializable, Serializable>)this.object).setFaultTolerantResourceAdaptorContext(context);
+		}
+		else {
+			throw new IllegalArgumentException("RA Object is not fault tolerant!");
+		}
 		
 	}
-	/**
-	 * Configures the ra.
-	 * 
-	 * @param properties
-	 * @throws InvalidConfigurationException
-	 *             if the configuration, after merging the specified properties
-	 *             with the current properties values, results in an invalid
-	 *             configuration
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#raConfigure(javax.slee.resource.ConfigProperties)
 	 */
 	public void raConfigure(ConfigProperties properties)
 			throws InvalidConfigurationException {
+		
+		if (doTraceLogs) {
+			logger.trace("raConfigure( properties = "+properties+" )");
+		}
+		
 		verifyConfigProperties(properties);
 		object.raConfigure(configProperties);
 		if (state == ResourceAdaptorObjectState.UNCONFIGURED) {
@@ -143,6 +154,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 */
 	public void raConfigurationUpdate(ConfigProperties properties)
 			throws InvalidConfigurationException {
+		
+		if (doTraceLogs) {
+			logger.trace("raConfigurationUpdate( properties = "+properties+" )");
+		}
+		
 		verifyConfigProperties(properties);
 		object.raConfigurationUpdate(configProperties);
 	}
@@ -159,6 +175,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 */
 	private void verifyConfigProperties(ConfigProperties newProperties)
 			throws InvalidConfigurationException {
+		
+		if (doTraceLogs) {
+			logger.trace("verifyConfigProperties( newProperties = "+newProperties+" )");
+		}
+		
 		// merge properties
 		for (ConfigProperties.Property configProperty : configProperties
 				.getProperties()) {
@@ -182,14 +203,19 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 		configProperties = newProperties;
 	}
 
-	/**
-	 * Requests the activation of the ra object. If the operation succeeds the
-	 * ra will transition to ACTIVE state.
-	 * 
-	 * @throws InvalidStateException
-	 *             if the ra object is not in INACTIVE state
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#raActive()
 	 */
 	public void raActive() throws InvalidStateException {
+		
+		if (doTraceLogs) {
+			logger.trace("raActive()");
+		}
+		
+		Marshaler realMarshaler = object.getMarshaler();
+		this.marshaler = realMarshaler == null ? null : new MarshallerWrapper(realMarshaler, raEntity);
+		
 		if (state == ResourceAdaptorObjectState.INACTIVE) {
 			state = ResourceAdaptorObjectState.ACTIVE;
 			object.raActive();			
@@ -206,6 +232,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in ACTIVE state
 	 */
 	public void raStopping() throws InvalidStateException {
+		
+		if (doTraceLogs) {
+			logger.trace("raStopping()");
+		}
+		
 		if (state == ResourceAdaptorObjectState.ACTIVE) {
 			state = ResourceAdaptorObjectState.STOPPING;
 			object.raStopping();			
@@ -222,6 +253,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in STOPPING state
 	 */
 	public void raInactive() throws InvalidStateException {
+		
+		if (doTraceLogs) {
+			logger.trace("raInactive()");
+		}
+		
 		if (state == ResourceAdaptorObjectState.STOPPING) {
 			state = ResourceAdaptorObjectState.INACTIVE;
 			object.raInactive();			
@@ -237,6 +273,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in INACTIVE state
 	 */
 	public void raUnconfigure() throws InvalidStateException {
+		
+		if (doTraceLogs) {
+			logger.trace("raUnconfigure()");
+		}
+		
 		if (state == ResourceAdaptorObjectState.INACTIVE) {
 			state = ResourceAdaptorObjectState.UNCONFIGURED;
 			object.raUnconfigure();			
@@ -252,6 +293,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in UNCONFIGURED state
 	 */
 	public void unsetResourceAdaptorContext() throws InvalidStateException {
+		
+		if (doTraceLogs) {
+			logger.trace("unsetResourceAdaptorContext()");
+		}
+		
 		if (state == ResourceAdaptorObjectState.UNCONFIGURED) {
 			object.unsetResourceAdaptorContext();
 			state = null;
@@ -267,11 +313,15 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 */
 	@SuppressWarnings("unchecked")
 	public void unsetFaultTolerantResourceAdaptorContext() throws IllegalArgumentException {
-		if(isFaultTolerant())
-		{
+		
+		if (doTraceLogs) {
+			logger.trace("unsetFaultTolerantResourceAdaptorContext()");
+		}
+		
+		if(isFaultTolerant()) {
 			((FaultTolerantResourceAdaptor<Serializable, Serializable>)this.object).unsetFaultTolerantResourceAdaptorContext();
-		}else
-		{
+		}
+		else {
 			throw new IllegalArgumentException("RA Object is not fault tolerant!");
 		}
 	}
@@ -279,6 +329,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @see ResourceAdaptor#getResourceAdaptorInterface(ResourceAdaptorTypeID)
 	 */
 	public Object getResourceAdaptorInterface(String className) {
+		
+		if (doTraceLogs) {
+			logger.trace("getResourceAdaptorInterface( className = "+className+" )");
+		}
+		
 		return object.getResourceAdaptorInterface(className);
 	}
 
@@ -286,7 +341,12 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @see ResourceAdaptor#getMarshaller()
 	 */
 	public Marshaler getMarshaler() {
-		return object.getMarshaler();
+		
+		if (doTraceLogs) {
+			logger.trace("getMarshaler()");
+		}
+		
+		return marshaler;
 	}
 
 	/**
@@ -294,6 +354,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param serviceInfo
 	 */
 	public void serviceActive(ReceivableService serviceInfo) {
+		
+		if (doTraceLogs) {
+			logger.trace("serviceActive( serviceInfo = "+serviceInfo+" )");
+		}
+		
 		object.serviceActive(serviceInfo);
 	}
 
@@ -302,6 +367,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param serviceInfo
 	 */
 	public void serviceStopping(ReceivableService serviceInfo) {
+		
+		if (doTraceLogs) {
+			logger.trace("serviceStopping( serviceInfo = "+serviceInfo+" )");
+		}
+		
 		object.serviceStopping(serviceInfo);
 	}
 
@@ -310,6 +380,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param serviceInfo
 	 */
 	public void serviceInactive(ReceivableService serviceInfo) {
+		
+		if (doTraceLogs) {
+			logger.trace("serviceInactive( serviceInfo = "+serviceInfo+" )");
+		}
+		
 		object.serviceInactive(serviceInfo);
 	}
 
@@ -319,7 +394,19 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @return null if the activity does not belongs to this ra object
 	 */
 	public ActivityHandle getActivityHandle(Object activity) {
-		return object.getActivityHandle(activity);
+		
+		if (doTraceLogs) {
+			logger.trace("getActivityHandle( activity = "+activity+" )");
+		}
+		
+		ActivityHandle activityHandle = object.getActivityHandle(activity);
+		if (raEntity.getHandleReferenceFactory() != null && activityHandle != null) {
+			ActivityHandle reference = raEntity.getHandleReferenceFactory().getReferenceTransacted(activityHandle);
+			if (reference != null) {
+				activityHandle = reference;
+			}
+		}
+		return activityHandle;
 	}
 	
 	/**
@@ -327,7 +414,12 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param handle
 	 */
 	public Object getActivity(ActivityHandle handle) {
-		return object.getActivity(handle);
+		
+		if (doTraceLogs) {
+			logger.trace("getActivity( handle = "+handle+" )");
+		}
+		
+		return object.getActivity(raEntity.derreferActivityHandle(handle));
 	}
 	
 	/**
@@ -335,6 +427,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param handle
 	 */
 	public void activityEnded(ActivityHandle handle) {
+		
+		if (doTraceLogs) {
+			logger.trace("activityEnded( handle = "+handle+" )");
+		}
+		
 		object.activityEnded(handle);
 	}
 
@@ -343,7 +440,12 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param handle
 	 */
     public void administrativeRemove(ActivityHandle handle) {
-    	object.administrativeRemove(handle);
+    	
+    	if (doTraceLogs) {
+			logger.trace("administrativeRemove( handle = "+handle+" )");
+		}
+    	
+    	object.administrativeRemove(raEntity.derreferActivityHandle(handle));
     }
     
     /**
@@ -351,15 +453,25 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
      * @param handle
      */
 	public void activityUnreferenced(ActivityHandle handle) {
-		object.activityUnreferenced(handle);
+		
+		if (doTraceLogs) {
+			logger.trace("activityUnreferenced( handle = "+handle+" )");
+		}
+		
+		object.activityUnreferenced(raEntity.derreferActivityHandle(handle));
 	}
 	
 	/**
 	 * @see ResourceAdaptor#queryLiveness(ActivityHandle)
-	 * @param activityHandle
+	 * @param handle
 	 */
-	public void queryLiveness(ActivityHandle activityHandle) {
-		object.queryLiveness(activityHandle);		
+	public void queryLiveness(ActivityHandle handle) {
+		
+		if (doTraceLogs) {
+			logger.trace("queryLiveness( handle = "+handle+" )");
+		}
+		
+		object.queryLiveness(raEntity.derreferActivityHandle(handle));		
 	}
 	
 	/**
@@ -373,7 +485,12 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param reason
 	 */
     public void eventProcessingFailed(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags, FailureReason reason) {
-		object.eventProcessingFailed(handle, eventType, event, address, service, flags, reason);
+		
+    	if (doTraceLogs) {
+			logger.trace("eventProcessingFailed( handle = "+handle+" , eventType = "+eventType+" , event = "+event+" , address = "+address+" , service = "+service+" , flags = "+flags+" , reason = "+reason+" )");
+		}
+    	
+    	object.eventProcessingFailed(handle, eventType, event, address, service, flags, reason);
 	}
     
     /**
@@ -386,6 +503,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
      * @param flags
      */
     public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
+    	
+    	if (doTraceLogs) {
+			logger.trace("eventProcessingSuccessful( handle = "+handle+" , eventType = "+eventType+" , event = "+event+" , address = "+address+" , service = "+service+" , flags = "+flags+" )");
+		}
+    	
     	if (this.state == ResourceAdaptorObjectState.ACTIVE || this.state == ResourceAdaptorObjectState.STOPPING) {
     		object.eventProcessingSuccessful(handle, eventType, event, address, service, flags);
     	}
@@ -401,6 +523,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
      * @param flags
      */
     public void eventUnreferenced(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
+    	
+    	if (doTraceLogs) {
+			logger.trace("eventUnreferenced( handle = "+handle+" , eventType = "+eventType+" , event = "+event+" , address = "+address+" , service = "+service+" , flags = "+flags+" )");
+		}
+    	
     	if (this.state == ResourceAdaptorObjectState.ACTIVE || this.state == ResourceAdaptorObjectState.STOPPING) {
     		object.eventUnreferenced(handle, eventType, event, address, service, flags);
     	}

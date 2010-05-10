@@ -5,7 +5,6 @@ package org.mobicents.slee.container.resource;
 
 import java.util.Set;
 
-import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.InvalidStateException;
 import javax.slee.ServiceID;
@@ -16,7 +15,6 @@ import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.ResourceUsageMBean;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
-import javax.slee.resource.FailureReason;
 import javax.slee.resource.FireableEventType;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.Marshaler;
@@ -64,52 +62,6 @@ public interface ResourceAdaptorEntity {
 	 */
 	public void deactivate() throws InvalidStateException,
 			TransactionRequiredLocalException;
-
-	/**
-	 * Callback to notify the ra object that the processing for specified event
-	 * failed.
-	 * 
-	 * @see ResourceAdaptor#eventProcessingFailed(ActivityHandle,
-	 *      FireableEventType, Object, Address, ReceivableService, int,
-	 *      FailureReason)
-	 * 
-	 * @param deferredEvent
-	 * @param failureReason
-	 */
-	public void eventProcessingFailed(ActivityHandle handle,
-			FireableEventType eventType, Object event, Address address,
-			ReceivableService service, int flags, FailureReason reason);
-
-	/**
-	 * Callback to notify the ra object that the processing for specified event
-	 * succeed
-	 * 
-	 * @see ResourceAdaptor#eventProcessingSuccessful(ActivityHandle,
-	 *      FireableEventType, Object, Address, ReceivableService, int)
-	 * 
-	 * @param deferredEvent
-	 */
-	public void eventProcessingSucceed(ActivityHandle handle,
-			FireableEventType eventType, Object event, Address address,
-			ReceivableService service, int flags);
-
-	/**
-	 * Callback to notify the ra object that the specified event is now
-	 * unreferenced.
-	 * 
-	 * @see ResourceAdaptor#eventUnreferenced(ActivityHandle, FireableEventType,
-	 *      Object, Address, ReceivableService, int)
-	 * 
-	 * @param handle
-	 * @param eventType
-	 * @param event
-	 * @param address
-	 * @param service
-	 * @param flags
-	 */
-	public void eventUnreferenced(ActivityHandle handle,
-			FireableEventType eventType, Object event, Address address,
-			ReceivableService service, int flags);
 
 	/**
 	 * @param activityHandle

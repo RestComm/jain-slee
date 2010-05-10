@@ -72,8 +72,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 
     URL url = du.getUrl();
 
-    if(logger.isDebugEnabled()) {
-      logger.debug("Method accepts called for " + url);
+    if(logger.isTraceEnabled()) {
+		logger.trace("Method accepts called for " + url);
     }
 
     try {
@@ -82,8 +82,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 
       // Is it in the toAccept list ? Direct accept.
       if(toAccept.containsKey(fileName)) {
-        if(logger.isDebugEnabled()) {
-          logger.debug("Accepting " + url.toString() + ".");
+        if(logger.isTraceEnabled()) {
+			logger.trace("Accepting " + url.toString() + ".");
         }
 
         return true;
@@ -95,8 +95,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
         try {
           // Try to obtain the DU descriptor, if we got it, we're accepting it!
           if(du.getEntry("META-INF/deployable-unit.xml") != null) {
-            if(logger.isDebugEnabled()) {
-              logger.debug("Accepting " + url.toString() + ".");
+            if(logger.isTraceEnabled()) {
+    			logger.trace("Accepting " + url.toString() + ".");
             }
 
             return true;
@@ -134,8 +134,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL);
 
 
-    if(logger.isDebugEnabled()) {
-      logger.debug("Method init called for " + deployableUnitURL);
+    if(logger.isTraceEnabled()) {
+		logger.trace("Method init called for " + deployableUnitURL);
     }
 
     if(!isNotificationEnabled) {
@@ -259,8 +259,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
   public void start(URL deployableUnitURL) throws DeploymentException {
     DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL);
 
-    if(logger.isDebugEnabled()) {
-      logger.debug("Method start called for " + du.getUrl());
+    if(logger.isTraceEnabled()) {
+		logger.trace("Method start called for " + du.getUrl());
     }
 
     try {
@@ -289,7 +289,7 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 
     if ((realDU = deployableUnits.get(du.getFileName())) != null) {
       if(logger.isTraceEnabled()) {
-        logger.trace("Got DU: " + realDU.getDeploymentInfoShortName());
+			logger.trace("Got DU: " + realDU.getDeploymentInfoShortName());
       }
 
       if(isServerShuttingDown) {
@@ -303,8 +303,9 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
   }
 
   private boolean doStop(String filename) {
-    if(logger.isDebugEnabled())
-      logger.debug("Method stop called for " + filename);
+    if(logger.isTraceEnabled()) {
+		logger.trace("Method stop called for " + filename);
+    }
 
     DeployableUnit du = null;
 

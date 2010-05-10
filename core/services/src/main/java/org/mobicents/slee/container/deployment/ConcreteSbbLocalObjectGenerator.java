@@ -74,9 +74,8 @@ public class ConcreteSbbLocalObjectGenerator {
      */
     public Class generateSbbLocalObjectConcreteClass() {
         //Generates the implements link
-        if (logger.isDebugEnabled()) {
-            logger
-                    .debug("generateSbbLocalObjectConcreteClass: sbbLocalObjectInterface = "
+        if (logger.isTraceEnabled()) {
+            logger.trace("generateSbbLocalObjectConcreteClass: sbbLocalObjectInterface = "
                             + sbbLocalObjectName
                             + " deployPath = "
                             + deployPath);
@@ -317,8 +316,8 @@ public class ConcreteSbbLocalObjectGenerator {
             methodToAdd += "}";
 
             //Add the implementation code
-            if (logger.isDebugEnabled()) {
-                logger.debug("Method " + methodToAdd + " added");
+            if (logger.isTraceEnabled()) {
+                logger.trace("Method " + methodToAdd + " added");
             }
             CtMethod methodTest;
             try {

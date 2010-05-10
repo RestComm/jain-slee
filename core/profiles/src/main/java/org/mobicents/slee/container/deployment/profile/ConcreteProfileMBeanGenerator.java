@@ -172,9 +172,6 @@ public class ConcreteProfileMBeanGenerator {
 		// write class file
 		try {
 			profileMBeanConcreteInterface.writeFile(this.component.getDeploymentDir().getAbsolutePath());
-			if (logger.isDebugEnabled()) {
-				logger.debug("Concrete Interface " + cmpProfileInterfaceName + "MBean" + " generated in the following path " + this.component.getDeploymentDir().getAbsolutePath());
-			}
 		}
 		catch (Throwable e) {
 			throw new SLEEException(e.getMessage(), e);
@@ -242,8 +239,8 @@ public class ConcreteProfileMBeanGenerator {
 						"	}" +
 						"}";
 			}
-			if(logger.isDebugEnabled()) {
-				logger.debug("Implemented profile mbean method named "+method.getName()+", with body:\n"+body);
+			if(logger.isTraceEnabled()) {
+				logger.trace("Implemented profile mbean method named "+method.getName()+", with body:\n"+body);
 			}
 			newMethod.setBody(body);
 			profileMBeanConcreteClass.addMethod(newMethod);
@@ -267,8 +264,8 @@ public class ConcreteProfileMBeanGenerator {
 			}
 			body += " }";
 						
-			if(logger.isDebugEnabled()) {
-				logger.debug("Implemented profile mbean method named "+method.getName()+", with body:\n"+body);
+			if(logger.isTraceEnabled()) {
+				logger.trace("Implemented profile mbean method named "+method.getName()+", with body:\n"+body);
 			}
 			newMethod.setBody(body);
 			profileMBeanConcreteClass.addMethod(newMethod);
@@ -276,9 +273,6 @@ public class ConcreteProfileMBeanGenerator {
 		
 		try {
 			profileMBeanConcreteClass.writeFile(this.component.getDeploymentDir().getAbsolutePath());
-			if (logger.isDebugEnabled()) {
-				logger.debug("Concrete Class " + profileMBeanConcreteClassName + " generated in the following path " + this.component.getDeploymentDir().getAbsolutePath());
-			}
 		}
 		catch (Throwable e) {
 			throw new SLEEException(e.getMessage(),e);

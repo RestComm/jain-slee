@@ -59,8 +59,8 @@ public class SbbEntityUnlockTransactionalAction implements TransactionalAction {
 
 		if (reentrantLock != null) {
 			reentrantLock.unlock();
-			if (logger.isDebugEnabled()) {
-				logger.debug(Thread.currentThread()+" released lock "+reentrantLock+ "for "+sbbEntity);
+			if (logger.isTraceEnabled()) {
+				logger.trace(Thread.currentThread()+" released lock "+reentrantLock+ "for "+sbbEntity);
 			}
 		}
 	}

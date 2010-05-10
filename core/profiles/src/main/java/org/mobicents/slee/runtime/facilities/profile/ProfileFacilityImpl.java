@@ -77,8 +77,8 @@ public class ProfileFacilityImpl implements ProfileFacility {
 			throws NullPointerException, UnrecognizedProfileTableNameException,
 			FacilityException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("getProfileTable( profileTableName = "
+		if (logger.isTraceEnabled()) {
+			logger.trace("getProfileTable( profileTableName = "
 					+ profileTableName + " )");
 		}
 				
@@ -137,8 +137,8 @@ public class ProfileFacilityImpl implements ProfileFacility {
 			throws NullPointerException, UnrecognizedProfileTableNameException,
 			TransactionRolledbackLocalException, FacilityException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("getProfiles( profileTableName = "
+		if (logger.isTraceEnabled()) {
+			logger.trace("getProfiles( profileTableName = "
 					+ profileTableName + " )");
 		}
 		
@@ -182,8 +182,8 @@ public class ProfileFacilityImpl implements ProfileFacility {
 			throws NullPointerException, UnrecognizedProfileTableNameException,
 			TransactionRolledbackLocalException, FacilityException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("getProfileTableActivity( profileTableName = "
+		if (logger.isTraceEnabled()) {
+			logger.trace("getProfileTableActivity( profileTableName = "
 					+ profileTableName + " )");
 		}
 				
@@ -265,8 +265,8 @@ public class ProfileFacilityImpl implements ProfileFacility {
 			AttributeTypeMismatchException,
 			TransactionRolledbackLocalException, FacilityException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("getProfileByIndexedAttribute( profileTableName = "
+		if (logger.isTraceEnabled()) {
+			logger.trace("getProfileByIndexedAttribute( profileTableName = "
 					+ profileTableName + " , attributeName = " + attributeName
 					+ " , attributeValue = " + attributeValue + " )");
 		}
@@ -363,8 +363,8 @@ public class ProfileFacilityImpl implements ProfileFacility {
 			AttributeTypeMismatchException,
 			TransactionRolledbackLocalException, FacilityException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("getProfilesByIndexedAttribute( profileTableName = "
+		if (logger.isTraceEnabled()) {
+			logger.trace("getProfilesByIndexedAttribute( profileTableName = "
 					+ profileTableName + " , attributeName = " + attributeName
 					+ " , attributeValue = " + attributeValue + " )");
 		}

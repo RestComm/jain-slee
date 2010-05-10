@@ -42,7 +42,6 @@ import org.mobicents.slee.container.component.profile.ProfileSpecificationCompon
 import org.mobicents.slee.container.component.profile.ProfileSpecificationDescriptor;
 import org.mobicents.slee.container.component.profile.cmp.ProfileCMPInterfaceDescriptor;
 import org.mobicents.slee.container.deployment.profile.ClassGeneratorUtils;
-import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.mobicents.slee.container.profile.entity.ProfileEntity;
 
 
@@ -63,17 +62,12 @@ public class ConcreteProfileEntityGenerator {
 
   private ProfileSpecificationComponent profileComponent;
   private final JPAProfileEntityFramework jpaProfileDataSource;
-  
-  private final int profileCombination;
-  
+    
   public ConcreteProfileEntityGenerator(ProfileSpecificationComponent profileComponent,JPAProfileEntityFramework jpaProfileDataSource)
   {
 	  this.profileComponent = profileComponent;
 	  this.jpaProfileDataSource = jpaProfileDataSource;
-	  this.profileCombination = SleeProfileClassCodeGenerator.checkCombination(profileComponent);
-	  
-	  logger.info( "Profile combination for " + profileComponent.getProfileSpecificationID() + " = " + this.profileCombination );
-	
+	  	
 	  ClassGeneratorUtils.setClassPool( this.profileComponent.getClassPool().getClassPool() );
   }
 
@@ -323,8 +317,8 @@ public class ConcreteProfileEntityGenerator {
   
   private void addTableAnnotationToPEAAV(String tableName, boolean unique, CtClass ctClass) {
 	  
-	  if (logger.isDebugEnabled()) {
-		 logger.debug("Adding PEAAV table with name "+tableName+" for "+profileComponent+", attribute is unique? "+unique); 
+	  if (logger.isTraceEnabled()) {
+		 logger.trace("Adding PEAAV table with name "+tableName+" for "+profileComponent+", attribute is unique? "+unique); 
 	  }
 	  
 	  ConstPool cp = ctClass.getClassFile().getConstPool();

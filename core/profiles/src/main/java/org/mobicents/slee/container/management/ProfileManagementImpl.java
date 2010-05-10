@@ -166,8 +166,8 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 	private void createJndiSpace(ProfileSpecificationComponent component) throws Exception {
 		Context ctx = (Context) new InitialContext().lookup("java:comp");
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Setting up Profile Spec env. Initial context is " + ctx);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Setting up Profile Spec env. Initial context is " + ctx);
 		}
 
 		Context envCtx = null;
@@ -207,8 +207,8 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 		for (EnvEntryDescriptor mEnvEntry : component.getDescriptor().getEnvEntries()) {
 			Class<?> type = null;
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Got an environment entry:" + mEnvEntry);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Got an environment entry:" + mEnvEntry);
 			}
 
 			try {

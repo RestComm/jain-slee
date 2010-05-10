@@ -2,6 +2,7 @@ package org.mobicents.slee.container.deployment;
 
 import javax.slee.management.DeploymentException;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ClassPool;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
 
@@ -12,6 +13,8 @@ import org.mobicents.slee.container.component.SleeComponentWithUsageParametersIn
  */
 public class SleeComponentWithUsageParametersClassCodeGenerator {
 
+	private static final Logger LOGGER = Logger.getLogger(SleeComponentWithUsageParametersClassCodeGenerator.class);
+	
 	/**
 	 * Generates classes for a slee component, which defines usage parameters
 	 * @param component
@@ -31,9 +34,17 @@ public class SleeComponentWithUsageParametersClassCodeGenerator {
 								usageParametersInterface.getName(),
 								deploymentDir, classPool)
 								.generateConcreteUsageParameterClass());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Generated usage parameter impl class for "+component);
+		        }
 				// generate the mbeans
 				new ConcreteUsageParameterMBeanGenerator(component)
 						.generateConcreteUsageParameterMBean();
+				
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Generated usage mbean (interface and impl) for "+component);
+		        }
+				
 			} catch (DeploymentException ex) {
 				throw ex;
 			} catch (Exception ex) {

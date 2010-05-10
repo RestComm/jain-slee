@@ -339,8 +339,8 @@ public class ConcreteSbbGenerator {
 			// and implements the narrow method
 			Class<?> sbbLocalInterfaceClass = sbbComponent
 					.getSbbLocalInterfaceClass();
-			if (logger.isDebugEnabled()) {
-				logger.debug("Sbb Local Object interface :"
+			if (logger.isTraceEnabled()) {
+	            logger.trace("Sbb Local Object interface :"
 						+ sbbLocalInterfaceClass);
 			}
 			if (sbbLocalInterfaceClass != null
@@ -497,8 +497,8 @@ public class ConcreteSbbGenerator {
 		try {
 			sbbConcreteClass.addConstructor(constructorWithParameter);
 			constructorWithParameter.setBody(constructorBody);
-			if (logger.isDebugEnabled()) {
-				logger.debug("ConstructorWithParameter created");
+			if (logger.isTraceEnabled()) {
+	            logger.trace("ConstructorWithParameter created");
 			}
 		} catch (CannotCompileException e) {
 			throw new DeploymentException(e.getMessage(), e);
@@ -544,7 +544,7 @@ public class ConcreteSbbGenerator {
 		try {
 			defaultConstructor.setBody(constructorBody);
 			sbbConcreteClass.addConstructor(defaultConstructor);
-			logger.debug("DefaultConstructor created");
+			logger.trace("DefaultConstructor created");
 		} catch (CannotCompileException e) {
 			throw new DeploymentException(e.getMessage(), e);
 		}
@@ -572,8 +572,8 @@ public class ConcreteSbbGenerator {
 				String concreteMethodBody = "{ return ($r)"
 						+ SbbAbstractMethodHandler.class.getName()
 						+ ".getDefaultSbbUsageParameterSet(sbbEntity); }";
-				if (logger.isDebugEnabled()) {
-					logger.debug("Generated method " + methodName
+				if (logger.isTraceEnabled()) {
+		            logger.trace("Generated method " + methodName
 							+ " , body = " + concreteMethodBody);
 				}
 				concreteMethod.setBody(concreteMethodBody);
@@ -608,8 +608,8 @@ public class ConcreteSbbGenerator {
 				String concreteMethodBody = "{ return ($r)"
 						+ SbbAbstractMethodHandler.class.getName()
 						+ ".getSbbUsageParameterSet(sbbEntity,$1); }";
-				if (logger.isDebugEnabled()) {
-					logger.debug("Generated method " + methodName
+				if (logger.isTraceEnabled()) {
+		            logger.trace("Generated method " + methodName
 							+ " , body = " + concreteMethodBody);
 				}
 				concreteMethod.setBody(concreteMethodBody);
@@ -686,8 +686,8 @@ public class ConcreteSbbGenerator {
 						+ SbbAbstractMethodHandler.class.getName()
 						+ ".getCMPField(sbbEntity,\"" + cmp.getCmpFieldName()
 						+ "\","+concreteGetterMethod.getReturnType().getName()+".class); }";
-				if (logger.isDebugEnabled()) {
-					logger.debug("Generated method " + getterMethodName
+				if (logger.isTraceEnabled()) {
+		            logger.trace("Generated method " + getterMethodName
 							+ " , body = " + concreteGetterMethodBody);
 				}
 				concreteGetterMethod.setBody(concreteGetterMethodBody);
@@ -718,8 +718,8 @@ public class ConcreteSbbGenerator {
 						+ SbbAbstractMethodHandler.class.getName()
 						+ ".setCMPField(sbbEntity,\"" + cmp.getCmpFieldName()
 						+ "\",$1); }";
-				if (logger.isDebugEnabled()) {
-					logger.debug("Generated method " + setterMethodName
+				if (logger.isTraceEnabled()) {
+		            logger.trace("Generated method " + setterMethodName
 							+ " , body = " + concreteSetterMethodBody);
 				}
 				concreteSetterMethod.setBody(concreteSetterMethodBody);
@@ -775,8 +775,8 @@ public class ConcreteSbbGenerator {
 							concreteMethodBody += ",$" + (i + 1);
 						}
 						concreteMethodBody += ");}";
-						if (logger.isDebugEnabled()) {
-							logger.debug("Generated method " + methodName
+						if (logger.isTraceEnabled()) {
+				            logger.trace("Generated method " + methodName
 									+ " , body = " + concreteMethodBody);
 						}
 						concreteMethod.setBody(concreteMethodBody);
@@ -817,8 +817,8 @@ public class ConcreteSbbGenerator {
 							+ SbbAbstractMethodHandler.class.getName()
 							+ ".getChildRelation(sbbEntity,\"" + methodName
 							+ "\"); }";
-					if (logger.isDebugEnabled()) {
-						logger.debug("Generated method " + methodName
+					if (logger.isTraceEnabled()) {
+			            logger.trace("Generated method " + methodName
 								+ " , body = " + concreteMethodBody);
 					}
 					concreteMethod.setBody(concreteMethodBody);
@@ -841,9 +841,8 @@ public class ConcreteSbbGenerator {
 	protected void createGetProfileCMPMethods(
 			Collection<GetProfileCMPMethodDescriptor> cmpProfiles) {
 		if (cmpProfiles == null) {
-			if (logger.isDebugEnabled()) {
-				logger
-						.debug("no CMP Profile method implementation to generate.");
+			if (logger.isTraceEnabled()) {
+	            logger.trace("no CMP Profile method implementation to generate.");
 			}
 			return;
 		}
@@ -862,8 +861,8 @@ public class ConcreteSbbGenerator {
 							+ SbbAbstractMethodHandler.class.getName()
 							+ ".getProfileCMPMethod(sbbEntity,\"" + methodName
 							+ "\",$1); }";
-					if (logger.isDebugEnabled()) {
-						logger.debug("Generated method " + methodName
+					if (logger.isTraceEnabled()) {
+			            logger.trace("Generated method " + methodName
 								+ " , body = " + concreteMethodBody);
 					}
 					concreteMethod.setBody(concreteMethodBody);
@@ -884,7 +883,7 @@ public class ConcreteSbbGenerator {
 		try {
 			methodTest = CtNewMethod.make(methodToAdd, sbbConcreteClass);
 			sbbConcreteClass.addMethod(methodTest);
-			logger.debug("Method " + methodToAdd + " added");
+			logger.trace("Method " + methodToAdd + " added");
 		} catch (CannotCompileException e) {
 			throw new DeploymentException(e.getMessage(), e);
 		}
@@ -923,8 +922,8 @@ public class ConcreteSbbGenerator {
 		try {
 			methodTest = CtNewMethod.make(methodToAdd, sbbConcreteClass);
 			sbbConcreteClass.addMethod(methodTest);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Method " + methodToAdd + " added");
+			if (logger.isTraceEnabled()) {
+	            logger.trace("Method " + methodToAdd + " added");
 			}
 		} catch (CannotCompileException e) {
 			throw new DeploymentException(e.getMessage(), e);

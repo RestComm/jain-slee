@@ -21,7 +21,7 @@ public class SleeProfileClassCodeGenerator {
   public void process(ProfileSpecificationComponent component) throws Exception
   {
     if (logger.isDebugEnabled()) {
-      logger.debug("Generating code for " + component);
+      logger.debug("Generating class code for " + component+" at "+component.getDeploymentDir().getAbsolutePath());
     }
     
     // generate profile cmp slee 1.0 wrapper
@@ -35,21 +35,18 @@ public class SleeProfileClassCodeGenerator {
     mbeanGenerator.generateProfileMBeanInterface();
     if (logger.isDebugEnabled()) {
       logger.debug("Generated MBean interface for " + component);
-      logger.debug("Generated MBean interface " + component.getProfileMBeanConcreteInterfaceClass());
     }
 
-		// Generate Profile MBean Impl
+	// Generate Profile MBean Impl
     mbeanGenerator.generateProfileMBean();
     if (logger.isDebugEnabled()) {
-      logger.debug("Generated MBean impl for " + component);
-      logger.debug("Generated MBean concrete " + component.getProfileMBeanConcreteImplClass());
+      logger.debug("Generated MBean impl for " + component);      
     }
 
    	ConcreteProfileLocalObjectGenerator concreteProfileLocalObjectGenerator = new ConcreteProfileLocalObjectGenerator(component);
     concreteProfileLocalObjectGenerator.generateProfileLocalConcreteClass();
     if (logger.isDebugEnabled()) {
     	logger.debug("Generated Profile Local Object impl for " + component);
-    	logger.debug("Generated Profile Local Object concrete " + component.getProfileLocalObjectConcreteClass());
     }
 
     if (component.getProfileTableInterfaceClass() != null) {
@@ -57,7 +54,6 @@ public class SleeProfileClassCodeGenerator {
     	concreteProfileTableGenerator.generateProfileTable();
     	if (logger.isDebugEnabled()) {
     		logger.debug("Generated Profile Table Interface impl for " + component);
-    		logger.debug("Generated Profile Table Interface concrete " + component.getProfileTableConcreteClass());
     	}
     }
 
@@ -65,20 +61,10 @@ public class SleeProfileClassCodeGenerator {
     	new SleeComponentWithUsageParametersClassCodeGenerator().process(component);
     	if (logger.isDebugEnabled()) {
     		logger.debug("Generated Profile Table Usage Interface impl for " + component);
-    		logger.debug("Generated Profile Table Usage Interface concrete " + component.getUsageParametersConcreteClass());
     		logger.debug("Generated Profile Table Usage MBean impl for " + component);
-    		logger.debug("Generated Profile Table Usage MBean concrete " + component.getUsageParametersMBeanImplConcreteClass());
     	}
     }
 
-    /*
-	ConcreteProfileManagementGenerator concreteProfileManagementGenerator = new ConcreteProfileManagementGenerator(component);
-	concreteProfileManagementGenerator.generateProfileCmpConcreteClass();
-	if (logger.isDebugEnabled()) {
-		logger.debug("Generated management for " + component);
-		logger.debug("Generated management class " + component.getProfileCmpConcreteClass());
-	}
-     */
   }
 
   /**

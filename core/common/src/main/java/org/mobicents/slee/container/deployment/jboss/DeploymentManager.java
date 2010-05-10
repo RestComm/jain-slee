@@ -360,8 +360,8 @@ public class DeploymentManager {
         signature[0] = "javax.slee.ServiceID";
       }
 
-      if (logger.isDebugEnabled()) {
-        logger.debug("Invoking " + action + "(" + Arrays.toString(arguments) + ") on " + objectName);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Invoking " + action + "(" + Arrays.toString(arguments) + ") on " + objectName);
       }
 
       // We are isolating each action, so it won't affect the whole proccess
@@ -471,8 +471,8 @@ public class DeploymentManager {
    * Callback for {@link SleeStateJMXMonitor}, to learn when SLEE is stopping.
    */
   public void sleeIsStopping() {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Got notified that SLEE is now stopping");
+    if (logger.isTraceEnabled()) {
+		logger.trace("Got notified that SLEE is now stopping");
     }
 
     if(SLEESubDeployer.INSTANCE.isServerShuttingDown()) {
@@ -501,8 +501,8 @@ public class DeploymentManager {
 
     ServiceState ss = (ServiceState) ms.invoke(new ObjectName(ServiceManagementMBean.OBJECT_NAME), "getState", params, signature);
 
-    if(logger.isDebugEnabled()) {
-      logger.debug(params[0] + " Initial State [" + ss.toString() + "].");
+    if(logger.isTraceEnabled()) {
+		logger.trace(params[0] + " Initial State [" + ss.toString() + "].");
     }
 
     double maxWaitTime = 60 * 1000 * MobicentsManagement.entitiesRemovalDelay;
@@ -510,8 +510,8 @@ public class DeploymentManager {
     while(!ss.isInactive() && waited <= maxWaitTime) {
       ss = (ServiceState) ms.invoke(objectName, "getState", params, signature);
 
-      if(logger.isDebugEnabled()) {
-        logger.debug(params[0] + " State [" + ss.toString() + "]. Waiting more " + waitTimeBetweenOperations + "ms. Waited a total of " + waited + "ms." );
+      if(logger.isTraceEnabled()) {
+    	  logger.trace(params[0] + " State [" + ss.toString() + "]. Waiting more " + waitTimeBetweenOperations + "ms. Waited a total of " + waited + "ms." );
       }
 
       Thread.sleep(waitTimeBetweenOperations);
@@ -529,8 +529,8 @@ public class DeploymentManager {
 
     ResourceAdaptorEntityState raes = (ResourceAdaptorEntityState) ms.invoke(new ObjectName(ResourceManagementMBean.OBJECT_NAME), "getState", params, signature);
 
-    if(logger.isDebugEnabled()) {
-      logger.debug(params[0] + " Initial State [" + raes.toString() + "].");
+    if(logger.isTraceEnabled()) {
+		logger.trace(params[0] + " Initial State [" + raes.toString() + "].");
     }
 
     double maxWaitTime = 60 * 1000 * MobicentsManagement.entitiesRemovalDelay;
@@ -539,8 +539,8 @@ public class DeploymentManager {
 
       raes = (ResourceAdaptorEntityState) ms.invoke(objectName, "getState", params, signature);
 
-      if(logger.isDebugEnabled()) {
-        logger.debug(params[0] + " State [" + raes.toString() + "]. Waiting more " + waitTimeBetweenOperations + "ms. Waited a total of " + waited + "ms." );
+      if(logger.isTraceEnabled()) {
+		logger.trace(params[0] + " State [" + raes.toString() + "]. Waiting more " + waitTimeBetweenOperations + "ms. Waited a total of " + waited + "ms." );
       }
 
       Thread.sleep(waitTimeBetweenOperations);

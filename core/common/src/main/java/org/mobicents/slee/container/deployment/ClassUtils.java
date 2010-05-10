@@ -410,7 +410,7 @@ public class ClassUtils {
         {
             if (exceptMethods.get(methods[i].getName()) == null)
             {
-                    ConcreteClassGeneratorUtils.logger.debug(methods[i].getName());
+                    ConcreteClassGeneratorUtils.logger.trace(methods[i].getName());
                     interfaceMethods.put(getMethodKey(methods[i]), methods[i]);
             }
         }

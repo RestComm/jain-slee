@@ -54,8 +54,11 @@ public class SleeEndpointImpl implements SleeEndpoint {
     private final SleeEndpointFireEventNotTransactedExecutor fireEventNotTransactedExecutor;
     private final SleeEndpointStartActivityNotTransactedExecutor startActivityNotTransactedExecutor;
     private final SleeEndpointEndActivityNotTransactedExecutor endActivityNotTransactedExecutor;
-        
-    public SleeEndpointImpl(ResourceAdaptorEntityImpl raEntity,SleeContainer container) {
+    
+    private final boolean doTraceLogs = logger.isTraceEnabled(); 
+    	
+    public SleeEndpointImpl(ResourceAdaptorEntityImpl raEntity) {
+    	SleeContainer container = raEntity.getSleeContainer();
         this.txManager = container.getTransactionManager();
         this.acFactory = container.getActivityContextFactory();
         this.componentRepository = container.getComponentRepository();
@@ -72,8 +75,12 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		return raEntity;
 	}
 	
-    // --- ACTIVITY START 
+	// --- ACTIVITY START 
     
+    /*
+     * (non-Javadoc)
+     * @see javax.slee.resource.SleeEndpoint#startActivity(javax.slee.resource.ActivityHandle, java.lang.Object)
+     */
     public void startActivity(ActivityHandle handle, Object activity)
 			throws NullPointerException, IllegalStateException,
 			ActivityAlreadyExistsException, StartActivityException,
@@ -81,15 +88,27 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		startActivity(handle, activity, ActivityFlags.NO_FLAGS);
 	}
 
+    /*
+     * (non-Javadoc)
+     * @see javax.slee.resource.SleeEndpoint#startActivity(javax.slee.resource.ActivityHandle, java.lang.Object, int)
+     */
 	public void startActivity(final ActivityHandle handle, Object activity,
 			final int activityFlags) throws NullPointerException,
 			IllegalStateException, ActivityAlreadyExistsException,
 			StartActivityException, SLEEException {
 		
+		if (doTraceLogs) {
+			logger.trace("startActivity( handle = "+handle+" , activity = "+activity+" , flags = "+activityFlags+" )");
+		}
+		
 		checkStartActivityParameters(handle,activity);
-    	startActivityNotTransactedExecutor.execute(handle, activityFlags);
+		startActivityNotTransactedExecutor.execute(handle, activityFlags);    	
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#startActivitySuspended(javax.slee.resource.ActivityHandle, java.lang.Object)
+	 */
 	public void startActivitySuspended(ActivityHandle handle, Object activity)
 			throws NullPointerException, IllegalStateException,
 			TransactionRequiredLocalException, ActivityAlreadyExistsException,
@@ -97,17 +116,30 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		startActivitySuspended(handle, activity, ActivityFlags.NO_FLAGS);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#startActivitySuspended(javax.slee.resource.ActivityHandle, java.lang.Object, int)
+	 */
 	public void startActivitySuspended(ActivityHandle handle, Object activity,
 			int activityFlags) throws NullPointerException,
 			IllegalStateException, TransactionRequiredLocalException,
 			ActivityAlreadyExistsException, StartActivityException,
 			SLEEException {
+		
+		if (doTraceLogs) {
+			logger.trace("startActivitySuspended( handle = "+handle+" , activity = "+activity+" , flags = "+activityFlags+" )");
+		}
+		
 		// need to check tx before doing out of tx scope activity start
 		txManager.mandateTransaction();
 		startActivity(handle, activity,activityFlags);
 		suspendActivity(handle);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#startActivityTransacted(javax.slee.resource.ActivityHandle, java.lang.Object)
+	 */
 	public void startActivityTransacted(ActivityHandle handle, Object activity)
 			throws NullPointerException, IllegalStateException,
 			TransactionRequiredLocalException, ActivityAlreadyExistsException,
@@ -115,14 +147,25 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		startActivityTransacted(handle, activity, ActivityFlags.NO_FLAGS);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#startActivityTransacted(javax.slee.resource.ActivityHandle, java.lang.Object, int)
+	 */
 	public void startActivityTransacted(ActivityHandle handle, Object activity,
 			int activityFlags) throws NullPointerException,
 			IllegalStateException, TransactionRequiredLocalException,
 			ActivityAlreadyExistsException, StartActivityException,
 			SLEEException {
+		
+		if (doTraceLogs) {
+			logger.trace("startActivityTransacted( handle = "+handle+" , activity = "+activity+" , flags = "+activityFlags+" )");
+		}
+		
 		checkStartActivityParameters(handle,activity);
-    	// check tx state
+    	
+		// check tx state
     	txManager.mandateTransaction();
+    	
     	_startActivity(handle,activityFlags);
 	}
 
@@ -134,10 +177,6 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * @throws IllegalStateException
 	 */
 	private void checkStartActivityParameters(ActivityHandle handle, Object activity) throws NullPointerException,IllegalStateException {
-		
-		if (logger.isDebugEnabled()) {
-    		logger.debug("Starting activity : "+ handle);
-    	}	
 		
 		// check args
 		if (handle == null) {
@@ -159,35 +198,70 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * @param activityFlags
 	 */
 	void _startActivity(ActivityHandle handle, int activityFlags) {
-		// create activity context
-    	final ActivityContextHandle ach = new ResourceAdaptorActivityContextHandleImpl(raEntity, handle);        
-    	acFactory.createActivityContext(ach,activityFlags);
-    	if (logger.isDebugEnabled()) {
-    		logger.debug("Activity started: "+ ach);
-    	}		
+		
+		if (raEntity.getHandleReferenceFactory() != null && !ActivityFlags.hasSleeMayMarshal(activityFlags)) {
+			final ActivityHandleReference reference = raEntity.getHandleReferenceFactory().createActivityHandleReference(handle);
+			try {
+				// create activity context with ref instead
+				acFactory.createActivityContext(new ResourceAdaptorActivityContextHandleImpl(raEntity,reference), activityFlags);
+			}
+			catch (ActivityAlreadyExistsException e) {
+				throw e;
+			}
+			catch (RuntimeException e) {
+				raEntity.getHandleReferenceFactory().removeActivityHandleReference(reference);
+				throw e;
+			}	
+		}
+		else {
+			// create activity context
+			acFactory.createActivityContext(new ResourceAdaptorActivityContextHandleImpl(raEntity,handle), activityFlags);
+		}
 	}
 
 	// --- ACTIVITY END 
 	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#endActivity(javax.slee.resource.ActivityHandle)
+	 */
 	public void endActivity(final ActivityHandle handle) throws NullPointerException,
 			UnrecognizedActivityHandleException {
-
+		
+		if (doTraceLogs) {
+			logger.trace("endActivity( handle = "+handle+" )");
+		}
+		
 		if (handle == null)
 			throw new NullPointerException("handle is null");
 		
-		endActivityNotTransactedExecutor.execute(handle);
+		// get ref handle if we are in cluster and the handle is to be not replicated
+		final ActivityHandle ah = raEntity.getHandleReferenceFactory() != null ? raEntity.getHandleReferenceFactory().getReference(handle) : handle;
+		endActivityNotTransactedExecutor.execute(ah);	
+		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#endActivityTransacted(javax.slee.resource.ActivityHandle)
+	 */
 	public void endActivityTransacted(ActivityHandle handle)
 			throws NullPointerException, TransactionRequiredLocalException,
 			UnrecognizedActivityHandleException {
 
+		if (doTraceLogs) {
+			logger.trace("endActivityTransacted( handle = "+handle+" )");
+		}
+		
 		if (handle == null)
 			throw new NullPointerException("handle is null");
 
 		txManager.mandateTransaction();
 
-		_endActivity(handle);
+		// get ref handle if we are in cluster and the handle is to be not replicated
+		final ActivityHandle ah = raEntity.getHandleReferenceFactory() != null ? raEntity.getHandleReferenceFactory().getReferenceTransacted(handle) : handle;
+		
+		_endActivity(ah);
 	}
 
 	/**
@@ -196,7 +270,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * @param handle
 	 */
 	void _endActivity(ActivityHandle handle) throws UnrecognizedActivityHandleException {
-    	final ActivityContextHandle ach = new ResourceAdaptorActivityContextHandleImpl(raEntity, handle);        
+		final ActivityContextHandle ach = new ResourceAdaptorActivityContextHandleImpl(raEntity, handle);        
 		// get ac
 		final ActivityContext ac = acFactory.getActivityContext(ach);
 		if (ac != null) {
@@ -209,6 +283,10 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		
 	// EVENT FIRING
 	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#fireEvent(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService)
+	 */
 	public void fireEvent(ActivityHandle handle, FireableEventType eventType,
 			Object event, Address address, ReceivableService receivableService)
 			throws NullPointerException, UnrecognizedActivityHandleException,
@@ -217,16 +295,32 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		fireEvent(handle,eventType,event,address,receivableService,EventFlags.NO_FLAGS);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#fireEvent(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int)
+	 */
 	public void fireEvent(final ActivityHandle handle, final FireableEventType eventType,
 			final Object event, final Address address, final ReceivableService receivableService, final int eventFlags)
 			throws NullPointerException, UnrecognizedActivityHandleException,
 			IllegalEventException, ActivityIsEndingException,
 			FireEventException, SLEEException {
 		
+		if (doTraceLogs) {
+			logger.trace("fireEvent( handle = "+handle+" , eventType = "+eventType+" , event = "+event+" , address = "+address+" , service = "+receivableService+" , flags = "+eventFlags+" )");
+		}
+		
 		checkFireEventPreconditions(handle,eventType,event);
-		fireEventNotTransactedExecutor.execute(handle, eventType, event, address, receivableService, eventFlags);
+		
+		// get ref handle if we are in cluster and the handle is to be not replicated
+		final ActivityHandle refHandle = raEntity.getHandleReferenceFactory() != null ? raEntity.getHandleReferenceFactory().getReference(handle) : handle;
+		
+		fireEventNotTransactedExecutor.execute(handle, refHandle, eventType, event, address, receivableService, eventFlags);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#fireEventTransacted(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService)
+	 */
 	public void fireEventTransacted(ActivityHandle handle, FireableEventType eventType,
 			Object event, Address address, ReceivableService receivableService) throws NullPointerException,
 			UnrecognizedActivityHandleException, IllegalEventException,
@@ -235,14 +329,27 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		fireEventTransacted(handle,eventType,event,address,receivableService,EventFlags.NO_FLAGS);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#fireEventTransacted(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int)
+	 */
 	public void fireEventTransacted(ActivityHandle handle, FireableEventType eventType,
 			Object event, Address address, ReceivableService receivableService, int eventFlags) throws NullPointerException,
 			UnrecognizedActivityHandleException, IllegalEventException,
 			TransactionRequiredLocalException, ActivityIsEndingException,
 			FireEventException, SLEEException {
+		
+		if (doTraceLogs) {
+			logger.trace("fireEventTransacted( handle = "+handle+" , eventType = "+eventType+" , event = "+event+" , address = "+address+" , service = "+receivableService+" , flags = "+eventFlags+" )");
+		}
+		
 		checkFireEventPreconditions(handle,eventType,event);
 		txManager.mandateTransaction();
-        _fireEvent(handle,eventType,event,address,receivableService,eventFlags);
+		
+		// get ref handle if we are in cluster and the handle is to be not replicated
+		final ActivityHandle refHandle = raEntity.getHandleReferenceFactory() != null ? raEntity.getHandleReferenceFactory().getReferenceTransacted(handle) : handle;
+		
+        _fireEvent(handle,refHandle,eventType,event,address,receivableService,eventFlags);
 	}
 
 	/**
@@ -256,10 +363,6 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 */
 	private void checkFireEventPreconditions(ActivityHandle handle, FireableEventType eventType,
 			Object event) throws NullPointerException,IllegalEventException,IllegalStateException {
-		
-		if (logger.isDebugEnabled()) {
-    		logger.debug("Firing event "+ event + " of type " +eventType.getEventType() + " on activity " + handle);
-    	}	
 		
 		if (event == null) 
     		throw new NullPointerException("event is null");
@@ -305,16 +408,16 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * @param receivableService
 	 * @param eventFlags
 	 */
-	void _fireEvent(ActivityHandle handle, FireableEventType eventType,
+	void _fireEvent(ActivityHandle realHandle, ActivityHandle refHandle, FireableEventType eventType,
 			Object event, Address address, ReceivableService receivableService, int eventFlags) throws ActivityIsEndingException, SLEEException {
-    	final ActivityContextHandle ach = new ResourceAdaptorActivityContextHandleImpl(raEntity, handle);               
+		final ActivityContextHandle ach = new ResourceAdaptorActivityContextHandleImpl(raEntity, refHandle);               
 		// get ac
     	final ActivityContext ac = acFactory.getActivityContext(ach);
     	if (ac == null) {
-    		throw new UnrecognizedActivityHandleException("Unable to fire "+eventType.getEventType()+"on activity handle "+handle+" , the handle is not mapped to an activity context");
+    		throw new UnrecognizedActivityHandleException("Unable to fire "+eventType.getEventType()+"on activity handle "+realHandle+" , the handle is not mapped to an activity context");
     	}
     	else {        		
-    		final EventProcessingCallbacks callbacks = new EventProcessingCallbacks(handle, eventType, event, address, receivableService, eventFlags, raEntity);
+    		final EventProcessingCallbacks callbacks = new EventProcessingCallbacks(realHandle, eventType, event, address, receivableService, eventFlags, raEntity);
     		final EventProcessingSucceedCallback succeedCallback = EventFlags.hasRequestProcessingSuccessfulCallback(eventFlags) ? callbacks : null;
     		final EventProcessingFailedCallback failedCallback = EventFlags.hasRequestProcessingFailedCallback(eventFlags) ? callbacks : null;
     		final EventUnreferencedCallback unreferencedCallback = EventFlags.hasRequestEventReferenceReleasedCallback(eventFlags) ? callbacks : null;
@@ -323,17 +426,28 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	}
 	
 	// OTHER ...
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.SleeEndpoint#suspendActivity(javax.slee.resource.ActivityHandle)
+	 */
 	public void suspendActivity(ActivityHandle handle)
 			throws NullPointerException, TransactionRequiredLocalException,
 			UnrecognizedActivityHandleException, SLEEException {
+		
+		if (doTraceLogs) {
+			logger.trace("suspendActivity( handle = "+handle+" )");
+		}
 		
 		if (handle == null) 
     		throw new NullPointerException("handle is null");
 		
 		txManager.mandateTransaction();
 		
-    	final ActivityContextHandle ach = new ResourceAdaptorActivityContextHandleImpl(raEntity, handle);        
+		// get ref handle if we are in cluster and the handle is to be not replicated
+		final ActivityHandle ah = raEntity.getHandleReferenceFactory() != null ? raEntity.getHandleReferenceFactory().getReferenceTransacted(handle) : handle;
+		
+		final ActivityContextHandle ach = new ResourceAdaptorActivityContextHandleImpl(raEntity, ah);        
 
 		// get ac
 		final ActivityContext ac = acFactory.getActivityContext(ach);

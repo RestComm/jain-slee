@@ -95,8 +95,8 @@ public class ConcreteProfileGenerator {
 			ProfileSpecificationDescriptor profileDescriptor = profileComponent
 					.getDescriptor();
 
-			if (logger.isDebugEnabled())
-				logger.debug("Profile combination for "
+			if (logger.isTraceEnabled())
+				logger.trace("Profile combination for "
 					+ profileComponent.getProfileSpecificationID() + " = "
 					+ this.profileCombination);
 
@@ -196,8 +196,8 @@ public class ConcreteProfileGenerator {
 
 			profileConcreteClass.getClassFile().setVersionToJava5();
 
-			if (logger.isDebugEnabled())
-				logger.debug("Writing PROFILE CONCRETE CLASS to: " + deployDir);
+			if (logger.isTraceEnabled())
+				logger.trace("Writing PROFILE CONCRETE CLASS to: " + deployDir);
 
 			profileConcreteClass.writeFile(deployDir);
 
@@ -235,10 +235,9 @@ public class ConcreteProfileGenerator {
 					String methodBody = "{ return ($r)"
 						+ ClassGeneratorUtils.MANAGEMENT_HANDLER
 						+ ".getUsageParameterSet(profileObject,$1); }";
-					if (logger.isDebugEnabled()) {
-						logger.debug("Implemented method " + methodName
+					if (logger.isTraceEnabled())
+						logger.trace("Implemented method " + methodName
 								+ " , body = " + methodBody);
-					}
 					ctMethodCopy.setBody(methodBody);
 					profileConcreteClass.addMethod(ctMethodCopy);
 				} catch (CannotCompileException e) {
@@ -261,10 +260,9 @@ public class ConcreteProfileGenerator {
 					String methodBody = "{ return ($r)"
 						+ ClassGeneratorUtils.MANAGEMENT_HANDLER
 						+ ".getDefaultUsageParameterSet(profileObject); }";
-					if (logger.isDebugEnabled()) {
-						logger.debug("Implemented method " + methodName
+					if (logger.isTraceEnabled())
+						logger.trace("Implemented method " + methodName
 								+ " , body = " + methodBody);
-					}
 					ctMethodCopy.setBody(methodBody);
 					profileConcreteClass.addMethod(ctMethodCopy);
 				} catch (CannotCompileException e) {
@@ -446,8 +444,8 @@ public class ConcreteProfileGenerator {
 				+ " } finally { " + ProfileCmpHandler.class.getName()
 				+ ".afterGetCmpField(profileObject);	}" + "}";
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Adding method named " + method.getName()
+		if (logger.isTraceEnabled()) {
+			logger.trace("Adding method named " + method.getName()
 					+ ", with source : " + methodBody + ", into: "
 					+ classToBeInstrumented);
 		}
@@ -503,8 +501,8 @@ public class ConcreteProfileGenerator {
 				+ ProfileCmpHandler.class.getName()
 				+ ".afterSetCmpField(profileObject);" + "	};" + "}";
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Adding method named " + method.getName()
+		if (logger.isTraceEnabled()) {
+			logger.trace("Adding method named " + method.getName()
 					+ ", with source : " + methodBody + ", into: "
 					+ classToBeInstrumented);
 		}

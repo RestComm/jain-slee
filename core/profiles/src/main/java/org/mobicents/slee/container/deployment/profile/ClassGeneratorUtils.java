@@ -485,11 +485,11 @@ public class ClassGeneratorUtils {
 
     String body = "{" +
     _PLO_PO_ALLOCATION +
-    "System.out.println(\"Calling " + method.getName() + "\");" +
+//    "System.out.println(\"Calling " + method.getName() + "\");" +
     "Thread t = Thread.currentThread();"+
     "ClassLoader oldClassLoader = t.getContextClassLoader();"+
     "t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());"+
-    "System.out.println(\"profileManagementHandler[\" + this.profileManagementHandler + \"]\");" +
+//    "System.out.println(\"profileManagementHandler[\" + this.profileManagementHandler + \"]\");" +
     "try {";
 
     if(hasReturnValue)
@@ -508,7 +508,7 @@ public class ClassGeneratorUtils {
       "    throw new javax.slee.TransactionRolledbackLocalException(\"ProfileLocalObject invocation results in RuntimeException, rolling back.\",re);"+
       "  }" +
       "  catch (Exception e) {"+
-      "    e.printStackTrace();"+
+//      "    e.printStackTrace();"+
       "    throw new javax.slee.SLEEException(\"System level failure.\",e);"+ 
       "  }"+ 
       "}" +
@@ -519,7 +519,7 @@ public class ClassGeneratorUtils {
       "    this.sleeTransactionManager.rollback();"+
       "  }" +
       "  catch (Exception e) {"+
-      "    e.printStackTrace();"+
+//      "    e.printStackTrace();"+
       "    throw new javax.slee.SLEEException(\"System level failure.\",e);"+ 
       "  }"+ 
       "}" +
@@ -527,9 +527,9 @@ public class ClassGeneratorUtils {
       "}"+
       "}";
 
-    if(logger.isDebugEnabled())
+    if(logger.isTraceEnabled())
     {
-      logger.info("Instrumented method, name:"+method.getName()+", with body:\n"+body);
+      logger.trace("Instrumented method, name:"+method.getName()+", with body:\n"+body);
     }
 
     CtMethod newMethod = CtNewMethod.make(method.getReturnType(), method.getName(), method.getParameterTypes(), method.getExceptionTypes(), body, concreteClass);
@@ -542,8 +542,8 @@ public class ClassGeneratorUtils {
   {
     // FIXME: should we add check for concrete methods from profileManagementAbstractClass and do clone?
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("About to instrument: " + method.getName() + ", into: " + classToBeInstrumented.getName());
+    if (logger.isTraceEnabled()) {
+      logger.trace("About to instrument: " + method.getName() + ", into: " + classToBeInstrumented.getName());
     }
     
     method = CtNewMethod.copy(method, classToBeInstrumented, null);
@@ -592,9 +592,11 @@ public class ClassGeneratorUtils {
       "  }" + 
       "}";
     
-    if (logger.isDebugEnabled()) {
-      logger.debug("About to instrumented: " + method.getName() + ", body: " + body);
+    if(logger.isTraceEnabled())
+    {
+      logger.trace("Instrumented method, name:"+method.getName()+", with body:\n"+body);
     }
+    
     method.setBody(body);
     classToBeInstrumented.addMethod(method);
   }

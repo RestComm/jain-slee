@@ -392,8 +392,8 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 	 * @throws ProfileVerificationException
 	 */
 	public void createDefaultProfile() throws CreateException, ProfileVerificationException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Creating default profile for table "+profileTableName);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Creating default profile for table "+profileTableName);
 		}
 		ProfileObjectImpl profileObject = transactionView.createProfile(null);
 		profileObject.profileVerify();	
@@ -647,8 +647,8 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 	 */
 	public void remove(boolean isUninstall) throws SLEEException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("removeProfileTable: removing profileTable="
+		if (logger.isTraceEnabled()) {
+			logger.trace("removeProfileTable: removing profileTable="
 					+ profileTableName);
 		}
 		

@@ -35,7 +35,7 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	public ResourceAdaptorContextImpl(ResourceAdaptorEntityImpl raEntity, SleeContainer sleeContainer) {
 		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
-		this.sleeEndpointImpl = new SleeEndpointImpl(raEntity,sleeContainer);
+		this.sleeEndpointImpl = new SleeEndpointImpl(raEntity);
 		this.eventLookupFacility = new EventLookupFacilityImpl(raEntity,sleeContainer);
 		this.serviceLookupFacility = new ServiceLookupFacilityImpl(raEntity,sleeContainer);
 		// FIXME replace by fault tolerant timer shared by all ra entities

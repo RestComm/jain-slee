@@ -47,6 +47,7 @@ import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+import org.mobicents.slee.resource.ActivityHandleReferenceFactory;
 import org.mobicents.slee.resource.ResourceAdaptorEntityImpl;
 import org.mobicents.slee.resource.deployment.ResourceAdaptorClassCodeGenerator;
 import org.mobicents.slee.resource.deployment.ResourceAdaptorTypeClassCodeGenerator;
@@ -81,6 +82,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	 * singleton
 	 */
 	private static final ResourceManagementImpl INSTANCE = new ResourceManagementImpl();
+	
+	private ActivityHandleReferenceFactory handleReferenceFactory;
 	
 	public static ResourceManagementImpl getInstance(){
 		return INSTANCE;
@@ -170,7 +173,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				ResourceAdaptorEntityImpl raEntity =null;
 				try { 
 					raEntity = new ResourceAdaptorEntityImpl(
-							entityName, component, properties, sleeContainer,notificationSource);
+							entityName, component, properties, this,notificationSource);
 				}
 				catch (InvalidConfigurationException e) {
 					traceMBeanImpl.deregisterNotificationSource(notificationSource);
@@ -478,8 +481,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	public String[] getResourceAdaptorEntities(ResourceAdaptorEntityState state)
 			throws NullPointerException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting RA Entities with state " + state);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting RA Entities with state " + state);
 		}
 		if (state == null) {
 			throw new NullPointerException("null entity state");
@@ -494,8 +497,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		String[] resultEntityNamesArray = new String[resultEntityNames.size()];
 		resultEntityNamesArray = resultEntityNames
 				.toArray(resultEntityNamesArray);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA Entities with state " + state + " : "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Got RA Entities with state " + state + " : "
 					+ resultEntityNames);
 		}
 		return resultEntityNamesArray;
@@ -506,13 +509,13 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	 */
 	public String[] getLinkNames() {
 		
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting RA link names");
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting RA link names");
 		}
 		String[] linkNames = getLinkNamesSet().toArray(
 				new String[0]);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA link names : " + Arrays.asList(linkNames));
+		if (logger.isTraceEnabled()) {
+			logger.trace("Got RA link names : " + Arrays.asList(linkNames));
 		}
 		return linkNames;
 
@@ -533,8 +536,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting RA link names for entity name " + entityName);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting RA link names for entity name " + entityName);
 		}
 
 		if (entityName == null)
@@ -554,8 +557,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		String[] linkNamesArray = new String[linkNames.size()];
 		linkNamesArray = linkNames.toArray(linkNamesArray);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA link names for entity " + entityName + " : "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Got RA link names for entity " + entityName + " : "
 					+ linkNames);
 		}
 		return linkNamesArray;
@@ -568,8 +571,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	public SbbID[] getBoundSbbs(String linkName) throws NullPointerException,
 			UnrecognizedLinkNameException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting sbbs bound to link name " + linkName);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting sbbs bound to link name " + linkName);
 		}
 
 		if (linkName == null) {
@@ -598,8 +601,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 		SbbID[] result = boundSbbsSet
 		.toArray(new SbbID[boundSbbsSet.size()]);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got sbbs bound to link name " + linkName + " : "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Got sbbs bound to link name " + linkName + " : "
 					+ boundSbbsSet);
 		}
 		return result;
@@ -612,8 +615,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	public ConfigProperties getConfigurationProperties(ResourceAdaptorID id)
 			throws NullPointerException, UnrecognizedResourceAdaptorException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting configuration properties for RA with id "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting configuration properties for RA with id "
 					+ id);
 		}
 
@@ -636,9 +639,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException {
 
-		if (logger.isDebugEnabled()) {
-			logger
-					.debug("Getting configuration properties for RA entity with name "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting configuration properties for RA entity with name "
 							+ entityName);
 		}
 
@@ -661,8 +663,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting RA ID for RA entity with name " + entityName);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting RA ID for RA entity with name " + entityName);
 		}
 
 		if (entityName == null)
@@ -683,8 +685,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	 */
 	public String[] getResourceAdaptorEntities() {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting RA entity names");
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting RA entity names");
 		}
 
 		return resourceAdaptorEntities.keySet().toArray(new String[0]);
@@ -697,8 +699,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			ResourceAdaptorID resourceAdaptorID) throws NullPointerException,
 			UnrecognizedResourceAdaptorException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting RA entity names for ra with ID "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting RA entity names for ra with ID "
 					+ resourceAdaptorID);
 		}
 		if (resourceAdaptorID == null) {
@@ -718,8 +720,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			}
 			String[] entityNames = entityNameSet
 			.toArray(new String[entityNameSet.size()]);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Got RA entity names : "
+			if (logger.isTraceEnabled()) {
+				logger.trace("Got RA entity names : "
 						+ Arrays.asList(entityNames));
 			}
 			return entityNames;
@@ -733,8 +735,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	public String[] getResourceAdaptorEntities(String[] linkNames)
 			throws NullPointerException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting RA entity name for link names : "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting RA entity name for link names : "
 					+ Arrays.asList(linkNames));
 		}
 
@@ -749,8 +751,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			resultEntityNames[i] = entityName;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA entity names : "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Got RA entity names : "
 					+ Arrays.asList(resultEntityNames));
 		}
 
@@ -764,8 +766,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	public String getResourceAdaptorEntityName(String linkName)
 			throws NullPointerException, UnrecognizedLinkNameException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting RA entity name for link name " + linkName);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting RA entity name for link name " + linkName);
 		}
 
 		if (linkName == null)
@@ -775,8 +777,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		if (entityName == null)
 			throw new UnrecognizedLinkNameException(linkName);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA entity name " + entityName + " for link name "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Got RA entity name " + entityName + " for link name "
 					+ linkName);
 		}
 
@@ -790,8 +792,8 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting state for RA entity with name " + entityName);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Getting state for RA entity with name " + entityName);
 		}
 
 		if (entityName == null)
@@ -1012,13 +1014,23 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			}
 		}
 	}
-
+	
+	@Override
+	public void sleeStarting() {
+		super.sleeStarting();
+		
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.container.AbstractSleeContainerModule#afterSleeRunning()
 	 */
 	@Override
 	public void afterSleeRunning() {
 		super.afterSleeRunning();
+		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+			handleReferenceFactory = new ActivityHandleReferenceFactory(this);
+			handleReferenceFactory.init();
+		}
 		for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
 			try {
 				raEntity.sleeRunning();
@@ -1037,6 +1049,15 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	public void sleeStopping() {
 		super.sleeStopping();
 		stopResourceAdaptors();
+	}
+	
+	@Override
+	public void sleeStopped() {
+		super.sleeStopped();
+		if (handleReferenceFactory != null) {
+			handleReferenceFactory.remove();
+			handleReferenceFactory = null;
+		}
 	}
 	
 	private void stopResourceAdaptors() {
@@ -1109,4 +1130,11 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		} while (loop);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public ActivityHandleReferenceFactory getHandleReferenceFactory() {
+		return handleReferenceFactory;
+	}
 }

@@ -51,14 +51,16 @@ public class HandleSbbRollback {
 			return;
 		}
 
+		boolean doTraceLogs = logger.isTraceEnabled(); 
+
 		/*
 		 * Depending on whether exceptions were thrown during the invocation
 		 * sequence we may need to invoke the sbbRolledBack method This must be
 		 * done on a different sbb object and a new transaction See Spec. Sec.
 		 * 9.12.2 for details
 		 */
-		if (logger.isDebugEnabled()) {
-			logger.debug("Invoking sbbRolledBack");
+		if (doTraceLogs) {
+			logger.trace("Invoking sbbRolledBack");
 		}
 
 		ClassLoader oldClassLoader = Thread.currentThread()
@@ -107,9 +109,8 @@ public class HandleSbbRollback {
 			if (sbbEntity != null) {
 				// We invoke the callback method a *different* sbb object 9.12.2
 				// and 6.10.1
-				if (logger.isDebugEnabled()) {
-					logger
-							.debug("Invoking sbbRolledBack on different sbb object");
+				if (doTraceLogs) {
+					logger.trace("Invoking sbbRolledBack on different sbb object");
 				}
 				SbbObjectPool pool = sbbEntity.getObjectPool();
 
@@ -127,8 +128,8 @@ public class HandleSbbRollback {
 				sbbObject = sbbEntity.getSbbObject();
 				sbbObject.sbbLoad();
 			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("Invoking sbbRolledBack");
+			if (doTraceLogs) {
+				logger.trace("Invoking sbbRolledBack");
 			}
 			// We only invoke this on objects in the ready state 6.10.1
 			// E.g. if an exception was thrown from a sbbCreate then there will

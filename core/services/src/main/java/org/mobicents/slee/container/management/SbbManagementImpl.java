@@ -144,8 +144,8 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 
 		Context ctx = (Context) new InitialContext().lookup("java:comp");
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Setting up SBB env. Initial context is " + ctx);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Setting up SBB env. Initial context is " + ctx);
 		}
 
 		Context envCtx = null;
@@ -282,8 +282,8 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		// For each resource that the Sbb references, bind the implementing
 		// object name to its comp/env
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Number of Resource Bindings:"
+		if (logger.isTraceEnabled()) {
+			logger.trace("Number of Resource Bindings:"
 					+ sbbComponent.getDescriptor().getResourceAdaptorTypeBindings());
 		}
 		ComponentRepository componentRepository = sleeContainer.getComponentRepository();
@@ -347,7 +347,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 				// to find it.
 				if (logger.isDebugEnabled()) {
 					logger
-							.debug("setupSbbEnvironment: Binding ra entity named "+raEntity.getName()+" sbb interface for "+raTypeBinding.getResourceAdaptorTypeRef()+", to JNDI context "+name);
+							.debug("Binding RA entity named "+raEntity.getName()+" sbb interface for "+raTypeBinding.getResourceAdaptorTypeRef()+", to JNDI context "+name);
 				}
 				try {
 					Object raSbbInterface = raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef());
@@ -359,7 +359,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 					}					
 				} catch (NameAlreadyBoundException e) {
 					logger.warn(
-							"setupSbbEnvironment: Unable to bind a JNDI reference to sbb interface of "+raTypeBinding.getResourceAdaptorTypeRef(), e);
+							"Unable to bind a JNDI reference to sbb interface of "+raTypeBinding.getResourceAdaptorTypeRef(), e);
 				}
 			}
 
@@ -384,7 +384,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 				if (logger.isDebugEnabled()) {
 					logger
 							.debug(
-						"setupSbbEnvironment: Binding a JNDI reference to aci factory interface of "+raTypeBinding.getResourceAdaptorTypeRef());
+						"Binding a JNDI reference to aci factory interface of "+raTypeBinding.getResourceAdaptorTypeRef());
 				}
 				String factoryRefName = local.get(nameSize - 1);
 				try {
@@ -392,7 +392,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 							.bind(factoryRefName,raTypeComponent.getActivityContextInterfaceFactory());
 				} catch (NameAlreadyBoundException e) {
 					logger.warn(
-							"setupSbbEnvironment: Unable to bind a JNDI reference to aci factory interface of "+raTypeBinding.getResourceAdaptorTypeRef(), e);
+							"Unable to bind a JNDI reference to aci factory interface of "+raTypeBinding.getResourceAdaptorTypeRef(), e);
 				}
 			}
 
@@ -405,10 +405,6 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 			envCtx.createSubcontext("ejb");
 		} catch (NameAlreadyBoundException ex) {
 			envCtx.lookup("ejb");
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Created ejb local context");
 		}
 
 		for (EjbRefDescriptor ejbRef : sbbComponent.getDescriptor().getEjbRefs()) {
@@ -486,8 +482,8 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		for (EnvEntryDescriptor mEnvEntry : sbbComponent.getDescriptor().getEnvEntries()) {
 			Class<?> type = null;
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Got an environment entry:" + mEnvEntry);
+			if (logger.isTraceEnabled()) {
+				logger.trace("Got an environment entry:" + mEnvEntry);
 			}
 
 			try {

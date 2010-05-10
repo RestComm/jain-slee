@@ -183,7 +183,7 @@ public class ConcreteClassGeneratorUtils {
 		else
 			return;
 		for (int i = 0; i < interfaces.length; i++) {
-			logger.debug(concreteClass.getName() + " Implements link with "
+			logger.trace(concreteClass.getName() + " Implements link with "
 					+ interfaces[i].getName() + " interface created");
 		}
 	}
@@ -203,7 +203,7 @@ public class ConcreteClassGeneratorUtils {
 			return;
 		try {
 			concreteClass.setSuperclass(superClass);
-			logger.debug(concreteClass.getName() + " Inheritance link with "
+			logger.trace(concreteClass.getName() + " Inheritance link with "
 					+ superClass.getName() + " class created");
 		} catch (CannotCompileException cce) {
 			cce.printStackTrace();
@@ -242,7 +242,7 @@ public class ConcreteClassGeneratorUtils {
 			hasReturn = true;
 		} catch (NotFoundException nfe) {
 			//nfe.printStackTrace();
-		    logger.debug("No return type -- assuming return type is void " );
+		    logger.trace("No return type -- assuming return type is void " );
 			methodToAdd = methodToAdd + "void ";
 		}
 		//Add the method name
@@ -373,7 +373,7 @@ public class ConcreteClassGeneratorUtils {
 		}
 		methodToAdd += "}";
 		//Add the implementation code
-		logger.debug("Method " + methodToAdd + " added");
+		logger.trace("Method " + methodToAdd + " added");
 		CtMethod methodTest;
 		try {
 			methodTest = CtNewMethod.make(methodToAdd, concreteClass);

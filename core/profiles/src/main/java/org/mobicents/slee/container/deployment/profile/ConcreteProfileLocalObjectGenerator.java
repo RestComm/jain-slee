@@ -122,10 +122,7 @@ public class ConcreteProfileLocalObjectGenerator {
 		}
 		// generate class file
 		try {
-			profileLocalConcreteClass.writeFile(component.getDeploymentDir().getAbsolutePath());
-			if (logger.isDebugEnabled()) {
-				logger.debug("Concrete Class " + profileLocalConcreteClassName + " generated in the following path " + component.getDeploymentDir().getAbsolutePath());
-			}
+			profileLocalConcreteClass.writeFile(component.getDeploymentDir().getAbsolutePath());			
 		}
 		catch (Exception e) {
 			throw new SLEEException(e.getMessage(), e);
@@ -171,9 +168,9 @@ public class ConcreteProfileLocalObjectGenerator {
 			+ (method.getReturnType().equals(CtClass.voidType) ? "" : "	throw new "+SLEEException.class.getName()+"(\"bug in code generation, this was added to ensure code has no return here\");")			
 			+"}";
 		
-		if(logger.isDebugEnabled())
+		if(logger.isTraceEnabled())
 		{
-			logger.debug("Instrumented method, name:"+method.getName()+", with body:\n"+body);
+			logger.trace("Instrumented method, name:"+method.getName()+", with body:\n"+body);
 		}
 		
 		newMethod.setBody(body);

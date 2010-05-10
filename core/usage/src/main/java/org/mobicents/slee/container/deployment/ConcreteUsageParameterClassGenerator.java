@@ -92,8 +92,8 @@ public class ConcreteUsageParameterClassGenerator {
             //generateResetMethod(ctClass);
          // write file
             ctClass.writeFile(deploymentDir);
-            if (logger.isDebugEnabled())
-                logger.debug("UsageParameterGenerator Writing file "
+            if (logger.isTraceEnabled())
+            	logger.trace("UsageParameterGenerator Writing file "
                         + concreteClassName);
             Class<?> retval = Thread.currentThread().getContextClassLoader()
                     .loadClass(concreteClassName);
@@ -122,9 +122,9 @@ public class ConcreteUsageParameterClassGenerator {
 		body += "return ($r)ret;";
 		body += "}";
 		
-		 if (logger.isDebugEnabled()) {
-	        	logger.debug("Adding get usage param names getter with source "+body);
-	        }
+		 if (logger.isTraceEnabled())
+	        logger.trace("Adding get usage param names getter with source "+body);
+	        
 		 
 		 concreteMethod.setBody(body);
 		 destination.addMethod(concreteMethod);
@@ -172,11 +172,11 @@ public class ConcreteUsageParameterClassGenerator {
         } else
             return; // TODO -- should I throw exception here ?
         
-        if ( logger.isDebugEnabled() )
-            logger.debug("generateConcreteMethod(): USAGEPARAM variable is " + paramName);
+        if (logger.isTraceEnabled())
+        	logger.trace("generateConcreteMethod(): USAGEPARAM variable is " + paramName);
         
-        if (logger.isDebugEnabled())
-            logger.debug("Generating usage method = " + methodName);
+        if (logger.isTraceEnabled())
+        	logger.trace("Generating usage method = " + methodName);
         
         String body = "";
         String getterBody = "";
@@ -222,20 +222,20 @@ public class ConcreteUsageParameterClassGenerator {
             return;
         }
 
-        if (logger.isDebugEnabled()) {
-        	logger.debug("Adding SLEE 1.0 usage param getter with source "+getterBody);
+        if (logger.isTraceEnabled()) {
+        	logger.trace("Adding SLEE 1.0 usage param getter with source "+getterBody);
         }
         CtMethod getterMethod = CtNewMethod.make(getterBody, ctClass);
         ctClass.addMethod(getterMethod);
         
-        if (logger.isDebugEnabled()) {
-        	logger.debug("Adding SLEE 1.1 usage param getter with source "+getter11Body);
+        if (logger.isTraceEnabled()) {
+        	logger.trace("Adding SLEE 1.1 usage param getter with source "+getter11Body);
         }
         CtMethod getter11Method = CtNewMethod.make(getter11Body, ctClass);
         ctClass.addMethod(getter11Method);
         
-        if (logger.isDebugEnabled()) {
-        	logger.debug("Adding usage param setter with source "+body);
+        if (logger.isTraceEnabled()) {
+        	logger.trace("Adding usage param setter with source "+body);
         }
         CtMethod setterMethod = CtNewMethod.make(body, ctClass);
         ctClass.addMethod(setterMethod);

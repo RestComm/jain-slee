@@ -97,8 +97,8 @@ public class UsageParameter implements Serializable {
 	}
 
 	public void increment(long incValue) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Before increment:" + incValue + ": " + this);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Before increment: " + incValue + ". " + this);
 		}
 		this.count++;
 		// this.value+=incValue;
@@ -110,8 +110,8 @@ public class UsageParameter implements Serializable {
 	}
 
 	public void sample(long sample) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Before sample:" + sample + ": " + this);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Before sample: " + sample + ". " + this);
 		}
 		// this.value+=sample;
 		this.value = this.value.add(new BigDecimal(sample));

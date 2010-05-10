@@ -8,7 +8,6 @@ import javax.slee.TransactionRolledbackLocalException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.LogMessageFactory;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.interceptors.SbbLocalObjectInterceptor;
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
@@ -185,22 +184,12 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
 			throw new NoSuchObjectLocalException("sbb local object is removed");
 	}
 
-	/**
-	 * 
-	 * @param msg
-	 */
-	private void trace(String msg) {
-		logger.trace(LogMessageFactory.newLogMessage(sbbEntity.getSbbEntityId(), "SbbLocalObject invocation: " + msg)); 		
-	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see javax.slee.SbbLocalObject#getSbbPriority()
 	 */
     public byte getSbbPriority() throws TransactionRequiredLocalException,
-            NoSuchObjectLocalException, SLEEException {
-    	if(trace)
-            trace("getSbbPriority()"); 
+            NoSuchObjectLocalException, SLEEException { 
     	validateInvocation();
     	return sbbEntity.getPriority();
     }
@@ -211,8 +200,6 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
      */
     public boolean isIdentical(javax.slee.SbbLocalObject obj)
             throws TransactionRequiredLocalException, SLEEException {    	
-    	if(trace)
-            trace("isIdentical( obj = "+obj+" )"); 
     	validateInvocation();
         return this.equals(obj);
     }
@@ -224,7 +211,7 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
     public void remove() throws TransactionRequiredLocalException,
             NoSuchObjectLocalException, SLEEException {
     	if(trace)
-            trace("remove()");
+    		logger.trace("remove()");
     	        
        validateInvocation();
         
@@ -270,7 +257,7 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
             throws TransactionRequiredLocalException,
             NoSuchObjectLocalException, SLEEException {
     	if(trace)
-            trace("setSbbPriority( priority = "+priority+" )");
+    		logger.trace("setSbbPriority( priority = "+priority+" )");
     	validateInvocation();
     	sbbEntity.setPriority(priority);
     }

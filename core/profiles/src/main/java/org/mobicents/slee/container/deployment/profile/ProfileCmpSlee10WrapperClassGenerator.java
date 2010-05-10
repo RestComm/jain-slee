@@ -2,11 +2,8 @@ package org.mobicents.slee.container.deployment.profile;
 
 import java.util.Map;
 
-import javassist.CannotCompileException;
 import javassist.CtClass;
-import javassist.CtConstructor;
 import javassist.CtMethod;
-import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 
 import javax.slee.SLEEException;
@@ -18,7 +15,6 @@ import org.mobicents.slee.container.component.profile.ProfileSpecificationCompon
 import org.mobicents.slee.container.component.profile.ProfileSpecificationDescriptor;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.profile.AbstractProfileCmpSlee10Wrapper;
-import org.mobicents.slee.container.profile.ProfileObjectImpl;
 
 /**
  * 
@@ -78,10 +74,7 @@ public class ProfileCmpSlee10WrapperClassGenerator {
 		}
 		// generate class file
 		try {
-			wrapperClass.writeFile(component.getDeploymentDir().getAbsolutePath());
-			if (logger.isDebugEnabled()) {
-				logger.debug("Profile CMP SLEE 1.0 Wrapper Class " + wrapperClassName + " generated in the following path " + component.getDeploymentDir().getAbsolutePath());
-			}
+			wrapperClass.writeFile(component.getDeploymentDir().getAbsolutePath());			
 		}
 		catch (Exception e) {
 			throw new SLEEException(e.getMessage(), e);
@@ -111,9 +104,9 @@ public class ProfileCmpSlee10WrapperClassGenerator {
 			+ "		throw new "+UnsupportedOperationException.class.getName()+"(e.getMessage(),e);" 
 			+ "	}"
 			+ "}";
-		if(logger.isDebugEnabled())
+		if(logger.isTraceEnabled())
 		{
-			logger.debug("Instrumented method, name:"+method.getName()+", with body:\n"+body);
+			logger.trace("Instrumented method, name:"+method.getName()+", with body:\n"+body);
 		}
 		newMethod.setBody(body);
 		// add to concrete class  

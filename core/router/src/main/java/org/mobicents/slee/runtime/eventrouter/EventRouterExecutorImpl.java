@@ -115,22 +115,6 @@ public class EventRouterExecutorImpl implements EventRouterExecutor {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#execute(org
-	 * .mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTask)
-	 */
-	public void execute(EventRoutingTask eventRoutingTask) {
-		if (stats == null) {
-			executor.execute(eventRoutingTask);
-		} else {
-			executor.execute(new EventRoutingTaskStatsCollector(
-					eventRoutingTask));
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
 	 * org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#execute(java
 	 * .lang.Runnable)
 	 */
@@ -175,8 +159,13 @@ public class EventRouterExecutorImpl implements EventRouterExecutor {
 	 * @see org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#routeEvent(org.mobicents.slee.core.event.SleeEvent)
 	 */
 	public void routeEvent(EventContext event) {
-		// execute routing of event
-		executor.execute(new EventRoutingTaskImpl(event,sleeContainer));
+		final EventRoutingTaskImpl eventRoutingTask = new EventRoutingTaskImpl(event,sleeContainer);
+		if (stats == null) {
+			executor.execute(eventRoutingTask);
+		} else {
+			executor.execute(new EventRoutingTaskStatsCollector(
+					eventRoutingTask));
+		}
 	}
 
 }

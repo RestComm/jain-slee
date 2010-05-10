@@ -26,7 +26,7 @@ public interface EventRouterExecutorMapper {
 	 * @param activityContextHandle
 	 * @return
 	 */
-	public abstract EventRouterExecutor getExecutor(
+	public EventRouterExecutor getExecutor(
 			ActivityContextHandle activityContextHandle);
 
 }

@@ -159,7 +159,6 @@ public class SbbComponentValidator implements Validator {
 			// now?
 			if (abstractMehotds.size() > 0) {
 				valid = false;
-				if(logger.isEnabledFor(Level.ERROR))
 				logger
 						.error(this.component.getDescriptor().getSbbID()
 								+ " : violates sbb constraints, the sbb abstract class declares more abstract methods than SLEE is bound to implement: "
@@ -366,9 +365,7 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			if(logger.isEnabledFor(Level.ERROR))
-				logger.error(errorBuffer);
-			
+			logger.error(errorBuffer);
 		}
 
 		return passed;
@@ -388,8 +385,8 @@ public class SbbComponentValidator implements Validator {
 		if (this.component.getDescriptor().getSbbActivityContextInterface() == null) {
 			// FIXME: add check for asSbbActivityContextInteface method ? This
 			// will be catched at the end of check anyway
-			if (logger.isDebugEnabled()) {
-				logger.debug(this.component.getDescriptor().getSbbID() + " : No Sbb activity context interface defined");
+			if (logger.isTraceEnabled()) {
+				logger.trace(this.component.getDescriptor().getSbbID() + " : No Sbb activity context interface defined");
 			}
 			return true;
 		}
@@ -527,9 +524,7 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			if(logger.isEnabledFor(Level.ERROR))
-				logger.error(errorBuffer);
-			
+			logger.error(errorBuffer);		
 		}
 
 		return passed;
@@ -690,9 +685,7 @@ public class SbbComponentValidator implements Validator {
 			// FIXME: add check against components get aci fields ?
 		} finally {
 			if (!passed) {
-				if(logger.isEnabledFor(Level.ERROR))
-					logger.error(errorBuffer);
-				
+				logger.error(errorBuffer);				
 			}
 		}
 
@@ -772,9 +765,7 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			if(logger.isEnabledFor(Level.ERROR))
-				logger.error(errorBuffer);
-			
+			logger.error(errorBuffer);			
 		}
 
 		return passed;
@@ -895,10 +886,7 @@ public class SbbComponentValidator implements Validator {
 			// those implemented or defined as abstract.
 		} finally {
 			if (!passed) {
-				if(logger.isEnabledFor(Level.ERROR))
-					logger.error(errorBuffer);
-				
-
+				logger.error(errorBuffer);				
 			}
 		}
 		return passed;
@@ -1172,9 +1160,7 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			if(logger.isEnabledFor(Level.ERROR))
-				logger.error(errorBuffer);
-		
+			logger.error(errorBuffer);	
 		}
 
 		return passed;
@@ -1348,9 +1334,7 @@ public class SbbComponentValidator implements Validator {
 			}
 		} finally {
 			if (!passed) {
-				if(logger.isEnabledFor(Level.ERROR))
-					logger.error(errorBuffer);
-				
+				logger.error(errorBuffer);
 			}
 		}
 		return passed;
@@ -1421,9 +1405,7 @@ public class SbbComponentValidator implements Validator {
 			}
 		} finally {
 			if (!passed) {
-				if(logger.isEnabledFor(Level.ERROR))
-					logger.error(errorBuffer);
-				
+				logger.error(errorBuffer);		
 			}
 		}
 		return passed;
@@ -1476,9 +1458,7 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			if(logger.isEnabledFor(Level.ERROR))
-				logger.error(errorBuffer);
-			
+			logger.error(errorBuffer);		
 		}
 
 		return passed;
@@ -1564,12 +1544,8 @@ public class SbbComponentValidator implements Validator {
 			}
 
 		} finally {
-
 			if (!passed) {
-				if(logger.isEnabledFor(Level.ERROR))
-					logger.error(errorBuffer);
-				
-
+				logger.error(errorBuffer);
 			}
 		}
 
@@ -1618,9 +1594,7 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			if(logger.isEnabledFor(Level.ERROR))
-				logger.error(errorBuffer);
-			
+			logger.error(errorBuffer);		
 		}
 
 		return passed;
@@ -1759,10 +1733,8 @@ public class SbbComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				if(logger.isEnabledFor(Level.ERROR))
-					logger.error(errorBuffer);
+				logger.error(errorBuffer);
 			}
-
 		}
 
 		return passed;
@@ -1789,10 +1761,8 @@ public class SbbComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				if(logger.isEnabledFor(Level.ERROR))
-					logger.error(errorBuffer);
+				logger.error(errorBuffer);
 			}
-
 		}
 
 		return passed;
@@ -1939,10 +1909,8 @@ public class SbbComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				if(logger.isEnabledFor(Level.ERROR))
-					logger.error(errorBuffer);
+				logger.error(errorBuffer);
 			}
-
 		}
 
 		return passed;

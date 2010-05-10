@@ -125,8 +125,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 			EventContext activityCurrentEventContext = activityCurrentEventRoutingTask == null ? null : activityCurrentEventRoutingTask.getEventContext();
 			if (activityCurrentEventContext == null) {				
 				if (debugLogging)
-					logger.debug("\n\n\nDelivering event : [[[ eventId "
-							+ eventContext.getEventTypeId() + " on ac "+eventContext.getActivityContextHandle()+"\n");
+					logger.debug("\n\n\nStarting routing for "+eventContext);			
 				
 				activityCurrentEventContext = eventContext;
 				// activity has no event routing task set 
@@ -156,15 +155,13 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 			else {
 				if (activityCurrentEventContext.isSuspendedNotTransacted()) {
 					if (debugLogging)
-						logger.debug("\n\n\nFreezing (due to suspended context) event delivery : [[[ eventId "
-								+ eventContext.getEventTypeId() + " on ac "+eventContext.getActivityContextHandle()+"\n");
+						logger.debug("\n\n\nFreezing (due to suspended context) the routing for "+eventContext);						
 					activityCurrentEventContext.barrierEvent(eventContext);
 					return;
 				}
 				else {
 					if (debugLogging)
-						logger.debug("\n\n\nResuming event delivery : [[[ eventId "
-							+ eventContext.getEventTypeId() + " on ac "+eventContext.getActivityContextHandle()+"\n");
+						logger.debug("\n\n\nResuming the routing for"+eventContext);
 					// needed to ensure tests/events/eventcontext/Test1108039Test.xml passes
 					// the test must be fixed
 					Thread.sleep(10);
@@ -174,7 +171,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 			LinkedList<ServiceComponent> serviceComponents = activityCurrentEventContext.getActiveServicesToProcessEventAsInitial();
 			if (debugLogging)
 				logger.debug("Active services which define "+eventContext.getEventTypeId()+" as initial: "
-					+ serviceComponents);
+						+ serviceComponents);
 			
 			boolean notFinished;
 			String rootSbbEntityId;
@@ -511,7 +508,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 					if (txMgr.getRollbackOnly()) {
 						if (debugLogging) {
 							logger
-									.debug("Rolling back SLEE Originated Invocation Sequence");
+									.trace("Rolling back SLEE Originated Invocation Sequence");
 						}
 						txMgr.rollback();
 					} else {
@@ -544,7 +541,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 						
 						if (debugLogging) {
 							logger
-									.debug("Committing SLEE Originated Invocation Sequence");
+									.trace("Committing SLEE Originated Invocation Sequence");
 						}
 						txMgr.commit();
 						
@@ -564,7 +561,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 						// Firstly for the "Op only" or "Op and Remove" part
 						if (debugLogging) {
 							logger
-									.debug("Invoking sbbRolledBack for Op Only or Op and Remove");
+									.trace("Invoking sbbRolledBack for Op Only or Op and Remove");
 
 						}
 						//FIXME: baranowb: de is passed for test: tests/sbb/abstractclass/SbbRolledBackNewTransaction.xml
@@ -615,11 +612,9 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 					if (sbbEntity != null) {
 						if (debugLogging) {
 							logger
-									.debug("Finished delivering the event "
-											+ eventContext.getEventTypeId()
-											+ " to the sbbEntity = "
-											+ sbbEntity.getSbbEntityId()
-											+ "]]] \n\n\n");
+									.debug("Finished routing for "
+											+ eventContext
+											+ "\n\n\n");
 						}
 					}
 				}
@@ -628,8 +623,8 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 				
 				if (activityCurrentEventContext.isSuspendedNotTransacted()) {
 					if (debugLogging)
-						logger.debug("\n\n\nSuspended event delivery : [[[ eventId "
-							+ eventContext.getEventTypeId() + " on ac "+eventContext.getActivityContextHandle()+"\n");
+						logger.debug("Suspended routing for "
+							+ eventContext+"\n\n\n");
 					return;
 				}
 				

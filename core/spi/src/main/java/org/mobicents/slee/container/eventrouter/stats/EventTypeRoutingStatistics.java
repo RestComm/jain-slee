@@ -14,6 +14,12 @@ import javax.slee.EventTypeID;
 public interface EventTypeRoutingStatistics {
 
 	/**
+	 * Retrieves the average time spent to route one event.
+	 * @return
+	 */
+	public long getAverageEventRoutingTime();
+
+	/**
 	 * Retrieves the number of events routed
 	 * 
 	 * @return
@@ -26,7 +32,7 @@ public interface EventTypeRoutingStatistics {
 	 * @return
 	 */
 	public EventTypeID getEventType();
-
+	
 	/**
 	 * Retrieves the time spent routing events.
 	 * 

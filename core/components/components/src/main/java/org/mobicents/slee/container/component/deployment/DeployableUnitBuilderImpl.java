@@ -325,8 +325,8 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 				}
 				if (dependency != null && dependency.getClassLoaderDomain() != null) {					
 					classLoaderDomain.getDependencies().add(dependency.getClassLoaderDomain());
-					if (logger.isDebugEnabled()) {
-						logger.debug(classLoaderDomain+" added "+dependency.getClassLoaderDomain()+ " in dependencies");
+					if (logger.isTraceEnabled()) {
+						logger.trace(classLoaderDomain+" added "+dependency.getClassLoaderDomain()+ " in dependencies");
 					}
 				}
 				else {

@@ -205,8 +205,8 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			String profileTable, ProfileAttribute profileAttribute,
 			Object attributeValue) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("findProfilesByAttribute( profileTable = "
+		if (logger.isTraceEnabled()) {
+			logger.trace("findProfilesByAttribute( profileTable = "
 					+ profileTable + " , profileAttribute = "
 					+ profileAttribute + " , attributeValue = "
 					+ attributeValue + " )");
@@ -426,8 +426,8 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 	 */
 	public ProfileEntity retrieveProfile(String profileTable, String profileName) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("retrieveProfile( profileTableName = " + profileTable
+		if (logger.isTraceEnabled()) {
+			logger.trace("retrieveProfile( profileTableName = " + profileTable
 					+ " , profileName = " + profileName + " )");
 		}
 

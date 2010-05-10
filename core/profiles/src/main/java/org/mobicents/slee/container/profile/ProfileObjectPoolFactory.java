@@ -25,8 +25,8 @@ public class ProfileObjectPoolFactory implements PoolableObjectFactory {
 
     public void destroyObject(Object obj) throws java.lang.Exception {
     	
-    	if (logger.isDebugEnabled()) {
-        	logger.debug("destroyObject() for "+obj);
+    	if (logger.isTraceEnabled()) {
+			logger.trace("destroyObject() for "+obj);
         }
         
     	ProfileObjectImpl profileObject = (ProfileObjectImpl) obj;
@@ -39,8 +39,8 @@ public class ProfileObjectPoolFactory implements PoolableObjectFactory {
      */
     public Object makeObject() {
         
-    	if (logger.isDebugEnabled()) {
-        	logger.debug("makeObject()");
+    	if (logger.isTraceEnabled()) {
+			logger.trace("makeObject()");
         }
     	
     	ProfileObjectImpl profileObject = new ProfileObjectImpl(profileTable);

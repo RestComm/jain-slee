@@ -16,14 +16,15 @@ public class SbbClassCodeGenerator {
 			.getLogger(SbbClassCodeGenerator.class);
 
 	public void process(SbbComponent sbbComponent) throws DeploymentException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Generation concrete class code for "+sbbComponent);
+		}
 		// generate usage param classes?
 		new SleeComponentWithUsageParametersClassCodeGenerator().process(sbbComponent);
 		// generate concrete sbb class
 		new ConcreteSbbGenerator(sbbComponent).generateConcreteSbb();
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Generated all classes!");
-		}
+		
 	}
 
 }

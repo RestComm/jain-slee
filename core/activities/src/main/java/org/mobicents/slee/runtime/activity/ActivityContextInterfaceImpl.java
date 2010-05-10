@@ -36,6 +36,8 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 
 	private static final SleeContainer sleeContainer = SleeContainer
 			.lookupFromJndi();
+	
+	private boolean doTraceLogs = logger.isTraceEnabled();
 
 	private final ActivityContext activityContext;
 
@@ -70,6 +72,10 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			throws NullPointerException, TransactionRequiredLocalException,
 			TransactionRolledbackLocalException, SLEEException {
 
+		if (doTraceLogs) {
+        	logger.trace("attach( sbbLocalObject = " + sbbLocalObject + " )");
+		}
+		
 		if (sbbLocalObject == null)
 			throw new NullPointerException("null SbbLocalObject !");
 
@@ -80,16 +86,6 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 		SbbEntity sbbEntity = sbbLocalObjectImpl.getSbbEntity();
 
 		boolean attached = getActivityContext().attachSbbEntity(sbbEntity.getSbbEntityId());
-
-		if (logger.isDebugEnabled()) {
-			logger
-					.debug("ActivityContextInterface.attach(): ACI attach Called for "
-							+ sbbLocalObject
-							+ " AC = "
-							+ getActivityContext()
-							+ " SbbEntityId "
-							+ sbbEntity.getSbbEntityId());
-		}
 
 		boolean setRollbackAndThrowException = false;
 
@@ -127,9 +123,8 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			final EventRoutingTask routingTask = activityContext.getLocalActivityContext().getCurrentEventRoutingTask();
 			EventContext eventContextImpl = routingTask != null ? routingTask.getEventContext() : null; 
 			if (eventContextImpl != null && eventContextImpl.getSbbEntitiesThatHandledEvent().remove(sbbEntity.getSbbEntityId())) {
-				if (logger.isDebugEnabled()) {
-					logger
-							.debug("Removed the SBB Entity ["
+				if (doTraceLogs) {
+		        	logger.trace("Removed the SBB Entity ["
 									+ sbbEntity.getSbbEntityId()
 									+ "] from the delivered set of activity context ["
 									+ getActivityContext().getActivityContextHandle()
@@ -148,9 +143,9 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 	public void detach(SbbLocalObject sbbLocalObject)
 			throws NullPointerException, TransactionRequiredLocalException,
 			TransactionRolledbackLocalException, SLEEException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("ACI detach called for : " + sbbLocalObject + " AC = "
-					+ getActivityContext().getActivityContextHandle());
+		
+		if (doTraceLogs) {
+        	logger.trace("detach( sbbLocalObject = " + sbbLocalObject + " )");
 		}
 
 		if (sbbLocalObject == null)

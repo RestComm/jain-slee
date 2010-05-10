@@ -3,7 +3,6 @@
  */
 package org.mobicents.slee.resource;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,12 +10,9 @@ import java.io.ObjectOutputStream;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.Marshaler;
 
-import org.jboss.serial.io.JBossObjectInputStream;
-import org.jboss.serial.io.JBossObjectOutputStream;
+import org.jgroups.Address;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityType;
-import org.mobicents.slee.container.activity.LocalActivityContext;
-import org.mobicents.slee.container.management.ResourceManagementImpl;
 import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandle;
 import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 
@@ -96,7 +92,7 @@ public class ResourceAdaptorActivityContextHandleImpl implements ResourceAdaptor
 	
 	@Override
 	public String toString() {
-		return new StringBuilder ("ACH=").append(getActivityType()).append('>').append(getResourceAdaptorEntity().getName()).append('>').append(activityHandle).toString(); 		
+		return new StringBuilder ("RA:").append(getResourceAdaptorEntity().getName()).append(':').append(activityHandle).toString(); 		
 	}
 	
 	// serialization
@@ -109,55 +105,54 @@ public class ResourceAdaptorActivityContextHandleImpl implements ResourceAdaptor
 	  stream.writeUTF(raEntity.getName());
 	  
 	  // write activity handle
-	  byte[] bytes = null;
-	  final SleeContainer sleeContainer = ResourceManagementImpl.getInstance().getSleeContainer();
-	  final LocalActivityContext era = sleeContainer.getActivityContextFactory().getLocalActivityContext(this, false);
-	  if (era != null) {
-		  bytes = era.getActivityHandleBytes();
-	  }
-	  if (bytes == null) {
-		  // need to marshall the handle, but this happens at most once per AS instance
-		  final Marshaler marshaler = raEntity.getMarshaler();
-		  int bufferSize = marshaler != null ? marshaler.getEstimatedHandleSize(activityHandle) : 1024;
-		  final ByteArrayOutputStream baos =  new ByteArrayOutputStream(bufferSize);
-		  final JBossObjectOutputStream jboos = new JBossObjectOutputStream(baos);
-		  if (marshaler != null) {
-			  marshaler.marshalHandle(activityHandle,jboos);
-		  }
-		  else {
-			  jboos.writeObject(activityHandle);
-		  }
-		  bytes = baos.toByteArray();
-		  jboos.close(); 
-		  if (era != null) {
-			  // cache bytes in local activity resources
-			  era.setActivityHandleBytes(bytes);
-		  }
-	  }
-	  stream.write(bytes);
-	  	 
-	} 
-
-	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
-
-	  stream.defaultReadObject();
-
-	  // read ra entity name
-	  final String raEntityName = stream.readUTF(); 
-
-	  // read activity handle
-	  this.raEntity = ResourceManagementImpl.getInstance().getResourceAdaptorEntity(raEntityName);
-	  if (raEntity == null) {
-		  throw new IOException("RA Entity with name "+raEntityName+" not found.");
-	  }
-	  final Marshaler marshaler = raEntity.getMarshaler();
-	  if (marshaler != null) {
-		  activityHandle = marshaler.unmarshalHandle(stream);
+	  if (activityHandle.getClass() == ActivityHandleReference.class) {
+		  // a reference
+		  stream.writeBoolean(true);
+		  final ActivityHandleReference reference = (ActivityHandleReference) activityHandle;
+		  stream.writeObject(reference.getAddress());
+		  stream.writeUTF(reference.getId());
 	  }
 	  else {
-		  final ObjectInputStream jbois = new JBossObjectInputStream(stream);
-		  activityHandle = (ActivityHandle) jbois.readObject();
-	  }	
+		  stream.writeBoolean(false);
+		  final Marshaler marshaler = raEntity.getMarshaler();
+		  if (marshaler != null) {
+			  marshaler.marshalHandle(activityHandle, stream);
+		  }
+		  else {
+			  throw new IOException("marshaller from RA is null");
+		  }
+	  }
+	   
+	} 
+
+	private void readObject(ObjectInputStream stream) throws IOException,
+			ClassNotFoundException {
+
+		stream.defaultReadObject();
+
+		// read ra entity name
+		final String raEntityName = stream.readUTF();
+
+		// read activity handle
+		this.raEntity = SleeContainer.lookupFromJndi().getResourceManagement()
+				.getResourceAdaptorEntity(raEntityName);
+		if (raEntity == null) {
+			throw new IOException("RA Entity with name " + raEntityName
+					+ " not found.");
+		}
+
+		// read activity handle
+		boolean handleReference = stream.readBoolean();
+		if (handleReference) {
+			activityHandle = new ActivityHandleReference(null, (Address) stream.readObject(), stream.readUTF());
+		} else {
+			final Marshaler marshaler = raEntity.getMarshaler();
+			if (marshaler != null) {
+				activityHandle = marshaler.unmarshalHandle(stream);
+			} else {
+				throw new IOException("marshaller from RA is null");
+			}
+		}
 	} 
 	
 }

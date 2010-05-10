@@ -85,6 +85,9 @@ public class LocalActivityContextImpl implements LocalActivityContext {
 	 * @return the lastAccessTime
 	 */
 	public long getLastAccessTime() {
+		if (lastAccessTime == 0L) {
+			lastAccessTime = System.currentTimeMillis();
+		}
 		return lastAccessTime;
 	}
 	

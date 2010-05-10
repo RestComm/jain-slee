@@ -37,7 +37,9 @@ public class HandleRollback {
 			Exception e, ClassLoader contextClassLoader,SleeTransactionManager txMgr) throws TransactionRequiredLocalException, SystemException {
 		
 		boolean invokeSbbRolledBack = false;
-
+		
+		boolean doTraceLogs = logger.isTraceEnabled(); 
+			
 		if (e != null && e instanceof RuntimeException) {
 
 			// See spec. 9.12.2 for full details of what we do here
@@ -45,15 +47,12 @@ public class HandleRollback {
 			// We only invoke sbbExceptionThrown if there is an sbb Object *and* an sbb object method was being invoked when the exception was thrown
 			if (sbbObject != null && sbbObject.getInvocationState() != SbbInvocationState.NOT_INVOKING) {
 				
-				if (logger.isDebugEnabled()) {
-					logger.debug("sbbObject is not null");
-				}
 				// Invoke sbbExceptionThrown method but only if it was a sbb method that threw the RuntimeException
 
 				// FIXME removed change of class loading here, check it does no harm
 					
-				if (logger.isDebugEnabled()) {
-					logger.debug("Calling sbbExceptionThrown");
+				if (doTraceLogs) {
+					logger.trace("Calling sbbExceptionThrown");
 				}
 				try {
 					sbbObject.sbbExceptionThrown(e);
@@ -61,7 +60,7 @@ public class HandleRollback {
 
 					// If method throws an exception , just log it.
 					if (logger.isDebugEnabled()) {
-						logger.debug("Threw an exception while invoking sbbExceptionThrown ",ex);
+						logger.debug("Threw an exception while invoking sbbExceptionThrown(...)",ex);
 					}
 				}
 
@@ -74,8 +73,8 @@ public class HandleRollback {
 				// (6.9.3)
 				sbbObject.setState(SbbObjectState.DOES_NOT_EXIST);
 
-				if (logger.isDebugEnabled()) {
-					logger.debug("handleRollback done");
+				if (doTraceLogs) {
+					logger.trace("handleRollback done");
 				}
 					
 				
@@ -83,8 +82,8 @@ public class HandleRollback {
 
 		} else {
 			
-			if (logger.isDebugEnabled()) {
-				logger.debug("Runtime exception was not thrown");
+			if (doTraceLogs) {
+				logger.trace("Runtime exception was not thrown");
 			}
 			// See 9.12.2
 
@@ -103,8 +102,8 @@ public class HandleRollback {
 			invokeSbbRolledBack = true;
 		}
 		
-		if (logger.isDebugEnabled()) {
-			logger.debug("InvokeSbbRolledBack?:" + invokeSbbRolledBack);
+		if (doTraceLogs) {
+			logger.trace("InvokeSbbRolledBack? " + invokeSbbRolledBack);
 		}
 		
 		return invokeSbbRolledBack;

@@ -89,8 +89,8 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
         ctClass.setSuperclass(usageMBeanImplClass);
         ConcreteClassGeneratorUtils.createInterfaceLinks(ctClass,new CtClass[]{ctInterface});
         
-        if (logger.isDebugEnabled()) {
-        	logger.debug("generating "+concreteMBeanInterfaceName+" and "+concreteMBeanClassName);
+        if (logger.isTraceEnabled()) {
+        	logger.trace("generating "+concreteMBeanInterfaceName+" and "+concreteMBeanClassName);
         }
         
         // create constructor
@@ -122,9 +122,9 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
 
         String deploymentPathStr = component.getDeploymentDir().getAbsolutePath();
         ctInterface.writeFile(deploymentPathStr);
-        logger.debug("Writing file " + concreteMBeanInterfaceName);
+        logger.trace("Writing file " + concreteMBeanInterfaceName);
         ctClass.writeFile(deploymentPathStr);
-        logger.debug("Writing file " + concreteMBeanClassName);
+        logger.trace("Writing file " + concreteMBeanClassName);
                 
         component.setUsageNotificationManagerMBeanConcreteInterface(Thread.currentThread().getContextClassLoader().loadClass(concreteMBeanInterfaceName));
         component.setUsageNotificationManagerMBeanImplConcreteClass(Thread.currentThread().getContextClassLoader().loadClass(concreteMBeanClassName));
@@ -141,8 +141,8 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
                     + "() throws " + ManagementException.class.getName() + " {"
                     + "return getNotificationsEnabled(\""+userParamNameLowerCase+"\");"
                     + "}";
-        if ( logger.isDebugEnabled())
-        	logger.debug("getNotificationsEnabled method for user param "+userParamName+" :\n" + getterBody);
+        if (logger.isTraceEnabled())
+        	logger.trace("getNotificationsEnabled method for user param "+userParamName+" :\n" + getterBody);
         CtMethod getterMethod = CtNewMethod.make(getterBody, ctClass);
         ctClass.addMethod(getterMethod);
 
@@ -150,8 +150,8 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
         + "(boolean enabled) throws " + ManagementException.class.getName() + " {"
         + " setNotificationsEnabled(\""+userParamNameLowerCase+"\",enabled);"
         + "}";
-        if ( logger.isDebugEnabled())
-        	logger.debug("setNotificationsEnabled method for user param "+userParamName+" :\n" + setterBody);
+        if (logger.isTraceEnabled())
+        	logger.trace("setNotificationsEnabled method for user param "+userParamName+" :\n" + setterBody);
         CtMethod setterMethod = CtNewMethod.make(setterBody, ctClass);
         ctClass.addMethod(setterMethod);
     }

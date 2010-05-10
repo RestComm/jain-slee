@@ -81,8 +81,8 @@ public class TimerFacilityTimerTask extends TimerTask {
 				 * rate. see Timer.scheduleAtFixedRate()
 				 */
 				postIt = true;
-				if (logger.isDebugEnabled()) {
-					logger.debug("TimerPreserveMissed.ALL so posting the event");
+				if (logger.isTraceEnabled()) {
+					logger.trace("TimerPreserveMissed.ALL so posting the event");
 				}
 			} else {
 				long timeOut;
@@ -92,9 +92,8 @@ public class TimerFacilityTimerTask extends TimerTask {
 					timeOut = timerOptions.getTimeout();
 				}
 				timeOut = Math.min(Math.max(timeOut, tRes), period);
-				if (logger.isDebugEnabled()) {
-					logger
-					.debug("I'm using "
+				if (logger.isTraceEnabled()) {
+					logger.trace("I'm using "
 							+ timeOut
 							+ " for the timeout to work out whether the event's late");
 				}
@@ -103,40 +102,38 @@ public class TimerFacilityTimerTask extends TimerTask {
 
 				if (timerOptions.getPreserveMissed() == TimerPreserveMissed.NONE) {
 					//If events are late we NEVER want to post them
-					if (logger.isDebugEnabled()) {
-						logger.debug("TimerPreserveMissed.NONE");
+					if (logger.isTraceEnabled()) {
+						logger.trace("TimerPreserveMissed.NONE");
 					}
 					if (!lateEvent) {
 						postIt = true;
-						if (logger.isDebugEnabled()) {
-							logger.debug("Event is NOT late so I'm posting it");
+						if (logger.isTraceEnabled()) {
+							logger.trace("Event is NOT late so I'm posting it");
 						}
 					} else {
 						//Event is late so NOT posting it
-						if (logger.isDebugEnabled()) {
-							logger.debug("Event is late so I'm NOT posting it");
+						if (logger.isTraceEnabled()) {
+							logger.trace("Event is late so I'm NOT posting it");
 						}
 						data.incrementMissedRepetitions();
 					}
 				} else if (timerOptions.getPreserveMissed() == TimerPreserveMissed.LAST) {
 					//Count missed events.
 					//Preserve the last missed event
-					if (logger.isDebugEnabled()) {
-						logger.debug("TimerPreserveMissed.LAST");
+					if (logger.isTraceEnabled()) {
+						logger.trace("TimerPreserveMissed.LAST");
 					}
 
 					if (remainingRepetitions > 1
 							&& lateEvent) {
 						//Event is not the last one and event is late
-						if (logger.isDebugEnabled()) {
-							logger
-							.debug("Event is late and NOT the last one so I'm NOT posting it");
+						if (logger.isTraceEnabled()) {
+							logger.trace("Event is late and NOT the last one so I'm NOT posting it");
 						}
 						data.incrementMissedRepetitions();
 					} else {
-						if (logger.isDebugEnabled()) {
-							logger
-							.debug("Event is either NOT late, or late and is the last event so I'm posting it");
+						if (logger.isTraceEnabled()) {
+							logger.trace("Event is either NOT late, or late and is the last event so I'm posting it");
 						}
 						postIt = true;
 					}
@@ -183,9 +180,8 @@ public class TimerFacilityTimerTask extends TimerTask {
 						logger.warn("Cannot fire timer event with id "+data.getTaskID()+" , because the underlying aci with id "+data.getActivityContextHandle()+" is gone.");
 						timerFacility.cancelTimer(data.getTimerID());
 					} else {
-						if (logger.isDebugEnabled()) {
-							logger
-							.debug("Posting timer event on event router queue. Activity context:  "
+						if (logger.isTraceEnabled()) {
+							logger.trace("Posting timer event on event router queue. Activity context:  "
 									+ ac.getActivityContextHandle()
 									+ " remainingRepetitions: "
 									+ data.getRemainingRepetitions());

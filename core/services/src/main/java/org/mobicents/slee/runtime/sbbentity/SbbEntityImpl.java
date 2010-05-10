@@ -22,14 +22,12 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.LogMessageFactory;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeThreadLocals;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.component.sbb.CMPFieldDescriptor;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
-import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.component.sbb.SbbComponent.EventHandlerMethod;
 import org.mobicents.slee.container.event.EventContext;
@@ -81,6 +79,8 @@ public class SbbEntityImpl implements SbbEntity {
 	
 	private final SbbEntityFactoryImpl sbbEntityFactory;
 	private final SleeContainer sleeContainer;
+	
+	private boolean doTraceLogs = log.isTraceEnabled();
 	
 	/**
 	 * Call this constructor when there's no cached image and the Sbb entity is
@@ -149,22 +149,6 @@ public class SbbEntityImpl implements SbbEntity {
 	}
 
 	/**
-	 * Debugging printf of cached state of a node.
-	 * 
-	 */
-	public void printNode() {
-		if (log.isDebugEnabled()) {
-			log.debug("\n SbbEntity.printNode() { " + "\nsbbEntityID  = "
-					+ this.sbbeId + "\nsbbID  = " + getSbbId()
-					+ "\nattachmentCount = " + getAttachmentCount()
-					+ "\nrootSbbId = " + this.getRootSbbId() + "\nserviceID = "
-					+ getServiceId() + "\nactivityContexts = "
-					+ this.getActivityContexts() + "\nconvergenceName = "
-					+ getServiceConvergenceName() + "\n}");
-		}
-	}
-
-	/**
 	 * The generated code to access CMP Fields needs to call this method.
 	 * 
 	 * @param cmpField
@@ -175,8 +159,8 @@ public class SbbEntityImpl implements SbbEntity {
 	public Object getCMPField(String cmpFieldName)
 			throws TransactionRequiredLocalException {
 
-		if (log.isDebugEnabled()) {
-			log.debug("getCMPField() " + cmpFieldName);
+		if (doTraceLogs) {
+			log.trace("getCMPField(cmpFieldName = "+cmpFieldName+") ");
 		}
 
 		sleeContainer.getTransactionManager().mandateTransaction();
@@ -231,7 +215,7 @@ public class SbbEntityImpl implements SbbEntity {
 					return ploc;
 				} catch (UnrecognizedProfileTableNameException e) {
 					if (log.isDebugEnabled()) {
-						log.debug("Profile table does not exist anymore: "
+						log.debug("Unable to rebuild profile local object stored in CMP field, the profile table does not exist anymore: "
 								+ profileLocalObjectCmpValue
 										.getProfileTableName(), e);
 					}
@@ -239,9 +223,6 @@ public class SbbEntityImpl implements SbbEntity {
 				} 
 
 			case normal:
-				if (log.isDebugEnabled()) {
-					log.debug("getCMPField() value = " + cmpWrapper.getValue());
-				}
 				return cmpWrapper.getValue();
 
 			default:
@@ -259,8 +240,7 @@ public class SbbEntityImpl implements SbbEntity {
 			throws TransactionRequiredLocalException {
 
 		if (log.isDebugEnabled()) {
-			log.debug("putCMPField(): putting cmp field : " + cmpFieldName
-					+ "/" + " object = " + object);
+			log.debug("Sbb entity "+getSbbEntityId()+" setting cmp field "+cmpFieldName+" to "+object);
 		}
 
 		sleeContainer.getTransactionManager().mandateTransaction();
@@ -351,8 +331,8 @@ public class SbbEntityImpl implements SbbEntity {
 		}
 		
 		if (log.isDebugEnabled()) {
-			log.debug("attached sbb entity " + sbbeId + " to ac " + ach
-					+ " , events added to current mask " + maskedEvents);
+			log.debug("Sbb entity "+getSbbEntityId()+" attached to AC with handle " + ach
+					+ " , events added to current mask: " + maskedEvents);
 		}
 	}
 
@@ -366,7 +346,7 @@ public class SbbEntityImpl implements SbbEntity {
 		cacheData.detachActivityContext(ach);
 
 		if (log.isDebugEnabled()) {
-			log.debug("detached sbb entity " + sbbeId + " to ac " + ach);
+			log.debug("Sbb entity "+getSbbEntityId()+" detached from AC with handle " + ach);
 		}
 	}
 
@@ -409,7 +389,7 @@ public class SbbEntityImpl implements SbbEntity {
 		cacheData.setEventMask(ach, maskedEvents);
 
 		if (log.isDebugEnabled()) {
-			log.debug(LogMessageFactory.newLogMessage(ach, sbbeId,"New event mask = " + maskedEvents));
+			log.debug("Sbb entity "+getSbbEntityId()+" set event mask for AC "+ach+". Masked events: " + maskedEvents);
 		}
 		
 	}
@@ -424,8 +404,8 @@ public class SbbEntityImpl implements SbbEntity {
 
 		Set<EventTypeID> maskedEvents = cacheData.getMaskedEventTypes(ach);
 
-		if (log.isDebugEnabled()) {
-			log.debug(LogMessageFactory.newLogMessage(ach, sbbeId,"Current event mask = " + maskedEvents));			
+		if (doTraceLogs) {
+			log.trace("SbbEntity "+getSbbEntityId()+" retrieved event mask for AC "+ach+". Masked events: " + maskedEvents);
 		}
 
 		if (maskedEvents == null || maskedEvents.isEmpty()) {
@@ -476,7 +456,7 @@ public class SbbEntityImpl implements SbbEntity {
 	public void setPriority(byte priority) {
 		cacheData.setPriority(Byte.valueOf(priority));
 		if (log.isDebugEnabled()) {
-			log.debug("set sbb entity " + sbbeId + " priority to " + priority);
+			log.debug("Sbb entity "+getSbbEntityId()+" priority set to " + priority);
 		}
 	}
 
@@ -486,9 +466,9 @@ public class SbbEntityImpl implements SbbEntity {
 	 */
 	public void remove(boolean removeFromParent)
 			throws TransactionRequiredException, SystemException {
-		if (log.isDebugEnabled()) {
-			log.debug("SbbEntity.remove(): Removing entity with id:"
-					+ this.getSbbEntityId());
+	
+		if (doTraceLogs) {
+			log.trace("remove(removeFromParent="+removeFromParent+")");
 		}
 
 		if (removeFromParent) {
@@ -497,7 +477,7 @@ public class SbbEntityImpl implements SbbEntity {
 		removeEntityTree();
 
 		if (log.isDebugEnabled()) {
-			log.debug("REMOVED SBB ENTITY " + this.sbbeId);
+			log.debug("Removed sbb entity " + getSbbEntityId());
 		}
 	}
 
@@ -511,10 +491,10 @@ public class SbbEntityImpl implements SbbEntity {
 	private void removeEntityTree() throws TransactionRequiredException,
 			SystemException {
 
-		if (log.isDebugEnabled()) {
-			log.debug("removing entity tree for sbbeid " + this.sbbeId);
+		if (doTraceLogs) {
+			log.trace("removeEntityTree()");
 		}
-
+		
 		// removes the SBB entity from all Activity Contexts.
 		for (Iterator<ActivityContextHandle> i = this.getActivityContexts().iterator(); i.hasNext();) {
 			ActivityContextHandle ach = i.next();
@@ -592,9 +572,6 @@ public class SbbEntityImpl implements SbbEntity {
 			sbbObject.sbbRolledBack(event,activityContextInterface,removeRollback);
 			sbbObject.sbbStore();
 			sbbObject.sbbPassivate();
-		} else {
-			if (log.isInfoEnabled())
-				log.info("Unexpected case. Check it!"); // CHECKME
 		}
 	}
 
@@ -793,24 +770,8 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#getChildRelation(java.lang.String)
 	 */
 	public ChildRelationImpl getChildRelation(String accessorName) {
-
-		GetChildRelationMethodDescriptor getChildRelationMethod = null;
-		// get the child relation metod from the sbb component
-		if ((getChildRelationMethod = this.sbbComponent.getDescriptor()
-				.getGetChildRelationMethodsMap().get(accessorName)) != null) {
-			// this is a valid name of a child relation for this entity
-			return new ChildRelationImpl(getChildRelationMethod, this);
-		} else {
-			// invalid child relation name
-			log
-					.warn("Sbb entity "
-							+ this.getSbbEntityId()
-							+ " can't get the child relation named "
-							+ accessorName
-							+ ". Does not exist such a relation in sbb component with id "
-							+ this.getSbbId());
-			return null;
-		}
+		return new ChildRelationImpl(this.sbbComponent.getDescriptor()
+				.getGetChildRelationMethodsMap().get(accessorName), this);		
 	}
 
 	public void asSbbActivityContextInterface(ActivityContextInterface aci) {
@@ -861,15 +822,12 @@ public class SbbEntityImpl implements SbbEntity {
 	 */
 	public SbbLocalObjectImpl getSbbLocalObject() {
 		
-		if (log.isTraceEnabled())
+		if (doTraceLogs)
 			log.trace("getSbbLocalObject()");
 
 		// The concrete class generated in ConcreteLocalObjectGenerator
 		final Class<?> sbbLocalClass = sbbComponent.getSbbLocalInterfaceConcreteClass();
 		if (sbbLocalClass != null) {
-			if (log.isDebugEnabled())
-				log.debug("creatingCustom local class "
-						+ sbbLocalClass.getName());
 			Object[] objs = { this };
 			Constructor<?> constructor = sbbComponent.getSbbLocalObjectClassConstructor();
 			if (constructor == null) {
@@ -904,11 +862,6 @@ public class SbbEntityImpl implements SbbEntity {
 	 * Remove entity from cache.
 	 */
 	private void removeFromCache() {
-
-		if (log.isDebugEnabled()) {
-			log.debug("removing sbb entity " + sbbeId + " from cache");
-		}
-
 		cacheData.remove();
 		removed = true;
 	}
@@ -935,9 +888,8 @@ public class SbbEntityImpl implements SbbEntity {
 	private void removeFromParent() throws TransactionRequiredException,
 			SystemException {
 
-		if (log.isDebugEnabled()) {
-			log.debug("Removing sbb entity " + this.getSbbEntityId()
-					+ " from parent " + this.getParentSbbEntityId());
+		if (doTraceLogs) {
+			log.trace("removeFromParent()");
 		}
 
 		if (this.getParentSbbEntityId() != null) {

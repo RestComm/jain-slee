@@ -44,9 +44,8 @@ public class DeployableUnitManagementImpl implements DeployableUnitManagement {
 		if (deployableUnit == null)
 			throw new NullPointerException("null deployableUnit");
 
-		if (logger.isDebugEnabled()) {
-			logger
-					.debug("Adding DU :  "
+		if (logger.isTraceEnabled()) {
+			logger.trace("Adding DU :  "
 							+ deployableUnit.getDeployableUnitID());
 		}
 
@@ -105,8 +104,8 @@ public class DeployableUnitManagementImpl implements DeployableUnitManagement {
 	 */
 	public void removeDeployableUnit(DeployableUnitID deployableUnitID) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removing DU with id:  " + deployableUnitID);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Removing DU with id:  " + deployableUnitID);
 		}
 
 		if (deployableUnitID == null)

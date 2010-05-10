@@ -33,7 +33,9 @@ import org.mobicents.slee.container.sbb.SbbObjectState;
 public class SbbObjectPoolFactory implements PoolableObjectFactory {
 
 	private static Logger logger = Logger.getLogger(SbbObjectPoolFactory.class);
-	   
+	
+	private boolean doTraceLogs = logger.isTraceEnabled();
+
 	private final SbbComponent sbbComponent; 
 	private final ServiceID serviceID;
 	
@@ -51,16 +53,16 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
          * sbbCreate - Tim
          */
     	
-    	if (logger.isDebugEnabled()) {
-        	logger.debug("activateObject() for "+sbbComponent);
+    	if (doTraceLogs) {
+        	logger.trace("activateObject() for "+sbbComponent);
         }
     	
     }
 
     public void destroyObject(Object sbb) throws java.lang.Exception {
     	
-    	if (logger.isDebugEnabled()) {
-        	logger.debug("destroyObject() for "+sbbComponent);
+    	if (doTraceLogs) {
+        	logger.trace("destroyObject() for "+sbbComponent);
         }
         
         SbbObject sbbObject = (SbbObject) sbb;
@@ -99,8 +101,8 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
     public Object makeObject() {
         
         SbbObject retval;
-        if (logger.isDebugEnabled()) {
-            logger.debug("makeObject() for "+serviceID+" and "+sbbComponent);
+        if (doTraceLogs) {
+        	logger.trace("makeObject() for "+serviceID+" and "+sbbComponent);
         }
 
         final ClassLoader oldClassLoader = SleeContainerUtils
@@ -141,8 +143,8 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
 
     public void passivateObject(Object sbb) throws java.lang.Exception {
     	
-    	if (logger.isDebugEnabled()) {
-    		logger.debug("passivateObject() for "+sbbComponent);
+    	if (doTraceLogs) {
+        	logger.trace("passivateObject() for "+sbbComponent);
     	}
     	
         SbbObject sbbObj = (SbbObject) sbb;
@@ -153,8 +155,8 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
        
     	boolean retval = ((SbbObject) sbbo).getState() == SbbObjectState.POOLED;
         
-    	if (logger.isDebugEnabled()) {
-        	logger.debug("validateObject() for "+sbbComponent+" returning " + retval);
+    	if (doTraceLogs) {
+        	logger.trace("validateObject() for "+sbbComponent+" returning " + retval);
         }
         
     	return retval;
