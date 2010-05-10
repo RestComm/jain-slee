@@ -1,9 +1,14 @@
 package org.mobicents.slee.container.component.deployment;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -90,6 +95,21 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 		}
 
 		URL sourceUrl = new URL(url);
+
+		// support remote deployment
+		if(sourceUrl.getProtocol().equals("http") || sourceUrl.getProtocol().equals("https")) {
+		  try {
+		    // Fetch the remote file to a temporary location
+		    File downloadedFile = downloadRemoteDU(sourceUrl, deploymentRoot);
+
+		    // Update the pointers from URL and String
+		    sourceUrl = downloadedFile.toURI().toURL();
+		    url = sourceUrl.toString();
+		  }
+		  catch (Exception e) {
+		    throw new DeploymentException("Failed to retrieve remote DU file : " + sourceUrl.getFile(), e);
+		  }
+		}
 
 		// create jar file
 		JarFile deployableUnitJar = null;
@@ -615,4 +635,44 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 		}
 	}
 
+	private File downloadRemoteDU(URL duURL, File deploymentRoot) throws Exception {
+	  InputStream in = null;
+	  OutputStream out = null;
+
+	  try {
+	    String fileWithPath = duURL.getFile();
+	    int start = fileWithPath.lastIndexOf('/') + 1;
+	    String filename = Math.abs(duURL.hashCode()) + "_" + fileWithPath.substring(start, fileWithPath.length());
+
+	    File tempFile = new File(deploymentRoot, filename);
+
+	    out = new BufferedOutputStream(new FileOutputStream(tempFile));
+	    URLConnection conn = duURL.openConnection();
+	    in = conn.getInputStream();
+
+	    // Get the data
+	    byte[] buffer = new byte[1024];
+	    int numRead;
+	    while ((numRead = in.read(buffer)) != -1) {
+	      out.write(buffer, 0, numRead);
+	    }
+	    // Done! Successful.
+	    return tempFile;
+	  }
+	  finally {
+	    try {
+	      if (in != null) {
+	        in.close();
+	        in = null;
+	      }
+	      if (out != null) {
+	        out.close();
+	        out = null;
+	      }
+	    }
+	    catch (IOException ioe) {
+	      // Shouldn't happen, let's ignore.
+	    }
+	  }
+	}
 }
