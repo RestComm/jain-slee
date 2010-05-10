@@ -6,6 +6,7 @@
 
 <section id="source_slee">
 	<title>SLEE</title>
+	<para>&THIS.EXAMPLE; example uses <acronym>SLEE</acronym> to perform media calls to shop user. Example services perform call and collect input from user. Based on user input services update order data.</para>
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Source_SLEE_Events.xml" />
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Source_SLEE_Services.xml" />
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Source_SLEE_CallControl.xml" />
