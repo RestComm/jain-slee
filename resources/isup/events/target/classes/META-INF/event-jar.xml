@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN" "http://java.sun.com/dtd/slee-event-jar_1_1.dtd">
+
+<event-jar>
+    <description>Event definitions USSD RA events</description>
+	
+    <!-- transaction events -->
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.ADDRESS_COMPLETE</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.AddressCompleteMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.ANSWER</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.AnswerMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.APPLICATION_TRANSPORT</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.ApplicationTransportMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.BLOCKING</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.BlockingMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.BLOCKING_ACK</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.BlockingAckMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CALL_PROGRESS</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.CallProgressMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CHARGE_INFORMATION</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.ChargeInformationMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CURCUIT_GROUP_BLOCKING</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.CircutGroupBlockingMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CURCUIT_GROUP_BLOCKING_ACK</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.CircutGroupBlockingAckMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CURCUIT_GROUP_QUERY</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.CircutGroupQueryMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CURCUIT_GROUP_QUERY_RESPONSE</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.CircutGroupQueryResponseMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CURCUIT_GROUP_RESET</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.CircutGroupResetMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CURCUIT_GROUP_RESET_ACK</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.CircutGroupResetAckMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CURCUIT_GROUP_UNBLOCKING</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.CircutGroupUnblockingMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CURCUIT_GROUP_UNBLOCKING_ACK</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.CircutGroupUnblockingAckMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CONNECT</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.ConnectMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CONTINUITY_CHECK_REQUEST</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.ContinuityCheckRequestMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.CONTINUITY</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.ContinuityMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.FACILITY_ACCPETED</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.FacilityAcceptedMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.FACILITY_REJECTED</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.FacilityRejectedMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.FORWARD_TRANSFER</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.ForwardTransferMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.IDENTIFICATION_REQUEST</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.IdentificationRequestMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.IDENTIFICATION_RESPONSE</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.IdentificationResponseMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.INITIAL_ADDRESS_MESSAGE</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.InitialAddressMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.LOOP_PRVENTION</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.LoopPreventionMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.LOOPBACK_ACK</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.LoopbackAckMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.NETWORK_RESOURCE_MANAGEMENT</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.NetworkResourceManagementMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.OVERLOAD</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.OverloadMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.PASS_ALONG</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.PassAlongMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.PRERELEASE_INFORMATION</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.PreReleaseInformationMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.RELEASE_COMPLETE</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.ReleaseCompleteMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.RESET_CIRCUIT</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.ReserCircuitMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.RESUME</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.ResumeMessage</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.SUBSEQUENT_ADDRESS</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.SubsequentAddressMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.SUBSEQUENT_DIRECTORY_NUMBER</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.SubsequentDirectoryNumberMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.SUSPEND</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.SuspendMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.UNBLOCKING</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.UnblockingMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.UNBLOCKING_ACK</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.UnblockingAckMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.UNEQUIPPED_CIC</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.UnequippedCICMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.USER_TO_USER_INFORMATION</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.User2UserInformationMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.USER_PART_AVAILABLE</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.UserPartAvailableMessage</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resource.isup.USER_PART_TEST</event-type-name>
+	<event-type-vendor>net.java</event-type-vendor>
+	<event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.protocols.ss7.isup.UserPartTestMessage</event-class-name>
+    </event-definition>
+
+</event-jar>
