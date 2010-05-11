@@ -2,6 +2,7 @@ package org.mobicents.slee.example;
 
 import java.util.UUID;
 
+import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -14,6 +15,7 @@ import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
 import javax.slee.facilities.Tracer;
+import javax.slee.management.ProfileProvisioningMBean;
 import javax.slee.profile.ProfileFacility;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileSpecificationID;
@@ -22,7 +24,6 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 
 public abstract class TimerExampleSbb implements javax.slee.Sbb {
 
@@ -160,23 +161,24 @@ public abstract class TimerExampleSbb implements javax.slee.Sbb {
 		
 		tracer.info("Service activated, creating profile and setting 5 minute timer.");
 
-		// get profile table (create if needed)
 		String profileTableName = "TimerExampleProfileTable";
+
+		// get profile table (create if needed)
 		ProfileTable profileTable = null;
 		try {
 			profileTable = profileFacility.getProfileTable(profileTableName);
 		}
 		catch (UnrecognizedProfileTableNameException e) {
+			
 			/**
-			 *  profile tables are created through JMX, this is just done this way to simplify example running, don't try this at home since you will be bound to mobicents specific implementation
+			 *  use jmx to create profile table
 			 */
 			ProfileSpecificationID profileSpecificationID = new ProfileSpecificationID("TimerExampleProfile", "org.mobicents", "1.0");
-			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			ProfileSpecificationComponent profileSpecificationComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationID);
+			Object[] params = { profileSpecificationID, profileTableName };
+			String[] signatures = { profileSpecificationID.getClass().getName(), profileTableName.getClass().getName()};
 			try {
-				sleeContainer.getSleeProfileTableManager().addProfileTable(profileTableName, profileSpecificationComponent);
+				SleeContainer.lookupFromJndi().getMBeanServer().invoke(new ObjectName(ProfileProvisioningMBean.OBJECT_NAME), "createProfileTable", params, signatures);
 				tracer.info("Created profile table with name "+profileTableName);
-
 			}
 			catch (Throwable f) {
 				tracer.warning(f.getMessage(), f);
@@ -218,10 +220,12 @@ public abstract class TimerExampleSbb implements javax.slee.Sbb {
 		ProfileLocalObject profileLocalObject = getProfile();
 		tracer.info("Timer event received, CMP field has a profile with name "+profileLocalObject.getProfileName()+" in table with name "+profileLocalObject.getProfileTableName()+". It stores "+((TimerExampleProfileCMP)profileLocalObject).getValue());
 		/**
-		 *  profile tables are removed through JMX, this is just done this way to simplify example running, don't try this at home since you will be bound to mobicents specific implementation
+		 *  profile tables are removed through JMX
 		 */
+		Object[] params = { profileLocalObject.getProfileTableName() };
+		String[] signatures = { profileLocalObject.getProfileTableName().getClass().getName()};
 		try {
-			SleeContainer.lookupFromJndi().getSleeProfileTableManager().removeProfileTable(profileLocalObject.getProfileTableName());
+			SleeContainer.lookupFromJndi().getMBeanServer().invoke(new ObjectName(ProfileProvisioningMBean.OBJECT_NAME), "removeProfileTable", params, signatures);
 			tracer.info("Removed profile table with name "+profileLocalObject.getProfileTableName());
 
 		}
