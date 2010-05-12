@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -54,6 +55,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 
   private boolean isServerShuttingDown = false;
 
+  private CopyOnWriteArrayList<String> undeploys = new CopyOnWriteArrayList<String>();
+  
   // Constructors -------------------------------------------------------------
 
   /**
@@ -269,6 +272,9 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 
       // If it exists, install it.
       if(realDU != null) {
+        while(undeploys.contains(du.getFileName())) {
+          Thread.sleep(getWaitTimeBetweenOperations());
+        }
         DeploymentManager.INSTANCE.installDeployableUnit(realDU);
       }
     }
@@ -291,6 +297,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
       if(logger.isTraceEnabled()) {
 			logger.trace("Got DU: " + realDU.getDeploymentInfoShortName());
       }
+
+      undeploys.add(fileName);
 
       if(isServerShuttingDown) {
         doStop(fileName);
@@ -320,6 +328,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 
         // Make it null. clean.
         du = null;
+
+        undeploys.remove(filename);
       }
     }
     catch (Exception e) {
