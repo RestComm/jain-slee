@@ -13,7 +13,7 @@ import net.java.slee.resource.sip.DialogActivity;
  * @author martins
  * 
  */
-public class DialogWithoutIdActivityHandle extends SipActivityHandle implements Serializable {
+public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle implements Serializable {
 
 	/**
 	 * 
@@ -62,6 +62,15 @@ public class DialogWithoutIdActivityHandle extends SipActivityHandle implements 
 		return callId;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.MarshableSipActivityHandle#getEstimatedHandleSize()
+	 */
+	@Override
+	public int getEstimatedHandleSize() {
+		return callId.length() + localTag.length() + (remoteTag != null ? remoteTag.length() : 0) + 7;
+	}
+	
 	/**
 	 * Retrieves the dialog's local tag
 	 * 

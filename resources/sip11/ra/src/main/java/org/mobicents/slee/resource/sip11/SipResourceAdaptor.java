@@ -46,7 +46,6 @@ import javax.sip.message.Response;
 import javax.slee.Address;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.Tracer;
-import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
@@ -70,7 +69,6 @@ import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 import org.mobicents.slee.resource.sip11.wrappers.ACKDummyTransaction;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
-import org.mobicents.slee.resource.sip11.wrappers.NullClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.RequestEventWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ResponseEventWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ServerTransactionWrapper;
@@ -162,11 +160,20 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	private SipFactory sipFactory = null;
 
 	/**
+	 * 
+	 */
+	private Marshaler marshaler = new SipMarshaler();
+
+	/**
 	 * for all events we are interested in knowing when the event failed to be processed
 	 */
 	public static final int DEFAULT_EVENT_FLAGS = EventFlags.REQUEST_PROCESSING_FAILED_CALLBACK;
-		
-	private static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;//.NO_FLAGS;
+
+	public static final int UNREFERENCED_EVENT_FLAGS = EventFlags.setRequestEventReferenceReleasedCallback(DEFAULT_EVENT_FLAGS);
+
+	public static final int NON_MARSHABLE_ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;//.NO_FLAGS;
+	
+	public static final int MARSHABLE_ACTIVITY_FLAGS = ActivityFlags.setSleeMayMarshal(NON_MARSHABLE_ACTIVITY_FLAGS);
 	
 	public SipResourceAdaptor() {
 		// Those values are defualt
@@ -388,7 +395,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		int eventFlags = DEFAULT_EVENT_FLAGS;
 		if (stw.isAckTransaction()) {
 			// ack txs are not terminated by stack, so we need to rely on the event release callback
-			eventFlags = EventFlags.setRequestEventReferenceReleasedCallback(eventFlags);
+			eventFlags = UNREFERENCED_EVENT_FLAGS;
 		}				
 		
 		final FireableEventType eventType = eventIdCache.getEventId(eventLookupFacility, req.getRequest(), dw != null);
@@ -476,36 +483,16 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 							tracer.fine("Received a 2xx response without a client transaction, but found a master dialog so it's a late fork response, sending ack and bye.");
 						}
 						processLateDialogFork2xxResponse(response);
-						return;
 					}
 				}
-				if (fineTrace) {
-					tracer.fine("Received "+response.getStatusCode()+" response without a client transaction, and didn't found a master dialog, firing event in a dummy client transaction.");
-				}
-				//fire the event on a recreated dummy transaction
-				final String branchId = ((ViaHeader)response.getHeaders(ViaHeader.NAME).next()).getBranch();
-				final String method = ((CSeqHeader)response.getHeader(CSeqHeader.NAME)).getMethod();
-				handle = new ClientTransactionActivityHandle(branchId,method);
-				ctw = new NullClientTransactionWrapper(handle,this);
-				// create the activity
-				try {
-					sleeEndpoint.startActivity(handle,ctw,ACTIVITY_FLAGS);
-					activityManagement.put(handle, ctw);
-				}
-				catch (Throwable e) {
-					// silently ignore exception, it may already exist
-				}
-				// essential to terminate the activity in slee					
-				requestEventUnreferenced = response.getStatusCode() > 199;
-				
 			}
 			else {
 				// in dialog retransmissions should be filtered 
 				if (fineTrace) {
 					tracer.fine("Received "+response.getStatusCode()+" in-dialog response without a client transaction, dropping, should be a retransmission.");
 				}
-				return;				
 			}
+			return;				
 		}
 		else {
 			ctw = (ClientTransactionWrapper) ct.getApplicationData();
@@ -535,7 +522,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 						
 		int eventFlags = DEFAULT_EVENT_FLAGS;
 		if (requestEventUnreferenced) {
-			eventFlags = EventFlags.setRequestEventReferenceReleasedCallback(eventFlags);
+			eventFlags = UNREFERENCED_EVENT_FLAGS;
 		}
 		
 		if (dw == null || !dw.processIncomingResponse(responseEvent)) {
@@ -838,23 +825,13 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			tracer.fine("Adding sip activity handle " + wrapperActivity.getActivityHandle());
 		}
 
+		final int activityFlags = wrapperActivity.isDialog() ? MARSHABLE_ACTIVITY_FLAGS : NON_MARSHABLE_ACTIVITY_FLAGS;
 		try {
 			if (transacted) {
-				sleeEndpoint.startActivityTransacted(wrapperActivity.getActivityHandle(),wrapperActivity,ACTIVITY_FLAGS);
+				sleeEndpoint.startActivityTransacted(wrapperActivity.getActivityHandle(),wrapperActivity,activityFlags);
 			}
 			else {
-				sleeEndpoint.startActivity(wrapperActivity.getActivityHandle(),wrapperActivity,ACTIVITY_FLAGS);
-			}
-		}
-		catch (ActivityAlreadyExistsException e) {
-			if (!inLocalMode() && (!wrapperActivity.isDialog() || wrapperActivity.getActivityHandle().getClass() == DialogWithoutIdActivityHandle.class) ) {
-				if (fineTrace) {
-					tracer.fine("Failed to add activity, but RA is running in cluster and the activity type is not replicated, which means it may result from fail over",e);
-				}
-			}
-			else {
-				tracer.severe(e.getMessage(),e);
-				return false;
+				sleeEndpoint.startActivity(wrapperActivity.getActivityHandle(),wrapperActivity,activityFlags);
 			}
 		}
 		catch (Throwable e) {
@@ -877,8 +854,10 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			tracer.fine("Adding suspended sip activity handle " + wrapperActivity.getActivityHandle());
 		}
 
+		final int activityFlags = wrapperActivity.isDialog() ? MARSHABLE_ACTIVITY_FLAGS : NON_MARSHABLE_ACTIVITY_FLAGS;
+
 		try {
-			sleeEndpoint.startActivitySuspended(wrapperActivity.getActivityHandle(),wrapperActivity,ACTIVITY_FLAGS);
+			sleeEndpoint.startActivitySuspended(wrapperActivity.getActivityHandle(),wrapperActivity,activityFlags);
 		}
 		catch (Throwable e) {
 			tracer.severe(e.getMessage(),e);
@@ -1412,8 +1391,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	 * @see javax.slee.resource.ResourceAdaptor#getMarshaler()
 	 */
 	public Marshaler getMarshaler() {
-		// TODO Auto-generated method stub
-		return null;
+		return marshaler;
 	}	
 	
 	public SleeSipProviderImpl getProviderWrapper() {

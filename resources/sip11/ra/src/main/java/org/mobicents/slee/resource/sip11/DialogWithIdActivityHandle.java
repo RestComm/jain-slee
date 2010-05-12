@@ -10,7 +10,7 @@ import net.java.slee.resource.sip.DialogActivity;
  * @author martins
  * 
  */
-public class DialogWithIdActivityHandle extends SipActivityHandle implements Serializable {
+public class DialogWithIdActivityHandle extends MarshableSipActivityHandle implements Serializable {
 
 	/**
 	 * 
@@ -42,6 +42,15 @@ public class DialogWithIdActivityHandle extends SipActivityHandle implements Ser
 	 */
 	public String getDialogId() {
 		return dialogId;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.MarshableSipActivityHandle#getEstimatedHandleSize()
+	 */
+	@Override
+	public int getEstimatedHandleSize() {
+		return dialogId.length() + 3;
 	}
 	
 	@Override
