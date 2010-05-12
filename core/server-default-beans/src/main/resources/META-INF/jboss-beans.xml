@@ -158,7 +158,7 @@
 		
 	<bean name="Mobicents.JAINSLEE.TimerFacilityConfiguration"
 		class="org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee.config:name=TimerFacility",exposedInterface=org.mobicents.slee.container.management.jmx.TimerFacilityConfigurationMBean.class,registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=TimerFacilityConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.TimerFacilityConfigurationMBean.class,registerDirectly=true)</annotation>
 		<property name="timerThreads">8</property>
 	</bean>
 	
@@ -171,8 +171,22 @@
 		</constructor>	
 	</bean>	
 	
+	<bean name="Mobicents.JAINSLEE.ActivityManagementConfiguration"
+		class="org.mobicents.slee.runtime.activity.ActivityManagementConfiguration">
+		<!-- values in min -->
+		<property name="timeBetweenLivenessQueries">15</property>
+		<property name="maxTimeIdle">15</property>
+		<property name="minTimeBetweenUpdates">5</property>
+	</bean>		
+	
 	<bean name="Mobicents.JAINSLEE.ActivityContextFactory"
-		class="org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl" />		
+		class="org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl">
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.ActivityManagementConfiguration" />
+			</parameter>
+		</constructor>
+	</bean>			
 	
 	<bean name="Mobicents.JAINSLEE.NullActivityContextInterfaceFactory"
 		class="org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContextInterfaceFactoryImpl" />

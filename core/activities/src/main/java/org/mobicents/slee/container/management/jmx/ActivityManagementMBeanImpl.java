@@ -7,8 +7,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.NotCompliantMBeanException;
 import javax.slee.SbbID;
@@ -49,18 +50,11 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	// Passing MBean interface class which enables custom names this is why
 	// MBean interface has sufix - MBeanImplMbean
 	
-	// 10 minutes interval between querries
-	private long querryInterval = 600 * 1000;
-
-	private long maxActivityIdleTime = 600 * 1000;
-
 	private final ActivityContextFactoryImpl acFactory;
 	private final SbbEntityFactory sbbEntityFactory;
 	private final SleeTransactionManager txMgr;
 
 	private TimerTask currentQuestioner = null;
-
-	private Timer queryRunner = new Timer("MOBICENTS_ACTIVITY_LIVELINESS_TIMER");
 
 	private static Logger logger = Logger
 			.getLogger(ActivityManagementMBeanImpl.class);
@@ -94,44 +88,20 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		}
 	}
 
-	public long getQueryActivityContextLivelinessPeriod() {
-
-		return this.querryInterval;
+	public void setTimeBetweenLivenessQueries(long set) {
+		acFactory.getConfiguration().setTimeBetweenLivenessQueries(set);
 	}
-
-	public void setQueryActivityContextLivelinessPeriod(long set) {
-
-		long originalV = this.querryInterval;
-
-		if (set <= 100)
-			this.querryInterval = 15000; // 15 secs
-		else
-			this.querryInterval = set;
-
-		logger.info("Reinitiating liveliness query to run ["
-				+ !(querryInterval == 0) + "]");
-		if (currentQuestioner.cancel()) {
-			if (querryInterval == 0) {
-				return;
-			}
-			currentQuestioner = new PeriodicLivelinessScanner();
-			queryRunner.schedule(currentQuestioner, querryInterval);
-		} else if (originalV == 0) {
-			currentQuestioner = new PeriodicLivelinessScanner();
-			queryRunner.schedule(currentQuestioner, querryInterval);
-		}
-		logger.info("Reinitiated");
+	
+	public long getTimeBetweenLivenessQueries() {
+		return acFactory.getConfiguration().getTimeBetweenLivenessQueries();
 	}
 
 	public void setActivityContextMaxIdleTime(long set) {
-		if (set <= 100 && set > 0)
-			this.maxActivityIdleTime = 15000;
-		else
-			this.maxActivityIdleTime = set;
+		acFactory.getConfiguration().setMaxTimeIdle(set);
 	}
 
 	public long getActivityContextMaxIdleTime() {
-		return this.maxActivityIdleTime;
+		return acFactory.getConfiguration().getMaxTimeIdle();
 	}
 
 	// --- OPERATIONS
@@ -497,7 +467,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 				+ "]");
 		// Date d = new Date(ac.getLastAccessTime());
 		// o[LAST_ACCESS_TIME] = d;
-		o[LAST_ACCESS_TIME] = ac.getLocalActivityContext().getLastAccessTime() + "";
+		o[LAST_ACCESS_TIME] = ac.getLastAccessTime() + "";
 		logger.debug("======[getDetails][LAST_ACCESS_TIME]["
 				+ o[LAST_ACCESS_TIME] + "]["
 				+ new Date(Long.parseLong((String) o[LAST_ACCESS_TIME])) + "]");
@@ -645,15 +615,6 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		return ret;
 	}
 
-	// == Some helpers
-	private void prepareBean() {
-		if (currentQuestioner == null) {
-			this.currentQuestioner = new PeriodicLivelinessScanner();
-			this.queryRunner.schedule(this.currentQuestioner,
-					this.querryInterval);
-		}
-	}
-
 	// TimerClass to run periodic livelines querry - here is decided which ac
 	// are going to be querried, and possibly destroyed
 	// , depends on impl
@@ -663,30 +624,10 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	 */
 	private class PeriodicLivelinessScanner extends TimerTask {
 
-		private Set<ActivityContextHandle> getActivityContextHandles() {
-			if(logger.isDebugEnabled())
-				logger
-					.debug("Periodic Liveliness Task is on the run, retrieveing all ACs");
-			
-			try {
-				txMgr.begin();
-				return acFactory.getAllActivityContextsHandles();
-			}
-			catch (Exception e) {
-				logger.error("failed to retrieve all ACs to do periodic liveness scan", e);
-				return null;
-			}
-			finally {
-				try {
-					txMgr.rollback();
-				}
-				catch (Exception e) {
-					logger.error("failed to end tx to retrieve all ACs and do periodic liveness scan", e);
-				}
-			}
-		}
-		
 		private void queryLiveness(ActivityContextHandle ach,long currentTime) {
+			
+			if (ach.getActivityType() != ActivityType.RA)
+				return;
 			
 			if(logger.isDebugEnabled())
 				logger
@@ -695,35 +636,19 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 			try {
 				txMgr.begin();
 				ActivityContextImpl ac = acFactory.getActivityContext(ach);
-				if (ac != null) {  
-					if (ach.getActivityType() != ActivityType.RA)
-						return;
-
-					if ((currentTime - ac.getLocalActivityContext().getLastAccessTime()) < maxActivityIdleTime) {
+				if (ac != null) {  					
+					if ((currentTime - ac.getLastAccessTime()) < acFactory.getConfiguration().getMaxTimeIdleInMs()) {
 						// This one has been accessed in near past, so we dont
 						// want to query it
 						return;
 					}
 					final ResourceAdaptorActivityContextHandle raach = (ResourceAdaptorActivityContextHandle) ach; 
 					final ResourceAdaptorEntity raEntity = raach.getResourceAdaptorEntity();
-					if (raEntity.getResourceAdaptorObject().getActivity(ach.getActivityHandle()) != null) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Invoking ra entity "+raEntity.getName()+" queryLiveness() for activity handle "+ach.getActivityHandle());
-						}
-						raEntity.getResourceAdaptorObject().queryLiveness(
-								ach.getActivityHandle());
+					if (logger.isDebugEnabled()) {
+						logger.debug("Invoking ra entity "+raEntity.getName()+" queryLiveness() for activity handle "+ach.getActivityHandle());
 					}
-					else {
-						logger.warn("Ending leaked activity with handle "+ach.getActivityHandle()+" of ra entity "+raEntity.getName()+" since the ra entity getActivity() returns null");
-						if (!ac.isEnding()) {
-							// end it
-							ac.endActivity();
-						}
-						else {
-							// force removal
-							acFactory.removeActivityContext(ac);
-						}
-					}					
+					raEntity.getResourceAdaptorObject().queryLiveness(
+								ach.getActivityHandle());					
 				}
 			}
 			catch (Exception e) {
@@ -742,27 +667,42 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		}
 		
 		public void run() {
-			Set<ActivityContextHandle> achs = this.getActivityContextHandles();
+			Set<ActivityContextHandle> achs = acFactory.getAllActivityContextsHandles();
 			if (achs != null) {
 				long currentTime = System.currentTimeMillis();
 				for (ActivityContextHandle ach : achs) {
 					this.queryLiveness(ach,currentTime);										
 				}
 			}
-			if (querryInterval != 0) {
-				// Lets schedule again				
-				currentQuestioner = new PeriodicLivelinessScanner();
-				queryRunner.schedule(currentQuestioner, querryInterval);
-				if(logger.isDebugEnabled())
-					logger.debug("Periodic Liveliness Task scheduled for next run");
-			}
+			scheduleLivenessQuery();
 		}
 
 	}
 
 	// -------------------- JBOSS MBean LIFECYCLE METHODS
 
+	private ScheduledFuture<?> scheduledFuture;
+	
+	private void scheduleLivenessQuery() {
+		final long timeBetweenLivenessQueries = acFactory.getConfiguration().getTimeBetweenLivenessQueries();
+		if (timeBetweenLivenessQueries > 0) {
+			this.scheduledFuture = this.acFactory.getSleeContainer().getNonClusteredScheduler().schedule(new PeriodicLivelinessScanner(),timeBetweenLivenessQueries,TimeUnit.MINUTES);
+			if(logger.isDebugEnabled())
+				logger.debug("Periodic Liveliness Task scheduled to run in "+timeBetweenLivenessQueries+" minutes");
+		}
+		else {
+			this.scheduledFuture = null;
+		}
+	}
+	
+	public void cancelLivenessQuery() {
+		if (scheduledFuture != null) {
+			scheduledFuture.cancel(true);
+		}
+	}
+	
 	/**
+	 * 
 	 * 
 	 * start MBean service lifecycle method
 	 * 
@@ -771,8 +711,8 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		if(logger.isDebugEnabled()) {
 			logger.debug("Starting Activity Manager MBean");
 		}
-		prepareBean();
 		logger.info("Activity Management MBean started");
+		scheduleLivenessQuery();
 	}
 
 	/**
@@ -781,10 +721,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	 * 
 	 */
 	protected void stopService() throws Exception {
-
-		this.queryRunner.cancel();
-		
-
+		cancelLivenessQuery();
 	}
 	
 }

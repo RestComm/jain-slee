@@ -55,7 +55,9 @@ public class ActivityContextImpl implements ActivityContext {
 
 	// --- map keys for attributes cached
 	private static final String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags"; 
-		
+
+	private static final String NODE_MAP_KEY_LAST_ACCESS = "time"; 
+
 	/**
 	 * the handle for this ac
 	 */
@@ -75,24 +77,16 @@ public class ActivityContextImpl implements ActivityContext {
 		// ac creation, create cache data and set activity flags
 		this.cacheData.create();
 		this.cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
-		
-		final TransactionalAction action = new TransactionalAction() {
-			public void execute() {
-				updateLastAccessTime(activityContextHandle);				
-			}
-		};
+		if (updateAccessTime) {
+			updateLastAccessTime(true);
+		}
 		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 		if (txContext != null) {
-			txContext.getAfterCommitActions().add(action);
 			if (ActivityFlags.hasRequestSleeActivityGCCallback(activityFlags) || activityContextHandle.getActivityType() == ActivityType.NULL) {
 				// we need to schedule check for an unreferenced activity
 				scheduleCheckForUnreferencedActivity(txContext);
 			}
 		}
-		else {
-			// no tx
-			action.execute();
-		}		
 	}
 	
 	public ActivityContextImpl(ActivityContextHandle activityContextHandle, ActivityContextCacheData cacheData, boolean updateAccessTime, ActivityContextFactoryImpl factory) {
@@ -100,8 +94,8 @@ public class ActivityContextImpl implements ActivityContext {
 		this.factory = factory;
 		this.cacheData = cacheData;
 		// update last acess time if needed	
-		if (updateAccessTime) {
-			updateLastAccessTime(activityContextHandle);
+		if (cacheData.exists() && updateAccessTime) {
+			updateLastAccessTime(false);
 		}
 	}
 
@@ -369,10 +363,46 @@ public class ActivityContextImpl implements ActivityContext {
 		return cacheData.getSbbEntitiesAttached();	
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public long getLastAccessTime() {
+		final Long time = (Long) cacheData.getObject(NODE_MAP_KEY_LAST_ACCESS);
+		return time == null ? 0L : time.longValue(); 
+	}
+	
 	// --- private helpers
 
-	private void updateLastAccessTime(ActivityContextHandle activityContextHandle) {
-		getLocalActivityContext().setLastAccessTime(System.currentTimeMillis());		
+	private void updateLastAccessTime(boolean creation) {
+		if (creation) {
+			cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(System.currentTimeMillis()));			
+		}
+		else {
+			ActivityManagementConfiguration configuration = factory.getConfiguration();
+			Long lastUpdate = (Long) cacheData.getObject(NODE_MAP_KEY_LAST_ACCESS);
+			if (lastUpdate != null) {
+				final long now = System.currentTimeMillis();
+				if ((now - configuration.getMinTimeBetweenUpdatesInMs()) > lastUpdate.longValue()) {
+					// last update
+					if (logger.isTraceEnabled()) {
+						logger.trace("Updating access time for AC with handle "+getActivityContextHandle());
+					}
+					cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(now));
+				}
+				else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Skipping update of access time for AC with handle "+getActivityContextHandle());
+					}
+				}
+			}
+			else {
+				cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(System.currentTimeMillis()));
+				if (logger.isTraceEnabled()) {
+					logger.trace("Updating access time for AC with handle "+getActivityContextHandle());
+				}
+			}
+		}
 	}
 	
 	private static final Object MAP_VALUE = new Object();

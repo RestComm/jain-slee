@@ -39,7 +39,21 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	private ActivityContextFactoryCacheData cacheData;
 	
+	private final ActivityManagementConfiguration configuration;
+	
 	private final static boolean doTraceLogs = logger.isTraceEnabled();
+	
+	public ActivityContextFactoryImpl(ActivityManagementConfiguration configuration) {
+		this.configuration = configuration;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public ActivityManagementConfiguration getConfiguration() {
+		return configuration;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeStarting()
@@ -53,8 +67,9 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		this.sleeContainer.getNonClusteredScheduler().scheduleAtFixedRate(new LocalResourcesGarbageCollectionTimerTask(), period, period, TimeUnit.MILLISECONDS);
 	}
 	
-	/**
-	 * @return the sleeContainer
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.AbstractSleeContainerModule#getSleeContainer()
 	 */
 	public SleeContainer getSleeContainer() {
 		return sleeContainer;

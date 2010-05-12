@@ -16,16 +16,6 @@ public class LocalActivityContextImpl implements LocalActivityContext {
 	/**
 	 * 
 	 */
-	private long lastAccessTime;
-	
-	/**
-	 * byte array form of the ac handle
-	 */
-	private byte[] activityHandleBytes;
-	
-	/**
-	 * 
-	 */
 	private EventRouterExecutor executor;
 	
 	/**
@@ -59,14 +49,6 @@ public class LocalActivityContextImpl implements LocalActivityContext {
 		return ach;
 	}
 	
-	public byte[] getActivityHandleBytes() {
-		return activityHandleBytes;
-	}
-	
-	public void setActivityHandleBytes(byte[] activityHandleBytes) {
-		this.activityHandleBytes = activityHandleBytes;
-	}
-	
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.container.activity.LocalActivityContext#getCurrentEventRoutingTask()
 	 */
@@ -79,23 +61,6 @@ public class LocalActivityContextImpl implements LocalActivityContext {
 	 */
 	public void setCurrentEventRoutingTask(EventRoutingTask eventRoutingTask) {
 		this.routingTask = eventRoutingTask;
-	}
-	
-	/**
-	 * @return the lastAccessTime
-	 */
-	public long getLastAccessTime() {
-		if (lastAccessTime == 0L) {
-			lastAccessTime = System.currentTimeMillis();
-		}
-		return lastAccessTime;
-	}
-	
-	/**
-	 * @param lastAccessTime the lastAccessTime to set
-	 */
-	public void setLastAccessTime(long lastAccessTime) {
-		this.lastAccessTime = lastAccessTime;
 	}
 	
 	@Override

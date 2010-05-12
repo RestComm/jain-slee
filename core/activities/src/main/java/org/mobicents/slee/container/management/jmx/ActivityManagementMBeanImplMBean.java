@@ -146,7 +146,7 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 * 
 	 * @return the period between activity context liveness queries.
 	 */
-	public long getQueryActivityContextLivelinessPeriod();
+	public long getTimeBetweenLivenessQueries();
 
 	/**
 	 * Sets the period between activity context liveness queries. Its lower
@@ -156,7 +156,7 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 * @param new
 	 *            value of period between liveliness queries
 	 */
-	public void setQueryActivityContextLivelinessPeriod(long set);
+	public void setTimeBetweenLivenessQueries(long set);
 
 	/**
 	 * Set max time an activity context can be idle. Its value indicates how
