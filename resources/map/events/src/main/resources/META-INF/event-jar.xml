@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN" "http://java.sun.com/dtd/slee-event-jar_1_1.dtd">
+
+
+
+<event-jar>
+
+	<library-ref>
+		<library-name>library-map</library-name>
+		<library-vendor>library-map</library-vendor>
+		<library-version>2.0</library-version>
+	</library-ref>
+
+	<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.OPEN_INFO
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.dialog.MAPOpenInfo
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.ACCEPT_INFO
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.dialog.MAPAcceptInfo
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.CLOSE_INFO
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.dialog.MAPCloseInfo
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.REFUSE_INFO
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.dialog.MAPRefuseInfo
+		</event-class-name>
+	</event-definition>
+
+
+	<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.USER_ABORT_INFO
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortInfo
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.PROVIDER_ABORT_INFO
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.dialog.MAPProviderAbortInfo
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication 
+		</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_CONFIRM
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSConfirm 
+		</event-class-name>
+	</event-definition>
+	
+			<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.UNSTRUCTURED_SS_REQUEST_INDICATION
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication 
+		</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>
+			org.mobicents.protocols.ss7.map.UNSTRUCTURED_SS_REQUEST_CONFIRM
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSConfirm
+		</event-class-name>
+	</event-definition>	
+
+</event-jar>
+
+
