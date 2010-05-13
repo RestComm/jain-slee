@@ -57,6 +57,7 @@ import javax.csapi.cc.jcc.JccCall;
 import javax.csapi.cc.jcc.JccConnection;
 import javax.csapi.cc.jcc.JccCallEvent;
 import javax.csapi.cc.jcc.JccConnectionEvent;
+import javax.csapi.cc.jcc.JccProvider;
 import javax.csapi.cc.jcc.MethodNotSupportedException;
 import javax.csapi.cc.jcc.ResourceUnavailableException;
 
@@ -223,8 +224,10 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 				xmlConvofiguration += ";" + key + "=" + properties.getProperty(key);
 			}
 
-			JccPeer peer = JccPeerFactory.getJccPeer(peerName);
-			peer.getProvider(xmlConvofiguration);
+			//FIXME: make this work
+//			JccPeer peer = JccPeerFactory.getJccPeer(peerName);
+//			JccProvider testProvider = peer.getProvider(xmlConvofiguration);
+//			testProvider.shutdown();
 			
 		} catch (UnsatisfiedLinkError ex) {
 			logger.warning("JCC Resource adaptor is not attached to baord driver", ex);
