@@ -39,6 +39,7 @@ import org.mobicents.protocols.ss7.tcap.api.TCAPSendException;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCContinueRequest;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCEndRequest;
+import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TerminationType;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
 import org.mobicents.util.LocalTimer;
 
@@ -342,6 +343,7 @@ public abstract class AbstractConnection implements JccConnection {
             logger.debug(this + "onDisconnected(): ending TCAP dialogue");
         }
         TCEndRequest message = this.tcapProvider.getDialogPrimitiveFactory().createEnd(this.tcapDialog);
+        message.setTermination(TerminationType.Basic);
         try {
 			this.tcapDialog.send(message);
 		} catch (TCAPSendException e) {
