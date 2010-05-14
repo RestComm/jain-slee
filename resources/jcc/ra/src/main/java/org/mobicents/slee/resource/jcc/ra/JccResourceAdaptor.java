@@ -35,6 +35,7 @@ import javax.slee.resource.ResourceAdaptor;
 
 import javax.slee.resource.SleeEndpoint;
 import javax.slee.facilities.EventLookupFacility;
+import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
@@ -47,6 +48,7 @@ import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptorContext;
+import javax.slee.resource.StartActivityException;
 import javax.slee.resource.UnrecognizedActivityHandleException;
 
 import javax.csapi.cc.jcc.JccPeerFactory;
@@ -628,6 +630,25 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		// create new activity handle
 		JccConnectionActivityHandle handle = new JccConnectionActivityHandle(connection);
 		handlers.put(connection.toString(), handle);
+		try {
+			this.sleeEndpoint.startActivity(handle, connection);
+			//FIXME: add this 
+		} catch (ActivityAlreadyExistsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SLEEException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (StartActivityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (logger.isFineEnabled())
 			logger.fine("onConnectionCreate():put handle: " + handle + " under key: " + connection.toString());
 
