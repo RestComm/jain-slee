@@ -189,7 +189,7 @@ public class TCHandler implements Runnable {
 					}
 				}
                 
-                if( (inapOp instanceof InitialDP))
+                if( !(inapOp instanceof InitialDP))
                 {
                 	logger.error("Operation is not InitialDP!: "+inapOp);
                 	continue;
