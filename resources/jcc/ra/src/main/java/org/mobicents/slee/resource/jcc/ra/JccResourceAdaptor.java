@@ -79,7 +79,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 	private static final String _CONFIG_OPT_NAME_JCCPEER = "jccPeer";
 	private static final String _CONFIG_OPT_NAME_CONF = "configName";
 
-	private transient EventLookupFacility eventLookup = null;
+	
 	private JccProviderLocal provider;
 	private Address address = new Address(AddressPlan.IP, "127.0.0.1");
 	private Tracer logger = null;
@@ -697,7 +697,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		FireableEventType eventID = null;
 		try {
 			EventTypeID eventTypeId = new EventTypeID(eventName, "javax.csapi.cc.jcc", "1.1");
-			eventID = eventLookup.getFireableEventType(eventTypeId);
+			eventID = eventLookupFacility.getFireableEventType(eventTypeId);
 		} catch (FacilityException fe) {
 			if (logger.isSevereEnabled())
 				logger.severe("Caught a FacilityException: ");
