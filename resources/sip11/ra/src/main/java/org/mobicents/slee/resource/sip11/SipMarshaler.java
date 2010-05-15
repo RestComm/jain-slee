@@ -63,7 +63,9 @@ public class SipMarshaler implements javax.slee.resource.Marshaler {
 	private static final Class<?> DialogWithIdActivityHandle_TYPE = DialogWithIdActivityHandle.class;
 	private static final Class<?> DialogWithoutIdActivityHandle_TYPE = DialogWithoutIdActivityHandle.class;
 
-	private static final boolean dialogWithIdActivityHandle = true;
+	private static final byte dialogWithIdActivityHandle = 0;
+	private static final byte dialogWithoutIdActivityHandleAndNullRemoteTag = 1;
+	private static final byte dialogWithoutIdActivityHandleAndNotNullRemoteTag = 2;
 	
 	/*
 	 * (non-Javadoc)
@@ -77,15 +79,21 @@ public class SipMarshaler implements javax.slee.resource.Marshaler {
 		final Class<?> handleType = arg0.getClass();
 
 		if (handleType == DialogWithIdActivityHandle_TYPE) {
-			arg1.writeBoolean(dialogWithIdActivityHandle);
+			arg1.writeByte(dialogWithIdActivityHandle);
 			final DialogWithIdActivityHandle handle = (DialogWithIdActivityHandle) arg0;
 			arg1.writeUTF(handle.getDialogId());
 		} else if (handleType == DialogWithoutIdActivityHandle_TYPE) {
-			arg1.writeBoolean(!dialogWithIdActivityHandle);
 			final DialogWithoutIdActivityHandle handle = (DialogWithoutIdActivityHandle) arg0;
+			final String remoteTag = handle.getRemoteTag();
+			if (remoteTag != null) {
+				arg1.writeByte(dialogWithoutIdActivityHandleAndNotNullRemoteTag);
+				arg1.writeUTF(handle.getRemoteTag());
+			}
+			else {
+				arg1.writeByte(dialogWithoutIdActivityHandleAndNullRemoteTag);
+			}
 			arg1.writeUTF(handle.getCallId());
 			arg1.writeUTF(handle.getLocalTag());
-			arg1.writeUTF(handle.getRemoteTag());
 		} else {
 			throw new IOException("unknown activity handle type");
 		}
@@ -121,16 +129,19 @@ public class SipMarshaler implements javax.slee.resource.Marshaler {
 	 */
 	public ActivityHandle unmarshalHandle(DataInput arg0) throws IOException {
 
-		final boolean handleType = arg0.readBoolean();
+		final byte handleType = arg0.readByte();
 
 		if (handleType == dialogWithIdActivityHandle) {
 			final String dialogId = arg0.readUTF();
 			return new DialogWithIdActivityHandle(dialogId);
 		} 
 		else {
+			String remoteTag = null;
+ 			if (handleType == dialogWithoutIdActivityHandleAndNotNullRemoteTag) {
+				remoteTag = arg0.readUTF(); 
+			}
 			final String callId = arg0.readUTF();
 			final String localTag = arg0.readUTF();
-			final String remoteTag = arg0.readUTF();
 			return new DialogWithoutIdActivityHandle(callId, localTag,
 					remoteTag);
 		}
