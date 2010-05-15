@@ -27,6 +27,11 @@
 		<docs.ra.name>MAP</docs.ra.name>
 		<docs.ra.dirname>MAP</docs.ra.dirname>
 		<docs.bookid>MAP</docs.bookid>
+		
+		<map.version>1.0.0.BETA1-SNAPSHOT</map.version>
+		<tcap.version>1.0.0.BETA1-SNAPSHOT</tcap.version>
+		<sccp.version>1.0.0.BETA1-SNAPSHOT</sccp.version>
+		<asn.version>1.0.0.BETA1-SNAPSHOT</asn.version>
 	</properties>
 	
 	<profiles>
