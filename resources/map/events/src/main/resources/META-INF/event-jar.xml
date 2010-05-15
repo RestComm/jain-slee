@@ -85,42 +85,20 @@
 		<event-type-vendor>org.mobicents</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>
-			org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication 
+			org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication
 		</event-class-name>
 	</event-definition>
-	
+
 	<event-definition>
-		<event-type-name>
-			org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_CONFIRM
-		</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>
-			org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSConfirm 
-		</event-class-name>
-	</event-definition>
-	
-			<event-definition>
 		<event-type-name>
 			org.mobicents.protocols.ss7.map.UNSTRUCTURED_SS_REQUEST_INDICATION
 		</event-type-name>
 		<event-type-vendor>org.mobicents</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>
-			org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication 
+			org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication
 		</event-class-name>
 	</event-definition>
-	
-	<event-definition>
-		<event-type-name>
-			org.mobicents.protocols.ss7.map.UNSTRUCTURED_SS_REQUEST_CONFIRM
-		</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>
-			org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSConfirm
-		</event-class-name>
-	</event-definition>	
 
 </event-jar>
 

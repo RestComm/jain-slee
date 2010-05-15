@@ -13,15 +13,18 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 /**
  * 
  * @author amit bhayani
- *
+ * 
  */
 public class MAPProviderImpl implements MAPProvider {
 
-	private org.mobicents.protocols.ss7.map.MAPProviderImpl mapProviderImpl = null;
+	private org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = null;
+
+	protected MAPProviderImpl(org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider) {
+		this.mapProvider = mapProvider;
+	}
 
 	public void addMAPDialogListener(MAPDialogListener arg0) {
 		throw new UnsupportedOperationException();
-
 	}
 
 	public void addMAPServiceListener(MAPServiceListener arg0) {
@@ -30,11 +33,11 @@ public class MAPProviderImpl implements MAPProvider {
 
 	public MAPDialog createNewDialog(MAPApplicationContext appCntx, SccpAddress destAddress,
 			AddressString destReference, SccpAddress origAddress, AddressString origReference) throws MAPException {
-		return mapProviderImpl.createNewDialog(appCntx, destAddress, destReference, origAddress, origReference);
+		return mapProvider.createNewDialog(appCntx, destAddress, destReference, origAddress, origReference);
 	}
 
 	public MapServiceFactory getMapServiceFactory() {
-		return mapProviderImpl.getMapServiceFactory();
+		return mapProvider.getMapServiceFactory();
 	}
 
 	public void removeMAPDialogListener(MAPDialogListener arg0) {
@@ -43,6 +46,10 @@ public class MAPProviderImpl implements MAPProvider {
 
 	public void removeMAPServiceListener(MAPServiceListener arg0) {
 		throw new UnsupportedOperationException();
+	}
+
+	public MAPDialog getMAPDialog(Long dialogId) {
+		return mapProvider.getMAPDialog(dialogId);
 	}
 
 }

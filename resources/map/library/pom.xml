@@ -1,38 +1,70 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">	
-	
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<packaging>jainslee-library</packaging>
-	
+
 	<parent>
 		<artifactId>mobicents-slee-ra-map</artifactId>
 		<groupId>org.mobicents.resources</groupId>
 		<version>2.1.0-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>mobicents-slee-ra-map-library</artifactId>
-	
+
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
-	
+
 	<dependencies>
 		<dependency>
-		  <artifactId>map-api</artifactId>
-		  <groupId>org.mobicents.protocols.ss7.map</groupId>
-		  <version>1.0.0.BETA1-SNAPSHOT</version>
+			<artifactId>map-api</artifactId>
+			<groupId>org.mobicents.protocols.ss7.map</groupId>
+			<version>1.0.0.BETA1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-		  <artifactId>map-impl</artifactId>
-		  <groupId>org.mobicents.protocols.ss7.map</groupId>
-		  <version>1.0.0.BETA1-SNAPSHOT</version>
+			<artifactId>map-impl</artifactId>
+			<groupId>org.mobicents.protocols.ss7.map</groupId>
+			<version>1.0.0.BETA1-SNAPSHOT</version>
 		</dependency>
+
+		<dependency>
+			<artifactId>tcap-api</artifactId>
+			<groupId>org.mobicents.protocols.ss7.tcap</groupId>
+			<version>1.0.0.BETA1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<artifactId>tcap-impl</artifactId>
+			<groupId>org.mobicents.protocols.ss7.tcap</groupId>
+			<version>1.0.0.BETA1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<artifactId>sccp-api</artifactId>
+			<groupId>org.mobicents.protocols.ss7.sccp</groupId>
+			<version>1.0.0.BETA1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<artifactId>sccp-impl</artifactId>
+			<groupId>org.mobicents.protocols.ss7.sccp</groupId>
+			<version>1.0.0.BETA1-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<artifactId>asn</artifactId>
+			<groupId>org.mobicents.protocols.asn</groupId>
+			<version>1.0.0.BETA1-SNAPSHOT</version>
+		</dependency>		
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<version>${mobicents.tools.mavenplugin.library.version}</version>
+				<version>
+					${mobicents.tools.mavenplugin.library.version}
+				</version>
 				<extensions>true</extensions>
 				<configuration>
 					<library-name>library-map</library-name>
@@ -42,5 +74,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 </project>

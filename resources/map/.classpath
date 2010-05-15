@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="ra/src/main/java"/>
-  <classpathentry kind="src" path="ra/src/main/resources"/>
-  <classpathentry kind="src" path="events/src/main/resources"/>
-  <classpathentry kind="src" path="ratype/src/main/java"/>
-  <classpathentry kind="src" path="ratype/src/main/resources"/>
-  <classpathentry kind="src" path="library/src/main/java"/>
-  <classpathentry kind="src" path="library/src/main/resources"/>
-  <classpathentry kind="src" path="du/src/main/resources"/>
-  <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/asn/asn/1.0.0.BETA1-SNAPSHOT/asn-1.0.0.BETA1-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/map/map-api/1.0.0.BETA1-SNAPSHOT/map-api-1.0.0.BETA1-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/map/map-impl/1.0.0.BETA1-SNAPSHOT/map-impl-1.0.0.BETA1-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/mtp/MTP/1.0.0.BETA2-SNAPSHOT/MTP-1.0.0.BETA2-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/sccp/sccp-api/1.0.0.BETA1-SNAPSHOT/sccp-api-1.0.0.BETA1-SNAPSHOT.jar"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-  <classpathentry kind="output" path="target/classes"/>
+	<classpathentry kind="src" path="ra/src/main/java"/>
+	<classpathentry kind="src" path="ra/src/main/resources"/>
+	<classpathentry kind="src" path="events/src/main/resources"/>
+	<classpathentry kind="src" path="ratype/src/main/java"/>
+	<classpathentry kind="src" path="ratype/src/main/resources"/>
+	<classpathentry kind="src" path="du/src/main/resources"/>
+	<classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/asn/asn/1.0.0.BETA1-SNAPSHOT/asn-1.0.0.BETA1-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/map/map-api/1.0.0.BETA1-SNAPSHOT/map-api-1.0.0.BETA1-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/map/map-impl/1.0.0.BETA1-SNAPSHOT/map-impl-1.0.0.BETA1-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/mtp/MTP/1.0.0.BETA2-SNAPSHOT/MTP-1.0.0.BETA2-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/sccp/sccp-api/1.0.0.BETA1-SNAPSHOT/sccp-api-1.0.0.BETA1-SNAPSHOT.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
