@@ -369,37 +369,39 @@ public class ActivityContextImpl implements ActivityContext {
 	 */
 	public long getLastAccessTime() {
 		final Long time = (Long) cacheData.getObject(NODE_MAP_KEY_LAST_ACCESS);
-		return time == null ? 0L : time.longValue(); 
+		return time == null ? System.currentTimeMillis() : time.longValue(); 
 	}
 	
 	// --- private helpers
 
 	private void updateLastAccessTime(boolean creation) {
-		if (creation) {
-			cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(System.currentTimeMillis()));			
-		}
-		else {
-			ActivityManagementConfiguration configuration = factory.getConfiguration();
-			Long lastUpdate = (Long) cacheData.getObject(NODE_MAP_KEY_LAST_ACCESS);
-			if (lastUpdate != null) {
-				final long now = System.currentTimeMillis();
-				if ((now - configuration.getMinTimeBetweenUpdatesInMs()) > lastUpdate.longValue()) {
-					// last update
+		if (factory.getConfiguration().getTimeBetweenLivenessQueries() > 0) {
+			if (creation) {
+				cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(System.currentTimeMillis()));			
+			}
+			else {
+				ActivityManagementConfiguration configuration = factory.getConfiguration();
+				Long lastUpdate = (Long) cacheData.getObject(NODE_MAP_KEY_LAST_ACCESS);
+				if (lastUpdate != null) {
+					final long now = System.currentTimeMillis();
+					if ((now - configuration.getMinTimeBetweenUpdatesInMs()) > lastUpdate.longValue()) {
+						// last update
+						if (logger.isTraceEnabled()) {
+							logger.trace("Updating access time for AC with handle "+getActivityContextHandle());
+						}
+						cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(now));
+					}
+					else {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Skipping update of access time for AC with handle "+getActivityContextHandle());
+						}
+					}
+				}
+				else {
+					cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(System.currentTimeMillis()));
 					if (logger.isTraceEnabled()) {
 						logger.trace("Updating access time for AC with handle "+getActivityContextHandle());
 					}
-					cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(now));
-				}
-				else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Skipping update of access time for AC with handle "+getActivityContextHandle());
-					}
-				}
-			}
-			else {
-				cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(System.currentTimeMillis()));
-				if (logger.isTraceEnabled()) {
-					logger.trace("Updating access time for AC with handle "+getActivityContextHandle());
 				}
 			}
 		}

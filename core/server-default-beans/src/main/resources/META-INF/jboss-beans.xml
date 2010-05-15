@@ -159,7 +159,7 @@
 	<bean name="Mobicents.JAINSLEE.TimerFacilityConfiguration"
 		class="org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=TimerFacilityConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.TimerFacilityConfigurationMBean.class,registerDirectly=true)</annotation>
-		<property name="timerThreads">8</property>
+		<property name="timerThreads">4</property>
 	</bean>
 	
 	<bean name="Mobicents.JAINSLEE.TimerFacility"
@@ -174,9 +174,9 @@
 	<bean name="Mobicents.JAINSLEE.ActivityManagementConfiguration"
 		class="org.mobicents.slee.runtime.activity.ActivityManagementConfiguration">
 		<!-- values in min -->
-		<property name="timeBetweenLivenessQueries">15</property>
-		<property name="maxTimeIdle">15</property>
-		<property name="minTimeBetweenUpdates">5</property>
+		<property name="timeBetweenLivenessQueries">60</property>
+		<property name="maxTimeIdle">60</property>
+		<property name="minTimeBetweenUpdates">15</property>
 	</bean>		
 	
 	<bean name="Mobicents.JAINSLEE.ActivityContextFactory"

@@ -88,18 +88,42 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean#setTimeBetweenLivenessQueries(long)
+	 */
 	public void setTimeBetweenLivenessQueries(long set) {
 		acFactory.getConfiguration().setTimeBetweenLivenessQueries(set);
+		if (set == 0) {
+			cancelLivenessQuery();
+		}
+		else {
+			if (scheduledFuture == null) {
+				scheduleLivenessQuery();
+			}
+		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean#getTimeBetweenLivenessQueries()
+	 */
 	public long getTimeBetweenLivenessQueries() {
 		return acFactory.getConfiguration().getTimeBetweenLivenessQueries();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean#setActivityContextMaxIdleTime(long)
+	 */
 	public void setActivityContextMaxIdleTime(long set) {
 		acFactory.getConfiguration().setMaxTimeIdle(set);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean#getActivityContextMaxIdleTime()
+	 */
 	public long getActivityContextMaxIdleTime() {
 		return acFactory.getConfiguration().getMaxTimeIdle();
 	}
@@ -698,6 +722,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	public void cancelLivenessQuery() {
 		if (scheduledFuture != null) {
 			scheduledFuture.cancel(true);
+			scheduledFuture = null;
 		}
 	}
 	
