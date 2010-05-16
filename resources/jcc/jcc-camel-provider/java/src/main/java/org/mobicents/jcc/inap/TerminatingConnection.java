@@ -42,6 +42,7 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCContinueRequest;
+import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
 import org.mobicents.protocols.ss7.tcap.asn.comp.OperationCode;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Parameter;
 
@@ -129,7 +130,7 @@ public class TerminatingConnection extends AbstractConnection {
 
         Continue cont = new Continue();
         try{
-        org.mobicents.protocols.ss7.tcap.asn.comp.Invoke invoke = super.tcapProvider.getComponentPrimitiveFactory().createTCInvokeRequest();
+        Invoke invoke = super.tcapProvider.getComponentPrimitiveFactory().createTCInvokeRequest();
         invoke.setInvokeId(super.tcapDialog.getNewInvokeId());
         
         //components.add(new Invoke(1, applyCharging));
@@ -141,6 +142,7 @@ public class TerminatingConnection extends AbstractConnection {
         parameter.setTag(ApplyCharging._TAG);
         parameter.setTagClass(ApplyCharging._TAG_CLASS);
         parameter.setData(applyCharging.toByteArray());
+        invoke.setParameter(parameter);
         tcapDialog.sendComponent(invoke);
         
         //components.add(new Invoke(2, bcsm));
@@ -154,6 +156,7 @@ public class TerminatingConnection extends AbstractConnection {
         parameter.setTag(RequestBCSMState._TAG);
         parameter.setTagClass(RequestBCSMState._TAG_CLASS);
         parameter.setData(bcsm.toByteArray());
+        invoke.setParameter(parameter);
         tcapDialog.sendComponent(invoke);
         
         
@@ -168,23 +171,31 @@ public class TerminatingConnection extends AbstractConnection {
         parameter.setTag(CallInformationRequest._TAG);
         parameter.setTagClass(CallInformationRequest._TAG_CLASS);
         parameter.setData(cir.toByteArray());
+        invoke.setParameter(parameter);
         tcapDialog.sendComponent(invoke);
         
         
         //components.add(new Invoke(4, connect));
-        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.CALL_INFORMATION_REQUEST));
+        invoke = super.tcapProvider.getComponentPrimitiveFactory().createTCInvokeRequest();
+        invoke.setInvokeId(super.tcapDialog.getNewInvokeId());
+        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.CONNECT));
         invoke.setOperationCode(oc);
         parameter = super.tcapProvider.getComponentPrimitiveFactory().createParameter();
         parameter.setPrimitive(Connect._IS_PRIMITIVE);
         parameter.setTag(Connect._TAG);
         parameter.setTagClass( Connect._TAG_CLASS);
         parameter.setData(connect.toByteArray());
+        invoke.setParameter(parameter);
         tcapDialog.sendComponent(invoke);
         //components.add(new Invoke(5, cont));
 
         TCContinueRequest continueRequest = this.tcapProvider.getDialogPrimitiveFactory().createContinue(this.tcapDialog);
+        //add this, so dialog can create APDU with answer
+        continueRequest.setApplicationContextName(super.tcapDialog.getApplicationContextName());
+        continueRequest.setUserInformation(super.tcapDialog.getUserInformation());
         
-        	this.tcapDialog.send(continueRequest);
+        
+        this.tcapDialog.send(continueRequest);
 
         //switch called and calling party addresses
        // SccpAddress calledPartyAddress = connectionID.getCallingPartyAddress();
@@ -238,6 +249,7 @@ public class TerminatingConnection extends AbstractConnection {
         parameter.setTag(RequestBCSMState._TAG);
         parameter.setTagClass(RequestBCSMState._TAG_CLASS);
         parameter.setData(bcsm.toByteArray());
+        invoke.setParameter(parameter);
         tcapDialog.sendComponent(invoke);
         //components.add(new Invoke(2, cont));
         //continue does not have parameter

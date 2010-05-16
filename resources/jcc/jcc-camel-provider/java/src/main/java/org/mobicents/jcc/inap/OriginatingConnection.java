@@ -243,6 +243,7 @@ public class OriginatingConnection extends AbstractConnection {
         parameter.setTag(ApplyCharging._TAG);
         parameter.setTagClass(ApplyCharging._TAG_CLASS);
         parameter.setData(applyCharging.toByteArray());
+        invoke.setParameter(parameter);
         tcapDialog.sendComponent(invoke);
         
         //components.add(new Invoke(2, bcsm));
@@ -256,6 +257,7 @@ public class OriginatingConnection extends AbstractConnection {
         parameter.setTag(RequestBCSMState._TAG);
         parameter.setTagClass(RequestBCSMState._TAG_CLASS);
         parameter.setData(bcsm.toByteArray());
+        invoke.setParameter(parameter);
         tcapDialog.sendComponent(invoke);
         
         
@@ -270,17 +272,21 @@ public class OriginatingConnection extends AbstractConnection {
         parameter.setTag(CallInformationRequest._TAG);
         parameter.setTagClass(CallInformationRequest._TAG_CLASS);
         parameter.setData(cir.toByteArray());
+        invoke.setParameter(parameter);
         tcapDialog.sendComponent(invoke);
         
         
         //components.add(new Invoke(4, connect));
-        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.CALL_INFORMATION_REQUEST));
+        invoke = super.tcapProvider.getComponentPrimitiveFactory().createTCInvokeRequest();
+        invoke.setInvokeId(super.tcapDialog.getNewInvokeId());
+        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.CONNECT));
         invoke.setOperationCode(oc);
         parameter = super.tcapProvider.getComponentPrimitiveFactory().createParameter();
         parameter.setPrimitive(Connect._IS_PRIMITIVE);
         parameter.setTag(Connect._TAG);
         parameter.setTagClass( Connect._TAG_CLASS);
         parameter.setData(connect.toByteArray());
+        invoke.setParameter(parameter);
         tcapDialog.sendComponent(invoke);
         //components.add(new Invoke(5, cont));
 

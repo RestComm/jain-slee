@@ -29,6 +29,9 @@ public abstract class Operation implements Serializable {
     public final static int CALL_INFORMATION_REPORT = 44;
     public final static int EVENT_REPORT_BCSM = 24;
     public final static int CONTINUE = 0x1F;
+    public final static int CONNECT = 0x14;
+    
+    
     protected int code;
     
     /** Creates a new instance of Operation */
