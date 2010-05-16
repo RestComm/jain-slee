@@ -28,7 +28,7 @@ public abstract class Ss7TestSbb implements javax.slee.Sbb {
 
 		doMsg("CONNECTION_CREATED", event, aci);
 		try {
-			logger.info("SELECTIONG ROUTE: "+event.getConnection()+" --> O: "+event.getConnection().getOriginatingAddress()+" D: " +
+			logger.info("SELECTING ROUTE: "+event.getConnection()+" --> O: "+event.getConnection().getOriginatingAddress()+" D: " +
 											 //This is null, since call is not routed yet.
 					""+event.getConnection().getDestinationAddress());
 			event.getConnection().selectRoute(event.getConnection().getOriginalAddress());
