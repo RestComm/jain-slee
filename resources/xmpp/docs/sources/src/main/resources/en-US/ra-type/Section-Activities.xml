@@ -1,18 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
 %BOOK_ENTITIES;
 ]>
-
 <section id="ratype_activities">
-
-	<title>Activities</title>
-
-	<para>The single activity object for &THIS.RA; Resource Adaptor is the <literal>org.mobicents.slee.resource.xmpp.XmppConnection</literal> interface. The activity represents a connection to an XMPP Server, of client or component type, where a sequence of incoming XMPP messages - the events- occur.</para>
-	
-	<para>The XmppConnection activity starts when an SBB requests a new connection to be created, through the RA SBB Interface, and it ends when an SBB uses the same interface to request the closing of the connection.</para>
-	
-	<para>The activity also gives access to the underlying connection on the SMACK API, through the method named <literal>getConnection()</literal>. With that object the SBB is able to completely interact with the resource. For further information about the <literal>SMACK</literal> API refer to its website at <ulink url="http://www.igniterealtime.org/projects/smack/"></ulink>.</para>
-	
+  <title>Activities</title>
+  <para>The single activity object for &THIS.RA; Resource Adaptor is the <literal>org.mobicents.slee.resource.xmpp.XmppConnection</literal> interface. The activity represents a connection to an XMPP Server, of client or component type, where a sequence of incoming XMPP messages - the events - occur.</para>
+  <para>The XmppConnection activity starts when an SBB requests a new connection to be created, through the RA SBB Interface, and it ends when an SBB uses the same interface to request the closing of the connection. The activity also gives access to the underlying connection on the SMACK API, through the method named <literal>getConnection()</literal>. With that object the SBB is able to completely interact with the resource. </para>
+  <para>For further information about the <literal>SMACK</literal> API refer to its website at <ulink url="http://www.igniterealtime.org/projects/smack/"/>.</para>
 </section>

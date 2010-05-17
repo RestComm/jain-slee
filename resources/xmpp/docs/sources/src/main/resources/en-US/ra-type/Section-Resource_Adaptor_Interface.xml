@@ -1,18 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
 %BOOK_ENTITIES;
 ]>
-
 <section id="ratype_ra_interface">
-
-	<title>Resource Adaptor Interface</title>
-
-	<para>The &THIS.RA; Resource Adaptor interface, of type <literal>org.mobicents.slee.resource.xmpp.XmppResourceAdaptorSbbInterface</literal> , which an SBB uses to interact with XMPP resources, is defined as follows:</para>
-	
-	<programlisting language="Java" role="JAVA">
-		<![CDATA[
+  <title>Resource Adaptor Interface</title>
+  <para>The &THIS.RA; Resource Adaptor interface, of type <literal>org.mobicents.slee.resource.xmpp.XmppResourceAdaptorSbbInterface</literal> , is used by an SBB  to interact with XMPP resources. It is defined as follows:</para>
+  <programlisting language="Java" role="JAVA">  <![CDATA[
 package org.mobicents.slee.resource.xmpp;
 
 import java.util.Collection;
@@ -22,59 +16,53 @@ import org.jivesoftware.smack.packet.Packet;
 
 public interface XmppResourceAdaptorSbbInterface {
 
-	public XmppConnection getXmppConnection(String connectionId);
+ public XmppConnection getXmppConnection(String connectionId);
 
-	public void sendPacket(String connectionID, Packet packet);
+ public void sendPacket(String connectionID, Packet packet);
 
-	public XmppConnection connectClient(String connectionID, String serverHost,
-			int serverPort, String serviceName, String username,
-			String password, String resource, Collection packetFilters)
-			throws XMPPException;
+ public XmppConnection connectClient(String connectionID, String serverHost,
+   int serverPort, String serviceName, String username,
+   String password, String resource, Collection packetFilters)
+   throws XMPPException;
 
-	public XmppConnection connectComponent(String connectionID,
-			String serverHost, int serverPort, String serviceName,
-			String componentName, String componentSecret,
-			Collection packetFilters) throws XMPPException;
-	
-	public void disconnect(String connectionID);		
+ public XmppConnection connectComponent(String connectionID,
+   String serverHost, int serverPort, String serviceName,
+   String componentName, String componentSecret,
+   Collection packetFilters) throws XMPPException;
+ 
+ public void disconnect(String connectionID);  
 }]]>
     </programlisting>
-     
-    <variablelist> 
+  <variablelist>
     <varlistentry>
-		<term>The <literal>getXmppConnection(String)</literal> method:</term>
-		<listitem>
-			<para>Retrieves the XMPP connection with the specified id.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>sendPacket(String,Packet)</literal> method:</term>
-		<listitem>
-			<para>Sends the specified XMPP packet using the specified connection Id.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>connectClient(String, String, int, String, String, String, String, Collection)</literal> method:</term>
-		<listitem>
-			<para>Creates and retrieves a new XMPP client connection to the XMPP server using the given service name on the given host and port and authenticates the client using the given username, password and resource. This connection will be identified with the specified connection Id.  The <literal>XmppConnection</literal> returned is a new Activity in SLEE.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>connectComponent(String, String, int, String, String, String, Collection)</literal> method:</term>
-		<listitem>
-			<para>Creates and retrieves a new XMPP component connection to the XMPP server using the given service name on the given host and port and authenticates the component using the given component name and secret. The <literal>XmppConnection</literal> returned is a new Activity in SLEE.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>disconnect(String)</literal> method:</term>
-		<listitem>
-			<para>Disconnects the XMPP connection with the specified Id, terminating the activity and its related <literal>ActivityContextInterface</literal>.</para>
-		</listitem>
-	</varlistentry>
-	</variablelist>
-	
+      <term>The <literal>getXmppConnection(String)</literal> method:</term>
+      <listitem>
+        <para>Retrieves the XMPP connection with the specified id.</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>sendPacket(String,Packet)</literal> method:</term>
+      <listitem>
+        <para>Sends the specified XMPP packet using the specified connection Id.</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>connectClient(String, String, int, String, String, String, String, Collection)</literal> method:</term>
+      <listitem>
+        <para>Creates and retrieves a new XMPP client connection to the XMPP server using the given service name on the given host and port and authenticates the client using the given username, password and resource. This connection will be identified with the specified connection Id.  The <literal>XmppConnection</literal> returned is a new Activity in SLEE.</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>connectComponent(String, String, int, String, String, String, Collection)</literal> method:</term>
+      <listitem>
+        <para>Creates and retrieves a new XMPP component connection to the XMPP server using the given service name on the given host and port and authenticates the component using the given component name and secret. The <literal>XmppConnection</literal> returned is a new Activity in SLEE.</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>disconnect(String)</literal> method:</term>
+      <listitem>
+        <para>Disconnects the XMPP connection with the specified Id, terminating the activity and its related <literal>ActivityContextInterface</literal>.</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
 </section>

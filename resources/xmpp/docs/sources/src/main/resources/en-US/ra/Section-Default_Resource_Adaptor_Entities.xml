@@ -1,43 +1,36 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
 %BOOK_ENTITIES;
 ]>
-
 <section id="ra_default_ra_entities">
-
-	<title>Default Resource Adaptor Entities</title>
-
-	<para>There is a single Resource Adaptor Entity created when deploying the Resource Adaptor, named <literal>XMPPRA</literal>.</para>
-	
-	<para>The <literal>XMPPRA</literal> entity is also bound to Resource Adaptor Link Name <literal>XMPPRA</literal>, to use it in an Sbb add the following XML to its descriptor:</para>
-	
-	<programlisting language="XML" role="XML"><![CDATA[
-		<resource-adaptor-type-binding>
-			<resource-adaptor-type-ref>
-				<resource-adaptor-type-name>
-					XMPPResourceAdaptorType
-				</resource-adaptor-type-name>
-				<resource-adaptor-type-vendor>
-					org.mobicents
-				</resource-adaptor-type-vendor>
-				<resource-adaptor-type-version>
-					2.0
-				</resource-adaptor-type-version>
-			</resource-adaptor-type-ref>
-			<activity-context-interface-factory-name>
-				slee/resources/xmpp/2.0/acifactory
-			</activity-context-interface-factory-name>
-			<resource-adaptor-entity-binding>
-				<resource-adaptor-object-name>
-					slee/resources/xmpp/2.0/sbbinterface
-				</resource-adaptor-object-name>
-				<resource-adaptor-entity-link>
-					XMPPRA
-				</resource-adaptor-entity-link>
-			</resource-adaptor-entity-binding>
-		</resource-adaptor-type-binding>]]>
-	</programlisting>
-			
+  <title>Default Resource Adaptor Entities</title>
+  <para>There is a single Resource Adaptor Entity created when deploying the Resource Adaptor, named <literal>XMPPRA</literal>.</para>
+  <para>The <literal>XMPPRA</literal> entity is also bound to the Resource Adaptor Link Name <literal>XMPPRA</literal>. To use it in an SBB, add the following XML to its descriptor:</para>
+  <programlisting language="XML" role="XML"><![CDATA[
+  <resource-adaptor-type-binding>
+   <resource-adaptor-type-ref>
+    <resource-adaptor-type-name>
+     XMPPResourceAdaptorType
+    </resource-adaptor-type-name>
+    <resource-adaptor-type-vendor>
+     org.mobicents
+    </resource-adaptor-type-vendor>
+    <resource-adaptor-type-version>
+     2.0
+    </resource-adaptor-type-version>
+   </resource-adaptor-type-ref>
+   <activity-context-interface-factory-name>
+    slee/resources/xmpp/2.0/acifactory
+   </activity-context-interface-factory-name>
+   <resource-adaptor-entity-binding>
+    <resource-adaptor-object-name>
+     slee/resources/xmpp/2.0/sbbinterface
+    </resource-adaptor-object-name>
+    <resource-adaptor-entity-link>
+     XMPPRA
+    </resource-adaptor-entity-link>
+   </resource-adaptor-entity-binding>
+  </resource-adaptor-type-binding>]]>
+ </programlisting>
 </section>
