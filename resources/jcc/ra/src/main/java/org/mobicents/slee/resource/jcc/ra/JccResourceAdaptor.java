@@ -629,7 +629,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 
 		// create new activity handle
 		JccConnectionActivityHandle handle = new JccConnectionActivityHandle(connection);
-		handlers.put(connection.toString(), handle);
+		
 		try {
 			this.sleeEndpoint.startActivity(handle, connection);
 			//FIXME: add this 
@@ -649,6 +649,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		handlers.put(connection.toString(), handle);
 		if (logger.isFineEnabled())
 			logger.fine("onConnectionCreate():put handle: " + handle + " under key: " + connection.toString());
 
@@ -779,6 +780,8 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 				try {
 					Thread.currentThread().sleep(60000);
 					logger.info("activities=" + activities.size() + ", handlers=" + handlers.size());
+					logger.info("activities: "+activities);
+					logger.info("handlers: "+handlers);
 				} catch (InterruptedException e) {
 					stopped = true;
 				}
