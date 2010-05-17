@@ -47,5 +47,9 @@ public class JccCallActivityHandle implements ActivityHandle {
        
     public int hashCode() {
         return call.hashCode();
-    }       
+    }      
+    public String toString()
+    {
+    	return call==null?null:call.toString();
+    }
 }
