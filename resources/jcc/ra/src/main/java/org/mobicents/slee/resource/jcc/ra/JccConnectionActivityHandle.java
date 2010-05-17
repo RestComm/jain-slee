@@ -52,5 +52,8 @@ public class JccConnectionActivityHandle implements ActivityHandle {
     public int hashCode() {
         return connection.hashCode();
     }       
-    
+    public String toStrin()
+    {
+    	return connection == null?null:connection.toString();
+    }
 }

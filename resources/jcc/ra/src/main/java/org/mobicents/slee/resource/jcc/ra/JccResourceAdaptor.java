@@ -508,6 +508,10 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		// create new activity handle
 		JccCallActivityHandle handle = new JccCallActivityHandle(call);
 		try {
+			if(logger.isInfoEnabled())
+			{
+				logger.info("Starting activity: "+call+", handle: "+handle);
+			}
 			this.sleeEndpoint.startActivity(handle, call);
 			//FIXME: add this
 		} catch (ActivityAlreadyExistsException e) {
@@ -664,6 +668,10 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		JccConnectionActivityHandle handle = new JccConnectionActivityHandle(connection);
 		
 		try {
+			if(logger.isInfoEnabled())
+			{
+				logger.info("Starting activity: "+connection+", handle: "+handle);
+			}
 			this.sleeEndpoint.startActivity(handle, connection);
 			//FIXME: add this 
 		} catch (ActivityAlreadyExistsException e) {
