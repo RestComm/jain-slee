@@ -494,6 +494,26 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 
 		// create new activity handle
 		JccCallActivityHandle handle = new JccCallActivityHandle(call);
+		try {
+			this.sleeEndpoint.startActivity(handle, call);
+			//FIXME: add this
+		} catch (ActivityAlreadyExistsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SLEEException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (StartActivityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
 		activities.put(call, handle);
 
 		fireEvent("javax.csapi.cc.jcc.JccCallEvent.CALL_CREATED", handle, evt);
