@@ -441,11 +441,24 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 	public void activityEnded(ActivityHandle handle) {
 		String ID = ((JccConnectionActivityHandle) handle).getID();
 
+		if(logger.isInfoEnabled())
+		{
+			logger.info("Activity ended id: "+ID+", handle: "+handle);
+		}
+		//sleeEndpoint.endActivity(handle);
 		Object activity = activities.remove(ID);
+		if(logger.isInfoEnabled())
+		{
+			logger.info("Activity ended activity: "+activity);
+		}
 		if (logger.isFineEnabled())
 			logger.fine("Removed activity: " + activity + " under key: " + ID);
 
 		JccConnectionActivityHandle h = (JccConnectionActivityHandle) handlers.remove(activity.toString());
+		if(logger.isInfoEnabled())
+		{
+			logger.info("Activity ended removed handler: "+h);
+		}
 		if (logger.isFineEnabled())
 			logger.fine("Removed handle: " + h.getID() + " under key: " + activity.toString());
 	}
@@ -690,6 +703,10 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		fireEvent("javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_DISCONNECTED", handle, evt);
 
 		try {
+			if(logger.isInfoEnabled())
+			{
+				logger.info("Connection disconnected: "+connection+", handle: "+handle);
+			}
 			sleeEndpoint.endActivity(handle);
 		} catch (UnrecognizedActivityException uae) {
 			if (logger.isSevereEnabled())
@@ -707,7 +724,11 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		if (logger.isFineEnabled())
 			logger.fine("onfailed(): connectionID: " + connection.toString());
 		ActivityHandle handle = getActivityHandle(connection);
-
+		if(logger.isInfoEnabled())
+		{
+			logger.info("Connection failed: "+connection+", handle: "+handle);
+		}
+		sleeEndpoint.endActivity(handle);
 		if (logger.isFineEnabled())
 			logger.fine("onfailed(): handle=" + handle);
 		fireEvent("javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_FAILED", handle, evt);
