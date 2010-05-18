@@ -746,10 +746,12 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		{
 			logger.info("connectionFailed : ending activity "+handle+", activity: "+connection);
 		}
-		sleeEndpoint.endActivity(handle);
+		fireEvent("javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_FAILED", handle, evt);
+		//called in {@link #connectionDisconnected(JccConnectionEvent)}
+		//sleeEndpoint.endActivity(handle);
 		if (logger.isFineEnabled())
 			logger.fine("onfailed(): handle=" + handle);
-		fireEvent("javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_FAILED", handle, evt);
+		
 	}
 
 	public void connectionMidCall(JccConnectionEvent event) {
