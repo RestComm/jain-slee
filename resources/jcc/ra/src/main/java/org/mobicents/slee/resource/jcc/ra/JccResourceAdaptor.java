@@ -512,7 +512,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 			{
 				logger.info("Starting activity: "+call+", handle: "+handle);
 			}
-			this.sleeEndpoint.startActivity(handle, call);
+			this.sleeEndpoint.startActivity(handle, call,ACTIVITY_FLAGS);
 			//FIXME: add this
 		} catch (ActivityAlreadyExistsException e) {
 			// TODO Auto-generated catch block
@@ -672,7 +672,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 			{
 				logger.info("Starting activity: "+connection+", handle: "+handle);
 			}
-			this.sleeEndpoint.startActivity(handle, connection);
+			this.sleeEndpoint.startActivity(handle, connection,ACTIVITY_FLAGS);
 			//FIXME: add this 
 		} catch (ActivityAlreadyExistsException e) {
 			// TODO Auto-generated catch block
@@ -709,7 +709,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 
 		ActivityHandle handle = getActivityHandle(connection.toString());
 		fireEvent("javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_DISCONNECTED", handle, evt);
-
+		
 		try {
 			if(logger.isInfoEnabled())
 			{
@@ -721,6 +721,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 				logger.severe("Caught an UnrecognizedActivityException: ");
 			uae.printStackTrace();
 		}
+		
 	}
 
 	public void connectionFailed(JccConnectionEvent event) {
