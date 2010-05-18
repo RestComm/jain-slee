@@ -18,6 +18,12 @@
 
 	<dependencies>
 		<dependency>
+			<artifactId>MTP</artifactId>
+			<groupId>org.mobicents.protocols.ss7.mtp</groupId>
+			<version>${mtp.version}</version>
+		</dependency>
+			
+		<dependency>
 			<artifactId>map-api</artifactId>
 			<groupId>org.mobicents.protocols.ss7.map</groupId>
 			<version>${map.version}</version>

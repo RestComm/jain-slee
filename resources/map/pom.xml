@@ -32,6 +32,7 @@
 		<tcap.version>1.0.0.BETA1-SNAPSHOT</tcap.version>
 		<sccp.version>1.0.0.BETA1-SNAPSHOT</sccp.version>
 		<asn.version>1.0.0.BETA1-SNAPSHOT</asn.version>
+		<mtp.version>1.0.0.BETA2-SNAPSHOT</mtp.version>
 	</properties>
 	
 	<profiles>

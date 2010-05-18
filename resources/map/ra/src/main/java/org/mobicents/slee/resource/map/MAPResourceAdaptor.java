@@ -1,5 +1,6 @@
 package org.mobicents.slee.resource.map;
 
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.Address;
@@ -35,6 +36,7 @@ import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortInfo;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
+import org.mobicents.protocols.ss7.sccp.impl.SccpPeer;
 
 /**
  * 
@@ -42,6 +44,8 @@ import org.mobicents.protocols.ss7.sccp.SccpProvider;
  * 
  */
 public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceListener {
+
+	private static final String _CONFIG_OPT_NAME_CONF = "configName";
 
 	private MAPStack mapStack = null;
 	/**
@@ -59,10 +63,23 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	private EventIDCache eventIdCache = null;
 
+	private String configName;
+
+	String sccpProviderName;
+	String sccpProps;
+
 	private transient static final Address address = new Address(AddressPlan.IP, "localhost");
 
 	public MAPResourceAdaptor() {
 		// TODO Auto-generated constructor stub
+	}
+
+	public String getConfigName() {
+		return configName;
+	}
+
+	public void setConfigName(String configName) {
+		this.configName = configName;
 	}
 
 	public void activityEnded(ActivityHandle activityHandle) {
@@ -126,16 +143,23 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	public void raActive() {
 
-		// TODO : How do we get sccpProvider Object?
-		this.mapStack = new MAPStackImpl(this.sccpProvider);
-		org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = this.mapStack.getMAPProvider();
+		try {
+			SccpPeer sccpPeer = new SccpPeer(sccpProviderName);
+			this.sccpProvider = sccpPeer.getProvider(sccpProps);
 
-		this.mapProviderImpl = new MAPProviderImpl(mapProvider);
+			// TODO : How do we get sccpProvider Object?
+			this.mapStack = new MAPStackImpl(this.sccpProvider);
+			org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = this.mapStack.getMAPProvider();
 
-		mapProvider.addMAPDialogListener(this);
-		mapProvider.addMAPServiceListener(this);
+			this.mapProviderImpl = new MAPProviderImpl(mapProvider);
 
-		this.sleeEndpoint = resourceAdaptorContext.getSleeEndpoint();
+			mapProvider.addMAPDialogListener(this);
+			mapProvider.addMAPServiceListener(this);
+
+			this.sleeEndpoint = resourceAdaptorContext.getSleeEndpoint();
+		} catch (Exception e) {
+			this.tracer.severe("Failed to activate MAP RA ", e);
+		}
 	}
 
 	public void raConfigurationUpdate(ConfigProperties arg0) {
@@ -144,8 +168,24 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	}
 
 	public void raConfigure(ConfigProperties arg0) {
-		// TODO Auto-generated method stub
+		try {
+			if (tracer.isInfoEnabled()) {
+				tracer.info("Configuring MAPRA: " + this.resourceAdaptorContext.getEntityName());
+			}
+			Properties properties = new Properties();
+			properties.load(getClass().getResourceAsStream("/" + configName));
+			tracer.info("Loaded properties: " + properties);
 
+			this.sccpProviderName = properties.getProperty("sccp.provider");
+			this.sccpProps = properties.getProperty("sccp.config");
+
+			tracer.info("sccpProviderName = " + this.sccpProviderName + " sccpProps = " + this.sccpProps);
+		} catch (UnsatisfiedLinkError ex) {
+			tracer.warning("JCC Resource adaptor is not attached to baord driver", ex);
+		} catch (Exception e) {
+			tracer.severe("Can not start Jcc Provider: ", e);
+
+		}
 	}
 
 	public void raInactive() {
@@ -165,8 +205,27 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	}
 
-	public void raVerifyConfiguration(ConfigProperties arg0) throws InvalidConfigurationException {
-		// TODO Auto-generated method stub
+	public void raVerifyConfiguration(ConfigProperties cps) throws InvalidConfigurationException {
+		try {
+
+			if (tracer.isInfoEnabled()) {
+				tracer.info("Verifyin configuring MAPRA: " + this.resourceAdaptorContext.getEntityName());
+			}
+			this.configName = (String) cps.getProperty(_CONFIG_OPT_NAME_CONF).getValue();
+
+			if (this.configName == null) {
+				throw new InvalidConfigurationException("No name set for configuration file.");
+			}
+
+			if (null == getClass().getResource("/" + configName)) {
+				throw new InvalidConfigurationException("Configuration file: " + configName + ", can not be located.");
+			}
+
+		} catch (InvalidConfigurationException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new InvalidConfigurationException("Failed to test configuration options!", e);
+		}
 
 	}
 
@@ -304,7 +363,8 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			return;
 		}
 
-		this.fireEvent("org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION", handle, processUnstrSSInd);
+		this.fireEvent("org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION", handle,
+				processUnstrSSInd);
 	}
 
 	public void onUnstructuredSSIndication(UnstructuredSSIndication unstrSSInd) {
