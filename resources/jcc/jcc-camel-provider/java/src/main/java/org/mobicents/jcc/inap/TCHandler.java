@@ -125,6 +125,10 @@ public class TCHandler implements Runnable {
         
     	Dialog dialog = message.getDialog();
     	long txID = dialog.getDialogId();
+    	if(logger.isInfoEnabled())
+    	{
+    		logger.info("Processing messsage: "+message.getType()+", for dialog: "+dialog);
+    	}
         switch (message.getType()) {
             case Begin:
                 TCBeginIndication begin = (TCBeginIndication) message;
