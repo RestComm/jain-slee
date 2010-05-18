@@ -531,6 +531,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 			e.printStackTrace();
 		}
 	
+		//FIXME: Oleg is this the way it should be ?
 		activities.put(call, handle);
 
 		fireEvent("javax.csapi.cc.jcc.JccCallEvent.CALL_CREATED", handle, evt);
@@ -546,6 +547,10 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		fireEvent("javax.csapi.cc.jcc.JccCallEvent.CALL_EVENT_TRANSMISSION_ENDED", handle, evt);
 
 		try {
+			if(logger.isInfoEnabled())
+			{
+				logger.info("callEventTransmissionEnded : ending activity "+handle);
+			}
 			sleeEndpoint.endActivity(handle);
 		} catch (UnrecognizedActivityException uae) {
 			if (logger.isSevereEnabled())
@@ -564,6 +569,10 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		fireEvent("javax.csapi.cc.jcc.JccCallEvent.CALL_INVALID", handle, evt);
 
 		try {
+			if(logger.isInfoEnabled())
+			{
+				logger.info("callInvalid : ending activity "+handle);
+			}
 			sleeEndpoint.endActivity(handle);
 		} catch (UnrecognizedActivityException uae) {
 			if (logger.isSevereEnabled())
@@ -713,7 +722,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		try {
 			if(logger.isInfoEnabled())
 			{
-				logger.info("Connection disconnected: "+connection+", handle: "+handle);
+				logger.info("connectionDisconnected : ending activity "+handle+", activity: "+connection);
 			}
 			sleeEndpoint.endActivity(handle);
 		} catch (UnrecognizedActivityException uae) {
@@ -735,7 +744,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		ActivityHandle handle = getActivityHandle(connection);
 		if(logger.isInfoEnabled())
 		{
-			logger.info("Connection failed: "+connection+", handle: "+handle);
+			logger.info("connectionFailed : ending activity "+handle+", activity: "+connection);
 		}
 		sleeEndpoint.endActivity(handle);
 		if (logger.isFineEnabled())
