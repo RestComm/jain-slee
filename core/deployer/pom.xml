@@ -11,7 +11,28 @@
 
 	<artifactId>deployer</artifactId>
 
-	
+	<dependencies>
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>spi</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>common</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+           	<artifactId>jboss-as-j2se</artifactId>           	
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+  			<artifactId>jboss-as-system-jmx</artifactId>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<finalName>mobicents-jainslee-deployer</finalName>
