@@ -42,10 +42,12 @@ import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.mobicents.ussdgateway.ObjectFactory;
 import org.mobicents.ussdgateway.USSDRequest;
 import org.mobicents.ussdgateway.USSDResponse;
 
@@ -73,8 +75,8 @@ public abstract class SipUSSDSbb implements Sbb {
 	private SipActivityContextInterfaceFactory acif;
 
 	// jaxb
-	private static JAXBContext jAXBContext = initJAXBContext();
-
+	private static final JAXBContext jAXBContext = initJAXBContext();
+	private static final ObjectFactory objectFactory = new ObjectFactory();
 	private Tracer logger;
 
 	/** Creates a new instance of CallSbb */
@@ -256,7 +258,7 @@ public abstract class SipUSSDSbb implements Sbb {
 
 	private String processUssd(USSDRequest extracted) {
 		// create dummy response
-		USSDResponse response = new USSDResponse();
+		USSDResponse response = this.objectFactory.createUSSDResponse();
 		response.setInvokeId(extracted.getInvokeId());
 		response.setUssdCoding(extracted.getUssdCoding());
 		response.setUssdString("Pick your favorite cookie: 1) dummy cookie 2) coffee cookie 3) kulikoff");
@@ -265,7 +267,8 @@ public abstract class SipUSSDSbb implements Sbb {
 		try {
 			Marshaller marshaller = jAXBContext.createMarshaller();
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			marshaller.marshal(response, bos);
+			JAXBElement<USSDResponse> res = this.objectFactory.createResponse(response);
+			marshaller.marshal(res, bos);
 			return new String(bos.toByteArray());
 		} catch (JAXBException e) {
 			// FIXME: terminate
@@ -369,3 +372,4 @@ public abstract class SipUSSDSbb implements Sbb {
 	public void sbbRolledBack(RolledBackContext rolledBackContext) {
 	}
 }
+        
