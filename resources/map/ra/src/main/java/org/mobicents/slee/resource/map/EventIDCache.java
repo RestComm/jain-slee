@@ -16,7 +16,7 @@ public class EventIDCache {
 	
 	private ConcurrentHashMap<String, FireableEventType> eventIds = new ConcurrentHashMap<String, FireableEventType>();
 	private static final String EVENT_VENDOR = "org.mobicents";
-	private static final String EVENT_VERSION = "2.0";
+	private static final String EVENT_VERSION = "1.0";
 
 	private Tracer tracer;
 	
