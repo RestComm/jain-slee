@@ -7,6 +7,12 @@
 		<sbb-vendor>org.mobicents</sbb-vendor>
 		<sbb-version>1.0</sbb-version>
 
+		<library-ref>
+			<library-name>library-ussdgateway</library-name>
+			<library-vendor>org.mobicents</library-vendor>
+			<library-version>2.0</library-version>
+		</library-ref>
+
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>org.mobicents.example.ss7.ussd.SipUSSDSbb</sbb-abstract-class-name>
@@ -27,10 +33,10 @@
 				callIDSelect
 			</initial-event-selector-method-name>
 		</event>
-	
-	
+
+
 		<!-- Intermediate: if any -->
-	
+
 		<event event-direction="Receive" initial-event="True">
 			<event-name>InfoEvent</event-name>
 			<event-type-ref>
@@ -42,9 +48,9 @@
 				callIDSelect
 			</initial-event-selector-method-name>
 		</event>
-	
-	
-	
+
+
+
 		<!-- final -->
 		<event event-direction="Receive" initial-event="True">
 			<event-name>ByeEvent</event-name>
@@ -57,7 +63,7 @@
 				callIDSelect
 			</initial-event-selector-method-name>
 		</event>
-		
+
 		<event event-direction="Receive" initial-event="True">
 			<event-name>CancelEvent</event-name>
 			<event-type-ref>
@@ -69,8 +75,8 @@
 				callIDSelect
 			</initial-event-selector-method-name>
 		</event>
-		
-		
+
+
 		<!-- success -->
 		<event event-direction="Receive" initial-event="False">
 			<event-name>SuccessEvent</event-name>
@@ -83,7 +89,7 @@
 				callIDSelect
 			</initial-event-selector-method-name>
 		</event>
-		
+
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>

@@ -15,6 +15,8 @@ package org.mobicents.example.ss7.ussd;
 
 import gov.nist.javax.sip.header.CallID;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 
 import javax.naming.Context;
@@ -39,6 +41,13 @@ import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+
+import org.mobicents.ussdgateway.USSDRequest;
+import org.mobicents.ussdgateway.USSDResponse;
 
 import net.java.slee.resource.sip.CancelRequestEvent;
 import net.java.slee.resource.sip.DialogActivity;
@@ -51,7 +60,8 @@ import net.java.slee.resource.sip.SleeSipProvider;
  * @author amit bhayani
  */
 public abstract class SipUSSDSbb implements Sbb {
-
+	private static final String CONTENT_TYPE = "text";
+	private static final String CONTENT_SUB_TYPE = "xml";
 	private SbbContext sbbContext;
 
 	// SIP
@@ -61,6 +71,9 @@ public abstract class SipUSSDSbb implements Sbb {
 	private HeaderFactory headerFactory;
 	private MessageFactory messageFactory;
 	private SipActivityContextInterfaceFactory acif;
+
+	// jaxb
+	private static JAXBContext jAXBContext = initJAXBContext();
 
 	private Tracer logger;
 
@@ -94,7 +107,7 @@ public abstract class SipUSSDSbb implements Sbb {
 
 	// final
 	public void onByeEvent(RequestEvent event, ActivityContextInterface ac) {
-		//something should be here?
+		// something should be here?
 		sendResponse(null, event.getServerTransaction());
 	}
 
@@ -104,7 +117,7 @@ public abstract class SipUSSDSbb implements Sbb {
 
 	// success
 	public void onSuccessEvent(ResponseEvent event, ActivityContextInterface ac) {
-		//nothing, not sure if it will be ever called
+		// nothing, not sure if it will be ever called
 	}
 
 	// ///////////////////
@@ -141,9 +154,8 @@ public abstract class SipUSSDSbb implements Sbb {
 
 		try {
 			Response okresponse = this.messageFactory.createResponse(Response.OK, stx.getRequest());
-			if(ussdResponse!=null)
-			{
-				ContentTypeHeader cth = this.headerFactory.createContentTypeHeader("text", "xml");
+			if (ussdResponse != null) {
+				ContentTypeHeader cth = this.headerFactory.createContentTypeHeader(CONTENT_TYPE, CONTENT_SUB_TYPE);
 				okresponse.setContent(ussdResponse, cth);
 			}
 			stx.sendResponse(okresponse);
@@ -182,7 +194,7 @@ public abstract class SipUSSDSbb implements Sbb {
 
 	private void processUssd(RequestEvent event) {
 		// now lets get USSD
-		String extracted = extractUssd(event);
+		USSDRequest extracted = extractUssd(event);
 		if (extracted == null) {
 			// error has been handled
 			return;
@@ -190,14 +202,15 @@ public abstract class SipUSSDSbb implements Sbb {
 		String drooled = processUssd(extracted);
 
 		// send ok
-		sendResponse(drooled, event.getServerTransaction());
-		if (isSessionDead()) {
-			// in this case, send bye over dialog
+		if (drooled != null) {
+			sendResponse(drooled, event.getServerTransaction());
+			if (isSessionDead()) {
+				// in this case, send bye over dialog
 
-			sendBye();
+				sendBye();
 
+			}
 		}
-
 	}
 
 	private DialogActivity getDialog() {
@@ -214,19 +227,66 @@ public abstract class SipUSSDSbb implements Sbb {
 	// //////////////
 	// USSD Stuff //
 	// //////////////
-	//FIXME: once XSD is done, switch to JAXB or something
-	private String extractUssd(RequestEvent event) {
-		// TODO Auto-generated method stub
+	// FIXME: once XSD is done, switch to JAXB or something
+	private USSDRequest extractUssd(RequestEvent event) {
+		Request sipRequest = event.getRequest();
+		ContentTypeHeader cth = (ContentTypeHeader) event.getRequest().getHeader(ContentTypeHeader.NAME);
+		if (cth == null) {
+			// FIXME: break
+			return null;
+		} else {
+			if (!cth.getContentType().equals(CONTENT_TYPE) || !cth.getContentSubType().equals(CONTENT_SUB_TYPE)
+					|| sipRequest.getContent() == null) {
+				// FIXME: break,
+				return null;
+			}
+		}
+		try {
+			Unmarshaller uMarshaller = jAXBContext.createUnmarshaller();
+			ByteArrayInputStream bis = new ByteArrayInputStream(sipRequest.getRawContent());
+			return (USSDRequest) uMarshaller.unmarshal(bis);
+		} catch (JAXBException e) {
+			// FIXME: tear down
+
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 
-	private String processUssd(String extracted) {
-		// TODO Auto-generated method stub
+	private String processUssd(USSDRequest extracted) {
+		// create dummy response
+		USSDResponse response = new USSDResponse();
+		response.setInvokeId(extracted.getInvokeId());
+		response.setUssdCoding(extracted.getUssdCoding());
+		response.setUssdString("Pick your favorite cookie: 1) dummy cookie 2) coffee cookie 3) kulikoff");
+		response.setEnd(true);
+		response.setLastResult(true);
+		try {
+			Marshaller marshaller = jAXBContext.createMarshaller();
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			marshaller.marshal(response, bos);
+			return new String(bos.toByteArray());
+		} catch (JAXBException e) {
+			// FIXME: terminate
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 
 	private boolean isSessionDead() {
-		return false;
+		return true;
+	}
+
+	private static JAXBContext initJAXBContext() {
+		try {
+			return JAXBContext.newInstance("org.mobicents.ussdgateway");
+		} catch (JAXBException e) {
+			// logger.severe("unable to init jaxb context",e);
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**

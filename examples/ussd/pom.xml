@@ -1,32 +1,70 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>pom</packaging>
-	
+
 	<parent>
 		<artifactId>mobicents-parent</artifactId>
 		<groupId>org.mobicents</groupId>
 		<version>2.2</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-	
+
 	<artifactId>ussd-example-parent</artifactId>
 	<groupId>org.mobicents.examples.ussd</groupId>
 	<version>2.1.0-SNAPSHOT</version>
 	<name>Mobicents :: Examples :: ${pom.artifactId}</name>
-				
+	
+	<properties>
+		<version.sipra>2.1.0-SNAPSHOT</version.sipra>
+		<version.ussdgateway>1.0.0.BETA1-SNAPSHOT</version.ussdgateway>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.mobicents.resources</groupId>
+				<artifactId>sip11-ratype</artifactId>
+				<version>${version.sipra}</version>
+			</dependency>
+			<dependency>
+				<artifactId>ussdgateway-xml</artifactId>
+				<groupId>org.mobicents.applications.ussd</groupId>
+				<version>${version.ussdgateway}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.xml.bind</groupId>
+				<artifactId>jaxb-api</artifactId>
+				<version>2.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.xml</groupId>
+				<artifactId>jaxb-impl</artifactId>
+				<version>2.1</version>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+
+	</dependencyManagement>
+
+
+
+
 	<modules>
-		<module>sbb</module>						
-		<module>du</module>			
+		<module>sbb</module>
+		<module>du</module>
 	</modules>
-	
-	
+
+
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
-   				<groupId>org.mobicents.tools</groupId>
-    			<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
+				<groupId>org.mobicents.tools</groupId>
+				<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
@@ -39,7 +77,7 @@
 					<eclipseProjectName>mobicents-ussd-example</eclipseProjectName>
 				</configuration>
 			</plugin>
-		</plugins>		
+		</plugins>
 	</build>
-	
+
 </project>

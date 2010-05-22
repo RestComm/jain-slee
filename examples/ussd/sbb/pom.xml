@@ -10,12 +10,27 @@
 	</parent>
 
 	<artifactId>ussd-sbb</artifactId>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>sip11-ratype</artifactId>
-			<version>${pom.version}</version>
+
+		</dependency>
+		<dependency>
+			<artifactId>ussdgateway-xml</artifactId>
+			<groupId>org.mobicents.applications.ussd</groupId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
