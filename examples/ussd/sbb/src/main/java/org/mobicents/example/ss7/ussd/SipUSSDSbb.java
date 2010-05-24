@@ -13,6 +13,7 @@
  */
 package org.mobicents.example.ss7.ussd;
 
+import gov.nist.javax.sip.address.SipUri;
 import gov.nist.javax.sip.header.CallID;
 
 import java.io.ByteArrayInputStream;
@@ -27,10 +28,14 @@ import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
+import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
+import javax.sip.address.SipURI;
+import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
+import javax.sip.header.ToHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -47,6 +52,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.jbpm.graph.exe.ProcessInstance;
 import org.mobicents.ussdgateway.ObjectFactory;
 import org.mobicents.ussdgateway.USSDRequest;
 import org.mobicents.ussdgateway.USSDResponse;
@@ -156,9 +162,25 @@ public abstract class SipUSSDSbb implements Sbb {
 
 		try {
 			Response okresponse = this.messageFactory.createResponse(Response.OK, stx.getRequest());
+			DialogActivity da = getDialog();
+			
 			if (ussdResponse != null) {
 				ContentTypeHeader cth = this.headerFactory.createContentTypeHeader(CONTENT_TYPE, CONTENT_SUB_TYPE);
 				okresponse.setContent(ussdResponse, cth);
+			}
+			okresponse.addHeader(this.getLocalContact());
+			String tag = null;
+			if(da.getLocalTag() == null)
+			{
+				tag = System.currentTimeMillis()+"";
+			}else
+			{
+				tag = da.getLocalTag();
+			}
+			ToHeader to = (ToHeader) okresponse.getHeader(ToHeader.NAME);
+			if(to.getTag()==null)
+			{
+				to.setTag(tag);
 			}
 			stx.sendResponse(okresponse);
 
@@ -225,7 +247,18 @@ public abstract class SipUSSDSbb implements Sbb {
 
 		return null;
 	}
-
+	
+	//FIXME: add this as cmp?
+	
+	private ContactHeader getLocalContact()
+	{
+		ContactHeader ch = this.headerFactory.createContactHeader();
+		SipURI localURI = this.provider.getLocalSipURI("udp");
+		Address addr = this.addressFactory.createAddress(localURI);
+		ch.setAddress(addr);
+		return ch;
+		
+	}
 	// //////////////
 	// USSD Stuff //
 	// //////////////
@@ -246,7 +279,8 @@ public abstract class SipUSSDSbb implements Sbb {
 		try {
 			Unmarshaller uMarshaller = jAXBContext.createUnmarshaller();
 			ByteArrayInputStream bis = new ByteArrayInputStream(sipRequest.getRawContent());
-			return (USSDRequest) uMarshaller.unmarshal(bis);
+			JAXBElement<USSDRequest> data = (JAXBElement<USSDRequest>) uMarshaller.unmarshal(bis); 
+			return data.getValue();
 		} catch (JAXBException e) {
 			// FIXME: tear down
 
@@ -291,7 +325,13 @@ public abstract class SipUSSDSbb implements Sbb {
 			return null;
 		}
 	}
-
+	
+	
+	//////////
+	// CMPS //
+	//////////
+	public abstract void setProcessInstance(ProcessInstance pi);
+	public abstract ProcessInstance getProcessInstance();
 	/**
 	 * Generate a custom convergence name so that events with the same call
 	 * identifier will go to the same root SBB entity.
@@ -339,7 +379,7 @@ public abstract class SipUSSDSbb implements Sbb {
 			logger.severe("Could not set SBB context:", ne);
 		}
 	}
-
+	
 	public void unsetSbbContext() {
 		this.sbbContext = null;
 		this.logger = null;
