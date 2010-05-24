@@ -37,6 +37,7 @@
 		<module>resource</module>
 		<module>timers</module>
 		<module>services</module>
+		<module>congestion</module>
 		<module>rar</module>
 		<module>ant-tasks</module>	
 		<module>standard-components</module>

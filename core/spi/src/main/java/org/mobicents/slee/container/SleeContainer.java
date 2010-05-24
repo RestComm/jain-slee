@@ -24,6 +24,7 @@ import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
 import org.mobicents.slee.container.component.du.DeployableUnitManagement;
+import org.mobicents.slee.container.congestion.CongestionControl;
 import org.mobicents.slee.container.event.EventContextFactory;
 import org.mobicents.slee.container.eventrouter.EventRouter;
 import org.mobicents.slee.container.facilities.ActivityContextNamingFacility;
@@ -155,6 +156,8 @@ public class SleeContainer {
 
 	private final MobicentsCache localCache; 
 	
+	private final CongestionControl congestionControl;
+	
 	/**
 	 * Creates a new instance of SleeContainer -- This is called from the
 	 * SleeManagementMBean to get the whole thing running.
@@ -178,7 +181,7 @@ public class SleeContainer {
 			MobicentsCluster cluster, MobicentsCache localCache, AlarmManagement alarmMBeanImpl,
 			TraceManagement traceMBeanImpl,
 			UsageParametersManagement usageParametersManagement,
-			SbbEntityFactory sbbEntityFactory) throws Exception {
+			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl) throws Exception {
 		
 		// created in STOPPED state and remain so until started
 		this.sleeState = SleeState.STOPPED;
@@ -253,6 +256,8 @@ public class SleeContainer {
 		this.sbbEntityFactory = sbbEntityFactory;
 		addModule(sbbEntityFactory);
 
+		this.congestionControl = congestionControl;
+		addModule(congestionControl);
 	}
 
 	private void addModule(SleeContainerModule module) {
@@ -325,6 +330,14 @@ public class SleeContainer {
 		return componentManagement.getComponentRepository();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public CongestionControl getCongestionControl() {
+		return congestionControl;
+	}
+	
 	/**
 	 * Retrieves the deployable unit manager
 	 * 

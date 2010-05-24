@@ -25,6 +25,12 @@
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
+			<artifactId>congestion</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
 			<artifactId>usage</artifactId>
 			<version>${pom.version}</version>
 		</dependency>

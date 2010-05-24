@@ -4,6 +4,7 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.ChildRelation;
 import javax.slee.EventTypeID;
+import javax.slee.SLEEException;
 import javax.slee.ServiceID;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.UnrecognizedProfileNameException;
@@ -174,6 +175,10 @@ public class SbbAbstractMethodHandler {
 	public static void fireEvent(SbbEntity sbbEntity, EventTypeID eventTypeID,
 			Object eventObject, ActivityContextInterface aci, Address address,
 			ServiceID serviceID) {
+
+		if (sleeContainer.getCongestionControl().refuseFireEvent()) {
+			throw new SLEEException("congestion control refused event");
+		}
 
 		// JAIN SLEE (TM) specs - Section 8.4.1
 		// The SBB object must have an assigned SBB entity when it invokes this

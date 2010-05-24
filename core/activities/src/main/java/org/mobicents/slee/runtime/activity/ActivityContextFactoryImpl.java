@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
 
 import org.apache.log4j.Logger;
@@ -95,6 +96,10 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	}
 	
 	public ActivityContextImpl createActivityContext(final ActivityContextHandle ach, int activityFlags) throws ActivityAlreadyExistsException {
+		
+		if (sleeContainer.getCongestionControl().refuseStartActivity()) {
+			throw new SLEEException("congestion control refused activity start");
+		}
 		
 		// create ac
 		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());

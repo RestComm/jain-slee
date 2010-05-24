@@ -290,6 +290,25 @@
 			</parameter>
 		</constructor>
 	</bean>	
+	
+	<bean name="Mobicents.JAINSLEE.CongestionControlConfiguration"
+		class="org.mobicents.slee.container.management.jmx.CongestionControlConfiguration">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=CongestionControlConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.CongestionControlConfigurationMBean.class,registerDirectly=true)</annotation>
+		<property name="periodBetweenChecks">0</property> <!-- 0 means congestion control off -->
+		<property name="minFreeMemoryToTurnOn">10</property>
+		<property name="minFreeMemoryToTurnOff">20</property>
+		<property name="refuseStartActivity">true</property>
+		<property name="refuseFireEvent">false</property>
+	</bean>
+	
+	<bean name="Mobicents.JAINSLEE.CongestionControl"
+		class="org.mobicents.slee.container.congestion.CongestionControlImpl">
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.CongestionControlConfiguration" />
+			</parameter>
+		</constructor>	
+	</bean>	
 						
 	<bean name="Mobicents.JAINSLEE.Container" class="org.mobicents.slee.container.SleeContainer">
 		<constructor>
@@ -313,6 +332,7 @@
 			<parameter><inject bean="Mobicents.JAINSLEE.TraceMBean" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.UsageParametersManagement" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.SbbEntityFactory" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.CongestionControl" /></parameter>			
 		</constructor>
 		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>
 	</bean>
