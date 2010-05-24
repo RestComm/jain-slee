@@ -15,12 +15,15 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
  * @author amit bhayani
  * 
  */
-public class MAPProviderImpl implements MAPProvider {
+public class MAPProviderWrapper implements MAPProvider {
 
 	private org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = null;
+	private MAPResourceAdaptor mapRsrcAdap = null;
 
-	protected MAPProviderImpl(org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider) {
+	protected MAPProviderWrapper(org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider,
+			MAPResourceAdaptor mapRsrcAdap) {
 		this.mapProvider = mapProvider;
+		this.mapRsrcAdap = mapRsrcAdap;
 	}
 
 	public void addMAPDialogListener(MAPDialogListener arg0) {
@@ -33,7 +36,9 @@ public class MAPProviderImpl implements MAPProvider {
 
 	public MAPDialog createNewDialog(MAPApplicationContext appCntx, SccpAddress destAddress,
 			AddressString destReference, SccpAddress origAddress, AddressString origReference) throws MAPException {
-		return mapProvider.createNewDialog(appCntx, destAddress, destReference, origAddress, origReference);
+		MAPDialog mapDialog = mapProvider.createNewDialog(appCntx, destAddress, destReference, origAddress,
+				origReference);
+		return new MAPDialogWrapper(this.mapRsrcAdap, mapDialog);
 	}
 
 	public MapServiceFactory getMapServiceFactory() {
