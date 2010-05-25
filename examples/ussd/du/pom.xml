@@ -10,11 +10,21 @@
 	</parent>
 
 	<artifactId>ussd-example-DU</artifactId>
-
+	<name>USSD : Example : ${pom.artifactId}</name>
 	<dependencies>
 		<dependency>
 			<artifactId>ussd-sbb</artifactId>
 			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>ussdgateway-library</artifactId>
+			<groupId>org.mobicents.applications.ussd</groupId>
+			<version>${version.ussdgateway}</version>
+		</dependency>
+		<dependency>
+			<artifactId>ussdexample-library</artifactId>
+			<groupId>org.mobicents.examples.ussd</groupId>
 			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>

@@ -10,12 +10,17 @@
 	</parent>
 
 	<artifactId>ussd-sbb</artifactId>
-	
+	<name>USSD : Example : ${pom.artifactId}</name>
 	<dependencies>
+		<dependency>
+			<artifactId>ussdexample-library</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>sip11-ratype</artifactId>
-
 		</dependency>
 		<dependency>
 			<artifactId>ussdgateway-xml</artifactId>
@@ -30,6 +35,22 @@
 		<dependency>
 			<groupId>javax.xml</groupId>
 			<artifactId>jaxb-impl</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jbpm</groupId>
+			<artifactId>jbpm-jpdl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.5.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.5.2</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

@@ -5,9 +5,10 @@
 	<packaging>pom</packaging>
 
 	<parent>
-		<artifactId>mobicents-parent</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>2.2</version>
+		<artifactId>mobicents-parent</artifactId>
+		<version>2.5-SNAPSHOT</version>
+
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
@@ -15,10 +16,11 @@
 	<groupId>org.mobicents.examples.ussd</groupId>
 	<version>2.1.0-SNAPSHOT</version>
 	<name>Mobicents :: Examples :: ${pom.artifactId}</name>
-	
+
 	<properties>
 		<version.sipra>2.1.0-SNAPSHOT</version.sipra>
 		<version.ussdgateway>1.0.0.BETA1-SNAPSHOT</version.ussdgateway>
+		<version.jbpm>3.2.3</version.jbpm>
 	</properties>
 
 	<dependencyManagement>
@@ -46,6 +48,11 @@
 				<version>2.1</version>
 				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.jbpm</groupId>
+				<artifactId>jbpm-jpdl</artifactId>
+				<version>${version.jbpm}</version>
+			</dependency>
 		</dependencies>
 
 	</dependencyManagement>
@@ -54,6 +61,7 @@
 
 
 	<modules>
+		<module>library</module>
 		<module>sbb</module>
 		<module>du</module>
 	</modules>

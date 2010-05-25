@@ -13,7 +13,6 @@
  */
 package org.mobicents.example.ss7.ussd;
 
-import gov.nist.javax.sip.address.SipUri;
 import gov.nist.javax.sip.header.CallID;
 
 import java.io.ByteArrayInputStream;
@@ -40,29 +39,43 @@ import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.ActivityContextInterface;
+import javax.slee.ActivityEndEvent;
 import javax.slee.CreateException;
 import javax.slee.InitialEventSelector;
 import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
+import javax.slee.serviceactivity.ServiceActivity;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.jbpm.graph.exe.ProcessInstance;
-import org.mobicents.ussdgateway.ObjectFactory;
-import org.mobicents.ussdgateway.USSDRequest;
-import org.mobicents.ussdgateway.USSDResponse;
-
 import net.java.slee.resource.sip.CancelRequestEvent;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
 
+import org.jbpm.JbpmConfiguration;
+import org.jbpm.JbpmContext;
+import org.jbpm.graph.def.ProcessDefinition;
+import org.jbpm.graph.exe.ProcessInstance;
+import org.mobicents.example.ss7.ussd.jbpm.USSDDecisionHandler;
+import org.mobicents.example.ss7.ussd.jbpm.USSDPromptHandler;
+import org.mobicents.ussdgateway.ObjectFactory;
+import org.mobicents.ussdgateway.USSDRequest;
+import org.mobicents.ussdgateway.USSDResponse;
+
 /**
+ * This is VERY basic example of USSD usage with jBPM. jBPM flow is ~hardcoded
+ * in xml and separated from SBB code. Task of this class are:
+ * <ul>
+ * <li>Establish session with other peer</li>
+ * <li>Feed jBPM process with input</li>
+ * <li>Pull jBPM process for ussd prompt - check if process died</li>
+ * </ul>
  * 
  * @author baranowb
  * @author amit bhayani
@@ -70,6 +83,8 @@ import net.java.slee.resource.sip.SleeSipProvider;
 public abstract class SipUSSDSbb implements Sbb {
 	private static final String CONTENT_TYPE = "text";
 	private static final String CONTENT_SUB_TYPE = "xml";
+	private static final String JPDL_FILE = "trainstation.jpdl.xml";
+	private static final String PROCESS_NAME="TrainStationDecisions";
 	private SbbContext sbbContext;
 
 	// SIP
@@ -83,10 +98,54 @@ public abstract class SipUSSDSbb implements Sbb {
 	// jaxb
 	private static final JAXBContext jAXBContext = initJAXBContext();
 	private static final ObjectFactory objectFactory = new ObjectFactory();
+	// not final, since we want it to be created in way which provides us of
+	// notifying slee of excption?
+	private static JbpmContext jbpmContext;
+
 	private Tracer logger;
 
 	/** Creates a new instance of CallSbb */
 	public SipUSSDSbb() {
+	}
+
+	// ////////////////////////
+	// SLEE events handlers //
+	// ////////////////////////
+	/**
+	 * Init the xmpp connection to GOOGLE TALK when the service is activated by
+	 * SLEE
+	 * 
+	 * @param event
+	 * @param aci
+	 */
+	public void onStartServiceEvent(javax.slee.serviceactivity.ServiceStartedEvent event, ActivityContextInterface aci) {
+		ServiceActivity sa = (ServiceActivity) aci.getActivity();
+		if (sa.getService().equals(this.sbbContext.getService())) {
+			JbpmConfiguration jbpmConfiguration = JbpmConfiguration.getInstance();
+			
+			jbpmContext = jbpmConfiguration.createJbpmContext();
+			
+			ProcessDefinition pd = ProcessDefinition.parseXmlInputStream(Thread.currentThread().getContextClassLoader()
+					.getResourceAsStream(JPDL_FILE));
+			jbpmContext.deployProcessDefinition(pd);
+		}
+	}
+
+	/**
+	 * Handler to disconnect from Google when the service is being deactivated.
+	 * 
+	 * @param event
+	 * @param aci
+	 */
+	public void onActivityEndEvent(ActivityEndEvent event, ActivityContextInterface aci) {
+		if (jbpmContext != null && aci.getActivity() instanceof ServiceActivity) {
+			// just in case
+			ServiceActivity sa = (ServiceActivity) aci.getActivity();
+			if (sa.getService().equals(this.sbbContext.getService())) {
+				jbpmContext.close();
+				jbpmContext = null;
+			}
+		}
 	}
 
 	// initial
@@ -97,7 +156,8 @@ public abstract class SipUSSDSbb implements Sbb {
 			da.terminateOnBye(true);
 			ActivityContextInterface daACI = this.acif.getActivityContextInterface(da);
 			daACI.attach(this.sbbContext.getSbbLocalObject());
-
+			ProcessInstance pi = jbpmContext.newProcessInstance(PROCESS_NAME);
+			this.setProcessInstance(pi);
 		} catch (SipException e) {
 
 			e.printStackTrace();
@@ -163,23 +223,20 @@ public abstract class SipUSSDSbb implements Sbb {
 		try {
 			Response okresponse = this.messageFactory.createResponse(Response.OK, stx.getRequest());
 			DialogActivity da = getDialog();
-			
+
 			if (ussdResponse != null) {
 				ContentTypeHeader cth = this.headerFactory.createContentTypeHeader(CONTENT_TYPE, CONTENT_SUB_TYPE);
 				okresponse.setContent(ussdResponse, cth);
 			}
 			okresponse.addHeader(this.getLocalContact());
 			String tag = null;
-			if(da.getLocalTag() == null)
-			{
-				tag = System.currentTimeMillis()+"";
-			}else
-			{
+			if (da.getLocalTag() == null) {
+				tag = System.currentTimeMillis() + "";
+			} else {
 				tag = da.getLocalTag();
 			}
 			ToHeader to = (ToHeader) okresponse.getHeader(ToHeader.NAME);
-			if(to.getTag()==null)
-			{
+			if (to.getTag() == null) {
 				to.setTag(tag);
 			}
 			stx.sendResponse(okresponse);
@@ -247,18 +304,18 @@ public abstract class SipUSSDSbb implements Sbb {
 
 		return null;
 	}
-	
-	//FIXME: add this as cmp?
-	
-	private ContactHeader getLocalContact()
-	{
+
+	// FIXME: add this as cmp?
+
+	private ContactHeader getLocalContact() {
 		ContactHeader ch = this.headerFactory.createContactHeader();
 		SipURI localURI = this.provider.getLocalSipURI("udp");
 		Address addr = this.addressFactory.createAddress(localURI);
 		ch.setAddress(addr);
 		return ch;
-		
+
 	}
+
 	// //////////////
 	// USSD Stuff //
 	// //////////////
@@ -279,7 +336,7 @@ public abstract class SipUSSDSbb implements Sbb {
 		try {
 			Unmarshaller uMarshaller = jAXBContext.createUnmarshaller();
 			ByteArrayInputStream bis = new ByteArrayInputStream(sipRequest.getRawContent());
-			JAXBElement<USSDRequest> data = (JAXBElement<USSDRequest>) uMarshaller.unmarshal(bis); 
+			JAXBElement<USSDRequest> data = (JAXBElement<USSDRequest>) uMarshaller.unmarshal(bis);
 			return data.getValue();
 		} catch (JAXBException e) {
 			// FIXME: tear down
@@ -292,11 +349,16 @@ public abstract class SipUSSDSbb implements Sbb {
 
 	private String processUssd(USSDRequest extracted) {
 		// create dummy response
+		ProcessInstance pi = this.getProcessInstance();
+		pi.getContextInstance().setVariable(USSDDecisionHandler._INPUT_, extracted.getUssdString());
+		pi.signal();
+		String data = (String) pi.getContextInstance().getVariable(USSDPromptHandler._PROMPT_);
 		USSDResponse response = this.objectFactory.createUSSDResponse();
 		response.setInvokeId(extracted.getInvokeId());
 		response.setUssdCoding(extracted.getUssdCoding());
-		response.setUssdString("Pick your favorite cookie: 1) dummy cookie 2) coffee cookie 3) kulikoff");
-		response.setEnd(true);
+		response.setUssdString(data);
+		response.setEnd(isSessionDead());
+		//FIXME: amit is this ok?
 		response.setLastResult(true);
 		try {
 			Marshaller marshaller = jAXBContext.createMarshaller();
@@ -313,7 +375,15 @@ public abstract class SipUSSDSbb implements Sbb {
 	}
 
 	private boolean isSessionDead() {
-		return true;
+		ProcessInstance pi = this.getProcessInstance();
+		if(pi == null || pi.getEnd()!=null)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	private static JAXBContext initJAXBContext() {
@@ -325,13 +395,14 @@ public abstract class SipUSSDSbb implements Sbb {
 			return null;
 		}
 	}
-	
-	
-	//////////
+
+	// ////////
 	// CMPS //
-	//////////
+	// ////////
 	public abstract void setProcessInstance(ProcessInstance pi);
+
 	public abstract ProcessInstance getProcessInstance();
+
 	/**
 	 * Generate a custom convergence name so that events with the same call
 	 * identifier will go to the same root SBB entity.
@@ -379,7 +450,7 @@ public abstract class SipUSSDSbb implements Sbb {
 			logger.severe("Could not set SBB context:", ne);
 		}
 	}
-	
+
 	public void unsetSbbContext() {
 		this.sbbContext = null;
 		this.logger = null;
@@ -412,4 +483,3 @@ public abstract class SipUSSDSbb implements Sbb {
 	public void sbbRolledBack(RolledBackContext rolledBackContext) {
 	}
 }
-        
