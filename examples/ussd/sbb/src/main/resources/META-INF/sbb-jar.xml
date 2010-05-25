@@ -1,24 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN"
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN"
                          "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
 <sbb-jar>
-	<sbb>
+	<sbb id="USSDSipSbb">
+		<description>XXX</description>
 		<sbb-name>USSDSipSbb</sbb-name>
 		<sbb-vendor>org.mobicents</sbb-vendor>
 		<sbb-version>1.0</sbb-version>
+		<sbb-alias>XxX</sbb-alias>
 
 		<library-ref>
 			<library-name>library-ussdgateway</library-name>
 			<library-vendor>org.mobicents</library-vendor>
 			<library-version>2.0</library-version>
 		</library-ref>
-
+		<library-ref>
+			<library-name>library-ussdexample</library-name>
+			<library-vendor>org.mobicents</library-vendor>
+			<library-version>1.0</library-version>
+		</library-ref>
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>org.mobicents.example.ss7.ussd.SipUSSDSbb</sbb-abstract-class-name>
-
+				<cmp-field>
+					<cmp-field-name>processInstance</cmp-field-name>
+				</cmp-field>
 			</sbb-abstract-class>
 		</sbb-classes>
+
+		<!-- SLEE -->
+		<event event-direction="Receive" initial-event="True">
+			<event-name>StartServiceEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.serviceactivity.ServiceStartedEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.ActivityEndEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+
 
 		<!-- initial -->
 
