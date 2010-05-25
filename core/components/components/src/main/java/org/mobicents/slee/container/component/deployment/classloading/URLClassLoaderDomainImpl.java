@@ -181,12 +181,50 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	 * @see java.net.URLClassLoader#findResource(java.lang.String)
 	 */
 	@Override
-	public URL findResource(String name) {
-		URL url = super.findResource(name);
-		if (url == null) {
-			url = sleeClassLoader.getResource(name);
+	public URL findResource(String name) {		
+		
+		URL result = null;
+		
+		if (firstLoadFromSlee) {
+			
+			result = sleeClassLoader.getResource(name);
+			if (result == null) {
+				result = findResource(name, new HashSet<URLClassLoaderDomain>());
+			}
 		}
-		return url;
+		else {
+			result = findResource(name, new HashSet<URLClassLoaderDomain>());
+			if (result == null) {
+				result = sleeClassLoader.getResource(name);
+			}
+		}
+		
+		return result;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.component.classloading.URLClassLoaderDomain#findResource(java.lang.String, java.util.Set)
+	 */
+	public URL findResource(String name, Set<URLClassLoaderDomain> visited) {
+		
+		if (!visited.add(this)) {
+			// cycle
+			return null;
+		}
+		
+		// try in dependencies
+		URL result = null;
+		for (URLClassLoaderDomain dependency : dependencies) {
+			result = dependency.findResource(name,visited);					
+			if (result != null) {
+				return result;
+			}
+		}
+			
+		// look locally
+		return super.findResource(name);						
+				
 	}
 	
 	/* (non-Javadoc)
@@ -195,10 +233,38 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Enumeration<URL> findResources(String name) throws IOException {
-		final Enumeration[] tmp = new Enumeration[2];
-		tmp[0] = super.findResources(name);
-		tmp[1] = sleeClassLoader.getResources(name);
-		return new CompoundEnumeration(tmp);
+		Set<Enumeration<URL>> set = new HashSet<Enumeration<URL>>();
+		if (firstLoadFromSlee) {
+			set.add(sleeClassLoader.getResources(name));
+			findResources(name, new HashSet<URLClassLoaderDomain>(), set);
+		}
+		else {
+			findResources(name, new HashSet<URLClassLoaderDomain>(), set);
+			set.add(sleeClassLoader.getResources(name));
+		}
+		final Enumeration[] array = new Enumeration[set.size()];
+		set.toArray(array);
+		return new CompoundEnumeration(array);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.component.classloading.URLClassLoaderDomain#findResources(java.lang.String, java.util.Set, java.util.Set)
+	 */
+	public void findResources(String name, Set<URLClassLoaderDomain> visited, Set<Enumeration<URL>> result) throws IOException {
+		
+		if (!visited.add(this)) {
+			// cycle
+			return;
+		}
+		
+		// find in dependencies
+		for (URLClassLoaderDomain dependency : dependencies) {
+			dependency.findResources(name,visited,result);					
+		}
+			
+		// look locally
+		result.add(super.findResources(name));
 	}
 	
 	@Override

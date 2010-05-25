@@ -1,7 +1,9 @@
 package org.mobicents.slee.container.component.classloading;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 import java.util.Set;
 
 /**
@@ -67,5 +69,24 @@ public abstract class URLClassLoaderDomain extends java.net.URLClassLoader {
 	 */
 	public abstract Class<?> loadClassLocally(String name)
 			throws ClassNotFoundException;
+	
+	/**
+	 * 
+	 * @param name
+	 * @param visited
+	 * @return
+	 */
+	public abstract URL findResource(String name, Set<URLClassLoaderDomain> visited);
+
+	/**
+	 * 
+	 * @param name
+	 * @param visited
+	 * @param result
+	 * @throws IOException 
+	 */
+	public abstract void findResources(String name, Set<URLClassLoaderDomain> visited,
+			Set<Enumeration<URL>> result) throws IOException;
+
 
 }
