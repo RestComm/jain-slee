@@ -18,8 +18,8 @@
 		<checkout.basedir>${basedir}/checkout</checkout.basedir>
 		<checkout.username>ze carlos</checkout.username>
 		<checkout.password />
-		<tag.version>2.0.0.GA</tag.version>
-		 
+		<tag.version>2.1.0.GA</tag.version>
+		<!--  
 		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/${tag.version}</core.connectionURL>
 		
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-base/${tag.version}</ra.diameter-base.connectionURL>
@@ -43,13 +43,15 @@
 		<example.sip-b2bua.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-b2bua/${tag.version}</example.sip-b2bua.connectionURL>
 		<example.mgcp-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/mgcp-demo/${tag.version}</example.mgcp-demo.connectionURL>
 		<example.call-controller2.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/call-controller2/${tag.version}</example.call-controller2.connectionURL>
-		 
-		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/cluster/mobicents-cluster-1.2</cluster.connectionURL>
-		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-sip-ha/mobicents-jain-sip-ha-0.6</jain-sip-ha.connectionURL>
-		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/jopr-plugin/${tag.version}</jopr-plugin.connectionURL>
+		--> 
+		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/cluster/mobicents-cluster-1.3</cluster.connectionURL>
 		
-		<sip-balancer.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/tools/sip-balancer/sip-balancer-1.0.BETA14</sip-balancer.connectionURL>
 		<!--
+		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-sip-ha/mobicents-jain-sip-ha-0.9</jain-sip-ha.connectionURL>
+		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/jopr-plugin/${tag.version}</jopr-plugin.connectionURL> -->
+		
+		<sip-balancer.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/tools/sip-balancer/sip-balancer-1.0.0.FINAL</sip-balancer.connectionURL>
+		
 		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</core.connectionURL>
 		
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-base</ra.diameter-base.connectionURL>
@@ -73,11 +75,15 @@
 		<example.sip-b2bua.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-b2bua</example.sip-b2bua.connectionURL>
 		<example.mgcp-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/mgcp-demo</example.mgcp-demo.connectionURL>
 		<example.call-controller2.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/call-controller2</example.call-controller2.connectionURL>
-		 
-		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/cluster</cluster.connectionURL>
-		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-sip-ha</jain-sip-ha.connectionURL>				
 		
+		<!-- 
+		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/cluster</cluster.connectionURL>
+		-->
+		
+		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-sip-ha</jain-sip-ha.connectionURL>				
 		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/jopr-plugin</jopr-plugin.connectionURL>
+		
+		<!--
 		<sip-balancer.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/tools/sip-balancer</sip-balancer.connectionURL>
 		-->		
 	</properties>
