@@ -305,7 +305,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			return;
 		}
 
-		this.fireEvent("org.mobicents.protocols.ss7.map.ACCEPT_INFO", handle, mapCloseInfo);
+		this.fireEvent("org.mobicents.protocols.ss7.map.CLOSE_INFO", handle, mapCloseInfo);
 		// close
 		this.sleeEndpoint.endActivity(handle);
 	}
@@ -353,7 +353,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		MAPDialog mapDialog = mapProviderAbortInfo.getMAPDialog();
 
 		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Received MAPCloseInfo for DialogId " + mapDialog.getDialogId());
+			this.tracer.fine("Received MAPProviderAbortInfo for DialogId " + mapDialog.getDialogId());
 		}
 
 		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
@@ -379,7 +379,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		MAPDialog mapDialog = mapUserAbortInfo.getMAPDialog();
 
 		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Received MAPCloseInfo for DialogId " + mapDialog.getDialogId());
+			this.tracer.fine("Received MAPUserAbortInfo for DialogId " + mapDialog.getDialogId());
 		}
 
 		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
