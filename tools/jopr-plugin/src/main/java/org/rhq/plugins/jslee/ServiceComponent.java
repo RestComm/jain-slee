@@ -13,7 +13,6 @@ import javax.slee.management.ServiceState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mobicents.slee.container.management.jmx.SbbEntitiesMBeanImplMBean;
-import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.rhq.core.domain.configuration.Configuration;
 import org.rhq.core.domain.configuration.PropertyList;
 import org.rhq.core.domain.configuration.PropertyMap;

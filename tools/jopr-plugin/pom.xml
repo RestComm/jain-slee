@@ -11,40 +11,26 @@
   <groupId>org.mobicents.servers.jainslee.tools</groupId>
   <artifactId>mobicents-slee-jopr-as-5-plugin</artifactId>
   <version>2.1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
 
   <name>Jopr Mobicents JAIN SLEE Plugin For JBoss 5</name>
   <description>A plugin for managing Mobicents JAIN SLEE on JBoss 5 servers</description>
+  
   <repositories>
-    <repository>
-      <id>maven2-repository.dev.java.net</id>
-      <name>Java.net Repository for Maven</name>
-      <url>http://download.java.net/maven/2/</url>
-      <layout>default</layout>
-    </repository>
-    <repository>
-      <id>JbossRepository</id>
-      <name>Jboss Repository</name>
-      <url>http://repository.jboss.org/maven2</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-    <repository>
-      <id>jboss-snapshots</id>
-      <name>JBoss Snapshot Repository</name>
-      <url>http://snapshots.jboss.org/maven2</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
 
   <properties>
     <rhq.groupId>org.rhq</rhq.groupId>
@@ -57,7 +43,20 @@
   </properties>
 
   <dependencies>
+    
     <dependency>
+      <groupId>org.mobicents.servers.jainslee.core</groupId>
+      <artifactId>activities</artifactId>
+      <version>${mobicents.jslee.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.mobicents.servers.jainslee.core</groupId>
+      <artifactId>services</artifactId>
+      <version>${mobicents.jslee.version}</version>
+    </dependency>
+    
+    <!-- <dependency>
       <groupId>javax.slee</groupId>
       <artifactId>jain-slee</artifactId>
     </dependency>
@@ -66,7 +65,8 @@
       <artifactId>log4j</artifactId>
       <scope>provided</scope>
     </dependency>
-
+ -->
+ 
     <!-- logging dependency -->
     <dependency>
       <groupId>commons-logging</groupId>
@@ -117,32 +117,7 @@
       <version>${rhq-version}</version>
       <scope>provided</scope><!-- by PC -->
     </dependency>
-    <dependency>
-      <groupId>org.mobicents.servers.jainslee.core</groupId>
-      <artifactId>spi</artifactId>
-      <version>${mobicents.jslee.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mobicents.servers.jainslee.core</groupId>
-      <artifactId>common</artifactId>
-      <version>${mobicents.jslee.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mobicents.servers.jainslee.core</groupId>
-      <artifactId>activities</artifactId>
-      <version>${mobicents.jslee.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mobicents.servers.jainslee.core</groupId>
-      <artifactId>services</artifactId>
-      <version>${mobicents.jslee.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mobicents.servers.jainslee.core</groupId>
-      <artifactId>descriptors</artifactId>
-      <version>${mobicents.jslee.version}</version>
-    </dependency>
-
+   
     <dependency>
       <groupId>gnu-getopt</groupId>
       <artifactId>getopt</artifactId>
