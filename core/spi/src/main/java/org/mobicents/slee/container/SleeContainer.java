@@ -20,6 +20,8 @@ import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
 import org.mobicents.cache.MobicentsCache;
 import org.mobicents.cluster.MobicentsCluster;
+import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
+import org.mobicents.slee.connector.local.SleeConnectionService;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
@@ -158,6 +160,11 @@ public class SleeContainer {
 	
 	private final CongestionControl congestionControl;
 	
+	private final SleeConnectionService sleeConnectionService;
+ 	
+	private final MobicentsSleeConnectionFactory sleeConnectionFactory; 
+
+	
 	/**
 	 * Creates a new instance of SleeContainer -- This is called from the
 	 * SleeManagementMBean to get the whole thing running.
@@ -181,7 +188,8 @@ public class SleeContainer {
 			MobicentsCluster cluster, MobicentsCache localCache, AlarmManagement alarmMBeanImpl,
 			TraceManagement traceMBeanImpl,
 			UsageParametersManagement usageParametersManagement,
-			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl) throws Exception {
+			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
+			SleeConnectionService sleeConnectionService, MobicentsSleeConnectionFactory sleeConnectionFactory) throws Exception {
 		
 		// created in STOPPED state and remain so until started
 		this.sleeState = SleeState.STOPPED;
@@ -258,6 +266,12 @@ public class SleeContainer {
 
 		this.congestionControl = congestionControl;
 		addModule(congestionControl);
+		
+		this.sleeConnectionService = sleeConnectionService;
+		addModule(sleeConnectionService);
+		
+		this.sleeConnectionFactory = sleeConnectionFactory;
+		addModule(sleeConnectionFactory);
 	}
 
 	private void addModule(SleeContainerModule module) {
@@ -392,6 +406,22 @@ public class SleeContainer {
 		return this.nullActivityContextInterfaceFactory;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public MobicentsSleeConnectionFactory getSleeConnectionFactory() {
+		return sleeConnectionFactory;
+	}
+		
+	/**
+	 * 
+	 * @return
+	 */
+	public SleeConnectionService getSleeConnectionService() {
+		return this.sleeConnectionService;
+	}
+	
 	// GETTERS -- slee facilities
 
 	public NullActivityFactory getNullActivityFactory() {

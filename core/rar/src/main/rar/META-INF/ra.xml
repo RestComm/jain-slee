@@ -42,7 +42,7 @@
                   <config-property>        				
                       <config-property-name>SleeJndiName</config-property-name>
                       <config-property-type>java.lang.String</config-property-type>			 			
-                      <config-property-value>MobicentsSleeConnectionFactory</config-property-value>
+                      <config-property-value>MobicentsConnectionFactory</config-property-value>
                   </config-property>
                   <reauthentication-support>false</reauthentication-support>
               </resourceadapter>

@@ -1,17 +1,13 @@
-package org.mobicents.slee.container.management.jmx;
+package org.mobicents.slee.container.rmi;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
 import org.jboss.util.naming.Util;
-import org.mobicents.slee.connector.server.RemoteSleeService;
-import org.mobicents.slee.connector.server.RemoteSleeServiceImpl;
+import org.mobicents.slee.connector.remote.RemoteSleeConnectionService;
+import org.mobicents.slee.connector.remote.RemoteSleeConnectionServiceImpl;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
-import org.mobicents.slee.container.rmi.RMIServerImpl;
-import org.mobicents.slee.container.rmi.RmiServerInterface;
 
 public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implements
 		RmiServerInterface {
@@ -21,12 +17,13 @@ public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implemen
 
 	private RMIServerImpl rmiServer;
 	
+	private String jndiName;
+
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeStarting()
 	 */
 	@Override
 	public void sleeStarting() {
-		RemoteSleeService stub = null;
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Starting Slee Service RMI Server");
@@ -34,12 +31,13 @@ public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implemen
 
 			InitialContext ctx = new InitialContext();
 
-			rmiServer = new RMIServerImpl("RemoteSleeService",
-					RemoteSleeService.class, new RemoteSleeServiceImpl());
-
-			stub = (RemoteSleeService) rmiServer.createStub();
-
-			ctx.rebind("/SleeService", stub);
+			RemoteSleeConnectionService stub = new RemoteSleeConnectionServiceImpl(super.sleeContainer.getSleeConnectionService());
+			rmiServer =  new RMIServerImpl(this.jndiName,RemoteSleeConnectionService.class,stub);
+			
+			stub = (RemoteSleeConnectionService) rmiServer.createStub();
+			
+			ctx.rebind(this.jndiName, stub);
+					 
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("Bound SleeService rmi stub in jndi");
@@ -61,7 +59,7 @@ public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implemen
 				logger.debug("Stopping RMI Server for slee service");
 			}
 			InitialContext ctx = new InitialContext();
-			Util.unbind(ctx, "/SleeService");
+			Util.unbind(ctx, this.jndiName);
 			rmiServer.destroy();
 		} catch (NamingException e) {
 			logger.error(
@@ -69,4 +67,17 @@ public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implemen
 		}
 	}
 
+	/* (non-Javadoc)
+	* @see org.mobicents.slee.container.rmi.RmiServerInterface#getJNDIName()
+	*/
+	public String getJndiName() {
+		return this.jndiName;
+	}
+	
+	/* (non-Javadoc)
+	* @see org.mobicents.slee.container.rmi.RmiServerInterface#setJNDIName(java.lang.String)
+	*/
+	public void setJndiName(String name) {
+		this.jndiName = name;
+	}
 }

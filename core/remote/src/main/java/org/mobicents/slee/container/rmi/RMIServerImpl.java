@@ -38,7 +38,8 @@ public class RMIServerImpl implements RMIServer {
 		this.log = Logger.getLogger(this.getClass());
 		this.intf = intf;
 
-		this.key = "/" + replicantName;
+		//this.key = "/" + replicantName;
+		this.key =replicantName;
 
 		// Obtain the hashes for the supported handler interfaces
 		Class[] ifaces = handler.getClass().getInterfaces();

@@ -197,8 +197,20 @@
 	<bean name="Mobicents.JAINSLEE.ActivityContextNamingFacility"
 		class="org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl" />
 		
-	<bean name="Mobicents.JAINSLEE.RmiServerInterface"
-		class="org.mobicents.slee.container.management.jmx.RmiServerInterfaceImpl">		
+	<bean name="Mobicents.JAINSLEE.SleeConnectionService"
+		class="org.mobicents.slee.connector.local.SleeConnectionServiceImpl">
+	</bean>	
+	
+	<bean name="Mobicents.JAINSLEE.SleeConnectionFactory"
+		class="org.mobicents.slee.connector.local.MobicentsSleeConnectionFactoryImpl">
+		<!-- 
+			<property name="jndiName">/MobicentsConnectionFactory</property>
+		 -->
+	</bean>	
+	
+ 	<bean name="Mobicents.JAINSLEE.RmiServerInterface"
+		class="org.mobicents.slee.container.rmi.RmiServerInterfaceImpl">		
+		<property name="jndiName">/slee-rmi-connector</property>
 	</bean>	
 	
 	<bean name="Mobicents.JAINSLEE.UsageMbeans.Config" class="org.mobicents.slee.runtime.usage.UsageMBeansConfigurationImpl">
@@ -271,6 +283,8 @@
 			<parameter><inject bean="Mobicents.JAINSLEE.UsageParametersManagement" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.SbbEntityFactory" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.CongestionControl" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.SleeConnectionService" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.SleeConnectionFactory" /></parameter>			
 		</constructor>
 		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>
 	</bean>

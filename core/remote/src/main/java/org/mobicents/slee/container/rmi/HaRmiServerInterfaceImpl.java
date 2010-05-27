@@ -1,7 +1,6 @@
-package org.mobicents.slee.container.management.jmx;
+package org.mobicents.slee.container.rmi;
 
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -10,10 +9,9 @@ import org.jboss.ha.framework.interfaces.FirstAvailable;
 import org.jboss.ha.framework.interfaces.HAPartition;
 import org.jboss.ha.framework.server.HARMIServerImpl;
 import org.jboss.util.naming.Util;
-import org.mobicents.slee.connector.server.RemoteSleeService;
-import org.mobicents.slee.connector.server.RemoteSleeServiceImpl;
+import org.mobicents.slee.connector.remote.RemoteSleeConnectionService;
+import org.mobicents.slee.connector.remote.RemoteSleeConnectionServiceImpl;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
-import org.mobicents.slee.container.rmi.RmiServerInterface;
 
 public class HaRmiServerInterfaceImpl extends AbstractSleeContainerModule implements
 RmiServerInterface {
@@ -23,22 +21,15 @@ RmiServerInterface {
 
 	private HARMIServerImpl rmiServer;
 
-	private final ObjectName objectName;
+	private String jndiName;
 	
 	/**
 	 * @throws NullPointerException 
 	 * @throws MalformedObjectNameException 
 	 * 
 	 */
-	public HaRmiServerInterfaceImpl(String objectNameString) throws MalformedObjectNameException, NullPointerException {
-		objectName = new ObjectName(objectNameString);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.rmi.RmiServerInterface#getObjectName()
-	 */
-	public ObjectName getObjectName() {
-		return objectName;
+	public HaRmiServerInterfaceImpl() throws MalformedObjectNameException, NullPointerException {
+		
 	}
 	
 	/* (non-Javadoc)
@@ -46,7 +37,6 @@ RmiServerInterface {
 	 */
 	@Override
 	public void sleeStarting() {
-		RemoteSleeService stub = null;
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Starting Slee Service HARMI Server");
@@ -60,13 +50,13 @@ RmiServerInterface {
 			HAPartition myPartition = (HAPartition) ctx
 					.lookup("/HAPartition/DefaultPartition");
 
-			rmiServer = new HARMIServerImpl(myPartition, "RemoteSleeService",
-					RemoteSleeService.class, new RemoteSleeServiceImpl());
+			RemoteSleeConnectionService stub = new RemoteSleeConnectionServiceImpl(super.sleeContainer.getSleeConnectionService());
+			rmiServer = new HARMIServerImpl(myPartition, this.jndiName,RemoteSleeConnectionService.class, stub);
+			stub = (RemoteSleeConnectionService) rmiServer
+			 					.createHAStub(new FirstAvailable());
+			 
+			ctx.rebind(this.jndiName, stub);
 
-			stub = (RemoteSleeService) rmiServer
-					.createHAStub(new FirstAvailable());
-
-			ctx.rebind("/SleeService", stub);
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("Bound SleeService rmi stub in jndi");
@@ -88,7 +78,7 @@ RmiServerInterface {
 				logger.debug("Stopping HA RMI Server for slee service");
 			}
 			InitialContext ctx = new InitialContext();
-			Util.unbind(ctx, "/SleeService");
+			Util.unbind(ctx, this.jndiName);
 			rmiServer.destroy();
 		} catch (NamingException e) {
 			logger
@@ -96,4 +86,19 @@ RmiServerInterface {
 							e);
 		}
 	}
+	
+	/* (non-Javadoc)
+	* @see org.mobicents.slee.container.rmi.RmiServerInterface#getJNDIName()
+	*/
+	public String getJndiName() {
+		return this.jndiName;
+	}
+	
+	/* (non-Javadoc)
+	* @see org.mobicents.slee.container.rmi.RmiServerInterface#setJNDIName(java.lang.String)
+	*/
+	public void setJndiName(String name) {
+		this.jndiName = name;
+	}
+
 }

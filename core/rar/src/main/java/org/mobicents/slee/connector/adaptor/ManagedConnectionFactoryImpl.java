@@ -13,7 +13,7 @@
 package org.mobicents.slee.connector.adaptor;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.connector.server.RemoteSleeService;
+import org.mobicents.slee.connector.remote.RemoteSleeConnectionService;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Set;
@@ -39,7 +39,7 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
     private static Logger log = Logger
             .getLogger(ManagedConnectionFactoryImpl.class);
     private String sleeJndiName;
-    private RemoteSleeService rmiStub;
+    private RemoteSleeConnectionService rmiStub;
     private PrintWriter printWriter;
 
     /* Getters and setters for properties */
@@ -74,7 +74,7 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
 	            {
 	            	log.debug("Looking up slee service with name " + sleeJndiName);
 	            }
-	            rmiStub = (RemoteSleeService) ctx.lookup(sleeJndiName);
+	            rmiStub = (RemoteSleeConnectionService) ctx.lookup(sleeJndiName);
 	            //fails on my machine.... if not printed it works...
 	            //log.debug("RMI Stub is: " + rmiStub);
 	            if(log.isDebugEnabled())

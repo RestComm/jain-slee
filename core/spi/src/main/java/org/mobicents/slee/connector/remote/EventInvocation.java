@@ -10,7 +10,7 @@
  *
  * Created on Dec 12, 2004 EventInvocation.java
  */
-package org.mobicents.slee.connector.server;
+package org.mobicents.slee.connector.remote;
 
 import java.io.Serializable;
 import javax.slee.Address;

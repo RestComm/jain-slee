@@ -17,12 +17,11 @@
           
           <local-transaction/>
     
-          <rar-name>mobicents.rar</rar-name>
+          <rar-name>mobicents-jca.rar</rar-name>
 
           <connection-definition>javax.slee.connection.SleeConnectionFactory</connection-definition>
 
-          <config-property name="SleeJndiName" type="java.lang.String">jnp://${jboss.bind.address}:1099/SleeService</config-property>
-          <depends>javax.slee.management:name=SleeManagement</depends>
+          <config-property name="SleeJndiName" type="java.lang.String">jnp://${jboss.bind.address}:1099/slee-rmi-connector</config-property>
           
       </tx-connection-factory>
       

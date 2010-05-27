@@ -1,7 +1,18 @@
-package org.mobicents.slee.connector.server;
+/*
+ * ***************************************************
+ *                                                 *
+ *  Mobicents: The Open Source JSLEE Platform      *
+ *                                                 *
+ *  Distributable under LGPL license.              *
+ *  See terms of license at gnu.org.               *
+ *                                                 *
+ ***************************************************
+ *
+ * Created on Dec 6, 2004 RemoteSleeEndpoint.java
+ */
+package org.mobicents.slee.connector.local;
 
-import java.rmi.RemoteException;
-
+import javax.resource.ResourceException;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
@@ -11,6 +22,7 @@ import javax.slee.connection.ExternalActivityHandle;
 import javax.slee.management.SleeState;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -19,53 +31,45 @@ import org.mobicents.slee.container.facilities.nullactivity.NullActivityHandle;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 
 /**
+ * This interface duplicates methods from {@link javax.slee.connection.SleeConnection}.
+ * @author baranowb
  * 
- * Implementation of the RemoteSleeService.
- * 
- * An instance of this class receives invocations via HA-RMI from the outside
- * world.
- * 
- * @author Tim
- * @author eduardomartins
  */
-public class RemoteSleeServiceImpl implements RemoteSleeService {
+public class SleeConnectionServiceImpl extends AbstractSleeContainerModule implements SleeConnectionService{
 
-	private SleeContainer sleeContainer;
-
-	private static final Logger log = Logger
-			.getLogger(RemoteSleeServiceImpl.class);
-
-	public RemoteSleeServiceImpl() {
-		if (log.isDebugEnabled())
-			log.debug("Creating RemoteSleeServiceImpl");
-		this.sleeContainer = SleeContainer.lookupFromJndi();
-	}
-
-	/**
-	 * @see RemoteSleeService#createActivityHandle()
+	private static final Logger logger = Logger.getLogger(SleeConnectionServiceImpl.class);
+	/* (non-Javadoc)
+	 * @see javax.slee.connection.SleeConnection#createActivityHandle()
 	 */
-	public ExternalActivityHandle createActivityHandle() {
-		if (log.isDebugEnabled()) {
-			log.debug("Creating external activity handle");
+	public ExternalActivityHandle createActivityHandle() throws ResourceException {
+		if(sleeContainer == null)
+		{
+			throw new ResourceException("Connection is in closed state");
 		}
-		// creates a new instance of activity handle it with a safe unique id
-		// for a it's null activity (and related activity context) if this
-		// handle is used to fire events
-		return sleeContainer.getNullActivityFactory()
-				.createNullActivityHandle();
+		if(sleeContainer.getSleeState()!=SleeState.RUNNING)
+		{
+			throw new ResourceException("Container is not in running state.");
+		}
+		
+		return sleeContainer.getNullActivityFactory().createNullActivityHandle();
 	}
 
-	/**
-	 * @see RemoteSleeService#fireEvent(Object, EventTypeID,
-	 *      ExternalActivityHandle, Address)
+	/* (non-Javadoc)
+	 * @see javax.slee.connection.SleeConnection#fireEvent(java.lang.Object, javax.slee.EventTypeID, javax.slee.connection.ExternalActivityHandle, javax.slee.Address)
 	 */
 	public void fireEvent(Object event, EventTypeID eventType,
-			ExternalActivityHandle activityHandle, Address address)
-			throws NullPointerException, UnrecognizedEventException,
-			RemoteException {
-
-		if (log.isDebugEnabled()) {
-			log.debug("fireEvent(event=" + event + ",eventType=" + eventType
+			ExternalActivityHandle activityHandle, Address address) throws NullPointerException,
+			UnrecognizedActivityException, UnrecognizedEventException, ResourceException {
+		if(sleeContainer == null)
+		{
+			throw new ResourceException("Connection is in closed state");
+		}
+		if(sleeContainer.getSleeState()!=SleeState.RUNNING)
+		{
+			throw new ResourceException("Container is not in running state.");
+		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("fireEvent(event=" + event + ",eventType=" + eventType
 					+ ",activityHandle=" + activityHandle + ",address="
 					+ address + ")");
 		}
@@ -123,20 +127,20 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 			ac.fireEvent(eventType, event, address, null, null,null,null);
 			rollback = false;
 		} catch (Throwable ex) {
-			log.error("Exception in fireEvent!", ex);
+			logger.error("Exception in fireEvent!", ex);
 		} finally {
 			if (newTx) {
 				if (rollback) {
 					try {
 						txMgr.rollback();
 					} catch (Throwable e) {
-						log.error("failed to rollback implicit tx", e);
+						logger.error("failed to rollback implicit tx", e);
 					}
 				} else {
 					try {
 						txMgr.commit();
 					} catch (Throwable e) {
-						log.error("failed to commit implicit tx", e);
+						logger.error("failed to commit implicit tx", e);
 					}
 				}
 			}
@@ -145,12 +149,18 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 		}
 	}
 
-	/**
-	 * @see RemoteSleeService#getEventTypeID(String, String, String)
+	/* (non-Javadoc)
+	 * @see javax.slee.connection.SleeConnection#getEventTypeID(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public EventTypeID getEventTypeID(String name, String vendor, String version)
-			throws UnrecognizedEventException {
-
+	public EventTypeID getEventTypeID(String name, String vendor, String version) throws UnrecognizedEventException, ResourceException {
+		if(sleeContainer == null)
+		{
+			throw new ResourceException("Connection is in closed state");
+		}
+		if(sleeContainer.getSleeState()!=SleeState.RUNNING)
+		{
+			throw new ResourceException("Container is not in running state.");
+		}
 		EventTypeID eventTypeID = new EventTypeID(name, vendor, version);
 		EventTypeComponent eventTypeComponent = sleeContainer
 				.getComponentRepository().getComponentByID(eventTypeID);
@@ -160,4 +170,5 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 			return eventTypeID;
 		}
 	}
+
 }

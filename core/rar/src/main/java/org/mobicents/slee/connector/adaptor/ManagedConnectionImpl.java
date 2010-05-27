@@ -1,8 +1,8 @@
 package org.mobicents.slee.connector.adaptor;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.connector.server.EventInvocation;
-import org.mobicents.slee.connector.server.RemoteSleeService;
+import org.mobicents.slee.connector.remote.RemoteSleeConnectionService;
+import org.mobicents.slee.connector.remote.EventInvocation;
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class ManagedConnectionImpl implements ManagedConnection,
 
 	private static Logger log = Logger.getLogger(ManagedConnectionImpl.class);
 	private static ConnectionMetaDataImpl metaData = new ConnectionMetaDataImpl();
-	private RemoteSleeService rmiStub;
+	private RemoteSleeConnectionService rmiStub;
 	private LinkedList<ConnectionEventListener> listeners = new LinkedList<ConnectionEventListener>();
 	private LinkedList<SleeConnectionImpl> connectionHandles = new LinkedList<SleeConnectionImpl>();
 	private ArrayList<EventInvocation> eventQueue = new ArrayList<EventInvocation>();
@@ -41,7 +41,7 @@ public class ManagedConnectionImpl implements ManagedConnection,
 	private PrintWriter printWriter;
 	private boolean inTransaction;
 
-	ManagedConnectionImpl(RemoteSleeService rmiStub) {
+	ManagedConnectionImpl(RemoteSleeConnectionService rmiStub) {
 		if (log.isDebugEnabled()) {
 			log.debug("Creating ManagedConnectionImpl");
 		}

@@ -10,7 +10,7 @@
  *
  * Created on Dec 6, 2004 ActivityHandleImpl.java
  */
-package org.mobicents.slee.connector.server;
+package org.mobicents.slee.connector.local;
 
 import java.util.UUID;
 
