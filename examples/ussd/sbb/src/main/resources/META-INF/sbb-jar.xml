@@ -19,6 +19,7 @@
 			<library-vendor>org.mobicents</library-vendor>
 			<library-version>1.0</library-version>
 		</library-ref>
+	
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>org.mobicents.example.ss7.ussd.SipUSSDSbb</sbb-abstract-class-name>
@@ -72,7 +73,7 @@
 		<event event-direction="Receive" initial-event="True">
 			<event-name>InfoEvent</event-name>
 			<event-type-ref>
-				<event-type-name>javax.sip.message.Request.INFO</event-type-name>
+				<event-type-name>javax.sip.Dialog.INFO</event-type-name>
 				<event-type-vendor>net.java.slee</event-type-vendor>
 				<event-type-version>1.2</event-type-version>
 			</event-type-ref>
@@ -87,7 +88,7 @@
 		<event event-direction="Receive" initial-event="True">
 			<event-name>ByeEvent</event-name>
 			<event-type-ref>
-				<event-type-name>javax.sip.message.Request.BYE</event-type-name>
+				<event-type-name>javax.sip.Dialog.BYE</event-type-name>
 				<event-type-vendor>net.java.slee</event-type-vendor>
 				<event-type-version>1.2</event-type-version>
 			</event-type-ref>
