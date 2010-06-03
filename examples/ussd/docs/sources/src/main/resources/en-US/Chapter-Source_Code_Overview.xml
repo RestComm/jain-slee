@@ -5,7 +5,11 @@
 
 	<title>Source Code Overview</title>
 	
-	<para>TODO Review the example sources.</para> 
-	
+	<para></para> 
+
+		
+		
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Source_JBPM.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Source_Service.xml" />
 </chapter>
 

@@ -11,12 +11,19 @@
 
 	<section id="tracers">
 		<title>Tracers</title>
-		<para>TODO Enumerate the Tracers used by the Example.</para>
+		<para>Example declares single tracer: javax.slee.SbbNotification
+		[service=ServiceID[name=USSD Sip Train Scheduler,vendor=org.mobicents,
+		version=1.0],sbb=SbbID[name=USSDSipSbb,vendor=org.mobicents,
+		version=1.0]].SipUSSDSbb</para>
+		<important>
+       		<para>Spaces where introduced to render page correctly. Please remove them when using copy/paste.</para>
+		</important>
+		
 	</section>	
 	
 	<section id="alarms">
 		<title>Alarms</title>
-		<para>TODO Enumerate the Alarms used by the Example.</para>
+		<para>This example does not rise any alarms.</para>
 	</section>
 	
 </chapter>

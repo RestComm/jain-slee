@@ -19,9 +19,9 @@
 		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/mobicents/issues/list</THIS.ISSUE_TRACKER_URL>
 		<THIS.RELEASE_SOURCE_CODE_URL>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/${docs.example.dirname}</THIS.RELEASE_SOURCE_CODE_URL>
 		<THIS.TRUNK_SOURCE_CODE_URL>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/${docs.example.dirname}</THIS.TRUNK_SOURCE_CODE_URL>
-		<author.email.eduardo>emmartins (at) gmail.com</author.email.eduardo>
+		<author.email.amit>abhayani (at) gmail.com</author.email.amit>
 		<author.email.bartosz>baranowb (at) gmail.com</author.email.bartosz>
-		<author.email.alex>brainslog (at) gmail.com</author.email.alex>
+		<author.email.oleg>oleg.kulikoff (at) gmail.com</author.email.oleg>
 	</properties>
 
 	<build>

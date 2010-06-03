@@ -3,9 +3,9 @@
 <authorgroup
 	id="authors">
 	<author>
-		<firstname>Eduardo</firstname>
-		<surname>Martins</surname>
-		<email>&AUTHOR_EMAIL_EDUARDO;</email>
+		<firstname>Amit</firstname>
+		<surname>Bhayani</surname>
+		<email>&AUTHOR_EMAIL_AMIT;</email>
 	</author>
 	<author>
 		<firstname>Bartosz</firstname>
@@ -13,8 +13,8 @@
 		<email>&AUTHOR_EMAIL_BARTOSZ;</email>
 	</author>
 	<author>
-		<firstname>Alexandre</firstname>
-		<surname>Mendonça</surname>
-		<email>&AUTHOR_EMAIL_ALEX;</email>
+		<firstname>Oleg</firstname>
+		<surname>Kulikov</surname>
+		<email>&AUTHOR_EMAIL_OLEG;</email>
 	</author>
 </authorgroup>

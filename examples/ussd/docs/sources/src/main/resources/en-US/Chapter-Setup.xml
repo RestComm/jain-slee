@@ -14,13 +14,14 @@
 		</section>
 		<section id="software_prerequisites">
 			<title>Software Prerequisites</title>
-			<para>The Example requires &THIS.PLATFORM; JAIN SLEE properly set, with [LIST DEPENDENCIES] deployed.</para>
+			<para>The Example requires &THIS.PLATFORM; JAIN SLEE properly set, with <acronym>SIP</acronym> Resource Adaptor deployed.</para>
+			<para>It also requires proper setup of <acronym>USSD</acronym> gateway <acronym>SIP</acronym> interface and <acronym>USSD</acronym> simulator (please refer to gateway documentation for setup options).</para>
 		</section>
 	</section>	
 	
 	<section id="source_code">
 		<title>&THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example Source Code</title>
-		<para>TODO</para>
+	
 		
 		<section id="release_source_building">
 			<title>Release Source Code Building</title>
@@ -38,7 +39,7 @@
 				    <important>
 				    	<para>Maven 2.0.9 (or higher) is used to build the release. Instructions for using Maven2, including install, can be found at <ulink url="http://maven.apache.org" /></para>
 				    </important>
-				    <para>Use Ant to build the binary.</para>
+				    <para>Use Maven to build the binary.</para>
 				    <programlisting>
 				    [usr]$ cd slee-example-&THIS.EXAMPLE.DIRNAME;-&THIS.VERSION;
 				    [usr]$ mvn install

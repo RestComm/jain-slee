@@ -1,0 +1,450 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="source_service">
+	<title>SLEE Service</title>
+
+	<para>&THIS.EXAMPLE; Example <acronym>SLEE</acronym> part is very small. It consists of single service and <acronym>SBB</acronym>. 
+	</para>
+	<para><acronym>SBB</acronym> reuses <acronym>USSD</acronym> gateway library to perform <acronym>XML</acronym> encoding/decoding, please refer to gateway documentation for details.</para>
+	
+	<section id="source_service_service_xml">
+		<title>Service definition</title>
+		<para>Service is defined with simple <acronym>XML</acronym> file: <filename>service.xml</filename>. It defines service id and root <acronym>SBB</acronym>.
+		File content looks as follows:</para>
+		
+		<programlisting language="XML" role="XML"><![CDATA[		
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Right now 1.1 service dtd is not accessible on sun -->
+<!DOCTYPE service-xml PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.1//EN" "http://java.sun.com/dtd/slee-service_1_0.dtd">
+
+<service-xml>
+    <service>
+        <service-name>USSD Sip Train Scheduler</service-name>
+        <service-vendor>org.mobicents</service-vendor>
+        <service-version>1.0</service-version>
+        <root-sbb>
+            <sbb-name>USSDSipSbb</sbb-name>
+            <sbb-vendor>org.mobicents</sbb-vendor>
+            <sbb-version>1.0</sbb-version>
+        </root-sbb>
+        <default-priority>0</default-priority>
+    </service>
+</service-xml>
+			]]>
+			</programlisting>
+	</section>
+	<section id="source_service_sbb_xml">
+		<title>SBB definition</title>
+		<para><acronym>SBB</acronym> is defined with single, <acronym>XML</acronym> file: <filename>sbb-jar.xml</filename> </para>
+		<para>It contains following definitions:</para>
+		<variablelist>
+			<varlistentry>
+				<term><acronym>SBB</acronym> ID</term>
+				<listitem>	
+				<para></para>
+				<programlisting language="XML" role="XML"><![CDATA[		
+		<description>XXX</description>
+		<sbb-name>USSDSipSbb</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.0</sbb-version>
+		<sbb-alias>XxX</sbb-alias>
+				]]>
+				</programlisting>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>Library references</term>
+				<listitem>	
+				<para></para>
+				<programlisting language="XML" role="XML"><![CDATA[		
+		<library-ref>
+			<library-name>library-ussdgateway</library-name>
+			<library-vendor>org.mobicents</library-vendor>
+			<library-version>2.0</library-version>
+		</library-ref>
+		<library-ref>
+			<library-name>library-ussdexample</library-name>
+			<library-vendor>org.mobicents</library-vendor>
+			<library-version>1.0</library-version>
+		</library-ref>
+				]]>
+				</programlisting>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><acronym>SBB</acronym> class and <acronym>CMP</acronym> </term>
+				<listitem>	
+				<para></para>
+				<programlisting language="XML" role="XML"><![CDATA[		
+		<sbb-classes>
+			<sbb-abstract-class>
+				<sbb-abstract-class-name>
+					org.mobicents.example.ss7.ussd.SipUSSDSbb
+				</sbb-abstract-class-name>
+				<cmp-field>
+					<description>Holds active JBPM process instance</description>
+					<cmp-field-name>processInstance</cmp-field-name>
+				</cmp-field>
+			</sbb-abstract-class>
+		</sbb-classes>
+				]]>
+				</programlisting>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>Event handlers</term>
+				<listitem>	
+				<para></para>
+				<programlisting language="XML" role="XML"><![CDATA[		
+		<!-- SLEE -->
+		<event event-direction="Receive" initial-event="True">
+			<event-name>StartServiceEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.serviceactivity.ServiceStartedEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.ActivityEndEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+
+
+		<!-- initial -->
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>InviteEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.INVITE</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+
+		<!-- Intermediate: if any -->
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>InfoEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.Dialog.INFO</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+
+
+		<!-- final -->
+		<event event-direction="Receive" initial-event="True">
+			<event-name>ByeEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.Dialog.BYE</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>CancelEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.CANCEL</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+
+		<!-- success -->
+		<event event-direction="Receive" initial-event="False">
+			<event-name>SuccessEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.SUCCESS</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+				]]>
+				</programlisting>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>Resource Adaptor reference</term>
+				<listitem>	
+				<para></para>
+				<programlisting language="XML" role="XML"><![CDATA[
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					JAIN SIP
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					javax.sip
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.2
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/jainsip/1.2/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/jainsip/1.2/provider
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					SipRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>		
+				]]>
+				</programlisting>
+				</listitem>
+			</varlistentry>
+			
+		</variablelist>
+	</section>
+	<section id="source_service_sbb_source">
+		<title>SBB source</title>
+		<para>Source of service is contained in single <literal>java</literal> compilation unit: <literal>org.mobicents.example.ss7.ussd.SipUSSDSbb.java</literal> </para>
+		<para>Aside regular callback methods <acronym>SLEE</acronym> requires to be implemented, it has following content:</para>
+		<section id="source_service_sbb_source_jbpm">
+			<title>JBPM initialization</title>
+			<para><acronym>JBPM</acronym> is initialized in service start event handler: </para>
+			<programlisting language="Java" role="JAVA">
+public void onStartServiceEvent(javax.slee.serviceactivity.ServiceStartedEvent event, ActivityContextInterface aci) {
+		ServiceActivity sa = (ServiceActivity) aci.getActivity();
+		if (sa.getService().equals(this.sbbContext.getService())) {
+			JbpmConfiguration jbpmConfiguration = JbpmConfiguration.getInstance();
+			
+			jbpmContext = jbpmConfiguration.createJbpmContext();
+			
+			ProcessDefinition pd = ProcessDefinition.parseXmlInputStream(Thread.currentThread().getContextClassLoader()
+					.getResourceAsStream(JPDL_FILE));
+			jbpmContext.deployProcessDefinition(pd);
+		}
+	}
+			</programlisting>
+			<note><para>Service declares version 1.0 of event, thats why there is check on service!</para> </note>
+		</section>
+		<section id="source_service_sbb_source_jbpm2">
+			<title>JBPM utilization</title>
+			<para><acronym>JBPM</acronym> is cleaned in activity end event handler:</para>
+			<programlisting language="Java" role="JAVA">
+
+	public void onActivityEndEvent(ActivityEndEvent event, ActivityContextInterface aci) {
+		if (jbpmContext != null &amp;&amp; aci.getActivity() instanceof ServiceActivity) {
+			// just in case
+			ServiceActivity sa = (ServiceActivity) aci.getActivity();
+			if (sa.getService().equals(this.sbbContext.getService())) {
+				jbpmContext.close();
+				jbpmContext = null;
+			}
+		}
+	}
+			</programlisting>
+			<note><para>Service declares version 1.0 of event, thats why there is check on service!</para> </note>
+		</section>
+		<section id="source_service_sbb_source_sip">
+			<title>SIP event handlers</title>
+			<para><acronym>SIP</acronym> event handlers are input point for this example. <acronym>SIP</acronym> messages (either <literal>INVITE</literal> or <literal>INFO</literal> ) carry <acronym>XML</acronym> encoded <acronym>USSD</acronym> string.
+			</para>
+			<programlisting language="Java" role="JAVA">
+	// initial
+	public void onInviteEvent(RequestEvent event, ActivityContextInterface ac) {
+		// its initial request
+		try {
+			DialogActivity da = (DialogActivity) this.provider.getNewDialog(event.getServerTransaction());
+			da.terminateOnBye(true);
+			ActivityContextInterface daACI = this.acif.getActivityContextInterface(da);
+			daACI.attach(this.sbbContext.getSbbLocalObject());
+			ProcessInstance pi = jbpmContext.newProcessInstance(PROCESS_NAME);
+			this.setProcessInstance(pi);
+		} catch (SipException e) {
+
+			e.printStackTrace();
+			handleError(event.getServerTransaction(), Response.BAD_REQUEST, e);
+			return;
+		}
+
+		processUssd(event);
+	}
+
+	// intermediate
+	public void onInfoEvent(RequestEvent event, ActivityContextInterface ac) {
+		processUssd(event);
+	}
+
+	// final
+	public void onByeEvent(RequestEvent event, ActivityContextInterface ac) {
+		// something should be here?
+		sendResponse(null, event.getServerTransaction());
+	}
+
+	public void onCancelEvent(CancelRequestEvent event, ActivityContextInterface ac) {
+		this.provider.acceptCancel(event, false);
+	}
+
+	// success
+	public void onSuccessEvent(ResponseEvent event, ActivityContextInterface ac) {
+		// nothing,
+	}
+			</programlisting>
+		</section>
+		<section id="source_service_sbb_source_ussd">
+			<title>USSD Processing</title>
+			<para><acronym>USSD</acronym> string is extracted with <acronym>JAXB</acronym> library from <acronym>USSD</acronym> gateway and fed into <acronym>JBPM</acronym>, it is done as follows: </para>
+			<programlisting language="Java" role="JAVA">
+	private void processUssd(RequestEvent event) {
+		//this method is called for INVITE and INFO received by SBB
+		// now lets get USSD
+		USSDRequest extracted = extractUssd(event);
+		if (extracted == null) {
+			// error has been handled
+			return;
+		}
+		String drooled = processUssd(extracted);
+
+		// send ok
+		if (drooled != null) {
+			sendResponse(drooled, event.getServerTransaction());
+			if (isSessionDead()) {
+				// in this case, send bye over dialog
+				sendBye();
+
+			}
+		}
+	}
+
+	
+	private boolean isSessionDead() {
+		ProcessInstance pi = this.getProcessInstance();
+		if(pi == null || pi.getEnd()!=null)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	private USSDRequest extractUssd(RequestEvent event) {
+	
+		Request sipRequest = event.getRequest();
+		ContentTypeHeader cth = (ContentTypeHeader) event.getRequest()
+			.getHeader(ContentTypeHeader.NAME);
+		if (cth == null) {
+			// FIXME: break
+			return null;
+		} else {
+			if (!cth.getContentType().equals(CONTENT_TYPE) 
+				||	!cth.getContentSubType().equals(CONTENT_SUB_TYPE)
+					|| sipRequest.getContent() == null) {
+				// break,
+				return null;
+			}
+		}
+		try {
+			<co id="example.service.jbpm.co1"/>
+			Unmarshaller uMarshaller = jAXBContext.createUnmarshaller();
+			ByteArrayInputStream bis = new ByteArrayInputStream(sipRequest.getRawContent());
+			JAXBElement&lt;USSDRequest&gt; data = (JAXBElement&lt;USSDRequest&gt;) uMarshaller.unmarshal(bis);
+			return data.getValue();
+		} catch (JAXBException e) {
+			// FIXME: tear down
+
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	private String processUssd(USSDRequest extracted) {
+		
+		<co id="example.service.jbpm.co2"/>
+		ProcessInstance pi = this.getProcessInstance();
+		<co id="example.service.jbpm.co3"/>
+		pi.getContextInstance().setVariable(USSDDecisionHandler._INPUT_, extracted.getUssdString());
+		<co id="example.service.jbpm.co4"/>
+		pi.signal();
+		<co id="example.service.jbpm.co5"/>
+		String data = (String) pi.getContextInstance().getVariable(USSDPromptHandler._PROMPT_);
+		<co id="example.service.jbpm.co6"/>
+		USSDResponse response = this.objectFactory.createUSSDResponse();
+		response.setInvokeId(extracted.getInvokeId());
+		response.setUssdCoding(extracted.getUssdCoding());
+		response.setUssdString(data);
+		response.setEnd(isSessionDead());
+		response.setLastResult(true);
+		<co id="example.service.jbpm.co7"/>
+		try {
+			Marshaller marshaller = jAXBContext.createMarshaller();
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			JAXBElement&lt;USSDResponse&gt; res = this.objectFactory.createResponse(response);
+			marshaller.marshal(res, bos);
+			return new String(bos.toByteArray());
+		} catch (JAXBException e) {
+	
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+			</programlisting>
+			<calloutlist>
+				<callout arearefs="example.service.jbpm.co1">
+					<para>Unmarshall <acronym>JAXB</acronym> pojo from <acronym>SIP</acronym> message content, if present.</para>
+				</callout>
+				<callout arearefs="example.service.jbpm.co2">
+					<para>Fetch <acronym>JBPM</acronym> process instance from <acronym>CMP</acronym>.  </para>
+				</callout>
+				<callout arearefs="example.service.jbpm.co3">
+					<para>Set process instance context variable to received <acronym>USSD</acronym> string.</para>
+				</callout>
+				<callout arearefs="example.service.jbpm.co4">
+					<para>Signal process instance to transit to another state(to decision element actually).</para>
+				</callout>
+				<callout arearefs="example.service.jbpm.co5">
+					<para>Fetch context instance variable with prompt content.</para>
+				</callout>
+				<callout arearefs="example.service.jbpm.co6">
+					<para>Create <acronym>JAXB</acronym> pojo based on received request (<acronym>JAXB</acronym> pojo) and <acronym>USSD</acronym> prompt.</para>
+				</callout>
+				<callout arearefs="example.service.jbpm.co7">
+					<para>Marshal <literal>USSDResponse</literal> to  <acronym>XML</acronym> string in order to send it back with <acronym>SIP</acronym> response.</para>
+				</callout>
+			</calloutlist>
+		</section>
+	</section>
+</section>	

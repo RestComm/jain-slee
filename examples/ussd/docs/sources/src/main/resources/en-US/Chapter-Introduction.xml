@@ -6,6 +6,7 @@
 
 	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
 
-	<para>TODO</para>
-	
+	<para>This example is a <acronym>JAIN</acronym> <acronym>SLEE</acronym> application which acts as simple <acronym>USSD</acronym> service provider.
+	Its purpose is to ilustrate how <acronym>USSD</acronym> requests are consumed and integrated with <acronym>JBPM</acronym> defined state machine.</para>
+
 </chapter>

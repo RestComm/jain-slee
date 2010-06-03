@@ -4,8 +4,33 @@
 <chapter id="design_overview">
 
 	<title>Design Overview</title>
-	
-	<para>TODO Review and explain the example design/archictecture. Also, provide interaction UML diagrams for "sucess" use cases.</para> 
-	
+
+	<para>&THIS.EXAMPLE;
+		Example is very simple example in terms of code complexity. It
+		responds to
+		<acronym>USSD</acronym>
+		requests carried within
+		<acronym>SIP</acronym>
+		messages.
+		Based on requests and
+		<acronym>JBPM</acronym>
+		process declaration, service responds with specific prompt.
+	</para>
+	<para>
+		General design is depicted on following diagram: </para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center"
+				fileref="images/ussd-design-general.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE;
+				Top overview
+			</para>
+		</caption>
+	</mediaobject>
+
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_JBPM.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_Service.xml" />
 </chapter>
 

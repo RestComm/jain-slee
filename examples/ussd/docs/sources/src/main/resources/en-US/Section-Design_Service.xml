@@ -1,0 +1,88 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="design_service">
+	<title>
+		<acronym>SLEE</acronym>
+		Service
+	</title>
+
+	<para>
+		<acronym>SLEE</acronym>
+		part of this example is simple. It performs following tasks:
+	</para>
+	<variablelist>
+		<varlistentry>
+			<term>
+				establish dialog with
+				<acronym>USSD</acronym>
+				gateway
+			</term>
+			<listitem>
+				<para>
+					Gateway creates
+					<acronym>SIP</acronym>
+					dialog by means of
+					<literal>INVITE</literal>
+					- which carries initial
+					<acronym>USSD</acronym>
+					request. 
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				process in dialog <literal>INFO</literal> messages
+			</term>
+			<listitem>
+				<para>
+					Subsequent requests are sent as in Dialog
+					<literal>INFO</literal>
+					messages.
+				</para>
+			</listitem>
+		</varlistentry>
+		
+		
+		<varlistentry>
+			<term>
+				process
+				<acronym>USSD</acronym>
+				requests
+			</term>
+			<listitem>
+				<para>
+					<acronym>SIP</acronym>
+					messages carry
+					<acronym>XML</acronym>
+					encoded
+					<acronym>USSD</acronym>
+					string(please refer to gateway documentation for details). String
+					is fed into <acronym>JBPM</acronym> in order to fetch response to be sent.
+				</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	<para>Flow diagram below depicts how service acts:</para>
+
+
+
+
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center"
+				fileref="images/ussd-design-slee-flow.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE;
+				SLEE Service flow diagram
+			</para>
+		</caption>
+	</mediaobject>
+
+
+
+</section>	
