@@ -22,7 +22,7 @@
 		<handler class="org.mobicents.example.ss7.ussd.jbpm.USSDDecisionHandler" />
 		
 		<transition name="1" to="schedule" />
-		<transition name="2" to="lcoation" />
+		<transition name="2" to="location" />
 		<transition name="3" to="discount" />
 		<transition name="4" to="promo" />
 		<!-- this is default transition to end, it has to be present -->	
