@@ -25,7 +25,8 @@
 		<transition name="2" to="lcoation" />
 		<transition name="3" to="discount" />
 		<transition name="4" to="promo" />
-		<transition name="end" to="end" />
+		<!-- this is default transition to end, it has to be present -->	
+		<transition name="end" to="end" />	
 		
 	</decision>
 	<!-- SCHEDULE -->
@@ -46,8 +47,9 @@
 		<transition name="1" to="schedule_pune" />
 		<transition name="2" to="schedule_test" />
 		<transition name="3" to="schedule_volgograd" />
-		<transition name="4" to="end" />	
-		
+		<transition name="4" to="end" />
+		<!-- this is default transition to end, it has to be present -->	
+		<transition name="end" to="end" />	
 	</decision>
 	
 	<state name="schedule_pune">
@@ -100,7 +102,8 @@
 		<transition name="2" to="location_test" />
 		<transition name="3" to="location_volgograd" />
 		<transition name="4" to="end" />	
-		
+		<!-- this is default transition to end, it has to be present -->	
+		<transition name="end" to="end" />	
 	</decision>
 	
 	<state name="location_pune">
