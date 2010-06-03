@@ -11,7 +11,6 @@ public class USSDDecisionHandler implements DecisionHandler {
 	private static final Logger logger = Logger.getLogger(USSDDecisionHandler.class);
 	
 	public static final String _INPUT_ = "ussd.input";
-	public static final String _START_ = "welcome";
 	public static final String _END_ = "end";
 	public String decide(ExecutionContext ctx) throws Exception {
 		//get what we got from user

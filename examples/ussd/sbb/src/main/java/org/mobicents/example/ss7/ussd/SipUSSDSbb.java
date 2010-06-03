@@ -112,7 +112,7 @@ public abstract class SipUSSDSbb implements Sbb {
 	// SLEE events handlers //
 	// ////////////////////////
 	/**
-	 * Init the xmpp connection to GOOGLE TALK when the service is activated by
+	 * Deploy process definition when the service is activated by
 	 * SLEE
 	 * 
 	 * @param event

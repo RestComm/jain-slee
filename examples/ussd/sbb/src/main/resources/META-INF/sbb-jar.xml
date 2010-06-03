@@ -24,6 +24,7 @@
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>org.mobicents.example.ss7.ussd.SipUSSDSbb</sbb-abstract-class-name>
 				<cmp-field>
+					<description>Holds active JBPM process instance</description>
 					<cmp-field-name>processInstance</cmp-field-name>
 				</cmp-field>
 			</sbb-abstract-class>
