@@ -132,7 +132,7 @@ public abstract class SipUSSDSbb implements Sbb {
 	}
 
 	/**
-	 * Handler to disconnect from Google when the service is being deactivated.
+	 * Handler to clear JBPM.
 	 * 
 	 * @param event
 	 * @param aci
@@ -185,7 +185,7 @@ public abstract class SipUSSDSbb implements Sbb {
 
 	// success
 	public void onSuccessEvent(ResponseEvent event, ActivityContextInterface ac) {
-		// nothing, not sure if it will be ever called
+		// nothing,
 	}
 
 	// ///////////////////
@@ -358,7 +358,6 @@ public abstract class SipUSSDSbb implements Sbb {
 		response.setUssdCoding(extracted.getUssdCoding());
 		response.setUssdString(data);
 		response.setEnd(isSessionDead());
-		//FIXME: amit is this ok?
 		response.setLastResult(true);
 		try {
 			Marshaller marshaller = jAXBContext.createMarshaller();
@@ -367,7 +366,7 @@ public abstract class SipUSSDSbb implements Sbb {
 			marshaller.marshal(res, bos);
 			return new String(bos.toByteArray());
 		} catch (JAXBException e) {
-			// FIXME: terminate
+	
 			e.printStackTrace();
 		}
 
