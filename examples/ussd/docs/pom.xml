@@ -6,11 +6,12 @@
 
 	<parent>
 		<artifactId>ussd-example-parent</artifactId>
-		<groupId>org.mobicents.examples.ussd.doc</groupId>
+		<groupId>org.mobicents.examples.ussd</groupId>
 		<version>2.1.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>mobicents-slee-ussd-docs</artifactId>
+	<groupId>org.mobicents.examples.ussd.doc</groupId>
 	<name>Mobicents :: Examples :: ${pom.artifactId}</name>
 
 	<packaging>pom</packaging>
