@@ -143,11 +143,6 @@
 				<listitem>
 					<programlisting language="XML" role="XML"><![CDATA[
 <env-entry>
-	<env-entry-name>callControlSipAddress</env-entry-name>
-	<env-entry-type>java.lang.String</env-entry-type>
-	<env-entry-value>${caller.sip}</env-entry-value>
-</env-entry>
-<env-entry>
 	<env-entry-name>password</env-entry-name>
 	<env-entry-type>java.lang.String</env-entry-type>
 	<env-entry-value>${caller.password}</env-entry-value>
@@ -162,10 +157,12 @@
 					<para>Entries configure following: </para>
 					<itemizedlist>
 						<listitem>
-							<para>callControlSipAddress - AMIT</para>
-						</listitem>
-						<listitem>
-							<para>password - AMIT</para>
+							<para>password - Password that will be used to build Invite request with AuthorizationHeader. 
+							User while creating profile can also give his/her real phone number in format 919960639901@callwithus.com, 
+							where callwithus.com is the VoIP service provider. The system will call the user on PSTN via VoIP service provider. 
+							The value of caller.password System property is set from example.properties file. 
+							The caller.sip System property in example.properties file specifies the User SIP address for VoIP provider.   
+							</para>
 						</listitem>
 						<listitem>
 							<para>server.address - &THIS.PLATFORM; Media Server <acronym>MGCP</acronym> <acronym>IP</acronym> address</para>

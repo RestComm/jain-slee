@@ -1,66 +1,5 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
-
-<chapter id="running">
-
-	<title>Running the Example</title>
-
-	<para>This chapter container brief instructions how to run example.
-	</para>
-	<section id="running_base_conf">
-		<title>Basic configuration</title>
-		<para>
-			Before running example ensure that all
-			<acronym>SIP</acronym>
-			addresses configured via
-			<acronym>SBB</acronym>
-			environment entries are valid.
-		</para>
-		<para>
-			In binary release please edit
-			<filename>sbb-jar.xml</filename>
-			to ensure proper values. Since &THIS.EXAMPLE;
-			Example does not depend on
-			<literal>Registrar</literal>
-			<acronym>URI</acronym>
-			s must be direct address of
-			<acronym>UA</acronym>
-			.
-		</para>
-	</section>
-	<section id="running_user">
-		<title>&THIS.EXAMPLE;
-			Regular customer
-		</title>
-		<para>Please follow procedure below:</para>
-		<procedure>
-			<step>
-				<title>Install</title>
-				<para>Install dependencies and example.</para>
-			</step>
-			<step>
-				<title>UA Configuration</title>
-				<para>Start <acronym>SIP</acronym> <acronym>UA</acronym>s. Ensure admins <acronym>UA</acronym> is bound to previously configured <acronym>SIP</acronym> <acronym>URL</acronym>.</para>
-			</step>
-			<step>
-				<title>Start</title>
-				<para>
-					Start container, for instance with such command:
-					<command>$ bin/run.sh -b 127.0.0.1 -c default</command>
-				</para>
-
-			</step>
-			<step>
-				<title>Access web interface</title>
-				<para>
-					Access following address with browser:
-					<command>http://127.0.0.1:8080/ShoppingDemo</command>
-				</para>
-				<para>You should see: </para>
-				<!--Docs:  This exceeds page ? -->
-				<mediaobject>
-					<imageobject>
-						<imagedata width="300px" align="center"
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]><chapter id="running">	<title>Running the Example</title>	<para>		This chapter container brief instructions how to run example.	</para>	<section id="running_base_conf">		<title>Basic configuration</title>		<para>			Before running example ensure that all			<acronym>SIP</acronym>			addresses configured via			<acronym>SBB</acronym>			environment entries are valid.		</para>		<para>			In binary release please edit			<filename>sbb-jar.xml</filename>			to ensure proper values. Since			&THIS.EXAMPLE;			Example does not depend on			<literal>Registrar</literal>			<acronym>URI</acronym>			s must be direct address of			<acronym>UA</acronym>			.		</para>	</section>	<section id="running_user">		<title>&THIS.EXAMPLE;			Regular customer		</title>		<para>Please follow procedure below:</para>		<procedure>			<step>				<title>Install</title>				<para>Install dependencies and example.</para>			</step>			<step>				<title>UA Configuration</title>				<para>					Start					<acronym>SIP</acronym>					<acronym>UA</acronym>					s. Ensure admins					<acronym>UA</acronym>					is bound to previously configured					<acronym>SIP</acronym>					<acronym>URL</acronym>					.				</para>			</step>			<step>				<title>Start</title>				<para>					Start container, for instance with such command:					<command>						$ bin/run.sh -b 127.0.0.1 -c default					</command>				</para>			</step>			<step>				<title>Access web interface</title>				<para>					Access following address with browser:					<command>						http://127.0.0.1:8080/ShoppingDemo					</command>				</para>				<para>You should see:</para>				<!--Docs:  This exceeds page ? -->				<mediaobject>					<imageobject>						<imagedata width="300px" align="center"
 							fileref="images/run-user1.png" format="PNG" />
 					</imageobject>
 					<caption>
@@ -72,7 +11,16 @@
 			</step>
 			<step>
 				<title>Create account</title>
-				<para>Create account - fill all required data, ensure that <literal>Phone</literal> points to <acronym>SIP</acronym> <acronym>UA</acronym>(for instance <literal>sip:shop_lifter@127.0.0.1:5060</literal> ).</para>
+				<para>
+					Create account - fill all required data, ensure that
+					<literal>Phone</literal>
+					points to
+					<acronym>SIP</acronym>
+					<acronym>UA</acronym>
+					(for instance
+					<literal>sip:shop_lifter@127.0.0.1:5060</literal>
+					).
+				</para>
 			</step>
 			<step>
 				<title>Start shopping</title>
@@ -84,7 +32,40 @@
 		<title>&THIS.EXAMPLE;
 			Administrator
 		</title>
-		<para>AMIT</para>
+		<para>
+			The administration screens take use jBPM to manage the approval and shipping cycle for orders.
+			The business process may even be changed dynamically, by selecting a different process definition! 
+			However for Converged Demo we will always use 'ordermanagement3' business process.
+			Steps 1 to 4 would be same as '5.2. Shopping Demo Regular customer'
+		</para>
+		<procedure>
+			<step>
+				<title>Admin Account</title>
+				<para>
+					The Admin account is created by system. The user id
+					is 'manager' and password is 'password' to log in as
+					manager
+				</para>
+			</step>
+			<step>
+				<title>UI</title>
+				<para>
+					Once logged in you should see bellow screen. There are only two tabs 'Manage Orders' and 'Process Status'. 
+					As name suggests 'Manage Orders' is to manage the order and 'Process Status' shows the status of Order. 
+				</para>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="300px" align="center"
+							fileref="images/manage-orders.png" format="PNG" />
+					</imageobject>
+					<caption>
+						<para>&THIS.EXAMPLE;
+							main screen
+						</para>
+					</caption>
+				</mediaobject>
+			</step>
+		</procedure>
 	</section>
 </chapter>
 

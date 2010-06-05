@@ -191,9 +191,31 @@
 					</programlisting>
 					<para>Declared event handlers are:</para>
 					<itemizedlist>
-						<listitem>
-							<para>AMIT</para>
-						</listitem>
+
+					<listitem>
+						<para>OrderProcessed - This event is fired from AfterOrderProcessedAction. 
+						AfterOrderProcessedAction will be called automatically by JBPM when user places an order via Web UI whose value is less than 100. 
+						This is Initial event for OrderDeliverDateSbb. The event handler method will set timer for 30 Seconds. On Timer expiration the System will 
+						call User to punch the date and time for delivery of order.</para>
+					</listitem>
+					<listitem>
+						<para>OrderApproved - This event is fired from OrderApprovalAction. OrderApprovalAction will be called automatically by JBPM when 
+						admin logs into the Web UI to approve the order ( in case if order value is greater than 100 ). 
+						This is Initial event for OrderDeliverDateSbb. The event handler method will set timer for 30 Seconds. On Timer expiration the System will 
+						call User to punch the date and time for delivery of order. 
+						Ideally speaking once the System calls admin to approve/reject order via phone and admin approves the order, 
+						the jBPM should have been processed and called OrderApprovalAction, but there is no integration 
+						between SLEE and JBPM, and hence even though Admin approved order via phone, he/she still needs to 
+						log-in via UI to approve the order again. This could be easily achieved by calling a EJB from SBB and 
+						delegating the JBPM processing in EJB, but I am being lazzy here ;)   </para>
+					</listitem>
+					<listitem>
+						<para>OrderCancelled -  This event is fired from UserSbb when User cancels his/her order by pressing DTMF 2 
+						when received call from System for confirmation of Order. When User places his/her Order (less than 100), 'OrderProcessed' is already fired and 
+						OrderDeliverDateSbb is already set for timer. Now when System calls User to confirm order and if User rejects the Order, 
+						the system should not call again latter to set date and time.  </para>
+					</listitem>
+
 					</itemizedlist>
 					<note><para>Please refer to <xref linkend="design_web"/> and <xref linkend="source_web"/> for details on event firing conditions.</para>  </note>
 				</listitem>
