@@ -396,6 +396,10 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 	 */
 	public void onMessage(ISUPMessage message) {
 		
+		if(tracer.isInfoEnabled())
+		{
+			tracer.info("Received Message, code: "+message.getMessageType().getCode());
+		}
 		//if there is no TX, lets create STX
 		ISUPTransaction tx = message.getTransaction();
 		if(tx == null)
