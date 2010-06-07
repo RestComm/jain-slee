@@ -148,7 +148,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     private static final String PROPERTY_OPC = "isup.opc";
     private static final String PROPERTY_DPC = "isup.dpc";
     private static final String PROPERTY_SLS = "isup.sls";
-    private static final String PROPERTY_SSI = "isup.ssf";
+    private static final String PROPERTY_SSI = "isup.ssi";
 
     private static int getEventFlags() {
         int eventFlags = EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK;
@@ -291,7 +291,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     }
 
     public Object getResourceAdaptorInterface(String arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.raProvider;
     }
 
     public Marshaler getMarshaler() {
