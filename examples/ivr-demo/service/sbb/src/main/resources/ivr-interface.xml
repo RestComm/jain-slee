@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<!--
+    Document   : ivr-interface.xml
+    Created on : 28 Май 2010 г., 16:02
+    Author     : kulikov
+    Description:
+        Purpose of the document follows.
+-->
+
+<process-definition name='ivr-interface'>
+
+    <start-state name='start'>
+        <transition to='welcome' />
+    </start-state>
+
+    <state name='welcome'>
+        <event type='node-enter'>            
+            <action class='org.mobicents.slee.demo.ivr.DefaultTransitionHandler'/>
+        </event>
+        <transition name='announcement_completed' to='end' />
+    </state>
+
+    <end-state name='end'>
+          <event type='node-enter'>            
+            <action class='org.mobicents.slee.demo.ivr.DefaultTransitionHandler'/>
+        </event>
+    </end-state>
+
+</process-definition>
