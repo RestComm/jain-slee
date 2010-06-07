@@ -98,7 +98,7 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-ra-smpp</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-ra-isup</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		
