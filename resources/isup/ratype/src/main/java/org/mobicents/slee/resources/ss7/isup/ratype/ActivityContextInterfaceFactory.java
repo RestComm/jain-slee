@@ -29,7 +29,7 @@ import org.mobicents.protocols.ss7.isup.ISUPServerTransaction;
  *
  * @author kulikov
  */
-public interface ActivityContextInterfaceFactory {
+public interface ActivityContextInterfaceFactory{
     
     /**
      * Gets ActivityContextInterface for client transaction activity.

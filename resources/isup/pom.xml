@@ -1,5 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>	
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<artifactId>mobicents-parent</artifactId>
@@ -13,8 +14,35 @@
 
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 	<packaging>pom</packaging>
+	
+	<properties>
+		<isup.version>1.0.0.BETA1-SNAPSHOT</isup.version>
+		<mtp.version>1.0.0.BETA2-SNAPSHOT</mtp.version>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.mobicents.protocols.ss7.isup</groupId>
+				<artifactId>isup-api</artifactId>
+				<version>${isup.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.protocols.ss7.isup</groupId>
+				<artifactId>isup-impl</artifactId>
+				<version>${isup.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.protocols.ss7.mtp</groupId>
+				<artifactId>MTP</artifactId>
+				<version>${mtp.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 
 	<modules>
+		<module>library</module>
 		<module>events</module>
 		<module>ratype</module>
 		<module>ra</module>
@@ -37,19 +65,22 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/resources/smpp">
+										<copy overwrite="true"
+											todir="${basedir}/../../release/${release.name}/resources/smpp">
 											<fileset dir="${basedir}/du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
 												<include name="*.properties" />
 											</fileset>
 										</copy>
-										<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/resources/smpp/du-management.xml" />
-										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/resources/smpp">
-                      <filterset>
-                        <filter token="JBOSS.PATH" value="${jboss.path}" />
-                        <filter token="JBOSS.CONFIG" value="${node}" />
-                      </filterset>
+										<copy overwrite="true" file="${basedir}/du/target/build.xml"
+											tofile="${basedir}/../../release/${release.name}/resources/smpp/du-management.xml" />
+										<copy overwrite="true" file="${basedir}/release/build.xml"
+											todir="${basedir}/../../release/${release.name}/resources/smpp">
+											<filterset>
+												<filter token="JBOSS.PATH" value="${jboss.path}" />
+												<filter token="JBOSS.CONFIG" value="${node}" />
+											</filterset>
 										</copy>
 									</tasks>
 								</configuration>
@@ -66,15 +97,15 @@
 			<build>
 				<plugins>
 					<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<configuration>
-						<autoVersionSubmodules>true</autoVersionSubmodules>
-						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp</tagBase>
-					</configuration>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-release-plugin</artifactId>
+						<configuration>
+							<autoVersionSubmodules>true</autoVersionSubmodules>
+							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp</tagBase>
+						</configuration>
 					</plugin>
 				</plugins>
-			</build>		
+			</build>
 		</profile>
 	</profiles>
 
@@ -88,7 +119,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
-   				<groupId>org.mobicents.tools</groupId>
+				<groupId>org.mobicents.tools</groupId>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
@@ -101,10 +132,13 @@
 					<eclipseProjectName>mobicents-slee-ra-isup</eclipseProjectName>
 				</configuration>
 			</plugin>
-		</plugins>		
+		</plugins>
 	</build>
-	
-	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
+
+	<!--
+		dupe info from parent, but it's only way to retrieve the parent
+		without checkout
+	-->
 
 	<repositories>
 		<repository>

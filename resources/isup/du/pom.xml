@@ -11,6 +11,12 @@
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>	
 	
 	<dependencies>
+		<!-- Library -->
+		<dependency>
+			<artifactId>isup-library</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+		</dependency>
 		<!-- components -->
 		<dependency>
 			<groupId>${pom.groupId}</groupId>

@@ -2,25 +2,61 @@
 
 <!DOCTYPE resource-adaptor-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.1//EN" "http://java.sun.com/dtd/slee-resource-adaptor-jar_1_1.dtd">
 <resource-adaptor-jar>
-    <resource-adaptor id="isup">
-        <description>ISUP resource adaptor</description>
-        <resource-adaptor-name>ISUPResourceAdaptor</resource-adaptor-name>
-        <resource-adaptor-vendor>org.mobicents</resource-adaptor-vendor>
-        <resource-adaptor-version>1.0</resource-adaptor-version>
+	<resource-adaptor id="isup">
+		<description>ISUP resource adaptor</description>
+		<resource-adaptor-name>ISUPResourceAdaptor</resource-adaptor-name>
+		<resource-adaptor-vendor>org.mobicents</resource-adaptor-vendor>
+		<resource-adaptor-version>1.0</resource-adaptor-version>
 
-        <resource-adaptor-type-ref>
-           <resource-adaptor-type-name>ISUPResourceAdaptorType</resource-adaptor-type-name>
-           <resource-adaptor-type-vendor>net.java</resource-adaptor-type-vendor>
-           <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
-        </resource-adaptor-type-ref>
-    	
-    	
-        <resource-adaptor-classes>
-        <resource-adaptor-class>
-            <resource-adaptor-class-name>
-                org.mobicents.slee.resources.isup.ra.ISUPResourceAdaptor
+		<resource-adaptor-type-ref>
+			<resource-adaptor-type-name>ISUPResourceAdaptorType</resource-adaptor-type-name>
+			<resource-adaptor-type-vendor>net.java</resource-adaptor-type-vendor>
+			<resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+		</resource-adaptor-type-ref>
+
+		<resource-adaptor-classes>
+			<resource-adaptor-class>
+				<resource-adaptor-class-name>
+					org.mobicents.slee.resources.isup.ra.IsupResourceAdaptor
             </resource-adaptor-class-name>
-        </resource-adaptor-class>
-        </resource-adaptor-classes>
-    </resource-adaptor>
+			</resource-adaptor-class>
+		</resource-adaptor-classes>
+		<config-property>
+			<description>Streaming server address</description>
+			<config-property-name>server.ip</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>localhost</config-property-value>
+		</config-property>
+		<config-property>
+			<description>Streaming server port</description>
+			<config-property-name>server.port</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>1345</config-property-value>
+		</config-property>
+		<config-property>
+			<description>Default DPC used by ISUP layer for originating messages</description>
+			<config-property-name>isup.dpc</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>12345</config-property-value>
+		</config-property>
+		<config-property>
+			<description>Default OPC used by ISUP layer for originating messages</description>
+			<config-property-name>isup.opc</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>54321</config-property-value>
+		</config-property>
+		<config-property>
+			<description>Default SLS used by ISUP layer for originating messages</description>
+			<config-property-name>isup.sls</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>0</config-property-value>
+		</config-property>
+		<config-property>
+			<description>Default SSI used by ISUP layer for originating messages</description>
+			<config-property-name>isup.ssi</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>0</config-property-value>
+		</config-property>
+		
+	</resource-adaptor>
 </resource-adaptor-jar>

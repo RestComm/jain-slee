@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<artifactId>isup-parent</artifactId>
 		<groupId>org.mobicents.resources</groupId>
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>isup-ra</artifactId>
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>javax.slee</groupId>
@@ -20,17 +21,17 @@
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>isup-ratype</artifactId>
 			<version>${pom.version}</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>isup-events</artifactId>
 			<version>${pom.version}</version>
-		</dependency>		
-                <dependency>
-                    <groupId>org.mobicents.protocols.ss7.isup</groupId>
-                    <artifactId>isup-api</artifactId>
-                    <version>1.0.0.BETA1-SNAPSHOT</version>
-                </dependency>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.protocols.ss7.isup</groupId>
+			<artifactId>isup-impl</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
-		
+
 </project>

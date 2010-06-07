@@ -40,6 +40,7 @@ public class FireableEventTypeCache {
 
     public static final String VENDOR = "net.java";
     public static final String VERSION = "1.0";
+    public static final String NAME_PREFIX = "net.java.slee.resource.isup.";
     private ConcurrentHashMap<String, FireableEventType> eventTypes = 
             new ConcurrentHashMap<String, FireableEventType>();
     private final Tracer tracer;
@@ -52,7 +53,7 @@ public class FireableEventTypeCache {
         FireableEventType eventType = eventTypes.get(eventName);
         if (eventType == null) {
             try {
-                eventType = eventLookupFacility.getFireableEventType(new EventTypeID(eventName, VENDOR, VERSION));
+                eventType = eventLookupFacility.getFireableEventType(new EventTypeID(NAME_PREFIX+eventName, VENDOR, VERSION));
             } catch (Throwable e) {
                 tracer.severe("Failed to obtain fireable event type for event with name " + eventName, e);
                 return null;
