@@ -59,7 +59,6 @@ import javax.csapi.cc.jcc.JccCall;
 import javax.csapi.cc.jcc.JccConnection;
 import javax.csapi.cc.jcc.JccCallEvent;
 import javax.csapi.cc.jcc.JccConnectionEvent;
-import javax.csapi.cc.jcc.JccProvider;
 import javax.csapi.cc.jcc.MethodNotSupportedException;
 import javax.csapi.cc.jcc.ResourceUnavailableException;
 
@@ -75,6 +74,7 @@ import org.mobicents.slee.resource.jcc.ratype.JccActivityContextInterfaceFactory
  * 
  * @author Oleg Kulikov
  * @author Pavel Mitrenko
+ * @author baranowb
  */
 public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccConnectionListener {
 
