@@ -371,7 +371,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
         //this causes failure
        // final Address address = new Address(AddressPlan.GT, "");
         try {
-            sleeEndpoint.fireEvent(handle, eventType, event, address, null, EVENT_FLAGS);
+            sleeEndpoint.fireEvent(handle, eventType, event, null, null, EVENT_FLAGS);
             tracer.info("Firde event: " + eventName);
         } catch (Throwable e) {
             tracer.severe("Failed to fire event", e);
