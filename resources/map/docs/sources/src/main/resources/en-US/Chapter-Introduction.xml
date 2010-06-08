@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+<para>
+Mobile application part (MAP) is the protocol that is used to allow the GSM network nodes within the Network Switching Subsystem to communicate with each other to provide services, such as roaming capability, text messaging (SMS), Unstructured Supplementary Service Data (USSD) and subscriber authentication. MAP provides an application layer on which to build the services that support a GSM network. This application layer provides a standardized set of operations. MAP is transported and encapsulated with the SS7 protocols MTP, SCCP, and TCAP. 
+</para>
+	<para>For further details please look at specs <ulink url="http://www.3gpp.org/ftp/Specs/html-info/29002.htm" /></para>
+	<para>This resource adaptor provides a MAP API for JAIN SLEE applications, adapting the MAP specification for USSD. </para>
+	
+
+
+	
+</chapter>
