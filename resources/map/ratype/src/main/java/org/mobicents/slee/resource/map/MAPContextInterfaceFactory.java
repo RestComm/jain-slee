@@ -1,6 +1,6 @@
 package org.mobicents.slee.resource.map;
 
-import java.awt.Dialog;
+import org.mobicents.protocols.ss7.map.api.MAPDialog;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
@@ -13,7 +13,7 @@ import javax.slee.UnrecognizedActivityException;
  */
 public interface MAPContextInterfaceFactory {
 
-	public ActivityContextInterface getActivityContextInterface(Dialog dialog) throws NullPointerException,
+	public ActivityContextInterface getActivityContextInterface(MAPDialog dialog) throws NullPointerException,
 			UnrecognizedActivityException, FactoryException;
 
 }
