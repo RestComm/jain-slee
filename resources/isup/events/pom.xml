@@ -13,8 +13,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.mobicents.protocols.ss7.isup</groupId>
-			<artifactId>isup-api</artifactId>
+			<artifactId>isup-library</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

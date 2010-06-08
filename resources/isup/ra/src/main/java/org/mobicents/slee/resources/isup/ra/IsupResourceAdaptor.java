@@ -407,7 +407,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		{
 			//FIXME: determine in Qs if there is error msg to be sent.... can be extremly complciated since there is 40+ messages
 			try {
-				this.raProvider.createServerTransaction(message);
+				tx = this.raProvider.createServerTransaction(message);
 			} catch (ActivityAlreadyExistsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -436,7 +436,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		// 1. get handle
 		// 2. get event type
 		// 3. fire
-		ActivityHandle handle = createActivityHandle(tx);
+		//ActivityHandle handle = createActivityHandle(tx);
 		String eventName = null;
 		switch(message.getMessageType().getCode())
 		{
@@ -578,7 +578,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 			
 		}
 		
-
+		
 		this.fireEvent(eventName, tx, message);
 	
 		
