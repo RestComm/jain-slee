@@ -76,6 +76,7 @@ import org.mobicents.protocols.ss7.isup.message.OverloadMessage;
 import org.mobicents.protocols.ss7.isup.message.PassAlongMessage;
 import org.mobicents.protocols.ss7.isup.message.PreReleaseInformationMessage;
 import org.mobicents.protocols.ss7.isup.message.ReleaseCompleteMessage;
+import org.mobicents.protocols.ss7.isup.message.ReleaseMessage;
 import org.mobicents.protocols.ss7.isup.message.ResetCircuitMessage;
 import org.mobicents.protocols.ss7.isup.message.ResumeMessage;
 import org.mobicents.protocols.ss7.isup.message.SubsequentAddressMessage;
@@ -532,6 +533,9 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 			break;
 		case ReleaseCompleteMessage.MESSAGE_CODE:
 			eventName = "RELEASE_COMPLETE";
+			break;
+		case ReleaseMessage.MESSAGE_CODE:
+			eventName = "RELEASE";
 			break;
 		case ResetCircuitMessage.MESSAGE_CODE:
 			eventName = "RESET_CIRCUIT";

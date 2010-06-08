@@ -221,6 +221,13 @@
 	</event-definition>
 
 	<event-definition>
+		<event-type-name>net.java.slee.resource.isup.RELEASE</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.isup.message.ReleaseMessage</event-class-name>
+	</event-definition>
+
+	<event-definition>
 		<event-type-name>net.java.slee.resource.isup.RELEASE_COMPLETE</event-type-name>
 		<event-type-vendor>net.java</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
