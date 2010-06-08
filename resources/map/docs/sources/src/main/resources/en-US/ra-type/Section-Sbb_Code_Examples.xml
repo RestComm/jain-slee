@@ -48,11 +48,14 @@ public abstract class SipSbb implements Sbb {
 
 			if (this.logger.isFineEnabled()) {
 				this.logger
-						.fine("Received PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION for MAP Dialog Id "
-								+ evt.getMAPDialog().getDialogId()+ " ussdString = "+ussdString);
+						.fine("Received PROCESS_UNSTRUCTURED_
+						SS_REQUEST_INDICATION for MAP Dialog Id "
+								+ evt.getMAPDialog().getDialogId()+ 
+								" ussdString = "+ussdString);
 			}
 			
-			USSDString ussdStringObj = this.mapServiceFactory.createUSSDString("1. Movies 2. Songs 3. End");
+			USSDString ussdStringObj = this.mapServiceFactory
+				.createUSSDString("1. Movies 2. Songs 3. End");
 			
 			evt.getMAPDialog().addUnstructuredSSResponse(invokeId, false,
 					ussdDataCodingScheme, ussdStringObj);

@@ -21,7 +21,7 @@
 				<para>
 					All the events related to MAP Dialog and events related to Service are fired on this activity.
 					This activity ends implicitly when MAP stack sends P-Abort or explicitly when user aborts the 
-					Dialog or end's the Dialog
+					Dialog or end's the Dialog.
  					Class name is
 					<literal>
 						org.mobicents.protocols.ss7.map.api.MAPDialog
@@ -31,10 +31,8 @@
 					New
 					<literal>MAPDialog</literal>
 					Activity objects are created by calling
-					<literal>
-						MAPProvider.createNewDialog(MAPApplicationContext appCntx,			
-							SccpAddress origAddress, AddressString origReference,
-							SccpAddress destAddress, AddressString destReference )
+<literal>MAPProvider.createNewDialog(MAPApplicationContext appCntx,	
+SccpAddress origAddress, AddressString origReference,SccpAddress destAddress, AddressString destReference )
 					</literal>
 				</para>
 			</listitem>

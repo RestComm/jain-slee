@@ -38,6 +38,7 @@
 		</variablelist>		
 		<para>Version for all defined events is 1.0</para>
 		<para>Vendor for all defined events is org.mobicents</para>
+		<para>Spaces where introduced in <literal>Name</literal>  column values, to correctly render the table. Please remove them when using copy/paste.</para>
 	</important>
 	<table frame="all" pgwide="1">
 		<title>Events fired by &THIS.RA;</title>
@@ -167,7 +168,8 @@
 
 				<row>
 					<entry>
-						PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION
+						PROCESS_UNSTRUCTURED_
+						SS_REQUEST_INDICATION
 					</entry>
 					<!--
 					<entry>net.java</entry>
@@ -183,7 +185,8 @@
 
 				<row>
 					<entry>
-						UNSTRUCTURED_SS_REQUEST_INDICATION
+						UNSTRUCTURED_SS_
+						REQUEST_INDICATION
 					</entry>
 					<!--
 					<entry>net.java</entry>
