@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para><acronym>ISUP</acronym> activities object represents a set of related events in an
+		<acronym>ISUP</acronym> resource.</para>
+	<para>This <acronym>RA</acronym> Type defines two types of activities: </para> 
+	<variablelist>
+		<varlistentry>
+			<term>ISUPClientTransaction</term>
+			<listitem>
+				<para>This activity is associated with client side events. All types of request are sent by means of this activity. 
+				Answers are delivered on this activity.</para>
+				<para>Life cycle of this activity depends on message type. Client transaction stays alive until it timeouts or answer is delivered.
+				Exception to this rule are messages which are only indication of state - they dont require any answer. This group consists of:</para>
+				<itemizedlist>
+					<listitem>
+						<para>Reset Circuit</para>
+					</listitem>
+					<!-- Add more here. -->
+				</itemizedlist>
+				<para>Full class name is :<literal>org.mobicents.protocols.ss7.isup.ISUPClientTransaction</literal>. It is created on demand with <acronym>RA</acronym> <acronym>SBB</acronym> Interface.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>ISUPServerTransaction</term>
+			<listitem>
+				<para>This activity is associated with server side events. All types of request are fired by on this activity. 
+				Answers are sent through this activity.</para>
+				<para>Life cycle of this activity depends on message type. Server transaction stays alive until it timeouts or answer is sent back.
+				Exception to this rule are messages which are only indication of state - they dont require any answer. See above activity.
+				</para>
+				<para>Full class name is :<literal>org.mobicents.protocols.ss7.isup.ISUPServerTransaction</literal>. It is created by <acronym>RA</acronym> for each request which does not have transaction associated with it.</para>
+			</listitem>
+			
+		</varlistentry>
+	</variablelist>
+</section>

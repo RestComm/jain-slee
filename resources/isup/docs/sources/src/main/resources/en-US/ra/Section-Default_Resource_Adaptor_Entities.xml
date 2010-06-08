@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ra_default_ra_entities">
+
+	<title>Default Resource Adaptor Entities</title>
+
+	<para>There is a single Resource Adaptor Entity created when deploying the Resource Adaptor, named <literal>ISUPResourceAdaptor</literal>. The <literal>ISUPResourceAdaptor</literal> entity uses the default Resource Adaptor configuration, specified in <xref linkend="ra_configuration" />.</para>
+	
+	<para>The <literal>ISUPResourceAdaptor</literal> entity is also bound to Resource Adaptor Link Name <literal>ISUPResourceAdaptor</literal>, to use it in an Sbb add the following XML to its descriptor:</para>
+	
+	<programlisting language="XML" role="XML"><![CDATA[
+
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					ISUPResourceAdaptorType
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					net.java
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.0
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/isup/1.0/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+			<resource-adaptor-object-name>
+					slee/resources/isup/1.0/provider
+			</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					ISUPResourceAdaptor
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+]]>
+	</programlisting>	
+	
+</section>

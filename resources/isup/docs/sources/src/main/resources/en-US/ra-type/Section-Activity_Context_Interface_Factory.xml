@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_aci_factory">
+
+		<title>Activity Context Interface Factory</title>
+
+	<para>
+		The interface of the <acronym>ISUP</acronym> resource adaptor type specific
+		Activity Context Interface Factory is defined as follows:
+	</para>
+	
+	<programlisting language="java">
+package org.mobicents.slee.resources.ss7.isup.ratype;
+
+import javax.slee.ActivityContextInterface;
+import javax.slee.FactoryException;
+import javax.slee.UnrecognizedActivityException;
+import org.mobicents.protocols.ss7.isup.ISUPClientTransaction;
+import org.mobicents.protocols.ss7.isup.ISUPServerTransaction;
+
+public interface ActivityContextInterfaceFactory{
+    
+    /**
+     * Gets ActivityContextInterface for client transaction activity.
+     *
+     * @param activity
+     *  the endpoint activity object.
+     * @return the ActivityContextInterface.
+     */
+    public ActivityContextInterface getActivityContextInterface(ISUPClientTransaction activity)
+        throws NullPointerException, UnrecognizedActivityException, FactoryException;
+
+    /**
+     * Gets ActivityContextInterface for server transaction activity.
+     *
+     * @param activity
+     *  the endpoint activity object.
+     * @return the ActivityContextInterface.
+     */
+    public ActivityContextInterface getActivityContextInterface(ISUPServerTransaction activity)
+        throws NullPointerException, UnrecognizedActivityException, FactoryException;
+    
+}
+	</programlisting>
+	
+</section>

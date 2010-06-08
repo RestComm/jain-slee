@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction
+		to &THIS.PLATFORM;
+		JAIN SLEE &THIS.RA;
+		Resource Adaptor
+	</title>
+	<para>
+		The
+		<acronym>ISDN</acronym>
+		User Part or ISUP is part of the Signaling System #7 which is used to
+		set up telephone calls in Public Switched Telephone Networks. It is
+		specified by the ITU-T as part of the Q.76x series.
+	</para>
+	<para>
+		<acronym>ISUP</acronym>
+		messages are used to convey call related information between
+		<acronym>PSTN</acronym>
+		switches.
+	</para>
+	<para>
+		The telephone switches are connected via E1 or T1 trunks which
+		transport the speech from the calls. Trunks are divided into 64k/bit
+		timeslots. Each time slot is identified with unique
+		<literal>Circuit Identification Code</literal>
+		(
+		<acronym>CIC</acronym>
+		). The switches uses this information along with the received signalling
+		information (Called Party Number, Calling Part Number...) to determine which
+		inbound CICs and outbound CICs should be connected together to provide
+		an end to end speech path.
+	</para>
+	<para>Additionally <acronym>ISUP</acronym> is used to exchange status information about switch capabilities and current resources.</para>
+</chapter>
