@@ -163,7 +163,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     
     public void setResourceAdaptorContext(ResourceAdaptorContext context) {
         this.raContext = context;
-        this.tracer = context.getTracer(getClass().getSimpleName());
+        this.tracer = context.getTracer("IsupResourceAdaptor");
         this.sleeEndpoint = context.getSleeEndpoint();
         this.eventLookupFacility = context.getEventLookupFacility();
         this.eventTypeCache = new FireableEventTypeCache(tracer);
