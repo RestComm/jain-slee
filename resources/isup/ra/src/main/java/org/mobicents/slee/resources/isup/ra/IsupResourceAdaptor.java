@@ -368,7 +368,8 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 //        }
 
         //TODO insert global title.
-        final Address address = new Address(AddressPlan.GT, "");
+        //this causes failure
+       // final Address address = new Address(AddressPlan.GT, "");
         try {
             sleeEndpoint.fireEvent(handle, eventType, event, address, null, EVENT_FLAGS);
             tracer.info("Firde event: " + eventName);
