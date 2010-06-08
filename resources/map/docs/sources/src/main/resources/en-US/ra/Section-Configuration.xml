@@ -29,7 +29,7 @@
 			<tbody>
 				<row>
 			   		<entry>sccp.provider</entry>
-			   	    <entry>The protocol TCP or UDP. TODO</entry>
+			   	    <entry>The protocol TCP or UDP.</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry></entry>
 			    </row>
