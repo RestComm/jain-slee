@@ -360,12 +360,12 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     protected void fireEvent(String eventName, Object activity, Object event) {
         final ActivityHandle handle = this.getActivityHandle(activity);        
         final FireableEventType eventType = eventTypeCache.getEventType(eventLookupFacility, eventName);
-        if (eventTypeFilter.filterEvent(eventType)) {
-            if (tracer.isFineEnabled()) {
-                tracer.fine("event " + eventName + " filtered");
-            }
-            return;
-        }
+//        if (eventTypeFilter.filterEvent(eventType)) {
+//            if (tracer.isFineEnabled()) {
+//                tracer.fine("event " + eventName + " filtered");
+//            }
+//            return;
+//        }
 
         //TODO insert global title.
         final Address address = new Address(AddressPlan.GT, "");
