@@ -16,6 +16,14 @@
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>isup-ratype</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.mobicents.resources</groupId>
+			<artifactId>isup-events</artifactId>
+		</dependency>
+		<dependency>
+			<artifactId>isup-library</artifactId>
+			<groupId>org.mobicents.resources</groupId>
+		</dependency>
 	</dependencies>
 
 </project>

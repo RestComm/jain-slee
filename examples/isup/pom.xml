@@ -28,6 +28,16 @@
 				<groupId>org.mobicents.resources</groupId>
 				<version>${version.isupra}</version>
 			</dependency>
+			<dependency>
+				<artifactId>isup-events</artifactId>
+				<groupId>org.mobicents.resources</groupId>
+				<version>${version.isupra}</version>
+			</dependency>
+			<dependency>
+				<artifactId>isup-library</artifactId>
+				<groupId>org.mobicents.resources</groupId>
+				<version>${version.isupra}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
