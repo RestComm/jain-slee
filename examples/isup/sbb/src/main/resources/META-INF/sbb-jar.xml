@@ -50,9 +50,9 @@
 			</event-type-ref>
 		</event>
 		<event event-direction="Receive" initial-event="True">
-			<event-name>ResetCircuitEvent</event-name>
+			<event-name>CircuitGroupUnblockingEvent</event-name>
 			<event-type-ref>
-				<event-type-name>net.java.slee.resource.isup.RESET_CIRCUIT</event-type-name>
+				<event-type-name>net.java.slee.resource.isup.CIRCUIT_GROUP_UNBLOCKING</event-type-name>
 				<event-type-vendor>net.java</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>

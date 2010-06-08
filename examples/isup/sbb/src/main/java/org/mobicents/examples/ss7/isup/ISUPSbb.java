@@ -42,6 +42,7 @@ import org.mobicents.protocols.ss7.isup.ISUPParameterFactory;
 import org.mobicents.protocols.ss7.isup.ParameterRangeInvalidException;
 import org.mobicents.protocols.ss7.isup.TransactionAlredyExistsException;
 import org.mobicents.protocols.ss7.isup.message.CircuitGroupResetMessage;
+import org.mobicents.protocols.ss7.isup.message.CircuitGroupUnblockingMessage;
 import org.mobicents.protocols.ss7.isup.message.ISUPMessage;
 import org.mobicents.protocols.ss7.isup.message.ResetCircuitMessage;
 import org.mobicents.protocols.ss7.isup.message.parameter.CircuitIdentificationCode;
@@ -124,10 +125,11 @@ public abstract class ISUPSbb implements Sbb {
 		logger.info("Received RST: "+event.getCircuitIdentificationCode().getCIC());
 		
 	}
-	public void onCircuitGroupResetEvent(CircuitGroupResetMessage event, ActivityContextInterface aci) {
-		logger.info("Received CGR: "+event.getCircuitIdentificationCode().getCIC());
-		logger.info("Received CGR: "+event.getRangeAndStatus().getRange());
-		logger.info("Received CGR: "+Arrays.toString(event.getRangeAndStatus().getStatus()));
+	public void onCircuitGroupUnblockingEvent(CircuitGroupUnblockingMessage event, ActivityContextInterface aci) {
+		logger.info("Received CGU: "+event.getCircuitIdentificationCode().getCIC());
+		logger.info("Received CGU: "+event.getSupervisionType());
+		logger.info("Received CGU: "+event.getRangeAndStatus().getRange());
+		logger.info("Received CGU: "+Arrays.toString(event.getRangeAndStatus().getStatus()));
 		//send ACK;
 		
 		
