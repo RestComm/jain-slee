@@ -6,15 +6,16 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.util.Date;
 import java.util.Set;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.naming.NamingException;
+import javax.slee.EventTypeID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentMBean;
 import javax.slee.management.SleeManagementMBean;
@@ -23,7 +24,10 @@ import javax.slee.management.SleeState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean;
+import org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean;
+import org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean;
 import org.mobicents.slee.container.management.jmx.JmxActivityContextHandle;
+import org.mobicents.slee.container.management.jmx.MobicentsManagementMBean;
 import org.rhq.core.domain.configuration.Configuration;
 import org.rhq.core.domain.configuration.PropertyList;
 import org.rhq.core.domain.configuration.PropertyMap;
@@ -31,6 +35,7 @@ import org.rhq.core.domain.configuration.PropertySimple;
 import org.rhq.core.domain.content.PackageDetailsKey;
 import org.rhq.core.domain.content.transfer.ResourcePackageDetails;
 import org.rhq.core.domain.measurement.AvailabilityType;
+import org.rhq.core.domain.measurement.MeasurementDataNumeric;
 import org.rhq.core.domain.measurement.MeasurementDataTrait;
 import org.rhq.core.domain.measurement.MeasurementReport;
 import org.rhq.core.domain.measurement.MeasurementScheduleRequest;
@@ -115,6 +120,22 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
       if (request.getName().equals("state")) {
         report.addData(new MeasurementDataTrait(request, this.sleeState.toString()));
       }
+      else if (request.getName().equals("activitiesMapped")) {
+        EventRouterStatisticsMBean erStatsMBean = getEventRouterStatisticsMBean();
+        report.addData(new MeasurementDataNumeric(request, Double.valueOf(erStatsMBean.getActivitiesMapped())));
+      }
+      else if (request.getName().equals("averageEventRoutingTime")) {
+        EventRouterStatisticsMBean erStatsMBean = getEventRouterStatisticsMBean();
+        report.addData(new MeasurementDataNumeric(request, Double.valueOf(erStatsMBean.getAverageEventRoutingTime())));
+      }
+      else if (request.getName().equals("executedTasks")) {
+        EventRouterStatisticsMBean erStatsMBean = getEventRouterStatisticsMBean();
+        report.addData(new MeasurementDataNumeric(request, Double.valueOf(erStatsMBean.getExecutedTasks())));
+      }
+      else if (request.getName().equals("miscTasksExecuted")) {
+        EventRouterStatisticsMBean erStatsMBean = getEventRouterStatisticsMBean();
+        report.addData(new MeasurementDataNumeric(request, Double.valueOf(erStatsMBean.getMiscTasksExecuted())));
+      }
     }
   }
 
@@ -130,25 +151,145 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     else if ("queryActivityContextLiveness".equals(name)) {
       return doQueryActivityContextLiveness(parameters);
     }
-    else if ("changeGlobalLogLevel".equals(name)) {
-      return doChangeLogLevel(parameters);
+    else if ("switchLoggingConfiguration".equals(name)) {
+      return doSwitchLoggingConfiguration(parameters);
+    }
+    else if ("getLoggingConfiguration".equals(name)) {
+      return doGetLoggingConfiguration(parameters);
+    }
+    else if ("setLoggingConfiguration".equals(name)) {
+      return doSetLoggingConfiguration(parameters);
+    }
+    else if("viewEventRouterStatistics".equals(name)) {
+      return doViewEventRouterStatistics(parameters);
     }
     else {
       throw new UnsupportedOperationException("Operation [" + name + "] is not supported.");
     }
   }
 
-  private static void validateNamingURL(String namingURL) {
-    URI namingURI;
-    try {
-      namingURI = new URI(namingURL);
-    } catch (URISyntaxException e) {
-      throw new RuntimeException("Naming URL '" + namingURL + "' is not valid: " + e.getLocalizedMessage());
+  private OperationResult doViewEventRouterStatistics(Configuration parameters) throws Exception {
+    OperationResult result = new OperationResult();
+    PropertyList statistics = new PropertyList("statistics");
+    result.getComplexResults().put(statistics);
+
+    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+    
+    String filter = parameters.getSimple("filter").getStringValue();
+    
+    if(filter.equals("global")) {
+      doGetERSGlobal(connection, statistics);
     }
-    if (!namingURI.isAbsolute())
-      throw new RuntimeException("Naming URL '" + namingURL + "' is not absolute.");
-    if (!namingURI.getScheme().equals("jnp"))
-      throw new RuntimeException("Naming URL '" + namingURL + "' has an invalid protocol - the only valid protocol is 'jnp'.");
+    if(filter.equals("executors")) {
+      doGetERSExecutors(connection, statistics);
+    }
+    else if(filter.equals("eventTypes")) {
+      doGetERSEventTypes(connection, statistics);
+    }
+    else if(filter.equals("executorsByEventTypes")) {
+      doGetERSCombined(connection, statistics);
+    }
+    else {
+      doGetERSGlobal(connection, statistics);
+      doGetERSExecutors(connection, statistics);
+      doGetERSEventTypes(connection, statistics);            
+      doGetERSCombined(connection, statistics);
+    }
+      return result;
+  }
+
+  private void doGetERSGlobal(MBeanServerConnection connection, PropertyList statistics) throws Exception {
+    EventRouterStatisticsMBean erStatsMBean = getEventRouterStatisticsMBean();
+
+    Integer activitiesMapped = erStatsMBean.getActivitiesMapped();
+    Long averageEventRoutingTime = erStatsMBean.getAverageEventRoutingTime();
+    Long executedTasks = erStatsMBean.getExecutedTasks();
+    Long miscTasksExecuted = erStatsMBean.getMiscTasksExecuted();
+
+    PropertyMap query = new PropertyMap("EventRouterStatistics", new PropertySimple("id", "JAIN SLEE Container"),
+        new PropertySimple("activitiesMapped", activitiesMapped), 
+        new PropertySimple("averageEventRoutingTime", averageEventRoutingTime), 
+        new PropertySimple("executedTasks", executedTasks),
+        new PropertySimple("miscTasksExecuted", miscTasksExecuted));
+
+    statistics.add(query);
+  }
+
+  private void doGetERSExecutors(MBeanServerConnection connection, PropertyList statistics) throws Exception {
+    EventRouterConfigurationMBean erConfigMBean = getEventRouterConfigurationMBean();
+
+    int numExecutors = erConfigMBean.getEventRouterThreads();
+
+    EventRouterStatisticsMBean erStatsMBean = getEventRouterStatisticsMBean();
+
+    for(int executorId = 0; executorId < numExecutors; executorId++) {
+      Integer activitiesMapped = erStatsMBean.getActivitiesMapped(executorId);
+      Long averageEventRoutingTime = erStatsMBean.getAverageEventRoutingTime(executorId);
+      Long executedTasks = erStatsMBean.getExecutedTasks(executorId);
+      Long executingTime = erStatsMBean.getExecutingTime(executorId);
+      Long idleTime = erStatsMBean.getIdleTime(executorId);
+      Long miscTasksExecuted = erStatsMBean.getMiscTasksExecuted(executorId);
+
+      PropertyMap query = new PropertyMap("EventRouterStatistics", new PropertySimple("id", "Executor #" + executorId),
+          new PropertySimple("activitiesMapped", activitiesMapped), 
+          new PropertySimple("averageEventRoutingTime", averageEventRoutingTime), 
+          new PropertySimple("executedTasks", executedTasks),
+          new PropertySimple("executingTime", executingTime),
+          new PropertySimple("idleTime", idleTime),
+          new PropertySimple("miscTasksExecuted", miscTasksExecuted));
+
+      statistics.add(query);
+    }
+  }
+
+  private void doGetERSEventTypes(MBeanServerConnection connection, PropertyList statistics) throws Exception {
+    ObjectName deploymentObjectName = new ObjectName(DeploymentMBean.OBJECT_NAME);
+    DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+        deploymentObjectName, DeploymentMBean.class, false);
+
+    EventTypeID[] eventTypes = deploymentMBean.getEventTypes();
+
+    EventRouterStatisticsMBean erStatsMBean = getEventRouterStatisticsMBean();
+
+    for(EventTypeID eventType : eventTypes) {
+      Long averageEventRoutingTime = erStatsMBean.getAverageEventRoutingTime(eventType);
+      Long eventsRouted = erStatsMBean.getEventsRouted(eventType);
+
+      PropertyMap query = new PropertyMap("EventRouterStatistics", new PropertySimple("id", eventType.toString()),
+          new PropertySimple("averageEventRoutingTime", averageEventRoutingTime), 
+          new PropertySimple("eventsRouted", eventsRouted));
+      
+      statistics.add(query);
+    }
+  }
+
+  private void doGetERSCombined(MBeanServerConnection connection, PropertyList statistics) throws Exception {
+    EventRouterConfigurationMBean erConfigMBean = getEventRouterConfigurationMBean();
+
+    int numExecutors = erConfigMBean.getEventRouterThreads();
+
+    ObjectName deploymentObjectName = new ObjectName(DeploymentMBean.OBJECT_NAME);
+    DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+        deploymentObjectName, DeploymentMBean.class, false);
+
+    EventTypeID[] eventTypes = deploymentMBean.getEventTypes();
+
+    EventRouterStatisticsMBean erStatsMBean = getEventRouterStatisticsMBean();
+
+    for(EventTypeID eventType : eventTypes) {
+      for(int executorId = 0; executorId < numExecutors; executorId++) {
+        Long averageEventRoutingTime = erStatsMBean.getAverageEventRoutingTime(executorId, eventType);
+        Long eventsRouted = erStatsMBean.getEventsRouted(executorId, eventType);
+        Long routingTime = erStatsMBean.getRoutingTime(executorId, eventType);
+  
+        PropertyMap query = new PropertyMap("EventRouterStatistics", new PropertySimple("id", eventType.toString() + "@Executor #" + executorId),
+            new PropertySimple("averageEventRoutingTime", averageEventRoutingTime), 
+            new PropertySimple("routingTime", routingTime), 
+            new PropertySimple("eventsRouted", eventsRouted));
+        
+        statistics.add(query);
+      }
+    }
   }
 
   public CreateResourceReport createResource(CreateResourceReport createResourceReport) {
@@ -261,10 +402,6 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     return tmpDir;
   }
 
-  private boolean runningEmbedded() {
-    return false;
-  }
-
   private OperationResult doSleeState(Configuration parameters) throws Exception {
     OperationResult result = new OperationResult();
 
@@ -307,20 +444,53 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     return result;
   }
 
-  private OperationResult doChangeLogLevel(Configuration parameters) throws Exception {
+  private OperationResult doSwitchLoggingConfiguration(Configuration parameters) throws Exception {
     OperationResult result = new OperationResult();
 
-    String configuration = parameters.getSimple("configuration").getStringValue();
+    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+    ObjectName actMana = new ObjectName("org.mobicents.slee:service=MobicentsManagement" /* FIXME */);
+
+    MobicentsManagementMBean mobicentsManagementMBean = (MobicentsManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+        actMana, org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, false);
+
+    String profile = parameters.getSimple("profile").getStringValue();
     
-    try {
-      copyFile(new File(logConfigurationsFolder + File.separator + "jboss-log4j.xml." + configuration.toLowerCase()), new File(logFilePath));
-    }
-    catch (Exception e) {
-      result.setErrorMessage("Invalid logging configuration.");
-      return result;
-    }
+    mobicentsManagementMBean.switchLoggingConfiguration(profile);
+
+    result.getComplexResults().put(new PropertySimple("result", "Log4j Configuration Profile successfully changed to " + profile + "."));
+    return result;
+  }
+
+  private OperationResult doGetLoggingConfiguration(Configuration parameters) throws Exception {
+    OperationResult result = new OperationResult();
+
+    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+    ObjectName actMana = new ObjectName("org.mobicents.slee:service=MobicentsManagement" /* FIXME */);
+
+    MobicentsManagementMBean mobicentsManagementMBean = (MobicentsManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+        actMana, org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, false);
+
+    String profile = parameters.getSimple("profile").getStringValue();
     
-    result.getComplexResults().put(new PropertySimple("result", "Global Logging Level successfully changed to " + configuration + "."));
+    result.getComplexResults().put(new PropertySimple("result", mobicentsManagementMBean.getLoggingConfiguration(profile)));
+    return result;
+  }
+
+  private OperationResult doSetLoggingConfiguration(Configuration parameters) throws Exception {
+    OperationResult result = new OperationResult();
+
+    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+    ObjectName actMana = new ObjectName("org.mobicents.slee:service=MobicentsManagement" /* FIXME */);
+
+    MobicentsManagementMBean mobicentsManagementMBean = (MobicentsManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+        actMana, org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, false);
+
+    String profile = parameters.getSimple("profile").getStringValue().toLowerCase();
+    String contents = parameters.getSimple("contents").getStringValue();
+    
+    mobicentsManagementMBean.setLoggingConfiguration(profile, contents);
+
+    result.getComplexResults().put(new PropertySimple("result", "Log4j " + profile + " Configuration successfully updated."));
     return result;
   }
 
@@ -452,4 +622,23 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     return logConfigurationsFolder;
   }
 
+  private EventRouterStatisticsMBean getEventRouterStatisticsMBean() throws Exception {
+    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+
+    ObjectName erStatsObjectName = new ObjectName("org.mobicents.slee:name=EventRouterStatistics"/* FIXME */);
+    EventRouterStatisticsMBean erStatsMBean = (EventRouterStatisticsMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+        erStatsObjectName, EventRouterStatisticsMBean.class, false);
+
+    return erStatsMBean;
+  }
+
+  private EventRouterConfigurationMBean getEventRouterConfigurationMBean() throws Exception {
+    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+
+    ObjectName erConfigObjectName = new ObjectName("org.mobicents.slee:name=EventRouterConfiguration"/* FIXME */);
+    EventRouterConfigurationMBean erConfigMBean = (EventRouterConfigurationMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+        erConfigObjectName, EventRouterConfigurationMBean.class, false);
+    
+    return erConfigMBean;
+  }
 }

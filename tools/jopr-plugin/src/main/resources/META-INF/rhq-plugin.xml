@@ -39,9 +39,9 @@
       </results>
     </operation>
 
-    <operation name="changeGlobalLogLevel" displayName="Change Global Logging Level" description="Changes the Logging level globally for the JBoss AS.">
+    <operation name="switchLoggingConfiguration" displayName="Change Global Logging Profile" description="Changes the Logging profile globally for the JBoss AS.">
       <parameters>
-        <c:simple-property name="configuration" default="DEFAULT">
+        <c:simple-property name="profile" default="DEFAULT">
           <c:property-options>
             <c:option value="DEFAULT" name="DEFAULT" />
             <c:option value="DEBUG" name="DEBUG" />
@@ -53,12 +53,74 @@
         <c:simple-property name="result" />
       </results>
     </operation>
+    
+    <operation name="getLoggingConfiguration" displayName="Get Logging Profile Configuration" description="Retrieves the contents for log4j profile configuration file.">
+      <parameters>
+        <c:simple-property name="profile" default="CURRENT">
+          <c:property-options>
+            <c:option value="CURRENT" name="CURRENT" />
+            <c:option value="DEFAULT" name="DEFAULT" />
+            <c:option value="DEBUG" name="DEBUG" />
+            <c:option value="PRODUCTION" name="PRODUCTION" />
+          </c:property-options>
+        </c:simple-property>
+      </parameters>
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
+
+    <operation name="setLoggingConfiguration" displayName="Update Logging Profile Configuration" description="Updates the contents for log4j profile configuration file.">
+      <parameters>
+        <c:simple-property name="profile" default="CURRENT">
+          <c:property-options>
+            <c:option value="CURRENT" name="CURRENT" />
+            <c:option value="DEFAULT" name="DEFAULT" />
+            <c:option value="DEBUG" name="DEBUG" />
+            <c:option value="PRODUCTION" name="PRODUCTION" />
+          </c:property-options>
+        </c:simple-property>
+        <c:simple-property name="contents" displayName="Contents" summary="true" description="Profile Contents" />
+      </parameters>
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
 
     <operation name="queryActivityContextLiveness" description="Queries Activity Context for liveness.">
       <results>
         <c:simple-property name="result" />
       </results>
     </operation>
+
+		<operation name="viewEventRouterStatistics" description="View statistical information about Event Router">
+      <parameters>
+        <c:simple-property name="filter" default="executors">
+          <c:property-options>
+            <c:option value="global" name="Global" />
+            <c:option value="executors" name="Executors" />
+            <c:option value="eventTypes" name="Event Types" />
+            <c:option value="executorsByEventTypes" name="Executors and Event Types" />
+            <c:option value="all" name="All" />
+          </c:property-options>
+        </c:simple-property>
+      </parameters>
+		  <results>
+		    <c:list-property name="statistics">
+		      <c:map-property name="EventRouterStatistics">
+		        <c:simple-property name="id" summary="true"/>
+		        <c:simple-property name="activitiesMapped" summary="true" type="integer"/>
+		        <c:simple-property name="averageEventRoutingTime" summary="true" type="integer"/>
+		        <c:simple-property name="executedTasks" summary="true" type="integer"/>
+		        <c:simple-property name="executingTime" summary="true" type="integer"/>
+		        <c:simple-property name="idleTime" summary="true" type="integer"/>
+            <c:simple-property name="miscTasksExecuted" summary="true" type="integer"/>
+            <c:simple-property name="eventsRouted" summary="true" type="integer"/>
+            <c:simple-property name="routingTime" summary="true" type="integer"/>
+		      </c:map-property>
+		    </c:list-property>
+		  </results>
+		</operation>
 
     <operation name="listActivityContexts" displayName="List all Activity Context" description="List all Activity Context details in this server">
 
@@ -103,6 +165,16 @@
     </operation>
 
     <metric property="state" displayName="State" dataType="trait" displayType="summary" />
+
+		<!-- Event Routing Statistics -->
+	  <metric property="activitiesMapped" displayName="Activities Mapped" dataType="measurement" measurementType="trendsup" displayType="summary"
+      description="Total activities mapped for all the event router executors" />
+	  <metric property="averageEventRoutingTime" displayName="Average Event Routing Time" dataType="measurement" measurementType="dynamic" displayType="summary"
+	    description="Average time spent to route one event (in ms)" />
+	  <metric property="executedTasks" displayName="Executed Tasks" dataType="measurement" measurementType="trendsup" displayType="summary" 
+	    description="Number of tasks executed, which is the sum of the events routed for each EventTypeID, and also the misc tasks executed" />
+    <metric property="miscTasksExecuted" displayName="Misc Tasks Executed" dataType="measurement" measurementType="trendsup" displayType="summary"
+      description="Number of misc tasks executed" />
 
     <service name="DeployableUnits" class="DeployableUnitComponent" discovery="DeployableUnitDiscoveryComponent" description="Deployable Units" createDeletePolicy="both" creationDataType="content">
       <plugin-configuration>
@@ -189,6 +261,24 @@
 
       <!-- Metric to show service state over time -->
       <metric property="state" displayName="State Code" dataType="trait" displayType="summary" />
+    </service>
+
+    <!-- JAIN SLEE Event Router Executor Component -->
+    <service name="Event Router Executor" class="ExecutorComponent" discovery="ExecutorDiscoveryComponent" description="Event Router Executors">
+	    <metric property="activitiesMapped" displayName="Activities Mapped" dataType="measurement" measurementType="trendsup" displayType="summary"
+	      description="Total activities mapped for all the event router executors" />
+	    <metric property="averageEventRoutingTime" displayName="Average Event Routing Time" dataType="measurement" measurementType="dynamic" displayType="summary"
+	      description="Average time spent to route one event (in ms)" />
+      <metric property="executedTasks" displayName="Executed Tasks" dataType="measurement" measurementType="trendsup" displayType="summary" 
+        description="Number of tasks executed, which is the sum of the events routed for each EventTypeID, and also the misc tasks executed" />
+      <metric property="executingTime" displayName="Executing Time" dataType="measurement" measurementType="trendsup" displayType="summary" 
+        description="Time spent on executing tasks, which is the sum of the time spent routing events for each EventTypeID, and also the time spent executing the misc tasks." />
+      <metric property="idleTime" displayName="Idle Time" dataType="measurement" measurementType="trendsup" displayType="summary" 
+        description="Total time the executor was idle, i.e., not executing tasks." />
+      <metric property="miscTasksExecuted" displayName="Misc Tasks Executed" dataType="measurement" measurementType="trendsup" displayType="summary"
+        description="Number of misc tasks executed" />
+      <metric property="miscTasksExecutingTime" displayName="Misc Tasks Executing Time" dataType="measurement" measurementType="trendsup" displayType="summary"
+        description="Time spent executing misc tasks." />
     </service>
 
     <!-- JAIN SLEE SBB Component -->
