@@ -28,6 +28,12 @@
 			</thead>
 			<tbody>
 				<row>
+			   		<entry>driver</entry>
+			   	    <entry>Configures driver of <acronym>MTP</acronym> layer  </entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry>TCP</entry>
+			    </row>
+				<row>
 			   		<entry>server.ip</entry>
 			   	    <entry>Configures address to which this stack connects to receive stream of <acronym>MTP</acronym> <acronym>MSU</acronym>  </entry>
 			   	    <entry>java.lang.String</entry>

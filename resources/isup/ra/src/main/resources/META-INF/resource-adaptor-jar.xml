@@ -22,6 +22,12 @@
 			</resource-adaptor-class>
 		</resource-adaptor-classes>
 		<config-property>
+			<description>Driver for MTP layer</description>
+			<config-property-name>driver</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>TCP</config-property-value>
+		</config-property>
+		<config-property>
 			<description>Streaming server address</description>
 			<config-property-name>server.ip</config-property-name>
 			<config-property-type>java.lang.String</config-property-type>

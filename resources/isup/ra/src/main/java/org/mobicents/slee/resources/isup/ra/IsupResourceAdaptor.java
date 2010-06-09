@@ -88,6 +88,7 @@ import org.mobicents.protocols.ss7.isup.message.UnequippedCICMessage;
 import org.mobicents.protocols.ss7.isup.message.User2UserInformationMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartAvailableMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartTestMessage;
+import org.mobicents.protocols.ss7.stream.MTPProviderFactory;
 import org.mobicents.protocols.ss7.stream.tcp.M3UserConnector;
 import org.mobicents.protocols.ss7.stream.tcp.StartFailedException;
 import org.mobicents.slee.resources.ss7.isup.events.TransactionEnded;
@@ -132,14 +133,15 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     //////////////////
     // MTP provider //
     //////////////////
-    private M3UserConnector mtpProvider;
+    //private M3UserConnector mtpProvider;
     //config for provider
     private static final String _DEFAULT_serverAddress = "localhost";
     private static final String _DEFAULT_serverPort = "1345";
+    private static final String _DEFAULT_driver = MTPProviderFactory._DRIVER_TCP;
     
     private String serverAddress = _DEFAULT_serverAddress;
     private String serverPort = _DEFAULT_serverPort;
-
+    private String driver = _DEFAULT_driver;
 	
     
     
@@ -189,10 +191,11 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     	Properties props = new Properties();
     	props.put(M3UserConnector._PROPERTY_IP, this.serverAddress);
     	props.put(M3UserConnector._PROPERTY_PORT, this.serverPort);
-    	this.mtpProvider = new M3UserConnector(props);
+    	props.put(MTPProviderFactory._POPERTY_DRIVER_CLASS, this.driver);
+    	//this.mtpProvider = new M3UserConnector(props);
     	
     	
-    	props = new Properties();
+    	//props = new Properties();
     	Property p = configProperties.getProperty(PROPERTY_DPC);
     	props.put(PROPERTY_DPC, p.getValue());
     	p = configProperties.getProperty(PROPERTY_OPC);
@@ -202,7 +205,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     	p = configProperties.getProperty(PROPERTY_SSI);
     	props.put(PROPERTY_SSI, p.getValue());
     	
-    	this.stack = new ISUPStackImpl(this.mtpProvider, props);
+    	this.stack = new ISUPStackImpl(props);
     	this.isupProvider = this.stack.getIsupProvider();
     	this.raProvider = new RAISUPProviderImpl();
     }
@@ -214,11 +217,11 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     public void raActive() {
     	//this.stack  = new ISUPMtpProviderImpl();    	
     	this.stack.start();
-    	try {
-			this.mtpProvider.start();
-		} catch (Exception e) {
-			throw new RuntimeException();
-		}
+//    	try {
+//			this.mtpProvider.start();
+//		} catch (Exception e) {
+//			throw new RuntimeException();
+//		}
 		this.stack.getIsupProvider().addListener(this);
   
     }
@@ -243,6 +246,11 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     	if(p!=null)
     	{
     		this.serverPort = (String) p.getValue();
+    	}
+    	p =configProperties.getProperty(MTPProviderFactory._POPERTY_DRIVER_CLASS);
+    	if(p!=null)
+    	{
+    		this.driver = (String) p.getValue();
     	}
     	  try{
           	InetAddress.getByName(this.serverAddress);
