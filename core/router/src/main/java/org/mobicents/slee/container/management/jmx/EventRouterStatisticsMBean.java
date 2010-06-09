@@ -5,6 +5,8 @@ import javax.slee.management.ManagementException;
 
 public interface EventRouterStatisticsMBean {
 
+    public static final String OBJECT_NAME = "org.mobicents.slee:name=EventRouterStatistics";
+    
 	public int getActivitiesMapped() throws ManagementException;
 
 	public int getActivitiesMapped(int executor) throws ManagementException;
