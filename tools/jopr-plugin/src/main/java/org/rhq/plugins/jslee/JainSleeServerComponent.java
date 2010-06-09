@@ -180,7 +180,7 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     if(filter.equals("global")) {
       doGetERSGlobal(connection, statistics);
     }
-    if(filter.equals("executors")) {
+    else if(filter.equals("executors")) {
       doGetERSExecutors(connection, statistics);
     }
     else if(filter.equals("eventTypes")) {
