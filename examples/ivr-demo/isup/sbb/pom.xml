@@ -5,22 +5,26 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>ivr-demo-service-sip</artifactId>
+		<artifactId>ivr-demo-service-isup</artifactId>
 		<groupId>org.mobicents.examples</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>ivr-demo-service-sip-sbb</artifactId>
+	<artifactId>ivr-demo-service-isup-sbb</artifactId>
 	<groupId>org.mobicents.examples</groupId>
 	<version>1.0.0-SNAPSHOT</version>
 
-	<name>Interactive Voice Response [SIP,SBB]</name>
+	<name>Interactive Voice Response [ISUP,SBB]</name>
 	<dependencies>
-
+		<dependency>
+			<groupId>org.mobicents.protocols.ss7.isup</groupId>
+			<artifactId>isup-api</artifactId>
+			<version>1.0.0.BETA1-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
-			<artifactId>sip11-ratype</artifactId>
-			<version>${mobicents.resources.sip11.version}</version>
+			<artifactId>isup-ratype</artifactId>
+			<version>${mobicents.resources.isup.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.mobicents.slee.demo.ivr.media;
+package org.mobicents.slee.demo.ivr.sip;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.CreateException;

@@ -7,6 +7,12 @@
 		<version>12</version>
 	</parent -->
     
+	<parent>
+		<artifactId>mobicents-parent</artifactId>
+		<groupId>org.mobicents</groupId>
+		<version>2.6</version>
+	</parent>
+
 	<artifactId>ivr-demo</artifactId>
 	<groupId>org.mobicents.examples</groupId>
 	<version>1.0.0-SNAPSHOT</version>    
@@ -17,12 +23,14 @@
     <modules>
 	    <module>service</module>
 	    <module>sip</module>
+	    <module>isup</module>
 	    <module>ejb</module>
     </modules>
     
 	<properties>
-		<mobicents.resources.sip11.version>2.0.0-GA</mobicents.resources.sip11.version>
-		<mobicents.resources.mgcp.version>2.0.0-GA</mobicents.resources.mgcp.version>
+		<mobicents.resources.sip11.version>2.0.0.GA</mobicents.resources.sip11.version>
+		<mobicents.resources.mgcp.version>2.0.0.GA</mobicents.resources.mgcp.version>
+		<mobicents.resources.isup.version>2.0.0-SNAPSHOT</mobicents.resources.isup.version>
 		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
 		<mobicents.tools.mavenplugin.library.version>1.0.0.BETA1</mobicents.tools.mavenplugin.library.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
@@ -129,7 +137,7 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-example-mgcp-demo</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-example-ivr-demo</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		

@@ -1,9 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-package org.mobicents.slee.demo.ivr.sip;
+package org.mobicents.slee.demo.ivr.isup;
 
 import jain.protocol.ip.mgcp.message.ModifyConnectionResponse;
 import jain.protocol.ip.mgcp.message.parms.ReturnCode;
@@ -13,9 +8,9 @@ import javax.slee.ActivityContextInterface;
 
 /**
  *
- * @author kulikov
+ * @author amit bhayani
  */
-public abstract class ConnectionModifiedSbb extends BaseSbb {
+public abstract class IsupConnectionModifiedSbb extends BaseSbb {
 
     public void onModified(ModifyConnectionResponse response, ActivityContextInterface aci) {
         ReturnCode returnCode = response.getReturnCode();
@@ -23,11 +18,11 @@ public abstract class ConnectionModifiedSbb extends BaseSbb {
             case ReturnCode.TRANSACTION_BEING_EXECUTED :
                 break;
             case ReturnCode.TRANSACTION_EXECUTED_NORMALLY :
-                setState(ConnectionState.CONNECTION_CONNECTED);
+                setState(IsupConnectionState.CONNECTION_CONNECTED);
                 tracer.info(String.format("CallID = %s, State=%s ", getCallID(), getState()));                
                 break;
             default :
-                setState(ConnectionState.CONNECTION_FAILED);
+                setState(IsupConnectionState.CONNECTION_FAILED);
                 tracer.info(String.format("CallID = %s, State=%s ", getCallID(), getState()));                
                 
 //                Response cancel = messageFactory.createResponse(Response.SERVER_INTERNAL_ERROR, getRequest());

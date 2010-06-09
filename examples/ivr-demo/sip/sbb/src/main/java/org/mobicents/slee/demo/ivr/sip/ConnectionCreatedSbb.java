@@ -17,7 +17,6 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.ActivityContextInterface;
 
-import org.mobicents.slee.demo.ivr.media.ConnectionState;
 
 /**
  *

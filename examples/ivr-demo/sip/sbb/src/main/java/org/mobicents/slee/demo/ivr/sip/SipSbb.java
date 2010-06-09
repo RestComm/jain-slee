@@ -29,7 +29,6 @@ import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.sip.CancelRequestEvent;
 import net.java.slee.resource.sip.DialogActivity;
 import org.mobicents.slee.demo.ivr.CallConnectedEvent;
-import org.mobicents.slee.demo.ivr.media.ConnectionState;
 
 /**
  *
@@ -39,7 +38,7 @@ public abstract class SipSbb extends BaseSbb {
 
     
     private Request request;
-    private SbbLocalObject crcxResponseHandler;
+    
     
     public void onInvite(RequestEvent event, ActivityContextInterface aci) {
         request = event.getRequest();
@@ -125,7 +124,7 @@ public abstract class SipSbb extends BaseSbb {
         activityContextInterface.attach(sbbContext.getSbbLocalObject());
 
         //update response handler and state
-        crcxResponseHandler = this.getSbbLocalObject("ConnectionCreated");        
+        this.setCrcxResponseHandler(this.getSbbLocalObject("ConnectionCreated"));        
         setState(ConnectionState.CREATING_CONNECTION);
         
         //sending create connection request 
@@ -135,15 +134,15 @@ public abstract class SipSbb extends BaseSbb {
 
     public void onCreateConnectionResponse(CreateConnectionResponse response, ActivityContextInterface aci) {
         tracer.info(String.format("CallID = %s, State=%s, Receive CRCX response",getCallID(), getState()));
-        System.out.println("handler=" + crcxResponseHandler);
-        attach(crcxResponseHandler);
+        System.out.println("handler=" + this.getCrcxResponseHandler());
+        attach(this.getCrcxResponseHandler());
     }
     
     public void onCallCanceled(CancelRequestEvent event, ActivityContextInterface aci) {
         tracer.info(String.format("CallID = %s, State=%s, Receive Cancel request ", getCallID(), getState()));
         setState(ConnectionState.CALL_CANCELED);
         
-        crcxResponseHandler = this.getSbbLocalObject("ConnectionDeleted");
+        this.setCrcxResponseHandler(this.getSbbLocalObject("ConnectionDeleted"));
         tracer.info(String.format("CallID = %s, State=%s", getCallID(), getState()));
     }
     
@@ -214,5 +213,8 @@ public abstract class SipSbb extends BaseSbb {
     public abstract ChildRelation getConnectionModifiedSbb();
     
     public abstract void fireCallConnected(CallConnectedEvent event, ActivityContextInterface aci, javax.slee.Address address);
+    
+    public abstract void setCrcxResponseHandler(SbbLocalObject crcxResponseHandler);
+    public abstract SbbLocalObject getCrcxResponseHandler();
     
 }

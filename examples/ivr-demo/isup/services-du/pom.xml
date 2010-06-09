@@ -5,20 +5,20 @@
 	<packaging>jainslee-du</packaging>
 
 	<parent>
-		<artifactId>ivr-demo-service-sip</artifactId>
+		<artifactId>ivr-demo-service-isup</artifactId>
 		<groupId>org.mobicents.examples</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>ivr-demo-service-sip-DU</artifactId>
+	<artifactId>ivr-demo-service-isup-DU</artifactId>
 	<groupId>org.mobicents.examples</groupId>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>Interactive Voice Response [SIP, Deployable Unit]</name>
+	<name>Interactive Voice Response [ISUP, Deployable Unit]</name>
 	<dependencies>
 		<dependency>
-			<artifactId>ivr-demo-service-sip-sbb</artifactId>
+			<artifactId>ivr-demo-service-isup-sbb</artifactId>
 			<groupId>org.mobicents.examples</groupId>
-			<version>${pom.version}</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>

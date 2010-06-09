@@ -22,8 +22,7 @@ import net.java.slee.resource.mgcp.MgcpActivityContextInterfaceFactory;
 import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
-import org.mobicents.slee.demo.ivr.media.Connection;
-import org.mobicents.slee.demo.ivr.media.ConnectionState;
+
 
 /**
  *

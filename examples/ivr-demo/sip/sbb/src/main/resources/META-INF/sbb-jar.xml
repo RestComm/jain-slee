@@ -31,6 +31,9 @@
                 <sbb-abstract-class-name>
 					org.mobicents.slee.demo.ivr.sip.SipSbb
                 </sbb-abstract-class-name>
+				<cmp-field>
+					<cmp-field-name>crcxResponseHandler</cmp-field-name>
+				</cmp-field>                
                 <get-child-relation-method>
                     <sbb-alias-ref>ConnectionCreatedSbb</sbb-alias-ref>
                     <get-child-relation-method-name>getConnectionCreatedSbb</get-child-relation-method-name>
@@ -49,7 +52,7 @@
             </sbb-abstract-class>
             <sbb-activity-context-interface>
                 <sbb-activity-context-interface-name>
-                    org.mobicents.slee.demo.ivr.media.Connection
+                    org.mobicents.slee.demo.ivr.sip.Connection
                 </sbb-activity-context-interface-name>
             </sbb-activity-context-interface>
         </sbb-classes>
@@ -189,7 +192,7 @@
             </sbb-abstract-class>
             <sbb-activity-context-interface>
                 <sbb-activity-context-interface-name>
-                    org.mobicents.slee.demo.ivr.media.Connection
+                    org.mobicents.slee.demo.ivr.sip.Connection
                 </sbb-activity-context-interface-name>
             </sbb-activity-context-interface>
         </sbb-classes>
@@ -286,7 +289,7 @@
             </sbb-abstract-class>
             <sbb-activity-context-interface>
                 <sbb-activity-context-interface-name>
-                    org.mobicents.slee.demo.ivr.media.Connection
+                    org.mobicents.slee.demo.ivr.sip.Connection
                 </sbb-activity-context-interface-name>
             </sbb-activity-context-interface>
         </sbb-classes>
@@ -404,7 +407,7 @@
             </sbb-abstract-class>
             <sbb-activity-context-interface>
                 <sbb-activity-context-interface-name>
-                    org.mobicents.slee.demo.ivr.media.Connection
+                    org.mobicents.slee.demo.ivr.sip.Connection
                 </sbb-activity-context-interface-name>
             </sbb-activity-context-interface>
         </sbb-classes>
