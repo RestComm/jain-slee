@@ -94,7 +94,7 @@ public class MobicentsManagement extends ServiceMBeanSupport implements
     }
 
 	private String getLog4jPath(String profile) {
-	  return (profile == null || profile.equals("") || profile.equals("current")) ? log4jConfigFilePath : log4jTemplatesPath + profile;
+	  return (profile == null || profile.equals("") || profile.equalsIgnoreCase("current")) ? log4jConfigFilePath : log4jTemplatesPath + profile;
 	}
 
 	private String readFile(String path) throws IOException {
