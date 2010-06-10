@@ -33,10 +33,9 @@ public abstract class IsupSbb extends BaseSbb {
 
 		// generate call identifier
 		callIdentifier = Integer.toHexString(CALL_ID_GEN++);
-		this.setCallID(callIdentifier);
 
-		setState(IsupConnectionState.NULL);
-		tracer.info("CallID=" + callIdentifier + ", State=" + getState() + ", Receive incoming call");
+		// setState(IsupConnectionState.NULL);
+		tracer.info("CallID=" + callIdentifier + ", Receive incoming call");
 
 		try {
 			// Send ACM
@@ -73,13 +72,15 @@ public abstract class IsupSbb extends BaseSbb {
 			// attaching sbb to the connection activity
 			activityContextInterface.attach(sbbContext.getSbbLocalObject());
 
+			this.setCallID(callIdentifier);
+
 			// update response handler and state
 			this.setCrcxResponseHandler(this.getSbbLocalObject("ConnectionCreated"));
 			setState(IsupConnectionState.CREATING_CONNECTION);
 
 			// sending create connection request
 			tracer.info(String.format("CallID = %s, State=%s, Sending request to %s", callIdentifier, getState(),
-					ivrEndpointID));
+					bChhanEndpointID));
 			mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { crcx });
 		} catch (Exception ex) {
 			setState(IsupConnectionState.CONNECTION_FAILED);

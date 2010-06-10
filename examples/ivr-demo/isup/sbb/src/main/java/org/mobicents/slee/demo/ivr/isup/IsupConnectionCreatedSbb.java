@@ -24,21 +24,23 @@ public abstract class IsupConnectionCreatedSbb extends BaseSbb {
 			break;
 		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
 
-			// IVR Endpoint
-			String endpoint = response.getSpecificEndpointIdentifier().getLocalEndpointName();
+			// DS0 Endpoint
+			String bChannEndpoint = response.getSpecificEndpointIdentifier().getLocalEndpointName();
 
 			ActivityContextInterface isupSerTxActivity = getISUPServerTxActivity();
-			asSbbActivityContextInterface(isupSerTxActivity).setIVREndpoint(endpoint);
-
-			String bChannEndpoint = response.getSecondEndpointIdentifier().getLocalEndpointName();
 			asSbbActivityContextInterface(isupSerTxActivity).setBChannEndpoint(bChannEndpoint);
+
+			// IVR Endpoint
+			String ivrEndpoint = response.getSecondEndpointIdentifier().getLocalEndpointName();
+			asSbbActivityContextInterface(isupSerTxActivity).setIVREndpoint(ivrEndpoint);
 
 			setState(IsupConnectionState.CONNECTION_CONNECTED);
 			tracer.info(String.format("CallID = %s, State=%s", getCallID(), getState()));
-			
-            CallConnectedEvent evt = new CallConnectedEvent("79023629581", this.getEndpointID(), this.getConnectionID());
-            Address address = new Address(AddressPlan.UNDEFINED, "IVR");
-            this.fireCallConnected(evt, this.getConnectionActivity(), address);			
+
+			CallConnectedEvent evt = new CallConnectedEvent("79023629581", this.getEndpointID(), response
+					.getSecondConnectionIdentifier().toString());
+			Address address = new Address(AddressPlan.UNDEFINED, "IVR");
+			this.fireCallConnected(evt, this.getConnectionActivity(), address);
 
 			break;
 		default:
@@ -46,8 +48,7 @@ public abstract class IsupConnectionCreatedSbb extends BaseSbb {
 			// TODO Send REL
 		}
 	}
-	
-	
+
 	public abstract void fireCallConnected(CallConnectedEvent event, ActivityContextInterface aci,
 			javax.slee.Address address);
 

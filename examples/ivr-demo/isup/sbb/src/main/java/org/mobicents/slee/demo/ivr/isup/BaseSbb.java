@@ -106,52 +106,52 @@ public abstract class BaseSbb implements Sbb {
 	public abstract IsupConnection asSbbActivityContextInterface(ActivityContextInterface aci);
 
 	protected IsupConnectionState getState() {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		return this.asSbbActivityContextInterface(activity).getState();
 	}
 
 	protected void setState(IsupConnectionState state) {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		asSbbActivityContextInterface(activity).setState(state);
 	}
 
 	protected String getEndpointID() {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		return this.asSbbActivityContextInterface(activity).getIVREndpoint();
 	}
 
 	protected void setEndpoint(String endpoint) {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		asSbbActivityContextInterface(activity).setIVREndpoint(endpoint);
 	}
 
 	protected String getBChannEndpointID() {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		return this.asSbbActivityContextInterface(activity).getBChannEndpoint();
 	}
 
 	protected void setBChannEndpointID(String endpoint) {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		asSbbActivityContextInterface(activity).setBChannEndpoint(endpoint);
 	}
 
 	protected String getConnectionID() {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		return this.asSbbActivityContextInterface(activity).getConnectionID();
 	}
 
 	protected void setConnectionID(String connectionID) {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		asSbbActivityContextInterface(activity).setConnectionID(connectionID);
 	}
 
 	protected String getCallID() {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		return this.asSbbActivityContextInterface(activity).getCallID();
 	}
 
 	protected void setCallID(String callID) {
-		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		ActivityContextInterface activity = this.getConnectionActivity();
 		asSbbActivityContextInterface(activity).setCallID(callID);
 	}
 
