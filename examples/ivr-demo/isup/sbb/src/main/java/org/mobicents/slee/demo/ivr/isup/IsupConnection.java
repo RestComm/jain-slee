@@ -14,11 +14,14 @@ public interface IsupConnection extends ActivityContextInterface {
     public String getCallID();
     public void setCallID(String callID);
     
-    public String getEndpoint();
-    public void setEndpoint(String endpoint);
+    public String getIVREndpoint();
+    public void setIVREndpoint(String endpoint);
     
     public String getConnectionID();
     public void setConnectionID(String connectionID);
+    
+    public String getBChannEndpoint();
+    public void setBChannEndpoint(String bChannEndpoint);
     
     public void setRequest(InitialAddressMessage request);
     public InitialAddressMessage getRequest();

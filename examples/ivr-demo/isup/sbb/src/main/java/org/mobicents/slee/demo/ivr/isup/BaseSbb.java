@@ -1,5 +1,11 @@
 package org.mobicents.slee.demo.ivr.isup;
 
+import jain.protocol.ip.mgcp.JainMgcpEvent;
+import jain.protocol.ip.mgcp.message.DeleteConnection;
+import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
+
+import java.io.IOException;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.slee.ActivityContextInterface;
@@ -17,7 +23,9 @@ import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import org.mobicents.protocols.ss7.isup.ISUPMessageFactory;
 import org.mobicents.protocols.ss7.isup.ISUPParameterFactory;
 import org.mobicents.protocols.ss7.isup.ISUPServerTransaction;
+import org.mobicents.protocols.ss7.isup.ParameterRangeInvalidException;
 import org.mobicents.protocols.ss7.isup.message.ISUPMessage;
+import org.mobicents.protocols.ss7.isup.message.ReleaseMessage;
 import org.mobicents.slee.resources.ss7.isup.ratype.RAISUPProvider;
 
 /**
@@ -26,11 +34,14 @@ import org.mobicents.slee.resources.ss7.isup.ratype.RAISUPProvider;
  */
 public abstract class BaseSbb implements Sbb {
 
-	protected static int CALL_ID_GEN = 1;
+	protected static int CALL_ID_GEN = 1000;
 	protected static int GEN = 2000;
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
-	public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
+	public final static int MGCP_PEER_PORT = 2427;
+	public final static String IVR_ENDPOINT_NAME = "/mobicents/media/IVR/$";
+
+	public final static String B_CHANN_ENDPOINT_NAME = "/mobicents/ds0/";
 
 	protected SbbContext sbbContext;
 
@@ -106,12 +117,22 @@ public abstract class BaseSbb implements Sbb {
 
 	protected String getEndpointID() {
 		ActivityContextInterface activity = this.getISUPServerTxActivity();
-		return this.asSbbActivityContextInterface(activity).getEndpoint();
+		return this.asSbbActivityContextInterface(activity).getIVREndpoint();
 	}
 
 	protected void setEndpoint(String endpoint) {
 		ActivityContextInterface activity = this.getISUPServerTxActivity();
-		asSbbActivityContextInterface(activity).setEndpoint(endpoint);
+		asSbbActivityContextInterface(activity).setIVREndpoint(endpoint);
+	}
+
+	protected String getBChannEndpointID() {
+		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		return this.asSbbActivityContextInterface(activity).getBChannEndpoint();
+	}
+
+	protected void setBChannEndpointID(String endpoint) {
+		ActivityContextInterface activity = this.getISUPServerTxActivity();
+		asSbbActivityContextInterface(activity).setBChannEndpoint(endpoint);
 	}
 
 	protected String getConnectionID() {
@@ -160,8 +181,7 @@ public abstract class BaseSbb implements Sbb {
 
 	public void sbbRolledBack(RolledBackContext arg0) {
 	}
-	
-	
+
 	public InitialEventSelector cicSelect(InitialEventSelector ies) {
 		Object event = ies.getEvent();
 		if (event instanceof ISUPMessage) {
@@ -171,6 +191,32 @@ public abstract class BaseSbb implements Sbb {
 		}
 
 		return ies;
+	}
+
+	protected void sendREL() {
+		// Send REL
+		ReleaseMessage rel = isupMessageFactory.createREL();
+		// TODO fill REL parameters
+		try {
+			this.isupProvider.sendMessage(rel);
+		} catch (ParameterRangeInvalidException e) {
+			tracer
+					.severe(String.format("CallID=%s, State=%, Unexpected internal error", callIdentifier, getState()),
+							e);
+		} catch (IOException e) {
+			tracer
+					.severe(String.format("CallID=%s, State=%, Unexpected internal error", callIdentifier, getState()),
+							e);
+		}
+	}
+
+	protected void deleteDS0Endpoint() {
+		String endpointName = this.getBChannEndpointID();
+		EndpointIdentifier endpointID = new EndpointIdentifier(endpointName, JBOSS_BIND_ADDRESS + ":" + MGCP_PEER_PORT);
+		DeleteConnection deleteConnection = new DeleteConnection(this, endpointID);
+		deleteConnection.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
+		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { deleteConnection });
+
 	}
 
 }

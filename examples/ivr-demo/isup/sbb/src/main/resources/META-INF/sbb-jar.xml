@@ -20,39 +20,36 @@
 			<sbb-version>1.0</sbb-version>
 			<sbb-alias>IsupConnectionDeletedSbb</sbb-alias>
 		</sbb-ref>
-		<sbb-ref>
-			<sbb-name>IsupConnectionModifiedSbb</sbb-name>
-			<sbb-vendor>org.mobicents</sbb-vendor>
-			<sbb-version>1.0</sbb-version>
-			<sbb-alias>IsupConnectionModifiedSbb</sbb-alias>
-		</sbb-ref>
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>
 					org.mobicents.slee.demo.ivr.isup.IsupSbb
 				</sbb-abstract-class-name>
+				<cmp-field>
+					<cmp-field-name>crcxResponseHandler</cmp-field-name>
+				</cmp-field>
+				
 				<get-child-relation-method>
-					<sbb-alias-ref>IsupConnectionCreatedSbb</sbb-alias-ref>
+					<sbb-alias-ref>
+						IsupConnectionCreatedSbb
+					</sbb-alias-ref>
 					<get-child-relation-method-name>
 						getIsupConnectionCreatedSbb
 					</get-child-relation-method-name>
 					<default-priority>0</default-priority>
 				</get-child-relation-method>
+				
 				<get-child-relation-method>
-					<sbb-alias-ref>IsupConnectionDeletedSbb</sbb-alias-ref>
+					<sbb-alias-ref>
+						IsupConnectionDeletedSbb
+					</sbb-alias-ref>
 					<get-child-relation-method-name>
 						getIsupConnectionDeletedSbb
 					</get-child-relation-method-name>
 					<default-priority>0</default-priority>
 				</get-child-relation-method>
-				<get-child-relation-method>
-					<sbb-alias-ref>IsupConnectionModifiedSbb</sbb-alias-ref>
-					<get-child-relation-method-name>
-						getIsupConnectionModifiedSbb
-					</get-child-relation-method-name>
-					<default-priority>0</default-priority>
-				</get-child-relation-method>
 			</sbb-abstract-class>
+			
 			<sbb-activity-context-interface>
 				<sbb-activity-context-interface-name>
 					org.mobicents.slee.demo.ivr.isup.IsupConnection
@@ -74,7 +71,7 @@
 				cicSelect
 			</initial-event-selector-method-name>
 		</event>
-		
+
 		<event event-direction="Receive" initial-event="True">
 			<event-name>Release</event-name>
 			<event-type-ref>
@@ -110,16 +107,7 @@
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
 		</event>
-		<event event-direction="Fire" initial-event="False">
-			<event-name>CallConnected</event-name>
-			<event-type-ref>
-				<event-type-name>
-					org.mobicents.slee.service.ivr.CALL_CONNECTED
-				</event-type-name>
-				<event-type-vendor>org.mobicents</event-type-vendor>
-				<event-type-version>1.0</event-type-version>
-			</event-type-ref>
-		</event>
+
 		<activity-context-attribute-alias>
 			<attribute-alias-name>request</attribute-alias-name>
 			<sbb-activity-context-attribute-name>
@@ -127,11 +115,17 @@
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
 		<activity-context-attribute-alias>
-			<attribute-alias-name>endpoint</attribute-alias-name>
+			<attribute-alias-name>iVREndpoint</attribute-alias-name>
 			<sbb-activity-context-attribute-name>
-				endpoint
+				iVREndpoint
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
+		<activity-context-attribute-alias>
+			<attribute-alias-name>bChannEndpoint</attribute-alias-name>
+			<sbb-activity-context-attribute-name>
+				bChannEndpoint
+			</sbb-activity-context-attribute-name>
+		</activity-context-attribute-alias>		
 		<activity-context-attribute-alias>
 			<attribute-alias-name>callID</attribute-alias-name>
 			<sbb-activity-context-attribute-name>
@@ -150,6 +144,14 @@
 				state
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
+
+		<activity-context-attribute-alias>
+			<attribute-alias-name>bChannEndpoint</attribute-alias-name>
+			<sbb-activity-context-attribute-name>
+				bChannEndpoint
+			</sbb-activity-context-attribute-name>
+		</activity-context-attribute-alias>
+
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>
@@ -229,6 +231,18 @@
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
 		</event>
+		
+		<event event-direction="Fire" initial-event="False">
+			<event-name>CallConnected</event-name>
+			<event-type-ref>
+				<event-type-name>
+					org.mobicents.slee.service.ivr.CALL_CONNECTED
+				</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>		
+		
 		<activity-context-attribute-alias>
 			<attribute-alias-name>request</attribute-alias-name>
 			<sbb-activity-context-attribute-name>
@@ -236,9 +250,15 @@
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
 		<activity-context-attribute-alias>
-			<attribute-alias-name>endpoint</attribute-alias-name>
+			<attribute-alias-name>iVREndpoint</attribute-alias-name>
 			<sbb-activity-context-attribute-name>
-				endpoint
+				iVREndpoint
+			</sbb-activity-context-attribute-name>
+		</activity-context-attribute-alias>
+		<activity-context-attribute-alias>
+			<attribute-alias-name>bChannEndpoint</attribute-alias-name>
+			<sbb-activity-context-attribute-name>
+				bChannEndpoint
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
 		<activity-context-attribute-alias>
@@ -259,6 +279,14 @@
 				state
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
+		
+		<activity-context-attribute-alias>
+			<attribute-alias-name>bChannEndpoint</attribute-alias-name>
+			<sbb-activity-context-attribute-name>
+				bChannEndpoint
+			</sbb-activity-context-attribute-name>
+		</activity-context-attribute-alias>
+				
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>
@@ -368,9 +396,15 @@
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
 		<activity-context-attribute-alias>
-			<attribute-alias-name>endpoint</attribute-alias-name>
+			<attribute-alias-name>iVREndpoint</attribute-alias-name>
 			<sbb-activity-context-attribute-name>
-				endpoint
+				iVREndpoint
+			</sbb-activity-context-attribute-name>
+		</activity-context-attribute-alias>
+		<activity-context-attribute-alias>
+			<attribute-alias-name>bChannEndpoint</attribute-alias-name>
+			<sbb-activity-context-attribute-name>
+				bChannEndpoint
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
 		<activity-context-attribute-alias>
@@ -391,116 +425,15 @@
 				state
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
+		
+		<activity-context-attribute-alias>
+			<attribute-alias-name>bChannEndpoint</attribute-alias-name>
+			<sbb-activity-context-attribute-name>
+				bChannEndpoint
+			</sbb-activity-context-attribute-name>
+		</activity-context-attribute-alias>		
+		
 		<resource-adaptor-type-binding>
-			<resource-adaptor-type-ref>
-				<resource-adaptor-type-name>
-					ISUPResourceAdaptorType
-				</resource-adaptor-type-name>
-				<resource-adaptor-type-vendor>
-					net.java
-				</resource-adaptor-type-vendor>
-				<resource-adaptor-type-version>
-					1.0
-				</resource-adaptor-type-version>
-			</resource-adaptor-type-ref>
-			<activity-context-interface-factory-name>
-				slee/resources/isup/1.0/acifactory
-			</activity-context-interface-factory-name>
-			<resource-adaptor-entity-binding>
-				<resource-adaptor-object-name>
-					slee/resources/isup/1.0/provider
-				</resource-adaptor-object-name>
-				<resource-adaptor-entity-link>
-					ISUPResourceAdaptor
-				</resource-adaptor-entity-link>
-			</resource-adaptor-entity-binding>
-		</resource-adaptor-type-binding>
-		<resource-adaptor-type-binding>
-			<resource-adaptor-type-ref>
-				<resource-adaptor-type-name>
-					jain-mgcp
-				</resource-adaptor-type-name>
-				<resource-adaptor-type-vendor>
-					net.java
-				</resource-adaptor-type-vendor>
-				<resource-adaptor-type-version>
-					2.0
-				</resource-adaptor-type-version>
-			</resource-adaptor-type-ref>
-			<activity-context-interface-factory-name>
-				slee/resources/jainmgcp/2.0/acifactory
-			</activity-context-interface-factory-name>
-			<resource-adaptor-entity-binding>
-				<resource-adaptor-object-name>
-					slee/resources/jainmgcp/2.0/provider
-				</resource-adaptor-object-name>
-				<resource-adaptor-entity-link>
-					MGCPRA
-				</resource-adaptor-entity-link>
-			</resource-adaptor-entity-binding>
-		</resource-adaptor-type-binding>
-	</sbb>
-	<sbb id="connection-modified-sbb">
-		<description>
-			Transition from state DELETING to DELETED
-		</description>
-		<sbb-name>IsupConnectionModifiedSbb</sbb-name>
-		<sbb-vendor>org.mobicents</sbb-vendor>
-		<sbb-version>1.0</sbb-version>
-		<sbb-alias>IsupConnectionModifiedSbb</sbb-alias>
-		<sbb-classes>
-			<sbb-abstract-class>
-				<sbb-abstract-class-name>
-					org.mobicents.slee.demo.ivr.isup.IsupConnectionModifiedSbb
-				</sbb-abstract-class-name>
-			</sbb-abstract-class>
-			<sbb-activity-context-interface>
-				<sbb-activity-context-interface-name>
-					org.mobicents.slee.demo.ivr.isup.IsupConnection
-				</sbb-activity-context-interface-name>
-			</sbb-activity-context-interface>
-		</sbb-classes>
-		<event event-direction="Receive" initial-event="False">
-			<event-name>Modified</event-name>
-			<event-type-ref>
-				<event-type-name>
-					net.java.slee.resource.mgcp.MODIFY_CONNECTION_RESPONSE
-				</event-type-name>
-				<event-type-vendor>net.java</event-type-vendor>
-				<event-type-version>1.0</event-type-version>
-			</event-type-ref>
-		</event>
-		<activity-context-attribute-alias>
-			<attribute-alias-name>request</attribute-alias-name>
-			<sbb-activity-context-attribute-name>
-				request
-			</sbb-activity-context-attribute-name>
-		</activity-context-attribute-alias>
-		<activity-context-attribute-alias>
-			<attribute-alias-name>endpoint</attribute-alias-name>
-			<sbb-activity-context-attribute-name>
-				endpoint
-			</sbb-activity-context-attribute-name>
-		</activity-context-attribute-alias>
-		<activity-context-attribute-alias>
-			<attribute-alias-name>callID</attribute-alias-name>
-			<sbb-activity-context-attribute-name>
-				callID
-			</sbb-activity-context-attribute-name>
-		</activity-context-attribute-alias>
-		<activity-context-attribute-alias>
-			<attribute-alias-name>connectionID</attribute-alias-name>
-			<sbb-activity-context-attribute-name>
-				connectionID
-			</sbb-activity-context-attribute-name>
-		</activity-context-attribute-alias>
-		<activity-context-attribute-alias>
-			<attribute-alias-name>state</attribute-alias-name>
-			<sbb-activity-context-attribute-name>
-				state
-			</sbb-activity-context-attribute-name>
-		</activity-context-attribute-alias>
-				<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>
 					ISUPResourceAdaptorType

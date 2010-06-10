@@ -7,18 +7,19 @@ import jain.protocol.ip.mgcp.message.parms.CallIdentifier;
 import jain.protocol.ip.mgcp.message.parms.ConnectionMode;
 import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 
+import java.io.IOException;
+
 import javax.slee.ActivityContextInterface;
 import javax.slee.ChildRelation;
-import javax.slee.InitialEventSelector;
 import javax.slee.SbbLocalObject;
 
 import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 
-import org.mobicents.protocols.ss7.isup.message.ISUPMessage;
+import org.mobicents.protocols.ss7.isup.ParameterRangeInvalidException;
+import org.mobicents.protocols.ss7.isup.message.AddressCompleteMessage;
 import org.mobicents.protocols.ss7.isup.message.InitialAddressMessage;
 import org.mobicents.protocols.ss7.isup.message.ReleaseCompleteMessage;
 import org.mobicents.protocols.ss7.isup.message.ReleaseMessage;
-import org.mobicents.slee.demo.ivr.CallConnectedEvent;
 
 /**
  * 
@@ -26,9 +27,7 @@ import org.mobicents.slee.demo.ivr.CallConnectedEvent;
  */
 public abstract class IsupSbb extends BaseSbb {
 
-	private SbbLocalObject crcxResponseHandler;
-	
-	//ISUP Event Handlers
+	// ISUP Event Handlers
 
 	public void onInitialAddressMessage(InitialAddressMessage event, ActivityContextInterface aci) {
 
@@ -39,64 +38,114 @@ public abstract class IsupSbb extends BaseSbb {
 		setState(IsupConnectionState.NULL);
 		tracer.info("CallID=" + callIdentifier + ", State=" + getState() + ", Receive incoming call");
 
-		// now we are going to create connection.
-		// preparing MGCP create connection request
-
-		CallIdentifier callID = new CallIdentifier(callIdentifier);
-		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, JBOSS_BIND_ADDRESS + ":2427");
-
-		CreateConnection crcx = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
-
-		int txID = GEN++;
-		crcx.setTransactionHandle(txID);
-
-		// creating media connection activity context interface
-		ActivityContextInterface activityContextInterface = null;
 		try {
-			MgcpConnectionActivity connectionActivity = mgcpProvider.getConnectionActivity(txID, endpointID);
+			// Send ACM
+			AddressCompleteMessage acm = isupMessageFactory.createACM();
+			// TODO fill ACM parameters
+
+			this.isupProvider.sendMessage(acm);
+
+			// Create B Channel Endpoint name from CIC
+			EndpointIdentifier bChhanEndpointID = new EndpointIdentifier(B_CHANN_ENDPOINT_NAME
+					+ event.getCircuitIdentificationCode().getCIC(), JBOSS_BIND_ADDRESS + ":" + MGCP_PEER_PORT);
+
+			// now we are going to create local connection between B Channel Endpoint and IVR Endpoint
+
+			// preparing MGCP create connection request
+
+			CallIdentifier callID = new CallIdentifier(callIdentifier);
+			EndpointIdentifier ivrEndpointID = new EndpointIdentifier(IVR_ENDPOINT_NAME, JBOSS_BIND_ADDRESS + ":2427");
+
+			CreateConnection crcx = new CreateConnection(this, callID, bChhanEndpointID, ConnectionMode.SendRecv);
+			crcx.setSecondEndpointIdentifier(ivrEndpointID);
+
+			int txID = GEN++;
+			crcx.setTransactionHandle(txID);
+
+			// creating media connection activity context interface
+			ActivityContextInterface activityContextInterface = null;
+
+			MgcpConnectionActivity connectionActivity = mgcpProvider.getConnectionActivity(txID, bChhanEndpointID);
 			activityContextInterface = mgcpAcif.getActivityContextInterface(connectionActivity);
+
+			asSbbActivityContextInterface(activityContextInterface).setRequest(event);
+
+			// attaching sbb to the connection activity
+			activityContextInterface.attach(sbbContext.getSbbLocalObject());
+
+			// update response handler and state
+			this.setCrcxResponseHandler(this.getSbbLocalObject("ConnectionCreated"));
+			setState(IsupConnectionState.CREATING_CONNECTION);
+
+			// sending create connection request
+			tracer.info(String.format("CallID = %s, State=%s, Sending request to %s", callIdentifier, getState(),
+					ivrEndpointID));
+			mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { crcx });
 		} catch (Exception ex) {
 			setState(IsupConnectionState.CONNECTION_FAILED);
 			tracer.severe(String.format("CallID=%s, State=%, Unexpected internal error", callIdentifier, getState()),
 					ex);
 
+			// Send REL
+			this.sendREL();
+
 			return;
 		}
 
-		asSbbActivityContextInterface(activityContextInterface).setRequest(event);
-		// attaching sbb to the connection activity
-		activityContextInterface.attach(sbbContext.getSbbLocalObject());
-
-		// update response handler and state
-		crcxResponseHandler = this.getSbbLocalObject("ConnectionCreated");
-		setState(IsupConnectionState.CREATING_CONNECTION);
-
-		// sending create connection request
-		tracer.info(String.format("CallID = %s, State=%s, Sending request to %s", callIdentifier, getState(),
-				endpointID));
-		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { crcx });
 	}
-
-
 
 	public void onReleaseComplete(ReleaseCompleteMessage event, ActivityContextInterface aci) {
 		tracer.info(String.format("CallID = %s, State=%s, Receive Cancel request ", getCallID(), getState()));
-//		setState(ConnectionState.CALL_CANCELED);
-//
-//		crcxResponseHandler = this.getSbbLocalObject("ConnectionDeleted");
+		// setState(ConnectionState.CALL_CANCELED);
+		//
+		// crcxResponseHandler = this.getSbbLocalObject("ConnectionDeleted");
 		tracer.info(String.format("CallID = %s, State=%s", getCallID(), getState()));
 	}
 
 	public void onRelease(ReleaseMessage event, ActivityContextInterface aci) {
+		tracer.info(String.format("CallID = %s, State=%s, Receive Release request ", getCallID(), getState()));
+
+		// Send RLC
+		ReleaseCompleteMessage rlc = isupMessageFactory.createRLC();
+		// TODO fill RLC parameters
+		try {
+			this.isupProvider.sendMessage(rlc);
+		} catch (ParameterRangeInvalidException e) {
+			tracer
+					.severe(String.format("CallID=%s, State=%, Unexpected internal error", callIdentifier, getState()),
+							e);
+		} catch (IOException e) {
+			tracer
+					.severe(String.format("CallID=%s, State=%, Unexpected internal error", callIdentifier, getState()),
+							e);
+		}
+
+		// Clean Media Endpoints
 		SbbLocalObject handler = this.getSbbLocalObject("ConnectionDeleted");
-		attach(handler);
+		this.setCrcxResponseHandler(handler);
+
+		switch (this.getState()) {
+		case CREATING_CONNECTION:
+
+			break;
+		case CONNECTION_CONNECTED:
+			// IsupConnectionDeletedSbb should take care
+			attach(handler);
+			break;
+
+		default:
+			tracer.severe("Expected state CREATING_CONNECTION or CONNECTION_CONNECTED and is " + getState());
+			break;
+		}
+
+		setState(IsupConnectionState.CALL_RELEASED);
 	}
-	
-	//MGCP Event Handlers
+
+	// MGCP Event Handlers
 	public void onCreateConnectionResponse(CreateConnectionResponse response, ActivityContextInterface aci) {
 		tracer.info(String.format("CallID = %s, State=%s, Receive CRCX response", getCallID(), getState()));
-		System.out.println("handler=" + crcxResponseHandler);
-		attach(crcxResponseHandler);
+		System.out.println("handler=" + this.getCrcxResponseHandler());
+		attach(this.getCrcxResponseHandler());
 	}
 
 	private void attach(SbbLocalObject sbbLocalObject) {
@@ -108,14 +157,13 @@ public abstract class IsupSbb extends BaseSbb {
 		ChildRelation relation = null;
 		if (name.equals("ConnectionCreated")) {
 			relation = this.getIsupConnectionCreatedSbb();
-		} else if (name.equals("ModifiedConnection")) {
-			relation = this.getIsupConnectionModifiedSbb();
 		} else if (name.equals("ConnectionDeleted")) {
 			relation = this.getIsupConnectionDeletedSbb();
 		}
 		try {
 			return relation.create();
 		} catch (Exception e) {
+			this.tracer.severe("Error while creating child", e);
 			return null;
 		}
 	}
@@ -124,10 +172,8 @@ public abstract class IsupSbb extends BaseSbb {
 
 	public abstract ChildRelation getIsupConnectionDeletedSbb();
 
-	public abstract ChildRelation getIsupConnectionModifiedSbb();
+	public abstract void setCrcxResponseHandler(SbbLocalObject crcxResponseHandler);
 
-	public abstract void fireCallConnected(CallConnectedEvent event, ActivityContextInterface aci,
-			javax.slee.Address address);
-
+	public abstract SbbLocalObject getCrcxResponseHandler();
 
 }

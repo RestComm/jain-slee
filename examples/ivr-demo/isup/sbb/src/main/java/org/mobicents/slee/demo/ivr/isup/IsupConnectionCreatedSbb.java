@@ -4,6 +4,10 @@ import jain.protocol.ip.mgcp.message.CreateConnectionResponse;
 import jain.protocol.ip.mgcp.message.parms.ReturnCode;
 
 import javax.slee.ActivityContextInterface;
+import javax.slee.Address;
+import javax.slee.AddressPlan;
+
+import org.mobicents.slee.demo.ivr.CallConnectedEvent;
 
 /**
  * 
@@ -19,12 +23,22 @@ public abstract class IsupConnectionCreatedSbb extends BaseSbb {
 			// provisional response received, awaitng for final response
 			break;
 		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
+
+			// IVR Endpoint
 			String endpoint = response.getSpecificEndpointIdentifier().getLocalEndpointName();
 
 			ActivityContextInterface isupSerTxActivity = getISUPServerTxActivity();
-			asSbbActivityContextInterface(isupSerTxActivity).setEndpoint(endpoint);
+			asSbbActivityContextInterface(isupSerTxActivity).setIVREndpoint(endpoint);
 
-			// TODO Send ACM message
+			String bChannEndpoint = response.getSecondEndpointIdentifier().getLocalEndpointName();
+			asSbbActivityContextInterface(isupSerTxActivity).setBChannEndpoint(bChannEndpoint);
+
+			setState(IsupConnectionState.CONNECTION_CONNECTED);
+			tracer.info(String.format("CallID = %s, State=%s", getCallID(), getState()));
+			
+            CallConnectedEvent evt = new CallConnectedEvent("79023629581", this.getEndpointID(), this.getConnectionID());
+            Address address = new Address(AddressPlan.UNDEFINED, "IVR");
+            this.fireCallConnected(evt, this.getConnectionActivity(), address);			
 
 			break;
 		default:
@@ -32,5 +46,9 @@ public abstract class IsupConnectionCreatedSbb extends BaseSbb {
 			// TODO Send REL
 		}
 	}
+	
+	
+	public abstract void fireCallConnected(CallConnectedEvent event, ActivityContextInterface aci,
+			javax.slee.Address address);
 
 }
