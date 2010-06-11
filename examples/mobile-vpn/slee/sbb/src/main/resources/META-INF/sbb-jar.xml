@@ -13,34 +13,16 @@
         <sbb-classes>
             <sbb-abstract-class>
                 <sbb-abstract-class-name>
-                    org.mobicents.examples.jcc.vpn.VoiceVpnSbb              
+                    org.mobicents.examples.jcc.vpn.slee.VoiceVpnSbb              
                 </sbb-abstract-class-name>
             </sbb-abstract-class> 
             
             <sbb-activity-context-interface>
                 <sbb-activity-context-interface-name>
-                    org.mobicents.examples.jcc.vpn.ConnectionActivityContext
+                    org.mobicents.examples.jcc.vpn.slee.ConnectionActivityContext
                 </sbb-activity-context-interface-name>
             </sbb-activity-context-interface>
             
-		<resource-adaptor-type-binding>
-			<resource-adaptor-type-ref>
-				<resource-adaptor-type-name>JCC-1.1-RA</resource-adaptor-type-name>
-				<resource-adaptor-type-vendor>javax.csapi.cc.jcc</resource-adaptor-type-vendor>
-				<resource-adaptor-type-version>1.1</resource-adaptor-type-version>
-			</resource-adaptor-type-ref>
-			<activity-context-interface-factory-name>
-				slee/resources/jcc/1.1/acifactory
-			</activity-context-interface-factory-name>
-			<resource-adaptor-entity-binding>
-				<resource-adaptor-object-name>
-					slee/resources/jcc/1.1/provider
-				</resource-adaptor-object-name>
-				<resource-adaptor-entity-link>
-					JCCRA
-				</resource-adaptor-entity-link>
-			</resource-adaptor-entity-binding>
-		</resource-adaptor-type-binding>
             
         </sbb-classes>
         
@@ -81,6 +63,24 @@
             </event-type-ref>
         </event>        
         
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>JCC-1.1-RA</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>javax.csapi.cc.jcc</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>1.1</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/jcc/1.1/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/jcc/1.1/provider
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					JCCRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
     </sbb> 
     
 </sbb-jar>
