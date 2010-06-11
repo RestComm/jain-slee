@@ -36,6 +36,8 @@
 		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp/2.0.0.BETA2</ra.smpp.connectionURL>	
 		<ra.xcap-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xcap-client/${tag.version}</ra.xcap-client.connectionURL>
 		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xmpp/${tag.version}</ra.xmpp.connectionURL>
+		<ra.map.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/map/${tag.version}</ra.map.connectionURL>
+		<ra.jcc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jcc/${tag.version}</ra.jcc.connectionURL>
 		
 		<example.google-talk-bot.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/google-talk-bot/${tag.version}</example.google-talk-bot.connectionURL>		
 		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/${tag.version}</example.sipservices.connectionURL> 
@@ -64,6 +66,8 @@
 		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-ro</ra.diameter-ro.connectionURL>		
 		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-client</ra.httpclient.connectionURL>		
 		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-servlet</ra.http-servlet.connectionURL>
+		<ra.jcc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jcc</ra.jcc.connectionURL>
+		<ra.map.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/map</ra.map.connectionURL>
 		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mgcp</ra.mgcp.connectionURL>
 		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
 		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/smpp</ra.smpp.connectionURL>		
@@ -440,6 +444,47 @@
 							<password>${checkout.password}</password>
 						</configuration>
 					</execution>
+					<execution>
+						<id>ra-jcc-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/resources/jcc
+							</checkoutDirectory>
+							<connectionUrl>
+								${ra.jcc.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-map-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/resources/map
+							</checkoutDirectory>
+							<connectionUrl>
+								${ra.map.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>					
+					
 					<execution>
 						<id>example-sipservices-checkout</id>
 						<goals>
