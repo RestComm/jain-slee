@@ -50,7 +50,7 @@ mvn -Declipse.workspace=YOUR_RELATIVE_PATH_TO_ECLIPSE_WORKSPACE eclipse:add-mave
 		        <para>Install M2Eclipse if you want to do maven builds within Eclipse.</para>
 		    </listitem>
 		    <listitem>
-		        <para>Install M2Eclipse plugin and use "Import Maven Project" feature, just be sure you turn off "Resolve Workspace Dependencies and Separate Project for Modules" in Advanced options on the bottom of the window. If the project is big, such as the &THIS.PLATFORM; JAIN SLEE Core, M2Eclipse may be considerable slower options, due to dynamic Maven2 Dependency Management.</para>
+		        <para>Install M2Eclipse plugin and use "Import..." subselect "Maven Projects" feature, just be sure you turn off "Resolve Workspace projects" and "Separate projects for modules" in "Advanced" options on the bottom of the window. If the project is big, such as the &THIS.PLATFORM; JAIN SLEE Core, M2Eclipse may be considerable slower options, due to dynamic Maven2 Dependency Management.</para>
 			</listitem>		    
 		</orderedlist>		
 	</section>		
