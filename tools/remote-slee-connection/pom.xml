@@ -63,6 +63,12 @@
 					</plugin>
 				</plugins>
 			</build>		
+		</profile>
+		<profile>
+			<id>release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
 		</profile>		
 	</profiles>
 	

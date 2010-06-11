@@ -43,7 +43,7 @@
 [usr]$ cd remote-slee-connection-&THIS.VERSION;
 [usr]$ mvn install
 				    </programlisting>
-				    <para>Once the process finishes you should have the <literal>JCA</literal> rar file and directory artifacts in the <filename>target</filename> directory. Deploying the JCA connector depends on the Java EE platform used, in case of &JEE.PLATFORM; simply copy the directory artifact to the platform's deploy directory.</para>
+				    <para>Once the process finishes you should have the <literal>JCA</literal> mobicents-slee-remote-connection.rar directory artifact in the <filename>target/mobicents-slee-remote-connection.rar-beans</filename> directory. Deploying the JCA connector depends on the Java EE platform used, in case of &JEE.PLATFORM; simply copy the directory artifact to the platform's deploy directory.</para>
   				</step>
 			</procedure>      
 		</section>	
@@ -57,17 +57,13 @@
 	
 	<section id="install">
 		<title>Installing &THIS.PLATFORM; Remote SLEE Connection Tool</title>
-		<para>To install the tool to the &JEE.PLATFORM; simply execute provided ant script <filename>build.xml</filename> default target:</para>
-		<programlisting>[usr]$ ant</programlisting>
-		<para>The script will deploy the connector in the server.</para>
+		<para>To install the tool to the &JEE.PLATFORM; simply copy the provided <filename>mobicents-slee-remote-connection.rar</filename> directory into the <filename>deploy</filename> directory of the target server profile.</para>
 		<para>For other Java EE platforms please refer to its documentation on how to deploy the JCA connector.</para>		
 	</section>
 	
 	<section id="uninstall">
 		<title>Uninstalling &THIS.PLATFORM; Remote SLEE Connection Tool</title>
-		<para>To uninstall the tool from the &JEE.PLATFORM; simply execute provided ant script <filename>build.xml</filename> <literal>undeploy</literal> target:</para>
-		<programlisting>[usr]$ ant undeploy</programlisting>
-		<para>The script will undeploy the connector in the server.</para>
+		<para>To uninstall the tool from the &JEE.PLATFORM; simply delete the <filename>mobicents-slee-remote-connection.rar</filename> directory from the <filename>deploy</filename> directory of the target server profile.</para>
 		<para>For other Java EE platforms please refer to its documentation on how to undeploy the JCA connector.</para>
 	</section>			
 	
