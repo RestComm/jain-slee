@@ -55,7 +55,7 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy todir="${basedir}/../../release/${release.name}/tools/remote-slee-connection">
+										<copy todir="${basedir}/../../../release/${release.name}/tools/remote-slee-connection">
 											<fileset
 												dir="${project.build.directory}/${build.finalName}-beans">
 												<include name="${build.finalName}/**" />
