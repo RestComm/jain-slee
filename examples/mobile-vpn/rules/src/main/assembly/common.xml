@@ -1,0 +1,17 @@
+<component>
+    <!-- fileSets>
+		<fileSet>
+			<directory>target</directory>
+			<outputDirectory />
+			<includes>
+				<include>*.jar</include>
+			</includes>
+		</fileSet>
+	</fileSets -->
+        <files>
+            <file>
+                <source>target/voice-vpn-rules.jar</source>
+                <destName>bin/voice-vpn-rules.jar</destName>
+            </file>
+        </files>
+</component>
