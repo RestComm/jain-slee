@@ -35,7 +35,7 @@
 		<varlistentry>
 			<term>CallControlSbb</term>
 			<listitem>
-				<para>performs signaling part - it establishes connection and media path between <acronym>UA</acronym> and &THIS.PLATFORM; Media server(by means of <acronym>SIP</acronym>) and <acronym>MGCP</acronym>). It also requests actions fro media server like play text, play media file or detect <acronym>DTMF</acronym>. </para>
+				<para>performs signaling part - it establishes connection and media path between <acronym>UA</acronym> and &THIS.PLATFORM; Media server(by means of <acronym>SIP</acronym>) and <acronym>MGCP</acronym>). It also requests actions from media server like play text, play media file or detect <acronym>DTMF</acronym>. </para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>

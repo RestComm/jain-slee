@@ -60,7 +60,7 @@
 	</mediaobject>
 	 -->
 	<note><para><acronym>jBPM</acronym> does not play or gather DTMF, it is different process, however it is triggered by <acronym>jBPM</acronym> actions. </para> </note>
-	<para>User interface dispatches requests(events) to <acronym>SLEE</acronym> perform actions like call user <acronym>UA</acronym>. Events are fired through &THIS.PLATFORM; <acronym>JCA RA</acronym>.
+	<para>User interface dispatches requests(events) to <acronym>SLEE</acronym> to perform actions like call user <acronym>UA</acronym>. Events are fired through &THIS.PLATFORM; <acronym>JCA RA</acronym>.
 	Diagram below depicts relations between  &THIS.EXAPLE; Example, <acronym>JSLEE</acronym> and <acronym>JCA</acronym>: </para>
 	<mediaobject>
 		<imageobject>
