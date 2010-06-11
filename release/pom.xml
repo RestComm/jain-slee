@@ -48,6 +48,7 @@
 		
 		<!--
 		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-sip-ha/mobicents-jain-sip-ha-0.9</jain-sip-ha.connectionURL>
+		<remote-slee-connection.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/remote-slee-connection/${tag.version}</remote-slee-connection.connectionURL>
 		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/jopr-plugin/${tag.version}</jopr-plugin.connectionURL> -->
 		
 		<sip-balancer.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/tools/sip-balancer/sip-balancer-1.0.0.FINAL</sip-balancer.connectionURL>
@@ -82,6 +83,7 @@
 		
 		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-sip-ha</jain-sip-ha.connectionURL>				
 		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/jopr-plugin</jopr-plugin.connectionURL>
+		<remote-slee-connection.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/remote-slee-connection</remote-slee-connection.connectionURL>
 		
 		<!--
 		<sip-balancer.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/tools/sip-balancer</sip-balancer.connectionURL>
@@ -574,6 +576,26 @@
 							</checkoutDirectory>
 							<connectionUrl>
 								${jopr-plugin.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>remote-slee-connection-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/tools/remote-slee-connection
+							</checkoutDirectory>
+							<connectionUrl>
+								${remote-slee-connection.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>

@@ -9,8 +9,8 @@
 	<property name="jboss.version" value="5.1.0.GA"/>
 	<property name="release.version" value="2.1.0.GA-SNAPSHOT"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
-    <property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
-    <property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
+	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
+	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
 	<property name="mms.version" value="2.0.0.CR2" />
@@ -19,7 +19,7 @@
 	<property name="diameter.version" value="1.2.1.GA" />
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-${diameter.version}.zip"/>
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
-	
+
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="${ant.file.mobicents.release}/../ant-contrib-1.0b3.jar" />
@@ -70,18 +70,34 @@
 		</copy>
 
 		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/management-console"/>
-		
+
 		<antcall target="build-docs">
 			<param name="docs.source.dir" value="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin/docs" />
 			<param name="docs.dest.dir" value="${release.dir}/tools/management-console/docs" />
 		</antcall>
 	</target>
-	
+
+	<target name="build-remote-slee-connection" description="">
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/remote-slee-connection">
+			<arg line="clean install -P set-svn-revision" />
+		</exec>
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/remote-slee-connection">
+			<arg line="-o install -P release,set-svn-revision -Drelease.name=target" />
+		</exec>
+
+		<copy failonerror="true" toDir="${release.dir}/tools/remote-slee-connection" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/remote-slee-connection" />
+		</copy>
+
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/remote-slee-connection" />
+
+	</target>
+
 	<target name="build-sip-balancer" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer">
 			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
 		</exec>
-		
+
 		<copy failonerror="true" toDir="${release.dir}/tools/sip-balancer" overwrite="true">
 			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer/jar/target">
 				<include name="**.jar" />
@@ -90,12 +106,12 @@
 				<include name="**.properties" />
 			</fileset>
 		</copy>
-		
+
 		<copy failonerror="true" toDir="${release.dir}/tools/sip-balancer/docs" overwrite="true">
 			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer/docs/jdocbook-${docs.profile}/target/docbook/publish"/>
 		</copy>
 	</target>
-	
+
 	<target name="build-ras" description="Resource adaptors.">
 		<for delimiter="," param="dir.name" list="${ra.dirs}">
 			<sequential>
@@ -134,7 +150,7 @@
 		</copy>
 		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/examples"/>
 	</target>
-	
+
 	<!--
 	<target name="build-mms" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/mms">
@@ -142,13 +158,13 @@
 		</exec>
 	</target>
 	-->
-	
+
 	<target name="copy-extra-jbossas-files">
 		<!-- <copy failonerror="true" file="${ant.file.mobicents.release}/../jbossjta-properties.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jbossjta-properties.xml" overwrite="true" /> 
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-mmc,build-sip-balancer,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-mmc,build-remote-slee-connection,build-sip-balancer,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
@@ -180,7 +196,7 @@
 		<antcall target="delete-default-jboss-config"/-->
 		<delete dir="${jboss.home}/server/minimal" />
 		<delete dir="${jboss.home}/server/standard" />
-		<delete dir="${jboss.home}/server/web" />		
+		<delete dir="${jboss.home}/server/web" />
 	</target>
 	<target name="delete-all-jboss-config" unless="all.jboss.config">
 		<delete dir="${jboss.home}/server/all" />
@@ -274,14 +290,14 @@
 			<fileset dir="${ant.file.mobicents.release}/../checkout/tools"
         		     excludes=""/>
 		</copy>
-		
+
 		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src" />
-		
+
 		<antcall target="checksum">
 			<param name="source.file" value="${ant.file.mobicents.release}/../${zip.filename}" />
 			<param name="algorithm" value="sha1" />
 		</antcall>
-		
+
 		<delete dir="${release.dir}/src" />
 
 		<defaultexcludes default="true"/>
@@ -298,7 +314,7 @@
 		<echo>Downloading Mobicents Media Server</echo>
 		<get dest="${ant.file.mobicents.release}/../${mms.distro.zip.path}" src="${mms.download.url}"/>
 	</target>
-	
+
 	<target name="unzip-mms">
 		<delete dir="${release.dir}/tools/media-server" failonerror="false" />
 		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/tools/media-server" />
@@ -309,7 +325,7 @@
 		<echo>Downloading Mobicents Diameter</echo>
 		<get dest="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" src="${diameter.download.url}"/>
 	</target>
-	
+
 	<target name="unzip-diameter">
 		<delete dir="${release.dir}/tools/mobicents-diameter" failonerror="false" />
 		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/tools/mobicents-diameter" />
