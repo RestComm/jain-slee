@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE connector PUBLIC
+          "-//Sun Microsystems, Inc.//DTD Connector 1.0//EN"
+          "http://java.sun.com/dtd/connector_1_0.dtd">
+          <connector>
+              <display-name>Mobicents JSLEE JCA Adaptor</display-name>
+              <description>JCA Resource Adaptor for connecting to Mobicents JSLEE implementation</description>
+              <vendor-name>Mobicents</vendor-name>
+              <spec-version>1.0</spec-version>
+              <eis-type>SLEE</eis-type>
+              <version>1.0</version>
+              <license>
+                  <description>
+                      ****************************************************
+                      *                                                  *
+                      *  Mobicents: The Open Source JSLEE Platform       *
+                      *                                                  * 
+                      *  Distributable under LGPL license.               *
+                      *  See terms of license at gnu.org.                *
+                      *                                                  *
+                      ****************************************************
+                  </description>
+                  <license-required>true</license-required>
+              </license>
+              <resourceadapter>
+                  <managedconnectionfactory-class>
+                      org.mobicents.slee.connector.adaptor.ManagedConnectionFactoryImpl
+                  </managedconnectionfactory-class>
+                  <connectionfactory-interface>
+                      javax.slee.connection.SleeConnectionFactory             
+                  </connectionfactory-interface>
+                  <connectionfactory-impl-class>
+                      org.mobicents.slee.connector.adaptor.SleeConnectionFactoryImpl
+                  </connectionfactory-impl-class>
+                  <connection-interface>
+                      javax.slee.connection.SleeConnection
+                  </connection-interface>
+                  <connection-impl-class>
+                      org.mobicents.slee.connector.adaptor.SleeConnectionImpl
+                  </connection-impl-class>        
+                  <transaction-support>LocalTransaction</transaction-support>        
+                  <config-property>        				
+                      <config-property-name>SleeJndiName</config-property-name>
+                      <config-property-type>java.lang.String</config-property-type>			 			
+                      <config-property-value>MobicentsConnectionFactory</config-property-value>
+                  </config-property>
+                  <reauthentication-support>false</reauthentication-support>
+              </resourceadapter>
+          </connector>

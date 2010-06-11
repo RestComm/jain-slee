@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; Remote SLEE Connection Tool</title>
+
+	<para>&THIS.PLATFORM; Remote SLEE Connection Tool is a Java EE Connector Architecture (<acronym>JCA</acronym>) tool, which can be used to interact with &THIS.PLATFORM; JAIN SLEE remotely.</para>
+	
+	<para>The JAIN SLEE specification includes an API for interaction with JAIN SLEE container, with the interface <classname>javax.slee.connection.SleeConnectionFactory</classname> upfront, which allows users to create connections to a specific JAIN SLEE instance, and use that to fire events.</para>
+	
+	<para>&THIS.PLATFORM; Remote SLEE Connection Tool exposes <classname>javax.slee.connection.SleeConnectionFactory</classname> in the local JNDI tree.</para>
+	
+	<para>For further information about SLEE connection factory please refer to JAIN SLEE 1.1 specification, Appendix F.</para>
+	
+</chapter>

@@ -1,0 +1,30 @@
+<assembly>
+
+	<id>beans</id>
+
+	<formats>
+		<format>zip</format>
+	</formats>
+
+	<fileSets>
+
+		<fileSet>
+			<directory>src/main/rar</directory>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
+
+
+	</fileSets>
+
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<useProjectArtifact>true</useProjectArtifact>
+			<scope>compile</scope>
+		</dependencySet>
+
+
+	</dependencySets>
+
+</assembly>
