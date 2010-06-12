@@ -33,12 +33,21 @@
           <para>Callback from SLEE when the local RA was selected to recover the state for a replicated data key, which was owned by a cluster member that failed. The RA may then restore any runtime resources associated with such data.</para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term>
+          <literal>dataRemoved(K key)</literal>
+        </term>
+        <listitem>
+          <para>Optional callback from SLEE when the replicated data key was removed from the cluster, this may be helpful when the local RA maintains local state.</para>
+        </listitem>
+      </varlistentry>
+      
     </variablelist>
   </section>
   <section id="fault_tolerant_resource_adaptor_context">
     <title>The Fault Tolerant Resource Adaptor Context And Replicated Data Sources</title>
     <variablelist>
-      <para>Cluster RA context follows contract of JAIN SLEE 1.1 specification interface <literal>javax.slee.resource.ResourceAdaptorContext</literal>. It gives access to  facilities for RA to run in clustered environment. Cluster contract is defined in:  <literal>org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext</literal>. It provides critical information such as if SLEE is running in local mode (not clustered), if it is the head/master member of the cluster or what are the members of the cluster.</para>
+      <para>Cluster RA context follows contract of JAIN SLEE 1.1 specification interface <literal>javax.slee.resource.ResourceAdaptorContext</literal>. It gives access to  facilities for RA to run in clustered environment. Cluster contract is defined in:  <literal>org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext</literal>. It provides critical information such as if SLEE is running in local mode (not clustered), if it is the head/master member of the cluster or even which are the members of the cluster.</para>
       <para>It also provides two data sources to replicate data in cluster:</para>
       <varlistentry>
         <term>
@@ -57,6 +66,7 @@
         </listitem>
       </varlistentry>
     </variablelist>
+    <para>When retrieved from the context, through a boolean parameter, both types of <literal>ReplicatedData</literal> can activate the callback on the FaultTolerantResourceAdaptor which indicates that a specific data was removed from the cluster remotely.</para>
     <para>For further information refer to the Fault Tolerant RA API Javadocs.</para>
   </section>
 </section>

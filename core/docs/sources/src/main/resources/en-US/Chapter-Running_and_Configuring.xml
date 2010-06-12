@@ -6,7 +6,7 @@
 	id="configuration_and_running">
 
 	<title>Configuring and Running &THIS.PLATFORM; JAIN SLEE</title>
-
+	
 	<section id="server_profiles">
 		<title>Server Profiles</title>
 		<para>&THIS.PLATFORM; JAIN SLEE reuses &JEE.PLATFORM; server profiles to expose different configurations for different needs:</para>
@@ -68,6 +68,14 @@ Halting VM]]></screen>
 	<section id="configuration">
 		<title>Configuring &THIS.PLATFORM; JAIN SLEE</title>
 		<para>Configuration is done through an XML descriptor for each <xref linkend="server_profiles" />. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/META-INF</filename>, where <application>profile_name</application> is the server profile name.</para>
+		<warning><para>This configuration greatly affects performance or correctness of the container behavior, this is truly for advanced users that know the internals of the container.</para></warning>
+		
+		<xi:include href="Section-Event_Router_Configuration.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+		
+		<xi:include href="Section-Timer_Facility_Configuration.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+				
 		<section id="profiles_configuration">
 			<title>Configuring JAIN SLEE Profiles</title>
 			<para>JAIN SLEE Profiles is a component used to store data, usually related with a user and/or service profile. &THIS.PLATFORM; JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API (JPA) Datasource, through Hibernate. There are two configurations for JAIN SLEE Profiles provided as JBoss Microcontainer Beans:</para>
@@ -141,10 +149,9 @@ Halting VM]]></screen>
 			</programlisting>
 			<para>There is a single property to configure, named clusteredUsageMBeans, with a boolean value. Set this property to true if usage param values should be shared by all cluster nodes. This option means a significant performance penalty, but makes it possible to learn the current values for whole cluster by chekcing a single node. Use only if there is no other solution such as a management client that gets each node values and then does appropriate calculations.</para>
 		</section>
-		<section id="runtime_configuration">
-			<title>Runtime Configuration</title>
-			<warning><para>This configuration greatly affects performance or correctness of the container behavior, this is truly for advanced users that know the internals of the container.</para></warning>
-			<para>&THIS.PLATFORM; JAIN SLEE runtime configuration is done through the following JBoss Microcontainer Bean:</para>
+		<section id="other_configurations">
+			<title>Other Configurations</title>
+			<para>Other &THIS.PLATFORM; JAIN SLEE runtime configuration is done through the following JBoss Microcontainer Bean:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <bean name="Mobicents.JAINSLEE.MobicentsManagement"
 	class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
@@ -154,12 +161,11 @@ Halting VM]]></screen>
 		registerDirectly=true)</annotation>
 	<property name="entitiesRemovalDelay">1</property>
 	<property name="timerThreads">8</property>
-	<property name="eventRouterThreads">8</property>
 	<property name="loadClassesFirstFromAS">true</property>
 </bean>]]>
 			</programlisting>
 			<table frame="all" pgwide="1">
-			  	<title>JAIN SLEE Runtime Configuration</title>
+			  	<title>Other JAIN SLEE Configurations</title>
 				<tgroup colsep="1" cols="3">
 			    	<colspec colnum="1" colname="c0"/>
 				    <colspec colnum="2" colname="c1"/>
@@ -182,11 +188,6 @@ Halting VM]]></screen>
 					        <entry>int</entry>
 					        <entry>the number of threads used by the timer facility</entry>
 					      </row>
-				    	  <row>
-				  		    <entry>eventRouterThreads</entry>
-				  		    <entry>int</entry>
-				    	    <entry>the number of threads routing events in parallel</entry>
-					      </row>
 					      <row>
 					        <entry>loadClassesFirstFromAS</entry>
 					        <entry>boolean</entry>
@@ -195,6 +196,12 @@ Halting VM]]></screen>
 			    	</tbody>
 			  	</tgroup>
 			</table>
+			<para>Through JMX this configuration can be changed with the container running. Note that such configuration changes are not persisted.</para>
+			<para>To change the configuraton use the JMX MBean named <application>org.mobicents.slee:service=MobicentsManagement</application>, which provides getters and setters to change each property defined in the persistent configuration, that is configurable with the container running. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
+		</section>
+		<section id="congestion_control_configuration_">
+			<title>Congestion Control Configuration</title>
+			<para>Congesture Control feature configuration is documented in section <xref linkend="congestion_control_configuration" /></para>
 		</section>		
 	</section>		
 </chapter>

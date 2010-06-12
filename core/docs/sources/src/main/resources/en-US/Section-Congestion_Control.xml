@@ -1,0 +1,93 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="congestion_control">
+	
+	<title>Congestion Control</title>
+	
+	<para>&THIS.PLATFORM; JAIN SLEE can monitor the memory available in the JVM and in case it drops to a certain level (percentage) new events and/or activity startup are rejected, and at the same time a JAIN SLEE Alarm, which can send JMX notifications, is raised. This feature is called Congestion Control and the container will turn it off automatically once another available memory level is reached.</para>
+	
+	<para>If Congestion Control rejects an operation a <classname>javax.slee.SleeException</classname> is thrown, which means that if the feature is to be used the Resource Adaptors and Applications need to handle such use case, and behave properly.</para>
+	
+	<para>The type of JAIN SLEE Alarm raised is <application>org.mobicents.slee.management.alarm.congestion</application>.</para>
+	
+	<para>Congestion Control is turned off by default.</para>
+	
+	<section id="congestion_control_configuration">
+		<title>Congestion Control Configuration</title>
+	
+		<para>Congestion Control feature is configured through an XML file or through a JMX MBean, note that changes applied through JMX are not persisted, once the container is restarted the configuration will revert to the one in the XML file.</para>
+	
+		<section id="congestion_control_persistent_configuration">
+			<title>Congestion Control Persistent Configuration</title>
+			<para>Configuration is done through a XML descriptor for each <xref linkend="server_profiles" />. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/META-INF</filename>, where <application>profile_name</application> is the server profile name.</para>
+			<para>The configuration is exposed a JBoss Microcontainer Bean:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+<bean name="Mobicents.JAINSLEE.CongestionControlConfiguration"
+	class="org.mobicents.slee.container.management.jmx.CongestionControlConfiguration">
+	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name=
+		"org.mobicents.slee:name=CongestionControlConfiguration",exposedInterface=
+		org.mobicents.slee.container.management.jmx.CongestionControlConfigurationMBean.class,
+		registerDirectly=true)</annotation>
+	<property name="periodBetweenChecks">0</property> 
+	<property name="minFreeMemoryToTurnOn">10</property>
+	<property name="minFreeMemoryToTurnOff">20</property>
+	<property name="refuseStartActivity">true</property>
+	<property name="refuseFireEvent">false</property>
+</bean>]]>
+			</programlisting>
+			<table frame="all" pgwide="1">
+			  	<title>JAIN SLEE Congestion Control Bean Configuration</title>
+				<tgroup colsep="1" cols="3">
+			    	<colspec colnum="1" colname="c0"/>
+				    <colspec colnum="2" colname="c1"/>
+				    <colspec colnum="3" colname="c2"/>
+				    <thead>
+						<row>
+					        <entry>Property Name</entry>
+				    	    <entry>Property Type</entry>
+					    	<entry>Description</entry>
+	      				</row>
+				    </thead>
+				    <tbody>
+					      <row>
+					      	<entry>periodBetweenChecks</entry>
+				    	    <entry>int</entry>
+				       		<entry>the available memory level is checked periodically, this property defines the period, in seconds, between these checks, and if set to 0 turns off the Congestion Control feature</entry>
+					      </row>
+					      <row>
+					        <entry>minFreeMemoryToTurnOn</entry>
+					        <entry>int</entry>
+					        <entry>this property defines the minimum free memory percentage, which if reached turns ON the Congestion Control feature</entry>
+					      </row>
+				    	  <row>
+				  		    <entry>minFreeMemoryToTurnOff</entry>
+				  		    <entry>int</entry>
+				    	    <entry>this property defines the minimum free memory percentage, which if reached turns OFF the Congestion Control feature. This value should be considerably higher than minFreeMemoryToTurnOn, otherwise the feature may be turning on and off all the time</entry>
+					      </row>
+					      <row>
+					        <entry>refuseStartActivity</entry>
+					        <entry>boolean</entry>
+					        <entry>if true and the Congestion Control feature is ON, the container rejects activity startups, no matter it's a request from a Resource Adaptor or SBB</entry>
+				    	  </row>
+				    	  <row>
+					        <entry>refuseFireEvent</entry>
+					        <entry>boolean</entry>
+					        <entry>if true and the Congestion Control feature is ON, the container rejects the firing of events, no matter it's a request from a Resource Adaptor or SBB</entry>
+				    	  </row>
+			    	</tbody>
+			  	</tgroup>
+			</table>
+		</section>
+		
+		<section id="congestion_control_jmx_configuration">
+			<title>Congestion Control JMX Configuration</title>
+			<para>Through JMX the Congestion Control feature configuration can be changed with the container running. Note that such configuration changes are not persisted.</para>
+			
+			<para>The JMX MBean which can be used to change the Congestion Control configuration is named <application>org.mobicents.slee:name=CongestionControlConfiguration</application>, and provides getters and setters to change each property defined in the persistent configuration. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
+		</section>	
+	
+	</section>	
+	
+</section>
+	

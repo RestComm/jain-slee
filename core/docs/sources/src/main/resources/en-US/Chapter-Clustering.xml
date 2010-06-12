@@ -59,9 +59,15 @@
 			</variablelist>
 		</section>
 	</section>
-		
+			
 	<xi:include href="Section-Clustering_Fault_Tolerant_RA.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<section id="container_clustering_ra_activity_replication">
+		<title>Resource Adaptor Activity Replication</title>
+		<para>The Resource Adaptor API includes an optional component named <classname>javax.slee.resource.Marshaler</classname>, which is responsible, besides other functions, for converting Activity Handles to byte arrays and vice-versa. Also relevant, the Resource Adaptor, when starting activities, may provide a flag indicating that the container may marshall the activity (using the Marshaler). In case of a container cluster with data replication, if an activity is to be replicated then the Marshaler must be provided and the activity flags must activate the flag MAY_MARSHALL, otherwise the activity is not replicated and if a node fails all its activities are removed from the container cluster.</para>
+		<para>Note that the activity replication doesn't mean that the activity object is replicated by any means, only the related Activity Handle. The Resource Adaptor must use the Fault Tolerant RA API or its own means to replicate any additional data to support that presence of the activity in all nodes of the cluster. Usage of the Fault Tolerant RA API is recommended since it reuses the clustering setup of the container.</para>
+	</section>
 						
 </chapter>
 

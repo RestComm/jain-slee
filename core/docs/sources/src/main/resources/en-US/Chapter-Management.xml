@@ -53,9 +53,17 @@
 				</varlistentry>
 				<varlistentry>
 			   	    <term><literal>org.mobicents.slee:name=DeployerMBean</literal></term>
-			        <listitem>				            <para>the MBean allows interaction with the persistent deployable unit deployer. The operation <literal>showStatus</literal> displays a textual snapshot of the deployers's state, which can be used to quickly find out if there is any deployable unit deployment pending, for instance, due to missing dependencies.</para>
+			        <listitem>				            
+			        	<para>the MBean allows interaction with the persistent deployable unit deployer. The operation <literal>showStatus</literal> displays a textual snapshot of the deployers's state, which can be used to quickly find out if there is any deployable unit deployment pending, for instance, due to missing dependencies.</para>
 		    		 </listitem>
-				</varlistentry>				    
+				</varlistentry>
+				<varlistentry>
+			   	    <term><literal>org.mobicents.slee:name=CongestionControlConfiguration</literal></term>
+			        <listitem>				            
+			        	<para>the MBean allows changing or retrieving the Congestion Control feature, with the container running. Details are provided in section <xref linkend="congestion_control_configuration" />.</para>
+		    		 </listitem>
+				</varlistentry>		
+						    
 			</variablelist>
 				
 			<important><para>For further information about JAIN SLEE 1.1 MBeans and their operations refer to the JAIN SLEE 1.1 Specification, all are covered with great detail.</para></important>

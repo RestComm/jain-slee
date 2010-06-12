@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="timer_facility_configuration">
+	
+	<title>Timer Facility Configuration</title>
+	
+	<para>&THIS.PLATFORM; JAIN SLEE Timer Facility is the module responsible for managing SLEE timers, and the number of threads it uses is configurable.</para>
+		
+	<para>The Timer Facility configuration can be changed through a XML file and a JMX MBean.</para>
+	
+		<section id="timer_facility_persistent_configuration">
+			<title>Timer Facility Persistent Configuration</title>
+			<para>Configuration is done through an XML descriptor for each <xref linkend="server_profiles" />. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/META-INF</filename>, where <application>profile_name</application> is the server profile name.</para>
+			<para>The configuration is exposed a JBoss Microcontainer Bean:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+<bean name="Mobicents.JAINSLEE.TimerFacilityConfiguration"
+	class="org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration">
+	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name=
+		"org.mobicents.slee:name=TimerFacilityConfiguration",exposedInterface=
+		org.mobicents.slee.container.management.jmx.TimerFacilityConfigurationMBean.class,
+		registerDirectly=true)</annotation>
+	<property name="timerThreads">4</property>
+</bean>]]>
+			</programlisting>
+			<table frame="all" pgwide="1">
+			  	<title>JAIN SLEE Timer Facility Bean Configuration</title>
+				<tgroup colsep="1" cols="3">
+			    	<colspec colnum="1" colname="c0"/>
+				    <colspec colnum="2" colname="c1"/>
+				    <colspec colnum="3" colname="c2"/>
+				    <thead>
+						<row>
+					        <entry>Property Name</entry>
+				    	    <entry>Property Type</entry>
+					    	<entry>Description</entry>
+	      				</row>
+				    </thead>
+				    <tbody>
+					      <row>
+					      	<entry>timerThreads</entry>
+				    	    <entry>int</entry>
+				       		<entry>defines how many threads should be used by the Timer Facility</entry>
+					      </row>					      					 
+			    	</tbody>
+			  	</tgroup>
+			</table>
+		</section>
+		
+		<section id="timer_facility_jmx_configuration">
+			<title>Timer Facility JMX Configuration</title>
+			<para>Through JMX the Timer Facility module configuration can be changed with the container running. Note that such configuration changes are not persisted.</para>
+			
+			<para>The JMX MBean which can be used to change the Timer Facility configuration is named <application>org.mobicents.slee:name=TimerFacilityConfiguration</application>, and provides getters and setters to change each property defined in the persistent configuration. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
+		</section>	
+		
+</section>
+	

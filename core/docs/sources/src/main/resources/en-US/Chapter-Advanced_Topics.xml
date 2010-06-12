@@ -9,6 +9,9 @@
 	<xi:include href="Section-Classloading.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
 	
+	<xi:include href="Section-Congestion_Control.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+			
 	<xi:include href="Section-JPA_SLEE_Profiles_Mapping.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
 	
