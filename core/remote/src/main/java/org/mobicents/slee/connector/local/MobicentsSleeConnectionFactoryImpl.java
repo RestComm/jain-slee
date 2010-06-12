@@ -24,6 +24,10 @@ import org.mobicents.slee.container.AbstractSleeContainerModule;
  */
 public class MobicentsSleeConnectionFactoryImpl extends AbstractSleeContainerModule implements MobicentsSleeConnectionFactory, Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	//not this class implements serializable, but its bound only to loca JVM, its not accessbile outside!
 	private static final String _DEFAULT_NAME="/MobicentsConnectionFactory";
 	private static final Logger logger = Logger.getLogger(MobicentsSleeConnectionFactoryImpl.class);
@@ -118,17 +122,10 @@ public class MobicentsSleeConnectionFactoryImpl extends AbstractSleeContainerMod
 		}
 	}
 
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.AbstractSleeContainerModule#sleeStopping()
-	 */
 	@Override
-	public void sleeStopping() {
-		
-		super.sleeStopping();
+	public void sleeShutdown() {
+		super.sleeShutdown();
 		//unbind
-		
-		
 		try {
 			Context ctx;
 			ctx = (Context) new InitialContext().lookup("java:");
@@ -137,10 +134,6 @@ public class MobicentsSleeConnectionFactoryImpl extends AbstractSleeContainerMod
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-	}
-	
-	//Module methods
-	
+	}	
 	
 }
