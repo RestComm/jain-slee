@@ -15,7 +15,7 @@ public class TimerFacilityConfiguration implements
 	private static final Logger logger = Logger
 			.getLogger(TimerFacilityConfiguration.class);
 
-	private int timerThreads;
+	private Integer timerThreads;
 
 	/*
 	 * (non-Javadoc)
@@ -36,11 +36,19 @@ public class TimerFacilityConfiguration implements
 	 * #setTimerThreads(int)
 	 */
 	public void setTimerThreads(int value) {
+		if (this.timerThreads == null) {
+			logger
+			.info("SLEE Timer facility initiated with "
+					+ value
+					+ " threads.");
+		}
+		else {
+			logger
+			.warn("Setting timer facility threads to "
+					+ value
+					+ ". If called with server running a stop and start is need to apply changes.");
+		}
 		this.timerThreads = value;
-		logger
-				.warn("Setting timer facility threads to "
-						+ value
-						+ ". If called with server running a stop and start is need to apply changes.");
 	}
 
 }

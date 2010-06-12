@@ -38,7 +38,6 @@
 		<module>timers</module>
 		<module>services</module>
 		<module>congestion</module>
-		<module>rar</module>
 		<module>ant-tasks</module>	
 		<module>standard-components</module>
 		<module>server-resources</module>
@@ -88,7 +87,7 @@
 					<artifactId>maven-release-plugin</artifactId>
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
-						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core</tagBase>
+						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/remote-slee-connection</tagBase>
 						<preparationGoals>clean install</preparationGoals>
 					</configuration>
 					</plugin>
@@ -111,7 +110,7 @@
 						<exclude>jtidy:jtidy</exclude>																		
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-core</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-tools-remote-slee-connection</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		

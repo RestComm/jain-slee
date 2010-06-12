@@ -282,7 +282,7 @@ public class ActivityContextImpl implements ActivityContext {
 		// Iterate through the attached timers, telling the timer facility to
 		// remove them
 		for (Object obj : cacheData.getAttachedTimers()) {
-			timerFacility.cancelTimer((TimerID)obj);
+			timerFacility.cancelTimerWithoutValidation((TimerID)obj);
 		}
 	}
 	

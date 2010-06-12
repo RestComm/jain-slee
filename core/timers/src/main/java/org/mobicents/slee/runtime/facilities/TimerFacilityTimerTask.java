@@ -16,8 +16,8 @@ public class TimerFacilityTimerTask extends TimerTask {
 
 	private final TimerFacilityTimerTaskData data;
 	
-	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		
+	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
     public TimerFacilityTimerTask(TimerFacilityTimerTaskData data) {
     	super(data);
     	this.data = data;
@@ -162,48 +162,50 @@ public class TimerFacilityTimerTask extends TimerTask {
 
 				data.setMissedRepetitions(0);
 
-				final SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
-				boolean terminateTx = txmgr.requireTransaction();
-				boolean doRollback = true;
-
-				try {
-
-					//Post the timer event to the queue.
-					data.setLastTick(System.currentTimeMillis());
-
-					final ActivityContext ac = sleeContainer.getActivityContextFactory()
-					.getActivityContext(data.getActivityContextHandle());
-
-					// the AC can be null in the edge case when the activity was removed while the basic timer is firing an event
-					//   and thus the timer cancelation came a bit late
-					if (ac == null) {
-						logger.warn("Cannot fire timer event with id "+data.getTaskID()+" , because the underlying aci with id "+data.getActivityContextHandle()+" is gone.");
-						timerFacility.cancelTimer(data.getTimerID());
-					} else {
-						if (logger.isTraceEnabled()) {
-							logger.trace("Posting timer event on event router queue. Activity context:  "
-									+ ac.getActivityContextHandle()
-									+ " remainingRepetitions: "
-									+ data.getRemainingRepetitions());
-						}
-						// if the timer ended we use the event processing callbacks to cancel the timer after the event is routed
-						final CancelTimerEventProcessingCallbacks cancelTimerCallback = timerEnded ? new CancelTimerEventProcessingCallbacks(timerFacility, data.getTimerID()) : null;
-						ac.fireEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,data.getAddress(),null,null,null,cancelTimerCallback);
-					}   
-					doRollback = false;
-				} finally {
+				// create a tx only if we run in cluster mode
+				
+					final SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
+					boolean terminateTx = txmgr.requireTransaction();
+					boolean doRollback = true;
 					try {
-						txmgr.requireTransactionEnd(terminateTx, doRollback);
-					} catch (Throwable e) {
-						logger.error(e.getMessage(),e);
+						//Post the timer event to the queue.
+						data.setLastTick(System.currentTimeMillis());
+
+						final ActivityContext ac = sleeContainer.getActivityContextFactory()
+						.getActivityContext(data.getActivityContextHandle());
+
+						// the AC can be null in the edge case when the activity was removed while the basic timer is firing an event
+						//   and thus the timer cancelation came a bit late
+						if (ac == null) {
+							logger.warn("Cannot fire timer event with id "+data.getTaskID()+" , because the underlying aci with id "+data.getActivityContextHandle()+" is gone.");
+							timerFacility.cancelTimerWithoutValidation(data.getTimerID());
+						} else {
+							if (logger.isTraceEnabled()) {
+								logger.trace("Posting timer event on event router queue. Activity context:  "
+										+ ac.getActivityContextHandle()
+										+ " remainingRepetitions: "
+										+ data.getRemainingRepetitions());
+							}
+							// if the timer ended we use the event processing callbacks to cancel the timer after the event is routed
+							final CancelTimerEventProcessingCallbacks cancelTimerCallback = timerEnded ? new CancelTimerEventProcessingCallbacks(timerFacility, data.getTimerID()) : null;
+							ac.fireEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,data.getAddress(),null,null,null,cancelTimerCallback);
+						}   						
+						doRollback = false;
+					} finally {
+						try {
+							txmgr.requireTransactionEnd(terminateTx, doRollback);
+						} catch (Throwable e) {
+							logger.error(e.getMessage(),e);
+						}
 					}
-				}
+				
+				
 			}
 			else {
 				if (timerEnded) {
 					// if event is not posted and ended then we cancel it
 					// so it's removed
-					timerFacility.cancelTimer(data.getTimerID());
+					timerFacility.cancelTimerWithoutValidation(data.getTimerID());
 				}
 			}
 		}

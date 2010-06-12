@@ -47,10 +47,10 @@ public class EventRouterExecutorImpl implements EventRouterExecutor {
 		 * @see java.lang.Runnable#run()
 		 */
 		public void run() {
-			final long startTime = System.currentTimeMillis();
+			final long startTime = System.nanoTime();
 			eventRoutingTask.run();
 			stats.eventRouted(eventRoutingTask.getEventContext().getEventTypeId(), System
-					.currentTimeMillis()
+					.nanoTime()
 					- startTime);
 		}
 	}

@@ -39,7 +39,6 @@ public class CancelTimerEventProcessingCallbacks implements EventUnreferencedCal
 	 * @see org.mobicents.slee.container.event.EventUnreferencedCallback#eventUnreferenced()
 	 */
 	public void eventUnreferenced() {
-		timerFacility.cancelTimer(
-					timerID);			
+		timerFacility.cancelTimerWithoutValidation(timerID);			
 	}
 }
