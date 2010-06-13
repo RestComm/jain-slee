@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter id="setup">
 
@@ -10,8 +13,7 @@
 		<para>Ensure that the following requirements have been met before continuing with the install.</para>
 		<section id="hardware_requirements">
 			<title>Hardware Requirements</title>
-			<para>The Resource Adaptor hardware's main concern is RAM memory and Java Heap size, the more the better. For instance, while the underlying &THIS.PLATFORM; JAIN SLEE may run with 1GB of RAM, 8GB is needed to achieve performance higher than 400 new calls per second.</para>
-			<para>Of course, memory is only needed to store the Resource Adaptor state, the faster the CPU more calls per second are supported, yet no particular CPU is a real requirement to use the RA.</para>
+			<para>The Resource Adaptor is adaptation of Java Call Control API to the requirements of the Jain SLEE. It does not create any specific hardware requirements however the underlying platform implementation may have specific hardware requirements. See JCC provider's documentation for details. </para>
 		</section>
 		<section id="software_prerequisites">
 			<title>Software Prerequisites</title>
@@ -57,14 +59,14 @@
 	</section>
 	
 	<section id="install">
-		<title>Installing &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+		<title>Installing &THIS.PLATFORM; JAIN SLEE JCC Resource Adaptor</title>
 		<para>To install the Resource Adaptor simply execute provided ant script <filename>build.xml</filename> default target:</para>
 		<programlisting>[usr]$ ant</programlisting>
 		<para>The script will copy the RA deployable unit jar to the <literal>default</literal> &THIS.PLATFORM; JAIN SLEE server profile deploy directory, to deploy to another server profile use the argument <literal>-Dnode=</literal>.</para>		
 	</section>
 	
 	<section id="uninstall">
-		<title>Uninstalling &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+		<title>Uninstalling &THIS.PLATFORM; JAIN SLEE JCC Resource Adaptor</title>
 		<para>To uninstall the Resource Adaptor simply execute provided ant script <filename>build.xml</filename> <literal>undeploy</literal> target:</para>
 		<programlisting>[usr]$ ant undeploy</programlisting>
 		<para>The script will delete the RA deployable unit jar from the <literal>default</literal> &THIS.PLATFORM; JAIN SLEE server profile deploy directory, to undeploy from another server profile use the argument <literal>-Dnode=</literal>.</para>
