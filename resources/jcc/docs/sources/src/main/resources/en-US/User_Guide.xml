@@ -14,7 +14,7 @@
 		href="Chapter-Introduction.xml" />
 	<xi:include
 		xmlns:xi="http://www.w3.org/2001/XInclude"
-		href="ra-type/Chapter-Resource_Adaptor_Type.xml" />
+		href="ratype/Chapter-Resource_Adaptor_Type.xml" />
 	<xi:include
 		xmlns:xi="http://www.w3.org/2001/XInclude"
 		href="ra/Chapter-Resource_Adaptor.xml" />
