@@ -1,17 +1,20 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <bookinfo
 	id="&BOOK_ID;">
-	<title>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor User Guide</title>
+	<title>&THIS.PLATFORM; JAIN SLEE Java Call Control (JCC) Resource Adaptor User Guide</title>
 	<subtitle></subtitle>
-	<productname>&THIS.PLATFORM; JAIN SLEE &THIS.RA; RA</productname>
+	<productname>&THIS.PLATFORM; JAIN SLEE JCC RA</productname>
 	<productnumber>&THIS.VERSION;</productnumber>
 	<edition>3.0</edition>
 	<pubsnumber>1</pubsnumber>
 
 	<abstract>
-		<para>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor (<acronym>RA</acronym>) is the JAIN SLEE 1.1 RA for the SIP Protocol, used in &THIS.PLATFORM; JAIN SLEE platform.</para>
-		<para>The RA implements the Resource Adaptor Type defined by Appendix D of the JAIN SLEE 1.1 Specification, and provides high performance and fail over support.</para>		
+		<para>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor (<acronym>RA</acronym>) is the JAIN SLEE 1.1 RA for the Java Call Control API, used in &THIS.PLATFORM; JAIN SLEE platform.</para>
+		<para>The RA implements the Resource Adaptor Type defined by Appendix C of the JAIN SLEE 1.1 Specification, and provides high performance and fail over support.</para>		
 	</abstract>
 	
 	<corpauthor>
