@@ -6,6 +6,170 @@
 
 <section id="source_jbpm">
 	<title>jBPM</title>
-	<para>TODO</para>
+	<note>
+		<para>Please refer to <acronym>jBPM</acronym> guide for deeper knowledge of inner workings.</para>
+	</note>
+	<para>jBPM is a flexible Business Process Management (BPM) Suite. In essence jBPM takes process descriptions as input.  A process is composed of activities that are connected with transitions.  Processes represent an execution flow. Each execution of a process definition is called a process instance.  jBPM manages the process instances. Some activities are automatic like sending an email or invoking an ejb.  Some activities can be wait states.  For example human tasks or waiting for an external client to invoke a service method.  jBPM will manage and persist the state of the process executions during those wait state activities. </para>
+
+<para>
+In &THIS.EXAMPLE; the order management is process driven. A JBoss jBPM process assigns fulfillment tasks to the manager based on the version of the process loaded.  The manager can change the version of the process at any time using the admin options box to the right. 
+</para>
 	
+
+<variablelist>
+		<varlistentry>
+			<term>Order process 1</term>
+			<listitem>
+				<para>sends orders immediately to shipping, where the manager should ship 
+                the order and record the tracking number for the user to see.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>Order process 2</term>
+			<listitem>
+				<para> adds an approval step where the manager is first given the chance to approve the order before sending it to shipping.  In each case, the status of the order is shown in the customer's order list.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>Order process 3</term>
+			<listitem>
+				<para> introduces a decision node.  Only orders over $100.00 need to be accepted.  Smaller orders are automatically approved for shipping. This process fires the custom events for calling the Admin. The following diagram shows the process flow</para>
+
+
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/ordermanagement3.jpg"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE;
+				Order process 3 flow
+			</para>
+		</caption>
+	</mediaobject>
+			</listitem>
+		</varlistentry>
+</variablelist>
+
+<para>
+The .jpdl xml file for Order process 3 looks like
+</para>
+
+<programlisting language="XML" role="XML"><![CDATA[
+
+
+<?xml version="1.0"?>
+
+<process-definition 
+	name="OrderManagement"
+	xmlns="urn:jbpm.org:jpdl-3.1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jbpm.org:jpdl-3.1 http://jbpm.org/xsd/jpdl-3.1.xsd"
+	>
+
+    <start-state name="start">
+        <transition to="decide"/>
+    </start-state>
+    
+    <decision name="decide" expression="#{orderApproval.howLargeIsOrder}">
+        <transition name="large order" to="approval">
+			<action expression="#{beforeOrderProcessed.fireBeforeOrderProcessedEvent}"/>
+	</transition>        
+        <transition name="small order" to="process">
+			<action expression="#{afterOrderProcessed.fireOrderProcessedEvent}"/>
+	</transition>
+    </decision>
+
+    <task-node name="approval" end-tasks="true">
+        <task name="approve" description="Review order">
+           <assignment pooled-actors="reviewers"/>
+        </task>
+        <transition name="cancel"  to="cancelled">
+				<action expression="#{orderApprovalAction.fireOrderRejectedEvent}"/>
+	    </transition>           
+        <transition name="approve" to="process">
+				<action expression="#{orderApprovalAction.fireOrderApprovedEvent}"/>
+	    </transition>        
+        <transition name="reject"  to="cancelled">
+				<action expression="#{orderApprovalAction.fireOrderRejectedEvent}"/>
+	    </transition>          
+        
+    </task-node>
+    
+    <task-node name="process">
+        <task name="ship" description="Ship order">
+           <assignment pooled-actors="#{shipperAssignment.pooledActors}" />
+        </task>
+        <transition name="shipped" to="complete">
+            <action expression="#{afterShipping.orderShipped}"/>
+        </transition>
+    </task-node>
+    
+    <end-state name="complete"/>
+    <end-state name="cancelled"/>
+    
+</process-definition>]]>
+	</programlisting>
+
+<para>
+
+<literal>orderApproval</literal> is decision node that decide's if order is greater than 100 USD. <literal>orderApproval</literal> represents the <literal>OrderApprovalDecision</literal> class.
+</para>
+
+<programlisting language="Java" role="JAVA"><![CDATA[
+
+package org.mobicents.examples.convergeddemo.seam.action;
+
+import java.math.BigDecimal;
+import org.jboss.seam.annotations.In;
+import org.jboss.seam.annotations.Name;
+
+@Name("orderApproval")
+public class OrderApprovalDecision {
+    private static BigDecimal CUTOFF = new BigDecimal(100);
+
+    @In BigDecimal amount;
+    
+    public String getHowLargeIsOrder()
+    {
+        return (amount.compareTo(CUTOFF) >= 0) ? "large order" : "small order";
+     }
+}
+
+
+]]>
+</programlisting>
+
+
+<para>
+
+If the decision returned from <literal>orderApproval</literal> is <literal>large order</literal>, <literal>beforeOrderProcessed.fireBeforeOrderProcessedEvent</literal> is called by jBPM Process. If the decision returned from <literal>orderApproval</literal> is <literal>small order</literal>, <literal>afterOrderProcessed.fireOrderProcessedEvent</literal> is called.
+</para>
+
+<para>
+<literal>beforeOrderProcessed</literal> represents class <literal>BeforeOrderProcessedAction</literal>
+</para>
+
+<para>
+<literal>afterOrderProcessed</literal> represents class <literal>AfterOrderProcessedAction</literal>
+</para>
+
+<para>
+Depending on if Order is approved or rejected by manager, corresponding <literal>orderApprovalAction.fireOrderApprovedEvent</literal> or <literal>orderApprovalAction.fireOrderRejectedEvent</literal> is called by jBPM Process.
+</para>
+
+<para>
+<literal>orderApprovalAction</literal> represents class <literal>OrderApprovalAction</literal>
+</para>
+
+<para>
+Once the Order is shipped by manager,  <literal>afterShipping.orderShipped</literal> is called by jBPM Process.
+</para>
+
+<para>
+<literal>afterShipping</literal> represents class <literal>AfterShippingAction</literal>
+</para>
+
 </section>	
