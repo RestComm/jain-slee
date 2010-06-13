@@ -22,9 +22,6 @@
 		xmlns:xi="http://www.w3.org/2001/XInclude"
 		href="Chapter-Setup.xml" />
 	<xi:include
-		xmlns:xi="http://www.w3.org/2001/XInclude"
-		href="Chapter-Clustering.xml" />
-	<xi:include
 		href="Revision_History.xml"
 		xmlns:xi="http://www.w3.org/2001/XInclude" />
 	<index />
