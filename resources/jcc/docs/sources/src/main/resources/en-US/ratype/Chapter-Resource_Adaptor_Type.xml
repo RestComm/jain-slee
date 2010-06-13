@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="ratype">
+
+	<title>Resource Adaptor Type</title>
+
+	<para>The JAIN SIP 1.2 Resource Adaptor Type is specified in Appendix D of the JAIN SLEE 1.1 Specification. The specification can be freely downloaded from <ulink url="http://jcp.org/aboutJava/communityprocess/final/jsr240/index.html" /> and includes Sbb code examples.</para>
+							
+</chapter>

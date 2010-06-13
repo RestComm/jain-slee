@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: kulikov
+Build-Jdk: 1.6.0_07
+Implementation-Title: org.mobicents.resources.jcc:mobicents-slee-ra-jc
+ c-docs-sources
+Implementation-URL: http://www.mobicents.org
+Implementation-Vendor-Id: JBoss, a Red Hat division
+Implementation-Version: 2.1.0-SNAPSHOT
+SVN-Revision: 
+

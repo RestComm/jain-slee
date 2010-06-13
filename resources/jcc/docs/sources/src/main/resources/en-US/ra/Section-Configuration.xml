@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ra_configuration">
+
+	<title>Configuration</title>
+
+	<para>The Resource Adaptor supports configuration only at Resource Adaptor Entity creation time, the following table enumerates the configuration properties:</para>
+	
+	<table frame="all" pgwide="1">
+		<title>Resource Adaptor's Configuration Properties</title>
+		<tgroup colsep="1" cols="4">
+		   	<colspec colnum="1" colname="c0"/>
+		    <colspec colnum="2" colname="c1"/>
+		    <colspec colnum="3" colname="c2"/>
+		    <colspec colnum="4" colname="c3"/>
+		    <thead>
+				<row>
+		    	    <entry>Property Name</entry>
+		   	    	<entry>Description</entry>
+		   	    	<entry>Property Type</entry>
+		   	    	<entry>Default Value</entry>
+		    	</row>
+			</thead>
+			<tbody>
+				<row>
+			   		<entry>javax.sip. IP_ADDRESS</entry>
+			   	    <entry>the IP address to which the SIP stack should attach - if value is not specified the RA will use the underlying Java EE container's bind address address</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>
+				<row>
+			   		<entry>javax.sip. OUTBOUND_PROXY</entry>
+			   	    <entry>sets the outbound proxy of the SIP Stack.  The  format for this string is "ipaddress:port/transport" i.e. 129.1.22.333:5060/UDP. This property is optional</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>
+				<row>
+			   		<entry>javax.sip. PORT</entry>
+			   	    <entry>the port to which the SIP stack should listen</entry>
+			   	    <entry>java.lang.Integer</entry>
+			   	    <entry>5060</entry>
+			    </row>
+			    <row>
+			   		<entry>javax.sip. TRANSPORT</entry>
+			   	    <entry>the list of supported transports, separated with ","</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry>UDP</entry>
+			    </row>
+			    <row>
+			   		<entry>org.mobicents. ha.javax.sip. BALANCERS</entry>
+			   	    <entry>the list of SIP balancers, in the form of "HOST:PORT", separated by ";", it is only used if the heart beat service property is defined</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>
+			    <row>
+			   		<entry>org.mobicents. ha.javax.sip. LoadBalancer HeartBeating ServiceClassName</entry>
+			   	    <entry>the name of the class responsible for the heart beats exchanged with the platform's SIP Balancer - if not specified the JAIN SIP HA stack won't use such feature</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>	
+			    <row>
+			   		<entry>org.mobicents. javax.sip. LOOSE_DIALOG _VALIDATION</entry>
+			   	    <entry>controls validation of CSeq number for dialog messages. Set to true allows out of sequence messages to be accepted.</entry>
+			   	    <entry>java.lang.Boolean</entry>
+			   	    <entry></entry>
+			    </row>			    
+			</tbody>
+	 	</tgroup>
+	</table>		
+	<important>
+		<para>Spaces where introduced in <literal>Property Name</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>
+	<important>
+		<para>JAIN SLEE 1.1 Specification requires values set for properties without a default value, which means the configuration for those properties are mandatory, otherwise the Resource Adaptor Entity creation will fail!</para>
+	</important>
+		
+</section>
