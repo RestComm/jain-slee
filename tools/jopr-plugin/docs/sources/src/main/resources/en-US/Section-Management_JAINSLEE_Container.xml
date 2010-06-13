@@ -204,4 +204,117 @@
 
 		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
 	</section>
+	
+	<section>
+		<title>Change Container Logging Configuration</title>
+		<para>It is possible to switch the JAIN SLEE container logging configuration for better fitting the needs of the container. This can be done using <guilabel>Change Global Logging Profile</guilabel> operation, in <guilabel>OPERATIONS</guilabel> tab. It can be switched between three levels:</para>
+		<variablelist>
+			<title>Logging Configuration Levels</title>
+			<varlistentry>
+				<term>Level</term>
+				<listitem>
+					<itemizedlist>
+						<listitem>
+							<para>DEFAULT: Regular logging, at INFO level, displaying most user-related messages;</para>
+						</listitem>
+						<listitem>
+							<para>DEBUG: More verbose logging, mostly using DEBUG/TRACE level, displaying message of interest for developers;</para>
+						</listitem>
+						<listitem>
+							<para>PRODUCTION: Low verbosity and async logging, mostly in WARN level, for systems in production so that logging does impact performance.</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+
+		<note><para>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>
+
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
+
+		<note><para>This changes the whole container logging configuration, so it will affect also logging for other running applications in the container, besides JAIN SLEE.</para></note>
+	</section>
+
+	<section>
+		<title>Edit Container Logging Configurations</title>
+		<para>It is possible to customize the above mentioned logging configurations, or also the currently in use container logging configuration. To perform this action, two operations should be executed:</para>
+		
+		<para>First, to retrieve the current logging configuration, the <guilabel>Get Logging Profile Configuration</guilabel> operation, in <guilabel>OPERATIONS</guilabel> tab should be used. One of the following options should be selected:</para>
+		<variablelist>
+			<title>Logging Configuration Levels</title>
+			<varlistentry>
+				<term>Level</term>
+				<listitem>
+					<itemizedlist>
+						<listitem>
+							<para>CURRENT: will retrieve the logging configuration currently in use by the container (can be a custom one);</para>
+						</listitem>
+						<listitem>
+							<para>DEFAULT: will retrieve the DEFAULT logging configuration;</para>
+						</listitem>
+						<listitem>
+							<para>DEBUG: will retrieve the DEBUG logging configuration;</para>
+						</listitem>
+						<listitem>
+							<para>PRODUCTION: will retrieve the PRODUCTION logging configuration;</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+
+		<para>After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result, which is the actual logging configuration.</para>
+
+		<para>The result of the operation should be copied into your favourite XML editor and edited as desired.</para>
+		
+		<warning>
+			<title>Logging configuration size limitation</title>
+			<para>Currently there's a limitation on 2000 characters for the logging files, so caution should be used not to pass this limit when editing.</para>
+		</warning>
+		
+		<para>When the editing is completed, the <guilabel>Update Logging Profile Configuration</guilabel> operation should be used to update the logging configuration contents.</para>
+		<para>Select the desired configuration to be updated from the similar list as presented above, and paste the edited contents in the <guilabel>Contents</guilabel> field of the operation.</para>
+
+		<note><para>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>
+
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
+		
+		<note>Editing the DEFAULT, DEBUG or PRODUCTION configurations does not apply them, even if they are currently being used. It only edits the configuration template. To edit the configuration being used, select the CURRENT configuration.</note>
+	</section>
+
+	<section>
+		<title>View Event Router Statistics</title>
+		<para>The &MANAGEMENT.PLATFORM; JAIN SLEE platform enables you to gather statistics on it's Event Router. With the <guilabel>View Event Router Statistics</guilabel> operation, in <guilabel>OPERATIONS</guilabel> tab it's possible to view them in a table form.</para>
+
+		<para>The statistics can be filtered by the following levels:</para>
+		<variablelist>
+			<title>Event Router Statistics Filters</title>
+			<varlistentry>
+				<term>Filter</term>
+				<listitem>
+					<itemizedlist>
+						<listitem>
+							<para>Global: Shows the container global statistics for all executors and event types (eg: container total number of events routed, activities mapped, etc.);</para>
+						</listitem>
+						<listitem>
+							<para>Executors: Shows the statistics per each executor (eg: activities mapped per executor, average routing time per executor, idle time per executor, etc.);</para>
+						</listitem>
+						<listitem>
+							<para>Event Types: Shows the statistics per each event type deployed (eg: average routing time per event type, number of events of that type routed, etc.);</para>
+						</listitem>
+						<listitem>
+							<para>Executors and Event Types: Shows the combined statistics of Executors with Event Types (eg: number of events of certain type router per each executor, average time for routing a certain event type by each executor, total time spent per each executor routing certain event types, etc.);</para>
+						</listitem>
+						<listitem>
+							<para>All: All the above together.</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+
+		<note><para>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>
+
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
+	</section>
 </section>

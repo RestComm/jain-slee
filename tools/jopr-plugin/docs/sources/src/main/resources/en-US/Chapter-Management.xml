@@ -45,6 +45,8 @@
 
 		<para>Each one will be described and explained in it's own section.</para>
 
+		<para>Not a component of JAIN SLEE itself, but as a crucial part of it's core is the Event Router and it's Executors. This component is also described in it's own section.</para>
+
 	</section>
 	
 	<xi:include href="Section-Management_JAINSLEE_Container.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -61,5 +63,7 @@
 
 	<xi:include href="Section-Management_Services.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-</chapter>
+	<xi:include href="Section-Management_EventRouter_Executors.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+	</chapter>
 
