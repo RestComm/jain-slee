@@ -180,15 +180,6 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>
-									<artifactId>rar</artifactId>
-									<version>${pom.version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-									<outputDirectory>src/main/resources</outputDirectory>
-									<destFileName>mobicents.rar</destFileName>
-								</artifactItem>
-								<artifactItem>
-									<groupId>${pom.groupId}</groupId>
 									<artifactId>standard-components-du</artifactId>
 									<version>${pom.version}</version>
 									<type>jar</type>
