@@ -6,7 +6,7 @@
 		<version>2.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>mobicents-slee-ra-jcc-docs-jdocbook-jbcp</artifactId>
+	<artifactId>mobicents-slee-ra-jcc-docs-jdocbook-mobicents</artifactId>
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -59,7 +59,7 @@
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>
 									<artifactId>
-										mobicents-slee-ra-jcc-docs-sources-jbcp
+										mobicents-slee-ra-jcc-docs-sources-mobicents
 									</artifactId>
 									<version>${pom.version}</version>
 									<type>jar</type>
