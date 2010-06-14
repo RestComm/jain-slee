@@ -120,7 +120,7 @@
 											</fileset>
 										</copy>
 										<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/converged-demo/du-management.xml" />
-										<copy overwrite="true" file="${basedir}/README.txt" todir="${basedir}/../../release/${release.name}/examples/converged-demo" />	
+										<!-- <copy overwrite="true" file="${basedir}/README.txt" todir="${basedir}/../../release/${release.name}/examples/converged-demo" />  -->	
 										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/converged-demo">
 											<filterset>
 												<filter token="JBOSS.PATH" value="${jboss.path}" />
