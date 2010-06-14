@@ -51,9 +51,9 @@
 	</modules>
 
 	<properties>
-		<mobicents.resources.sip11.version>2.1.0</mobicents.resources.sip11.version>
-		<mobicents.resources.mgcp.version>2.1.0</mobicents.resources.mgcp.version>
-		<mobicents.core.version>2.1.0</mobicents.core.version>
+		<mobicents.resources.sip11.version>2.1.0-SNAPSHOT</mobicents.resources.sip11.version>
+		<mobicents.resources.mgcp.version>2.1.0-SNAPSHOT</mobicents.resources.mgcp.version>
+		<mobicents.core.version>2.1.0-SNAPSHOT</mobicents.core.version>
 		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
@@ -82,9 +82,7 @@
 		<profile>
 			<id>maven-release</id>
 			<modules>
-				<!-- 
 				<module>docs</module>
-				 -->
 			</modules>
 			<build>
 				<plugins>
@@ -105,9 +103,7 @@
 		<profile>
 			<id>release</id>
 			<modules>
-				<!-- 
 				<module>docs</module>
-				 -->
 			</modules>
 			<build>
 				<plugins>
@@ -125,18 +121,18 @@
 										
 										
 										<copy overwrite="true"
-											todir="${basedir}/../../release/${release.name}/examples/converged-demo">
+											todir="${basedir}/../../release/${release.name}/examples/converged-demo" verbose="true">
 											
 											<!-- JAR with events -->
-											<fileset dir="${basedir}/events/target">
-												<include name="**.jar" />
+											<fileset dir="${basedir}/events-jar/target">
+												<include name="*converged-demo-custom-events-jar.jar" />
 											</fileset>
 											<!-- POJO PU -->
 											<fileset dir="${basedir}/pojo-pu/datasource">
 												<include name="ShoppingDemo-dev-ds.xml" />
 											</fileset>
 											<fileset dir="${basedir}/pojo-pu/target">
-												<include name="**.jar" />
+												<include name="converged-demo-pojo-pu.jar" />
 											</fileset>
 											<!-- EAR -->
 											<fileset dir="${basedir}/web/ear/target">
