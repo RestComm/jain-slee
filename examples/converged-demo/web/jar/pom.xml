@@ -70,6 +70,11 @@
 			<artifactId>jar</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>javax.resource</groupId>
+  			<artifactId>connector</artifactId>
+  			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<artifactId>converged-demo-pojo-pu</artifactId>
 			<groupId>org.mobicents.examples.converged</groupId>
 			<version>${pom.version}</version>
