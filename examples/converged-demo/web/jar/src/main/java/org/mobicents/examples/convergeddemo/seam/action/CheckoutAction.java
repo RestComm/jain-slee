@@ -39,7 +39,6 @@ import org.mobicents.examples.convergeddemo.seam.model.Inventory;
 import org.mobicents.examples.convergeddemo.seam.model.OrderLine;
 import org.mobicents.examples.convergeddemo.seam.model.Order;
 import org.mobicents.examples.convergeddemo.seam.model.Product;
-import org.mobicents.slee.connector.server.RemoteSleeService;
 import org.mobicents.slee.service.events.CustomEvent;
 
 @Stateful
