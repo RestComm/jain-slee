@@ -35,12 +35,11 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 	// Initial request
 	public void onInviteEvent(RequestEvent event, ActivityContextInterface aci) {
 		// ACI is the server transaction activity
-		final ServerTransaction st = event.getServerTransaction();
 		try {
 			// Create the dialogs representing the incoming and outgoing call
 			// legs.
 			final DialogActivity incomingDialog = (DialogActivity) sipProvider
-					.getNewDialog(st);
+					.getNewDialog(event.getServerTransaction());
 			final DialogActivity outgoingDialog = sipProvider.getNewDialog(
 					incomingDialog, true);
 			// Obtain the dialog activity contexts and attach to them
@@ -56,7 +55,7 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 			// when forwarding messages between dialogs.
 			setIncomingDialog(incomingDialogACI);
 			setOutgoingDialog(outgoingDialogACI);
-			forwardRequest(st, outgoingDialog);
+			forwardRequest(event, outgoingDialog);
 		} catch (Throwable e) {
 			tracer.severe("Failed to process incoming INVITE.", e);
 			replyToRequestEvent(event, Response.SERVICE_UNAVAILABLE);
@@ -140,7 +139,7 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 		try {
 			// Find the dialog to forward the request on
 			ActivityContextInterface peerACI = getPeerDialog(dialogACI);
-			forwardRequest(event.getServerTransaction(),
+			forwardRequest(event,
 					(DialogActivity) peerACI.getActivity());
 		} catch (SipException e) {
 			tracer.severe(e.getMessage(), e);
@@ -174,9 +173,9 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 
 	}
 
-	private void forwardRequest(ServerTransaction st, DialogActivity out)
+	private void forwardRequest(RequestEvent event, DialogActivity out)
 			throws SipException {
-		final Request incomingRequest = st.getRequest();
+		final Request incomingRequest = event.getRequest();
 		if (tracer.isInfoEnabled()) {
 			tracer.info("Forwarding request " + incomingRequest.getMethod()
 					+ " to dialog " + out);
@@ -187,7 +186,7 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 		final ClientTransaction ct = out.sendRequest(outgoingRequest);
 		// Record an association with the original server transaction,
 		// so we can retrieve it when forwarding the response.
-		out.associateServerTransaction(ct, st);
+		out.associateServerTransaction(ct, event.getServerTransaction());
 	}
 
 	private void forwardResponse(DialogActivity in, DialogActivity out,
