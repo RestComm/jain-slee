@@ -356,5 +356,5 @@ public class Order
 	]]>
 	</programlisting>
 	<para> Within <literal>local-tx-datasource</literal> descriptor defines data base connection properties (<acronym>URL</acronym>, driver, credentials). 
-	Additionaly it defines custom bean <literal>jboss:service=Hypersonic,database=dvd</literal> AAAMMMMIIITTTT</para>
+	Additionaly it defines custom bean <literal>jboss:service=Hypersonic,database=dvd</literal> This MBean exposes operations method to start the database manager which is a Swing UI via which user can manipulate the data by SQL queries. This is the feature of Hypersonic Database</para>
 </section>	
