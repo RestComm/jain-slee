@@ -103,7 +103,9 @@
 		<profile>
 			<id>release</id>
 			<modules>
+				<!-- 
 				<module>docs</module>
+				 -->
 			</modules>
 			<build>
 				<plugins>
