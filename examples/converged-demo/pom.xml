@@ -118,21 +118,40 @@
 								</goals>
 								<configuration>
 									<tasks>
+										
+										
 										<copy overwrite="true"
-											todir="${basedir}/../../release/${release.name}/examples/converged-demo">
-											<fileset dir="${basedir}/du/target">
+											file="" todir="${basedir}/../../release/${release.name}/examples/converged-demo">
+											
+											<!-- JAR with events -->
+											<fileset dir="${basedir}/events/target">
+												<include name="**.jar" />
+											</fileset>
+											<!-- POJO PU -->
+											<fileset dir="${basedir}/pojo-pu/datasource">
+												<include name="ShoppingDemo-dev-ds.xml" />
+											</fileset>
+											<fileset dir="${basedir}/pojo-pu/target">
+												<include name="**.jar" />
+											</fileset>
+											<!-- EAR -->
+											<fileset dir="${basedir}/web/ear/target">
+												<include name="**.ear" />
+											</fileset>
+											<!-- JSLEE DU -->
+											<fileset dir="${basedir}/slee/du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
 												<include name="*.properties" />
 											</fileset>
 										</copy>
-										<copy overwrite="true" file="${basedir}/du/target/build.xml"
+										
+									
+
+								
+										<copy overwrite="true" file="${basedir}/slee/du/target/build.xml"
 											tofile="${basedir}/../../release/${release.name}/examples/converged-demo/du-management.xml" />
-										<!--
-											<copy overwrite="true" file="${basedir}/README.txt"
-											todir="${basedir}/../../release/${release.name}/examples/converged-demo"
-											/>
-										-->
+									
 										<copy overwrite="true" file="${basedir}/release/build.xml"
 											todir="${basedir}/../../release/${release.name}/examples/converged-demo">
 											<filterset>
