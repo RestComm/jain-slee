@@ -232,7 +232,6 @@
 							<tasks>
 								<delete failonerror="false">
 									<fileset dir="${basedir}/src/main/resources">
-										<include name="mobicents.rar" />
 										<include name="standard-components-du.jar" />
 									</fileset>
 								</delete>
