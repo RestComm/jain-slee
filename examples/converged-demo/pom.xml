@@ -128,22 +128,22 @@
 											file="" todir="test/converged-demo">
 											
 											<!-- JAR with events -->
-											<fileset dir="${basedir}/events/target">
+											<fileset dir="./events/target">
 												<include name="**.jar" />
 											</fileset>
 											<!-- POJO PU -->
-											<fileset dir="${basedir}/pojo-pu/datasource">
+											<fileset dir="./pojo-pu/datasource">
 												<include name="ShoppingDemo-dev-ds.xml" />
 											</fileset>
-											<fileset dir="${basedir}/pojo-pu/target">
+											<fileset dir="./pojo-pu/target">
 												<include name="**.jar" />
 											</fileset>
 											<!-- EAR -->
-											<fileset dir="${basedir}/web/ear/target">
+											<fileset dir="./web/ear/target">
 												<include name="**.ear" />
 											</fileset>
 											<!-- JSLEE DU -->
-											<fileset dir="${basedir}/slee/du/target">
+											<fileset dir="./slee/du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
 												<include name="*.properties" />
@@ -154,10 +154,10 @@
 
 								
 										<copy overwrite="true" file="${basedir}/slee/du/target/build.xml"
-											tofile="${basedir}/../../release/${release.name}/examples/converged-demo/du-management.xml" />
+											tofile="test/converged-demo/du-management.xml" />
 									
 										<copy overwrite="true" file="${basedir}/release/build.xml"
-											todir="${basedir}/../../release/${release.name}/examples/converged-demo">
+											todir="test/converged-demo">
 											<filterset>
 												<filter token="JBOSS.PATH" value="${jboss.path}" />
 												<filter token="JBOSS.CONFIG" value="${node}" />
