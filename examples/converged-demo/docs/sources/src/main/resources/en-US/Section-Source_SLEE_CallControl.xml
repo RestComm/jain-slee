@@ -30,7 +30,8 @@
 
 <sbb-classes>
 	<sbb-abstract-class>
-		<sbb-abstract-class-name>org.mobicents.slee.service.callcontrol.CallControlSbb</sbb-abstract-class-name>
+		<sbb-abstract-class-name>org.mobicents.slee.service.
+			callcontrol.CallControlSbb</sbb-abstract-class-name>
 		<cmp-field>
 			<cmp-field-name>responseEventCmp</cmp-field-name>
 		</cmp-field>
@@ -48,7 +49,8 @@
 		</cmp-field>
 	</sbb-abstract-class>
 	<sbb-local-interface>
-		<sbb-local-interface-name>org.mobicents.slee.service.callcontrol.CallControlSbbLocalObject</sbb-local-interface-name>
+		<sbb-local-interface-name>org.mobicents.slee.service.
+			callcontrol.CallControlSbbLocalObject</sbb-local-interface-name>
 	</sbb-local-interface>
 </sbb-classes>
 					
@@ -431,7 +433,8 @@ public interface SimpleCallFlowState {
 			DialogActivity da=getDialogActivity();
 			try {
 				Request ackRequest=da.createAck(da.getLocalSeqNumber());
-				ContentTypeHeader cth = ((SleeSipProvider)getSipProvider()).getHeaderFactory().createContentTypeHeader("application", "sdp");
+				ContentTypeHeader cth = ((SleeSipProvider)getSipProvider())
+					.getHeaderFactory().createContentTypeHeader("application", "sdp");
 				ackRequest.setContent(event.getLocalConnectionDescriptor().toString(), cth);
 				da.sendAck(ackRequest);
 			} catch (InvalidArgumentException e1) {
@@ -466,7 +469,8 @@ public interface SimpleCallFlowState {
 			try {
 				connectionActivity = ((JainMgcpProvider) getMgcpProvider())
 						.getConnectionActivity(txID, endpointID);
-				ActivityContextInterface epnAci = ((MgcpActivityContextInterfaceFactory) getMgcpActivityContestInterfaceFactory())
+				ActivityContextInterface epnAci = 
+					((MgcpActivityContextInterfaceFactory) getMgcpActivityContestInterfaceFactory())
 						.getActivityContextInterface(connectionActivity);
 				epnAci.attach(getSbbContext().getSbbLocalObject());
 
@@ -491,7 +495,8 @@ public interface SimpleCallFlowState {
 		log.info("Creating endpoint activity on: " + eid);
 		MgcpEndpointActivity eActivity = ((JainMgcpProvider) getMgcpProvider())
 				.getEndpointActivity(eid);
-		ActivityContextInterface eAci = ((MgcpActivityContextInterfaceFactory) getMgcpActivityContestInterfaceFactory())
+		ActivityContextInterface eAci = 
+			((MgcpActivityContextInterfaceFactory) getMgcpActivityContestInterfaceFactory())
 				.getActivityContextInterface(eActivity);
 		eAci.attach(this.getSbbContext().getSbbLocalObject());
 		// eAci.attach(this.getParentCmp());

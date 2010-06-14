@@ -250,7 +250,8 @@ private void makeCall(CustomEvent event, ActivityContextInterface ac) {
 	this.setCustomEvent(event);
 
 	mgr = emf.createEntityManager();
-	order = (Order) mgr.createQuery("select o from Order o where o.orderId = :orderId").setParameter("orderId",
+	order = (Order) mgr.createQuery("select o from Order o where 
+		o.orderId = :orderId").setParameter("orderId",
 	this.getCustomEvent().getOrderId()).getSingleResult();
 	Timestamp orderDate = order.getDeliveryDate();
 	mgr.close();
@@ -325,7 +326,8 @@ private void makeCall(CustomEvent event, ActivityContextInterface ac) {
 	} catch (InvalidArgumentException invalidArgExcep) {
 		logger.severe("InvalidArgumentException while building Invite Request", invalidArgExcep);
 	} catch (TransactionUnavailableException tranUnavExce) {
-		logger.severe("TransactionUnavailableException when trying to getNewClientTransaction", tranUnavExce);
+		logger.severe("TransactionUnavailableException 
+			when trying to getNewClientTransaction", tranUnavExce);
 	} catch (UnrecognizedActivityException e) {
 		// TODO Auto-generated catch block
 		logger.severe("UnrecognizedActivityException when trying to getActivityContextInterface", e);
@@ -368,7 +370,8 @@ private void makeCall(CustomEvent event, ActivityContextInterface ac) {
 			<itemizedlist>
 				<listitem>
 					<programlisting language="Java" role="JAVA">
-public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityContextInterface aci)
+public void onCreateConnectionResponse(CreateConnectionResponse event
+	, ActivityContextInterface aci)
 {
 	//just in case
 	if(event.getSecondEndpointIdentifier()!=null)
@@ -383,7 +386,8 @@ public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityC
 				</listitem>
 					<listitem>
 					<programlisting language="Java" role="JAVA">
-public void onNotificationRequestResponse(NotificationRequestResponse event, ActivityContextInterface aci) {
+public void onNotificationRequestResponse(NotificationRequestResponse event
+	, ActivityContextInterface aci) {
 	logger.info("onNotificationRequestResponse");
 
 	ReturnCode status = event.getReturnCode();

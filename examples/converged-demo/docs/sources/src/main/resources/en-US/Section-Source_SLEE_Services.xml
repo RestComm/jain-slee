@@ -11,7 +11,8 @@
 		<programlisting language="XML" role="XML"><![CDATA[
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!DOCTYPE service-xml PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.0//EN" "http://java.sun.com/dtd/slee-service_1_0.dtd">
+<!DOCTYPE service-xml PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.0//EN" 
+	"http://java.sun.com/dtd/slee-service_1_0.dtd">
 
 <service-xml>
   <service>
@@ -22,8 +23,8 @@
         
     <!-- JSLEE v1.1 Specification, Early Draft Review Page 36 
          "A root-sbb element.
-          This element identifies the root SBB of the Service. A root-sbb element contains the following
-          sub-elements.
+          This element identifies the root SBB of the Service. A root-sbb 
+          element contains the following   sub-elements:
            * A description element.
              This is an optional informational element.
            * An sbb-name element, an sbb-vendor element, and an sbb-version element.

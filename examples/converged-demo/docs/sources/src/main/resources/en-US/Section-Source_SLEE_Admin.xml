@@ -356,8 +356,10 @@
 					<programlisting language="Java" role="JAVA">
 public void onOrderPlaced(CustomEvent event, ActivityContextInterface ac) {
 
-	logger.info("AdminSbb: " + this + ": received an ORDER_PLACED event. OrderId = " + event.getOrderId()
-			+ ". ammount = " + event.getAmmount() + ". Customer Name = " + event.getCustomerName());
+	logger.info("AdminSbb: " + this + ": received an ORDER_PLACED event. OrderId = " 
+		+ event.getOrderId()
+			+ ". ammount = " + event.getAmmount() + ". Customer Name = "
+			 + event.getCustomerName());
 	<co id="example.admin1.co1"/>
 	this.setCustomEvent(event);
 	<co id="example.admin1.co2"/>
@@ -397,8 +399,10 @@ public void onOrderPlaced(CustomEvent event, ActivityContextInterface ac) {
 				<listitem>
 					<programlisting language="Java" role="JAVA">
 public void onBeforeOrderProcessed(CustomEvent event, ActivityContextInterface ac) {
-	logger.info("AdminSbb: " + this + ": received an BEFORE_ORDER_PROCESSED event. OrderId = " + event.getOrderId()
-			+ ". ammount = " + event.getAmmount() + ". Customer Name = " + event.getCustomerName());
+	logger.info("AdminSbb: " + this + ": received an BEFORE_ORDER_PROCESSED event. OrderId = " 
+		+ event.getOrderId()
+			+ ". ammount = " + event.getAmmount() + ". Customer Name = " 
+				+ event.getCustomerName());
 	<co id="example.admin2.co1"/>
 	this.setCustomEvent(event);
 	<co id="example.admin2.co2"/>
@@ -469,7 +473,8 @@ public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 			<itemizedlist>
 				<listitem>
 					<programlisting language="Java" role="JAVA">
-	public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityContextInterface aci)
+	public void onCreateConnectionResponse(CreateConnectionResponse event
+		, ActivityContextInterface aci)
 	{
 		if(event.getSecondEndpointIdentifier()!=null)
 		{
@@ -483,7 +488,8 @@ public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 				</listitem>
 					<listitem>
 					<programlisting language="Java" role="JAVA">
-	public void onNotificationRequestResponse(NotificationRequestResponse event, ActivityContextInterface aci) {
+	public void onNotificationRequestResponse(NotificationRequestResponse event
+		, ActivityContextInterface aci) {
 		logger.info("onNotificationRequestResponse");
 
 		ReturnCode status = event.getReturnCode();
@@ -604,7 +610,8 @@ public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 
 			mgr = emf.createEntityManager();
 
-			order = (Order) mgr.createQuery("select o from Order o where o.orderId = :orderId").setParameter(
+			order = (Order) mgr.createQuery("select o from Order o where 
+				o.orderId = :orderId").setParameter(
 					"orderId", this.getCustomEvent().getOrderId()).getSingleResult();
 
 			order.setStatus(Order.Status.CANCELLED);

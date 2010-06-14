@@ -281,7 +281,8 @@ public class Order
 
 <persistence xmlns="http://java.sun.com/xml/ns/persistence"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+ xsi:schemaLocation="http://java.sun.com/xml/ns/persistence 
+ http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
  version="1.0">
 
 
@@ -292,8 +293,10 @@ public class Order
 			<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
 			<!--  property name="hibernate.hbm2ddl.auto" value="create-drop" /-->
 			<property name="hibernate.show_sql" value="true"/>
-			<property name="hibernate.transaction.manager_lookup_class" value="org.hibernate.transaction.JBossTransactionManagerLookup"/>
-			<property name="jboss.entity.manager.factory.jndi.name" value="java:/ShoppingDemoSleeEntityManagerFactory"/>
+			<property name="hibernate.transaction.manager_lookup_class" 
+				value="org.hibernate.transaction.JBossTransactionManagerLookup"/>
+			<property name="jboss.entity.manager.factory.jndi.name" 
+				value="java:/ShoppingDemoSleeEntityManagerFactory"/>
 		</properties>
 	</persistence-unit>
 </persistence>
@@ -347,7 +350,8 @@ public class Order
       <password></password>
    </local-tx-datasource>
    
-   <mbean code="org.jboss.jdbc.HypersonicDatabase" name="jboss:service=Hypersonic,database=dvd">
+   <mbean code="org.jboss.jdbc.HypersonicDatabase" 
+   		name="jboss:service=Hypersonic,database=dvd">
       <attribute name="Database">dvd</attribute>
       <attribute name="InProcessMode">true</attribute>
    </mbean>  
