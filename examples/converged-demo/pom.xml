@@ -150,7 +150,7 @@
 											</fileset>
 										</copy>
 										
-									 -->
+									
 
 								
 										<copy overwrite="true" file="${basedir}/slee/du/target/build.xml"
@@ -163,6 +163,7 @@
 												<filter token="JBOSS.CONFIG" value="${node}" />
 											</filterset>
 										</copy>
+										 -->
 									</tasks>
 								</configuration>
 							</execution>
