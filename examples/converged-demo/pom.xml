@@ -51,9 +51,9 @@
 	</modules>
 
 	<properties>
-		<mobicents.resources.sip11.version>2.1.0-SNAPSHOT</mobicents.resources.sip11.version>
-		<mobicents.resources.mgcp.version>2.1.0-SNAPSHOT</mobicents.resources.mgcp.version>
-		<mobicents.core.version>2.1.0-SNAPSHOT</mobicents.core.version>
+		<mobicents.resources.sip11.version>2.1.0</mobicents.resources.sip11.version>
+		<mobicents.resources.mgcp.version>2.1.0</mobicents.resources.mgcp.version>
+		<mobicents.core.version>2.1.0</mobicents.core.version>
 		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
