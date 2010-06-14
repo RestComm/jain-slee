@@ -41,7 +41,7 @@
 		<para>Spaces where introduced in <literal>Name</literal>  column values, to correctly render the table. Please remove them when using copy/paste.</para>
 	</important>
 	<table frame="all" pgwide="1">
-		<title>Events fired by &THIS.RA;</title>
+		<title>Events fired by &THIS.RA; RA</title>
 		<tgroup colsep="1" cols="3">
 			<!--
 			<colspec colnum="1" colname="c0" colwidth="3*"/>

@@ -31,9 +31,9 @@
 					New
 					<literal>MAPDialog</literal>
 					Activity objects are created by calling
-<literal>MAPProvider.createNewDialog(MAPApplicationContext appCntx,	
-SccpAddress origAddress, AddressString origReference,SccpAddress destAddress, AddressString destReference )
-					</literal>
+<literal>MAPProvider.createNewDialog(MAPApplicationContext appCntx,</literal>
+<literal>SccpAddress origAddress, AddressString origReference,SccpAddress destAddress,</literal> 
+<literal>AddressString destReference )</literal>
 				</para>
 			</listitem>
 		</varlistentry>
