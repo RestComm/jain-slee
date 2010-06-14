@@ -123,26 +123,26 @@
 								<configuration>
 									<tasks>
 										
-										<!-- 
+										
 										<copy overwrite="true"
 											todir="${basedir}/../../release/${release.name}/examples/converged-demo">
 											
-											
+											<!-- JAR with events -->
 											<fileset dir="${basedir}/events/target">
 												<include name="**.jar" />
 											</fileset>
-										
+											<!-- POJO PU -->
 											<fileset dir="${basedir}/pojo-pu/datasource">
 												<include name="ShoppingDemo-dev-ds.xml" />
 											</fileset>
 											<fileset dir="${basedir}/pojo-pu/target">
 												<include name="**.jar" />
 											</fileset>
-									
+											<!-- EAR -->
 											<fileset dir="${basedir}/web/ear/target">
 												<include name="**.ear" />
 											</fileset>
-									
+											<!-- JSLEE DU -->
 											<fileset dir="${basedir}/slee/du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
@@ -163,7 +163,6 @@
 												<filter token="JBOSS.CONFIG" value="${node}" />
 											</filterset>
 										</copy>
-										 -->
 									</tasks>
 								</configuration>
 							</execution>
