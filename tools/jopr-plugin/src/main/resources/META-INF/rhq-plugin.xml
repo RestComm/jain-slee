@@ -93,6 +93,62 @@
       </results>
     </operation>
 
+    <!-- Congestion Control -->
+    <operation name="ccSetMemOn" displayName="CC-SetMinFreeMemoryToTurnOn" description="Sets the minimum memory (percentage) that should be available to turn on congestion control.">
+      <parameters>
+        <c:simple-property name="value" default="10" />
+      </parameters>
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
+
+    <operation name="ccSetMemOff" displayName="CC-SetMinFreeMemoryToTurnOff" description="Sets the minimum memory (percentage) that should be available to turn off congestion control.">
+      <parameters>
+        <c:simple-property name="value" default="20" />
+      </parameters>
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
+
+    <operation name="ccSetCheckPeriod" displayName="CC-SetPeriodBetweenChecks" description="Sets the period in seconds to check if congestion control state should change. Use 0 to turn off congestion control.">
+      <parameters>
+        <c:simple-property name="value" default="0" />
+      </parameters>
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
+
+    <operation name="ccSetRefuseStartActivity" displayName="CC-SetRefuseStartActivity" description="Defines if the start of activity should be refused, when congestion control is on.">
+      <parameters>
+        <c:simple-property name="value" default="true">
+          <c:property-options>
+            <c:option value="true" name="true" />
+            <c:option value="false" name="false" />
+          </c:property-options>
+        </c:simple-property>
+      </parameters>
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
+
+    <operation name="ccSetRefuseFireEvent" displayName="CC-SetRefuseFireEvent" description="Defines if the firing of an event should be refused, when congestion control is on.">
+      <parameters>
+        <c:simple-property name="value" default="false">
+          <c:property-options>
+            <c:option value="true" name="true" />
+            <c:option value="false" name="false" />
+          </c:property-options>
+        </c:simple-property>
+      </parameters>
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
+
 		<operation name="viewEventRouterStatistics" description="View statistical information about Event Router">
       <parameters>
         <c:simple-property name="filter" default="executors">

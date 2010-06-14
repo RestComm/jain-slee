@@ -12,9 +12,7 @@ import java.util.Set;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.naming.NamingException;
 import javax.slee.EventTypeID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentMBean;
@@ -24,6 +22,7 @@ import javax.slee.management.SleeState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean;
+import org.mobicents.slee.container.management.jmx.CongestionControlConfigurationMBean;
 import org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean;
 import org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean;
 import org.mobicents.slee.container.management.jmx.JmxActivityContextHandle;
@@ -163,11 +162,105 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     else if("viewEventRouterStatistics".equals(name)) {
       return doViewEventRouterStatistics(parameters);
     }
+    // Congestion Control Management
+    else if("ccSetMemOn".equals(name)) {
+      return doManageCongestionControl(0, parameters);
+    }
+    else if("ccSetMemOff".equals(name)) {
+      return doManageCongestionControl(1, parameters);
+    }
+    else if("ccSetCheckPeriod".equals(name)) {
+      return doManageCongestionControl(2, parameters);
+    }
+    else if("ccSetRefuseStartActivity".equals(name)) {
+      return doManageCongestionControl(3, parameters);
+    }
+    else if("ccSetRefuseFireEvent".equals(name)) {
+      return doManageCongestionControl(4, parameters);
+    }
     else {
       throw new UnsupportedOperationException("Operation [" + name + "] is not supported.");
     }
   }
 
+  private OperationResult doManageCongestionControl(int op, Configuration parameters) throws Exception {
+    OperationResult result = new OperationResult();
+    
+    MBeanServerConnection connection = getMBeanServerUtils().getConnection();
+    
+    ObjectName ccConfigObjectName = new ObjectName("org.mobicents.slee:name=CongestionControlConfiguration");
+    CongestionControlConfigurationMBean ccConfigMBean = MBeanServerInvocationHandler.newProxyInstance(connection,
+        ccConfigObjectName, CongestionControlConfigurationMBean.class, false);
+
+    switch (op) {
+    case 0: // ccSetMemOn
+      int oldValue = ccConfigMBean.getMinFreeMemoryToTurnOn();
+      int newValue = parameters.getSimple("value").getIntegerValue();
+      if(oldValue != newValue) {
+        ccConfigMBean.setMinFreeMemoryToTurnOn(newValue);
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValue + "' to '" + newValue + "')."));
+      }
+      else {
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+      }
+      break;
+
+    case 1: // ccSetMemOff
+      oldValue = ccConfigMBean.getMinFreeMemoryToTurnOff();
+      newValue = parameters.getSimple("value").getIntegerValue();
+      if(oldValue != newValue) {
+        ccConfigMBean.setMinFreeMemoryToTurnOff(newValue);
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValue + "' to '" + newValue + "')."));
+      }
+      else {
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+      }
+      break;
+
+    case 2: // ccSetCheckPeriod
+      oldValue = ccConfigMBean.getPeriodBetweenChecks();
+      newValue = parameters.getSimple("value").getIntegerValue();
+      if(oldValue != newValue) {
+        ccConfigMBean.setPeriodBetweenChecks(newValue);
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValue + "' to '" + newValue + "')."));
+      }
+      else {
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+      }
+      break;
+
+    case 3: // ccSetRefuseStartActivity
+      boolean oldValueBool = ccConfigMBean.isRefuseStartActivity();
+      boolean newValueBool = parameters.getSimple("value").getBooleanValue();
+      if(oldValueBool != newValueBool) {
+        ccConfigMBean.setRefuseStartActivity(newValueBool);
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValueBool + "' to '" + newValueBool + "')."));
+      }
+      else {
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+      }
+      break;
+
+    case 4: // ccSetRefuseFireEvent
+      oldValueBool = ccConfigMBean.isRefuseFireEvent();
+      newValueBool = parameters.getSimple("value").getBooleanValue();
+      if(oldValueBool != newValueBool) {
+        ccConfigMBean.setRefuseFireEvent(newValueBool);
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValueBool + "' to '" + newValueBool + "')."));
+      }
+      else {
+        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+      }
+      break;
+
+    default:
+      result.setErrorMessage("Unknown operation in Congestion Control Management (" + op + ")");
+      break;
+    }
+    
+    return result;
+  }
+  
   private OperationResult doViewEventRouterStatistics(Configuration parameters) throws Exception {
     OperationResult result = new OperationResult();
     PropertyList statistics = new PropertyList("statistics");
@@ -641,4 +734,5 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     
     return erConfigMBean;
   }
+
 }

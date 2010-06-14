@@ -68,6 +68,12 @@
       <version>${mobicents.jslee.version}</version>
     </dependency>
     
+    <dependency>
+      <groupId>org.mobicents.servers.jainslee.core</groupId>
+      <artifactId>congestion</artifactId>
+      <version>${mobicents.jslee.version}</version>
+    </dependency>
+    
     <!-- <dependency>
       <groupId>javax.slee</groupId>
       <artifactId>jain-slee</artifactId>

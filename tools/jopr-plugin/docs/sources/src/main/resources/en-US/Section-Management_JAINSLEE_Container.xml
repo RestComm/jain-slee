@@ -317,4 +317,40 @@
 
 		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
 	</section>
+	
+	<section>
+		<title>Managing Congestion Control</title>
+		<para>The &MANAGEMENT.PLATFORM; JAIN SLEE platform provides congestion control mechanisms to prevent the server to become unresponsive under very high load.</para>
+
+		<para>The following parameters are available for configuration and the correspondent set operations (CC-Set&lt;parameter&gt;) can be found under <guilabel>OPERATIONS</guilabel> tab:</para>
+		<variablelist>
+			<title>Congestion Control Parameters</title>
+			<varlistentry>
+				<term>Parameter</term>
+				<listitem>
+					<itemizedlist>
+						<listitem>
+							<para><emphasis>MinFreeMemoryToTurnOn</emphasis>: The minimum memory (percentage) that should be available to turn on congestion control;</para>
+						</listitem>
+						<listitem>
+							<para><emphasis>MinFreeMemoryToTurnOff</emphasis>: The minimum memory (percentage) that should be available to turn off congestion control;</para>
+						</listitem>
+						<listitem>
+							<para><emphasis>PeriodBetweenChecks</emphasis>: The period in seconds to check if congestion control state should change. 0 means congestion control is off;</para>
+						</listitem>
+						<listitem>
+							<para><emphasis>RefuseStartActivity</emphasis>: Defines if the start of activity should be refused, when congestion control is on;</para>
+						</listitem>
+						<listitem>
+							<para><emphasis>RefuseFireEvent</emphasis>: Defines if the firing of an event should be refused, when congestion control is on;</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+
+		<note><para>As any operation on &MANAGEMENT.PLATFORM;, these operations can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>
+
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
+	</section>
 </section>
