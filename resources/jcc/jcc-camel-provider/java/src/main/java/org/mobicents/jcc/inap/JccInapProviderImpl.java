@@ -259,6 +259,7 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
     }
     
     public void shutdown() {
+    	stopped = true;
         callListeners.clear();
         connectionListeners.clear();
         calls.clear();
@@ -266,6 +267,7 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
         threadPool.shutdownNow();
         sccpProvider.shutdown();
         state = JccProvider.SHUTDOWN;
+        stopped = true;
     }
     
 //    public void onMessage(SccpAddress calledPartyAddress, SccpAddress callingPartyAddress, byte[] data) {
