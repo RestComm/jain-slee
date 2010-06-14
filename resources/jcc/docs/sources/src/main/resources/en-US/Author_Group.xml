@@ -18,6 +18,6 @@
 	<author>
 		<firstname>Oleg</firstname>
 		<surname>Kulikov</surname>
-		<email>okulikov (at) redhat.com</email>
+		<email>&AUTHOR_EMAIL_OLEG;</email>
 	</author>
 </authorgroup>

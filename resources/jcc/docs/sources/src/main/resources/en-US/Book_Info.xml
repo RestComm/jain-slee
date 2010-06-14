@@ -14,7 +14,7 @@
 
 	<abstract>
 		<para>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor (<acronym>RA</acronym>) is the JAIN SLEE 1.1 RA for the Java Call Control API, used in &THIS.PLATFORM; JAIN SLEE platform.</para>
-		<para>The RA implements the Resource Adaptor Type defined by Appendix C of the JAIN SLEE 1.1 Specification, and provides high performance and fail over support.</para>		
+		<para>The RA implements the Resource Adaptor Type defined by Appendix C of the JAIN SLEE 1.1 Specification <!-- , and provides high performance and fail over support -->.</para>		
 	</abstract>
 	
 	<corpauthor>
