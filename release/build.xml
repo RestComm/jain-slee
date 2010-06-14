@@ -3,7 +3,7 @@
 
 	<property environment="sys"/>
 	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp,jcc,map,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
-	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot,sip-b2bua,call-controller2,mgcp-demo"/>
+	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot,sip-b2bua,call-controller2,mgcp-demo,converged-demo"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
@@ -17,7 +17,10 @@
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 	<property name="diameter.version" value="1.2.1.GA" />
+	<!--
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-${diameter.version}.zip"/>
+	-->
+	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
