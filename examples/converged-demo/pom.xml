@@ -125,7 +125,7 @@
 										
 										
 										<copy overwrite="true"
-											file="" todir="${basedir}/../../release/${release.name}/examples/converged-demo">
+											file="" todir="test/converged-demo">
 											
 											<!-- JAR with events -->
 											<fileset dir="${basedir}/events/target">
