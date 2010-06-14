@@ -54,8 +54,6 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	private final SbbEntityFactory sbbEntityFactory;
 	private final SleeTransactionManager txMgr;
 
-	private TimerTask currentQuestioner = null;
-
 	private static Logger logger = Logger
 			.getLogger(ActivityManagementMBeanImpl.class);
 
@@ -178,10 +176,8 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 
 		logger.info("Extorting liveliness query!!");
 		// prepareBean();
-		if (currentQuestioner.cancel()) {
-			currentQuestioner = new PeriodicLivelinessScanner();
-			currentQuestioner.run();
-		}
+		cancelLivenessQuery();
+		new PeriodicLivelinessScanner().run();
 		logger.info("Extortion complete");
 		// currentQuestioner=new PeriodicLivelinessScanner();
 
