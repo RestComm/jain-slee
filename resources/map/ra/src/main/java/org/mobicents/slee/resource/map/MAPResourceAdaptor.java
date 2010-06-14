@@ -208,6 +208,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = this.mapStack.getMAPProvider();
 		mapProvider.removeMAPDialogListener(this);
 		mapProvider.removeMAPServiceListener(this);
+		this.mapStack.stop();
 
 	}
 
