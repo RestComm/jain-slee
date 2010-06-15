@@ -26,10 +26,10 @@
 
 
 	<properties>
-		<asn.version>1.0.0.BETA1-SNAPSHOT</asn.version>
-		<mtp.version>1.0.0.BETA2-SNAPSHOT</mtp.version>
-		<sccp.version>1.0.0.BETA1-SNAPSHOT</sccp.version>
-		<tcap.version>1.0.0.BETA1-SNAPSHOT</tcap.version>
+		<tcap.version>1.0.0.BETA1</tcap.version>
+		<sccp.version>1.0.0.BETA1</sccp.version>
+		<asn.version>1.0.0.BETA1</asn.version>
+		<mtp.version>1.0.0.BETA2</mtp.version>
 		
 		<version.jcc>1.1</version.jcc>
 		<version.concurrent>1.3.4</version.concurrent>
