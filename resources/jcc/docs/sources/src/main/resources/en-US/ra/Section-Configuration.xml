@@ -47,7 +47,7 @@
 			</tbody>
 		</tgroup>
 	</table>
-	<para>Configuration option supports following values:</para>
+	<para>Configuration option(<literal>provider</literal>) supports following values(aside class full name):</para>
 	<variablelist>
 		<varlistentry>
 			<term>TCP</term>
