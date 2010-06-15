@@ -133,30 +133,7 @@
 				</table>
 			</listitem>
 		</varlistentry>
-		<varlistentry>
-			<term></term>
-			<listitem>
-				<para></para>
-			</listitem>
-		</varlistentry>
-		<varlistentry>
-			<term></term>
-			<listitem>
-				<para></para>
-			</listitem>
-		</varlistentry>
 	</variablelist>
-	<itemizedlist>
-		<listitem>
-			<para></para>
-		</listitem>
-		<listitem>
-			<para></para>
-		</listitem>
-		<listitem>
-			<para></para>
-		</listitem>
-	</itemizedlist>
 	<important>
 		<para>JAIN SLEE 1.1 Specification requires values set for properties
 			without a default value, which means the configuration for those
