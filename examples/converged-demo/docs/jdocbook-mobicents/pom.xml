@@ -13,6 +13,37 @@
 		
 	<packaging>jdocbook</packaging>
 	
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<!-- copy docs -->
+										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/examples/converged-demo/docs">
+											<fileset dir="${basedir}/target/docbook/publish" />
+										</copy>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -68,7 +99,7 @@
 						</includes>
 					</imageResource>
 					<formats>
-						<!-- 
+						
 						<format>
 							<formatName>pdf</formatName>
 							<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
@@ -79,7 +110,6 @@
 							<stylesheetResource>classpath:/xslt/org/jboss/xhtml.xsl</stylesheetResource>
 							<finalName>index.html</finalName>
 						</format>
-						 -->
 						<format>
 							<formatName>html_single</formatName>
 							<stylesheetResource>classpath:/xslt/org/jboss/xhtml-single.xsl</stylesheetResource>
