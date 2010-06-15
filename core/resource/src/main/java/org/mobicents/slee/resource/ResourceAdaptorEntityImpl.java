@@ -633,7 +633,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 				ah = resourceManagement.getHandleReferenceFactory().removeActivityHandleReference((ActivityHandleReference) handle);
 			}
 		}
-		if (ActivityFlags.hasRequestEndedCallback(activityFlags)) {
+		if (ah != null && ActivityFlags.hasRequestEndedCallback(activityFlags)) {
 			object.activityEnded(ah);
 		}
 		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
