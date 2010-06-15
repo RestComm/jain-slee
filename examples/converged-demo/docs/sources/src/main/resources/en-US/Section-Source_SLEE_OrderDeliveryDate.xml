@@ -297,12 +297,14 @@
 			</varlistentry>
 		</variablelist>
 		</section>	
+		<!-- 
 		<section id="source_slee_deliver_date_custom_event">
 			<title>Custom event handlers</title>
 			<para>AMIT</para>
 			
 					
 		</section>
+		 -->
 		<section id="source_slee_user_mgcp_event">
 			<title><acronym>MGCP</acronym> event handlers</title>
 			<para><literal>OrderDeliverDateSbb</literal> declares three <acronym>MGCP</acronym> event handlers:</para>
