@@ -101,7 +101,7 @@
 						<format>
 							<formatName>pdf</formatName>
 							<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-							<finalName>Mobicents_SLEE_Example_SIP_Google_Talk_Bot_User_Guide.pdf</finalName>
+							<finalName>Mobicents_SLEE_Example_Google_Talk_Bot_User_Guide.pdf</finalName>
 						</format>
 						<format>
 							<formatName>html</formatName>
