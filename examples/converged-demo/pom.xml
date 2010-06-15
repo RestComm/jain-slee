@@ -19,11 +19,6 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-			  <groupId>org.jboss.el</groupId>
-			  <artifactId>jboss-el</artifactId>
-			  <version>1.0_02.CR5</version>
-			</dependency>
-			<dependency>
 				<groupId>javax.slee</groupId>
 				<artifactId>jain-slee</artifactId>
 				<version>1.1</version>
@@ -59,7 +54,7 @@
 		<mobicents.resources.sip11.version>2.1.0-SNAPSHOT</mobicents.resources.sip11.version>
 		<mobicents.resources.mgcp.version>2.1.0-SNAPSHOT</mobicents.resources.mgcp.version>
 		<mobicents.core.version>2.1.0-SNAPSHOT</mobicents.core.version>
-		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
+		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA4</mobicents.tools.mavenplugin.du.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
 
@@ -179,27 +174,4 @@
 		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/converged-demo</developerConnection>
 		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/converged-demo</url>
 	</scm>
-	
-	<repositories>
-			<repository>
-				<id>jboss</id>
-				<name>JBoss Repository</name>
-				<url>http://repository.jboss.org/maven2</url>
-				<snapshots>
-					<enabled>false</enabled>
-				</snapshots>
-			</repository>
-			<repository>
-				<id>jboss-snapshots</id>
-				<name>JBoss Snapshot Repository</name>
-				<url>http://snapshots.jboss.org/maven2</url>
-				<releases>
-					<enabled>false</enabled>
-				</releases>
-				<snapshots>
-					<enabled>true</enabled>
-				</snapshots>
-			</repository>
-		</repositories>
-		
 </project>
