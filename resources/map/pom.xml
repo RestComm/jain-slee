@@ -25,7 +25,7 @@
 	<properties>
 		<docs.profile>mobicents</docs.profile>
 		<docs.ra.name>MAP</docs.ra.name>
-		<docs.ra.dirname>map</docs.ra.dirname>
+		<docs.ra.dirname>MAP</docs.ra.dirname>
 		<docs.bookid>MAP</docs.bookid>
 		
 		<map.version>1.0.0.BETA1</map.version>
@@ -127,25 +127,20 @@
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
 
 	<repositories>
-		<repository>
-			<id>jboss</id>
-			<name>JBoss Repository</name>
-			<url>http://repository.jboss.org/maven2</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>jboss-snapshots</id>
-			<name>JBoss Snapshot Repository</name>
-			<url>http://snapshots.jboss.org/maven2</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+			<repository>
+				<id>jboss-public-repository-group</id>
+				<name>JBoss Public Maven Repository Group</name>
+				<url>https://repository.jboss.org/nexus/content/groups/public</url>
+				<layout>default</layout>
+				<releases>
+					<enabled>true</enabled>
+					<updatePolicy>never</updatePolicy>
+				</releases>
+				<snapshots>
+					<enabled>true</enabled>
+					<updatePolicy>never</updatePolicy>
+				</snapshots>
+			</repository>
+		</repositories>
 	
 </project>
