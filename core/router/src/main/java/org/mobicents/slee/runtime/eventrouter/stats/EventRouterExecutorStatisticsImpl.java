@@ -35,7 +35,7 @@ public class EventRouterExecutorStatisticsImpl implements
 	private long tasksExecuted = 0L;
 	private long taskExecutingTime = 0L;
 
-	private final long startTime = System.currentTimeMillis();
+	private final long startTime = System.nanoTime();
 
 	private void taskExecuted(long executionTime) {
 		tasksExecuted++;
@@ -187,7 +187,7 @@ public class EventRouterExecutorStatisticsImpl implements
 	 * #getIdleTime()
 	 */
 	public long getIdleTime() {
-		return (System.currentTimeMillis() - startTime) - getExecutingTime();
+		return (System.nanoTime() - startTime) - getExecutingTime();
 	}
 
 	/*

@@ -75,9 +75,9 @@ public class EventRouterExecutorImpl implements EventRouterExecutor {
 		 * @see java.lang.Runnable#run()
 		 */
 		public void run() {
-			final long startTime = System.currentTimeMillis();
+			final long startTime = System.nanoTime();
 			runnable.run();
-			stats.miscTaskExecuted(System.currentTimeMillis() - startTime);
+			stats.miscTaskExecuted(System.nanoTime() - startTime);
 		}
 	}
 
