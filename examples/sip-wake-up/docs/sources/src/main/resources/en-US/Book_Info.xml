@@ -10,7 +10,7 @@
 	<pubsnumber>1</pubsnumber>
 
 	<abstract>
-		<para>TODO</para>		
+		<para>&THIS.EXAMPLE; Example is simple example to show how to use <acronym>JSLEE</acronym> timer facility and form proper <acronym>SIP</acronym> messages in order to interact with <acronym>SIP</acronym> <acronym>UA</acronym>s.</para>		
 	</abstract>
 	
 	<corpauthor>
