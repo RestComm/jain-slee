@@ -26,6 +26,12 @@
 
 
 	<properties>
+	
+		<docs.ra.name>JCC</docs.ra.name>
+		<docs.ra.dirname>jcc</docs.ra.dirname>
+		<docs.bookid>JCC</docs.bookid>
+		
+		
 		<tcap.version>1.0.0.BETA1</tcap.version>
 		<sccp.version>1.0.0.BETA1</sccp.version>
 		<asn.version>1.0.0.BETA1</asn.version>

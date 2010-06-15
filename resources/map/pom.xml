@@ -25,7 +25,7 @@
 	<properties>
 		<docs.profile>mobicents</docs.profile>
 		<docs.ra.name>MAP</docs.ra.name>
-		<docs.ra.dirname>MAP</docs.ra.dirname>
+		<docs.ra.dirname>map</docs.ra.dirname>
 		<docs.bookid>MAP</docs.bookid>
 		
 		<map.version>1.0.0.BETA1</map.version>
