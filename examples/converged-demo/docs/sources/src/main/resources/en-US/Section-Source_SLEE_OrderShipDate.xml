@@ -364,7 +364,7 @@ private void makeCall(CustomEvent event, ActivityContextInterface ac) {
 				</listitem>
 			</itemizedlist>
 		</section>
-		<section id="source_slee_user_mgcp_event">
+		<section id="source_slee_ordershipdate_mgcp_event">
 			<title><acronym>MGCP</acronym> event handlers</title>
 			<para><literal>OrderShipDateSbb</literal> declares three <acronym>MGCP</acronym> event handlers:</para>
 			<itemizedlist>

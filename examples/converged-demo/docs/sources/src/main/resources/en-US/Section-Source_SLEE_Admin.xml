@@ -348,7 +348,7 @@
 		</variablelist>
 		
 		</section>
-		<section id="source_slee_user_custom_event">
+		<section id="source_slee_admin_custom_event">
 			<title>Custom event handlers</title>
 			<para><literal>AdminSbb</literal> declares five custom event handlers:</para>
 			<itemizedlist>

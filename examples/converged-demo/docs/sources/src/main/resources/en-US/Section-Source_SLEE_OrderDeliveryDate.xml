@@ -305,7 +305,7 @@
 					
 		</section>
 		 -->
-		<section id="source_slee_user_mgcp_event">
+		<section id="source_slee_orderdeliverydate_mgcp_event">
 			<title><acronym>MGCP</acronym> event handlers</title>
 			<para><literal>OrderDeliverDateSbb</literal> declares three <acronym>MGCP</acronym> event handlers:</para>
 			<itemizedlist>
