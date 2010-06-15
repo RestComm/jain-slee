@@ -70,7 +70,7 @@
 		<title>Uninstalling &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
 		<para>To uninstall the Example simply execute provided ant script <filename>build.xml</filename> <literal>undeploy</literal> target:</para>
 		<programlisting>
-		[usr]$ ant undeploy
+		[usr]$ ant undeploy-all
 		</programlisting>
 		<para>The script will delete the Example's deployable unit jar from the <literal>default</literal> &THIS.PLATFORM; JAIN SLEE server profile deploy directory, to undeploy from another server profile use the argument <literal>-Dnode=</literal>.</para>
 	</section>			
