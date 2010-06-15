@@ -36,7 +36,7 @@
 	</mediaobject>
 	<important><para>Aliased <acronym>ACI</acronym> variables must be of same, serializable type. However alias name must be distinct</para></important>
 	<note><para>There is no limitation on how many  variables and <acronym>ACI</acronym>s pairs can be aliased, ie. three <acronym>ACI</acronym> can share the same variable.</para> </note>
-	<para>Aliases are created on custom <acronym>ACI</acronym> variables. Custom <acronym>ACI</acronym> and aliases is defined in sbb-jar.xml as follow:</para>
+	<para>Aliases are created on custom <acronym>ACI</acronym> variables. Custom <acronym>ACI</acronym> and aliases are defined in sbb-jar.xml as follow:</para>
 	<programlisting language="XML" role="XML"><![CDATA[
     <sbb>
 		<description />
