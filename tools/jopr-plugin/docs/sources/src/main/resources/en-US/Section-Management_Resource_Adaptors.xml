@@ -11,7 +11,7 @@
 			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Resource Adaptor Summary View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_summary.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_summary.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Resource Adaptor Summary View.</para>
@@ -31,7 +31,7 @@
 			<title>Monitoring JAIN SLEE Resource Adaptor Availability and Active Entities.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_availability.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_availability.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Monitoring JAIN SLEE Resource Adaptor Availability and Active Entities.</para>
@@ -47,7 +47,7 @@
 			<title>Resource Adaptor Entities Listing</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_inventory.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_inventory.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Resource Adaptor Entities Listing</para>
@@ -64,7 +64,7 @@
 				<title>Create New Resource Adaptor Entity</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata fileref="images/img-jopr_slee_ra_new_entity.png" format="PNG"/>
+						<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_new_entity.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>Create New Resource Adaptor Entity</para>
@@ -78,7 +78,7 @@
 				<title>Add Property to New Resource Adaptor Entity</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata fileref="images/img-jopr_slee_ra_new_entity_properties.png" format="PNG"/>
+						<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_new_entity_properties.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>Add Property to New Resource Adaptor Entity</para>
@@ -98,7 +98,7 @@
 				<title>Removing a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata fileref="images/img-jopr_slee_ra_remove_entity.png" format="PNG"/>
+						<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_remove_entity.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>Removing a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
@@ -115,7 +115,7 @@
 			<title>Configuring Resource Adaptor Properties.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_configuration.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_configuration.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Configuring Resource Adaptor Properties.</para>

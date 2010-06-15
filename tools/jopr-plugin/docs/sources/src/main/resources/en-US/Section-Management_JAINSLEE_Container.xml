@@ -14,7 +14,7 @@
 			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Summary View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_summary.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_summary.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Summary View.</para>
@@ -30,7 +30,7 @@
 			<title>&MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin Availability View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_availability.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_availability.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>&MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin Availability View.</para>
@@ -46,7 +46,7 @@
 			<title>&MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin Inventory View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_inventory.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_inventory.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>&MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin Inventory View.</para>
@@ -84,7 +84,7 @@
 				<title>Installing a Deployable Unit with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata fileref="images/img-jopr_slee_install_du.png" format="PNG"/>
+						<imagedata width="300px" align="center" fileref="images/img-jopr_slee_install_du.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>Installing a Deployable Unit with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
@@ -94,7 +94,7 @@
 			
 			<para>Click the <guibutton>UPLOAD FILE...</guibutton> button, a new browser window will be shown to upload the <acronym>JAIN SLEE</acronym> Deployable Unit. Click <guibutton>Add...</guibutton>, select the Deployable Unit to be installed, click <guibutton>Upload</guibutton> to confirm and close this browser window.</para>
 			
-			<warning>You browser might ask you if you want to resend the information. Please accept it. Google Chrome browser may not support this operation!</warning>
+			<warning><para>You browser might ask you if you want to resend the information. Please accept it. Google Chrome browser may not support this operation!</para></warning>
 			
 			<para>Back on the main window for installing the <acronym>DU</acronym>, select either to do a persistent deploy (copy file to deploy folder) or not (simply call <command>install</command> on the DU).</para>
 			
@@ -114,7 +114,7 @@
 				<title>Uninstalling a Deployable Unit with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata fileref="images/img-jopr_slee_uninstall_du.png" format="PNG"/>
+						<imagedata width="300px" align="center" fileref="images/img-jopr_slee_uninstall_du.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>Uninstalling a Deployable Unit with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
@@ -138,7 +138,7 @@
 			<title>Changing JAIN SLEE State.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_op_sleestate.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_op_sleestate.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Changing <acronym>JAIN SLEE</acronym> State.</para>
@@ -186,7 +186,7 @@
 			<title>Sample result of invoking List All Activity Contexts.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_op_acs_result.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_op_acs_result.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Sample result of invoking List All Activity Contexts.</para>
@@ -279,7 +279,7 @@
 
 		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
 		
-		<note>Editing the DEFAULT, DEBUG or PRODUCTION configurations does not apply them, even if they are currently being used. It only edits the configuration template. To edit the configuration being used, select the CURRENT configuration.</note>
+		<note><para>Editing the DEFAULT, DEBUG or PRODUCTION configurations does not apply them, even if they are currently being used. It only edits the configuration template. To edit the configuration being used, select the CURRENT configuration.</para></note>
 	</section>
 
 	<section>

@@ -105,7 +105,7 @@
 						</listitem>
 						<listitem>
 							<para>Default settings should be fine to install the server correctly. To test the DB connection, please click <guibutton>Test Connection</guibutton> button.</para>
-							<warning>If the <guibutton>Test Connection</guibutton> button was used, make sure that the <guibutton>Database Password</guibutton> field is still filled, as some browsers lose the data in there. Default password is <emphasis>rhqadmin</emphasis>.</warning>
+							<warning><para>If the <guibutton>Test Connection</guibutton> button was used, make sure that the <guibutton>Database Password</guibutton> field is still filled, as some browsers lose the data in there. Default password is <emphasis>rhqadmin</emphasis>.</para></warning>
 						</listitem>
 						<listitem>
 							<para>Review the seleceted settings, click <guibutton>Install Server!</guibutton> and wait for it to complete.</para>
@@ -126,7 +126,7 @@
 								<title>Accessing Download Menu</title>
 								<mediaobject>
 									<imageobject>
-										<imagedata fileref="images/img-jopr_download_menu.png" format="PNG"/>
+										<imagedata width="300px" align="center" fileref="images/img-jopr_download_menu.png" format="PNG"/>
 									</imageobject>
 									<textobject>
 										<para>Accessing Download Menu</para>
@@ -173,7 +173,7 @@
 							<title>Accessing Plugins Menu</title>
 							<mediaobject>
 								<imageobject>
-									<imagedata fileref="images/img-jopr_plugins_menu.png" format="PNG"/>
+									<imagedata width="300px" align="center" fileref="images/img-jopr_plugins_menu.png" format="PNG"/>
 								</imageobject>
 								<textobject>
 									<para>Accessing Plugins Menu</para>
@@ -187,7 +187,7 @@
 							<title>Uploading Plugin</title>
 							<mediaobject>
 								<imageobject>
-									<imagedata fileref="images/img-jopr_upload_plugin.png" format="PNG"/>
+									<imagedata width="300px" align="center" fileref="images/img-jopr_upload_plugin.png" format="PNG"/>
 								</imageobject>
 								<textobject>
 									<para>Uploading Plugin</para>
@@ -229,7 +229,7 @@
 				<title>Accessing Auto Discovery Queue Menu</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata fileref="images/img-jopr_auto_discovery_menu.png" format="PNG"/>
+						<imagedata width="300px" align="center" fileref="images/img-jopr_auto_discovery_menu.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>Accessing Auto Discovery Queue Menu</para>
@@ -237,7 +237,7 @@
 				</mediaobject>
 			</figure>
 
-			<note>Please make sure that the <acronym>JAIN SLEE</acronym> Server is running at this time, otherwise it won't be shown under Auto Discovery.</note>
+			<note><para>Please make sure that the <acronym>JAIN SLEE</acronym> Server is running at this time, otherwise it won't be shown under Auto Discovery.</para></note>
 
 			<warning>
 				<title>JAIN SLEE Server not showing in Auto Discovery?</title>
@@ -255,7 +255,7 @@
 				<title>Selecting the server to be imported into &MANAGEMENT.PLATFORM;.</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata fileref="images/img-jopr_import_resources.png" format="PNG"/>
+						<imagedata width="300px" align="center" fileref="images/img-jopr_import_resources.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>Selecting the server to be imported into &MANAGEMENT.PLATFORM;.</para>

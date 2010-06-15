@@ -14,7 +14,7 @@
 			<title>Resource Adaptor Entity Link Summary View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_entity_link_summary.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_entity_link_summary.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Resource Adaptor Entity Link Summary View.</para>
@@ -30,7 +30,7 @@
 			<title>Monitoring JAIN SLEE Resource Adaptor Entity Link Availability.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_entity_availability.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_entity_availability.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Monitoring JAIN SLEE Resource Adaptor Entity Link Availability.</para>
@@ -54,7 +54,7 @@
 			<title>Sample result of invoking List bound Sbbs on RA Entity Link.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_entity_link_op_listboundsbbs.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_entity_link_op_listboundsbbs.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Sample result of invoking List bound Sbbs on RA Entity Link.</para>

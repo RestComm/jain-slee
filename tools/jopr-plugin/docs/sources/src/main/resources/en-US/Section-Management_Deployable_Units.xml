@@ -14,7 +14,7 @@
 			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Deployable Unit Summary View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_du_summary.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_du_summary.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Deployable Unit Summary View.</para>
@@ -30,7 +30,7 @@
 			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Deployable Unit Availability View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_availability.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_availability.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Deployable Unit Availability View.</para>
@@ -59,7 +59,7 @@
 			<title>Sample result of invoking List Component IDs.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_du_op_listcomponents_result.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_du_op_listcomponents_result.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Sample result of invoking List Component IDs.</para>

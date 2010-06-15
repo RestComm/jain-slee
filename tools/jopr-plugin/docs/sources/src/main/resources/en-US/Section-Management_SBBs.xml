@@ -11,7 +11,7 @@
 			<title>SBB Summary View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_sbb_summary.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_sbb_summary.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>SBB Summary View.</para>
@@ -26,7 +26,7 @@
 					<title>Change Collection Interval value for measurements.</title>
 					<mediaobject>
 						<imageobject>
-							<imagedata fileref="images/img-jopr_slee_monitor_schedules.png" format="PNG"/>
+							<imagedata width="300px" align="center" fileref="images/img-jopr_slee_monitor_schedules.png" format="PNG"/>
 						</imageobject>
 						<textobject>
 							<para>Change Collection Interval value for measurements.</para>
@@ -44,7 +44,7 @@
 			<title>Monitoring JAIN SLEE SBB Availability.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_availability.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_availability.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Monitoring JAIN SLEE SBB Availability.</para>

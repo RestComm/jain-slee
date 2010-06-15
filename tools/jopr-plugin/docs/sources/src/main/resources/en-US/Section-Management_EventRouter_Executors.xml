@@ -19,7 +19,7 @@
 			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Event Router Executors Summary View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_ere_summary_view.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_ere_summary_view.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Event Router Executors Summary View.</para>

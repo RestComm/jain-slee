@@ -14,7 +14,7 @@
 			<title>Resource Adaptor Entity Summary View.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_entity_summary.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_entity_summary.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Resource Adaptor Entity Summary View.</para>
@@ -29,7 +29,7 @@
 					<title>Change Collection Interval value for measurements.</title>
 					<mediaobject>
 						<imageobject>
-							<imagedata fileref="images/img-jopr_slee_monitor_schedules.png" format="PNG"/>
+							<imagedata width="300px" align="center" fileref="images/img-jopr_slee_monitor_schedules.png" format="PNG"/>
 						</imageobject>
 						<textobject>
 							<para>Change Collection Interval value for measurements.</para>
@@ -51,7 +51,7 @@
 			<title>Monitoring JAIN SLEE Resource Adaptor Entity Availability and Activities Count.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_entity_availability.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_entity_availability.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Monitoring JAIN SLEE Resource Adaptor Entity Availability and Activities Count.</para>
@@ -67,7 +67,7 @@
 			<title>Resource Adaptor Entity Links Listing</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_entity_inventory.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_entity_inventory.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Resource Adaptor Entity Links Listing</para>
@@ -84,7 +84,7 @@
 				<title>Create New Resource Adaptor Entity Link</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata fileref="images/img-jopr_slee_ra_new_entity_link.png" format="PNG"/>
+						<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_new_entity_link.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>Create New Resource Adaptor Entity Link</para>
@@ -104,7 +104,7 @@
 				<title>Removing a Resource Adaptor Entity Link with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata fileref="images/img-jopr_slee_ra_remove_entity_link.png" format="PNG"/>
+						<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_remove_entity_link.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>Removing a Resource Adaptor Entity Link with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
@@ -121,7 +121,7 @@
 			<title>Configuring a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_configuration.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_configuration.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Configuring a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
@@ -139,7 +139,7 @@
 			<title>Changing the Resource Adaptor Entity State.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_entity_op_changestate.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_entity_op_changestate.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Changing the Resource Adaptor Entity State.</para>
@@ -184,7 +184,7 @@
 			<title>Sample result of invoking List Activity Context on RA Entity.</title>
 			<mediaobject>
 				<imageobject>
-					<imagedata fileref="images/img-jopr_slee_ra_entity_op_acs_result.png" format="PNG"/>
+					<imagedata width="300px" align="center" fileref="images/img-jopr_slee_ra_entity_op_acs_result.png" format="PNG"/>
 				</imageobject>
 				<textobject>
 					<para>Sample result of invoking List Activity Context on RA Entity.</para>
