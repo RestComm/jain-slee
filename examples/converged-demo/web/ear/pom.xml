@@ -111,7 +111,7 @@
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.seam</groupId>
+			<groupId>org.jboss.el</groupId>
 			<artifactId>jboss-el</artifactId>
 			<exclusions>
 				<exclusion>

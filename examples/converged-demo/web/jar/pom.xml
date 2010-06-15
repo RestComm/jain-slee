@@ -33,7 +33,7 @@
 			<artifactId>jbpm-jpdl</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.seam</groupId>
+			<groupId>org.jboss.el</groupId>
 			<artifactId>jboss-el</artifactId>
 		</dependency>
 		<dependency>
