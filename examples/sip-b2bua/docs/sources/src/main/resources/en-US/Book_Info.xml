@@ -10,7 +10,7 @@
 	<pubsnumber>1</pubsnumber>
 
 	<abstract>
-		<para>TODO</para>		
+		<para>&THIS.EXAMPLE; Example is a simple <acronym>B2B</acronym> example. It shows how <acronym>JSLEE</acronym> <acronym>SIP</acronym> can easly establish <acronym>B2B</acronym> call legs.</para>		
 	</abstract>
 	
 	<corpauthor>
