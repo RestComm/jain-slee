@@ -19,6 +19,11 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+			  <groupId>org.jboss.el</groupId>
+			  <artifactId>jboss-el</artifactId>
+			  <version>1.0_02.CR5</version>
+			</dependency>
+			<dependency>
 				<groupId>javax.slee</groupId>
 				<artifactId>jain-slee</artifactId>
 				<version>1.1</version>
