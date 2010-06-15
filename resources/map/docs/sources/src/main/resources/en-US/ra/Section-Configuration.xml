@@ -63,53 +63,55 @@
 			<tbody>
 				<row>
 			   		<entry>driver</entry>
-			   	    <entry>TODO</entry>
+			   	    <entry>Configures stream driver of <acronym>SCCP</acronym> layer. Currently only TCP is supported.</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>TCP</entry>
 			    </row>
 				<row>
 			   		<entry>server.ip</entry>
-			   	    <entry>TODO</entry>
+			   	    <entry>Driver configuration options. Specifies TCP address to which driver will connect.</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>127.0.0.1</entry>
 			    </row>
 				<row>
 			   		<entry>server.port</entry>
-			   	    <entry>TODO</entry>
+			   	    <entry>Specifies server port to which driver will connect.</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>1345</entry>
 			    </row>
 				<row>
 		   		<entry>sccp.opc</entry>
-			   	    <entry>TODO</entry>
+			   	    <entry>Default OPC used by SCCP layer for originating messages.</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>0</entry>
 			    </row>
 				<row>
 		   		<entry>sccp.dpc</entry>
-			   	    <entry>TODO</entry>
+			   	    <entry>Default DPC used by SCCP layer for originating messages.</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>0</entry>
 			    </row>
 				<row>
 		   		<entry>sccp.sls</entry>
-			   	    <entry>TODO</entry>
+			   	    <entry>Default SLS used by SCCP layer for originating messages.</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>0</entry>
 			    </row>
 				<row>
-		   		<entry>sccp.ssf</entry>
-			   	    <entry>TODO</entry>
+		   		<entry>sccp.ssi</entry>
+			   	    <entry>Default SSI used by SCCP layer for originating messages.</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>0</entry>
 			    </row>
+			    <!-- This is set to SCCP value if used.
 				<row>
+				
 		   		<entry>sccp.si</entry>
 			   	    <entry>TODO</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>0</entry>
 			    </row>
-
+				 -->
 		    
 			</tbody>
 	 	</tgroup>
