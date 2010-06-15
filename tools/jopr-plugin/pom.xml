@@ -46,6 +46,12 @@
     
     <dependency>
       <groupId>org.mobicents.servers.jainslee.core</groupId>
+      <artifactId>spi</artifactId>
+      <version>${mobicents.jslee.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mobicents.servers.jainslee.core</groupId>
       <artifactId>activities</artifactId>
       <version>${mobicents.jslee.version}</version>
     </dependency>
