@@ -109,13 +109,13 @@
 						</includes>
 					</imageResource>
 					<formats>
-						<!-- format>
+						<format>
 							<formatName>pdf</formatName>
 							<stylesheetResource>
 								classpath:/xslt/org/jboss/pdf.xsl
 							</stylesheetResource>
-							<finalName>Mobicents_SLEE_RA_JCC_User_Guide.pdf</finalName>
-						</format -->
+							<finalName>JBCP_SLEE_RA_JCC_User_Guide.pdf</finalName>
+						</format>
 						<format>
 							<formatName>html</formatName>
 							<stylesheetResource>
