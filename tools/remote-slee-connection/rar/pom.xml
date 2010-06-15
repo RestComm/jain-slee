@@ -42,6 +42,7 @@
 		<profile>
 			<id>release</id>
 			<build>
+				<!-- make this name pushed into slee-ds.xml via resource filtration -->
 				<finalName>mobicents-slee-remote-connection.rar</finalName>
 				<plugins>
 					<plugin>

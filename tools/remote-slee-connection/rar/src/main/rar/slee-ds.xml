@@ -17,7 +17,7 @@
           
           <local-transaction/>
     
-          <rar-name>mobicents-jca.rar</rar-name>
+          <rar-name>mobicents-slee-remote-connection.rar</rar-name>
 
           <connection-definition>javax.slee.connection.SleeConnectionFactory</connection-definition>
 
