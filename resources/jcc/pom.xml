@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>pom</packaging>
 
@@ -11,7 +10,7 @@
 
 	<artifactId>mobicents-slee-ra-jcc</artifactId>
 	<groupId>org.mobicents.resources.jcc</groupId>
-	<version>2.1.0-SNAPSHOT</version>
+	<version>2.1.0.GA</version>
 
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 
@@ -194,9 +193,9 @@
 	</profiles>
 
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jcc</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jcc</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jcc</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jcc/2.1.0.GA</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jcc/2.1.0.GA</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jcc/2.1.0.GA</url>
 	</scm>
 	
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
