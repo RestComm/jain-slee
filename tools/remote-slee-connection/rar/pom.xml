@@ -18,18 +18,18 @@
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>remote</artifactId>
-			<version>${pom.version}</version>
+			<version>${mobicents.slee.version}</version>
 
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>activities</artifactId>
-			<version>${pom.version}</version>
+			<version>${mobicents.slee.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>spi</artifactId>
-			<version>${pom.version}</version>
+			<version>${mobicents.slee.version}</version>
 		</dependency>
 
 		<dependency>

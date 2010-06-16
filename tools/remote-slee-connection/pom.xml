@@ -18,6 +18,10 @@
 		<module>rar</module>
 	</modules>
 	
+	<properties>
+		<mobicents.slee.version>2.1.0.GA</mobicents.slee.version>
+	</properties>
+	
 	<scm>
 		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/remote-slee-connection</connection>
 		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/remote-slee-connection</developerConnection>
