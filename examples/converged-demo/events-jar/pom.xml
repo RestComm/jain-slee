@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>converged-demo-parent</artifactId>
 		<groupId>org.mobicents.examples.converged</groupId>
-		<version>2.0.0-SNAPSHOT</version>
+		<version>2.1.0.GA</version>
 	</parent>
 	
 	<artifactId>converged-demo-custom-events-jar</artifactId>
@@ -56,9 +56,7 @@
 						
 						<configuration>
 							<tasks>
-								<copy overwrite="true"
-									file="${project.build.directory}/converged-demo-custom-events-jar.jar"
-									todir="${jboss.home}/server/${node}/deploy" />
+								<copy overwrite="true" file="${project.build.directory}/converged-demo-custom-events-jar.jar" todir="${jboss.home}/server/${node}/deploy" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -70,8 +68,7 @@
 						</goals>
 						<configuration>
 							<tasks>
-								<delete
-									file="${jboss.home}/server/${node}/deploy/converged-demo-custom-events-jar.jar" />
+								<delete file="${jboss.home}/server/${node}/deploy/converged-demo-custom-events-jar.jar" />
 							</tasks>
 						</configuration>
 					</execution>

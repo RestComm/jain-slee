@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -10,7 +9,7 @@
 
 	<artifactId>converged-demo-parent</artifactId>
 	<groupId>org.mobicents.examples.converged</groupId>
-	<version>2.0.0-SNAPSHOT</version>
+	<version>2.1.0.GA</version>
 
 
 	<packaging>pom</packaging>
@@ -125,8 +124,7 @@
 									<tasks>
 										
 										
-										<copy overwrite="true"
-											todir="${basedir}/../../release/${release.name}/examples/converged-demo" verbose="true">
+										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/examples/converged-demo" verbose="true">
 											
 											<!-- JAR with events -->
 											<fileset dir="${basedir}/events-jar/target">
@@ -154,11 +152,9 @@
 									
 
 								
-										<copy overwrite="true" file="${basedir}/slee/du/target/build.xml"
-											tofile="${basedir}/../../release/${release.name}/examples/converged-demo/du-management.xml" />
+										<copy overwrite="true" file="${basedir}/slee/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/converged-demo/du-management.xml" />
 									
-										<copy overwrite="true" file="${basedir}/release/build.xml"
-											todir="${basedir}/../../release/${release.name}/examples/converged-demo">
+										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/converged-demo">
 											<filterset>
 												<filter token="JBOSS.PATH" value="${jboss.path}" />
 												<filter token="JBOSS.CONFIG" value="${node}" />
@@ -175,9 +171,9 @@
 	</profiles>
 
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/converged-demo</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/converged-demo</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/converged-demo</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/converged-demo/2.1.0.GA</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/converged-demo/2.1.0.GA</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/converged-demo/2.1.0.GA</url>
 	</scm>
 	
 	<repositories>
