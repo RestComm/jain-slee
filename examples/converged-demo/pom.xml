@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.6</version>
+		<version>2.7</version>
 	</parent>
 
 	<artifactId>converged-demo-parent</artifactId>
@@ -56,9 +56,9 @@
 	</modules>
 
 	<properties>
-		<mobicents.resources.sip11.version>2.1.0-SNAPSHOT</mobicents.resources.sip11.version>
-		<mobicents.resources.mgcp.version>2.1.0-SNAPSHOT</mobicents.resources.mgcp.version>
-		<mobicents.core.version>2.1.0-SNAPSHOT</mobicents.core.version>
+		<mobicents.resources.sip11.version>2.1.0.GA</mobicents.resources.sip11.version>
+		<mobicents.resources.mgcp.version>2.1.0.GA</mobicents.resources.mgcp.version>
+		<mobicents.core.version>2.1.0.GA</mobicents.core.version>
 		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA4</mobicents.tools.mavenplugin.du.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
@@ -179,4 +179,33 @@
 		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/converged-demo</developerConnection>
 		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/converged-demo</url>
 	</scm>
+	
+	<repositories>
+		<repository>
+			<id>jboss</id>
+			<name>JBoss Repository</name>
+			<url>http://repository.jboss.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+	
 </project>
