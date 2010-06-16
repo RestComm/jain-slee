@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="ra/src/main/java"/>
-	<classpathentry kind="src" path="ra/src/main/resources"/>
-	<classpathentry kind="src" path="events/src/main/resources"/>
-	<classpathentry kind="src" path="events/src/main/java"/>
-	<classpathentry kind="src" path="ratype/src/main/java"/>
-	<classpathentry kind="src" path="ratype/src/main/resources"/>
-	<classpathentry kind="src" path="du/src/main/resources"/>
-	<classpathentry kind="var" path="M2_REPO/jain/jain-mgcp-ri/1.0/jain-mgcp-ri-1.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.9/log4j-1.2.9.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/mgcp/mgcp-impl/2.0.0.RC5/mgcp-impl-2.0.0.RC5.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" output="events/target/classes" path="events/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="events/target/classes" path="events/src/main/resources"/>
+	<classpathentry kind="src" output="ratype/target/classes" path="ratype/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="ratype/target/classes" path="ratype/src/main/resources"/>
+	<classpathentry kind="src" output="ra/target/classes" path="ra/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="ra/target/classes" path="ra/src/main/resources"/>
+	<classpathentry excluding="**" kind="src" output="du/target/classes" path="du/src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
