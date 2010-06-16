@@ -39,7 +39,8 @@
 							javax.slee.SbbNotification
 							[service=ServiceID[name=Seam DVD Example User SBB Service,
 							vendor=org.mobicents,version=1.0],sbb=SbbID
-							[name=UserSbb,vendor=org.mobicents,version=1.0]].User
+							[name=UserSbb,vendor=org.mobicents,
+							version=1.0]].User
 						</entry>
 					</row>
 					<row>
@@ -49,7 +50,8 @@
 							javax.slee.SbbNotification
 							[service=ServiceID[name=Seam DVD Example User SBB Service,
 							vendor=org.mobicents,version=1.0],sbb=SbbID
-							[name=CallControlSbb,vendor=org.mobicents,version=1.0]].CallControl
+							[name=CallControlSbb,vendor=org.mobicents,
+							version=1.0]].CallControl
 						</entry>
 					</row>
 					
@@ -59,9 +61,11 @@
 						<entry>OrderShipDateSbb</entry>
 						<entry>
 							javax.slee.SbbNotification
-							[service=ServiceID[name=Mobicents Furniture Store Example Order Ship SBB Service
-							,vendor=org.mobicents,version=1.0],sbb=SbbID
-							[name=OrderShipDateSbb,vendor=org.mobicents,version=1.0]].OrderShipDate
+							[service=ServiceID[name=Mobicents Furniture Store Example Order Ship SBB
+							Service,vendor=org.mobicents,version=1.0],
+							sbb=SbbID[name=OrderShipDateSbb,
+							vendor=org.mobicents,version=1.0]].
+							OrderShipDate
 						</entry>
 					</row>
 					
@@ -71,9 +75,10 @@
 						<entry>CallControlSbb</entry>
 						<entry>
 							javax.slee.SbbNotification
-							[service=ServiceID[name=Mobicents Furniture Store Example Order Ship SBB Service
-							,vendor=org.mobicents,version=1.0],sbb=SbbID
-							[name=CallControlSbb,vendor=org.mobicents,version=1.0]].CallControl
+							[service=ServiceID[name=Mobicents Furniture Store Example Order Ship SBB 
+							Service,vendor=org.mobicents,version=1.0],
+							sbb=SbbID[name=CallControlSbb,
+							vendor=org.mobicents,version=1.0]].CallControl
 						</entry>
 					</row>
 					<row>
@@ -83,7 +88,8 @@
 							javax.slee.SbbNotification
 							[service=ServiceID[name=Seam DVD Example Admin SBB Service,
 							vendor=org.mobicents,version=1.0],sbb=SbbID
-							[name=AdminSbb,vendor=org.mobicents,version=1.0]].Admin
+							[name=AdminSbb,vendor=org.mobicents,
+							version=1.0]].Admin
 						</entry>
 
 					</row>
@@ -94,7 +100,8 @@
 							javax.slee.SbbNotification
 							[service=ServiceID[name=Seam DVD Example Admin SBB Service,
 							vendor=org.mobicents,version=1.0],sbb=SbbID
-							[name=CallControlSbb,vendor=org.mobicents,version=1.0]].CallControl
+							[name=CallControlSbb,vendor=org.mobicents,
+							version=1.0]].CallControl
 						</entry>
 					</row>
 					
@@ -103,9 +110,11 @@
 						<entry>OrderDeliverDateSbb</entry>
 						<entry>
 							javax.slee.SbbNotification
-							[service=ServiceID[name=Mobicents Furniture Store Example Order Date SBB Service,
-							vendor=org.mobicents,version=1.0],sbb=SbbID
-							[name=OrderDeliverDateSbb,vendor=org.mobicents,version=1.0]].OrderDeliverDate
+							[service=ServiceID[name=Mobicents Furniture Store Example Order Date SBB 
+							Service,vendor=org.mobicents,version=1.0],
+							sbb=SbbID[name=OrderDeliverDateSbb,
+							vendor=org.mobicents,version=1.0]].
+							OrderDeliverDate
 						</entry>
 					</row>
 					<row>
@@ -113,9 +122,10 @@
 						<entry>CallControlSbb</entry>
 						<entry>
 							javax.slee.SbbNotification
-							[service=ServiceID[name=Mobicents Furniture Store Example Order Date SBB Service,
-							vendor=org.mobicents,version=1.0],sbb=SbbID
-							[name=CallControlSbb,vendor=org.mobicents,version=1.0]].CallControl
+							[service=ServiceID[name=Mobicents Furniture Store Example Order Date SBB
+							Service, vendor=org.mobicents,version=1.0],sbb=SbbID
+							[name=CallControlSbb,vendor=org.mobicents,
+							version=1.0]].CallControl
 						</entry>
 					</row>
 				</tbody>
