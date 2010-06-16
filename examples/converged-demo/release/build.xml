@@ -88,21 +88,24 @@
 			<property name="node" value="${jboss.config}" />
 		</ant>
 		
-		<delete file="${jboss.home}/server/${jboss.config}/deploy/ShoppingDemo.ear"/>
-		<delete file="${jboss.home}/server/${jboss.config}/deploy/converged-demo-pojo-pu.jar"/>
-		<delete file="${jboss.home}/server/${jboss.config}/deploy/ShoppingDemo-dev-ds.xml"/>
-		<delete file="${jboss.home}/server/${jboss.config}/deploy/converged-demo-custom-events-jar.jar"/>
-	
-
 		<ant antfile="${home}../../resources/mgcp/build.xml" target="undeploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
+
 		<ant antfile="${home}../../resources/sip11/build.xml" target="undeploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
-	</target>
 
+		<delete file="${jboss.home}/server/${jboss.config}/deploy/converged-demo-custom-events-jar.jar"/>
+
+		<sleep seconds="10"/>
+		<delete file="${jboss.home}/server/${jboss.config}/deploy/ShoppingDemo.ear"/>
+		<sleep seconds="10"/>
+		<delete file="${jboss.home}/server/${jboss.config}/deploy/converged-demo-pojo-pu.jar"/>
+		<sleep seconds="3"/>
+		<delete file="${jboss.home}/server/${jboss.config}/deploy/ShoppingDemo-dev-ds.xml"/>
+	</target>
 
 </project>
