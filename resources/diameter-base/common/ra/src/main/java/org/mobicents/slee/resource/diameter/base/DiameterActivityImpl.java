@@ -9,7 +9,14 @@ import javax.slee.resource.SleeEndpoint;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
+import net.java.slee.resource.diameter.base.events.AbortSessionAnswer;
+import net.java.slee.resource.diameter.base.events.AccountingAnswer;
+import net.java.slee.resource.diameter.base.events.CapabilitiesExchangeAnswer;
+import net.java.slee.resource.diameter.base.events.DeviceWatchdogAnswer;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
+import net.java.slee.resource.diameter.base.events.DisconnectPeerAnswer;
+import net.java.slee.resource.diameter.base.events.ReAuthAnswer;
+import net.java.slee.resource.diameter.base.events.SessionTerminationAnswer;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 
@@ -20,7 +27,15 @@ import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
+import org.mobicents.slee.resource.diameter.base.events.AbortSessionAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.CapabilitiesExchangeAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.DeviceWatchdogAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
+import org.mobicents.slee.resource.diameter.base.events.DisconnectPeerAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.ErrorAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.ReAuthAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.SessionTerminationAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.handlers.BaseSessionCreationListener;
 
 /**
@@ -36,12 +51,12 @@ public class DiameterActivityImpl implements DiameterActivity {
 
   protected Session session = null;
   protected String sessionId = null;
-  
+
   protected DiameterActivityHandle handle = null;
-  
+
   protected DiameterMessageFactory messageFactory = null;
   protected DiameterAvpFactory avpFactory = null;
-  
+
   protected EventListener<Request, Answer> raEventListener = null;
   protected DiameterIdentity destinationHost = null;
   protected DiameterIdentity destinationRealm = null;
@@ -107,12 +122,10 @@ public class DiameterActivityImpl implements DiameterActivity {
   }
 
   public void sendMessage(DiameterMessage message) throws IOException {
-    // FIXME: baranowb - this is async send?
     try {
       if (message instanceof DiameterMessageImpl) {
         DiameterMessageImpl msg = (DiameterMessageImpl) message;
         this.session.send(msg.getGenericData(), this.raEventListener);
-        // FIXME: baranowb; get dest host and realm :], possibly some other avps
       }
       else {
         throw new OperationNotSupportedException("Trying to send wrong type of message? [" + message.getClass() + "] \n" + message);
@@ -133,13 +146,47 @@ public class DiameterActivityImpl implements DiameterActivity {
   }
 
   public DiameterMessage sendSyncMessage(DiameterMessage message) {
+    DiameterMessage answer = null;
+
     try {
       if (message instanceof DiameterMessageImpl) {
-        DiameterMessageImpl msg = (DiameterMessageImpl) message;
-        Future<Message> response = this.session.send( msg.getGenericData());
-        // FIXME: alexandre: get dest host and realm, possibly some other avps
+        Future<Message> future = this.session.send(((DiameterMessageImpl) message).getGenericData());
 
-        return (DiameterMessage) response.get();
+        Message receivedMessage = future.get(); 
+
+        if (!receivedMessage.isRequest()) {
+          if(receivedMessage.isError()) {
+            answer = new ErrorAnswerImpl(receivedMessage);
+          }
+          else {
+            switch (receivedMessage.getCommandCode()) {
+            case AbortSessionAnswer.commandCode:
+              answer = new AbortSessionAnswerImpl(receivedMessage);
+              break;
+            case AccountingAnswer.commandCode:
+              answer = new AccountingAnswerImpl(receivedMessage);
+              break;
+            case CapabilitiesExchangeAnswer.commandCode:
+              answer = new CapabilitiesExchangeAnswerImpl(receivedMessage);
+              break;
+            case DeviceWatchdogAnswer.commandCode:
+              answer = new DeviceWatchdogAnswerImpl(receivedMessage);
+              break;
+            case DisconnectPeerAnswer.commandCode:
+              answer = new DisconnectPeerAnswerImpl(receivedMessage);
+              break;
+            case ReAuthAnswer.commandCode:
+              answer = new ReAuthAnswerImpl(receivedMessage);
+              break;
+            case SessionTerminationAnswer.commandCode:
+              answer = new SessionTerminationAnswerImpl(receivedMessage);
+              break;
+            }
+          }
+        }
+        else {
+          logger.error("Received a REQUEST message when expecting an ANSWER.");
+        }
       }
       else {
         throw new OperationNotSupportedException("Trying to send wrong type of message? [" + message.getClass() + "] \n" + message);
@@ -152,7 +199,7 @@ public class DiameterActivityImpl implements DiameterActivity {
       logger.error("Failure sending sync request.", e);
     }
 
-    return null;
+    return answer;
   }
 
   public boolean isValid() {
@@ -179,7 +226,7 @@ public class DiameterActivityImpl implements DiameterActivity {
   public void setTerminateAfterProcessing(boolean terminateAfterProcessing) {
     this.terminateAfterProcessing = terminateAfterProcessing;
   }
-  
+
   public boolean isTerminateAfterProcessing() {
     return terminateAfterProcessing;
   }
