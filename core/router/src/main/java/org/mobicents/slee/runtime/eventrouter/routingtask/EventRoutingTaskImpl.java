@@ -173,7 +173,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 				logger.debug("Active services which define "+eventContext.getEventTypeId()+" as initial: "
 						+ serviceComponents);
 			
-			boolean notFinished;
+			boolean finished;
 			String rootSbbEntityId;
 			ClassLoader invokerClassLoader;
 			SbbEntity sbbEntity;
@@ -199,7 +199,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 				serviceComponent = null;
 				keepSbbEntityIfTxRollbacks = false;
 				nextSbbEntityFinderResult = null;
-				notFinished = false;
+				finished = false;
 				ac = null;
 				caught = null;
 				deliverEvent = true;
@@ -260,12 +260,18 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 										logger.debug("No sbb entities attached, which didn't already route the event, but "+serviceComponent+" defines the event type as initial, starting initial event processing");
 									// let the service process event as initial
 									serviceComponents.removeFirst();
-									sbbEntity = initialEventProcessor.processInitialEvent(serviceComponent, eventContext, container, ac);									
+									sbbEntity = initialEventProcessor.processInitialEvent(serviceComponent, eventContext, container, ac);	
+									// if service returned no sbb entity and there are no more service components we are done
+									if (sbbEntity == null && serviceComponents.isEmpty()) {										
+										finished = true;
+									}
 								}
 								else {
 									// nothing else to route
+									finished = true;
 									if (debugLogging)
-										logger.debug("No sbb entities attached, which didn't already route the event, and no services left to process the event as initial");									
+										logger.debug("No sbb entities attached, which didn't already route the event, and no services left to process the event as initial");		
+									
 								}
 							} else {
 								if (serviceComponent != null && serviceComponent.getDescriptor().getDefaultPriority() >= nextSbbEntityFinderResult.sbbEntity.getPriority()) {
@@ -273,7 +279,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 										logger.debug("Found an sbb entity attached, which didn't already route the event, but "+serviceComponent+" defines the event type as initial and has the same or higher priority, starting initial event processing");
 									// the service has higher or equal priority as the sbb entity, let the service process the eventas initial
 									serviceComponents.removeFirst();
-									sbbEntity = initialEventProcessor.processInitialEvent(serviceComponent, eventContext, container, ac);									
+									sbbEntity = initialEventProcessor.processInitialEvent(serviceComponent, eventContext, container, ac);												
 								}
 								else {
 									if (debugLogging)
@@ -289,7 +295,6 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 						if (sbbEntity != null) {
 
 							sbbEntitiesThatHandledCurrentEvent.add(sbbEntity.getSbbEntityId());
-							notFinished = true;
 							
 							if (debugLogging) {
 								logger
@@ -420,27 +425,20 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 					// will not has any impact on this because the
 					// ac.DeliveredSet
 					// is not in the cache.
-					if (notFinished) {
+					if (!finished) {
 						if (serviceComponents.isEmpty()) {
 							// no more services to process event as initial
 							try {
 								if (nextSbbEntityFinder.next(ac, eventContext,sbbEntitiesThatHandledCurrentEvent,container) == null) {
 								//if (nextSbbEntityFinder.next(ac, de.getEventTypeId(),de.getService(),sbbEntitiesThatHandledCurrentEvent) == null && sbbEntitiesThatHandledCurrentEvent.contains(sbbEntity.getSbbEntityId())) {
 									// no more attached sbb entities to route the event
-									notFinished = false;
+									finished = true;
 								}
 							} catch (Throwable e) {
 								if (debugLogging) {
 									logger.debug("failed to get next attached sbb entity to handle event",e);
 								}
 							}
-						}
-					}
-					else {
-						if (nextSbbEntityFinderResult != null && serviceComponent != null) {
-							// edge case when there is an attached sbb entity with less or same priority as
-							// a service to process event as initial, but the service doesn't accept the event
-							notFinished = true;
 						}
 					}
 					
@@ -513,7 +511,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 						txMgr.rollback();
 					} else {
 						
-						if (!notFinished) {
+						if (finished) {
 							switch (routingPhase) {
 							case DELIVERING:
 								// last tx for this event delivering and it is going to commit (hopefully)
@@ -521,7 +519,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 								// and do post processing in this tx, in the worst (and unexpected) scenario
 								// the tx will rollback and we will do another spin, due to setting gotSbb as true
 								if (eventContext.unreferencedCallbackRequiresTransaction()) {
-									notFinished = true;
+									finished = false;
 									routingPhase = RoutingPhase.DELIVERED;
 									eventContext.getReferencesHandler().remove(eventContext.getActivityContextHandle());
 								}	
@@ -529,7 +527,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 							case DELIVERED:
 								if (eventContext.unreferencedCallbackRequiresTransaction()) {
 									// we had bad luck and last tx rollbacked, repeat action
-									notFinished = true;
+									finished = false;
 									eventContext.getReferencesHandler().remove(eventContext.getActivityContextHandle());
 								}
 								break;								
@@ -547,7 +545,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 						
 						// if we are not in delivering mode anymore and tx commits then we allow the loop to exit
 						if (routingPhase != RoutingPhase.DELIVERING) {
-							notFinished = false;
+							finished = true;
 						}
 					}
 
@@ -628,7 +626,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 					return;
 				}
 				
-			} while (notFinished);
+			} while (!finished);
 
 			/*
 			 * End of SLEE Originated Invocation Sequence
