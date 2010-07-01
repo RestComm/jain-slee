@@ -101,7 +101,7 @@ public class SLEEDeploymentMetaData
       for(int i = 0; i < nodeList.getLength(); i++) {
         if(nodeList.item(i) instanceof Element) {
           Element elem = (Element) nodeList.item(i);
-          if(elem.getNodeName().equals("jar") || elem.getNodeName().equals("service")) {
+          if(elem.getNodeName().equals("jar") || elem.getNodeName().equals("service-xml")) {
             duContents.add(elem.getTextContent());
           }
         }
