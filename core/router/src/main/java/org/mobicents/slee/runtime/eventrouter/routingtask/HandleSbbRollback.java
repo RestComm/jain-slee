@@ -79,9 +79,8 @@ public class HandleSbbRollback {
 				txContext.setEventRoutingTransactionData(new EventRoutingTransactionDataImpl(de,aci));
 				// we have to refresh the sbb entity by reading it frmo the
 				// cache
-				try {
-					sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntity.getSbbEntityId(),true);
-				} catch (Exception e) {
+				SbbEntity sbbEntityReloaded = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntity.getSbbEntityId(),true);
+				if (sbbEntityReloaded == null) {
 					// sbb entity does not exists, recreate it
 					if (sbbEntity.isRootSbbEntity()) {
 						ServiceComponent serviceComponent = sleeContainer.getComponentRepository().getComponentByID(sbbEntity.getServiceId());
@@ -101,6 +100,9 @@ public class HandleSbbRollback {
 						// the sbb entity recreated should not be kept
 						txMgr.setRollbackOnly();
 					}
+				}
+				else {
+					sbbEntity = sbbEntityReloaded;
 				}
 			}
 

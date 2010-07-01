@@ -380,6 +380,9 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 							implSbbID = (SbbID) sbbEntityIdToSbbID.get(sbbEID);
 						} else {
 							SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbEID,false);
+							if (sbbe == null) {
+								continue;
+							}
 							implSbbID = sbbe.getSbbId();
 							sbbEntityIdToSbbID.put(sbbEID, implSbbID);
 						}

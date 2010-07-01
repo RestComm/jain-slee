@@ -122,10 +122,8 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 				if (i.hasNext()) {
 					final String sbbEntityId = (String) i.next();
 					// get sbb entity
-					SbbEntity sbbEntity = null;
-					try {
-						sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId,true);
-					} catch (Exception e) {
+					SbbEntity sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId,true);
+					if (sbbEntity == null) {
 						// entity does not exists anymore, continue
 						continue;
 					}
@@ -194,9 +192,8 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 					
 						// create transaction and reload sbb entity whch should not have any ac attached
 						sleeTransactionManager.begin();
-						try {
-							sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId,true);
-						} catch (Exception e) {
+						sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId,true);
+						if (sbbEntity == null) {
 							// entity does not exists anymore, continue
 							continue;
 						} 

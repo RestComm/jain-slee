@@ -324,8 +324,10 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
             try {
             	txManager.begin();
                 sbbe = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbeId,true);
-                sbbe.sbbRolledBack(event,activityContextInterface,removeRollback);
-                sbbe.getSbbObject().sbbStore();
+                if (sbbe != null) {
+                	sbbe.sbbRolledBack(event,activityContextInterface,removeRollback);
+                	sbbe.getSbbObject().sbbStore();
+                }
                 txManager.commit();
             } catch (RuntimeException e) {
             	if (sbbe != null) {

@@ -264,10 +264,12 @@ public class InitialEventProcessor {
 					}
 					// get sbb entity for this convergence name
 					sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(service.getRootSbbEntityId(name),true);
-					// attach sbb entity on AC
-					if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
-						// do the reverse on the sbb entity
-						sbbEntity.afterACAttach(deferredEvent.getActivityContextHandle());
+					if (sbbEntity != null) {
+						// attach sbb entity on AC
+						if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
+							// do the reverse on the sbb entity
+							sbbEntity.afterACAttach(deferredEvent.getActivityContextHandle());
+						}
 					}
 				}
 

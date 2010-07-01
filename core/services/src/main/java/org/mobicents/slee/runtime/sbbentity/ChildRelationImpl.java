@@ -56,8 +56,12 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
     
     private HashSet<SbbLocalObject> getLocalObjects() {
         HashSet<SbbLocalObject> localObjects = new HashSet<SbbLocalObject>();
+        SbbEntity childSbbEntity = null;
         for (String sbbEntityId : sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod.getChildRelationMethodName())) {
-            localObjects.add(sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId, false).getSbbLocalObject());
+            childSbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId, false);
+        	if (childSbbEntity != null) {
+        		localObjects.add(childSbbEntity.getSbbLocalObject());
+        	}
         }
         return localObjects;
     }
@@ -431,9 +435,14 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         public Object next() {
             nextEntity = myIterator.next();
             SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(nextEntity, false);
-            this.nextSbbLocalObject = childSbbEntity.getSbbLocalObject();
-            sbbEntity.addChildWithSbbObject(childSbbEntity);
-            return nextSbbLocalObject;
+            if (childSbbEntity != null) {
+            	this.nextSbbLocalObject =  childSbbEntity.getSbbLocalObject();
+            	sbbEntity.addChildWithSbbObject(childSbbEntity);
+            	return nextSbbLocalObject;
+            }
+            else {
+            	return next();
+            }            
         }
 
     }

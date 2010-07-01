@@ -1,7 +1,8 @@
 package org.mobicents.slee.runtime.sbb;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.InvalidArgumentException;
@@ -95,25 +96,29 @@ public class SbbContextImpl implements SbbContext, Serializable {
 		this.notificationSource = new SbbNotification(getService(),getSbb());
 	}
 
+	private static ActivityContextInterface[] EMPTY_ACI_ARRAY = {};
+	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.SbbContext#getActivities()
+	 */
 	public ActivityContextInterface[] getActivities() throws TransactionRequiredLocalException, IllegalStateException, SLEEException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("getActivities() " + this.sbbObject.getState());
+		if (logger.isTraceEnabled()) {
+			logger.trace("getActivities() " + this.sbbObject.getState());
 		}
 		if (SbbObjectState.READY != this.sbbObject.getState()) {
-			throw new IllegalStateException("Cannot call SbbContext getActivities in " + this.sbbObject.getState());
-		}
-		Set<ActivityContextHandle> activities = sbbObject.getSbbEntity().getActivityContexts();
-		Object[] activityContextHandles = activities.toArray();
-		ActivityContextInterface[] aci = new ActivityContextInterface[activityContextHandles.length];
-		if (logger.isDebugEnabled()) {
-			logger.debug("The Sbb is attached to " + activityContextHandles.length + "activities");
+			throw new IllegalStateException("Cannot call SbbContext.getActivities() in " + this.sbbObject.getState());
 		}
 		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
-		for (int i = 0; i < activityContextHandles.length; i++) {
-			ActivityContext ac = acf.getActivityContext((ActivityContextHandle) activityContextHandles[i]);
-			aci[i] = ac.getActivityContextInterface();
+		List<ActivityContextInterface> result = new ArrayList<ActivityContextInterface>();
+		ActivityContext ac = null;
+		for (ActivityContextHandle ach : sbbObject.getSbbEntity().getActivityContexts()) {
+			ac = acf.getActivityContext(ach);
+			if (ac != null) {
+				result.add(ac.getActivityContextInterface());
+			}
 		}
-		return aci;
+		return result.toArray(EMPTY_ACI_ARRAY);
 	}
 
 	public String[] getEventMask(ActivityContextInterface aci) throws NullPointerException, TransactionRequiredLocalException, IllegalStateException, NotAttachedException, SLEEException {

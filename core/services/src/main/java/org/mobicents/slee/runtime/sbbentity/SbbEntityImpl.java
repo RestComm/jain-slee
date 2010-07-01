@@ -92,13 +92,11 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @param convergenceName
 	 * @param svcId
 	 */
-	SbbEntityImpl(String sbbEntityId, SbbEntityImmutableData sbbEntityImmutableData, SbbEntityFactoryImpl sbbEntityFactory) {
+	SbbEntityImpl(String sbbEntityId, SbbEntityImmutableData sbbEntityImmutableData, SbbEntityCacheData cacheData, SbbEntityFactoryImpl sbbEntityFactory) {
 		this.sbbEntityFactory = sbbEntityFactory;
 		this.sleeContainer = sbbEntityFactory.getSleeContainer();
 		this.sbbeId = sbbEntityId;
-		cacheData = new SbbEntityCacheData(sbbEntityId,sleeContainer.getCluster().getMobicentsCache());
-		cacheData.create();
-		cacheData.setSbbEntityImmutableData(sbbEntityImmutableData);
+		this.cacheData = cacheData;
 		this.sbbEntityImmutableData = sbbEntityImmutableData;
 		
 		this.pool = sleeContainer.getSbbManagement().getObjectPool(
@@ -109,13 +107,12 @@ public class SbbEntityImpl implements SbbEntity {
 
 	/**
 	 * Constructors an already existing sbb entity from the cache given it's
-	 * id. 
-	 * @param sbbeId
-	 * @throws RuntimeException
-	 *             if recreation from cache is not possible, i.e., does not
-	 *             exists
+	 * id.
+	 * @param sbbEntityId
+	 * @param cacheData
+	 * @param sbbEntityFactory
 	 */
-	SbbEntityImpl(String sbbEntityId, SbbEntityFactoryImpl sbbEntityFactory) {
+	SbbEntityImpl(String sbbEntityId, SbbEntityCacheData cacheData, SbbEntityFactoryImpl sbbEntityFactory) {
 		
 		if (sbbEntityId == null)
 			throw new NullPointerException(
@@ -125,19 +122,11 @@ public class SbbEntityImpl implements SbbEntity {
 		this.sleeContainer = sbbEntityFactory.getSleeContainer();
 
 		this.sbbeId = sbbEntityId;
-
-		cacheData = new SbbEntityCacheData(sbbEntityId,sleeContainer.getCluster().getMobicentsCache());
-		if (cacheData.exists()) {
-			this.sbbEntityImmutableData = (SbbEntityImmutableData) cacheData.getSbbEntityImmutableData();
-			this.pool = sleeContainer.getSbbManagement().getObjectPool(
-					getServiceId(), getSbbId());
-			this.sbbComponent = pool.getSbbComponent();
-			this.created = false;
-		} else {
-			throw new IllegalStateException("Sbb entity " + sbbEntityId
-					+ " not found");
-		}
-		
+		this.cacheData = cacheData;
+		this.sbbEntityImmutableData = (SbbEntityImmutableData) cacheData.getSbbEntityImmutableData();
+		this.pool = sleeContainer.getSbbManagement().getObjectPool(getServiceId(), getSbbId());
+		this.sbbComponent = pool.getSbbComponent();
+		this.created = false;
 	}
 
 	public ServiceID getServiceId() {
@@ -173,12 +162,7 @@ public class SbbEntityImpl implements SbbEntity {
 			case sbblo:
 				// it's a sbbLocalObject cmp
 				String sbbEntityId = (String) cmpWrapper.getValue();
-				SbbEntity sbbEntity = null;
-				try {
-					sbbEntity = sbbEntityFactory.getSbbEntity(sbbEntityId,false);
-				} catch (Exception ex) {
-					// Maybe the sbb entity has been removed already.
-				}
+				SbbEntity sbbEntity = sbbEntityFactory.getSbbEntity(sbbEntityId,false);
 				if (sbbEntity == null)
 					return null;
 				else if (sbbEntity.isRemoved())
@@ -436,7 +420,9 @@ public class SbbEntityImpl implements SbbEntity {
 		for (String sbbEntityId : cacheData.getAllChildSbbEntities()) {
 			// recreated the sbb entity
 			SbbEntity childSbbEntity = sbbEntityFactory.getSbbEntity(sbbEntityId, false);
-			attachmentCount += childSbbEntity.getAttachmentCount();			
+			if (childSbbEntity != null) {
+				attachmentCount += childSbbEntity.getAttachmentCount();
+			}
 		}
 		return attachmentCount;
 	}
@@ -543,8 +529,10 @@ public class SbbEntityImpl implements SbbEntity {
 		// now remove children
 		for (Object childSbbEntityId : childSbbEntities) {
 			SbbEntity childSbbEntity = sbbEntityFactory.getSbbEntity((String) childSbbEntityId,false);
-			// recreated the sbb entity and remove it
-			sbbEntityFactory.removeSbbEntity(childSbbEntity, false,true);
+			if (childSbbEntity != null) {
+				// recreated the sbb entity and remove it
+				sbbEntityFactory.removeSbbEntity(childSbbEntity, false,true);
+			}
 		}
 	}
 
@@ -893,9 +881,11 @@ public class SbbEntityImpl implements SbbEntity {
 		}
 
 		if (this.getParentSbbEntityId() != null) {
-			sbbEntityFactory.getSbbEntity(this.getParentSbbEntityId(),false)
-					.getChildRelation(getParentChildRelation()).removeChild(
+			SbbEntityImpl parent = sbbEntityFactory.getSbbEntity(this.getParentSbbEntityId(),false);
+			if (parent != null) {
+					parent.getChildRelation(getParentChildRelation()).removeChild(
 							this.getSbbEntityId());
+			}
 		} else {
 			// it's a root sbb entity, remove from service
 			try {

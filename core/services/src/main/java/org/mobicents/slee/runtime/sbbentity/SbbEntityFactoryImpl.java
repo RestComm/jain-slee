@@ -60,7 +60,10 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		
 		// create sbb entity
 		final SbbEntityImmutableData sbbEntityImmutableData = new SbbEntityImmutableData(sbbId, svcId, parentSbbEntityId, parentChildRelation, rootSbbEntityId, convergenceName);
-		final SbbEntityImpl sbbEntity = new SbbEntityImpl(sbbeId, sbbEntityImmutableData, this);
+		final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
+		cacheData.create();
+		cacheData.setSbbEntityImmutableData(sbbEntityImmutableData);
+		final SbbEntityImpl sbbEntity = new SbbEntityImpl(sbbeId, sbbEntityImmutableData, cacheData,this);
 
 		// store it in the tx, we need to do it due to sbb local object and
 		// current storing in sbb entity per tx
@@ -87,7 +90,11 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 				
 		// create sbb entity
 		final SbbEntityImmutableData sbbEntityImmutableData = new SbbEntityImmutableData(sbbId, svcId, null, null, sbbeId, convergenceName);
-		final SbbEntityImpl sbbEntity = new SbbEntityImpl(sbbeId, sbbEntityImmutableData, this);
+		final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
+		cacheData.create();
+		cacheData.setSbbEntityImmutableData(sbbEntityImmutableData);
+		
+		final SbbEntityImpl sbbEntity = new SbbEntityImpl(sbbeId, sbbEntityImmutableData, cacheData, this);
 
 		// store it in the tx, we need to do it due to sbb local object and
 		// current storing in sbb entity per tx
@@ -133,7 +140,12 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 				logger.trace("Loading sbb entity " + sbbeId + " from cache");
 			
 			// not found in tx, get from cache
-			sbbEntity = new SbbEntityImpl(sbbeId,this);
+			final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
+			if (!cacheData.exists()) {
+				return null;
+			}
+			
+			sbbEntity = new SbbEntityImpl(sbbeId,cacheData,this);
 			
 			if (useLock) {				
 				if (!sbbEntity.isRootSbbEntity()) {

@@ -376,7 +376,8 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 
 								// CHECK IF WE CAN CLAIM THE ROOT SBB ENTITY
 								if (rootSbbEntityId != null) {
-									if (container.getSbbEntityFactory().getSbbEntity(rootSbbEntityId,false).getAttachmentCount() != 0) {
+									SbbEntity rootSbbEntity = container.getSbbEntityFactory().getSbbEntity(rootSbbEntityId,false);
+									if (rootSbbEntity == null || rootSbbEntity.getAttachmentCount() != 0) {
 										if (debugLogging) {
 											logger
 											.debug("Not removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
@@ -467,7 +468,9 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 
 						try {
 							rootSbbEntity = container.getSbbEntityFactory().getSbbEntity(rootSbbEntityId,false);
-							container.getSbbEntityFactory().removeSbbEntity(rootSbbEntity,true,false);
+							if (rootSbbEntity != null) {
+								container.getSbbEntityFactory().removeSbbEntity(rootSbbEntity,true,false);
+							}
 						} catch (Exception e) {
 							logger.error("Failure while routing event; third phase. Event Posting ["+ eventContext + "]", e);
 							caught = e;

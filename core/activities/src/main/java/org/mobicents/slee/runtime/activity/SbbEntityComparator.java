@@ -30,20 +30,9 @@ public class SbbEntityComparator implements Comparator<String> {
 	 */
 	public int compare(String sbbeId1, String sbbeId2) {
 
-		SbbEntity sbbe1 = null;
-		try {
-			sbbe1 = sbbEntityFactory.getSbbEntity(sbbeId1,true);
-		} catch (Exception e) {
-			// ignore
-		}
-
-		SbbEntity sbbe2 = null;
-		try {
-			sbbe2 = sbbEntityFactory.getSbbEntity(sbbeId2,true);
-		} catch (Exception e) {
-			// ignore
-		}
-
+		final SbbEntity sbbe1 = sbbEntityFactory.getSbbEntity(sbbeId1,true);
+		final SbbEntity sbbe2 = sbbEntityFactory.getSbbEntity(sbbeId2,true);
+		
 		if (sbbe1 == null) {
 			if (sbbe2 == null) {
 				return 0;
@@ -70,10 +59,27 @@ public class SbbEntityComparator implements Comparator<String> {
 
 		final LinkedList<SbbEntity> stack1 = priorityOfSbb(sbbe1);
 		final LinkedList<SbbEntity> stack2 = priorityOfSbb(sbbe2);
-
+		
+		// stacks may be null if sbb entity is removed concurrently
+		if (stack1 == null) {
+			if (stack2 == null) {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		else {
+			if (stack2 == null) {
+				return -1;
+			}
+		}
+		
+		// both are non null
+		SbbEntity sbb1a = null;
+		SbbEntity sbb2a = null;
 		while (true) {
-			SbbEntity sbb1a = stack1.removeFirst();
-			SbbEntity sbb2a = stack2.removeFirst();
+			sbb1a = stack1.removeFirst();
+			sbb2a = stack2.removeFirst();
 			if (sbb1a == sbb2a) {
 				// sbb entities have the same ancestor.
 				if (stack1.isEmpty()) {
@@ -103,10 +109,15 @@ public class SbbEntityComparator implements Comparator<String> {
 		while (!sbbe.isRootSbbEntity()) {
 			list.addFirst(sbbe);
 			sbbe = sbbEntityFactory.getSbbEntity(sbbe.getParentSbbEntityId(),false);
+			if (sbbe == null) {
+				// edge case where a parent sbb entity was concurrently removed, ignore this sbb entity
+				return null;
+			}
 		}
 		// push the root one
 		list.addFirst(sbbe);
 
 		return list;
 	}
+	
 }

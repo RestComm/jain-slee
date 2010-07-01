@@ -48,7 +48,9 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 			while (sbbes.hasNext()) {
 				try {
 					SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbes.next(),false);
-					result.add(sbbEntityToArray(sbbe));
+					if (sbbe != null) {
+						result.add(sbbEntityToArray(sbbe));
+					}
 				} catch (Exception e) {
 					// ignore
 				}

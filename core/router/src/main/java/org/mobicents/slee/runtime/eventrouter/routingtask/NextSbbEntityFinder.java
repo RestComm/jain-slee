@@ -58,37 +58,36 @@ public class NextSbbEntityFinder {
 		for (Iterator<?> iter = ac.getSortedSbbAttachmentSet(sbbEntitiesThatHandledCurrentEvent).iterator(); iter
 				.hasNext();) {
 			sbbEntityId = (String) iter.next();
-			try {
-				sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId,true);
-				if (sleeEvent.getService() != null && !sleeEvent.getService().equals(sbbEntity.getServiceId())) {
-					if (!sleeEvent.isActivityEndEvent()) {
-						continue;
-					}
-					else {
-						return new Result(sbbEntity, false);						
-					}
-				}
-				// check event is allowed to be handled by the sbb
-				mEventEntry = sbbEntity.getSbbComponent().getDescriptor().getEventEntries().get(sleeEvent.getEventTypeId());
-				if (mEventEntry != null && mEventEntry.isReceived()) {
-					return new Result(sbbEntity, true);					
-				} else {
-					if (!sleeEvent.isActivityEndEvent()) {
-						if (logger.isDebugEnabled()) {
-							logger
-							.debug("Event is not received by sbb descriptor of entity "
-									+ sbbEntityId + ", will not deliver event to sbb entity ...");
-						}
-						continue;
-					}
-					else {
-						return new Result(sbbEntity, false);						
-					}
-				}
-			} catch (IllegalStateException e) {
+			sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId,true);
+			if (sbbEntity == null) {
 				// ignore, sbb entity has been removed
 				continue;
 			}
+			if (sleeEvent.getService() != null && !sleeEvent.getService().equals(sbbEntity.getServiceId())) {
+				if (!sleeEvent.isActivityEndEvent()) {
+					continue;
+				}
+				else {
+					return new Result(sbbEntity, false);						
+				}
+			}
+			// check event is allowed to be handled by the sbb
+			mEventEntry = sbbEntity.getSbbComponent().getDescriptor().getEventEntries().get(sleeEvent.getEventTypeId());
+			if (mEventEntry != null && mEventEntry.isReceived()) {
+				return new Result(sbbEntity, true);					
+			} else {
+				if (!sleeEvent.isActivityEndEvent()) {
+					if (logger.isDebugEnabled()) {
+						logger
+						.debug("Event is not received by sbb descriptor of entity "
+								+ sbbEntityId + ", will not deliver event to sbb entity ...");
+					}
+					continue;
+				}
+				else {
+					return new Result(sbbEntity, false);						
+				}
+			}			
 		}
 
 		return null;
