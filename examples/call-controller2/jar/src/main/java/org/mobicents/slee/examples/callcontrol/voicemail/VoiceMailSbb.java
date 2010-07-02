@@ -34,6 +34,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.ArrayList;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -969,6 +970,8 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		NotificationRequest notificationRequest = new NotificationRequest(this,
 				endpointID, mgcpProvider.getUniqueRequestIdentifier());
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
+
+		
 		
 		
 		if (audioFileUrl != null) {
@@ -978,33 +981,37 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 				signalRequests = new EventName[] { new EventName(
 						PackageName.Announcement, MgcpEvent.ann
 								.withParm(audioFileUrl),connectionID) };
+				
+				RequestedEvent[] requestedEvents = {
+						new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionID), actions),
+						new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionID), actions), };
+				notificationRequest.setRequestedEvents(requestedEvents);
+								
 			} else {
 				signalRequests = new EventName[] { new EventName(AUPackage.AU,
 						AUMgcpEvent.aupr.withParm(audioFileUrl), connectionID) };
+				
+				RequestedEvent[] requestedEvents = { 
+						new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc, connectionID), actions),
+						new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of, connectionID), actions), };
+				notificationRequest.setRequestedEvents(requestedEvents);
 			}
 
 			notificationRequest.setSignalRequests(signalRequests);
 			
 			//add notification, in case dtmf part is not included
-			RequestedEvent[] requestedEvents = {
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of,connectionID), actions),
-					 };
-
-			notificationRequest.setRequestedEvents(requestedEvents);
+			
 
 		}
 		
 		if (detectDtmf) {
 			
-			
-			
+			RequestedEvent[] requestedEvents = null;
 
 			// This has to be present, since MGCP states that new RQNT erases
 			// previous set.
-			RequestedEvent[] requestedEvents = {
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of,connectionID), actions),
+			RequestedEvent[] requestedDtmfEvents = {
+					
 					new RequestedEvent(new EventName(PackageName.Dtmf,
 							MgcpEvent.dtmf0,connectionID), actions),
 					new RequestedEvent(new EventName(PackageName.Dtmf,
@@ -1039,8 +1046,37 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 					new RequestedEvent(new EventName(PackageName.Dtmf,
 							MgcpEvent.dtmfHash,connectionID), actions) };
 
+			if(notificationRequest.getRequestedEvents()!=null)
+			{
+				//we have something
+				ArrayList<RequestedEvent> listOfEvents = new ArrayList<RequestedEvent>();
+				//add old ones - tahts A or AU
+				for(RequestedEvent re:notificationRequest.getRequestedEvents())
+				{
+					listOfEvents.add(re);
+				}
+				
+				//now dtmfs;
+				
+				for(RequestedEvent re:requestedDtmfEvents)
+				{
+					listOfEvents.add(re);
+				}
+				
+				requestedEvents = new RequestedEvent[listOfEvents.size()];
+				requestedEvents = listOfEvents.toArray(requestedEvents);
+			}else
+			{
+				requestedEvents = requestedDtmfEvents;
+			}
 			notificationRequest.setRequestedEvents(requestedEvents);
 		}
+		
+		
+		//lastly set callback events
+		
+	
+		
 		notificationRequest.setTransactionHandle(mgcpProvider
 				.getUniqueTransactionHandler());
 
