@@ -50,6 +50,7 @@ import org.jdiameter.api.PeerTable;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.Stack;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.cca.ClientCCASession;
 import org.jdiameter.api.cca.ServerCCASession;
 import org.jdiameter.client.api.ISessionFactory;
@@ -728,7 +729,34 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     activityCreated(activity);
   }
 
-  public boolean sessionExists(String sessionId) {
+  
+//	/*
+//	 * (non-Javadoc)
+//	 * 
+//	 * @see
+//	 * org.mobicents.slee.resource.diameter.cca.handlers.CCASessionCreationListener
+//	 * #stateChanged(org.jdiameter.api.app.AppSession, java.lang.Enum,
+//	 * java.lang.Enum)
+//	 */
+//	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+//		DiameterActivityHandle dah = getActivityHandle(source.getSessionId());
+//		Object activity = getActivity(dah);
+//		if (activity != null) {
+//			if (source instanceof ClientCCASession || source instanceof ServerCCASession) {
+//				try{
+//				CreditControlSessionImpl ccs = (CreditControlSessionImpl) activity;
+//				ccs.stateChanged(source, oldState, newState);
+//				}catch(Exception e)
+//				{
+//					tracer.warning("Failed to deliver state, for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )", e);
+//				}
+//			}
+//		} else {
+//			tracer.warning("No activity for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )");
+//		}
+//	}
+
+public boolean sessionExists(String sessionId) {
     return this.activities.containsKey(new DiameterActivityHandle(sessionId));
   }
 

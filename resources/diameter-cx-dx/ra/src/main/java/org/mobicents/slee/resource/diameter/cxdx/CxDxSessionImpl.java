@@ -16,6 +16,7 @@ import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.cxdx.handlers.CxDxSessionCreationListener;
@@ -27,7 +28,7 @@ import org.mobicents.slee.resource.diameter.cxdx.handlers.CxDxSessionCreationLis
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public abstract class CxDxSessionImpl extends DiameterActivityImpl implements CxDxSessionActivity ,StateChangeListener{
+public abstract class CxDxSessionImpl extends DiameterActivityImpl implements CxDxSessionActivity ,StateChangeListener<AppSession>{
 
   protected CxDxMessageFactoryImpl cxdxMessageFactory = null;
   protected CxDxAVPFactory cxdxAvpFactory = null;
@@ -36,7 +37,7 @@ public abstract class CxDxSessionImpl extends DiameterActivityImpl implements Cx
   protected ArrayList<DiameterAvp> sessionAvps = new ArrayList<DiameterAvp>();
   
   protected boolean terminated = false;
-  //FIXME: missed this in last release, this has to be fixed in base....!!!!!!!!!!!!!!!!!!
+
   protected CxDxSessionCreationListener cxdxSessionListener;
 
   public CxDxSessionImpl(CxDxMessageFactory messageFactory, CxDxAVPFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint) {
@@ -44,7 +45,7 @@ public abstract class CxDxSessionImpl extends DiameterActivityImpl implements Cx
 
     this.cxdxMessageFactory = (CxDxMessageFactoryImpl) messageFactory;
     this.cxdxAvpFactory = avpFactory;
-    //this.cxdxSessionListener = (CxDxSessionCreationListener)raEventListener;
+   // this.cxdxSessionListener = (CxDxSessionCreationListener)raEventListener;
   }
 
   /* (non-Javadoc)

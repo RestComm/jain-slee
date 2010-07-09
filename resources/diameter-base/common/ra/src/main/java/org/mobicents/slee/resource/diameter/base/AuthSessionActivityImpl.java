@@ -12,9 +12,10 @@ import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 
-public abstract class AuthSessionActivityImpl extends DiameterActivityImpl implements AuthSessionActivity , StateChangeListener{
+public abstract class AuthSessionActivityImpl extends DiameterActivityImpl implements AuthSessionActivity , StateChangeListener<AppSession>{
 
   public AuthSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint) {
     super(messageFactory, avpFactory, session, raEventListener, destinationHost, destinationRealm, endpoint);

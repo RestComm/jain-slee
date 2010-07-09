@@ -28,6 +28,7 @@ import net.java.slee.resource.diameter.sh.server.ShServerMessageFactory;
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.sh.ServerShSession;
 import org.jdiameter.common.impl.app.sh.ProfileUpdateAnswerImpl;
@@ -49,7 +50,7 @@ import org.mobicents.slee.resource.diameter.sh.server.handlers.ShServerSessionLi
  * @author <a href = "mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @see ShServerActivity
  */
-public class ShServerActivityImpl extends DiameterActivityImpl implements ShServerActivity, StateChangeListener {
+public class ShServerActivityImpl extends DiameterActivityImpl implements ShServerActivity, StateChangeListener<AppSession> {
 
   protected ServerShSession serverSession = null;
   protected ShSessionState state = ShSessionState.NOTSUBSCRIBED;
@@ -276,6 +277,7 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
   public void sendUserDataAnswer(UserDataAnswer message) throws IOException {
     try {
       DiameterShMessageImpl msg = (DiameterShMessageImpl) message;
+      fetchSessionData(msg, false);
       this.serverSession.sendUserDataAnswer(new UserDataAnswerImpl((Answer) msg.getGenericData()));
       clean(msg);
     }
@@ -283,6 +285,7 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
+    	e.printStackTrace();
       throw new IOException("Failed to send message, due to: " + e);
     }
   }
@@ -310,6 +313,19 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
   // # StateChangeListener
   // #########################
 
+  /*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
+	 * java.lang.Enum, java.lang.Enum)
+	 */
+	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+		this.stateChanged(oldState, newState);
+
+	}
+  
+  
   public void stateChanged(Enum oldState, Enum newState) {
     org.jdiameter.common.api.app.sh.ShSessionState _state = (org.jdiameter.common.api.app.sh.ShSessionState) newState;
 

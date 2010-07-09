@@ -29,6 +29,7 @@ import org.jdiameter.common.api.app.cca.IClientCCASessionContext;
 import org.jdiameter.common.api.app.cca.IServerCCASessionContext;
 import org.jdiameter.common.impl.app.auth.ReAuthAnswerImpl;
 import org.jdiameter.common.impl.app.auth.ReAuthRequestImpl;
+import org.jdiameter.common.impl.app.cca.CCASessionFactoryImpl;
 import org.jdiameter.common.impl.app.cca.JCreditControlAnswerImpl;
 import org.jdiameter.common.impl.app.cca.JCreditControlRequestImpl;
 import org.jdiameter.server.impl.app.cca.ServerCCASessionImpl;
@@ -44,7 +45,7 @@ import org.jdiameter.server.impl.app.cca.ServerCCASessionImpl;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class CreditControlSessionFactory implements IAppSessionFactory, ClientCCASessionListener, ServerCCASessionListener, StateChangeListener, ICCAMessageFactory, IServerCCASessionContext, IClientCCASessionContext {
+public class CreditControlSessionFactory  extends  CCASessionFactoryImpl{
 
   protected SessionFactory sessionFactory = null;
   protected CCASessionCreationListener resourceAdaptor = null;
@@ -60,7 +61,7 @@ public class CreditControlSessionFactory implements IAppSessionFactory, ClientCC
   protected Logger logger = Logger.getLogger(CreditControlSessionFactory.class);
 
   public CreditControlSessionFactory(SessionFactory sessionFactory, CCASessionCreationListener resourceAdaptor) {
-    super();
+    super(sessionFactory);
 
     this.sessionFactory = sessionFactory;
     this.resourceAdaptor = resourceAdaptor;
@@ -76,47 +77,22 @@ public class CreditControlSessionFactory implements IAppSessionFactory, ClientCC
   }
 
   public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass, ApplicationId applicationId, Object[] args) {
-    AppSession appSession = null;
-    try {
-      if (aClass == ClientCCASession.class) {
-        ClientCCASessionImpl clientSession = null;
-        if (args != null && args.length > 0 && args[0] instanceof Request) {
-          Request request = (Request) args[0];
-          clientSession = new ClientCCASessionImpl(request.getSessionId(), this, sessionFactory, this);
-        }
-        else {
-          clientSession = new ClientCCASessionImpl(sessionId, this, sessionFactory, this);
-        }
-
-        clientSession.getSessions().get(0).setRequestListener(clientSession);
-        clientSession.addStateChangeNotification(this);
-
-        this.resourceAdaptor.sessionCreated(clientSession);
-
-        appSession = clientSession;
-      }
-      else if (aClass == ServerCCASession.class) {
-        ServerCCASessionImpl serverSession = null;
-
-        if (args != null && args.length > 0 && args[0] instanceof Request) {
-          // This shouldnt happen but just in case
-          Request request = (Request) args[0];
-          serverSession = new ServerCCASessionImpl(request.getSessionId(), this, sessionFactory, this);
-        }
-        else {
-          serverSession = new ServerCCASessionImpl(sessionId, this, sessionFactory, this);
-        }
-
-        serverSession.addStateChangeNotification(this);
-        serverSession.getSessions().get(0).setRequestListener(serverSession);
-
-        this.resourceAdaptor.sessionCreated(serverSession);
-
-        appSession = serverSession;
-      }
-      else {
-        throw new IllegalArgumentException("Wrong session class!![" + aClass + "]. Supported[" + ClientCCASession.class + "," + ServerCCASession.class + "]");
-      }
+    AppSession appSession = super.getNewSession(sessionId, aClass, applicationId, args);
+    
+    try{   
+    	if(appSession instanceof ClientCCASession)
+    	{
+    		((ClientCCASession)appSession).addStateChangeNotification(this);
+    		this.resourceAdaptor.sessionCreated((ClientCCASession)appSession);
+    	}else if(appSession instanceof ServerCCASession)
+    	{
+    		((ServerCCASession)appSession).addStateChangeNotification(this);
+    		this.resourceAdaptor.sessionCreated((ServerCCASession)appSession);
+    	}else
+    	{
+    		//?
+    	}
+    	 
     }
     catch (Exception e) {
       logger.error("Failure to obtain new Credit-Control Session.", e);
@@ -193,10 +169,25 @@ public class CreditControlSessionFactory implements IAppSessionFactory, ClientCC
     }
   }
 
-  public void sessionSupervisionTimerExpired(ServerCCASession session) {
-    //this.resourceAdaptor.sessionDestroyed(session.getSessions().get(0).getSessionId(), session);
-    session.release();
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.common.impl.app.cca.CCASessionFactoryImpl#stateChanged(
+	 * org.jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
+	 */
+	@Override
+	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+		if (logger.isInfoEnabled()) {
+		      logger.info("Diameter CCA SessionFactory :: stateChanged :: source["+source+"] :: oldState[" + oldState + "], newState[" + newState + "]");
+		    }
+	}
+
+	public void sessionSupervisionTimerExpired(ServerCCASession session) {
+		// this.resourceAdaptor.sessionDestroyed(session.getSessions().get(0).getSessionId(),
+		// session);
+		session.release();
+	}
 
   public void sessionSupervisionTimerReStarted(ServerCCASession session, ScheduledFuture future) {
     // TODO Complete this method.

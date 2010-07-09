@@ -23,6 +23,7 @@ import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.InternalException;
 import org.jdiameter.api.Request;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.cxdx.ClientCxDxSession;
 import org.jdiameter.common.api.app.cxdx.CxDxSessionState;
 import org.jdiameter.common.impl.app.cxdx.JLocationInfoRequestImpl;
@@ -278,4 +279,15 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
     }
   }
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
+	 * java.lang.Enum, java.lang.Enum)
+	 */
+	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+		this.stateChanged(oldState, newState);
+
+	}
 }

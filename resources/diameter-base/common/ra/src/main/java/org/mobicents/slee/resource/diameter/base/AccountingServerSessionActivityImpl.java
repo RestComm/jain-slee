@@ -21,6 +21,7 @@ import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Stack;
 import org.jdiameter.api.acc.ServerAccSession;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.common.api.app.acc.ServerAccSessionState;
 import org.jdiameter.common.impl.app.acc.AccountAnswerImpl;
 import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
@@ -52,7 +53,7 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
     this.state = AccountingSessionState.Idle;
     this.originHost = stack.getMetaData().getLocalPeer().getUri().toString();
     this.originRealm = stack.getMetaData().getLocalPeer().getRealmName();
-
+    this.serverSession.addStateChangeNotification(this);
     super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
   }
 
@@ -115,13 +116,14 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 
     try {
       AccountingAnswerImpl aca = (AccountingAnswerImpl) answer;
-
       this.serverSession.sendAccountAnswer(new AccountAnswerImpl((Answer) aca.getGenericData()));
 
       // FIXME: check this?
       if (destroyAfterSending) {
-        String sessionId = this.serverSession.getSessions().get(0).getSessionId();
         this.serverSession.release();
+      }
+      if(!serverSession.isValid()) {
+        String sessionId = this.serverSession.getSessions().get(0).getSessionId();
         this.baseListener.sessionDestroyed(sessionId, this.serverSession);
       }
     }
@@ -135,6 +137,10 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 
   public ServerAccSession getSession() {
     return this.serverSession;
+  }
+
+  public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+    stateChanged(oldState, newState);
   }
 
   public void stateChanged(Enum oldState, Enum newState) {

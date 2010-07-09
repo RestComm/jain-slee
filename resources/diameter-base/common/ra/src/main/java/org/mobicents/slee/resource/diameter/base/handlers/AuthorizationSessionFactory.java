@@ -28,6 +28,7 @@ import org.jdiameter.common.api.app.IAppSessionFactory;
 import org.jdiameter.common.api.app.auth.IAuthMessageFactory;
 import org.jdiameter.common.impl.app.AppAnswerEventImpl;
 import org.jdiameter.common.impl.app.AppRequestEventImpl;
+import org.jdiameter.common.impl.app.auth.AuthSessionFactoryImpl;
 import org.jdiameter.server.impl.app.auth.ServerAuthSessionImpl;
 
 /**
@@ -37,45 +38,37 @@ import org.jdiameter.server.impl.app.auth.ServerAuthSessionImpl;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class AuthorizationSessionFactory implements IAppSessionFactory, IAuthMessageFactory, ServerAuthSessionListener, StateChangeListener, ClientAuthSessionListener {
+public class AuthorizationSessionFactory extends AuthSessionFactoryImpl implements IAppSessionFactory, IAuthMessageFactory, ServerAuthSessionListener, StateChangeListener<AppSession>, ClientAuthSessionListener {
 
   private long authAppId = 19301L;
 
   protected BaseSessionCreationListener ra;
   protected long messageTimeout = 5000;
   protected SessionFactory sessionFactory = null;
-  protected final static Logger logger = Logger.getLogger(AccountingSessionFactory.class);
+  protected final static Logger logger = Logger.getLogger(AuthorizationSessionFactory.class);
 
   private boolean stateless = true;
 
   public AuthorizationSessionFactory(BaseSessionCreationListener ra, long messageTimeout, SessionFactory sessionFactory) {
-    super();
+    super(sessionFactory);
     this.ra = ra;
     this.messageTimeout = messageTimeout;
     this.sessionFactory = sessionFactory;
   }
 
   public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass, ApplicationId applicationId, Object[] args) {
-    try {
-      if (aClass == ServerAuthSession.class) {
-        Request request = (Request) args[0];
-
-        ServerAuthSessionImpl session = new ServerAuthSessionImpl(sessionFactory.getNewSession(request.getSessionId()), sessionFactory, request, this, this, messageTimeout, stateless, this);
-        this.ra.sessionCreated(session);
-
-        return session;
-      }
-      else {
-        if (aClass == ClientAuthSession.class) {
-          ClientAuthSessionImpl session = sessionId == null ? new ClientAuthSessionImpl(stateless, this, sessionFactory, this) : new ClientAuthSessionImpl(stateless, sessionId, this, sessionFactory, this);
-          session.addStateChangeNotification(this);
-          this.ra.sessionCreated(session);
-          return session;
-        }
-      }
+    AppSession session = super.getNewSession(sessionId, aClass, applicationId, args);
+    if (aClass == ServerAuthSession.class) {
+      ServerAuthSessionImpl serverAuthSession = (ServerAuthSessionImpl)session;
+     // serverAuthSession.addStateChangeNotification(this);
+      this.ra.sessionCreated(serverAuthSession);
+      return serverAuthSession;
     }
-    catch (Exception e) {
-      logger.error("", e);
+    else if (aClass == ClientAuthSession.class) {
+      ClientAuthSessionImpl clientAuthSession = (ClientAuthSessionImpl)session;
+      //clientAuthSession.addStateChangeNotification(this);
+      this.ra.sessionCreated(clientAuthSession);
+      return clientAuthSession;
     }
 
     return null;
@@ -84,8 +77,26 @@ public class AuthorizationSessionFactory implements IAppSessionFactory, IAuthMes
   public void stateChanged(Enum oldState, Enum newState) {
     logger.info("Diameter Base AuthorizationSessionFactory :: stateChanged :: oldState[" + oldState + "], newState[" + newState + "]");
   }
+  
+  
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.common.impl.app.auth.AuthSessionFactoryImpl#stateChanged
+	 * (org.jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
+	 */
+	@Override
+	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+		//inform one who might need that
+		//this.ra.stateChanged(source,oldState,newState);
+		if(logger.isInfoEnabled())
+		{
+			logger.info("Diameter Base AuthorizationSessionFactory :: stateChanged :: source["+source+"] :: oldState[" + oldState + "], newState[" + newState + "]");
+		}
+	}
 
-  public void doAbortSessionRequestEvent(ClientAuthSession appSession, AbortSessionRequest asr) throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
+public void doAbortSessionRequestEvent(ClientAuthSession appSession, AbortSessionRequest asr) throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
     logger.info("Diameter Base AuthorizationSessionFactory :: doAbortSessionRequestEvent :: appSession[" + appSession + "], ASR[" + asr + "]");
 
     doFireEvent(appSession, asr.getMessage());

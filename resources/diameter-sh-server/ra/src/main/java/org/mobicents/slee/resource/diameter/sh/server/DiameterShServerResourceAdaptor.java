@@ -54,6 +54,9 @@ import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.Stack;
+import org.jdiameter.api.app.AppSession;
+import org.jdiameter.api.app.StateChangeListener;
+import org.jdiameter.api.sh.ClientShSession;
 import org.jdiameter.api.sh.ServerShSession;
 import org.jdiameter.client.api.ISessionFactory;
 import org.jdiameter.server.impl.app.sh.ShServerSessionImpl;
@@ -476,6 +479,14 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
           this.raContext.getSleeEndpoint().fireEventTransacted(handle, eventID, event, address, null, EVENT_FLAGS);
         }
         else */{
+        	  DiameterActivity activity = (DiameterActivity) getActivity(handle);
+              if(activity instanceof ShServerActivityImpl)
+              {
+              	((ShServerActivityImpl)activity).fetchSessionData((DiameterMessage)event, true);
+              }else if(activity instanceof ShServerSubscriptionActivityImpl)
+              {
+              	((ShServerSubscriptionActivityImpl)activity).fetchSessionData((DiameterMessage)event, true);
+              }
           this.raContext.getSleeEndpoint().fireEvent(handle, eventID, event, address, null, EVENT_FLAGS);
         }       
         return true;
@@ -500,6 +511,32 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
     this.fireEvent(event, getActivityHandle(sessionId), eventId, null, true, message.isRequest());
   }
 
+
+//	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+//		
+//		DiameterActivityHandle dah = getActivityHandle(source.getSessionId());
+//		Object activity = getActivity(dah);
+//		if (activity != null) {
+//			if(source instanceof ServerShSession)
+//			{
+//				try{
+//					//damn, no common, do something unexpected
+//					StateChangeListener<AppSession> scl = (StateChangeListener<AppSession>) activity;
+//					scl.stateChanged(source, oldState, newState);
+//				}catch(Exception e)
+//				{
+//					tracer.warning("Failed to deliver state, for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )", e);
+//				}
+//				
+//			}
+//		} else {
+//			tracer.warning("No activity for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )");
+//		}
+//		
+//	}
+
+  
+  
   /**
    * Create Event object from a JDiameter message (request or answer)
    * 
@@ -724,6 +761,7 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       try {
         // In this case we have to pass so session factory know what to tell to session listener
         ShServerSessionImpl session = ((ISessionFactory) sessionFactory).getNewAppSession(sessionId, appId, ServerShSession.class, new Object[]{request});
+       
         session.processRequest(request);
       }
       catch(Exception e) {
@@ -755,6 +793,7 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
 
         Session session = stack.getSessionFactory().getNewSession(sessionID);
         Future<Message> f = session.send(((DiameterMessageImpl) message).getGenericData());
+        session.release();
         return new PushNotificationAnswerImpl(f.get());
       }
       catch (AvpNotAllowedException e) {

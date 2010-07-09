@@ -20,6 +20,7 @@ import net.java.slee.resource.diameter.base.events.avp.TerminationCauseType;
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.auth.ClientAuthSession;
 import org.jdiameter.common.api.app.auth.ClientAuthSessionState;
 import org.jdiameter.common.impl.app.auth.AbortSessionAnswerImpl;
@@ -44,7 +45,7 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl imple
     super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) clientSession, destinationHost, destinationRealm,endpoint);
 
     this.clientSession = clientSession;
-    //this.clientSession.addStateChangeNotification(this);
+    this.clientSession.addStateChangeNotification(this);
     super.setCurrentWorkingSession(clientSession.getSessions().get(0));
   }
 
@@ -122,6 +123,10 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl imple
     catch (Exception e) {
       throw new IOException("Failed to send message, due to: " + e.getMessage());
     }
+  }
+
+  public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+    stateChanged(oldState, newState);
   }
 
   public void stateChanged(Enum oldState, Enum newState) {

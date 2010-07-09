@@ -3,6 +3,7 @@ package org.mobicents.slee.resource.diameter.cxdx.handlers;
 import org.jdiameter.api.ApplicationId;
 import org.jdiameter.api.Message;
 import org.jdiameter.api.Session;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.cxdx.ClientCxDxSession;
 import org.jdiameter.api.cxdx.ServerCxDxSession;
 
@@ -58,4 +59,6 @@ public interface CxDxSessionCreationListener {
    * @return
    */
   public ApplicationId[] getSupportedApplications();
+
+  //public void stateChanged(AppSession source, Enum oldState, Enum newState);
 }

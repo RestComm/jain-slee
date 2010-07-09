@@ -12,6 +12,7 @@ import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 
 /**
@@ -21,7 +22,7 @@ import org.jdiameter.api.app.StateChangeListener;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public abstract class AccountingSessionActivityImpl extends DiameterActivityImpl implements AccountingSessionActivity, StateChangeListener {
+public abstract class AccountingSessionActivityImpl extends DiameterActivityImpl implements AccountingSessionActivity, StateChangeListener<AppSession> {
 
   protected AccountingSessionState state = null;
 

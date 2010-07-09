@@ -57,8 +57,11 @@ import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.Stack;
+import org.jdiameter.api.app.AppSession;
+import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.cxdx.ClientCxDxSession;
 import org.jdiameter.api.cxdx.ServerCxDxSession;
+import org.jdiameter.api.sh.ServerShSession;
 import org.jdiameter.client.api.ISessionFactory;
 import org.mobicents.diameter.stack.DiameterListener;
 import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
@@ -699,8 +702,9 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
   public void sessionCreated(ServerCxDxSession session) {
     CxDxMessageFactory sessionMsgFactory = new CxDxMessageFactoryImpl(session.getSessions().get(0), stack, new DiameterIdentity[]{});
     CxDxServerSessionImpl serverActivity = new CxDxServerSessionImpl(sessionMsgFactory, cxdxAvpFactory, session, this, null, null, sleeEndpoint, stack);
-    session.addStateChangeNotification(serverActivity);
-    addActivity(serverActivity);
+    //session.addStateChangeNotification(serverActivity);
+    //addActivity(serverActivity);
+    serverActivity.setSessionListener(this);
   }
 
   /*
@@ -710,8 +714,9 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
   public void sessionCreated(ClientCxDxSession session) {
     CxDxMessageFactory sessionMsgFactory = new CxDxMessageFactoryImpl(session.getSessions().get(0), stack, new DiameterIdentity[]{});
     CxDxClientSessionImpl clientActivity = new CxDxClientSessionImpl(sessionMsgFactory, cxdxAvpFactory, session, this, null, null, sleeEndpoint);
-    session.addStateChangeNotification(clientActivity);
-    addActivity(clientActivity);
+    //session.addStateChangeNotification(clientActivity);
+    //addActivity(clientActivity);
+    clientActivity.setSessionListener(this);
   }
 
   /*
@@ -756,10 +761,35 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
   public ApplicationId[] getSupportedApplications() {
     return (ApplicationId[]) authApplicationIds.toArray();
   }
+  /* (non-Javadoc)
+   * @see org.mobicents.slee.resource.diameter.cxdx.handlers.CxDxSessionCreationListener#stateChanged(org.jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
+   */
+  public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+  	// TODO Auto-generated method stub
+	  DiameterActivityHandle dah = getActivityHandle(source.getSessionId());
+		Object activity = getActivity(dah);
+		if (activity != null) {
+			if(source instanceof ServerShSession)
+			{
+				try{
+					//damn, no common, do something unexpected
+					StateChangeListener<AppSession> scl = (StateChangeListener<AppSession>) activity;
+					scl.stateChanged(source, oldState, newState);
+				}catch(Exception e)
+				{
+					tracer.warning("Failed to deliver state, for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )", e);
+				}
+				
+			}
+		} else {
+			tracer.warning("No activity for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )");
+		}
+  }
 
   // Provider Implementation ---------------------------------------------
 
-  private class CxDxProviderImpl implements CxDxProvider {
+
+private class CxDxProviderImpl implements CxDxProvider {
 
     protected DiameterCxDxResourceAdaptor ra;
 
@@ -816,8 +846,22 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
 
       CxDxServerSessionImpl activity = new CxDxServerSessionImpl(ra.cxdxMessageFactory, ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, (DiameterIdentity)null, (DiameterIdentity)null, ra.sleeEndpoint,stack);
       addActivity(activity);
-
+      
       if(request != null) {
+    	  if(request.getCommandCode() == LocationInfoRequest.COMMAND_CODE)
+      	{
+      		activity.fetchSessionData(new LocationInfoRequestImpl(request));
+      	}else if (request.getCommandCode() == MultimediaAuthenticationRequest.COMMAND_CODE)
+      	{
+      		activity.fetchSessionData(new MultimediaAuthenticationRequestImpl(request));
+      	}else if (request.getCommandCode() == ServerAssignmentRequest.COMMAND_CODE)
+      	{
+      		activity.fetchSessionData(new ServerAssignmentRequestImpl(request));
+      	}else if (request.getCommandCode() == UserAuthorizationRequest.COMMAND_CODE)
+      	{
+      		activity.fetchSessionData(new UserAuthorizationRequestImpl(request));
+      	}
+    	  
         ((org.jdiameter.server.impl.app.cxdx.CxDxServerSessionImpl)session).processRequest(request);
       }
 
@@ -868,6 +912,16 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
         addActivity(activity);
 
         if(request != null) {
+        	if(request.getCommandCode() == PushProfileRequest.COMMAND_CODE)
+        	{
+        		activity.fetchSessionData(new PushProfileRequestImpl(request));
+        	}else if (request.getCommandCode() == RegistrationTerminationRequest.COMMAND_CODE)
+        	{
+        		activity.fetchSessionData(new RegistrationTerminationRequestImpl(request));
+        	}
+        	
+        	 
+        	
           ((org.jdiameter.client.impl.app.cxdx.CxDxClientSessionImpl)session).processRequest(request);
         }
 

@@ -14,7 +14,6 @@ import org.jdiameter.api.IllegalDiameterStateException;
 import org.jdiameter.api.InternalException;
 import org.jdiameter.api.Message;
 import org.jdiameter.api.OverloadException;
-import org.jdiameter.api.Request;
 import org.jdiameter.api.RouteException;
 import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.acc.ClientAccSession;
@@ -27,9 +26,9 @@ import org.jdiameter.api.app.AppAnswerEvent;
 import org.jdiameter.api.app.AppRequestEvent;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
-import org.jdiameter.client.impl.app.acc.ClientAccSessionImpl;
+import org.jdiameter.client.api.ISessionFactory;
 import org.jdiameter.common.api.app.IAppSessionFactory;
-import org.jdiameter.server.impl.app.acc.ServerAccSessionImpl;
+import org.jdiameter.common.impl.app.acc.AccSessionFactoryImpl;
 
 /**
  * 
@@ -38,7 +37,7 @@ import org.jdiameter.server.impl.app.acc.ServerAccSessionImpl;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class AccountingSessionFactory implements IAppSessionFactory, ServerAccSessionListener, StateChangeListener, ClientAccSessionListener {
+public class AccountingSessionFactory extends AccSessionFactoryImpl implements IAppSessionFactory, ServerAccSessionListener, StateChangeListener<AppSession>, ClientAccSessionListener {
 
   private static HashSet<Integer> accEventCodes = new HashSet<Integer>();
   private static HashSet<Integer> authEventCodes = new HashSet<Integer>();
@@ -57,6 +56,7 @@ public class AccountingSessionFactory implements IAppSessionFactory, ServerAccSe
   protected final static Logger logger = Logger.getLogger(AccountingSessionFactory.class);
 
   public static AccountingSessionFactory INSTANCE = new AccountingSessionFactory();
+  private Object source;
 
   /*
    * public AccountingSessionFactory(BaseSessionCreationListener ra, long
@@ -75,30 +75,22 @@ public class AccountingSessionFactory implements IAppSessionFactory, ServerAccSe
     }
     this.messageTimeout = messageTimeout;
     this.sessionFactory = sessionFactory;
+    super.setSessionFactory((ISessionFactory) sessionFactory);
   }
 
   public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass, ApplicationId applicationId, Object[] args) {
-    try {
-      if (aClass == ServerAccSession.class) {
-        Request request = (Request) args[0];
-
-        ServerAccSessionImpl session = new ServerAccSessionImpl(sessionFactory.getNewSession(request.getSessionId()), sessionFactory, request, this, messageTimeout, true, new StateChangeListener[] { this });
-        BaseSessionCreationListener ra = this.ras.get(applicationId) != null ? this.ras.get(applicationId) : this.ras.values().iterator().next();
-        ra.sessionCreated(session);
-        return session;
-      }
-      else if (aClass == ClientAccSession.class) {
-        ClientAccSessionImpl session = sessionId == null ? new ClientAccSessionImpl(sessionFactory, this, applicationId) : new ClientAccSessionImpl(sessionFactory, sessionId, this, applicationId);
-        session.addStateChangeNotification(this);
-        BaseSessionCreationListener ra = this.ras.get(applicationId) != null ? this.ras.get(applicationId) : this.ras.values().iterator().next();
-        ra.sessionCreated(session);
-        return session;
-      }
+    AppSession session = super.getNewSession(sessionId, aClass, applicationId, args);
+    if (aClass == ServerAccSession.class) {
+      BaseSessionCreationListener ra = this.ras.get(applicationId) != null ? this.ras.get(applicationId) : this.ras.values().iterator().next();
+      ra.sessionCreated((ServerAccSession)session);
+      return session;
     }
-    catch (Exception e) {
-      logger.error("Failure to obtain new Accounting Session.", e);
+    else if (aClass == ClientAccSession.class) {
+      BaseSessionCreationListener ra = this.ras.get(applicationId) != null ? this.ras.get(applicationId) : this.ras.values().iterator().next();
+      ra.sessionCreated((ClientAccSession)session);
+      return session;
     }
-
+    
     return null;
   }
 
@@ -125,6 +117,25 @@ public class AccountingSessionFactory implements IAppSessionFactory, ServerAccSe
     //FIXME: add code here.
   }
 
+  /*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.common.impl.app.auth.AuthSessionFactoryImpl#stateChanged
+	 * (org.jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
+	 */
+	@Override
+	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+		//inform one who might need that
+		//BaseSessionCreationListener ra = this.ras.get(source.getSessionAppId());
+		//FIXME: Alex?
+		//ra.stateChanged(source,oldState,newState);
+		if(logger.isInfoEnabled())
+		{
+			logger.info("Diameter Base AccountingSessionFactory :: stateChanged :: source["+source+"] :: oldState[" + oldState + "], newState[" + newState + "]");
+		}
+	}
+  
   private void doFireEvent(AppSession appSession, Message message) {
     ApplicationId appId = null;
     for(ApplicationId curAppId : message.getApplicationIdAvps()) {

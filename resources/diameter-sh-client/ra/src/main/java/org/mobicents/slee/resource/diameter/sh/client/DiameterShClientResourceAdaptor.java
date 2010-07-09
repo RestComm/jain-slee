@@ -86,19 +86,16 @@ import org.jdiameter.api.Stack;
 import org.jdiameter.api.app.AppAnswerEvent;
 import org.jdiameter.api.app.AppRequestEvent;
 import org.jdiameter.api.app.AppSession;
-import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.sh.ClientShSession;
-import org.jdiameter.api.sh.ClientShSessionListener;
 import org.jdiameter.api.sh.events.ProfileUpdateAnswer;
 import org.jdiameter.api.sh.events.PushNotificationRequest;
 import org.jdiameter.api.sh.events.SubscribeNotificationsRequest;
 import org.jdiameter.api.sh.events.UserDataRequest;
 import org.jdiameter.client.api.ISessionFactory;
 import org.jdiameter.client.impl.app.sh.ShClientSessionImpl;
-import org.jdiameter.common.api.app.IAppSessionFactory;
-import org.jdiameter.common.api.app.sh.IShMessageFactory;
 import org.jdiameter.common.impl.app.AppAnswerEventImpl;
 import org.jdiameter.common.impl.app.AppRequestEventImpl;
+import org.jdiameter.common.impl.app.sh.ShSessionFactoryImpl;
 import org.mobicents.diameter.stack.DiameterListener;
 import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
@@ -110,14 +107,14 @@ import org.mobicents.slee.resource.diameter.base.events.ErrorAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.ExtensionDiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.sh.DiameterShAvpFactoryImpl;
 import org.mobicents.slee.resource.diameter.sh.EventIDCache;
-import org.mobicents.slee.resource.diameter.sh.events.ProfileUpdateAnswerImpl;
-import org.mobicents.slee.resource.diameter.sh.events.PushNotificationRequestImpl;
-import org.mobicents.slee.resource.diameter.sh.events.SubscribeNotificationsAnswerImpl;
-import org.mobicents.slee.resource.diameter.sh.events.UserDataAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.client.handlers.ShClientSessionListener;
+import org.mobicents.slee.resource.diameter.sh.events.ProfileUpdateAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.events.ProfileUpdateRequestImpl;
 import org.mobicents.slee.resource.diameter.sh.events.PushNotificationAnswerImpl;
+import org.mobicents.slee.resource.diameter.sh.events.PushNotificationRequestImpl;
+import org.mobicents.slee.resource.diameter.sh.events.SubscribeNotificationsAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.events.SubscribeNotificationsRequestImpl;
+import org.mobicents.slee.resource.diameter.sh.events.UserDataAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.events.UserDataRequestImpl;
 
 /**
@@ -285,7 +282,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
       // Setup session factories
       this.sessionFactory = this.stack.getSessionFactory();
 
-      ((ISessionFactory) sessionFactory).registerAppFacory(ClientShSession.class, new ShClientSessionFactory(this));
+      ((ISessionFactory) sessionFactory).registerAppFacory(ClientShSession.class, new ShClientSessionFactory(this, this.sessionFactory));
     }
     catch (Exception e) {
       tracer.severe("Error Activating Diameter ShClient RA Entity", e);
@@ -713,12 +710,12 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
 
   // Sh-Client Session Factory -------------------------------------------
 
-  private class ShClientSessionFactory implements IAppSessionFactory, ClientShSessionListener, StateChangeListener, IShMessageFactory {
+  private class ShClientSessionFactory extends  ShSessionFactoryImpl{
 
     DiameterShClientResourceAdaptor ra = null;
 
-    public ShClientSessionFactory(DiameterShClientResourceAdaptor ra) {
-      super();
+    public ShClientSessionFactory(DiameterShClientResourceAdaptor ra, SessionFactory sf) {
+      super(sf);
       this.ra = ra;
     }
 
@@ -726,17 +723,8 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
       try {
     	  //FIXME: add proper handling for SessionId
         if (aClass == ClientShSession.class) {
-          ShClientSessionImpl clientSession = null;
+          ShClientSessionImpl clientSession = (ShClientSessionImpl) super.getNewSession(sessionId, aClass, applicationId, args);
 
-          if(args != null && args.length > 0 && (args[0] instanceof Request || (args[0] instanceof Message && ((Message)args[0]).isRequest()))) {
-        	  Message request = (Message) args[0];
-            clientSession = new ShClientSessionImpl(request.getSessionId(),this,sessionFactory,this);
-          }
-          else {
-            clientSession = new ShClientSessionImpl(null,this,sessionFactory,this);
-          }
-
-          clientSession.addStateChangeNotification(this);
           return clientSession;
         }
         else {
@@ -796,7 +784,36 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
       }
     }
 
-    public AppAnswerEvent createProfileUpdateAnswer(Answer answer) {
+    /* (non-Javadoc)
+	 * @see org.jdiameter.common.impl.app.sh.ShSessionFactoryImpl#stateChanged(org.jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
+	 */
+	@Override
+	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+		if(tracer.isInfoEnabled()) {
+	        tracer.info("Diameter Sh ClientSessionFactory :: stateChanged :: source["+ source +"] :: oldState[" + oldState + "], newState[" + newState + "]");
+	      }
+//		DiameterActivityHandle dah = getActivityHandle(source.getSessionId());
+//		Object activity = getActivity(dah);
+//		if (activity != null) {
+//			if(source instanceof ClientShSession )
+//			{
+//				try{
+//					//damn, no common, do something unexpected
+//					StateChangeListener<AppSession> scl = (StateChangeListener<AppSession>) activity;
+//					scl.stateChanged(source, oldState, newState);
+//				}catch(Exception e)
+//				{
+//					tracer.warning("Failed to deliver state, for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )", e);
+//				}
+//				
+//			}
+//		} else {
+//			tracer.warning("No activity for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )");
+//		}
+//		
+	}
+
+	public AppAnswerEvent createProfileUpdateAnswer(Answer answer) {
       return new AppAnswerEventImpl(answer);
     }
 

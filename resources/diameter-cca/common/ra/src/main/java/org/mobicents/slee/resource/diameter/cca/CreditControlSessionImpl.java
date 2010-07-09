@@ -37,6 +37,7 @@ import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.cca.handlers.CCASessionCreationListener;
@@ -47,7 +48,7 @@ import org.mobicents.slee.resource.diameter.cca.handlers.CCASessionCreationListe
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a> 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a> 
  */
-public abstract class CreditControlSessionImpl extends DiameterActivityImpl implements CreditControlSession, StateChangeListener{
+public abstract class CreditControlSessionImpl extends DiameterActivityImpl implements CreditControlSession, StateChangeListener<AppSession>{
 
   protected CreditControlMessageFactory ccaMessageFactory = null;
   protected CreditControlAVPFactory ccaAvpFactory = null;

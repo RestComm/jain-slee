@@ -847,7 +847,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     AccountingServerSessionActivityImpl activity = new AccountingServerSessionActivityImpl(msgFactory, avpFactory, session, null, null, sleeEndpoint, stack);
 
-    session.addStateChangeNotification(activity);
+    //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
     addActivity(activity);
   }
@@ -861,7 +861,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     AuthServerSessionActivityImpl activity = new AuthServerSessionActivityImpl(msgFactory, avpFactory, session, null, null, sleeEndpoint);
 
-    session.addStateChangeNotification(activity);
+    //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
     addActivity(activity);
   }
@@ -875,7 +875,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     AuthClientSessionActivityImpl activity = new AuthClientSessionActivityImpl(msgFactory, avpFactory, session, null, null, sleeEndpoint);
 
-    session.addStateChangeNotification(activity);
+    //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
     addActivity(activity);
   }
@@ -890,7 +890,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
     AccountingClientSessionActivityImpl activity = new AccountingClientSessionActivityImpl(msgFactory, avpFactory, session, null, null, sleeEndpoint);
 
     activity.setSessionListener(this);
-    session.addStateChangeNotification(activity);
+   // session.addStateChangeNotification(activity);
     addActivity(activity);
   }
 
@@ -950,7 +950,37 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     return appIds.toArray(new ApplicationId[appIds.size()]);
   }
-
+  // Handle for session state change -------------------------------------
+  
+  public void stateChanged(AppSession source, Enum oldState, Enum newState)
+  {
+	  if(source instanceof ServerAuthSession || source instanceof ClientAuthSession)
+	  {
+		  
+		  try{
+			  AuthSessionActivityImpl activity = (AuthSessionActivityImpl) this.getActivity(this.getActivityHandle(source.getSessionId()));
+		  	activity.stateChanged(source, oldState, newState);
+		  }catch(Exception e)
+		  {
+			  e.printStackTrace();
+		  }
+	  }else if (source instanceof ServerAccSession || source instanceof ClientAccSession)
+	  {
+		  
+		  try{
+			  AccountingSessionActivityImpl activity = (AccountingSessionActivityImpl) this.getActivity(this.getActivityHandle(source.getSessionId()));
+			  activity.stateChanged(source, oldState, newState);
+		  }catch(Exception e)
+		  {
+			  e.printStackTrace();
+		  }
+	  }else
+	  {
+		  //error?
+	  }
+  }
+  
+  
   // Diameter Provider Implementation ------------------------------------
 
   private class DiameterProviderImpl implements DiameterProvider {

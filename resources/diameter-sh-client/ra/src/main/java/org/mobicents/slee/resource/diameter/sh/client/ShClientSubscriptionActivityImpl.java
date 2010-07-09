@@ -51,6 +51,7 @@ import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.sh.ClientShSession;
 import org.jdiameter.common.impl.app.sh.PushNotificationAnswerImpl;
@@ -72,7 +73,7 @@ import org.mobicents.slee.resource.diameter.sh.client.handlers.ShClientSessionLi
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @see ShClientSubscriptionActivity
  */
-public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl implements ShClientSubscriptionActivity, StateChangeListener {
+public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl implements ShClientSubscriptionActivity, StateChangeListener<AppSession> {
 
   protected ClientShSession clientSession = null;
   protected ShSessionState state = ShSessionState.NOTSUBSCRIBED;
@@ -169,6 +170,7 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
 
       clean((DiameterShMessageImpl)answer);
       fetchSessionData(answer, false);
+      
     }
     catch (JAvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
@@ -236,6 +238,18 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
     }
   }
 
+  /*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
+	 * java.lang.Enum, java.lang.Enum)
+	 */
+	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+		this.stateChanged(oldState, newState);
+
+	}
+  
   /*
    * (non-Javadoc)
    * @see org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Enum, java.lang.Enum)

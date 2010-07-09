@@ -15,20 +15,17 @@ import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.app.AppAnswerEvent;
 import org.jdiameter.api.app.AppRequestEvent;
 import org.jdiameter.api.app.AppSession;
-import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.sh.ServerShSession;
-import org.jdiameter.api.sh.ServerShSessionListener;
 import org.jdiameter.api.sh.events.ProfileUpdateRequest;
 import org.jdiameter.api.sh.events.PushNotificationAnswer;
 import org.jdiameter.api.sh.events.PushNotificationRequest;
 import org.jdiameter.api.sh.events.SubscribeNotificationsRequest;
 import org.jdiameter.api.sh.events.UserDataRequest;
-import org.jdiameter.common.api.app.IAppSessionFactory;
-import org.jdiameter.common.api.app.sh.IShMessageFactory;
 import org.jdiameter.common.impl.app.sh.ProfileUpdateAnswerImpl;
 import org.jdiameter.common.impl.app.sh.ProfileUpdateRequestImpl;
 import org.jdiameter.common.impl.app.sh.PushNotificationAnswerImpl;
 import org.jdiameter.common.impl.app.sh.PushNotificationRequestImpl;
+import org.jdiameter.common.impl.app.sh.ShSessionFactoryImpl;
 import org.jdiameter.common.impl.app.sh.SubscribeNotificationsAnswerImpl;
 import org.jdiameter.common.impl.app.sh.SubscribeNotificationsRequestImpl;
 import org.jdiameter.common.impl.app.sh.UserDataAnswerImpl;
@@ -43,17 +40,17 @@ import org.mobicents.slee.resource.diameter.sh.server.DiameterShServerResourceAd
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ShServerSessionFactory implements IAppSessionFactory, ServerShSessionListener, StateChangeListener, IShMessageFactory {
+public class ShServerSessionFactory extends ShSessionFactoryImpl {
 
-  protected SessionFactory sessionFactory = null;
+  //protected SessionFactory sessionFactory = null;
   protected DiameterShServerResourceAdaptor ra = null;
 
   private Tracer tracer;
 
   public ShServerSessionFactory(SessionFactory sessionFactory, DiameterShServerResourceAdaptor diameterShServerResourceAdaptor) {
-    super();
+    super(sessionFactory);
 
-    this.sessionFactory = sessionFactory;
+    //this.sessionFactory = sessionFactory;
     this.ra = diameterShServerResourceAdaptor;
     
     this.tracer = ra.getRaContext().getTracer("ShServerSessionFactory");
@@ -68,19 +65,11 @@ public class ShServerSessionFactory implements IAppSessionFactory, ServerShSessi
     if (aClass == ServerShSession.class) {
       ShServerSessionImpl serverSession = null;
 
-      if (args != null && args.length > 0 && args[0] instanceof Request) {
-        // This shouldnt happen but just in case
-        Request request = (Request) args[0];
-        serverSession = new ShServerSessionImpl(sessionId, this, sessionFactory, this);
-        serverSession.addStateChangeNotification(this);
-
-        //Notify SLEE
-        this.ra.sessionCreated(serverSession, request.getCommandCode() == SubscribeNotificationsRequest.code);
-      }
-      else {
-        throw new IllegalArgumentException("Can't create Sh-Server Session: Unknown request type.");
-      }
-
+      serverSession = (ShServerSessionImpl) super.getNewSession(sessionId, aClass, applicationId, args);
+      //Notify SLEE
+   // This shouldnt happen but just in case
+      Request request = (Request) args[0];
+      this.ra.sessionCreated(serverSession, request.getCommandCode() == SubscribeNotificationsRequest.code);
       return serverSession;
     }
     else {
@@ -138,9 +127,24 @@ public class ShServerSessionFactory implements IAppSessionFactory, ServerShSessi
     }
   }
 
-  public AppAnswerEvent createProfileUpdateAnswer(Answer answer) {
-    return new ProfileUpdateAnswerImpl(answer);
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.common.impl.app.sh.ShSessionFactoryImpl#stateChanged(org
+	 * .jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
+	 */
+	@Override
+	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+//		ra.stateChanged(source, oldState, newState);
+		if(tracer.isInfoEnabled()) {
+		      tracer.info("Diameter ShServerSessionFactory :: stateChanged :: sournce[" + source + "] ::oldState[" + oldState + "], newState[" + newState + "]");
+		    }
+	}
+
+	public AppAnswerEvent createProfileUpdateAnswer(Answer answer) {
+		return new ProfileUpdateAnswerImpl(answer);
+	}
 
   public AppRequestEvent createProfileUpdateRequest(Request request) {
     return new ProfileUpdateRequestImpl(request);

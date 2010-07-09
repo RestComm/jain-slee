@@ -26,6 +26,7 @@ import org.jdiameter.api.EventListener;
 import org.jdiameter.api.InternalException;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Stack;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.cxdx.ServerCxDxSession;
 import org.jdiameter.common.api.app.cxdx.CxDxSessionState;
 import org.jdiameter.common.impl.app.cxdx.JLocationInfoAnswerImpl;
@@ -181,7 +182,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
   public UserAuthorizationAnswer createUserAuthorizationAnswer() {
     // Make sure we have the correct type of Request
     if (!(lastRequest instanceof UserAuthorizationRequest)) {
-      logger.warn("Invalid type of answer for this activity.");
+      logger.warn("Invalid type of answer for this activity. Type: "+lastRequest);
       return null;
     }
 
@@ -305,6 +306,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
       throw new AvpNotAllowedException(anae.getMessage(), anae.getAvpCode(), anae.getVendorId());
     }
     catch (Exception e) {
+    	e.printStackTrace();
       throw new IOException(e.getMessage());
     }
   }
@@ -317,5 +319,17 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
       }
     }
   }
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
+	 * java.lang.Enum, java.lang.Enum)
+	 */
+	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+		this.stateChanged(oldState, newState);
+
+	}
 
 }

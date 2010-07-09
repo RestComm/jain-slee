@@ -766,6 +766,25 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       tracer.severe("Failure Ending Activity with Session-Id[" + sessionId + "]", e);
     }
   }
+//  
+//	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+//		DiameterActivityHandle dah = getActivityHandle(source.getSessionId());
+//		Object activity = getActivity(dah);
+//		if (activity != null) {
+//			if (source instanceof ClientCCASession || source instanceof ServerCCASession) {
+//				try{
+//				CreditControlSessionImpl ccs = (CreditControlSessionImpl) activity;
+//				ccs.stateChanged(source, oldState, newState);
+//				}catch(Exception e)
+//				{
+//					tracer.warning("Failed to deliver state, for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )", e);
+//				}
+//			}
+//		} else {
+//			tracer.warning("No activity for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )");
+//		}
+//
+//	}
 
   // Provider Implementation ---------------------------------------------
 
@@ -1002,6 +1021,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     return new DiameterIdentity[0];
   }
+
 
 
 }

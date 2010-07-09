@@ -17,6 +17,7 @@ import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.acc.ClientAccSession;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.common.api.app.acc.ClientAccSessionState;
 import org.jdiameter.common.impl.app.acc.AccountRequestImpl;
 import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
@@ -67,6 +68,9 @@ public class AccountingClientSessionActivityImpl extends AccountingSessionActivi
     }
   }
 
+  public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+    stateChanged(oldState, newState);
+  }
   public void stateChanged(Enum oldState, Enum newState) {
 
     ClientAccSessionState state = (ClientAccSessionState) newState;

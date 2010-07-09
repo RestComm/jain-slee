@@ -19,6 +19,7 @@ import net.java.slee.resource.diameter.base.events.avp.ReAuthRequestType;
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.auth.ServerAuthSession;
 import org.jdiameter.common.api.app.auth.ServerAuthSessionState;
 import org.jdiameter.common.impl.app.auth.AbortSessionRequestImpl;
@@ -43,7 +44,7 @@ public class AuthServerSessionActivityImpl extends AuthSessionActivityImpl imple
 
     this.serverSession = serverSession;
     super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
-    //this.serverSession.addStateChangeNotification(this);
+    this.serverSession.addStateChangeNotification(this);
   }
 
   public AbortSessionRequest createAbortSessionRequest() {
@@ -122,6 +123,10 @@ public class AuthServerSessionActivityImpl extends AuthSessionActivityImpl imple
 
   public ServerAuthSession getSession() {
     return serverSession;
+  }
+
+  public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+    stateChanged(oldState, newState);
   }
 
   public void stateChanged(Enum oldState, Enum newState) {

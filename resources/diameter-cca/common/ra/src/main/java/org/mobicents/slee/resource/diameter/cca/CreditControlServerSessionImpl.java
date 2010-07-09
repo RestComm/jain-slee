@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.cca.ServerCCASession;
 import org.jdiameter.common.api.app.cca.ServerCCASessionState;
 import org.jdiameter.common.impl.app.auth.ReAuthRequestImpl;
@@ -145,6 +146,19 @@ public class CreditControlServerSessionImpl extends CreditControlSessionImpl imp
 		throw ioe;
 	}
   }
+
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
+	 * java.lang.Enum, java.lang.Enum)
+	 */
+	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+		this.stateChanged(oldState, newState);
+
+	}
 
   /*
    * (non-Javadoc)

@@ -7,6 +7,7 @@ import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.acc.ClientAccSession;
 import org.jdiameter.api.acc.ServerAccSession;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.auth.ClientAuthSession;
 import org.jdiameter.api.auth.ServerAuthSession;
 
@@ -77,4 +78,6 @@ public interface BaseSessionCreationListener {
    * @return
    */
   public ApplicationId[] getSupportedApplications();
+
+  //public void stateChanged(AppSession source, Enum oldState, Enum newState);
 }

@@ -26,6 +26,7 @@ import net.java.slee.resource.diameter.sh.server.ShServerSubscriptionActivity;
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.sh.ServerShSession;
 import org.jdiameter.common.impl.app.sh.ProfileUpdateAnswerImpl;
@@ -46,7 +47,7 @@ import org.mobicents.slee.resource.diameter.sh.server.handlers.ShServerSessionLi
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @see ShServerSubscriptionActivity
  */
-public class ShServerSubscriptionActivityImpl extends DiameterActivityImpl implements ShServerSubscriptionActivity, StateChangeListener {
+public class ShServerSubscriptionActivityImpl extends DiameterActivityImpl implements ShServerSubscriptionActivity, StateChangeListener<AppSession> {
 
   protected ServerShSession serverSession = null;
   protected ShSessionState state = ShSessionState.NOTSUBSCRIBED;
@@ -344,34 +345,44 @@ public class ShServerSubscriptionActivityImpl extends DiameterActivityImpl imple
     }
   }
 
-  public void stateChanged(Enum oldState, Enum newState)
-  {
-    org.jdiameter.common.api.app.sh.ShSessionState _state = (org.jdiameter.common.api.app.sh.ShSessionState) newState;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
+	 * java.lang.Enum, java.lang.Enum)
+	 */
+	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+		this.stateChanged(oldState, newState);
 
-    switch (_state)
-    {
-    case NOTSUBSCRIBED:
-      break;
-    case SUBSCRIBED:
-      state = ShSessionState.SUBSCRIBED;
-      // FIXME: error?
+	}
 
-      break;
-    case TERMINATED:
-      state = ShSessionState.TERMINATED;
+	public void stateChanged(Enum oldState, Enum newState) {
+		org.jdiameter.common.api.app.sh.ShSessionState _state = (org.jdiameter.common.api.app.sh.ShSessionState) newState;
 
-      listener.sessionDestroyed(getSessionId(), serverSession);
-      this.serverSession.removeStateChangeNotification(this);
-      this.messageFactory.clean();
-      this.serverSession = null;
-      super.session =  null;
-      this.messageFactory = null;
-      this.shAvpFactory = null;
-      super.session = null;
-      super.clean();
-      break;
-    }
-  }
+		switch (_state) {
+		case NOTSUBSCRIBED:
+			break;
+		case SUBSCRIBED:
+			state = ShSessionState.SUBSCRIBED;
+			// FIXME: error?
+
+			break;
+		case TERMINATED:
+			state = ShSessionState.TERMINATED;
+
+			listener.sessionDestroyed(getSessionId(), serverSession);
+			this.serverSession.removeStateChangeNotification(this);
+			this.messageFactory.clean();
+			this.serverSession = null;
+			super.session = null;
+			this.messageFactory = null;
+			this.shAvpFactory = null;
+			super.session = null;
+			super.clean();
+			break;
+		}
+	}
 
   public void fetchSessionData(DiameterMessage msg, boolean incoming) {
     if(msg.getHeader().isRequest()) {

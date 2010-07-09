@@ -1,6 +1,7 @@
 package org.mobicents.slee.resource.diameter.sh.server.handlers;
 
 import org.jdiameter.api.Message;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.sh.ServerShSession;
 
 /**
@@ -28,4 +29,6 @@ public interface ShServerSessionListener {
    *            the message (request or answer) object
    */
   public void fireEvent(String sessionId, Message message);
+  
+ // public void stateChanged(AppSession source, Enum oldState, Enum newState);
 }

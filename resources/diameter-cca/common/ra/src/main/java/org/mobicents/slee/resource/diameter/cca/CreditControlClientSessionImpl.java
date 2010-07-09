@@ -20,6 +20,7 @@ import net.java.slee.resource.diameter.cca.events.avp.CcRequestType;
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
+import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.cca.ClientCCASession;
 import org.jdiameter.common.api.app.cca.ClientCCASessionState;
 import org.jdiameter.common.impl.app.auth.ReAuthAnswerImpl;
@@ -229,7 +230,19 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
     }
   }
 
-  /*
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
+	 * java.lang.Enum, java.lang.Enum)
+	 */
+	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+		this.stateChanged(oldState, newState);
+
+	}
+
+/*
    * (non-Javadoc)
    * 
    * @see
