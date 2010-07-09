@@ -84,23 +84,30 @@ public abstract class TTSSbb implements Sbb {
 	
 	public final static String WELCOME = "Hello World. This is Mobicents Media Server Text To Speech Demo. Press any button on your touch dial phone.";
 	
-	private final static String DTMF_0 = "You have pressed Zero";
-	private final static String DTMF_1 = "You have pressed One";
-	private final static String DTMF_2 = "You have pressed Two";
-	private final static String DTMF_3 = "You have pressed Three";
-	private final static String DTMF_4 = "You have pressed Four";
-	private final static String DTMF_5 = "You have pressed Five";
-	private final static String DTMF_6 = "You have pressed Six";
-	private final static String DTMF_7 = "You have pressed Seven";
-	private final static String DTMF_8 = "You have pressed Eight";
-	private final static String DTMF_9 = "You have pressed Nine";
-	private final static String STAR = "You have pressed Star Sign";
-	private final static String POUND = "You have pressed Pound Sign";
-	private final static String A = "You have pressed A";
-	private final static String B = "You have pressed B";
-	private final static String C = "You have pressed C";
-	private final static String D = "You have pressed D";	
-
+	private final static String DTMF_0 = "This is voice of Kevin You have pressed Zero";
+	private final static String DTMF_1 = "This is voice of Kevin Sixteen. You have pressed One";
+	private final static String DTMF_2 = "This is voice of Alan. You have pressed Two";
+	private final static String DTMF_3 = "This is voice of Mbrola US One. You have pressed Three";
+	private final static String DTMF_4 = "This is voice of Mbrola US Two. You have pressed Four";
+	private final static String DTMF_5 = "This is voice of Mbrola US Three. You have pressed Five";
+	private final static String DTMF_6 = "This is voice of Kevin. You have pressed Six";
+	private final static String DTMF_7 = "This is voice of Kevin. You have pressed Seven";
+	private final static String DTMF_8 = "This is voice of Kevin. You have pressed Eight";
+	private final static String DTMF_9 = "This is voice of Kevin. You have pressed Nine";
+	private final static String STAR = "This is voice of Kevin. You have pressed Star Sign";
+	private final static String POUND = "This is voice of Kevin. You have pressed Pound Sign";
+	private final static String A = "This is voice of Kevin. You have pressed A";
+	private final static String B = "This is voice of Kevin. You have pressed B";
+	private final static String C = "This is voice of Kevin. You have pressed C";
+	private final static String D = "This is voice of Kevin. You have pressed D";	
+	
+	private final static String VOICE_KEVIN = "kevin";
+	private final static String VOICE_KEVIN16 = "kevin16";
+	private final static String VOICE_ALAN = "alan";
+	private final static String VOICE_MBROLA_US1 = "mbrola_us1";
+	private final static String VOICE_MBROLA_US2 = "mbrola_us2";
+	private final static String VOICE_MBROLA_US3 = "mbrola_us3";
+	
 	private SbbContext sbbContext;
 
 	// SIP
@@ -303,14 +310,14 @@ public abstract class TTSSbb implements Sbb {
 		logger.info(" NotificationRequest sent");
 	}	
 
-	private void sendTTSRQNT(String ttsText, boolean createActivity) {
+	private void sendTTSRQNT(String ttsText, String voice, boolean createActivity) {
 		EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":"
 				+ MGCP_PEER_PORT);
 
 		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 				.getUniqueRequestIdentifier());
 
-		ttsText = "ts("+ttsText+")";
+		ttsText = "ts("+ttsText+") vc("+voice+")";
 		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
 		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(ttsText), connectionIdentifier) };
 		notificationRequest.setSignalRequests(signalRequests);
@@ -405,69 +412,69 @@ public abstract class TTSSbb implements Sbb {
 				break;
 			case MgcpEvent.DTMF_0:
 				logger.info("You have pressed 0");
-				sendTTSRQNT(DTMF_0, false);
+				sendTTSRQNT(DTMF_0, VOICE_KEVIN, false);
 				break;
 			case MgcpEvent.DTMF_1:
 				logger.info("You have pressed 1");
-				sendTTSRQNT(DTMF_1, false);
+				sendTTSRQNT(DTMF_1, VOICE_KEVIN16, false);
 				break;
 			case MgcpEvent.DTMF_2:
 				logger.info("You have pressed 2");
-				sendTTSRQNT(DTMF_2, false);
+				sendTTSRQNT(DTMF_2, VOICE_ALAN, false);
 				break;
 			case MgcpEvent.DTMF_3:
 				logger.info("You have pressed 3");
-				sendTTSRQNT(DTMF_3, false);
+				sendTTSRQNT(DTMF_3, VOICE_MBROLA_US1, false);
 				break;
 			case MgcpEvent.DTMF_4:
 				logger.info("You have pressed 4");
-				sendTTSRQNT(DTMF_4, false);
+				sendTTSRQNT(DTMF_4, VOICE_MBROLA_US2, false);
 				break;
 			case MgcpEvent.DTMF_5:
 				logger.info("You have pressed 5");
-				sendTTSRQNT(DTMF_5, false);
+				sendTTSRQNT(DTMF_5, VOICE_MBROLA_US3, false);
 				break;
 			case MgcpEvent.DTMF_6:
 				logger.info("You have pressed 6");
-				sendTTSRQNT(DTMF_6, false);
+				sendTTSRQNT(DTMF_6, VOICE_KEVIN, false);
 				break;
 			case MgcpEvent.DTMF_7:
 				logger.info("You have pressed 7");
-				sendTTSRQNT(DTMF_7, false);
+				sendTTSRQNT(DTMF_7, VOICE_KEVIN, false);
 				break;
 			case MgcpEvent.DTMF_8:
 				logger.info("You have pressed 8");
-				sendTTSRQNT(DTMF_8, false);
+				sendTTSRQNT(DTMF_8, VOICE_KEVIN, false);
 				break;
 			case MgcpEvent.DTMF_9:
 				logger.info("You have pressed 9");
-				sendTTSRQNT(DTMF_9, false);
+				sendTTSRQNT(DTMF_9, VOICE_KEVIN, false);
 				break;
 			case MgcpEvent.DTMF_A:
 				logger.info("You have pressed A");
-				sendTTSRQNT(A, false);
+				sendTTSRQNT(A, VOICE_KEVIN, false);
 				break;
 			case MgcpEvent.DTMF_B:
 				logger.info("You have pressed B");
-				sendTTSRQNT(B, false);
+				sendTTSRQNT(B, VOICE_KEVIN, false);
 				break;
 			case MgcpEvent.DTMF_C:
 				logger.info("You have pressed C");
-				sendTTSRQNT(C, false);
+				sendTTSRQNT(C, VOICE_KEVIN, false);
 				break;
 			case MgcpEvent.DTMF_D:
 				logger.info("You have pressed D");
-				sendTTSRQNT(D, false);
+				sendTTSRQNT(D, VOICE_KEVIN, false);
 
 				break;
 			case MgcpEvent.DTMF_STAR:
 				logger.info("You have pressed *");
-				sendTTSRQNT(STAR, false);
+				sendTTSRQNT(STAR, VOICE_KEVIN, false);
 
 				break;
 			case MgcpEvent.DTMF_HASH:
 				logger.info("You have pressed C");
-				sendTTSRQNT(POUND, false);
+				sendTTSRQNT(POUND, VOICE_KEVIN, false);
 
 				break;
 			}
