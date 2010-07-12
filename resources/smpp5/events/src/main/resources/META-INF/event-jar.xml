@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN" "http://java.sun.com/dtd/slee-event-jar_1_1.dtd">
+
+<event-jar>
+    <description>Event definitions SMS RA events</description>
+	
+	<library-ref>
+			<library-name>library-smpp5</library-name>
+			<library-vendor>library-smpp5</library-vendor>
+			<library-version>2.0</library-version>
+    </library-ref>
+    	    
+    <!-- transaction events -->
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.ALERT_NOTIFICATION</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.AlertNotification</event-class-name>
+    </event-definition>   
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.GENERIC_NACK</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.GenericNack</event-class-name>
+    </event-definition> 
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.DELIVER_SM</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.DeliverSM</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.DELIVER_SM_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.DeliverSMResp</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.SUBMIT_SM</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>3.4</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.SubmitSM</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.SUBMIT_SM_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.SubmitSMResp</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.DATA_SM</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.DataSM</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.DATA_SM_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.DataSMResp</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.SUBMIT_MULTI</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>3.4</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.SubmitMulti</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.SUBMIT_MULTI_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.SubmitMultiResp</event-class-name>
+    </event-definition>    
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.QUERY_SM</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.QuerySM</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.QUERY_SM_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.QuerySMResp</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.CANCEL_SM</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.CancelSM</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.CANCEL_SM_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.CancelSMResp</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.REPLACE_SM</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.ReplaceSM</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.REPLACE_SM_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.ReplaceSMResp</event-class-name>
+    </event-definition>
+    
+    
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.BROADCAST_SM</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.BroadcastSM</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.BROADCAST_SM_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.BroadcastSMResp</event-class-name>
+    </event-definition>  
+    
+	<event-definition>
+        <event-type-name>net.java.slee.resources.smpp.QUERY_BROADCAST_SM</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.QueryBroadcastSM</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.QUERY_BROADCAST_SM_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.QueryBroadcastSMResp</event-class-name>
+    </event-definition>
+    
+	<event-definition>
+        <event-type-name>net.java.slee.resources.smpp.CANCEL_BROADCAST_SM</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.CancelBroadcastSM</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.CANCEL_BROADCAST_SM_RESP</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.CancelBroadcastSMResp</event-class-name>
+    </event-definition>   
+    
+    <!-- Error events --> 
+    <event-definition>
+        <event-type-name>net.java.slee.resources.smpp.SMPP_TIMEOUT_RESPONSE_SENT</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.SmppErrorEvent</event-class-name>
+    </event-definition>
+    
+	<event-definition>
+        <event-type-name>net.java.slee.resources.smpp.SMPP_TIMEOUT_RESPONSE_RECEIVED</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
+        <event-type-version>5.0</event-type-version>
+        <event-class-name>net.java.slee.resources.smpp.SmppErrorEvent</event-class-name>
+    </event-definition>
+</event-jar>
