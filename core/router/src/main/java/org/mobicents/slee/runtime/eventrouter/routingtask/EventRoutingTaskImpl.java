@@ -238,7 +238,18 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 
 						// load ac
 						ac = container.getActivityContextFactory().getActivityContext(eventContext.getActivityContextHandle());
-
+						if (ac == null) {
+							logger.error("Unable to route event "+eventContext+". The activity context is gone");
+							try {
+								eventContext.eventProcessingFailed(FailureReason.OTHER_REASON);
+								txMgr.commit();
+							}
+							catch (Throwable e) {
+								logger.error(e.getMessage(),e);
+							}
+							return;
+						}
+						
 						if (routingPhase == RoutingPhase.DELIVERING) {
 							
 							// calculate highest priority attached sbb entity that needs to handle the event

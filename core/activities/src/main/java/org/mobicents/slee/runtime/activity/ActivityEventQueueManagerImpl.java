@@ -1,5 +1,6 @@
 package org.mobicents.slee.runtime.activity;
 
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -224,11 +225,23 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 	 */
 	public void removeBarrier(Transaction transaction) {
 		synchronized (eventBarriers) {
-			eventBarriers.remove(transaction);
-			if (eventBarriers.isEmpty()) {
-				// no barriers, proceed with commit of all events stored
-				for (EventContext e : eventsBarriered) {
-					commitAndNotSuspended(e);
+			if(eventBarriers.remove(transaction)) {
+				if (eventBarriers.isEmpty()) {
+					// no barriers, proceed with commit of all events stored
+					EventContext activityEndEvent = null;
+					for (Iterator<EventContext> it = eventsBarriered.iterator();it.hasNext();) {
+						EventContext e = it.next();
+						it.remove();
+						if (!e.isActivityEndEvent()) {
+							commitAndNotSuspended(e);
+						}
+						else {
+							activityEndEvent = e;
+						}
+					}
+					if (activityEndEvent != null) {
+						commitAndNotSuspended(activityEndEvent);
+					}
 				}
 			}
 		}
