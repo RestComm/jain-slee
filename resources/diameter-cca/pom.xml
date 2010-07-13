@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>pom</packaging>
 
@@ -11,7 +10,7 @@
 
 	<groupId>org.mobicents.servers.diameter.resources</groupId>
 	<artifactId>cca-parent</artifactId>
-	<version>2.1.0-SNAPSHOT</version>
+	<version>2.1.0.FINAL</version>
 
 	<name>Mobicents :: Diameter Resources :: ${pom.artifactId}</name>
 
@@ -53,18 +52,15 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy overwrite="true"
-											todir="${basedir}/../../release/${release.name}/resources/diameter-cca">
+										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/resources/diameter-cca">
 											<fileset dir="${basedir}/du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
 												<include name="*.properties" />
 											</fileset>
 										</copy>
-										<copy overwrite="true" file="${basedir}/du/target/build.xml"
-											tofile="${basedir}/../../release/${release.name}/resources/diameter-cca/du-management.xml" />
-										<copy overwrite="true" file="${basedir}/release/build.xml"
-											todir="${basedir}/../../release/${release.name}/resources/diameter-cca">
+										<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/resources/diameter-cca/du-management.xml" />
+										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/resources/diameter-cca">
 											<filterset>
 												<filter token="JBOSS.PATH" value="${jboss.path}" />
 												<filter token="JBOSS.CONFIG" value="${node}" />
@@ -104,9 +100,9 @@
 	</profiles>
 
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/2.1.0.FINAL</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/2.1.0.FINAL</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/2.1.0.FINAL</url>
 	</scm>
 
 	<build>
