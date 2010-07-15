@@ -92,7 +92,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 	private JccActivityContextInterfaceFactory activityContextInterfaceFactory;
 	private boolean stopped = false;
 	private Thread monitor;
-	private String xmlConvofiguration = "";
+	private String xmlJCCConfiguration = "";
 
 	/**
 	 * 
@@ -219,11 +219,11 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 			properties.load(getClass().getResourceAsStream("/" + configName));
 			logger.info("Loaded properties: " + properties);
 
-			xmlConvofiguration = "<jcc-inap>";
+			xmlJCCConfiguration = "<jcc-inap>";
 			Enumeration keys = properties.keys();
 			while (keys.hasMoreElements()) {
 				String key = (String) keys.nextElement();
-				xmlConvofiguration += ";" + key + "=" + properties.getProperty(key);
+				xmlJCCConfiguration += ";" + key + "=" + properties.getProperty(key);
 			}
 
 			//FIXME: make this work
@@ -291,7 +291,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 
 		try {
 			JccPeer peer = JccPeerFactory.getJccPeer(peerName);
-			provider = new JccProviderLocal(peer.getProvider(xmlConvofiguration));
+			provider = new JccProviderLocal(peer.getProvider(xmlJCCConfiguration));
 
 			provider.addConnectionListener(this, null);
 			provider.addCallListener(this);
@@ -371,7 +371,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 	 * @see javax.slee.resource.ResourceAdaptor#raUnconfigure()
 	 */
 	public void raUnconfigure() {
-		this.xmlConvofiguration = null;
+		this.xmlJCCConfiguration = null;
 		this.configName = null;
 		this.peerName = null;
 
