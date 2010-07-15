@@ -214,8 +214,9 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			}
 
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (tracer.isFineEnabled()) {
+				tracer.fine("Unknown host",e);
+			}
 		}
 
 		return false;
