@@ -44,6 +44,10 @@
 
 				<!-- PROTOCOLS -->
 				<dependency>
+					<artifactId>stream</artifactId>
+					<groupId>org.mobicents.protocols.stream</groupId>
+				</dependency>
+				<dependency>
 					<artifactId>sccp-api</artifactId>
 					<groupId>org.mobicents.protocols.ss7.sccp</groupId>
 				</dependency>

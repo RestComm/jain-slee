@@ -14,12 +14,9 @@
 
 package org.mobicents.jcc.inap;
 
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
-import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
+
 import javax.csapi.cc.jcc.CallLoadControlListener;
 import javax.csapi.cc.jcc.EventFilter;
 import javax.csapi.cc.jcc.InvalidArgumentException;
@@ -35,6 +32,7 @@ import javax.csapi.cc.jcc.MethodNotSupportedException;
 import javax.csapi.cc.jcc.PrivilegeViolationException;
 import javax.csapi.cc.jcc.ProviderUnavailableException;
 import javax.csapi.cc.jcc.ResourceUnavailableException;
+
 import org.apache.log4j.Logger;
 import org.mobicents.jcc.inap.address.JccCalledPartyBCDNumber;
 import org.mobicents.jcc.inap.address.JccCalledPartyNumber;
@@ -42,10 +40,7 @@ import org.mobicents.jcc.inap.address.JccCallingPartyNumber;
 import org.mobicents.jcc.inap.protocol.parms.CalledPartyBcdNumber;
 import org.mobicents.jcc.inap.protocol.parms.CalledPartyNumber;
 import org.mobicents.jcc.inap.protocol.parms.CallingPartyNumber;
-import org.mobicents.protocols.ss7.sccp.SccpListener;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
-import org.mobicents.protocols.ss7.sccp.impl.SccpPeer;
-import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.protocols.ss7.tcap.TCAPStackImpl;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
@@ -58,6 +53,9 @@ import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCPAbortIndication;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCUniIndication;
 import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCUserAbortIndication;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
+
+import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
+import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 
 
 /**
@@ -91,14 +89,11 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
     public JccInapProviderImpl(Properties properties) {
         this.properties = properties;
         try {
-            String sccpProviderName = properties.getProperty("sccp.provider");
-            String sccpProps = properties.getProperty("sccp.config");
-            
-            SccpPeer sccpPeer = new SccpPeer(sccpProviderName);
-            this.sccpProvider = sccpPeer.getProvider(sccpProps);
-            this.tcapStack = new TCAPStackImpl(this.sccpProvider);
+        	this.tcapStack = new TCAPStackImpl();
+        	this.tcapStack.configure(properties);
             this.tcapProvider = this.tcapStack.getProvider();
             this.tcapProvider.addTCListener(this);
+            this.tcapStack.start();
             //sccpProvider.setSccpListener(this);
             logger.info("Initialized SCCP provider");
                         
@@ -259,15 +254,16 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
     }
     
     public void shutdown() {
-    	stopped = true;
-        callListeners.clear();
-        connectionListeners.clear();
-        calls.clear();
-        connections.clear();
-        threadPool.shutdownNow();
-        sccpProvider.shutdown();
-        state = JccProvider.SHUTDOWN;
-        stopped = true;
+    	this.stopped = true;
+    	this.callListeners.clear();
+    	this.connectionListeners.clear();
+    	this.calls.clear();
+    	this.connections.clear();
+    	this.threadPool.shutdownNow();
+        //sccpProvider.shutdown();
+        this.tcapStack.stop();
+        this.state = JccProvider.SHUTDOWN;
+        this.stopped = true;
     }
     
 //    public void onMessage(SccpAddress calledPartyAddress, SccpAddress callingPartyAddress, byte[] data) {

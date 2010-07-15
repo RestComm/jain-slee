@@ -31,10 +31,11 @@
 		<docs.bookid>JCC</docs.bookid>
 		<docs.profile>mobicents</docs.profile>
 		
-		<tcap.version>1.0.0.BETA1</tcap.version>
-		<sccp.version>1.0.0.BETA1</sccp.version>
-		<asn.version>1.0.0.BETA1</asn.version>
-		<mtp.version>1.0.0.BETA2</mtp.version>
+		<stream.version>1.0.0.BETA1-SNAPSHOT</stream.version>
+		<tcap.version>1.0.0.BETA2-SNAPSHOT</tcap.version>
+		<sccp.version>1.0.0.BETA2-SNAPSHOT</sccp.version>
+		<asn.version>1.0.0.BETA2-SNAPSHOT</asn.version>
+		<mtp.version>1.0.0.BETA3-SNAPSHOT</mtp.version>
 		
 		<version.jcc>1.1</version.jcc>
 		<version.concurrent>1.3.4</version.concurrent>
@@ -66,6 +67,11 @@
 				<groupId>javax.csapi.cc</groupId>
 				<artifactId>jcc</artifactId>
 				<version>${version.jcc}</version>
+			</dependency>
+			<dependency>
+				<artifactId>stream</artifactId>
+				<groupId>org.mobicents.protocols.stream</groupId>
+				<version>${stream.version}</version>
 			</dependency>
 			<dependency>
 				<artifactId>sccp-api</artifactId>

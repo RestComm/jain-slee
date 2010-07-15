@@ -39,7 +39,7 @@
 		<config-property>
 			<config-property-name>configName</config-property-name>
 			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>jcc-default-ra.properties</config-property-value>
+			<config-property-value>sccp.properties</config-property-value>
 		</config-property>
 	</resource-adaptor>
 	<security-permissions>
