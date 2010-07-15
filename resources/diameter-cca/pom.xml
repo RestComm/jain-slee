@@ -24,8 +24,7 @@
 
 	<properties>
 		<!-- Mobicents Diameter Components Versions -->
-		<mobicents.diameter.jdiameter.version>1.5.4.0-build401</mobicents.diameter.jdiameter.version>
-		<mobicents.diameter.resources.base-common.version>2.1.0.FINAL</mobicents.diameter.resources.base-common.version>
+		<mobicents.diameter.resources.base-common.version>2.2.0-SNAPSHOT</mobicents.diameter.resources.base-common.version>
 		<!-- Documentation Related Properties -->
 		<docs.profile>mobicents</docs.profile>
 		<docs.ra.name>Diameter CCA</docs.ra.name>
