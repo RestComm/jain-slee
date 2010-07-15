@@ -102,6 +102,15 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 		return members;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getLocalAddress()
+	 */
+	public MemberAddress getLocalAddress() {
+		Address localAddress = cluster.getLocalAddress();
+		return localAddress != null ? new MemberAddressImpl(localAddress) : null;
+	}
+	
 	/**
 	 * Removes all replicated data
 	 */

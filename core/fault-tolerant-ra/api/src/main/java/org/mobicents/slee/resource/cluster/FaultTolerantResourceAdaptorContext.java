@@ -15,6 +15,12 @@ import java.io.Serializable;
 public interface FaultTolerantResourceAdaptorContext<K extends Serializable, V extends Serializable> {
 
 	/**
+	 * Retrieves the address of the local node or null if not running in cluster mode. 
+	 * @return
+	 */
+	public MemberAddress getLocalAddress();
+	
+	/**
 	 * Retrieves the members of the cluster.
 	 * @return
 	 */
