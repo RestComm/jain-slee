@@ -1,46 +1,85 @@
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-		<groupId>org.mobicents</groupId>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.0-SNAPSHOT</version>
+		<groupId>org.mobicents</groupId>
+		<version>2.2</version>
 	</parent>
 
-    
-    <artifactId>sms-echo</artifactId>
-    <groupId>org.mobicents.examples</groupId>
-    <version>2.0-SNAPSHOT</version>
-    
-    <packaging>pom</packaging>
-    
-    <name>SMPP demo - echo</name>
-    
-    <modules>
-        <module>sms-sbb</module>
-        <module>service-du</module>
-    </modules>
-    
-    <repositories>
-        <repository>
-            <id>jboss</id>
-            <name>JBoss Repository</name>
-            <url>http://repository.jboss.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jboss-snapshots</id>
-            <name>JBoss Snapshot Repository</name>
-            <url>http://snapshots.jboss.org/maven2</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+
+	<artifactId>sms-echo</artifactId>
+	<groupId>org.mobicents.examples</groupId>
+	<version>2.0-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+
+	<name>SMPP demo - echo</name>
+
+	<properties>
+		<mobicents.resources.smpp.version>
+			2.0.1-SNAPSHOT
+		</mobicents.resources.smpp.version>
+	</properties>
+
+	<modules>
+		<module>sms-sbb</module>
+		<module>service-du</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.mobicents.resources</groupId>
+				<artifactId>smpp-ratype</artifactId>
+				<version>${mobicents.resources.smpp.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<groupId>org.mobicents.tools</groupId>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms />
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+					</classpathExcludes>
+					<resolveTransitiveDependencies>
+						true
+					</resolveTransitiveDependencies>
+					<eclipseProjectName>
+						mobicents-slee-example-smpp-echo
+					</eclipseProjectName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<repositories>
+		<repository>
+			<id>jboss</id>
+			<name>JBoss Repository</name>
+			<url>http://repository.jboss.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>jboss-snapshots</id>
+			<name>JBoss Snapshot Repository</name>
+			<url>http://snapshots.jboss.org/maven2</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>
