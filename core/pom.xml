@@ -110,7 +110,11 @@
 						<exclude>jtidy:jtidy</exclude>																		
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-tools-remote-slee-connection</eclipseProjectName>
+					<!--
+						Seriously?
+					  <eclipseProjectName>mobicents-slee-tools-remote-slee-connection</eclipseProjectName>
+					 -->
+					<eclipseProjectName>mobicents-slee-core</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		
