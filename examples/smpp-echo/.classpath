@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+  <classpathentry kind="src" path="sms-sbb/src/main/resources"/>
+  <classpathentry kind="src" path="sms-sbb/src/main/java"/>
+  <classpathentry kind="src" path="service-du/src/main/resources"/>
+  <classpathentry kind="var" path="M2_REPO/ie/omk/smppapi/0.3.9/smppapi-0.3.9.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/smpp-events/2.0.1-SNAPSHOT/smpp-events-2.0.1-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/smpp-library/2.0.1-SNAPSHOT/smpp-library-2.0.1-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/smpp-ratype/2.0.1-SNAPSHOT/smpp-ratype-2.0.1-SNAPSHOT.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="output" path="target/classes"/>
+</classpath>

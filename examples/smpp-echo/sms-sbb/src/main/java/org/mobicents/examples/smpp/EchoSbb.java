@@ -5,6 +5,7 @@
 package org.mobicents.examples.smpp;
 
 import java.io.IOException;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -13,107 +14,145 @@ import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
-import net.java.slee.resource.smpp.ActivityContextInterfaceFactory;
-import net.java.slee.resource.smpp.ClientTransaction;
-import net.java.slee.resource.smpp.Dialog;
-import net.java.slee.resource.smpp.RequestEvent;
-import net.java.slee.resource.smpp.ResponseEvent;
-import net.java.slee.resource.smpp.ShortMessage;
-import net.java.slee.resource.smpp.SmppProvider;
-import net.java.slee.resource.smpp.Transaction;
-//import org.apache.log4j.Logger;
+import javax.slee.facilities.Tracer;
+
+import net.java.slee.resources.smpp.SmppSession;
+import net.java.slee.resources.smpp.SmppTransaction;
+import net.java.slee.resources.smpp.SmppTransactionACIFactory;
+import net.java.slee.resources.smpp.pdu.Address;
+import net.java.slee.resources.smpp.pdu.DeliverSM;
+import net.java.slee.resources.smpp.pdu.DeliverSMResp;
+import net.java.slee.resources.smpp.pdu.SmppRequest;
+import net.java.slee.resources.smpp.pdu.SubmitSM;
+import net.java.slee.resources.smpp.pdu.SubmitSMResp;
 
 /**
- *
- * @author kulikov
+ * 
+ * @author amit bhayani
  */
 public abstract class EchoSbb implements Sbb {
 
-    private SbbContext sbbContext;
-    private SmppProvider smppProvider;
-    private ActivityContextInterfaceFactory smppAcif;
-    
-//    private final static Logger logger = Logger.getLogger(EchoSbb.class);
+	private SbbContext sbbContext;
+	private SmppSession smppProvider;
+	private SmppTransactionACIFactory smppAcif;
 
-    public void onSmsMessage(RequestEvent event, ActivityContextInterface aci) {
-        try {
-            event.getTransaction().respond(Transaction.STATUS_OK);
-        } catch (Exception e) {
-        }
-        
-        ShortMessage smsMessage = event.getMessage();
-        String text = smsMessage.getText();
+	private Tracer logger;
 
-        if (text != null) {
-            text = text.trim().toLowerCase();
-        }
+	public void onSmsMessage(DeliverSM event, ActivityContextInterface aci) {
 
-        String user = smsMessage.getOriginator().substring(1);
+		logger.info("Received DeliverSM ");
 
- //       logger.info("User address = " + user + ", text= " + text);
+		DeliverSMResp deliverSMResp = (DeliverSMResp) event.createSmppResponseEvent(SmppTransaction.ESME_ROK);
+		SmppTransaction txn = (SmppTransaction) aci.getActivity();
+		try {
+			txn.getSmppSession().sendResponse(txn, deliverSMResp);
 
-        reply(user, text);
-        System.out.println("Sending response: " + text);
-        
-    }
+			String message = new String(event.getMessage());
+			logger.info("DeliverSM Message = " + message);
 
-    private void reply(String msidn, String text) {
-        Dialog dialog = smppProvider.getDialog(msidn, "0020");
-        ShortMessage response = dialog.createMessage();
-        response.setOriginator("0020");
-        response.setRecipient(msidn);
-        response.setText(text);
-        ClientTransaction tx = dialog.createSubmitSmTransaction();
-        try {
-            tx.send(response);
-        } catch (IOException e) {
-//            logger.error("Unexpected IOError", e);
-        }
-    }
+			Address user = event.getSourceAddress();
 
-    public void onSmsReport(ResponseEvent event, ActivityContextInterface aci) {
-//        logger.info("SMS message delivered: " + aci.getActivity());
-    }
-    
-    public void setSbbContext(SbbContext sbbContext) {
-        this.sbbContext = sbbContext;
-        try {
-//            logger.info("Called setSbbContext PtinAudioConf!!!");
-            Context myEnv = (Context) new InitialContext().lookup("java:comp/env");
-            smppProvider = (SmppProvider) myEnv.lookup("slee/resources/smpp/3.4/smppinterface");
-            smppAcif = (ActivityContextInterfaceFactory) myEnv.lookup("slee/resources/smpp/3.4/factoryprovider");
-        } catch (NamingException ne) {
-//            logger.warn("Could not set SBB context:" + ne.getMessage());
-        }
-    }
+			reply(user, message);
+		} catch (IllegalStateException e) {
+			this.logger.severe("Error while sending DELIVER_SM_RESP", e);
+		} catch (NullPointerException e) {
+			this.logger.severe("Error while sending DELIVER_SM_RESP", e);
+		} catch (IOException e) {
+			this.logger.severe("Error while sending DELIVER_SM_RESP", e);
+		}
+	}
 
-    public void unsetSbbContext() {
-    }
+	private void reply(Address msidn, String message) {
 
-    public void sbbCreate() throws CreateException {
-    }
+		// Avoid setting Sequence Number as this is taken care by SMPP RA
+		SubmitSM submitSM = (SubmitSM) this.smppProvider.createSmppRequest(SmppRequest.SUBMIT_SM);
+		submitSM.setMessage(message.getBytes());
 
-    public void sbbPostCreate() throws CreateException {
-    }
+		Address source = this.smppProvider.createAddress(1, 0, "502");
 
-    public void sbbActivate() {
-    }
+		submitSM.setSourceAddress(source);
+		submitSM.setDestAddress(msidn);
 
-    public void sbbPassivate() {
-    }
+		submitSM.setRegisteredDelivery(1);
 
-    public void sbbLoad() {
-    }
+		SmppTransaction submitTxn;
+		try {
+			submitTxn = this.smppProvider.sendRequest(submitSM);
 
-    public void sbbStore() {
-    }
+			// attach to the new activity so we get the response
+			ActivityContextInterface newaci = smppAcif.getActivityContextInterface(submitTxn);
+			newaci.attach(this.sbbContext.getSbbLocalObject());
+		} catch (IllegalStateException e) {
+			this.logger.severe("Error while sending SUBMIT_SM", e);
+		} catch (NullPointerException e) {
+			this.logger.severe("Error while sending SUBMIT_SM", e);
+		} catch (IOException e) {
+			this.logger.severe("Error while sending SUBMIT_SM", e);
+		}
 
-    public void sbbRemove() {
-    }
+	}
 
-    public void sbbExceptionThrown(Exception arg0, Object arg1, ActivityContextInterface arg2) {
-    }
+	public void onSmsReport(SubmitSMResp event, ActivityContextInterface aci) {
+		this.logger.info("Received SUBMIT_SM_RESP statu = " + event.getCommandStatus());
+	}
 
-    public void sbbRolledBack(RolledBackContext arg0) {
-    }
+	public void onDeliveryAck(DeliverSM event, ActivityContextInterface aci) {
+		logger.info("Received DeliverSM for Acknowledgement. Sequence Number = " + event.getSequenceNum()
+				+ " \n message = " + new String(event.getMessage()));
+
+		//Send back Response
+		DeliverSMResp deliverSMResp = (DeliverSMResp) event.createSmppResponseEvent(SmppTransaction.ESME_ROK);
+		SmppTransaction txn = (SmppTransaction) aci.getActivity();
+		try {
+			txn.getSmppSession().sendResponse(txn, deliverSMResp);
+		} catch (IllegalStateException e) {
+			this.logger.severe("Error while sending DELIVER_SM_RESP", e);
+		} catch (NullPointerException e) {
+			this.logger.severe("Error while sending DELIVER_SM_RESP", e);
+		} catch (IOException e) {
+			this.logger.severe("Error while sending DELIVER_SM_RESP", e);
+		}		
+	}
+
+	public void setSbbContext(SbbContext sbbContext) {
+		this.sbbContext = sbbContext;
+		try {
+			this.logger = sbbContext.getTracer(EchoSbb.class.getSimpleName());
+			Context myEnv = (Context) new InitialContext().lookup("java:comp/env");
+			smppProvider = (SmppSession) myEnv.lookup("slee/resources/smpp/3.4/smppinterface");
+			smppAcif = (SmppTransactionACIFactory) myEnv.lookup("slee/resources/smpp/3.4/factoryprovider");
+		} catch (NamingException ne) {
+			logger.severe("Could not set SBB context:" + ne.getMessage());
+		}
+	}
+
+	public void unsetSbbContext() {
+	}
+
+	public void sbbCreate() throws CreateException {
+	}
+
+	public void sbbPostCreate() throws CreateException {
+	}
+
+	public void sbbActivate() {
+	}
+
+	public void sbbPassivate() {
+	}
+
+	public void sbbLoad() {
+	}
+
+	public void sbbStore() {
+	}
+
+	public void sbbRemove() {
+	}
+
+	public void sbbExceptionThrown(Exception arg0, Object arg1, ActivityContextInterface arg2) {
+	}
+
+	public void sbbRolledBack(RolledBackContext arg0) {
+	}
 }

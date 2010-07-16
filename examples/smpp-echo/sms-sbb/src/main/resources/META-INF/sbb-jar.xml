@@ -16,7 +16,7 @@
         <event event-direction="Receive" initial-event="True" mask-on-attach="False">
             <event-name>SmsMessage</event-name>
             <event-type-ref>
-                <event-type-name>net.java.slee.resource.smpp.DELIVER_SM</event-type-name>
+                <event-type-name>net.java.slee.resources.smpp.DELIVER_SM</event-type-name>
                 <event-type-vendor>net.java</event-type-vendor>
                 <event-type-version>3.4</event-type-version>
             </event-type-ref>
@@ -25,11 +25,19 @@
         <event event-direction="Receive" initial-event="False" mask-on-attach="False">
             <event-name>SmsReport</event-name>
             <event-type-ref>
-                <event-type-name>net.java.slee.resource.smpp.SUBMIT_SM_RESP</event-type-name>
+                <event-type-name>net.java.slee.resources.smpp.SUBMIT_SM_RESP</event-type-name>
                 <event-type-vendor>net.java</event-type-vendor>
                 <event-type-version>3.4</event-type-version>
             </event-type-ref>
         </event>
+        <event event-direction="Receive" initial-event="True" mask-on-attach="False">
+            <event-name>DeliveryAck</event-name>
+            <event-type-ref>
+                <event-type-name>net.java.slee.resources.smpp.DELIVERY_REPORT</event-type-name>
+                <event-type-vendor>net.java</event-type-vendor>
+                <event-type-version>3.4</event-type-version>
+            </event-type-ref>
+        </event>        
         <resource-adaptor-type-binding>
             <resource-adaptor-type-ref>
                 <resource-adaptor-type-name>SMPPResourceAdaptorType</resource-adaptor-type-name>
