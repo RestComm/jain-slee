@@ -21,12 +21,13 @@ public class DeploymentManagerMBeanImpl extends StandardMBean implements Deploym
 
   private File tempDeployDir;
   private File deployDir;
-
+  private File farmDeployDir;
 
   public DeploymentManagerMBeanImpl() throws NotCompliantMBeanException {
     super(DeploymentManagerMBean.class);
     this.tempDeployDir = createTempDUJarsDeploymentRoot();
     this.deployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "deploy");
+    this.farmDeployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "farm");
   }
 
   /*
@@ -43,16 +44,7 @@ public class DeploymentManagerMBeanImpl extends StandardMBean implements Deploym
    */
   public void persistentInstall(URL deployableUnitURL) throws DeploymentException {
     try {
-      File tempFile = new File(deployableUnitURL.getFile());
-
-      // If it's remote, we need to download it first to a local temporary folder
-      if(deployableUnitURL.getProtocol().startsWith("http")) {
-        tempFile = this.downloadRemoteDU(deployableUnitURL, tempDeployDir);
-        deployableUnitURL = tempFile.toURI().toURL();
-      }
-
-      // Copy the file to deploy folder
-      copyLocalFile(tempFile, new File(deployDir + File.separator + tempFile.getName()));
+      doPersistentInstall(deployableUnitURL, deployDir);
     }
     catch (Exception e) {
       throw new DeploymentException(e);
@@ -82,6 +74,64 @@ public class DeploymentManagerMBeanImpl extends StandardMBean implements Deploym
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBean#clusterInstall(java.net.URL)
+   */
+  public void clusterInstall(URL deployableUnitURL) throws DeploymentException {
+    try {
+      doPersistentInstall(deployableUnitURL, farmDeployDir);
+    }
+    catch (Exception e) {
+      throw new DeploymentException(e);
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBean#clusterUninstall(java.net.URL)
+   */
+  public void clusterUninstall(URL deployableUnitURL) throws DeploymentException {
+    try {
+      // All we really care is for the filename
+      String fullPath = deployableUnitURL.getFile();
+      String filename = fullPath.substring(fullPath.lastIndexOf('/') + 1);
+
+      // Here's what we want to delete
+      String filePath = farmDeployDir + File.separator + filename;
+
+      // Delete it
+      if(!new File(filePath).delete()) {
+        throw new DeploymentException("Failed to delete " + filePath);
+      }
+    }
+    catch (Exception e) {
+      throw new DeploymentException(e);
+    }
+  }
+
+  /**
+   * 
+   * @param deployableUnitURL
+   * @param destinationDirectory
+   * @throws Exception
+   */
+  private void doPersistentInstall(URL deployableUnitURL, File destinationDirectory) throws Exception {
+    if(!destinationDirectory.exists()) {
+      throw new IllegalArgumentException("Deploy folder " + destinationDirectory + " doesn't exist. Aborting.");
+    }
+    File tempFile = new File(deployableUnitURL.getFile());
+
+    // If it's remote, we need to download it first to a local temporary folder
+    if(deployableUnitURL.getProtocol().startsWith("http")) {
+      tempFile = this.downloadRemoteDU(deployableUnitURL, tempDeployDir);
+      deployableUnitURL = tempFile.toURI().toURL();
+    }
+
+    // Copy the file to deploy folder
+    copyLocalFile(tempFile, new File(destinationDirectory + File.separator + tempFile.getName()));    
+  }
+  
   /**
    * Downloads a remote DU to a local folder
    * 

@@ -31,4 +31,21 @@ public interface DeploymentManagerMBean {
    */
   void persistentUninstall(URL deployableUnitURL) throws DeploymentException;
 
+  /**
+   * Deploys a DU from a remote or local location in a persistent way to the 
+   * whole cluster by copying it to JBOSS_HOME/server/<node>/farm folder.
+   * 
+   * @param deployableUnitURL the URL to the DU to be deployed
+   * @throws DeploymentException if it's not possible to deploy this DU
+   */
+  void clusterInstall(URL deployableUnitURL) throws DeploymentException;
+
+  /**
+   * Undeploys a cluster-wide deployed DU by deleting it from the server farm folder.
+   * 
+   * @param deployableUnitURL the URL to the DU to be undeployed
+   * @throws DeploymentException if it's not possible to undeploy this DU
+   */
+  void clusterUninstall(URL deployableUnitURL) throws DeploymentException;
+
 }
