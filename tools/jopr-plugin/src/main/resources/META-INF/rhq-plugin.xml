@@ -268,15 +268,14 @@
             <c:simple-property name="persistentDeploy" type="boolean" required="true" default="true">
               <c:description>Should the archive be deployed in a persistent way (i.e. copied to deploy folder, will survive server restart, but no info on deploy success)?</c:description>
             </c:simple-property>
-            <!-- c:simple-property name="deployFarmed" type="boolean" required="true" default="false">
+            <c:simple-property name="deployFarmed" type="boolean" required="true" default="false">
               <c:description>
-                Should the application be deployed as a farmed deployment (i.e. to the farm directory, rather than
+                Should the archive be deployed as a cluster deployment (i.e. to the farm directory, rather than
                 the deploy directory)? This option should only be set to Yes if this application server instance is
-                a node in a cluster, otherwise the application creation will fail. If set to Yes, the Deploy
-                Exploded property must be set to No, since exploded deployments to farm via the Profile Service are
-                currently not supported.
+                a node in a cluster, otherwise the deployment will fail. If set to Yes, the Persistent Deploy property
+                must be set to Yes, since non-persistent deployments to cluster are not supported.
               </c:description>
-            </c:simple-property-->
+            </c:simple-property>
           </c:group>
         </configuration>
       </content>

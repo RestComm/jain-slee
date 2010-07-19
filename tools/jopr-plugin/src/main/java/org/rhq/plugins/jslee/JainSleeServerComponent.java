@@ -73,6 +73,7 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     this.resourceContext = resourceContext;
 
     this.deployFolder = resourceContext.getPluginConfiguration().getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + File.separator  + "deploy";
+    this.farmDeployFolder = resourceContext.getPluginConfiguration().getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + File.separator  + "farm";
     this.logFilePath = resourceContext.getPluginConfiguration().getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + File.separator  + "conf" + File.separator + "jboss-log4j.xml";
     this.logConfigurationsFolder = this.deployFolder + File.separator + "mobicents-slee" + File.separator + "log4j-templates";
     // Connect to the JBAS instance's Profile Service and JMX MBeanServer.
@@ -83,6 +84,10 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     String principal = pluginConfig.getSimple("principal").getStringValue();
     String credentials = pluginConfig.getSimple("credentials").getStringValue();
 
+    if(log.isDebugEnabled()) {
+      log.debug("Started JAIN SLEE Server Component @ " + namingURL + ", " + principal + "/" + credentials);
+    }
+    
     this.mBeanServerUtils = new MBeanServerUtils(namingURL);
   }
 
@@ -409,7 +414,18 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
       //log.info("JainSleeServerComponent.createContentBasedResource deployFarmed = " + deployFarmed);
 
       boolean persistentDeploy = deployTimeConfig.getSimple("persistentDeploy").getBooleanValue();
-      log.info("JainSleeServerComponent.createContentBasedResource persistentDeploy = " + persistentDeploy);
+      boolean deployFarmed = deployTimeConfig.getSimple("deployFarmed").getBooleanValue();
+      log.info("JainSleeServerComponent.createContentBasedResource persistentDeploy = " + persistentDeploy + ", deployFarmed = " + deployFarmed);
+      
+      // Validate deploy options
+      if(deployFarmed) {
+        if(!persistentDeploy) {
+          throw new IllegalArgumentException("Invalid options. If 'Deploy Farmed' is set to 'Yes', 'Persistent Deploy' should also be set to 'Yes'.");
+        }
+        if(!(new File(this.farmDeployFolder).exists())) {
+          throw new IllegalArgumentException("Invalid options. 'Deploy Farmed' is set to 'Yes', but " + farmDeployFolder + " does not exist.");          
+        }
+      }
 
       // Validate file name
       if (!archiveName.toLowerCase().endsWith(".jar")) {
@@ -455,7 +471,7 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
         depKey = deployableUnitID.getURL();
       }
       else {
-        File destination = new File(this.deployFolder + File.separator + archiveName);
+        File destination = new File((deployFarmed ? this.farmDeployFolder : this.deployFolder) + File.separator + archiveName);
         copyFile(contentCopy, destination);
 
         // Since toURL is deprecated
@@ -703,6 +719,12 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     return this.deployFolder;
   }
   
+  private String farmDeployFolder;
+
+  public String getFarmDeployFolderPath() {
+    return this.farmDeployFolder;
+  }
+
   private String logFilePath;
   
   public String getLogFilePath() {
