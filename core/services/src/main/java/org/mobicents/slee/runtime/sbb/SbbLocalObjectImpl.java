@@ -355,4 +355,8 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
         }
     }
 
+    @Override
+    public String toString() {
+    	return new StringBuilder("SbbLocalObjectImpl[").append(sbbEntity != null ? sbbEntity.getSbbEntityId() : "null").append("]").toString();
+    }
 }
