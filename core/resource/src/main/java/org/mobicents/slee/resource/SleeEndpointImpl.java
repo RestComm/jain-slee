@@ -197,13 +197,14 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * @param handle
 	 * @param activityFlags
 	 */
-	void _startActivity(ActivityHandle handle, int activityFlags) {
+	ActivityContextHandle _startActivity(ActivityHandle handle, int activityFlags) {
 		
 		if (raEntity.getHandleReferenceFactory() != null && !ActivityFlags.hasSleeMayMarshal(activityFlags)) {
 			final ActivityHandleReference reference = raEntity.getHandleReferenceFactory().createActivityHandleReference(handle);
 			try {
 				// create activity context with ref instead
-				acFactory.createActivityContext(new ResourceAdaptorActivityContextHandleImpl(raEntity,reference), activityFlags);
+				final ActivityContext ac = acFactory.createActivityContext(new ResourceAdaptorActivityContextHandleImpl(raEntity,reference), activityFlags);
+				return ac.getActivityContextHandle();
 			}
 			catch (ActivityAlreadyExistsException e) {
 				throw e;
@@ -215,7 +216,8 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		}
 		else {
 			// create activity context
-			acFactory.createActivityContext(new ResourceAdaptorActivityContextHandleImpl(raEntity,handle), activityFlags);
+			final ActivityContext ac = acFactory.createActivityContext(new ResourceAdaptorActivityContextHandleImpl(raEntity,handle), activityFlags);
+			return ac.getActivityContextHandle();
 		}
 	}
 

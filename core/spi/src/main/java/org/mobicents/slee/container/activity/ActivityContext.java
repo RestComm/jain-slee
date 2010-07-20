@@ -28,7 +28,7 @@ public interface ActivityContext {
 	 * 
 	 */
 	public void activityEnded();
-	
+
 	/**
 	 * add a naming binding to this activity context.
 	 * 
@@ -81,6 +81,7 @@ public interface ActivityContext {
 
 	/**
 	 * Fires an event in the activity context.
+	 * 
 	 * @param eventTypeId
 	 * @param event
 	 * @param address
@@ -100,6 +101,7 @@ public interface ActivityContext {
 
 	/**
 	 * Fires an event in the activity context.
+	 * 
 	 * @param eventTypeId
 	 * @param event
 	 * @param address
@@ -112,7 +114,7 @@ public interface ActivityContext {
 			Address address, ServiceID serviceID,
 			ReferencesHandler referencesHandler)
 			throws ActivityIsEndingException, SLEEException;
-	
+
 	/**
 	 * Retrieves the handle of this ac
 	 * 
@@ -184,6 +186,12 @@ public interface ActivityContext {
 	 * 
 	 */
 	public boolean removeNameBinding(String aciName);
+
+	/**
+	 * Requests that on the end of the transaction the activity should be
+	 * checked regarding its references.
+	 */
+	public void scheduleCheckForUnreferencedActivity();
 
 	/**
 	 * Set a shared data item for the ACI

@@ -73,7 +73,7 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			TransactionRolledbackLocalException, SLEEException {
 
 		if (doTraceLogs) {
-        	logger.trace("attach( sbbLocalObject = " + sbbLocalObject + " )");
+        	logger.trace("attach( ac = "+activityContext+" , sbbLocalObject = " + sbbLocalObject + " )");
 		}
 		
 		if (sbbLocalObject == null)
@@ -145,7 +145,7 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			TransactionRolledbackLocalException, SLEEException {
 		
 		if (doTraceLogs) {
-        	logger.trace("detach( sbbLocalObject = " + sbbLocalObject + " )");
+        	logger.trace("detach( ac = "+activityContext+" , sbbLocalObject = " + sbbLocalObject + " )");
 		}
 
 		if (sbbLocalObject == null)

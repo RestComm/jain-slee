@@ -599,9 +599,25 @@ public class ActivityContextImpl implements ActivityContext {
 	
 	private String activityUnreferenced1stCheckKey = null;
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.activity.ActivityContext#scheduleCheckForUnreferencedActivity()
+	 */
+	public void scheduleCheckForUnreferencedActivity() {
+		TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		if (txContext != null) {
+			scheduleCheckForUnreferencedActivity(txContext);
+		}
+	}
+		
 	@SuppressWarnings({ "unchecked" })
 	private void scheduleCheckForUnreferencedActivity(final TransactionContext txContext) {
 		
+		boolean doTraceLog = logger.isTraceEnabled();
+		
+		if (doTraceLog) {
+			logger.trace("scheduleCheckForUnreferencedActivity() ac = "+this.getActivityContextHandle());
+		}
 		if (!isEnding()) {
 			
 			if (activityUnreferenced1stCheckKey == null) {
@@ -617,7 +633,7 @@ public class ActivityContextImpl implements ActivityContext {
 				txLocalData.put(activityUnreferenced1stCheckKey, MAP_VALUE);		
 			}
 			
-			if (logger.isTraceEnabled()) {
+			if (doTraceLog) {
 				logger.trace("Schedule checking for unreferenced activity on ac "+this.getActivityContextHandle());
 			}
 			

@@ -16,6 +16,7 @@ import javax.slee.SbbID;
 import javax.slee.facilities.TimerID;
 import javax.slee.management.ManagementException;
 import javax.slee.nullactivity.NullActivity;
+import javax.slee.resource.ActivityFlags;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
@@ -667,6 +668,10 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 					}
 					final ResourceAdaptorActivityContextHandle raach = (ResourceAdaptorActivityContextHandle) ach; 
 					final ResourceAdaptorEntity raEntity = raach.getResourceAdaptorEntity();
+					if (ActivityFlags.hasRequestSleeActivityGCCallback(ac.getActivityFlags()) && ac.isAttachedTimersEmpty() && ac.isNamingBindingEmpty() && ac.isSbbAttachmentSetEmpty()) {
+						// reporting unreferenced activity may fail to happen due to wrong usage of non tx aware methods to start activities
+						raEntity.getResourceAdaptorObject().activityUnreferenced(ach.getActivityHandle());					
+					}
 					if (logger.isDebugEnabled()) {
 						logger.debug("Invoking ra entity "+raEntity.getName()+" queryLiveness() for activity handle "+ach.getActivityHandle());
 					}
