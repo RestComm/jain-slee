@@ -188,6 +188,8 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 			boolean rollbackTx;
 			boolean rollbackOnlySet;
 			
+			boolean sbbHandledEvent = false;
+			
 			do {
 				
 				// For each SBB that is attached to this activity context and active service to process event as initial
@@ -352,6 +354,8 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 
 									sbbEntity.invokeEventHandler(eventContext,ac,activityCurrentEventContext);
 
+									sbbHandledEvent = true;
+									
 									if (debugLogging) {
 										logger
 										.debug("<--- Invoked event handler: ac="+eventContext.getActivityContextHandle()+" , sbbEntity="+sbbEntity.getSbbEntityId()+" , sbbObject="+sbbObject);
@@ -648,7 +652,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 			 * 
 			 */		
 
-			eventContext.eventProcessingSucceed();
+			eventContext.eventProcessingSucceed(sbbHandledEvent);
 			
 			// we got to the end of the event routing, remove from local ac
 			lac.setCurrentEventRoutingTask(null);

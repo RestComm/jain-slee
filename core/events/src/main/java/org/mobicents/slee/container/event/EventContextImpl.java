@@ -158,9 +158,9 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.container.event.EventContext#eventProcessingSucceed()
 	 */
-	public void eventProcessingSucceed() {
+	public void eventProcessingSucceed(boolean sbbProcessedEvent) {
 		if (data.getSucceedCallback() != null) {
-			data.getSucceedCallback().eventProcessingSucceed();
+			data.getSucceedCallback().eventProcessingSucceed(sbbProcessedEvent);
 			// ensure failed never gets called, even if event is refired
 			data.unsetFailedCallback();
 		}

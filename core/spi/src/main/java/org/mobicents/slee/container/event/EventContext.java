@@ -36,10 +36,10 @@ public interface EventContext extends javax.slee.EventContext {
 	public void eventProcessingFailed(FailureReason reason);
 
 	/**
-	 * 
+	 * @param sbbProcessedEvent
 	 * @return
 	 */
-	public void eventProcessingSucceed();
+	public void eventProcessingSucceed(boolean sbbProcessedEvent);
 
 	/**
 	 * 

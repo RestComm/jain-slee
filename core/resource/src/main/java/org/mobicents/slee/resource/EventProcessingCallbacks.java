@@ -5,6 +5,7 @@ package org.mobicents.slee.resource;
 
 import javax.slee.Address;
 import javax.slee.resource.ActivityHandle;
+import javax.slee.resource.EventFlags;
 import javax.slee.resource.FailureReason;
 import javax.slee.resource.FireableEventType;
 import javax.slee.resource.ReceivableService;
@@ -72,9 +73,10 @@ public class EventProcessingCallbacks implements EventProcessingFailedCallback,
 	 * @seeorg.mobicents.slee.core.event.SleeEventProcessingSucceedCallback#
 	 * eventProcessingSucceed()
 	 */
-	public void eventProcessingSucceed() {
+	public void eventProcessingSucceed(boolean sbbProcessedEvent) {
+		int flags = sbbProcessedEvent ? EventFlags.setSbbProcessedEvent(eventFlags) : eventFlags;
 		raEntity.getResourceAdaptorObject().eventProcessingSuccessful(activityHandle, fireableEventType,
-				event, address, receivableService, eventFlags);
+				event, address, receivableService, flags);
 	}
 
 	/* (non-Javadoc)

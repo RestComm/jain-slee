@@ -14,6 +14,6 @@ public interface EventProcessingSucceedCallback {
 	/**
 	 * Indicates that a {@link EventContext} processing succeed.
 	 */
-	public void eventProcessingSucceed();
+	public void eventProcessingSucceed(boolean sbbProcessedEvent);
 
 }
