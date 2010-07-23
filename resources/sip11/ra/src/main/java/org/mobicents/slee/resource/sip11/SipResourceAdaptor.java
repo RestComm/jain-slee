@@ -1,5 +1,6 @@
 package org.mobicents.slee.resource.sip11;
 
+import gov.nist.javax.sip.Utils;
 import gov.nist.javax.sip.message.SIPRequest;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
 
@@ -288,19 +289,25 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		}
 	}
 
-	private void processCancelNotHandled(ServerTransactionWrapper cancelSTW, Request r) {
-		try {
-			cancelSTW.getWrappedServerTransaction().sendResponse(providerWrapper.getMessageFactory().createResponse(Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,r));
-		} catch (Throwable e) {
-			tracer.severe(e.getMessage(),e);
-		}
-		// we may need to delete it manually, since the stack does not do it for early server dialogs
-		// TODO confirm the above statement
-		final Dialog d = cancelSTW.getDialog();
-		if (d != null) {
-			d.delete();
-		}
-	}
+    private void processCancelNotHandled(ServerTransactionWrapper cancelSTW, Request request) {
+        try {
+            Response response = providerWrapper.getMessageFactory().createResponse(Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST, request);
+            // createResponse(..) method does not generate a To header tag
+            ToHeader toHeader = (ToHeader) response.getHeader(ToHeader.NAME);
+            if (toHeader.getTag() == null) {
+            	toHeader.setTag(Utils.getInstance().generateTag());
+            }            
+            cancelSTW.getWrappedServerTransaction().sendResponse(response);
+        } catch (Throwable e) {
+            tracer.severe(e.getMessage(), e);
+        }
+        // we may need to delete it manually, since the stack does not do it for early server dialogs
+        // TODO confirm the above statement
+        final Dialog d = cancelSTW.getDialog();
+        if (d != null) {
+            d.delete();
+        }
+    }
 	
 	/**
 	 * 
@@ -869,25 +876,27 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 
 	// ------- END OF PROVISIONING
 
-	// --- XXX - error responses to be a good citizen
-	private void sendErrorResponse(ServerTransaction serverTransaction,
-			Request request, int code, String msg) {
-		if (!request.getMethod().equals(Request.ACK)) {
-			try {
-				ContentTypeHeader contentType = this.providerWrapper
-						.getHeaderFactory().createContentTypeHeader("text",
-								"plain");
-				Response response = providerWrapper.getMessageFactory()
-						.createResponse(code, request, contentType,
-								msg.getBytes());
-				if (serverTransaction != null) {
-					serverTransaction.sendResponse(response);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    // --- XXX - error responses to be a good citizen
+    private void sendErrorResponse(ServerTransaction serverTransaction, Request request,
+            int code, String msg) {
+        if (!request.getMethod().equals(Request.ACK)) {
+            try {
+                ContentTypeHeader contentType = this.providerWrapper.getHeaderFactory().createContentTypeHeader("text", "plain");
+                Response response = providerWrapper.getMessageFactory().createResponse(code, request, contentType, msg.getBytes());
+                // createResponse(..) method does not generate a To header tag,
+                // if there is no tag, we must generate it
+                ToHeader toHeader = (ToHeader) response.getHeader(ToHeader.NAME);
+                if (toHeader.getTag() == null) {
+                	toHeader.setTag(Utils.getInstance().generateTag());
+                }
+                if (serverTransaction != null) {
+                    serverTransaction.sendResponse(response);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 	
 	// LIFECYLE
 	
@@ -1016,31 +1025,31 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	
 	//	EVENT PROCESSING CALLBACKS
 	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.resource.ResourceAdaptor#eventProcessingFailed(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int, javax.slee.resource.FailureReason)
-	 */
-	public void eventProcessingFailed(ActivityHandle ah,
-			FireableEventType arg1, Object event, Address arg3,
-			ReceivableService arg4, int arg5, FailureReason arg6) {
-		
-		if (event.getClass() == CancelRequestEvent.class) {
-			
-			// PROCESSING FAILED, WE HAVE TO SEND 481 response to CANCEL
-			try {
-				Response txDoesNotExistsResponse = this.providerWrapper
-				.getMessageFactory().createResponse(
-						Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
-						((CancelRequestEvent) event).getRequest());
-				ServerTransactionWrapper stw = (ServerTransactionWrapper) getActivity(ah);
-				// provider.sendResponse(txDoesNotExistsResponse);
-				stw.sendResponse(txDoesNotExistsResponse);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-	}
+    /*
+     * (non-Javadoc)
+     * @see javax.slee.resource.ResourceAdaptor#eventProcessingFailed(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int, javax.slee.resource.FailureReason)
+     */
+    public void eventProcessingFailed(ActivityHandle ah, FireableEventType arg1,
+            Object event, Address arg3, ReceivableService arg4, int arg5, FailureReason arg6) {
+        if (event.getClass() == CancelRequestEvent.class) {
+            // PROCESSING FAILED, WE HAVE TO SEND 481 response to CANCEL
+            try {
+                Response txDoesNotExistsResponse = this.providerWrapper.getMessageFactory().createResponse(Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
+                        ((CancelRequestEvent) event).getRequest());
+                // createResponse(..) method does not generate a To header tag,
+                // if there is no tag, we must generate it
+                ToHeader toHeader = (ToHeader) txDoesNotExistsResponse.getHeader(ToHeader.NAME);
+                if (toHeader.getTag() == null) {
+                	toHeader.setTag(Utils.getInstance().generateTag());
+                }
+                ServerTransactionWrapper stw = (ServerTransactionWrapper) getActivity(ah);
+                // provider.sendResponse(txDoesNotExistsResponse);
+                stw.sendResponse(txDoesNotExistsResponse);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 	
 	/*
 	 * (non-Javadoc)
