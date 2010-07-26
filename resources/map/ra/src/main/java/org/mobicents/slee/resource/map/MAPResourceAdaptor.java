@@ -40,7 +40,6 @@ import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortInfo;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
-import org.mobicents.protocols.ss7.sccp.impl.SccpPeer;
 
 /**
  * 
@@ -67,29 +66,20 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	private ConcurrentHashMap<Long, MAPDialogActivityHandle> handlers = new ConcurrentHashMap<Long, MAPDialogActivityHandle>();
 	private ConcurrentHashMap<MAPDialogActivityHandle, MAPDialog> activities = new ConcurrentHashMap<MAPDialogActivityHandle, MAPDialog>();
-	private SccpProvider sccpProvider;
+	
 
 	private ResourceAdaptorContext resourceAdaptorContext;
 
 	private EventIDCache eventIdCache = null;
 
+	//name of config file
 	private String configName;
 
-	String sccpProviderName;
-	String sccpProps;
 
 	private transient static final Address address = new Address(AddressPlan.IP, "localhost");
 
 	public MAPResourceAdaptor() {
 		// TODO Auto-generated constructor stub
-	}
-
-	public String getConfigName() {
-		return configName;
-	}
-
-	public void setConfigName(String configName) {
-		this.configName = configName;
 	}
 
 	public void activityEnded(ActivityHandle activityHandle) {
@@ -160,11 +150,8 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	public void raActive() {
 
 		try {
-			SccpPeer sccpPeer = new SccpPeer(sccpProviderName);
-			this.sccpProvider = sccpPeer.getProvider(sccpProps);
-
-			// TODO : How do we get sccpProvider Object?
-			this.mapStack = new MAPStackImpl(this.sccpProvider);
+			
+			this.mapStack.start();
 			org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = this.mapStack.getMAPProvider();
 
 			this.mapProviderWrapper = new MAPProviderWrapper(mapProvider, this);
@@ -192,10 +179,12 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			properties.load(getClass().getResourceAsStream("/" + configName));
 			tracer.info("Loaded properties: " + properties);
 
-			this.sccpProviderName = properties.getProperty("sccp.provider");
-			this.sccpProps = properties.getProperty("sccp.config");
 
-			tracer.info("sccpProviderName = " + this.sccpProviderName + " sccpProps = " + this.sccpProps);
+			
+			this.mapStack = new MAPStackImpl();
+			this.mapStack.configure(properties);
+			
+			
 		} catch (UnsatisfiedLinkError ex) {
 			tracer.warning("JCC Resource adaptor is not attached to baord driver", ex);
 		} catch (Exception e) {

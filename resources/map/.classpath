@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="**" kind="src" output="events/target/classes" path="events/src/main/resources"/>
-	<classpathentry kind="src" output="ratype/target/classes" path="ratype/src/main/java"/>
-	<classpathentry excluding="**" kind="src" output="ratype/target/classes" path="ratype/src/main/resources"/>
-	<classpathentry kind="src" output="ra/target/classes" path="ra/src/main/java"/>
-	<classpathentry excluding="**" kind="src" output="ra/target/classes" path="ra/src/main/resources"/>
-	<classpathentry excluding="**" kind="src" output="du/target/classes" path="du/src/main/resources"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
-	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
-	<classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="src" path="ra/src/main/java"/>
+  <classpathentry kind="src" path="ra/src/main/resources"/>
+  <classpathentry kind="src" path="events/src/main/resources"/>
+  <classpathentry kind="src" path="ratype/src/main/java"/>
+  <classpathentry kind="src" path="ratype/src/main/resources"/>
+  <classpathentry kind="src" path="du/src/main/resources"/>
+  <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/4.1/junit-4.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/asn/asn/1.0.0.BETA2-SNAPSHOT/asn-1.0.0.BETA2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/map/map-api/1.0.0.BETA2-SNAPSHOT/map-api-1.0.0.BETA2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/map/map-impl/1.0.0.BETA2-SNAPSHOT/map-impl-1.0.0.BETA2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/mtp/MTP/1.0.0.BETA3-SNAPSHOT/MTP-1.0.0.BETA3-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/mtp/mtp/1.0.0.BETA3-SNAPSHOT/mtp-1.0.0.BETA3-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/sccp/sccp-api/1.0.0.BETA2-SNAPSHOT/sccp-api-1.0.0.BETA2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/sccp/sccp-impl/1.0.0.BETA2-SNAPSHOT/sccp-impl-1.0.0.BETA2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/tcap/tcap-api/1.0.0.BETA2-SNAPSHOT/tcap-api-1.0.0.BETA2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/ss7/tcap/tcap-impl/1.0.0.BETA2-SNAPSHOT/tcap-impl-1.0.0.BETA2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/stream/stream/1.0.0.BETA1-SNAPSHOT/stream-1.0.0.BETA1-SNAPSHOT.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="output" path="target/classes"/>
 </classpath>

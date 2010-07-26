@@ -28,11 +28,11 @@
 		<docs.ra.dirname>MAP</docs.ra.dirname>
 		<docs.bookid>MAP</docs.bookid>
 		
-		<map.version>1.0.0.BETA1</map.version>
-		<tcap.version>1.0.0.BETA1</tcap.version>
-		<sccp.version>1.0.0.BETA1</sccp.version>
-		<asn.version>1.0.0.BETA1</asn.version>
-		<mtp.version>1.0.0.BETA2</mtp.version>
+		<map.version>1.0.0.BETA2-SNAPSHOT</map.version>
+		<tcap.version>1.0.0.BETA2-SNAPSHOT</tcap.version>
+		<sccp.version>1.0.0.BETA2-SNAPSHOT</sccp.version>
+		<asn.version>1.0.0.BETA2-SNAPSHOT</asn.version>
+		<mtp.version>1.0.0.BETA3-SNAPSHOT</mtp.version>
 	</properties>
 	
 	<profiles>
