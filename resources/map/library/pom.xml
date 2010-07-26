@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -16,11 +18,11 @@
 
 	<dependencies>
 		<dependency>
-			<artifactId>MTP</artifactId>
+			<artifactId>mtp</artifactId>
 			<groupId>org.mobicents.protocols.ss7.mtp</groupId>
 			<version>${mtp.version}</version>
 		</dependency>
-			
+
 		<dependency>
 			<artifactId>map-api</artifactId>
 			<groupId>org.mobicents.protocols.ss7.map</groupId>
@@ -53,12 +55,18 @@
 			<groupId>org.mobicents.protocols.ss7.sccp</groupId>
 			<version>${sccp.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<artifactId>asn</artifactId>
 			<groupId>org.mobicents.protocols.asn</groupId>
 			<version>${asn.version}</version>
-		</dependency>		
+		</dependency>
+
+		<dependency>
+			<artifactId>stream</artifactId>
+			<groupId>org.mobicents.protocols.stream</groupId>
+			<version>${stream.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

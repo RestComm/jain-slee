@@ -33,6 +33,7 @@
 		<sccp.version>1.0.0.BETA2-SNAPSHOT</sccp.version>
 		<asn.version>1.0.0.BETA2-SNAPSHOT</asn.version>
 		<mtp.version>1.0.0.BETA3-SNAPSHOT</mtp.version>
+		<stream.version>1.0.0.BETA1-SNAPSHOT</stream.version>
 	</properties>
 	
 	<profiles>
