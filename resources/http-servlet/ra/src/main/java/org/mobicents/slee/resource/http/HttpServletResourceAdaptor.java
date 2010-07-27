@@ -436,7 +436,10 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 		final boolean infoTrace = logger.isInfoEnabled();
 
 		AbstractHttpServletActivity activity = null;
-		final HttpSessionWrapper session = (HttpSessionWrapper) request
+		
+		final HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(
+				request);
+		final HttpSessionWrapper session = (HttpSessionWrapper) wrapper
 				.getSession(false);
 
 		final HttpServletRequestEvent event = new HttpServletRequestEventImpl(
@@ -486,7 +489,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 		final String pathInfo = "/pathInfo" + request.getPathInfo();
 		final Address address = new Address(AddressPlan.URI, pathInfo);
 
-		if (infoTrace) {
+		if (logger.isFineEnabled()) {
 			logger.fine("Firing event " + event + " in activity " + activity
 					+ " and address " + address);
 		}
@@ -499,8 +502,8 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 				// block thread until event has been processed
 				// otherwise jboss web replies to the request
 				lock.wait(15000);
-				// the event was unreferenced, if the activity is the request
-				// then end it
+				// the event was unreferenced or 15s timeout, if the activity is
+				// the request then end it
 				if (session == null) {
 					endActivity(activity, infoTrace);
 				}
