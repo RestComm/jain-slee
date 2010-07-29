@@ -621,7 +621,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 	public boolean processIncomingResponse(ResponseEvent respEvent) {
 
 		final ClientDialogForkHandler forkHandler = data.getForkHandler();
-		if (!forkHandler.isForking()) {
+		if (!forkHandler.isForking() || respEvent.getClientTransaction().getRequest().getMethod().equals(Request.CANCEL)) {
 			// nothing to do, let the ra fire the event
 			return false;
 		}
