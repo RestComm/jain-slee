@@ -12,8 +12,11 @@ import java.util.jar.JarFile;
 import javax.slee.ComponentID;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ResourceAdaptorID;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -21,6 +24,9 @@ import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEd
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * This class represents a SLEE Deployable Unit, represented by a collection of
@@ -387,9 +393,31 @@ public class DeployableUnit {
       if (is != null) {
 
         // Read the file into a Document
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = schemaFactory.newSchema(DeployableUnit.class.getClassLoader().getResource("deploy-config.xsd"));
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setValidating(false);
+        //factory.setValidating(false);
+        factory.setSchema(schema);
         DocumentBuilder builder = factory.newDocumentBuilder();
+
+        builder.setErrorHandler(new ErrorHandler() {
+          public void error(SAXParseException e) throws SAXException {
+            logger.error("Error parsing deploy-config.xml", e);
+            return;
+          }
+
+          public void fatalError(SAXParseException e) throws SAXException {
+            logger.error("Fatal error parsing deploy-config.xml", e);
+            return;
+          }
+
+          public void warning(SAXParseException e) throws SAXException {
+            logger.warn("Warning parsing deploy-config.xml", e);
+            return;
+          }
+        });
+
         Document doc =  builder.parse(is);
 
         // By now we only care about <ra-entitu> nodes
