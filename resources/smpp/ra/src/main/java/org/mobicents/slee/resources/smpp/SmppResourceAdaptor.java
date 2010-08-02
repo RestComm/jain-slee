@@ -45,6 +45,7 @@ import net.java.slee.resources.smpp.pdu.SmppResponse;
 
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
+import org.mobicents.slee.resource.cluster.MemberAddress;
 import org.mobicents.slee.resources.smpp.pdu.CancelSMImpl;
 import org.mobicents.slee.resources.smpp.pdu.CancelSMRespImpl;
 import org.mobicents.slee.resources.smpp.pdu.DataSMImpl;
@@ -62,7 +63,7 @@ import org.mobicents.slee.resources.smpp.pdu.SubmitSMRespImpl;
 /**
  * 
  * @author amit bhayani
- *
+ * 
  */
 public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk.smpp.event.ConnectionObserver {
 
@@ -225,14 +226,12 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 	}
 
 	public void failOver(Serializable arg0) {
-		if (ftRAContext.isHeadMember()) {
-			if (this.tracer.isInfoEnabled()) {
-				this.tracer.info("The SMPP RA " + this.raContext.getEntityName()
-						+ " is now head. Creating link between the ESME and SMSC");
-				this.raActive();
+		if(this.tracer.isInfoEnabled()){
+			this.tracer.info("Failed over the SMPP. Available memebers now ");
+			for(MemberAddress memAdd : this.ftRAContext.getMembers()){
+				this.tracer.info(memAdd.toString());
 			}
 		}
-
 	}
 
 	public void setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext arg0) {
@@ -313,26 +312,17 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 	public void raActive() {
 		if (this.tracer.isInfoEnabled()) {
 			tracer.info("Activation RA " + this.raContext.getEntityName());
+		}
 
-			if (ftRAContext.isHeadMember()) {
-				try {
-					bindSMSC();
-
-					// Start the ENQUIRE Link Thread
-					linkMonitorThread = new Thread(new LinkMonitor());
-					linkMonitorThread.start();
-				} catch (IOException e) {
-					this.tracer.severe("Binding to SMSC Failed ", e);
-					throw new RuntimeException(e.getMessage(), e);
-				}
-			}
-		} else {
-			if (this.tracer.isInfoEnabled()) {
-				this.tracer
-						.info("The SMPP RA "
-								+ this.raContext.getEntityName()
-								+ " is not Head Member in Cluster. The Link to SMS will be established when this entity becomes Head");
-			}
+		try {
+			bindSMSC();
+			
+			// Start the ENQUIRE Link Thread
+			linkMonitorThread = new Thread(new LinkMonitor());
+			linkMonitorThread.start();
+		} catch (IOException e) {
+			this.tracer.severe("Binding to SMSC Failed ", e);
+			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
 
@@ -926,7 +916,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 				tracer.fine("In LinkMonitor, isBound = " + isBound);
 
 			// We keep trying only of we are bound atleast once and we are Head Member
-			while (isBound && ftRAContext.isHeadMember()) {
+			while (isBound) {
 				// long currentTime = System.currentTimeMillis();
 
 				try {
