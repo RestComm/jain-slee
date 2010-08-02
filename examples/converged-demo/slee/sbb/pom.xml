@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -9,8 +11,10 @@
 	</parent>
 
 	<artifactId>converged-demo-sbb</artifactId>
-	<name>Mobicents Servers Examples :: Converged :: ${pom.artifactId}</name>
-	
+	<name>
+		Mobicents Servers Examples :: Converged :: ${pom.artifactId}
+	</name>
+
 	<dependencies>
 		<dependency>
 			<artifactId>converged-demo-pojo-pu</artifactId>
@@ -41,6 +45,16 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/*.xml</exclude>
+				</excludes>
 			</resource>
 		</resources>
 	</build>
