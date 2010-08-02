@@ -289,7 +289,6 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 				return txHandle;
 			}
 		}
-
 		return null;
 	}
 
@@ -661,7 +660,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(replaceSMRespImpl, false, null);
 				txImpl.cancelResponseNotReceivedTimeout();
-				fireEvent(Utils.DATA_SM_RESP, txImpl, replaceSMRespImpl);
+				fireEvent(Utils.REPLACE_SM_RESP, txImpl, replaceSMRespImpl);
 				this.endActivity(txImpl);
 			} catch (Exception e) {
 				this.tracer.warning("Activity not found for received SMPP Response " + packet, e);
@@ -706,7 +705,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 				try {
 					SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(genericNackImpl, false, null);
 					txImpl.cancelResponseNotReceivedTimeout();
-					fireEvent(Utils.CANCEL_SM_RESP, txImpl, genericNackImpl);
+					fireEvent(Utils.GENERIC_NACK, txImpl, genericNackImpl);
 					this.endActivity(txImpl);
 				} catch (Exception e) {
 					this.tracer.warning("Activity not found for received SMPP Response " + packet, e);
