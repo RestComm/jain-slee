@@ -1,12 +1,12 @@
 package org.mobicents.slee.runtime.sbbentity;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
+import org.jboss.cache.Fqn;
+import org.mobicents.cluster.DataRemovalListener;
 import org.mobicents.slee.container.SleeContainer;
 
 /**
@@ -27,15 +27,8 @@ public class SbbEntityLockFacility {
 	/**
 	 * 
 	 */
-	private final SleeContainer container;
-	
-	/**
-	 * 
-	 */
 	public SbbEntityLockFacility(SleeContainer container) {
-		this.container = container;
-		final long period = 60*60*1000; //1h 
-		container.getNonClusteredScheduler().scheduleAtFixedRate(new LocalResourcesGarbageCollectionTimerTask(), period, period, TimeUnit.MILLISECONDS);			
+		container.getCluster().addDataRemovalListener(new DataRemovaClusterListener());			
 	}
 	
 	/**
@@ -78,27 +71,24 @@ public class SbbEntityLockFacility {
 		return locks.keySet();
 	}
 	
-	/**
-	 * timer task to remove event router local resources for activities that are already gone
-	 */
-	private class LocalResourcesGarbageCollectionTimerTask implements Runnable {
+	private class DataRemovaClusterListener implements DataRemovalListener {
+
+		private final Fqn<?> baseFqn = Fqn.fromElements(SbbEntityCacheData.parentNodeFqn);
 		
-		/* 
-		 * (non-Javadoc)
-		 * @see java.lang.Runnable#run()
-		 */
-		public void run() {
-			try {
-				final Set<String> lockSet = new HashSet<String>(locks.keySet());
-				final Set<String> sbbEntities = container.getSbbEntityFactory().getSbbEntityIDs();
-				lockSet.removeAll(sbbEntities);
-				for (String sbbEntityId : lockSet) {
-					locks.remove(sbbEntityId);
-				}	
-			}
-			catch (Throwable e) {
-				logger.error("Failure in sbb entity lock facility local resources garbage collection",e);
+		@SuppressWarnings("unchecked")
+		public void dataRemoved(Fqn arg0) {
+			final String sbbEntityId = (String) arg0.getLastElement();
+			if(locks.remove(sbbEntityId) != null) {
+				if(doTraceLogs) {
+					logger.trace("Remotely removed lock for "+sbbEntityId);
+				}
 			}
 		}
+
+		@SuppressWarnings("unchecked")
+		public Fqn getBaseFqn() {
+			return baseFqn;
+		}
+		
 	}
  }

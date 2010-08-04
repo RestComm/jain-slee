@@ -1,14 +1,14 @@
 package org.mobicents.slee.runtime.activity;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
 
 import org.apache.log4j.Logger;
+import org.jboss.cache.Fqn;
+import org.mobicents.cluster.DataRemovalListener;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
@@ -63,9 +63,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	public void sleeStarting() {
 		cacheData = new ActivityContextFactoryCacheData(sleeContainer.getCluster());
 		cacheData.create();
-		// set local ACs GC timer
-		final long period = 60*60*1000;  
-		this.sleeContainer.getNonClusteredScheduler().scheduleAtFixedRate(new LocalResourcesGarbageCollectionTimerTask(), period, period, TimeUnit.MILLISECONDS);
+		sleeContainer.getCluster().addDataRemovalListener(new DataRemovaClusterListener());
 	}
 	
 	/*
@@ -162,32 +160,28 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 			+ "\n+-- Number of ACs: " + getActivityContextCount();
 	}
 	
-	/**
-	 * Runnable to remove local resources for ACs that are already gone
-	 */
-	private class LocalResourcesGarbageCollectionTimerTask implements Runnable {
+	private class DataRemovaClusterListener implements DataRemovalListener {
 		
-		/*
-		 * (non-Javadoc)
-		 * @see java.lang.Runnable#run()
-		 */
-		public void run() {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Running Local AC garbage collection task");
-			}
-			try {
-				final Set<ActivityContextHandle> set = new HashSet<ActivityContextHandle>(localActivityContexts.keySet());
-				set.removeAll(sleeContainer.getActivityContextFactory().getAllActivityContextsHandles());
-				for (ActivityContextHandle ach : set) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Removing Local AC with handle "+ach);
-					}
-					localActivityContexts.remove(ach);
-				}	
-			}
-			catch (Throwable e) {
-				logger.error("Failure when running Local AC garbage collection task",e);
+		@SuppressWarnings("unchecked")
+		public void dataRemoved(Fqn arg0) {
+			final ActivityContextHandle ach = (ActivityContextHandle) arg0.getLastElement();
+			final LocalActivityContextImpl localActivityContext = localActivityContexts.remove(ach);
+			if(localActivityContext != null) {
+				final EventRouterExecutor executor = localActivityContext.getExecutorService(); 
+				if (executor != null) {
+					executor.activityUnmapped(localActivityContext.getActivityContextHandle());
+				}
+				localActivityContext.setExecutorService(null);
+				if(doTraceLogs) {
+					logger.trace("Remotely removed local AC for "+ach);
+				}
 			}
 		}
+
+		@SuppressWarnings("unchecked")
+		public Fqn getBaseFqn() {
+			return cacheData.getNodeFqn();
+		}
+		
 	}
 }
