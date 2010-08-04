@@ -208,4 +208,9 @@ public interface SbbComponent extends SleeComponentWithUsageParametersInterface 
 	public void setSbbLocalObjectClassConstructor(
 			Constructor<?> c);
 	
+	/**
+	 * 
+	 * @return true if the sbb component descriptor defines this sbb as reentrant
+	 */
+	public boolean isReentrant();
 }

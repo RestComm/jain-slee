@@ -7,7 +7,6 @@ import java.util.Set;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.EventTypeID;
-import javax.slee.RolledBackContext;
 import javax.slee.SbbID;
 import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
@@ -18,7 +17,6 @@ import javax.transaction.TransactionRequiredException;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
-import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectPool;
@@ -249,4 +247,10 @@ public interface SbbEntity {
 	 * @return
 	 */
 	public Object getCMPField(String cmpFieldName);
+	
+	/**
+	 * @see SbbComponent#isReentrant()
+	 * @return
+	 */
+	public boolean isReentrant();
 }

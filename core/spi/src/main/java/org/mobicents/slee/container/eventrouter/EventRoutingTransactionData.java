@@ -3,7 +3,7 @@
  */
 package org.mobicents.slee.container.eventrouter;
 
-import java.util.LinkedList;
+import java.util.Set;
 
 import javax.slee.ActivityContextInterface;
 
@@ -32,10 +32,10 @@ public interface EventRoutingTransactionData {
 	public EventContext getEventBeingDelivered();
 
 	/**
-	 * Retrieves a linked list with the sbb entities in the call tree, since the
+	 * Retrieves a set with the non reentrant sbb entities in the call tree, since the
 	 * event was passed to the event handler method
 	 * 
 	 * @return
 	 */
-	public LinkedList<String> getInvokedSbbEntities();
+	public Set<String> getInvokedNonReentrantSbbEntities();
 }
