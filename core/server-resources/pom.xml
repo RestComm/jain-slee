@@ -27,7 +27,8 @@
 							<tasks>							
 								<copy todir="${jboss.home}/docs/licenses/mobicents">
 									<fileset file="LICENSES/*" />
-								</copy>								
+								</copy>
+								<copy overwrite="true" file="resources/jboss-cache-manager-jboss-beans.xml" todir="${jboss.home}/server/all/deploy/cluster/jboss-cache-manager.sar/META-INF" />																
 							</tasks>
 						</configuration>
 					</execution>

@@ -2,58 +2,15 @@
 
 <deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="urn:jboss:bean-deployer:2.0">
-
-	<bean name="Mobicents.JAINSLEE.CacheConfig" class="org.jboss.cache.config.Configuration">  
-         
-       <property name="transactionManagerLookupClass">org.jboss.cache.transaction.JBossTransactionManagerLookup</property>
-
-         <property name="nodeLockingScheme">MVCC</property>
-         <property name="isolationLevel">REPEATABLE_READ</property>
-         <property name="useLockStriping">false</property>
-
-         <!-- Must use REPL since used for timestamp caching. 
-              Must use SYNC to maintain cache coherency for entities. -->
-         <property name="cacheMode">REPL_SYNC</property> 
-         <property name="clusterName">${jboss.partition.name:DefaultPartition}-mobicents-slee</property>        
-         <property name="multiplexerStack">${jboss.default.jgroups.stack:udp}</property>
-         <!-- Used for timestamps, so must fetch state. 
-         <property name="fetchInMemoryState">true</property>
-         -->
-         <!-- The max amount of time (in milliseconds) we wait until the
-           state (ie. the contents of the cache) are retrieved from
-           existing members at startup. Ignored if FetchInMemoryState=false. -->
-         <property name="stateRetrievalTimeout">60000</property>
-         <!-- Number of milliseconds to wait until all responses for a
-               synchronous call have been received. -->
-         <property name="syncReplTimeout">30000</property>
-         <!-- Max number of milliseconds to wait for a lock acquisition -->
-         <property name="lockAcquisitionTimeout">30000</property>
-
-         <property name="useRegionBasedMarshalling">true</property>
-         <property name="inactiveOnStartup">true</property>
-
-         <!-- Disable asynchronous RPC marshalling/sending -->
-         <property name="serializationExecutorPoolSize">0</property>        
-         <!-- We have no asynchronous notification listeners -->
-         <property name="listenerAsyncPoolSize">0</property>        
-         
-	     <property name="lockParentForChildInsertRemove">false</property>
-            
-      <demand>RealTransactionManager</demand>
-   </bean>
    
 	<bean name="Mobicents.JAINSLEE.Cache" class="org.mobicents.cache.MobicentsCache">
 		<constructor>
-          <parameter class="org.jboss.cache.config.Configuration"><inject bean="Mobicents.JAINSLEE.CacheConfig"/></parameter> 
+		   <!-- if cache config is done here it leaks, till an alternative is found the config is in cache manager @ $JBOSS_HOME/server/all/deploy/cluster/jboss-cache-manager.sar/META-INF/jboss-cache-manager-jboss-beans.xml -->	
+          <parameter><inject bean="CacheManager"/></parameter>
+ 		  <parameter class="java.lang.String">mobicents-slee-replicated-cache</parameter> 
+		  <parameter>false</parameter> 
      	</constructor>		
 	</bean>
-
-	<bean name="MobicentsJainSleeJBossCacheJmxWrapper" class="org.jboss.cache.jmx.CacheJmxWrapper">
-      <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss.cache:service=MobicentsSleeCache",exposedInterface=org.jboss.cache.jmx.CacheJmxWrapperMBean.class,registerDirectly=true)</annotation>
-      <constructor>
-          <parameter><value-factory bean="Mobicents.JAINSLEE.Cache" method="getJBossCache"/></parameter>
-      </constructor>
-   </bean>
 
    	<!-- cluster member failover elector -->
    	
