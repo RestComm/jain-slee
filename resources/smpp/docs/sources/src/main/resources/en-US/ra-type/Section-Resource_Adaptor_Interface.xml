@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_ra_interface">
+
+	<title>Resource Adaptor Interface</title>
+
+	<para>
+		The SMPP Resource Adaptor SBB Interface facilitates SBBs to
+		create new SMS message and send it. It also facilitates sending
+		of SMS message response. The isAlive() is check for connection
+		between RA and SMSC is still alive. It is defined as follows:
+	</para>
+
+	<programlisting language="java">
+		package net.java.slee.resources.smpp;
+
+		import net.java.slee.resources.smpp.pdu.Address; 
+		import net.java.slee.resources.smpp.pdu.SmppRequest; 
+		import net.java.slee.resources.smpp.pdu.SmppResponse;
+
+		public interface SmppSession {
+
+			public String getSessionId();
+	
+			public String getSMSCHost();
+	
+			public int getSMSPort();
+	
+			public SmppTransaction sendRequest(SmppRequest request) throws
+			java.lang.IllegalStateException, java.lang.NullPointerException,
+			java.io.IOException;
+	
+			public void sendResponse(SmppTransaction txn, SmppResponse
+			response) throws java.lang.IllegalStateException,
+			java.lang.NullPointerException, java.io.IOException;
+	
+			public boolean isAlive();
+	
+			public SmppRequest createSmppRequest(long commandId);
+	
+			public Address createAddress(int addTon, int addNpi, String
+			address);
+
+		}
+
+	</programlisting>
+
+</section>

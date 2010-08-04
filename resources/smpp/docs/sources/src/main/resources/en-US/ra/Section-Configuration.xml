@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ra_configuration">
+
+	<title>Configuration</title>
+
+	<para>
+		The Resource Adaptor supports configuration only at Resource
+		Adaptor Entity creation time, the following table enumerates the
+		configuration properties:
+	</para>
+
+	<table frame="all" pgwide="1">
+		<title>Resource Adaptor's Configuration Properties</title>
+		<tgroup colsep="1" cols="4">
+			<colspec colnum="1" colname="c0" colwidth="3*" />
+			<colspec colnum="2" colname="c1" colwidth="2*"/>
+			<colspec colnum="3" colname="c2" colwidth="2*"/>
+			<colspec colnum="4" colname="c3" colwidth="1*"/>
+			<thead>
+				<row>
+					<entry>Property Name</entry>
+					<entry>Description</entry>
+					<entry>Property Type</entry>
+					<entry>Default Value</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>host</entry>
+					<entry>
+						The host address of SMSC that this RA Entity should connect to
+					</entry>
+					<entry>java.lang.String</entry>
+					<entry>localhost</entry>
+				</row>
+
+				<row>
+					<entry>port</entry>
+					<entry>
+						The Port of SMSC that this RA Entity should connect to
+					</entry>
+					<entry>java.lang.Integer</entry>
+					<entry>2775</entry>
+				</row>
+				
+				<row>
+					<entry>systemId</entry>
+					<entry>
+						The System ID field for bind request. Used by the SMSC for authentication.
+					</entry>
+					<entry>java.lang.String</entry>
+					<entry>smppclient1</entry>
+				</row>
+				
+				<row>
+					<entry>systemType</entry>
+					<entry>
+						Identifies the type of ESME system requesting to bind as a receiver/transmitter/transciever with the SMSC.
+					</entry>
+					<entry>java.lang.String</entry>
+					<entry>ESME</entry>
+				</row>
+				
+				<row>
+					<entry>password</entry>
+					<entry>
+						Password field for bind request. Used by the SMSC for authentication.
+					</entry>
+					<entry>java.lang.String</entry>
+					<entry>password</entry>
+				</row>
+				
+				<row>
+					<entry>addressTon</entry>
+					<entry>
+						The type of Address for this ESME, used in BIND request
+					</entry>
+					<entry>java.lang.Integer</entry>
+					<entry>1</entry>
+				</row>
+				
+				<row>
+					<entry>addressNpi</entry>
+					<entry>
+						The Number Plan Indicator for this ESME, used in BIND request
+					</entry>
+					<entry>java.lang.Integer</entry>
+					<entry>0</entry>
+				</row>
+				
+				<row>
+					<entry>addressRange</entry>
+					<entry>
+						A single ESME address or a range of ESME addresses served via this SMPP receiver/transciever/transmitter session. The parameter value is represented in UNIX regular expression format (see Appendix A) of SMPP Spec 3.4. Set to NULL if not known.
+					</entry>
+					<entry>java.lang.Integer</entry>
+					<entry>50</entry>
+				</row>
+				
+				<row>
+					<entry>enquireLinkTimeout</entry>
+					<entry>
+					Interval (in seconds) between the RA entity sending enquire_link requests to test the SMPP session is still live.
+					</entry>
+					<entry>java.lang.Integer</entry>
+					<entry>30</entry>
+				</row>
+				
+				<row>
+					<entry>smppResponseReceivedTimeout</entry>
+					<entry>
+					Maximum time (in ms) to wait for a response to an outgoing SMPP request. If this timer fires, a SmppErrorEvent is sent to the application, containing the SMPP request PDU that failed.
+					</entry>
+					<entry>java.lang.Integer</entry>
+					<entry>5000</entry>
+				</row>	
+				
+				<row>
+					<entry>smppResponseSentTimeout</entry>
+					<entry>
+					Maximum time (in ms) to wait for the application (SBB) to respond to an incoming SMPP request. If this timer fires, a generic_nack PDU is sent to the other node, with status ESME_RSYSERR, and the activity is ended.
+					</entry>
+					<entry>java.lang.Integer</entry>
+					<entry>5000</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</table>
+
+	<important>
+		<para>
+			JAIN SLEE 1.1 Specification requires values set for
+			properties without a default value, which means the
+			configuration for those properties are mandatory, otherwise
+			the Resource Adaptor Entity creation will fail!
+		</para>
+	</important>
+
+</section>
