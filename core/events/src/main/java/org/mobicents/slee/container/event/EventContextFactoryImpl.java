@@ -96,4 +96,8 @@ public class EventContextFactoryImpl extends AbstractSleeContainerModule
 		return dataSource.getEventContext(handle);
 	}
 
+	@Override
+	public String toString() {
+		return "EventContextFactoryImpl[ datasource = "+dataSource+" ]";
+	}
 }
