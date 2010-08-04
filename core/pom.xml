@@ -51,7 +51,7 @@
 		<slee.vendor>JBoss, a Red Hat division</slee.vendor>
 		<slee.version>${pom.version}</slee.version>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<mobicents.cluster.version>1.5</mobicents.cluster.version>
+		<mobicents.cluster.version>1.6-SNAPSHOT</mobicents.cluster.version>
 	</properties>
 	
 	<dependencyManagement>
