@@ -6,6 +6,7 @@ import javax.slee.facilities.TimerPreserveMissed;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
+import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.facilities.TimerFacility;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.timers.TimerTask;
@@ -21,27 +22,14 @@ public class TimerFacilityTimerTask extends TimerTask {
     public TimerFacilityTimerTask(TimerFacilityTimerTaskData data) {
     	super(data);
     	this.data = data;
+    	super.autoRemoval = false;
 	}
     
     public TimerFacilityTimerTaskData getTimerFacilityTimerTaskData() {
 		return data;
 	}
 
-    /*
-     * 
-     * see SLEE spec 1.0 Sec. 13.1.6
-     * 
-     * it doesn't look the same but this follows the pseudo code in
-     * 13.1.6! It's just simplified since the java.util.Timer class takes care
-     * of the scheduling stuff. This allows us to avoid having to wake up every
-     * x milliseconds and check our Timers to see if there's anything to fire,
-     * even when there's nothing to do. If we use the java.util.Timer class with
-     * scheduleAtFixedRate then it optimises the scheduling to avoid unnecessary
-     * polling.
-     * 
-     * @see java.lang.Runnable#run()
-     */
-    public void run() {
+    public void runTask() {
     	
     	if (logger.isDebugEnabled()) {
             logger.debug("Executing task with timer ID "+getData().getTaskID());
@@ -152,7 +140,11 @@ public class TimerFacilityTimerTask extends TimerTask {
 			// we need to know if the timer ended so we can warn the event router,
 			// if needed, that's the last event that the timer posts  
 			boolean timerEnded = remainingRepetitions == 0;
-
+			if (timerEnded && period > 0) {
+				// periodic timer that ended, cancel it's execution in scheduler
+				cancel();
+			}
+			
 			if (postIt) {
 
 				//Post the timer event
@@ -162,34 +154,51 @@ public class TimerFacilityTimerTask extends TimerTask {
 
 				data.setMissedRepetitions(0);
 
-				// create a tx only if we run in cluster mode
+				final SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
+				boolean terminateTx = txmgr.requireTransaction();
+				boolean doRollback = true;
+				try {
+					//Post the timer event to the queue.
+					data.setLastTick(System.currentTimeMillis());
+
+					final ActivityContextFactory acFactory = sleeContainer.getActivityContextFactory();	
+					final ActivityContext ac = acFactory.getActivityContext(data.getActivityContextHandle());
+
+					// the AC can be null in the edge case when the activity was removed while the basic timer is firing an event
+					//   and thus the timer cancelation came a bit late
+					if (ac == null) {
+						logger.warn("Cannot fire timer event with id "+data.getTaskID()+" , because the underlying aci with id "+data.getActivityContextHandle()+" is gone.");
+						remove();							
+					} else {
+						if (logger.isTraceEnabled()) {
+							logger.trace("Posting timer event on event router queue. Activity context:  "
+									+ ac.getActivityContextHandle()
+									+ " remainingRepetitions: "
+									+ data.getRemainingRepetitions());
+						}
+						// if the timer ended we use the event processing callbacks to cancel the timer after the event is routed
+						final CancelTimerEventProcessingCallbacks cancelTimerCallback = timerEnded ? new CancelTimerEventProcessingCallbacks(this) : null;
+						ac.fireEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,data.getAddress(),null,null,null,cancelTimerCallback);
+					}   						
+					doRollback = false;
+				} finally {
+					try {
+						txmgr.requireTransactionEnd(terminateTx, doRollback);
+					} catch (Throwable e) {
+						logger.error(e.getMessage(),e);
+					}
+				}
 				
+			}
+			else {
+				if (timerEnded) {
+					// if event is not posted and ended then we cancel it
+					// so it's removed
 					final SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
 					boolean terminateTx = txmgr.requireTransaction();
 					boolean doRollback = true;
 					try {
-						//Post the timer event to the queue.
-						data.setLastTick(System.currentTimeMillis());
-
-						final ActivityContext ac = sleeContainer.getActivityContextFactory()
-						.getActivityContext(data.getActivityContextHandle());
-
-						// the AC can be null in the edge case when the activity was removed while the basic timer is firing an event
-						//   and thus the timer cancelation came a bit late
-						if (ac == null) {
-							logger.warn("Cannot fire timer event with id "+data.getTaskID()+" , because the underlying aci with id "+data.getActivityContextHandle()+" is gone.");
-							timerFacility.cancelTimerWithoutValidation(data.getTimerID());
-						} else {
-							if (logger.isTraceEnabled()) {
-								logger.trace("Posting timer event on event router queue. Activity context:  "
-										+ ac.getActivityContextHandle()
-										+ " remainingRepetitions: "
-										+ data.getRemainingRepetitions());
-							}
-							// if the timer ended we use the event processing callbacks to cancel the timer after the event is routed
-							final CancelTimerEventProcessingCallbacks cancelTimerCallback = timerEnded ? new CancelTimerEventProcessingCallbacks(timerFacility, data.getTimerID()) : null;
-							ac.fireEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,data.getAddress(),null,null,null,cancelTimerCallback);
-						}   						
+						remove();											
 						doRollback = false;
 					} finally {
 						try {
@@ -197,21 +206,24 @@ public class TimerFacilityTimerTask extends TimerTask {
 						} catch (Throwable e) {
 							logger.error(e.getMessage(),e);
 						}
-					}
-				
-				
-			}
-			else {
-				if (timerEnded) {
-					// if event is not posted and ended then we cancel it
-					// so it's removed
-					timerFacility.cancelTimerWithoutValidation(data.getTimerID());
+					}					
 				}
 			}
 		}
         
 	}
 
+	protected void remove() {
+		// remove from scheduler
+		super.removeFromScheduler();
+		// detach this timer from the ac
+		final ActivityContext ac = sleeContainer.getActivityContextFactory()
+					.getActivityContext(data.getActivityContextHandle());
+		if (ac != null) {					
+			ac.detachTimer(data.getTimerID());
+		}
+	}
+	
     @SuppressWarnings("deprecation")
 	@Override
     public void beforeRecover() {

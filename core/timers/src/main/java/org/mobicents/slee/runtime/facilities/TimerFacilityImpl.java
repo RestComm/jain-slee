@@ -182,7 +182,7 @@ public class TimerFacilityImpl extends AbstractSleeContainerModule implements Ti
 		boolean terminateTx = txMgr.requireTransaction();
 		boolean doRollback = true;
 		try {
-			cancelTimerWithoutValidation(timerID);
+			cancelTimer(timerID,true);
 			doRollback = false;
 		} finally {
 			try {
@@ -192,16 +192,11 @@ public class TimerFacilityImpl extends AbstractSleeContainerModule implements Ti
 			}
 		}
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.facilities.TimerFacility#cancelTimerWithoutValidation(javax.slee.facilities.TimerID)
-	 */
-	public void cancelTimerWithoutValidation(TimerID timerID) {
-		
+	
+	public void cancelTimer(TimerID timerID, boolean detachAC) {
+		// cancel task in scheduler
 		final TimerFacilityTimerTask task = (TimerFacilityTimerTask) scheduler.cancel(timerID);
-		
-		if (task != null) {
+		if (detachAC && task != null) {
 			// detach this timer from the ac
 			ActivityContext ac = sleeContainer.getActivityContextFactory()
 					.getActivityContext(task.getTimerFacilityTimerTaskData().getActivityContextHandle());
@@ -209,7 +204,6 @@ public class TimerFacilityImpl extends AbstractSleeContainerModule implements Ti
 				ac.detachTimer(timerID);
 			}
 		}
-		
 	}
 	
 	/*
