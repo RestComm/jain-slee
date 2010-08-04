@@ -53,4 +53,10 @@ public class DefaultEventContextFactoryDataSource implements EventContextFactory
 	public void removeEventContext(EventContextHandle handle) {
 		dataSource.remove(handle);
 	}
+	
+	@Override
+	public String toString() {
+		return "DefaultEventContextFactoryDataSource[ "+dataSource.keySet()+" ]";
+	}
+	
 }

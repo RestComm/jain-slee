@@ -291,7 +291,9 @@ public class SleeContainer {
 				+ timerFacility + "\n" + traceMBeanImpl + "\n"
 				+ sleeProfileTableManager + "\n" + activityContextFactory
 				+ "\n" + activityContextNamingFacility + "\n"
-				+ nullActivityFactory + "\n" + getEventRouter() + "\n"
+				+ nullActivityFactory + "\n" 
+				+ getEventRouter() + "\n"
+				+ getEventContextFactory() + "\n"
 				+ getTransactionManager();
 	}
 

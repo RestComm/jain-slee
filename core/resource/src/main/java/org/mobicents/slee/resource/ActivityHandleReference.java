@@ -1,5 +1,7 @@
 package org.mobicents.slee.resource;
 
+import java.io.Serializable;
+
 import javax.slee.resource.ActivityHandle;
 
 import org.jgroups.Address;
@@ -9,8 +11,13 @@ import org.jgroups.Address;
  * @author martins
  *
  */
-public class ActivityHandleReference implements ActivityHandle {
+public class ActivityHandleReference implements ActivityHandle, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private final transient ActivityHandle reference;
 	private final String id;
 	private final Address address;

@@ -884,7 +884,9 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		return "Resource Management: " 
 			+ "\n+-- Resource Adaptor Entities: " + resourceAdaptorEntities.keySet()
 			+ "\n+-- Resource Adaptor Entity Links: " + resourceAdaptorEntityLinks.keySet()
-			+ "\n+-- Resource Adaptor Entities per RA Type size: "	+ entitiesPerType.size();
+			+ "\n+-- Resource Adaptor Entities per RA Type size: "	+ entitiesPerType.size()
+			+ "\n+-- Activity Handle Reference Factory: "	+ handleReferenceFactory;
+
 	}
 
 	/**

@@ -37,7 +37,8 @@ public abstract class LazyStoredEventContext implements EventContext {
 	 */
 	public void remove() {
 		if (handle != null) {
-			factory.getDataSource().removeEventContext(handle);			
+			factory.getDataSource().removeEventContext(handle);		
+			handle = null;
 		}
 	}
 }

@@ -377,4 +377,9 @@ public class ActivityHandleReferenceFactory {
 		}
 
 	}
+	
+	@Override
+	public String toString() {
+		return "ActivityHandleReferenceFactory[pendingIds = "+pendingIds.keySet()+"]";
+	}
 }
