@@ -105,6 +105,8 @@ public class SbbComponentImpl extends AbstractSleeComponentWithUsageParametersIn
 	 */
 	private final AbstractSbbClassInfo abstractSbbClassInfo = new AbstractSbbClassInfoImpl();
 	
+	private final boolean reentrant;
+	
 	/**
 	 * 
 	 * @param descriptor
@@ -112,6 +114,7 @@ public class SbbComponentImpl extends AbstractSleeComponentWithUsageParametersIn
 	public SbbComponentImpl(SbbDescriptorImpl descriptor) {
 		this.descriptor = descriptor;
 		isolateSecurityPermissionsInLocalInterface = descriptor.getSbbLocalInterface()==null ? false : descriptor.getSbbLocalInterface().isIsolateSecurityPermissions();
+		reentrant = descriptor.getSbbAbstractClass().isReentrant();
 	}
 
 	/**
@@ -464,5 +467,13 @@ public class SbbComponentImpl extends AbstractSleeComponentWithUsageParametersIn
 	@Override
 	public List<UsageParameterDescriptor> getUsageParametersList() {
 		return descriptor.getSbbUsageParametersInterface().getUsageParameter();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.component.sbb.SbbComponent#isReentrant()
+	 */
+	public boolean isReentrant() {
+		return reentrant;
 	}
 }

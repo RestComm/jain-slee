@@ -338,8 +338,6 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 									keepSbbEntityIfTxRollbacks = true;
 								}
 
-								sbbObject.sbbLoad();
-
 								// GET AND CHECK EVENT MASK FOR THIS SBB ENTITY
 								Set<EventTypeID> eventMask = sbbEntity.getMaskedEventTypes(eventContext.getActivityContextHandle());
 								if (eventMask == null || !eventMask.contains(eventContext.getEventTypeId())) {

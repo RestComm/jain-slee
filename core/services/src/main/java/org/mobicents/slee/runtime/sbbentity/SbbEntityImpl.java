@@ -621,9 +621,11 @@ public class SbbEntityImpl implements SbbEntity {
 		}
 
 		// store some info about the invocation in the tx context
-		EventRoutingTransactionData data = new EventRoutingTransactionDataImpl(
+		final EventRoutingTransactionData data = new EventRoutingTransactionDataImpl(
 				sleeEvent, activityContextInterface);
-		data.getInvokedSbbEntities().add(sbbeId);
+		if (!isReentrant()) {
+			data.getInvokedNonReentrantSbbEntities().add(sbbeId);
+		}
 		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 		txContext.setEventRoutingTransactionData(data);
 		// invoke method
@@ -698,13 +700,15 @@ public class SbbEntityImpl implements SbbEntity {
 		this.sbbObject.setSbbEntity(null);
 		this.pool.returnObject(this.sbbObject);
 		this.sbbObject = null;
-		for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
-				.hasNext();) {
-			SbbEntity childSbbEntity = i.next();
-			if (childSbbEntity.getSbbObject() != null) {
-				childSbbEntity.passivateAndReleaseSbbObject();
+		if (childsWithSbbObjects != null) {
+			for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
+			.hasNext();) {
+				SbbEntity childSbbEntity = i.next();
+				if (childSbbEntity.getSbbObject() != null) {
+					childSbbEntity.passivateAndReleaseSbbObject();
+				}
+				i.remove();
 			}
-			i.remove();
 		}
 	}
 
@@ -719,13 +723,15 @@ public class SbbEntityImpl implements SbbEntity {
 		this.sbbObject.setSbbEntity(null);
 		this.pool.returnObject(this.sbbObject);
 		this.sbbObject = null;
-		for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
-				.hasNext();) {
-			SbbEntity childSbbEntity = i.next();
-			if (childSbbEntity.getSbbObject() != null) {
-				childSbbEntity.removeAndReleaseSbbObject();
+		if (childsWithSbbObjects != null) {
+			for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
+			.hasNext();) {
+				SbbEntity childSbbEntity = i.next();
+				if (childSbbEntity.getSbbObject() != null) {
+					childSbbEntity.removeAndReleaseSbbObject();
+				}
+				i.remove();
 			}
-			i.remove();
 		}
 	}
 
@@ -795,15 +801,7 @@ public class SbbEntityImpl implements SbbEntity {
 	public int hashCode() {
 		return sbbeId.hashCode();
 	}
-
-	public void checkReEntrant() throws SLEEException {
-		if ((!this.getSbbComponent().getDescriptor().getSbbAbstractClass()
-				.isReentrant())
-				&& sleeContainer.getTransactionManager().getTransactionContext().getEventRoutingTransactionData()
-						.getInvokedSbbEntities().contains(sbbeId))
-			throw new SLEEException(" re-entrancy not allowed ");
-	}
-
+	
 	/**
 	 * TODO improve with sbb local object storage		
 	 * @return
@@ -901,9 +899,12 @@ public class SbbEntityImpl implements SbbEntity {
 		}
 	}
 
-	private HashSet<SbbEntity> childsWithSbbObjects = new HashSet<SbbEntity>();
+	private Set<SbbEntity> childsWithSbbObjects = null;
 
 	protected void addChildWithSbbObject(SbbEntity childSbbEntity) {
+		if (childsWithSbbObjects == null) {
+			childsWithSbbObjects = new HashSet<SbbEntity>();
+		}
 		childsWithSbbObjects.add(childSbbEntity);
 	}
 
@@ -932,8 +933,7 @@ public class SbbEntityImpl implements SbbEntity {
 				this.sbbObject.sbbActivate();
 				this.sbbObject.setState(SbbObjectState.READY);
 			}
-			// TODO turn this on and remove elsewhere the method is used
-			// sbbObject.sbbLoad();
+			this.sbbObject.sbbLoad();
 		} catch (Exception e) {
 			log.error("Failed to assign and create sbb object", e);
 			if (created) {
@@ -949,5 +949,13 @@ public class SbbEntityImpl implements SbbEntity {
 	 */
 	public boolean isCreated() {
 		return created;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.sbbentity.SbbEntity#isReentrant()
+	 */
+	public boolean isReentrant() {
+		return sbbComponent.isReentrant();
 	}
 }

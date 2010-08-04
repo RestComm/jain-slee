@@ -225,8 +225,7 @@ public class ConcreteSbbLocalObjectGenerator {
             methodToAdd = methodToAdd + ") { ";
 
             // We need to do this in a type neutral way !
-            methodToAdd += "getSbbEntity().checkReEntrant();";
-            methodToAdd = methodToAdd + SbbConcrete.class.getName() + " concrete = "
+            methodToAdd += SbbConcrete.class.getName() + " concrete = "
                     + " getSbbEntity().getSbbObject().getSbbConcrete();";
 
             //These methods are delegated to superclass.

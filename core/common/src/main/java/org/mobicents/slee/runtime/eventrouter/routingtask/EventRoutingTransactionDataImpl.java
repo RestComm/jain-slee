@@ -1,6 +1,7 @@
 package org.mobicents.slee.runtime.eventrouter.routingtask;
 
-import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.slee.ActivityContextInterface;
 
@@ -16,10 +17,10 @@ import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
 public class EventRoutingTransactionDataImpl implements EventRoutingTransactionData {
 	
 	/**
-	 * a linked list with the sbb entities in the call tree, since the event was
+	 * a linked list with the non reentrant sbb entities in the call tree, since the event was
 	 * passed to the event handler method
 	 */
-	private final LinkedList<String> invokedSbbEntities = new LinkedList<String>();
+	private Set<String> invokedSbbEntities = null;
 
 	/**
 	 * the event being delivered
@@ -38,12 +39,15 @@ public class EventRoutingTransactionDataImpl implements EventRoutingTransactionD
 	}
 
 	/**
-	 * Retrieves a linked list with the sbb entities in the call tree, since the
+	 * Retrieves a set with the non reentrant sbb entities in the call tree, since the
 	 * event was passed to the event handler method
 	 * 
 	 * @return
 	 */
-	public LinkedList<String> getInvokedSbbEntities() {
+	public Set<String> getInvokedNonReentrantSbbEntities() {
+		if (invokedSbbEntities == null) {
+			invokedSbbEntities = new HashSet<String>();
+		}
 		return invokedSbbEntities;
 	}
 

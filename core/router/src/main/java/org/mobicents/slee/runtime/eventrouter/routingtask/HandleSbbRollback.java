@@ -128,7 +128,6 @@ public class HandleSbbRollback {
 
 				sbbEntity.assignSbbObject();
 				sbbObject = sbbEntity.getSbbObject();
-				sbbObject.sbbLoad();
 			}
 			if (doTraceLogs) {
 				logger.trace("Invoking sbbRolledBack");

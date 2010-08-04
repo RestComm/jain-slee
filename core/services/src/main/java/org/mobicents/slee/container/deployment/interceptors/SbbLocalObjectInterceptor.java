@@ -6,7 +6,7 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Set;
 
 import javax.slee.SLEEException;
 import javax.slee.TransactionRolledbackLocalException;
@@ -53,10 +53,15 @@ public class SbbLocalObjectInterceptor {
 		final Method meth = sbbConcrete.getClass().getMethod(methodName, types);
 		final SbbEntity sbbEntity = sbbConcrete.getSbbEntity();
 		
-		final LinkedList<String> invokedsbbEntities = sleeContainer
+		Set<String> invokedsbbEntities = null;
+		if (!sbbEntity.isReentrant()) {
+			invokedsbbEntities = sleeContainer
 				.getTransactionManager().getTransactionContext()
-				.getEventRoutingTransactionData().getInvokedSbbEntities();		
-		invokedsbbEntities.add(sbbEntity.getSbbEntityId());
+				.getEventRoutingTransactionData().getInvokedNonReentrantSbbEntities();		
+			if (!invokedsbbEntities.add(sbbEntity.getSbbEntityId())) {
+				throw new SLEEException(" unable to invoke sbb local object, re-entrancy not allowed by sbb "+sbbEntity.getSbbId());
+			}
+		}
 		
 		final ClassLoader currentThreadClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
 		SleeContainerUtils.setCurrentThreadClassLoader(sbbEntity.getSbbComponent().getClassLoader());
@@ -96,7 +101,9 @@ public class SbbLocalObjectInterceptor {
 			return null;
 		} finally {
 			SleeContainerUtils.setCurrentThreadClassLoader(currentThreadClassLoader);
-			invokedsbbEntities.removeLast();
+			if (invokedsbbEntities != null) {
+				invokedsbbEntities.remove(sbbEntity.getSbbEntityId());
+			}
 		}
 	}
 
