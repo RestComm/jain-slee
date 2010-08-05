@@ -31,11 +31,11 @@
 		<docs.bookid>JCC</docs.bookid>
 		<docs.profile>mobicents</docs.profile>
 		
-		<stream.version>1.0.0.BETA1-SNAPSHOT</stream.version>
-		<tcap.version>1.0.0.BETA2-SNAPSHOT</tcap.version>
-		<sccp.version>1.0.0.BETA2-SNAPSHOT</sccp.version>
-		<asn.version>1.0.0.BETA2-SNAPSHOT</asn.version>
-		<mtp.version>1.0.0.BETA3-SNAPSHOT</mtp.version>
+		<stream.version>1.0.0.BETA1</stream.version>
+		<tcap.version>1.0.0.BETA2</tcap.version>
+		<sccp.version>1.0.0.BETA2</sccp.version>
+		<asn.version>1.0.0.BETA2</asn.version>
+		<mtp.version>1.0.0.BETA3</mtp.version>
 		
 		<version.jcc>1.1</version.jcc>
 		<version.concurrent>1.3.4</version.concurrent>
