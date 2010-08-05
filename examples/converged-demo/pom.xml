@@ -184,9 +184,6 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
 		</repository>
 		<repository>
 			<id>jboss-public-repository-group</id>
