@@ -11,12 +11,21 @@
 
 	<section id="ra_tracers">
 		<title>Tracers</title>
-		<para>Each Resource Adaptor Entity uses a single JAIN SLEE 1.1 Tracer, named SmppResourceAdaptor.</para>
-	</section>	
-	
+		<para>
+			Each Resource Adaptor Entity uses a single JAIN SLEE 1.1
+			Tracer, named SmppResourceAdaptor.
+		</para>
+	</section>
+
 	<section id="ra_alarms">
 		<title>Alarms</title>
-		<para>TODO</para>
+		<para>
+			The RA raises an alarm identified as
+			<literal>SMSCALARM</literal>
+			if for some reason the link with SMSC is broken. This alarm
+			is cleared as soon as the RA is able to establish the link
+			again or if management clears the alarm explicitly.
+		</para>
 	</section>
-	
+
 </section>
