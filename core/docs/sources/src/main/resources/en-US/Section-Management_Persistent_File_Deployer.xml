@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <section id="management_persistent_file_deployer">
 	<title>Persistent Deployable Unit Management</title>
@@ -48,6 +51,57 @@
 		    </varlistentry>
 		</variablelist>
 		
+		<para>This file should comply with the following schema:</para>
+		<programlisting language="XML" role="XML"><![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="deploy-config">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ra-entity" maxOccurs="unbounded" minOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="property">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" use="required" />
+      <xs:attribute name="type" type="xs:string" use="required" />
+      <xs:attribute name="value" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="properties">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="property" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="file" type="xs:string" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ra-entity">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="properties" maxOccurs="1" minOccurs="0"/>
+        <xs:element ref="ra-link" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="resource-adaptor-id" type="xs:string" use="required" />
+      <xs:attribute name="entity-name" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ra-link">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>]]>
+		</programlisting>
+
+
 		<programlisting language="XML" role="XML"><![CDATA[
 <ra-entity
 	resource-adaptor-id="ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]"
