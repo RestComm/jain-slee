@@ -226,9 +226,9 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 	}
 
 	public void failOver(Serializable arg0) {
-		if(this.tracer.isInfoEnabled()){
+		if (this.tracer.isInfoEnabled()) {
 			this.tracer.info("Failed over the SMPP. Available memebers now ");
-			for(MemberAddress memAdd : this.ftRAContext.getMembers()){
+			for (MemberAddress memAdd : this.ftRAContext.getMembers()) {
 				this.tracer.info(memAdd.toString());
 			}
 		}
@@ -316,7 +316,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 
 		try {
 			bindSMSC();
-			
+
 			// Start the ENQUIRE Link Thread
 			linkMonitorThread = new Thread(new LinkMonitor());
 			linkMonitorThread.start();
@@ -792,9 +792,14 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 
 	}
 
+	/**
+	 * reconnect() is called from LinkMonitor when connectivity between RA and SMSC fails. lets set isBound to true so
+	 * while loop of LinkMonitor keeps trying to establish link again
+	 */
 	private void reconnect() {
 		try {
 			unbindSMSC();
+			isBound = true;
 			bindSMSC();
 		} catch (Exception e) {
 			if (tracer.isSevereEnabled())
