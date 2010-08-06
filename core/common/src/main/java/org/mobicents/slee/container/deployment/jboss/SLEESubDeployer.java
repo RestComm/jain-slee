@@ -272,7 +272,7 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 
       // If it exists, install it.
       if(realDU != null) {
-        while(undeploys.contains(du.getFileName())) {
+        while(isInUndeployList(du.getFileName())) {
           Thread.sleep(getWaitTimeBetweenOperations());
         }
         DeploymentManager.INSTANCE.installDeployableUnit(realDU);
@@ -298,7 +298,9 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 			logger.trace("Got DU: " + realDU.getDeploymentInfoShortName());
       }
 
-      undeploys.add(fileName);
+      if(!isInUndeployList(fileName)) {
+        addToUndeployList(fileName);
+      }
 
       if(isServerShuttingDown) {
         doStop(fileName);
@@ -329,7 +331,7 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
         // Make it null. clean.
         du = null;
 
-        undeploys.remove(filename);
+        removeFromUndeployList(filename);
       }
     }
     catch (Exception e) {
@@ -372,6 +374,12 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 
     for(String key : toAccept.keySet()) {
       output += "&lt;" + key + "&gt; [" + toAccept.get(key) + "]<br>";   
+    }
+
+    output += "<p>Undeployments running:</p>";
+
+    for(String undeploy : undeploys) {
+      output += "+-- " + undeploy + "<br>";   
     }
 
     output += "<p>Deployment Manager Status</p>";
@@ -435,4 +443,44 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
   public boolean isServerShuttingDown() {
     return isServerShuttingDown;
   }
+  
+  private boolean addToUndeployList(String du) {
+    if(logger.isTraceEnabled()) {
+      logger.trace("Adding " + du + " to running undeployments list ...");
+      logger.trace("Current Undeploy List: " + undeploys.toString());
+    }
+    boolean added = undeploys.add(du);
+    if(logger.isTraceEnabled()) {
+      logger.trace("Added  " + du + " to running undeployments list = " + added);
+      logger.trace("Current Undeploy List: " + undeploys.toString());
+    }
+    return added;
+  }
+
+  private boolean removeFromUndeployList(String du) {
+    if(logger.isTraceEnabled()) {
+      logger.trace("Removing " + du + " from running undeployments list ...");
+      logger.trace("Current Undeploy List: " + undeploys.toString());
+    }
+    boolean removed = undeploys.remove(du);
+    if(logger.isTraceEnabled()) {
+      logger.trace("Removed  " + du + " from running undeployments list = " + removed);
+      logger.trace("Current Undeploy List: " + undeploys.toString());
+    }
+    return removed;
+  }
+
+  private boolean isInUndeployList(String du) {
+    if(logger.isTraceEnabled()) {
+      logger.trace("Checking if " + du + " is in running undeployments list ...");
+      logger.trace("Current Undeploy List: " + undeploys.toString());
+    }
+    boolean contains = undeploys.contains(du);
+    if(logger.isTraceEnabled()) {
+      logger.trace("Checked  if " + du + " is in running undeployments list = " + contains);
+      logger.trace("Current Undeploy List: " + undeploys.toString());
+    }
+    return contains;
+  }
+
 }
