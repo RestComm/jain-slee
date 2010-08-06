@@ -8,7 +8,7 @@
 		   <!-- if cache config is done here it leaks, till an alternative is found the config is in cache manager @ $JBOSS_HOME/server/all/deploy/cluster/jboss-cache-manager.sar/META-INF/jboss-cache-manager-jboss-beans.xml -->	
           <parameter><inject bean="CacheManager"/></parameter>
  		  <parameter class="java.lang.String">mobicents-slee-replicated-cache</parameter> 
-		  <parameter>false</parameter> 
+		  <parameter>true</parameter> 
      	</constructor>		
 	</bean>
 
