@@ -176,7 +176,8 @@
 					<entry>1.0</entry>
 					-->
 					<entry>
-						ProcessUnstructuredSSIndication
+						ProcessUnstructured
+						SSIndication
 					</entry>
 					<entry>
 						A new USSD request
