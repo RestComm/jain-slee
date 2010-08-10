@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.7</version>
+		<version>2.10</version>
 	</parent>
 
 	<artifactId>converged-demo-parent</artifactId>
@@ -25,7 +25,6 @@
 			<dependency>
 				<groupId>javax.slee</groupId>
 				<artifactId>jain-slee</artifactId>
-				<version>1.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mobicents.resources</groupId>
@@ -67,7 +66,6 @@
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
 				<groupId>org.mobicents.tools</groupId>
-				<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
@@ -93,7 +91,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-release-plugin</artifactId>
-						<version>2.0</version>
 						<configuration>
 							<autoVersionSubmodules>true</autoVersionSubmodules>
 							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/converged-demo</tagBase>
