@@ -23,10 +23,6 @@
 			  <version>1.0_02.CR5</version>
 			</dependency>
 			<dependency>
-				<groupId>javax.slee</groupId>
-				<artifactId>jain-slee</artifactId>
-			</dependency>
-			<dependency>
 				<groupId>org.mobicents.resources</groupId>
 				<artifactId>sip11-ra</artifactId>
 				<version>${mobicents.resources.sip11.version}</version>
