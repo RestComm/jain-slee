@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN"
+                         "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
+
+<sbb-jar>
+	<sbb id="ra-bounce-sbb">
+		<description>
+			FirstBounceSbb SBB for training example5
+		</description>
+
+		<sbb-name>FirstBounceSbb</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>2.0</sbb-version>
+		<library-ref>
+			<library-name>example5-library</library-name>
+			<library-vendor>org.mobicents.examples</library-vendor>
+			<library-version>1.0</library-version>
+		</library-ref>
+
+		<sbb-classes>
+			<sbb-abstract-class>
+				<sbb-abstract-class-name>
+					org.mobicents.slee.training.example5.first.FirstBounceSbb
+				</sbb-abstract-class-name>
+				<cmp-field>
+					<cmp-field-name>nullActivity</cmp-field-name>
+				</cmp-field>
+			</sbb-abstract-class>
+		</sbb-classes>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>InitEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					org.mobicents.slee.resource.lab.message.incoming.INIT
+				</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>2.0</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>AnyEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					org.mobicents.slee.resource.lab.message.incoming.ANY
+				</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>2.0</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>EndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					org.mobicents.slee.resource.lab.message.incoming.END
+				</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>2.0</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ReceiveMessage</event-name>
+			<event-type-ref>
+				<event-type-name>
+					org.mobicents.slee.resource.lab.ResponseEvent
+				</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>2.0</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+
+		<event event-direction="Fire">
+			<event-name>SendMessage</event-name>
+			<event-type-ref>
+				<event-type-name>
+					org.mobicents.slee.resource.lab.RequestEvent
+				</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>2.0</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					LabResourceAdaptorType
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					org.mobicents
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					2.0
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+
+			<activity-context-interface-factory-name>
+				slee/resources/LabRA/raframeacif
+			</activity-context-interface-factory-name>
+
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/raframe/2.0/sbb2ra
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					LabRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+
+	</sbb>
+
+</sbb-jar>
