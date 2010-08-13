@@ -416,7 +416,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		// get ac
     	final ActivityContext ac = acFactory.getActivityContext(ach);
     	if (ac == null) {
-    		throw new UnrecognizedActivityHandleException("Unable to fire "+eventType.getEventType()+"on activity handle "+realHandle+" , the handle is not mapped to an activity context");
+    		throw new UnrecognizedActivityHandleException("Unable to fire "+eventType.getEventType()+" on activity handle "+realHandle+" , the handle is not mapped to an activity context");
     	}
     	else {        		
     		final EventProcessingCallbacks callbacks = new EventProcessingCallbacks(realHandle, eventType, event, address, receivableService, eventFlags, raEntity);
