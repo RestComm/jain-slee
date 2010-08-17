@@ -43,11 +43,15 @@ else
     JAVA="java"
 fi
 
+#debug
+#JAVA_OPTS="$JAVA_OPTS -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y"
+
 # Setup the classpath
 
 
-if [ "x$CLASSPATH" = "x" ]; then
+#if [ "x$CLASSPATH" = "x" ]; then
  	
+
  	#jboss
     CLASSPATH="$CLASSPATH:${DIRNAME}/lib/twiddle.jar"
     CLASSPATH="$CLASSPATH:${DIRNAME}/lib/getopt.jar"
@@ -69,17 +73,18 @@ if [ "x$CLASSPATH" = "x" ]; then
     CLASSPATH="$CLASSPATH:${DIRNAME}/lib/cli-twiddle.jar"
     CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jain-slee-1.1.jar"
     CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jmx-property-editors.jar"
-  
-fi
+    CLASSPATH="$CLASSPATH:$DIRNAME/lib"
+   
+#fi
 
-
-
+SLEE_TWIDDLE_CONF="$DIRNAME/lib/slee-twiddle.properties"
+#SLEE_TWIDDLE_CONF="slee-twiddle.properties"
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
     JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
     CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
-
+	SLEE_TWIDDLE_CONF=`cygpath --path --windows "$SLEE_TWIDDLE_CONF"`
 fi
  # Display our environment
  #     echo "========================================================================="
@@ -96,6 +101,8 @@ fi
  #     echo ""
  #     echo "  OPTS     : $*"
  #     echo ""
+ #     echo "  CONF     : $SLEE_TWIDDLE_CONF"
+ #     echo ""
  #     echo "========================================================================="
  #     echo ""
 
@@ -104,5 +111,5 @@ exec "$JAVA" \
     $JAVA_OPTS \
     -Dprogram.name="$PROGNAME" \
     -classpath $CLASSPATH \
-    org.jboss.console.twiddle.Twiddle "-c $DIRNAME/lib/slee-twiddle.properties $@"
-    #-c=slee-twiddle.properties 
+    org.jboss.console.twiddle.Twiddle -c file:///$SLEE_TWIDDLE_CONF $@ 
+	#
