@@ -1,0 +1,32 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>training-example9-parent</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>2.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>training-example9-profile-spec</artifactId>
+	<dependencies>
+		<dependency>
+			<groupId>org.mobicents.resources</groupId>
+			<artifactId>lab-ratype</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.servers.jainslee.core</groupId>
+			<artifactId>jar</artifactId>
+			<version>${mobicents.core.jar.version}</version>
+		</dependency>
+	</dependencies>
+</project>
