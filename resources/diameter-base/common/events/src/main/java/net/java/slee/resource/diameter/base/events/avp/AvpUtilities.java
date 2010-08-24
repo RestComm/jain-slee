@@ -214,7 +214,9 @@ public class AvpUtilities {
       return avp != null ? avp.getOctetString() : null;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type OctetString.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type OctetString.", e);
+      }
       return null;
     }
   }
@@ -233,7 +235,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type OctetString.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type OctetString.", e);
+      }
       return new String[0];
     }
   }
@@ -244,7 +248,9 @@ public class AvpUtilities {
       return avp != null ? avp.getOctetString() : null;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type OctetString.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type OctetString.", e);
+      }
       return null;
     }
   }
@@ -263,7 +269,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type OctetString.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type OctetString.", e);
+      }
       return new String[0];
     }
   }
@@ -320,7 +328,9 @@ public class AvpUtilities {
       return avp != null ? avp.getUTF8String() : null;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type UTF8String.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type UTF8String.", e);
+      }
       return null;
     }
   }
@@ -339,7 +349,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type UTF8String.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type UTF8String.", e);
+      }
       return new String[0];
     }
   }
@@ -350,7 +362,9 @@ public class AvpUtilities {
       return avp != null ? avp.getUTF8String() : null;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type UTF8String.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type UTF8String.", e);
+      }
       return null;
     }
   }
@@ -369,7 +383,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type UTF8String.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type UTF8String.", e);
+      }
       return new String[0];
     }
   }
@@ -429,13 +445,17 @@ public class AvpUtilities {
     try {
       Avp avp = set.getAvp(avpCode);
       if(avp == null) {
-        logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Long.MIN_VALUE);
+        if(logger.isDebugEnabled()) { 
+          logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Long.MIN_VALUE);
+        }
         return Long.MIN_VALUE;
       }
       return avp.getUnsigned32();
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned32.", e);
+      }
       return Long.MIN_VALUE;
     }
   }
@@ -454,7 +474,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned32.", e);
+      }
       return new long[0];
     }
   }
@@ -463,13 +485,17 @@ public class AvpUtilities {
     try {
       Avp avp = set.getAvp(avpCode, vendorId);
       if(avp == null) {
-        logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Long.MIN_VALUE);
+        if(logger.isDebugEnabled()) { 
+          logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Long.MIN_VALUE);
+        }
         return Long.MIN_VALUE;
       }
       return avp.getUnsigned32();
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned32.", e);
+      }
       return Long.MIN_VALUE;
     }
   }
@@ -488,7 +514,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned32.", e);
+      }
       return new long[0];
     }
   }
@@ -543,13 +571,17 @@ public class AvpUtilities {
     try {
       Avp avp = set.getAvp(avpCode);
       if(avp == null) {
-        logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Long.MIN_VALUE);
+        if(logger.isDebugEnabled()) { 
+          logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Long.MIN_VALUE);
+        }
         return Long.MIN_VALUE;
       }
       return avp.getUnsigned64();
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned64.", e);
+      }
       return Long.MIN_VALUE;
     }
   }
@@ -568,7 +600,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned64.", e);
+      }
       return new long[0];
     }
   }
@@ -577,13 +611,17 @@ public class AvpUtilities {
     try {
       Avp avp = set.getAvp(avpCode, vendorId);
       if(avp == null) {
-        logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Long.MIN_VALUE);
+        if(logger.isDebugEnabled()) { 
+          logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Long.MIN_VALUE);
+        }
         return Long.MIN_VALUE;
       }
       return avp.getUnsigned64();
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned64.", e);
+      }
       return Long.MIN_VALUE;
     }
   }
@@ -602,7 +640,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned64.", e);
+      }
       return new long[0];
     }
   }
@@ -657,13 +697,17 @@ public class AvpUtilities {
     try {
       Avp avp = set.getAvp(avpCode);
       if(avp == null) {
-        logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Integer.MIN_VALUE);
+        if(logger.isDebugEnabled()) { 
+          logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Integer.MIN_VALUE);
+        }
         return Integer.MIN_VALUE;
       }
       return avp.getInteger32();
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer32.", e);
+      }
       return Integer.MIN_VALUE;
     }
   }
@@ -682,7 +726,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer32.", e);
+      }
       return new int[0];
     }
   }
@@ -691,13 +737,17 @@ public class AvpUtilities {
     try {
       Avp avp = set.getAvp(avpCode, vendorId);
       if(avp == null) {
-        logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Integer.MIN_VALUE);
+        if(logger.isDebugEnabled()) { 
+          logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Integer.MIN_VALUE);
+        }
         return Integer.MIN_VALUE;
       }
       return avp.getInteger32();
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer32.", e);
+      }
       return Integer.MIN_VALUE;
     }
   }
@@ -716,7 +766,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer32.", e);
+      }
       return new int[0];
     }
   }
@@ -771,13 +823,17 @@ public class AvpUtilities {
     try {
       Avp avp = set.getAvp(avpCode);
       if(avp == null) {
-        logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Long.MIN_VALUE);
+        if(logger.isDebugEnabled()) { 
+          logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Long.MIN_VALUE);
+        }
         return Long.MIN_VALUE;
       }
       return avp.getInteger64();
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer64.", e);
+      }
       return Long.MIN_VALUE;
     }
   }
@@ -796,7 +852,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer64.", e);
+      }
       return new long[0];
     }
   }
@@ -805,13 +863,17 @@ public class AvpUtilities {
     try {
       Avp avp = set.getAvp(avpCode, vendorId);
       if(avp == null) {
-        logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Long.MIN_VALUE);
+        if(logger.isDebugEnabled()) { 
+          logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Long.MIN_VALUE);
+        }
         return Long.MIN_VALUE;
       }
       return avp.getInteger64();
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer64.", e);
+      }
       return Long.MIN_VALUE;
     }
   }
@@ -830,7 +892,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer64.", e);
+      }
       return new long[0];
     }
   }
@@ -887,7 +951,9 @@ public class AvpUtilities {
       return avp != null ? avp.getFloat32() : Float.MIN_VALUE;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float32.", e);
+      }
       return Float.MIN_VALUE;
     }
   }
@@ -906,7 +972,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float32.", e);
+      }
       return new float[0];
     }
   }
@@ -917,7 +985,9 @@ public class AvpUtilities {
       return avp != null ? avp.getFloat32() : Float.MIN_VALUE;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float32.", e);
+      }
       return Float.MIN_VALUE;
     }
   }
@@ -936,7 +1006,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float32.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float32.", e);
+      }
       return new float[0];
     }
   }
@@ -993,7 +1065,9 @@ public class AvpUtilities {
       return avp != null ? avp.getFloat64() : Double.MIN_VALUE;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float64.", e);
+      }
       return Double.MIN_VALUE;
     }
   }
@@ -1012,7 +1086,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float64.", e);
+      }
       return new double[0];
     }
   }
@@ -1023,7 +1099,9 @@ public class AvpUtilities {
       return avp != null ? avp.getFloat64() : Double.MIN_VALUE;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float64.", e);
+      }
       return Double.MIN_VALUE;
     }
   }
@@ -1042,7 +1120,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float64.", e);
+      }
       return new double[0];
     }
   }
@@ -1101,7 +1181,9 @@ public class AvpUtilities {
       return avp != null ? avp.getTime() : null;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Time.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Time.", e);
+      }
       return  null;
     }
   }
@@ -1120,7 +1202,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Float64.", e);
+      }
       return new Date[0];
     }
   }
@@ -1131,7 +1215,9 @@ public class AvpUtilities {
       return avp != null ? avp.getTime() : null;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Time.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Time.", e);
+      }
       return null;
     }
   }
@@ -1150,7 +1236,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float64.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Float64.", e);
+      }
       return new Date[0];
     }
   }
@@ -1207,7 +1295,9 @@ public class AvpUtilities {
       return avp != null ? avp.getRawData() : null;
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Grouped.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Grouped.", e);
+      }
       return  null;
     }
   }
@@ -1226,7 +1316,9 @@ public class AvpUtilities {
       return values;
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Grouped.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Grouped.", e);
+      }
       return new byte[0][];
     }
   }
@@ -1237,7 +1329,9 @@ public class AvpUtilities {
       return avp != null ? avp.getRawData() : null;
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Grouped.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Grouped.", e);
+      }
       return null;
     }
   }
@@ -1256,7 +1350,9 @@ public class AvpUtilities {
       return values;
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Grouped.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Grouped.", e);
+      }
       return new byte[0][];
     }
   }
@@ -1319,8 +1415,10 @@ public class AvpUtilities {
       return avp != null ? avp.getRaw() : null;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Raw.", e);
-      return  null;
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Raw.", e);
+      }
+      return null;
     }
   }
 
@@ -1338,7 +1436,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Raw.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Raw.", e);
+      }
       return new byte[0][];
     }
   }
@@ -1349,7 +1449,9 @@ public class AvpUtilities {
       return avp != null ? avp.getRaw() : null;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Raw.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Raw.", e);
+      }
       return null;
     }
   }
@@ -1368,7 +1470,9 @@ public class AvpUtilities {
       return values;
     }
     catch (AvpDataException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Raw.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Raw.", e);
+      }
       return new byte[0][];
     }
   }
@@ -1448,7 +1552,9 @@ public class AvpUtilities {
       return (Object[]) array;
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Custom (Class '" + clazz.getName() + "').", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Custom (Class '" + clazz.getName() + "').", e);
+      }
       return (Object[]) Array.newInstance(clazz, 0);
     }
   }
@@ -1467,7 +1573,9 @@ public class AvpUtilities {
       }
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Custom (Class '" + clazz.getName() + "').", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Custom (Class '" + clazz.getName() + "').", e);
+      }
     }
 
     return null;
@@ -1491,7 +1599,9 @@ public class AvpUtilities {
       return (Object[]) array;
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Custom (Class '" + clazz.getName() + "').", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Custom (Class '" + clazz.getName() + "').", e);
+      }
       return (Object[]) Array.newInstance(clazz, 0);
     }
   }
@@ -1616,7 +1726,9 @@ public class AvpUtilities {
       return value != null ? new DiameterURI(value) : null;
     }
     catch (URISyntaxException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type DiameterURI.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type DiameterURI.", e);
+      }
       return null;
     }
   }
@@ -1634,7 +1746,9 @@ public class AvpUtilities {
       return values.toArray(new DiameterURI[0]);
     }
     catch (URISyntaxException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type DiameterURI.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type DiameterURI.", e);
+      }
       return null;
     }
   }
@@ -1646,7 +1760,9 @@ public class AvpUtilities {
       return value != null ? new DiameterURI(value) : null;
     }
     catch (URISyntaxException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type DiameterURI.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type DiameterURI.", e);
+      }
       return null;
     }
   }
@@ -1664,7 +1780,9 @@ public class AvpUtilities {
       return values.toArray(new DiameterURI[0]);
     }
     catch (URISyntaxException e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type DiameterURI.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type DiameterURI.", e);
+      }
       return null;
     }
   }
@@ -1676,7 +1794,9 @@ public class AvpUtilities {
       return value != null ? Address.decode(value) : null;
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type DiameterURI.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type DiameterURI.", e);
+      }
       return null;
     }
   }
@@ -1700,7 +1820,9 @@ public class AvpUtilities {
       return value != null ? Address.decode(value) : null;
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type DiameterURI.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type DiameterURI.", e);
+      }
       return null;
     }
   }
@@ -1724,7 +1846,9 @@ public class AvpUtilities {
       return clazz.getMethod("fromInt", int.class).invoke(null, value);
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Enumerated.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Enumerated.", e);
+      }
       return null;
     }
   }
@@ -1743,7 +1867,9 @@ public class AvpUtilities {
       }
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Enumerated.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Enumerated.", e);
+      }
     }
 
     return (Object[]) array;
@@ -1756,7 +1882,9 @@ public class AvpUtilities {
       return clazz.getMethod("fromInt", int.class).invoke(null, value);
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " as type Enumerated.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Enumerated.", e);
+      }
       return null;
     }
   }
@@ -1775,7 +1903,9 @@ public class AvpUtilities {
       }
     }
     catch (Exception e) {
-      logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Enumerated.", e);
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Enumerated.", e);
+      }
     }
 
     return (Object[]) array;
