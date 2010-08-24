@@ -1,7 +1,10 @@
 package net.java.slee.resources.smpp.pdu;
 
 import java.util.Map;
-
+/**
+ * 
+ * @author amit bhayani
+ */
 //TODO : Spec says about TLV in section 4.6.2.2 Cancel Broadcast Optional TLVs, but doesnot include TLV field in Table 4-40 cancel_broadcast_sm PDU
 public abstract class CancelBroadcastSM implements SmppRequest {
 	public abstract String getServiceType();

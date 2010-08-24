@@ -3,6 +3,11 @@ package net.java.slee.resources.smpp.pdu;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 
+ * @author amit bhayani
+ *
+ */
 public abstract class ReplaceSM implements SmppRequest {
 
 	private Map<Tag, Object> tlvs = new HashMap<Tag, Object>();
@@ -10,8 +15,8 @@ public abstract class ReplaceSM implements SmppRequest {
 	public abstract String getMessageID();
 	public abstract void setMessageID(String messageID);
 
-	public abstract Address getEsmeAddress();
-	public abstract void setEsmeAddress(Address address);
+	public abstract Address getSourceAddress();
+	public abstract void setSourceAddress(Address address);
 
 	// TODO The specs says about absolute date and time or relative. Should we add the corresponding classes here to set
 	// respective dates rather than String?

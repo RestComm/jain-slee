@@ -45,98 +45,84 @@
 				net.java.slee.resources.smpp.pdu.ALERT_NOTIFICATION
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
-		</event-type-ref>
-		<event-type-ref>
-			<event-type-name>
-				net.java.slee.resources.smpp.pdu.BIND_TRANSMITTER
-			</event-type-name>
-			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
-		</event-type-ref>
-		<event-type-ref>
-			<event-type-name>
-				net.java.slee.resources.smpp.pdu.BIND_TRANSCEIVER
-			</event-type-name>
-			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
-		</event-type-ref>
-		<event-type-ref>
-			<event-type-name>
-				net.java.slee.resources.smpp.pdu.BIND_RECEIVER
-			</event-type-name>
-			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
-		</event-type-ref>
-		<event-type-ref>
-			<event-type-name>
-				net.java.slee.resources.smpp.pdu.OUTBIND
-			</event-type-name>
-			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.SUBMIT_SM
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.SUBMIT_MULTI
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.DELIVER_SM
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.DATA_SM
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.CANCEL_SM
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.QUERY_SM
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.REPLACE_SM
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
-				net.java.slee.resources.smpp.pdu.UNBIND
+				net.java.slee.resources.smpp.pdu.BROADCAST_SM
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
-				net.java.slee.resources.smpp.pdu.ENQUIRE_LINK
+				net.java.slee.resources.smpp.pdu.BROADCAST_SM
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>
+				net.java.slee.resources.smpp.pdu.QUERY_BROADCAST_SM
+			</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>5.0</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>
+				net.java.slee.resources.smpp.pdu.CANCEL_BROADCAST_SM
+			</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 
 		<!-- SMPP Responses -->
@@ -145,91 +131,84 @@
 				net.java.slee.resources.smpp.pdu.GENERIC_NACK
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
-		</event-type-ref>
-		<event-type-ref>
-			<event-type-name>
-				net.java.slee.resources.smpp.pdu.BIND_TRANSMITTER_RESP
-			</event-type-name>
-			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
-		</event-type-ref>
-		<event-type-ref>
-			<event-type-name>
-				net.java.slee.resources.smpp.pdu.BIND_TRANSCEIVER_RESP
-			</event-type-name>
-			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
-		</event-type-ref>
-		<event-type-ref>
-			<event-type-name>
-				net.java.slee.resources.smpp.pdu.BIND_RECEIVER_RESP
-			</event-type-name>
-			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.SUBMIT_SM_RESP
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.SUBMIT_MULTI_RESP
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.DELIVER_SM_RESP
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>
+				net.java.slee.resources.smpp.DELIVERY_REPORT
+			</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.DATA_SM_RESP
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.CANCEL_SM_RESP
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.QUERY_SM_RESP
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.pdu.REPLACE_SM_RESP
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
-				net.java.slee.resources.smpp.pdu.UNBIND_RESP
+				net.java.slee.resources.smpp.pdu.BROADCAST_SM_RESP
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
-				net.java.slee.resources.smpp.pdu.ENQUIRE_LINK_RESP
+				net.java.slee.resources.smpp.pdu.QUERY_BROADCAST_SM_RESP
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>
+				net.java.slee.resources.smpp.pdu.CANCEL_BROADCAST_SM_RESP
+			</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 
 		<!-- SMPP Error Events -->
@@ -238,21 +217,21 @@
 				net.java.slee.resources.smpp.SMPP_TIMEOUT_RESPONSE_RECEIVED
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.SMPP_TIMEOUT_RESPONSE_SENT
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>
 				net.java.slee.resources.smpp.SMPP_ERROR
 			</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>5.0</event-type-version>
 		</event-type-ref>
 
 	</resource-adaptor-type>

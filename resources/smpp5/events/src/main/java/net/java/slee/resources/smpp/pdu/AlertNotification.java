@@ -3,6 +3,11 @@ package net.java.slee.resources.smpp.pdu;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 
+ * @author amit bhayani
+ *
+ */
 public abstract class AlertNotification implements SmppRequest {
 
 	private Map<Tag, Object> tlvs = new HashMap<Tag, Object>();

@@ -2,6 +2,10 @@ package net.java.slee.resources.smpp.pdu;
 
 import java.util.Map;
 
+/**
+ * 
+ * @author amit bhayani
+ */
 public abstract class CancelSMResp implements SmppResponse {
 	public void addTLV(Tag tag, Object value) throws TLVNotPermittedException {
 		throw new TLVNotPermittedException(tag);

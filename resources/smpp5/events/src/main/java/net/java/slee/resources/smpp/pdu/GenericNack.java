@@ -2,6 +2,11 @@ package net.java.slee.resources.smpp.pdu;
 
 import java.util.Map;
 
+/**
+ * 
+ * @author amit bhayani
+ *
+ */
 public abstract class GenericNack implements SmppResponse {
 
 	public void addTLV(Tag tag, Object value) throws TLVNotPermittedException {

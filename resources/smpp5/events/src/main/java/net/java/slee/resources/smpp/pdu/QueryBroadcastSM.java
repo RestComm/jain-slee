@@ -3,6 +3,11 @@ package net.java.slee.resources.smpp.pdu;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 
+ * @author amit bhayani
+ *
+ */
 public abstract class QueryBroadcastSM implements SmppRequest {
 
 	private Map<Tag, Object> tlvs = new HashMap<Tag, Object>();
@@ -10,8 +15,8 @@ public abstract class QueryBroadcastSM implements SmppRequest {
 	public abstract String getMessageID();
 	public abstract void setMessageID(String messageID);
 
-	public abstract Address getEsmeAddress();
-	public abstract void setEsmeAddress(Address address);
+	public abstract Address getDestAddress();
+	public abstract void setDestAddress(Address address);
 
 	public void addTLV(Tag tag, Object value) throws TLVNotPermittedException {
 		if (isTLVPermitted(tag)) {

@@ -1,5 +1,10 @@
 package net.java.slee.resources.smpp.pdu;
 
+/**
+ * 
+ * @author amit bhayani
+ *
+ */
 public interface MessageState {
 	public static final int SCHEDULED = 0;
 	public static final int ENROUTE = 1;

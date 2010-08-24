@@ -1,5 +1,10 @@
 package net.java.slee.resources.smpp.pdu;
 
+/**
+ * 
+ * @author amit bhayani
+ *
+ */
 public interface SmppError {
 
 	public static final int SMPP_TIMEOUT_RESPONSE_RECEIVED = 1;

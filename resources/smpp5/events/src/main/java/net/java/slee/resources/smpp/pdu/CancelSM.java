@@ -2,6 +2,10 @@ package net.java.slee.resources.smpp.pdu;
 
 import java.util.Map;
 
+/**
+ * 
+ * @author amit bhayani
+ */
 public abstract class CancelSM implements SmppRequest {
 	
 
@@ -11,8 +15,8 @@ public abstract class CancelSM implements SmppRequest {
 	public abstract String getMessageID();
 	public abstract void setMessageID(String messageID);	
 
-	public abstract Address getEsmeAddress();
-	public abstract void setEsmeAddress(Address address);
+	public abstract Address getDestAddress();
+	public abstract void setDestAddress(Address address);
 	
 	public abstract Address getSourceAddress();
 	public abstract void setSourceAddress(Address address);

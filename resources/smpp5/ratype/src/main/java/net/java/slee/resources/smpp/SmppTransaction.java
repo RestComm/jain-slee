@@ -19,7 +19,7 @@ import net.java.slee.resources.smpp.SmppSession;
  * This interface represents a generic transaction interface defining the methods common between client and server
  * transactions.
  * 
- * @author Oleg Kulikov
+ * @author amit bhayani
  */
 public interface SmppTransaction {
 

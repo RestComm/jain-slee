@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 
+ * @author amit bhayani
+ *
+ */
 public abstract class SubmitMulti implements SmppRequest {
 
 	private Map<Tag, Object> tlvs = new HashMap<Tag, Object>();
@@ -11,8 +16,8 @@ public abstract class SubmitMulti implements SmppRequest {
 	public abstract String getServiceType();
 	public abstract void setServiceType(String serviceType);
 
-	public abstract Address getEsmeAddress();
-	public abstract void setEsmeAddress(Address address);
+	public abstract Address getSourceAddress();
+	public abstract void setSourceAddress(Address address);
 
 	public abstract void addDestAddress(Address address) throws SmppTooManyValuesException;
 	public abstract Address removeDestAddress(Address address);

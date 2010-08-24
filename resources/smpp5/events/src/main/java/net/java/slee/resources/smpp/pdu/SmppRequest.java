@@ -1,5 +1,10 @@
 package net.java.slee.resources.smpp.pdu;
 
+/**
+ * 
+ * @author amit bhayani
+ *
+ */
 public interface SmppRequest extends PDU {
 
 	public static final long BIND_RECEIVER = 0x00000001;

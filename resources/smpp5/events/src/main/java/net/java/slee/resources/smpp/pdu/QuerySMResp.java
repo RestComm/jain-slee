@@ -2,6 +2,11 @@ package net.java.slee.resources.smpp.pdu;
 
 import java.util.Map;
 
+/**
+ * 
+ * @author amit bhayani
+ *
+ */
 public abstract class QuerySMResp implements SmppResponse {
 
 	public abstract String getMessageID();

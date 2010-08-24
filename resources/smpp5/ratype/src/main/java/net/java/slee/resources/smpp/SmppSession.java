@@ -9,6 +9,8 @@ import net.java.slee.resources.smpp.pdu.SmppResponse;
  * @author amit bhayani
  */
 public interface SmppSession {
+	
+	public String getSessionId();
 
 	public String getSMSCHost();
 
