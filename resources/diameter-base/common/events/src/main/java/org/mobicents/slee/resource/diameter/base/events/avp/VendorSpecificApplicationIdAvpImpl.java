@@ -26,6 +26,7 @@
 package org.mobicents.slee.resource.diameter.base.events.avp;
 
 import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
+
 import org.jdiameter.api.Avp;
 
 /**
@@ -36,6 +37,10 @@ import org.jdiameter.api.Avp;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
 public class VendorSpecificApplicationIdAvpImpl extends GroupedAvpImpl implements VendorSpecificApplicationIdAvp {
+
+  public VendorSpecificApplicationIdAvpImpl() {
+    super();
+  }
 
   /**
    * 

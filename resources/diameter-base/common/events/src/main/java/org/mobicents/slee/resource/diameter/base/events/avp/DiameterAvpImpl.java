@@ -25,6 +25,10 @@
  */
 package org.mobicents.slee.resource.diameter.base.events.avp;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
 
 import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
@@ -39,7 +43,7 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterAvpType;
  * @author <a href = "mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author Erick Svenson
  */
-public class DiameterAvpImpl implements DiameterAvp {
+public class DiameterAvpImpl implements DiameterAvp, Externalizable {
 
   protected long vendorId;
   protected int code, mnd, prt;
@@ -47,6 +51,9 @@ public class DiameterAvpImpl implements DiameterAvp {
   protected DiameterAvpType type = null;
 
   protected byte[] value;
+
+  public DiameterAvpImpl() {
+  }
 
   public DiameterAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value, DiameterAvpType type) {
     this.code = code;
@@ -175,5 +182,60 @@ public class DiameterAvpImpl implements DiameterAvp {
       DiameterAvp other = (DiameterAvp) that;
       return this == other || (this.code == other.getCode() && this.vendorId == other.getVendorId() && Arrays.equals( this.byteArrayValue(), other.byteArrayValue() ));
     }
+  }
+
+  // I/O Methods for serialization -----------------------------------------------------------
+  // to optimize I/O
+  @Override
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    //long vendorId;
+    this.vendorId = in.readLong();
+    //int code, mnd, prt;
+    this.code = in.readInt();
+    this.mnd = in.readInt();
+    this.prt = in.readInt();
+    //string name ;
+    this.name = in.readUTF();
+    //DiameterAvpType type; -- serializable but its string, we can do that!
+    this.type = DiameterAvpType.fromString(in.readUTF());
+    //byte[] value;
+    int valueLen = in.readInt();
+    byte[] readValue = new byte[valueLen];
+    int readLen = in.read(readValue);
+    setValue(readValue);
+    if(readLen != valueLen) {
+      throw new IOException("Failed to read value. Expected: " + valueLen + ", actual: " + readLen);
+    }
+  }
+
+  @Override
+  public void writeExternal(ObjectOutput out) throws IOException {
+    try{
+      //long vendorId;
+      out.writeLong(vendorId);
+      //int code, mnd, prt; // FIXME: optimize this, its num + 2x bool like [0,1]?
+      out.writeInt(code);
+      out.writeInt(mnd);
+      out.writeInt(prt);
+      //string name ;
+      out.writeUTF(name);
+      //DiameterAvpType type; -- serializable but its string, we can do that!
+      out.writeUTF(type.toString());
+      //byte[] value;
+      byte[] valueToWrite = getValue();
+      out.writeInt(valueToWrite.length);
+      out.write(valueToWrite);
+    }
+    catch(Exception e) {
+      throw new IOException("Failed to serialize AVP!",e);
+    }
+  }
+
+  protected byte[] getValue() {
+    return this.value;
+  }
+
+  protected void setValue(byte[] readValue) {
+    this.value = readValue;
   }
 }

@@ -38,6 +38,10 @@ import org.jdiameter.api.Avp;
  */
 public class ExperimentalResultAvpImpl extends GroupedAvpImpl implements ExperimentalResultAvp {
 
+  public ExperimentalResultAvpImpl() {
+    super();
+  }  
+
   /**
    * 
    * @param code

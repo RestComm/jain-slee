@@ -25,6 +25,7 @@
  */
 package org.mobicents.slee.resource.diameter.base.events.avp;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,11 +56,15 @@ import org.mobicents.diameter.dictionary.AvpRepresentation;
  * @author <a href = "mailto:brainslog@gmail.com"> Alexandre Mendonca </a> 
  * @author Erick Svenson
  */
-public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
+public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Externalizable {
 
   private static transient final Logger logger = Logger.getLogger(GroupedAvpImpl.class);
 
-  protected AvpSet avpSet;
+  protected transient AvpSet avpSet;
+
+  public GroupedAvpImpl() {
+    super();
+  }
 
   public GroupedAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value, DiameterAvpType.GROUPED);
@@ -583,4 +588,21 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
 
     return true;
   }
+  
+  // I/O Methods for serialization ----------------------------------------------------------- 
+  // methods for set/get value. Overwrite default from DiameterAvpImpl. 
+  //This will ensure proper byte[] is encoded via Externalize methods
+  protected byte[] getValue() {
+		return AvpUtilities.getParser().encodeAvpSet(this.avpSet);
+	}
+
+	protected void setValue(byte[] readValue) {
+		//decode avpset
+		try {
+			this.avpSet = AvpUtilities.getParser().decodeAvpSet(readValue);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to decode AvpSet. ",e);
+		} 
+		
+	}
 }

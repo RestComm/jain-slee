@@ -1,8 +1,28 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.base;
 
 import java.io.IOException;
-
-import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.AuthServerSessionActivity;
 import net.java.slee.resource.diameter.base.AuthSessionState;
@@ -37,14 +57,15 @@ import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
  */
 public class AuthServerSessionActivityImpl extends AuthSessionActivityImpl implements AuthServerSessionActivity {
 
-  protected ServerAuthSession serverSession = null;
+  private static final long serialVersionUID = -3695874024822124799L;
 
-  public AuthServerSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ServerAuthSession serverSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm,SleeEndpoint endpoint) {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) serverSession, destinationHost, destinationRealm, endpoint);
+  protected transient ServerAuthSession serverSession = null;
 
-    this.serverSession = serverSession;
+  public AuthServerSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ServerAuthSession serverSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
+    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) serverSession, destinationHost, destinationRealm);
+
     super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
-    this.serverSession.addStateChangeNotification(this);
+    setSession(serverSession);
   }
 
   public AbortSessionRequest createAbortSessionRequest() {
@@ -134,19 +155,48 @@ public class AuthServerSessionActivityImpl extends AuthSessionActivityImpl imple
 
     switch(state)
     {
-      case IDLE:
-        this.state = AuthSessionState.Idle;
-        break;
-      case OPEN:
-        this.state = AuthSessionState.Open;
-        break;
-      case DISCONNECTED:
-        super.state = AuthSessionState.Disconnected;
-        String sessionId = this.serverSession.getSessions().get(0).getSessionId();
-        this.serverSession.release();
-        this.baseListener.sessionDestroyed(sessionId, this.serverSession);
-        break;
+    case IDLE:
+      //this.state = AuthSessionState.Idle;
+      break;
+    case OPEN:
+      //this.state = AuthSessionState.Open;
+      break;
+    case DISCONNECTED:
+      //super.state = AuthSessionState.Disconnected;
+      //String sessionId = this.serverSession.getSessions().get(0).getSessionId();
+      //this.serverSession.release();
+      //this.baseListener.sessionDestroyed(sessionId, this.serverSession);
+      endActivity();
+      break;
     }
   }
 
+  @Override
+  public AuthSessionState getSessionState() {
+    ServerAuthSessionState state = (ServerAuthSessionState) this.serverSession.getState(ServerAuthSessionState.class);
+
+    switch (state) {
+    case IDLE:
+      return AuthSessionState.Idle;
+    case OPEN:
+      return AuthSessionState.Open;
+    case DISCONNECTED:
+      return AuthSessionState.Disconnected;
+    default:
+      logger.error("Unexpected state in Auth Server FSM: " + state);
+      return null;
+    }
+  }
+
+  public void setSession(ServerAuthSession appSession) {
+    this.serverSession = appSession;
+    this.serverSession.addStateChangeNotification(this);
+    super.eventListener = (EventListener<Request, Answer>) appSession;
+  }
+
+  @Override
+  public void endActivity() {
+    this.serverSession.release();
+    super.baseListener.endActivity(getActivityHandle());
+  }
 }

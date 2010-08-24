@@ -26,8 +26,10 @@
 package net.java.slee.resource.diameter.base;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
+import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 
 /**
  * 
@@ -37,7 +39,7 @@ import net.java.slee.resource.diameter.base.events.DiameterMessage;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public interface DiameterActivity {
+public interface DiameterActivity extends Serializable {
 
   /**
    * Return a DiameterMessageFactory implementation to be used to create

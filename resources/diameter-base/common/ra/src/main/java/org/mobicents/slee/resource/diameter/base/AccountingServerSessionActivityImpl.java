@@ -1,8 +1,28 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.base;
 
 import java.io.IOException;
-
-import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.AccountingServerSessionActivity;
 import net.java.slee.resource.diameter.base.AccountingSessionState;
@@ -37,23 +57,20 @@ import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
  */
 public class AccountingServerSessionActivityImpl extends AccountingSessionActivityImpl implements AccountingServerSessionActivity {
 
-  protected ServerAccSession serverSession = null;
+  protected transient ServerAccSession serverSession = null;
 
-  // These are default values, should be overriden by stack.
+  //FIXME: These are default values, should be overriden by stack.
   protected String originHost = "aaa://127.0.0.1:3868";
   protected String originRealm = "mobicents.org";
 
-  boolean destroyAfterSending = false;
+  //boolean destroyAfterSending = false;
 
-  public AccountingServerSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ServerAccSession serverSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint, Stack stack) {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) serverSession, destinationHost, destinationRealm, endpoint);
+  public AccountingServerSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ServerAccSession serverSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, Stack stack) {
+    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) serverSession, destinationHost, destinationRealm);
 
-    this.serverSession = serverSession;
-
-    this.state = AccountingSessionState.Idle;
     this.originHost = stack.getMetaData().getLocalPeer().getUri().toString();
     this.originRealm = stack.getMetaData().getLocalPeer().getRealmName();
-    this.serverSession.addStateChangeNotification(this);
+    setSession(serverSession);
     super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
   }
 
@@ -119,18 +136,23 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
       this.serverSession.sendAccountAnswer(new AccountAnswerImpl((Answer) aca.getGenericData()));
 
       // FIXME: check this?
-      if (destroyAfterSending) {
-        this.serverSession.release();
-      }
-      if(!serverSession.isValid()) {
-        String sessionId = this.serverSession.getSessions().get(0).getSessionId();
-        this.baseListener.sessionDestroyed(sessionId, this.serverSession);
+      if (isTerminateAfterProcessing()) {
+        endActivity();
+        //        this.serverSession.release();
+        //      
+        //      if(!serverSession.isValid()) {
+        //        String sessionId = this.serverSession.getSessions().get(0).getSessionId();
+        //        this.baseListener.sessionDestroyed(sessionId, this.serverSession);
+        //      }
       }
     }
     catch (JAvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
+      if(logger.isDebugEnabled()) {
+        logger.debug("Failed to send message, due to: ", e);
+      }
       throw new IOException("Failed to send message, due to: " + e.getMessage());
     }
   }
@@ -146,16 +168,49 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
   public void stateChanged(Enum oldState, Enum newState) {
 
     if (newState == ServerAccSessionState.IDLE) {
-      super.state = AccountingSessionState.Idle;
-      destroyAfterSending = true;
+      //super.state = AccountingSessionState.Idle;
+      //destroyAfterSending = true;
+      setTerminateAfterProcessing(true);
     }
     else {
-      super.state = AccountingSessionState.Open;
+      //super.state = AccountingSessionState.Open;
+    }
+  }
+
+  @Override
+  public AccountingSessionState getAccountingSessionState() {
+    ServerAccSessionState state = (ServerAccSessionState) this.serverSession.getState(ServerAccSessionState.class);
+
+    // FIXME: baranowb: PendingL - where does this fit?
+    switch (state) {
+    case IDLE:	
+      return AccountingSessionState.Idle;
+    case OPEN:
+      return AccountingSessionState.Open;
+    default:
+      logger.error("Unexpected state in Accounting Server FSM: " + state);
+      return null;
     }
   }
 
   public AccountingAnswer createAccountingAnswer() {
-    return null;
+    throw new UnsupportedOperationException();
+  }
+
+  public void setSession(ServerAccSession appSession) {
+    this.serverSession = appSession;
+    this.serverSession.addStateChangeNotification(this);
+    super.eventListener = (EventListener<Request, Answer>) appSession;
+  }
+
+  public String toString() {
+    return super.toString() + "['"  +  this.isTerminateAfterProcessing() + "']-" + this.serverSession + "-" + super.eventListener + "-" + super.session + "-" + super.baseListener;
+  }
+
+  @Override
+  public void endActivity() {
+    this.serverSession.release();
+    super.baseListener.endActivity(getActivityHandle());
   }
 
 }

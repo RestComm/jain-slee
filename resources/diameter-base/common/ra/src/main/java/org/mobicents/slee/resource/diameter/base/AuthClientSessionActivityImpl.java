@@ -1,8 +1,28 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.base;
 
 import java.io.IOException;
-
-import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.AuthClientSessionActivity;
 import net.java.slee.resource.diameter.base.AuthSessionState;
@@ -38,14 +58,14 @@ import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
  */
 public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl implements AuthClientSessionActivity {
 
-  protected ClientAuthSession clientSession = null;
+  private static final long serialVersionUID = -7354479964717373558L;
 
-  public AuthClientSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ClientAuthSession clientSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm,SleeEndpoint endpoint)
-  {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) clientSession, destinationHost, destinationRealm,endpoint);
+  protected transient ClientAuthSession clientSession = null;
 
-    this.clientSession = clientSession;
-    this.clientSession.addStateChangeNotification(this);
+  public AuthClientSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ClientAuthSession clientSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
+    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) clientSession, destinationHost, destinationRealm);
+
+    setSession(clientSession);
     super.setCurrentWorkingSession(clientSession.getSessions().get(0));
   }
 
@@ -134,21 +154,40 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl imple
     ClientAuthSessionState state=(ClientAuthSessionState) newState;
     switch(state)
     {
-      case IDLE:
-        super.state=AuthSessionState.Idle;
-        break;
-      case OPEN:
-        super.state=AuthSessionState.Open;
-        break;
-      case  PENDING:
-        super.state=AuthSessionState.Pending;
-        break;
-      case DISCONNECTED:
-        super.state = AuthSessionState.Disconnected;
-        String sessionId = this.clientSession.getSessions().get(0).getSessionId();
-        this.clientSession.release();
-        this.baseListener.sessionDestroyed(sessionId, this.clientSession);
-        break;
+    case IDLE:
+      //super.state=AuthSessionState.Idle;
+      break;
+    case OPEN:
+      // super.state=AuthSessionState.Open;
+      break;
+    case  PENDING:
+      //super.state=AuthSessionState.Pending;
+      break;
+    case DISCONNECTED:
+      //super.state = AuthSessionState.Disconnected;
+      //String sessionId = this.clientSession.getSessions().get(0).getSessionId();
+      //this.clientSession.release();
+      //this.baseListener.sessionDestroyed(sessionId, this.clientSession);
+      endActivity();
+      break;
+    }
+  }
+
+  public AuthSessionState getSessionState() {
+    ClientAuthSessionState state = (ClientAuthSessionState) this.clientSession
+    .getState(ClientAuthSessionState.class);
+    switch (state) {
+    case IDLE:
+      return AuthSessionState.Idle;
+    case OPEN:
+      return AuthSessionState.Open;
+    case PENDING:
+      return AuthSessionState.Pending;
+    case DISCONNECTED:
+      return AuthSessionState.Disconnected;
+    default:
+      logger.error("Unexpected state in Auth Client FSM: " + state);
+      return null;
     }
   }
 
@@ -156,4 +195,15 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl imple
     return this.clientSession;
   }
 
+  public void setSession(ClientAuthSession appSession) {
+    this.clientSession = appSession;
+    this.clientSession.addStateChangeNotification(this);
+    super.eventListener = (EventListener<Request, Answer>) appSession;
+  }
+
+  @Override
+  public void endActivity() {
+    this.clientSession.release();
+    super.baseListener.endActivity(getActivityHandle());
+  }
 }

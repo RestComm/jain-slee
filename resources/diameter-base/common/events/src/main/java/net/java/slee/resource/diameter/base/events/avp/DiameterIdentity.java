@@ -1,5 +1,7 @@
 package net.java.slee.resource.diameter.base.events.avp;
 
+import java.io.Serializable;
+
 /**
  * Java class to represent the DiameterIdentity AVP type.
  * <p/>
@@ -21,8 +23,10 @@ package net.java.slee.resource.diameter.base.events.avp;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class DiameterIdentity
+public class DiameterIdentity implements Serializable
 {
+  private static final long serialVersionUID = -7248928425138452437L;
+
   private String identity;
 
   public DiameterIdentity(String identity) {

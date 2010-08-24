@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.base.handlers;
 
 import java.util.HashMap;
@@ -50,13 +72,12 @@ public class AccountingSessionFactory extends AccSessionFactoryImpl implements I
     accEventCodes.add(AccountingAnswer.commandCode);
   }
 
-  protected HashMap<ApplicationId, BaseSessionCreationListener> ras;
+  protected HashMap<ApplicationId, DiameterRAInterface> ras;
   protected long messageTimeout = 5000;
   protected SessionFactory sessionFactory = null;
   protected final static Logger logger = Logger.getLogger(AccountingSessionFactory.class);
 
   public static AccountingSessionFactory INSTANCE = new AccountingSessionFactory();
-  private Object source;
 
   /*
    * public AccountingSessionFactory(BaseSessionCreationListener ra, long
@@ -66,10 +87,10 @@ public class AccountingSessionFactory extends AccSessionFactoryImpl implements I
    */
 
   private AccountingSessionFactory() {
-    this.ras = new HashMap<ApplicationId, BaseSessionCreationListener>();
+    this.ras = new HashMap<ApplicationId, DiameterRAInterface>();
   }
 
-  public void registerListener(BaseSessionCreationListener ra, long messageTimeout, SessionFactory sessionFactory) {
+  public void registerListener(DiameterRAInterface ra, long messageTimeout, SessionFactory sessionFactory) {
     for (ApplicationId appId : ra.getSupportedApplications()) {
       this.ras.put(appId, ra);
     }
@@ -81,13 +102,13 @@ public class AccountingSessionFactory extends AccSessionFactoryImpl implements I
   public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass, ApplicationId applicationId, Object[] args) {
     AppSession session = super.getNewSession(sessionId, aClass, applicationId, args);
     if (aClass == ServerAccSession.class) {
-      BaseSessionCreationListener ra = this.ras.get(applicationId) != null ? this.ras.get(applicationId) : this.ras.values().iterator().next();
-      ra.sessionCreated((ServerAccSession)session);
+      //BaseSessionCreationListener ra = this.ras.get(applicationId) != null ? this.ras.get(applicationId) : this.ras.values().iterator().next();
+      //ra.sessionCreated((ServerAccSession)session);
       return session;
     }
     else if (aClass == ClientAccSession.class) {
-      BaseSessionCreationListener ra = this.ras.get(applicationId) != null ? this.ras.get(applicationId) : this.ras.values().iterator().next();
-      ra.sessionCreated((ClientAccSession)session);
+      //BaseSessionCreationListener ra = this.ras.get(applicationId) != null ? this.ras.get(applicationId) : this.ras.values().iterator().next();
+      //ra.sessionCreated((ClientAccSession)session);
       return session;
     }
     
@@ -145,7 +166,7 @@ public class AccountingSessionFactory extends AccSessionFactoryImpl implements I
       }
     }
 
-    BaseSessionCreationListener ra = appId != null ? this.ras.get(appId) : this.ras.values().iterator().next();
+    DiameterRAInterface ra = appId != null ? this.ras.get(appId) : this.ras.values().iterator().next();
 
     if(ra != null) {
       ra.fireEvent(appSession.getSessions().get(0).getSessionId(), message);

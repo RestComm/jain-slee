@@ -37,6 +37,10 @@ import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
  */
 public class FailedAvpImpl extends GroupedAvpImpl implements FailedAvp {
 
+  public FailedAvpImpl(){
+    super();
+  }
+
   public FailedAvpImpl(int code, long l, int mnd, int prt, byte[] value) {
     super(code, l, mnd, prt, value);
     this.name = "Failed-Avp";

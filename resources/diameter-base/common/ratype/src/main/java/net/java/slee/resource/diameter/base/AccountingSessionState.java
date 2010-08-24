@@ -7,5 +7,5 @@ package net.java.slee.resource.diameter.base;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
 public enum AccountingSessionState {
-  Idle, PendingS, PendingE, PendingB, Open, PendingI, PendingL;
+  Idle, PendingS, PendingE, PendingB, Open, PendingI, PendingL, PendingC;
 }

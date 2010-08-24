@@ -1,9 +1,28 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.base;
 
-import javax.slee.resource.SleeEndpoint;
-
 import net.java.slee.resource.diameter.base.AuthSessionActivity;
-import net.java.slee.resource.diameter.base.AuthSessionState;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
@@ -17,14 +36,10 @@ import org.jdiameter.api.app.StateChangeListener;
 
 public abstract class AuthSessionActivityImpl extends DiameterActivityImpl implements AuthSessionActivity , StateChangeListener<AppSession>{
 
-  public AuthSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint) {
-    super(messageFactory, avpFactory, session, raEventListener, destinationHost, destinationRealm, endpoint);
-  }
+  private static final long serialVersionUID = 8940898363706434984L;
 
-  protected AuthSessionState state = null;
-
-  public AuthSessionState getSessionState() {
-    return state;
+  public AuthSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
+    super(messageFactory, avpFactory, session, raEventListener, destinationHost, destinationRealm);
   }
 
 }
