@@ -47,6 +47,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class MultipleServicesCreditControlAvpImpl extends GroupedAvpImpl implements MultipleServicesCreditControlAvp {
 
+  public MultipleServicesCreditControlAvpImpl()	{
+    super();
+  }
+
   public MultipleServicesCreditControlAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value);
   }

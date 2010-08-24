@@ -41,6 +41,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class RedirectServerAvpImpl extends GroupedAvpImpl implements RedirectServerAvp {
 
+  public RedirectServerAvpImpl() {
+    super();
+  }
+
   public RedirectServerAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value);
   }

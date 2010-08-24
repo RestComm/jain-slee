@@ -42,6 +42,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class GSUPoolReferenceAvpImpl extends GroupedAvpImpl implements GSUPoolReferenceAvp {
 
+  public GSUPoolReferenceAvpImpl() {
+    super();
+  }
+
   public GSUPoolReferenceAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value);
   }

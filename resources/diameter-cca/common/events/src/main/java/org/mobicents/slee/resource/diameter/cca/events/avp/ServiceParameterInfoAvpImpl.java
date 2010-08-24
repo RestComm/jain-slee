@@ -40,6 +40,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class ServiceParameterInfoAvpImpl extends GroupedAvpImpl implements ServiceParameterInfoAvp {
 
+  public ServiceParameterInfoAvpImpl() {
+    super();
+  }
+
   public ServiceParameterInfoAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value);
   }

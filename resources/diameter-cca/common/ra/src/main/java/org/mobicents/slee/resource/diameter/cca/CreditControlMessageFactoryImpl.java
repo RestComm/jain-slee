@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.cca;
 
 import java.util.ArrayList;
@@ -55,6 +77,16 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
 
   public CreditControlMessageFactoryImpl(DiameterMessageFactory baseFactory, Session session, Stack stack, CreditControlAVPFactory creditControlAvpFactory) {
     super();
+    if(baseFactory == null) {
+      throw new NullPointerException("BaseFactory is null");
+    }
+    //no check for session, it can be null for provider factory.
+    if(stack == null) {
+      throw new NullPointerException("Stack is null");
+    }
+    if(creditControlAvpFactory == null) {
+      throw new NullPointerException("CreditControlAvpFactory is null");
+    }
     this.baseFactory = baseFactory;
     this.session = session;
     this.stack = stack;
@@ -109,23 +141,20 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
     // Create the answer from the request
     CreditControlRequestImpl ccr = (CreditControlRequestImpl) request;
 
-    DiameterAvp sessionIdAvp = null;
-    try {
-      sessionIdAvp = creditControlAvpFactory.getBaseFactory().createAvp(0, DiameterAvpCodes.SESSION_ID, this.session.getSessionId());
-    }
-    catch (NoSuchAvpException e1) {
-      e1.printStackTrace();
-    }
-    CreditControlAnswerImpl msg = (CreditControlAnswerImpl) createCreditControlMessage(ccr.getHeader(), new DiameterAvp[] { sessionIdAvp });
-    // msg.setRequest(false);
-    // ((MessageImpl)msg.getGenericData()).setEndToEndIdentifier(req.getEndToEndIdentifier());
-    // ((MessageImpl)msg.getGenericData()).setHopByHopIdentifier(req.getHopByHopIdentifier());
+    //DiameterAvp sessionIdAvp = null;
+    //try {
+    //  sessionIdAvp = creditControlAvpFactory.getBaseFactory().createAvp(0, DiameterAvpCodes.SESSION_ID, this.session.getSessionId());
+    //}
+    //catch (NoSuchAvpException e1) {
+    //  logger.error("Session-Id AVP not found in message", e1);
+    //}
+    CreditControlAnswerImpl msg = (CreditControlAnswerImpl) createCreditControlMessage(ccr.getHeader(), new DiameterAvp[] {  });
 
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_HOST);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_REALM);
-
+    msg.setSessionId(request.getSessionId());
     // Now copy the needed AVPs
 
     DiameterAvp[] messageAvps = request.getAvps();
@@ -133,11 +162,10 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
       for (DiameterAvp a : messageAvps) {
         try {
           if (ids.contains(a.getCode())) {
-
             msg.addAvp(a);
-
           }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
           logger.error("Failed to add AVP to answer. Code[" + a.getCode() + "]", e);
         }
       }
@@ -146,20 +174,18 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
     return msg;
   }
 
-
   /*
    * (non-Javadoc)
    * 
    * @see net.java.slee.resource.diameter.cca.CreditControlMessageFactory#createCreditControlRequest()
    */
-  public CreditControlRequest createCreditControlRequest()
-  {
-
+  public CreditControlRequest createCreditControlRequest() {
     CreditControlRequest req = (CreditControlRequest) createCreditControlMessage( null, new DiameterAvp[0] );
     req.setOriginRealm(new DiameterIdentity(stack.getMetaData().getLocalPeer().getRealmName()));
     req.setOriginHost(new DiameterIdentity(stack.getMetaData().getLocalPeer().getUri().getFQDN().toString()));
-    if(session!=null)
+    if(session != null) {
       req.setSessionId(session.getSessionId());
+    }
     return req;
   }
 
@@ -169,147 +195,118 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
    * @see net.java.slee.resource.diameter.cca.CreditControlMessageFactory#createCreditControlRequest(java.lang.String)
    */
   public CreditControlRequest createCreditControlRequest(String sessionId) throws IllegalArgumentException {
-
     try {
       DiameterAvp sessionIdAvp;
       sessionIdAvp = creditControlAvpFactory.getBaseFactory().createAvp(0, DiameterAvpCodes.SESSION_ID, sessionId);
       CreditControlRequest req = (CreditControlRequest) createCreditControlMessage(null, new DiameterAvp[] { sessionIdAvp });
       addOrigin(req);
       return req;
-    } catch (NoSuchAvpException e) {
+    }
+    catch (NoSuchAvpException e) {
       throw new IllegalArgumentException(e);
     }
-
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see net.java.slee.resource.diameter.cca.CreditControlMessageFactory#
-   * getBaseMessageFactory()
+   * @see net.java.slee.resource.diameter.cca.CreditControlMessageFactory#getBaseMessageFactory()
    */
-  public DiameterMessageFactory getBaseMessageFactory()
-  {
+  public DiameterMessageFactory getBaseMessageFactory() {
     return this.baseFactory;
   }
 
-  public List<DiameterAvp> getInnerAvps()
-  {
+  public List<DiameterAvp> getInnerAvps() {
     return this.avpList;
   }
 
-  public  void addAvpToInnerList(DiameterAvp avp)
-  {
+  public  void addAvpToInnerList(DiameterAvp avp) {
     // Remove existing occurences...
     removeAvpFromInnerList( avp.getCode() );
 
     this.avpList.add(avp);
   }
 
-  public  void removeAvpFromInnerList(int code)
-  {
+  public  void removeAvpFromInnerList(int code) {
     Iterator<DiameterAvp> it = this.avpList.iterator();
 
-    while(it.hasNext())
-    {
-      if(it.next().getCode() == code)
-      {
+    while(it.hasNext()) {
+      if(it.next().getCode() == code) {
         it.remove();
       }
     }
   }
 
-  // »»»»»»»»»»»»»»»»»»»»»
-  // »» PRIVATE METHODS ««
-  // «««««««««««««««««««««
+  // Private Methods -------------------------------------------------
 
-
-
-
-  private CreditControlMessage createCreditControlMessage(DiameterHeader diameterHeader, DiameterAvp[] avps) throws IllegalArgumentException
-  {
-
-
-
+  private CreditControlMessage createCreditControlMessage(DiameterHeader diameterHeader, DiameterAvp[] avps) throws IllegalArgumentException {
     //List<DiameterAvp> list = (List<DiameterAvp>) this.avpList.clone();
     boolean isRequest = diameterHeader == null;
     CreditControlMessage msg = null;
-    if(!isRequest)
-    {
-      Message raw=createMessage(diameterHeader,avps);
+    if(!isRequest) {
+      Message raw = createMessage(diameterHeader, avps);
       raw.setProxiable(true);
       raw.setRequest(false);
       msg = new CreditControlAnswerImpl(raw);
-
-    }else
-    {
-
-      Message raw=createMessage(null,avps);
+    }
+    else {
+      Message raw = createMessage(null, avps);
       raw.setProxiable(true);
       raw.setRequest(true);
       msg = new CreditControlRequestImpl(raw);
     }
 
-
     return msg;
   }
 
   public Message createMessage(DiameterHeader header, DiameterAvp[] avps) throws AvpNotAllowedException {
+    Message msg = createRawMessage(header);
 
-
-
-    try {
-      Message msg =createRawMessage(header);
-
-      AvpSet set = msg.getAvps();
-      for (DiameterAvp avp : avps)
-        addAvp(avp, set);
-
-      return msg;
-    }catch(Exception e)
-    {
-      e.printStackTrace();
+    AvpSet set = msg.getAvps();
+    for (DiameterAvp avp : avps) {
+      addAvp(avp, set);
     }
-    return null;
+
+    return msg;
   }
 
-  protected Message createRawMessage(DiameterHeader header)
-  {
-
+  protected Message createRawMessage(DiameterHeader header) {
     int commandCode = 0;
     long endToEndId = 0;
     long hopByHopId = 0;
 
     ApplicationId  aid = ApplicationId.createByAuthAppId(_CCA_VENDOR, _CCA_AUTH_APP_ID);
-    if(header !=null)
-    {
+    if(header != null) {
       //Answer
       commandCode = header.getCommandCode();
       endToEndId = header.getEndToEndId();
       hopByHopId = header.getHopByHopId();
       //aid = ApplicationId.createByAuthAppId(header.getApplicationId());
-    }else
-    {
+    }
+    else {
       commandCode = CreditControlRequest.commandCode;
       //endToEndId = (long) (Math.random()*1000000);
       //hopByHopId = (long) (Math.random()*1000000)+1;
-
     }
+
     try {
-      if(header!=null)
+      if(header != null) {
         return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
-      else
+      }
+      else {
         return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
-
-    } catch (InternalException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IllegalDiameterStateException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      }
     }
+    catch (IllegalDiameterStateException e) {
+      logger.error("Failed to get session factory for message creation.", e);
+    }
+    catch (InternalException e) {
+      logger.error("Failed to create new raw session for message creation.", e);
+    }
+
     return null;
   }
+
   protected void addAvp(DiameterAvp avp, AvpSet set) {
     // FIXME: alexandre: Should we look at the types and add them with
     // proper function?
@@ -320,15 +317,18 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
       for (DiameterAvp avpFromGroup : groupedAVPs) {
         addAvp(avpFromGroup, avpSet);
       }
-    } else if (avp != null)
+    }
+    else if (avp != null) {
       set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+    }
   }
 
-  private void addOrigin(DiameterMessage msg)
-  {
-    if(!msg.hasOriginHost())
+  private void addOrigin(DiameterMessage msg) {
+    if(!msg.hasOriginHost()) {
       msg.setOriginHost(new DiameterIdentity(stack.getMetaData().getLocalPeer().getUri().getFQDN().toString()));
-    if(!msg.hasOriginRealm())
+    }
+    if(!msg.hasOriginRealm()) {
       msg.setOriginRealm(new DiameterIdentity(stack.getMetaData().getLocalPeer().getRealmName()));
+    }
   }
 }

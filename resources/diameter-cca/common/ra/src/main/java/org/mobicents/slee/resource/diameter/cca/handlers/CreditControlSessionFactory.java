@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.cca.handlers;
 
 import java.util.concurrent.ScheduledFuture;
@@ -13,26 +35,18 @@ import org.jdiameter.api.app.AppAnswerEvent;
 import org.jdiameter.api.app.AppEvent;
 import org.jdiameter.api.app.AppRequestEvent;
 import org.jdiameter.api.app.AppSession;
-import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.auth.events.ReAuthAnswer;
 import org.jdiameter.api.auth.events.ReAuthRequest;
 import org.jdiameter.api.cca.ClientCCASession;
-import org.jdiameter.api.cca.ClientCCASessionListener;
 import org.jdiameter.api.cca.ServerCCASession;
-import org.jdiameter.api.cca.ServerCCASessionListener;
 import org.jdiameter.api.cca.events.JCreditControlAnswer;
 import org.jdiameter.api.cca.events.JCreditControlRequest;
-import org.jdiameter.client.impl.app.cca.ClientCCASessionImpl;
-import org.jdiameter.common.api.app.IAppSessionFactory;
-import org.jdiameter.common.api.app.cca.ICCAMessageFactory;
-import org.jdiameter.common.api.app.cca.IClientCCASessionContext;
-import org.jdiameter.common.api.app.cca.IServerCCASessionContext;
 import org.jdiameter.common.impl.app.auth.ReAuthAnswerImpl;
 import org.jdiameter.common.impl.app.auth.ReAuthRequestImpl;
 import org.jdiameter.common.impl.app.cca.CCASessionFactoryImpl;
 import org.jdiameter.common.impl.app.cca.JCreditControlAnswerImpl;
 import org.jdiameter.common.impl.app.cca.JCreditControlRequestImpl;
-import org.jdiameter.server.impl.app.cca.ServerCCASessionImpl;
+import org.mobicents.slee.resource.diameter.base.handlers.DiameterRAInterface;
 
 /**
  * 
@@ -48,7 +62,7 @@ import org.jdiameter.server.impl.app.cca.ServerCCASessionImpl;
 public class CreditControlSessionFactory  extends  CCASessionFactoryImpl{
 
   protected SessionFactory sessionFactory = null;
-  protected CCASessionCreationListener resourceAdaptor = null;
+  protected DiameterRAInterface resourceAdaptor = null;
 
   // Message timeout value (in milliseconds)
 
@@ -60,16 +74,16 @@ public class CreditControlSessionFactory  extends  CCASessionFactoryImpl{
   protected long defaultTxTimerValue = 10;
   protected Logger logger = Logger.getLogger(CreditControlSessionFactory.class);
 
-  public CreditControlSessionFactory(SessionFactory sessionFactory, CCASessionCreationListener resourceAdaptor) {
+  public CreditControlSessionFactory(SessionFactory sessionFactory, DiameterRAInterface resourceAdaptor) {
     super(sessionFactory);
 
     this.sessionFactory = sessionFactory;
     this.resourceAdaptor = resourceAdaptor;
   }
 
-  public CreditControlSessionFactory(SessionFactory sessionFactory, CCASessionCreationListener resourceAdaptor, int defaultDirectDebitingFailureHandling, int defaultCreditControlFailureHandling, long defaultValidityTime, long defaultTxTimerValue) {
+  public CreditControlSessionFactory(SessionFactory sessionFactory, DiameterRAInterface resourceAdaptor, int defaultDirectDebitingFailureHandling, int defaultCreditControlFailureHandling, long defaultValidityTime, long defaultTxTimerValue) {
     this(sessionFactory, resourceAdaptor);
-    
+
     this.defaultDirectDebitingFailureHandling = defaultDirectDebitingFailureHandling;
     this.defaultCreditControlFailureHandling = defaultCreditControlFailureHandling;
     this.defaultValidityTime = defaultValidityTime;
@@ -77,22 +91,19 @@ public class CreditControlSessionFactory  extends  CCASessionFactoryImpl{
   }
 
   public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass, ApplicationId applicationId, Object[] args) {
+
     AppSession appSession = super.getNewSession(sessionId, aClass, applicationId, args);
-    
-    try{   
-    	if(appSession instanceof ClientCCASession)
-    	{
-    		((ClientCCASession)appSession).addStateChangeNotification(this);
-    		this.resourceAdaptor.sessionCreated((ClientCCASession)appSession);
-    	}else if(appSession instanceof ServerCCASession)
-    	{
-    		((ServerCCASession)appSession).addStateChangeNotification(this);
-    		this.resourceAdaptor.sessionCreated((ServerCCASession)appSession);
-    	}else
-    	{
-    		//?
-    	}
-    	 
+
+    try {   
+      if(appSession instanceof ClientCCASession) {
+        ((ClientCCASession)appSession).addStateChangeNotification(this);
+      }
+      else if(appSession instanceof ServerCCASession)	{
+        ((ServerCCASession)appSession).addStateChangeNotification(this);
+      }
+      else {
+        //?
+      }
     }
     catch (Exception e) {
       logger.error("Failure to obtain new Credit-Control Session.", e);
@@ -128,8 +139,9 @@ public class CreditControlSessionFactory  extends  CCASessionFactoryImpl{
   public void doOtherEvent(AppSession session, AppRequestEvent request, AppAnswerEvent answer) throws InternalException {
     // Here we get something weird, lets do extension
     // Still we rely on CCA termination mechanisms, those message are sent via generic send, which does not trigger FSM
-
-    logger.info("Diameter CCA RA :: doOtherEvent :: appSession[" + session + "], Request[" + request + "], Answer[" + answer + "]");
+    if(logger.isInfoEnabled()) {
+      logger.info("Diameter CCA RA :: doOtherEvent :: appSession[" + session + "], Request[" + request + "], Answer[" + answer + "]");
+    }
 
     if (answer != null) {
       doMessage(session, answer);
@@ -169,25 +181,24 @@ public class CreditControlSessionFactory  extends  CCASessionFactoryImpl{
     }
   }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.jdiameter.common.impl.app.cca.CCASessionFactoryImpl#stateChanged(
-	 * org.jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
-	 */
-	@Override
-	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
-		if (logger.isInfoEnabled()) {
-		      logger.info("Diameter CCA SessionFactory :: stateChanged :: source["+source+"] :: oldState[" + oldState + "], newState[" + newState + "]");
-		    }
-	}
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * org.jdiameter.common.impl.app.cca.CCASessionFactoryImpl#stateChanged(
+   * org.jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
+   */
+  @Override
+  public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+    if (logger.isInfoEnabled()) {
+      logger.info("Diameter CCA SessionFactory :: stateChanged :: source[" + source + "] :: oldState[" + oldState + "], newState[" + newState + "]");
+    }
+  }
 
-	public void sessionSupervisionTimerExpired(ServerCCASession session) {
-		// this.resourceAdaptor.sessionDestroyed(session.getSessions().get(0).getSessionId(),
-		// session);
-		session.release();
-	}
+  public void sessionSupervisionTimerExpired(ServerCCASession session) {
+    // this.resourceAdaptor.sessionDestroyed(session.getSessions().get(0).getSessionId(), session);
+    session.release();
+  }
 
   public void sessionSupervisionTimerReStarted(ServerCCASession session, ScheduledFuture future) {
     // TODO Complete this method.

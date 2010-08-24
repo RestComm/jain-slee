@@ -41,6 +41,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class SubscriptionIdAvpImpl extends GroupedAvpImpl implements SubscriptionIdAvp {
 
+  public SubscriptionIdAvpImpl() {
+    super();
+  }
+
   public SubscriptionIdAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value);
   }

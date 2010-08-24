@@ -38,6 +38,10 @@ import net.java.slee.resource.diameter.cca.events.avp.CreditControlAVPCodes;
  */
 public class CostInformationAvpImpl extends MoneyLikeAvpImpl implements CostInformationAvp {
 
+  public CostInformationAvpImpl() {
+    super();
+  }
+
   public CostInformationAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value);
   }

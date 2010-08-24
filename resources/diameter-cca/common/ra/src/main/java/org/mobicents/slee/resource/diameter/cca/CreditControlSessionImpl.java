@@ -25,13 +25,10 @@
  */
 package org.mobicents.slee.resource.diameter.cca;
 
-import javax.slee.resource.SleeEndpoint;
-
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.cca.CreditControlAVPFactory;
 import net.java.slee.resource.diameter.cca.CreditControlMessageFactory;
 import net.java.slee.resource.diameter.cca.CreditControlSession;
-import net.java.slee.resource.diameter.cca.CreditControlSessionState;
 
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
@@ -40,7 +37,6 @@ import org.jdiameter.api.Session;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
-import org.mobicents.slee.resource.diameter.cca.handlers.CCASessionCreationListener;
 
 /**
  * Implementation of {@link CreditControlSession}
@@ -50,20 +46,16 @@ import org.mobicents.slee.resource.diameter.cca.handlers.CCASessionCreationListe
  */
 public abstract class CreditControlSessionImpl extends DiameterActivityImpl implements CreditControlSession, StateChangeListener<AppSession>{
 
-  protected CreditControlMessageFactory ccaMessageFactory = null;
-  protected CreditControlAVPFactory ccaAvpFactory = null;
-  protected CreditControlSessionState state = CreditControlSessionState.IDLE;
-  protected CCASessionCreationListener listener = null;
+  private static final long serialVersionUID = 7914534365520919705L;
 
-  public CreditControlSessionImpl(CreditControlMessageFactory messageFactory, CreditControlAVPFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint) {
-    super(null, null, session, raEventListener, destinationHost, destinationRealm, endpoint);
+  protected transient CreditControlMessageFactory ccaMessageFactory = null;
+  protected transient CreditControlAVPFactory ccaAvpFactory = null;
 
-    this.ccaMessageFactory=messageFactory;
-    this.ccaAvpFactory=avpFactory;
-  }
+  public CreditControlSessionImpl(CreditControlMessageFactory messageFactory, CreditControlAVPFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
+    super(null, null, session, raEventListener, destinationHost, destinationRealm);
 
-  public CreditControlSessionState getState() {
-    return state;
+    this.ccaMessageFactory = messageFactory;
+    this.ccaAvpFactory = avpFactory;
   }
 
   public CreditControlAVPFactory getCCAAvpFactory() {
@@ -74,14 +66,12 @@ public abstract class CreditControlSessionImpl extends DiameterActivityImpl impl
     return this.ccaMessageFactory;
   }
 
-  @Override
-  public Object getSessionListener() {
-    return this.listener;
+  public void setCCAMessageFactory(CreditControlMessageFactory ccaMessageFactory) {
+    this.ccaMessageFactory = ccaMessageFactory;
   }
 
-  @Override
-  public void setSessionListener(Object ra) {
-    this.listener = (CCASessionCreationListener) ra;
+  public void setCCAAvpFactory(CreditControlAVPFactory ccaAvpFactory) {
+    this.ccaAvpFactory = ccaAvpFactory;
   }
 
   public void setDestinationHost(DiameterIdentity destinationHost) {
@@ -89,6 +79,6 @@ public abstract class CreditControlSessionImpl extends DiameterActivityImpl impl
   }
 
   public void setDestinationRealm(DiameterIdentity destinationRealm) {
-    super.destinationRealm=destinationRealm;
+    super.destinationRealm = destinationRealm;
   }
 }

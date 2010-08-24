@@ -37,6 +37,10 @@ import net.java.slee.resource.diameter.cca.events.avp.RequestedServiceUnitAvp;
  */
 public class RequestedServiceUnitAvpImpl extends ServiceUnitAvpTypeImpl implements RequestedServiceUnitAvp {
 
+  public RequestedServiceUnitAvpImpl() {
+    super();
+  }
+
   public RequestedServiceUnitAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value);
   }

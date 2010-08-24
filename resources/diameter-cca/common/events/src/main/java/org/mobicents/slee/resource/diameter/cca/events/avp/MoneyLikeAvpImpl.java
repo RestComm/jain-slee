@@ -46,6 +46,9 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class MoneyLikeAvpImpl extends GroupedAvpImpl {
 
+  public MoneyLikeAvpImpl()	{
+    super();
+  }
   /**
    * 
    * @param code

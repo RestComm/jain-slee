@@ -1,14 +1,10 @@
 package org.mobicents.slee.resource.diameter.cca;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.DiameterException;
 import net.java.slee.resource.diameter.base.events.ReAuthAnswer;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
-import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.cca.CreditControlAVPFactory;
 import net.java.slee.resource.diameter.cca.CreditControlClientSession;
@@ -27,7 +23,6 @@ import org.jdiameter.common.impl.app.auth.ReAuthAnswerImpl;
 import org.jdiameter.common.impl.app.cca.JCreditControlRequestImpl;
 import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
-import org.mobicents.slee.resource.diameter.cca.handlers.CCASessionCreationListener;
 
 /**
  * Start time:15:00:53 2008-12-08<br>
@@ -38,10 +33,9 @@ import org.mobicents.slee.resource.diameter.cca.handlers.CCASessionCreationListe
  */
 public class CreditControlClientSessionImpl extends CreditControlSessionImpl implements CreditControlClientSession {
 
-  protected ClientCCASession session = null;
-  protected ArrayList<DiameterAvp> sessionAvps = new ArrayList<DiameterAvp>();
+  private static final long serialVersionUID = -391269379875938636L;
 
-  boolean terminateAfterAnswer = false;
+  protected transient ClientCCASession session = null;
 
   /**
    * @param messageFactory
@@ -53,18 +47,11 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
    * @param destinationRealm
    * @param endpoint
    */
-  public CreditControlClientSessionImpl(CreditControlMessageFactory messageFactory, CreditControlAVPFactory avpFactory, ClientCCASession session, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint) {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) session, destinationHost, destinationRealm, endpoint);
+  public CreditControlClientSessionImpl(CreditControlMessageFactory messageFactory, CreditControlAVPFactory avpFactory, ClientCCASession session, DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
+    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) session, destinationHost, destinationRealm);
 
-    this.session = session;
-    this.session.addStateChangeNotification(this);
-
+    setSession(session);
     super.setCurrentWorkingSession(this.session.getSessions().get(0));
-  }
-
-  public void endActivity() {
-    //this.listener.sessionDestroyed(this.sessionId, this);
-    this.session.release();
   }
 
   public CreditControlAVPFactory getCreditControlAvpFactory() {
@@ -94,15 +81,6 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
       request.setDestinationRealm(destinationRealm);
     }
 
-    // Fill extension avps if present
-    if (sessionAvps.size() > 0) {
-      try {
-        request.setExtensionAvps(sessionAvps.toArray(new DiameterAvp[sessionAvps.size()]));
-      } catch (AvpNotAllowedException e) {
-        logger.error("Failed to add Session AVPs to request.", e);
-      }
-    }
-
     return request;
   }
 
@@ -125,6 +103,9 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
+      if(logger.isDebugEnabled()) {
+        logger.debug("Failed to send message.", e);
+      }
       throw new IOException("Failed to send message, due to: " + e);
     }
   }
@@ -230,19 +211,19 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
     }
   }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
-	 * java.lang.Enum, java.lang.Enum)
-	 */
-	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
-		this.stateChanged(oldState, newState);
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
+   * java.lang.Enum, java.lang.Enum)
+   */
+  public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+    this.stateChanged(oldState, newState);
 
-	}
+  }
 
-/*
+  /*
    * (non-Javadoc)
    * 
    * @see
@@ -256,33 +237,35 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
     // PENDING_TERMINATION(4), PENDING_BUFFERED(5), OPEN(6);
     switch (s) {
     case PENDING_EVENT:
-      this.state = CreditControlSessionState.PENDING_EVENT;
+      //this.state = CreditControlSessionState.PENDING_EVENT;
       break;
     case PENDING_BUFFERED:
-      this.state = CreditControlSessionState.PENDING_BUFFERED;
+      //this.state = CreditControlSessionState.PENDING_BUFFERED;
       break;
     case PENDING_TERMINATION:
-      this.state = CreditControlSessionState.PENDING_TERMINATION;
+      //this.state = CreditControlSessionState.PENDING_TERMINATION;
       break;
     case PENDING_UPDATE:
-      this.state = CreditControlSessionState.PENDING_UPDATE;
+      //this.state = CreditControlSessionState.PENDING_UPDATE;
       break;
     case OPEN:
       // FIXME: this should not happen?
-      this.state = CreditControlSessionState.OPEN;
+      //this.state = CreditControlSessionState.OPEN;
       break;
     case PENDING_INITIAL:
-      this.state = CreditControlSessionState.PENDING_INITIAL;
+      //this.state = CreditControlSessionState.PENDING_INITIAL;
       break;
     case IDLE:
-      this.state = CreditControlSessionState.IDLE;
+      //this.state = CreditControlSessionState.IDLE;
       ClientCCASessionState old = (ClientCCASessionState) oldState;
       if (old == ClientCCASessionState.PENDING_EVENT) {
-        terminateAfterAnswer = true;
+        super.setTerminateAfterProcessing(true);
+
       }
       else {
-        ((CCASessionCreationListener) this.getSessionListener()).sessionDestroyed(sessionId, this);
-        this.session.release();
+        //((CCASessionCreationListener) this.getSessionListener()).sessionDestroyed(sessionId, this);
+        //this.session.release();
+        endActivity();
       }
       break;
 
@@ -297,6 +280,7 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
       throw new DiameterException("No request type is present!!");
     }
     int t = ccr.getCcRequestType().getValue();
+
     CreditControlSessionState currentState = this.getState();
     if(t == CcRequestType._INITIAL_REQUEST) {
       if(currentState!=CreditControlSessionState.IDLE) {
@@ -324,8 +308,67 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
     }
   }
 
-  public boolean getTerminateAfterAnswer() {
-    return this.terminateAfterAnswer;
+  public void setSession(ClientCCASession session2) {
+    this.session = session2;
+    this.session.addStateChangeNotification(this);
   }
 
+  public CreditControlSessionState getState() {
+    ClientCCASessionState s = this.session.getState(ClientCCASessionState.class);
+
+    // IDLE(0), PENDING_EVENT(1), PENDING_INITIAL(2), PENDING_UPDATE(3),
+    // PENDING_TERMINATION(4), PENDING_BUFFERED(5), OPEN(6);
+    switch (s) {
+    case PENDING_EVENT:
+      return CreditControlSessionState.PENDING_EVENT;
+    case PENDING_BUFFERED:
+      return CreditControlSessionState.PENDING_BUFFERED;
+    case PENDING_TERMINATION:
+      return CreditControlSessionState.PENDING_TERMINATION;
+    case PENDING_UPDATE:
+      return CreditControlSessionState.PENDING_UPDATE;
+    case OPEN:
+      return CreditControlSessionState.OPEN;
+    case PENDING_INITIAL:
+      return CreditControlSessionState.PENDING_INITIAL;
+    case IDLE:
+      return CreditControlSessionState.IDLE;
+    default:
+      logger.error("Unexpected state in Credit-Control Client FSM: " + s);
+      return null;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + (isTerminateAfterProcessing() ? 1231 : 1237);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    CreditControlClientSessionImpl other = (CreditControlClientSessionImpl) obj;
+    if (terminateAfterProcessing != other.terminateAfterProcessing) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public void endActivity() {
+    this.session.release();
+    super.baseListener.endActivity(getActivityHandle());
+  }
 }

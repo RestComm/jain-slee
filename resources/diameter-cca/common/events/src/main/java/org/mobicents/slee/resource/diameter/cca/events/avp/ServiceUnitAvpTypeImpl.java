@@ -56,6 +56,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class ServiceUnitAvpTypeImpl extends GroupedAvpImpl {
 
+  public ServiceUnitAvpTypeImpl() {
+    super();
+  }
+
   /**
    * 
    * @param code
