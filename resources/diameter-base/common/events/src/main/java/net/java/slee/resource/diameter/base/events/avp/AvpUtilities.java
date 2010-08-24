@@ -428,7 +428,11 @@ public class AvpUtilities {
   public static long getAvpAsUnsigned32(int avpCode, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode);
-      return avp != null ? avp.getUnsigned32() : Long.MIN_VALUE;
+      if(avp == null) {
+        logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Long.MIN_VALUE);
+        return Long.MIN_VALUE;
+      }
+      return avp.getUnsigned32();
     }
     catch (AvpDataException e) {
       logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned32.", e);
@@ -458,7 +462,11 @@ public class AvpUtilities {
   public static long getAvpAsUnsigned32(int avpCode, long vendorId, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode, vendorId);
-      return avp != null ? avp.getUnsigned32() : Long.MIN_VALUE;
+      if(avp == null) {
+        logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Long.MIN_VALUE);
+        return Long.MIN_VALUE;
+      }
+      return avp.getUnsigned32();
     }
     catch (AvpDataException e) {
       logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned32.", e);
@@ -534,7 +542,11 @@ public class AvpUtilities {
   public static long getAvpAsUnsigned64(int avpCode, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode);
-      return avp != null ? avp.getUnsigned64() : Long.MIN_VALUE;
+      if(avp == null) {
+        logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Long.MIN_VALUE);
+        return Long.MIN_VALUE;
+      }
+      return avp.getUnsigned64();
     }
     catch (AvpDataException e) {
       logger.debug("Failed to obtain AVP with code " + avpCode + " as type Unsigned64.", e);
@@ -564,7 +576,11 @@ public class AvpUtilities {
   public static long getAvpAsUnsigned64(int avpCode, long vendorId, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode, vendorId);
-      return avp != null ? avp.getUnsigned64() : Long.MIN_VALUE;
+      if(avp == null) {
+        logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Long.MIN_VALUE);
+        return Long.MIN_VALUE;
+      }
+      return avp.getUnsigned64();
     }
     catch (AvpDataException e) {
       logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Unsigned64.", e);
@@ -640,7 +656,11 @@ public class AvpUtilities {
   public static int getAvpAsInteger32(int avpCode, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode);
-      return avp != null ? avp.getInteger32() : Integer.MIN_VALUE;
+      if(avp == null) {
+        logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Integer.MIN_VALUE);
+        return Integer.MIN_VALUE;
+      }
+      return avp.getInteger32();
     }
     catch (AvpDataException e) {
       logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer32.", e);
@@ -670,7 +690,11 @@ public class AvpUtilities {
   public static int getAvpAsInteger32(int avpCode, long vendorId, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode, vendorId);
-      return avp != null ? avp.getInteger32() : Integer.MIN_VALUE;
+      if(avp == null) {
+        logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Integer.MIN_VALUE);
+        return Integer.MIN_VALUE;
+      }
+      return avp.getInteger32();
     }
     catch (AvpDataException e) {
       logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer32.", e);
@@ -746,7 +770,11 @@ public class AvpUtilities {
   public static long getAvpAsInteger64(int avpCode, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode);
-      return avp != null ? avp.getInteger64() : Long.MIN_VALUE;
+      if(avp == null) {
+        logger.debug("Unable to retrieve AVP with code " + avpCode + ". Returning " + Long.MIN_VALUE);
+        return Long.MIN_VALUE;
+      }
+      return avp.getInteger64();
     }
     catch (AvpDataException e) {
       logger.debug("Failed to obtain AVP with code " + avpCode + " as type Integer64.", e);
@@ -776,7 +804,11 @@ public class AvpUtilities {
   public static long getAvpAsInteger64(int avpCode, long vendorId, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode, vendorId);
-      return avp != null ? avp.getInteger64() : Long.MIN_VALUE;
+      if(avp == null) {
+        logger.debug("Unable to retrieve AVP with code " + avpCode + " and Vendor-Id " + vendorId + ". Returning " + Long.MIN_VALUE);
+        return Long.MIN_VALUE;
+      }
+      return avp.getInteger64();
     }
     catch (AvpDataException e) {
       logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Integer64.", e);
