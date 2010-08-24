@@ -3,15 +3,18 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 import java.beans.Introspector;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.AnnotationMemberValue;
@@ -101,11 +104,8 @@ public class ConcreteProfileEntityGenerator {
       idClassMVs.put( "value", JPAProfileId.class );
       ClassGeneratorUtils.addAnnotation( IdClass.class.getName(), idClassMVs, concreteProfileEntityClass );
       
-      // add the table name to map it to ProfileSpecification ID
-      LinkedHashMap<String, Object> tableMVs1 = new LinkedHashMap<String, Object>();      
-      tableMVs1.put( "name", "SLEE_PE_"+profileComponent.getProfileCmpInterfaceClass().getSimpleName() + "_" + Math.abs(profileComponent.getComponentID().hashCode()) );
-      ClassGeneratorUtils.addAnnotation( Table.class.getName(), tableMVs1, concreteProfileEntityClass );
-     
+      Set<String> uniqueConstraints = new HashSet<String>();
+      
       // override @id & @basic getter methods
       String getProfileNameMethodSrc = "public String getProfileName() { return super.getProfileName(); }";
       CtMethod getProfileNameMethod = CtNewMethod.make(getProfileNameMethodSrc, concreteProfileEntityClass);
@@ -176,11 +176,11 @@ public class ConcreteProfileEntityGenerator {
     		  }
     		  else {
     			  // not an array, just add column annotation with or without unique constraint
-    			  LinkedHashMap<String,Object> getterAnnotationMemberValues = new LinkedHashMap<String, Object>();
 	    		  if (profileAttribute.isUnique()) {
-	    			  getterAnnotationMemberValues.put("unique", true);
+	    			  // just collect uniqueConstraints attributtes
+	    			  uniqueConstraints.add(Introspector.decapitalize(pojoCmpAccessorSufix));	    			  
         		  }
-    			  ClassGeneratorUtils.addAnnotation(Column.class.getName(), getterAnnotationMemberValues, ctMethod);    			  
+    			  ClassGeneratorUtils.addAnnotation(Column.class.getName(), new LinkedHashMap<String, Object>(), ctMethod);    			  
     		  }
     		// add usual setter
     		  ctMethod = CtNewMethod.setter( "set" + pojoCmpAccessorSufix, genField );
@@ -188,6 +188,9 @@ public class ConcreteProfileEntityGenerator {
     		  
     	  }
       }
+      
+      String tableName = "SLEE_PE_"+profileComponent.getProfileCmpInterfaceClass().getSimpleName() + "_" + Math.abs(profileComponent.getComponentID().hashCode());
+      addTableAnnotation(tableName, uniqueConstraints, concreteProfileEntityClass);
       
       jpaProfileDataSource.setProfileEntityArrayAttrValueClassMap(profileEntityArrayAttrValueClassMap);
       
@@ -205,7 +208,47 @@ public class ConcreteProfileEntityGenerator {
     
   }
 
-  
+  private void addTableAnnotation(String name, Set<String> uniqueAttributes,CtClass ctClass) {
+	  
+	  ClassFile cf = ctClass.getClassFile();
+	  ConstPool cp = cf.getConstPool();
+	  
+	  AnnotationsAttribute attr = (AnnotationsAttribute) cf.getAttribute(AnnotationsAttribute.visibleTag);
+	  if (attr == null) {
+		  attr = new AnnotationsAttribute(cp,AnnotationsAttribute.visibleTag);
+	  }
+	  
+	  // create table annotation and set name attribute
+	  Annotation table = new Annotation(Table.class.getName(), cp);
+	  table.addMemberValue("name", new StringMemberValue(name,cp));
+	  
+	  if (!uniqueAttributes.isEmpty()) {
+		  // we have unique attributes, this in fact transforms in unique constraints of both table name key and the unique attribute
+		  // since in one entity there are multiple tables "merged"
+		  ArrayMemberValue uniqueConstraintsArrayMemberValue = new ArrayMemberValue(cp);
+		  MemberValue[] uniqueConstraintsMemberValues = new MemberValue[uniqueAttributes.size()];
+		  int i = 0;
+		  for(String uniqueAttr : uniqueAttributes) {
+			  // create UniqueConstraint annotation
+			  Annotation uniqueConstraint = new Annotation(UniqueConstraint.class.getName(), cp);
+			  MemberValue[] uniqueConstraintMemberValues = new MemberValue[2];
+			  uniqueConstraintMemberValues[0] = new StringMemberValue(uniqueAttr, cp);
+			  uniqueConstraintMemberValues[1] = new StringMemberValue("tableName", cp);
+			  ArrayMemberValue uniqueConstraintArrayMemberValue = new ArrayMemberValue(cp);
+			  uniqueConstraintArrayMemberValue.setValue(uniqueConstraintMemberValues);
+			  // set columnNames field with value {uniqueAttr,"tableName"}
+			  uniqueConstraint.addMemberValue("columnNames", uniqueConstraintArrayMemberValue);
+			  // add to array of UniqueConstraint annotations
+			  uniqueConstraintsMemberValues[i] = new AnnotationMemberValue(uniqueConstraint,cp);
+		  }
+		  // add to Table the field uniqueConstraints with UniqueConstraint[] value
+		  uniqueConstraintsArrayMemberValue.setValue(uniqueConstraintsMemberValues);
+		  table.addMemberValue("uniqueConstraints", uniqueConstraintsArrayMemberValue);
+	  }
+	  
+	  // add Table annotation to class
+	  attr.addAnnotation(table);
+  }
   
   /**
    * Generates a class that extends {@link ProfileEntityArrayAttributeValue} for a specific entity attribute of array type value
