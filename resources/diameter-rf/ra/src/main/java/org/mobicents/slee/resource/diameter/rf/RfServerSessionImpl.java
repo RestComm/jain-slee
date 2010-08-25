@@ -3,8 +3,6 @@ package org.mobicents.slee.resource.diameter.rf;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.slee.resource.SleeEndpoint;
-
 import net.java.slee.resource.diameter.base.events.AccountingAnswer;
 import net.java.slee.resource.diameter.base.events.AccountingRequest;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
@@ -26,13 +24,15 @@ import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
  */
 public class RfServerSessionImpl extends AccountingServerSessionActivityImpl implements RfServerSession {
 
-  protected RfMessageFactory rfMessageFactory = null;
-  protected DiameterIdentity remoteRealm;
+  private static final long serialVersionUID = -4463687722140594904L;
+
+  protected transient RfMessageFactory rfMessageFactory = null;
+  //protected DiameterIdentity remoteRealm;
 
   /**
    * Should contain requests, so we can create answer.
    */
-  protected ArrayList<DiameterMessageImpl> stateMessages = new ArrayList<DiameterMessageImpl>();
+  protected transient ArrayList<DiameterMessageImpl> stateMessages = new ArrayList<DiameterMessageImpl>();
   
   /**
    * 
@@ -44,8 +44,8 @@ public class RfServerSessionImpl extends AccountingServerSessionActivityImpl imp
    * @param endpoint
    * @param stack
    */
-  public RfServerSessionImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, ServerAccSession serverSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint, Stack stack) {
-    super(messageFactory, avpFactory, serverSession, destinationHost, destinationRealm, endpoint, stack);
+  public RfServerSessionImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, ServerAccSession serverSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, Stack stack) {
+    super(messageFactory, avpFactory, serverSession, destinationHost, destinationRealm,  stack);
 
     this.rfMessageFactory = new RfMessageFactoryImpl(messageFactory, stack);
   }
@@ -101,14 +101,18 @@ public class RfServerSessionImpl extends AccountingServerSessionActivityImpl imp
     return this.rfMessageFactory;
   }
 
-  public void fetchSessionData(DiameterMessage msg, boolean incoming) {
+  public void setRfMessageFactory(RfMessageFactory rfMessageFactory) {
+	this.rfMessageFactory = rfMessageFactory;
+}
+
+public void fetchSessionData(DiameterMessage msg, boolean incoming) {
     if(msg.getHeader().isRequest()) {
       //Well it should always be getting this on request and only once ?
       if(incoming) {
         //FIXME: add more ?
-        if(this.remoteRealm == null) {
-          this.remoteRealm = msg.getOriginRealm();
-        }
+        //if(this.remoteRealm == null) {
+        //  this.remoteRealm = msg.getOriginRealm();
+        //}
 
         stateMessages.add((DiameterMessageImpl) msg);
       }
@@ -123,4 +127,11 @@ public class RfServerSessionImpl extends AccountingServerSessionActivityImpl imp
       this.stateMessages.remove(msg.removeData());
     }
   }
+
+	@Override
+	public void setSession(ServerAccSession appSession) {
+		stateMessages = new ArrayList<DiameterMessageImpl>();
+		super.setSession(appSession);
+	}
+
 }

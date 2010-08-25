@@ -3,6 +3,7 @@ package net.java.slee.resource.diameter.rf;
 import java.io.IOException;
 
 import net.java.slee.resource.diameter.base.CreateActivityException;
+import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.events.AccountingAnswer;
 import net.java.slee.resource.diameter.base.events.AccountingRequest;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
@@ -24,11 +25,18 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 public interface RfProvider {
 
   /**
-   * Return a message factory to be used to create concrete implementations of accounting messages and AVPs.
+   * Return a message factory to be used to create concrete implementations of accounting messages.
    * 
    * @return a DiameterActivity 
    */
   public RfMessageFactory getRfMessageFactory();
+
+  /**
+   * Return an AVP factory to be used to create concrete implementations of accounting AVPs.
+   * 
+   * @return a DiameterActivity 
+   */
+  public DiameterAvpFactory getRfAvpFactory();
 
   /**
    * Create a new activity to send and receive Diameter messages.

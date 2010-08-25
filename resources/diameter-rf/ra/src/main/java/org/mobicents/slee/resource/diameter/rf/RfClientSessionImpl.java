@@ -2,8 +2,6 @@ package org.mobicents.slee.resource.diameter.rf;
 
 import java.io.IOException;
 
-import javax.slee.resource.SleeEndpoint;
-
 import net.java.slee.resource.diameter.base.events.AccountingRequest;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.rf.RfClientSession;
@@ -22,7 +20,9 @@ import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
  */
 public class RfClientSessionImpl extends AccountingClientSessionActivityImpl implements RfClientSession {
 
-  RfMessageFactory rfMessageFactory = null;
+  private static final long serialVersionUID = -896041231173969408L;
+
+  protected transient RfMessageFactory rfMessageFactory = null;
 
   /**
    * 
@@ -34,9 +34,9 @@ public class RfClientSessionImpl extends AccountingClientSessionActivityImpl imp
    * @param endpoint
    * @param stack
    */
-  public RfClientSessionImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, ClientAccSession clientSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint, Stack stack) {
-    super(messageFactory, avpFactory, clientSession, destinationHost, destinationRealm, endpoint);
-    
+  public RfClientSessionImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, ClientAccSession clientSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, Stack stack) {
+    super(messageFactory, avpFactory, clientSession, destinationHost, destinationRealm);
+
     this.rfMessageFactory = new RfMessageFactoryImpl(messageFactory, stack);
   }
 
@@ -54,6 +54,10 @@ public class RfClientSessionImpl extends AccountingClientSessionActivityImpl imp
    */
   public RfMessageFactory getRfMessageFactory() {
     return this.rfMessageFactory;
+  }
+
+  public void setRfMessageFactory(RfMessageFactory rfMessageFactory) {
+    this.rfMessageFactory = rfMessageFactory;
   }
 
 }
