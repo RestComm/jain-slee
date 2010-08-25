@@ -29,6 +29,7 @@ package net.java.slee.resource.diameter.sh.server;
 import java.io.IOException;
 
 import net.java.slee.resource.diameter.base.DiameterActivity;
+import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer;
 import net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer;
 import net.java.slee.resource.diameter.sh.events.UserDataAnswer;
@@ -152,5 +153,18 @@ public interface ShServerActivity extends DiameterActivity {
    * SubscribeNotificationsRequest.
    */
   void sendSubscribeNotificationsAnswer(SubscribeNotificationsAnswer message) throws IOException;
+
+  /**
+   * Get a message factory to manually create Sh Server Messages.
+   * @return
+   */
+  ShServerMessageFactory getServerMessageFactory();
+
+  /**
+   * Get avp factory.
+   * 
+   * @return
+   */
+  DiameterShAvpFactory getServerAvpFactory();
 
 }

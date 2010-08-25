@@ -59,6 +59,7 @@ import org.jdiameter.api.InternalException;
 import org.jdiameter.api.Message;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.Stack;
+import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
 import org.mobicents.slee.resource.diameter.sh.DiameterShAvpFactoryImpl;
 import org.mobicents.slee.resource.diameter.sh.events.ProfileUpdateAnswerImpl;
@@ -89,12 +90,14 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
     this.session = session;
     this.stack = stack;
     this.baseFactory = new DiameterMessageFactoryImpl(this.session, this.stack);
+    this.localFactory = new DiameterShAvpFactoryImpl(new DiameterAvpFactoryImpl());
   }
 
   public ShServerMessageFactoryImpl(Stack stack) {
     super();
     this.stack = stack;
     this.baseFactory = new DiameterMessageFactoryImpl(this.stack);
+    this.localFactory = new DiameterShAvpFactoryImpl(new DiameterAvpFactoryImpl());
   }
 
   public ShServerMessageFactoryImpl(DiameterMessageFactoryImpl baseMsgFactory, Session session, Stack stack, DiameterShAvpFactory localFactory) {
@@ -137,9 +140,7 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
     ProfileUpdateAnswerImpl answer = new ProfileUpdateAnswerImpl(msg);
 
     answer.setRouteRecords(request.getRouteRecords());
-    // add more :) ?
 
-    //answer.setOriginHost(request.getOriginHost());
     addOrigin(answer);
 
     return answer;
@@ -290,9 +291,7 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
     }
   }
 
-  // »»»»»»»»»»»»»»»»»»»»»
-  // »» PRIVATE METHODS ««
-  // «««««««««««««««««««««
+  // Private Methods ----------------------------------------------------- 
 
   private Message createShMessage(DiameterHeader diameterHeader, DiameterAvp[] avps) throws IllegalArgumentException {
 

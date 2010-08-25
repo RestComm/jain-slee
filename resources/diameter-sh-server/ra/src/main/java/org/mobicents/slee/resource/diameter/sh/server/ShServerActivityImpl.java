@@ -1,9 +1,29 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.sh.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType;
@@ -11,7 +31,6 @@ import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
-import net.java.slee.resource.diameter.sh.ShSessionState;
 import net.java.slee.resource.diameter.sh.events.DiameterShMessage;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateRequest;
@@ -41,7 +60,6 @@ import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.sh.events.DiameterShMessageImpl;
 import org.mobicents.slee.resource.diameter.sh.events.avp.UserIdentityAvpImpl;
-import org.mobicents.slee.resource.diameter.sh.server.handlers.ShServerSessionListener;
 
 /**
  * Implementation of stateles Sh Server activity whihc recieves. It ends after resposne is sent.
@@ -52,13 +70,13 @@ import org.mobicents.slee.resource.diameter.sh.server.handlers.ShServerSessionLi
  */
 public class ShServerActivityImpl extends DiameterActivityImpl implements ShServerActivity, StateChangeListener<AppSession> {
 
-  protected ServerShSession serverSession = null;
-  protected ShSessionState state = ShSessionState.NOTSUBSCRIBED;
-  protected ShServerSessionListener listener = null;
+  private static final long serialVersionUID = -5297270149541413224L;
+
+  protected transient ServerShSession serverSession = null;
 
   // Factories
-  protected DiameterShAvpFactory shAvpFactory = null;
-  protected ShServerMessageFactoryImpl messageFactory = null;
+  protected transient DiameterShAvpFactory shAvpFactory = null;
+  protected transient ShServerMessageFactoryImpl messageFactory = null;
 
   //FIXME: add more
   protected UserIdentityAvp userIdentity;
@@ -71,13 +89,12 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
   /**
    * Should contain requests, so we can create answer.
    */
-  protected ArrayList<DiameterMessage> stateMessages = new ArrayList<DiameterMessage>();
+  protected transient ArrayList<DiameterMessage> stateMessages = new ArrayList<DiameterMessage>();
 
-  public ShServerActivityImpl(ShServerMessageFactory shServerMessageFactory, DiameterShAvpFactory diameterShAvpFactory, ServerShSession session, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint) {
-    super(null, null, null, (EventListener<Request, Answer>) session, destinationHost, destinationRealm, endpoint);
+  public ShServerActivityImpl(ShServerMessageFactory shServerMessageFactory, DiameterShAvpFactory diameterShAvpFactory, ServerShSession session, DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
+    super(null, null, null, (EventListener<Request, Answer>) session, destinationHost, destinationRealm);
 
-    this.serverSession = session;
-    this.serverSession.addStateChangeNotification(this);
+    setSession(session);
     super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
     this.shAvpFactory = diameterShAvpFactory;
     this.messageFactory = (ShServerMessageFactoryImpl) shServerMessageFactory;
@@ -285,7 +302,9 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
-    	e.printStackTrace();
+      if(logger.isDebugEnabled()) {
+        logger.debug("Failed to send message.", e);
+      }
       throw new IOException("Failed to send message, due to: " + e);
     }
   }
@@ -314,87 +333,75 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
   // #########################
 
   /*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
-	 * java.lang.Enum, java.lang.Enum)
-	 */
-	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
-		this.stateChanged(oldState, newState);
+   * (non-Javadoc)
+   * 
+   * @see
+   * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
+   * java.lang.Enum, java.lang.Enum)
+   */
+  public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+    this.stateChanged(oldState, newState);
 
-	}
-  
-  
+  }
+
+
   public void stateChanged(Enum oldState, Enum newState) {
-    org.jdiameter.common.api.app.sh.ShSessionState _state = (org.jdiameter.common.api.app.sh.ShSessionState) newState;
-
-    switch(_state)
-    {
-    case NOTSUBSCRIBED:
-      break;
-    case SUBSCRIBED:
-      //FIXME: error?
-      //This should not happen!!!
-      break;
-    case TERMINATED:
-      state = ShSessionState.TERMINATED;
-      this.listener.sessionDestroyed(getSessionId(), serverSession);
-      this.serverSession.removeStateChangeNotification(this);
-      this.messageFactory.clean();
-      this.messageFactory = null;
-      this.serverSession = null;
-      super.session =  null;
-
-      this.shAvpFactory = null;
-
-      this.stateMessages.clear();
-      this.listener = null;
-      super.clean();
-      break;
-    }
+    // NOP
   }
 
   // #########################
   // # DiameterActivityImpl
   // #########################
 
-  @Override
-  public Object getSessionListener() {
-    return this.listener;
-  }
-
-  @Override
-  public void setSessionListener(Object ra) {
-    this.listener = (ShServerSessionListener) ra;
-  }
-
   public void fetchSessionData(DiameterMessage msg, boolean incoming) {
     if(msg.getHeader().isRequest()) {
       // Well it should always be getting this on request and only once ?
       if(incoming) {
+        boolean changed = false;
         if(remoteRealm == null ) {
           remoteRealm = msg.getOriginRealm();
+          changed = true;
         }
         if(remoteHost == null) {
+          changed = true;
           remoteHost = msg.getOriginHost();
         }
 
         if(this.userIdentity == null) {
+          changed = true;
           AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.USER_IDENTITY, DiameterShAvpCodes.SH_VENDOR_ID);
           this.userIdentity = new UserIdentityAvpImpl(DiameterShAvpCodes.USER_IDENTITY, DiameterShAvpCodes.SH_VENDOR_ID,rep.getRuleMandatoryAsInt(),rep.getRuleProtectedAsInt(),AvpUtilities.getAvpAsGrouped(DiameterShAvpCodes.USER_IDENTITY, DiameterShAvpCodes.SH_VENDOR_ID, ((DiameterMessageImpl)msg).getGenericData().getAvps()));
         }
-
+        //FIXME: is this true?
         if(this.authSessionState == null) {
+          changed = true;
           this.authSessionState = AuthSessionStateType.fromInt(AvpUtilities.getAvpAsInteger32(277, ((DiameterMessageImpl)msg).getGenericData().getAvps()));
         }
 
         stateMessages.add((DiameterMessageImpl) msg);
+        if(changed) {
+          super.baseListener.update(getActivityHandle(), this);
+        }
       }
       else {
         //FIXME, do more :)
       }
     }
+  }
+
+  @Override
+  public void endActivity() {
+    this.serverSession.release();
+    super.baseListener.endActivity(getActivityHandle());
+    this.serverSession.removeStateChangeNotification(this);
+    //this.messageFactory.clean();
+    //this.messageFactory = null;
+    //this.serverSession = null;
+    //super.session =  null;
+    //
+    //this.shAvpFactory = null;
+    //
+    //this.stateMessages.clear();
   }
 
   // Aux Methods ---------------------------------------------------------
@@ -426,6 +433,32 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
     if(shMessage.getAuthSessionState() == null && this.authSessionState != null) {
       shMessage.setAuthSessionState(this.authSessionState);
     }
+  }
+
+  //  Setters & Getters --------------------------------------------------
+
+  public void setSession(ServerShSession session) {
+    stateMessages = new ArrayList<DiameterMessage>();
+    this.serverSession = session;
+    this.serverSession.addStateChangeNotification(this);
+  }
+
+  @Override
+  public DiameterShAvpFactory getServerAvpFactory() {
+    return this.shAvpFactory;
+  }
+
+  @Override
+  public ShServerMessageFactory getServerMessageFactory() {
+    return this.messageFactory;
+  }
+
+  public void setServerAvpFactory(DiameterShAvpFactory shAvpFactory) {
+    this.shAvpFactory = shAvpFactory;
+  }
+
+  public void setServerMessageFactory(ShServerMessageFactory messageFactory) {
+    this.messageFactory = (ShServerMessageFactoryImpl) messageFactory;
   }
 
 }

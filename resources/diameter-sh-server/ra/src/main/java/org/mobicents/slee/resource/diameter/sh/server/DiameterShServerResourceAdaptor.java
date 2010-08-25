@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.sh.server;
 
 import static org.jdiameter.client.impl.helpers.Parameters.MessageTimeOut;
@@ -5,8 +27,6 @@ import static org.jdiameter.client.impl.helpers.Parameters.MessageTimeOut;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 import javax.management.ObjectName;
@@ -26,11 +46,11 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
-import javax.slee.transaction.SleeTransactionManager;
 
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
+import net.java.slee.resource.diameter.base.DiameterException;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
@@ -40,8 +60,10 @@ import net.java.slee.resource.diameter.sh.events.PushNotificationAnswer;
 import net.java.slee.resource.diameter.sh.events.PushNotificationRequest;
 import net.java.slee.resource.diameter.sh.events.SubscribeNotificationsRequest;
 import net.java.slee.resource.diameter.sh.events.UserDataRequest;
+import net.java.slee.resource.diameter.sh.server.ShServerActivity;
 import net.java.slee.resource.diameter.sh.server.ShServerMessageFactory;
 import net.java.slee.resource.diameter.sh.server.ShServerProvider;
+import net.java.slee.resource.diameter.sh.server.ShServerSubscriptionActivity;
 
 import org.jboss.mx.util.MBeanServerLocator;
 import org.jdiameter.api.Answer;
@@ -54,22 +76,25 @@ import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.Stack;
-import org.jdiameter.api.app.AppSession;
-import org.jdiameter.api.app.StateChangeListener;
-import org.jdiameter.api.sh.ClientShSession;
 import org.jdiameter.api.sh.ServerShSession;
 import org.jdiameter.client.api.ISessionFactory;
 import org.jdiameter.server.impl.app.sh.ShServerSessionImpl;
 import org.mobicents.diameter.stack.DiameterListener;
 import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
+import org.mobicents.slee.resource.diameter.AbstractClusteredDiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.DiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.LocalDiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
+import org.mobicents.slee.resource.diameter.base.DiameterBaseMarshaler;
 import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.EventIDFilter;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.base.events.ErrorAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.ExtensionDiameterMessageImpl;
+import org.mobicents.slee.resource.diameter.base.handlers.DiameterRAInterface;
 import org.mobicents.slee.resource.diameter.sh.DiameterShAvpFactoryImpl;
 import org.mobicents.slee.resource.diameter.sh.EventIDCache;
 import org.mobicents.slee.resource.diameter.sh.events.ProfileUpdateAnswerImpl;
@@ -81,7 +106,6 @@ import org.mobicents.slee.resource.diameter.sh.events.SubscribeNotificationsRequ
 import org.mobicents.slee.resource.diameter.sh.events.UserDataAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.events.UserDataRequestImpl;
 import org.mobicents.slee.resource.diameter.sh.server.handlers.ShServerSessionFactory;
-import org.mobicents.slee.resource.diameter.sh.server.handlers.ShServerSessionListener;
 
 /**
  * Mobicents Diameter Sh (Server-side) Resource Adaptor
@@ -89,7 +113,7 @@ import org.mobicents.slee.resource.diameter.sh.server.handlers.ShServerSessionLi
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, DiameterListener, ShServerSessionListener {
+public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, DiameterListener, DiameterRAInterface ,org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor<String, DiameterActivity> {
 
   private static final long serialVersionUID = 1L;
 
@@ -122,6 +146,11 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
   private ResourceAdaptorContext raContext;
 
   /**
+   * FT/HA version of RA context.
+   */
+  private FaultTolerantResourceAdaptorContext<String, DiameterActivity> ftRAContext;
+
+  /**
    * The SLEE endpoint defines the contract between the SLEE and the resource
    * adaptor that enables the resource adaptor to deliver events
    * asynchronously to SLEE endpoints residing in the SLEE. This contract
@@ -139,6 +168,7 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
    * interface, and by profiles via the ProfileContext interface. 
    */
   private Tracer tracer;
+  private DiameterBaseMarshaler marshaler = new DiameterBaseMarshaler();
 
   // Diameter Specific Properties ----------------------------------------
 
@@ -163,7 +193,8 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
    * adaptor were a distributed and highly available solution, this storage
    * were one of the candidates for distribution.
    */
-  private transient ConcurrentHashMap<ActivityHandle, DiameterActivity> activities = null;
+  //private transient ConcurrentHashMap<ActivityHandle, DiameterActivity> activities = null;
+  private transient DiameterActivityManagement activities = null;
 
   /**
    * A link to the DiameterProvider which then will be exposed to Sbbs
@@ -182,7 +213,8 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
     return eventFlags;
   }
 
-  private static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;
+  private static final int DEFAULT_ACTIVITY_FLAGS = ActivityFlags.setRequestSleeActivityGCCallback(ActivityFlags.REQUEST_ENDED_CALLBACK);
+  private static final int MARSHALABLE_ACTIVITY_FLAGS = ActivityFlags.setSleeMayMarshal(DEFAULT_ACTIVITY_FLAGS);
 
   private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
 
@@ -212,6 +244,46 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
     this.eventLookup = null;
   }
 
+  // FT Lifecycle methods ------------------------------------------------
+
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#setFaultTolerantResourceAdaptorContext
+   * (org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext)
+   */
+  public void setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext<String, DiameterActivity> ctx) {
+    this.ftRAContext = ctx;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#unsetFaultTolerantResourceAdaptorContext()
+   */
+  public void unsetFaultTolerantResourceAdaptorContext() {
+    this.ftRAContext = null;
+    //clear this.activities ??
+  }
+
+  // FT methods ----------------------------------------------------------
+
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#dataRemoved(java.io.Serializable)
+   */
+  public void dataRemoved(String arg0) {
+    this.activities.remove(getActivityHandle(arg0));
+  }
+
+  /* (non-Javadoc)
+   * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#failOver(java.io.Serializable)
+   */
+  public void failOver(String arg0) {
+    throw new UnsupportedOperationException();
+  }
+
+  // More life cycle methods ----------------------------------------------
+
   public void raActive() {
     if(tracer.isFineEnabled()) {
       tracer.fine("Diameter ShServer RA :: raActive.");
@@ -232,9 +304,13 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
 
       this.raProvider = new ShServerProviderImpl(this);
 
-      this.activities = new ConcurrentHashMap<ActivityHandle, DiameterActivity>();
+      //this.activities = new ConcurrentHashMap<ActivityHandle, DiameterActivity>();
 
+      // Initialize stack
       initStack();
+
+      // Initialize activities mgmt
+      initActivitiesMgmt();
 
       // Initialize factories
       this.baseAvpFactory = new DiameterAvpFactoryImpl();
@@ -262,20 +338,20 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       tracer.severe("Failed to unregister ShServer RA from Diameter Mux.", e);
     }
 
-    synchronized (this.activities) {
-      for (ActivityHandle activityHandle : activities.keySet()) {
-        try {
-          if(tracer.isInfoEnabled()) {
-            tracer.info("Ending activity [" + activityHandle + "]");
-          }
-
-          activities.get(activityHandle).endActivity();
-        }
-        catch (Exception e) {
-          tracer.severe("Error Deactivating Activity", e);
-        }
-      }
-    }
+    //synchronized (this.activities) {
+    //  for (ActivityHandle activityHandle : activities.keySet()) {
+    //    try {
+    //      if(tracer.isInfoEnabled()) {
+    //        tracer.info("Ending activity [" + activityHandle + "]");
+    //      }
+    //
+    //      activities.get(activityHandle).endActivity();
+    //    }
+    //    catch (Exception e) {
+    //      tracer.severe("Error Deactivating Activity", e);
+    //    }
+    //  }
+    //}
 
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter ShServer RA :: entityDeactivating completed.");
@@ -287,9 +363,9 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       tracer.fine("Diameter ShServer RA :: entityDeactivated.");
     }
 
-    synchronized (this.activities) {
-      activities.clear();
-    }
+    //synchronized (this.activities) {
+    //  activities.clear();
+    //}
     activities = null;
 
     if(tracer.isInfoEnabled()) {
@@ -350,8 +426,7 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
    * @see javax.slee.resource.ResourceAdaptor#getMarshaler()
    */
   public Marshaler getMarshaler() {
-    // TODO Auto-generated method stub
-    return null;
+    return this.marshaler;
   }
 
   // Event filtering methods ---------------------------------------------
@@ -372,8 +447,11 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
 
   public void queryLiveness(ActivityHandle handle) {
     tracer.info("Diameter ShServer RA :: queryLiveness :: handle[" + handle + "].");
+    if(!(handle instanceof DiameterActivityHandle)) {
+      return;
+    }
 
-    DiameterActivityImpl activity = (DiameterActivityImpl) activities.get(handle);
+    DiameterActivityImpl activity = (DiameterActivityImpl) activities.get((DiameterActivityHandle) handle);
 
     if (activity != null && !activity.isValid()) {
       try {
@@ -389,8 +467,10 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
     if(tracer.isFineEnabled()) {
       tracer.fine("Diameter ShServer RA :: getActivity :: handle[" + handle + "].");
     }
-
-    return this.activities.get(handle);
+    if(!(handle instanceof DiameterActivityHandle)) {
+      return null;
+    }
+    return this.activities.get((DiameterActivityHandle) handle);
   }
 
   public ActivityHandle getActivityHandle(Object activity) {
@@ -402,17 +482,8 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       return null;
     }
 
-    DiameterActivity inActivity = (DiameterActivity) activity;
-
-    for (Map.Entry<ActivityHandle, DiameterActivity> activityInfo : this.activities.entrySet()) {
-      Object curActivity = activityInfo.getValue();
-
-      if (curActivity.equals(inActivity)) {
-        return activityInfo.getKey();
-      }
-    }
-
-    return null;
+    DiameterActivityImpl inActivity = (DiameterActivityImpl) activity;
+    return inActivity.getActivityHandle();
   }
 
   public void administrativeRemove(ActivityHandle handle) {
@@ -441,10 +512,12 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
 
   public void activityEnded(ActivityHandle handle) {
     tracer.info("Diameter ShServer RA :: activityEnded :: handle[" + handle + ".");
-
+    if(!(handle instanceof DiameterActivityHandle)) {
+      return;
+    }
     if(this.activities != null) {
       synchronized (this.activities) {
-        this.activities.remove(handle);
+        this.activities.remove((DiameterActivityHandle) handle);
       }
     }
   }
@@ -453,8 +526,10 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
     if(tracer.isFineEnabled()) {
       tracer.fine("Diameter ShServer RA :: activityUnreferenced :: handle[" + handle + "].");
     }
-
-    this.activityEnded(handle);
+    //this.activityEnded(handle);
+    if(handle instanceof DiameterActivityHandle) {
+      this.endActivity((DiameterActivityHandle) handle);
+    }
   }
 
   // Event and Activities management -------------------------------------
@@ -479,14 +554,14 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
           this.raContext.getSleeEndpoint().fireEventTransacted(handle, eventID, event, address, null, EVENT_FLAGS);
         }
         else */{
-        	  DiameterActivity activity = (DiameterActivity) getActivity(handle);
-              if(activity instanceof ShServerActivityImpl)
-              {
-              	((ShServerActivityImpl)activity).fetchSessionData((DiameterMessage)event, true);
-              }else if(activity instanceof ShServerSubscriptionActivityImpl)
-              {
-              	((ShServerSubscriptionActivityImpl)activity).fetchSessionData((DiameterMessage)event, true);
-              }
+          DiameterActivity activity = (DiameterActivity) getActivity(handle);
+          if(activity instanceof ShServerActivityImpl)
+          {
+            ((ShServerActivityImpl)activity).fetchSessionData((DiameterMessage)event, true);
+          }else if(activity instanceof ShServerSubscriptionActivityImpl)
+          {
+            ((ShServerSubscriptionActivityImpl)activity).fetchSessionData((DiameterMessage)event, true);
+          }
           this.raContext.getSleeEndpoint().fireEvent(handle, eventID, event, address, null, EVENT_FLAGS);
         }       
         return true;
@@ -511,32 +586,21 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
     this.fireEvent(event, getActivityHandle(sessionId), eventId, null, true, message.isRequest());
   }
 
+  @Override
+  public void endActivity(DiameterActivityHandle arg0) {
+    this.sleeEndpoint.endActivity(arg0);
+  }
 
-//	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
-//		
-//		DiameterActivityHandle dah = getActivityHandle(source.getSessionId());
-//		Object activity = getActivity(dah);
-//		if (activity != null) {
-//			if(source instanceof ServerShSession)
-//			{
-//				try{
-//					//damn, no common, do something unexpected
-//					StateChangeListener<AppSession> scl = (StateChangeListener<AppSession>) activity;
-//					scl.stateChanged(source, oldState, newState);
-//				}catch(Exception e)
-//				{
-//					tracer.warning("Failed to deliver state, for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )", e);
-//				}
-//				
-//			}
-//		} else {
-//			tracer.warning("No activity for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )");
-//		}
-//		
-//	}
+  @Override
+  public void update(DiameterActivityHandle arg0, DiameterActivity arg1) {
+    this.activities.update(arg0, arg1);
+  }
 
-  
-  
+  @Override
+  public ApplicationId[] getSupportedApplications() {
+    return null;
+  }
+
   /**
    * Create Event object from a JDiameter message (request or answer)
    * 
@@ -587,12 +651,12 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
     // Create Server Activity
     DiameterActivity activity = null;
     if(isSubscription) {
-      ShServerSubscriptionActivityImpl _activity = new ShServerSubscriptionActivityImpl(shServerMsgFactory, this.shAvpFactory, session, null, null, this.sleeEndpoint);
+      ShServerSubscriptionActivityImpl _activity = new ShServerSubscriptionActivityImpl(shServerMsgFactory, this.shAvpFactory, session, null, null);
       _activity.setSessionListener(this);
       activity = _activity;
     }
     else {
-      ShServerActivityImpl _activity = new ShServerActivityImpl(shServerMsgFactory, this.shAvpFactory, session, null, null, this.sleeEndpoint);
+      ShServerActivityImpl _activity = new ShServerActivityImpl(shServerMsgFactory, this.shAvpFactory, session, null, null);
       _activity.setSessionListener(this);
       activity = _activity;
     }
@@ -622,7 +686,7 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
     try {
       // Inform SLEE that Activity Started
       DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, ACTIVITY_FLAGS);
+      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
 
       // Put it into our activities map
       activities.put(activity.getActivityHandle(), activity);
@@ -667,6 +731,100 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       tracer.info("Diameter ShServer RA :: Successfully initialized stack.");
     }
   }
+  /**
+   * Based on env create inits {@link #activities} reference.
+   */
+  private void initActivitiesMgmt() {
+    final DiameterRAInterface lst = this;
+    if (this.ftRAContext.isLocal()) {
+      // local mgmt;
+      if(tracer.isInfoEnabled()) {
+        tracer.info(raContext.getEntityName() + " -- running in LOCAL mode.");
+      }
+      this.activities = new LocalDiameterActivityManagement();
+    }
+    else {
+      if(tracer.isInfoEnabled()) {
+        tracer.info(raContext.getEntityName()+" -- running in CLUSTER mode.");
+      }
+      final org.mobicents.slee.resource.cluster.ReplicatedData<String, DiameterActivity> clusteredData = this.ftRAContext.getReplicateData(true);
+      // get special one
+      this.activities = new AbstractClusteredDiameterActivityManagement(this.raContext.getTracer(""), stack, this.raContext.getSleeTransactionManager(), clusteredData) {
+
+        @Override
+        protected void performBeforeReturn(DiameterActivityImpl activity) {
+          // do all the dirty work;
+          try {
+            Session session = null;
+            if (activity.getClass().equals(DiameterActivityImpl.class)) {
+              // check as first. since it requires session recreation.
+              // JIC: is this required?
+              session = this.diameterStack.getSessionFactory().getNewSession(activity.getSessionId());
+              performBeforeReturnOnBase(activity, session);
+              return;
+            }
+            else if(activity instanceof ShServerActivity) {
+              ShServerActivityImpl sh = (ShServerActivityImpl) activity;
+              ServerShSession appSession = this.diameterStack.getSession(activity.getSessionId(), ServerShSession.class);
+              session = appSession.getSessions().get(0);
+              performBeforeReturnOnBase(activity, session);
+              performBeforeReturnSh(sh,session);
+              sh.setSession(appSession);
+            }
+            else if(activity instanceof ShServerSubscriptionActivity) {
+              ShServerSubscriptionActivityImpl sh = (ShServerSubscriptionActivityImpl) activity;
+              ServerShSession appSession = this.diameterStack.getSession(activity.getSessionId(), ServerShSession.class);
+              session = appSession.getSessions().get(0);
+              performBeforeReturnOnBase(activity, session);
+              performBeforeReturnSh(sh,session);
+              sh.setSession(appSession);
+            }
+            else {
+              throw new IllegalArgumentException("Unknown activity type: " + activity);
+            }
+          }
+          catch (Exception e) {
+            throw new DiameterException(e);
+          }
+        }
+
+        private void performBeforeReturnSh(ShServerSubscriptionActivityImpl sh, Session session) {
+          ShServerMessageFactoryImpl messageFactory = new ShServerMessageFactoryImpl(session, stack);
+          sh.setServerMessageFactory(messageFactory);
+          sh.setServerAvpFactory(shAvpFactory);
+        }
+
+        private void performBeforeReturnSh(ShServerActivityImpl sh, Session session) {
+          ShServerMessageFactoryImpl messageFactory = new ShServerMessageFactoryImpl(session, stack);
+          sh.setServerMessageFactory(messageFactory);
+          sh.setServerAvpFactory(shAvpFactory);
+        }
+
+        private void performBeforeReturnOnBase(DiameterActivityImpl ac,Session session) {
+          DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session, stack, new DiameterIdentity[] {});
+          ac.setAvpFactory(baseAvpFactory);
+          ac.setMessageFactory(msgFactory);
+          ac.setCurrentWorkingSession(session);
+          ac.setSessionListener(lst);
+        }
+
+        @Override
+        public DiameterActivity get(DiameterActivityHandle handle) {
+          return super.get(handle);
+        }
+
+        @Override
+        public void put(DiameterActivityHandle handle, DiameterActivity activity) {
+          super.put(handle, activity);
+        }
+
+        @Override
+        public DiameterActivity remove(DiameterActivityHandle handle) {
+          return super.remove(handle);
+        }
+      };
+    }
+  }
 
   protected DiameterActivityHandle getActivityHandle(String sessionId) {
     return new DiameterActivityHandle(sessionId);
@@ -675,29 +833,29 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
   // NetworkReqListener Implementation -----------------------------------
 
   public Answer processRequest(Request request) {
-    final SleeTransactionManager txManager = raContext.getSleeTransactionManager();
+    //final SleeTransactionManager txManager = raContext.getSleeTransactionManager();
 
-    boolean terminateTx = false;
+    // boolean terminateTx = false;
 
     try {
-      txManager.begin();
-      terminateTx = true;
+      //txManager.begin();
+      //terminateTx = true;
 
       raProvider.createActivity(request);
       // do nothing here, if its valid it should be processed, if not we will get exception
-      terminateTx = false;
-      txManager.commit();     
+      //terminateTx = false;
+      //txManager.commit();     
     }
     catch (Throwable e) {
       tracer.severe(e.getMessage(), e);
-      if (terminateTx) {
-        try {
-          txManager.rollback();
-        }
-        catch (Throwable t) {
-          tracer.severe(t.getMessage(), t);
-        }
-      }
+      //if (terminateTx) {
+      //  try {
+      //    txManager.rollback();
+      //  }
+      //  catch (Throwable t) {
+      //    tracer.severe(t.getMessage(), t);
+      //  }
+      //}
     }
 
     // returning null so we can answer later
@@ -755,13 +913,13 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       }
 
       String sessionId = request.getSessionId();
-      // FIXME: Get from request.
+      // FIXME: Get from request?
       ApplicationId appId = ApplicationId.createByAuthAppId(10415, 16777217);
 
       try {
         // In this case we have to pass so session factory know what to tell to session listener
         ShServerSessionImpl session = ((ISessionFactory) sessionFactory).getNewAppSession(sessionId, appId, ServerShSession.class, new Object[]{request});
-       
+        sessionCreated(session, request.getCommandCode() == SubscribeNotificationsRequest.commandCode);
         session.processRequest(request);
       }
       catch(Exception e) {
@@ -843,7 +1001,7 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
   public int getPeerCount() {
     return getConnectedPeers().length;
   }
-  
+
   public long getMessageTimeout() {
     return this.messageTimeout; 
   }
