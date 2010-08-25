@@ -20,6 +20,7 @@ package net.java.slee.resource.diameter.sh.client;
 import java.io.IOException;
 
 import net.java.slee.resource.diameter.base.DiameterActivity;
+import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateRequest;
 import net.java.slee.resource.diameter.sh.events.SubscribeNotificationsRequest;
 import net.java.slee.resource.diameter.sh.events.UserDataRequest;
@@ -29,7 +30,7 @@ import net.java.slee.resource.diameter.sh.events.UserDataRequest;
  * so the activity ends when the answer event is fired.
  * 
  */
-public interface ShClientActivity extends DiameterActivity{
+public interface ShClientActivity extends DiameterActivity {
 
   /**
    * Send a User-Data-Request message asynchronously.
@@ -54,5 +55,19 @@ public interface ShClientActivity extends DiameterActivity{
    * @throws IOException if the request message could not be sent
    */
   void sendProfileUpdateRequest(ProfileUpdateRequest message) throws IOException;
+
+  /**
+   * Get a message factory to manually create Sh Client Messages.
+   * 
+   * @return
+   */
+  ShClientMessageFactory getClientMessageFactory();
+
+  /**
+   * Get avp factory.
+   * 
+   * @return
+   */
+  DiameterShAvpFactory getClientAvpFactory();
 
 }

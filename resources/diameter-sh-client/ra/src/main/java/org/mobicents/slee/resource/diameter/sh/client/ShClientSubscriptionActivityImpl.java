@@ -29,15 +29,12 @@ package org.mobicents.slee.resource.diameter.sh.client;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.slee.resource.SleeEndpoint;
-
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
-import net.java.slee.resource.diameter.sh.ShSessionState;
 import net.java.slee.resource.diameter.sh.client.ShClientMessageFactory;
 import net.java.slee.resource.diameter.sh.client.ShClientSubscriptionActivity;
 import net.java.slee.resource.diameter.sh.events.PushNotificationAnswer;
@@ -63,7 +60,6 @@ import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.sh.events.DiameterShMessageImpl;
 import org.mobicents.slee.resource.diameter.sh.events.avp.UserIdentityAvpImpl;
-import org.mobicents.slee.resource.diameter.sh.client.handlers.ShClientSessionListener;
 
 /**
  * 
@@ -75,11 +71,11 @@ import org.mobicents.slee.resource.diameter.sh.client.handlers.ShClientSessionLi
  */
 public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl implements ShClientSubscriptionActivity, StateChangeListener<AppSession> {
 
-  protected ClientShSession clientSession = null;
-  protected ShSessionState state = ShSessionState.NOTSUBSCRIBED;
-  protected ShClientSessionListener listener = null;
-  protected DiameterShAvpFactory shAvpFactory = null;
-  protected ShClientMessageFactory messageFactory = null;
+  private static final long serialVersionUID = -6702340517032186782L;
+
+  protected transient ClientShSession clientSession = null;
+  protected transient DiameterShAvpFactory shAvpFactory = null;
+  protected transient ShClientMessageFactory messageFactory = null;
 
   //FIXME: add more
   protected UserIdentityAvp userIdentity;
@@ -88,17 +84,20 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
   protected DiameterIdentity remoteRealm;
 
   // Last received message(s)
-  protected ArrayList<DiameterMessageImpl> stateMessages = new ArrayList<DiameterMessageImpl>();
+  protected transient ArrayList<DiameterMessageImpl> stateMessages = new ArrayList<DiameterMessageImpl>();
 
-  public ShClientSubscriptionActivityImpl(ShClientMessageFactory shClientMessageFactory, DiameterShAvpFactory shAvpFactory, ClientShSession session, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint)
-  {
-    super(shClientMessageFactory.getBaseMessageFactory(), shAvpFactory.getBaseFactory(), null, (EventListener<Request, Answer>) session, destinationHost, destinationRealm, endpoint);
+  public ShClientSubscriptionActivityImpl(ShClientMessageFactory shClientMessageFactory, DiameterShAvpFactory shAvpFactory, ClientShSession session, DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
+    super(shClientMessageFactory.getBaseMessageFactory(), shAvpFactory.getBaseFactory(), null, (EventListener<Request, Answer>) session, destinationHost, destinationRealm);
 
-    this.clientSession = session;
-    this.clientSession.addStateChangeNotification(this);
+    setSession(session);
     super.setCurrentWorkingSession(this.clientSession.getSessions().get(0));
     this.shAvpFactory = shAvpFactory;
     this.messageFactory = shClientMessageFactory;
+  }
+
+  public void setSession(ClientShSession session) {
+    this.clientSession = session;
+    this.clientSession.addStateChangeNotification(this);
   }
 
   /*
@@ -107,6 +106,18 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
    */
   public ShClientMessageFactory getClientMessageFactory() {
     return this.messageFactory;
+  }
+
+  public DiameterShAvpFactory getClientAvpFactory() {
+    return this.shAvpFactory;
+  }
+
+  public void setClientMessageFactory(ShClientMessageFactory messageFactory) {
+    this.messageFactory = messageFactory;
+  }
+
+  public void setClientAvpFactory(DiameterShAvpFactory shAvpFactory) {
+    this.shAvpFactory = shAvpFactory;
   }
 
   /*
@@ -170,7 +181,6 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
 
       clean((DiameterShMessageImpl)answer);
       fetchSessionData(answer, false);
-      
     }
     catch (JAvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
@@ -239,81 +249,21 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
   }
 
   /*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
-	 * java.lang.Enum, java.lang.Enum)
-	 */
-	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
-		this.stateChanged(oldState, newState);
+   * (non-Javadoc)
+   * @see org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object, java.lang.Enum, java.lang.Enum)
+   */
+  public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+    this.stateChanged(oldState, newState);
+  }
 
-	}
-  
   /*
    * (non-Javadoc)
    * @see org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Enum, java.lang.Enum)
    */
   public void stateChanged(Enum oldState, Enum newState) {
-    org.jdiameter.common.api.app.sh.ShSessionState shNewState = (org.jdiameter.common.api.app.sh.ShSessionState) newState;
 
-    switch (shNewState) {
-      case NOTSUBSCRIBED:
-        break;
-      case SUBSCRIBED:
-        state = ShSessionState.SUBSCRIBED;
-        // FIXME: error?
-        break;
-      case TERMINATED:
-        state = ShSessionState.TERMINATED;
-        listener.sessionDestroyed(getSessionId(), clientSession);
-        this.clientSession.removeStateChangeNotification(this);
-        break;
-    }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.mobicents.slee.resource.diameter.base.DiameterActivityImpl#getSessionListener()
-   */
-  public Object getSessionListener() {
-    return this.listener;
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see org.mobicents.slee.resource.diameter.base.DiameterActivityImpl#setSessionListener(java.lang.Object)
-   */
-  public void setSessionListener(Object ra) {
-    this.listener = (ShClientSessionListener) ra;
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see org.mobicents.slee.resource.diameter.base.DiameterActivityImpl#endActivity()
-   */
-  public void endActivity() {
-    this.clientSession.release();
-  }
-
-  //  FIXME: Find a good way to deal with this.
-  //  /*
-  //   * (non-Javadoc)
-  //   * @see org.mobicents.slee.resource.diameter.base.DiameterActivityImpl#getDiameterAvpFactory()
-  //   */
-  //  public Object getDiameterAvpFactory()
-  //  {
-  //    return this.shAvpFactory;
-  //  }
-  //
-  //  /*
-  //   * (non-Javadoc)
-  //   * @see org.mobicents.slee.resource.diameter.base.DiameterActivityImpl#getDiameterMessageFactory()
-  //   */
-  //  public Object getDiameterMessageFactory()
-  //  {
-  //    return this.messageFactory;
-  //  }
 
   /**
    * 
@@ -328,9 +278,8 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
    * @param request
    */
   public void fetchSessionData(DiameterMessage msg, boolean incoming) {
-    if(msg.getHeader().isRequest())
-    {
-      //Well it should always be getting this on request and only once ?
+    if(msg.getHeader().isRequest()) {
+      // Well it should always be getting this on request and only once ?
       if(incoming) {
         if(this.userIdentity == null) {
           //FIXME: make this diff.
@@ -366,6 +315,12 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
     }
   }
 
+  @Override
+  public void endActivity() {
+    this.clientSession.release();
+    this.clientSession.removeStateChangeNotification(this);
+    super.baseListener.endActivity(getActivityHandle());
+  }
   /**
    * 
    * @param msg

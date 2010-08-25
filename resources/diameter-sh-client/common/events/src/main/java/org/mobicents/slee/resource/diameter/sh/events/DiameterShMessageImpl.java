@@ -62,7 +62,7 @@ public class DiameterShMessageImpl extends DiameterMessageImpl implements Diamet
   }
 
   public AuthSessionStateType getAuthSessionState() {
-    return (AuthSessionStateType) getAvpAsEnumerated(Avp.AUTH_SESSION_STATE, AuthSessionStateType.class);
+    return !hasAuthSessionState() ? null : (AuthSessionStateType) getAvpAsEnumerated(Avp.AUTH_SESSION_STATE, AuthSessionStateType.class);
   }
 
   public SupportedFeaturesAvp[] getSupportedFeatureses() {

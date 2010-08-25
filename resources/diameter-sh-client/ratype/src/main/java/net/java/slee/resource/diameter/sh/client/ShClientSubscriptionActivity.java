@@ -3,6 +3,7 @@ package net.java.slee.resource.diameter.sh.client;
 import java.io.IOException;
 
 import net.java.slee.resource.diameter.base.DiameterActivity;
+import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
 import net.java.slee.resource.diameter.sh.events.PushNotificationAnswer;
 import net.java.slee.resource.diameter.sh.events.SubscribeNotificationsRequest;
 import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
@@ -23,6 +24,12 @@ public interface ShClientSubscriptionActivity extends DiameterActivity {
    * @return
    */
   ShClientMessageFactory getClientMessageFactory();
+
+  /**
+   * Get avp factory.
+   * @return
+   */
+  DiameterShAvpFactory getClientAvpFactory();
 
   /**
    * Send a Subscribe-Notifications-Request message. 
@@ -70,26 +77,11 @@ public interface ShClientSubscriptionActivity extends DiameterActivity {
    */
   PushNotificationAnswer createPushNotificationAnswer(long resultCode, boolean isExperimaental);
 
-  //  FIXME: Not needed?
-  //  public ProfileUpdateRequest createProfileUpdateRequest();
-  //  public UserDataRequest createUserDataRequest();
-  //
-  //  /**
-  //   * Send user data request.
-  //   */
-  //  public void sendUserDataRequest(UserDataRequest message) throws IOException;
-  //
-  //  /**
-  //   * Send profile update request.
-  //   * @param message
-  //   * @throws IOException
-  //   */
-  //  public void sendProfileUpdateRequest(ProfileUpdateRequest message) throws IOException;
-
   /**
    * Return the User-Identity for the subscription in the HSS represented by this activity.
    * 
    * @return the User-Identity AVP sent in the initial Subscription-Notifications-Request passed to sendSubscribeNotificationsRequest(net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest).
    */
   UserIdentityAvp getSubscribedUserIdentity();
+
 }

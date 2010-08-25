@@ -39,6 +39,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class UserIdentityAvpImpl extends GroupedAvpImpl implements UserIdentityAvp {
 
+  public UserIdentityAvpImpl() {
+    super();
+  }
+
   /**
    * 
    * @param code

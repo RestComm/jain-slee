@@ -41,6 +41,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.VendorSpecificApplic
  */
 public class SupportedApplicationsAvpImpl extends GroupedAvpImpl implements SupportedApplicationsAvp {
 
+  public SupportedApplicationsAvpImpl() {
+    super();
+  }
+
   public SupportedApplicationsAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value);
   }
