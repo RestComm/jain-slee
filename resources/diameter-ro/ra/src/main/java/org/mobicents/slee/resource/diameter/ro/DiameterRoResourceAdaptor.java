@@ -1,10 +1,30 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.ro;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.ObjectName;
 import javax.naming.OperationNotSupportedException;
@@ -27,6 +47,7 @@ import javax.slee.resource.SleeEndpoint;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
+import net.java.slee.resource.diameter.base.DiameterException;
 import net.java.slee.resource.diameter.base.events.AbortSessionAnswer;
 import net.java.slee.resource.diameter.base.events.AccountingAnswer;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
@@ -34,6 +55,7 @@ import net.java.slee.resource.diameter.base.events.ReAuthAnswer;
 import net.java.slee.resource.diameter.base.events.SessionTerminationAnswer;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.cca.CreditControlAVPFactory;
 import net.java.slee.resource.diameter.cca.CreditControlMessageFactory;
 import net.java.slee.resource.diameter.cca.CreditControlServerSession;
 import net.java.slee.resource.diameter.cca.events.CreditControlAnswer;
@@ -43,6 +65,7 @@ import net.java.slee.resource.diameter.ro.RoAvpFactory;
 import net.java.slee.resource.diameter.ro.RoClientSessionActivity;
 import net.java.slee.resource.diameter.ro.RoMessageFactory;
 import net.java.slee.resource.diameter.ro.RoProvider;
+import net.java.slee.resource.diameter.ro.RoServerSessionActivity;
 
 import org.jboss.mx.util.MBeanServerLocator;
 import org.jdiameter.api.Answer;
@@ -54,6 +77,7 @@ import org.jdiameter.api.Message;
 import org.jdiameter.api.Peer;
 import org.jdiameter.api.PeerTable;
 import org.jdiameter.api.Request;
+import org.jdiameter.api.Session;
 import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.Stack;
 import org.jdiameter.api.cca.ClientCCASession;
@@ -62,9 +86,14 @@ import org.jdiameter.client.api.ISessionFactory;
 import org.jdiameter.server.impl.app.cca.ServerCCASessionImpl;
 import org.mobicents.diameter.stack.DiameterListener;
 import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
+import org.mobicents.slee.resource.diameter.AbstractClusteredDiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.DiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.LocalDiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
+import org.mobicents.slee.resource.diameter.base.DiameterBaseMarshaler;
 import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.EventIDFilter;
 import org.mobicents.slee.resource.diameter.base.events.AbortSessionAnswerImpl;
@@ -78,11 +107,13 @@ import org.mobicents.slee.resource.diameter.base.events.ReAuthAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.ReAuthRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.SessionTerminationAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.SessionTerminationRequestImpl;
+import org.mobicents.slee.resource.diameter.base.handlers.DiameterRAInterface;
+import org.mobicents.slee.resource.diameter.cca.CreditControlAVPFactoryImpl;
 import org.mobicents.slee.resource.diameter.cca.CreditControlMessageFactoryImpl;
+import org.mobicents.slee.resource.diameter.cca.CreditControlServerSessionImpl;
 import org.mobicents.slee.resource.diameter.cca.EventIDCache;
 import org.mobicents.slee.resource.diameter.cca.events.CreditControlAnswerImpl;
 import org.mobicents.slee.resource.diameter.cca.events.CreditControlRequestImpl;
-import org.mobicents.slee.resource.diameter.cca.handlers.CCASessionCreationListener;
 import org.mobicents.slee.resource.diameter.cca.handlers.CreditControlSessionFactory;
 
 /**
@@ -90,7 +121,7 @@ import org.mobicents.slee.resource.diameter.cca.handlers.CreditControlSessionFac
  *
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListener, CCASessionCreationListener {
+public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListener, DiameterRAInterface ,org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor<String, DiameterActivity> {
 
   private static final long serialVersionUID = 1L;
 
@@ -123,6 +154,11 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
   private ResourceAdaptorContext raContext;
 
   /**
+   * FT/HA version of RA context.
+   */
+  private FaultTolerantResourceAdaptorContext<String, DiameterActivity> ftRAContext;
+
+  /**
    * The SLEE endpoint defines the contract between the SLEE and the resource
    * adaptor that enables the resource adaptor to deliver events
    * asynchronously to SLEE endpoints residing in the SLEE. This contract
@@ -141,6 +177,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
    */
   private Tracer tracer;
 
+  protected DiameterBaseMarshaler marshaler = new DiameterBaseMarshaler();
   // Diameter Specific Properties ----------------------------------------
 
   private Stack stack;
@@ -176,11 +213,12 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
   private transient EventLookupFacility eventLookup = null;
 
   /**
-   * The list of activites stored in this resource adaptor. If this resource
+   * The list of activities stored in this resource adaptor. If this resource
    * adaptor were a distributed and highly available solution, this storage
    * were one of the candidates for distribution.
    */
-  private transient ConcurrentHashMap<ActivityHandle, DiameterActivity> activities = null;
+  //private transient ConcurrentHashMap<ActivityHandle, DiameterActivity> activities = null;
+  private transient DiameterActivityManagement activities = null;
 
   /**
    * A link to the DiameterProvider which then will be exposed to Sbbs
@@ -199,7 +237,8 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     return eventFlags;
   }
 
-  private static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;
+  private static final int DEFAULT_ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;
+  private static final int MARSHALABLE_ACTIVITY_FLAGS = ActivityFlags.setSleeMayMarshal(DEFAULT_ACTIVITY_FLAGS);
 
   public DiameterRoResourceAdaptor() {
     // TODO: Initialize any default values.
@@ -225,6 +264,49 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     this.eventLookup = null;
   }
 
+  // FT Lifecycle methods ------------------------------------------------
+
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#setFaultTolerantResourceAdaptorContext
+   * (org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext)
+   */
+  public void setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext<String, DiameterActivity> ctx) {
+    this.ftRAContext = ctx;
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#unsetFaultTolerantResourceAdaptorContext()
+   */
+  public void unsetFaultTolerantResourceAdaptorContext() {
+    this.ftRAContext = null;
+    //clear this.activities ??
+  }
+
+  // FT methods ----------------------------------------------------------
+
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#dataRemoved(java.io.Serializable)
+   */
+  public void dataRemoved(String arg0) {
+    this.activities.remove(getActivityHandle(arg0));
+  }
+
+  /* (non-Javadoc)
+   * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#failOver(java.io.Serializable)
+   */
+  public void failOver(String arg0) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ApplicationId[] getSupportedApplications() {
+    //FIXME: fill this , Alex what should go here?
+    return null;
+  }
+
   public void raActive() {
     if(tracer.isFineEnabled()) {
       tracer.fine("Diameter Ro RA :: raActive.");
@@ -245,10 +327,13 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
       this.raProvider = new RoProviderImpl(this);
 
-      this.activities = new ConcurrentHashMap<ActivityHandle, DiameterActivity>();
+      //this.activities = new ConcurrentHashMap<ActivityHandle, DiameterActivity>();
 
       // Initialize the protocol stack
       initStack();
+
+      //Initialize activities mgmt
+      initActivitiesMgmt();
 
       // Initialize factories
       this.baseAvpFactory = new DiameterAvpFactoryImpl();
@@ -281,20 +366,20 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       tracer.severe("Failed to unregister Ro RA from Diameter Mux.", e);
     }
 
-    synchronized (this.activities) {
-      for (ActivityHandle activityHandle : activities.keySet()) {
-        try {
-          if(tracer.isInfoEnabled()) {
-            tracer.info("Ending activity [" + activityHandle + "]");
-          }
-
-          activities.get(activityHandle).endActivity();
-        }
-        catch (Exception e) {
-          tracer.severe("Error Deactivating Activity", e);
-        }
-      }
-    }
+    //synchronized (this.activities) {
+    //  for (ActivityHandle activityHandle : activities.keySet()) {
+    //    try {
+    //      if(tracer.isInfoEnabled()) {
+    //        tracer.info("Ending activity [" + activityHandle + "]");
+    //      }
+    //
+    //      activities.get(activityHandle).endActivity();
+    //    }
+    //    catch (Exception e) {
+    //      tracer.severe("Error Deactivating Activity", e);
+    //    }
+    //  }
+    //}
 
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter Ro RA :: raStopping completed.");
@@ -306,9 +391,9 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       tracer.fine("Diameter Ro RA :: raInactive.");
     }
 
-    synchronized (this.activities) {
-      activities.clear();
-    }
+    //synchronized (this.activities) {
+    //  activities.clear();
+    //}
     activities = null;
 
     if(tracer.isInfoEnabled()) {
@@ -367,8 +452,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
    * @see javax.slee.resource.ResourceAdaptor#getMarshaler()
    */
   public Marshaler getMarshaler() {
-    // TODO Auto-generated method stub
-    return null;
+    return marshaler;
   }
 
   // Event filtering methods ---------------------------------------------
@@ -390,7 +474,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
   public void queryLiveness(ActivityHandle handle) {
     tracer.info("Diameter Ro RA :: queryLiveness :: handle[" + handle + "].");
 
-    DiameterActivityImpl activity = (DiameterActivityImpl) activities.get(handle);
+    DiameterActivityImpl activity = (DiameterActivityImpl) activities.get((DiameterActivityHandle)handle);
 
     if (activity != null && !activity.isValid()) {
       try {
@@ -407,7 +491,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       tracer.fine("Diameter Ro RA :: getActivity :: handle[" + handle + "].");
     }
 
-    return this.activities.get(handle);
+    return this.activities.get((DiameterActivityHandle)handle);
   }
 
   public ActivityHandle getActivityHandle(Object activity) {
@@ -419,17 +503,18 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       return null;
     }
 
-    DiameterActivity inActivity = (DiameterActivity) activity;
+    DiameterActivityImpl inActivity = (DiameterActivityImpl) activity;
 
-    for (Map.Entry<ActivityHandle, DiameterActivity> activityInfo : this.activities.entrySet()) {
-      Object curActivity = activityInfo.getValue();
-
-      if (curActivity.equals(inActivity)) {
-        return activityInfo.getKey();
-      }
-    }
-
-    return null;
+    //for (Map.Entry<ActivityHandle, DiameterActivity> activityInfo : this.activities.entrySet()) {
+    //  Object curActivity = activityInfo.getValue();
+    //
+    //  if (curActivity.equals(inActivity)) {
+    //    return activityInfo.getKey();
+    //  }
+    //}
+    //
+    //return null;
+    return inActivity.getActivityHandle();
   }
 
   public void administrativeRemove(ActivityHandle handle) {
@@ -449,12 +534,12 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       tracer.info("Diameter Ro RA :: eventProcessingSuccessful :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "].");
     }
 
-    DiameterActivity activity = activities.get(handle);
+    DiameterActivity activity = activities.get((DiameterActivityHandle)handle);
 
     if(activity instanceof RoClientSessionActivityImpl) {
       RoClientSessionActivityImpl roClientActivity = (RoClientSessionActivityImpl) activity;
 
-      if(roClientActivity.getTerminateAfterAnswer()) {
+      if(roClientActivity.isTerminateAfterProcessing()) {
         roClientActivity.endActivity();
       }
     }
@@ -471,7 +556,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     if(this.activities != null) {
       synchronized (this.activities) {
-        this.activities.remove(handle);
+        this.activities.remove((DiameterActivityHandle)handle);
       }
     }
   }
@@ -481,7 +566,10 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       tracer.fine("Diameter Ro RA :: activityUnreferenced :: handle[" + handle + "].");
     }
 
-    this.activityEnded(handle);
+    //this.activityEnded(handle);
+    if(handle instanceof DiameterActivityHandle) {
+      this.endActivity((DiameterActivityHandle) handle);
+    }
   }
 
   // Event and Activities management -------------------------------------
@@ -501,13 +589,16 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
         tracer.fine("Firing event " + event + " on handle " + handle);
       }
       try {
-        /* TODO: Support transacted fire of events when in cluster
-        if (transacted){
-          this.raContext.getSleeEndpoint().fireEventTransacted(handle, eventID, event, address, null, EVENT_FLAGS);
+        Object o = getActivity(handle);
+        if(o == null) {
+          throw new IllegalStateException("No activity for handle: "+handle);
         }
-        else */{
-          this.raContext.getSleeEndpoint().fireEvent(handle, eventID, event, address, null, EVENT_FLAGS);
-        }       
+
+        if(o instanceof CreditControlServerSessionImpl && event instanceof CreditControlRequest) {
+          ((CreditControlServerSessionImpl)o).fetchCurrentState((CreditControlRequest)event);
+        }
+        this.raContext.getSleeEndpoint().fireEvent(handle, eventID, event, address, null, EVENT_FLAGS);
+
         return true;
       }
       catch (Exception e) {
@@ -528,6 +619,16 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     FireableEventType eventId = eventIdCache.getEventId(eventLookup, message);
 
     this.fireEvent(event, getActivityHandle(sessionId), eventId, null, true, message.isRequest());
+  }
+
+  @Override
+  public void endActivity(DiameterActivityHandle arg0) {
+    this.sleeEndpoint.endActivity(arg0);
+  }
+
+  @Override
+  public void update(DiameterActivityHandle arg0, DiameterActivity arg1) {
+    this.activities.update(arg0, arg1);
   }
 
   /**
@@ -577,12 +678,12 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     try {
       // Inform SLEE that Activity Started
       DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, ACTIVITY_FLAGS);
+      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
 
       // Set the listener
       activity.setSessionListener(this);
 
-      // Put it into our activites map
+      // Put it into our activities map
       activities.put(activity.getActivityHandle(), activity);
 
       if(tracer.isInfoEnabled()) {
@@ -612,6 +713,125 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter Ro RA :: Successfully initialized stack.");
+    }
+  }
+
+  private void initActivitiesMgmt() {
+    final DiameterRAInterface lst = this;
+    if (this.ftRAContext.isLocal()) {
+      // local mgmt;
+      if(tracer.isInfoEnabled()) {
+        tracer.info(raContext.getEntityName() + " -- running in LOCAL mode.");
+      }
+      this.activities = new LocalDiameterActivityManagement();
+    }
+    else {
+      if(tracer.isInfoEnabled()) {
+        tracer.info(raContext.getEntityName() + " -- running in CLUSTER mode.");
+      }
+      final org.mobicents.slee.resource.cluster.ReplicatedData<String, DiameterActivity> clusteredData = this.ftRAContext.getReplicateData(true);
+      // get special one
+      this.activities = new AbstractClusteredDiameterActivityManagement(
+          this.raContext.getTracer(""), stack, this.raContext.getSleeTransactionManager(), clusteredData) {
+
+        @Override
+        protected void performBeforeReturn(DiameterActivityImpl activity) {
+          // do all the dirty work;
+          try {
+            Session session = null;
+            if (activity.getClass().equals(DiameterActivityImpl.class)) {
+              // check as first. since it requires session recreation.
+              // JIC: is this required?
+              session = this.diameterStack.getSessionFactory().getNewSession(activity.getSessionId());
+              performBeforeReturnOnBase(activity, session);
+              return;
+            }
+            else if (activity instanceof RoClientSessionActivity) {
+              RoClientSessionActivityImpl acc = (RoClientSessionActivityImpl) activity;
+              ClientCCASession appSession = this.diameterStack.getSession(activity.getSessionId(), ClientCCASession.class);
+              session = appSession.getSessions().get(0);
+              performBeforeReturnOnBase(activity, session);
+              performBeforeReturnRo(acc, session);
+              performBeforeReturnCC(acc);
+              acc.setSession(appSession);
+            }
+            else if (activity instanceof RoServerSessionActivity) {
+              RoServerSessionActivityImpl acc = (RoServerSessionActivityImpl) activity;
+              ServerCCASession appSession = this.diameterStack.getSession(activity.getSessionId(), ServerCCASession.class);
+              session = appSession.getSessions().get(0);
+              performBeforeReturnOnBase(activity, session);
+              performBeforeReturnRo(acc, session);
+              performBeforeReturnCC(acc);
+              acc.setSession(appSession);
+            }
+            else {
+              throw new IllegalArgumentException("Unknown activity type: " + activity);
+            }
+          }
+          catch (Exception e) {
+            throw new DiameterException(e);
+          }
+        }
+
+        // Two calls are required since Ro relies on CCA. CCA does not know anything about Ro so it needs its fields created.
+        private void performBeforeReturnCC(RoServerSessionActivityImpl acc) {
+          //FIXME: overkill, but its done by CCA, extend it?
+          CreditControlAVPFactory ccaAvp = new CreditControlAVPFactoryImpl(baseAvpFactory);
+
+          acc.setCCAAvpFactory(ccaAvp);
+          //hack
+          acc.setCCAMessageFactory((CreditControlMessageFactory) acc.getRoMessageFactory());
+        }
+
+        private void performBeforeReturnCC(RoClientSessionActivityImpl acc) {
+          //FIXME: overkill, but its done by CCA, extend it?
+          CreditControlAVPFactory ccaAvp = new CreditControlAVPFactoryImpl(baseAvpFactory);
+
+          acc.setCCAAvpFactory(ccaAvp);
+          //hack
+          acc.setCCAMessageFactory((CreditControlMessageFactory) acc.getRoMessageFactory());
+        }
+
+        private void performBeforeReturnRo(RoServerSessionActivityImpl acc, Session session) {
+          acc.setRoMessageFactory(new RoMessageFactoryImpl(baseMessageFactory, session, stack, roAvpFactory));
+          // acc.setRoAvpFactory(roAvpFactory);
+        }
+
+        private void performBeforeReturnRo(RoClientSessionActivityImpl acc, Session session) {
+          acc.setRoMessageFactory(new RoMessageFactoryImpl(baseMessageFactory, session, stack, roAvpFactory));
+          // acc.setRoAvpFactory(roAvpFactory);
+        }
+
+        private void performBeforeReturnOnBase(DiameterActivityImpl ac, Session session) {
+          DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session, stack, new DiameterIdentity[] {});
+          ac.setAvpFactory(baseAvpFactory);
+          ac.setMessageFactory(msgFactory);
+          ac.setCurrentWorkingSession(session);
+          ac.setSessionListener(lst);
+        }
+
+        // private void performBeforeReturnCC(DiameterActivityImpl ac)
+        // {
+        // CreditControlSessionImpl ccs = (CreditControlSessionImpl) ac;
+        // ccs.setCCAAvpFactory(ccaAvpFactory);
+        // ccs.setCCAMessageFactory(ccaMessageFactory);
+        // }
+
+        @Override
+        public DiameterActivity get(DiameterActivityHandle handle) {
+          return super.get(handle);
+        }
+
+        @Override
+        public void put(DiameterActivityHandle handle, DiameterActivity activity) {
+          super.put(handle, activity);
+        }
+
+        @Override
+        public DiameterActivity remove(DiameterActivityHandle handle) {
+          return super.remove(handle);
+        }
+      };
     }
   }
 
@@ -725,7 +945,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     CreditControlMessageFactory ccaMsgFactory = new CreditControlMessageFactoryImpl(baseMsgFactory, ccClientSession.getSessions().get(0), this.stack, this.roAvpFactory);
 
     // Create Client Activity
-    RoClientSessionActivityImpl activity = new RoClientSessionActivityImpl(ccaMsgFactory, this.roAvpFactory, ccClientSession, null, null, this.sleeEndpoint, stack);
+    RoClientSessionActivityImpl activity = new RoClientSessionActivityImpl(ccaMsgFactory, this.roAvpFactory, ccClientSession, null, null, stack);
 
     //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
     //session.addStateChangeNotification(activity);
@@ -746,7 +966,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     CreditControlMessageFactory ccaMsgFactory = new CreditControlMessageFactoryImpl(baseMsgFactory, ccServerSession.getSessions().get(0), this.stack, this.roAvpFactory);
 
     // Create Server Activity
-    RoServerSessionActivityImpl activity = new RoServerSessionActivityImpl(ccaMsgFactory, this.roAvpFactory, ccServerSession, null, null, this.sleeEndpoint, stack);
+    RoServerSessionActivityImpl activity = new RoServerSessionActivityImpl(ccaMsgFactory, this.roAvpFactory, ccServerSession, null, null, stack);
 
     //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
     //session.addStateChangeNotification(activity);
@@ -766,25 +986,25 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       tracer.severe("Failure Ending Activity with Session-Id[" + sessionId + "]", e);
     }
   }
-//  
-//	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
-//		DiameterActivityHandle dah = getActivityHandle(source.getSessionId());
-//		Object activity = getActivity(dah);
-//		if (activity != null) {
-//			if (source instanceof ClientCCASession || source instanceof ServerCCASession) {
-//				try{
-//				CreditControlSessionImpl ccs = (CreditControlSessionImpl) activity;
-//				ccs.stateChanged(source, oldState, newState);
-//				}catch(Exception e)
-//				{
-//					tracer.warning("Failed to deliver state, for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )", e);
-//				}
-//			}
-//		} else {
-//			tracer.warning("No activity for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )");
-//		}
-//
-//	}
+  //  
+  //  public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+  //    DiameterActivityHandle dah = getActivityHandle(source.getSessionId());
+  //    Object activity = getActivity(dah);
+  //    if (activity != null) {
+  //      if (source instanceof ClientCCASession || source instanceof ServerCCASession) {
+  //        try{
+  //        CreditControlSessionImpl ccs = (CreditControlSessionImpl) activity;
+  //        ccs.stateChanged(source, oldState, newState);
+  //        }catch(Exception e)
+  //        {
+  //          tracer.warning("Failed to deliver state, for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )", e);
+  //        }
+  //      }
+  //    } else {
+  //      tracer.warning("No activity for: " + dah + " on stateChanged( " + source + ", " + oldState + ", " + newState + " )");
+  //    }
+  //
+  //  }
 
   // Provider Implementation ---------------------------------------------
 
@@ -799,7 +1019,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     public RoClientSessionActivity createRoClientSessionActivity() throws CreateActivityException {
       try {
         ClientCCASession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, authApplicationIds.get(0), ClientCCASession.class, new Object[]{});
-
+        sessionCreated(session);
         if (session == null) {
           tracer.severe("Failure creating Ro Client Session (null).");
           return null;
@@ -834,7 +1054,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
         String sessionId = ccr.getSessionId();
         DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
 
-        if (!activities.keySet().contains(handle)) {
+        if (!activities.containsKey(handle)) {
           createActivity(((DiameterMessageImpl)ccr).getGenericData());
         }
 
@@ -855,7 +1075,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
         String sessionId = ccr.getSessionId();
         DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
 
-        if (!activities.keySet().contains(handle)) {
+        if (!activities.containsKey(handle)) {
           createActivity(((DiameterMessageImpl)ccr).getGenericData());
         }
 
@@ -876,7 +1096,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
         String sessionId = ccr.getSessionId();
         DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
 
-        if (!activities.keySet().contains(handle)) {
+        if (!activities.containsKey(handle)) {
           createActivity(((DiameterMessageImpl)ccr).getGenericData());
         }
 
@@ -897,7 +1117,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
         String sessionId = ccr.getSessionId();
         DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
 
-        if (!activities.keySet().contains(handle)) {
+        if (!activities.containsKey(handle)) {
           createActivity(((DiameterMessageImpl)ccr).getGenericData());
         }
 
@@ -933,7 +1153,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       String sessionId = message.getSessionId();
       DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
 
-      if (activities.keySet().contains(handle)) {
+      if (activities.containsKey(handle)) {
         return activities.get(handle);
       }
       else {
@@ -973,7 +1193,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     private DiameterActivity createRoServerSessionActivity(Request message) throws CreateActivityException {
       try {
         ServerCCASession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(message.getSessionId(), authApplicationIds.get(0), ServerCCASession.class, new Object[]{});
-
+        sessionCreated(session);
         if (session == null) {
           tracer.severe("Failure creating Ro Server Session (null).");
           return null;
@@ -1021,7 +1241,5 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     return new DiameterIdentity[0];
   }
-
-
 
 }

@@ -664,7 +664,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
               ServerAccSession appSession = this.diameterStack.getSession(activity.getSessionId(), ServerAccSession.class);
               session = appSession.getSessions().get(0);
               performBeforeReturnOnBase(activity, session);
-              performBeforeReturnRF(acc);
+              performBeforeReturnRf(acc);
               acc.setSession(appSession);
             }
             else if (activity instanceof RfClientSession) {
@@ -672,7 +672,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
               ClientAccSession appSession = this.diameterStack.getSession(activity.getSessionId(), ClientAccSession.class);
               session = appSession.getSessions().get(0);
               performBeforeReturnOnBase(activity, session);
-              performBeforeReturnRF(acc);
+              performBeforeReturnRf(acc);
               acc.setSession(appSession);
             }
             else {
@@ -692,13 +692,13 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
           ac.setSessionListener(lst);
         }
 
-        private void performBeforeReturnRF(RfClientSessionImpl ac) {
+        private void performBeforeReturnRf(RfClientSessionImpl ac) {
           // we just have to set factory
           RfMessageFactoryImpl rfMessageFactory = new RfMessageFactoryImpl(baseMessageFactory, stack);
           ac.setRfMessageFactory(rfMessageFactory);
         }
 
-        private void performBeforeReturnRF(RfServerSessionImpl ac) {
+        private void performBeforeReturnRf(RfServerSessionImpl ac) {
           // we just have to set factory
           RfMessageFactoryImpl rfMessageFactory = new RfMessageFactoryImpl(baseMessageFactory, stack);
           ac.setRfMessageFactory(rfMessageFactory);

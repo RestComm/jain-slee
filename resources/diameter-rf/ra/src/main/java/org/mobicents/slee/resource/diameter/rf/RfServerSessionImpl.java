@@ -102,10 +102,10 @@ public class RfServerSessionImpl extends AccountingServerSessionActivityImpl imp
   }
 
   public void setRfMessageFactory(RfMessageFactory rfMessageFactory) {
-	this.rfMessageFactory = rfMessageFactory;
-}
+    this.rfMessageFactory = rfMessageFactory;
+  }
 
-public void fetchSessionData(DiameterMessage msg, boolean incoming) {
+  public void fetchSessionData(DiameterMessage msg, boolean incoming) {
     if(msg.getHeader().isRequest()) {
       //Well it should always be getting this on request and only once ?
       if(incoming) {
@@ -113,7 +113,6 @@ public void fetchSessionData(DiameterMessage msg, boolean incoming) {
         //if(this.remoteRealm == null) {
         //  this.remoteRealm = msg.getOriginRealm();
         //}
-
         stateMessages.add((DiameterMessageImpl) msg);
       }
       else {
@@ -128,10 +127,10 @@ public void fetchSessionData(DiameterMessage msg, boolean incoming) {
     }
   }
 
-	@Override
-	public void setSession(ServerAccSession appSession) {
-		stateMessages = new ArrayList<DiameterMessageImpl>();
-		super.setSession(appSession);
-	}
+  @Override
+  public void setSession(ServerAccSession appSession) {
+    stateMessages = new ArrayList<DiameterMessageImpl>();
+    super.setSession(appSession);
+  }
 
 }
