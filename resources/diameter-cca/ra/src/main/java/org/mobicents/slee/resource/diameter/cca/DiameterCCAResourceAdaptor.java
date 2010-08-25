@@ -782,25 +782,11 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
 
         @Override
         public DiameterActivity get(DiameterActivityHandle handle) {
-          try {
-            raContext.getSleeTransactionManager().getTransaction();
-          }
-          catch (SystemException e) {
-            tracer.severe("Failed to get SLEE Transaction (Manager)", e);
-          }
-
           return super.get(handle);
         }
 
         @Override
         public void put(DiameterActivityHandle handle, DiameterActivity activity) {
-          try {
-            raContext.getSleeTransactionManager().getTransaction();
-          }
-          catch (SystemException e) {
-            tracer.severe("Failed to get SLEE Transaction (Manager)", e);
-          }
-
           super.put(handle, activity);
         }
 
