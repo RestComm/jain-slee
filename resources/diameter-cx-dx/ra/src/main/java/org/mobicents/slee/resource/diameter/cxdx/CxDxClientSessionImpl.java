@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.cxdx;
 
 import java.io.IOException;
@@ -44,7 +66,9 @@ import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
  */
 public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClientSessionActivity {
 
-  protected ClientCxDxSession appSession;
+  private static final long serialVersionUID = -2312531970361957314L;
+
+  protected transient ClientCxDxSession appSession;
 
   /**
    * @param messageFactory
@@ -57,12 +81,14 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
    * @param endpoint
    */
   public CxDxClientSessionImpl(CxDxMessageFactory messageFactory, CxDxAVPFactory avpFactory, ClientCxDxSession session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint) {
-    super(messageFactory, avpFactory, session.getSessions().get(0), raEventListener, destinationHost, destinationRealm, endpoint);
+    super(messageFactory, avpFactory, session.getSessions().get(0), raEventListener, destinationHost, destinationRealm);
+    setSession(session);
+  }
+
+  public void setSession(ClientCxDxSession session) {
     this.appSession = session;
     this.appSession.addStateChangeNotification(this);
   }
-
-
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.CxDxClientSession#createLocationInfoRequest()
@@ -274,20 +300,32 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
     if (!terminated) {
       if (newState == CxDxSessionState.TERMINATED || newState == CxDxSessionState.TIMEDOUT) {
         terminated = true;
-        super.cxdxSessionListener.sessionDestroyed(sessionId, this.appSession);
+        endActivity();
       }
     }
   }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object,
-	 * java.lang.Enum, java.lang.Enum)
-	 */
-	public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
-		this.stateChanged(oldState, newState);
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Object, java.lang.Enum, java.lang.Enum)
+   */
+  public void stateChanged(AppSession arg0, Enum oldState, Enum newState) {
+    this.stateChanged(oldState, newState);
+  }
 
-	}
+  public void endActivity() {
+    if (this.appSession != null) {
+      this.appSession.release();
+    }
+
+    try {
+      // endpoint.endActivity(this.getActivityHandle());
+      super.baseListener.endActivity(this.getActivityHandle());
+    }
+    catch (Exception e) {
+      logger.error("Failed to end activity [" + this + "].", e);
+    }
+  }
+
 }

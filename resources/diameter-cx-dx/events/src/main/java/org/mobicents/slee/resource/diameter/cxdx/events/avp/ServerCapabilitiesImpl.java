@@ -41,6 +41,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class ServerCapabilitiesImpl extends GroupedAvpImpl implements ServerCapabilities {
 
+  public ServerCapabilitiesImpl() {
+    super();
+  }
+
   /**
    * @param code
    * @param vendorId

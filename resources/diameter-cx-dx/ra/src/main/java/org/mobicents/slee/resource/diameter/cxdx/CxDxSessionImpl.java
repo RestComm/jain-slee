@@ -1,8 +1,28 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.cxdx;
 
 import java.util.ArrayList;
-
-import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
@@ -19,7 +39,6 @@ import org.jdiameter.api.Session;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
-import org.mobicents.slee.resource.diameter.cxdx.handlers.CxDxSessionCreationListener;
 
 /**
  *
@@ -30,22 +49,23 @@ import org.mobicents.slee.resource.diameter.cxdx.handlers.CxDxSessionCreationLis
  */
 public abstract class CxDxSessionImpl extends DiameterActivityImpl implements CxDxSessionActivity ,StateChangeListener<AppSession>{
 
-  protected CxDxMessageFactoryImpl cxdxMessageFactory = null;
-  protected CxDxAVPFactory cxdxAvpFactory = null;
+  private static final long serialVersionUID = 4374137032596394588L;
 
-  protected DiameterMessage lastRequest = null;
-  protected ArrayList<DiameterAvp> sessionAvps = new ArrayList<DiameterAvp>();
-  
   protected boolean terminated = false;
 
-  protected CxDxSessionCreationListener cxdxSessionListener;
+  protected transient CxDxMessageFactoryImpl cxdxMessageFactory = null;
+  protected transient CxDxAVPFactory cxdxAvpFactory = null;
 
-  public CxDxSessionImpl(CxDxMessageFactory messageFactory, CxDxAVPFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint) {
-    super(null, null, session, raEventListener, destinationHost, destinationRealm, endpoint);
+  protected transient DiameterMessage lastRequest = null;
+  protected transient ArrayList<DiameterAvp> sessionAvps = new ArrayList<DiameterAvp>();
+
+
+  public CxDxSessionImpl(CxDxMessageFactory messageFactory, CxDxAVPFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
+    super(null, null, session, raEventListener, destinationHost, destinationRealm);
 
     this.cxdxMessageFactory = (CxDxMessageFactoryImpl) messageFactory;
     this.cxdxAvpFactory = avpFactory;
-   // this.cxdxSessionListener = (CxDxSessionCreationListener)raEventListener;
+    // this.cxdxSessionListener = (CxDxSessionCreationListener)raEventListener;
   }
 
   /* (non-Javadoc)
@@ -62,6 +82,14 @@ public abstract class CxDxSessionImpl extends DiameterActivityImpl implements Cx
     return this.cxdxMessageFactory;
   }
 
+  public void setCxDxMessageFactory(CxDxMessageFactoryImpl cxdxMessageFactory) {
+    this.cxdxMessageFactory = cxdxMessageFactory;
+  }
+
+  public void setCxDxAvpFactory(CxDxAVPFactory cxdxAvpFactory) {
+    this.cxdxAvpFactory = cxdxAvpFactory;
+  }
+
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.CxDxSession#getSessionId()
    */
@@ -71,14 +99,6 @@ public abstract class CxDxSessionImpl extends DiameterActivityImpl implements Cx
 
   public void fetchSessionData(DiameterMessage cxdxRequest) {
     this.lastRequest = cxdxRequest;
-  }
-
-  public Object getSessionListener() {
-    return cxdxSessionListener;
-  }
-
-  public void setSessionListener(Object ra) {
-    this.cxdxSessionListener = (CxDxSessionCreationListener) ra;
   }
 
   /**
@@ -113,4 +133,31 @@ public abstract class CxDxSessionImpl extends DiameterActivityImpl implements Cx
       message.setSessionId(sessionId);
     }
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + (terminated ? 1231 : 1237);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    CxDxSessionImpl other = (CxDxSessionImpl) obj;
+    if (terminated != other.terminated) {
+      return false;
+    }
+    return true;
+  }
+
 }

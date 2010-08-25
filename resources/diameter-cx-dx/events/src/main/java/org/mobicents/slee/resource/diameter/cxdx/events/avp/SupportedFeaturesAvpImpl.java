@@ -41,6 +41,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
  */
 public class SupportedFeaturesAvpImpl extends GroupedAvpImpl implements SupportedFeaturesAvp {
 
+  public SupportedFeaturesAvpImpl() {
+    super();
+  }
+
   /**
    * 
    * @param code

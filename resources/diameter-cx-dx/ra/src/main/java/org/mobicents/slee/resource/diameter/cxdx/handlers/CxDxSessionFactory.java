@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * 
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
 package org.mobicents.slee.resource.diameter.cxdx.handlers;
 
 import org.apache.log4j.Logger;
@@ -42,6 +64,7 @@ import org.jdiameter.common.impl.app.cxdx.JServerAssignmentRequestImpl;
 import org.jdiameter.common.impl.app.cxdx.JUserAuthorizationAnswerImpl;
 import org.jdiameter.common.impl.app.cxdx.JUserAuthorizationRequestImpl;
 import org.jdiameter.server.impl.app.cxdx.CxDxServerSessionImpl;
+import org.mobicents.slee.resource.diameter.base.handlers.DiameterRAInterface;
 
 /**
  * 
@@ -50,14 +73,13 @@ import org.jdiameter.server.impl.app.cxdx.CxDxServerSessionImpl;
  */
 public class CxDxSessionFactory extends CxDxSessionFactoryImpl {
 
-  private CxDxSessionCreationListener cxdxResourceAdaptor;
+  private DiameterRAInterface cxdxResourceAdaptor;
 
   private static final Logger logger = Logger.getLogger(CxDxSessionFactory.class);
 
-  public CxDxSessionFactory(CxDxSessionCreationListener cxDxResourceAdaptor, long messageTimeout, SessionFactory sessionFactory) {
+  public CxDxSessionFactory(DiameterRAInterface cxDxResourceAdaptor, long messageTimeout, SessionFactory sessionFactory) {
     super(sessionFactory);
     this.cxdxResourceAdaptor = cxDxResourceAdaptor;
-   
   }
 
   /* (non-Javadoc)
@@ -69,17 +91,11 @@ public class CxDxSessionFactory extends CxDxSessionFactoryImpl {
     if(appSessionClass == ClientCxDxSession.class) {
       CxDxClientSessionImpl clientSession = null;
       clientSession = (CxDxClientSessionImpl) super.getNewSession(sessionId, appSessionClass, applicationId, args);
-
-      this.cxdxResourceAdaptor.sessionCreated(clientSession);
-
       appSession = clientSession;
     }
     else if(appSessionClass == ServerCxDxSession.class) {
       org.jdiameter.server.impl.app.cxdx.CxDxServerSessionImpl serverSession = null;
       serverSession = (CxDxServerSessionImpl) super.getNewSession(sessionId, appSessionClass, applicationId, args);
-
-      this.cxdxResourceAdaptor.sessionCreated(serverSession);
-
       appSession = serverSession;
     }
     else {
@@ -212,21 +228,21 @@ public class CxDxSessionFactory extends CxDxSessionFactoryImpl {
     doFireEvent(appSession, answer.getMessage());
   }
 
-  
-  /*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.jdiameter.common.impl.app.sh.ShSessionFactoryImpl#stateChanged(org
-	 * .jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
-	 */
-	@Override
-	public void stateChanged(AppSession source, Enum oldState, Enum newState) {
-		//cxdxResourceAdaptor.stateChanged(source, oldState, newState);
-		logger.info("Diameter Cx/Dx Session Factory :: stateChanged :: source["+source+"] :: oldState[" + oldState + "], newState[" + newState + "]");
-	}
 
-/* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * org.jdiameter.common.impl.app.sh.ShSessionFactoryImpl#stateChanged(org
+   * .jdiameter.api.app.AppSession, java.lang.Enum, java.lang.Enum)
+   */
+  @Override
+  public void stateChanged(AppSession source, Enum oldState, Enum newState) {
+    //cxdxResourceAdaptor.stateChanged(source, oldState, newState);
+    logger.info("Diameter Cx/Dx Session Factory :: stateChanged :: source["+source+"] :: oldState[" + oldState + "], newState[" + newState + "]");
+  }
+
+  /* (non-Javadoc)
    * @see org.jdiameter.api.app.StateChangeListener#stateChanged(java.lang.Enum, java.lang.Enum)
    */
   public void stateChanged(Enum oldState, Enum newState) {
