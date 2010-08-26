@@ -366,6 +366,9 @@ public abstract class DiameterOpenIMSExampleSbb implements javax.slee.Sbb {
     catch (Exception e) {
       tracer.severe("Error parsing User-Data AVP.", e);
     }
+    finally {
+      aci.detach(this.getSbbContext().getSbbLocalObject());
+    }
   }
 
   public void on4xxResponse(javax.sip.ResponseEvent event, ActivityContextInterface aci) {
