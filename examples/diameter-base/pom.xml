@@ -11,7 +11,7 @@
 
   <groupId>org.mobicents.servers.diameter.examples</groupId>
   <artifactId>base-parent</artifactId>
-  <version>2.1.2.FINAL</version>
+  <version>2.2.0-SNAPSHOT</version>
 
   <name>Mobicents :: Diameter Examples :: ${pom.artifactId}</name>
         
@@ -89,9 +89,9 @@
   </profiles>
 
   <scm>
-    <connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/diameter-base/2.1.2.FINAL</connection>
-    <developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/diameter-base/2.1.2.FINAL</developerConnection>
-    <url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/diameter-base/2.1.2.FINAL</url>
+    <connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/diameter-base</connection>
+    <developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/diameter-base</developerConnection>
+    <url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/diameter-base</url>
   </scm>
 
   <build>
