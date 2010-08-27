@@ -22,10 +22,10 @@
   
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.resources.sh-client.version>2.2.0-SNAPSHOT</mobicents.diameter.resources.sh-client.version>
+    <mobicents.diameter.resources.sh-client.version>2.1.2.FINAL</mobicents.diameter.resources.sh-client.version>
     
     <!-- Other Mobicents Components Versions -->
-    <mobicents.servers.jainslee.resources.sip11.version>2.1.1.GA</mobicents.servers.jainslee.resources.sip11.version>
+    <mobicents.servers.jainslee.resources.sip11.version>2.1.2.FINAL</mobicents.servers.jainslee.resources.sip11.version>
     <mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
   </properties>
   
