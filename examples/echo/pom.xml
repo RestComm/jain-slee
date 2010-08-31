@@ -19,8 +19,8 @@
     </modules>
     
 	<properties>
-		<mobicents.resources.sip11.version>2.0.0-SNAPSHOT</mobicents.resources.sip11.version>
-		<mobicents.resources.mgcp.version>2.0.0-SNAPSHOT</mobicents.resources.mgcp.version>
+		<mobicents.resources.sip11.version>2.1.1.GA</mobicents.resources.sip11.version>
+		<mobicents.resources.mgcp.version>2.1.0.GA</mobicents.resources.mgcp.version>
 		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
 		<mobicents.tools.mavenplugin.library.version>1.0.0.BETA1</mobicents.tools.mavenplugin.library.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
@@ -127,7 +127,7 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-example-mgcp-demo</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-example-echo-demo</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		
