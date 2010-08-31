@@ -316,13 +316,14 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 
 		try {
 			bindSMSC();
-
-			// Start the ENQUIRE Link Thread
-			linkMonitorThread = new Thread(new LinkMonitor());
-			linkMonitorThread.start();
 		} catch (IOException e) {
 			this.tracer.severe("Binding to SMSC Failed ", e);
 			throw new RuntimeException(e.getMessage(), e);
+		} finally{
+			// Start the ENQUIRE Link Thread
+			isBound = true;
+			linkMonitorThread = new Thread(new LinkMonitor());
+			linkMonitorThread.start();
 		}
 	}
 
@@ -770,7 +771,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 					password, systemType, addressTON, addressNPI, addressRange);
 			semaphore.tryAcquire(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			this.tracer.severe("Binding to SMS failed", e);
+			this.tracer.severe(this.raContext.getEntityName() + ": Binding to SMS failed", e);
 			bindStatus = -1;
 		}
 
@@ -781,7 +782,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, ie.omk
 
 			throw new IOException("Could not bind to SMSC. The reason is " + this.utils.statusMessage(bindStatus));
 		}
-		tracer.info("Successfully bound to SMSC. ");
+		tracer.info(this.raContext.getEntityName() + ": Successfully bound to SMSC. ");
 		isBound = true;
 		this.smppSession.setIsAlive(true);
 
