@@ -1,5 +1,5 @@
 /*
- * CallSbb.java
+ * EchoSbb.java
  *
  * The source code contained in this file is in in the public domain.
  * It can be used in any project or product without prior permission,
@@ -58,7 +58,6 @@ import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
 
 /**
- * This SBB just acts as decision maker. For 1010 the INVITE event is routed to CRCXSbb
  * 
  * @author Oleg Kulikov
  * @author amit bhayani
@@ -67,8 +66,8 @@ public abstract class EchoSbb implements Sbb {
 
     public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
     public final static String ENDPOINT_NAME = "/mobicents/media/echo/$";
-    public final static String DEMO = "2016";
     private SbbContext sbbContext;    
+    
     // SIP
     private SleeSipProvider provider;
     private AddressFactory addressFactory;
@@ -76,6 +75,7 @@ public abstract class EchoSbb implements Sbb {
     private MessageFactory messageFactory;
     private SipActivityContextInterfaceFactory acif;
     private Tracer logger;
+    
     // MGCP
     private JainMgcpProvider mgcpProvider;
     private MgcpActivityContextInterfaceFactory mgcpAcif;
@@ -132,20 +132,29 @@ public abstract class EchoSbb implements Sbb {
         //selecting echo endpoint
         EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, JBOSS_BIND_ADDRESS + ":" + MGCP_PEER_PORT);
 
+        //Create new CRCX for Echo Endpoint
         CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
+        
+        //assign unique Transaction
         int txID = mgcpProvider.getUniqueTransactionHandler();
         createConnection.setTransactionHandle(txID);
         try {
             createConnection.setRemoteConnectionDescriptor(descriptor);
         } catch (Exception e) {
+        	e.printStackTrace();
         }
 
 
         //Create Connection is ready. Sending and awaiting response on connection activity
         MgcpConnectionActivity connectionActivity = null;
         try {
+        	//Create a new Connection Activity
             connectionActivity = mgcpProvider.getConnectionActivity(txID, endpointID);
+            
+            //Get ACI for newly created Connection Activity
             ActivityContextInterface epnAci = mgcpAcif.getActivityContextInterface(connectionActivity);
+            
+            //Attach SBB to ACI
             epnAci.attach(sbbContext.getSbbLocalObject());
         } catch (FactoryException ex) {
             ex.printStackTrace();
@@ -155,7 +164,7 @@ public abstract class EchoSbb implements Sbb {
             ex.printStackTrace();
         }
 
-        //sending
+        //Send CRCX to MGW
         mgcpProvider.sendMgcpEvents(new JainMgcpEvent[]{createConnection});
     }
 
@@ -165,6 +174,8 @@ public abstract class EchoSbb implements Sbb {
         ServerTransaction txn = getServerTransaction();
         if (txn == null) {
             logger.info("SIP activity lost:");
+            
+            //TODO : Clean the media server resources
             return;
         }
         
@@ -175,7 +186,7 @@ public abstract class EchoSbb implements Sbb {
             case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
 
                 this.setEndpointName(event.getSpecificEndpointIdentifier().getLocalEndpointName());
-                logger.info("***&& " + this.getEndpointName());
+                logger.info("Received CRCX Response. Endpoint = " + this.getEndpointName());
 
                 ConnectionIdentifier connectionIdentifier = event.getConnectionIdentifier();
 
@@ -186,6 +197,7 @@ public abstract class EchoSbb implements Sbb {
                 try {
                     contentType = headerFactory.createContentTypeHeader("application", "sdp");
                 } catch (ParseException ex) {
+                	ex.printStackTrace();
                 }
 
                 String localAddress = provider.getListeningPoints()[0].getIPAddress();
@@ -195,6 +207,7 @@ public abstract class EchoSbb implements Sbb {
                 try {
                     contactAddress = addressFactory.createAddress("sip:" + localAddress + ":" + localPort);
                 } catch (ParseException ex) {
+                	ex.printStackTrace();
                 }
                 ContactHeader contact = headerFactory.createContactHeader(contactAddress);
 
