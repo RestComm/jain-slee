@@ -1,10 +1,6 @@
 package org.mobicents.slee;
 
-import javax.slee.ActivityContextInterface;
-import javax.slee.CreateException;
-import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
-import javax.slee.SbbContext;
 import javax.slee.resource.InvalidConfigurationException;
 
 /**
@@ -24,7 +20,7 @@ import javax.slee.resource.InvalidConfigurationException;
  * @author Eduardo Martins
  * 
  */
-public abstract class SbbExt implements Sbb {
+public interface SbbExt extends Sbb {
 
 	/**
 	 * The SLEE invokes this method on a SBB object in the Unconfigured state to
@@ -36,9 +32,7 @@ public abstract class SbbExt implements Sbb {
 	 * @param properties
 	 *            the configuration properties specified for the SBB object.
 	 */
-	public void sbbConfigure(ConfigProperties properties) {
-		
-	}
+	public void sbbConfigure(ConfigProperties properties);
 
 	/**
 	 * The SLEE invokes this method on a SBB object in the Pooled state,
@@ -49,9 +43,7 @@ public abstract class SbbExt implements Sbb {
 	 * <p>
 	 * This method is invoked with an unspecified transaction context.
 	 */
-	public void sbbUnconfigure() {
-		
-	}
+	public void sbbUnconfigure();
 
 	/**
 	 * This method is invoked by the SLEE whenever a new service, which refers
@@ -75,9 +67,7 @@ public abstract class SbbExt implements Sbb {
 	 *             reason.
 	 */
 	public void sbbVerifyConfiguration(ConfigProperties properties)
-			throws InvalidConfigurationException {
-		
-	}
+			throws InvalidConfigurationException;
 
 	/**
 	 * This method is invoked by the SLEE whenever the Administrator
@@ -92,107 +82,6 @@ public abstract class SbbExt implements Sbb {
 	 *            specified for the SBB object.
 	 * @param properties
 	 */
-	public void sbbConfigurationUpdate(ConfigProperties properties) {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#sbbActivate()
-	 */
-	@Override
-	public void sbbActivate() {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#sbbCreate()
-	 */
-	@Override
-	public void sbbCreate() throws CreateException {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#sbbExceptionThrown(java.lang.Exception, java.lang.Object, javax.slee.ActivityContextInterface)
-	 */
-	@Override
-	public void sbbExceptionThrown(Exception exception, Object event,
-			ActivityContextInterface aci) {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#sbbLoad()
-	 */
-	@Override
-	public void sbbLoad() {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#sbbPassivate()
-	 */
-	@Override
-	public void sbbPassivate() {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#sbbPostCreate()
-	 */
-	@Override
-	public void sbbPostCreate() throws CreateException {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#sbbRemove()
-	 */
-	@Override
-	public void sbbRemove() {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#sbbRolledBack(javax.slee.RolledBackContext)
-	 */
-	@Override
-	public void sbbRolledBack(RolledBackContext context) {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#sbbStore()
-	 */
-	@Override
-	public void sbbStore() {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#setSbbContext(javax.slee.SbbContext)
-	 */
-	@Override
-	public void setSbbContext(SbbContext context) {
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javax.slee.Sbb#unsetSbbContext()
-	 */
-	@Override
-	public void unsetSbbContext() {
-		
-	}
+	public void sbbConfigurationUpdate(ConfigProperties properties);
+
 }

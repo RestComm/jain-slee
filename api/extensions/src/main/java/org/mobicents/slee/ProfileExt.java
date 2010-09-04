@@ -1,43 +1,39 @@
 package org.mobicents.slee;
 
-import javax.slee.CreateException;
 import javax.slee.profile.Profile;
 import javax.slee.profile.ProfileContext;
-import javax.slee.profile.ProfileVerificationException;
 import javax.slee.resource.InvalidConfigurationException;
 
 /**
- * Extension interface for a JAIN SLEE 1.1 Profile, provides lifecycles methods to
- * deal with config properties, in a similar way as Resource Adaptors work.
+ * Extension interface for a JAIN SLEE 1.1 Profile, provides lifecycles methods
+ * to deal with config properties, in a similar way as Resource Adaptors work.
  * 
  * A new state is introduced, Unconfigured, which stands between Does Not Exists
  * and Pooled states. Unconfigured is reached from Does Not Exists after
  * invocation of {@link Profile#setProfileContext(ProfileContext)}, and after
- * invocation of {@link ProfileExt#profileConfigure(ConfigProperties)} the Pooled state
- * is reached. In the reverse direction of the state machine, instead of moving
- * from Pooled to Does Not Exists state, now it goes from Pooled to
- * Unconfigured, upon invocation of {@link ProfileExt#profileUnconfigure()}, and upon
- * invocation of {@link Profile#unsetProfileContext()} it goes to Does Not Exists state
- * again.
+ * invocation of {@link ProfileExt#profileConfigure(ConfigProperties)} the
+ * Pooled state is reached. In the reverse direction of the state machine,
+ * instead of moving from Pooled to Does Not Exists state, now it goes from
+ * Pooled to Unconfigured, upon invocation of
+ * {@link ProfileExt#profileUnconfigure()}, and upon invocation of
+ * {@link Profile#unsetProfileContext()} it goes to Does Not Exists state again.
  * 
  * @author Eduardo Martins
  * 
  */
-public abstract class ProfileExt implements Profile {
+public interface ProfileExt extends Profile {
 
 	/**
-	 * The SLEE invokes this method on a Profile object in the Unconfigured state to
-	 * provide it with configuration properties common for any Profile entity that
-	 * uses the object.
+	 * The SLEE invokes this method on a Profile object in the Unconfigured
+	 * state to provide it with configuration properties common for any Profile
+	 * entity that uses the object.
 	 * <p>
 	 * This method is invoked with an unspecified transaction context.
 	 * 
 	 * @param properties
 	 *            the configuration properties specified for the Profile object.
 	 */
-	public void profileConfigure(ConfigProperties properties) {
-		
-	}
+	public void profileConfigure(ConfigProperties properties);
 
 	/**
 	 * The SLEE invokes this method on a Profile object in the Pooled state,
@@ -48,20 +44,19 @@ public abstract class ProfileExt implements Profile {
 	 * <p>
 	 * This method is invoked with an unspecified transaction context.
 	 */
-	public void profileUnconfigure() {
-		
-	}
+	public void profileUnconfigure();
 
 	/**
-	 * This method is invoked by the SLEE whenever a new Profile Spec, which refers
-	 * the abstract Profile class, is activated by the Administrator, or when the Administrator
-	 * attempts to update the configuration properties. The implementation of this method should examine
-	 * the configuration properties supplied and verify that the configuration
-	 * properties are valid for the Profile.
+	 * This method is invoked by the SLEE whenever a new Profile Spec, which
+	 * refers the abstract Profile class, is activated by the Administrator, or
+	 * when the Administrator attempts to update the configuration properties.
+	 * The implementation of this method should examine the configuration
+	 * properties supplied and verify that the configuration properties are
+	 * valid for the Profile.
 	 * <p>
-	 * This method may be invoked on a Profile object in any valid state, therefore
-	 * the implementation of this method should assume nothing about the
-	 * internal state of the Profile object.
+	 * This method may be invoked on a Profile object in any valid state,
+	 * therefore the implementation of this method should assume nothing about
+	 * the internal state of the Profile object.
 	 * <p>
 	 * This method is invoked with an unspecified transaction context.
 	 * 
@@ -73,9 +68,7 @@ public abstract class ProfileExt implements Profile {
 	 *             reason.
 	 */
 	public void profileVerifyConfiguration(ConfigProperties properties)
-			throws InvalidConfigurationException {
-		
-	}
+			throws InvalidConfigurationException;
 
 	/**
 	 * This method is invoked by the SLEE whenever the Administrator
@@ -90,58 +83,6 @@ public abstract class ProfileExt implements Profile {
 	 *            specified for the Profile object.
 	 * @param properties
 	 */
-	public void profileConfigurationUpdate(ConfigProperties properties) {
-		
-	}
-	
-	@Override
-	public void profileActivate() {
-		
-	}
-
-	@Override
-	public void profileInitialize() {
-		
-	}
-
-	@Override
-	public void profileLoad() {
-		
-	}
-
-	@Override
-	public void profilePassivate() {
-		
-	}
-
-	@Override
-	public void profilePostCreate() throws CreateException {
-		
-	}
-
-	@Override
-	public void profileRemove() {
-		
-	}
-
-	@Override
-	public void profileStore() {
-		
-	}
-
-	@Override
-	public void profileVerify() throws ProfileVerificationException {
-		
-	}
-
-	@Override
-	public void setProfileContext(ProfileContext context) {
-		
-	}
-
-	@Override
-	public void unsetProfileContext() {
-		
-	}
+	public void profileConfigurationUpdate(ConfigProperties properties);
 
 }

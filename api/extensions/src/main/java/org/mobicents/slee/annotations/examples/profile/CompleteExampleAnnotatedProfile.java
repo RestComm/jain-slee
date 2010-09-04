@@ -30,8 +30,7 @@ import org.mobicents.slee.annotations.examples.ExampleUsageParametersInterface;
 		@ProfileSpecRef(name="ExampleProfileSpec",vendor="javax.slee",version="1.0",alias="profileSpec")
 	},
 	securityPermissions="...")		
-public abstract class CompleteExampleAnnotatedProfile extends ProfileExt
-		implements ExampleProfileCMPInterface,
+public abstract class CompleteExampleAnnotatedProfile implements ProfileExt, ExampleProfileCMPInterface,
 		ExampleProfileManagementInterface {
 
 	@TracerField

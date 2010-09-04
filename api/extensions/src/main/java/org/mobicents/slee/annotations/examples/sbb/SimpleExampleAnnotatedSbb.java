@@ -44,7 +44,7 @@ import org.mobicents.slee.annotations.TracerField;
 @Service(name="ExampleSbb",vendor="javax.slee",version="1.0",
 		rootSbb=SimpleExampleAnnotatedSbb.class)
 @Sbb(name="ExampleSbb",vendor="javax.slee",version="1.0")
-public abstract class SimpleExampleAnnotatedSbb extends SbbExt {
+public abstract class SimpleExampleAnnotatedSbb implements SbbExt {
 
 	private static final long TIMER_DURATION = 1000;
 	

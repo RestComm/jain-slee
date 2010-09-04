@@ -24,7 +24,7 @@ import org.mobicents.slee.annotations.examples.resource.*;
 	properties={@ConfigProperty(name="X",type=String.class)},
 	securityPermissions="..."		
 )
-public abstract class CompleteExampleAnnotatedSbb extends SbbExt {
+public abstract class CompleteExampleAnnotatedSbb implements SbbExt {
 	
 	@TracerField
 	private Tracer tracer;
