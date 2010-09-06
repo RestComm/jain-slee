@@ -683,12 +683,11 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("DialogWrapper Id[").append(this.getDialogId())
-			.append("] Handle[").append(this.getActivityHandle())
-			.append("] State[").append(this.getState())
-			.append("] OngoingCTX[").append(this.ongoingClientTransactions.keySet())
-			.append("] OngoingSTX[").append(this.ongoingServerTransactions.keySet()).append("]")
-			.toString();
+		return new StringBuilder("DialogWrapper[ handle = ").append(getActivityHandle())
+		.append(", state = ").append(getState())
+		.append(", clientTXs = ").append(ongoingClientTransactions == null ? "" :  ongoingClientTransactions.keySet())
+		.append(", serverTXs = ").append(ongoingServerTransactions == null ? "" :  ongoingServerTransactions.keySet())
+		.append(" ]").toString();
 	}
 
 	// Own Methods

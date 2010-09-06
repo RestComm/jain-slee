@@ -345,13 +345,11 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("ClientDialogWrapper Id[").append(
-				this.getDialogId()).append("] Handle[").append(
-				this.getActivityHandle()).append("] State[").append(
-				this.getState()).append("] OngoingCTX[").append(
-				this.ongoingClientTransactions.keySet()).append("] OngoingSTX[")
-				.append(this.ongoingServerTransactions.keySet()).append("]")
-				.toString();
+		return new StringBuilder("ClientDialogWrapper[ handle = ").append(getActivityHandle())
+			.append(", state = ").append(getState())
+			.append(", clientTXs = ").append(ongoingClientTransactions == null ? "" :  ongoingClientTransactions.keySet())
+			.append(", serverTXs = ").append(ongoingServerTransactions == null ? "" :  ongoingServerTransactions.keySet())
+			.append(" ]").toString();
 	}
 
 	// ###########################################
