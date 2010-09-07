@@ -27,10 +27,11 @@ import javax.slee.SLEEException;
 import javax.slee.SbbContext;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.Tracer;
+import javax.slee.serviceactivity.ServiceActivity;
 
-import org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbbActivityContextInterface;
 import org.mobicents.slee.examples.callcontrol.common.SubscriptionProfileSbb;
 import org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP;
+import org.mobicents.slee.examples.callcontrol.profile.ProfileCreator;
 
 public abstract class CallBlockingSbb extends SubscriptionProfileSbb implements
 		javax.slee.Sbb {
@@ -82,7 +83,37 @@ public abstract class CallBlockingSbb extends SubscriptionProfileSbb implements
 			log.severe(e.getMessage(), e);
 		}
 	}
-
+	public void onStartServiceEvent(
+			javax.slee.serviceactivity.ServiceStartedEvent event,
+			ActivityContextInterface aci) {
+		//create profiles, since its 1.1 service, we will get event only for this.
+		//JSLEE 1.1: 8.8.3
+		// Changed in 1.1: A new version of the Service Started Event type has
+		// been added. This event is fired only to
+		// the starting Service.
+		log.info("Processing activation of: "+getSbbContext().getService()+", in "+getSbbContext().getSbb());
+		try{
+			ProfileCreator.createProfiles();
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void onActivityEndEvent(
+			javax.slee.ActivityEndEvent event,
+			ActivityContextInterface aci) {
+		if(aci.getActivity() instanceof ServiceActivity)
+		{
+			ServiceActivity sa = (ServiceActivity) aci.getActivity();
+			//again, we will be attached only to our SA.
+			//cleanup.
+			log.info("Processing deactivation of: "+getSbbContext().getService()+", in "+getSbbContext().getSbb());
+			//no need to remove profiles, if we redeploy, they will be gone.
+			
+			
+		}
+	}
 	/**
 	 * Attempt to find a list of Blocked Addresses (SIP URIs), but the method
 	 * returns null if the called user (sipAddress) does not block to any user.

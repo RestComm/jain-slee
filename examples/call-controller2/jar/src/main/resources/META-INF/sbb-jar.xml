@@ -2,13 +2,9 @@
 <!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
 <sbb-jar>
 
-	<!-- 
-	##############
-	#            #
-	# Blocking   #
-	#            #
-	##############
-	 -->
+	<!--
+		############## # # # Blocking # # # ##############
+	-->
 
 	<sbb>
 		<description />
@@ -16,31 +12,50 @@
 		<sbb-vendor>org.mobicents</sbb-vendor>
 		<sbb-version>0.1</sbb-version>
 
-		
+
 		<profile-spec-ref>
 			<profile-spec-name>CallControlProfileCMP</profile-spec-name>
 			<profile-spec-vendor>org.mobicents</profile-spec-vendor>
 			<profile-spec-version>0.1</profile-spec-version>
 			<profile-spec-alias>CallControlProfile</profile-spec-alias>
 		</profile-spec-ref>
-		
+
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbb</sbb-abstract-class-name>
-				<!-- 
-				<get-profile-cmp-method>
+				<!--
+					<get-profile-cmp-method>
 					<profile-spec-alias-ref>CallControlProfile</profile-spec-alias-ref>
 					<get-profile-cmp-method-name>getCallControlProfileCMP</get-profile-cmp-method-name>
-				</get-profile-cmp-method>
-				 -->
+					</get-profile-cmp-method>
+				-->
 			</sbb-abstract-class>
 			<sbb-activity-context-interface>
 				<sbb-activity-context-interface-name>org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbbActivityContextInterface</sbb-activity-context-interface-name>
 			</sbb-activity-context-interface>
 		</sbb-classes>
-		
-		
-		
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>StartServiceEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.serviceactivity.ServiceStartedEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.slee.ActivityEndEvent</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+
 		<event event-direction="Receive" initial-event="True">
 			<event-name>Invite</event-name>
 			<event-type-ref>
@@ -50,12 +65,12 @@
 			</event-type-ref>
 			<initial-event-selector-method-name>callIDSelect</initial-event-selector-method-name>
 		</event>
-		
+
 		<activity-context-attribute-alias>
 			<attribute-alias-name>inviteFilteredByCallBlocking</attribute-alias-name>
 			<sbb-activity-context-attribute-name>filteredByMe</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
-		
+
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>JAIN SIP</resource-adaptor-type-name>
@@ -70,13 +85,9 @@
 		</resource-adaptor-type-binding>
 	</sbb>
 
-	<!-- 
-	##############
-	#            #
-	# Forwarding #
-	#            #
-	##############
-	 -->
+	<!--
+		############## # # # Forwarding # # # ##############
+	-->
 	<sbb>
 		<description />
 		<sbb-name>CallForwardingSbb</sbb-name>
@@ -101,7 +112,6 @@
 			<profile-spec-version>0.1</profile-spec-version>
 			<profile-spec-alias>CallControlProfile</profile-spec-alias>
 		</profile-spec-ref>
-		
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>
@@ -139,19 +149,7 @@
 		<event event-direction="Receive" initial-event="True">
 			<event-name>Invite</event-name>
 			<event-type-ref>
-					<event-type-name>javax.sip.message.Request.INVITE</event-type-name>
-					<event-type-vendor>net.java.slee</event-type-vendor>
-					<event-type-version>1.2</event-type-version>
-			</event-type-ref>
-			<initial-event-selector-method-name>
-				callIDSelect
-			</initial-event-selector-method-name>
-		</event>
-		<!-- 
-		<event event-direction="Receive" initial-event="True">
-			<event-name>Cancel</event-name>
-			<event-type-ref>
-				<event-type-name>javax.sip.message.Request.CANCEL</event-type-name>
+				<event-type-name>javax.sip.message.Request.INVITE</event-type-name>
 				<event-type-vendor>net.java.slee</event-type-vendor>
 				<event-type-version>1.2</event-type-version>
 			</event-type-ref>
@@ -159,29 +157,29 @@
 				callIDSelect
 			</initial-event-selector-method-name>
 		</event>
-		<event event-direction="Receive" initial-event="True">
-			<event-name>Ack</event-name>
-			<event-type-ref>
-				<event-type-name>javax.sip.message.Request.ACK</event-type-name>
-				<event-type-vendor>net.java.slee</event-type-vendor>
-				<event-type-version>1.2</event-type-version>
-			</event-type-ref>
-			<initial-event-selector-method-name>
-				callIDSelect
-			</initial-event-selector-method-name>
-		</event>
-		<event event-direction="Receive" initial-event="True">
-			<event-name>Bye</event-name>
-			<event-type-ref>
-				<event-type-name>javax.sip.message.Request.BYE</event-type-name>
-				<event-type-vendor>net.java.slee</event-type-vendor>
-				<event-type-version>1.2</event-type-version>
-			</event-type-ref>
-			<initial-event-selector-method-name>
-				callIDSelect
-			</initial-event-selector-method-name>
-		</event>
-		 -->
+		<!--
+			<event event-direction="Receive" initial-event="True">
+			<event-name>Cancel</event-name> <event-type-ref>
+			<event-type-name>javax.sip.message.Request.CANCEL</event-type-name>
+			<event-type-vendor>net.java.slee</event-type-vendor>
+			<event-type-version>1.2</event-type-version> </event-type-ref>
+			<initial-event-selector-method-name> callIDSelect
+			</initial-event-selector-method-name> </event> <event
+			event-direction="Receive" initial-event="True">
+			<event-name>Ack</event-name> <event-type-ref>
+			<event-type-name>javax.sip.message.Request.ACK</event-type-name>
+			<event-type-vendor>net.java.slee</event-type-vendor>
+			<event-type-version>1.2</event-type-version> </event-type-ref>
+			<initial-event-selector-method-name> callIDSelect
+			</initial-event-selector-method-name> </event> <event
+			event-direction="Receive" initial-event="True">
+			<event-name>Bye</event-name> <event-type-ref>
+			<event-type-name>javax.sip.message.Request.BYE</event-type-name>
+			<event-type-vendor>net.java.slee</event-type-vendor>
+			<event-type-version>1.2</event-type-version> </event-type-ref>
+			<initial-event-selector-method-name> callIDSelect
+			</initial-event-selector-method-name> </event>
+		-->
 		<activity-context-attribute-alias>
 			<attribute-alias-name>
 				inviteFilteredByCallBlocking
@@ -198,7 +196,6 @@
 				filteredByMe
 			</sbb-activity-context-attribute-name>
 		</activity-context-attribute-alias>
-		
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>
@@ -224,16 +221,12 @@
 			</resource-adaptor-entity-binding>
 		</resource-adaptor-type-binding>
 	</sbb>
-	
-	<!-- 
-	##############
-	#            #
-	# VMail      #
-	#            #
-	##############
-	 -->
-	 
-	 <sbb>
+
+	<!--
+		############## # # # VMail # # # ##############
+	-->
+
+	<sbb>
 		<description />
 		<sbb-name>VoiceMailSbb</sbb-name>
 		<sbb-vendor>org.mobicents</sbb-vendor>
@@ -349,8 +342,8 @@
 			<env-entry-value>${files.route}</env-entry-value>
 		</env-entry>
 		<env-entry>
-			<description>This is the IP address of media server 
-			 to which MGCP requests are sent</description>
+			<description>This is the IP address of media server
+				to which MGCP requests are sent</description>
 			<env-entry-name>server.address</env-entry-name>
 			<env-entry-type>java.lang.String</env-entry-type>
 			<env-entry-value>${server.address}</env-entry-value>

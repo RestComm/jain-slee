@@ -36,7 +36,7 @@ import net.java.slee.resource.sip.SleeSipProvider;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP;
-import org.mobicents.slee.examples.callcontrol.profile.ProfileCreator;
+
 
 
 /**
@@ -108,7 +108,7 @@ public abstract class SubscriptionProfileSbb implements Sbb {
 	
     public void unsetSbbContext() { this.sbbContext = null; }
 
-    public void sbbCreate() throws CreateException { ProfileCreator.createProfiles(); }
+    public void sbbCreate() throws CreateException {  }
 
     public void sbbPostCreate() throws CreateException { }
 
@@ -158,6 +158,7 @@ public abstract class SubscriptionProfileSbb implements Sbb {
 		}
 
 		ies.setCustomName(callID);
+		
         return ies;
     }
 	

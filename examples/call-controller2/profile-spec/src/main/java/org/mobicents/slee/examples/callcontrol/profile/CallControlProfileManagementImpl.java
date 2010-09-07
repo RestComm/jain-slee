@@ -13,7 +13,6 @@ import javax.slee.AddressPlan;
 import javax.slee.CreateException;
 import javax.slee.profile.Profile;
 import javax.slee.profile.ProfileContext;
-
 import javax.slee.profile.ProfileVerificationException;
 
 /**
@@ -22,6 +21,7 @@ import javax.slee.profile.ProfileVerificationException;
 public abstract class CallControlProfileManagementImpl implements Profile,
 		CallControlProfileCMP {
 
+	@SuppressWarnings("unused")
 	private ProfileContext profileCtx;
 
 	/**
