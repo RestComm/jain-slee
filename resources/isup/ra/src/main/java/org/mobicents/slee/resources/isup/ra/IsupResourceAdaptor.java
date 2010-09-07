@@ -6,13 +6,16 @@
 package org.mobicents.slee.resources.isup.ra;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.slee.Address;
-import javax.slee.AddressPlan;
 import javax.slee.SLEEException;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.Tracer;
@@ -32,6 +35,8 @@ import javax.slee.resource.SleeEndpoint;
 import javax.slee.resource.StartActivityException;
 import javax.slee.resource.ConfigProperties.Property;
 
+import org.mobicents.protocols.ConfigurationException;
+import org.mobicents.protocols.StartFailedException;
 import org.mobicents.protocols.ss7.isup.ISUPClientTransaction;
 import org.mobicents.protocols.ss7.isup.ISUPListener;
 import org.mobicents.protocols.ss7.isup.ISUPMessageFactory;
@@ -88,9 +93,8 @@ import org.mobicents.protocols.ss7.isup.message.UnequippedCICMessage;
 import org.mobicents.protocols.ss7.isup.message.User2UserInformationMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartAvailableMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartTestMessage;
-import org.mobicents.protocols.ss7.stream.MTPProviderFactory;
-import org.mobicents.protocols.ss7.stream.tcp.M3UserConnector;
-import org.mobicents.protocols.ss7.stream.tcp.StartFailedException;
+import org.mobicents.protocols.ss7.mtp.provider.MtpProviderFactory;
+import org.mobicents.protocols.ss7.mtp.provider.m3ua.M3UAProvider;
 import org.mobicents.slee.resources.ss7.isup.events.TransactionEnded;
 import org.mobicents.slee.resources.ss7.isup.ratype.RAISUPProvider;
 
@@ -122,14 +126,13 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     // RA Provider //
     /////////////////
     private RAISUPProviderImpl raProvider;
-    //tmp sollution
-    private boolean transportUp = false;
+
     /////////////////
     // ISUP stack  //
     /////////////////
     private ISUPStack stack;
     private ISUPProvider isupProvider;
-    
+    private boolean transportUp = false;
     //////////////////
     // MTP provider //
     //////////////////
@@ -137,10 +140,12 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     //config for provider
     private static final String _DEFAULT_serverAddress = "localhost";
     private static final String _DEFAULT_serverPort = "1345";
-    private static final String _DEFAULT_driver = MTPProviderFactory._DRIVER_TCP;
+    private static final String _DEFAULT_clientAddress = "localhost";
+    private static final String _DEFAULT_clientPort = "8998";
+    private static final String _DEFAULT_driver = MtpProviderFactory.DRIVER_M3UA;
     
-    private String serverAddress = _DEFAULT_serverAddress;
-    private String serverPort = _DEFAULT_serverPort;
+    private String serverAddress = _DEFAULT_serverAddress+":"+_DEFAULT_serverPort;
+    private String clientAddress = _DEFAULT_clientAddress+":"+_DEFAULT_clientPort;
     private String driver = _DEFAULT_driver;
 	
     
@@ -187,27 +192,23 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		{
     		tracer.info("Configuring ISUP RA: "+this.raContext.getEntityName());
 		}
-    	//ignore data.... ech why two methods...
+    	//Its good to follow standards, why there is no proper method for that? 
     	Properties props = new Properties();
-    	props.put(M3UserConnector._PROPERTY_IP, this.serverAddress);
-    	props.put(M3UserConnector._PROPERTY_PORT, this.serverPort);
-    	props.put(MTPProviderFactory._POPERTY_DRIVER_CLASS, this.driver);
-    	//this.mtpProvider = new M3UserConnector(props);
+    	for(Property p: configProperties.getProperties())
+    	{
+    		props.put(p.getName(), p.getValue());
+    	}
     	
+    	this.stack = new ISUPStackImpl();
+    	try {
+			this.stack.configure(props);
+			this.isupProvider = this.stack.getIsupProvider();
+	    	this.raProvider = new RAISUPProviderImpl();
+		} catch (ConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	
-    	//props = new Properties();
-    	Property p = configProperties.getProperty(PROPERTY_DPC);
-    	props.put(PROPERTY_DPC, p.getValue());
-    	p = configProperties.getProperty(PROPERTY_OPC);
-    	props.put(PROPERTY_OPC, p.getValue());
-    	p = configProperties.getProperty(PROPERTY_SLS);
-    	props.put(PROPERTY_SLS, p.getValue());
-    	p = configProperties.getProperty(PROPERTY_SSI);
-    	props.put(PROPERTY_SSI, p.getValue());
-    	
-    	this.stack = new ISUPStackImpl(props);
-    	this.isupProvider = this.stack.getIsupProvider();
-    	this.raProvider = new RAISUPProviderImpl();
     }
 
     public void raUnconfigure() {
@@ -215,14 +216,18 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     }
 
     public void raActive() {
-    	//this.stack  = new ISUPMtpProviderImpl();    	
-    	this.stack.start();
-//    	try {
-//			this.mtpProvider.start();
-//		} catch (Exception e) {
-//			throw new RuntimeException();
-//		}
-		this.stack.getIsupProvider().addListener(this);
+ 	
+    	try {
+			this.stack.start();
+			this.stack.getIsupProvider().addListener(this);
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (StartFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
   
     }
 
@@ -234,66 +239,63 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void raVerifyConfiguration(ConfigProperties configProperties) throws InvalidConfigurationException {
+	public void raVerifyConfiguration(ConfigProperties configProperties) throws InvalidConfigurationException {
 
-    	//FIXME: for B1 its hardcoded with M3UserConnector as provider
-    	Property p =configProperties.getProperty(M3UserConnector._PROPERTY_IP);
-    	if(p!=null)
-    	{
-    		this.serverAddress = (String) p.getValue();
-    	}
-    	p =configProperties.getProperty(M3UserConnector._PROPERTY_PORT);
-    	if(p!=null)
-    	{
-    		this.serverPort = (String) p.getValue();
-    	}
-    	p =configProperties.getProperty(MTPProviderFactory._POPERTY_DRIVER_CLASS);
-    	if(p!=null)
-    	{
-    		this.driver = (String) p.getValue();
-    	}
-    	  try{
-          	InetAddress.getByName(this.serverAddress);
-          }catch(Exception e)
-          {
-          	tracer.severe("Error on checking server address due to some error, picking up default. "+e.getMessage());
-          	e.printStackTrace();
-          	this.serverAddress = _DEFAULT_serverAddress;
-          	
-          }
-          
-          try
-          {
-          	int x = Integer.parseInt(this.serverPort);
-          	if(x<=0 || x> 65535)
-          	{
-          		this.serverPort = ""+this._DEFAULT_serverPort;
-          	}
-          }catch(Exception e)
-          {
-          	tracer.severe("Error on checking server port due to some error, picking up default. "+e.getMessage());
-          	e.printStackTrace();
-          	this.serverPort = _DEFAULT_serverPort;
-          }
-          
-          if(configProperties.getProperty(PROPERTY_DPC) == null)
-          {
-        	  throw new InvalidConfigurationException("No DPC set!");
-          }
-          
-          if(configProperties.getProperty(PROPERTY_OPC) == null)
-          {
-        	  throw new InvalidConfigurationException("No OPC set!");
-          }
-          if(configProperties.getProperty(PROPERTY_SSI) == null)
-          {
-        	  throw new InvalidConfigurationException("No SSI set!");
-          }
-          if(configProperties.getProperty(PROPERTY_SLS) == null)
-          {
-        	  throw new InvalidConfigurationException("No SLS set!");
-          }
-    }
+		try {
+			Property p = configProperties.getProperty(M3UAProvider.PROPERTY_RADDRESS);
+			if (p != null) {
+				this.serverAddress = (String) p.getValue();
+			}
+		
+
+			p = configProperties.getProperty(M3UAProvider.PROPERTY_RADDRESS);
+			if (p != null) {
+				this.clientAddress = (String) p.getValue();
+			}
+			String[] address  = this.clientAddress.split(":");
+			// check if we can bind
+			InetSocketAddress sockAddress = new InetSocketAddress(address[0], Integer.parseInt(address[1]));
+			new DatagramSocket(sockAddress).close();
+			
+			p = configProperties.getProperty(MtpProviderFactory.PROPERTY_MTP_DRIVER);
+			if (p != null) {
+				this.driver = (String) p.getValue();
+			}
+		} catch (Throwable t) {
+			throw new InvalidConfigurationException("", t);
+		}
+
+		//try to start and stop stack
+		try
+		{
+			Properties props = new Properties();
+	    	for(Property p: configProperties.getProperties())
+	    	{
+	    		props.put(p.getName(), p.getValue());
+	    	}
+	    	
+	    	this.stack = new ISUPStackImpl();
+	    	this.stack.configure(props);
+	    	this.stack.start();
+	    	this.stack.stop();
+	    	this.stack = null;
+		} catch (Throwable t) {
+			throw new InvalidConfigurationException("Failed to start and stop stack", t);
+		}
+		if (configProperties.getProperty(PROPERTY_DPC) == null) {
+			throw new InvalidConfigurationException("No DPC set!");
+		}
+
+		if (configProperties.getProperty(PROPERTY_OPC) == null) {
+			throw new InvalidConfigurationException("No OPC set!");
+		}
+		if (configProperties.getProperty(PROPERTY_SSI) == null) {
+			throw new InvalidConfigurationException("No SSI set!");
+		}
+		if (configProperties.getProperty(PROPERTY_SLS) == null) {
+			throw new InvalidConfigurationException("No SLS set!");
+		}
+	}
 
     public void raConfigurationUpdate(ConfigProperties arg0) {
         throw new UnsupportedOperationException("Not supported yet.");

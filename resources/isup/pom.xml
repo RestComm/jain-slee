@@ -16,10 +16,11 @@
 	<packaging>pom</packaging>
 	
 	<properties>
-		<isup.version>1.0.0.BETA1-SNAPSHOT</isup.version>
-		<mtp.version>1.0.0.BETA2-SNAPSHOT</mtp.version>
+		<isup.version>1.0.0.BETA3-SNAPSHOT</isup.version>
+		<mtp.version>1.0.0.BETA4-SNAPSHOT</mtp.version>
+		<stream.version>1.0.0.BETA2-SNAPSHOT</stream.version>
 	</properties>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -36,6 +37,12 @@
 				<groupId>org.mobicents.protocols.ss7.mtp</groupId>
 				<artifactId>MTP</artifactId>
 				<version>${mtp.version}</version>
+			</dependency>
+			<!-- Dep for M3UA -->
+			<dependency>
+				<groupId>org.mobicents.protocols.stream</groupId>
+				<artifactId>stream</artifactId>
+				<version>${stream.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -21,24 +21,26 @@
             </resource-adaptor-class-name>
 			</resource-adaptor-class>
 		</resource-adaptor-classes>
+
 		<config-property>
 			<description>Driver for MTP layer</description>
-			<config-property-name>driver</config-property-name>
+			<config-property-name>mtp.driver</config-property-name>
 			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>TCP</config-property-value>
+			<config-property-value>m3ua</config-property-value>
 		</config-property>
 		<config-property>
 			<description>Streaming server address</description>
-			<config-property-name>server.ip</config-property-name>
+			<config-property-name>mtp.address.local</config-property-name>
 			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>localhost</config-property-value>
+			<config-property-value>127.0.0.1:8998</config-property-value>
 		</config-property>
 		<config-property>
 			<description>Streaming server port</description>
-			<config-property-name>server.port</config-property-name>
+			<config-property-name>mtp.address.remote</config-property-name>
 			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>1345</config-property-value>
+			<config-property-value>127.0.0.1:1345</config-property-value>
 		</config-property>
+		<!-- Strictly ISUP stack now -->
 		<config-property>
 			<description>Default DPC used by ISUP layer for originating messages</description>
 			<config-property-name>isup.dpc</config-property-name>
@@ -63,6 +65,21 @@
 			<config-property-type>java.lang.String</config-property-type>
 			<config-property-value>0</config-property-value>
 		</config-property>
-		
+		<config-property>
+			<description>Value of timeout in milisecond. It controls timeout of
+				client
+				transaction. This value must be lower than isup.general.timeout</description>
+			<config-property-name>isup.client.timeout</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>30000</config-property-value>
+		</config-property>
+		<config-property>
+			<description>Value of timeout in millisecond. It controls how long
+				transaction object lingers in stack before its released - in case no
+				action is performed.</description>
+			<config-property-name>isup.general.timeout</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>120000</config-property-value>
+		</config-property>
 	</resource-adaptor>
 </resource-adaptor-jar>
