@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle.slee;
+package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -30,9 +30,9 @@ import javax.management.ObjectName;
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.slee.tools.twiddle.JMXNameUtility;
-import org.mobicents.slee.tools.twiddle.Operation;
+import org.mobicents.tools.twiddle.AbstractSleeCommand;
+import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * @author baranowb
@@ -144,7 +144,7 @@ public class SleeCommand extends AbstractSleeCommand {
 		return new ObjectName(JMXNameUtility.SLEE_MANAGEMENT);
 	}
 	
-	private class StartOperation extends Operation
+	private class StartOperation extends AbstractOperation
 	{
 
 		public StartOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -158,7 +158,7 @@ public class SleeCommand extends AbstractSleeCommand {
 			
 		}
 	}
-	private class StopOperation extends Operation
+	private class StopOperation extends AbstractOperation
 	{
 
 		public StopOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -172,7 +172,7 @@ public class SleeCommand extends AbstractSleeCommand {
 			
 		}
 	}
-	private class ShutdownOperation extends Operation
+	private class ShutdownOperation extends AbstractOperation
 	{
 
 		public ShutdownOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -187,7 +187,7 @@ public class SleeCommand extends AbstractSleeCommand {
 		}
 	}
 	
-	private class InfoOperation extends Operation
+	private class InfoOperation extends AbstractOperation
 	{
 		private final String[] OPS=new String[]{
 				"SleeName",

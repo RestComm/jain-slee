@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle.slee;
+package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -32,9 +32,9 @@ import javax.slee.resource.ResourceAdaptorID;
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.slee.tools.twiddle.JMXNameUtility;
-import org.mobicents.slee.tools.twiddle.Operation;
+import org.mobicents.tools.twiddle.AbstractSleeCommand;
+import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * @author baranowb
@@ -215,7 +215,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		return new ObjectName(JMXNameUtility.SLEE_RESOURCE_MANAGEMENT);
 	}
 
-	private class BindOperation extends Operation
+	private class BindOperation extends AbstractOperation
 	{
 		public static final char ra_link_name = 'v';
 		public static final char ra_entity_name = 'm';
@@ -269,7 +269,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		
 	}
 	
-	private class UnBindOperation extends Operation
+	private class UnBindOperation extends AbstractOperation
 	{
 
 		
@@ -285,7 +285,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		}
 		
 	}
-	private class ActivateOperation extends Operation
+	private class ActivateOperation extends AbstractOperation
 	{
 
 		
@@ -301,7 +301,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		}
 		
 	}
-	private class DeactivateOperation extends Operation
+	private class DeactivateOperation extends AbstractOperation
 	{
 
 		
@@ -317,7 +317,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		}
 		
 	}
-	private class RemoveOperation extends Operation
+	private class RemoveOperation extends AbstractOperation
 	{
 
 		
@@ -333,7 +333,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		}
 		
 	}
-	private class CreateOperation extends Operation
+	private class CreateOperation extends AbstractOperation
 	{
 		
 		
@@ -403,7 +403,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		
 	}
 	
-	private class ListOperation extends Operation
+	private class ListOperation extends AbstractOperation
 	{
 
 		private static final char sbbs='s';
@@ -498,7 +498,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		}
 		
 	}
-	private class GetOperation extends Operation
+	private class GetOperation extends AbstractOperation
 	{
 		private static final char usage_mbean='z';
 		private static final char config_by_name='n';
@@ -578,7 +578,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		
 	}
 	
-	private class UpdateConfigOperation extends Operation
+	private class UpdateConfigOperation extends AbstractOperation
 	{
 		
 		private String stringEntityName;

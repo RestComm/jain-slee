@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle;
+package org.mobicents.tools.twiddle.op;
 
 import java.beans.PropertyEditor;
 import java.io.PrintWriter;
@@ -28,6 +28,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.jboss.util.propertyeditor.PropertyEditors;
+import org.mobicents.tools.twiddle.AbstractSleeCommand;
 
 import gnu.getopt.Getopt;
 
@@ -38,7 +39,7 @@ import gnu.getopt.Getopt;
  * @author baranowb
  * 
  */
-public abstract class Operation {
+public abstract class AbstractOperation {
 
 	protected Object operationResult;
 	protected AbstractSleeCommand sleeCommand;
@@ -51,7 +52,7 @@ public abstract class Operation {
 	protected CommandContext context;
 	protected Logger log;
 
-	protected Operation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
+	protected AbstractOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 		super();
 		this.context = context;
 		this.log = log;

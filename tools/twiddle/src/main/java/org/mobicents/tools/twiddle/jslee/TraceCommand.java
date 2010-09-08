@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle.slee;
+package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -32,24 +32,26 @@ import javax.slee.management.NotificationSource;
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.slee.tools.twiddle.JMXNameUtility;
-import org.mobicents.slee.tools.twiddle.Operation;
+import org.mobicents.tools.twiddle.AbstractSleeCommand;
+import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * Trace command class.
+ * 
  * @author baranowb
- *
+ * 
  */
 @SuppressWarnings("deprecation")
 public class TraceCommand extends AbstractSleeCommand {
 
-	
-	public TraceCommand()
-	{
-		super("trace","Performs operation on JSLEE TraceMBean.");
+	public TraceCommand() {
+		super("trace", "This command performs operations on JSLEE TraceMBean.");
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.mobicents.slee.tools.twiddle.AbstractSleeCommand#displayHelp()
 	 */
 	@Override
@@ -67,27 +69,40 @@ public class TraceCommand extends AbstractSleeCommand {
 		out.println("    -f, --tracers-set              List tracer names for which a trace filter level has been");
 		out.println("                                   set for the notification source identified by the NotificationSource parameter.");
 		out.println("                                   Requiers notification source as argument.");
-		out.println("    -s, --set-level                Sets Tracer or Trace level. Depending on suboptions. Suboption \"--cid\" is excludes \"--nsrc\".");
+		out
+				.println("    -s, --set-level                Sets Tracer or Trace level. Depending on suboptions. Suboption \"--cid\" is excludes \"--nsrc\".");
 		out.println("                                   --set-level supports following suboptions:");
-		out.println("               --cid               Determines SLEE 1.0 component ID. This option excludes \"--nsrc\". It MUST be used in conjuction wtih --level.");
-		out.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. This option excludes \"--cid\". It MUST be used in conjuction wtih --level.");
-		out.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
-		out.println("               --level             Determines level of trace (or tracer). It MUST be used with either \"--nsrc\" or \"--cid\"");
-		out.println("    -u, --un-set-level             Unsets Tracer level. Depending on suboptions. Suboption \"--cid\" excludes \"--nsrc\".");
-		out.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. It MUST be used in conjuction wtih --name.");
-		out.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
-		out.println("    -g, --get-level                Gets Trace or Tracer level. Depending on suboptions. Suboption \"--cid\"  excludes \"--nsrc\".");
+		out
+				.println("               --cid               Determines SLEE 1.0 component ID. This option excludes \"--nsrc\". It MUST be used in conjuction wtih --level.");
+		out
+				.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. This option excludes \"--cid\". It MUST be used in conjuction wtih --level.");
+		out
+				.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
+		out
+				.println("               --level             Determines level of trace (or tracer). It MUST be used with either \"--nsrc\" or \"--cid\"");
+		out
+				.println("    -u, --un-set-level             Unsets Tracer level. Depending on suboptions. Suboption \"--cid\" excludes \"--nsrc\".");
+		out
+				.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. It MUST be used in conjuction wtih --name.");
+		out
+				.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
+		out
+				.println("    -g, --get-level                Gets Trace or Tracer level. Depending on suboptions. Suboption \"--cid\"  excludes \"--nsrc\".");
 		out.println("               --cid               Determines SLEE 1.0 component ID. This option excludes \"--nsrc\".");
-		out.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. It MUST be used in conjuction wtih --name.");
-		out.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
+		out
+				.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. It MUST be used in conjuction wtih --name.");
+		out
+				.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
 
 		out.println("arg:");
-		
+
 		out.flush();
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.mobicents.slee.tools.twiddle.AbstractSleeCommand#getBeanOName()
 	 */
 	@Override
@@ -95,29 +110,30 @@ public class TraceCommand extends AbstractSleeCommand {
 		return new ObjectName(JMXNameUtility.SLEE_TRACE);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.tools.twiddle.AbstractSleeCommand#processArguments(java.lang.String[])
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.tools.twiddle.AbstractSleeCommand#processArguments
+	 * (java.lang.String[])
 	 */
 	@Override
 	protected void processArguments(String[] args) throws CommandException {
 		String sopts = ":a:f:sug";
 
-		LongOpt[] lopts = {
-				new LongOpt("tracers-used", LongOpt.REQUIRED_ARGUMENT, null, 'a'),
-				new LongOpt("tracers-set", LongOpt.REQUIRED_ARGUMENT, null, 'f'),
-				new LongOpt("set-level", LongOpt.NO_ARGUMENT, null, 's'),
-					new LongOpt("cid", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.cid),
-					new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.nsrc),
-					new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.name),
-					new LongOpt("level", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.level),
+		LongOpt[] lopts = { new LongOpt("tracers-used", LongOpt.REQUIRED_ARGUMENT, null, 'a'),
+				new LongOpt("tracers-set", LongOpt.REQUIRED_ARGUMENT, null, 'f'), new LongOpt("set-level", LongOpt.NO_ARGUMENT, null, 's'),
+				new LongOpt("cid", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.cid),
+				new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.nsrc),
+				new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.name),
+				new LongOpt("level", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.level),
 				new LongOpt("un-set-level", LongOpt.NO_ARGUMENT, null, 'u'),
-					new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, UnsetLevelOperation.nsrc),
-					new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, UnsetLevelOperation.name),
+				new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, UnsetLevelOperation.nsrc),
+				new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, UnsetLevelOperation.name),
 				new LongOpt("get-level", LongOpt.NO_ARGUMENT, null, 'g'),
-					new LongOpt("cid", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.cid),
-					new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.nsrc),
-					new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.name),
-				 };
+				new LongOpt("cid", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.cid),
+				new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.nsrc),
+				new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.name), };
 
 		Getopt getopt = new Getopt(null, args, sopts, lopts);
 		// getopt.setOpterr(false);
@@ -165,7 +181,7 @@ public class TraceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class GetTracersUsedOperation extends Operation {
+	private class GetTracersUsedOperation extends AbstractOperation {
 
 		public GetTracersUsedOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
@@ -190,7 +206,7 @@ public class TraceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class GetTracersSetOperation extends Operation {
+	private class GetTracersSetOperation extends AbstractOperation {
 
 		public GetTracersSetOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
@@ -215,7 +231,7 @@ public class TraceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class SetLevelOperation extends Operation {
+	private class SetLevelOperation extends AbstractOperation {
 
 		public static final char cid = 'z';
 		public static final char nsrc = 'x';
@@ -317,7 +333,7 @@ public class TraceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class GetLevelOperation extends Operation {
+	private class GetLevelOperation extends AbstractOperation {
 
 		public static final char cid = 'g';
 		public static final char nsrc = 'h';
@@ -399,7 +415,7 @@ public class TraceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class UnsetLevelOperation extends Operation {
+	private class UnsetLevelOperation extends AbstractOperation {
 
 		public static final char nsrc = 'o';
 		public static final char name = 'p';

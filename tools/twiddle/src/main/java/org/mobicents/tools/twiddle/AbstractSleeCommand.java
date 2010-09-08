@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle;
+package org.mobicents.tools.twiddle;
 
 import java.beans.PropertyEditorManager;
 
@@ -49,6 +49,7 @@ import org.mobicents.slee.container.management.jmx.editors.ObjectPropertyEditor;
 import org.mobicents.slee.container.management.jmx.editors.ResourceAdaptorEntityStatePropertyEditor;
 import org.mobicents.slee.container.management.jmx.editors.ServiceStatePropertyEditor;
 import org.mobicents.slee.container.management.jmx.editors.TraceLevelPropertyEditor;
+import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * Base class for slee commands. Defines property editors for them.
@@ -100,7 +101,7 @@ public abstract class AbstractSleeCommand extends AbstractCommand {
 	// something else.
 	//protected Object operationResult;
 	//protected String operationName;
-	protected Operation operation;
+	protected AbstractOperation operation;
 
 	
 	

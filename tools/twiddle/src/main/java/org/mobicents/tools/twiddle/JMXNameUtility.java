@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle;
+package org.mobicents.tools.twiddle;
 
 import gnu.getopt.LongOpt;
 
@@ -55,29 +55,5 @@ public final class JMXNameUtility {
 	public static final String MC_MANAGEMENT = "org.mobicents.slee:service=MobicentsManagement";
 	public static final String MC_PROFILE_OBJECT_POOL = "org.mobicents.slee:service=ProfileObjectPoolManagement";
 	public static final String MC_SBB_OBJECT_POOL = "org.mobicents.slee:service=SbbObjectPoolManagement";
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public static void main(String[] args)
-	{
-		String sopts = "-:a:d:u:i:o:c"; // "-" is required to allow non option args!, ":" is for req, argument, lack of it after option means no args.
-		
-		LongOpt[] lopts = { new LongOpt("activate", LongOpt.REQUIRED_ARGUMENT, null, 'a'),
-				new LongOpt("deactivate", LongOpt.REQUIRED_ARGUMENT, null, 'd'),
-				new LongOpt("serviceUsageMBean", LongOpt.REQUIRED_ARGUMENT, null, 'u'), 
-				new LongOpt("services", LongOpt.REQUIRED_ARGUMENT, null, 'i'),
-				new LongOpt("state", LongOpt.REQUIRED_ARGUMENT, null, 'o'),
-				new LongOpt("deactivateAndActivate", LongOpt.NO_ARGUMENT, null, 'c'),
-		};
-		
-		
-	}
-	
-	
+
 }

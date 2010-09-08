@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle.slee;
+package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -31,9 +31,9 @@ import javax.slee.management.DeployableUnitID;
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.slee.tools.twiddle.JMXNameUtility;
-import org.mobicents.slee.tools.twiddle.Operation;
+import org.mobicents.tools.twiddle.AbstractSleeCommand;
+import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * @author baranowb
@@ -200,7 +200,7 @@ public class DeployCommand extends AbstractSleeCommand {
 	}
 
 	
-	private class GetReferringComponentsOperation extends Operation
+	private class GetReferringComponentsOperation extends AbstractOperation
 	{
 
 		public GetReferringComponentsOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -227,7 +227,7 @@ public class DeployCommand extends AbstractSleeCommand {
 		
 	}
 	
-	private class GetDescriptorsOperation extends Operation
+	private class GetDescriptorsOperation extends AbstractOperation
 	{
 
 		
@@ -316,7 +316,7 @@ public class DeployCommand extends AbstractSleeCommand {
 		
 	}
 	
-	private class DeployableUnitIDOperation extends Operation
+	private class DeployableUnitIDOperation extends AbstractOperation
 	{
 		
 		public DeployableUnitIDOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -331,7 +331,7 @@ public class DeployCommand extends AbstractSleeCommand {
 		
 	}
 	
-	private class UninstallOperation extends Operation
+	private class UninstallOperation extends AbstractOperation
 	{
 
 		public UninstallOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -358,7 +358,7 @@ public class DeployCommand extends AbstractSleeCommand {
 		
 	}
 	
-	private class InstallOperation extends Operation
+	private class InstallOperation extends AbstractOperation
 	{
 		
 		public InstallOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -373,7 +373,7 @@ public class DeployCommand extends AbstractSleeCommand {
 		
 	}
 
-	private class IsInstalledOperation extends Operation {
+	private class IsInstalledOperation extends AbstractOperation {
 		public static final char duid = 'n';
 		public static final char cid = 'm';
 		private String stringDUID;
@@ -448,7 +448,7 @@ public class DeployCommand extends AbstractSleeCommand {
 
 	}
 	
-	private class ListOperation extends Operation {
+	private class ListOperation extends AbstractOperation {
 		
 		public static final char sbbs = 'q';
 		public static final char ra_types = 'w';

@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle.slee;
+package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -30,9 +30,9 @@ import javax.slee.profile.ProfileSpecificationID;
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.slee.tools.twiddle.JMXNameUtility;
-import org.mobicents.slee.tools.twiddle.Operation;
+import org.mobicents.tools.twiddle.AbstractSleeCommand;
+import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * Command which accesses Profile MBean.
@@ -78,7 +78,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 		out.println("            --current-name         Sets current name of profile table.");
 		out.println("            --new-name             Sets new name for profile table.");
 		//its weird, other MBeans define methods like getXXXUsage or something...
-		out.println("    -g, --get                      Fetches information regarding profiles and profile tables based on suboption(one). Supported suboptions:");
+		out.println("    -g, --get                      Fetches information regarding profiles and profile tables based on suboption, exactly one must be present. Supported suboptions:");
 		out.println("            --profile-spec         Retrieves ProfileSpecification ID for given table name,");
 		out.println("                                   requiers profile table name as argument.");
 		out.println("            --profile              Retrieves ObjectName of default profile for given table name,");
@@ -184,7 +184,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 		return new ObjectName(JMXNameUtility.SLEE_PROFILE_PROVISIONING);
 	}
 
-	private class ListOperation extends Operation {
+	private class ListOperation extends AbstractOperation {
 		public static final char table = 'o';
 		public static final char profile = 'p';
 
@@ -244,7 +244,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 		}
 	}
 
-	private class CreateOperation extends Operation {
+	private class CreateOperation extends AbstractOperation {
 		public static final char table_name = 'b';
 		public static final char profile_name = 'v';
 		public static final char profile_spec = 'm';
@@ -324,7 +324,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 		}
 	}
 
-	private class RemoveOperation extends Operation {
+	private class RemoveOperation extends AbstractOperation {
 		public static final char table_name = 'b';
 		public static final char profile_name = 'v';
 
@@ -378,7 +378,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 		}
 	}
 
-	private class RenameOperation extends Operation {
+	private class RenameOperation extends AbstractOperation {
 		public static final char current_name = 'k';
 		public static final char new_name = 'j';
 
@@ -427,7 +427,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 		}
 	}
 
-	private class GetOperation extends Operation {
+	private class GetOperation extends AbstractOperation {
 		public static final char profile_name = 'v';
 		public static final char profile_spec = 'm';
 		public static final char profile = 'x';

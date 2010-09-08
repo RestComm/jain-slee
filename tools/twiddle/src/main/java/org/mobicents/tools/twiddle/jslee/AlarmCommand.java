@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle.slee;
+package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -29,9 +29,9 @@ import javax.slee.management.NotificationSource;
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.slee.tools.twiddle.JMXNameUtility;
-import org.mobicents.slee.tools.twiddle.Operation;
+import org.mobicents.tools.twiddle.AbstractSleeCommand;
+import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * Class which invokes methods on JSLEE AlarmMBean
@@ -160,7 +160,7 @@ public class AlarmCommand extends AbstractSleeCommand {
 			}
 		}
 	}
-	private class IsActiveOperation extends Operation
+	private class IsActiveOperation extends AbstractOperation
 	{
 
 		public IsActiveOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -184,7 +184,7 @@ public class AlarmCommand extends AbstractSleeCommand {
 	}
 	
 	
-	private class GetDescriptorOperation extends Operation
+	private class GetDescriptorOperation extends AbstractOperation
 	{
 
 		public GetDescriptorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -208,7 +208,7 @@ public class AlarmCommand extends AbstractSleeCommand {
 		
 	}
 
-	private class ListAlarmsOperation extends Operation {
+	private class ListAlarmsOperation extends AbstractOperation {
 		public static final char nsrc = 'z';
 
 		public ListAlarmsOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
@@ -254,7 +254,7 @@ public class AlarmCommand extends AbstractSleeCommand {
 
 	}
 	
-	private class ClearAlarmsOperation extends Operation
+	private class ClearAlarmsOperation extends AbstractOperation
 	{
 		public static final char nsrc = 'v';
 		public static final char type = 'b';

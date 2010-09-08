@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.tools.twiddle.slee;
+package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -30,9 +30,9 @@ import javax.slee.management.ServiceState;
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.slee.tools.twiddle.JMXNameUtility;
-import org.mobicents.slee.tools.twiddle.Operation;
+import org.mobicents.tools.twiddle.AbstractSleeCommand;
+import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * Command for service interaction - activate/deactivate etc.
@@ -45,7 +45,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 
 	public ServiceCommand() {
-		super("service", "Performs operation on JSLEE ServiceManagementMBean.");
+		super("service", "This command performs operations on JSLEE ServiceManagementMBean.");
 
 	}
 
@@ -163,7 +163,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 		}
 	}
 
-	private class ActivateOperation extends Operation {
+	private class ActivateOperation extends AbstractOperation {
 
 		public ActivateOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
@@ -190,7 +190,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class DeactivateOperation extends Operation {
+	private class DeactivateOperation extends AbstractOperation {
 
 		public DeactivateOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
@@ -217,7 +217,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class GetServiceUsageMBeanOperation extends Operation {
+	private class GetServiceUsageMBeanOperation extends AbstractOperation {
 
 		public GetServiceUsageMBeanOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
@@ -243,7 +243,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class GetServicesOperation extends Operation {
+	private class GetServicesOperation extends AbstractOperation {
 
 		public GetServicesOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
@@ -269,7 +269,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class GetStateOperation extends Operation {
+	private class GetStateOperation extends AbstractOperation {
 
 		public GetStateOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
@@ -295,7 +295,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	}
 
-	private class DeactivateAndActivateOperation extends Operation {
+	private class DeactivateAndActivateOperation extends AbstractOperation {
 		// long opts for that
 		public static final char ta = 'z';
 		public static final char td = 'x';
