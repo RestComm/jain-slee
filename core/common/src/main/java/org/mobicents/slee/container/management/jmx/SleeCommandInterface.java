@@ -28,17 +28,25 @@ public class SleeCommandInterface {
 					.getName());
 
 	protected RMIAdaptor rmiserver = null;
-
+	protected String user,password;
 	public String commandBean = null;
 
 	public String commandString = null;
 
+	public SleeCommandInterface() {
+
+	}
 	/**
 	 * Constructor
 	 */
-	public SleeCommandInterface() {
+	public SleeCommandInterface(RMIAdaptor rmiserver,String user, String password) {
+		this.rmiserver = rmiserver;
+		this.user = user;
+		this.password = password;
+		setCallPrincipials();
+		
 	}
-
+	
 	/**
 	 * Constructor that takes a JNDI url
 	 * 
@@ -58,19 +66,20 @@ public class SleeCommandInterface {
 
 	private void init(String jndiurl, String user, String password)
 			throws Exception {
-		if (user != null) {
-			// Set a security context using the SecurityAssociation
-			SecurityAssociation.setPrincipal(new SimplePrincipal(user));
-
-			// Set password
-			SecurityAssociation.setCredential(password);
-		}
+		this.user = user;
+		this.password = password;
 		// Set Some JNDI Properties
 		Hashtable env = new Hashtable();
 		env.put(Context.PROVIDER_URL, jndiurl);
 		env.put(Context.INITIAL_CONTEXT_FACTORY,
 				"org.jnp.interfaces.NamingContextFactory");
 		env.put(Context.URL_PKG_PREFIXES, "org.jnp.interfaces");
+		if (user != null) {
+			
+			env.put(Context.SECURITY_CREDENTIALS   , password);
+			env.put(Context.SECURITY_PRINCIPAL     , user);
+		}
+		setCallPrincipials();
 
 		InitialContext ctx = new InitialContext(env);
 		rmiserver = (RMIAdaptor) ctx.lookup("jmx/rmi/RMIAdaptor");
@@ -78,6 +87,20 @@ public class SleeCommandInterface {
 		if (rmiserver == null)
 			logger.info("RMIAdaptor is null");
 	}
+	
+	private void setCallPrincipials() {
+
+		if (user != null) {
+			// Set a security context using the SecurityAssociation
+			SecurityAssociation.setPrincipal(new SimplePrincipal(user));
+			// Set password
+			SecurityAssociation.setCredential(password);
+		} else {
+
+		}
+
+	}
+	
 
 	/**
 	 * Get the Metadata for the MBean
@@ -88,6 +111,7 @@ public class SleeCommandInterface {
 	 */
 	public MBeanInfo getMBeanInfo(ObjectName oname) throws Exception {
 		MBeanInfo info = null;
+		setCallPrincipials();
 		info = rmiserver.getMBeanInfo(oname);
 
 		return info;
@@ -109,7 +133,7 @@ public class SleeCommandInterface {
 	 */
 	public Object invokeCommand(ObjectName oname, String methodname,
 			Object[] pParams, String[] pSignature) throws Exception {
-
+		setCallPrincipials();
 		return rmiserver.invoke(oname, methodname, pParams, pSignature);
 	}
 
@@ -126,6 +150,7 @@ public class SleeCommandInterface {
 	 */
 	public String getAttribute(ObjectName oname, String AttributeName)
 			throws Exception {
+		setCallPrincipials();
 		return rmiserver.getAttribute(oname, AttributeName).toString();
 	}
 
