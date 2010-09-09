@@ -1,6 +1,10 @@
 package org.mobicents.slee.examples.callcontrol.profile;
 
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -8,6 +12,7 @@ import java.util.concurrent.Executors;
 
 import javax.management.Attribute;
 import javax.management.ObjectName;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
@@ -15,13 +20,16 @@ import javax.slee.AddressPlan;
 import org.apache.log4j.Logger;
 import org.jboss.jmx.adaptor.rmi.RMIAdaptor;
 import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
+import org.jboss.security.SecurityAssociation;
+import org.jboss.security.SimplePrincipal;
 
 public class ProfileCreator {
-
+	private static final String CONF="credential.properties";
 	private static ExecutorService executor = Executors.newSingleThreadExecutor();
 	private static Logger log = Logger.getLogger(ProfileCreator.class);
 	public static final String CC2_TABLE = "CallControl";
 	public static final String CC2_ProfileSpecID = "ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0.1]";
+	
 	public static void createProfiles() {
 
 		try {
@@ -59,23 +67,49 @@ public class ProfileCreator {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void setCallPrincipials(String user, String password) {
 
+		if (user != null) {
+			// Set a security context using the SecurityAssociation
+			SecurityAssociation.setPrincipal(new SimplePrincipal(user));
+			// Set password
+			SecurityAssociation.setCredential(password);
+		} else {
+
+		}
+
+	}
+	
 	private static void _removeProfiles() {
 		//This cannot be done in Sbb, so we have to cleanup by hand.
 		try {
-			String jbossBindAddress = System.getProperty("jboss.bind.address");
-			Hashtable env = new Hashtable();
-			env.put("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-			env.put("java.naming.provider.url", "jnp://" + jbossBindAddress);
-			env.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
-
-			SleeCommandInterface sci = new SleeCommandInterface("jnp://" + System.getProperty("jboss.bind.address") + ":1099", null, null);
-
-			String controllerProfileSpecID = "ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0.1]";
+			String user=null;
+			String password = null;
+			Properties props = new Properties();
+			props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(CONF));
+			Iterator<Object> credentialsKeys = props.keySet().iterator();
+			if(credentialsKeys.hasNext())
+			{
+				user = (String) credentialsKeys.next();
+				password = props.getProperty(user);
+				
+			}
 			
-	
-
-			sci.invokeOperation(SleeCommandInterface.REMOVE_PROFILE_TABLE_OPERATION, controllerProfileSpecID, CC2_TABLE, null);
+			String jbossBindAddress = System.getProperty("jboss.bind.address");
+			
+			Hashtable env = new Hashtable();
+			env.put("java.naming.factory.initial","org.jnp.interfaces.NamingContextFactory");
+			env.put("java.naming.provider.url", "jnp://"+jbossBindAddress);
+			env.put("java.naming.factory.url.pkgs","org.jboss.naming:org.jnp.interfaces");
+			env.put(Context.SECURITY_CREDENTIALS   , password);
+			env.put(Context.SECURITY_PRINCIPAL     , user);
+			RMIAdaptor adaptor = (RMIAdaptor) new InitialContext(env).lookup("jmx/rmi/RMIAdaptor");
+			//init SCI, pass credentials
+			//SleeCommandInterface sci = new SleeCommandInterface("jnp://"+ System.getProperty("jboss.bind.address") + ":1099", user, password);
+			SleeCommandInterface sci = new SleeCommandInterface(adaptor,user,password);
+		
+			sci.invokeOperation(SleeCommandInterface.REMOVE_PROFILE_TABLE_OPERATION, CC2_ProfileSpecID, CC2_TABLE, null);
 		} catch (Exception e) {
 			//e.printStackTrace();
 		}
@@ -89,57 +123,87 @@ public class ProfileCreator {
 		
 		try {
 
+			//read user and password;
+			String user=null;
+			String password = null;
+			Properties props = new Properties();
+			props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(CONF));
+			Iterator<Object> credentialsKeys = props.keySet().iterator();
+			if(credentialsKeys.hasNext())
+			{
+				user = (String) credentialsKeys.next();
+				password = props.getProperty(user);
+				
+			}
+			
 			String jbossBindAddress = System.getProperty("jboss.bind.address");
+			
 			Hashtable env = new Hashtable();
-			env.put("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-			env.put("java.naming.provider.url", "jnp://" + jbossBindAddress);
-			env.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
+			env.put("java.naming.factory.initial","org.jnp.interfaces.NamingContextFactory");
+			env.put("java.naming.provider.url", "jnp://"+jbossBindAddress);
+			env.put("java.naming.factory.url.pkgs","org.jboss.naming:org.jnp.interfaces");
+			env.put(Context.SECURITY_CREDENTIALS   , password);
+			env.put(Context.SECURITY_PRINCIPAL     , user);
 			RMIAdaptor adaptor = (RMIAdaptor) new InitialContext(env).lookup("jmx/rmi/RMIAdaptor");
-			SleeCommandInterface sci = new SleeCommandInterface("jnp://" + System.getProperty("jboss.bind.address") + ":1099", null, null);
-
+			//init SCI, pass credentials
+			//SleeCommandInterface sci = new SleeCommandInterface("jnp://"+ System.getProperty("jboss.bind.address") + ":1099", user, password);
+			SleeCommandInterface sci = new SleeCommandInterface(adaptor,user,password);
 			
+			String controllerProfileSpecID = "ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0.1]";
+			String profileTableName = "CallControl";
+			String domain = System.getProperty("jboss.bind.address","127.0.0.1");
+						
+			try{
+				setCallPrincipials( user,  password);
+				sci.invokeOperation("-removeProfileTable", controllerProfileSpecID,	profileTableName, null);
+			}catch(Exception e)
+			{
+				//e.printStackTrace();
+			}
 			
-			String domain = System.getProperty("jboss.bind.address", "127.0.0.1");
-			//cleanup, this is hush hush, for case when user may stop/start SLEE or service
-			_removeProfiles();
 			// create profile table
-			sci.invokeOperation(SleeCommandInterface.CREATE_PROFILE_TABLE_OPERATION, CC2_ProfileSpecID, CC2_TABLE, null);
-			log.info("*** AddressProfileTable " + CC2_TABLE + " created.");
+			sci.invokeOperation("-createProfileTable", controllerProfileSpecID,profileTableName, null);
+
 			
-			//Creating profiles, actually SBBs may do that, but lets keep everything in one place.
-			Address[] blockedAddresses = { new Address(AddressPlan.SIP, "sip:mobicents@" + domain),
-					new Address(AddressPlan.SIP, "sip:hugo@" + domain) };
-			newProfile(adaptor, sci, CC2_TABLE, "torosvi", "sip:torosvi@" + domain, blockedAddresses, null, true);
+			log.info("*** AddressProfileTable " + profileTableName + " created.");
+
+			Address[] blockedAddresses = {new Address(AddressPlan.SIP, "sip:mobicents@"+domain),new Address(AddressPlan.SIP, "sip:hugo@"+domain)};
+			newProfile(adaptor,sci,profileTableName, "torosvi", "sip:torosvi@"+domain, blockedAddresses, null, true, user,password);
 			log.info("********** CREATED PROFILE: torosvi **********");
-
-			newProfile(adaptor, sci, CC2_TABLE, "mobicents", "sip:mobicents@" + domain, null, null, false);
+			
+			newProfile(adaptor,sci,profileTableName, "mobicents", "sip:mobicents@"+domain, null, null, false,user,password);
 			log.info("********** CREATED PROFILE: mobicents **********");
-
-			Address backupAddress = new Address(AddressPlan.SIP, "sip:torosvi@" + domain);
-			newProfile(adaptor, sci, CC2_TABLE, "victor", "sip:victor@" + domain, null, backupAddress, false);
+			
+			Address backupAddress = new Address(AddressPlan.SIP, "sip:torosvi@"+domain);
+			newProfile(adaptor,sci,profileTableName, "victor", "sip:victor@"+domain, null, backupAddress, false,user,password);
 			log.info("********** CREATED PROFILE: victor **********");
-
-			newProfile(adaptor, sci, CC2_TABLE, "vhros2", "sip:vhros2@" + domain, null, null, true);
+			
+			newProfile(adaptor,sci,profileTableName, "vhros2", "sip:vhros2@"+domain, null, null, true,user,password);
 			log.info("********** CREATED PROFILE: vhros2 **********");
-
-			newProfile(adaptor, sci, CC2_TABLE, "vmail", "sip:vmail@" + domain, null, null, true);
+			
+			newProfile(adaptor,sci,profileTableName, "vmail", "sip:vmail@"+domain, null, null, true,user,password);
 			log.info("********** CREATED PROFILE: vmail **********");
-
+			
 			log.info("Finished creation of call-controller2 Profiles!");
-
+	
 		} catch (Exception e) {
-			// log.error("Failed to create call-controller2 Profiles!",e);
+			e.printStackTrace();
+			log.error("Failed to create call-controller2 Profiles!",e);
+			
 		}
-
+	
 	}
-
 	private static void newProfile(RMIAdaptor adaptor, SleeCommandInterface sci, String profileTableName, String profileName,
-			String callee, Address[] block, Address backup, boolean state) throws Exception {
-
-		ObjectName profileObjectName = (ObjectName) sci.invokeOperation("-createProfile", profileTableName, profileName, null);
+			String callee, Address[] block, Address backup, boolean state, String user, String password)
+			throws Exception {
+		
+		ObjectName profileObjectName = (ObjectName) sci.invokeOperation("-createProfile",
+				profileTableName, profileName, null);
 		log.info("*** AddressProfile " + profileName + " created: " + profileObjectName);
+		setCallPrincipials( user,  password);
 		if (!(Boolean) adaptor.getAttribute(profileObjectName, "ProfileWriteable")) {
 			Object[] o = new Object[] {};
+			setCallPrincipials( user,  password);
 			adaptor.invoke(profileObjectName, "editProfile", o, new String[] {});
 			log.info("*** Setting profile editable.");
 		} else {
@@ -151,12 +215,17 @@ public class ProfileCreator {
 		Attribute blockedAttr = new Attribute("BlockedAddresses", block);
 		Attribute backupAttr = new Attribute("BackupAddress", backup);
 		Attribute voicemailAttr = new Attribute("VoicemailState", state);
+		setCallPrincipials( user,  password);
 		adaptor.setAttribute(profileObjectName, userAttr);
+		setCallPrincipials( user,  password);
 		adaptor.setAttribute(profileObjectName, blockedAttr);
+		setCallPrincipials( user,  password);
 		adaptor.setAttribute(profileObjectName, backupAttr);
+		setCallPrincipials( user,  password);
 		adaptor.setAttribute(profileObjectName, voicemailAttr);
 		log.info("*** Profile modifications are not committed yet.");
-		adaptor.invoke(profileObjectName, "commitProfile", new Object[] {}, new String[] {});
+		setCallPrincipials( user,  password);
+		adaptor.invoke(profileObjectName, "commitProfile", new Object[] {},new String[] {});
 		log.info("*** Profile modifications are committed.");
 	}
 

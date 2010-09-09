@@ -16,6 +16,11 @@
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>sip11-ratype</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.mobicents.servers.jainslee.core</groupId>
+			<artifactId>common</artifactId>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 	
 </project>

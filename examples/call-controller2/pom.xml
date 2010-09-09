@@ -25,9 +25,9 @@
 	</modules>
 
 	<properties>
-		<mobicents.resources.sip11.version>2.0.0.GA</mobicents.resources.sip11.version>
-		<mobicents.servers.jainslee.version>2.0.0.GA</mobicents.servers.jainslee.version>
-		<mobicents.resources.mgcp.version>2.0.0.GA</mobicents.resources.mgcp.version>
+		<mobicents.resources.sip11.version>2.2.0-SNAPSHOT</mobicents.resources.sip11.version>
+		<mobicents.servers.jainslee.version>2.2.0-SNAPSHOT</mobicents.servers.jainslee.version>
+		<mobicents.resources.mgcp.version>2.2.0-SNAPSHOT</mobicents.resources.mgcp.version>
 	</properties>
 
 	<dependencyManagement>
@@ -36,6 +36,12 @@
 			<artifactId>sip-services-location-sbb</artifactId>
 			<groupId>org.mobicents.examples</groupId>
 			<version>${mobicents.servers.jainslee.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.servers.jainslee.core</groupId>
+			<artifactId>common</artifactId>
+			<version>${mobicents.servers.jainslee.version}</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
@@ -52,6 +58,7 @@
 			<artifactId>mgcp-ratype</artifactId>
 			<version>${mobicents.resources.mgcp.version}</version>
 		</dependency>
+		
 		</dependencies>
 	</dependencyManagement>
 
