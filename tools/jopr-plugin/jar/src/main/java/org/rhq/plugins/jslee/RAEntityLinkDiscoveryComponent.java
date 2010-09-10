@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.management.ResourceManagementMBean;
 import javax.slee.resource.ResourceAdaptorID;
 
@@ -20,43 +21,60 @@ import org.rhq.plugins.jslee.utils.MBeanServerUtils;
 
 public class RAEntityLinkDiscoveryComponent implements ResourceDiscoveryComponent<RAEntityComponent> {
 
-	private final Log log = LogFactory.getLog(this.getClass());
+  private final Log log = LogFactory.getLog(this.getClass());
 
-	private String raEntityName;
-	private ResourceAdaptorID raID;
+  private String raEntityName;
+  private ResourceAdaptorID raID;
 
-	public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<RAEntityComponent> context)
-			throws InvalidPluginConfigurationException, Exception {
-		log.info("RAEntityLinkDiscoveryComponent.discoverResources() called");
+  public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<RAEntityComponent> context)
+  throws InvalidPluginConfigurationException, Exception {
+    if(log.isDebugEnabled()) {
+      log.debug("RAEntityLinkDiscoveryComponent.discoverResources() called");
+    }
 
-		Set<DiscoveredResourceDetails> discoveredLinks = new HashSet<DiscoveredResourceDetails>();
+    Set<DiscoveredResourceDetails> discoveredLinks = new HashSet<DiscoveredResourceDetails>();
 
-		MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
-		MBeanServerConnection connection = mbeanUtils.getConnection();
+    MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
 
-		ObjectName resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
+    try {
+      MBeanServerConnection connection = mbeanUtils.getConnection();
+      mbeanUtils.login();
 
-		ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler
-				.newProxyInstance(connection, resourceManagement, javax.slee.management.ResourceManagementMBean.class,
-						false);
+      ObjectName resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
 
-		raEntityName = context.getParentResourceComponent().getRAEntityName();
-		this.raID = context.getParentResourceComponent().getResourceAdaptorID();
+      ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler
+      .newProxyInstance(connection, resourceManagement, javax.slee.management.ResourceManagementMBean.class,
+          false);
 
-		String[] links = resourceManagementMBean.getLinkNames(raEntityName);
+      raEntityName = context.getParentResourceComponent().getRAEntityName();
+      this.raID = context.getParentResourceComponent().getResourceAdaptorID();
 
-		for (String link : links) {
-			String description = "Link : " + link + " For ResourceAdaptor Entity : " + raEntityName;
+      String[] links = resourceManagementMBean.getLinkNames(raEntityName);
 
-			DiscoveredResourceDetails discoveredEntity = new DiscoveredResourceDetails(context.getResourceType(), link,
-					link+" Link", raID.getVersion(), description, null, null);
-			discoveredEntity.getPluginConfiguration().put(new PropertySimple("linkName", link));
+      for (String link : links) {
+        String description = "Link : " + link + " For ResourceAdaptor Entity : " + raEntityName;
 
-			discoveredLinks.add(discoveredEntity);
-		}
+        DiscoveredResourceDetails discoveredEntity = new DiscoveredResourceDetails(context.getResourceType(), link,
+            link+" Link", raID.getVersion(), description, null, null);
+        discoveredEntity.getPluginConfiguration().put(new PropertySimple("linkName", link));
 
-		log.info("Discovered " + discoveredLinks.size() + "  Resource Adaptor Entity Links.");
-		return discoveredLinks;
+        discoveredLinks.add(discoveredEntity);
+      }
 
-	}
+      if(log.isInfoEnabled()) {
+        log.info("Discovered " + discoveredLinks.size() + " JAIN SLEE Resource Adaptor Entity Link Components.");
+      }
+      return discoveredLinks;
+    }
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
+  }
 }

@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 
 import org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean;
 import org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean;
@@ -31,7 +32,9 @@ public class ExecutorComponent extends MBeanResourceComponent {
   Integer executorId = null;
 
   public void start(ResourceContext context) {
-    log.info("ExecutorComponent.start");
+    if(log.isTraceEnabled()) {
+      log.trace("start(" + context + ") called.");
+    }
 
     this.resourceContext = context;
 
@@ -41,7 +44,12 @@ public class ExecutorComponent extends MBeanResourceComponent {
 
   public AvailabilityType getAvailability() {
     try {
+      if(log.isTraceEnabled()) {
+        log.trace("getAvailability() called.");
+      }
+
       MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
   
       ObjectName erConfigObjectName = new ObjectName("org.mobicents.slee:name=EventRouterConfiguration"/* FIXME */);
   
@@ -53,12 +61,26 @@ public class ExecutorComponent extends MBeanResourceComponent {
     catch (Exception e) {
       log.debug("Failed to get Availability for Executor #" + this.executorId, e);
     }
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
     
     return AvailabilityType.DOWN;
   }
 
   public void getValues(MeasurementReport report, Set requests) {
     try {
+      if(log.isTraceEnabled()) {
+        log.trace("getValues(" + report + "," + requests + ") called.");
+      }
+
       Set<MeasurementScheduleRequest> metrics = requests;
       
       EventRouterStatisticsMBean erStats = getEventRouterStatisticsMBean();
@@ -93,12 +115,26 @@ public class ExecutorComponent extends MBeanResourceComponent {
   }
 
   private EventRouterStatisticsMBean getEventRouterStatisticsMBean() throws Exception {
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
 
-    ObjectName erStatsObjectName = new ObjectName("org.mobicents.slee:name=EventRouterStatistics"/* FIXME */);
-    EventRouterStatisticsMBean erStatsMBean = (EventRouterStatisticsMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
-        erStatsObjectName, EventRouterStatisticsMBean.class, false);
-
-    return erStatsMBean;
+      ObjectName erStatsObjectName = new ObjectName("org.mobicents.slee:name=EventRouterStatistics"/* FIXME */);
+      EventRouterStatisticsMBean erStatsMBean = (EventRouterStatisticsMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+          erStatsObjectName, EventRouterStatisticsMBean.class, false);
+      
+      return erStatsMBean;
+    }
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
+
 }

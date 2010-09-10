@@ -287,9 +287,14 @@ public class JBossInstanceInfo {
 		if (!this.sysProps.containsKey(JBossProperties.SERVER_TEMP_DIR)) {
 			String serverHomeDir = this.sysProps.getProperty(JBossProperties.SERVER_HOME_DIR);
 			this.sysProps.setProperty(JBossProperties.SERVER_TEMP_DIR, (serverHomeDir + File.separator + "tmp"));
-			log.info("set JBossProperties.SERVER_TEMP_DIR to "+ this.sysProps.getProperty(JBossProperties.SERVER_TEMP_DIR));
-		} else{
-			log.info("It already has JBossProperties.SERVER_TEMP_DIR");
+			if(log.isTraceEnabled()) {
+  			log.trace("set JBossProperties.SERVER_TEMP_DIR to "+ this.sysProps.getProperty(JBossProperties.SERVER_TEMP_DIR));
+			}
+		}
+		else{
+      if(log.isTraceEnabled()) {
+        log.trace("It already has JBossProperties.SERVER_TEMP_DIR");
+      }
 		}
 
 		// Let us put mobicents dir here

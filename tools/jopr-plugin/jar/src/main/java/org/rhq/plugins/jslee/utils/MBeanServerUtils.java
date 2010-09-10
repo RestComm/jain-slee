@@ -6,16 +6,36 @@ import javax.management.MBeanServerConnection;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
+import org.rhq.plugins.jslee.utils.jaas.JBossCallbackHandler;
+import org.rhq.plugins.jslee.utils.jaas.JBossConfiguration;
 
 public class MBeanServerUtils {
 	private Properties prop = null;
+  private LoginContext loginContext;
 
-	public MBeanServerUtils(String namingURL) {
+	public MBeanServerUtils(String namingURL, String principal, String credentials) {
 		this.prop = new Properties();
 		prop.put(Context.INITIAL_CONTEXT_FACTORY, "org.jnp.interfaces.NamingContextFactory");
 		prop.put(Context.URL_PKG_PREFIXES, "org.jboss.naming:org.jnp.interfaces");
 		prop.put(Context.PROVIDER_URL, namingURL);
 
+		if(principal != null) {
+	    prop.put(Context.SECURITY_PRINCIPAL, principal);
+	    prop.put(Context.SECURITY_CREDENTIALS, credentials);
+
+	    CallbackHandler jaasCallbackHandler = new JBossCallbackHandler(principal, "admin");
+      javax.security.auth.login.Configuration jaasConfig = new JBossConfiguration();
+      try {
+        loginContext = new LoginContext(JBossConfiguration.JBOSS_ENTRY_NAME, null, jaasCallbackHandler, jaasConfig);
+      }
+      catch (LoginException e) {
+        throw new RuntimeException(e);
+      }
+		}
 	}
 
 	public MBeanServerConnection getConnection() throws NamingException {
@@ -23,5 +43,17 @@ public class MBeanServerUtils {
 		MBeanServerConnection server = (MBeanServerConnection) ctx.lookup("jmx/invoker/RMIAdaptor");
 		return server;
 	}
+	
+  public void login() throws LoginException {
+    if(loginContext != null) {
+      loginContext.login();
+    }
+  }
+
+  public void logout() throws LoginException {
+    if(loginContext != null) {
+      loginContext.logout();
+    }
+  }
 
 }

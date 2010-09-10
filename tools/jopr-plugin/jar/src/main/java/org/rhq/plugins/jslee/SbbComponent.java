@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.SbbID;
 import javax.slee.management.DeploymentMBean;
 
@@ -34,7 +35,9 @@ public class SbbComponent implements ResourceComponent<JainSleeServerComponent>,
   private ObjectName deploymentMBeanObj;
 
   public void start(ResourceContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException, Exception {
-    log.info("start");
+    if(log.isTraceEnabled()) {
+      log.trace("start(" + context + ") called.");
+    }
 
     this.resourceContext = context;
     this.deploymentMBeanObj = new ObjectName(DeploymentMBean.OBJECT_NAME);
@@ -49,16 +52,22 @@ public class SbbComponent implements ResourceComponent<JainSleeServerComponent>,
   }
 
   public void stop() {
-    log.info("stop");
+    if(log.isTraceEnabled()) {
+      log.trace("stop() called.");
+    }
   }
 
   public AvailabilityType getAvailability() {
-    log.info("getAvailability");
+    if(log.isTraceEnabled()) {
+      log.trace("getAvailability() called.");
+    }
 
     this.isUp = false;
 
     try {
       MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
+
       DeploymentMBean depMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection, deploymentMBeanObj, DeploymentMBean.class, false);
 
       for(SbbID activeSbbId : depMBean.getSbbs()) {
@@ -70,12 +79,25 @@ public class SbbComponent implements ResourceComponent<JainSleeServerComponent>,
     catch (Exception e) {
       log.error("getAvailability failed for SbbID = " + this.sbbId);
     }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
 
     return this.isUp ? AvailabilityType.UP : AvailabilityType.DOWN;
   }
 
   public void getValues(MeasurementReport report, Set<MeasurementScheduleRequest> metrics) throws Exception {
-    log.info("getValues");
+    if(log.isTraceEnabled()) {
+      log.trace("getValues(" + report + "," + metrics + ") called.");
+    }
+
     for (MeasurementScheduleRequest request : metrics) {
       if (request.getName().equals("state")) {
         report.addData(new MeasurementDataTrait(request, this.isUp ? "UP" : "DOWN"));
@@ -84,7 +106,9 @@ public class SbbComponent implements ResourceComponent<JainSleeServerComponent>,
   }
 
   public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException, Exception {
-    log.info("SbbComponent.invokeOperation() with name = " + name);
+    if(log.isDebugEnabled()) {
+      log.debug("invokeOperation(" + name + ", " + parameters + ") called.");
+    }
 
     throw new UnsupportedOperationException("Operation [" + name + "] is not supported.");
   }

@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceManagementMBean;
 import javax.slee.management.ServiceState;
@@ -41,7 +42,9 @@ public class ServiceComponent implements ResourceComponent<JainSleeServerCompone
   private ServiceState serviceState = ServiceState.INACTIVE;
 
   public void start(ResourceContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException, Exception {
-    log.info("start");
+    if(log.isTraceEnabled()) {
+      log.trace("start(" + context + ") called.");
+    }
 
     this.resourceContext = context;
     this.servicemanagement = new ObjectName(ServiceManagementMBean.OBJECT_NAME);
@@ -56,26 +59,47 @@ public class ServiceComponent implements ResourceComponent<JainSleeServerCompone
   }
 
   public void stop() {
-    log.info("stop");
+    if(log.isTraceEnabled()) {
+      log.trace("stop() called.");
+    }
   }
 
   public AvailabilityType getAvailability() {
-    log.info("getAvailability");
+    if(log.isTraceEnabled()) {
+      log.trace("getAvailability() called.");
+    }
+
     try {
       MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
+
       serviceState = (ServiceState) connection.invoke(this.servicemanagement, "getState",
           new Object[] { this.serviceId }, new String[] { ServiceID.class.getName() });
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       log.error("getAvailability failed for ServiceID = " + this.serviceId);
       this.serviceState = ServiceState.INACTIVE;
       return AvailabilityType.DOWN;
+    }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
     }
 
     return AvailabilityType.UP;
   }
 
   public void getValues(MeasurementReport report, Set<MeasurementScheduleRequest> metrics) throws Exception {
-    log.info("getValues");
+    if(log.isTraceEnabled()) {
+      log.trace("getValues(" + report + "," + metrics + ") called.");
+    }
+
     for (MeasurementScheduleRequest request : metrics) {
       if (request.getName().equals("state")) {
         report.addData(new MeasurementDataTrait(request, this.serviceState.toString()));
@@ -90,11 +114,12 @@ public class ServiceComponent implements ResourceComponent<JainSleeServerCompone
         }
       }
     }
-
   }
 
   public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException, Exception {
-    log.info("ServiceComponent.invokeOperation() with name = " + name);
+    if(log.isDebugEnabled()) {
+      log.debug("invokeOperation(" + name + ", " + parameters + ") called.");
+    }
 
     if ("changeServiceState".equals(name)) {
       return doChangeServiceState(parameters);
@@ -108,29 +133,43 @@ public class ServiceComponent implements ResourceComponent<JainSleeServerCompone
   }
 
   private OperationResult doChangeServiceState(Configuration parameters) throws Exception {
-    String message = null;
-    String action = parameters.getSimple("action").getStringValue();
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    ServiceManagementMBean serviceManagementMBean = (ServiceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
-        connection, this.servicemanagement, javax.slee.management.ServiceManagementMBean.class, false);
-    if ("activate".equals(action)) {
-      serviceManagementMBean.activate(this.serviceId);
-      message = "Successfully Activated Service " + this.serviceId;
-      this.serviceState = ServiceState.ACTIVE;
-    }
-    else if ("deactivate".equals(action)) {
-      serviceManagementMBean.deactivate(this.serviceId);
-      message = "Successfully Deactivated Service " + this.serviceId;
-      this.serviceState = ServiceState.INACTIVE;
-    }
+    try {
+      String message = null;
+      String action = parameters.getSimple("action").getStringValue();
 
-    OperationResult result = new OperationResult();
-    result.getComplexResults().put(new PropertySimple("result", message));
-    return result;
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
+
+      ServiceManagementMBean serviceManagementMBean = (ServiceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, this.servicemanagement, javax.slee.management.ServiceManagementMBean.class, false);
+      if ("activate".equals(action)) {
+        serviceManagementMBean.activate(this.serviceId);
+        message = "Successfully Activated Service " + this.serviceId;
+        this.serviceState = ServiceState.ACTIVE;
+      }
+      else if ("deactivate".equals(action)) {
+        serviceManagementMBean.deactivate(this.serviceId);
+        message = "Successfully Deactivated Service " + this.serviceId;
+        this.serviceState = ServiceState.INACTIVE;
+      }
+
+      OperationResult result = new OperationResult();
+      result.getComplexResults().put(new PropertySimple("result", message));
+      return result;
+    }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private OperationResult doRetrieveSbbEntities() throws Exception {
-
     // The pretty table we are building as result
     PropertyList columnList = new PropertyList("result");
 
@@ -158,20 +197,34 @@ public class ServiceComponent implements ResourceComponent<JainSleeServerCompone
    * @throws Exception
    */
   private ArrayList<Object[]> getServiceSbbEntities() throws Exception {
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    ObjectName sbbEntitiesMBeanObj = new ObjectName("org.mobicents.slee:name=SbbEntitiesMBean");
-    SbbEntitiesMBeanImplMBean sbbEntititesMBean = (SbbEntitiesMBeanImplMBean) MBeanServerInvocationHandler.newProxyInstance(
-        connection, sbbEntitiesMBeanObj, SbbEntitiesMBeanImplMBean.class, false);
-    Object[] objs = sbbEntititesMBean.retrieveAllSbbEntities();
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
 
-    ArrayList<Object[]> list = new ArrayList<Object[]>();
-    for(Object obj : objs) {
-      Object[] sbbEntity = (Object[])obj; 
-      if(sbbEntity[7] != null && sbbEntity[7].equals(this.serviceId)) {
-        list.add(sbbEntity);
+      ObjectName sbbEntitiesMBeanObj = new ObjectName("org.mobicents.slee:name=SbbEntitiesMBean");
+      SbbEntitiesMBeanImplMBean sbbEntititesMBean = (SbbEntitiesMBeanImplMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, sbbEntitiesMBeanObj, SbbEntitiesMBeanImplMBean.class, false);
+      Object[] objs = sbbEntititesMBean.retrieveAllSbbEntities();
+
+      ArrayList<Object[]> list = new ArrayList<Object[]>();
+      for(Object obj : objs) {
+        Object[] sbbEntity = (Object[])obj; 
+        if(sbbEntity[7] != null && sbbEntity[7].equals(this.serviceId)) {
+          list.add(sbbEntity);
+        }
+      }
+
+      return list;
+    }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
       }
     }
-
-    return list;
   }
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,33 +23,49 @@ public class ExecutorDiscoveryComponent implements ResourceDiscoveryComponent<Ja
   private final Log log = LogFactory.getLog(ExecutorDiscoveryComponent.class);
 
   public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException, Exception {
-    log.info("ExecutorDiscoveryComponent.discoverResources() called");
+    if(log.isDebugEnabled()) {
+      log.debug("ExecutorDiscoveryComponent.discoverResources() called");
+    }
 
     Set<DiscoveredResourceDetails> discoveredExecutors = new HashSet<DiscoveredResourceDetails>();
 
     MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
-    MBeanServerConnection connection = mbeanUtils.getConnection();
 
-    ObjectName erConfigObjectName = new ObjectName("org.mobicents.slee:name=EventRouterConfiguration"/* FIXME */);
+    try {
+      MBeanServerConnection connection = mbeanUtils.getConnection();
+      mbeanUtils.login();
 
-    EventRouterConfigurationMBean erConfigMBean = (EventRouterConfigurationMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
-        erConfigObjectName, EventRouterConfigurationMBean.class, false);
+      ObjectName erConfigObjectName = new ObjectName("org.mobicents.slee:name=EventRouterConfiguration"/* FIXME */);
 
-    for (int executorId = 0; executorId < erConfigMBean.getEventRouterThreads(); executorId++) {
-      String key = "Executor #" + executorId;
+      EventRouterConfigurationMBean erConfigMBean = (EventRouterConfigurationMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+          erConfigObjectName, EventRouterConfigurationMBean.class, false);
 
-      String name = key;
-      String description = "Mobicents JAIN SLEE Event Router " + name;
+      for (int executorId = 0; executorId < erConfigMBean.getEventRouterThreads(); executorId++) {
+        String key = "Executor #" + executorId;
 
-      DiscoveredResourceDetails discoveredExecutor = new DiscoveredResourceDetails(context.getResourceType(), key,
-          name, null, description, null, null);
+        String name = key;
+        String description = "Mobicents JAIN SLEE Event Router " + name;
 
-      discoveredExecutor.getPluginConfiguration().put(new PropertySimple("executorId", executorId));
-      discoveredExecutors.add(discoveredExecutor);
+        DiscoveredResourceDetails discoveredExecutor = new DiscoveredResourceDetails(context.getResourceType(), key,
+            name, null, description, null, null);
 
+        discoveredExecutor.getPluginConfiguration().put(new PropertySimple("executorId", executorId));
+        discoveredExecutors.add(discoveredExecutor);
+
+      }
+
+      return discoveredExecutors;
     }
-
-    return discoveredExecutors;
-  }
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
+  }    
 
 }

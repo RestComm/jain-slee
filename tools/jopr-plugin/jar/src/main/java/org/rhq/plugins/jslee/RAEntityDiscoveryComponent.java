@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.management.ResourceManagementMBean;
 import javax.slee.resource.ResourceAdaptorID;
 
@@ -23,35 +24,51 @@ public class RAEntityDiscoveryComponent implements ResourceDiscoveryComponent<Re
   private final Log log = LogFactory.getLog(this.getClass());
 
   public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<ResourceAdaptorComponent> context) throws InvalidPluginConfigurationException, Exception {
-
-    log.info("RAEntityDiscoveryComponent.discoverResources() called");
-    Set<DiscoveredResourceDetails> discoveredRAEntities = new HashSet<DiscoveredResourceDetails>();
-
     MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
-    MBeanServerConnection connection = mbeanUtils.getConnection();
+    try {
+      if(log.isDebugEnabled()) {
+        log.debug("RAEntityDiscoveryComponent.discoverResources() called");
+      }
+      Set<DiscoveredResourceDetails> discoveredRAEntities = new HashSet<DiscoveredResourceDetails>();
 
-    ObjectName resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
+      MBeanServerConnection connection = mbeanUtils.getConnection();
+      mbeanUtils.login();
 
-    ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
-        connection, resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
+      ObjectName resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
 
-    ResourceAdaptorID raID = context.getParentResourceComponent().getResourceAdaptorID();
-    String[] raEntities = resourceManagementMBean.getResourceAdaptorEntities(raID);
+      ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
 
-    for (String entityName : raEntities) {
-      String description = "RA Entity : " + entityName + " For ResourceAdaptor : " + raID.toString();
+      ResourceAdaptorID raID = context.getParentResourceComponent().getResourceAdaptorID();
+      String[] raEntities = resourceManagementMBean.getResourceAdaptorEntities(raID);
 
-      DiscoveredResourceDetails discoveredEntity = new DiscoveredResourceDetails(context.getResourceType(),
-          entityName, entityName+" Entity", raID.getVersion(), description, null, null);
-      discoveredEntity.getPluginConfiguration().put(new PropertySimple("entityName", entityName));
-      discoveredEntity.getPluginConfiguration().put(new PropertySimple("name", raID.getName()));
-      discoveredEntity.getPluginConfiguration().put(new PropertySimple("version", raID.getVersion()));
-      discoveredEntity.getPluginConfiguration().put(new PropertySimple("vendor", raID.getVendor()));
-      discoveredRAEntities.add(discoveredEntity);
+      for (String entityName : raEntities) {
+        String description = "RA Entity : " + entityName + " For ResourceAdaptor : " + raID.toString();
+
+        DiscoveredResourceDetails discoveredEntity = new DiscoveredResourceDetails(context.getResourceType(),
+            entityName, entityName+" Entity", raID.getVersion(), description, null, null);
+        discoveredEntity.getPluginConfiguration().put(new PropertySimple("entityName", entityName));
+        discoveredEntity.getPluginConfiguration().put(new PropertySimple("name", raID.getName()));
+        discoveredEntity.getPluginConfiguration().put(new PropertySimple("version", raID.getVersion()));
+        discoveredEntity.getPluginConfiguration().put(new PropertySimple("vendor", raID.getVendor()));
+        discoveredRAEntities.add(discoveredEntity);
+      }
+
+      if(log.isInfoEnabled()) {
+        log.info("Discovered " + discoveredRAEntities.size() + " JAIN SLEE Resource Adaptor Entity Components.");
+      }
+      return discoveredRAEntities;
     }
-
-    log.info("discovered " + discoveredRAEntities.size() + " number of Services");
-    return discoveredRAEntities;
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
 }

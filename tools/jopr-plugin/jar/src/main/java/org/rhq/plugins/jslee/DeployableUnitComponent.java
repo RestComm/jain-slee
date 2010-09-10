@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.ComponentID;
 import javax.slee.management.DeployableUnitDescriptor;
 import javax.slee.management.DeployableUnitID;
@@ -49,9 +50,11 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
 
   private String deployPathIdentifier;
   private String farmDeployPathIdentifier;
-  
+
   public void start(ResourceContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException, Exception {
-    log.info("DeployableUnitComponent.start");
+    if(log.isTraceEnabled()) {
+      log.trace("start(" + context + ") called.");
+    }
 
     this.resourceContext = context;
     this.deploymentObjName = new ObjectName(DeploymentMBean.OBJECT_NAME);
@@ -66,13 +69,19 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
   }
 
   public void stop() {
-    log.info("DeployableUnitComponent.stop");
+    if(log.isTraceEnabled()) {
+      log.trace("stop() called.");
+    }
   }
 
   public AvailabilityType getAvailability() {
-    log.info("getAvailability");
+    if(log.isTraceEnabled()) {
+      log.trace("getAvailability() called.");
+    }
+
     try {
       MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      mbeanUtils.login();
       DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(
           connection, this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
 
@@ -84,12 +93,24 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
 
       return AvailabilityType.DOWN;
     }
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
 
     return AvailabilityType.UP;
   }
 
   public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException, Exception {
-    log.info("DeployableUnitComponent.invokeOperation() with name = " + name);
+    if(log.isDebugEnabled()) {
+      log.debug("invokeOperation(" + name + ", " + parameters + ") called.");
+    }
 
     // List the DU Components IDs
     if ("listComponents".equals(name)) {
@@ -112,16 +133,31 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
       }
     }
     else {
-      MBeanServerConnection connection = this.mbeanUtils.getConnection();
-      DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection,
-          this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
-      deploymentMBean.uninstall(this.deployableUnitID);
+      try {
+        MBeanServerConnection connection = this.mbeanUtils.getConnection();
+        mbeanUtils.login();
+        
+        DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection,
+            this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
+        deploymentMBean.uninstall(this.deployableUnitID);
+      }
+      finally {
+        try {
+          mbeanUtils.logout();
+        }
+        catch (LoginException e) {
+          if(log.isDebugEnabled()) {
+            log.debug("Failed to logout from secured JMX", e);
+          }
+        }
+      }
     }
   }
 
   public DeployPackagesResponse deployPackages(Set<ResourcePackageDetails> packages, ContentServices contentServices) {
-
-    log.info("DeployableUnitComponent.deployPackages()");
+    if(log.isTraceEnabled()) {
+      log.trace("deployPackages(" + packages + "," + contentServices + ") called.");
+    }
 
     String resourceTypeName = this.resourceContext.getResourceType().getName();
 
@@ -134,13 +170,18 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
 
     ResourcePackageDetails packageDetails = packages.iterator().next();
 
-    log.info("Updating DU file ' ' using [" + packageDetails + "]...");
+    if(log.isDebugEnabled()) {
+      log.debug("Updating DU file ' ' using [" + packageDetails + "]...");
+    }
 
     return null;
   }
 
   public Set<ResourcePackageDetails> discoverDeployedPackages(PackageType packageType) {
-    log.info("DeployableUnitComponent.discoverDeployedPackages() "+ packageType.getDisplayName());
+    if(log.isTraceEnabled()) {
+      log.trace("discoverDeployedPackages(" + packageType + ") called.");
+    }
+    
     // TODO Auto-generated method stub
     return null;
   }
@@ -161,34 +202,47 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
   }
 
   private OperationResult doListComponents() throws Exception {
-    OperationResult result = new OperationResult();
+    try {
+      OperationResult result = new OperationResult();
 
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(
-        connection, this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      mbeanUtils.login();
 
-    DeployableUnitDescriptor deployableUnitDescriptor = deploymentMBean.getDescriptor(this.deployableUnitID);
+      DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
 
-    ComponentID[] components = deployableUnitDescriptor.getComponents();
+      DeployableUnitDescriptor deployableUnitDescriptor = deploymentMBean.getDescriptor(this.deployableUnitID);
 
-    // The pretty table we are building as result
-    PropertyList columnList = new PropertyList("result");
+      ComponentID[] components = deployableUnitDescriptor.getComponents();
 
-    // Add the components
-    for (ComponentID componentID : components) {
-      PropertyMap col = new PropertyMap("element");
+      // The pretty table we are building as result
+      PropertyList columnList = new PropertyList("result");
 
-      col.put(new PropertySimple("Name", componentID.getName()));
-      col.put(new PropertySimple("Vendor", componentID.getVendor()));
-      col.put(new PropertySimple("Version", componentID.getVersion()));
+      // Add the components
+      for (ComponentID componentID : components) {
+        PropertyMap col = new PropertyMap("element");
 
-      columnList.add(col);
+        col.put(new PropertySimple("Name", componentID.getName()));
+        col.put(new PropertySimple("Vendor", componentID.getVendor()));
+        col.put(new PropertySimple("Version", componentID.getVersion()));
+
+        columnList.add(col);
+      }
+
+      result.getComplexResults().put(columnList);
+
+      return result;
     }
-
-    result.getComplexResults().put(columnList);
-
-    return result;
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
-
 
 }

@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.EventTypeID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentMBean;
@@ -68,7 +69,9 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
   }
 
   public void start(ResourceContext resourceContext) throws InvalidPluginConfigurationException, Exception {
-    log.info("start called");
+    if(log.isTraceEnabled()) {
+      log.trace("start(" + resourceContext + ") called.");
+    }
 
     this.resourceContext = resourceContext;
 
@@ -87,29 +90,48 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     if(log.isDebugEnabled()) {
       log.debug("Started JAIN SLEE Server Component @ " + namingURL + ", " + principal + "/" + credentials);
     }
-    
-    this.mBeanServerUtils = new MBeanServerUtils(namingURL);
+
+    this.mBeanServerUtils = new MBeanServerUtils(namingURL, principal, credentials);
   }
 
   public void stop() {
-    // TODO Auto-generated method stub
+    if(log.isTraceEnabled()) {
+      log.trace("stop() called.");
+    }
   }
 
   public AvailabilityType getAvailability() {
-    log.info("getAvailability called " + this.mBeanServerUtils);
-    if (this.mBeanServerUtils != null) {
+    if(log.isTraceEnabled()) {
+      log.trace("getAvailability() called.");
+    }
 
+    if (this.mBeanServerUtils != null) {
       try {
         ObjectName sleemanagement = new ObjectName(SleeManagementMBean.OBJECT_NAME);
         MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+        mBeanServerUtils.login();
+
         this.sleeState = (SleeState) connection.getAttribute(sleemanagement, "State");
-        log.info("SleeState = " + this.sleeState);
+
+        if(log.isDebugEnabled()) {
+          log.debug("JAIN SLEE State = " + this.sleeState);
+        }
         return AvailabilityType.UP;
 
       }
       catch (Exception e) {
         log.error("Failed to obtain JAIN SLEE Server state.", e);
         return AvailabilityType.DOWN;
+      }
+      finally {
+        try {
+          this.mBeanServerUtils.logout();
+        }
+        catch (LoginException e) {
+          if(log.isDebugEnabled()) {
+            log.debug("Failed to logout from secured JMX", e);
+          }
+        }
       }
     }
     else {
@@ -119,7 +141,10 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
   }
 
   public void getValues(MeasurementReport report, Set<MeasurementScheduleRequest> metrics) throws Exception {
-    log.info("getValues() called hurray");
+    if(log.isTraceEnabled()) {
+      log.trace("getValues(" + report + "," + metrics + ") called.");
+    }
+
     for (MeasurementScheduleRequest request : metrics) {
       if (request.getName().equals("state")) {
         report.addData(new MeasurementDataTrait(request, this.sleeState.toString()));
@@ -144,7 +169,9 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
   }
 
   public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException, Exception {
-    log.info("invokeOperation() with name = " + name);
+    if(log.isDebugEnabled()) {
+      log.debug("invokeOperation(" + name + ", " + parameters + ") called.");
+    }
 
     if ("sleeState".equals(name)) {
       return doSleeState(parameters);
@@ -190,110 +217,137 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
 
   private OperationResult doManageCongestionControl(int op, Configuration parameters) throws Exception {
     OperationResult result = new OperationResult();
-    
-    MBeanServerConnection connection = getMBeanServerUtils().getConnection();
-    
-    ObjectName ccConfigObjectName = new ObjectName("org.mobicents.slee:name=CongestionControlConfiguration");
-    CongestionControlConfigurationMBean ccConfigMBean = MBeanServerInvocationHandler.newProxyInstance(connection,
-        ccConfigObjectName, CongestionControlConfigurationMBean.class, false);
 
-    switch (op) {
-    case 0: // ccSetMemOn
-      int oldValue = ccConfigMBean.getMinFreeMemoryToTurnOn();
-      int newValue = parameters.getSimple("value").getIntegerValue();
-      if(oldValue != newValue) {
-        ccConfigMBean.setMinFreeMemoryToTurnOn(newValue);
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValue + "' to '" + newValue + "')."));
-      }
-      else {
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
-      }
-      break;
+    MBeanServerUtils mbeanUtils = getMBeanServerUtils();
+    try {
+      MBeanServerConnection connection = mbeanUtils.getConnection();
+      mbeanUtils.login();
 
-    case 1: // ccSetMemOff
-      oldValue = ccConfigMBean.getMinFreeMemoryToTurnOff();
-      newValue = parameters.getSimple("value").getIntegerValue();
-      if(oldValue != newValue) {
-        ccConfigMBean.setMinFreeMemoryToTurnOff(newValue);
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValue + "' to '" + newValue + "')."));
-      }
-      else {
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
-      }
-      break;
+      ObjectName ccConfigObjectName = new ObjectName("org.mobicents.slee:name=CongestionControlConfiguration");
+      CongestionControlConfigurationMBean ccConfigMBean = MBeanServerInvocationHandler.newProxyInstance(connection,
+          ccConfigObjectName, CongestionControlConfigurationMBean.class, false);
 
-    case 2: // ccSetCheckPeriod
-      oldValue = ccConfigMBean.getPeriodBetweenChecks();
-      newValue = parameters.getSimple("value").getIntegerValue();
-      if(oldValue != newValue) {
-        ccConfigMBean.setPeriodBetweenChecks(newValue);
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValue + "' to '" + newValue + "')."));
-      }
-      else {
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
-      }
-      break;
+      switch (op) {
+      case 0: // ccSetMemOn
+        int oldValue = ccConfigMBean.getMinFreeMemoryToTurnOn();
+        int newValue = parameters.getSimple("value").getIntegerValue();
+        if(oldValue != newValue) {
+          ccConfigMBean.setMinFreeMemoryToTurnOn(newValue);
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValue + "' to '" + newValue + "')."));
+        }
+        else {
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+        }
+        break;
 
-    case 3: // ccSetRefuseStartActivity
-      boolean oldValueBool = ccConfigMBean.isRefuseStartActivity();
-      boolean newValueBool = parameters.getSimple("value").getBooleanValue();
-      if(oldValueBool != newValueBool) {
-        ccConfigMBean.setRefuseStartActivity(newValueBool);
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValueBool + "' to '" + newValueBool + "')."));
-      }
-      else {
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
-      }
-      break;
+      case 1: // ccSetMemOff
+        oldValue = ccConfigMBean.getMinFreeMemoryToTurnOff();
+        newValue = parameters.getSimple("value").getIntegerValue();
+        if(oldValue != newValue) {
+          ccConfigMBean.setMinFreeMemoryToTurnOff(newValue);
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValue + "' to '" + newValue + "')."));
+        }
+        else {
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+        }
+        break;
 
-    case 4: // ccSetRefuseFireEvent
-      oldValueBool = ccConfigMBean.isRefuseFireEvent();
-      newValueBool = parameters.getSimple("value").getBooleanValue();
-      if(oldValueBool != newValueBool) {
-        ccConfigMBean.setRefuseFireEvent(newValueBool);
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValueBool + "' to '" + newValueBool + "')."));
-      }
-      else {
-        result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
-      }
-      break;
+      case 2: // ccSetCheckPeriod
+        oldValue = ccConfigMBean.getPeriodBetweenChecks();
+        newValue = parameters.getSimple("value").getIntegerValue();
+        if(oldValue != newValue) {
+          ccConfigMBean.setPeriodBetweenChecks(newValue);
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValue + "' to '" + newValue + "')."));
+        }
+        else {
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+        }
+        break;
 
-    default:
-      result.setErrorMessage("Unknown operation in Congestion Control Management (" + op + ")");
-      break;
+      case 3: // ccSetRefuseStartActivity
+        boolean oldValueBool = ccConfigMBean.isRefuseStartActivity();
+        boolean newValueBool = parameters.getSimple("value").getBooleanValue();
+        if(oldValueBool != newValueBool) {
+          ccConfigMBean.setRefuseStartActivity(newValueBool);
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValueBool + "' to '" + newValueBool + "')."));
+        }
+        else {
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+        }
+        break;
+
+      case 4: // ccSetRefuseFireEvent
+        oldValueBool = ccConfigMBean.isRefuseFireEvent();
+        newValueBool = parameters.getSimple("value").getBooleanValue();
+        if(oldValueBool != newValueBool) {
+          ccConfigMBean.setRefuseFireEvent(newValueBool);
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value changed from '" + oldValueBool + "' to '" + newValueBool + "')."));
+        }
+        else {
+          result.getComplexResults().put(new PropertySimple("result", "Operation completed successfully (value wasn't changed, it was equal to the current)."));
+        }
+        break;
+
+      default:
+        result.setErrorMessage("Unknown operation in Congestion Control Management (" + op + ")");
+        break;
+      }
     }
-    
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
+
     return result;
   }
-  
-  private OperationResult doViewEventRouterStatistics(Configuration parameters) throws Exception {
-    OperationResult result = new OperationResult();
-    PropertyList statistics = new PropertyList("statistics");
-    result.getComplexResults().put(statistics);
 
-    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
-    
-    String filter = parameters.getSimple("filter").getStringValue();
-    
-    if(filter.equals("global")) {
-      doGetERSGlobal(connection, statistics);
-    }
-    else if(filter.equals("executors")) {
-      doGetERSExecutors(connection, statistics);
-    }
-    else if(filter.equals("eventTypes")) {
-      doGetERSEventTypes(connection, statistics);
-    }
-    else if(filter.equals("executorsByEventTypes")) {
-      doGetERSCombined(connection, statistics);
-    }
-    else {
-      doGetERSGlobal(connection, statistics);
-      doGetERSExecutors(connection, statistics);
-      doGetERSEventTypes(connection, statistics);            
-      doGetERSCombined(connection, statistics);
-    }
+  private OperationResult doViewEventRouterStatistics(Configuration parameters) throws Exception {
+    try {
+      OperationResult result = new OperationResult();
+      PropertyList statistics = new PropertyList("statistics");
+      result.getComplexResults().put(statistics);
+
+      MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
+
+      String filter = parameters.getSimple("filter").getStringValue();
+
+      if(filter.equals("global")) {
+        doGetERSGlobal(connection, statistics);
+      }
+      else if(filter.equals("executors")) {
+        doGetERSExecutors(connection, statistics);
+      }
+      else if(filter.equals("eventTypes")) {
+        doGetERSEventTypes(connection, statistics);
+      }
+      else if(filter.equals("executorsByEventTypes")) {
+        doGetERSCombined(connection, statistics);
+      }
+      else {
+        doGetERSGlobal(connection, statistics);
+        doGetERSExecutors(connection, statistics);
+        doGetERSEventTypes(connection, statistics);            
+        doGetERSCombined(connection, statistics);
+      }
       return result;
+    }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private void doGetERSGlobal(MBeanServerConnection connection, PropertyList statistics) throws Exception {
@@ -356,7 +410,7 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
       PropertyMap query = new PropertyMap("EventRouterStatistics", new PropertySimple("id", eventType.toString()),
           new PropertySimple("averageEventRoutingTime", averageEventRoutingTime), 
           new PropertySimple("eventsRouted", eventsRouted));
-      
+
       statistics.add(query);
     }
   }
@@ -379,12 +433,12 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
         Long averageEventRoutingTime = erStatsMBean.getAverageEventRoutingTime(executorId, eventType);
         Long eventsRouted = erStatsMBean.getEventsRouted(executorId, eventType);
         Long routingTime = erStatsMBean.getRoutingTime(executorId, eventType);
-  
+
         PropertyMap query = new PropertyMap("EventRouterStatistics", new PropertySimple("id", eventType.toString() + "@Executor #" + executorId),
             new PropertySimple("averageEventRoutingTime", averageEventRoutingTime), 
             new PropertySimple("routingTime", routingTime), 
             new PropertySimple("eventsRouted", eventsRouted));
-        
+
         statistics.add(query);
       }
     }
@@ -399,7 +453,10 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
   }
 
   private void createContentBasedResource(CreateResourceReport createResourceReport, ResourceType resourceType) {
-    log.info("JainSleeServerComponent.createContentBasedResource");
+    if(log.isTraceEnabled()) {
+      log.trace("createContentBasedResource(" + createResourceReport + ", " + resourceType + ")");
+    }
+    
     try {
       OutputStream os = null;
 
@@ -407,16 +464,18 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
       PackageDetailsKey key = details.getKey();
       String archiveName = key.getName();
 
-      log.info("JainSleeServerComponent.createContentBasedResource archiveName = " + archiveName);
+      if(log.isDebugEnabled()) {
+        log.debug("createContentBasedResource: archiveName = " + archiveName);
+      }
 
       Configuration deployTimeConfig = createResourceReport.getPackageDetails().getDeploymentTimeConfiguration();
-      //boolean deployFarmed = deployTimeConfig.getSimple("deployFarmed").getBooleanValue();
-      //log.info("JainSleeServerComponent.createContentBasedResource deployFarmed = " + deployFarmed);
 
       boolean persistentDeploy = deployTimeConfig.getSimple("persistentDeploy").getBooleanValue();
       boolean deployFarmed = deployTimeConfig.getSimple("deployFarmed").getBooleanValue();
-      log.info("JainSleeServerComponent.createContentBasedResource persistentDeploy = " + persistentDeploy + ", deployFarmed = " + deployFarmed);
-      
+      if(log.isDebugEnabled()) {
+        log.debug("createContentBasedResource: persistentDeploy = " + persistentDeploy + ", deployFarmed = " + deployFarmed);
+      }
+
       // Validate deploy options
       if(deployFarmed) {
         if(!persistentDeploy) {
@@ -443,7 +502,9 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
 
       tempDir = createTempDirectory("jopr-jainslee-deploy-content", null, serverTmpFile);
 
-      log.info("tmpFile = " + tempDir.getAbsolutePath());
+      if(log.isDebugEnabled()) {
+        log.debug("createContentBasedResource: tmpFile = " + tempDir.getAbsolutePath());
+      }
 
       File archiveFile = new File(key.getName());
 
@@ -455,18 +516,25 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
       ContentServices contentServices = contentContext.getContentServices();
       contentServices.downloadPackageBitsForChildResource(contentContext, resourceType.getName(), key, os);
 
-      log.info("contentCopy = " + contentCopy.getAbsolutePath());
+      if(log.isDebugEnabled()) {
+        log.debug("createContentBasedResource: contentCopy = " + contentCopy.getAbsolutePath());
+      }
 
       ObjectName deploymentObjName = new ObjectName(DeploymentMBean.OBJECT_NAME);
+
       MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
+
       DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
           deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
 
       String depKey = null;
-      
+
       if(!persistentDeploy) {
         DeployableUnitID deployableUnitID = deploymentMBean.install(contentCopy.toURI().toURL().toString());
-        log.info("Deployed "+ deployableUnitID );
+        if(log.isDebugEnabled()) {
+          log.debug("createContentBasedResource: Deployed "+ deployableUnitID );
+        }
 
         depKey = deployableUnitID.getURL();
       }
@@ -492,6 +560,16 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
       createResourceReport.setException(e);
       return;
     }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private static File createTempDirectory(String prefix, String suffix, File parentDirectory) throws IOException {
@@ -512,186 +590,275 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
   }
 
   private OperationResult doSleeState(Configuration parameters) throws Exception {
-    OperationResult result = new OperationResult();
+    try {
+      OperationResult result = new OperationResult();
 
-    String message = null;
-    String action = parameters.getSimple("action").getStringValue();
-    ObjectName sleemanagement = new ObjectName(SleeManagementMBean.OBJECT_NAME);
-    SleeManagementMBean sleeManagementMBean = (SleeManagementMBean) MBeanServerInvocationHandler.newProxyInstance(this.mBeanServerUtils.getConnection(),
-        sleemanagement, javax.slee.management.SleeManagementMBean.class, false);
+      String message = null;
+      String action = parameters.getSimple("action").getStringValue();
+      ObjectName sleemanagement = new ObjectName(SleeManagementMBean.OBJECT_NAME);
 
-    if ("start".equals(action)) {
-      sleeManagementMBean.start();
-      message = "Successfully started Mobicents JAIN SLEE Server";
-    }
-    else if ("stop".equals(action)) {
-      sleeManagementMBean.stop();
-      message = "Successfully stopped Mobicents JAIN SLEE Server";
-    }
-    else if ("shutdown".equals(action)) {
-      sleeManagementMBean.shutdown();
-      message = "Successfully shutdown Mobicents JAIN SLEE Server";
-    }
-    result.getComplexResults().put(new PropertySimple("result", message));
+      MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
 
-    return result;
+      SleeManagementMBean sleeManagementMBean = (SleeManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection,
+          sleemanagement, javax.slee.management.SleeManagementMBean.class, false);
+
+      if ("start".equals(action)) {
+        sleeManagementMBean.start();
+        message = "Successfully started Mobicents JAIN SLEE Server";
+      }
+      else if ("stop".equals(action)) {
+        sleeManagementMBean.stop();
+        message = "Successfully stopped Mobicents JAIN SLEE Server";
+      }
+      else if ("shutdown".equals(action)) {
+        sleeManagementMBean.shutdown();
+        message = "Successfully shutdown Mobicents JAIN SLEE Server";
+      }
+      result.getComplexResults().put(new PropertySimple("result", message));
+
+      return result;
+    }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private OperationResult doQueryActivityContextLiveness(Configuration parameters) throws Exception {
-    OperationResult result = new OperationResult();
+    try {
+      OperationResult result = new OperationResult();
 
-    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
-    ObjectName actMana = new ObjectName("org.mobicents.slee:name=ActivityManagementMBean");
+      MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
 
-    ActivityManagementMBeanImplMBean aciManagMBean = (ActivityManagementMBeanImplMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
-        actMana, org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class, false);
+      ObjectName actMana = new ObjectName("org.mobicents.slee:name=ActivityManagementMBean");
 
-    aciManagMBean.queryActivityContextLiveness();
+      ActivityManagementMBeanImplMBean aciManagMBean = (ActivityManagementMBeanImplMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+          actMana, org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class, false);
 
-    result.getComplexResults().put(new PropertySimple("result", "Activity Context Liveness queried successfully."));
+      aciManagMBean.queryActivityContextLiveness();
 
-    return result;
+      result.getComplexResults().put(new PropertySimple("result", "Activity Context Liveness queried successfully."));
+
+      return result;
+    }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private OperationResult doSwitchLoggingConfiguration(Configuration parameters) throws Exception {
-    OperationResult result = new OperationResult();
+    try {
+      OperationResult result = new OperationResult();
 
-    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
-    ObjectName actMana = new ObjectName("org.mobicents.slee:service=MobicentsManagement" /* FIXME */);
+      MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
 
-    MobicentsManagementMBean mobicentsManagementMBean = (MobicentsManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
-        actMana, org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, false);
+      ObjectName actMana = new ObjectName("org.mobicents.slee:service=MobicentsManagement" /* FIXME */);
 
-    String profile = parameters.getSimple("profile").getStringValue();
-    
-    mobicentsManagementMBean.switchLoggingConfiguration(profile);
+      MobicentsManagementMBean mobicentsManagementMBean = (MobicentsManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+          actMana, org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, false);
 
-    result.getComplexResults().put(new PropertySimple("result", "Log4j Configuration Profile successfully changed to " + profile + "."));
-    return result;
+      String profile = parameters.getSimple("profile").getStringValue();
+
+      mobicentsManagementMBean.switchLoggingConfiguration(profile);
+
+      result.getComplexResults().put(new PropertySimple("result", "Log4j Configuration Profile successfully changed to " + profile + "."));
+      return result;
+    }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private OperationResult doGetLoggingConfiguration(Configuration parameters) throws Exception {
-    OperationResult result = new OperationResult();
+    try {
+      OperationResult result = new OperationResult();
 
-    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
-    ObjectName actMana = new ObjectName("org.mobicents.slee:service=MobicentsManagement" /* FIXME */);
+      MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
 
-    MobicentsManagementMBean mobicentsManagementMBean = (MobicentsManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
-        actMana, org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, false);
+      ObjectName actMana = new ObjectName("org.mobicents.slee:service=MobicentsManagement" /* FIXME */);
 
-    String profile = parameters.getSimple("profile").getStringValue();
-    
-    result.getComplexResults().put(new PropertySimple("result", mobicentsManagementMBean.getLoggingConfiguration(profile)));
-    return result;
+      MobicentsManagementMBean mobicentsManagementMBean = (MobicentsManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+          actMana, org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, false);
+
+      String profile = parameters.getSimple("profile").getStringValue();
+
+      result.getComplexResults().put(new PropertySimple("result", mobicentsManagementMBean.getLoggingConfiguration(profile)));
+      return result;
+    }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private OperationResult doSetLoggingConfiguration(Configuration parameters) throws Exception {
-    OperationResult result = new OperationResult();
+    try {
+      OperationResult result = new OperationResult();
 
-    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
-    ObjectName actMana = new ObjectName("org.mobicents.slee:service=MobicentsManagement" /* FIXME */);
+      MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
 
-    MobicentsManagementMBean mobicentsManagementMBean = (MobicentsManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
-        actMana, org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, false);
+      ObjectName actMana = new ObjectName("org.mobicents.slee:service=MobicentsManagement" /* FIXME */);
 
-    String profile = parameters.getSimple("profile").getStringValue().toLowerCase();
-    String contents = parameters.getSimple("contents").getStringValue();
-    
-    mobicentsManagementMBean.setLoggingConfiguration(profile, contents);
+      MobicentsManagementMBean mobicentsManagementMBean = (MobicentsManagementMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+          actMana, org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, false);
 
-    result.getComplexResults().put(new PropertySimple("result", "Log4j " + profile + " Configuration successfully updated."));
-    return result;
+      String profile = parameters.getSimple("profile").getStringValue().toLowerCase();
+      String contents = parameters.getSimple("contents").getStringValue();
+
+      mobicentsManagementMBean.setLoggingConfiguration(profile, contents);
+
+      result.getComplexResults().put(new PropertySimple("result", "Log4j " + profile + " Configuration successfully updated."));
+      return result;
+    }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private OperationResult doListActivityContexts(Configuration paramteres) throws Exception {
-    OperationResult result = new OperationResult();
+    try {
+      OperationResult result = new OperationResult();
 
-    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
-    ObjectName actMana = new ObjectName("org.mobicents.slee:name=ActivityManagementMBean");
+      MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
 
-    ActivityManagementMBeanImplMBean aciManagMBean = (ActivityManagementMBeanImplMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
-        actMana, org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class, false);
+      ObjectName actMana = new ObjectName("org.mobicents.slee:name=ActivityManagementMBean");
 
-    Object[] activities = aciManagMBean.listActivityContexts(true);
+      ActivityManagementMBeanImplMBean aciManagMBean = (ActivityManagementMBeanImplMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+          actMana, org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class, false);
 
-    PropertyList columnList = new PropertyList("result");
-    if (activities != null) {
-      for (Object obj : activities) {
-        Object[] tempObjects = (Object[]) obj;
-        PropertyMap col = new PropertyMap("element");
+      Object[] activities = aciManagMBean.listActivityContexts(true);
 
-        Object tempObj = tempObjects[0];
-        PropertySimple activityHandle = new PropertySimple("ActivityHandle", tempObj != null ? ((JmxActivityContextHandle) tempObj).getActivityHandleToString() : "-");
+      PropertyList columnList = new PropertyList("result");
+      if (activities != null) {
+        for (Object obj : activities) {
+          Object[] tempObjects = (Object[]) obj;
+          PropertyMap col = new PropertyMap("element");
 
-        col.put(activityHandle);
+          Object tempObj = tempObjects[0];
+          PropertySimple activityHandle = new PropertySimple("ActivityHandle", tempObj != null ? ((JmxActivityContextHandle) tempObj).getActivityHandleToString() : "-");
 
-        col.put(new PropertySimple("Class", tempObjects[1]));
+          col.put(activityHandle);
 
-        tempObj = tempObjects[2];
-        Date d = new Date(Long.parseLong((String) tempObj));
-        col.put(new PropertySimple("LastAccessTime", d));
+          col.put(new PropertySimple("Class", tempObjects[1]));
 
-        tempObj = tempObjects[3];
-        col.put(new PropertySimple("ResourceAdaptor", tempObj == null ? "-" : tempObj));
+          tempObj = tempObjects[2];
+          Date d = new Date(Long.parseLong((String) tempObj));
+          col.put(new PropertySimple("LastAccessTime", d));
 
-        tempObj = tempObjects[4];
-        // PropertyList propertyList = new PropertyList("SbbAttachments");
-        String[] strArr = (String[]) tempObj;
-        StringBuffer sb = new StringBuffer();
-        for (String s : strArr) {
-          // PropertyMap SbbAttachment = new PropertyMap("SbbAttachment");
-          // SbbAttachment.put(new PropertySimple("SbbAttachmentValue", s));
-          // propertyList.add(SbbAttachment);
-          sb.append(s).append("; ");
+          tempObj = tempObjects[3];
+          col.put(new PropertySimple("ResourceAdaptor", tempObj == null ? "-" : tempObj));
+
+          tempObj = tempObjects[4];
+          // PropertyList propertyList = new PropertyList("SbbAttachments");
+          String[] strArr = (String[]) tempObj;
+          StringBuffer sb = new StringBuffer();
+          for (String s : strArr) {
+            // PropertyMap SbbAttachment = new PropertyMap("SbbAttachment");
+            // SbbAttachment.put(new PropertySimple("SbbAttachmentValue", s));
+            // propertyList.add(SbbAttachment);
+            sb.append(s).append("; ");
+          }
+          col.put(new PropertySimple("SbbAttachmentValue", sb.toString()));
+
+          tempObj = tempObjects[5];
+          // propertyList = new PropertyList("NamesBoundTo");
+          sb = new StringBuffer();
+          strArr = (String[]) tempObj;
+          for (String s : strArr) {
+            // PropertyMap NameBoundTo = new PropertyMap("NameBoundTo");
+            // NameBoundTo.put(new PropertySimple("NameBoundToValue", s));
+            // propertyList.add(NameBoundTo);
+            sb.append(s).append("; ");
+          }
+          col.put(new PropertySimple("NameBoundToValue", sb.toString()));
+
+          tempObj = tempObjects[6];
+          // propertyList = new PropertyList("Timers");
+          sb = new StringBuffer();
+          strArr = (String[]) tempObj;
+          for (String s : strArr) {
+            // PropertyMap Timer = new PropertyMap("Timer");
+            // Timer.put(new PropertySimple("TimerValue", s));
+            // propertyList.add(Timer);
+            sb.append(s).append("; ");
+          }
+          col.put(new PropertySimple("TimerValue", sb.toString()));
+
+          tempObj = tempObjects[7];
+          // propertyList = new PropertyList("DataProperties");
+          sb = new StringBuffer();
+          strArr = (String[]) tempObj;
+          for (String s : strArr) {
+            // PropertyMap DataProperty = new PropertyMap("DataProperty");
+            // DataProperty.put(new PropertySimple("DataPropertyValue", s));
+            // propertyList.add(DataProperty);
+            sb.append(s).append("; ");
+          }
+          col.put(new PropertySimple("DataPropertyValue", sb.toString()));
+
+          columnList.add(col);
         }
-        col.put(new PropertySimple("SbbAttachmentValue", sb.toString()));
+      }
+      result.getComplexResults().put(columnList);
 
-        tempObj = tempObjects[5];
-        // propertyList = new PropertyList("NamesBoundTo");
-        sb = new StringBuffer();
-        strArr = (String[]) tempObj;
-        for (String s : strArr) {
-          // PropertyMap NameBoundTo = new PropertyMap("NameBoundTo");
-          // NameBoundTo.put(new PropertySimple("NameBoundToValue", s));
-          // propertyList.add(NameBoundTo);
-          sb.append(s).append("; ");
+      return result;
+    }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
         }
-        col.put(new PropertySimple("NameBoundToValue", sb.toString()));
-
-        tempObj = tempObjects[6];
-        // propertyList = new PropertyList("Timers");
-        sb = new StringBuffer();
-        strArr = (String[]) tempObj;
-        for (String s : strArr) {
-          // PropertyMap Timer = new PropertyMap("Timer");
-          // Timer.put(new PropertySimple("TimerValue", s));
-          // propertyList.add(Timer);
-          sb.append(s).append("; ");
-        }
-        col.put(new PropertySimple("TimerValue", sb.toString()));
-
-        tempObj = tempObjects[7];
-        // propertyList = new PropertyList("DataProperties");
-        sb = new StringBuffer();
-        strArr = (String[]) tempObj;
-        for (String s : strArr) {
-          // PropertyMap DataProperty = new PropertyMap("DataProperty");
-          // DataProperty.put(new PropertySimple("DataPropertyValue", s));
-          // propertyList.add(DataProperty);
-          sb.append(s).append("; ");
-        }
-        col.put(new PropertySimple("DataPropertyValue", sb.toString()));
-
-        columnList.add(col);
       }
     }
-    result.getComplexResults().put(columnList);
-
-    return result;
   }
 
   private void copyFile(File sourceFile, File destFile) throws IOException {
-    log.info("CopyFile : Source[" + sourceFile.getAbsolutePath() + "] Dest[" + destFile.getAbsolutePath() + "]");
+    if(log.isDebugEnabled()) {
+      log.debug("CopyFile : Source[" + sourceFile.getAbsolutePath() + "] Dest[" + destFile.getAbsolutePath() + "]");
+    }
+
     if(!destFile.exists()) {
       destFile.createNewFile();
     }
@@ -714,11 +881,11 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
   }
 
   private String deployFolder;
-  
+
   public String getDeployFolderPath() {
     return this.deployFolder;
   }
-  
+
   private String farmDeployFolder;
 
   public String getFarmDeployFolderPath() {
@@ -726,7 +893,7 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
   }
 
   private String logFilePath;
-  
+
   public String getLogFilePath() {
     return logFilePath;
   }
@@ -738,23 +905,49 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
   }
 
   private EventRouterStatisticsMBean getEventRouterStatisticsMBean() throws Exception {
-    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+    try {
+      MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
 
-    ObjectName erStatsObjectName = new ObjectName("org.mobicents.slee:name=EventRouterStatistics"/* FIXME */);
-    EventRouterStatisticsMBean erStatsMBean = (EventRouterStatisticsMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
-        erStatsObjectName, EventRouterStatisticsMBean.class, false);
+      ObjectName erStatsObjectName = new ObjectName("org.mobicents.slee:name=EventRouterStatistics"/* FIXME */);
+      EventRouterStatisticsMBean erStatsMBean = (EventRouterStatisticsMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+          erStatsObjectName, EventRouterStatisticsMBean.class, false);
 
-    return erStatsMBean;
+      return erStatsMBean;
+    }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private EventRouterConfigurationMBean getEventRouterConfigurationMBean() throws Exception {
-    MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+    try {
+      MBeanServerConnection connection = this.mBeanServerUtils.getConnection();
+      this.mBeanServerUtils.login();
 
-    ObjectName erConfigObjectName = new ObjectName("org.mobicents.slee:name=EventRouterConfiguration"/* FIXME */);
-    EventRouterConfigurationMBean erConfigMBean = (EventRouterConfigurationMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
-        erConfigObjectName, EventRouterConfigurationMBean.class, false);
-    
-    return erConfigMBean;
+      ObjectName erConfigObjectName = new ObjectName("org.mobicents.slee:name=EventRouterConfiguration"/* FIXME */);
+      EventRouterConfigurationMBean erConfigMBean = (EventRouterConfigurationMBean) MBeanServerInvocationHandler.newProxyInstance(connection, 
+          erConfigObjectName, EventRouterConfigurationMBean.class, false);
+
+      return erConfigMBean;
+    }
+    finally {
+      try {
+        this.mBeanServerUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
 }

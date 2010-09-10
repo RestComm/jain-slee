@@ -15,6 +15,9 @@ import java.util.Set;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import javax.slee.management.SleeManagementMBean;
 
 import org.apache.commons.logging.Log;
@@ -41,6 +44,8 @@ import org.rhq.plugins.jslee.jbossas5.helper.MobicentsJSleeProperties;
 import org.rhq.plugins.jslee.jbossas5.util.JBossASDiscoveryUtils;
 import org.rhq.plugins.jslee.jbossas5.util.JnpConfig;
 import org.rhq.plugins.jslee.utils.MBeanServerUtils;
+import org.rhq.plugins.jslee.utils.jaas.JBossCallbackHandler;
+import org.rhq.plugins.jslee.utils.jaas.JBossConfiguration;
 
 public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryComponent<JainSleeServerComponent>,
 		ManualAddFacet<JainSleeServerComponent>, ClassLoaderFacet<JainSleeServerComponent> {
@@ -133,7 +138,10 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 
 	public List getAdditionalClasspathUrls(ResourceDiscoveryContext<JainSleeServerComponent> context,
 			DiscoveredResourceDetails details) throws Exception {
-		log.info("getAdditionalClasspathUrls");
+    if(log.isTraceEnabled()) {
+      log.trace("getAdditionalClasspathUrls(" + context + ", " + details + ") called.");
+    }
+
 		Configuration pluginConfig = details.getPluginConfiguration();
 		String homeDir = pluginConfig.getSimple(ApplicationServerPluginConfigurationProperties.HOME_DIR)
 				.getStringValue();
@@ -302,14 +310,20 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 
 		ObjectName sleemanagement = new ObjectName(SleeManagementMBean.OBJECT_NAME);
 
-		MBeanServerUtils mbeanUtils = new MBeanServerUtils(namingUrl);
+    String principal = pluginConfig.getSimple("principal").getStringValue();
+    String credentials = pluginConfig.getSimple("credentials").getStringValue();
+
+    MBeanServerUtils mbeanUtils = new MBeanServerUtils(namingUrl, principal, credentials);
 		MBeanServerConnection connection = mbeanUtils.getConnection();
 
+		try {
+		mbeanUtils.login();
+    
 		String sleeName = (String) connection.getAttribute(sleemanagement, "SleeName");
 		String sleeVersion = (String) connection.getAttribute(sleemanagement, "SleeVersion");
 		String sleeVendor = (String) connection.getAttribute(sleemanagement, "SleeVendor");
 
-		String description = sleeName + " v" + sleeVersion + " by " + sleeVendor;
+    String description = sleeName + " v" + sleeVersion + " by " + sleeVendor;
 
 		// TODO : DO we care if its RHQ Server?
 		// File deployDir = new File(absoluteConfigPath, "deploy");
@@ -327,16 +341,29 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 
 		return new DiscoveredResourceDetails(discoveryContext.getResourceType(), key, name, sleeVersion, description,
 				pluginConfig, processInfo);
+	  }
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
 	}
 
 	private String formatServerName(String baseName, String bindingAddress, String jnpPort) {
-
 		String details = null;
+
 		if ((bindingAddress != null) && (jnpPort != null && !jnpPort.equals(CHANGE_ME))) {
 			details = bindingAddress + ":" + jnpPort;
-		} else if ((bindingAddress == null) && (jnpPort != null && !jnpPort.equals(CHANGE_ME))) {
+		}
+		else if ((bindingAddress == null) && (jnpPort != null && !jnpPort.equals(CHANGE_ME))) {
 			details = jnpPort;
-		} else if (bindingAddress != null) {
+		}
+		else if (bindingAddress != null) {
 			details = bindingAddress;
 		}
 

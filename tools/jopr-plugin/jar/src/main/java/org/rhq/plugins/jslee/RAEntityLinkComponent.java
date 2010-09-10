@@ -3,6 +3,7 @@ package org.rhq.plugins.jslee;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.SbbID;
 import javax.slee.management.ResourceManagementMBean;
 import javax.slee.resource.ConfigProperties;
@@ -25,7 +26,7 @@ import org.rhq.plugins.jslee.utils.ResourceAdaptorUtils;
 
 public class RAEntityLinkComponent implements ResourceAdaptorUtils, DeleteResourceFacet, OperationFacet {
 
-  private final Log log = LogFactory.getLog(this.getClass());
+  private final Log log = LogFactory.getLog(RAEntityLinkComponent.class);
 
   private ResourceContext<RAEntityComponent> resourceContext;
   private String raEntityLinkName;
@@ -44,7 +45,9 @@ public class RAEntityLinkComponent implements ResourceAdaptorUtils, DeleteResour
   }
 
   public void start(ResourceContext context) throws InvalidPluginConfigurationException, Exception {
-    log.info("RAEntityComponent.start");
+    if(log.isTraceEnabled()) {
+      log.trace("start(" + context + ") called.");
+    }
 
     this.resourceContext = context;
     this.resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
@@ -57,13 +60,20 @@ public class RAEntityLinkComponent implements ResourceAdaptorUtils, DeleteResour
   }
 
   public void stop() {
-    // TODO Auto-generated method stub
+    if(log.isTraceEnabled()) {
+      log.trace("stop() called.");
+    }
   }
 
   public AvailabilityType getAvailability() {
-    log.info("RAEntityLinkComponent.getAvailability");
+    if(log.isTraceEnabled()) {
+      log.trace("getAvailability() called.");
+    }
+
     try {
       MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
+
       ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
           connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
 
@@ -75,6 +85,16 @@ public class RAEntityLinkComponent implements ResourceAdaptorUtils, DeleteResour
 
       return AvailabilityType.DOWN;
     }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
 
     return AvailabilityType.UP;
   }
@@ -84,15 +104,36 @@ public class RAEntityLinkComponent implements ResourceAdaptorUtils, DeleteResour
   }
 
   public void deleteResource() throws Exception {
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
-        connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
+    if(log.isTraceEnabled()) {
+      log.trace("deleteResource() called.");
+    }
 
-    resourceManagementMBean.unbindLinkName(this.raEntityLinkName);
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
+
+      ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
+
+      resourceManagementMBean.unbindLinkName(this.raEntityLinkName);
+    }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException, Exception {
-    log.info("RAEntityLinkComponent.invokeOperation() with name = " + name);
+    if(log.isDebugEnabled()) {
+      log.debug("invokeOperation(" + name + ", " + parameters + ") called.");
+    }
+
     OperationResult result = new OperationResult();
 
     if ("listBoundSbbs".equals(name)) {
@@ -106,26 +147,40 @@ public class RAEntityLinkComponent implements ResourceAdaptorUtils, DeleteResour
   }
 
   private OperationResult doListBoundSBBs() throws Exception {
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
-        connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
 
-    SbbID[] sbbIds = resourceManagementMBean.getBoundSbbs(this.raEntityLinkName);
+      ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
 
-    PropertyList columnList = new PropertyList("result");
+      SbbID[] sbbIds = resourceManagementMBean.getBoundSbbs(this.raEntityLinkName);
 
-    for (SbbID sbbID : sbbIds) {
-      PropertyMap col = new PropertyMap("element");
-      col.put(new PropertySimple("SbbName", sbbID.getName()));
-      col.put(new PropertySimple("SbbVendeor", sbbID.getVendor()));
-      col.put(new PropertySimple("SbbVersion", sbbID.getVersion()));
+      PropertyList columnList = new PropertyList("result");
 
-      columnList.add(col);
+      for (SbbID sbbID : sbbIds) {
+        PropertyMap col = new PropertyMap("element");
+        col.put(new PropertySimple("SbbName", sbbID.getName()));
+        col.put(new PropertySimple("SbbVendeor", sbbID.getVendor()));
+        col.put(new PropertySimple("SbbVersion", sbbID.getVersion()));
+
+        columnList.add(col);
+      }
+
+      OperationResult result = new OperationResult();
+      result .getComplexResults().put(columnList);
+
+      return result;
     }
-
-    OperationResult result = new OperationResult();
-    result .getComplexResults().put(columnList);
-
-    return result;
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 }

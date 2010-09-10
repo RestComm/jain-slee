@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceManagementMBean;
 import javax.slee.management.ServiceState;
@@ -24,15 +25,19 @@ public class ServiceDiscoveryComponent implements ResourceDiscoveryComponent<Jai
 	private final Log log = LogFactory.getLog(this.getClass());
 	
 	public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException, Exception {
-
-		log.info("discoverResources() called");
+	  if(log.isTraceEnabled()) {
+		  log.trace("discoverResources(" + context + ") called.");
+	  }
 		Set<DiscoveredResourceDetails> discoveredServices = new HashSet<DiscoveredResourceDetails>();
 		ObjectName servicemanagement = new ObjectName(ServiceManagementMBean.OBJECT_NAME);
 
 		MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
+		
+		try {
 		MBeanServerConnection connection = mbeanUtils.getConnection();
+    mbeanUtils.login();
 
-		ServiceID[] activeServices = (ServiceID[]) connection.invoke(servicemanagement, "getServices",
+    ServiceID[] activeServices = (ServiceID[]) connection.invoke(servicemanagement, "getServices",
 				new Object[] { ServiceState.ACTIVE }, new String[] { ServiceState.class.getName() });
 
 		ServiceID[] inactiveServices = (ServiceID[]) connection.invoke(servicemanagement, "getServices",
@@ -41,12 +46,26 @@ public class ServiceDiscoveryComponent implements ResourceDiscoveryComponent<Jai
 		ServiceID[] stoppingServices = (ServiceID[]) connection.invoke(servicemanagement, "getServices",
 				new Object[] { ServiceState.STOPPING }, new String[] { ServiceState.class.getName() });
 
-		addService(activeServices, discoveredServices, context.getResourceType());
+    addService(activeServices, discoveredServices, context.getResourceType());
 		addService(inactiveServices, discoveredServices, context.getResourceType());
 		addService(stoppingServices, discoveredServices, context.getResourceType());
 
-		log.info("Discovered " + discoveredServices.size() + " JAIN SLEE Services");
+		if(log.isInfoEnabled()) {
+		  log.info("Discovered " + discoveredServices.size() + " JAIN SLEE Service Components.");
+		}
+
 		return discoveredServices;
+		}
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
 	}
 
 	private void addService(ServiceID[] services, Set<DiscoveredResourceDetails> discoveredServices, ResourceType resourceType) {

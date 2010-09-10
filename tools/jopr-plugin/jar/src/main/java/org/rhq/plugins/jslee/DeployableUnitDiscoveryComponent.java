@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.management.DeployableUnitDescriptor;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentMBean;
@@ -21,43 +22,62 @@ import org.rhq.plugins.jslee.utils.MBeanServerUtils;
 
 public class DeployableUnitDiscoveryComponent implements ResourceDiscoveryComponent<JainSleeServerComponent> {
 
-	private final Log log = LogFactory.getLog(this.getClass());
+  private final Log log = LogFactory.getLog(this.getClass());
 
-	public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<JainSleeServerComponent> context)
-			throws InvalidPluginConfigurationException, Exception {
-		log.info("DeployableUnitDiscoveryComponent.discoverResources() called");
+  public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<JainSleeServerComponent> context)
+  throws InvalidPluginConfigurationException, Exception {
+    if(log.isTraceEnabled()) {
+      log.trace("discoverResources(" + context + ") called.");
+    }
 
-		Set<DiscoveredResourceDetails> discoveredDus = new HashSet<DiscoveredResourceDetails>();
+    Set<DiscoveredResourceDetails> discoveredDUs = new HashSet<DiscoveredResourceDetails>();
 
-		MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
-		MBeanServerConnection connection = mbeanUtils.getConnection();
+    MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
 
-		ObjectName deploymentmanagement = new ObjectName(DeploymentMBean.OBJECT_NAME);
+    try {
+      MBeanServerConnection connection = mbeanUtils.getConnection();
+      mbeanUtils.login();
 
-		DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection,
-				deploymentmanagement, javax.slee.management.DeploymentMBean.class, false);
+      ObjectName deploymentmanagement = new ObjectName(DeploymentMBean.OBJECT_NAME);
 
-		DeployableUnitID[] deployableUnitIDs = deploymentMBean.getDeployableUnits();
-		for (DeployableUnitID deployableUnitID : deployableUnitIDs) {
-			DeployableUnitDescriptor deployableUnitDescriptor = deploymentMBean.getDescriptor(deployableUnitID);
+      DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection,
+          deploymentmanagement, javax.slee.management.DeploymentMBean.class, false);
 
-			String key = deployableUnitID.getURL();
-			
-			// replace needed for Windows OS as \ needs to be escaped
-			String[] elements = key.split(System.getProperty("file.separator").replaceAll("\\\\", "\\\\\\\\"));
-			String lastElement = elements[(elements.length - 1)];
-			String name = lastElement.substring(0, lastElement.lastIndexOf("."));
+      DeployableUnitID[] deployableUnitIDs = deploymentMBean.getDeployableUnits();
+      for (DeployableUnitID deployableUnitID : deployableUnitIDs) {
+        DeployableUnitDescriptor deployableUnitDescriptor = deploymentMBean.getDescriptor(deployableUnitID);
 
-			String description = name + " -- Deployed on : " + deployableUnitDescriptor.getDeploymentDate();
+        String key = deployableUnitID.getURL();
 
-			DiscoveredResourceDetails discoveredDu = new DiscoveredResourceDetails(context.getResourceType(), key,
-					name, null, description, null, null);
-			discoveredDu.getPluginConfiguration().put(new PropertySimple("url", deployableUnitID.getURL()));
+        // replace needed for Windows OS as \ needs to be escaped
+        String[] elements = key.split(System.getProperty("file.separator").replaceAll("\\\\", "\\\\\\\\"));
+        String lastElement = elements[(elements.length - 1)];
+        String name = lastElement.substring(0, lastElement.lastIndexOf("."));
 
-			discoveredDus.add(discoveredDu);
+        String description = name + " -- Deployed on : " + deployableUnitDescriptor.getDeploymentDate();
 
-		}
+        DiscoveredResourceDetails discoveredDu = new DiscoveredResourceDetails(context.getResourceType(), key,
+            name, null, description, null, null);
+        discoveredDu.getPluginConfiguration().put(new PropertySimple("url", deployableUnitID.getURL()));
 
-		return discoveredDus;
-	}
+        discoveredDUs.add(discoveredDu);
+      }
+    }
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
+
+    if(log.isInfoEnabled()) {
+      log.info("Discovered " + discoveredDUs.size() + " JAIN SLEE Deployable Unit Components.");
+    }
+
+    return discoveredDUs;
+  }
 }

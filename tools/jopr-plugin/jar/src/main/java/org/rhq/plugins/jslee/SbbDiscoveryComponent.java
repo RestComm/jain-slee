@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.SbbID;
 import javax.slee.management.DeploymentMBean;
 
@@ -24,29 +25,45 @@ public class SbbDiscoveryComponent implements ResourceDiscoveryComponent<JainSle
   private final Log log = LogFactory.getLog(this.getClass());
 
   public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException, Exception {
-
-    log.info("discoverResources() called");
+    if(log.isTraceEnabled()) {
+      log.trace("discoverResources() called");
+    }
 
     // Get the connection up and ready
     MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
-    MBeanServerConnection connection = mbeanUtils.getConnection();
-    ObjectName depMBeanObj = new ObjectName(DeploymentMBean.OBJECT_NAME);
+    try {
+      MBeanServerConnection connection = mbeanUtils.getConnection();
+      mbeanUtils.login();
 
-    Set<DiscoveredResourceDetails> discoveredSBBs = new HashSet<DiscoveredResourceDetails>();
+      ObjectName depMBeanObj = new ObjectName(DeploymentMBean.OBJECT_NAME);
 
-    DeploymentMBean depMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection, depMBeanObj, DeploymentMBean.class, false);
+      Set<DiscoveredResourceDetails> discoveredSBBs = new HashSet<DiscoveredResourceDetails>();
 
-    SbbID[] sbbIds = depMBean.getSbbs();
+      DeploymentMBean depMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection, depMBeanObj, DeploymentMBean.class, false);
 
-    addSbb(sbbIds, discoveredSBBs, context.getResourceType());
+      SbbID[] sbbIds = depMBean.getSbbs();
 
-    log.info("Discovered " + discoveredSBBs.size() + " JAIN SLEE SBBs");
-    return discoveredSBBs;
+      addSbb(sbbIds, discoveredSBBs, context.getResourceType());
+
+      if(log.isInfoEnabled()) {
+        log.info("Discovered " + discoveredSBBs.size() + " JAIN SLEE SBB Components.");
+      }
+      return discoveredSBBs;
+    }
+    finally {
+      try {
+        mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private void addSbb(SbbID[] sbbIds, Set<DiscoveredResourceDetails> discoveredServices, ResourceType resourceType) {
     for (SbbID sbbId : sbbIds) {
-
       String key = sbbId.toString();
       String description = sbbId.toString();
 

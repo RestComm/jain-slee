@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.security.auth.login.LoginException;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.ResourceManagementMBean;
 import javax.slee.resource.ConfigProperties;
@@ -55,7 +56,9 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
   private ObjectName resourceManagement;
 
   public void start(ResourceContext context) throws InvalidPluginConfigurationException, Exception {
-    log.info("RAEntityComponent.start");
+    if(log.isTraceEnabled()) {
+      log.trace("start(" + context + ") called.");
+    }
 
     this.resourceContext = context;
     this.resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
@@ -72,13 +75,20 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
   }
 
   public void stop() {
-    // TODO Auto-generated method stub
+    if(log.isTraceEnabled()) {
+      log.trace("stop() called.");
+    }
   }
 
   public AvailabilityType getAvailability() {
-    log.info("RAEntityComponent.getAvailability");
+    if(log.isTraceEnabled()) {
+      log.trace("getAvailability() called.");
+    }
+
     try {
       MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
+
       ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
           connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
 
@@ -88,12 +98,25 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
       log.error("getAvailability failed for ResourceAdaptor Entity = " + this.raEntityName);
       return AvailabilityType.DOWN;
     }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
 
     return AvailabilityType.UP;
   }
 
   public void getValues(MeasurementReport report, Set<MeasurementScheduleRequest> metrics) throws Exception {
-    log.info("RAEntityComponent.getValues() called hurray");
+    if(log.isTraceEnabled()) {
+      log.trace("getValues(" + report + "," + metrics + ") called.");
+    }
+
     for (MeasurementScheduleRequest request : metrics) {
       if (request.getName().equals("state")) {
         report.addData(new MeasurementDataTrait(request, this.getState().toString()));
@@ -106,23 +129,51 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
   }
 
   private ResourceAdaptorEntityState getState() throws Exception {
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
-        connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
 
-    return resourceManagementMBean.getState(this.raEntityName);
+      ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
+
+      return resourceManagementMBean.getState(this.raEntityName);
+    }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private Object[] getActivityContextID() throws Exception {
-    ObjectName actMana = new ObjectName("org.mobicents.slee:name=ActivityManagementMBean");
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
+    try {
+      ObjectName actMana = new ObjectName("org.mobicents.slee:name=ActivityManagementMBean");
 
-    ActivityManagementMBeanImplMBean aciManagMBean = (ActivityManagementMBeanImplMBean) MBeanServerInvocationHandler.newProxyInstance(
-        connection, actMana, org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class, false);
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
 
-    Object[] activities = aciManagMBean.retrieveActivityContextIDByResourceAdaptorEntityName(this.raEntityName);
+      ActivityManagementMBeanImplMBean aciManagMBean = (ActivityManagementMBeanImplMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, actMana, org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class, false);
 
-    return activities;
+      Object[] activities = aciManagMBean.retrieveActivityContextIDByResourceAdaptorEntityName(this.raEntityName);
+
+      return activities;
+    }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   public Configuration loadResourceConfiguration() throws Exception {
@@ -149,15 +200,17 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
   public void updateResourceConfiguration(ConfigurationUpdateReport configurationUpdateReport) {
     try {
       MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
+
       ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
           connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
 
       // Get the JOPR updated properties
       PropertyList propsList = configurationUpdateReport.getConfiguration().getList("properties");
-      
+
       // Get the current RA Entity properties
       ConfigProperties cps = resourceManagementMBean.getConfigurationProperties(this.raEntityName);
-      
+
       for(Property p : propsList.getList()) {
         PropertyMap pMap = (PropertyMap)p;
         String propName = ((PropertySimple)pMap.get("propertyName")).getStringValue();
@@ -165,17 +218,19 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
         String propValue = ((PropertySimple)pMap.get("propertyValue")).getStringValue();
         Object value = null;
         if (propType.equals("java.lang.String")) {
-            value = propValue;
+          value = propValue;
         }
         else if (propType.equals("java.lang.Integer")) {
-            value = Integer.valueOf(propValue);
+          value = Integer.valueOf(propValue);
         }
         else if (propType.equals("java.lang.Long")) {
-            value = Long.valueOf(propValue);
+          value = Long.valueOf(propValue);
         }
         ConfigProperties.Property cp = cps.getProperty(propName);
         if(value != null && cp != null && !value.equals(cp.getValue())) {
-          log.info("Changing property '" + propName + "' from value [" + cp.getValue() + "] to [" + value  + "].");
+          if(log.isDebugEnabled()) {
+            log.debug("Changing property '" + propName + "' from value [" + cp.getValue() + "] to [" + value  + "].");
+          }
           cp.setValue(value);
         }
       }
@@ -187,14 +242,38 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
       configurationUpdateReport.setErrorMessageFromThrowable(e);
       configurationUpdateReport.setStatus(ConfigurationUpdateStatus.FAILURE);
     }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   public void deleteResource() throws Exception {
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
-        connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
 
-    resourceManagementMBean.removeResourceAdaptorEntity(this.raEntityName);
+      ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
+
+      resourceManagementMBean.removeResourceAdaptorEntity(this.raEntityName);
+    }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   public ResourceAdaptorID getResourceAdaptorID() {
@@ -216,6 +295,8 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
       String linkName = configuration.getSimple("linkName").getStringValue();
 
       MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
+
       ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
           connection, this.resourceManagement,javax.slee.management.ResourceManagementMBean.class, false);
 
@@ -230,12 +311,24 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
       report.setException(e);
       report.setStatus(CreateResourceStatus.FAILURE);
     }
-    return report;
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
 
+    return report;
   }
 
   public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException, Exception {
-    log.info("RAEntityComponent.invokeOperation() with name = " + name);
+    if(log.isDebugEnabled()) {
+      log.debug("invokeOperation(" + name + ", " + parameters + ") called.");
+    }
 
     OperationResult result = new OperationResult();
     if ("changeRaEntityState".equals(name)) {
@@ -252,114 +345,143 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
   }
 
   private OperationResult doChangeRaEntityState(Configuration parameters) throws Exception {
-    String message = null;
-    String action = parameters.getSimple("action").getStringValue();
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler
-    .newProxyInstance(connection, this.resourceManagement,
-        javax.slee.management.ResourceManagementMBean.class, false);
-    if ("activate".equals(action)) {
-      resourceManagementMBean.activateResourceAdaptorEntity(this.raEntityName);
-      message = "Successfully Activated Resource Adaptor Entity " + this.raEntityName;
-    }
-    else if ("deactivate".equals(action)) {
-      resourceManagementMBean.deactivateResourceAdaptorEntity(this.raEntityName);
-      message = "Successfully DeActivated Resource Adaptor Entity " + this.raEntityName;
-    }
+    try {
+      String message = null;
+      String action = parameters.getSimple("action").getStringValue();
 
-    OperationResult result = new OperationResult();
-    result .getComplexResults().put(new PropertySimple("result", message));
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
 
-    return result;
+      ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler
+      .newProxyInstance(connection, this.resourceManagement,
+          javax.slee.management.ResourceManagementMBean.class, false);
+      if ("activate".equals(action)) {
+        resourceManagementMBean.activateResourceAdaptorEntity(this.raEntityName);
+        message = "Successfully Activated Resource Adaptor Entity " + this.raEntityName;
+      }
+      else if ("deactivate".equals(action)) {
+        resourceManagementMBean.deactivateResourceAdaptorEntity(this.raEntityName);
+        message = "Successfully DeActivated Resource Adaptor Entity " + this.raEntityName;
+      }
+
+      OperationResult result = new OperationResult();
+      result .getComplexResults().put(new PropertySimple("result", message));
+
+      return result;
+    }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
+        }
+      }
+    }
   }
 
   private OperationResult doListActivityContexts() throws Exception {
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    ObjectName actMana = new ObjectName("org.mobicents.slee:name=ActivityManagementMBean");
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      this.mbeanUtils.login();
 
-    ActivityManagementMBeanImplMBean aciManagMBean = (ActivityManagementMBeanImplMBean) MBeanServerInvocationHandler
-    .newProxyInstance(connection, actMana,
-        org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class, false);
+      ObjectName actMana = new ObjectName("org.mobicents.slee:name=ActivityManagementMBean");
 
-    Object[] activities = aciManagMBean.retrieveActivityContextIDByResourceAdaptorEntityName(this.raEntityName);
-    // Object[] activities = aciManagMBean.listActivityContexts(true);
+      ActivityManagementMBeanImplMBean aciManagMBean = (ActivityManagementMBeanImplMBean) MBeanServerInvocationHandler
+      .newProxyInstance(connection, actMana,
+          org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class, false);
 
-    PropertyList columnList = new PropertyList("result");
-    if (activities != null) {
-      for (Object obj : activities) {
-        Object[] tempObjects = (Object[]) obj;
-        PropertyMap col = new PropertyMap("element");
+      Object[] activities = aciManagMBean.retrieveActivityContextIDByResourceAdaptorEntityName(this.raEntityName);
+      // Object[] activities = aciManagMBean.listActivityContexts(true);
 
-        Object tempObj = tempObjects[0];
-        PropertySimple activityHandle = new PropertySimple("ActivityHandle",
-            tempObj != null ? ((JmxActivityContextHandle) tempObj).getActivityHandleToString() : "-");
+      PropertyList columnList = new PropertyList("result");
+      if (activities != null) {
+        for (Object obj : activities) {
+          Object[] tempObjects = (Object[]) obj;
+          PropertyMap col = new PropertyMap("element");
 
-        col.put(activityHandle);
+          Object tempObj = tempObjects[0];
+          PropertySimple activityHandle = new PropertySimple("ActivityHandle",
+              tempObj != null ? ((JmxActivityContextHandle) tempObj).getActivityHandleToString() : "-");
 
-        col.put(new PropertySimple("Class", tempObjects[1]));
+          col.put(activityHandle);
 
-        tempObj = tempObjects[2];
-        Date d = new Date(Long.parseLong((String) tempObj));
-        col.put(new PropertySimple("LastAccessTime", d));
+          col.put(new PropertySimple("Class", tempObjects[1]));
 
-        tempObj = tempObjects[3];
-        col.put(new PropertySimple("ResourceAdaptor", tempObj == null ? "-" : tempObj));
+          tempObj = tempObjects[2];
+          Date d = new Date(Long.parseLong((String) tempObj));
+          col.put(new PropertySimple("LastAccessTime", d));
 
-        tempObj = tempObjects[4];
-        // PropertyList propertyList = new PropertyList("SbbAttachments");
-        String[] strArr = (String[]) tempObj;
-        StringBuffer sb = new StringBuffer();
-        for (String s : strArr) {
-          // PropertyMap SbbAttachment = new PropertyMap("SbbAttachment");
-          // SbbAttachment.put(new PropertySimple("SbbAttachmentValue", s));
-          // propertyList.add(SbbAttachment);
-          sb.append(s).append("; ");
+          tempObj = tempObjects[3];
+          col.put(new PropertySimple("ResourceAdaptor", tempObj == null ? "-" : tempObj));
+
+          tempObj = tempObjects[4];
+          // PropertyList propertyList = new PropertyList("SbbAttachments");
+          String[] strArr = (String[]) tempObj;
+          StringBuffer sb = new StringBuffer();
+          for (String s : strArr) {
+            // PropertyMap SbbAttachment = new PropertyMap("SbbAttachment");
+            // SbbAttachment.put(new PropertySimple("SbbAttachmentValue", s));
+            // propertyList.add(SbbAttachment);
+            sb.append(s).append("; ");
+          }
+          col.put(new PropertySimple("SbbAttachmentValue", sb.toString()));
+
+          tempObj = tempObjects[5];
+          // propertyList = new PropertyList("NamesBoundTo");
+          sb = new StringBuffer();
+          strArr = (String[]) tempObj;
+          for (String s : strArr) {
+            // PropertyMap NameBoundTo = new PropertyMap("NameBoundTo");
+            // NameBoundTo.put(new PropertySimple("NameBoundToValue", s));
+            // propertyList.add(NameBoundTo);
+            sb.append(s).append("; ");
+          }
+          col.put(new PropertySimple("NameBoundToValue", sb.toString()));
+
+          tempObj = tempObjects[6];
+          // propertyList = new PropertyList("Timers");
+          sb = new StringBuffer();
+          strArr = (String[]) tempObj;
+          for (String s : strArr) {
+            // PropertyMap Timer = new PropertyMap("Timer");
+            // Timer.put(new PropertySimple("TimerValue", s));
+            // propertyList.add(Timer);
+            sb.append(s).append("; ");
+          }
+          col.put(new PropertySimple("TimerValue", sb.toString()));
+
+          tempObj = tempObjects[7];
+          // propertyList = new PropertyList("DataProperties");
+          sb = new StringBuffer();
+          strArr = (String[]) tempObj;
+          for (String s : strArr) {
+            // PropertyMap DataProperty = new PropertyMap("DataProperty");
+            // DataProperty.put(new PropertySimple("DataPropertyValue", s));
+            // propertyList.add(DataProperty);
+            sb.append(s).append("; ");
+          }
+          col.put(new PropertySimple("DataPropertyValue", sb.toString()));
+
+          columnList.add(col);
         }
-        col.put(new PropertySimple("SbbAttachmentValue", sb.toString()));
+      }
 
-        tempObj = tempObjects[5];
-        // propertyList = new PropertyList("NamesBoundTo");
-        sb = new StringBuffer();
-        strArr = (String[]) tempObj;
-        for (String s : strArr) {
-          // PropertyMap NameBoundTo = new PropertyMap("NameBoundTo");
-          // NameBoundTo.put(new PropertySimple("NameBoundToValue", s));
-          // propertyList.add(NameBoundTo);
-          sb.append(s).append("; ");
+      OperationResult result = new OperationResult();
+      result.getComplexResults().put(columnList);
+
+      return result;
+    }
+    finally {
+      try {
+        this.mbeanUtils.logout();
+      }
+      catch (LoginException e) {
+        if(log.isDebugEnabled()) {
+          log.debug("Failed to logout from secured JMX", e);
         }
-        col.put(new PropertySimple("NameBoundToValue", sb.toString()));
-
-        tempObj = tempObjects[6];
-        // propertyList = new PropertyList("Timers");
-        sb = new StringBuffer();
-        strArr = (String[]) tempObj;
-        for (String s : strArr) {
-          // PropertyMap Timer = new PropertyMap("Timer");
-          // Timer.put(new PropertySimple("TimerValue", s));
-          // propertyList.add(Timer);
-          sb.append(s).append("; ");
-        }
-        col.put(new PropertySimple("TimerValue", sb.toString()));
-
-        tempObj = tempObjects[7];
-        // propertyList = new PropertyList("DataProperties");
-        sb = new StringBuffer();
-        strArr = (String[]) tempObj;
-        for (String s : strArr) {
-          // PropertyMap DataProperty = new PropertyMap("DataProperty");
-          // DataProperty.put(new PropertySimple("DataPropertyValue", s));
-          // propertyList.add(DataProperty);
-          sb.append(s).append("; ");
-        }
-        col.put(new PropertySimple("DataPropertyValue", sb.toString()));
-
-        columnList.add(col);
       }
     }
-
-    OperationResult result = new OperationResult();
-    result.getComplexResults().put(columnList);
-
-    return result;
   }
 }
