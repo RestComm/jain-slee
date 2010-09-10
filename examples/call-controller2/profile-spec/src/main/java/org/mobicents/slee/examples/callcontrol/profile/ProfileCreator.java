@@ -155,10 +155,10 @@ public class ProfileCreator {
 						
 			try{
 				setCallPrincipials( user,  password);
-				sci.invokeOperation("-removeProfileTable", controllerProfileSpecID,	profileTableName, null);
+				sci.invokeOperation("-removeProfileTable", profileTableName, null, null);
 			}catch(Exception e)
 			{
-				//e.printStackTrace();
+				e.printStackTrace();
 			}
 			
 			// create profile table
