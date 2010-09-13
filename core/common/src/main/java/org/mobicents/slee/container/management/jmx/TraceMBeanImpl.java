@@ -537,12 +537,7 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 	 * @see org.mobicents.slee.container.SleeContainerModule#sleeInit()
 	 */
 	public void sleeStarting() {
-		JndiRegistrationManager.registerWithJndi("slee/facilities", TraceMBeanImpl.JNDI_NAME, traceFacility);
-		Runnable task = new Runnable() {
-			public void run() {
-				
-			}
-		};		
+		JndiRegistrationManager.registerWithJndi("slee/facilities", TraceMBeanImpl.JNDI_NAME, traceFacility);		
 	}
 	
 }
