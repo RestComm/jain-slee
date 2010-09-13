@@ -28,15 +28,22 @@ public class TracerStorage {
 	private final NotificationSourceWrapperImpl notificationSource;
 	
 	private final TraceMBeanImpl traceFacility;
-
+	private TracerImpl rootTracer;
+	
 	public TracerStorage(NotificationSource notificationSource, TraceMBeanImpl traceFacility) {
 		super();
 		this.notificationSource = new NotificationSourceWrapperImpl(notificationSource);
 		this.traceFacility = traceFacility;
-		TracerImpl rootTracer = new TracerImpl(this.notificationSource, this.traceFacility);		
+		this.rootTracer = new TracerImpl("",null,this.notificationSource, this.traceFacility);		
 		tracers.put(rootTracer.getTracerName(), rootTracer);
 	}
 
+	public void syncTracersWithLog4J()  {
+		for (TracerImpl tracer : tracers.values()) {
+			tracer.syncLevelWithLog4j();
+		}		
+	}
+	
 	public void setTracerLevel(TraceLevel lvl, String tracerName) throws InvalidArgumentException {
 		// FIXME: JDOC of TraceMBean - description of class show example
 		// that setTraceLevel creates tracer, we handle creation elswhere
@@ -115,33 +122,28 @@ public class TracerStorage {
 	 */
 	public Tracer createTracer(String tracerName, boolean requestedBySource) {
 	
+		TracerImpl tparent = null;
 		TracerImpl t = tracers.get(tracerName);
 		if (t == null) {
-			
 			String[] split = tracerName.split("\\.");
-			String parentName = null;
 			String currentName = "";
 			for (String s : split) {
-				if (parentName == null) {
+				if (tparent == null) {
 					// first loop
-					parentName = currentName;
+					tparent = rootTracer;
 					currentName = s;
 				} else {
-					parentName = currentName;
 					currentName = currentName + "." + s;
 				}
 				t = tracers.get(currentName);
-				if (t != null) {
-					// already exists
-					continue;
-				}
-				else {
-					t = new TracerImpl(currentName, parentName, this.notificationSource, this.traceFacility);
+				if (t == null) {
+					t = new TracerImpl(currentName, tparent, this.notificationSource, this.traceFacility);
 					final TracerImpl u = tracers.putIfAbsent(t.getTracerName(), t);
 					if (u != null) {
 						t = u;
 					}
 				}
+				tparent = t;
 			}
 		}
 

@@ -12,6 +12,8 @@ package org.mobicents.slee.container.management.jmx;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanNotificationInfo;
 import javax.management.NotCompliantMBeanException;
@@ -50,6 +52,10 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 	private static final Logger logger = Logger.getLogger(TraceMBeanImpl.class);
 	
 	private final TraceFacilityImpl traceFacility;
+	
+	// used in sync level ops between log4j and slee tracers
+	private static final int LOG4J_LEVEL_SYNC_PERIOD = 1; 
+	private ScheduledFuture<?> scheduledFuture = null;
 	
 	/**
 	 * Creates the trace mbean.
@@ -500,8 +506,14 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 	 * @see org.mobicents.slee.container.SleeContainerModule#afterSleeRunning()
 	 */
 	public void afterSleeRunning() {
-		// TODO Auto-generated method stub
-		
+		Runnable r = new Runnable() {			
+			public void run() {
+				for(TracerStorage ts : tracerStorage.values()) {
+					ts.syncTracersWithLog4J();
+				}				
+			}
+		};
+		scheduledFuture = sleeContainer.getNonClusteredScheduler().scheduleWithFixedDelay(r, LOG4J_LEVEL_SYNC_PERIOD,LOG4J_LEVEL_SYNC_PERIOD, TimeUnit.MINUTES);
 	}
 	
 	/* (non-Javadoc)
@@ -516,8 +528,9 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStop()
 	 */
 	public void sleeStopped() {
-		// TODO Auto-generated method stub
-		
+		if (!sleeContainer.getNonClusteredScheduler().isShutdown()) {
+			scheduledFuture.cancel(false);
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -525,6 +538,11 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 	 */
 	public void sleeStarting() {
 		JndiRegistrationManager.registerWithJndi("slee/facilities", TraceMBeanImpl.JNDI_NAME, traceFacility);
+		Runnable task = new Runnable() {
+			public void run() {
+				
+			}
+		};		
 	}
 	
 }

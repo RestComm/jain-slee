@@ -56,7 +56,7 @@ public class TracerFrameworkTest extends TestCase {
 			assertNotNull("Tracer name must not be null", t.getTracerName());
 			assertTrue("Root tracer name must be: \"\"", t.getTracerName().compareTo("") == 0);
 			assertNotNull("tracer level must not be null", t.getTraceLevel());
-			assertTrue("tracer level must be equal to INFO", t.getTraceLevel().equals(TraceLevel.INFO));
+			assertTrue("tracer level must be equal to INFO, instead it is "+t.getTraceLevel(), t.getTraceLevel().equals(TraceLevel.INFO));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Got exception: " + e);
@@ -168,7 +168,7 @@ public class TracerFrameworkTest extends TestCase {
 			assertNotNull("Tracers set must not be null");
 			if (tracersSet == null)
 				return;
-			assertTrue("Tracers set must be empty[" + tracersSet.length + "] now, it is not: " + Arrays.toString(tracersSet), tracersSet.length == 0);
+			assertTrue("Tracers set must be one [" + tracersSet.length + "] now, it is not: " + Arrays.toString(tracersSet), tracersSet.length == 1);
 
 			this.ts.setTracerLevel(TraceLevel.SEVERE, orgMobicents.getTracerName());
 			tracersSet = this.ts.getDefinedTracerNames();
@@ -176,11 +176,11 @@ public class TracerFrameworkTest extends TestCase {
 			assertNotNull("Tracers set must not be null");
 			if (tracersSet == null)
 				return;
-			assertTrue("Tracers set must have one element, it does not", tracersSet.length == 1);
-			assertNotNull("Tracer set element is null, it should not", tracersSet[0]);
-			if (tracersSet[0] == null)
+			assertTrue("Tracers set must have two elements, it does not", tracersSet.length == 2);
+			assertNotNull("Tracer set element is null, it should not", tracersSet[1]);
+			if (tracersSet[1] == null)
 				return;
-			assertTrue("Tracers set element must be equal to: " + orgMobicents.getTracerName() + ", it is: " + tracersSet[0], tracersSet[0].compareTo(orgMobicents.getTracerName()) == 0);
+			assertTrue("Tracers set element must be equal to: " + orgMobicents.getTracerName() + ", it is: " + tracersSet[1], tracersSet[1].compareTo(orgMobicents.getTracerName()) == 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Got exception: " + e);

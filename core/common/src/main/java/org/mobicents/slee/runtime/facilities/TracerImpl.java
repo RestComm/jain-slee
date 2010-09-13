@@ -1,6 +1,8 @@
 package org.mobicents.slee.runtime.facilities;
 
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.slee.InvalidArgumentException;
 import javax.slee.facilities.FacilityException;
@@ -28,10 +30,8 @@ public class TracerImpl implements Tracer {
 	public static final TraceLevel DEFAULT_TRACE_LEVEL = TraceLevel.INFO;
 
 	public final static String ROOT_TRACER_NAME = "";
-
-	private enum SpecificLevel { finer, config }
 	
-	private SpecificLevel specificLevel = null;
+	private TraceLevel level;
 	
 	private final Logger logger;
 	
@@ -41,33 +41,33 @@ public class TracerImpl implements Tracer {
 
 	private final String name;
 	
-	private final String parentName;
+	private final TracerImpl parent;
 		
 	private boolean requestedBySource = false;
-
-	/**
-	 * 
-	 */
-	public TracerImpl(NotificationSourceWrapperImpl notificationSource, TraceMBeanImpl traceMBean) {
-		this(ROOT_TRACER_NAME, null, notificationSource, traceMBean);
-		// specs require every root logger must have INFO level, but we don't
-		// want that if log4j config imposes a WARN, ERROR or OFF level, even if
-		// in that case we don't comply with the specs. this means tck will not
-		// pass if log4j logger says INFO is not enabled (e.g. WARN level set)
-		if (this.logger.getEffectiveLevel() == Level.INFO) {
-			this.logger.setLevel(Level.INFO);
-		}
-	}
+	
+	private boolean configEnabled = false;
+	private boolean infoEnabled = false;
+	private boolean fineEnabled = false;
+	private boolean finerEnabled = false;
+	private boolean finestEnabled = false;
+	private boolean warningEnabled = false;
+	private boolean severeEnabled = false;
+	
+	private final ConcurrentLinkedQueue<TracerImpl> childs = new ConcurrentLinkedQueue<TracerImpl>(); 
 	
 	/**
 	 * 
 	 */
-	public TracerImpl(String name, String parentName, NotificationSourceWrapperImpl notificationSource, TraceMBeanImpl traceMBean) {
+	public TracerImpl(String name, TracerImpl parent, NotificationSourceWrapperImpl notificationSource, TraceMBeanImpl traceMBean) {
 		this.name = name;
-		this.parentName = parentName;
+		this.parent = parent;
+		if (parent != null) {
+			parent.childs.add(this);
+		}
 		this.logger = Logger.getLogger(tracerNameToLog4JLoggerName(name, notificationSource.getNotificationSource()));
 		this.notificationSource = notificationSource;
 		this.traceMBean = traceMBean;
+		syncLevelWithLog4j();
 	}
 	
 	/**
@@ -83,6 +83,136 @@ public class TracerImpl implements Tracer {
 			sb.append('.').append(tracerName);
 		}
 		return sb.toString();
+	}
+	
+	/**
+	 * syncs the slee tracer level with the one that related logger has in log4j
+	 */
+	void syncLevelWithLog4j() {
+		// get the level from log4j, only the root one uses effective level
+		Level log4jLevel = parent == null ? logger.getEffectiveLevel() : logger.getLevel();
+		if (level == null) {
+			// set the level
+			assignLog4JLevel(log4jLevel);
+		}
+		else {
+			// set the level only if differs, otherwise we may loose levels not present in log4j
+			if (tracerToLog4JLevel(level) != log4jLevel) {
+				assignLog4JLevel(log4jLevel);				
+			}
+		}	
+		// the root must always have a level
+		if (parent == null && level == null) {
+			// defaults to INFO
+			logger.setLevel(Level.INFO);
+			level = TraceLevel.INFO;			
+		}
+		// reset the flags
+		resetCacheFlags(false);
+	}
+	
+	/**
+	 * assigns the equiv log4j level to the tracer
+	 * @param log4jLevel
+	 */
+	private void assignLog4JLevel(Level log4jLevel) {
+		if (log4jLevel == null) {
+			return;
+		}
+		if (log4jLevel == Level.DEBUG) {
+			level = TraceLevel.FINE;
+		}
+		else if (log4jLevel == Level.INFO) {
+			level = TraceLevel.INFO;
+		}
+		else if (log4jLevel == Level.WARN) {
+			level = TraceLevel.WARNING;
+		}
+		else if (log4jLevel == Level.ERROR) {
+			level = TraceLevel.SEVERE;
+		}
+		else if (log4jLevel == Level.TRACE) {
+			level = TraceLevel.FINEST;
+		}
+		else if (log4jLevel == Level.OFF) {
+			level = TraceLevel.OFF;
+		}
+	}
+	
+	/**
+	 * manages the flags which cache if levels are enabled
+	 */
+	void resetCacheFlags(boolean resetChilds) {
+		if (isTraceable(TraceLevel.FINEST)) {
+			finestEnabled = true;
+			finerEnabled = true;
+			fineEnabled = true;
+			configEnabled = true;
+			infoEnabled = true;
+			warningEnabled = true;
+			severeEnabled = true;
+		}
+		else {
+			finestEnabled = false;
+			if (isTraceable(TraceLevel.FINER)) {
+				finerEnabled = true;
+				fineEnabled = true;
+				configEnabled = true;
+				infoEnabled = true;
+				warningEnabled = true;
+				severeEnabled = true;
+			}
+			else {
+				finerEnabled = false;
+				if (isTraceable(TraceLevel.FINE)) {
+					fineEnabled = true;
+					configEnabled = true;
+					infoEnabled = true;
+					warningEnabled = true;
+					severeEnabled = true;
+				}
+				else {
+					fineEnabled = false;
+					if (isTraceable(TraceLevel.CONFIG)) {
+						configEnabled = true;
+						infoEnabled = true;
+						warningEnabled = true;
+						severeEnabled = true;
+					}
+					else {
+						if (isTraceable(TraceLevel.INFO)) {
+							infoEnabled = true;
+							warningEnabled = true;
+							severeEnabled = true;
+						}
+						else {
+							infoEnabled = false;
+							if (isTraceable(TraceLevel.WARNING)) {
+								warningEnabled = true;
+								severeEnabled = true;
+							}
+							else {
+								warningEnabled = false;
+								if (isTraceable(TraceLevel.SEVERE)) {
+									severeEnabled = true;
+								}
+								else {
+									severeEnabled = false;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if (resetChilds) {
+			// implicit change of level demands that we update reset flags on childs without level
+			for(TracerImpl child : childs) {
+				if (child.level == null) {
+					child.resetCacheFlags(true);
+				}				
+			}
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -159,52 +289,16 @@ public class TracerImpl implements Tracer {
 	 * @see javax.slee.facilities.Tracer#getParentTracerName()
 	 */
 	public String getParentTracerName() {
-		return parentName;	
+		return parent == null ? null : parent.getTracerName();	
 	}
 	
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#getTraceLevel()
 	 */
-	public TraceLevel getTraceLevel() throws FacilityException {
-		final Level level = logger.getEffectiveLevel();
-		
-		if (level != null) {
-			switch (level.toInt()) {
-			case Level.DEBUG_INT:
-				if (specificLevel == SpecificLevel.finer) {
-					return TraceLevel.FINER;
-				}
-				else {
-					return TraceLevel.FINE;
-				}
-			case Level.INFO_INT:
-				if (specificLevel == SpecificLevel.config) {
-					return TraceLevel.CONFIG;
-				}
-				else {
-					return TraceLevel.INFO;
-				}
-			case Level.WARN_INT:
-				specificLevel = null;
-				return TraceLevel.WARNING;
-			case Level.ERROR_INT:
-				specificLevel = null;
-				return TraceLevel.SEVERE;
-			case Level.TRACE_INT:
-				specificLevel = null;
-				return TraceLevel.FINEST;
-			case Level.OFF_INT:
-				specificLevel = null;
-				return TraceLevel.OFF;
-			default:
-				break;
-			}
-		};
-
-		specificLevel = null;
-		return DEFAULT_TRACE_LEVEL;
-		
+	public TraceLevel getTraceLevel() throws FacilityException {	
+		return level != null ? level : parent.getTraceLevel();		
 	}
+	
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#getTracerName()
 	 */
@@ -234,53 +328,50 @@ public class TracerImpl implements Tracer {
 	 * @see javax.slee.facilities.Tracer#isConfigEnabled()
 	 */
 	public boolean isConfigEnabled() throws FacilityException {
-		return isTraceable(TraceLevel.CONFIG);
+		return configEnabled;
 	}
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#isFineEnabled()
 	 */
 	public boolean isFineEnabled() throws FacilityException {
-		return isTraceable(TraceLevel.FINE);
+		return fineEnabled;
 	}
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#isFinerEnabled()
 	 */
 	public boolean isFinerEnabled() throws FacilityException {
-		return isTraceable(TraceLevel.FINER);
+		return finerEnabled;
 	}
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#isFinestEnabled()
 	 */
 	public boolean isFinestEnabled() throws FacilityException {
-		return isTraceable(TraceLevel.FINEST);
+		return finestEnabled;
 	}
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#isInfoEnabled()
 	 */
 	public boolean isInfoEnabled() throws FacilityException {
-		return isTraceable(TraceLevel.INFO);
+		return infoEnabled;
 	}
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#isSevereEnabled()
 	 */
 	public boolean isSevereEnabled() throws FacilityException {
-		return isTraceable(TraceLevel.SEVERE);
+		return severeEnabled;
 	}
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#isTraceable(javax.slee.facilities.TraceLevel)
 	 */
 	public boolean isTraceable(TraceLevel traceLevel) throws NullPointerException,
 			FacilityException {
-		if (traceLevel == null) {
-			throw new NullPointerException("null trace level");
-		}
-		return !this.getTraceLevel().isHigherLevel(traceLevel);
+		return !getTraceLevel().isHigherLevel(traceLevel);
 	}
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#isWarningEnabled()
 	 */
 	public boolean isWarningEnabled() throws FacilityException {
-		return isTraceable(TraceLevel.WARNING);
+		return warningEnabled;
 	}
 	/* (non-Javadoc)
 	 * @see javax.slee.facilities.Tracer#severe(java.lang.String)
@@ -420,35 +511,22 @@ public class TracerImpl implements Tracer {
 	 * @param level
 	 */
 	public void setTraceLevel(TraceLevel level) {
-		if (level.isConfig()) {
-			specificLevel = SpecificLevel.config;
-		}
-		else if (level.isFiner()) {
-			specificLevel = SpecificLevel.finer;
-		}
+		this.level = level;
 		logger.setLevel(tracerToLog4JLevel(level));
+		resetCacheFlags(true);
 	}
 
-	/**
-	 * 
-	 */
 	public void unsetTraceLevel() {
+		this.level = null;
 		logger.setLevel(null);
-		specificLevel = null;
+		resetCacheFlags(true);		
 	}
 
 	/**
 	 * @return
 	 */
 	public boolean isExplicitlySetTracerLevel() {
-		if (getParentTracerName() == null) {
-			// root
-			return false;
-		}
-		else {
-			// get level set in log4j
-			return logger.getLevel() != null;
-		}
+		return level != null;		
 	}
 	
 	/**
