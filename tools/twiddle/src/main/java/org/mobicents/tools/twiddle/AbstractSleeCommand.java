@@ -58,11 +58,15 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
  * 
  */
 @SuppressWarnings("deprecation")
-// for facilities.Level
+
 public abstract class AbstractSleeCommand extends AbstractCommand {
 
 	static {
 		// add editors, this will be set once any mc command is loaded.
+		//TODO: make this configurable.
+		//TODO: editor for facilities.Level
+		//TODO: editor for Address ?
+		//TODO: editor for ACH?
 		PropertyEditorManager.registerEditor(ComponentID.class, ComponentIDPropertyEditor.class);
 		PropertyEditorManager.registerEditor(EventTypeID.class, ComponentIDPropertyEditor.class);
 		PropertyEditorManager.registerEditor(LibraryID.class, ComponentIDPropertyEditor.class);
@@ -97,21 +101,12 @@ public abstract class AbstractSleeCommand extends AbstractCommand {
 
 	}
 
-	// reference to operation result if this command is executed as part of
-	// something else.
-	//protected Object operationResult;
-	//protected String operationName;
 	protected AbstractOperation operation;
 
-	
-	
 	public AbstractSleeCommand(String name, String desc) {
 		super(name, desc);
-
 	}
-
-
-
+	
 	public void execute(String[] args) throws Exception {
 		// create opts
 		processArguments(args);
@@ -121,17 +116,14 @@ public abstract class AbstractSleeCommand extends AbstractCommand {
 			this.operation.invoke();
 		}else
 		{
+			//nothing has been passed? display help.
 			displayHelp();
 		}
-		//displayResult();
 	}
-	
 	
 	protected abstract void processArguments(String[] args) throws CommandException;
 	
 	public abstract ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException; // public so ops can use that in overriden methods like invoke();
-	
-
 	
 	/*
 	 * (non-Javadoc)
@@ -139,7 +131,5 @@ public abstract class AbstractSleeCommand extends AbstractCommand {
 	 * @see org.jboss.console.twiddle.command.Command#displayHelp()
 	 */
 	public abstract void displayHelp();
-
-
 
 }

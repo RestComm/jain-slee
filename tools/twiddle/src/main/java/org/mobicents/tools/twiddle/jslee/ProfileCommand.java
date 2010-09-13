@@ -21,7 +21,6 @@ import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -46,7 +45,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 	 * @param desc
 	 */
 	public ProfileCommand() {
-		super("profile",  "This command performs operations on JSLEE ProfileProvisioningMBean." ); //FIXME: find way to add getprofilesBy...
+		super("profile",  "This command performs operations on JSLEE ProfileProvisioningMBean." );
 		// TODO Auto-generated constructor stub
 	}
 
@@ -63,8 +62,8 @@ public class ProfileCommand extends AbstractSleeCommand {
 		out.println();
 		out.println("operation:");
 		out.println("    -l, --list                     Lists components based on passed suboption:");
-		out.println("            --table                Lists profile table names, if ProfileSpecificationID is passed as argument, ");
-		out.println("                                   names listed are only for tables which ProfileSpecificationID matches.");
+		out.println("            --table                Lists profile table names, optionaly it takes ProfileSpecificationID as argument, ");
+		out.println("                                   if so names are listed only for tables which ProfileSpecificationID matches.");
 		out.println("            --profile              Lists profile IDs by table name,");
 		out.println("                                   requiers profile table name as argument.");
 		out.println("    -c, --create                   Creates component based on passed suboptions. Suported are two sets [ \"--table-name\" & \"--profile-name\" | \"--table-name\" & \"--profile-spec\" ]");
@@ -84,8 +83,9 @@ public class ProfileCommand extends AbstractSleeCommand {
 		out.println("            --profile              Retrieves ObjectName of default profile for given table name,");
 		out.println("                                   requiers profile table name as argument. It can be used in conjuction with \"--profile-name\" ");
 		out.println("                                   to get ObjectName for specific profile. Side effect of this call is registration of MBean with return ObjectName");
-		out.println("            --profile-name         Sets name for ObjectName fetch operation to make \"--profile\" option get ObjectName for specific profile.");
+		out.println("            --profile-name         Specifies profile name for \"--profile\" option. ObjectName returned by this call identifies bean for specific profile.");
 		out.println("                                   Requiers profile name as argument.");
+		//TODO: usage for table.
 		out.println("arg:");
 
 		

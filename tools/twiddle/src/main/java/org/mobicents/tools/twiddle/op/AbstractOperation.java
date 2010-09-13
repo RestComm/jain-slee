@@ -111,6 +111,7 @@ public abstract class AbstractOperation {
 					log.debug("Converted result: " + resultText);
 				} catch (RuntimeException e) {
 					// No property editor found or some conversion problem
+					//TODO: add something more sophisticated here
 					resultText = operationResult.toString();
 				}
 			} else {
@@ -139,10 +140,35 @@ public abstract class AbstractOperation {
 		opSignature.add(argClass.getName());
 
 	}
+	protected void addArg(Object arg, String argClass, boolean usPE) throws CommandException {
+		if (usPE) {
+			try{
+				PropertyEditor pe = PropertyEditors.getEditor(argClass);
+				if (pe == null) {
+					throw new CommandException("There is no property editor for: " + argClass);
+				}
+				if(arg!=null)
+				{
+					pe.setAsText((String) arg);
+					opArguments.add(pe.getValue());
+				}else
+				{
+					opArguments.add(null);
+				}
+			}catch(ClassNotFoundException cnfe)
+			{
+				throw new CommandException("Failed to locate class.",cnfe);
+			}
+		} else {
+			opArguments.add(arg);
+		}
+		opSignature.add(argClass);
 
+	}
 	public void invoke() throws CommandException {
 		try {
 			ObjectName on = sleeCommand.getBeanOName();
+		
 			MBeanServerConnection conn = context.getServer();
 			Object[] parms = getOpArguments().toArray();
 			String[] sig = new String[getOpSignature().size()];
