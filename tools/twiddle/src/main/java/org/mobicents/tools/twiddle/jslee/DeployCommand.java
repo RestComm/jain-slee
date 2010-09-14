@@ -83,9 +83,9 @@ public class DeployCommand extends AbstractSleeCommand {
 		out.println("    -d, --duid                     Fetches Deplouable Unit ID for given path.");
 		out.println("                                   Requiers path as argument.");
 		out.println("    -s, --desc                     Fetches descriptors for given SLEE component. It supports following options:");
-		out.println("            --duid                 Operation fetched descriptors based on DeployableUnit ID passed as arg. Accepts array argument.");
+		out.println("            --duid                 Operation fetches descriptors based on DeployableUnit ID passed as arg. Accepts array argument.");
 		out.println("                                   It expects DeployableUnit ID(single or array) as argument.");
-		out.println("            --cid                  Operation fetched descriptors based on Component ID passed as arg.");
+		out.println("            --cid                  Operation fetches descriptors based on Component ID passed as arg.");
 		out.println("    -r, --ref                      Fetches IDs of referring components. Expects ComponentID as argument. Accepts array argument.");
 		
 
