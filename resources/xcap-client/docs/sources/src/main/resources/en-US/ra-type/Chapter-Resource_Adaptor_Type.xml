@@ -10,7 +10,7 @@
 	
 	<para>The name of the RA Type is <literal>XCAPClientResourceAdaptorType</literal>, its vendor is <literal>org.mobicents</literal> and its version is <literal>2.0</literal>.</para>
 	
-	<para>The RA Type uses its own XCAP Client API, built on top of <literal>Apache HTTP Client 4.x</literal>, for further information about the Apache API refer to its website at <ulink url="http://hc.apache.org/httpcomponents-client/index.html"></ulink>.</para>
+	<para>The RA Type uses its own XCAP Client API, with an implementation built on top of <literal>Apache HTTP Client 4.x</literal>, for further information about the Apache API refer to its website at <ulink url="http://hc.apache.org/httpcomponents-client/index.html"></ulink>.</para>
 	
 	<xi:include
 		xmlns:xi="http://www.w3.org/2001/XInclude"

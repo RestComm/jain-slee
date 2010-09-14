@@ -46,9 +46,8 @@ package org.mobicents.xcap.client;
 import java.io.IOException;
 import java.net.URI;
 
-import org.apache.http.Header;
-import org.apache.http.auth.Credentials;
-import org.apache.http.client.ClientProtocolException;
+import org.mobicents.xcap.client.auth.Credentials;
+import org.mobicents.xcap.client.header.Header;
 
 public interface XcapClient {
 
@@ -59,48 +58,42 @@ public interface XcapClient {
 	public void shutdown();
 
 	public XcapResponse get(URI uri, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException;
+			Credentials credentials) throws IOException;
 
 	public XcapResponse put(URI uri, String mimetype, String content,
 			Header[] additionalRequestHeaders, Credentials credentials)
-			throws ClientProtocolException, IOException;
+			throws IOException;
 
 	public XcapResponse put(URI uri, String mimetype, byte[] content,
 			Header[] additionalRequestHeaders, Credentials credentials)
-			throws ClientProtocolException, IOException;
+			throws IOException;
 
 	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
 			String content, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException;
+			Credentials credentials) throws IOException;
 
 	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
 			byte[] content, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException;
+			Credentials credentials) throws IOException;
 
 	public XcapResponse putIfNoneMatch(URI uri, String eTag, String mimetype,
 			String content, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException;
+			Credentials credentials) throws IOException;
 
 	public XcapResponse putIfNoneMatch(URI uri, String eTag, String mimetype,
 			byte[] content, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException;
+			Credentials credentials) throws IOException;
 
 	public XcapResponse delete(URI uri, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException;
+			Credentials credentials) throws IOException;
 
 	public XcapResponse deleteIfMatch(URI uri, String eTag,
 			Header[] additionalRequestHeaders, Credentials credentials)
-			throws ClientProtocolException, IOException;
+			throws IOException;
 
 	public XcapResponse deleteIfNoneMatch(URI uri, String eTag,
 			Header[] additionalRequestHeaders, Credentials credentials)
-			throws ClientProtocolException, IOException;
+			throws IOException;
 
 }]]>
     </programlisting>

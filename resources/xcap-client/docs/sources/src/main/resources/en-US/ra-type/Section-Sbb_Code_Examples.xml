@@ -19,6 +19,9 @@
 		
 		<programlisting language="Java" role="JAVA">
 			<![CDATA[
+		// create auth credentials
+		Credentials credentials = ra.getCredentialsFactory().getHttpDigestCredentials(username,password);
+			
 		// create doc uri		
 		String documentSelector = DocumentSelectorBuilder.getUserDocumentSelectorBuilder("resource-lists", userName, documentName).toPercentEncodedString(); 
 		UriBuilder uriBuilder = new UriBuilder()
