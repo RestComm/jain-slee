@@ -44,6 +44,16 @@
 			<version>${mobicents.jslee.version}</version>
 		</dependency>
 		<dependency>
+			<artifactId>activities</artifactId>
+			<groupId>org.mobicents.servers.jainslee.core</groupId>
+			<version>${mobicents.jslee.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>spi</artifactId>
+			<groupId>org.mobicents.servers.jainslee.core</groupId>
+			<version>${mobicents.jslee.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
 			<version>${jain-slee.version}</version>
@@ -174,29 +184,7 @@
 				</executions>
 
 			</plugin>
-			<!--
-				commons-logging.jar concurrent.jar ejb3-persistence.jar
-				hibernate-annotations.jar jboss-aop-client.jar jboss-appclient.jar
-				jbos s-aspect-jdk50-client.jar jboss-client.jar
-				jboss-common-core.jar jbos s-deployers-client-spi.jar
-				jboss-deployers-client.jar jboss-deployers -core-spi.jar
-				jboss-deployers-core.jar jboss-deployment.jar jboss-ejb
-				3-common-client.jar jboss-ejb3-core-client.jar
-				jboss-ejb3-ext-api.jar jboss-ejb3-proxy-clustered-client.jar
-				jboss-ejb3-proxy-impl-client.j ar jboss-ejb3-proxy-spi-client.jar
-				jboss-ejb3-security-client.jar jboss-ha-client.jar
-				jboss-ha-legacy-client.jar jboss-iiop-client.jar jbo
-				ss-integration.jar jboss-j2se.jar jboss-javaee.jar
-				jboss-jsr77-client .jar jboss-logging-jdk.jar
-				jboss-logging-log4j.jar jboss-logging-spi. jar jboss-main-client.jar
-				jboss-mdr.jar jboss-messaging-client.jar jb oss-remoting.jar
-				jboss-security-spi.jar jboss-serialization.jar jboss -srp-client.jar
-				jboss-system-client.jar jboss-system-jmx-client.jar
-				jbosscx-client.jar jbossjts-integration.jar jbossjts.jar
-				jbosssx-as-cl ient.jar jbosssx-client.jar jmx-client.jar
-				jmx-invoker-adaptor-client .jar jnp-client.jar slf4j-api.jar
-				slf4j-jboss-logging.jar xmlsec.jar
-			-->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -235,6 +223,30 @@
 									</outputDirectory>
 									<destFileName>
 										jmx-property-editors.jar
+									</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<artifactId>activities</artifactId>
+									<groupId>org.mobicents.servers.jainslee.core</groupId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>
+										${tool.directory.lib}
+									</outputDirectory>
+									<destFileName>
+										activities.jar
+									</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<artifactId>spi</artifactId>
+									<groupId>org.mobicents.servers.jainslee.core</groupId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>
+										${tool.directory.lib}
+									</outputDirectory>
+									<destFileName>
+										spi.jar
 									</destFileName>
 								</artifactItem>
 								<artifactItem>

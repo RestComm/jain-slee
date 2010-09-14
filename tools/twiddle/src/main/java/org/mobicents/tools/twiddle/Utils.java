@@ -17,16 +17,15 @@
  */
 package org.mobicents.tools.twiddle;
 
-import gnu.getopt.LongOpt;
 
 /**
- * Small class with OName utils methods and static values with <b>VALID</b> jmx object names as strings.
+ * Small utils class.
  * @author baranowb
  *
  */
-public final class JMXNameUtility {
+public final class Utils {
 
-	private JMXNameUtility()
+	private Utils()
 	{
 		//no need for instances.
 		

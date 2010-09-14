@@ -30,7 +30,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -58,37 +58,54 @@ public class ProfileCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
 		out.println();
 		out.println("operation:");
-		out.println("    -l, --list                     Lists components based on passed suboption:");
+		out.println("    -l, --list                     Lists components based on passed option:");
 		out.println("            --table                Lists profile table names, optionaly it takes ProfileSpecificationID as argument, ");
-		out.println("                                   if so names are listed only for tables which ProfileSpecificationID matches.");
+		out.println("                                   if so, names are listed only for tables which ProfileSpecificationID matches.");
 		out.println("            --profile              Lists profile IDs by table name,");
 		out.println("                                   requiers profile table name as argument.");
-		out.println("    -c, --create                   Creates component based on passed suboptions. Suported are two sets [ \"--table-name\" & \"--profile-name\" | \"--table-name\" & \"--profile-spec\" ]");
+		out.println("    -c, --create                   Creates component based on passed options. Suported are two sets [ \"--table-name\" & \"--profile-name\" | \"--table-name\" & \"--profile-spec\" ]");
 		out.println("            --profile-name         Indicates profile name to be created. It is used in conjuction with \"--table-name\" to create profile in table.");
 		out.println("            --table-name           Indicates profile table name. It reqquiers either \"--profile-name\" or \"--profile-spec\".");
 		out.println("            --profile-spec         Indicates ProfileSpecification ID used to craete table.");
-		out.println("    -r, --remove                   Removes component based on passed suboptions. Requiers atleast \"--table-name\" suboption. Following suboptions are supported:");
+		out.println("    -r, --remove                   Removes component based on passed options. Requiers atleast \"--table-name\" option. Following options are supported:");
 		out.println("            --table-name           Indicates table name to be removed. If \"--profile-name\" is also used, only profile is removed from table.");
 		out.println("            --profile-name         Indicates profile name of profile to be removed. It is used in conjuction with \"--table-name\".");
-		out.println("    -n, --rename                   Renames profile table, based on suboptions. Both are required. Supported suboptions are:");
+		out.println("    -n, --rename                   Renames profile table, based on options. Both are required. Supported options are:");
 		out.println("            --current-name         Sets current name of profile table.");
 		out.println("            --new-name             Sets new name for profile table.");
 		//its weird, other MBeans define methods like getXXXUsage or something...
-		out.println("    -g, --get                      Fetches information regarding profiles and profile tables based on suboption, exactly one must be present. Supported suboptions:");
+		out.println("    -g, --get                      Fetches information regarding profiles and profile tables based on option, exactly one must be present. Supported options:");
 		out.println("            --profile-spec         Retrieves ProfileSpecification ID for given table name,");
 		out.println("                                   requiers profile table name as argument.");
-		out.println("            --profile              Retrieves ObjectName of default profile for given table name,");
-		out.println("                                   requiers profile table name as argument. It can be used in conjuction with \"--profile-name\" ");
-		out.println("                                   to get ObjectName for specific profile. Side effect of this call is registration of MBean with return ObjectName");
-		out.println("            --profile-name         Specifies profile name for \"--profile\" option. ObjectName returned by this call identifies bean for specific profile.");
-		out.println("                                   Requiers profile name as argument.");
+		//out.println("            --profile              Retrieves ObjectName of default profile for given table name,");
+		//out.println("                                   requiers profile table name as argument. It can be used in conjuction with \"--profile-name\" ");
+		//out.println("                                   to get ObjectName for specific profile. Side effect of this call is registration of MBean with return ObjectName");
+		//out.println("            --profile-name         Specifies profile name for \"--profile\" option. ObjectName returned by this call identifies bean for specific profile.");
+		//out.println("                                   Requiers profile name as argument.");
 		//TODO: usage for table.
 		out.println("arg:");
-
-		
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. Get specification ID for table:");
+		out.println("" + name + " -g --profile-spec=CallControl");
+		out.println("");
+		out.println("     2. Rename profile table");
+		out.println("" + name + " -n --curent-name=CallControl --new-name=OldCCTable");
+		out.println("");
+		out.println("     3. List all tables present:");
+		out.println("" + name + " -l --table");
+		out.println("");
+		out.println("     4. List all tables present for specific ProfileSpecificationID");
+		out.println("" + name + " -l --table=ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0.1]");
+		out.println("");
+		out.println("     5. Create table for specification:");
+		out.println("" + name + " -c --table-name=NewCallControl --profile-spec=ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0.1]");
+		out.println("");
+		out.println("     6. Create profile in table:");
+		out.println("" + name + " -c --table-name=NewCallControl --profile-name=newuser");
 		out.flush();
 
 	}
@@ -117,9 +134,9 @@ public class ProfileCommand extends AbstractSleeCommand {
 					new LongOpt("current-name", LongOpt.REQUIRED_ARGUMENT, null, RenameOperation.current_name),
 					new LongOpt("new-name", LongOpt.REQUIRED_ARGUMENT, null, RenameOperation.new_name),
 				new LongOpt("get", LongOpt.NO_ARGUMENT, null, 'g'),
-					new LongOpt("profile-name", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.profile_name),
+					//new LongOpt("profile-name", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.profile_name),
 					new LongOpt("profile-spec", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.profile_spec),
-					new LongOpt("profile", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.profile),
+					//new LongOpt("profile", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.profile),
 				};
 
 		Getopt getopt = new Getopt(null, args, sopts, lopts);
@@ -181,7 +198,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 	 */
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.SLEE_PROFILE_PROVISIONING);
+		return new ObjectName(Utils.SLEE_PROFILE_PROVISIONING);
 	}
 
 	private class ListOperation extends AbstractOperation {

@@ -27,7 +27,7 @@ import javax.management.ObjectName;
 
 import org.jboss.console.twiddle.command.CommandException;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AccessorOperation;
 
 /**
@@ -39,7 +39,7 @@ import org.mobicents.tools.twiddle.op.AccessorOperation;
 public class RouterCfgCommand extends AbstractSleeCommand {
 
 	public RouterCfgCommand() {
-		super("routercfg", "This command performs operations on Mobicents EventRouterConfiguration MBean.");
+		super("router.cfg", "This command performs operations on Mobicents EventRouterConfiguration MBean.");
 		// TODO Auto-generated constructor stub
 	}
 
@@ -49,26 +49,24 @@ public class RouterCfgCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
 		out.println();
 		out.println("operation:");
-		out	.println("    -m, --mapper                   Performs operation on executor mapper class name. Instance of this class is used to map activity to executor. Exactly one of following suboptions must be present:");
+		out	.println("    -m, --mapper                   Performs operation on executor mapper class name. Instance of this class is used to map activity to executor. Exactly one of following options must be present:");
 		out.println("            --get                   Returns name of mapper class. Does not require argument.");
 		out.println("            --set                   Sets class of mapper, requires argument which FQN of class to be used for mapping.");
-		out	.println("    -t, --threads                  Performs operation on threads used by executor. Exactly one of following suboptions must be present:");
+		out	.println("    -t, --threads                  Performs operation on threads used by executor. Exactly one of following options must be present:");
 		out.println("            --get                   Returns number of threads used by executor. Does not require argument.");
 		out.println("            --set                   Sets number of threads used by executor, requires integer argument which is greater than zero.");
-		out	.println("    -x, --stats                    Controls if statistics are enabled(true) or disabled(false). Exactly one of following suboptions must be present:");
+		out	.println("    -x, --stats                    Controls if statistics are enabled(true) or disabled(false). Exactly one of following options must be present:");
 		out.println("            --get                   Returns boolean indicating if statistics are beeing enabled or not. Does not require argument.");
-		out.println("            --set                   Sets parameter to enable statistics, requires boolean argument.");
-
-		
+		out.println("            --set                   Sets parameter to enable statistics, requires boolean argument.");	
 		out.flush();
 	}
 
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.MC_EVENT_ROUTER);
+		return new ObjectName(Utils.MC_EVENT_ROUTER);
 	}
 
 	@Override
@@ -79,7 +77,7 @@ public class RouterCfgCommand extends AbstractSleeCommand {
 				new LongOpt("mapper", LongOpt.NO_ARGUMENT, null, 'm'),
 				new LongOpt("threads", LongOpt.NO_ARGUMENT, null, 't'),
 				new LongOpt("stats", LongOpt.NO_ARGUMENT, null, 'x'),
-					// suboptions
+					// options
 					new LongOpt("set", LongOpt.REQUIRED_ARGUMENT, null, AccessorOperation.set),
 					new LongOpt("get", LongOpt.NO_ARGUMENT, null, AccessorOperation.get)
 

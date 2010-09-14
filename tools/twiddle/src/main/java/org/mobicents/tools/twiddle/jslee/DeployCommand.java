@@ -32,7 +32,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -58,10 +58,10 @@ public class DeployCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
 		out.println();
 		out.println("operation:");
-		out.println("    -l, --list                     Lists deployed components based on passed suboption:");
+		out.println("    -l, --list                     Lists deployed components based on passed option:");
 		out.println("            --sbbs                 Lists sbbs, if ServiceID is present as argument,");
 		out.println("                                   sbbs are listed for given service.");
 		out.println("            --services             Lists services, does not take argument.");
@@ -71,7 +71,7 @@ public class DeployCommand extends AbstractSleeCommand {
 		out.println("            --ras                  Lists RAs, does not take argument.");
 		out.println("            --dus                  Lists DUs, does not take argument.");
 		out.println("            --profile-spec         Lists profile specifications, does not take argument.");
-		out.println("    -y, --installed                Checks if SLEE component is installed. It accepts following suboptions:");
+		out.println("    -y, --installed                Checks if SLEE component is installed. It accepts following options:");
 		out.println("            --duid                 Indicates check based on DeployableUnit ID. ");
 		out.println("                                   It expects DeployableUnit ID as argument. It excludes \"--cid\".");
 		out.println("            --cid                  Indicates check based on Component ID. ");
@@ -82,16 +82,38 @@ public class DeployCommand extends AbstractSleeCommand {
 		out.println("                                   It expects DeployableUnit ID as argument.");
 		out.println("    -d, --duid                     Fetches Deplouable Unit ID for given path.");
 		out.println("                                   Requiers path as argument.");
-		out.println("    -s, --desc                     Fetches descriptors for given SLEE component. It supports following suboptions:");
-		out.println("            --duid                 Operation fetched descriptors based on DeployableUnit ID passed as arg.");
+		out.println("    -s, --desc                     Fetches descriptors for given SLEE component. It supports following options:");
+		out.println("            --duid                 Operation fetched descriptors based on DeployableUnit ID passed as arg. Accepts array argument.");
 		out.println("                                   It expects DeployableUnit ID(single or array) as argument.");
 		out.println("            --cid                  Operation fetched descriptors based on Component ID passed as arg.");
-		out.println("    -r, --ref                      Fetches IDs of referring components. Expects ComponentID as argument.");
+		out.println("    -r, --ref                      Fetches IDs of referring components. Expects ComponentID as argument. Accepts array argument.");
 		
 
 		out.println("arg:");
+		out.println("");
 		out.println("    ComponentID:             Is any valid component id, for instance ServiceID[name=xxx,vendor=uuu,version=123.0.00]");
 		out.println("    ComponentID Array:       ServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=xxx,vendor=uuu,version=123.0.00]");
+		out.println("");
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. List all installed SBBs:");
+		out.println("" + name + " -l --sbbs");
+		out.println("");
+		out.println("     2. List intalled SBBs that are part of specific service:");
+		out.println("" + name + " -l --sbbs=ServiceID[name=xxx,vendor=uuu,version=123.0.00]");
+		out.println("");
+		out.println("     3. Get DeployableUnitID based on deploy path:");
+		out.println("" + name + " -d/core/dev/container/deploy/xxx/ServiceDU.jar-1351q616/");
+		out.println("");
+		out.println("     4. List all referencing components:");
+		out.println("" + name + " -rProfileSpecificationID[name=ResourceInfoProfileSpec,vendor=javax.slee,version=1.0]");
+		out.println("");
+		out.println("     5. ");
+		out.println("" + name + " --install=g:/workspace/jslee/resource/SecretLab-DU.jar");
+		out.println("");
+		out.println("     6. Get descriptors of components:");
+		out.println("" + name + " -s --cid=ProfileSpecificationID[name=ResourceInfoProfileSpec,vendor=javax.slee,version=1.0];SbbID[name=SipRegistrarSbb,vendor=org.mobicents,version=1.2]");
+
 		
 		out.flush();
 
@@ -106,7 +128,7 @@ public class DeployCommand extends AbstractSleeCommand {
 		String sopts = ":lyi:u:d:sr:"; 
 		LongOpt[] lopts = {
 				new LongOpt("list", LongOpt.NO_ARGUMENT, null, 'l'),
-					//suboptions
+					//options
 					new LongOpt("sbbs", LongOpt.OPTIONAL_ARGUMENT, null, ListOperation.sbbs),
 					new LongOpt("services", LongOpt.NO_ARGUMENT, null, ListOperation.services),
 					new LongOpt("libraries", LongOpt.NO_ARGUMENT, null, ListOperation.libraries),
@@ -196,7 +218,7 @@ public class DeployCommand extends AbstractSleeCommand {
 	 */
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.SLEE_DEPLOYMENT);
+		return new ObjectName(Utils.SLEE_DEPLOYMENT);
 	}
 
 	
@@ -528,7 +550,7 @@ public class DeployCommand extends AbstractSleeCommand {
 				if(operationName == null)
 				{
 					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", requiers suboption to be present.");
+							+ "\", requiers option to be present.");
 				}
 			}
 

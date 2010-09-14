@@ -34,7 +34,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -43,7 +43,8 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
  *
  */
 public class ProfileEditCommand extends AbstractSleeCommand {
-
+	//TODO: add bussines method calls
+	
 	private ObjectName PROFILE_PROVISIONING_MBEAN;
 	/**
 	 * @param name
@@ -53,7 +54,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		super("profile.edit", "This command performs operations on JSLEE Profile MBean like: javax.slee.profile:type=Profile,profileTableName=CallControl,profileName=");
 		
 		try {
-			this.PROFILE_PROVISIONING_MBEAN = new ObjectName(JMXNameUtility.SLEE_PROFILE_PROVISIONING); //damn annoying.
+			this.PROFILE_PROVISIONING_MBEAN = new ObjectName(Utils.SLEE_PROFILE_PROVISIONING); //damn annoying.
 		} catch (MalformedObjectNameException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,7 +75,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		out.println(desc);
 		out.println();
 		//out.println("usage: " + name + " <-tprofileTableName> [-pprofileName] <operation> <arg>*");
-		out.println("usage: " + name + " <profileTableName> [profileName] <operation> <arg>*");
+		out.println("usage: " + name + " <profileTableName> <profileName> <-operation[[arg] | [--option[=arg]]]*>");
 		out.println("This command requiers atleast option -t to specify table name. If -p is not used, it performs operations on defualt profiles.");
 		out.println();
 		//out.println("config:");
@@ -95,17 +96,34 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		out.println("    -o, --close                    Deregisters MBean. Does not require argument.");
 		//closeProfile()
 		out.println("    -g, --get                      Returns value of profile attribute. Requires attribute name, ie: \"voiceMailEnabled\".");
-		out.println("    -s, --set                      Sets value of profile attribute. Supports mandatory suboptions:.");
+		out.println("    -s, --set                      Sets value of profile attribute. Supports mandatory options:.");
 		out.println("         --name                    Specifies name of profile attribute. Requiers attribute name as parameter.");
 		out.println("         --value                   Specifies string representation of profile attribute value. Requiers value as parameter.");
 		out.println("                                   Command tries localy registered JMX Editor to parse value and optimize call, if editor is not found");
 		out.println("                                   it dispatches call in hope that server side has better luck.");
-		//out.println("    -b, --bussines                 Sets value of profile attribute. Supports mandatory suboptions:.");
+		//out.println("    -b, --bussines                 Sets value of profile attribute. Supports mandatory options:.");
 		//out.println("         --method                  Specifies bussines method name. Requiers method name as parameter.");
 		//out.println("         --name                    Specifies name of profile attribute. Requiers attribute name as parameter.");
 		//out.println("         --value                   Specifies string representation of profile attribute value. Requiers value as parameter.");
 		//out.println("                                   Command tries localy registered JMX Editor to parse value and optimize call, if editor is not found");
 		//out.println("                                   it dispatches call in hope that server side has better luck.");
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. Check if profile has beed edited:");
+		out.println("" + name + " CallControl mobile.user -w");
+		out.println("");
+		out.println("     2. Check if any changes were introduced to profile:");
+		out.println("" + name + " CallControl mobile.user -d");
+		out.println("");
+		out.println("     3. Start editing:");
+		out.println("" + name + " CallControl mobile.user -e");
+		out.println("");
+		out.println("     4. Set attribute:");
+		out.println("" + name + " CallControl mobile.user -s --name=userPhone --value=sip:ala@ma.kota:5090");
+		out.println("");
+		out.println("     5. Commit changes:");
+		out.println("" + name + " CallControl mobile.user -c");
+		
 		out.flush(); 
 	}
 
@@ -169,7 +187,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 				//get,set,bussines
 				new LongOpt("get", LongOpt.REQUIRED_ARGUMENT, null, 'g'),
 				new LongOpt("set", LongOpt.NO_ARGUMENT, null, 's'),
-					//suboptions for set
+					//options for set
 					new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, SetAttributeOperation.name),
 					new LongOpt("value", LongOpt.OPTIONAL_ARGUMENT, null, SetAttributeOperation.value),
 				//new LongOpt("bussines", LongOpt.NO_ARGUMENT, null, 'b'),	

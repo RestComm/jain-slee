@@ -30,7 +30,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -42,7 +42,7 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
 public class RouterStatsCommand extends AbstractSleeCommand {
 
 	public RouterStatsCommand() {
-		super("routerstats", "This command performs operations on Mobicents EventRouterStatistics MBean.");
+		super("router.stats", "This command performs operations on Mobicents EventRouterStatistics MBean.");
 		// TODO Auto-generated constructor stub
 	}
 
@@ -51,23 +51,23 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 		PrintWriter out = context.getWriter();	
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
 		out.println();
 		out.println("operation:");
 		out	.println("   -m, --mapped-activities     Returns number of mapped activities. Optionaly it can take positive integer argument.");
 		out	.println("                               In case argument is present it indicates executor for which value should be returned.");
 		//public int getActivitiesMapped() throws ManagementException;
 		//public int getActivitiesMapped(int executor) throws ManagementException;
-		out.println("    -a, --avg-time              Returns avarage time spent in routing tasks. Wihtout any suboption this returns avg time for all executors and events. ");
-		out.println("                                Suboptions may be used in any conjuctions: ");
+		out.println("    -a, --avg-time              Returns avarage time spent in routing tasks. Wihtout any option this returns avg time for all executors and events. ");
+		out.println("                                Options may be used in any conjuctions: ");
 		out.println("           --eventTypeId        Specifies EventTypeID for which avg time should be retrieved. Requires EventTypeID argument.");
 		out.println("           --executor           Specifies executor for which avg time shoulr be retrieved. Requries positive integer argument.");
 		//public long getAverageEventRoutingTime() throws ManagementException;
 		//public long getAverageEventRoutingTime(EventTypeID eventTypeID) throws ManagementException;
 		//public long getAverageEventRoutingTime(int executor) throws ManagementException;
 		//public long getAverageEventRoutingTime(int executor, EventTypeID eventTypeID) throws ManagementException;
-		out.println("    -r, --events-routed         Returns number of events routed. It requiers \"--eventTypeId\" suboption to be present. ");
-	    out.println("                                Following suboptions are supported: ");
+		out.println("    -r, --events-routed         Returns number of events routed. It requiers \"--eventTypeId\" option to be present. ");
+	    out.println("                                Following options are supported: ");
 		out.println("           --eventTypeId        Specifies EventTypeID for which avg time should be retrieved. Requires EventTypeID argument.");
 		out.println("           --executor           Specifies executor for which avg time shoulr be retrieved. Requries positive integer argument.");
 		//public long getEventsRouted(EventTypeID eventTypeID) throws ManagementException;
@@ -86,14 +86,23 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 		//public long getExecutingTime(int executor) throws ManagementException;
 		out.println("    -x, --misc-executing-time   Returns total time spent in executor(misc tasks). Requries positive integer argument, which indicates executor.");
 		//public long getMiscTasksExecutingTime(int executor) throws ManagementException;
-	    out.println("    -o, --routing-time          Returns total time spent on routing event type in particular executor. Requires both suboption to be present.");
-		out.println("                                Following suboptions are supported: ");
+	    out.println("    -o, --routing-time          Returns total time spent on routing event type in particular executor. Requires both option to be present.");
+		out.println("                                Following options are supported: ");
 		out.println("          --eventTypeId         Specifies EventTypeID for which avg time should be retrieved. Requires EventTypeID argument.");
 		out.println("          --executor            Specifies executor for which avg time shoulr be retrieved. Requries positive integer argument.");
 		//public long getRoutingTime(int executor, EventTypeID eventTypeID) throws ManagementException;
 		//public String printAllStats() throws ManagementException;
 		out.println("    -p, print-all               Prints all statistics. Does not require argument.");
-
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. Get number of miliseconds spent on routing certain event type:");
+		out.println("" + name + " -r --eventTypeId=EventTypeID[name=javax.sip.message.Request.OPTIONS,vendor=net.java.slee,version=1.2]");
+		out.println("");
+		out.println("     1. Get number of miliseconds spent on routing certain event type in certain executor:");
+		out.println("" + name + "  -r --eventTypeId=EventTypeID[name=javax.sip.message.Request.OPTIONS,vendor=net.java.slee,version=1.2] --executor=2");
+		out.println("");
+		out.println("     1. :");
+		out.println("" + name + " ");
 		
 
 		
@@ -102,7 +111,7 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.MC_EVENT_ROUTER_STATS);
+		return new ObjectName(Utils.MC_EVENT_ROUTER_STATS);
 	}
 
 	@Override
@@ -112,7 +121,7 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 				
 				new LongOpt("mapped-activities", LongOpt.OPTIONAL_ARGUMENT, null, 'm'),
 				new LongOpt("avg-time", LongOpt.NO_ARGUMENT, null, 'a'),
-					// suboptions
+					// options
 					new LongOpt("eventTypeId", LongOpt.REQUIRED_ARGUMENT, null, AvgTimeOperation.eventTypeId),
 					new LongOpt("executor", LongOpt.REQUIRED_ARGUMENT, null, AvgTimeOperation.executor),
 				new LongOpt("events-routed", LongOpt.NO_ARGUMENT, null, 'r'),

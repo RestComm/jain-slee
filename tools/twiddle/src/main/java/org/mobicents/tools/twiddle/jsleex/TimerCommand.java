@@ -29,7 +29,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -51,27 +51,25 @@ public class TimerCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
 		out.println();
 		out.println("operation:");
-		out
-				.println("    -t, --threads                   Performs operation on number of threads in timer facility. Exactly one of following suboptions must be present:");
+		out.println("    -t, --threads                   Performs operation on number of threads in timer facility. Exactly one of following options must be present:");
 		out.println("            --get                   Returns number of currently used threads. Does not require argument.");
 		out.println("            --set                   Sets number of threads, requires argument which is integer greater than zero.");
-
 		out.flush();
 	}
 
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.MC_TIMER_FACILITY);
+		return new ObjectName(Utils.MC_TIMER_FACILITY);
 	}
 
 	@Override
 	protected void processArguments(String[] args) throws CommandException {
 		String sopts = ":t";
 		LongOpt[] lopts = { new LongOpt("list", LongOpt.NO_ARGUMENT, null, 'l'),
-				// suboptions
+				// options
 				new LongOpt("set", LongOpt.REQUIRED_ARGUMENT, null, ThreadsOperation.set),
 				new LongOpt("get", LongOpt.NO_ARGUMENT, null, ThreadsOperation.get)
 
@@ -110,7 +108,7 @@ public class TimerCommand extends AbstractSleeCommand {
 
 		public ThreadsOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			// op name is set depending on suboptions
+			// op name is set depending on options
 		}
 
 		@Override

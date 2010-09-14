@@ -31,7 +31,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -60,28 +60,43 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
 		out.println();
 		out.println("operation:");
 		out.println("    -a, --activate                 Activates service('s) with matching ServiceID.");
-		out.println("                                   Requiers atleast one ServiceID as argument.");
+		out.println("                                   Accepts array argument.");
 		out.println("    -d, --deactivate               Deactivates service('s) with matching ServiceID");
-		out.println("                                   Requiers atleast one ServiceID as argument.");
+		out.println("                                   Accepts array argument.");
 		out.println("    -c, --deactivate-and-activate  Deactivates and activates service('s) with matching ServiceID(s)");
 		out.println("                                   Supports two sub options(mandatory):");
-		out.println("                       --ta        Indicates services to be activated in this operation.");
-		out.println("                       --td        Indicates services to be deactivated in this operation.");
-		out.println("    -u, --usage-mbean              Returns the Object Name of a ServiceUsageMBean object");
-		out.println("                                   Requiers ServiceID as argument.");
+		out.println("                       --ta        Indicates services to be activated in this operation. Accepts array argument.");
+		out.println("                       --td        Indicates services to be deactivated in this operation. Accepts array argument.");
+		//out.println("    -u, --usage-mbean              Returns the Object Name of a ServiceUsageMBean object");
+		//out.println("                                   Requiers ServiceID as argument.");
 		out.println("    -i, --services                 Returns list of services in given state");
 		out.println("                                   Requiers ServiceState as argument.");
 		out.println("    -o, --state                    Returns state of service");
-		out.println("                                   Requiers ServiceID as argument.");
+		out.println("                                   Requiers ServiceID as argument. Does not accept array argument.");
 		out.println();
 		out.println("arg:");
+		out.println("");
 		out.println("    ServiceID:             ServiceID[name=xxx,vendor=uuu,version=123.0.00]");
 		out.println("    ServiceID Array:       ServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=xxx,vendor=uuu,version=123.0.00]");
-		out.println("    ServiceState:          [Active,Inactive,Stopping]  ");
+		out.println("    ServiceState:          [Active|Inactive|Stopping]  ");
+		out.println("");
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. Activate two services:");
+		out.println("" + name + " -aServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=YYY,vendor=uuu,version=123.0.00]");
+		out.println("");
+		out.println("     2. Deactivate and activate services:");
+		out.println("" + name + " -c --tdServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=YYY,vendor=uuu,version=123.0.00] --taServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=YYY,vendor=uuu,version=123.0.00]");
+		out.println("");
+		out.println("     3. Check which services are inactive:");
+		out.println("" + name + " -iInactive");
+		
+		
+		
 		out.flush();
 	}
 
@@ -92,17 +107,17 @@ public class ServiceCommand extends AbstractSleeCommand {
 	 */
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.SLEE_SERVICE_MANAGEMENT);
+		return new ObjectName(Utils.SLEE_SERVICE_MANAGEMENT);
 	}
 
 	protected void processArguments(String[] args) throws CommandException {
 
-		String sopts = ":a:d:u:i:o:c"; // ":" is for req, argument, lack of it
-										// after option means no args.
+		//String sopts = ":a:d:u:i:o:c"; // ":" is for req, argument, lack of it
+		String sopts = ":a:d:i:o:c";// after option means no args.
 
 		LongOpt[] lopts = { new LongOpt("activate", LongOpt.REQUIRED_ARGUMENT, null, 'a'),
 				new LongOpt("deactivate", LongOpt.REQUIRED_ARGUMENT, null, 'd'),
-				new LongOpt("usage-mbean", LongOpt.REQUIRED_ARGUMENT, null, 'u'),
+				//new LongOpt("usage-mbean", LongOpt.REQUIRED_ARGUMENT, null, 'u'),
 				new LongOpt("services", LongOpt.REQUIRED_ARGUMENT, null, 'i'),
 				new LongOpt("state", LongOpt.REQUIRED_ARGUMENT, null, 'o'),
 				new LongOpt("deactivate-and-activate", LongOpt.NO_ARGUMENT, null, 'c'),

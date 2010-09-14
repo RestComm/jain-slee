@@ -33,14 +33,14 @@ import org.mobicents.tools.twiddle.AbstractSleeCommand;
 import gnu.getopt.Getopt;
 
 /**
- * Class which handles different aspects of building jmx call. It organizes a
- * bit options parsing.
- * 
+ * Class which handles different aspects of building jmx call. 
  * @author baranowb
  * 
  */
 public abstract class AbstractOperation {
-
+	//editors
+	public static final String CID_SEPARATOR = ";";
+	
 	protected Object operationResult;
 	protected AbstractSleeCommand sleeCommand;
 	protected String operationName;
@@ -104,16 +104,34 @@ public abstract class AbstractOperation {
 			String resultText = null;
 
 			if (operationResult != null) {
-				try {
-					PropertyEditor editor = PropertyEditors.getEditor(operationResult.getClass());
-					editor.setValue(operationResult);
-					resultText = editor.getAsText();
+					
+					try {
+						PropertyEditor editor = PropertyEditors.getEditor(operationResult.getClass());
+						editor.setValue(operationResult);
+						resultText = editor.getAsText();
+					} catch (RuntimeException e) {
+						// No property editor found or some conversion problem
+						//TODO: add something more sophisticated here
+						log.debug("No editor found: ",e);
+						//fallback op
+						if(operationResult.getClass().isArray())
+						{
+				
+							//TODO: this is not readable, but result can be passed into another invocation
+							Object[] arrayResult = (Object[]) operationResult;
+							resultText = unfoldArray("", arrayResult);
+						}else if(operationResult!=null)
+						{
+							resultText = operationResult.toString();
+						}else
+						{
+							resultText = "'success'";
+						}
+						
+					}
+			
 					log.debug("Converted result: " + resultText);
-				} catch (RuntimeException e) {
-					// No property editor found or some conversion problem
-					//TODO: add something more sophisticated here
-					resultText = operationResult.toString();
-				}
+				
 			} else {
 				resultText = "'success'";
 			}
@@ -124,7 +142,25 @@ public abstract class AbstractOperation {
 			out.flush();
 		}
 	}
-
+	/**
+	 * Default implementation.
+	 * @param prefix
+	 * @param array
+	 * @return
+	 */
+	protected String unfoldArray(String prefix, Object[] array)
+	{
+		StringBuffer sb = new StringBuffer();
+		for(int index=0;index<array.length;index++)
+		{
+			 sb.append(array[index].toString());
+                if (index < array.length-1) {
+                	sb.append(CID_SEPARATOR);
+                }
+		}
+		
+		return  sb.toString();
+	}
 	protected void addArg(Object arg, Class argClass, boolean usPE) throws CommandException {
 		if (usPE) {
 			PropertyEditor pe = PropertyEditors.getEditor(argClass);

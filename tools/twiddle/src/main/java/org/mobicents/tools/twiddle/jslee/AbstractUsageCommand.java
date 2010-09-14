@@ -28,12 +28,15 @@ import javax.management.MBeanOperationInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.slee.SbbID;
+import javax.slee.ServiceID;
 
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
+import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -52,11 +55,11 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		super(commandName,desc);
 
 		try {
-			this.PROFILE_PROVISIONING_MBEAN = new ObjectName(JMXNameUtility.SLEE_PROFILE_PROVISIONING); // damn
+			this.PROFILE_PROVISIONING_MBEAN = new ObjectName(Utils.SLEE_PROFILE_PROVISIONING); // damn
 			// annoying.
-			this.RESOURCE_MANAGEMENT_MBEAN = new ObjectName(JMXNameUtility.SLEE_RESOURCE_MANAGEMENT); // damn
+			this.RESOURCE_MANAGEMENT_MBEAN = new ObjectName(Utils.SLEE_RESOURCE_MANAGEMENT); // damn
 			// annoying.
-			this.SERVICE_MANAGEMENT_MBEAN = new ObjectName(JMXNameUtility.SLEE_SERVICE_MANAGEMENT); // damn
+			this.SERVICE_MANAGEMENT_MBEAN = new ObjectName(Utils.SLEE_SERVICE_MANAGEMENT); // damn
 			// annoying.
 		} catch (MalformedObjectNameException e) {
 			// TODO Auto-generated catch block
@@ -80,32 +83,32 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		PrintWriter out = context.getWriter();
 
 		out.println(desc);
-		out.println();
+
 		// out.println("usage: " + name +
 		// " <-tprofileTableName> [-pprofileName] <operation> <arg>*");
-		out.println("usage: " + name + " <ResourceName> [SetName] <operation> <arg>*");
+		out.println("usage: " + name + " <ResourceName> [SetID] <-operation[[arg] | [--option[=arg]]*]");
 		out.println("ResourceName - determines resource in container - ProfileTableName, RAEntityName, ServiceID");//TODO: add good description, this command is quite complicated!
-		out.println("SetName - identifies set, in case of profiles and RA it is simply name of usage set. In case of");
+		out.println("SetID - identifies set, in case of profiles and RA it is simply <SetName>. In case of");
 		out.println("          Services, it has form of <SBBID> [SetName] - where SetName is simple string name.");
 		out.println();
 		out.println("operation:");
-		out.println("    -l, --list                     Lists certain information about parameters sets. Requires one of suboptions to be present:");
+		out.println("    -l, --list                     Lists certain information about parameters sets. Requires one of options to be present:");
 		out.println("           --sets                  Instructs command to list declared parameter sets. Does not require argument.");
 		out.println("           --parameters            Instructs command to list parameters of parameter set. Does not require argument.");
 		//TODO: make 'list' also list notification mngr conf for resource set.
 		out.println("    -g, --get                      Fetches value of certain parameter in set. Does not take argument.");
-		out.println("                                   Requires '--name' suboption to be present. Following suboptions are supported: ");
+		out.println("                                   Requires '--name' option to be present. Following options are supported: ");
 		out.println("           --name                  Specifies name of parameter in a set for get operation. Requiers parameter name as argument. This option is mandatory.");
 		out.println("           --rst                   If present, indicates that 'get' operation should reset parameter value. Does not require argument.");
-		out.println("    -r, --reset                    Resets assets in 'Usage' realm. Does not take argument. If 'SetName' is not specified, reset command resets specific set.");
-		out.println("                                   If it is not present, reset command performs operation on default set. Following suboption is spported:");
-		out.println("           --all                   Resets ALL parameters for 'ResourceName', ignores 'SetName'.");
-		out.println("    -c, --create                   Creates usage parameter set for given 'SetName'. Does not require argument.");
-		out.println("    -d, --delete                   Deletes usage parameter set with given 'SetName'. Does not require argument.");
-		out.println("    -n, --notify                   Turns on or off notification per usage parameter. Does not take parameter, requiers suboptions to specify name and value:");
+		out.println("    -r, --reset                    Resets assets in 'Usage' realm. Does not take argument. If 'SetID' is not specified, reset command resets specific set.");
+		out.println("                                   If it is not present, reset command performs operation on default set. Following option is spported:");
+		out.println("           --all                   Resets ALL parameters for 'ResourceName', ignores 'SetID'.");
+		out.println("    -c, --create                   Creates usage parameter set for given 'SetID'. Does not require argument.");
+		out.println("    -d, --delete                   Deletes usage parameter set with given 'SetID'. Does not require argument.");
+		out.println("    -n, --notify                   Turns on or off notification per usage parameter. Does not take parameter, requiers options to specify name and value:");
 		out.println("           --name                  Specifies name of parameter. Requiers parameter name as argument.");
 		out.println("           --value                 Specifies value of parameter. Requiers boolean argument.");
-		out.println("    -i, --is-notify                Checks if notification is on for certain parameter in set. Following suboptions are supported:");
+		out.println("    -i, --is-notify                Checks if notification is on for certain parameter in set. Following options are supported:");
 		out.println("           --name                  Specifies name of parameter. Requiers parameter name as argument. It is mandatory.");
 		out.flush();
 	}
@@ -149,6 +152,15 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	// holds name, if default usage, it will be null.
 	protected String usageSetName;
 
+	//part for ServiceUsage params.
+	protected ServiceID serviceID;
+	
+	protected SbbID sbbID;
+	
+	protected ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
+	
+	protected final static String PREFIX_SERVICEID = "ServiceID";
+	//protected final static String PREFIX_SBBID = "SbbID";
 	// //////////////////////
 	//    Set essentials   //
 	// //////////////////////
@@ -219,14 +231,48 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 				switch (nonOptArgIndex) {
 				case 0:
 					resourceName = getopt.getOptarg();
+					if(resourceName.startsWith(PREFIX_SERVICEID))
+					{
+						
+						try{
+							editor.setAsText(resourceName);
+						}catch(Exception e)
+						{
+							throw new CommandException("Command: \"" + getName() + "\" failed to parse ServiceID.",e);
+						}
+						this.serviceID = (ServiceID) editor.getValue();
+						
+						this.resourceName = null;
+					}
 					nonOptArgIndex++;
 					break;
 				case 1:
+					if(this.serviceID!=null)
+					{
+						
+						try{
+							this.editor.setAsText(getopt.getOptarg());
+						}catch(Exception e)
+						{
+							throw new CommandException("Command: \"" + getName() + "\" failed to parse SbbID.",e);
+						}
+						this.sbbID = (SbbID) this.editor.getValue();
+					}else
+					{
+						usageSetName = getopt.getOptarg();
+					}
+					nonOptArgIndex++;
+					break;
+				case 2:
+					if(this.serviceID == null)
+					{
+						throw new CommandException("Command: \"" + getName() + "\" expects at most two non opt arguments!");
+					}
 					usageSetName = getopt.getOptarg();
 					nonOptArgIndex++;
 					break;
 				default:
-					throw new CommandException("Command: \"" + getName() + "\" expects at most two non opt arguments!");
+					throw new CommandException("Command: \"" + getName() + "\" expects at most three non opt arguments!");
 				}
 				break;
 
@@ -285,12 +331,27 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	protected void prepareCommand() throws CommandException {
 		// get bean name and bean info.
 		
-		if(resourceName == null)
+		if(this.resourceName == null && this.serviceID == null)
 		{
 			throw new CommandException("Command: \"" + getName() + "\", expects 'ResourceName'!");
 		}
-		String[] sig = new String[]{"java.lang.String"};
-		Object[] parms = new Object[]{resourceName};
+		//in case of reset SbbID may be null.
+		if(this.serviceID!=null && this.sbbID == null)
+		{
+			throw new CommandException("Command: \"" + getName() + "\", expects atleast 'SbbID' in 'SetID'!");
+		}
+		String[] sig = null;
+		Object[] parms = null;
+		
+		if(this.serviceID == null)
+		{
+			sig = new String[]{"java.lang.String"};
+			parms = new Object[]{resourceName};
+		}else
+		{
+			sig = new String[]{"javax.slee.ServiceID"};
+			parms = new Object[]{this.serviceID};
+		}
 		MBeanServerConnection server = super.context.getServer();
 		//get usage mgmt bean.
 		try {
@@ -302,12 +363,26 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	
 	protected ObjectName getSpecificUsageMBeanOName() throws CommandException
 	{
-		String[] sig = new String[]{};
-		Object[] parms = new Object[]{};
-		if(usageSetName!=null)
-		{
-			sig = new String[]{"java.lang.String"};
-			parms = new Object[]{usageSetName};
+		String[] sig = null;
+		Object[] parms = null;
+		if (this.serviceID == null) {
+			if (usageSetName != null) {
+				sig = new String[] { "java.lang.String" };
+				parms = new Object[] { usageSetName };
+			}else
+			{
+				sig = new String[] { };
+				parms = new Object[] {  };
+			}
+		} else {
+			if (usageSetName != null) {
+				sig = new String[] { "javax.slee.SbbID","java.lang.String" };
+				parms = new Object[] { this.sbbID,usageSetName };
+			}else
+			{
+				sig = new String[] { "javax.slee.SbbID" };
+				parms = new Object[] { this.sbbID };
+			}
 		}
 		MBeanServerConnection server = super.context.getServer();
 		//get usage mgmt bean.
@@ -320,9 +395,17 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	}
 	protected ObjectName getSpecificUsageNotificationMBeanOName() throws CommandException
 	{
-		String[] sig = new String[]{};
-		Object[] parms = new Object[]{};
-		
+		String[] sig = null;
+		Object[] parms = null;
+		if(this.serviceID == null)
+		{
+			sig = sig = new String[]{};
+			parms = new Object[]{};
+		}else
+		{
+			sig = new String[] { "javax.slee.SbbID" };
+			parms = new Object[] { this.sbbID };
+		}
 		MBeanServerConnection server = super.context.getServer();
 		//get usage mgmt bean.
 		try {
@@ -396,7 +479,10 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 
 			if(super.operationName.equals("getUsageParameterSets"))
 			{
-				
+				if(serviceID!=null)
+				{
+					addArg(sbbID, "javax.slee.SbbID", false);
+				}
 				super.invoke();
 			}else
 			{
@@ -405,9 +491,18 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 
 					
 					MBeanServerConnection conn = context.getServer();
-					Object[] parms = new Object[]{};
-					String[] sig = new String[]{};
 					
+					Object[] parms = null;
+					String[] sig = null;
+					if(serviceID==null)
+					{
+						parms = new Object[]{};
+						sig = new String[]{};
+					}else
+					{
+						parms = new Object[]{sbbID};
+						
+					}
 					ObjectName on = (ObjectName) conn.invoke(usageMgmtMBeanName, getMethod, parms, sig);
 					super.operationResult = conn.getMBeanInfo(on); 
 					displayResult();
@@ -497,7 +592,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 			if(super.operationName.equals( "get")) //empty, no name?
 			{
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-						+ "\", requires atleast '--name' suboption.");
+						+ "\", requires atleast '--name' option.");
 			}
 			addArg(new Boolean(reset), boolean.class, false);
 			
@@ -527,7 +622,8 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 				case '?':
 					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1] + " --> " + opts.getOptopt());
 
-				case all:
+				case all: //if all we need to act on mgmt bean
+					
 					specificObjectName = usageMgmtMBeanName;
 					allIndication = true;
 					break;
@@ -544,6 +640,15 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 			{
 				//we need specific bean name
 				getSpecificUsageMBeanOName();
+			}else
+			{
+				if(serviceID!=null && sbbID!=null)
+				{
+					addArg(sbbID, "javax.slee.SbbID", false);
+				}else
+				{
+					//ServiceID wide reset.
+				}
 			}
 			
 		}
@@ -563,7 +668,16 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 			if(usageSetName == null)
 			{
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-						+ "\", requires 'SetName' to be present");
+						+ "\", requires 'SetID' to be present");
+			}
+			if(serviceID!=null)
+			{
+				if(sbbID == null)
+				{
+					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+							+ "\", requires SbbID in 'SetID' to be present");
+				}
+				addArg(sbbID, "javax.slee.SbbID", false);
 			}
 			addArg(usageSetName, String.class, false);
 			specificObjectName = usageMgmtMBeanName;
@@ -584,7 +698,16 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 			if(usageSetName == null)
 			{
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-						+ "\", requires 'SetName' to be present");
+						+ "\", requires 'SetID' to be present");
+			}
+			if(serviceID!=null)
+			{
+				if(sbbID == null)
+				{
+					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+							+ "\", requires SbbID in 'SetID' to be present");
+				}
+				addArg(sbbID, "javax.slee.SbbID", false);
 			}
 			addArg(usageSetName, String.class, false);
 			specificObjectName = usageMgmtMBeanName;
@@ -638,40 +761,20 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 			if(super.operationName == null)
 			{
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-						+ "\", requires '--name' suboption to be present.");
+						+ "\", requires '--name' option to be present.");
 
 			}
 
 			if(this.booleanValue == null)
 			{
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-						+ "\", requires '--value' suboption to be present.");
+						+ "\", requires '--value' option to be present.");
 
 			}
 			addArg(booleanValue, boolean.class, false);
 			//now we need mgmt bean
 			getSpecificUsageNotificationMBeanOName();
-			try {
-				PrintWriter out = context.getWriter();
-				MBeanInfo i = super.context.getServer().getMBeanInfo(specificObjectName);
-				MBeanAttributeInfo[] infos = i.getAttributes();
-				for(MBeanAttributeInfo info:infos)
-				{				
-					
-					out.println();
-					//out.println("Class: "+info.getClass());
-					out.println("Desc : "+info.getDescription());
-					out.println("Name : "+info.getName());
-					out.println("Type : "+info.getType());
-					out.println("r/w  : "+info.isReadable()+"/"+info.isWritable());
-					out.println("isIs : "+info.isIs()); // LOL :)
-					
-				}
-				// render results to out
-				out.flush();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			
 			
 		}
 		
@@ -716,7 +819,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 			if(super.operationName == null)
 			{
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-						+ "\", requires '--name' suboption to be present.");
+						+ "\", requires '--name' option to be present.");
 
 			}
 			//now we need mgmt bean

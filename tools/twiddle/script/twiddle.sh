@@ -73,6 +73,8 @@ fi
     CLASSPATH="$CLASSPATH:${DIRNAME}/lib/cli-twiddle.jar"
     CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jain-slee-1.1.jar"
     CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jmx-property-editors.jar"
+    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/activities.jar"
+    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/spi.jar"
     CLASSPATH="$CLASSPATH:$DIRNAME/lib"
    
 #fi

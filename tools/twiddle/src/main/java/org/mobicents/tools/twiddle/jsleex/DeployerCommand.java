@@ -29,7 +29,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -51,17 +51,16 @@ public class DeployerCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation>");
 		out.println();
 		out.println("operation:");
 		out.println("    -s, --status                   Retrieves status of deployment. Does not require argument.");
-
 		out.flush();
 	}
 
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.MC_DEPLOYER);
+		return new ObjectName(Utils.MC_DEPLOYER);
 	}
 
 	@Override

@@ -30,7 +30,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -58,11 +58,11 @@ public class AlarmCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
 		out.println();
 		out.println("operation:");
-		out.println("    -c, --clear                    Clears alarm which meets criteria. Suboption \"--id\" or \"--nsrc\" must be present. Following suboptions are supported:");
-		out.println("            --id                   Specifies ID of alarm to be cleared. This option MUST NOT be used with any other suboptions.");
+		out.println("    -c, --clear                    Clears alarm which meets criteria. Option \"--id\" or \"--nsrc\" must be present. Following options are supported:");
+		out.println("            --id                   Specifies ID of alarm to be cleared. This option MUST NOT be used with any other options.");
 		out.println("                                   Expects parameter of String type.");
 		out.println("            --nsrc                 Specifies Notification source for which alarms will be cleared. It can be used in conjuction with \"--type\".");
 		out.println("                                   Expects parameter of NotificationSource type.");
@@ -72,13 +72,29 @@ public class AlarmCommand extends AbstractSleeCommand {
 		out.println("            --nsrc                 Notification source for which alarms Ids are fetched, its not mandatory.");
 		out.println("                                   Expects parameter of NotificationSource type.");
 		out.println("    -d, --descriptor               Fetches descriptor of alarm, if passed argument is an array of alarm ids, it will return array of descriptors.");
-		out.println("                                   Expects parameter of String or array of Strings type.");
+		out.println("                                   Expects parameter of String or array of Strings.");
 		out.println("    -a, --active                   Checks if alarm with matching id is active.");
 		out.println("                                   Expects parameter of String type. Passed argument must be id of alarm.");
 		out.println();
 		out.println("arg:");
+		out.println("");
 		out.println("    NotificationSource:    ProfileTableNotification[table=xxx]");
 		out.println("    AlarmId array:         alarmId1;alarmId2");
+		out.println("");
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. Check if alarm with specific id is active or not:");
+		out.println("" + name + " -a415f719e-3a3d-42b4-acc1-4e84706f031a");
+		out.println("" + name + " --active=415f719e-3a3d-42b4-acc1-4e84706f031a");
+		out.println("");
+		out.println("     2. List ids of active alarms:");
+		out.println("" + name + " -l");
+		out.println("");
+		out.println("     3. List ids of active alarms originating from specific notification source:");
+		out.println("" + name + " -l --nsrc=RAEntityNotification[entity=LabRA]");
+		out.println("");
+		out.println("     4. Clear all alarms of certain type originating from certain notification source:");
+		out.println("" + name + " -c --nsrc=RAEntityNotification[entity=LabRA] --type=application.trivial.com.org.net");
 		out.flush();
 
 	}
@@ -92,7 +108,7 @@ public class AlarmCommand extends AbstractSleeCommand {
 	 */
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.SLEE_ALARM);
+		return new ObjectName(Utils.SLEE_ALARM);
 	}
 
 	protected void processArguments(String[] args) throws CommandException {
@@ -205,6 +221,7 @@ public class AlarmCommand extends AbstractSleeCommand {
 			}
 			
 		}
+		//TODO: DISPLAY
 		
 	}
 
@@ -287,7 +304,6 @@ public class AlarmCommand extends AbstractSleeCommand {
 					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind()-1]+" --> "+opts.getOptopt());
 				
 				case nsrc:
-					
 					stringNsrc = opts.getOptarg();
 					super.operationName = "clearAlarms";
 					break;
@@ -316,7 +332,6 @@ public class AlarmCommand extends AbstractSleeCommand {
 				
 				if (stringID.contains(";")) {
 					// arrays for ServiceID
-
 					throw new CommandException("Array parameter is not supported by: "+args[opts.getOptind()-1]);
 
 				}

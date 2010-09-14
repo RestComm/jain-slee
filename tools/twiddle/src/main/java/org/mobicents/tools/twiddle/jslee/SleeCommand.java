@@ -31,7 +31,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -60,7 +60,7 @@ public class SleeCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation>");
 		out.println();
 		out.println("operation:");
 		out.println("    -r, --start                     Starts platform.");
@@ -68,7 +68,6 @@ public class SleeCommand extends AbstractSleeCommand {
 		out.println("    -d, --shutdown                  Shutdowns platform.");
 		out.println("    -i, --info                      Displays information about SLEE platform(vendor, version, etc.).");
 		//no more supported, since we dont have subsystems?
-	
 		out.flush();
 
 	}
@@ -141,7 +140,7 @@ public class SleeCommand extends AbstractSleeCommand {
 	 */
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.SLEE_MANAGEMENT);
+		return new ObjectName(Utils.SLEE_MANAGEMENT);
 	}
 	
 	private class StartOperation extends AbstractOperation

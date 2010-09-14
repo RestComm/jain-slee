@@ -27,7 +27,7 @@ import javax.management.ObjectName;
 
 import org.jboss.console.twiddle.command.CommandException;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AccessorOperation;
 
 /**
@@ -49,34 +49,45 @@ public class CongestionCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
+		out.println("Congestion mechanism starts acting when there is not enough memory available to JVM.");
+		out.println("It stops");
 		out.println();
 		out.println("operation:");
-		out.println("    -p, --period                    Performs operation on period between checks. Exactly one of following suboptions must be present:");
+		out.println("    -p, --period                    Performs operation on period between congestion checks. Exactly one of following options must be present:");
 		out.println("            --get                   Returns number of seconds between congestion control checks. Does not require argument.");
 		out.println("            --set                   Sets number of seconds, requires argument which is integer greater than zero.");
 		out.println("    -d, --disable-level             Performs operation on minimal amount of memory free to turn off congestion. Once free memory reaches this level, congestion control stops.");
-		out.println("                                    Exactly one of following suboptions must be present:");
+		out.println("                                    Exactly one of following options must be present:");
 		out.println("            --get                   Returns number of MB required to be free to stop congestion. Does not require argument.");
 		out.println("            --set                   Sets number of MB, requires argument which is integer greater than zero.");
 		out.println("    -e, --enable-level              Performs operation on minimal amount of memory free to turn on congestion. Once free memory reaches this level, congestion control starts.");
-		out.println("                                    Exactly one of following suboptions must be present:");
+		out.println("                                    Exactly one of following options must be present:");
 		out.println("            --get                   Returns number of MB required to be free to start congestion. Does not require argument.");
 		out.println("            --set                   Sets number of MB, requires argument which is integer greater than zero.");
-		out.println("    -f, --refuse-event              Controls if events should not be fired during congestion period. Exactly one of following suboptions must be present:");
+		out.println("    -f, --refuse-event              Controls if events should not be fired during congestion period. Exactly one of following options must be present:");
 		out.println("            --get                   Returns boolean value indicating if events should not be fired(true). Does not require argument.");
 		out.println("            --set                   Sets value, \"true\" indicates that events wont be fired, requires argument which is valid boolean.");
-		out.println("    -a, --refuse-activity           Controls if activities should not be created during congestion period. Exactly one of following suboptions must be present:");
+		out.println("    -a, --refuse-activity           Controls if activities should not be created during congestion period. Exactly one of following options must be present:");
 		out.println("            --get                   Returns boolean value indicating if activities should not be created(true). Does not require argument.");
 		out.println("            --set                   Sets value, \"true\" indicates that activities wont be created, requires argument which is valid boolean.");
-		
-
+		out.println("arg:");
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. Set period between congestion checks:");
+		out.println("" + name + " -p set=95");
+		out.println("");
+		out.println("     2. Set high watermark. Memory that has to be free in JVM for congestion control to stop acting:");
+		out.println("" + name + " -d --set=25");
+		out.println("");
+		out.println("     3. Set low watermark. Amount of free memory which will triger congetsion control to act:");
+		out.println("" + name + " -e --set=10");
 		out.flush();
 	}
 
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.MC_CONGESTION_CONTROL);
+		return new ObjectName(Utils.MC_CONGESTION_CONTROL);
 	}
 
 	@Override
@@ -84,7 +95,7 @@ public class CongestionCommand extends AbstractSleeCommand {
 		String sopts = ":pedfa";
 		LongOpt[] lopts = { 
 				new LongOpt("period", LongOpt.NO_ARGUMENT, null, 'p'),
-					// suboptions, used by all
+					// options, used by all
 					new LongOpt("set", LongOpt.REQUIRED_ARGUMENT, null, AccessorOperation.set),
 					new LongOpt("get", LongOpt.NO_ARGUMENT, null, AccessorOperation.get),
 				new LongOpt("enable-level", LongOpt.NO_ARGUMENT, null, 'e'),

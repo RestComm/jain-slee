@@ -33,7 +33,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -60,7 +60,7 @@ public class TraceCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
 		out.println();
 		out.println("operation:");
 		out.println("    -a, --tracers-used             Lists tracer names for which Tracer objects have been requested by the");
@@ -69,33 +69,36 @@ public class TraceCommand extends AbstractSleeCommand {
 		out.println("    -f, --tracers-set              List tracer names for which a trace filter level has been");
 		out.println("                                   set for the notification source identified by the NotificationSource parameter.");
 		out.println("                                   Requiers notification source as argument.");
-		out
-				.println("    -s, --set-level                Sets Tracer or Trace level. Depending on suboptions. Suboption \"--cid\" is excludes \"--nsrc\".");
-		out.println("                                   --set-level supports following suboptions:");
-		out
-				.println("               --cid               Determines SLEE 1.0 component ID. This option excludes \"--nsrc\". It MUST be used in conjuction wtih --level.");
-		out
-				.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. This option excludes \"--cid\". It MUST be used in conjuction wtih --level.");
-		out
-				.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
-		out
-				.println("               --level             Determines level of trace (or tracer). It MUST be used with either \"--nsrc\" or \"--cid\"");
-		out
-				.println("    -u, --un-set-level             Unsets Tracer level. Depending on suboptions. Suboption \"--cid\" excludes \"--nsrc\".");
-		out
-				.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. It MUST be used in conjuction wtih --name.");
-		out
-				.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
-		out
-				.println("    -g, --get-level                Gets Trace or Tracer level. Depending on suboptions. Suboption \"--cid\"  excludes \"--nsrc\".");
+		out.println("    -s, --set-level                Sets Tracer or Trace level. Depending on options:");
+		out.println("                                   --set-level supports following options:");
+		out.println("               --cid               Determines SLEE 1.0 component ID. This option excludes \"--nsrc\". It MUST be used in conjuction wtih --level.");
+		out.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. This option excludes \"--cid\". It MUST be used in conjuction wtih --level.");
+		out.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
+		out.println("               --level             Determines level of trace (or tracer). It MUST be used with either \"--nsrc\" or \"--cid\"");
+		out.println("    -u, --un-set-level             Unsets Tracer level. Depending on options. Option \"--cid\" excludes \"--nsrc\".");
+		out.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. It MUST be used in conjuction wtih --name.");
+		out.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
+		out.println("    -g, --get-level                Gets Trace or Tracer level. Depending on options. Option \"--cid\"  excludes \"--nsrc\".");
 		out.println("               --cid               Determines SLEE 1.0 component ID. This option excludes \"--nsrc\".");
-		out
-				.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. It MUST be used in conjuction wtih --name.");
-		out
-				.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
-
+		out.println("               --nsrc              Determines SLEE 1.1 NotificationSource of tracer affected. It MUST be used in conjuction wtih --name.");
+		out.println("               --name              Determines SLEE 1.1 Tracer name affected. It MUST be used in conjuction wtih --nsrc.");
+		out.println("");
 		out.println("arg:");
-
+		out.println("");
+		out.println("    NotificationSource:    ProfileTableNotification[table=xxx]");
+		out.println("    Level             :    [SEVERE|WARNING|INFO|CONFIG|FINE|FINER|FINEST]");
+		out.println("");
+		
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. List used tracers:");
+		out.println("" + name + " -aProfileTableNotification[table=xxx]");
+		out.println("");
+		out.println("     2. Set level of tracer:");
+		out.println("" + name + " -s --cid=SbbID[name=LocationSbb,vendor=org.mobicents,version=1.2] --level=SEVERE");
+		out.println("");
+		out.println("     3. Set level of tracer:");
+		out.println("" + name + " -s --nsrc=SbbNotification[service=ServiceID[name=SIP Registrar Service,vendor=org.mobicents,version=1.2],sbb=SbbID[name=LocationSbb,vendor=org.mobicents,version=1.2]] --level=SEVERE --name=error.tracer");
 		out.flush();
 
 	}
@@ -107,7 +110,7 @@ public class TraceCommand extends AbstractSleeCommand {
 	 */
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.SLEE_TRACE);
+		return new ObjectName(Utils.SLEE_TRACE);
 	}
 
 	/*

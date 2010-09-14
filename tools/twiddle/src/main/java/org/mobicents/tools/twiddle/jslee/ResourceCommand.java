@@ -33,7 +33,7 @@ import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
-import org.mobicents.tools.twiddle.JMXNameUtility;
+import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
@@ -56,24 +56,24 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <operation> <arg>*");
+		out.println("usage: " + name + " <-operation[[arg] | [--option[=arg]]*]>");
 		out.println();
 		out.println("operation:");
-		out.println("    -b, --bind                     Creates bind between RA entity and link name, supports following suboptions(mandatory):");
+		out.println("    -b, --bind                     Creates bind between RA entity and link name, supports following options(mandatory):");
 		out.println("          --link-name              Specifies link name to be used, requires argument. ");
 		out.println("          --entity-name            Specifies RA entity name to be used, requires argument. ");
 		out.println("    -u, --unbind                   Unbinds a link name from a RA entity. Requires link name as argument.");
 		out.println("    -a, --activate                 Activate a RA entity. Requires entity name as argument.");
 		out.println("    -d, --deactivate               Deactivate a RA entity. Requires entity name as argument.");
-		out.println("    -c, --create                   Creates a RA entity. Suboptions specify mandatory arguments:");
+		out.println("    -c, --create                   Creates a RA entity. Options specify mandatory arguments:");
 		out.println("          --entity-name            Specifies RA entity name to be used, requires argument. ");
 		out.println("          --ra-id                  Specifies ResourceAdaptorID to be used, requires argument. ");
 		out.println("          --config                 Specifies ConfigurationProperties to be used, requires argument. ");
 		out.println("    -r, --remove                   Removes a RA entity. Requiers Ra entty name as argument.");
-		out.println("    -p, --update-config            Update RA entity configuration. Suboptions specify mandatory arguments:");
+		out.println("    -p, --update-config            Update RA entity configuration. Options specify mandatory arguments:");
 		out.println("          --entity-name            Specifies RA entity name to be used, requires argument. ");
 		out.println("          --config                 Specifies ConfigurationProperties to be used as new set, requires argument. ");
-		out.println("    -l, --list                     Lists result. Result content depends on passed suboptions. One suboption is required, supported:");
+		out.println("    -l, --list                     Lists result. Result content depends on passed options. One option is required, supported:");
 		out.println("          --ra-entities            Marks list operation to list entity names. Without argument it will list all entities. If ");
 		out.println("                                   ResourceAdaptorID is passed as argument it will list entity names coresponding to argument. ");
 		out.println("          --ra-entities-in-state   Marks list operation to list entity names of RAs in given state. Requires argument(ResourceAdaptorEntityState). ");
@@ -81,15 +81,37 @@ public class ResourceCommand extends AbstractSleeCommand {
 		out.println("          --links                  Marks list operation to list link names. Without argument it will list all links. If ");
 		out.println("                                   RA entity name is passed as argument it will list only coresponding link names. ");
 		out.println("          --sbbs                   Marks list operation to list SbbIDs bound to passed link name. Requiers link name as argument ");
-		out.println("    -g, --get                      Fetches information from container based on passed suboption. One suboption is required, supported:");
+		out.println("    -g, --get                      Fetches information from container based on passed option. One option is required, supported options:");
 		out.println("          --ra-id                  Retrieves ResourceAdaptorID. Requiers entity name as argument, RA ID is fetched for this name. ");
 		out.println("          --state                  Retrieves state of RA. Requiers entity name as argument. ");
 		out.println("          --config-by-id           Retrieves ConfigurationProperties for given ResourceAdaptorID. Requiers ResourceAdaptorID as argument.");
 		out.println("          --config-by-name         Retrieves ConfigurationProperties for given RA entity name. Requiers entity name as argument.");
-		out.println("          --usage-mbean            Retrieves ObjectName of ResourceAdaptorUsageMBean. Requiers entity name as argument.");
+		//out.println("          --usage-mbean            Retrieves ObjectName of ResourceAdaptorUsageMBean. Requiers entity name as argument.");
 				
 		
 		out.println("arg:");
+		out.println("");
+		out.println("NOTE: Config property has general form of: (name:java.type=value) and array has different form, than in components: [(cnf.prop),(cnf.prop)]");
+		out.println("     Configuration property array: [(remotePort:java.lang.Integer=40001),(localPort:java.lang.Integer=40000),(localHost:java.lang.String=127.0.0.1),(remoteHost:java.lang.String=127.0.0.1)]");
+		out.println("     ResourceAdaptorEntityState: [INACTIVE|STOPPING|ACTIVE]");
+		
+		out.println("");
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. Create RA Entity:");
+		out.println("" + name + " -c --entity-name=SipRA --ra-id= --config=[(javax.sip.TRANSPORT:java.lang.String=UDP),(javax.sip.IP_ADDRESS:java.lang.String=),(javax.sip.PORT:java.lang.Integer=5060)]");
+		out.println("");
+		out.println("     2. Bind RA Entity to Link:");
+		out.println("" + name + " -b --link-name=SipRALink --entity-name=SipRA");
+		out.println("");
+		out.println("     3. Get state of RA Entity:");
+		out.println("" + name + " -g --state=SipRA");
+		out.println("");
+		out.println("     4 List all RA Entities in container:");
+		out.println("" + name + " -l --ra-entities");
+		out.println("");
+		out.println("     5. List all RA Entities created from specific ResourceAdaptorID:");
+		out.println("" + name + " -l --ra-entities=ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]");
 		out.flush();
 		
 	}
@@ -128,7 +150,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 					new LongOpt("state", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.state),
 					new LongOpt("config-by-id", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.config_by_id),
 					new LongOpt("config-by-name", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.config_by_name),
-					new LongOpt("usage-mbean", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.usage_mbean),
+					//new LongOpt("usage-mbean", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.usage_mbean),
 				 };
 
 
@@ -212,7 +234,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 	 */
 	@Override
 	public ObjectName getBeanOName() throws MalformedObjectNameException, NullPointerException {
-		return new ObjectName(JMXNameUtility.SLEE_RESOURCE_MANAGEMENT);
+		return new ObjectName(Utils.SLEE_RESOURCE_MANAGEMENT);
 	}
 
 	private class BindOperation extends AbstractOperation
@@ -424,7 +446,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 			while ((code = opts.getopt()) != -1) {
 				if (super.operationName != null) {
 					throw new CommandException("Command: \"" + sleeCommand.getName()
-							+ "\", expects only one suboption!");
+							+ "\", expects only one option!");
 				}
 				switch (code) {
 				case ':':
@@ -493,7 +515,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 			}
 			if (super.operationName == null) {
 				throw new CommandException("Command: \"" + sleeCommand.getName()
-						+ "\", expects one suboption!");
+						+ "\", expects one option!");
 			}
 		}
 		
@@ -517,7 +539,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 			while ((code = opts.getopt()) != -1) {
 				if (super.operationName != null) {
 					throw new CommandException("Command: \"" + sleeCommand.getName()
-							+ "\", expects only one suboption!");
+							+ "\", expects only one option!");
 				}
 				switch (code) {
 				case ':':
@@ -572,7 +594,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 			
 			if (super.operationName == null) {
 				throw new CommandException("Command: \"" + sleeCommand.getName()
-						+ "\", expects one suboption!");
+						+ "\", expects one option!");
 			}
 		}
 		
