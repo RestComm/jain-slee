@@ -8,10 +8,11 @@ import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.StartActivityException;
 
-import org.apache.http.Header;
-import org.apache.http.auth.Credentials;
-import org.apache.http.client.ClientProtocolException;
 import org.mobicents.xcap.client.XcapResponse;
+import org.mobicents.xcap.client.auth.Credentials;
+import org.mobicents.xcap.client.auth.CredentialsFactory;
+import org.mobicents.xcap.client.header.Header;
+import org.mobicents.xcap.client.header.HeaderFactory;
 
 /**
  * 
@@ -29,6 +30,24 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	public XCAPClientResourceAdaptorSbbInterfaceImpl(
 			XCAPClientResourceAdaptor ra) {
 		this.ra = ra;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#getCredentialsFactory()
+	 */
+	public CredentialsFactory getCredentialsFactory() {
+		return ra.getClient().getCredentialsFactory();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#getHeaderFactory()
+	 */
+	public HeaderFactory getHeaderFactory() {
+		return ra.getClient().getHeaderFactory();
 	}
 
 	/*
@@ -58,11 +77,11 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#delete(java.net.URI,
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse delete(URI uri, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException {
+			Credentials credentials) throws IOException {
 		return ra.getClient()
 				.delete(uri, additionalRequestHeaders, credentials);
 	}
@@ -71,12 +90,12 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#deleteIfMatch(java.net.URI,
-	 * java.lang.String, org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * java.lang.String, org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse deleteIfMatch(URI uri, String eTag,
 			Header[] additionalRequestHeaders, Credentials credentials)
-			throws ClientProtocolException, IOException {
+			throws IOException {
 		return ra.getClient().deleteIfMatch(uri, eTag,
 				additionalRequestHeaders, credentials);
 	}
@@ -85,12 +104,12 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#deleteIfNoneMatch(java.net.URI,
-	 * java.lang.String, org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * java.lang.String, org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse deleteIfNoneMatch(URI uri, String eTag,
 			Header[] additionalRequestHeaders, Credentials credentials)
-			throws ClientProtocolException, IOException {
+			throws IOException {
 		return ra.getClient().deleteIfNoneMatch(uri, eTag,
 				additionalRequestHeaders, credentials);
 	}
@@ -99,11 +118,11 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#get(java.net.URI,
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse get(URI uri, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException {
+			Credentials credentials) throws IOException {
 		return ra.getClient().get(uri, additionalRequestHeaders, credentials);
 	}
 
@@ -111,12 +130,13 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#put(java.net.URI,
-	 * java.lang.String, java.lang.String, org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * java.lang.String, java.lang.String,
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse put(URI uri, String mimetype, String content,
 			Header[] additionalRequestHeaders, Credentials credentials)
-			throws ClientProtocolException, IOException {
+			throws IOException {
 		return ra.getClient().put(uri, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -125,12 +145,12 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#put(java.net.URI,
-	 * java.lang.String, byte[], org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * java.lang.String, byte[], org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse put(URI uri, String mimetype, byte[] content,
 			Header[] additionalRequestHeaders, Credentials credentials)
-			throws ClientProtocolException, IOException {
+			throws IOException {
 		return ra.getClient().put(uri, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -140,12 +160,12 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#putIfMatch(java.net.URI,
 	 * java.lang.String, java.lang.String, java.lang.String,
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
 			String content, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException {
+			Credentials credentials) throws IOException {
 		return ra.getClient().putIfMatch(uri, eTag, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -154,13 +174,13 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#putIfMatch(java.net.URI,
-	 * java.lang.String, java.lang.String, byte[], org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * java.lang.String, java.lang.String, byte[],
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
 			byte[] content, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException {
+			Credentials credentials) throws IOException {
 		return ra.getClient().putIfMatch(uri, eTag, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -170,12 +190,12 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#putIfNoneMatch(java.net.URI,
 	 * java.lang.String, java.lang.String, java.lang.String,
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse putIfNoneMatch(URI uri, String eTag, String mimetype,
 			String content, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException {
+			Credentials credentials) throws IOException {
 		return ra.getClient().putIfNoneMatch(uri, eTag, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -184,13 +204,13 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#putIfNoneMatch(java.net.URI,
-	 * java.lang.String, java.lang.String, byte[], org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * java.lang.String, java.lang.String, byte[],
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public XcapResponse putIfNoneMatch(URI uri, String eTag, String mimetype,
 			byte[] content, Header[] additionalRequestHeaders,
-			Credentials credentials) throws ClientProtocolException,
-			IOException {
+			Credentials credentials) throws IOException {
 		return ra.getClient().putIfNoneMatch(uri, eTag, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -220,7 +240,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * 
 	 * @see
 	 * org.mobicents.xcap.client.XcapClient#setAuthenticationCredentials(org
-	 * .apache.http.auth.Credentials)
+	 * .mobicents.xcap.client.auth.Credentials)
 	 */
 	public void setAuthenticationCredentials(Credentials credentials) {
 		ra.getClient().setAuthenticationCredentials(credentials);

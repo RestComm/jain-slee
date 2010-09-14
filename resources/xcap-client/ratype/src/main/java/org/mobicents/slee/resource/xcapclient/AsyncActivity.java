@@ -2,8 +2,8 @@ package org.mobicents.slee.resource.xcapclient;
 
 import java.net.URI;
 
-import org.apache.http.Header;
-import org.apache.http.auth.Credentials;
+import org.mobicents.xcap.client.auth.Credentials;
+import org.mobicents.xcap.client.header.Header;
 
 /**
  * Activity object for doing async requests on the XCAP Client RA.

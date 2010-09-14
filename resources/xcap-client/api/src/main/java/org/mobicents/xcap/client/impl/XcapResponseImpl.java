@@ -5,9 +5,9 @@ package org.mobicents.xcap.client.impl;
 
 import java.io.Serializable;
 
-import org.apache.http.Header;
 import org.mobicents.xcap.client.XcapEntity;
 import org.mobicents.xcap.client.XcapResponse;
+import org.mobicents.xcap.client.header.Header;
 
 /**
  * @author martins

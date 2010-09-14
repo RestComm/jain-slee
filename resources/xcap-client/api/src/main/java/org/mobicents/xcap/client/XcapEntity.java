@@ -3,7 +3,7 @@
  */
 package org.mobicents.xcap.client;
 
-import org.apache.http.Header;
+import org.mobicents.xcap.client.header.Header;
 
 /**
  * @author martins

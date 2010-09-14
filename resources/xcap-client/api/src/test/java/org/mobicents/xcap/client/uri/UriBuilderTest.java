@@ -8,7 +8,7 @@ import java.net.URISyntaxException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mobicents.xcap.client.uri.enconding.UriComponentEncoder;
+import org.mobicents.xcap.client.uri.encoding.UriComponentEncoder;
 
 /**
  * @author martins

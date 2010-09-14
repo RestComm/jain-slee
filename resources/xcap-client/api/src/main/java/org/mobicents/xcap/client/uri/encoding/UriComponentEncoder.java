@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.mobicents.xcap.client.uri.enconding;
+package org.mobicents.xcap.client.uri.encoding;
 
 import java.nio.charset.Charset;
 import java.util.BitSet;

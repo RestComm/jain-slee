@@ -3,7 +3,7 @@
  */
 package org.mobicents.xcap.client.uri;
 
-import org.mobicents.xcap.client.uri.enconding.UriComponentEncoder;
+import org.mobicents.xcap.client.uri.encoding.UriComponentEncoder;
 
 /**
  * 

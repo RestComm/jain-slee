@@ -2,8 +2,6 @@ package org.mobicents.slee.resource.xcapclient;
 
 import java.net.URI;
 
-import org.apache.http.Header;
-import org.apache.http.auth.Credentials;
 import org.mobicents.slee.resource.xcapclient.AsyncActivity;
 import org.mobicents.slee.resource.xcapclient.XCAPResourceAdaptorActivityHandle;
 import org.mobicents.slee.resource.xcapclient.handler.AsyncDeleteHandler;
@@ -16,6 +14,8 @@ import org.mobicents.slee.resource.xcapclient.handler.AsyncPutIfMatchStringConte
 import org.mobicents.slee.resource.xcapclient.handler.AsyncPutIfNoneMatchByteArrayContentHandler;
 import org.mobicents.slee.resource.xcapclient.handler.AsyncPutIfNoneMatchStringContentHandler;
 import org.mobicents.slee.resource.xcapclient.handler.AsyncPutStringContentHandler;
+import org.mobicents.xcap.client.auth.Credentials;
+import org.mobicents.xcap.client.header.Header;
 
 public class AsyncActivityImpl implements AsyncActivity {
 
@@ -92,7 +92,8 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * 
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#delete(java.net.URI,
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void delete(URI uri, Header[] additionalRequestHeaders,
 			Credentials credentials) {
@@ -106,8 +107,8 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * 
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#deleteIfMatch(java
-	 * .net.URI, java.lang.String, org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * .net.URI, java.lang.String, org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void deleteIfMatch(URI uri, String eTag,
 			Header[] additionalRequestHeaders, Credentials credentials) {
@@ -121,8 +122,9 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * 
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#deleteIfNoneMatch
-	 * (java.net.URI, java.lang.String, org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * (java.net.URI, java.lang.String,
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void deleteIfNoneMatch(URI uri, String eTag,
 			Header[] additionalRequestHeaders, Credentials credentials) {
@@ -136,7 +138,8 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * 
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#get(java.net.URI,
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void get(URI uri, Header[] additionalRequestHeaders,
 			Credentials credentials) {
@@ -150,8 +153,9 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * 
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#put(java.net.URI,
-	 * java.lang.String, java.lang.String, org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * java.lang.String, java.lang.String,
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void put(URI uri, String mimetype, String content,
 			Header[] additionalRequestHeaders, Credentials credentials) {
@@ -165,8 +169,8 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * 
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#put(java.net.URI,
-	 * java.lang.String, byte[], org.apache.http.Header[],
-	 * org.apache.http.auth.Credentials)
+	 * java.lang.String, byte[], org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void put(URI uri, String mimetype, byte[] content,
 			Header[] additionalRequestHeaders, Credentials credentials) {
@@ -181,7 +185,8 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#putIfMatch(java.
 	 * net.URI, java.lang.String, java.lang.String, java.lang.String,
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void putIfMatch(URI uri, String eTag, String mimetype,
 			String content, Header[] additionalRequestHeaders,
@@ -198,7 +203,8 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#putIfMatch(java.
 	 * net.URI, java.lang.String, java.lang.String, byte[],
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void putIfMatch(URI uri, String eTag, String mimetype,
 			byte[] content, Header[] additionalRequestHeaders,
@@ -215,7 +221,8 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#putIfNoneMatch(java
 	 * .net.URI, java.lang.String, java.lang.String, java.lang.String,
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void putIfNoneMatch(URI uri, String eTag, String mimetype,
 			String content, Header[] additionalRequestHeaders,
@@ -232,7 +239,8 @@ public class AsyncActivityImpl implements AsyncActivity {
 	 * @see
 	 * org.mobicents.slee.resource.xcapclient.AsyncActivity#putIfNoneMatch(java
 	 * .net.URI, java.lang.String, java.lang.String, byte[],
-	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 * org.mobicents.xcap.client.header.Header[],
+	 * org.mobicents.xcap.client.auth.Credentials)
 	 */
 	public void putIfNoneMatch(URI uri, String eTag, String mimetype,
 			byte[] content, Header[] additionalRequestHeaders,
