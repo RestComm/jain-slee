@@ -362,7 +362,7 @@ public abstract class ProxySbb implements Sbb {
 
 			Request request = event.getRequest();
 			ServerTransaction serverTransaction = event.getServerTransaction();
-			ProxyConfiguration proxyConfiguration = (ProxyConfiguration) getConfiguration();
+			ProxyConfiguration proxyConfiguration = (ProxyConfiguration) getProxyConfigurator();
 			// check if it's for me, in that case reply 501
 			SipUri localNodeURI = new SipUri();
 			localNodeURI.setHost(proxyConfiguration.getSipHostname());
