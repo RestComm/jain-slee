@@ -22,7 +22,6 @@ import gnu.getopt.LongOpt;
 
 import java.io.PrintWriter;
 
-import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanServerConnection;
@@ -83,13 +82,11 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		PrintWriter out = context.getWriter();
 
 		out.println(desc);
-
+		
 		// out.println("usage: " + name +
 		// " <-tprofileTableName> [-pprofileName] <operation> <arg>*");
-		out.println("usage: " + name + " <ResourceName> [SetID] <-operation[[arg] | [--option[=arg]]*]");
-		out.println("ResourceName - determines resource in container - ProfileTableName, RAEntityName, ServiceID");//TODO: add good description, this command is quite complicated!
-		out.println("SetID - identifies set, in case of profiles and RA it is simply <SetName>. In case of");
-		out.println("          Services, it has form of <SBBID> [SetName] - where SetName is simple string name.");
+		addHeaderDescription(out);
+		out.println("'SetID' refers to SetName or SbbID and SetName.");
 		out.println();
 		out.println("operation:");
 		out.println("    -l, --list                     Lists certain information about parameters sets. Requires one of options to be present:");
@@ -100,7 +97,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		out.println("                                   Requires '--name' option to be present. Following options are supported: ");
 		out.println("           --name                  Specifies name of parameter in a set for get operation. Requiers parameter name as argument. This option is mandatory.");
 		out.println("           --rst                   If present, indicates that 'get' operation should reset parameter value. Does not require argument.");
-		out.println("    -r, --reset                    Resets assets in 'Usage' realm. Does not take argument. If 'SetID' is not specified, reset command resets specific set.");
+		out.println("    -r, --reset                    Resets assets in 'Usage' realm. Does not take argument. If 'SetID' is specified, reset command resets specific set, othwerise it acts on default one.");
 		out.println("                                   If it is not present, reset command performs operation on default set. Following option is spported:");
 		out.println("           --all                   Resets ALL parameters for 'ResourceName', ignores 'SetID'.");
 		out.println("    -c, --create                   Creates usage parameter set for given 'SetID'. Does not require argument.");
@@ -110,12 +107,21 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		out.println("           --value                 Specifies value of parameter. Requiers boolean argument.");
 		out.println("    -i, --is-notify                Checks if notification is on for certain parameter in set. Following options are supported:");
 		out.println("           --name                  Specifies name of parameter. Requiers parameter name as argument. It is mandatory.");
+		out.println("");
+		out.println("Examples: ");
+		addExamples(out);	
 		out.flush();
 	}
 
 	
 	
 	
+	protected abstract void addHeaderDescription(PrintWriter out);
+	protected abstract void addExamples(PrintWriter out);
+
+
+
+
 	// //////////////////////
 	// Command essentials //
 	// //////////////////////

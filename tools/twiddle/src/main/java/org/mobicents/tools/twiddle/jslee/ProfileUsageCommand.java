@@ -17,6 +17,8 @@
  */
 package org.mobicents.tools.twiddle.jslee;
 
+import java.io.PrintWriter;
+
 import javax.management.ObjectName;
 
 /**
@@ -48,6 +50,45 @@ public class ProfileUsageCommand extends AbstractUsageCommand {
 	public String getUsageMGMTMBeanOperation() {
 		
 		return super.PROFILE_GET_METHOD;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.tools.twiddle.jslee.AbstractUsageCommand#addExamples()
+	 */
+	@Override
+	protected void addExamples(PrintWriter out) {
+		out.println("");
+		out.println("     1. List usage parameters type for profile table:");
+		out.println("" + name + " CallControlTableName -l --parameters");
+		out.println("");
+		out.println("     2. List existing usage parameters sets:");
+		out.println("" + name + " CallControlTableName -l --sets");
+		out.println("");
+		out.println("     3. Get value of parameter in certain set:");
+		out.println("" + name + " CallControlTableName CertainSetWithValue -g --name=CookiesCount");
+		out.println("");
+		out.println("     4. Get value of parameter in certain set and reset value:");
+		out.println("" + name + " CallControlTableName CertainSetWithValue -g --name=CookiesCount --rst");
+		out.println("");
+		out.println("     5. Reset all parameters in default parameter set of table:");
+		out.println("" + name + " CallControlTableName --reset");
+		out.println("");
+		out.println("     6. Create parameter set:");
+		out.println("" + name + " CallControlTableName NewSet --create");
+		out.println("");
+		out.println("     7. Enable notification generation for parameter:");
+		out.println("" + name + " CallControlTableName -n --name=CookiesCount --value=true");
+		
+		
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.tools.twiddle.jslee.AbstractUsageCommand#addHeaderDescription()
+	 */
+	@Override
+	protected void addHeaderDescription(PrintWriter out) {
+		out.println("usage: " + name + " <ProfileTableName> [SetName] <-operation[[arg] | [--option[=arg]]*]");
 	}
 
 }

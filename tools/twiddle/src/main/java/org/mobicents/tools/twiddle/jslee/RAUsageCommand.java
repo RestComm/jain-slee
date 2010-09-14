@@ -17,6 +17,8 @@
  */
 package org.mobicents.tools.twiddle.jslee;
 
+import java.io.PrintWriter;
+
 import javax.management.ObjectName;
 
 /**
@@ -56,5 +58,40 @@ public class RAUsageCommand extends AbstractUsageCommand {
 
 		return super.RESOURCE_GET_METHOD;
 	}
+	/* (non-Javadoc)
+	 * @see org.mobicents.tools.twiddle.jslee.AbstractUsageCommand#addExamples()
+	 */
+	@Override
+	protected void addExamples(PrintWriter out) {
+		out.println("");
+		out.println("     1. List usage parameters type for RA:");
+		out.println("" + name + " SipRA -l --parameters");
+		out.println("");
+		out.println("     2. List existing usage parameters sets:");
+		out.println("" + name + " SipRA -l --sets");
+		out.println("");
+		out.println("     3. Get value of parameter in certain set:");
+		out.println("" + name + " SipRA CertainSetWithValue -g --name=CookiesCount");
+		out.println("");
+		out.println("     4. Get value of parameter in certain set and reset value:");
+		out.println("" + name + " SipRA CertainSetWithValue -g --name=CookiesCount --rst");
+		out.println("");
+		out.println("     5. Reset all parameters in default parameter set of RA:");
+		out.println("" + name + " SipRA --reset");
+		out.println("");
+		out.println("     6. Create parameter set:");
+		out.println("" + name + " SipRA NewSet --create");
+		out.println("");
+		out.println("     7. Enable notification generation for parameter:");
+		out.println("" + name + " SipRA -n --name=CookiesCount --value=true");
+		
+	}
 
+	/* (non-Javadoc)
+	 * @see org.mobicents.tools.twiddle.jslee.AbstractUsageCommand#addHeaderDescription()
+	 */
+	@Override
+	protected void addHeaderDescription(PrintWriter out) {
+		out.println("usage: " + name + " <RAEntityName> [SetName] <-operation[[arg] | [--option[=arg]]*]");
+	}
 }
