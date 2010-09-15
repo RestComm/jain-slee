@@ -42,6 +42,13 @@ public class Utils {
 	protected static final String SMPP_TIMEOUT_RESPONSE_SENT = "net.java.slee.resources.smpp.SMPP_TIMEOUT_RESPONSE_SENT";
 	protected static final String SMPP_TIMEOUT_RESPONSE_RECEIVED = "net.java.slee.resources.smpp.SMPP_TIMEOUT_RESPONSE_RECEIVED";
 
+	protected static final String BROADCAST_SM = "net.java.slee.resources.smpp.BROADCAST_SM";
+	protected static final String BROADCAST_SM_RESP = "net.java.slee.resources.smpp.BROADCAST_SM_RESP";
+	protected static final String CANCEL_BROADCAST_SM = "net.java.slee.resources.smpp.CANCEL_BROADCAST_SM";
+	protected static final String CANCEL_BROADCAST_SM_RESP = "net.java.slee.resources.smpp.CANCEL_BROADCAST_SM_RESP";
+	protected static final String QUERY_BROADCAST_SM = "net.java.slee.resources.smpp.QUERY_BROADCAST_SM";
+	protected static final String QUERY_BROADCAST_SM_RESP = "net.java.slee.resources.smpp.QUERY_BROADCAST_SM_RESP";
+
 	private SmppResourceAdaptor smppResourceAdaptor;
 
 	protected Utils(SmppResourceAdaptor smppResourceAdaptor) {

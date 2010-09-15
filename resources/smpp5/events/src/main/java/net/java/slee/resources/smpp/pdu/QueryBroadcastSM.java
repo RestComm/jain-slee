@@ -11,7 +11,7 @@ public interface QueryBroadcastSM extends SmppRequest {
 	public abstract String getMessageID();
 	public abstract void setMessageID(String messageID);
 
-	public abstract Address getDestAddress();
-	public abstract void setDestAddress(Address address);
+	public abstract Address getSourceAddress();
+	public abstract void setSourceAddress(Address address);
 
 }

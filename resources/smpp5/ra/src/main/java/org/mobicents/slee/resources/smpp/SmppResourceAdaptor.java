@@ -45,6 +45,10 @@ import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 import org.mobicents.slee.resource.cluster.MemberAddress;
 import org.mobicents.slee.resources.smpp.pdu.AlertNotificationImpl;
+import org.mobicents.slee.resources.smpp.pdu.BroadcastSMImpl;
+import org.mobicents.slee.resources.smpp.pdu.BroadcastSMRespImpl;
+import org.mobicents.slee.resources.smpp.pdu.CancelBroadcastSMImpl;
+import org.mobicents.slee.resources.smpp.pdu.CancelBroadcastSMRespImpl;
 import org.mobicents.slee.resources.smpp.pdu.CancelSMImpl;
 import org.mobicents.slee.resources.smpp.pdu.CancelSMRespImpl;
 import org.mobicents.slee.resources.smpp.pdu.DataSMImpl;
@@ -52,10 +56,14 @@ import org.mobicents.slee.resources.smpp.pdu.DataSMRespImpl;
 import org.mobicents.slee.resources.smpp.pdu.DeliverSMImpl;
 import org.mobicents.slee.resources.smpp.pdu.DeliverSMRespImpl;
 import org.mobicents.slee.resources.smpp.pdu.GenericNackImpl;
+import org.mobicents.slee.resources.smpp.pdu.QueryBroadcastSMImpl;
+import org.mobicents.slee.resources.smpp.pdu.QueryBroadcastSMRespImpl;
 import org.mobicents.slee.resources.smpp.pdu.QuerySMImpl;
 import org.mobicents.slee.resources.smpp.pdu.QuerySMRespImpl;
 import org.mobicents.slee.resources.smpp.pdu.ReplaceSMImpl;
 import org.mobicents.slee.resources.smpp.pdu.ReplaceSMRespImpl;
+import org.mobicents.slee.resources.smpp.pdu.SubmitMultiImpl;
+import org.mobicents.slee.resources.smpp.pdu.SubmitMultiRespImpl;
 import org.mobicents.slee.resources.smpp.pdu.SubmitSMImpl;
 import org.mobicents.slee.resources.smpp.pdu.SubmitSMRespImpl;
 
@@ -613,6 +621,32 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			break;
 		}
 
+		case CommandId.SUBMIT_MULTI: {
+			SubmitMultiImpl submitMultiImpl = new SubmitMultiImpl(
+					(org.mobicents.protocols.smpp.message.SubmitMulti) packet);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitMultiImpl, true,
+					SmppTransactionType.INCOMING);
+			if (txImpl != null) {
+				fireEvent(Utils.SUBMIT_MULTI, txImpl, submitMultiImpl);
+			}
+			break;
+		}
+
+		case CommandId.SUBMIT_MULTI_RESP: {
+			SubmitMultiRespImpl submitMultiRespImpl = new SubmitMultiRespImpl(
+					(org.mobicents.protocols.smpp.message.SubmitMultiResp) packet);
+			try {
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitMultiRespImpl, false, null);
+				txImpl.cancelResponseNotReceivedTimeout();
+				fireEvent(Utils.SUBMIT_MULTI_RESP, txImpl, submitMultiRespImpl);
+				this.endActivity(txImpl);
+			} catch (Exception e) {
+				this.tracer.warning("Activity not found for received SMPP Response " + packet, e);
+			}
+
+			break;
+		}
+
 		case CommandId.QUERY_SM: {
 			QuerySMImpl querySMImpl = new QuerySMImpl((org.mobicents.protocols.smpp.message.QuerySM) packet);
 			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(querySMImpl, true,
@@ -688,6 +722,85 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			break;
 		}
 
+		case CommandId.BROADCAST_SM: {
+			BroadcastSMImpl broadcastSMImpl = new BroadcastSMImpl(
+					(org.mobicents.protocols.smpp.message.BroadcastSM) packet);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(broadcastSMImpl, true,
+					SmppTransactionType.INCOMING);
+			if (txImpl != null) {
+				fireEvent(Utils.BROADCAST_SM, txImpl, broadcastSMImpl);
+			}
+			break;
+		}
+
+		case CommandId.BROADCAST_SM_RESP: {
+			BroadcastSMRespImpl broadcastSMRespImpl = new BroadcastSMRespImpl(
+					(org.mobicents.protocols.smpp.message.BroadcastSMResp) packet);
+			try {
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(broadcastSMRespImpl, false, null);
+				txImpl.cancelResponseNotReceivedTimeout();
+				fireEvent(Utils.BROADCAST_SM_RESP, txImpl, broadcastSMRespImpl);
+				this.endActivity(txImpl);
+			} catch (Exception e) {
+				this.tracer.warning("Activity not found for received SMPP Response " + packet, e);
+			}
+
+			break;
+		}
+
+		case CommandId.CANCEL_BROADCAST_SM: {
+			CancelBroadcastSMImpl cancelBroadcastSMImpl = new CancelBroadcastSMImpl(
+					(org.mobicents.protocols.smpp.message.CancelBroadcastSM) packet);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelBroadcastSMImpl, true,
+					SmppTransactionType.INCOMING);
+			if (txImpl != null) {
+				fireEvent(Utils.CANCEL_BROADCAST_SM, txImpl, cancelBroadcastSMImpl);
+			}
+			break;
+		}
+
+		case CommandId.CANCEL_BROADCAST_SM_RESP: {
+			CancelBroadcastSMRespImpl cancelBroadcastSMRespImpl = new CancelBroadcastSMRespImpl(
+					(org.mobicents.protocols.smpp.message.CancelBroadcastSMResp) packet);
+			try {
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelBroadcastSMRespImpl, false,
+						null);
+				txImpl.cancelResponseNotReceivedTimeout();
+				fireEvent(Utils.CANCEL_BROADCAST_SM_RESP, txImpl, cancelBroadcastSMRespImpl);
+				this.endActivity(txImpl);
+			} catch (Exception e) {
+				this.tracer.warning("Activity not found for received SMPP Response " + packet, e);
+			}
+
+			break;
+		}
+
+		case CommandId.QUERY_BROADCAST_SM: {
+			QueryBroadcastSMImpl queryBroadcastSMImpl = new QueryBroadcastSMImpl(
+					(org.mobicents.protocols.smpp.message.QueryBroadcastSM) packet);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(queryBroadcastSMImpl, true,
+					SmppTransactionType.INCOMING);
+			if (txImpl != null) {
+				fireEvent(Utils.QUERY_BROADCAST_SM, txImpl, queryBroadcastSMImpl);
+			}
+			break;
+		}
+
+		case CommandId.QUERY_BROADCAST_SM_RESP: {
+			QueryBroadcastSMRespImpl queryBroadcastSMRespImpl = new QueryBroadcastSMRespImpl(
+					(org.mobicents.protocols.smpp.message.QueryBroadcastSMResp) packet);
+			try {
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(queryBroadcastSMRespImpl, false,
+						null);
+				txImpl.cancelResponseNotReceivedTimeout();
+				fireEvent(Utils.QUERY_BROADCAST_SM_RESP, txImpl, queryBroadcastSMRespImpl);
+				this.endActivity(txImpl);
+			} catch (Exception e) {
+				this.tracer.warning("Activity not found for received SMPP Response " + packet, e);
+			}
+			break;
+		}
+
 		case CommandId.GENERIC_NACK: {
 			GenericNackImpl genericNackImpl = new GenericNackImpl(
 					(org.mobicents.protocols.smpp.message.GenericNack) packet);
@@ -718,7 +831,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(alertNotiImpl, true,
 					SmppTransactionType.INCOMING);
 			if (txImpl != null) {
-				fireEvent(Utils.CANCEL_SM, txImpl, alertNotiImpl);
+				fireEvent(Utils.ALERT_NOTIFICATION, txImpl, alertNotiImpl);
 			}
 
 			this.endActivity(txImpl);

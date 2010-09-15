@@ -16,6 +16,10 @@ import org.mobicents.slee.resources.smpp.ExtSmppResponse;
  * 
  */
 public class SubmitMultiRespImpl extends PDUImpl implements SubmitMultiResp,ExtSmppResponse {
+	
+	public SubmitMultiRespImpl(org.mobicents.protocols.smpp.message.SubmitMultiResp submitMultiResp) {
+		this.smppPacket = submitMultiResp;
+	}
 
 	public SubmitMultiRespImpl(int commandStatus) {
 		this.smppPacket = new org.mobicents.protocols.smpp.message.SubmitMultiResp();
