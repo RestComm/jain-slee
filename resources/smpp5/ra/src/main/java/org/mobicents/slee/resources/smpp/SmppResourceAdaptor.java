@@ -111,7 +111,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	/**
 	 * SMPP API related variables
 	 */
-	protected org.mobicents.protocols.smpp.Session smscConnection = null;
+	protected org.mobicents.protocols.smpp.Session protoSmppSession = null;
 	protected org.mobicents.protocols.smpp.util.SequenceNumberScheme seq = null;;
 	private Semaphore semaphore = new Semaphore(0);
 	private int bindStatus;
@@ -888,30 +888,37 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	 */
 	private void bindSMSC() throws UnknownHostException, IOException {
 
-		smscConnection = new org.mobicents.protocols.smpp.Session(host, port);
-		seq = smscConnection.getSequenceNumberScheme();
-		smscConnection.addObserver(this);
+		protoSmppSession = new org.mobicents.protocols.smpp.Session(host, port);
+		seq = protoSmppSession.getSequenceNumberScheme();
+		protoSmppSession.addObserver(this);
 
-		smscConnection.setVersion(SMPPVersion.VERSION_5_0);
+		protoSmppSession.setVersion(SMPPVersion.VERSION_5_0);
 		// smscConnection.autoAckLink(true);
 		// smscConnection.autoAckMessages(true);
 
+		IOException ioException = null;
 		// Bind
 		try {
 			this.createBind();
-			smscConnection.bind(bind);
+			protoSmppSession.bind(bind);
 			semaphore.tryAcquire(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			this.tracer.severe("Binding to SMS failed", e);
 			bindStatus = -1;
+		} catch (IOException e) {
+			bindStatus = -1;
+			ioException = e;
 		}
 
 		if (bindStatus != SmppTransaction.ESME_ROK) {
 			AlarmFacility alarmFacility = raContext.getAlarmFacility();
 			smscAlarm = alarmFacility.raiseAlarm(raContext.getEntityName(), "SMSCALARM", AlarmLevel.CRITICAL,
 					"SMSCALARM: bind status " + this.utils.statusMessage(bindStatus));
-
-			throw new IOException("Could not bind to SMSC. The reason is " + this.utils.statusMessage(bindStatus));
+			if (ioException != null) {
+				throw ioException;
+			} else {
+				throw new IOException("Could not bind to SMSC. The reason is " + this.utils.statusMessage(bindStatus));
+			}
 		}
 		tracer.info("Successfully bound to SMSC. ");
 		isBound = true;
@@ -967,7 +974,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		this.smppSession.setIsAlive(false);
 
 		try {
-			smscConnection.unbind();
+			protoSmppSession.unbind();
 			if (tracer.isInfoEnabled())
 				tracer.info(raContext.getEntityName() + ": unbinding from SMSC");
 		} catch (Exception e) {
@@ -1014,11 +1021,11 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	}
 
 	protected void sendResponse(ExtSmppResponse response) throws IOException {
-		this.smscConnection.sendPacket(response.getSMPPPacket());
+		this.protoSmppSession.sendPacket(response.getSMPPPacket());
 	}
 
 	protected void sendRequest(ExtSmppRequest request) throws IOException {
-		this.smscConnection.sendPacket(request.getSMPPPacket());
+		this.protoSmppSession.sendPacket(request.getSMPPPacket());
 	}
 
 	protected void fireEvent(String eventName, SmppTransactionImpl activity, Object event) {
@@ -1080,7 +1087,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 					Thread.currentThread().sleep(enquireLinkTimeout);
 
 					EnquireLink sm = new EnquireLink();
-					smscConnection.sendPacket(sm);
+					protoSmppSession.sendPacket(sm);
 
 					if (tracer.isFineEnabled()) {
 						tracer.fine("Sent enquire link for " + raContext.getEntityName());
