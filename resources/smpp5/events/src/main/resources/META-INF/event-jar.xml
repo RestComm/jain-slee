@@ -8,7 +8,7 @@
 	<library-ref>
 		<library-name>library-smpp5</library-name>
 		<library-vendor>library-smpp5</library-vendor>
-		<library-version>2.0</library-version>
+		<library-version>5.0</library-version>
 	</library-ref>
 
 	<!-- transaction events -->
@@ -51,7 +51,7 @@
 			net.java.slee.resources.smpp.DELIVERY_REPORT
 		</event-type-name>
 		<event-type-vendor>net.java</event-type-vendor>
-		<event-type-version>3.4</event-type-version>
+		<event-type-version>5.0</event-type-version>
 		<event-class-name>
 			net.java.slee.resources.smpp.pdu.DeliverSM
 		</event-class-name>
@@ -73,7 +73,7 @@
 			net.java.slee.resources.smpp.SUBMIT_SM
 		</event-type-name>
 		<event-type-vendor>net.java</event-type-vendor>
-		<event-type-version>3.4</event-type-version>
+		<event-type-version>5.0</event-type-version>
 		<event-class-name>
 			net.java.slee.resources.smpp.pdu.SubmitSM
 		</event-class-name>
@@ -117,7 +117,7 @@
 			net.java.slee.resources.smpp.SUBMIT_MULTI
 		</event-type-name>
 		<event-type-vendor>net.java</event-type-vendor>
-		<event-type-version>3.4</event-type-version>
+		<event-type-version>5.0</event-type-version>
 		<event-class-name>
 			net.java.slee.resources.smpp.pdu.SubmitMulti
 		</event-class-name>
@@ -275,7 +275,7 @@
 		<event-type-vendor>net.java</event-type-vendor>
 		<event-type-version>5.0</event-type-version>
 		<event-class-name>
-			net.java.slee.resources.smpp.pdu.SmppErrorEvent
+			net.java.slee.resources.smpp.pdu.SmppError
 		</event-class-name>
 	</event-definition>
 
@@ -286,7 +286,7 @@
 		<event-type-vendor>net.java</event-type-vendor>
 		<event-type-version>5.0</event-type-version>
 		<event-class-name>
-			net.java.slee.resources.smpp.pdu.SmppErrorEvent
+			net.java.slee.resources.smpp.pdu.SmppError
 		</event-class-name>
 	</event-definition>
 
@@ -295,7 +295,7 @@
 			net.java.slee.resources.smpp.SMPP_ERROR
 		</event-type-name>
 		<event-type-vendor>net.java</event-type-vendor>
-		<event-type-version>3.4</event-type-version>
+		<event-type-version>5.0</event-type-version>
 		<event-class-name>
 			net.java.slee.resources.smpp.pdu.SmppError
 		</event-class-name>

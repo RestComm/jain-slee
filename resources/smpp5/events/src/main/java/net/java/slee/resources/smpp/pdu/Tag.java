@@ -365,22 +365,32 @@ public final class Tag {
 
 	private int tag;
 
-	private Tag(int tag) {
+	public Tag(int tag) {
 		this.tag = tag;
 	}
 
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-
-		if (obj instanceof Tag) {
-			return ((Tag) obj).tag == this.tag;
-		} else {
-			return false;
-		}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + tag;
+		return result;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final Tag other = (Tag) obj;
+		if (tag != other.tag)
+			return false;
+		return true;
+	}
+	
 	public int getTag() {
 		return tag;
 	}

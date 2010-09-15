@@ -393,11 +393,11 @@ public interface SmppTransaction {
 	public final static int ESME_RINVBCASTCHANIND = 0x00000112;
 
 	/**
-	 * Returns a unique identifer that identifies this transaction.
+	 * Returns a unique identifier that identifies this transaction.
 	 * 
 	 * @returns the unique identifier of this transaction.
 	 */
-	public int getId();
+	public long getId();
 	
 	public SmppSession getSmppSession();
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy-config>
+  <ra-entity resource-adaptor-id="ResourceAdaptorID[name=SMPPResourceAdaptor,vendor=org.mobicents,version=5.0]" entity-name="SmppRA">
+    <properties file="" />
+    <ra-link name="SmppRA" />
+  </ra-entity>
+</deploy-config>

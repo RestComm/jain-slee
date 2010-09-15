@@ -1,16 +1,13 @@
 package net.java.slee.resources.smpp.pdu;
 
-import java.util.HashMap;
-import java.util.Map;
+import net.java.slee.resources.smpp.util.SMPPDate;
 
 /**
  * 
  * @author amit bhayani
- *
+ * 
  */
-public abstract class DeliverSM implements SmppRequest {
-
-	private Map<Tag, Object> tlvs = new HashMap<Tag, Object>();
+public interface DeliverSM extends SmppRequest {
 
 	public abstract String getServiceType();
 
@@ -36,17 +33,13 @@ public abstract class DeliverSM implements SmppRequest {
 
 	public abstract int getPriority();
 
-	// TODO The specs says about absolute date and time or relative. Should we add the corresponding classes here to set
-	// respective dates rather than String?
-	public abstract void setScheduleDeliveryTime(String time);
+	public abstract void setScheduleDeliveryTime(SMPPDate time);
 
-	public abstract String getScheduleDeliveryTime();
+	public abstract SMPPDate getScheduleDeliveryTime();
 
-	// TODO The specs says about absolute date and time or relative. Should we add the corresponding classes here to set
-	// respective dates rather than String?
-	public abstract String getValidityPeriod();
+	public abstract SMPPDate getValidityPeriod();
 
-	public abstract void setValidityPeriod(String period);
+	public abstract void setValidityPeriod(SMPPDate period);
 
 	public abstract int getRegisteredDelivery();
 
@@ -68,45 +61,4 @@ public abstract class DeliverSM implements SmppRequest {
 
 	public abstract void setMessage(byte[] message);
 
-	public void addTLV(Tag tag, Object value) throws TLVNotPermittedException {
-		if (isTLVPermitted(tag)) {
-			this.tlvs.put(tag, value);
-		} else {
-			throw new TLVNotPermittedException(tag);
-		}
-	}
-
-	public Object getValue(Tag tag) {
-		return this.tlvs.get(tag);
-	}
-
-	public Object removeTLV(Tag tag) {
-		return this.tlvs.remove(tag);
-	}
-
-	public boolean hasTLV(Tag tag) {
-		return this.tlvs.containsKey(tag);
-	}
-
-	public boolean isTLVPermitted(Tag tag) {
-		return (tag.equals(Tag.CALLBACK_NUM) || tag.equals(Tag.CALLBACK_NUM_ATAG)
-				|| tag.equals(Tag.CALLBACK_NUM_PRES_IND) || tag.equals(Tag.DEST_ADDR_NP_COUNTRY)
-				|| tag.equals(Tag.DEST_ADDR_NP_INFORMATION) || tag.equals(Tag.DEST_ADDR_NP_RESOLUTION)
-				|| tag.equals(Tag.DEST_ADDR_SUBUNIT) || tag.equals(Tag.DEST_NETWORK_ID) || tag.equals(Tag.DEST_NODE_ID)
-				|| tag.equals(Tag.DEST_SUBADDRESS) || tag.equals(Tag.DEST_PORT)
-
-				|| tag.equals(Tag.DPF_RESULT) || tag.equals(Tag.ITS_REPLY_TYPE) || tag.equals(Tag.ITS_SESSION_INFO)
-				|| tag.equals(Tag.LANGUAGE_INDICATOR) || tag.equals(Tag.MESSAGE_PAYLOAD)
-				|| tag.equals(Tag.MESSAGE_STATE) || tag.equals(Tag.NETWORK_ERROR_CODE) || tag.equals(Tag.PAYLOAD_TYPE)
-				|| tag.equals(Tag.PRIVACY_INDICATOR) || tag.equals(Tag.RECEIPTED_MESSAGE_ID)
-				|| tag.equals(Tag.SAR_MSG_REF_NUM) || tag.equals(Tag.SAR_SEGMENT_SEQNUM)
-				|| tag.equals(Tag.SAR_TOTAL_SEGMENTS) || tag.equals(Tag.SOURCE_ADDR_SUBUNIT)
-				|| tag.equals(Tag.SOURCE_NETWORK_ID) || tag.equals(Tag.SOURCE_NODE_ID) || tag.equals(Tag.SOURCE_PORT)
-				|| tag.equals(Tag.SOURCE_SUBADDRESS) || tag.equals(Tag.USER_MESSAGE_REFERENCE)
-				|| tag.equals(Tag.USER_RESPONSE_CODE) || tag.equals(Tag.USSD_SERVICE_OP));
-	}
-
-	public Map<Tag, Object> getAllTLVs() {
-		return this.tlvs;
-	}
 }

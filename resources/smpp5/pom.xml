@@ -20,9 +20,13 @@
 		<module>library</module>
 		<module>events</module>
 		<module>ratype</module>
+		<module>ra</module>
+		<module>du</module>
 	</modules>
 	<properties>
-		<mobicents.smppapi.version>1.0-SNAPSHOT</mobicents.smppapi.version>
+		<mobicents.smppapi.version>
+			1.0-SNAPSHOT
+		</mobicents.smppapi.version>
 	</properties>
 
 	<profiles>
