@@ -34,7 +34,11 @@ public abstract class PDUImpl implements PDU {
 	}
 
 	public void addTLV(Tag tag, Object value) throws TLVNotPermittedException {
-		this.smppPacket.getTLVTable().put(org.mobicents.protocols.smpp.message.tlv.Tag.getTag(tag.getTag()), value);
+		if (isTLVPermitted(tag)) {
+			this.smppPacket.getTLVTable().put(org.mobicents.protocols.smpp.message.tlv.Tag.getTag(tag.getTag()), value);
+		} else {
+			throw new TLVNotPermittedException(tag);
+		}
 	}
 
 	public Map<Tag, Object> getAllTLVs() {
@@ -88,13 +92,13 @@ public abstract class PDUImpl implements PDU {
 			return new AddressImpl(address);
 		}
 	}
-	
+
 	protected ErrorAddress convertProtoErrorAddress(org.mobicents.protocols.smpp.ErrorAddress errorAddress) {
 		if (errorAddress == null) {
 			return null;
 		} else {
 			return new ErrorAddressImpl(errorAddress);
 		}
-	}	
+	}
 
 }

@@ -14,8 +14,8 @@ import org.mobicents.slee.resources.smpp.ExtSmppRequest;
  * 
  */
 public class DataSMImpl extends PDUImpl implements DataSM, ExtSmppRequest {
-	
-	public DataSMImpl(org.mobicents.protocols.smpp.message.DataSM dataSm){
+
+	public DataSMImpl(org.mobicents.protocols.smpp.message.DataSM dataSm) {
 		this.smppPacket = dataSm;
 	}
 
@@ -55,8 +55,13 @@ public class DataSMImpl extends PDUImpl implements DataSM, ExtSmppRequest {
 	}
 
 	public void setDestAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.DataSM) this.smppPacket).setDestination(((AddressImpl) address)
-				.getProtoAddress());
+
+		if (address != null) {
+			((org.mobicents.protocols.smpp.message.DataSM) this.smppPacket).setDestination(((AddressImpl) address)
+					.getProtoAddress());
+		} else {
+			((org.mobicents.protocols.smpp.message.DataSM) this.smppPacket).setDestination(null);
+		}
 	}
 
 	public void setEsmClass(int esmClass) {
@@ -72,8 +77,12 @@ public class DataSMImpl extends PDUImpl implements DataSM, ExtSmppRequest {
 	}
 
 	public void setSourceAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.DataSM) this.smppPacket).setSource(((AddressImpl) address)
-				.getProtoAddress());
+		if (address != null) {
+			((org.mobicents.protocols.smpp.message.DataSM) this.smppPacket).setSource(((AddressImpl) address)
+					.getProtoAddress());
+		} else {
+			((org.mobicents.protocols.smpp.message.DataSM) this.smppPacket).setSource(null);
+		}
 	}
 
 	public SmppResponse createSmppResponseEvent(int status) {

@@ -44,6 +44,7 @@ import org.mobicents.protocols.smpp.version.VersionException;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 import org.mobicents.slee.resource.cluster.MemberAddress;
+import org.mobicents.slee.resources.smpp.pdu.AlertNotificationImpl;
 import org.mobicents.slee.resources.smpp.pdu.CancelSMImpl;
 import org.mobicents.slee.resources.smpp.pdu.CancelSMRespImpl;
 import org.mobicents.slee.resources.smpp.pdu.DataSMImpl;
@@ -710,6 +711,19 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			break;
 		}
 
+		case CommandId.ALERT_NOTIFICATION: {
+			AlertNotificationImpl alertNotiImpl = new AlertNotificationImpl(
+					(org.mobicents.protocols.smpp.message.AlertNotification) packet);
+
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(alertNotiImpl, true,
+					SmppTransactionType.INCOMING);
+			if (txImpl != null) {
+				fireEvent(Utils.CANCEL_SM, txImpl, alertNotiImpl);
+			}
+
+			this.endActivity(txImpl);
+			break;
+		}
 		default:
 			tracer.warning("Unexpected packet received! Id = 0x" + Integer.toHexString(packet.getCommandId()));
 		}

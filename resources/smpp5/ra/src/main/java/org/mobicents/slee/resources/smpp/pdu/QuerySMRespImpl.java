@@ -8,9 +8,6 @@ import org.mobicents.protocols.smpp.message.SMPPPacket;
 import org.mobicents.slee.resources.smpp.ExtSmppResponse;
 import org.mobicents.slee.resources.smpp.util.SMPPDateImpl;
 
-
-
-
 /**
  * 
  * @author amit bhayani
@@ -50,8 +47,8 @@ public class QuerySMRespImpl extends PDUImpl implements QuerySMResp, ExtSmppResp
 	}
 
 	public void setFinalDate(SMPPDate date) {
-		((org.mobicents.protocols.smpp.message.QuerySMResp) this.smppPacket).setFinalDate(((SMPPDateImpl) date)
-				.getSMPPDate());
+		((org.mobicents.protocols.smpp.message.QuerySMResp) this.smppPacket)
+				.setFinalDate(date != null ? ((SMPPDateImpl) date).getSMPPDate() : null);
 	}
 
 	public void setMessageID(String messageID) {

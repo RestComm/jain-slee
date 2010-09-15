@@ -5,8 +5,6 @@ import net.java.slee.resources.smpp.pdu.AlertNotification;
 import net.java.slee.resources.smpp.pdu.SmppResponse;
 import net.java.slee.resources.smpp.pdu.Tag;
 
-import org.mobicents.slee.resources.smpp.ExtSmppRequest;
-
 /**
  * 
  * @author amit bhayani
@@ -35,13 +33,21 @@ public class AlertNotificationImpl extends PDUImpl implements AlertNotification 
 	}
 
 	public void setEsmeAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.AlertNotification) this.smppPacket)
-				.setDestination(((AddressImpl) address).getProtoAddress());
+		if (address != null) {
+			((org.mobicents.protocols.smpp.message.AlertNotification) this.smppPacket)
+					.setDestination(((AddressImpl) address).getProtoAddress());
+		} else {
+			((org.mobicents.protocols.smpp.message.AlertNotification) this.smppPacket).setDestination(null);
+		}
 	}
 
 	public void setSourceAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.AlertNotification) this.smppPacket)
-				.setDestination(((AddressImpl) address).getProtoAddress());
+		if (address != null) {
+			((org.mobicents.protocols.smpp.message.AlertNotification) this.smppPacket)
+					.setDestination(((AddressImpl) address).getProtoAddress());
+		} else {
+			((org.mobicents.protocols.smpp.message.AlertNotification) this.smppPacket).setDestination(null);
+		}
 	}
 
 	public SmppResponse createSmppResponseEvent(int status) {

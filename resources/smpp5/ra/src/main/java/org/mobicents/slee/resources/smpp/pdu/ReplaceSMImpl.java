@@ -70,8 +70,8 @@ public class ReplaceSMImpl extends PDUImpl implements ReplaceSM, ExtSmppRequest 
 	}
 
 	public void setScheduleDeliveryTime(SMPPDate time) {
-		((org.mobicents.protocols.smpp.message.ReplaceSM) this.smppPacket).setDeliveryTime(((SMPPDateImpl) time)
-				.getSMPPDate());
+		((org.mobicents.protocols.smpp.message.ReplaceSM) this.smppPacket)
+				.setDeliveryTime(time != null ? ((SMPPDateImpl) time).getSMPPDate() : null);
 	}
 
 	public void setSmDefaultMsgID(int smDefaultMsgID) {
@@ -79,13 +79,13 @@ public class ReplaceSMImpl extends PDUImpl implements ReplaceSM, ExtSmppRequest 
 	}
 
 	public void setSourceAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.ReplaceSM) this.smppPacket).setSource(((AddressImpl) address)
-				.getProtoAddress());
+		((org.mobicents.protocols.smpp.message.ReplaceSM) this.smppPacket)
+				.setSource(address != null ? ((AddressImpl) address).getProtoAddress() : null);
 	}
 
 	public void setValidityPeriod(SMPPDate period) {
-		((org.mobicents.protocols.smpp.message.ReplaceSM) this.smppPacket).setExpiryTime(((SMPPDateImpl) period)
-				.getSMPPDate());
+		((org.mobicents.protocols.smpp.message.ReplaceSM) this.smppPacket)
+				.setExpiryTime(period != null ? ((SMPPDateImpl) period).getSMPPDate() : null);
 	}
 
 	public SmppResponse createSmppResponseEvent(int status) {

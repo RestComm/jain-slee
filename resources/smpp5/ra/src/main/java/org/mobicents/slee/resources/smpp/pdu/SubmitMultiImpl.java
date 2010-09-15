@@ -38,17 +38,19 @@ public class SubmitMultiImpl extends PDUImpl implements SubmitMulti, ExtSmppRequ
 	public void addDestAddress(Address address) throws SmppTooManyValuesException {
 		if (((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().getLength() == MAX_DEST_ADDRESS_ALLOWED) {
 			throw new SmppTooManyValuesException("Maximum allowed destinations are 254");
+		} else if (address != null) {
+			((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().add(
+					((AddressImpl) address).getProtoAddress());
 		}
-		((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().add(
-				((AddressImpl) address).getProtoAddress());
 	}
 
 	public void addDistrListName(String distributionListName) throws SmppTooManyValuesException {
 		if (((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().getLength() == MAX_DEST_ADDRESS_ALLOWED) {
 			throw new SmppTooManyValuesException("Maximum allowed destinations are 254");
+		} else if (distributionListName != null) {
+			((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().add(
+					distributionListName);
 		}
-		((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().add(
-				distributionListName);
 	}
 
 	public int getDataCoding() {
@@ -118,30 +120,35 @@ public class SubmitMultiImpl extends PDUImpl implements SubmitMulti, ExtSmppRequ
 	}
 
 	public boolean removeDestAddress(Address address) {
-		int origLength = ((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable()
-				.getLength();
-		((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().remove(
-				((AddressImpl) address).getProtoAddress());
-		int newLength = ((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable()
-				.getLength();
-		if (origLength == newLength + 1) {
-			return true;
+
+		if (address != null) {
+			int origLength = ((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable()
+					.getLength();
+			((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().remove(
+					((AddressImpl) address).getProtoAddress());
+			int newLength = ((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable()
+					.getLength();
+			if (origLength == newLength + 1) {
+				return true;
+			}
 		}
 
 		return false;
 	}
 
 	public boolean removeDistrListName(String distributionListName) {
-		int origLength = ((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable()
-				.getLength();
-		((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().remove(
-				distributionListName);
-		int newLength = ((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable()
-				.getLength();
-		if (origLength == newLength + 1) {
-			return true;
-		}
 
+		if (distributionListName != null) {
+			int origLength = ((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable()
+					.getLength();
+			((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable().remove(
+					distributionListName);
+			int newLength = ((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).getDestinationTable()
+					.getLength();
+			if (origLength == newLength + 1) {
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -180,8 +187,8 @@ public class SubmitMultiImpl extends PDUImpl implements SubmitMulti, ExtSmppRequ
 	}
 
 	public void setScheduleDeliveryTime(SMPPDate time) {
-		((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).setDeliveryTime(((SMPPDateImpl) time)
-				.getSMPPDate());
+		((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket)
+				.setDeliveryTime(time != null ? ((SMPPDateImpl) time).getSMPPDate() : null);
 	}
 
 	public void setServiceType(String serviceType) {
@@ -193,8 +200,8 @@ public class SubmitMultiImpl extends PDUImpl implements SubmitMulti, ExtSmppRequ
 	}
 
 	public void setValidityPeriod(SMPPDate period) {
-		((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket).setExpiryTime(((SMPPDateImpl) period)
-				.getSMPPDate());
+		((org.mobicents.protocols.smpp.message.SubmitMulti) this.smppPacket)
+				.setExpiryTime(period != null ? ((SMPPDateImpl) period).getSMPPDate() : null);
 	}
 
 	public SmppResponse createSmppResponseEvent(int status) {

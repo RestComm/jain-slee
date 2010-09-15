@@ -86,8 +86,12 @@ public class DeliverSMImpl extends PDUImpl implements DeliverSM, ExtSmppRequest 
 	}
 
 	public void setDestAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setDestination(((AddressImpl) address)
-				.getProtoAddress());
+		if (address != null) {
+			((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setDestination(((AddressImpl) address)
+					.getProtoAddress());
+		} else {
+			((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setDestination(null);
+		}
 	}
 
 	public Address getDestAddress() {
@@ -116,8 +120,12 @@ public class DeliverSMImpl extends PDUImpl implements DeliverSM, ExtSmppRequest 
 	}
 
 	public void setScheduleDeliveryTime(SMPPDate time) {
-		((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setDeliveryTime(((SMPPDateImpl) time)
-				.getSMPPDate());
+		if (time != null) {
+			((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setDeliveryTime(((SMPPDateImpl) time)
+					.getSMPPDate());
+		} else {
+			((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setDeliveryTime(null);
+		}
 	}
 
 	public void setServiceType(String serviceType) {
@@ -129,13 +137,21 @@ public class DeliverSMImpl extends PDUImpl implements DeliverSM, ExtSmppRequest 
 	}
 
 	public void setSourceAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setSource(((AddressImpl) address)
-				.getProtoAddress());
+		if (address != null) {
+			((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setSource(((AddressImpl) address)
+					.getProtoAddress());
+		} else {
+			((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setSource(null);
+		}
 	}
 
 	public void setValidityPeriod(SMPPDate period) {
-		((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setExpiryTime(((SMPPDateImpl) period)
-				.getSMPPDate());
+		if (period != null) {
+			((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setExpiryTime(((SMPPDateImpl) period)
+					.getSMPPDate());
+		} else {
+			((org.mobicents.protocols.smpp.message.DeliverSM) this.smppPacket).setExpiryTime(null);
+		}
 	}
 
 	public SmppResponse createSmppResponseEvent(int status) {

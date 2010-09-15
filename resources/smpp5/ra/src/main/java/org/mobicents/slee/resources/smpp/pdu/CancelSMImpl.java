@@ -43,8 +43,12 @@ public class CancelSMImpl extends PDUImpl implements CancelSM, ExtSmppRequest {
 	}
 
 	public void setDestAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.CancelSM) this.smppPacket).setDestination(((AddressImpl) address)
-				.getProtoAddress());
+		if (address != null) {
+			((org.mobicents.protocols.smpp.message.CancelSM) this.smppPacket).setDestination(((AddressImpl) address)
+					.getProtoAddress());
+		} else {
+			((org.mobicents.protocols.smpp.message.CancelSM) this.smppPacket).setDestination(null);
+		}
 	}
 
 	public void setMessageID(String messageID) {
@@ -56,8 +60,12 @@ public class CancelSMImpl extends PDUImpl implements CancelSM, ExtSmppRequest {
 	}
 
 	public void setSourceAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.CancelSM) this.smppPacket).setSource(((AddressImpl) address)
-				.getProtoAddress());
+		if (address != null) {
+			((org.mobicents.protocols.smpp.message.CancelSM) this.smppPacket).setSource(((AddressImpl) address)
+					.getProtoAddress());
+		} else {
+			((org.mobicents.protocols.smpp.message.CancelSM) this.smppPacket).setSource(null);
+		}
 	}
 
 	public SmppResponse createSmppResponseEvent(int status) {

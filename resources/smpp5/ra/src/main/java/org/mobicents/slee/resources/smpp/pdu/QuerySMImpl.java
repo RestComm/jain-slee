@@ -38,8 +38,12 @@ public class QuerySMImpl extends PDUImpl implements QuerySM, ExtSmppRequest {
 	}
 
 	public void setSourceAddress(Address address) {
-		((org.mobicents.protocols.smpp.message.QuerySM) this.smppPacket).setSource(((AddressImpl) address)
-				.getProtoAddress());
+		if (address != null) {
+			((org.mobicents.protocols.smpp.message.QuerySM) this.smppPacket).setSource(((AddressImpl) address)
+					.getProtoAddress());
+		} else {
+			((org.mobicents.protocols.smpp.message.QuerySM) this.smppPacket).setSource(null);
+		}
 	}
 
 	public SmppResponse createSmppResponseEvent(int status) {
