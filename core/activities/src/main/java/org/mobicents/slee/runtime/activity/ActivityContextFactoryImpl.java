@@ -93,6 +93,10 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		return localActivityContext;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#createActivityContext(org.mobicents.slee.container.activity.ActivityContextHandle, int)
+	 */
 	public ActivityContextImpl createActivityContext(final ActivityContextHandle ach, int activityFlags) throws ActivityAlreadyExistsException {
 		
 		if (sleeContainer.getCongestionControl().refuseStartActivity()) {
@@ -116,6 +120,10 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		return ach.getActivityType() == ActivityType.RA;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#getActivityContext(org.mobicents.slee.container.activity.ActivityContextHandle)
+	 */
 	public ActivityContextImpl getActivityContext(ActivityContextHandle ach) {
 		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
 		if (activityContextCacheData.exists()) {
@@ -126,7 +134,10 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		}
 	}
 	
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#getAllActivityContextsHandles()
+	 */
 	public Set<ActivityContextHandle> getAllActivityContextsHandles() {
 		return cacheData.getActivityContextHandles();
 	}
@@ -149,9 +160,21 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#getActivityContextCount()
+	 */
 	public int getActivityContextCount() {		
 		return getAllActivityContextsHandles().size();
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#activityContextExists(org.mobicents.slee.container.activity.ActivityContextHandle)
+	 */
+	public boolean activityContextExists(ActivityContextHandle ach) {
+		return new ActivityContextCacheData(ach, sleeContainer.getCluster()).exists();
+	}	
 	
 	@Override
 	public String toString() {

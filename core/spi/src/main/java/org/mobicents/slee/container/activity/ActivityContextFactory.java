@@ -55,5 +55,12 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 * @return
 	 */
 	public int getActivityContextCount();
+	
+	/**
+	 * Indicates if the activity context exists in SLEE.
+	 * @param ach
+	 * @return
+	 */
+	public boolean activityContextExists(ActivityContextHandle ach);
 
 }
