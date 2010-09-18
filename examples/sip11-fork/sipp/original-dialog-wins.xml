@@ -50,7 +50,7 @@
       ]]>
 	</send>
 
-	<pause milliseconds="800" />
+	<pause milliseconds="500" />
 
 	<send rtd="false">
      <![CDATA[
@@ -70,7 +70,7 @@
       ]]>
 	</send>
 
-	<pause milliseconds="5000" />
+	<pause milliseconds="1000" />
 	
 	<!-- the winner is ... -->
 	
@@ -104,7 +104,7 @@
 	<recv request="ACK" rtd="false" timeout="1000" />
 	
 	<!-- WAIT 10s, since OK transaction lingers and swallows other legs -->
-	<pause milliseconds="10000" />
+	<pause milliseconds="1000" />
 
 	<send retrans="100000">
     <![CDATA[

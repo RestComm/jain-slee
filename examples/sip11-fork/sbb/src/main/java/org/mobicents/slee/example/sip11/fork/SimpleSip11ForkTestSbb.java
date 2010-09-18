@@ -231,6 +231,7 @@ public abstract class SimpleSip11ForkTestSbb implements javax.slee.Sbb {
 				request.setContent(contents, headerFactory.createContentTypeHeader("application", "sdp"));
 				
 				ClientTransaction ct = sipFactoryProvider.getNewClientTransaction(request);
+				System.out.println("Creating dialog");
 				DialogActivity dialog = (DialogActivity) sipFactoryProvider.getNewDialog(ct);
 			
 				ActivityContextInterface initialDialogAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(dialog);
