@@ -6,6 +6,7 @@ import javax.sip.Transaction;
 import javax.sip.TransactionState;
 import javax.sip.message.Request;
 
+import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 import org.mobicents.slee.resource.sip11.TransactionActivityHandle;
 
 /**
@@ -23,14 +24,14 @@ public abstract class TransactionWrapper extends Wrapper implements Transaction 
 	/**
 	 * 
 	 */
-	private boolean activity = false;
+	private transient boolean activity = false;
 	
 	/**
 	 * 
 	 * @param activityHandle
 	 */
-	public TransactionWrapper(TransactionActivityHandle activityHandle) {
-		super(activityHandle);
+	public TransactionWrapper(TransactionActivityHandle activityHandle, SipResourceAdaptor ra) {
+		super(activityHandle,ra);
 	}
 
 	@Override

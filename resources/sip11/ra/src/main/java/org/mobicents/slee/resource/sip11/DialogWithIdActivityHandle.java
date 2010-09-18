@@ -54,6 +54,11 @@ public class DialogWithIdActivityHandle extends MarshableSipActivityHandle imple
 	}
 	
 	@Override
+	public boolean isReplicated() {
+		return true;
+	}
+	
+	@Override
 	public int hashCode() {
 		return dialogId.hashCode();
 	}

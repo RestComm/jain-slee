@@ -20,7 +20,6 @@ import javax.sip.Dialog;
 import javax.sip.DialogDoesNotExistException;
 import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
-import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.Transaction;
@@ -45,7 +44,6 @@ import javax.slee.facilities.Tracer;
 
 import net.java.slee.resource.sip.DialogActivity;
 
-import org.mobicents.slee.resource.sip11.DialogWithIdActivityHandle;
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 import org.mobicents.slee.resource.sip11.SleeSipProviderImpl;
@@ -67,17 +65,17 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	/**
 	 * 
 	 */
-	protected transient ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper> ongoingClientTransactions = new ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper>(1);
+	protected ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper> ongoingClientTransactions = new ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper>(1);
 	
 	/**
 	 * 
 	 */
-	protected transient ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper> ongoingServerTransactions = new ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper>(1);
+	protected ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper> ongoingServerTransactions = new ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper>(1);
 	
 	/**
 	 * the wrapped dialog
 	 */
-	protected transient Dialog wrappedDialog;
+	protected Dialog wrappedDialog;
 	
 	/**
 	 * the local tag of the dialog, for certain cases it is out of sync with wrapped dialog, because the wrapped dialog may be created without one assigned 
@@ -87,7 +85,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	/*
 	 * the slee {@link Address} where events on this dialog are fired.
 	 */
-	protected transient javax.slee.Address eventFiringAddress;
+	protected javax.slee.Address eventFiringAddress;
 	
 	/**
 	 * tracer for this class
@@ -102,43 +100,18 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	/**
 	 * used to delay the dialog .delete() when there are ongoing client txs
 	 */
-	private transient boolean pendingDelete = false;
-
-	// Constructors 
+	private boolean pendingDelete = false;
 
 	/**
 	 * 
-	 * @param wrappedDialog
-	 * @param dialogId
-	 * @param localTag
-	 * @param ra
-	 * @throws IllegalArgumentException
 	 */
-	public DialogWrapper(Dialog wrappedDialog, String dialogId, String localTag, SipResourceAdaptor ra) throws IllegalArgumentException {
-		this(new DialogWithIdActivityHandle(dialogId),localTag,ra);
-		this.wrappedDialog = wrappedDialog;
-		this.wrappedDialog.setApplicationData(this);
-	}
-	
-	/**
-	 * Extensible constructor.
-	 * @param sipActivityHandle
-	 * @param localTag
-	 * @param ra
-	 */
-	protected DialogWrapper(SipActivityHandle sipActivityHandle, String localTag,SipResourceAdaptor ra) {
-		super(sipActivityHandle);
-		setResourceAdaptor(ra);
-		this.localTag = localTag;
-	}		
-	
-	@Override
-	public void setResourceAdaptor(SipResourceAdaptor ra) {
-		super.setResourceAdaptor(ra);
+	public DialogWrapper(SipActivityHandle sipActivityHandle, String localTag,SipResourceAdaptor ra) {
+		super(sipActivityHandle,ra);
 		if (tracer == null) {
 			tracer = ra.getTracer(DialogWrapper.class.getSimpleName());
 		}
-	}
+		this.localTag = localTag;
+	}		
 	
 	// Wrapper Methods
 
@@ -366,7 +339,14 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		if (tracer.isInfoEnabled()) {
 			tracer.info(String.valueOf(ct)+" sending request:\n"+request);
 		}
-		wrappedDialog.sendRequest(((ClientTransactionWrapper)ct).getWrappedClientTransaction());		
+		final ClientTransactionWrapper ctw = (ClientTransactionWrapper)ct;
+		if (ctw.isActivity()) {
+			// the ctw was created out of the dialog, can't use dialog to send or cseq will be incremented
+			ctw.getWrappedClientTransaction().sendRequest();
+		}
+		else {
+			wrappedDialog.sendRequest(ctw.getWrappedClientTransaction());
+		}
 	}
 	
 	/*
@@ -694,20 +674,6 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 
 	/**
 	 * 
-	 * @param respEvent
-	 * @return <ul>
-	 *         <li><b>true</b> - if DialogWrapper finished processing and RA
-	 *         doesnt have to take any action</li>
-	 *         <li><b>false</b> - DialogWrapper did nothing, ra should triger
-	 *         regular logic</li>
-	 *         </ul>
-	 */
-	public boolean processIncomingResponse(ResponseEvent respEvent) {
-		return false;
-	}
-	
-	/**
-	 * 
 	 * @param transaction
 	 * @return
 	 */
@@ -730,18 +696,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 */
 	public boolean addOngoingTransaction(ServerTransactionWrapper stw) {
 		final boolean alreadyMapped = ongoingServerTransactions.put(stw.getActivityHandle(), stw) == null;
-		// not needed till we have some sort of tx replication
-		// updateReplicatedState();
 		return alreadyMapped;
-	}
-
-	/**
-	 * For now we will do like this to force replication in jsip ha, but it is probably better to use the ra replicated data
-	 */
-	protected void updateReplicatedState() {
-		if (!ra.inLocalMode()) {
-			wrappedDialog.setApplicationData(this);
-		}
 	}
 	
 	/**
@@ -749,10 +704,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * @param ctw
 	 */
 	public boolean addOngoingTransaction(ClientTransactionWrapper ctw) {
-		final boolean alreadyMapped = ongoingClientTransactions.put(ctw.getActivityHandle(), ctw) == null;
-		// not needed till we have some sort of tx replication
-		// updateReplicatedState();
-		return alreadyMapped;
+		return ongoingClientTransactions.put(ctw.getActivityHandle(), ctw) == null;		
 	}
 
 	/**
@@ -765,8 +717,6 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 				if (pendingDelete) {
 					delete();
 				}
-				// not needed till we have some sort of tx replication
-				// updateReplicatedState();
 			}
 		}
 	}
@@ -793,7 +743,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		if (wrappedDialog != null) {
 			wrappedDialog.setApplicationData(null);
 			wrappedDialog = null;
-		}		
+		}
 		ongoingClientTransactions = null;
 		ongoingServerTransactions = null;
 		localTag = null;
@@ -804,30 +754,11 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	static final String[] EMPTY_STRING_ARRAY = {};
 	
 	private void writeObject(ObjectOutputStream stream) throws IOException {
-		
-		// write everything not static or transient
-		stream.defaultWriteObject();
-		
-		// TODO work this out once we have some sort of tx replication
-		// now write the ongoing client and server txs
-		//final String[] ctIds = ongoingClientTransactions.keySet().toArray(EMPTY_STRING_ARRAY);
-		//stream.writeObject(ctIds);
-		//final String[] stIds = ongoingServerTransactions.keySet().toArray(EMPTY_STRING_ARRAY);
-		//stream.writeObject(stIds);
+		throw new IOException("serialization forbidden");
 	}
 	
 	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
-				
-		stream.defaultReadObject();
-
-		// TODO work this out once we have some sort of tx replication
-		//final String[] ctIds = (String[]) stream.readObject();
-		//final String[] stIds = (String[]) stream.readObject();
-		// re-populate the ongoing server and client tx maps fetching txs from stack
-		// TODO
-		ongoingClientTransactions = new ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper>(1);
-		ongoingServerTransactions = new ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper>(1);		
-		activityHandle.setActivity(this);
+		throw new IOException("serialization forbidden");
 	}
 	
 	/**
@@ -842,6 +773,9 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 */
 	public void setWrappedDialog(Dialog wrappedDialog) {
 		this.wrappedDialog = wrappedDialog;
+		if (wrappedDialog != null) {
+			wrappedDialog.setApplicationData(this);
+		}
 	}
 	
 }

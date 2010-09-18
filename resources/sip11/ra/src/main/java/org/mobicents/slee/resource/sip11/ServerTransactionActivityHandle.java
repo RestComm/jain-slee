@@ -24,4 +24,8 @@ public class ServerTransactionActivityHandle extends TransactionActivityHandle {
 		super(branchId, method);
 	}
 
+	@Override
+	public boolean isReplicated() {
+		return false;
+	}
 }

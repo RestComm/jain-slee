@@ -31,17 +31,12 @@ public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle im
 	private String localTag;
 	
 	/**
-	 * the dialog's remote tag
-	 */
-	private String remoteTag;
-
-	/**
 	 * 
 	 * @param callID
 	 * @param localTag
 	 * @param remoteTag
 	 */
-	public DialogWithoutIdActivityHandle(String callId, String localTag, String remoteTag) {
+	public DialogWithoutIdActivityHandle(String callId, String localTag) {
 		if (callId == null) {
 			throw new NullPointerException("null call id");
 		}
@@ -50,7 +45,6 @@ public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle im
 		}
 		this.callId = callId;
 		this.localTag = localTag;
-		this.remoteTag = remoteTag;
 	}
 
 	/**
@@ -68,7 +62,12 @@ public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle im
 	 */
 	@Override
 	public int getEstimatedHandleSize() {
-		return callId.length() + localTag.length() + (remoteTag != null ? remoteTag.length() : 0) + 7;
+		return callId.length() + localTag.length() + 7;
+	}
+	
+	@Override
+	public boolean isReplicated() {
+		return true;
 	}
 	
 	/**
@@ -80,21 +79,9 @@ public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle im
 		return localTag;
 	}
 
-	/**
-	 * Retrieves the dialog's remote tag
-	 * 
-	 * @return
-	 */
-	public String getRemoteTag() {
-		return remoteTag;
-	}
-
 	@Override
 	public int hashCode() {
-		int result = callId.hashCode();
-		result = 31 * result + localTag.hashCode();
-		result = 31 * result + ((remoteTag == null) ? 0 : remoteTag.hashCode());
-		return result;
+		return callId.hashCode()*31 + localTag.hashCode();
 	}
 
 	@Override
@@ -112,21 +99,17 @@ public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle im
 		if (!localTag.equals(other.localTag)) {
 			return false;
 		}
-		if (remoteTag == null) {
-			if (other.remoteTag != null)
-				return false;
-		} else if (!remoteTag.equals(other.remoteTag))
-			return false;
 		return true;
 	}
 
-	private static final char SEPARATOR = ':';
+	public static final char DIALOG_ID_SEPARATOR = ':';
+	private static final String REMOTE_TAG = ":null";
 
 	public static final Class<? extends SipActivityHandle> TYPE = DialogWithoutIdActivityHandle.class;
 	
 	@Override
 	public String toString() {
-		return new StringBuilder(callId).append(SEPARATOR).append(localTag).append(SEPARATOR).append(remoteTag).toString();
+		return new StringBuilder(callId).append(DIALOG_ID_SEPARATOR).append(localTag).append(REMOTE_TAG).toString();
 	}
 	
 }

@@ -1,22 +1,15 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
-import java.io.Serializable;
-
 import javax.sip.Dialog;
 import javax.slee.Address;
 
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 
-public abstract class Wrapper implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public abstract class Wrapper {
 	
 	protected SipActivityHandle activityHandle;
-	protected transient SipResourceAdaptor ra;
+	protected SipResourceAdaptor ra;
 	
 	protected boolean ending;
 	
@@ -24,15 +17,9 @@ public abstract class Wrapper implements Serializable {
 	 * 
 	 * @param activityHandle
 	 */
-	public Wrapper(SipActivityHandle activityHandle) {
-		setActivityHandle(activityHandle);
-	}
-
-	/**
-	 * Sets the resource adaptor object, which owns the wrapper.
-	 * @param ra
-	 */
-	public void setResourceAdaptor(SipResourceAdaptor ra) {
+	public Wrapper(SipActivityHandle activityHandle, SipResourceAdaptor ra) {
+		this.activityHandle = activityHandle;
+		this.activityHandle.setActivity(this);
 		this.ra = ra;
 	}
 	
@@ -60,11 +47,6 @@ public abstract class Wrapper implements Serializable {
 	 */
 	public SipActivityHandle getActivityHandle() {
 		return activityHandle;
-	}
-	
-	private void setActivityHandle(SipActivityHandle activityHandle) {
-		this.activityHandle = activityHandle;
-		activityHandle.setActivity(this);
 	}
 	
 	/**
@@ -105,9 +87,12 @@ public abstract class Wrapper implements Serializable {
 	}
 	
 	public void clear() {
-		activityHandle.setActivity(null);
-		activityHandle = null;
-		this.ra = null;
+		if (activityHandle != null) {
+			activityHandle.setActivity(null);
+		}
+		// leave the handle
+		// activityHandle = null;
+		ra = null;
 	}
 	
 }

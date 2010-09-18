@@ -24,4 +24,8 @@ public class ClientTransactionActivityHandle extends TransactionActivityHandle {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	@Override
+	public boolean isReplicated() {
+		return false;
+	}
 }

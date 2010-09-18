@@ -31,7 +31,7 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 	/**
 	 * the server tx associated
 	 */
-	private ClientTransactionAssociation association;
+	private transient ClientTransactionAssociation association;
 	
 	/**
 	 * the slee address where events on this tx are fired
@@ -50,20 +50,16 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 	 */
 	public ClientTransactionWrapper(ClientTransaction wrappedTransaction, SipResourceAdaptor ra) {
 		super(new ClientTransactionActivityHandle(wrappedTransaction
-				.getBranchId(),wrappedTransaction.getRequest().getMethod()));
+				.getBranchId(),wrappedTransaction.getRequest().getMethod()),ra);
+		if (tracer == null) {
+			tracer = ra.getTracer(ClientTransactionWrapper.class.getSimpleName());
+		}
 		this.wrappedTransaction = wrappedTransaction;
-		this.wrappedTransaction.setApplicationData(this);
-		setResourceAdaptor(ra);
+		this.wrappedTransaction.setApplicationData(this);		
 	}
 
 	protected ClientTransactionWrapper(ClientTransactionActivityHandle handle, SipResourceAdaptor ra) {
-		super(handle);
-		setResourceAdaptor(ra);
-	}
-	
-	@Override
-	public void setResourceAdaptor(SipResourceAdaptor ra) {
-		super.setResourceAdaptor(ra);
+		super(handle,ra);		
 		if (tracer == null) {
 			tracer = ra.getTracer(ClientTransactionWrapper.class.getSimpleName());
 		}
@@ -206,16 +202,11 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 	// SERIALIZATION
 	
 	private void writeObject(ObjectOutputStream stream) throws IOException {
-		// write everything not static or transient
-		stream.defaultWriteObject();
-        //stream.writeUTF(wrappedTransaction.getBranchId());
+		throw new IOException("serialization forbidden");
 	}
 	
 	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
-		stream.defaultReadObject();
-		//final String branchId = stream.readUTF();
-		// TODO get tx from stack by branch id
-		activityHandle.setActivity(this);
+		throw new IOException("serialization forbidden");
 	}
 	
 	@Override

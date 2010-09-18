@@ -35,7 +35,7 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	/**
 	 * 
 	 */
-	private final boolean ackTransaction;
+	private final transient boolean ackTransaction;
 		
 	private transient Address eventFiringAddress;
 	
@@ -68,20 +68,12 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	 * @param ackTransaction
 	 */
 	private ServerTransactionWrapper(ServerTransaction wrappedTransaction, SipResourceAdaptor ra, boolean ackTransaction) {
-		super(new ServerTransactionActivityHandle(wrappedTransaction.getBranchId(),wrappedTransaction.getRequest().getMethod()));
+		super(new ServerTransactionActivityHandle(wrappedTransaction.getBranchId(),wrappedTransaction.getRequest().getMethod()),ra);
 		this.ackTransaction = ackTransaction;
 		this.wrappedTransaction = wrappedTransaction;
 		this.wrappedTransaction.setApplicationData(this);
 		if (tracer == null) {
 			tracer = ra.getTracer(ServerTransactionWrapper.class.getSimpleName());
-		}
-	}
-	
-	@Override
-	public void setResourceAdaptor(SipResourceAdaptor ra) {
-		super.setResourceAdaptor(ra);
-		if (tracer == null) {
-			tracer = ra.getTracer(ClientTransactionWrapper.class.getSimpleName());
 		}
 	}
 	
@@ -192,26 +184,12 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	// SERIALIZATION
 
 	private void writeObject(ObjectOutputStream stream) throws IOException {
-		// write everything not static or transient
-		stream.defaultWriteObject();
-        /*if (ackTransaction) {
-        	stream.writeObject(wrappedTransaction.getRequest());
-        }
-        else {
-        	stream.writeUTF(wrappedTransaction.getBranchId());
-        }*/
+		throw new IOException("serialization forbidden");
 	}
 	
 	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
-		/*if (ackTransaction) {
-			wrappedTransaction = new ACKDummyTransaction((Request) stream.readObject());
-		}
-		else {
-			final String branchId = stream.readUTF();
-			// TODO get tx from stack by branch id
-		}*/
-		activityHandle.setActivity(this);	
+		throw new IOException("serialization forbidden");	
 	}
 	
 	@Override
@@ -231,7 +209,7 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 		if (wrappedTransaction != null) {
 			wrappedTransaction.setApplicationData(null);
 			wrappedTransaction = null;
-		}		
+		}
 		eventFiringAddress = null;
 	}
 }

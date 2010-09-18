@@ -47,7 +47,6 @@ import net.java.slee.resource.sip.SleeSipProvider;
 
 import org.mobicents.ha.javax.sip.ClusteredSipStack;
 import org.mobicents.ha.javax.sip.LoadBalancerElector;
-import org.mobicents.slee.resource.sip11.wrappers.ClientDialogForkHandler;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ClientDialogWrapper;
@@ -392,7 +391,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			dw.addOngoingTransaction(ctw);
 		}
 
-		if (!ra.addSuspendedActivity(ctw, tracer.isFineEnabled())) {
+		if (!ra.addSuspendedActivity(ctw)) {
 			throw new TransactionUnavailableException(
 					"Failed to create activity");
 		}
@@ -444,7 +443,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			// incoming SIP request. The activity ends when a final response is
 			// sent on the ServerTransaction.
 			stw.setActivity(true);
-			if (!ra.addSuspendedActivity(stw, tracer.isFineEnabled())) {
+			if (!ra.addSuspendedActivity(stw)) {
 				throw new TransactionUnavailableException(
 						"Failed to create activity.");
 			}
@@ -473,7 +472,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	private Dialog getNewDialog(ServerTransactionWrapper stw) throws SipException {
 		final ServerTransaction st = stw.getWrappedServerTransaction();
 		final Dialog d = provider.getNewDialog(st);
-		if(ra.isValidateDialogCSeq())
+		if(ra.disableSequenceNumberValidation())
 		{
 			((DialogExt)d).disableSequenceNumberValidation();
 		}
@@ -486,9 +485,10 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			dialogId = ((SIPRequest) st.getRequest()).getDialogId(
 				true, localTag);
 		}
-		final DialogWrapper dw = new DialogWrapper(d, dialogId, localTag,ra);
+		final DialogWrapper dw = new DialogWrapper(new DialogWithIdActivityHandle(dialogId), localTag,ra);
+		dw.setWrappedDialog(d);
 		dw.addOngoingTransaction(stw);
-		ra.addSuspendedActivity(dw, tracer.isFineEnabled());
+		ra.addSuspendedActivity(dw);
 		return dw;
 	}
 	
@@ -507,7 +507,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			}
 		}		
 		final Dialog d = provider.getNewDialog(ctw.getWrappedTransaction());
-		if(ra.isValidateDialogCSeq())
+		if(ra.disableSequenceNumberValidation())
 		{
 			((DialogExt)d).disableSequenceNumberValidation();
 		}
@@ -575,9 +575,9 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 
 		final DialogWrapper dw = new ClientDialogWrapper(from, localTag,
 				to, (callIdHeader == null ? provider.getNewCallId()
-						: callIdHeader), ra, new ClientDialogForkHandler());
+						: callIdHeader), ra);
 
-		if (!ra.addSuspendedActivity(dw, tracer.isFineEnabled())) {
+		if (!ra.addSuspendedActivity(dw)) {
 			throw new SipException("Failed to create activity.");
 		}
 

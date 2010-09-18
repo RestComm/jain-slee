@@ -64,8 +64,7 @@ public class SipMarshaler implements javax.slee.resource.Marshaler {
 	private static final Class<?> DialogWithoutIdActivityHandle_TYPE = DialogWithoutIdActivityHandle.class;
 
 	private static final byte dialogWithIdActivityHandle = 0;
-	private static final byte dialogWithoutIdActivityHandleAndNullRemoteTag = 1;
-	private static final byte dialogWithoutIdActivityHandleAndNotNullRemoteTag = 2;
+	private static final byte dialogWithoutIdActivityHandle = 1;
 	
 	/*
 	 * (non-Javadoc)
@@ -83,15 +82,8 @@ public class SipMarshaler implements javax.slee.resource.Marshaler {
 			final DialogWithIdActivityHandle handle = (DialogWithIdActivityHandle) arg0;
 			arg1.writeUTF(handle.getDialogId());
 		} else if (handleType == DialogWithoutIdActivityHandle_TYPE) {
+			arg1.writeByte(dialogWithoutIdActivityHandle);
 			final DialogWithoutIdActivityHandle handle = (DialogWithoutIdActivityHandle) arg0;
-			final String remoteTag = handle.getRemoteTag();
-			if (remoteTag != null) {
-				arg1.writeByte(dialogWithoutIdActivityHandleAndNotNullRemoteTag);
-				arg1.writeUTF(handle.getRemoteTag());
-			}
-			else {
-				arg1.writeByte(dialogWithoutIdActivityHandleAndNullRemoteTag);
-			}
 			arg1.writeUTF(handle.getCallId());
 			arg1.writeUTF(handle.getLocalTag());
 		} else {
@@ -136,14 +128,9 @@ public class SipMarshaler implements javax.slee.resource.Marshaler {
 			return new DialogWithIdActivityHandle(dialogId);
 		} 
 		else {
-			String remoteTag = null;
- 			if (handleType == dialogWithoutIdActivityHandleAndNotNullRemoteTag) {
-				remoteTag = arg0.readUTF(); 
-			}
 			final String callId = arg0.readUTF();
 			final String localTag = arg0.readUTF();
-			return new DialogWithoutIdActivityHandle(callId, localTag,
-					remoteTag);
+			return new DialogWithoutIdActivityHandle(callId, localTag);
 		}
 	}
 

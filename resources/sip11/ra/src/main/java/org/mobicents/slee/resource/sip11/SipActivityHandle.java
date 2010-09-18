@@ -12,13 +12,19 @@ import org.mobicents.slee.resource.sip11.wrappers.Wrapper;
  * @author martins
  *
  */
-public class SipActivityHandle implements ActivityHandle, Serializable {
+public abstract class SipActivityHandle implements ActivityHandle, Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * 
+	 * @return
+	 */
+	public abstract boolean isReplicated();
+	
 	/**
 	 * the activity related with the handle
 	 */
