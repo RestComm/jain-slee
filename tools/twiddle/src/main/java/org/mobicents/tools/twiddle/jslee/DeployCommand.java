@@ -46,7 +46,7 @@ public class DeployCommand extends AbstractSleeCommand {
 	
 	public DeployCommand() {
 		super("deploy", "This command performs operations on JSLEE DeploymentMBean." );
-		// TODO Auto-generated constructor stub
+	
 	}
 
 	/* (non-Javadoc)
@@ -78,10 +78,10 @@ public class DeployCommand extends AbstractSleeCommand {
 		out.println("                                   It expects Component ID as argument. It excludes \"--duid\".");
 		out.println("    -i, --install                  Install DU which is identified by given path. ");
 		out.println("                                   It expects path as argument.");
-		out.println("    -u, --un-install               Uninstall DU which is identified by given DeployableUnit ID. ");
+		out.println("    -u, --un-install               Un-install DU which is identified by given DeployableUnit ID. ");
 		out.println("                                   It expects DeployableUnit ID as argument.");
 		out.println("    -d, --duid                     Fetches Deployable Unit ID for given path.");
-		out.println("                                   Requiers path as argument.");
+		out.println("                                   Requires path as argument.");
 		out.println("    -s, --desc                     Fetches descriptors for given SLEE component. It supports following options:");
 		out.println("            --duid                 Operation fetches descriptors based on DeployableUnit ID passed as arg. Accepts array argument.");
 		out.println("                                   It expects DeployableUnit ID(single or array) as argument.");

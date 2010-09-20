@@ -49,7 +49,7 @@ public class ProfileUsageCommand extends AbstractUsageCommand {
 	@Override
 	public String getUsageMGMTMBeanOperation() {
 		
-		return super.PROFILE_GET_METHOD;
+		return PROFILE_GET_METHOD;
 	}
 
 	/* (non-Javadoc)

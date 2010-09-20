@@ -26,10 +26,10 @@ public class AccessorOperation extends AbstractOperation {
 	 * Name of bean field, it will be used to create get/set method name.
 	 */
 	protected String beanFieldName;
-    protected Class fieldClass;
+    protected Class<?> fieldClass;
 	protected boolean usJMXEditors;
 	
-    public AccessorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand, String beanFieldName,Class fieldClass, boolean useJMXEditors) {
+    public AccessorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand, String beanFieldName,Class<?> fieldClass, boolean useJMXEditors) {
 		super(context, log, sleeCommand);
 		this.beanFieldName = beanFieldName;
 		if(Character.isLowerCase(this.beanFieldName.charAt(0)))
@@ -46,7 +46,7 @@ public class AccessorOperation extends AbstractOperation {
 		this.usJMXEditors = useJMXEditors;
 
 	}
-    public AccessorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand, String beanFieldName,Class fieldClass) {
+    public AccessorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand, String beanFieldName,Class<?> fieldClass) {
 		this(context, log, sleeCommand, beanFieldName,fieldClass,false);
 		
 
@@ -110,7 +110,7 @@ public class AccessorOperation extends AbstractOperation {
 			throw new CommandException("Unpredicted place. Please report.");
 		} else if (isClassNumber()) {
 			//Handle Long,Integer,....,Boolean
-			Constructor con = fieldClass.getConstructor(String.class);
+			Constructor<?> con = fieldClass.getConstructor(String.class);
 			return con.newInstance(optArg);
 		}
 
@@ -120,9 +120,10 @@ public class AccessorOperation extends AbstractOperation {
 	
 	private boolean isClassNumber()
 	{
+		@SuppressWarnings("rawtypes")
 		Class[] all = fieldClass.getClasses();
 		
-		for(Class c:all)
+		for(Class<?> c:all)
 		{
 			if(c.equals(Number.class) || c.equals(Boolean.class))
 			{

@@ -95,18 +95,18 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		//TODO: make 'list' also list notification mngr conf for resource set.
 		out.println("    -g, --get                      Fetches value of certain parameter in set. Does not take argument.");
 		out.println("                                   Requires '--name' option to be present. Following options are supported: ");
-		out.println("           --name                  Specifies name of parameter in a set for get operation. Requiers parameter name as argument. This option is mandatory.");
+		out.println("           --name                  Specifies name of parameter in a set for get operation. Requires parameter name as argument. This option is mandatory.");
 		out.println("           --rst                   If present, indicates that 'get' operation should reset parameter value. Does not require argument.");
-		out.println("    -r, --reset                    Resets assets in 'Usage' realm. Does not take argument. If 'SetID' is specified, reset command resets specific set, othwerise it acts on default one.");
-		out.println("                                   If it is not present, reset command performs operation on default set. Following option is spported:");
+		out.println("    -r, --reset                    Resets assets in 'Usage' realm. Does not take argument. If 'SetID' is specified, reset command resets specific set, otherwise it acts on default one.");
+		out.println("                                   If it is not present, reset command performs operation on default set. Following option is supported:");
 		out.println("           --all                   Resets ALL parameters for 'ResourceName', ignores 'SetID'.");
 		out.println("    -c, --create                   Creates usage parameter set for given 'SetID'. Does not require argument.");
 		out.println("    -d, --delete                   Deletes usage parameter set with given 'SetID'. Does not require argument.");
-		out.println("    -n, --notify                   Turns on or off notification per usage parameter. Does not take parameter, requiers options to specify name and value:");
-		out.println("           --name                  Specifies name of parameter. Requiers parameter name as argument.");
-		out.println("           --value                 Specifies value of parameter. Requiers boolean argument.");
+		out.println("    -n, --notify                   Turns on or off notification per usage parameter. Does not take parameter, requires options to specify name and value:");
+		out.println("           --name                  Specifies name of parameter. Requires parameter name as argument.");
+		out.println("           --value                 Specifies value of parameter. Requires boolean argument.");
 		out.println("    -i, --is-notify                Checks if notification is on for certain parameter in set. Following options are supported:");
-		out.println("           --name                  Specifies name of parameter. Requiers parameter name as argument. It is mandatory.");
+		out.println("           --name                  Specifies name of parameter. Requires parameter name as argument. It is mandatory.");
 		out.println("");
 		out.println("Examples: ");
 		addExamples(out);	
@@ -405,7 +405,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		Object[] parms = null;
 		if(this.serviceID == null)
 		{
-			sig = sig = new String[]{};
+			sig = new String[]{};
 			parms = new Object[]{};
 		}else
 		{

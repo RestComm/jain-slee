@@ -72,11 +72,11 @@ public class ServiceCommand extends AbstractSleeCommand {
 		out.println("                       --ta        Indicates services to be activated in this operation. Accepts array argument.");
 		out.println("                       --td        Indicates services to be deactivated in this operation. Accepts array argument.");
 		//out.println("    -u, --usage-mbean              Returns the Object Name of a ServiceUsageMBean object");
-		//out.println("                                   Requiers ServiceID as argument.");
+		//out.println("                                   Requires ServiceID as argument.");
 		out.println("    -i, --services                 Returns list of services in given state");
-		out.println("                                   Requiers ServiceState as argument.");
+		out.println("                                   Requires ServiceState as argument.");
 		out.println("    -o, --state                    Returns state of service");
-		out.println("                                   Requiers ServiceID as argument. Does not accept array argument.");
+		out.println("                                   Requires ServiceID as argument. Does not accept array argument.");
 		out.println();
 		out.println("arg:");
 		out.println("");
@@ -322,6 +322,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 			this.operationName = "deactivateAndActivate";
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
 			// next two opts must contain conf for this.
@@ -351,6 +352,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 						+ "\", requires set of sub options!");
 			}
 
+			@SuppressWarnings("rawtypes")
 			Class argClass = ServiceID.class;
 			if (toActivate.contains(";") || toDeactivate.contains(";")) {
 				argClass = ServiceID[].class;

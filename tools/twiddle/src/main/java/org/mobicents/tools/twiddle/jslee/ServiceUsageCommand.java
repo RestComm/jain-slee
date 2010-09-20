@@ -56,7 +56,7 @@ public class ServiceUsageCommand extends AbstractUsageCommand {
 	@Override
 	public String getUsageMGMTMBeanOperation() {
 
-		return super.SERVICE_GET_METHOD;
+		return SERVICE_GET_METHOD;
 	}
 	/* (non-Javadoc)
 	 * @see org.mobicents.tools.twiddle.jslee.AbstractUsageCommand#addExamples()

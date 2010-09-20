@@ -41,12 +41,9 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
 public class ProfileCommand extends AbstractSleeCommand {
 
 	/**
-	 * @param name
-	 * @param desc
 	 */
 	public ProfileCommand() {
 		super("profile",  "This command performs operations on JSLEE ProfileProvisioningMBean." );
-		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)
@@ -62,29 +59,29 @@ public class ProfileCommand extends AbstractSleeCommand {
 		out.println();
 		out.println("operation:");
 		out.println("    -l, --list                     Lists components based on passed option:");
-		out.println("            --table                Lists profile table names, optionaly it takes ProfileSpecificationID as argument, ");
+		out.println("            --table                Lists profile table names, optionally it takes ProfileSpecificationID as argument, ");
 		out.println("                                   if so, names are listed only for tables which ProfileSpecificationID matches.");
 		out.println("            --profile              Lists profile IDs by table name,");
-		out.println("                                   requiers profile table name as argument.");
-		out.println("    -c, --create                   Creates component based on passed options. Suported are two sets [ \"--table-name\" & \"--profile-name\" | \"--table-name\" & \"--profile-spec\" ]");
-		out.println("            --profile-name         Indicates profile name to be created. It is used in conjuction with \"--table-name\" to create profile in table.");
-		out.println("            --table-name           Indicates profile table name. It reqquiers either \"--profile-name\" or \"--profile-spec\".");
+		out.println("                                   requires profile table name as argument.");
+		out.println("    -c, --create                   Creates component based on passed options. Supported are two sets [ \"--table-name\" & \"--profile-name\" | \"--table-name\" & \"--profile-spec\" ]");
+		out.println("            --profile-name         Indicates profile name to be created. It is used in conjunction with \"--table-name\" to create profile in table.");
+		out.println("            --table-name           Indicates profile table name. It requires either \"--profile-name\" or \"--profile-spec\".");
 		out.println("            --profile-spec         Indicates ProfileSpecification ID used to craete table.");
-		out.println("    -r, --remove                   Removes component based on passed options. Requiers atleast \"--table-name\" option. Following options are supported:");
+		out.println("    -r, --remove                   Removes component based on passed options. Requires atleast \"--table-name\" option. Following options are supported:");
 		out.println("            --table-name           Indicates table name to be removed. If \"--profile-name\" is also used, only profile is removed from table.");
-		out.println("            --profile-name         Indicates profile name of profile to be removed. It is used in conjuction with \"--table-name\".");
+		out.println("            --profile-name         Indicates profile name of profile to be removed. It is used in conjunction with \"--table-name\".");
 		out.println("    -n, --rename                   Renames profile table, based on options. Both are required. Supported options are:");
 		out.println("            --current-name         Sets current name of profile table.");
 		out.println("            --new-name             Sets new name for profile table.");
 		//its weird, other MBeans define methods like getXXXUsage or something...
 		out.println("    -g, --get                      Fetches information regarding profiles and profile tables based on option, exactly one must be present. Supported options:");
 		out.println("            --profile-spec         Retrieves ProfileSpecification ID for given table name,");
-		out.println("                                   requiers profile table name as argument.");
-		//out.println("            --profile              Retrieves ObjectName of default profile for given table name,");
-		//out.println("                                   requiers profile table name as argument. It can be used in conjuction with \"--profile-name\" ");
+		out.println("                                   requires profile table name as argument.");
+		//out.println("            --profile              Retrieves ObjectName of default profile for given table name.");
+		//out.println("                                   Requires profile table name as argument. It can be used in conjunction with \"--profile-name\" ");
 		//out.println("                                   to get ObjectName for specific profile. Side effect of this call is registration of MBean with return ObjectName");
 		//out.println("            --profile-name         Specifies profile name for \"--profile\" option. ObjectName returned by this call identifies bean for specific profile.");
-		//out.println("                                   Requiers profile name as argument.");
+		//out.println("                                   Requires profile name as argument.");
 		//TODO: usage for table.
 		out.println("arg:");
 		out.println("Examples: ");

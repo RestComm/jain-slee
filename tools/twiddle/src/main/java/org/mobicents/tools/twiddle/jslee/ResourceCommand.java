@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.slee.management.ResourceAdaptorEntityState;
-import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ResourceAdaptorID;
 
@@ -44,7 +43,6 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 	public ResourceCommand() {
 		super("resource", "This command performs operations on JSLEE ResourceManagementMBean." );
-		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)
@@ -69,49 +67,49 @@ public class ResourceCommand extends AbstractSleeCommand {
 		out.println("          --entity-name            Specifies RA entity name to be used, requires argument. ");
 		out.println("          --ra-id                  Specifies ResourceAdaptorID to be used, requires argument. ");
 		out.println("          --config                 Specifies ConfigurationProperties to be used, requires argument. ");
-		out.println("    -r, --remove                   Removes a RA entity. Requiers Ra entty name as argument.");
+		out.println("    -r, --remove                   Removes a RA entity. Requires RA entity name as argument.");
 		out.println("    -p, --update-config            Update RA entity configuration. Options specify mandatory arguments:");
 		out.println("          --entity-name            Specifies RA entity name to be used, requires argument. ");
 		out.println("          --config                 Specifies ConfigurationProperties to be used as new set, requires argument. ");
 		out.println("    -l, --list                     Lists result. Result content depends on passed options. One option is required, supported:");
 		out.println("          --ra-entities            Marks list operation to list entity names. Without argument it will list all entities. If ");
-		out.println("                                   ResourceAdaptorID is passed as argument it will list entity names coresponding to argument. ");
+		out.println("                                   ResourceAdaptorID is passed as argument it will list entity names corresponding to argument. ");
 		out.println("          --ra-entities-in-state   Marks list operation to list entity names of RAs in given state. Requires argument(ResourceAdaptorEntityState). ");
 		out.println("          --ra-entities-by-link    Marks list operation to list entity name(s) of RAs bound to given link name(s). Requires argument which is a single link name or array. ");
 		out.println("          --links                  Marks list operation to list link names. Without argument it will list all links. If ");
-		out.println("                                   RA entity name is passed as argument it will list only coresponding link names. ");
-		out.println("          --sbbs                   Marks list operation to list SbbIDs bound to passed link name. Requiers link name as argument ");
+		out.println("                                   RA entity name is passed as argument it will list only corresponding link names. ");
+		out.println("          --sbbs                   Marks list operation to list SbbIDs bound to passed link name. Requires link name as argument ");
 		out.println("    -g, --get                      Fetches information from container based on passed option. One option is required, supported options:");
-		out.println("          --ra-id                  Retrieves ResourceAdaptorID. Requiers entity name as argument, RA ID is fetched for this name. ");
-		out.println("          --state                  Retrieves state of RA. Requiers entity name as argument. ");
-		out.println("          --config-by-id           Retrieves ConfigurationProperties for given ResourceAdaptorID. Requiers ResourceAdaptorID as argument.");
-		out.println("          --config-by-name         Retrieves ConfigurationProperties for given RA entity name. Requiers entity name as argument.");
-		//out.println("          --usage-mbean            Retrieves ObjectName of ResourceAdaptorUsageMBean. Requiers entity name as argument.");
-				
-		
-		out.println("arg:");
-		out.println("");
-		out.println("NOTE: Config property has general form of: (name:java.type=value) and array has different form, than in components: [(cnf.prop),(cnf.prop)]");
-		out.println("     Configuration property array: [(remotePort:java.lang.Integer=40001),(localPort:java.lang.Integer=40000),(localHost:java.lang.String=127.0.0.1),(remoteHost:java.lang.String=127.0.0.1)]");
-		out.println("     ResourceAdaptorEntityState: [INACTIVE|STOPPING|ACTIVE]");
-		
-		out.println("");
-		out.println("Examples: ");
-		out.println("");
-		out.println("     1. Create RA Entity:");
-		out.println("" + name + " -c --entity-name=SipRA --ra-id= --config=[(javax.sip.TRANSPORT:java.lang.String=UDP),(javax.sip.IP_ADDRESS:java.lang.String=),(javax.sip.PORT:java.lang.Integer=5060)]");
-		out.println("");
-		out.println("     2. Bind RA Entity to Link:");
-		out.println("" + name + " -b --link-name=SipRALink --entity-name=SipRA");
-		out.println("");
-		out.println("     3. Get state of RA Entity:");
-		out.println("" + name + " -g --state=SipRA");
-		out.println("");
-		out.println("     4 List all RA Entities in container:");
-		out.println("" + name + " -l --ra-entities");
-		out.println("");
-		out.println("     5. List all RA Entities created from specific ResourceAdaptorID:");
-		out.println("" + name + " -l --ra-entities=ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]");
+		out.println("          --ra-id                  Retrieves ResourceAdaptorID. Requires entity name as argument, RA ID is fetched for this name. ");
+		out.println("          --state                  Retrieves state of RA. Requires entity name as argument. ");
+		out.println("          --config-by-id           Retrieves ConfigurationProperties for given ResourceAdaptorID. Requires ResourceAdaptorID as argument.");
+		out.println("          --config-by-name         Retrieves ConfigurationProperties for given RA entity name. Requires entity name as argument.");
+		//out.println("          --usage-mbean            Retrieves ObjectName of ResourceAdaptorUsageMBean. Requires entity name as argument.");
+//				
+//		
+//		out.println("arg:");
+//		out.println("");
+//		out.println("NOTE: Config property has general form of: (name:java.type=value) and array has different form, than in components: [(cnf.prop),(cnf.prop)]");
+//		out.println("     Configuration property array: [(remotePort:java.lang.Integer=40001),(localPort:java.lang.Integer=40000),(localHost:java.lang.String=127.0.0.1),(remoteHost:java.lang.String=127.0.0.1)]");
+//		out.println("     ResourceAdaptorEntityState: [INACTIVE|STOPPING|ACTIVE]");
+//		
+//		out.println("");
+//		out.println("Examples: ");
+//		out.println("");
+//		out.println("     1. Create RA Entity:");
+//		out.println("" + name + " -c --entity-name=SipRA --ra-id= --config=[(javax.sip.TRANSPORT:java.lang.String=UDP),(javax.sip.IP_ADDRESS:java.lang.String=),(javax.sip.PORT:java.lang.Integer=5060)]");
+//		out.println("");
+//		out.println("     2. Bind RA Entity to Link:");
+//		out.println("" + name + " -b --link-name=SipRALink --entity-name=SipRA");
+//		out.println("");
+//		out.println("     3. Get state of RA Entity:");
+//		out.println("" + name + " -g --state=SipRA");
+//		out.println("");
+//		out.println("     4 List all RA Entities in container:");
+//		out.println("" + name + " -l --ra-entities");
+//		out.println("");
+//		out.println("     5. List all RA Entities created from specific ResourceAdaptorID:");
+//		out.println("" + name + " -l --ra-entities=ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]");
 		out.flush();
 		
 	}

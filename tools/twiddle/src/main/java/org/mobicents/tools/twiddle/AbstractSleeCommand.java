@@ -101,7 +101,7 @@ public abstract class AbstractSleeCommand extends AbstractCommand {
 
 	}
 
-	//TODO: add support for whitespaces
+	//TODO: add support for white spaces
 	protected AbstractOperation operation;
 
 	public AbstractSleeCommand(String name, String desc) {

@@ -56,7 +56,7 @@ public class RAUsageCommand extends AbstractUsageCommand {
 	@Override
 	public String getUsageMGMTMBeanOperation() {
 
-		return super.RESOURCE_GET_METHOD;
+		return RESOURCE_GET_METHOD;
 	}
 	/* (non-Javadoc)
 	 * @see org.mobicents.tools.twiddle.jslee.AbstractUsageCommand#addExamples()

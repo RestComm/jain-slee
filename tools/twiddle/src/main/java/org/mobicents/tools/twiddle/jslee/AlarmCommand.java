@@ -64,9 +64,9 @@ public class AlarmCommand extends AbstractSleeCommand {
 		out.println("    -c, --clear                    Clears alarm which meets criteria. Option \"--id\" or \"--nsrc\" must be present. Following options are supported:");
 		out.println("            --id                   Specifies ID of alarm to be cleared. This option MUST NOT be used with any other options.");
 		out.println("                                   Expects parameter of String type.");
-		out.println("            --nsrc                 Specifies Notification source for which alarms will be cleared. It can be used in conjuction with \"--type\".");
+		out.println("            --nsrc                 Specifies Notification source for which alarms will be cleared. It can be used in conjunction with \"--type\".");
 		out.println("                                   Expects parameter of NotificationSource type.");
-		out.println("            --type                 Type of alarm which will be cleared. It can be used in conjuction with \"--nsrc\".");
+		out.println("            --type                 Type of alarm which will be cleared. It can be used in conjunction with \"--nsrc\".");
 		out.println("                                   Expects parameter of String type.");
 		out.println("    -l, --list                     Fetches list(id) of active alarms. If \"--nsrc\" option is used, alarm Ids are fetched for this Notification source.");
 		out.println("            --nsrc                 Notification source for which alarms Ids are fetched, its not mandatory.");

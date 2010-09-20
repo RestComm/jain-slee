@@ -76,16 +76,16 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		out.println();
 		//out.println("usage: " + name + " <-tprofileTableName> [-pprofileName] <operation> <arg>*");
 		out.println("usage: " + name + " <profileTableName> <profileName> <-operation[[arg] | [--option[=arg]]]*>");
-		out.println("This command requiers atleast option -t to specify table name. If -p is not used, it performs operations on defualt profiles.");
+		//out.println("This command requires atleast option -t to specify table name. If -p is not used, it performs operations on defualt profiles.");
 		out.println();
 		//out.println("config:");
-		//out.println("    -t, --table                    Specifies table name from which profile should be accessed. Requiers table name as argument.");
-		//out.println("    -p, --profile                  Specifies profile name of profile to be accessed. Requiers profile name as argument.");
+		//out.println("    -t, --table                    Specifies table name from which profile should be accessed. Requires table name as argument.");
+		//out.println("    -p, --profile                  Specifies profile name of profile to be accessed. Requires profile name as argument.");
 		out.println("operation:");
 		out.println("    -l, --list                     Returns list of available attributes and information associated with each.");
-		out.println("    -d, --dirty                    Returns indiaction if profile is dirty. Does not require argument.");
+		out.println("    -d, --dirty                    Returns indication if profile is dirty. Does not require argument.");
 		//isProfileDirty()
-		out.println("    -w, --write                    Returns indiaction if profile is in write mode. Does not require argument.");
+		out.println("    -w, --write                    Returns indication if profile is in write mode. Does not require argument.");
 		//isProfileWriteable()
 		out.println("    -e, --edit                     Marks profile as editable. Without this op any other will fail. Does not require argument.");
 		//editProfile()
@@ -93,23 +93,23 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		//commitProfile()
 		out.println("    -r, --restore                  Revokes changes done to profile. Can be invoked only after \"-e\". Does not require argument.");
 		//restoreProfile()
-		out.println("    -o, --close                    Deregisters MBean. Does not require argument.");
+		out.println("    -o, --close                    De-registers MBean. Does not require argument.");
 		//closeProfile()
-		out.println("    -g, --get                      Returns value of profile attribute. Requires attribute name, ie: \"voiceMailEnabled\".");
+		out.println("    -g, --get                      Returns value of profile attribute. Requires attribute name, ie. : \"voiceMailEnabled\".");
 		out.println("    -s, --set                      Sets value of profile attribute. Supports mandatory options:.");
-		out.println("         --name                    Specifies name of profile attribute. Requiers attribute name as parameter.");
-		out.println("         --value                   Specifies string representation of profile attribute value. Requiers value as parameter.");
-		out.println("                                   Command tries localy registered JMX Editor to parse value and optimize call, if editor is not found");
+		out.println("         --name                    Specifies name of profile attribute. Requires attribute name as parameter.");
+		out.println("         --value                   Specifies string representation of profile attribute value. Requires value as parameter.");
+		out.println("                                   Command tries locally registered JMX Editor to parse value and optimize call, if editor is not found");
 		out.println("                                   it dispatches call in hope that server side has better luck.");
-		//out.println("    -b, --bussines                 Sets value of profile attribute. Supports mandatory options:.");
-		//out.println("         --method                  Specifies bussines method name. Requiers method name as parameter.");
-		//out.println("         --name                    Specifies name of profile attribute. Requiers attribute name as parameter.");
-		//out.println("         --value                   Specifies string representation of profile attribute value. Requiers value as parameter.");
-		//out.println("                                   Command tries localy registered JMX Editor to parse value and optimize call, if editor is not found");
+		//out.println("    -b, --business                 Sets value of profile attribute. Supports mandatory options:.");
+		//out.println("         --method                  Specifies business method name. Requires method name as parameter.");
+		//out.println("         --name                    Specifies name of profile attribute. Requires attribute name as parameter.");
+		//out.println("         --value                   Specifies string representation of profile attribute value. Requires value as parameter.");
+		//out.println("                                   Command tries locally registered JMX Editor to parse value and optimize call, if editor is not found");
 		//out.println("                                   it dispatches call in hope that server side has better luck.");
 		out.println("Examples: ");
 		out.println("");
-		out.println("     1. Check if profile has beed edited:");
+		out.println("     1. Check if profile has been edited:");
 		out.println("" + name + " CallControl mobile.user -w");
 		out.println("");
 		out.println("     2. Check if any changes were introduced to profile:");

@@ -63,10 +63,10 @@ public class SleeCommand extends AbstractSleeCommand {
 		out.println("usage: " + name + " <-operation>");
 		out.println();
 		out.println("operation:");
-		out.println("    -r, --start                     Starts platform.");
-		out.println("    -s, --stopt                     Stops platform.");
-		out.println("    -d, --shutdown                  Shutdowns platform.");
-		out.println("    -i, --info                      Displays information about SLEE platform(vendor, version, etc.).");
+		out.println("    -r, --start                     Starts container.");
+		out.println("    -s, --stopt                     Stops container.");
+		out.println("    -d, --shutdown                  Shutdowns container.");
+		out.println("    -i, --info                      Displays information about SLEE container(vendor, version, etc.).");
 		//no more supported, since we dont have subsystems?
 		out.flush();
 

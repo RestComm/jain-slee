@@ -161,7 +161,7 @@ public abstract class AbstractOperation {
 		
 		return  sb.toString();
 	}
-	protected void addArg(Object arg, Class argClass, boolean usPE) throws CommandException {
+	protected void addArg(Object arg, Class<? extends Object> argClass, boolean usPE) throws CommandException {
 		if (usPE) {
 			PropertyEditor pe = PropertyEditors.getEditor(argClass);
 			if (pe == null) {

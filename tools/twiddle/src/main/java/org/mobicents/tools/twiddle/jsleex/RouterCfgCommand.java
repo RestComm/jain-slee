@@ -59,7 +59,7 @@ public class RouterCfgCommand extends AbstractSleeCommand {
 		out.println("            --get                   Returns number of threads used by executor. Does not require argument.");
 		out.println("            --set                   Sets number of threads used by executor, requires integer argument which is greater than zero.");
 		out	.println("    -x, --stats                    Controls if statistics are enabled(true) or disabled(false). Exactly one of following options must be present:");
-		out.println("            --get                   Returns boolean indicating if statistics are beeing enabled or not. Does not require argument.");
+		out.println("            --get                   Returns boolean indicating if statistics are being enabled or not. Does not require argument.");
 		out.println("            --set                   Sets parameter to enable statistics, requires boolean argument.");	
 		out.flush();
 	}
