@@ -26,6 +26,7 @@
 	<properties>
 		<mobicents.slee.version>2.2.0-SNAPSHOT</mobicents.slee.version>
 		<jsip.ha.version>0.12-SNAPSHOT</jsip.ha.version>
+		<jsip.sip.ext.version>1.0-SNAPSHOT</jsip.sip.ext.version>
 		<loadbalancer.version>1.0.1</loadbalancer.version>
 		<docs.profile>mobicents</docs.profile>
 		<docs.ra.name>SIP11</docs.ra.name>
@@ -39,6 +40,11 @@
 					<groupId>org.mobicents.ha.javax.sip</groupId>
 					<artifactId>mobicents-jain-sip-ha-core</artifactId>
 					<version>${jsip.ha.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.javax.sip</groupId>
+				<artifactId>mobicents-jain-sip-ext</artifactId>
+				<version>${jsip.sip.ext.version}</version>
 			</dependency>
 			<dependency>
 					<groupId>org.mobicents.ha.javax.sip</groupId>
