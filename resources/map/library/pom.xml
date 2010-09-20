@@ -20,6 +20,17 @@
 			<groupId>org.mobicents.protocols.ss7.mtp</groupId>
 			<version>${mtp.version}</version>
 		</dependency>
+		
+		<dependency>
+			<artifactId>m3ua-api</artifactId>
+			<groupId>org.mobicents.protocols.ss7.m3ua</groupId>
+			<version>${m3ua.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>m3ua-impl</artifactId>
+			<groupId>org.mobicents.protocols.ss7.m3ua</groupId>
+			<version>${m3ua.version}</version>
+		</dependency>		
 
 		<dependency>
 			<artifactId>map-api</artifactId>
