@@ -48,34 +48,33 @@ fi
 
 # Setup the classpath
 
-
-#if [ "x$CLASSPATH" = "x" ]; then
+#if [ "x$JBOSS_CLASSPATH" = "x" ]; then
  	
 
  	#jboss
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/twiddle.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/getopt.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/log4j.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jboss-jmx.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jboss-common-client.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jmx-invoker-adaptor-client.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jmx-client.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jnp-client.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jboss-serialization.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jboss-minimal.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/javaee-api.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jboss-security-spi.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jboss-transaction-spi.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/concurrent.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/dom4j.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/twiddle.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/getopt.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/log4j.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jboss-jmx.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jboss-common-client.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jmx-invoker-adaptor-client.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jmx-client.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jnp-client.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jboss-serialization.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jboss-minimal.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/javaee-api.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jboss-security-spi.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jboss-transaction-spi.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/concurrent.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/dom4j.jar"
     
     #mobicents
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/cli-twiddle.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jain-slee-1.1.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/jmx-property-editors.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/activities.jar"
-    CLASSPATH="$CLASSPATH:${DIRNAME}/lib/spi.jar"
-    CLASSPATH="$CLASSPATH:$DIRNAME/lib"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/cli-twiddle.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jain-slee-1.1.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jmx-property-editors.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/activities.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/spi.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:$DIRNAME/lib"
    
 #fi
 
@@ -85,7 +84,7 @@ SLEE_TWIDDLE_CONF="$DIRNAME/lib/slee-twiddle.properties"
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
     JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
-    CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
+    JBOSS_CLASSPATH=`cygpath --path --windows "$JBOSS_CLASSPATH"`
 	SLEE_TWIDDLE_CONF=`cygpath --path --windows "$SLEE_TWIDDLE_CONF"`
 fi
  # Display our environment
@@ -99,7 +98,7 @@ fi
  #     echo ""
  #     echo "  JAVA_OPTS: $JAVA_OPTS"
  #     echo ""
- #     echo "  CLASSPATH: $CLASSPATH"
+ #     echo "  CLASSPATH: $JBOSS_CLASSPATH"
  #     echo ""
  #     echo "  OPTS     : $*"
  #     echo ""
@@ -112,6 +111,6 @@ fi
 exec "$JAVA" \
     $JAVA_OPTS \
     -Dprogram.name="$PROGNAME" \
-    -classpath $CLASSPATH \
+    -classpath $JBOSS_CLASSPATH \
     org.jboss.console.twiddle.Twiddle -c file:///$SLEE_TWIDDLE_CONF $@ 
 	#
