@@ -798,7 +798,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 					}
 					// fire normal event on forked dialog activity
 					handle = forkedDialogWrapper.getActivityHandle();
-					event = new ResponseEventWrapper(responseEventExt.getSource(),null,forkedDialogWrapper, responseEventExt.getResponse());			
+					event = new ResponseEventWrapper(responseEventExt.getSource(),(ClientTransactionWrapper) originalClientTransaction.getApplicationData(),forkedDialogWrapper, responseEventExt.getResponse());			
 					eventType = eventIdCache.getEventId(eventLookupFacility, responseEventExt.getResponse());
 				}
 				else {
@@ -814,7 +814,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			else {
 				// not yet confirmed, fire normal event on forked dialog activity
 				handle = forkedDialogWrapper.getActivityHandle();
-				event = new ResponseEventWrapper(responseEventExt.getSource(),null,forkedDialogWrapper, responseEventExt.getResponse());			
+				event = new ResponseEventWrapper(responseEventExt.getSource(),(ClientTransactionWrapper) originalClientTransaction.getApplicationData(),forkedDialogWrapper, responseEventExt.getResponse());			
 				eventType = eventIdCache.getEventId(eventLookupFacility, responseEventExt.getResponse());
 			}
 		}
