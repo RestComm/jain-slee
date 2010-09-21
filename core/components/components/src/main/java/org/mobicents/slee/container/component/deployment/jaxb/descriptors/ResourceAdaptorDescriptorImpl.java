@@ -61,7 +61,7 @@ public class ResourceAdaptorDescriptorImpl extends
 				.getResourceAdaptorVendor(), resourceAdaptor
 				.getResourceAdaptorVersion());
 
-		super.setLibraryRefs(resourceAdaptor.getLibraryRef());
+		super.setLibraryRefs(resourceAdaptor.getLibraryRefs());
 
 		this.resourceAdaptorTypeRefs = new ArrayList<ResourceAdaptorTypeID>(); 
 		for (MResourceAdaptorTypeRef ref : resourceAdaptor.getResourceAdaptorTypeRefs())

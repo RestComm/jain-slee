@@ -47,6 +47,11 @@ public class DefaultSleeEntityResolver implements EntityResolver{
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN", "dtd/slee-profile-spec-jar_1_1.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN", "dtd/slee-event-jar_1_1.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Library 1.1//EN","dtd/slee-library-jar_1_1.dtd");
+        
+        // For SLEE 1.1 Extensions
+        // TODO can't we have a single slee entity resolver, starting at deployer?
+        registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Ext Library 1.1//EN", "dtd/slee-library-jar_1_1-ext.dtd");
+        
     }
 
     /**

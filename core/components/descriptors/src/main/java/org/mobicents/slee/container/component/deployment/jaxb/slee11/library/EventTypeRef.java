@@ -24,25 +24,23 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "description",
-    "libraryName",
-    "libraryVendor",
-    "libraryVersion"
+    "eventTypeName",
+    "eventTypeVendor",
+    "eventTypeVersion"
 })
-@XmlRootElement(name = "library-ref")
-public class LibraryRef {
+@XmlRootElement(name = "event-type-ref")
+public class EventTypeRef {
 
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     protected String id;
-    protected Description description;
-    @XmlElement(name = "library-name", required = true)
-    protected LibraryName libraryName;
-    @XmlElement(name = "library-vendor", required = true)
-    protected LibraryVendor libraryVendor;
-    @XmlElement(name = "library-version", required = true)
-    protected LibraryVersion libraryVersion;
+    @XmlElement(name = "event-type-name", required = true)
+    protected EventTypeName eventTypeName;
+    @XmlElement(name = "event-type-vendor", required = true)
+    protected EventTypeVendor eventTypeVendor;
+    @XmlElement(name = "event-type-version", required = true)
+    protected EventTypeVersion eventTypeVersion;
 
     /**
      * Gets the value of the id property.
@@ -69,99 +67,75 @@ public class LibraryRef {
     }
 
     /**
-     * Gets the value of the description property.
+     * Gets the value of the eventTypeName property.
      * 
      * @return
      *     possible object is
-     *     {@link Description }
+     *     {@link EventTypeName }
      *     
      */
-    public Description getDescription() {
-        return description;
+    public EventTypeName getEventTypeName() {
+        return eventTypeName;
     }
 
     /**
-     * Sets the value of the description property.
+     * Sets the value of the eventTypeName property.
      * 
      * @param value
      *     allowed object is
-     *     {@link Description }
+     *     {@link EventTypeName }
      *     
      */
-    public void setDescription(Description value) {
-        this.description = value;
+    public void setEventTypeName(EventTypeName value) {
+        this.eventTypeName = value;
     }
 
     /**
-     * Gets the value of the libraryName property.
+     * Gets the value of the eventTypeVendor property.
      * 
      * @return
      *     possible object is
-     *     {@link LibraryName }
+     *     {@link EventTypeVendor }
      *     
      */
-    public LibraryName getLibraryName() {
-        return libraryName;
+    public EventTypeVendor getEventTypeVendor() {
+        return eventTypeVendor;
     }
 
     /**
-     * Sets the value of the libraryName property.
+     * Sets the value of the eventTypeVendor property.
      * 
      * @param value
      *     allowed object is
-     *     {@link LibraryName }
+     *     {@link EventTypeVendor }
      *     
      */
-    public void setLibraryName(LibraryName value) {
-        this.libraryName = value;
+    public void setEventTypeVendor(EventTypeVendor value) {
+        this.eventTypeVendor = value;
     }
 
     /**
-     * Gets the value of the libraryVendor property.
+     * Gets the value of the eventTypeVersion property.
      * 
      * @return
      *     possible object is
-     *     {@link LibraryVendor }
+     *     {@link EventTypeVersion }
      *     
      */
-    public LibraryVendor getLibraryVendor() {
-        return libraryVendor;
+    public EventTypeVersion getEventTypeVersion() {
+        return eventTypeVersion;
     }
 
     /**
-     * Sets the value of the libraryVendor property.
+     * Sets the value of the eventTypeVersion property.
      * 
      * @param value
      *     allowed object is
-     *     {@link LibraryVendor }
+     *     {@link EventTypeVersion }
      *     
      */
-    public void setLibraryVendor(LibraryVendor value) {
-        this.libraryVendor = value;
-    }
-
-    /**
-     * Gets the value of the libraryVersion property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link LibraryVersion }
-     *     
-     */
-    public LibraryVersion getLibraryVersion() {
-        return libraryVersion;
-    }
-
-    /**
-     * Sets the value of the libraryVersion property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link LibraryVersion }
-     *     
-     */
-    public void setLibraryVersion(LibraryVersion value) {
-        this.libraryVersion = value;
+    public void setEventTypeVersion(EventTypeVersion value) {
+        this.eventTypeVersion = value;
     }
 
 }

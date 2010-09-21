@@ -3,11 +3,12 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.slee.management.LibraryID;
+
 import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
 import org.mobicents.slee.container.component.common.ProfileSpecRefDescriptor;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MSbbRef;
 import org.mobicents.slee.container.component.sbb.EjbRefDescriptor;
@@ -35,7 +36,7 @@ public class MSbb {
 
   private String sbbAlias;
 
-  private List<MLibraryRef> libraryRef = new ArrayList<MLibraryRef>();
+  private List<LibraryID> libraryRefs = new ArrayList<LibraryID>();
   private List<SbbRefDescriptor> sbbRef = new ArrayList<SbbRefDescriptor>();
   private List<ProfileSpecRefDescriptor> profileSpecRef = new ArrayList<ProfileSpecRefDescriptor>();
   private MSbbClasses sbbClasses;
@@ -111,9 +112,10 @@ public class MSbb {
 
     this.sbbAlias = sbb11.getSbbAlias() == null ? null : sbb11.getSbbAlias().getvalue();
 
-    for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.LibraryRef libraryRef11 : sbb11.getLibraryRef())
-    {
-      this.libraryRef.add( new MLibraryRef(libraryRef11) );
+    for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.LibraryRef libraryRef11 : sbb11.getLibraryRef()) {
+    	this.libraryRefs.add(new LibraryID(libraryRef11.getLibraryName()
+    			.getvalue(), libraryRef11.getLibraryVendor().getvalue(),
+    			libraryRef11.getLibraryVersion().getvalue()));
     }
 
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbRef sbbRef11 : sbb11.getSbbRef())
@@ -181,9 +183,9 @@ public class MSbb {
     return sbbAlias;
   }
   
-  public List<MLibraryRef> getLibraryRef()
+  public List<LibraryID> getLibraryRefs()
   {
-    return libraryRef;
+    return libraryRefs;
   }
 
   public List<SbbRefDescriptor> getSbbRef()

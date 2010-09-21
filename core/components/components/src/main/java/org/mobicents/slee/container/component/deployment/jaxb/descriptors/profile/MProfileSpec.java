@@ -3,8 +3,9 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.slee.management.LibraryID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
 
@@ -35,7 +36,7 @@ public class MProfileSpec {
   private Boolean profileReadOnly = new Boolean(true);
   private Boolean profileEventsEnabled = new Boolean(true);
   
-  private List<MLibraryRef> libraryRef = new ArrayList<MLibraryRef>();
+  private List<LibraryID> libraryRefs = new ArrayList<LibraryID>();
   private List<MProfileSpecRef> profileSpecRef = new ArrayList<MProfileSpecRef>();
   private List<MCollator> collator = new ArrayList<MCollator>();
 
@@ -76,9 +77,10 @@ public class MProfileSpec {
     this.profileReadOnly = Boolean.parseBoolean(profileSpec11.getProfileReadOnly());
     this.profileEventsEnabled = Boolean.parseBoolean(profileSpec11.getProfileEventsEnabled());
     
-    for(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.LibraryRef libraryRef11 : profileSpec11.getLibraryRef())
-    {
-      this.libraryRef.add( new MLibraryRef(libraryRef11) );
+    for(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.LibraryRef libraryRef11 : profileSpec11.getLibraryRef()) {
+    	this.libraryRefs.add(new LibraryID(libraryRef11.getLibraryName()
+    			.getvalue(), libraryRef11.getLibraryVendor().getvalue(),
+    			libraryRef11.getLibraryVersion().getvalue()));
     }
 
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecRef profileSpecRef11 : profileSpec11.getProfileSpecRef())
@@ -143,9 +145,9 @@ public class MProfileSpec {
     return profileEventsEnabled;
   }
   
-  public List<MLibraryRef> getLibraryRef()
+  public List<LibraryID> getLibraryRefs()
   {
-    return libraryRef;
+    return libraryRefs;
   }
 
   public List<MProfileSpecRef> getProfileSpecRef()

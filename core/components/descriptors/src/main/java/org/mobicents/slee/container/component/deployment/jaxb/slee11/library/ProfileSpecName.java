@@ -26,8 +26,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(name = "", propOrder = {
     "value"
 })
-@XmlRootElement(name = "security-permission-spec")
-public class SecurityPermissionSpec {
+@XmlRootElement(name = "profile-spec-name")
+public class ProfileSpecName {
 
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)

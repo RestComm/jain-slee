@@ -24,25 +24,23 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "description",
-    "libraryName",
-    "libraryVendor",
-    "libraryVersion"
+    "sbbName",
+    "sbbVendor",
+    "sbbVersion"
 })
-@XmlRootElement(name = "library-ref")
-public class LibraryRef {
+@XmlRootElement(name = "sbb-ref")
+public class SbbRef {
 
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     protected String id;
-    protected Description description;
-    @XmlElement(name = "library-name", required = true)
-    protected LibraryName libraryName;
-    @XmlElement(name = "library-vendor", required = true)
-    protected LibraryVendor libraryVendor;
-    @XmlElement(name = "library-version", required = true)
-    protected LibraryVersion libraryVersion;
+    @XmlElement(name = "sbb-name", required = true)
+    protected SbbName sbbName;
+    @XmlElement(name = "sbb-vendor", required = true)
+    protected SbbVendor sbbVendor;
+    @XmlElement(name = "sbb-version", required = true)
+    protected SbbVersion sbbVersion;
 
     /**
      * Gets the value of the id property.
@@ -69,99 +67,75 @@ public class LibraryRef {
     }
 
     /**
-     * Gets the value of the description property.
+     * Gets the value of the sbbName property.
      * 
      * @return
      *     possible object is
-     *     {@link Description }
+     *     {@link SbbName }
      *     
      */
-    public Description getDescription() {
-        return description;
+    public SbbName getSbbName() {
+        return sbbName;
     }
 
     /**
-     * Sets the value of the description property.
+     * Sets the value of the sbbName property.
      * 
      * @param value
      *     allowed object is
-     *     {@link Description }
+     *     {@link SbbName }
      *     
      */
-    public void setDescription(Description value) {
-        this.description = value;
+    public void setSbbName(SbbName value) {
+        this.sbbName = value;
     }
 
     /**
-     * Gets the value of the libraryName property.
+     * Gets the value of the sbbVendor property.
      * 
      * @return
      *     possible object is
-     *     {@link LibraryName }
+     *     {@link SbbVendor }
      *     
      */
-    public LibraryName getLibraryName() {
-        return libraryName;
+    public SbbVendor getSbbVendor() {
+        return sbbVendor;
     }
 
     /**
-     * Sets the value of the libraryName property.
+     * Sets the value of the sbbVendor property.
      * 
      * @param value
      *     allowed object is
-     *     {@link LibraryName }
+     *     {@link SbbVendor }
      *     
      */
-    public void setLibraryName(LibraryName value) {
-        this.libraryName = value;
+    public void setSbbVendor(SbbVendor value) {
+        this.sbbVendor = value;
     }
 
     /**
-     * Gets the value of the libraryVendor property.
+     * Gets the value of the sbbVersion property.
      * 
      * @return
      *     possible object is
-     *     {@link LibraryVendor }
+     *     {@link SbbVersion }
      *     
      */
-    public LibraryVendor getLibraryVendor() {
-        return libraryVendor;
+    public SbbVersion getSbbVersion() {
+        return sbbVersion;
     }
 
     /**
-     * Sets the value of the libraryVendor property.
+     * Sets the value of the sbbVersion property.
      * 
      * @param value
      *     allowed object is
-     *     {@link LibraryVendor }
+     *     {@link SbbVersion }
      *     
      */
-    public void setLibraryVendor(LibraryVendor value) {
-        this.libraryVendor = value;
-    }
-
-    /**
-     * Gets the value of the libraryVersion property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link LibraryVersion }
-     *     
-     */
-    public LibraryVersion getLibraryVersion() {
-        return libraryVersion;
-    }
-
-    /**
-     * Sets the value of the libraryVersion property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link LibraryVersion }
-     *     
-     */
-    public void setLibraryVersion(LibraryVersion value) {
-        this.libraryVersion = value;
+    public void setSbbVersion(SbbVersion value) {
+        this.sbbVersion = value;
     }
 
 }

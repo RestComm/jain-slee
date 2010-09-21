@@ -12,7 +12,6 @@ import java.util.EnumSet;
 
 import javax.slee.EventTypeID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEventSelect;
 import org.mobicents.slee.container.component.sbb.EventDirection;
@@ -60,13 +59,8 @@ public class MEventEntry implements EventEntryDescriptor {
 		
 		this.description = llEvent.getDescription() == null ? null
 				: llEvent.getDescription().getvalue();
-		
-		
-		this.eventReference=new MEventTypeRef(llEvent.getEventTypeRef()).getComponentID();
-//		this.eventReference = new ComponentKey(llEvent.getEventTypeRef()
-//				.getEventTypeName().getvalue(), llEvent.getEventTypeRef()
-//				.getEventTypeVendor().getvalue(), llEvent.getEventTypeRef()
-//				.getEventTypeVersion().getvalue());
+				
+		this.eventReference=new EventTypeID(llEvent.getEventTypeRef().getEventTypeName().getvalue(), llEvent.getEventTypeRef().getEventTypeVendor().getvalue(), llEvent.getEventTypeRef().getEventTypeVersion().getvalue());
 
 		this.eventName=llEvent.getEventName().getvalue();
 		
@@ -99,11 +93,8 @@ public class MEventEntry implements EventEntryDescriptor {
 		// 1.1 last in transaction
 		this.description = event.getDescription() == null ? null
 				: event.getDescription().getvalue();
-		eventReference=new MEventTypeRef(event.getEventTypeRef()).getComponentID();
-//		eventReference = new ComponentKey(event.getEventTypeRef()
-//				.getEventTypeName().getvalue(), event.getEventTypeRef()
-//				.getEventTypeVendor().getvalue(), event.getEventTypeRef()
-//				.getEventTypeVersion().getvalue());
+
+		this.eventReference=new EventTypeID(event.getEventTypeRef().getEventTypeName().getvalue(), event.getEventTypeRef().getEventTypeVendor().getvalue(), event.getEventTypeRef().getEventTypeVersion().getvalue());
 
 		eventName=event.getEventName().getvalue();
 		

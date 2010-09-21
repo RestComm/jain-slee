@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.ComponentWithLibraryRefsDescriptor;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 
 /**
  * @author martins
@@ -40,9 +39,9 @@ public abstract class AbstractComponentWithLibraryRefsDescriptor extends
 		return libraryRefs;
 	}
 
-	protected void setLibraryRefs(List<MLibraryRef> list) {
-		for (MLibraryRef mLibraryRef : list) {
-			libraryRefs.add(mLibraryRef.getComponentID());
+	protected void setLibraryRefs(List<LibraryID> list) {
+		for (LibraryID libraryID : list) {
+			libraryRefs.add(libraryID);
 		}
 		this.dependenciesSet.addAll(libraryRefs);
 	}

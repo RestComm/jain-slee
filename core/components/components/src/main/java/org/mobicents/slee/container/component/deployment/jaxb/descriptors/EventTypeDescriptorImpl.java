@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.slee.EventTypeID;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.LibraryID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MEventDefinition;
 import org.mobicents.slee.container.component.event.EventTypeDescriptor;
 
@@ -28,7 +28,7 @@ public class EventTypeDescriptorImpl extends
 	private final String eventClassName;
 
 	public EventTypeDescriptorImpl(MEventDefinition eventDefinition,
-			List<MLibraryRef> libraryRefs, boolean isSlee11)
+			List<LibraryID> libraryRefs, boolean isSlee11)
 			throws DeploymentException {
 		super(isSlee11);
 		super.setLibraryRefs(libraryRefs);

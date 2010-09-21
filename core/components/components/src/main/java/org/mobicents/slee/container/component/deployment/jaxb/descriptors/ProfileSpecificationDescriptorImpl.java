@@ -74,7 +74,7 @@ public class ProfileSpecificationDescriptorImpl extends
 		indexedAttributes = profileSpec.getProfileIndex();
 
 		// Now it's only 1.1
-		super.setLibraryRefs(profileSpec.getLibraryRef());
+		super.setLibraryRefs(profileSpec.getLibraryRefs());
 
 		this.profileSpecRefs = profileSpec.getProfileSpecRef();
 		for (ProfileSpecRefDescriptor profileSpecRefDescriptor : profileSpec.getProfileSpecRef()) {

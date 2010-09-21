@@ -3,7 +3,9 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.event
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import javax.slee.management.LibraryID;
+
+import org.mobicents.slee.container.component.deployment.jaxb.slee11.event.LibraryRef;
 
 /**
  * 
@@ -17,17 +19,12 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
  */
 public class MEventJar {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.event.EventJar eventJar10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.event.EventJar eventJar11;
-  
   private String description;
-  private List<MLibraryRef> libraryRef = new ArrayList<MLibraryRef>();;
+  private List<LibraryID> libraryRefs = new ArrayList<LibraryID>();
   private List<MEventDefinition> eventDefinition = new ArrayList<MEventDefinition>();
   
   public MEventJar(org.mobicents.slee.container.component.deployment.jaxb.slee.event.EventJar eventJar10)
-  {
-    this.eventJar10 = eventJar10;
-    
+  {    
     this.description = eventJar10.getDescription() == null ? null : eventJar10.getDescription().getvalue();
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee.event.EventDefinition eventDefinition10 : eventJar10.getEventDefinition())
@@ -37,15 +34,14 @@ public class MEventJar {
   }
   
   public MEventJar(org.mobicents.slee.container.component.deployment.jaxb.slee11.event.EventJar eventJar11)
-  {
-    this.eventJar11 = eventJar11;
-    
+  {    
     this.description = eventJar11.getDescription() == null ? null : eventJar11.getDescription().getvalue();
     
-    for(org.mobicents.slee.container.component.deployment.jaxb.slee11.event.LibraryRef libraryRef11 : eventJar11.getLibraryRef())
-    {
-      this.libraryRef.add( new MLibraryRef(libraryRef11) );
-    }
+    for (LibraryRef libraryRef : eventJar11.getLibraryRef()) {
+		this.libraryRefs.add(new LibraryID(libraryRef.getLibraryName()
+				.getvalue(), libraryRef.getLibraryVendor().getvalue(),
+				libraryRef.getLibraryVersion().getvalue()));
+	}
 
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.event.EventDefinition eventDefinition11 : eventJar11.getEventDefinition())
     {
@@ -58,9 +54,9 @@ public class MEventJar {
     return description;
   }
   
-  public List<MLibraryRef> getLibraryRef()
+  public List<LibraryID> getLibraryRef()
   {
-    return libraryRef;
+    return libraryRefs;
   }
   
   public List<MEventDefinition> getEventDefinition()

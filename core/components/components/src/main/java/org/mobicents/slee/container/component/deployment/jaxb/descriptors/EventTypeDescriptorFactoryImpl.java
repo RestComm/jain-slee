@@ -6,8 +6,8 @@ import java.util.List;
 
 import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.LibraryID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MEventDefinition;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MEventJar;
 import org.mobicents.slee.container.component.event.EventTypeDescriptorFactory;
@@ -42,7 +42,7 @@ public class EventTypeDescriptorFactoryImpl extends AbstractDescriptorFactory im
 			throw new SLEEException("unexpected class of jaxb pojo built: "+(jaxbPojo != null ? jaxbPojo.getClass() : null));
 		}
 		
-		List<MLibraryRef> libraryRefs = mEventJar.getLibraryRef();		
+		List<LibraryID> libraryRefs = mEventJar.getLibraryRef();		
 		for (MEventDefinition mEventDefinition : mEventJar.getEventDefinition()) {
 			result.add(new EventTypeDescriptorImpl(mEventDefinition,libraryRefs,isSlee11));
 		}

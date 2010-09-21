@@ -7,7 +7,6 @@ import javax.slee.EventTypeID;
 import javax.slee.management.DeploymentException;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorType;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorTypeClasses;
 import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeDescriptor;
@@ -53,11 +52,11 @@ public class ResourceAdaptorTypeDescriptorImpl extends
 					resourceAdaptorType.getResourceAdaptorTypeVendor(),
 					resourceAdaptorType.getResourceAdaptorTypeVersion());
 
-			super.setLibraryRefs(resourceAdaptorType.getLibraryRef());
+			super.setLibraryRefs(resourceAdaptorType.getLibraryRefs());
 
 			this.eventTypeRefs = new ArrayList<EventTypeID>();
-			for (MEventTypeRef eventTypeRef : resourceAdaptorType.getEventTypeRef()) {
-				this.eventTypeRefs.add(eventTypeRef.getComponentID());
+			for (EventTypeID eventTypeRef : resourceAdaptorType.getEventTypeRefs()) {
+				this.eventTypeRefs.add(eventTypeRef);
 			}
 			super.dependenciesSet.addAll(eventTypeRefs);
 

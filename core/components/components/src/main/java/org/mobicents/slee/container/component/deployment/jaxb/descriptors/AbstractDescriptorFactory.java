@@ -110,7 +110,7 @@ public abstract class AbstractDescriptorFactory {
 		{
 			throw new DeploymentException("Doctype not present in xml file or invalid. Document can not be recognized as valid descriptor nor parsed");
 		}
-		boolean isSlee11 = documentType.getSystemId().endsWith("_1_1.dtd");
+		boolean isSlee11 = documentType.getSystemId().endsWith("_1_1.dtd") || documentType.getSystemId().endsWith("_1_1-ext.dtd");
 		
 		// now we build the descriptor pojo with jaxb
 		Unmarshaller unmarshaller = getUnmarshaller(!isSlee11); 		

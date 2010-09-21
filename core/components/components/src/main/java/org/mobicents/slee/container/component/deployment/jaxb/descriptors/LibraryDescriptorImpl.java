@@ -2,8 +2,12 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.List;
 
+import javax.slee.EventTypeID;
+import javax.slee.SbbID;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
+import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MLibrary;
@@ -28,11 +32,24 @@ public class LibraryDescriptorImpl extends AbstractComponentWithLibraryRefsDescr
   
   public LibraryDescriptorImpl(MLibrary library, MSecurityPermissions mSecurityPermissions, boolean isSlee11) throws DeploymentException {
 	  super(isSlee11);
-	  super.setLibraryRefs(library.getLibraryRef());
+	  super.setLibraryRefs(library.getLibraryRefs());
 	  try {
 		  this.jars = library.getJar();
 		  this.securityPermissions = mSecurityPermissions == null ? null : mSecurityPermissions.getSecurityPermissionSpec();
 		  this.libraryID = new LibraryID(library.getLibraryName(), library.getLibraryVendor(),library.getLibraryVersion());
+		  // add other type deps
+		  for (EventTypeID eventTypeID : library.getEventTypeRefs()) {
+			  super.dependenciesSet.add(eventTypeID);
+		  }
+		  for (ProfileSpecificationID profileSpecificationID : library.getProfileSpecRefs()) {
+			  super.dependenciesSet.add(profileSpecificationID);
+		  }
+		  for (ResourceAdaptorTypeID raTypeID : library.getRaTypeRefs()) {
+			  super.dependenciesSet.add(raTypeID);
+		  }
+		  for (SbbID sbbID : library.getSbbRefs()) {
+			  super.dependenciesSet.add(sbbID);
+		  }
 	  }
 	  catch (Exception e) {
 		  throw new DeploymentException("Failed to build library descriptor", e);      

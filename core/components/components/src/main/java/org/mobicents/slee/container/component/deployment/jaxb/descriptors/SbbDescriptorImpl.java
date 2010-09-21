@@ -108,7 +108,7 @@ public class SbbDescriptorImpl extends AbstractComponentWithLibraryRefsDescripto
 			throws DeploymentException {
 		
 		super(isSlee11);
-		super.setLibraryRefs(sbb.getLibraryRef());
+		super.setLibraryRefs(sbb.getLibraryRefs());
 		
 		try {
 			this.sbbID = new SbbID(sbb.getSbbName(), sbb.getSbbVendor(), sbb

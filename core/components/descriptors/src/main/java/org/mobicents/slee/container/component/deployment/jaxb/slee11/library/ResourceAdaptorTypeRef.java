@@ -24,25 +24,23 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "description",
-    "libraryName",
-    "libraryVendor",
-    "libraryVersion"
+    "resourceAdaptorTypeName",
+    "resourceAdaptorTypeVendor",
+    "resourceAdaptorTypeVersion"
 })
-@XmlRootElement(name = "library-ref")
-public class LibraryRef {
+@XmlRootElement(name = "resource-adaptor-type-ref")
+public class ResourceAdaptorTypeRef {
 
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     protected String id;
-    protected Description description;
-    @XmlElement(name = "library-name", required = true)
-    protected LibraryName libraryName;
-    @XmlElement(name = "library-vendor", required = true)
-    protected LibraryVendor libraryVendor;
-    @XmlElement(name = "library-version", required = true)
-    protected LibraryVersion libraryVersion;
+    @XmlElement(name = "resource-adaptor-type-name", required = true)
+    protected ResourceAdaptorTypeName resourceAdaptorTypeName;
+    @XmlElement(name = "resource-adaptor-type-vendor", required = true)
+    protected ResourceAdaptorTypeVendor resourceAdaptorTypeVendor;
+    @XmlElement(name = "resource-adaptor-type-version", required = true)
+    protected ResourceAdaptorTypeVersion resourceAdaptorTypeVersion;
 
     /**
      * Gets the value of the id property.
@@ -69,99 +67,75 @@ public class LibraryRef {
     }
 
     /**
-     * Gets the value of the description property.
+     * Gets the value of the resourceAdaptorTypeName property.
      * 
      * @return
      *     possible object is
-     *     {@link Description }
+     *     {@link ResourceAdaptorTypeName }
      *     
      */
-    public Description getDescription() {
-        return description;
+    public ResourceAdaptorTypeName getResourceAdaptorTypeName() {
+        return resourceAdaptorTypeName;
     }
 
     /**
-     * Sets the value of the description property.
+     * Sets the value of the resourceAdaptorTypeName property.
      * 
      * @param value
      *     allowed object is
-     *     {@link Description }
+     *     {@link ResourceAdaptorTypeName }
      *     
      */
-    public void setDescription(Description value) {
-        this.description = value;
+    public void setResourceAdaptorTypeName(ResourceAdaptorTypeName value) {
+        this.resourceAdaptorTypeName = value;
     }
 
     /**
-     * Gets the value of the libraryName property.
+     * Gets the value of the resourceAdaptorTypeVendor property.
      * 
      * @return
      *     possible object is
-     *     {@link LibraryName }
+     *     {@link ResourceAdaptorTypeVendor }
      *     
      */
-    public LibraryName getLibraryName() {
-        return libraryName;
+    public ResourceAdaptorTypeVendor getResourceAdaptorTypeVendor() {
+        return resourceAdaptorTypeVendor;
     }
 
     /**
-     * Sets the value of the libraryName property.
+     * Sets the value of the resourceAdaptorTypeVendor property.
      * 
      * @param value
      *     allowed object is
-     *     {@link LibraryName }
+     *     {@link ResourceAdaptorTypeVendor }
      *     
      */
-    public void setLibraryName(LibraryName value) {
-        this.libraryName = value;
+    public void setResourceAdaptorTypeVendor(ResourceAdaptorTypeVendor value) {
+        this.resourceAdaptorTypeVendor = value;
     }
 
     /**
-     * Gets the value of the libraryVendor property.
+     * Gets the value of the resourceAdaptorTypeVersion property.
      * 
      * @return
      *     possible object is
-     *     {@link LibraryVendor }
+     *     {@link ResourceAdaptorTypeVersion }
      *     
      */
-    public LibraryVendor getLibraryVendor() {
-        return libraryVendor;
+    public ResourceAdaptorTypeVersion getResourceAdaptorTypeVersion() {
+        return resourceAdaptorTypeVersion;
     }
 
     /**
-     * Sets the value of the libraryVendor property.
+     * Sets the value of the resourceAdaptorTypeVersion property.
      * 
      * @param value
      *     allowed object is
-     *     {@link LibraryVendor }
+     *     {@link ResourceAdaptorTypeVersion }
      *     
      */
-    public void setLibraryVendor(LibraryVendor value) {
-        this.libraryVendor = value;
-    }
-
-    /**
-     * Gets the value of the libraryVersion property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link LibraryVersion }
-     *     
-     */
-    public LibraryVersion getLibraryVersion() {
-        return libraryVersion;
-    }
-
-    /**
-     * Sets the value of the libraryVersion property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link LibraryVersion }
-     *     
-     */
-    public void setLibraryVersion(LibraryVersion value) {
-        this.libraryVersion = value;
+    public void setResourceAdaptorTypeVersion(ResourceAdaptorTypeVersion value) {
+        this.resourceAdaptorTypeVersion = value;
     }
 
 }

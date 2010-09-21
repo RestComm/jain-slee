@@ -3,8 +3,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratyp
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import javax.slee.EventTypeID;
+import javax.slee.management.LibraryID;
 
 /**
  * 
@@ -22,9 +22,9 @@ public class MResourceAdaptorType {
   private String resourceAdaptorTypeName;
   private String resourceAdaptorTypeVendor;
   private String resourceAdaptorTypeVersion;
-  private List<MLibraryRef> libraryRef = new ArrayList<MLibraryRef>();;
+  private List<LibraryID> libraryRefs = new ArrayList<LibraryID>();
   private MResourceAdaptorTypeClasses resourceAdaptorTypeClasses;
-  private List<MEventTypeRef> eventTypeRef = new ArrayList<MEventTypeRef>();
+  private List<EventTypeID> eventTypeRefs = new ArrayList<EventTypeID>();
   
   public MResourceAdaptorType(org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorType resourceAdaptorType10)
   {
@@ -39,7 +39,7 @@ public class MResourceAdaptorType {
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.EventTypeRef eventTypeRef10 : resourceAdaptorType10.getEventTypeRef())
     {
-      this.eventTypeRef.add( new MEventTypeRef(eventTypeRef10) );
+      this.eventTypeRefs.add( new EventTypeID(eventTypeRef10.getEventTypeName().getvalue(),eventTypeRef10.getEventTypeVendor().getvalue(),eventTypeRef10.getEventTypeVersion().getvalue()) );
     }
   }
   
@@ -54,15 +54,16 @@ public class MResourceAdaptorType {
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.LibraryRef libraryRef11 : resourceAdaptorType11.getLibraryRef())
     {
-      this.libraryRef.add( new MLibraryRef(libraryRef11) );
+    	this.libraryRefs.add(new LibraryID(libraryRef11.getLibraryName()
+    			.getvalue(), libraryRef11.getLibraryVendor().getvalue(),
+    			libraryRef11.getLibraryVersion().getvalue()));
     }
     
     this.resourceAdaptorTypeClasses = new MResourceAdaptorTypeClasses(resourceAdaptorType11.getResourceAdaptorTypeClasses());
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.EventTypeRef eventTypeRef11 : resourceAdaptorType11.getEventTypeRef())
     {
-      this.eventTypeRef.add( new MEventTypeRef(eventTypeRef11) );
-    }
+    	this.eventTypeRefs.add( new EventTypeID(eventTypeRef11.getEventTypeName().getvalue(),eventTypeRef11.getEventTypeVendor().getvalue(),eventTypeRef11.getEventTypeVersion().getvalue()) );    }
   }
   
   public String getDescription()
@@ -85,9 +86,9 @@ public class MResourceAdaptorType {
     return resourceAdaptorTypeVersion;
   }
   
-  public List<MLibraryRef> getLibraryRef()
+  public List<LibraryID> getLibraryRefs()
   {
-    return libraryRef;
+    return libraryRefs;
   }
   
   public MResourceAdaptorTypeClasses getResourceAdaptorTypeClasses()
@@ -95,9 +96,9 @@ public class MResourceAdaptorType {
     return resourceAdaptorTypeClasses;
   }
   
-  public List<MEventTypeRef> getEventTypeRef()
+  public List<EventTypeID> getEventTypeRefs()
   {
-    return eventTypeRef;
+    return eventTypeRefs;
   }
   
 }

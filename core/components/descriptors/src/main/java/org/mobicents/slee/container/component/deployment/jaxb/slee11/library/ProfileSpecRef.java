@@ -25,24 +25,24 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "description",
-    "libraryName",
-    "libraryVendor",
-    "libraryVersion"
+    "profileSpecName",
+    "profileSpecVendor",
+    "profileSpecVersion"
 })
-@XmlRootElement(name = "library-ref")
-public class LibraryRef {
+@XmlRootElement(name = "profile-spec-ref")
+public class ProfileSpecRef {
 
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     protected String id;
     protected Description description;
-    @XmlElement(name = "library-name", required = true)
-    protected LibraryName libraryName;
-    @XmlElement(name = "library-vendor", required = true)
-    protected LibraryVendor libraryVendor;
-    @XmlElement(name = "library-version", required = true)
-    protected LibraryVersion libraryVersion;
+    @XmlElement(name = "profile-spec-name", required = true)
+    protected ProfileSpecName profileSpecName;
+    @XmlElement(name = "profile-spec-vendor", required = true)
+    protected ProfileSpecVendor profileSpecVendor;
+    @XmlElement(name = "profile-spec-version", required = true)
+    protected ProfileSpecVersion profileSpecVersion;
 
     /**
      * Gets the value of the id property.
@@ -93,75 +93,75 @@ public class LibraryRef {
     }
 
     /**
-     * Gets the value of the libraryName property.
+     * Gets the value of the profileSpecName property.
      * 
      * @return
      *     possible object is
-     *     {@link LibraryName }
+     *     {@link ProfileSpecName }
      *     
      */
-    public LibraryName getLibraryName() {
-        return libraryName;
+    public ProfileSpecName getProfileSpecName() {
+        return profileSpecName;
     }
 
     /**
-     * Sets the value of the libraryName property.
+     * Sets the value of the profileSpecName property.
      * 
      * @param value
      *     allowed object is
-     *     {@link LibraryName }
+     *     {@link ProfileSpecName }
      *     
      */
-    public void setLibraryName(LibraryName value) {
-        this.libraryName = value;
+    public void setProfileSpecName(ProfileSpecName value) {
+        this.profileSpecName = value;
     }
 
     /**
-     * Gets the value of the libraryVendor property.
+     * Gets the value of the profileSpecVendor property.
      * 
      * @return
      *     possible object is
-     *     {@link LibraryVendor }
+     *     {@link ProfileSpecVendor }
      *     
      */
-    public LibraryVendor getLibraryVendor() {
-        return libraryVendor;
+    public ProfileSpecVendor getProfileSpecVendor() {
+        return profileSpecVendor;
     }
 
     /**
-     * Sets the value of the libraryVendor property.
+     * Sets the value of the profileSpecVendor property.
      * 
      * @param value
      *     allowed object is
-     *     {@link LibraryVendor }
+     *     {@link ProfileSpecVendor }
      *     
      */
-    public void setLibraryVendor(LibraryVendor value) {
-        this.libraryVendor = value;
+    public void setProfileSpecVendor(ProfileSpecVendor value) {
+        this.profileSpecVendor = value;
     }
 
     /**
-     * Gets the value of the libraryVersion property.
+     * Gets the value of the profileSpecVersion property.
      * 
      * @return
      *     possible object is
-     *     {@link LibraryVersion }
+     *     {@link ProfileSpecVersion }
      *     
      */
-    public LibraryVersion getLibraryVersion() {
-        return libraryVersion;
+    public ProfileSpecVersion getProfileSpecVersion() {
+        return profileSpecVersion;
     }
 
     /**
-     * Sets the value of the libraryVersion property.
+     * Sets the value of the profileSpecVersion property.
      * 
      * @param value
      *     allowed object is
-     *     {@link LibraryVersion }
+     *     {@link ProfileSpecVersion }
      *     
      */
-    public void setLibraryVersion(LibraryVersion value) {
-        this.libraryVersion = value;
+    public void setProfileSpecVersion(ProfileSpecVersion value) {
+        this.profileSpecVersion = value;
     }
 
 }
