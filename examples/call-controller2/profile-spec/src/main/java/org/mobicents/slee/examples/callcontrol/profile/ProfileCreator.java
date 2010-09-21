@@ -158,7 +158,8 @@ public class ProfileCreator {
 				sci.invokeOperation("-removeProfileTable", profileTableName, null, null);
 			}catch(Exception e)
 			{
-				e.printStackTrace();
+				if(log.isDebugEnabled())
+					e.printStackTrace();
 			}
 			
 			// create profile table
