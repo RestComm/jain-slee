@@ -25,7 +25,7 @@
 
 
 		<!-- 1.1 -->
-		<dtd.file.name>slee-library-jar_1_1.dtd</dtd.file.name>
+		<dtd.file.name>slee-library-jar_1_1-ext.dtd</dtd.file.name>
 		<!--
 			
 			<dtd.file.name>slee-deployable-unit_1_1.dtd</dtd.file.name>
