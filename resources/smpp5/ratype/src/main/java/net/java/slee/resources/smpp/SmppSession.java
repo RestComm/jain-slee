@@ -9,11 +9,18 @@ import net.java.slee.resources.smpp.util.AbsoluteSMPPDate;
 import net.java.slee.resources.smpp.util.RelativeSMPPDate;
 
 /**
+ * In order to exchange short messages, a SMPP session must be established between the ESME and Message Centre or SMPP
+ * Routing Entity where appropriate.
  * 
  * @author amit bhayani
  */
 public interface SmppSession {
 
+	/**
+	 * Get the unique session ID.
+	 * 
+	 * @return
+	 */
 	public String getSessionId();
 
 	public String getSMSCHost();
