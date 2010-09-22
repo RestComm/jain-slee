@@ -119,8 +119,8 @@ public abstract class EchoSbb implements Sbb {
 		try {
 			this.logger = sbbContext.getTracer(EchoSbb.class.getSimpleName());
 			Context myEnv = (Context) new InitialContext().lookup("java:comp/env");
-			smppProvider = (SmppSession) myEnv.lookup("slee/resources/smpp/3.4/smppinterface");
-			smppAcif = (SmppTransactionACIFactory) myEnv.lookup("slee/resources/smpp/3.4/factoryprovider");
+			smppProvider = (SmppSession) myEnv.lookup("slee/resources/smpp/5.0/smppinterface");
+			smppAcif = (SmppTransactionACIFactory) myEnv.lookup("slee/resources/smpp/5.0/factoryprovider");
 		} catch (NamingException ne) {
 			logger.severe("Could not set SBB context:" + ne.getMessage());
 		}

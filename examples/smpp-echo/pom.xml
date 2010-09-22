@@ -32,7 +32,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.mobicents.resources</groupId>
-				<artifactId>smpp-ratype</artifactId>
+				<artifactId>smpp5-ratype</artifactId>
 				<version>${mobicents.resources.smpp.version}</version>
 			</dependency>
 		</dependencies>

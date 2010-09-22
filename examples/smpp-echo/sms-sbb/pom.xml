@@ -14,7 +14,7 @@
 
 	<dependencies>
 		<dependency>
-			<artifactId>smpp-ratype</artifactId>
+			<artifactId>smpp5-ratype</artifactId>
 			<groupId>org.mobicents.resources</groupId>
 			<version>${mobicents.resources.smpp.version}</version>
 		</dependency>
