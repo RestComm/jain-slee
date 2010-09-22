@@ -64,7 +64,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		out.println("    -a, --activate                 Activate a RA entity. Requires entity name as argument.");
 		out.println("    -d, --deactivate               Deactivate a RA entity. Requires entity name as argument.");
 		out.println("    -c, --create                   Creates a RA entity. Options specify mandatory arguments:");
-		out.println("          --entity-name            Specifies RA entity name to be used, requires argument. ");
+		out.println("          --entity-name            Specifies RA entity name to be used, requires entity name as argument. ");
 		out.println("          --ra-id                  Specifies ResourceAdaptorID to be used, requires argument. ");
 		out.println("          --config                 Specifies ConfigurationProperties to be used, requires argument. ");
 		out.println("    -r, --remove                   Removes a RA entity. Requires RA entity name as argument.");
@@ -356,7 +356,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 	private class CreateOperation extends AbstractOperation
 	{
 		
-		
+		//TODO: make config param optional
 		private static final char config='i';
 		private static final char ra_id='j';
 		
