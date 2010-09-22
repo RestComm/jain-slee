@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para>
+		An SMPP activity object represents a set of related events in an
+		SMPP resource. This RA Type defines the following Activity
+		objects:
+	</para>
+	<variablelist>
+		<varlistentry>
+			<term>SmppTransaction</term>
+			<listitem>
+				<para>
+					The SmppTransaction represents the message
+					submitted/received and corresponding message
+					response received/submitted. The Activity begins
+					when ResourceAdaptor receives a SMS Request and
+					fires the corresponding event to SBB and ends as
+					soon as listening SBB sends back Response.If there
+					is no SBB listening for this event, the timeout
+					occurs and Activity is killed. Other way is Activity
+					is started as soon as SBB sends SMS message and ends
+					once RA receives the message response or timeout
+					occurs, which ever is first. Class name is
+
+					<literal>
+						net.java.slee.resources.smpp.SmppTransaction
+					</literal>
+				</para>
+				<para>
+					New
+					<literal>SmppTransaction</literal>
+					Activity objects are created by calling
+					<literal>
+						SmppSession.sendRequest(SmppRequest request)
+					</literal>
+					This method is called by application that wants to
+					send new SMS message.
+				</para>
+
+				<para>
+					<literal>SmppTransaction</literal>
+					Activity objects are created automatically when the
+					resource adaptor receives an incoming SMS message.
+				</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+</section>

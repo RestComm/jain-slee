@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ra_logging_traces_and_alarms">
+
+	<title>Traces and Alarms</title>
+
+	<section id="ra_tracers">
+		<title>Tracers</title>
+		<para>
+			Each Resource Adaptor Entity uses a single JAIN SLEE 1.1
+			Tracer, named SmppResourceAdaptor.
+		</para>
+	</section>
+
+	<section id="ra_alarms">
+		<title>Alarms</title>
+		<para>
+			The RA raises an alarm identified as
+			<literal>SMSCALARM</literal>
+			if for some reason the link with SMSC is broken. This alarm
+			is cleared as soon as the RA is able to establish the link
+			again or if management clears the alarm explicitly.
+		</para>
+	</section>
+
+</section>
