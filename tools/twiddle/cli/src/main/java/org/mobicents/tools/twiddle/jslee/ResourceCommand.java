@@ -87,29 +87,29 @@ public class ResourceCommand extends AbstractSleeCommand {
 		//out.println("          --usage-mbean            Retrieves ObjectName of ResourceAdaptorUsageMBean. Requires entity name as argument.");
 //				
 //		
-//		out.println("arg:");
-//		out.println("");
-//		out.println("NOTE: Config property has general form of: (name:java.type=value) and array has different form, than in components: [(cnf.prop),(cnf.prop)]");
-//		out.println("     Configuration property array: [(remotePort:java.lang.Integer=40001),(localPort:java.lang.Integer=40000),(localHost:java.lang.String=127.0.0.1),(remoteHost:java.lang.String=127.0.0.1)]");
-//		out.println("     ResourceAdaptorEntityState: [INACTIVE|STOPPING|ACTIVE]");
-//		
-//		out.println("");
-//		out.println("Examples: ");
-//		out.println("");
-//		out.println("     1. Create RA Entity:");
-//		out.println("" + name + " -c --entity-name=SipRA --ra-id= --config=[(javax.sip.TRANSPORT:java.lang.String=UDP),(javax.sip.IP_ADDRESS:java.lang.String=),(javax.sip.PORT:java.lang.Integer=5060)]");
-//		out.println("");
-//		out.println("     2. Bind RA Entity to Link:");
-//		out.println("" + name + " -b --link-name=SipRALink --entity-name=SipRA");
-//		out.println("");
-//		out.println("     3. Get state of RA Entity:");
-//		out.println("" + name + " -g --state=SipRA");
-//		out.println("");
-//		out.println("     4 List all RA Entities in container:");
-//		out.println("" + name + " -l --ra-entities");
-//		out.println("");
-//		out.println("     5. List all RA Entities created from specific ResourceAdaptorID:");
-//		out.println("" + name + " -l --ra-entities=ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]");
+		out.println("arg:");
+		out.println("");
+		out.println("NOTE: Config property has general form of: (name:java.type=value) and array has different form, than in components: [(cnf.prop),(cnf.prop)]");
+		out.println("     Configuration property array: [(remotePort:java.lang.Integer=40001),(localPort:java.lang.Integer=40000),(localHost:java.lang.String=127.0.0.1),(remoteHost:java.lang.String=127.0.0.1)]");
+		out.println("     ResourceAdaptorEntityState: [INACTIVE|STOPPING|ACTIVE]");
+		
+		out.println("");
+		out.println("Examples: ");
+		out.println("");
+		out.println("     1. Create RA Entity:");
+		out.println("" + name + " -c --entity-name=SipRA --ra-id= --config=[(javax.sip.TRANSPORT:java.lang.String=UDP),(javax.sip.IP_ADDRESS:java.lang.String=),(javax.sip.PORT:java.lang.Integer=5060)]");
+		out.println("");
+		out.println("     2. Bind RA Entity to Link:");
+		out.println("" + name + " -b --link-name=SipRALink --entity-name=SipRA");
+		out.println("");
+		out.println("     3. Get state of RA Entity:");
+		out.println("" + name + " -g --state=SipRA");
+		out.println("");
+		out.println("     4 List all RA Entities in container:");
+		out.println("" + name + " -l --ra-entities");
+		out.println("");
+		out.println("     5. List all RA Entities created from specific ResourceAdaptorID:");
+		out.println("" + name + " -l --ra-entities=ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]");
 		out.flush();
 		
 	}

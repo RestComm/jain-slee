@@ -80,9 +80,9 @@ public class DeployCommand extends AbstractSleeCommand {
 		out.println("                                   It expects path as argument.");
 		out.println("    -u, --un-install               Un-install DU which is identified by given DeployableUnit ID. ");
 		out.println("                                   It expects DeployableUnit ID as argument.");
-		out.println("    -d, --duid                     Fetches Deployable Unit ID for given path.");
-		out.println("                                   Requires path as argument.");
-		out.println("    -s, --desc                     Fetches descriptors for given SLEE component. It supports following options:");
+		//out.println("    -d, --duid                     Fetches Deployable Unit ID for given path.");
+		//out.println("                                   Requires path as argument.");
+		out.println("    -d, --desc                     Fetches descriptors for given SLEE component. It supports following options:");
 		out.println("            --duid                 Operation fetches descriptors based on DeployableUnit ID passed as arg. Accepts array argument.");
 		out.println("                                   It expects DeployableUnit ID(single or array) as argument.");
 		out.println("            --cid                  Operation fetches descriptors based on Component ID passed as arg.");
@@ -125,7 +125,8 @@ public class DeployCommand extends AbstractSleeCommand {
 	 */
 	@Override
 	protected void processArguments(String[] args) throws CommandException {
-		String sopts = ":lyi:u:d:sr:"; 
+		//String sopts = ":lyi:u:d:sr:";
+		String sopts = ":lyi:u:dr:";
 		LongOpt[] lopts = {
 				new LongOpt("list", LongOpt.NO_ARGUMENT, null, 'l'),
 					//options
@@ -142,8 +143,8 @@ public class DeployCommand extends AbstractSleeCommand {
 					new LongOpt("duid", LongOpt.REQUIRED_ARGUMENT, null, IsInstalledOperation.duid),
 				new LongOpt("install", LongOpt.REQUIRED_ARGUMENT, null, 'i'),
 				new LongOpt("un-install", LongOpt.REQUIRED_ARGUMENT, null, 'u'),
-				new LongOpt("duid", LongOpt.REQUIRED_ARGUMENT, null, 'd'),
-				new LongOpt("desc", LongOpt.NO_ARGUMENT, null, 's'),
+				//new LongOpt("duid", LongOpt.REQUIRED_ARGUMENT, null, 'd'),
+				new LongOpt("desc", LongOpt.NO_ARGUMENT, null, 'd'),
 					//new LongOpt("cid", LongOpt.REQUIRED_ARGUMENT, null, GetDescriptorsOperation.cid),
 					//new LongOpt("duid", LongOpt.REQUIRED_ARGUMENT, null, GetDescriptorsOperation.duid),
 				new LongOpt("ref", LongOpt.REQUIRED_ARGUMENT, null, 'r'),
@@ -189,11 +190,11 @@ public class DeployCommand extends AbstractSleeCommand {
 				break;
 			case 'd':
 
-				super.operation = new DeployableUnitIDOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
+				//super.operation = new DeployableUnitIDOperation(super.context, super.log, this);
+				//super.operation.buildOperation(getopt, args);
 
-				break;
-			case 's':
+				//break;
+			//case 's':
 
 				super.operation = new GetDescriptorsOperation(super.context, super.log, this);
 				super.operation.buildOperation(getopt, args);
@@ -390,6 +391,7 @@ public class DeployCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
+			//TODO: add path resolution, check if its ./ and expand ?
 			addArg(opts.getOptarg(), String.class, false);
 		}
 		
@@ -398,6 +400,7 @@ public class DeployCommand extends AbstractSleeCommand {
 	private class IsInstalledOperation extends AbstractOperation {
 		public static final char duid = 'n';
 		public static final char cid = 'm';
+		//TODO: remove this, remove options and make String check for DUID prefix ?
 		private String stringDUID;
 		private String stringCID;
 
