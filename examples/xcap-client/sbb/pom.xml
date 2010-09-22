@@ -13,7 +13,7 @@
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>mobicents-slee-ra-xcap-client-ratype</artifactId>
-			<version>${pom.version}</version>
+			<version>${mobicents.resources.xcapclient.version}</version>
 		</dependency>
 		<dependency>
 			<artifactId>mobicents-slee-example-xcap-client-library</artifactId>

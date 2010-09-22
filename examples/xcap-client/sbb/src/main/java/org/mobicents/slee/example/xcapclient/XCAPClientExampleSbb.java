@@ -24,13 +24,12 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.mobicents.slee.resource.xcapclient.AsyncActivity;
 import org.mobicents.slee.resource.xcapclient.ResponseEvent;
 import org.mobicents.slee.resource.xcapclient.XCAPClientActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.xcapclient.XCAPClientResourceAdaptorSbbInterface;
 import org.mobicents.xcap.client.XcapResponse;
+import org.mobicents.xcap.client.auth.Credentials;
 import org.mobicents.xcap.client.uri.DocumentSelectorBuilder;
 import org.mobicents.xcap.client.uri.ElementSelectorBuilder;
 import org.mobicents.xcap.client.uri.UriBuilder;
@@ -65,7 +64,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 	
 	private String userName = "sip:bob@example.com";
 	private String documentName = "index";
-	private Credentials credentials = new UsernamePasswordCredentials(userName,"password");
+	private Credentials credentials;
 	
 	/**
 	 * Called when an sbb object is instantied and enters the pooled state.
@@ -78,6 +77,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		try {
 			myEnv = (Context) new InitialContext().lookup("java:comp/env");           
 			ra = (XCAPClientResourceAdaptorSbbInterface) myEnv.lookup("slee/resources/xcapclient/2.0/sbbrainterface");
+			credentials = ra.getCredentialsFactory().getHttpDigestCredentials(userName,"password");
 			acif = (XCAPClientActivityContextInterfaceFactory) myEnv.lookup("slee/resources/xcapclient/2.0/acif");  
 		}
 		catch (NamingException e) {
