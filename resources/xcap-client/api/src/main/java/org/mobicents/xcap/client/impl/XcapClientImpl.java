@@ -170,7 +170,7 @@ public class XcapClientImpl implements XcapClient {
 
 		if (log.isDebugEnabled()) {
 			log.debug("get(uri=" + uri + " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		return execute(new HttpGet(uri), additionalRequestHeaders, credentials);
@@ -192,7 +192,7 @@ public class XcapClientImpl implements XcapClient {
 			log.debug("put(uri=" + uri + ", mimetype=" + mimetype
 					+ ", content=" + content
 					+ " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		final HttpPut request = new HttpPut(uri);
@@ -217,7 +217,7 @@ public class XcapClientImpl implements XcapClient {
 			log.debug("putIfMatch(uri=" + uri + ", eTag=" + eTag
 					+ ", mimetype=" + mimetype + ", content=" + content
 					+ " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		final HttpPut request = new HttpPut(uri);
@@ -243,7 +243,7 @@ public class XcapClientImpl implements XcapClient {
 			log.debug("putIfNoneMatch(uri=" + uri + ", eTag=" + eTag
 					+ ", mimetype=" + mimetype + ", content=" + content
 					+ " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		final HttpPut request = new HttpPut(uri);
@@ -268,7 +268,7 @@ public class XcapClientImpl implements XcapClient {
 			log.debug("put(uri=" + uri + ", mimetype=" + mimetype
 					+ ", content=" + content
 					+ " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		final HttpPut request = new HttpPut(uri);
@@ -293,7 +293,7 @@ public class XcapClientImpl implements XcapClient {
 			log.debug("putIfMatch(uri=" + uri + ", eTag=" + eTag
 					+ ", mimetype=" + mimetype + ", content=" + content
 					+ " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		final HttpPut request = new HttpPut(uri);
@@ -318,7 +318,7 @@ public class XcapClientImpl implements XcapClient {
 			log.debug("putIfNoneMatch(uri=" + uri + ", eTag=" + eTag
 					+ ", mimetype=" + mimetype + ", content=" + content
 					+ " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		final HttpPut request = new HttpPut(uri);
@@ -339,7 +339,7 @@ public class XcapClientImpl implements XcapClient {
 
 		if (log.isDebugEnabled()) {
 			log.debug("delete(uri=" + uri + " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		return execute(new HttpDelete(uri), additionalRequestHeaders,
@@ -360,7 +360,7 @@ public class XcapClientImpl implements XcapClient {
 		if (log.isDebugEnabled()) {
 			log.debug("deleteIfMatch(uri=" + uri + ", eTag=" + eTag
 					+ " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		final HttpDelete request = new HttpDelete(uri);
@@ -382,7 +382,7 @@ public class XcapClientImpl implements XcapClient {
 		if (log.isDebugEnabled()) {
 			log.debug("deleteIfNoneMatch( uri = " + uri + " , eTag = " + eTag
 					+ " , additionalRequestHeaders = ( "
-					+ Arrays.asList(additionalRequestHeaders) + " ) )");
+					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
 		final HttpDelete request = new HttpDelete(uri);
