@@ -11,7 +11,6 @@
  * but not limited to the correctness, accuracy, reliability or
  * usefulness of the software.
  */
-
 package org.mobicents.jcc.inap;
 
 import java.util.ArrayList;
@@ -40,7 +39,6 @@ import org.mobicents.jcc.inap.address.JccCallingPartyNumber;
 import org.mobicents.jcc.inap.protocol.parms.CalledPartyBcdNumber;
 import org.mobicents.jcc.inap.protocol.parms.CalledPartyNumber;
 import org.mobicents.jcc.inap.protocol.parms.CallingPartyNumber;
-import org.mobicents.protocols.ss7.sccp.SccpProvider;
 import org.mobicents.protocols.ss7.tcap.TCAPStackImpl;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
@@ -56,59 +54,83 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
-
+import javax.naming.InitialContext;
+import org.mobicents.protocols.ss7.sccp.SccpProvider;
 
 /**
  *
  * @author Oleg Kulikov
  */
 public class JccInapProviderImpl implements JccProvider, TCListener {
+
     public final static int DEFAULT_POOL_SIZE = 10;
+    
     protected final static String name = "Java call control provider for INAP 1.1";
     
     protected ArrayList callListeners = new ArrayList();
     protected ArrayList connectionListeners = new ArrayList();
     
     private int state = JccProvider.OUT_OF_SERVICE;
+
+    private SccpProvider sccpProvider;
     
-    protected SccpProvider sccpProvider = null;
     protected TCAPStack tcapStack = null;
     protected TCAPProvider tcapProvider = null;
+    
     protected ConcurrentReaderHashMap calls = new ConcurrentReaderHashMap();
     protected ConcurrentReaderHashMap connections = new ConcurrentReaderHashMap();
     
     private Properties properties;
-    
     private PooledExecutor threadPool;
+    
     private Logger logger = Logger.getLogger(JccInapProviderImpl.class);
     
     private Thread monitor;
     private boolean stopped = false;
-    
+
     /** Creates a new instance of JccInapProviderImpl */
     public JccInapProviderImpl(Properties properties) {
         this.properties = properties;
+        
+        //check for SCCP jndi name
+        if (properties.getProperty("sccp.service") == null) {
+            throw new ProviderUnavailableException("SCCP service JNDI name not specified");
+        }
+        
+        //obtain SCCP service JNDI name
+        String jndiName = properties.getProperty("sccp.service");
+        
+        //obtain sccp service reference
+        logger.info("Accesing SCCP service...");
         try {
-        	this.tcapStack = new TCAPStackImpl();
-        	this.tcapStack.configure(properties);
+            InitialContext ic = new InitialContext();
+            sccpProvider = (SccpProvider) ic.lookup(jndiName);
+            logger.info("Sucssefully connected to SCCP service[" + jndiName + "]");
+        } catch (Exception e) {
+            throw new ProviderUnavailableException(e.getMessage());
+        }
+        
+        try {
+            this.tcapStack = new TCAPStackImpl(sccpProvider);
+            this.tcapStack.configure(properties);
             this.tcapProvider = this.tcapStack.getProvider();
             this.tcapProvider.addTCListener(this);
             this.tcapStack.start();
             //sccpProvider.setSccpListener(this);
             logger.info("Initialized SCCP provider");
-                        
+
             int poolSize = DEFAULT_POOL_SIZE;
             if (properties.getProperty("thread.pool.size") != null) {
                 try {
-                    poolSize = Integer.parseInt(properties.getProperty("thread.pool.size")); 
+                    poolSize = Integer.parseInt(properties.getProperty("thread.pool.size"));
                 } catch (NumberFormatException e) {
                     logger.warn("Use default pool size", e);
                 }
             }
-            
+
             threadPool = new PooledExecutor(poolSize);
             logger.info("Initialized thread pool");
-            
+
             state = JccProvider.IN_SERVICE;
             monitor = new Thread(new Monitor());
             monitor.start();
@@ -118,154 +140,153 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
             throw new ProviderUnavailableException(e.getMessage());
         }
     }
-    
+
     /**
      * (Non java-doc)
      *
      * @see javax.csapi.cc.jcc.JccProvier#addCallListener.
      */
     public void addCallListener(JccCallListener listener)
-    throws MethodNotSupportedException, ResourceUnavailableException {
+            throws MethodNotSupportedException, ResourceUnavailableException {
         callListeners.add(listener);
     }
-    
+
     /**
      * (Non java-doc)
      *
      * @see javax.csapi.cc.jcc.JccProvier#addCallLoadControlListener.
      */
     public void addCallLoadControlListener(CallLoadControlListener listener)
-    throws MethodNotSupportedException, ResourceUnavailableException {
+            throws MethodNotSupportedException, ResourceUnavailableException {
         throw new MethodNotSupportedException("Call load controll not supported");
     }
-    
+
     /**
      * (Non java-doc)
      *
      * @see javax.csapi.cc.jcc.JccProvier#addConnectionListener.
      */
     public void addConnectionListener(JccConnectionListener listener, EventFilter filter)
-    throws ResourceUnavailableException, MethodNotSupportedException {
+            throws ResourceUnavailableException, MethodNotSupportedException {
         Object[] ls = new Object[2];
         ls[0] = listener;
         ls[1] = new DefaultFilter();
         connectionListeners.add(ls);
     }
-    
+
     public void addProviderListener(JccProviderListener providerlistener)
-    throws ResourceUnavailableException, MethodNotSupportedException {
+            throws ResourceUnavailableException, MethodNotSupportedException {
         throw new MethodNotSupportedException();
     }
-    
+
     /**
      * (Non Java-doc).
      * @see javax.csapi.cc.jcc.JccProvider#createCall().
      */
     public JccCall createCall()
-    throws InvalidStateException, ResourceUnavailableException, PrivilegeViolationException, MethodNotSupportedException {
+            throws InvalidStateException, ResourceUnavailableException, PrivilegeViolationException, MethodNotSupportedException {
         return null;
     }
-    
+
     public EventFilter createEventFilterAddressRange(String lowAddress, String highAddress, int matchDisposition, int nomatchDisposition)
-    throws ResourceUnavailableException, InvalidArgumentException {
+            throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterAddressRegEx(String addressRegex, int matchDisposition, int nomatchDisposition)
-    throws ResourceUnavailableException, InvalidArgumentException {
+            throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterAnd(EventFilter[] filters, int nomatchDisposition)
-    throws ResourceUnavailableException, InvalidArgumentException {
+            throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterCauseCode(int causeCode, int matchDisposition, int nomatchDisposition)
-    throws ResourceUnavailableException, InvalidArgumentException {
+            throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterDestAddressRange(
             String lowDestAddress, String highDestAddress, int matchDisposition, int nomatchDisposition) throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterDestAddressRegEx(
             String destAddressRegex, int matchDisposition, int nomatchDisposition) throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterEventSet(
             int[] blockEvents, int[] notifyEvents) throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterMidCallEvent(
             int midCallType, String midCallValue, int matchDisposition, int nomatchDisposition) throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterMinimunCollectedAddressLength(
             int minimumAddressLength, int matchDisposition, int nomatchDisposition) throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterOr(
             EventFilter[] filters, int nomatchDisposition) throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterOrigAddressRange(
             String lowOrigAddress, String highOrigAddress, int matchDisposition, int nomatchDisposition) throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public EventFilter createEventFilterOrigAddressRegEx(
             String origAddressRegex, int matchDisposition, int nomatchDisposition) throws ResourceUnavailableException, InvalidArgumentException {
         return null;
     }
-    
+
     public JccAddress getAddress(String address) throws InvalidPartyException {
         return null;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public int getState() {
         return state;
     }
-    
+
     public void removeCallListener(JccCallListener calllistener) {
     }
-    
+
     public void removeCallLoadControlListener(CallLoadControlListener loadcontrollistener) {
     }
-    
+
     public void removeConnectionListener(JccConnectionListener connectionlistener) {
     }
-    
+
     public void removeProviderListener(JccProviderListener providerlistener) {
     }
-    
+
     public void setCallLoadControl(JccAddress[] address, double duration, double[] mechanism, int[] treatment) throws MethodNotSupportedException {
     }
-    
+
     public void shutdown() {
-    	this.stopped = true;
-    	this.callListeners.clear();
-    	this.connectionListeners.clear();
-    	this.calls.clear();
-    	this.connections.clear();
-    	this.threadPool.shutdownNow();
+        this.stopped = true;
+        this.callListeners.clear();
+        this.connectionListeners.clear();
+        this.calls.clear();
+        this.connections.clear();
+        this.threadPool.shutdownNow();
         //sccpProvider.shutdown();
         this.tcapStack.stop();
         this.state = JccProvider.SHUTDOWN;
         this.stopped = true;
     }
-    
 //    public void onMessage(SccpAddress calledPartyAddress, SccpAddress callingPartyAddress, byte[] data) {
 //    	logger.info(" Received MSG: "+data.length+" --> "+calledPartyAddress+" --> "+callingPartyAddress);
 //        ByteArrayInputStream in = new ByteArrayInputStream(data);
@@ -335,133 +356,127 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
 //        } catch (InterruptedException e) {
 //        }
 //    }
-    
 //    protected synchronized void send(SccpAddress calledParty, SccpAddress callingParty, TCMessage msg) throws IOException {
 //        sccpProvider.send(calledParty, callingParty,  msg.toByteArray());
 //        if (logger.isDebugEnabled()) {
 //            logger.debug("<-- " + msg);
 //        }
 //    }
-        
     protected JccCallImpl getCall(JccAddress callingNumber) {
         JccCallImpl call = (JccCallImpl) calls.get(callingNumber.getName());
         return call;
     }
-      
+
     protected AbstractConnection getConnection(long connectionID) {
         return (AbstractConnection) connections.get(new Long(connectionID));
     }
-    
+
     protected synchronized JccAddress createAddress(CalledPartyNumber cpn) {
         return new JccCalledPartyNumber(this, cpn);
     }
-    
+
     protected synchronized JccAddress createAddress(CalledPartyBcdNumber cpn) {
         return new JccCalledPartyBCDNumber(this, cpn);
     }
-    
+
     protected synchronized JccAddress createAddress(CallingPartyNumber cpn) {
         return new JccCallingPartyNumber(this, cpn);
     }
-    
+
     protected JccCallImpl createCall(JccAddress callingNumber) {
         return new JccCallImpl(this, callingNumber);
     }
-        
     //NOTE: for test, we are server, we dont care
-    
-    
     /* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.tcap.api.TCListener#dialogReleased(org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog)
-	 */
-	public void dialogReleased(Dialog d) {
-		logger.info("Dialog has been released. Id: "+d.getDialogId());
-		
-	}
+     * @see org.mobicents.protocols.ss7.tcap.api.TCListener#dialogReleased(org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog)
+     */
+    public void dialogReleased(Dialog d) {
+        logger.info("Dialog has been released. Id: " + d.getDialogId());
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onInvokeTimeout(org.mobicents.protocols.ss7.tcap.asn.comp.Invoke)
-	 */
-	public void onInvokeTimeout(Invoke tcInvokeRequest) {
-		logger.info("Invocation has timed out! ID: "+tcInvokeRequest.getInvokeId());
-		//this is called for local tc invoke
-		
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onTCBegin(org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCBeginIndication)
-	 */
-	public void onTCBegin(TCBeginIndication ind) {
-		logger.info("Received TC Begin! Dialog ID: "+ind.getDialog().getDialogId());
-		TCHandler handler = new TCHandler(this,this.tcapProvider, ind);
-		try {
-			threadPool.execute(handler);
-		} catch (InterruptedException e) {
-		}
-		
-	}
+    /* (non-Javadoc)
+     * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onInvokeTimeout(org.mobicents.protocols.ss7.tcap.asn.comp.Invoke)
+     */
+    public void onInvokeTimeout(Invoke tcInvokeRequest) {
+        logger.info("Invocation has timed out! ID: " + tcInvokeRequest.getInvokeId());
+    //this is called for local tc invoke
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onTCContinue(org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCContinueIndication)
-	 */
-	public void onTCContinue(TCContinueIndication ind) {
-		logger.info("Received TC Continue! Dialog ID: "+ind.getDialog().getDialogId());
-		TCHandler handler = new TCHandler(this,this.tcapProvider, ind);
-		try {
-			threadPool.execute(handler);
-		} catch (InterruptedException e) {
-		}
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onTCEnd(org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCEndIndication)
-	 */
-	public void onTCEnd(TCEndIndication ind) {
-		logger.info("Received TC End! Dialog ID: "+ind.getDialog().getDialogId());
-		TCHandler handler = new TCHandler(this, this.tcapProvider,ind);
-		try {
-			threadPool.execute(handler);
-		} catch (InterruptedException e) {
-		}
-	}
+    /* (non-Javadoc)
+     * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onTCBegin(org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCBeginIndication)
+     */
+    public void onTCBegin(TCBeginIndication ind) {
+        logger.info("Received TC Begin! Dialog ID: " + ind.getDialog().getDialogId());
+        TCHandler handler = new TCHandler(this, this.tcapProvider, ind);
+        try {
+            threadPool.execute(handler);
+        } catch (InterruptedException e) {
+        }
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onTCUni(org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCUniIndication)
-	 */
-	public void onTCUni(TCUniIndication ind) {
-		logger.info("Received TC Uni! Dialog ID: "+ind.getDialog().getDialogId());
-		
-	}
-	
+    }
 
-	public void onTCPAbort(TCPAbortIndication ind) {
-		logger.info("Received TC PAbort! Dialog ID: "+ind.getDialog().getDialogId());
-		TCHandler handler = new TCHandler(this, this.tcapProvider,ind);
-		try {
-			threadPool.execute(handler);
-		} catch (InterruptedException e) {
-		}
-		
-	}
+    /* (non-Javadoc)
+     * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onTCContinue(org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCContinueIndication)
+     */
+    public void onTCContinue(TCContinueIndication ind) {
+        logger.info("Received TC Continue! Dialog ID: " + ind.getDialog().getDialogId());
+        TCHandler handler = new TCHandler(this, this.tcapProvider, ind);
+        try {
+            threadPool.execute(handler);
+        } catch (InterruptedException e) {
+        }
+    }
 
-	public void onTCUserAbort(TCUserAbortIndication ind) {
-		logger.info("Received TC UAbort! Dialog ID: "+ind.getDialog().getDialogId());
-		TCHandler handler = new TCHandler(this, this.tcapProvider,ind);
-		try {
-			threadPool.execute(handler);
-		} catch (InterruptedException e) {
-		}
-		
-	}
+    /* (non-Javadoc)
+     * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onTCEnd(org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCEndIndication)
+     */
+    public void onTCEnd(TCEndIndication ind) {
+        logger.info("Received TC End! Dialog ID: " + ind.getDialog().getDialogId());
+        TCHandler handler = new TCHandler(this, this.tcapProvider, ind);
+        try {
+            threadPool.execute(handler);
+        } catch (InterruptedException e) {
+        }
+    }
 
+    /* (non-Javadoc)
+     * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onTCUni(org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCUniIndication)
+     */
+    public void onTCUni(TCUniIndication ind) {
+        logger.info("Received TC Uni! Dialog ID: " + ind.getDialog().getDialogId());
 
-	private class Monitor implements Runnable {
+    }
+
+    public void onTCPAbort(TCPAbortIndication ind) {
+        logger.info("Received TC PAbort! Dialog ID: " + ind.getDialog().getDialogId());
+        TCHandler handler = new TCHandler(this, this.tcapProvider, ind);
+        try {
+            threadPool.execute(handler);
+        } catch (InterruptedException e) {
+        }
+
+    }
+
+    public void onTCUserAbort(TCUserAbortIndication ind) {
+        logger.info("Received TC UAbort! Dialog ID: " + ind.getDialog().getDialogId());
+        TCHandler handler = new TCHandler(this, this.tcapProvider, ind);
+        try {
+            threadPool.execute(handler);
+        } catch (InterruptedException e) {
+        }
+
+    }
+
+    private class Monitor implements Runnable {
+
         @SuppressWarnings("static-access")
         public void run() {
             while (!stopped) {
                 try {
                     Thread.currentThread().sleep(60000);
-                    logger.info("active calls:" + calls.size() + 
+                    logger.info("active calls:" + calls.size() +
                             ", active connections: " + connections.size());
                 } catch (InterruptedException e) {
                     stopped = true;
@@ -469,8 +484,4 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
             }
         }
     }
-
-
-
-
 }
