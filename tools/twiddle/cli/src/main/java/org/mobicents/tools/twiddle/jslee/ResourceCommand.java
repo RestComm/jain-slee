@@ -97,7 +97,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 		out.println("Examples: ");
 		out.println("");
 		out.println("     1. Create RA Entity:");
-		out.println("" + name + " -c --entity-name=SipRA --ra-id= --config=[(javax.sip.TRANSPORT:java.lang.String=UDP),(javax.sip.IP_ADDRESS:java.lang.String=),(javax.sip.PORT:java.lang.Integer=5060)]");
+		out.println("" + name + " -c --entity-name=SipRA --ra-id=ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2] --config=[(javax.sip.TRANSPORT:java.lang.String=UDP),(javax.sip.IP_ADDRESS:java.lang.String=),(javax.sip.PORT:java.lang.Integer=5060)]");
 		out.println("");
 		out.println("     2. Bind RA Entity to Link:");
 		out.println("" + name + " -b --link-name=SipRALink --entity-name=SipRA");

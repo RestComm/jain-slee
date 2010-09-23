@@ -88,7 +88,7 @@ public class ProfileUsageCommand extends AbstractUsageCommand {
 	 */
 	@Override
 	protected void addHeaderDescription(PrintWriter out) {
-		out.println("usage: " + name + " <ProfileTableName> [SetName] <-operation[[arg] | [--option[=arg]]*]");
+		out.println("usage: " + name + " <ProfileTableName> [SetName] <-operation[[arg] | [--option[=arg]]*]>");
 	}
 
 }

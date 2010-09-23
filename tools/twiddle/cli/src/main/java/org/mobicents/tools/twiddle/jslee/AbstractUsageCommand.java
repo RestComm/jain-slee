@@ -102,11 +102,14 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		out.println("           --all                   Resets ALL parameters for 'ResourceName', ignores 'SetID'.");
 		out.println("    -c, --create                   Creates usage parameter set for given 'SetID'. Does not require argument.");
 		out.println("    -d, --delete                   Deletes usage parameter set with given 'SetID'. Does not require argument.");
-		out.println("    -n, --notify                   Turns on or off notification per usage parameter. Does not take parameter, requires options to specify name and value:");
-		out.println("           --name                  Specifies name of parameter. Requires parameter name as argument.");
-		out.println("           --value                 Specifies value of parameter. Requires boolean argument.");
-		out.println("    -i, --is-notify                Checks if notification is on for certain parameter in set. Following options are supported:");
+		out.println("    -n, --notify                   This operation either turn on/off notifications for parameter or queries about state of notifications.");
+		out.println("                                   Does not take parameter, supports following options:");
 		out.println("           --name                  Specifies name of parameter. Requires parameter name as argument. It is mandatory.");
+		out.println("           --value                 Specifies value of parameter. Requires boolean argument.");
+		out.println("           --is                    Request information about notification(if its enabled). Does not require argument.");
+		
+		//out.println("    -i, --is-notify                Checks if notification is on for certain parameter in set. Following options are supported:");
+		//out.println("           --name                  Specifies name of parameter. Requires parameter name as argument. It is mandatory.");
 		out.println("");
 		out.println("Examples: ");
 		addExamples(out);	
@@ -195,7 +198,8 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	@Override
 	protected void processArguments(String[] args) throws CommandException {
 
-		String sopts = "-:lgrcdni";
+		//String sopts = "-:lgrcdni";
+		String sopts = "-:lgrcdn";
 
 		LongOpt[] lopts = {
 
@@ -215,7 +219,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 				//mgmt
 				new LongOpt("notify", LongOpt.NO_ARGUMENT, null, 'n'),
 					new LongOpt("value", LongOpt.REQUIRED_ARGUMENT, null, NotifyOperation.value),
-				new LongOpt("is-notify", LongOpt.REQUIRED_ARGUMENT, null, 'i'),
+					new LongOpt("is-notify", LongOpt.NO_ARGUMENT, null, NotifyOperation.is),
 		};
 
 		Getopt getopt = new Getopt(null, args, sopts, lopts);
@@ -319,12 +323,12 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 				prepareCommand();
 				super.operation.buildOperation(getopt, args);
 				break;	
-			case 'i':
-				// check notify
-				super.operation = new IsNotifyOperation(super.context, super.log, this);
-				prepareCommand();
-				super.operation.buildOperation(getopt, args);
-				break;	
+//			case 'i':
+//				// check notify
+//				super.operation = new IsNotifyOperation(super.context, super.log, this);
+//				prepareCommand();
+//				super.operation.buildOperation(getopt, args);
+//				break;	
 				
 				
 			default:
@@ -726,8 +730,11 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	protected class NotifyOperation extends AbstractOperation
 	{
 		public static final char value = 'o';
-
+		public static final char is = 'i';
 		private Boolean booleanValue;
+		private String parameterName;
+		private boolean isIndicated = false;
+		
 		public NotifyOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			
@@ -754,8 +761,11 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
 								+ "\", cannot proceed. Parameter name must start with upper case: " + opt);
 					}
-					super.operationName = "set"+opt+"NotificationsEnabled";
+					parameterName = opt;
 					
+					break;
+				case is:
+					isIndicated = true;
 					break;
 				default:
 					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
@@ -764,20 +774,29 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 				}
 			}
 			
-			if(super.operationName == null)
+			if(parameterName == null)
 			{
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
 						+ "\", requires '--name' option to be present.");
-
 			}
-
-			if(this.booleanValue == null)
+			if( (booleanValue != null && isIndicated) ||(booleanValue == null && !isIndicated))
 			{
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-						+ "\", requires '--value' option to be present.");
-
+						+ "\", requires either '--is' or '--value'.");
 			}
-			addArg(booleanValue, boolean.class, false);
+			
+			if(isIndicated)
+			{
+				super.operationName = "get"+parameterName+"NotificationsEnabled";
+			}else
+			{
+				super.operationName = "set"+parameterName+"NotificationsEnabled";
+				addArg(booleanValue, boolean.class, false);
+			}
+			
+
+			
+			
 			//now we need mgmt bean
 			getSpecificUsageNotificationMBeanOName();
 			
@@ -786,52 +805,52 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		
 	}
 	
-	protected class IsNotifyOperation extends AbstractOperation
-	{
-
-		public IsNotifyOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
-			super(context, log, sleeCommand);
-			// TODO Auto-generated constructor stub
-		}
-
-		@Override
-		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			int code;
-			while ((code = opts.getopt()) != -1) {
-				switch (code) {
-				case ':':
-					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
-
-				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1] + " --> " + opts.getOptopt());
-
-				case GetOperation.name:
-					String opt = opts.getOptarg();//this is name of param
-					if(!Character.isUpperCase(opt.charAt(0)))
-					{
-						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-								+ "\", cannot proceed. Parameter name must start with upper case: " + opt);
-					}
-					super.operationName = "get"+opt+"NotificationsEnabled";
-					
-					break;
-				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
-
-				}
-			}
-			
-			if(super.operationName == null)
-			{
-				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-						+ "\", requires '--name' option to be present.");
-
-			}
-			//now we need mgmt bean
-			getSpecificUsageNotificationMBeanOName();
-			
-		}
-		
-	}
+//	protected class IsNotifyOperation extends AbstractOperation
+//	{
+//
+//		public IsNotifyOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
+//			super(context, log, sleeCommand);
+//			// TODO Auto-generated constructor stub
+//		}
+//
+//		@Override
+//		public void buildOperation(Getopt opts, String[] args) throws CommandException {
+//			int code;
+//			while ((code = opts.getopt()) != -1) {
+//				switch (code) {
+//				case ':':
+//					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+//
+//				case '?':
+//					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1] + " --> " + opts.getOptopt());
+//
+//				case GetOperation.name:
+//					String opt = opts.getOptarg();//this is name of param
+//					if(!Character.isUpperCase(opt.charAt(0)))
+//					{
+//						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+//								+ "\", cannot proceed. Parameter name must start with upper case: " + opt);
+//					}
+//					super.operationName = "get"+opt+"NotificationsEnabled";
+//					
+//					break;
+//				default:
+//					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+//							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
+//
+//				}
+//			}
+//			
+//			if(super.operationName == null)
+//			{
+//				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+//						+ "\", requires '--name' option to be present.");
+//
+//			}
+//			//now we need mgmt bean
+//			getSpecificUsageNotificationMBeanOName();
+//			
+//		}
+//		
+//	}
 }

@@ -95,6 +95,6 @@ public class ServiceUsageCommand extends AbstractUsageCommand {
 	 */
 	@Override
 	protected void addHeaderDescription(PrintWriter out) {
-		out.println("usage: " + name + " <ResourceName> [SbbID] [SetName] <-operation[[arg] | [--option[=arg]]*]");
+		out.println("usage: " + name + " <ServiceID> [SbbID] [SetName] <-operation[[arg] | [--option[=arg]]*]>");
 	}
 }

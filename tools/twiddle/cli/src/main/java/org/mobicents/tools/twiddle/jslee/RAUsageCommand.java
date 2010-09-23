@@ -32,7 +32,7 @@ public class RAUsageCommand extends AbstractUsageCommand {
 	 */
 	public RAUsageCommand() {
 		super(
-				"usage.ra",
+				"usage.resource",
 				"This command performs operations on JSLEE MBeans which are associated with usage parameter sets - be it specific MBean for parameter set, notifiaction management MBean...");
 	}
 
@@ -92,6 +92,6 @@ public class RAUsageCommand extends AbstractUsageCommand {
 	 */
 	@Override
 	protected void addHeaderDescription(PrintWriter out) {
-		out.println("usage: " + name + " <RAEntityName> [SetName] <-operation[[arg] | [--option[=arg]]*]");
+		out.println("usage: " + name + " <RAEntityName> [SetName] <-operation[[arg] | [--option[=arg]]*]>");
 	}
 }

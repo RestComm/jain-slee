@@ -244,7 +244,7 @@ public class TraceCommand extends AbstractSleeCommand {
 		private String stringCID;
 
 		private String stringNSRC;
-		private String stringName;
+		private String stringName; //TODO: allow ansence of name, to set default level? 
 
 		private String stringLevel;
 

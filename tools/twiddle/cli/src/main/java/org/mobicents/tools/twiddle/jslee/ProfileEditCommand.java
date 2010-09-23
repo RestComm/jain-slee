@@ -476,7 +476,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		}
 	}
 	private class SetAttributeOperation extends AbstractOperation {
-
+		//TODO: allow no value to indicate set(null);
 		public static final char name = 'n';
 		public static final char value = 'v';
 		

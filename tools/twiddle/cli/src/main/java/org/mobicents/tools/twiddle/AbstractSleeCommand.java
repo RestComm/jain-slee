@@ -67,6 +67,7 @@ public abstract class AbstractSleeCommand extends AbstractCommand {
 		//TODO: editor for facilities.Level
 		//TODO: editor for Address ?
 		//TODO: editor for ACH?
+		//TODO: add support for definition of editors + array editing.
 		PropertyEditorManager.registerEditor(ComponentID.class, ComponentIDPropertyEditor.class);
 		PropertyEditorManager.registerEditor(EventTypeID.class, ComponentIDPropertyEditor.class);
 		PropertyEditorManager.registerEditor(LibraryID.class, ComponentIDPropertyEditor.class);
