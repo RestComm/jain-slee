@@ -193,11 +193,12 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 			facilitiesCtx = (Context) sleeCtx.lookup("facilities");
 		}
 		
-		ProfileAlarmFacilityImpl alarmFacility = new ProfileAlarmFacilityImpl(this.sleeContainer.getAlarmManagement());
+		ProfileAlarmFacilityImpl alarmFacility = new ProfileAlarmFacilityImpl(this.sleeContainer.getAlarmManagement());		
 		// FIXME: Alexandre: This should be AlarmFacility.JNDI_NAME. Any problem if already bound?
 		try
 		{
 		  facilitiesCtx.bind("alarm", alarmFacility);
+		  component.setAlarmFacility(alarmFacility);
 		}
 		catch (NamingException e) {
       // ignore.

@@ -148,7 +148,8 @@ public class ConcreteActivityContextInterfaceGenerator {
 		if ("getActivity".equals(methodName) || "attach".equals(methodName)
 				|| "detach".equals(methodName) || "isEnding".equals(methodName)
 				|| "isAttached".equals(methodName)
-				|| "equals".equals(methodName) || "hashCode".equals(methodName)) {
+				|| "equals".equals(methodName) || "hashCode".equals(methodName)
+				|| "getNamesBound".equals(methodName) || "getTimers".equals(methodName)) {
 			return true;
 		} else {
 			return false;

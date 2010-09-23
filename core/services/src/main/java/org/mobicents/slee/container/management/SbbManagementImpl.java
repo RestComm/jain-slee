@@ -263,6 +263,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 			//This has to be checked, to be sure sbb have it under correct jndi binding
 			AlarmFacility sbbAlarmFacility = new SbbAlarmFacilityImpl(sbbComponent.getSbbID(),sleeContainer.getAlarmManagement());
 			newCtx.bind("alarm", sbbAlarmFacility);
+			sbbComponent.setAlarmFacility(sbbAlarmFacility);
 		} catch (NameAlreadyBoundException ex) {
 		}
 

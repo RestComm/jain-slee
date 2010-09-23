@@ -1,6 +1,8 @@
 package org.mobicents.slee.container.activity;
 
-public interface ActivityContextInterface extends javax.slee.ActivityContextInterface {
+import org.mobicents.slee.ActivityContextInterfaceExt;
+
+public interface ActivityContextInterface extends ActivityContextInterfaceExt {
 
 	public ActivityContext getActivityContext();
 	

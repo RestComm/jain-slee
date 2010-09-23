@@ -1,6 +1,5 @@
 package org.mobicents.slee.runtime.sbb;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,22 +7,34 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.InvalidArgumentException;
 import javax.slee.NotAttachedException;
 import javax.slee.SLEEException;
-import javax.slee.SbbContext;
 import javax.slee.SbbID;
 import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
+import javax.slee.facilities.ActivityContextNamingFacility;
+import javax.slee.facilities.AlarmFacility;
+import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.Tracer;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.SbbNotification;
+import javax.slee.management.UnrecognizedLinkNameException;
+import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
+import javax.slee.nullactivity.NullActivityFactory;
+import javax.slee.profile.ProfileFacility;
+import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
+import javax.slee.resource.ResourceAdaptorTypeID;
+import javax.slee.serviceactivity.ServiceActivityContextInterfaceFactory;
+import javax.slee.serviceactivity.ServiceActivityFactory;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.SbbContextExt;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectState;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
@@ -67,24 +78,20 @@ import org.mobicents.slee.container.transaction.SleeTransactionManager;
  * @author F. Moggia
  * @author Eduardo Martins
  */
-public class SbbContextImpl implements SbbContext, Serializable {
+public class SbbContextImpl implements SbbContextExt {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7746746092548069113L;
+	private static final Logger logger = Logger.getLogger(SbbContextImpl.class);
 
-	volatile private static Logger logger = Logger.getLogger(SbbContextImpl.class);
-
-	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	private static final SleeContainer sleeContainer = SleeContainer
+			.lookupFromJndi();
 
 	/** The SBB entity to which I am assigned. */
 	private final SbbObject sbbObject;
-	
+
 	/**
 	 * Notification source for this Sbb
 	 */
-	private NotificationSource notificationSource = null;
+	private final NotificationSource notificationSource;
 
 	/**
 	 * Creates a new instance of SbbContextImpl
@@ -93,26 +100,32 @@ public class SbbContextImpl implements SbbContext, Serializable {
 	 */
 	public SbbContextImpl(SbbObject sbbObject) {
 		this.sbbObject = sbbObject;
-		this.notificationSource = new SbbNotification(getService(),getSbb());
+		this.notificationSource = new SbbNotification(getService(), getSbb());
 	}
 
 	private static ActivityContextInterface[] EMPTY_ACI_ARRAY = {};
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see javax.slee.SbbContext#getActivities()
 	 */
-	public ActivityContextInterface[] getActivities() throws TransactionRequiredLocalException, IllegalStateException, SLEEException {
+	public ActivityContextInterface[] getActivities()
+			throws TransactionRequiredLocalException, IllegalStateException,
+			SLEEException {
 		if (logger.isTraceEnabled()) {
 			logger.trace("getActivities() " + this.sbbObject.getState());
 		}
 		if (SbbObjectState.READY != this.sbbObject.getState()) {
-			throw new IllegalStateException("Cannot call SbbContext.getActivities() in " + this.sbbObject.getState());
+			throw new IllegalStateException(
+					"Cannot call SbbContext.getActivities() in "
+							+ this.sbbObject.getState());
 		}
 		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
 		List<ActivityContextInterface> result = new ArrayList<ActivityContextInterface>();
 		ActivityContext ac = null;
-		for (ActivityContextHandle ach : sbbObject.getSbbEntity().getActivityContexts()) {
+		for (ActivityContextHandle ach : sbbObject.getSbbEntity()
+				.getActivityContexts()) {
 			ac = acf.getActivityContext(ach);
 			if (ac != null) {
 				result.add(ac.getActivityContextInterface());
@@ -121,24 +134,42 @@ public class SbbContextImpl implements SbbContext, Serializable {
 		return result.toArray(EMPTY_ACI_ARRAY);
 	}
 
-	public String[] getEventMask(ActivityContextInterface aci) throws NullPointerException, TransactionRequiredLocalException, IllegalStateException, NotAttachedException, SLEEException {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * javax.slee.SbbContext#getEventMask(javax.slee.ActivityContextInterface)
+	 */
+	public String[] getEventMask(ActivityContextInterface aci)
+			throws NullPointerException, TransactionRequiredLocalException,
+			IllegalStateException, NotAttachedException, SLEEException {
 		if (aci == null)
-			throw new NullPointerException("Activity Context Interface cannot be null.");
+			throw new NullPointerException(
+					"Activity Context Interface cannot be null.");
 		if (sbbObject == null || sbbObject.getState() != SbbObjectState.READY)
-			throw new IllegalStateException("Wrong state! " + (sbbObject == null ? null : sbbObject.getState()));
+			throw new IllegalStateException("Wrong state! "
+					+ (sbbObject == null ? null : sbbObject.getState()));
 
 		if (this.sbbObject.getSbbEntity() == null) {
-			throw new IllegalStateException("Wrong state! SbbEntity is not assigned");
+			throw new IllegalStateException(
+					"Wrong state! SbbEntity is not assigned");
 		}
 		sleeContainer.getTransactionManager().mandateTransaction();
-		ActivityContextHandle ach = ((org.mobicents.slee.container.activity.ActivityContextInterface) aci).getActivityContext().getActivityContextHandle();
+		ActivityContextHandle ach = ((org.mobicents.slee.container.activity.ActivityContextInterface) aci)
+				.getActivityContext().getActivityContextHandle();
 		if (!sbbObject.getSbbEntity().isAttached(ach))
 			throw new NotAttachedException("ACI not attached to SBB");
 
 		return sbbObject.getSbbEntity().getEventMask(ach);
 	}
 
-	public boolean getRollbackOnly() throws TransactionRequiredLocalException, SLEEException {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.SbbContext#getRollbackOnly()
+	 */
+	public boolean getRollbackOnly() throws TransactionRequiredLocalException,
+			SLEEException {
 		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
 		txMgr.mandateTransaction();
 		if (logger.isDebugEnabled()) {
@@ -151,38 +182,68 @@ public class SbbContextImpl implements SbbContext, Serializable {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.SbbContext#getSbb()
+	 */
 	public SbbID getSbb() throws SLEEException {
 		return this.sbbObject.getSbbComponent().getSbbID();
 	}
 
-	public SbbLocalObject getSbbLocalObject() throws TransactionRequiredLocalException, IllegalStateException, SLEEException {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.SbbContext#getSbbLocalObject()
+	 */
+	public SbbLocalObject getSbbLocalObject()
+			throws TransactionRequiredLocalException, IllegalStateException,
+			SLEEException {
 		sleeContainer.getTransactionManager().mandateTransaction();
-		
+
 		if (this.sbbObject.getState() != SbbObjectState.READY)
-			throw new IllegalStateException("Bad state : " + this.sbbObject.getState());
-		
+			throw new IllegalStateException("Bad state : "
+					+ this.sbbObject.getState());
+
 		return sbbObject.getSbbEntity().getSbbLocalObject();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.SbbContext#getService()
+	 */
 	public ServiceID getService() throws SLEEException {
 		// return this.sbbObject.getSbbEntity().getServiceId();
 		return this.sbbObject.getServiceID();
 	}
 
-	public void maskEvent(String[] eventNames, ActivityContextInterface aci) throws NullPointerException, TransactionRequiredLocalException, IllegalStateException, UnrecognizedEventException,
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.SbbContext#maskEvent(java.lang.String[],
+	 * javax.slee.ActivityContextInterface)
+	 */
+	public void maskEvent(String[] eventNames, ActivityContextInterface aci)
+			throws NullPointerException, TransactionRequiredLocalException,
+			IllegalStateException, UnrecognizedEventException,
 			NotAttachedException, SLEEException {
 		if (SbbObjectState.READY != this.sbbObject.getState()) {
-			throw new IllegalStateException("Cannot call SbbContext maskEvent in " + this.sbbObject.getState());
+			throw new IllegalStateException(
+					"Cannot call SbbContext maskEvent in "
+							+ this.sbbObject.getState());
 		}
 
 		if (this.sbbObject.getSbbEntity() == null) {
 			// this shouldnt happen since SbbObject state ready shoudl be set
 			// when its fully setup, but....
-			throw new IllegalStateException("Wrong state! SbbEntity is not assigned");
+			throw new IllegalStateException(
+					"Wrong state! SbbEntity is not assigned");
 		}
 
 		sleeContainer.getTransactionManager().mandateTransaction();
-		ActivityContextHandle ach = ((org.mobicents.slee.container.activity.ActivityContextInterface) aci).getActivityContext().getActivityContextHandle();
+		ActivityContextHandle ach = ((org.mobicents.slee.container.activity.ActivityContextInterface) aci)
+				.getActivityContext().getActivityContextHandle();
 
 		if (!sbbObject.getSbbEntity().isAttached(ach))
 			throw new NotAttachedException("ACI is not attached to SBB ");
@@ -190,30 +251,176 @@ public class SbbContextImpl implements SbbContext, Serializable {
 
 	}
 
-	/**
-	 * A setRollbackOnly method. The SBB Developer uses this method to mark the
-	 * transaction of the current method invocation for rollback. A
-	 * getRollbackOnly method. The SBB Developer uses this method to determine
-	 * if the transaction of the current method invocation has been marked for
-	 * rollback.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.SbbContext#setRollbackOnly()
 	 */
-	public void setRollbackOnly() throws TransactionRequiredLocalException, SLEEException {
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+	public void setRollbackOnly() throws TransactionRequiredLocalException,
+			SLEEException {
+		final SleeTransactionManager sleeTransactionManager = sleeContainer
+				.getTransactionManager();
 		sleeTransactionManager.mandateTransaction();
 		try {
 			sleeTransactionManager.setRollbackOnly();
 		} catch (SystemException e) {
-			throw new SLEEException("failed to mark tx for rollback",e);
+			throw new SLEEException("failed to mark tx for rollback", e);
 		}
 	}
 
-	public Tracer getTracer(String tracerName) throws NullPointerException, IllegalArgumentException, SLEEException {
-		
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.SbbContext#getTracer(java.lang.String)
+	 */
+	public Tracer getTracer(String tracerName) throws NullPointerException,
+			IllegalArgumentException, SLEEException {
+
 		try {
-			return sleeContainer.getTraceManagement().createTracer(this.notificationSource, tracerName, true);
+			return sleeContainer.getTraceManagement().createTracer(
+					this.notificationSource, tracerName, true);
 		} catch (InvalidArgumentException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	// SbbContextExt
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.SbbContextExt#getActivityContextInterfaceFactory(javax
+	 * .slee.resource.ResourceAdaptorTypeID)
+	 */
+	public Object getActivityContextInterfaceFactory(
+			ResourceAdaptorTypeID raTypeID) throws NullPointerException,
+			IllegalArgumentException {
+		if (raTypeID == null) {
+			throw new NullPointerException("null ra type id");
+		}
+		if (!sbbObject.getSbbComponent().getDependenciesSet().contains(raTypeID)) {
+			throw new IllegalArgumentException("ra type "+raTypeID+" not referred by the sbb.");
+		}
+		return sleeContainer.getComponentRepository().getComponentByID(raTypeID).getActivityContextInterfaceFactory();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.slee.SbbContextExt#getActivityContextNamingFacility()
+	 */
+	public ActivityContextNamingFacility getActivityContextNamingFacility() {
+		return sleeContainer.getActivityContextNamingFacility();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.slee.SbbContextExt#getAlarmFacility()
+	 */
+	public AlarmFacility getAlarmFacility() {
+		return sbbObject.getSbbComponent().getAlarmFacility();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.SbbContextExt#getNullActivityContextInterfaceFactory()
+	 */
+	public NullActivityContextInterfaceFactory getNullActivityContextInterfaceFactory() {
+		return sleeContainer.getNullActivityContextInterfaceFactory();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.slee.SbbContextExt#getNullActivityFactory()
+	 */
+	public NullActivityFactory getNullActivityFactory() {
+		return sleeContainer.getNullActivityFactory();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.slee.SbbContextExt#getProfileFacility()
+	 */
+	public ProfileFacility getProfileFacility() {
+		return sleeContainer.getSleeProfileTableManager().getProfileFacility();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.SbbContextExt#
+	 * getProfileTableActivityContextInterfaceFactory()
+	 */
+	public ProfileTableActivityContextInterfaceFactory getProfileTableActivityContextInterfaceFactory() {
+		return sleeContainer.getSleeProfileTableManager()
+				.getProfileTableActivityContextInterfaceFactory();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.SbbContextExt#getResourceAdaptorInterface(javax.slee
+	 * .resource.ResourceAdaptorTypeID, java.lang.String)
+	 */
+	public Object getResourceAdaptorInterface(ResourceAdaptorTypeID raTypeID,
+			String raLink) throws NullPointerException,
+			IllegalArgumentException {
+		if (raTypeID == null) {
+			throw new NullPointerException("null ra type id");
+		}
+		if (raLink == null) {
+			throw new NullPointerException("null ra link");
+		}
+		if (!sbbObject.getSbbComponent().getDependenciesSet().contains(raTypeID)) {
+			throw new IllegalArgumentException("ra type "+raTypeID+" not referred by the sbb.");
+		}
+		final ResourceManagement resourceManagement = sleeContainer.getResourceManagement();
+		
+		String raEntityName = null;
+		try {
+			raEntityName = resourceManagement.getResourceAdaptorEntityName(raLink);
+		} catch (UnrecognizedLinkNameException e) {
+			throw new IllegalArgumentException("ra link "+raLink+" not found.");
+		}
+		
+		return resourceManagement.getResourceAdaptorEntity(raEntityName).getResourceAdaptorInterface(raTypeID);
+		
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.SbbContextExt#getServiceActivityContextInterfaceFactory
+	 * ()
+	 */
+	public ServiceActivityContextInterfaceFactory getServiceActivityContextInterfaceFactory() {
+		return sleeContainer.getServiceManagement().getServiceActivityContextInterfaceFactory();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.slee.SbbContextExt#getServiceActivityFactory()
+	 */
+	public ServiceActivityFactory getServiceActivityFactory() {
+		return sleeContainer.getServiceManagement().getServiceActivityFactory();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.slee.SbbContextExt#getTimerFacility()
+	 */
+	public TimerFacility getTimerFacility() {
+		return sleeContainer.getTimerFacility();
 	}
 
 }

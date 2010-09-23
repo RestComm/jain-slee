@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
+import javax.slee.facilities.AlarmFacility;
 
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
 
@@ -213,4 +214,16 @@ public interface SbbComponent extends SleeComponentWithUsageParametersInterface 
 	 * @return true if the sbb component descriptor defines this sbb as reentrant
 	 */
 	public boolean isReentrant();
+	
+	/**
+	 * Retrieves the alarm facility bound to the sbb component
+	 * @return
+	 */
+	public AlarmFacility getAlarmFacility();
+	
+	/**
+	 * 
+	 * @param alarmFacility
+	 */
+	public void setAlarmFacility(AlarmFacility alarmFacility);
 }

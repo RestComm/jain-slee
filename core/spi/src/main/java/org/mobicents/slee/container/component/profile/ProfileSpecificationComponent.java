@@ -5,6 +5,7 @@ package org.mobicents.slee.container.component.profile;
 
 import java.util.Map;
 
+import javax.slee.facilities.AlarmFacility;
 import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileSpecificationID;
 
@@ -237,4 +238,15 @@ public interface ProfileSpecificationComponent extends SleeComponentWithUsagePar
 	 */
 	public void setProfileTableInterfaceClass(Class<?> c);
 	
+	/**
+	 * Retrieves the alarm facility bound to the profile spec component
+	 * @return
+	 */
+	public AlarmFacility getAlarmFacility();
+	
+	/**
+	 * Sets the alarm facility for the profile spec component.
+	 * @param alarmFacility
+	 */
+	public void setAlarmFacility(AlarmFacility alarmFacility);
 }

@@ -6,6 +6,7 @@ import javax.slee.SLEEException;
 import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.TransactionRolledbackLocalException;
+import javax.slee.facilities.TimerID;
 
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextInterface;
@@ -234,4 +235,21 @@ public class SbbActivityContextInterfaceImpl implements
 
 		return value;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.ActivityContextInterfaceExt#getNamesBound()
+	 */
+	public String[] getNamesBound() {
+		return aciImpl.getNamesBound();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.ActivityContextInterfaceExt#getTimers()
+	 */
+	public TimerID[] getTimers() {
+		return aciImpl.getTimers();
+	}
+	
 }

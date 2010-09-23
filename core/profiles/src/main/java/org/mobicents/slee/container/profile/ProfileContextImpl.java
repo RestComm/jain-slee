@@ -3,13 +3,14 @@ package org.mobicents.slee.container.profile;
 import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
+import javax.slee.facilities.AlarmFacility;
 import javax.slee.facilities.Tracer;
-import javax.slee.profile.ProfileContext;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileTable;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 
+import org.mobicents.slee.ProfileContextExt;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 
@@ -33,36 +34,35 @@ import org.mobicents.slee.runtime.facilities.TracerImpl;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileContextImpl implements ProfileContext {
+public class ProfileContextImpl implements ProfileContextExt {
 
 	private ProfileTableImpl profileTable = null;
 	private ProfileObjectImpl profileObject = null;
 
-	
-	public ProfileContextImpl(ProfileTableImpl profileTable)
-	{		
+	public ProfileContextImpl(ProfileTableImpl profileTable) {
 		if (profileTable == null) {
 			throw new NullPointerException("Parameters must not be null");
 		}
-		 
+
 		this.profileTable = profileTable;
-		
- 
+
 	}
 
-	public void setProfileObject(ProfileObjectImpl profileObject)
-	{
+	public void setProfileObject(ProfileObjectImpl profileObject) {
 		this.profileObject = profileObject;
 	}
 
-	// #################################
-	// # Striclty slee defined methods #
-	// #################################
 
-	public ProfileLocalObject getProfileLocalObject() throws IllegalStateException, SLEEException
-	{
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.profile.ProfileContext#getProfileLocalObject()
+	 */
+	public ProfileLocalObject getProfileLocalObject()
+			throws IllegalStateException, SLEEException {
 		// check state
-		if (profileObject == null || profileObject.getState() == ProfileObjectState.PROFILE_INITIALIZATION || profileObject.getProfileEntity() == null) {
+		if (profileObject == null
+				|| profileObject.getState() == ProfileObjectState.PROFILE_INITIALIZATION
+				|| profileObject.getProfileEntity() == null) {
 			throw new IllegalStateException();
 		}
 		// check if it is default profile
@@ -72,156 +72,131 @@ public class ProfileContextImpl implements ProfileContext {
 		return profileObject.getProfileLocalObject();
 	}
 
-	public String getProfileName() throws IllegalStateException, SLEEException
-	{
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.profile.ProfileContext#getProfileName()
+	 */
+	public String getProfileName() throws IllegalStateException, SLEEException {
 		doGeneralChecks();
-		
-		if (profileObject == null || profileObject.getState() == ProfileObjectState.PROFILE_INITIALIZATION || profileObject.getProfileEntity() == null) {
+
+		if (profileObject == null
+				|| profileObject.getState() == ProfileObjectState.PROFILE_INITIALIZATION
+				|| profileObject.getProfileEntity() == null) {
 			throw new IllegalStateException();
 		}
-		
-		return this.profileObject.getProfileEntity().getProfileName();		
+
+		return this.profileObject.getProfileEntity().getProfileName();
 	}
 
-	public ProfileTable getProfileTable() throws SLEEException
-	{
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.profile.ProfileContext#getProfileTable()
+	 */
+	public ProfileTable getProfileTable() throws SLEEException {
 		doGeneralChecks();
 		return this.profileTable;
 	}
 
-	public ProfileTable getProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, SLEEException {
-				
-		return this.profileTable.getSleeContainer().getSleeProfileTableManager().getProfileTable(profileTableName);
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.profile.ProfileContext#getProfileTable(java.lang.String)
+	 */
+	public ProfileTable getProfileTable(String profileTableName)
+			throws NullPointerException, UnrecognizedProfileTableNameException,
+			SLEEException {
+
+		return this.profileTable.getSleeContainer()
+				.getSleeProfileTableManager().getProfileTable(profileTableName);
 	}
 
-	public String getProfileTableName() throws SLEEException
-	{
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileContext#getProfileTableName()
+	 */
+	public String getProfileTableName() throws SLEEException {
 		doGeneralChecks();
-		
 		try {
 			return this.profileTable.getProfileTableName();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new SLEEException("Operaion failed.", e);
 		}
+		
 	}
 
-	/**
-	 * Test if the current transaction has been marked for rollback only. A
-	 * Profile object invokes this method while executing within a transaction
-	 * to determine if the transaction has been marked for rollback.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * This method is a mandatory transactional method.
-	 * 
-	 * @return true if the current transaction has been marked for rollback,
-	 *         false otherwise.
-	 * @throw TransactionRequiredLocalException - if this method is invoked
-	 *        without a valid transaction context.
-	 * @throw SLEEException - if the current state of the transaction could not
-	 *        be obtained due to a system-level failure.
+	 * @see javax.slee.profile.ProfileContext#getRollbackOnly()
 	 */
-	public boolean getRollbackOnly() throws TransactionRequiredLocalException, SLEEException
-	{
+	public boolean getRollbackOnly() throws TransactionRequiredLocalException,
+			SLEEException {
 		doGeneralChecks();
-
-		final SleeTransactionManager txMgr = profileTable.getSleeContainer().getTransactionManager();
+		final SleeTransactionManager txMgr = profileTable.getSleeContainer()
+				.getTransactionManager();
 		txMgr.mandateTransaction();
-
 		try {
 			return txMgr.getRollbackOnly();
-		}
-		catch (SystemException e) {
+		} catch (SystemException e) {
 			throw new SLEEException("Problem with the tx manager!");
 		}
 	}
 
-	/**
-   * Mark the current transaction for rollback. The transaction will become
-   * permanently marked for rollback. A transaction marked for rollback can
-   * never commit.
-   * 
-   * A Profile object invokes this method when it does not want the current
-   * transaction to commit.
-   * 
-   * This method is a mandatory transactional method.
-   * 
-   * @throw TransactionRequiredLocalException - if this method is invoked
-   *        without a valid transaction context.
-   * @throw SLEEException - if the current transaction could not be marked for
-   *        rollback due to a system-level failure.
-   */
-  public void setRollbackOnly() throws TransactionRequiredLocalException, SLEEException
-  {
-  	doGeneralChecks();
-  
-  	final SleeTransactionManager txMgr = profileTable.getSleeContainer().getTransactionManager();
-  	txMgr.mandateTransaction();
-  
-  	try {
-  		txMgr.setRollbackOnly();
-  	}
-  	catch (SystemException e) {
-  		throw new SLEEException("Problem with the tx manager!");
-  	}
-  }
-
-  /**
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * Get a tracer for the specified tracer name. The notification source used
-	 * by the tracer is a ProfileTableNotification that contains the profile
-	 * table name as identified by getProfileTableName().
-	 * 
-	 * Refer Tracer for a complete discussion on tracers and tracer names.
-	 * 
-	 * Trace notifications generated by a tracer obtained using this method are
-	 * of the type ProfileTableNotification.TRACE_NOTIFICATION_TYPE.
-	 * 
-	 * This method is a non-transactional method.
-	 * 
-	 * 
-	 * @parameter tracerName - the name of the tracer.
-	 * @return a tracer for the specified tracer name. Trace messages generated
-	 *         by this tracer will contain a notification source that is a
-	 *         ProfileTableNotification object containing a profile table name
-	 *         equal to that obtained from the getProfileTableName() method on
-	 *         this ProfileContext.
-	 * @throws java.lang.NullPointerException
-	 *             - if tracerName is null.
-	 * @throws java.lang.IllegalArgumentException
-	 *             - if tracerName is an invalid name. Name components within a
-	 *             tracer name must have at least one character. For example,
-	 *             "com.mycompany" is a valid tracer name, whereas
-	 *             "com..mycompany" is not.
-	 * @throws SLEEException
-	 *             - if the Tracer could not be obtained due to a system-level
-	 *             failure.
+	 * @see javax.slee.profile.ProfileContext#setRollbackOnly()
 	 */
-	public Tracer getTracer(String tracerName) throws NullPointerException, IllegalArgumentException, SLEEException
-	{
+	public void setRollbackOnly() throws TransactionRequiredLocalException,
+			SLEEException {
 		doGeneralChecks();
-		
+		final SleeTransactionManager txMgr = profileTable.getSleeContainer()
+				.getTransactionManager();
+		txMgr.mandateTransaction();
 		try {
-			TracerImpl.checkTracerName(tracerName, this.profileTable.getProfileTableNotification().getNotificationSource());
-		}
-		catch (InvalidArgumentException e1) {
-			throw new IllegalArgumentException(e1);
-		}
-
-		try {
-			return profileTable.getSleeContainer().getTraceManagement().createTracer(this.profileTable.getProfileTableNotification().getNotificationSource(), tracerName, true);
-		}
-		catch (Exception e) {
-			throw new SLEEException("Failed to obtain tracer",e);
+			txMgr.setRollbackOnly();
+		} catch (SystemException e) {
+			throw new SLEEException("Problem with the tx manager!");
 		}
 	}
 
-	private void doGeneralChecks()
-	{
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileContext#getTracer(java.lang.String)
+	 */
+	public Tracer getTracer(String tracerName) throws NullPointerException,
+			IllegalArgumentException, SLEEException {
+		doGeneralChecks();
+		try {
+			TracerImpl.checkTracerName(tracerName, this.profileTable
+					.getProfileTableNotification().getNotificationSource());
+		} catch (InvalidArgumentException e1) {
+			throw new IllegalArgumentException(e1);
+		}
+		try {
+			return profileTable.getSleeContainer().getTraceManagement()
+					.createTracer(
+							this.profileTable.getProfileTableNotification()
+									.getNotificationSource(), tracerName, true);
+		} catch (Exception e) {
+			throw new SLEEException("Failed to obtain tracer", e);
+		}
+	}
+
+	private void doGeneralChecks() {
 		if (this.profileTable == null)
 			throw new SLEEException("Profile table has not been set.");
-
 		if (this.profileTable.getProfileTableNotification() == null)
 			throw new SLEEException("Profile table has no notification source.");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.ProfileContextExt#getAlarmFacility()
+	 */
+	public AlarmFacility getAlarmFacility() {
+		return profileTable.getProfileSpecificationComponent().getAlarmFacility();
 	}
 
 }

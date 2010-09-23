@@ -4,6 +4,7 @@ import javax.slee.SLEEException;
 import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.TransactionRolledbackLocalException;
+import javax.slee.facilities.TimerID;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
@@ -216,8 +217,9 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 		}
 	}
 
-	/**
-	 * @see javax.slee.ActivityContextInterface#isAttached(SbbLocalObject)
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.ActivityContextInterface#isAttached(javax.slee.SbbLocalObject)
 	 */
 	public boolean isAttached(SbbLocalObject sbbLocalObject) throws NullPointerException,
 			TransactionRequiredLocalException,
@@ -244,4 +246,24 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 		}
 		throw new TransactionRolledbackLocalException("the sbbLocalObject argument must represent a valid SBB entity");
 	}
+	
+	private static final String[] EMPTY_STRING_ARRAY = {}; 
+	private static final TimerID[] EMPTY_TIMERID_ARRAY = {};
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.ActivityContextInterfaceExt#getNamesBound()
+	 */
+	public String[] getNamesBound() {
+		return activityContext.getNamingBindings().toArray(EMPTY_STRING_ARRAY);		
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.ActivityContextInterfaceExt#getTimers()
+	 */
+	public TimerID[] getTimers() {
+		return activityContext.getAttachedTimers().toArray(EMPTY_TIMERID_ARRAY);
+	}
+	
 }

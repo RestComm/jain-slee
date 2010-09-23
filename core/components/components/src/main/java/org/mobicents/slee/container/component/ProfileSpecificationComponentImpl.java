@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.facilities.AlarmFacility;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
@@ -132,6 +133,11 @@ public class ProfileSpecificationComponentImpl extends AbstractSleeComponentWith
 	 * info about the profile concrete class
 	 */
 	private ProfileConcreteClassInfo profileConcreteClassInfo = new ProfileConcreteClassInfoImpl();
+	
+	/**
+	 * the alarm facility for the profile spec
+	 */
+	private AlarmFacility alarmFacility;
 	
 	/**
 	 * 
@@ -553,5 +559,21 @@ public class ProfileSpecificationComponentImpl extends AbstractSleeComponentWith
 	@Override
 	public List<UsageParameterDescriptor> getUsageParametersList() {
 		return descriptor.getProfileUsageParameterInterface().getUsageParameter();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.component.profile.ProfileSpecificationComponent#getAlarmFacility()
+	 */
+	public AlarmFacility getAlarmFacility() {
+		return alarmFacility;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.component.profile.ProfileSpecificationComponent#setAlarmFacility(javax.slee.facilities.AlarmFacility)
+	 */
+	public void setAlarmFacility(AlarmFacility alarmFacility) {
+		this.alarmFacility = alarmFacility;
 	}
 }

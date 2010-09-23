@@ -21,6 +21,7 @@ import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.InitialEventSelector;
 import javax.slee.SbbID;
+import javax.slee.facilities.AlarmFacility;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
@@ -105,7 +106,15 @@ public class SbbComponentImpl extends AbstractSleeComponentWithUsageParametersIn
 	 */
 	private final AbstractSbbClassInfo abstractSbbClassInfo = new AbstractSbbClassInfoImpl();
 	
+	/**
+	 * flag whihc indicates if the sbb is allowed to be reentrant
+	 */
 	private final boolean reentrant;
+	
+	/**
+	 * the alarm facility for the sbb component
+	 */
+	private AlarmFacility alarmFacility;
 	
 	/**
 	 * 
@@ -475,5 +484,21 @@ public class SbbComponentImpl extends AbstractSleeComponentWithUsageParametersIn
 	 */
 	public boolean isReentrant() {
 		return reentrant;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.component.sbb.SbbComponent#getAlarmFacility()
+	 */
+	public AlarmFacility getAlarmFacility() {
+		return alarmFacility;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.component.sbb.SbbComponent#setAlarmFacility(javax.slee.facilities.AlarmFacility)
+	 */
+	public void setAlarmFacility(AlarmFacility alarmFacility) {
+		this.alarmFacility = alarmFacility;
 	}
 }
