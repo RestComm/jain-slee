@@ -4,160 +4,93 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.mobicents</groupId>
-		<artifactId>mobicents-parent</artifactId>
-		<version>2.10</version>
+		<groupId>org.mobicents.servers.jainslee.tools.twiddle</groupId>
+		<artifactId>cli-twiddle-parent</artifactId>
+		<version>1.0.0.BETA-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.mobicents.servers.jainslee.tools</groupId>
-	<artifactId>cli-twiddle</artifactId>
-	<version>1.0.0.BETA-SNAPSHOT</version>
 
-	<properties>
-		<mobicents.tools.mavenplugin.eclipse.version>
-			1.0.0.BETA2
-		</mobicents.tools.mavenplugin.eclipse.version>
-		<tool.directory>${project.build.directory}/cli</tool.directory>
-		<tool.directory.lib>${tool.directory}/lib</tool.directory.lib>
-		<!-- versions -->
-		<jboss.core.version>4.0.4.GA</jboss.core.version>
-		<jboss.jnp.version>5.0.3.GA</jboss.jnp.version>
-		<jboss.serialization.version>1.0.3.GA</jboss.serialization.version>
-		<jboss.concurrent.version>1.3.4-jboss-update1</jboss.concurrent.version> <!-- are those ppl sane? -->
-		<jboss.javaee.version>5.0.1.GA</jboss.javaee.version>
-		<jboss.security.version>2.0.3.SP1</jboss.security.version>
-		<mobicents.jslee.version>2.2.0-SNAPSHOT</mobicents.jslee.version>
-	</properties>
+	<artifactId>cli-twiddle</artifactId>
+
+
+	<name>Mobicents Twiddle CLI :: ${pom.artifactId}</name>
+
 
 
 	<dependencies>
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
 			<artifactId>jboss-as-console</artifactId>
-			<version>${jboss.version}</version>
-			<classifier>twiddle</classifier> <!-- classifier is damn important.... -->
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<artifactId>jmx-property-editors</artifactId>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
-			<version>${mobicents.jslee.version}</version>
 		</dependency>
 		<dependency>
 			<artifactId>activities</artifactId>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
-			<version>${mobicents.jslee.version}</version>
 		</dependency>
 		<dependency>
 			<artifactId>spi</artifactId>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
-			<version>${mobicents.jslee.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
-			<version>${jain-slee.version}</version>
 		</dependency>
 		<!-- move those to parent -->
 		<dependency>
 			<groupId>urbanophile</groupId>
 			<artifactId>java-getopt</artifactId>
-			<version>1.0.9</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>jboss.jbossas.core-libs</groupId>
 			<artifactId>jboss-jmx</artifactId>
-			<version>${jboss.core.version}</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>jboss.jbossas.core-libs</groupId>
 			<artifactId>jboss-common-client</artifactId>
-			<version>${jboss.core.version}</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.naming</groupId>
 			<artifactId>jnp-client</artifactId>
-			<version>${jboss.jnp.version}</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>oswego-concurrent</groupId>
 			<artifactId>concurrent</artifactId>
-			<version>${jboss.concurrent.version}</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
 			<artifactId>jboss-as-server</artifactId>
-			<version>${jboss.version}</version>
-			<classifier>jmx-invoker-adaptor-client</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
 			<artifactId>jboss-as-server</artifactId>
-			<classifier>client</classifier>
-			<version>${jboss.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jboss</groupId>
 			<artifactId>jboss-serialization</artifactId>
-			<version>${jboss.serialization.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
 			<artifactId>jboss-as-server</artifactId>
-			<classifier>jboss-minimal</classifier>
-			<version>${jboss.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.javaee</groupId>
 			<artifactId>jboss-javaee</artifactId>
-			<version>${jboss.javaee.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.security</groupId>
 			<artifactId>jboss-security-spi</artifactId>
-			<version>${jboss.security.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.integration</groupId>
 			<artifactId>jboss-transaction-spi</artifactId>
-			<version>${jboss.version}</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<groupId>org.mobicents.tools</groupId>
-				<version>
-					${mobicents.tools.mavenplugin.eclipse.version}
-				</version>
-				<inherited>false</inherited>
-				<executions />
-				<configuration>
-					<classpathExcludes>
-						<exclude>xml-apis:xml-apis</exclude>
-						<exclude>jtidy:jtidy</exclude>
-					</classpathExcludes>
-					<resolveTransitiveDependencies>
-						true
-					</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-tools-twiddle</eclipseProjectName>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.1</version>
