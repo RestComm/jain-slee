@@ -12,6 +12,7 @@
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Chapter-Design_Overview.xml" />
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Chapter-JMX_Editors.xml" />
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Chapter-Commands.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Chapter-Commands_Extended.xml" />
 	
 	
 	<xi:include href="Revision_History.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />

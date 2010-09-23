@@ -25,12 +25,12 @@ import javax.management.ObjectName;
  * @author baranowb
  * 
  */
-public class RAUsageCommand extends AbstractUsageCommand {
+public class ResourceUsageCommand extends AbstractUsageCommand {
 
 	/**
 	 * 
 	 */
-	public RAUsageCommand() {
+	public ResourceUsageCommand() {
 		super(
 				"usage.resource",
 				"This command performs operations on JSLEE MBeans which are associated with usage parameter sets - be it specific MBean for parameter set, notifiaction management MBean...");

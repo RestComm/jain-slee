@@ -1,0 +1,271 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<section id="router.stats">
+
+	<title>router.stats</title>
+	<para>
+		<literal>activity</literal>
+		command interacts with
+		<literal>org.mobincets.slee:name=EventRouterStatistics</literal>
+		Bean. It is non standard
+		<acronym>SLEE</acronym>
+		MBean.
+		<literal>router.stats</literal>
+		allows to access statistics information of router and container
+		executors. Note time statistics are measured in miliseconds. It
+		supports following operations:
+	</para>
+	<table frame="all" pgwide="1">
+		<title>
+			Operations table for
+			<literal>router.stats</literal>
+			command
+		</title>
+		<tgroup colsep="1" cols="5">
+			<colspec colnum="1" colname="c0" />
+			<colspec colnum="2" colname="c1" />
+			<colspec colnum="3" colname="c2" />
+			<colspec colnum="4" colname="c3" />
+			<thead>
+				<row>
+					<entry>Operation</entry>
+					<entry>Short form</entry>
+					<entry>Long form</entry>
+					<entry>Argument</entry>
+					<entry>Options</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>mapped-activities</entry>
+					<entry>-m</entry>
+					<entry>--mapped-activities</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>avg-time</entry>
+					<entry>-a</entry>
+					<entry>--avg-time</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>events-routed</entry>
+					<entry>-r</entry>
+					<entry>--events-routed</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>executed-tasks</entry>
+					<entry>-e</entry>
+					<entry>--executed-tasks</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>idle-time</entry>
+					<entry>-i</entry>
+					<entry>--idle-time</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>misc-tasks</entry>
+					<entry>-c</entry>
+					<entry>--misc-tasks</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>executing-time</entry>
+					<entry>-t</entry>
+					<entry>--executing-time</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>misc-executing-time</entry>
+					<entry>-x</entry>
+					<entry>--misc-executing-time</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>routing-time</entry>
+					<entry>-o</entry>
+					<entry>--routing-time</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>print-all</entry>
+					<entry>-p</entry>
+					<entry>--print-all</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+				</row>
+
+			</tbody>
+		</tgroup>
+	</table>
+	<section id="router.stats_mapped_activities">
+		<title>mapped-activities</title>
+		<para>
+			<literal>mapped-activities</literal>
+			operation checks how many activities are mapped to certain executor.
+			It requires integer number as argument, representing executor
+			index(starting from 0).
+
+		</para>
+	</section>
+	<section id="router.stats_avg_time">
+		<title>avg-time</title>
+		<para>
+			<literal>avg-time</literal>
+			operation return avarage time spent on routing certain event type. It
+			does not support argument. It requires
+			<replaceable>--eventTypeId</replaceable>
+			optin to be present.
+			It support following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--eventTypeId
+				</term>
+				<listitem>
+					<para>specifies event type for which avarage time should be
+						fetched. It is mandatory. It requires valid EventTypeID as
+						argument.</para>
+					<example>
+						<title>Get avarage time in all executors</title>
+						<screen>./twiddle.sh router.stats --avg-time --eventTypeId=EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]</screen>
+					</example>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--executor
+				</term>
+				<listitem>
+					<para>optional option. Indicates executor index for which statistic
+						should be fetched.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+
+	</section>
+	<section id="router.stats_events_routed">
+		<title>events-routed</title>
+		<para>
+			<literal>events-routed</literal>
+			operation allows to retrieve information about number of routed
+			events. It does not support argument. It requires
+			<replaceable>--eventTypeId</replaceable>
+			optin to be present.
+			It support following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--eventTypeId
+				</term>
+				<listitem>
+					<para>specifies event type for which number should be fetched. It
+						is mandatory. It requires valid EventTypeID as argument.</para>
+					<example>
+						<title>Get number of routed events in all executors</title>
+						<screen>./twiddle.sh router.stats --events-routed --eventTypeId=EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]</screen>
+					</example>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--executor
+				</term>
+				<listitem>
+					<para>optional option. Indicates executor index for which statistic
+						should be fetched.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>
+	<section id="router.stats_executed_tasks">
+		<title>executed-tasks</title>
+		<para>
+			<literal>executed-tasks</literal>
+			operation returns number of executed tasks. If no argument is
+			specified it will return total count. If executor index is specified
+			it will return task count for particular executor.
+		</para>
+	</section>
+
+	<section id="router.stats_idle_time">
+		<title>idle-time</title>
+		<para>
+			<literal>idle-time</literal>
+			operation return time in which executor was idle. Requires exeutor indes as argument(starting from 0).
+		</para>
+	</section>
+	<section id="router.stats_misc_tasks">
+		<title>misc-tasks</title>
+		<para>
+			<literal>misc-tasks</literal>
+			operation returns number of non routing tasks performed by container. If optional argument is present(executor index), operation returns number for particular executor.
+		</para>
+	</section>
+	<section id="router.stats_routing_time">
+		<title>routing-time</title>
+		<para>
+			<literal>routing-time</literal>
+			operation returns time spent on routing of events. If optional argument is specified(executor index), operation returns time spent on routing by particular executor. It support following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--eventTypeId
+				</term>
+				<listitem>
+					<para>specifies event type for which number should be fetched. It
+						is mandatory. It requires valid EventTypeID as argument.</para>
+					<example>
+						<title>Get number of routed events in all executors</title>
+						<screen>./twiddle.sh router.stats --routing-time --eventTypeId=EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]</screen>
+					</example>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--executor
+				</term>
+				<listitem>
+					<para>optional option. Indicates executor index for which statistic
+						should be fetched.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>
+	<section id="router.stats_executing_time">
+		<title>executing-time</title>
+		<para>
+			<literal>executing-time</literal>
+			operation returns time spent on executing tasks. If optional argument is specified(executor index), operation returns time spent on routing by particular executor.
+		</para>
+	</section>
+	<section id="router.stats_misc_executing_time">
+		<title>misc-executing-time</title>
+		<para>
+			<literal>misc-executing-time</literal>
+			operation returns time spent on executing non routing tasks. If optional argument is specified(executor index), operation returns time spent on routing by particular executor.
+		</para>
+	</section>
+	<section id="router.stats_print_all">
+		<title>print-all</title>
+		<para>
+			<literal>print-all</literal>
+			operation prints all statistics. Does not support argument nor options.
+		</para>
+		
+	</section>
+	
+	
+</section>	
+	
+
+
