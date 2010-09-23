@@ -339,14 +339,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		if (tracer.isInfoEnabled()) {
 			tracer.info(String.valueOf(ct)+" sending request:\n"+request);
 		}
-		final ClientTransactionWrapper ctw = (ClientTransactionWrapper)ct;
-		if (ctw.isActivity()) {
-			// the ctw was created out of the dialog, can't use dialog to send or cseq will be incremented
-			ctw.getWrappedClientTransaction().sendRequest();
-		}
-		else {
-			wrappedDialog.sendRequest(ctw.getWrappedClientTransaction());
-		}
+		wrappedDialog.sendRequest(((ClientTransactionWrapper)ct).getWrappedClientTransaction());		
 	}
 	
 	/*

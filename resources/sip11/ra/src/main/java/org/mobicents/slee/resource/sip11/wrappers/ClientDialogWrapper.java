@@ -489,9 +489,10 @@ public class ClientDialogWrapper extends DialogWrapper {
 			// dialog in null state does not allows to send request
 			ctw.getWrappedClientTransaction().sendRequest();			
 		} else {
-			if (ctw.isActivity()) {
-				// the ctw was created out of the dialog, can't use dialog to send or cseq will be incremented
-				ctw.getWrappedClientTransaction().sendRequest();
+			if (wrappedDialog.getState() == null) {
+				// first request,  a bug in jsip first sets local seq number to the one in request, then increases before sending
+				// needs to use ct to send instead
+				ctw.getWrappedClientTransaction().sendRequest();				
 			}
 			else {
 				wrappedDialog.sendRequest(ctw.getWrappedClientTransaction());
