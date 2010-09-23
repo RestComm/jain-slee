@@ -32,8 +32,8 @@
 		<docs.profile>mobicents</docs.profile>
 		
 		<stream.version>1.0.0.BETA1</stream.version>
-		<tcap.version>1.0.0.BETA2</tcap.version>
-		<sccp.version>1.0.0.BETA2</sccp.version>
+		<tcap.version>1.0.0.BETA3</tcap.version>
+		<sccp.version>1.0.0.BETA3</sccp.version>
 		<asn.version>1.0.0.BETA2</asn.version>
 		<mtp.version>1.0.0.BETA3</mtp.version>
 		
@@ -68,7 +68,7 @@
 				<artifactId>jcc</artifactId>
 				<version>${version.jcc}</version>
 			</dependency>
-			<dependency>
+			<!-- dependency>
 				<artifactId>stream</artifactId>
 				<groupId>org.mobicents.protocols.stream</groupId>
 				<version>${stream.version}</version>
@@ -102,7 +102,7 @@
 				<groupId>org.mobicents.protocols.asn</groupId>
 				<artifactId>asn</artifactId>
 				<version>${asn.version}</version>
-			</dependency>
+			</dependency -->
 		</dependencies>
 	</dependencyManagement>
 
