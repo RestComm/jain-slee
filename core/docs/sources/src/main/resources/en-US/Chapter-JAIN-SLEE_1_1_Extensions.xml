@@ -10,6 +10,10 @@
 	
 	<para>The extensions were discussed among multiple <acronym>JAIN SLEE</acronym> vendors, and should become part of the standard in next revision, but there is no guarantee that portability won't be lost when using those.</para>
 	
+	<para>The extensions source code is available in the Mobicents Community SVN, specifically at <ulink url="http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/api/extensions/1.0.0.BETA1"/>. The setup for the source project in Eclipse IDE is similar to the container core, as seen in  <xref linkend="eclipse_ide"/>.</para>
+	
+	<para>Java archives (JARs) with compiled classes, javadocs and sources are available in the JBoss Maven Repository at <ulink url="http://repository.jboss.org/nexus/content/groups/public/org/mobicents/servers/jainslee/api/jain-slee-11-ext/1.0.0.BETA1/"/></para>
+	
 	<xi:include href="Section-Extension_Library_References.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
 	<!-- 		
