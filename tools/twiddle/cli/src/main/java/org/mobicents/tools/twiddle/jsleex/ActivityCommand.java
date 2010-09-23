@@ -67,10 +67,10 @@ public class ActivityCommand extends AbstractSleeCommand {
 		out.println("    		--factories              Lists activity context factories. Does not require argument.");
 		out.println("    		--contexts               Lists contexts present in container. It takes optional boolean argument. If argument is set to true information about context is detailed.");
 		out.println("    		--id-by-activity-type    List IDs of activity context based on activity class name. Requires FQN class name of activity as argument.");
-		out.println("    		--id-ra-entity           List IDs of activity context based on RA entity name. Requires entity name as argument.");
+		out.println("    		--id-by-ra-entity        List IDs of activity context based on RA entity name. Requires entity name as argument.");
 		out.println("    		--id-by-sbb-id           List IDs of activity context based on SBB ID. Requires SBB ID as argument.");
-		out.println("    		--id-by-sbbe-id          List IDs of activity context based on SBB entity ID. Requires SBB entity ID as argument.");
-		out.println("    -e, --end                       Ends explicitly activity. Requires ActivityContextHandle as argument.");
+		//out.println("    		--id-by-sbbe-id          List IDs of activity context based on SBB entity ID. Requires SBB entity ID as argument.");
+		//out.println("    -e, --end                       Ends explicitly activity. Requires ActivityContextHandle as argument.");
 		//out.println("arg:");
 		//out.println("");
 		//out.println("");
@@ -112,9 +112,9 @@ public class ActivityCommand extends AbstractSleeCommand {
 					new LongOpt("factories", LongOpt.NO_ARGUMENT, null, ListOperation.factories),
 					new LongOpt("contexts", LongOpt.OPTIONAL_ARGUMENT, null, ListOperation.contexts),
 					new LongOpt("id-by-activity-type", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.activityType),
-					new LongOpt("id-ra-entity", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.raEntity),
+					new LongOpt("id--by-ra-entity", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.raEntity),
 					new LongOpt("id-by-sbb-id", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.sbbID),
-					new LongOpt("id-by-sbbe-id", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.sbbEID),
+					//new LongOpt("id-by-sbbe-id", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.sbbEID),
 				//new LongOpt("end", LongOpt.REQUIRED_ARGUMENT, null, 'e'),
 
 		};
@@ -366,11 +366,11 @@ public class ActivityCommand extends AbstractSleeCommand {
 				case '?':
 					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
-				case sbbEID:
-					super.operationName = retrieveActivityContextIDBySbbEntityID;
-					optArg = opts.getOptarg();		
-					addArg(optArg, String.class, false);
-										break;
+//				case sbbEID:
+//					super.operationName = retrieveActivityContextIDBySbbEntityID;
+//					optArg = opts.getOptarg();		
+//					addArg(optArg, String.class, false);
+//										break;
 				case sbbID:
 					super.operationName = retrieveActivityContextIDBySbbID;
 					optArg = opts.getOptarg();
