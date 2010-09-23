@@ -1,0 +1,129 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<section id="alarm">
+
+	<title>alarm</title>
+	<para><literal>alarm</literal> command interacts with
+		<literal>javax.slee.management:name=Alarm</literal> Bean. It is standard
+		<acronym>SLEE</acronym>
+		MBean. <literal>alarm</literal> command allows to manage alarms, for instance check for existence or remove. 
+		   . It supports following operations:</para>
+		<table frame="all" pgwide="1">
+			<title>Operations table for <literal>alarm</literal> command</title>
+			<tgroup colsep="1" cols="5">
+				<colspec colnum="1" colname="c0" />
+				<colspec colnum="2" colname="c1" />
+				<colspec colnum="3" colname="c2" />
+				<colspec colnum="4" colname="c3" />
+				<thead>
+					<row>
+						<entry>Operation</entry>
+						<entry>Short form</entry>
+						<entry>Long form</entry>
+						<entry>Argument</entry>
+						<entry>Options</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>clear</entry>
+						<entry>-c</entry>
+						<entry>--clear</entry>
+						<entry>No</entry>
+						<entry>Yes</entry>
+					</row>
+					<row>
+						<entry>list</entry>
+						<entry>-l</entry>
+						<entry>--list</entry>
+						<entry>No</entry>
+						<entry>Yes</entry>
+					</row>
+					<row>
+						<entry>descriptor</entry>
+						<entry>-d</entry>
+						<entry>--descriptor</entry>
+						<entry>Yes</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>active</entry>
+						<entry>-a</entry>
+						<entry>--active</entry>
+						<entry>Yes</entry>
+						<entry>No</entry>
+					</row>
+					
+				</tbody>
+			</tgroup>
+		</table>
+
+	<section id="alarm_clear">
+		<title>clear</title>
+		<para><literal>clear</literal> operation turns down alarms based on criteria passed in options. 
+		It requires either <replaceable>--id</replaceable> or <replaceable>--nsrc</replaceable> to be present. <literal>clear</literal> command supports followiong options: </para>
+		<variablelist>
+			<varlistentry>
+				<term>--id</term>
+				<listitem><para>this option specifies id of alarm which should be cleared. Option requires string argument, example: <replaceable>415f719e-3a3d-42b4-acc1-4e84706f031a</replaceable>.
+				This option excludes other options. </para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--nsrc</term>
+				<listitem><para>specifies notification source for which alarms should be cleared. It requires argumnt which is valid notification source: RAEntityNotification[entity=LabRA]. This option excludes <replaceable>--id</replaceable>. Optionally it can be followed by <replaceable>--type</replaceable>.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--type</term>
+				<listitem><para>specifies type of alarm to be cleared. Type is service/component implementation specific. Type of alarm is passed as alarms metadata when it is created.
+				Option requires argument which is string representation of type. Example call</para>
+					<example>
+					<title>Clear alarms of certain type for ProfileTable</title>
+						<screen>./twiddle.sh alarm -c --nsrc=ProfileTableNotification[table=SMSSubscription] --type=TransientFailure</screen>
+					</example>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>
+	<section id="alarm_list">
+		<title>list</title>
+		<para><literal>list</literal> operation lists all active alarms(their IDs). It does not require argument or option. It supports following options.</para>
+		<variablelist>
+			<varlistentry>
+				<term>--nsrc</term>
+				<listitem>
+					<para>optional option. It specifies notification source. It limits <literal>list</literal> command output to alarms active for specified source. Requires argument which is valid notification source: ProfileTableNotification[table=SMSSubscription] 
+					</para>
+					<example>
+					<title>List alarms for ProfileTable</title>
+						<screen>./twiddle.sh alarm -l --nsrc=ProfileTableNotification[table=SMSSubscription]</screen>
+					</example>
+				</listitem>
+				
+			</varlistentry>
+		</variablelist>
+	</section>
+	<section id="alarm_descriptor">
+		<title>descriptor</title>
+		<para><literal>descriptor</literal> operation fetches metadata for particular alarm. This inclues message, timestamp, level,.. etc. It requires alarm ID as argument.
+		It also accepts array argument. Members of array are separeted with <replaceable>;</replaceable>. Example calls: 
+			<example>
+				<title>Fetch descriptor for alarm</title>
+				<screen>./twiddle.sh alarm -d415f719e-3a3d-42b4-acc1-4e84706f031a </screen>
+			</example>
+			<example>
+				<title>Fetch descriptor for alarms</title>
+				<screen>./twiddle.sh alarm -d415f719e-3a3d-42b4-acc1-4e84706f031a;415f719e-3a3d-42b4-acc1-4e84706f031b;415f719e-3a3d-42b4-acc1-4e84706f031c </screen>
+			</example>
+		
+		</para>	
+	</section>
+	<section id="alarm_active">
+		<title>active</title>
+		<para><literal>active</literal> operation simply checks if alarm is still active. It requires alarm id as argument.</para>
+	</section>
+		
+		
+</section>	
+	
+
+

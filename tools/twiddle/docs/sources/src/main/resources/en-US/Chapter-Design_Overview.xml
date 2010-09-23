@@ -1,0 +1,56 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+	
+	<para>&THIS.PLATFORM; &THIS.APPLICATION; is command line tool. It is based on <literal>JBoss</literal> <acronym>JMX</acronym> <literal>Twiddle</literal>.
+	&THIS.PLATFORM; specific interaction capabilities are created over base provided by <literal>JBoss</literal> <literal>Twiddle</literal>.
+	Top overview of design is depicted on diagram below:
+	</para>
+	<mediaobject id="jslee_cli_twiddle_overview_1">
+		<imageobject>
+			<imagedata width="300px" align="center"
+				fileref="images/design_overview_1.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.PLATFORM; &THIS.APPLICATION;
+				General design
+			</para>
+		</caption>
+	</mediaobject>
+	<para> &THIS.PLATFORM; &THIS.APPLICATION; acts on base of <literal>command</literal> and <literal>operation</literal>. <literal>Command</literal> supports various operations. Operation 
+	is aware of specific resource that needs to be called and how it should be accessed to perform certain task. It also knows how to present specific result to user. 
+	</para>
+	<mediaobject id="jslee_cli_twiddle_overview_2">
+		<imageobject>
+			<imagedata width="300px" align="center"
+				fileref="images/design_overview_2.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.PLATFORM; &THIS.APPLICATION;
+				Operation
+			</para>
+		</caption>
+	</mediaobject>
+	<para>
+	Based on user input, <literal>command</literal> makes decision which operation 
+	should be created and invoked.  Top overview of <literal>command</literal> and <literal>operation</literal> relation is depicted on diagram below:</para>
+	<mediaobject id="jslee_cli_twiddle_overview_3">
+		<imageobject>
+			<imagedata width="300px" align="center"
+				fileref="images/design_overview_3.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.PLATFORM; &THIS.APPLICATION;
+				JSLEE Command - Operation relation
+			</para>
+		</caption>
+	</mediaobject>
+	<para>
+		<literal>Command</literal>s group operation which logicaly belong to one category or act on same set of resources, ie. services.
+	</para>
+	<!-- Dev: add about lifecycle of commands/operations? -->
+</chapter>
+

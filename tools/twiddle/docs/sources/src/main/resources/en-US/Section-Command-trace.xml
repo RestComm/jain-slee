@@ -1,0 +1,260 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<section id="trace">
+
+	<title>trace</title>
+	<para>
+		<literal>trace</literal>
+		command interacts with
+		<literal>javax.slee.management:name=Trace</literal>
+		MBean. It is standard
+		<acronym>JSLEE</acronym>
+		MBean.
+		<literal>trace</literal>
+		allows to manage trace level and tracers instances. Based on options
+		passed to operations it performs operations on 1.1 and 1.0 loggin
+		facilities. It supports following operations:
+	</para>
+	<table frame="all" pgwide="1">
+		<title>
+			Operations table for
+			<literal>trace</literal>
+			command
+		</title>
+		<tgroup colsep="1" cols="5">
+			<colspec colnum="1" colname="c0" />
+			<colspec colnum="2" colname="c1" />
+			<colspec colnum="3" colname="c2" />
+			<colspec colnum="4" colname="c3" />
+			<thead>
+				<row>
+					<entry>Operation</entry>
+					<entry>Short form</entry>
+					<entry>Long form</entry>
+					<entry>Argument</entry>
+					<entry>Options</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>tracers-used</entry>
+					<entry>-a</entry>
+					<entry>--tracers-used</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>tracers-set</entry>
+					<entry>-f</entry>
+					<entry>--tracers-set</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>set-level</entry>
+					<entry>-s</entry>
+					<entry>--set-level</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>un-set-level</entry>
+					<entry>-u</entry>
+					<entry>--un-set-level</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>get-level</entry>
+					<entry>-g</entry>
+					<entry>--get-level</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</table>
+	<section id="trace_tracers_used">
+		<title>tracers-used</title>
+		<para>
+			<literal>tracers-used</literal>
+			operation returns names of tracers requested by notification source.
+			Requires notification source as argument.
+		</para>
+		<example>
+			<title>Get list of tracer names</title>
+			<screen>./twiddle.sh trace -aProfileTableNotificationSource[table=ExampleTable]</screen>
+		</example>
+	</section>
+	<section id="trace_tracers_set">
+		<title>tracers-set</title>
+		<para>
+			<literal>tracers-set</literal>
+			operation fetches list of tracers for which level has been set
+			explicitly via one of
+			<methodname>setLevel</methodname>
+			methods.
+			Requires notification source as argument.
+		</para>
+	</section>
+	<section id="trace_set_level">
+		<title>set-level</title>
+		<para>
+			<literal>set-level</literal>
+			operation sets level of tracer. Does not support argument. Supports
+			following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--cid</term>
+				<listitem>
+					<para>
+						specifies ComponentID for 1.0 trace facility. Requires valid
+						ComponentID as argument. It excludes
+						<replaceable>--nsrc</replaceable>
+						option. Example call:
+						<example>
+							<title>Set trace level in 1.0 facility</title>
+							<screen>./twiddle.sh trace -s --cid=SbbID[name=ProxySbb,vendor=mobicents,version=1.1] --level=WARNING</screen>
+						</example>
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--nsrc</term>
+				<listitem>
+					<para>
+						specifies notification source of which tracer(!) level should be
+						set. Excludes
+						<replaceable>--cid</replaceable>
+						option. Requries valid notification source as argument.
+						<example>
+							<title>Set tracer level </title>
+							<screen>./twiddle.sh trace -s --nsrc=ProfileTableNotification[table=xxx] --name=tracer.name --level=WARNING</screen>
+						</example>
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--name</term>
+				<listitem>
+					<para>specifies tracer name. Requires name as argument.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--level</term>
+				<listitem>
+					<para>
+						specifies level for 1.0 trace facility and 1.1 tracer. Requires
+						valid level representation as argument. It accepts following
+						values:
+						<itemizedlist>
+							<listitem>
+								<para>SEVERE</para>
+							</listitem>
+							<listitem>
+								<para>WARNING</para>
+							</listitem>
+							<listitem>
+								<para>INFO</para>
+							</listitem>
+							<listitem>
+								<para>CONFIG</para>
+							</listitem>
+							<listitem>
+								<para>FINE</para>
+							</listitem>
+							<listitem>
+								<para>FINER</para>
+							</listitem>
+							<listitem>
+								<para>FINEST</para>
+							</listitem>
+						</itemizedlist>
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>
+	<section id="trace_un_set_level">
+		<title>un-set-level</title>
+		<para>
+			<literal>un-set-level</literal>
+			operation unsets level of
+			<acronym>SLEE</acronym>
+			1.1 tracer. Invoking this operation informs Trace facility to derive
+			level for tracer from its parent. Does not support argument.
+			Following options are supported:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--nsrc</term>
+				<listitem>
+					<para>specifies notification source of which tracer(!) level should
+						be unset. Requries valid notification source as argument.
+				</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--name</term>
+				<listitem>
+					<para>specifies tracer name. Requires name as argument.</para>
+				</listitem>
+			</varlistentry>
+
+		</variablelist>
+		<example>
+			<title>Set tracer level </title>
+			<screen>./twiddle.sh trace -u --nsrc=ProfileTableNotification[table=xxx] --name=tracer.name</screen>
+		</example>
+	</section>
+	<section id="trace_get_level">
+		<title>get-level</title>
+		<para>
+			<literal>get-level</literal>
+			operation retrieves level of trace facility or tracer. Does not support arument. Following options are supported:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--cid</term>
+				<listitem>
+					<para>
+						specifies ComponentID for 1.0 trace facility. Requires valid
+						ComponentID as argument. It excludes
+						<replaceable>--nsrc</replaceable>
+						option. Example call:
+						<example>
+							<title>Get trace level in 1.0 facility</title>
+							<screen>./twiddle.sh trace -g --cid=SbbID[name=ProxySbb,vendor=mobicents,version=1.1]</screen>
+						</example>
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--nsrc</term>
+				<listitem>
+					<para>
+						specifies notification source of which tracer(!) level should be
+						fetched. Excludes
+						<replaceable>--cid</replaceable>
+						option. Requries valid notification source as argument.
+						<example>
+							<title>Set tracer level </title>
+							<screen>./twiddle.sh trace -g --nsrc=ProfileTableNotification[table=xxx] --name=tracer.name </screen>
+						</example>
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--name</term>
+				<listitem>
+					<para>specifies tracer name. Requires name as argument.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>
+
+</section>	
+	
+
+

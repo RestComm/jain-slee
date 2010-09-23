@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction
+		to &THIS.PLATFORM;  &THIS.APPLICATION;
+	</title>
+	<para>
+		<acronym>JAIN SLEE</acronym>
+		is the specification for a Java Service Logic and Execution
+		Environment (<acronym>SLEE</acronym>). A <acronym>SLEE</acronym>
+		is an application server, or service container, which defines a
+		component model for structuring the logic of communications services
+		as a collection of reusable components, and for composing these
+		components into even more sophisticated services.
+	</para>
+	<para>
+		As such, it requires
+		management tools to access and manage dirfferent aspects of container. &THIS.APPLICATION;
+		is command line tool enabling user to interact with container in
+		various way, through standard management interfaces.
+	</para>
+</chapter>
