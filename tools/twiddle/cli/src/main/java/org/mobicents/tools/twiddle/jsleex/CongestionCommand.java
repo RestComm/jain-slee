@@ -80,7 +80,7 @@ public class CongestionCommand extends AbstractSleeCommand {
 		out.println("     2. Set high watermark. Memory that has to be free in JVM for congestion control to stop acting:");
 		out.println("" + name + " -d --set=25");
 		out.println("");
-		out.println("     3. Set low watermark. Amount of free memory which will triger congetsion control to act:");
+		out.println("     3. Set low watermark. Amount of free memory which will triger congestion control to act:");
 		out.println("" + name + " -e --set=10");
 		out.flush();
 	}

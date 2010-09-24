@@ -1,0 +1,189 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<section id="congestion">
+
+	<title>congestion</title>
+	<para>
+		<literal>congestion</literal>
+		command interacts with
+		<literal>org.mobincets.slee:name=CongestionControlConfiguration</literal>
+		Bean. It is non standard 
+		<acronym>SLEE</acronym>
+		MBean. Please refer to its documentation for details.
+		<literal>congestion</literal>
+		 allows to change how configuration of congestion mechanism. for instance free memory level which will disable congestion mechanism. It supports following operations:
+	</para>
+	<table frame="all" pgwide="1">
+		<title>
+			Operations table for
+			<literal>congestion</literal>
+			command
+		</title>
+		<tgroup colsep="1" cols="5">
+			<colspec colnum="1" colname="c0" />
+			<colspec colnum="2" colname="c1" />
+			<colspec colnum="3" colname="c2" />
+			<colspec colnum="4" colname="c3" />
+			<thead>
+				<row>
+					<entry>Operation</entry>
+					<entry>Short form</entry>
+					<entry>Long form</entry>
+					<entry>Argument</entry>
+					<entry>Options</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>period</entry>
+					<entry>-p</entry>
+					<entry>--period</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>disable-level</entry>
+					<entry>-d</entry>
+					<entry>--disable-level</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>enable-level</entry>
+					<entry>-e</entry>
+					<entry>--enable-level</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>refuse-event</entry>
+					<entry>-f</entry>
+					<entry>--refuse-event</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>refuse-activity</entry>
+					<entry>-a</entry>
+					<entry>--refuse-activity</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+			
+			</tbody>
+		</tgroup>
+	</table>
+	<section id="congestion_period">
+		<title>period</title>
+		<para>
+			<literal>period</literal> operation allwos to manage period between congestions checks. Period is expresed in seconds. This operation does not support argument. It supports following options:
+			
+		<variablelist>
+				<varlistentry>
+					<term>--get</term>
+					<listitem>
+						<para>instructs operation to fetch period between congestion checks. Does not support argument.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>--set</term>
+					<listitem>
+						<para>instructs operation to set period between congestion checks. Requires number of seconds as argument.</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+		</para>
+	</section>
+	<section id="congestion_disable_level">
+		<title></title>
+		<para>
+			<literal>disable-level</literal> operatio allows to manage minimum level of free memory for congestion mechanism to stop limiting cotnainer.
+			It does not support arument. It supports following options
+			
+			<variablelist>
+				<varlistentry>
+					<term>--get</term>
+					<listitem>
+						<para>instructs operation to fetch number MBs. Does not support argument.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>--set</term>
+					<listitem>
+						<para>instructs operation to set number of MBs to stop congestion mechanism. Requires number of MB(Mega Bytes).</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+		</para>
+	</section>
+	<section id="congestion_enable_level">
+		<title>enable-level</title>
+		<para>
+			<literal>enable-level</literal> operation allows to manage minimum level of free memory to trigger congestion mechanism. It does
+			not support argument. It support following options:
+			
+			<variablelist>
+				<varlistentry>
+					<term>--get</term>
+					<listitem>
+						<para>instructs operation to fetch number MBs. Does not support argument.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>--set</term>
+					<listitem>
+						<para>instructs operation to set number of MBs to start congestion mechanism. Requires number of MB(Mega Bytes).</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+		</para>
+	</section>
+	<section id="congestion_refuse_event">
+		<title>refuse-event</title>
+		<para>
+			<literal>refuse-event</literal> operation allows to manage how congestion mechanism behaves. This operation allows to manage wheather events are
+			allowed to be fired into container or not. It does not support argument. It supports following options:
+			
+			<variablelist>
+				<varlistentry>
+					<term>--get</term>
+					<listitem>
+						<para>instructs operation to check if events will be refused to be fired in case of congestion. Does not support argument.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>--set</term>
+					<listitem>
+						<para>instructs operation to disallow events to be fired. It requires boolean argument(true - disallow).</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+		</para>
+	</section>
+	<section id="congestion_refuse_activity">
+		<title>refuse-activity</title>
+		<para>
+			<literal>refuse-activity</literal> operation allows to manage how congestion mechanism behaves. This operation allows to manage wheather new activities 
+			can be created in container or not. It does not support argument. It supports following options:
+			<variablelist>
+				<varlistentry>
+					<term>--get</term>
+					<listitem>
+						<para>instructs operation to check if new activities will be refused in case of congestion. Does not support argument.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>--set</term>
+					<listitem>
+						<para>instructs operation to disallow new activities creation. It requires boolean argument(true - disallow).</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+		</para>
+	</section>
+	
+
+</section>	
+	
+
+

@@ -15,6 +15,7 @@
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Command-X-activity.xml" />
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Command-X-router.stats.xml" />
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Command-X-deployer.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Command-X-congestion.xml" />
 
 	
 	

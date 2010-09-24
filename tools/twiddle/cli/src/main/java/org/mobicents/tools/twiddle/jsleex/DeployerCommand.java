@@ -42,7 +42,6 @@ public class DeployerCommand extends AbstractSleeCommand {
 
 	public DeployerCommand() {
 		super("deployer", "This command performs operations on Mobicents DeploymentManager MBean.");
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -98,7 +97,7 @@ public class DeployerCommand extends AbstractSleeCommand {
 	}
 
 	private class StatusOperation extends AbstractOperation {
-		//TODO: format it, it uses XML, which is fine for web, mainly strip <p>,</p>,<br>,<strong>,</string>
+		//TODO: format it, it uses XML, which is fine for web, mainly strip <p>,</p>,<br>,<strong>,</strong>
 		public StatusOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			super.operationName = "showStatus";
@@ -108,5 +107,22 @@ public class DeployerCommand extends AbstractSleeCommand {
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
 
 		}
+
+		@Override
+		public void displayResult() {
+			//strip <p>,</p>,<br>,<strong>,</strong>
+			String opResult = (String) super.operationResult;
+			opResult = opResult.replaceAll("<p>", "");
+			opResult = opResult.replaceAll("</p>", "");
+			opResult = opResult.replaceAll("<strong>", "");
+			opResult = opResult.replaceAll("</strong>", "");
+			opResult = opResult.replaceAll("<br>", "\n");
+			super.operationResult = opResult;
+			
+			//and display
+			super.displayResult();
+		}
+		
+		
 	}
 }
