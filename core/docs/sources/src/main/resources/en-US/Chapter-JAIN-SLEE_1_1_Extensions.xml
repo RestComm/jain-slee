@@ -14,19 +14,18 @@
 	
 	<para>Java archives (JARs) with compiled classes, javadocs and sources are available in the JBoss Maven Repository at <ulink url="http://repository.jboss.org/nexus/content/groups/public/org/mobicents/servers/jainslee/api/jain-slee-11-ext/1.0.0.BETA1/"/></para>
 	
-	<xi:include href="Section-Extension_ActivityContextInterface.xml"
-			xmlns:xi="http://www.w3.org/2001/XInclude" />
-			
-	<xi:include href="Section-Extension_Library_References.xml"
-			xmlns:xi="http://www.w3.org/2001/XInclude" />
-	<!-- 		
 	<xi:include href="Section-Extension_SbbContext.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
 			
 	<xi:include href="Section-Extension_ProfileContext.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
-			
-	 -->
+	
+	<xi:include href="Section-Extension_ActivityContextInterface.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+					
+	<xi:include href="Section-Extension_Library_References.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
 	 			
 </chapter>
 
