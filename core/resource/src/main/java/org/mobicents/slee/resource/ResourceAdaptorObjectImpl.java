@@ -419,7 +419,8 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			logger.trace("getActivity( handle = "+handle+" )");
 		}
 		
-		return object.getActivity(raEntity.derreferActivityHandle(handle));
+		final ActivityHandle origHandle = raEntity.derreferActivityHandle(handle);
+		return origHandle != null ? object.getActivity(origHandle) : null;
 	}
 	
 	/**
