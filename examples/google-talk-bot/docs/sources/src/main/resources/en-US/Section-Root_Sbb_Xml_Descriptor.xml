@@ -74,16 +74,19 @@
 		<env-entry>
 			<env-entry-name>username</env-entry-name>
 			<env-entry-type>java.lang.String</env-entry-type>
-			<env-entry-value>mobicents.org</env-entry-value>
+			<env-entry-value>${user}</env-entry-value>
 		</env-entry>
 
 		<env-entry>
 			<env-entry-name>password</env-entry-name>
 			<env-entry-type>java.lang.String</env-entry-type>
-			<env-entry-value>m0b1c3nts</env-entry-value>
+			<env-entry-value>${password}</env-entry-value>
 		</env-entry>]]>
 			</programlisting>
-			
+			<note>
+				<para>Entires are filled during source build process with values from <filename>example.properties</filename> file. 
+				Exampel user MUST provide valid credentials for example to work. In binary release user has to modify <filename>sbb-jar.xml</filename>. </para>
+			</note>
 			<para>Finally, the XMPP Resource Adaptor must be specified also, otherwise SLEE won't put its SBB Interface in the SBB's JNDI Context:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 		<resource-adaptor-type-binding>
