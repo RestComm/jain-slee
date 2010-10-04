@@ -130,6 +130,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	// //////////////////////
 
 	protected static final String GET_MANAGER_NAME_METHOD = "getUsageNotificationManagerMBean";
+	protected static final String GET_MANAGER_NAME_SBB_METHOD = "getSbbUsageNotificationManagerMBean";
 	
 	//those are required to get bean on which we should invoke op.
 	protected ObjectName PROFILE_PROVISIONING_MBEAN;
@@ -140,6 +141,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	protected final static String SERVICE_GET_METHOD = "getServiceUsageMBean";
 	//used not only in operation
 	protected final static String GET_SPECIFIC_BEAN_METHOD = "getUsageMBean";
+	protected final static String GET_SPECIFIC_SBB_BEAN_METHOD = "getSbbUsageMBean";
 
 
 	//name of provisioning mbean.
@@ -393,7 +395,13 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		MBeanServerConnection server = super.context.getServer();
 		//get usage mgmt bean.
 		try {
-			this.specificObjectName =  (ObjectName) server.invoke(this.usageMgmtMBeanName, GET_SPECIFIC_BEAN_METHOD, parms, sig);
+			if(serviceID != null)
+			{
+				this.specificObjectName =  (ObjectName) server.invoke(this.usageMgmtMBeanName, GET_SPECIFIC_SBB_BEAN_METHOD, parms, sig);
+			}else
+			{
+				this.specificObjectName =  (ObjectName) server.invoke(this.usageMgmtMBeanName, GET_SPECIFIC_BEAN_METHOD, parms, sig);
+			}
 			return this.specificObjectName;
 		} catch (Exception e) {
 			throw new CommandException("Command: \"" + getName()+"\" failed to obtain usage management bean name. Resource does not exist in container?", e);
@@ -415,7 +423,13 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		MBeanServerConnection server = super.context.getServer();
 		//get usage mgmt bean.
 		try {
-			this.specificObjectName =  (ObjectName) server.invoke(this.usageMgmtMBeanName, GET_MANAGER_NAME_METHOD, parms, sig);
+			if(serviceID!=null)
+			{
+				this.specificObjectName =  (ObjectName) server.invoke(this.usageMgmtMBeanName, GET_MANAGER_NAME_SBB_METHOD, parms, sig);	
+			}else
+			{
+				this.specificObjectName =  (ObjectName) server.invoke(this.usageMgmtMBeanName, GET_MANAGER_NAME_METHOD, parms, sig);
+			}
 			return this.specificObjectName;
 		} catch (Exception e) {
 			throw new CommandException("Command: \"" + getName()+"\" failed to obtain usage management bean name. Resource does not exist in container?", e);
@@ -467,7 +481,13 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 					break;
 				case parameters:
 					//this can be empty.
-					super.operationName = GET_SPECIFIC_BEAN_METHOD;
+					if(serviceID!=null)
+					{
+						super.operationName = GET_SPECIFIC_SBB_BEAN_METHOD;
+					}else
+					{
+						super.operationName = GET_SPECIFIC_BEAN_METHOD;
+					}
 					break;
 				default:
 					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
