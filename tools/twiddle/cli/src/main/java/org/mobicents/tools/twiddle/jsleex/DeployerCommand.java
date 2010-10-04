@@ -97,10 +97,11 @@ public class DeployerCommand extends AbstractSleeCommand {
 	}
 
 	private class StatusOperation extends AbstractOperation {
-		//TODO: format it, it uses XML, which is fine for web, mainly strip <p>,</p>,<br>,<strong>,</strong>
+		private static final String OPERATION_showStatus = "showStatus";
+		//format it, it uses XML, which is fine for web, mainly strip <p>,</p>,<br>,<strong>,</strong>
 		public StatusOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "showStatus";
+			super.operationName = OPERATION_showStatus;
 		}
 
 		@Override

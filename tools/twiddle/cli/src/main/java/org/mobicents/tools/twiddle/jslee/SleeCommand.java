@@ -145,10 +145,10 @@ public class SleeCommand extends AbstractSleeCommand {
 	
 	private class StartOperation extends AbstractOperation
 	{
-
+		private static final String OPERATION_start= "start";
 		public StartOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName ="start";
+			super.operationName =OPERATION_start;
 		}
 
 		@Override
@@ -159,10 +159,11 @@ public class SleeCommand extends AbstractSleeCommand {
 	}
 	private class StopOperation extends AbstractOperation
 	{
+		private static final String OPERATION_stop = "stop";
 
 		public StopOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName ="stop";
+			super.operationName = OPERATION_stop;
 		}
 
 		@Override
@@ -173,10 +174,10 @@ public class SleeCommand extends AbstractSleeCommand {
 	}
 	private class ShutdownOperation extends AbstractOperation
 	{
-
+		private static final String OPERATION_shutdown = "shutdown";
 		public ShutdownOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName ="shutdown";
+			super.operationName = OPERATION_shutdown;
 		}
 
 		@Override

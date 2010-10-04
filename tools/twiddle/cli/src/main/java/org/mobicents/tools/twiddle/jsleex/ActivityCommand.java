@@ -20,6 +20,7 @@ package org.mobicents.tools.twiddle.jsleex;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
+import java.beans.PropertyEditor;
 import java.io.PrintWriter;
 
 import javax.management.MalformedObjectNameException;
@@ -177,10 +178,10 @@ public class ActivityCommand extends AbstractSleeCommand {
 	
 	private class CountOperation extends AbstractOperation
 	{
-
+		private static final String OPERATION_getActivityContextCount = "getActivityContextCount";
 		protected CountOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getActivityContextCount";
+			super.operationName = OPERATION_getActivityContextCount;
 		}
 
 		@Override
@@ -194,6 +195,10 @@ public class ActivityCommand extends AbstractSleeCommand {
 		public static final char set = 's';
 		public static final char get = 'g';
 
+		private static final String OPERATION_setTimeBetweenLivenessQueries = "setTimeBetweenLivenessQueries";
+		private static final String OPERATION_getTimeBetweenLivenessQueries = "getTimeBetweenLivenessQueries";
+		private static final String OPERATION_queryActivityContextLiveness = "queryActivityContextLiveness";
+		
 		public QueryOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			// op name is set depending on options
@@ -217,7 +222,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 
 				case set:
 
-					super.operationName = "setTimeBetweenLivenessQueries";
+					super.operationName = OPERATION_setTimeBetweenLivenessQueries;
 					optArg = opts.getOptarg();
 
 					try {
@@ -229,7 +234,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 					break;
 				case get:
 
-					super.operationName = "getTimeBetweenLivenessQueries";
+					super.operationName = OPERATION_getTimeBetweenLivenessQueries;
 
 					break;
 
@@ -247,7 +252,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 			//set in case no opt
 			if(super.operationName == null)
 			{
-				super.operationName = "queryActivityContextLiveness";
+				super.operationName = OPERATION_queryActivityContextLiveness;
 			}
 
 		}
@@ -255,7 +260,8 @@ public class ActivityCommand extends AbstractSleeCommand {
 	}
 	private class IdleOperation extends AbstractOperation {
 		
-
+		private static final String OPERATION_setActivityContextMaxIdleTime = "setActivityContextMaxIdleTime";
+		private static final String OPERATION_getActivityContextMaxIdleTime = "getActivityContextMaxIdleTime";
 		public IdleOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			// op name is set depending on options
@@ -279,7 +285,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 
 				case QueryOperation.set:
 
-					super.operationName = "setActivityContextMaxIdleTime";
+					super.operationName = OPERATION_setActivityContextMaxIdleTime;
 					optArg = opts.getOptarg();
 					try {
 						addArg(Long.parseLong(optArg), long.class, false);
@@ -290,7 +296,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 					break;
 				case QueryOperation.get:
 
-					super.operationName = "getActivityContextMaxIdleTime";
+					super.operationName = OPERATION_getActivityContextMaxIdleTime;
 
 					break;
 
@@ -310,10 +316,10 @@ public class ActivityCommand extends AbstractSleeCommand {
 	}
 	private class DetailsOperation extends AbstractOperation {
 		
-
+		private static final String OPERATION_retrieveActivityContextDetails = "retrieveActivityContextDetails";
 		public DetailsOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "retrieveActivityContextDetails";
+			super.operationName = OPERATION_retrieveActivityContextDetails;
 		}
 
 		@Override
@@ -335,12 +341,12 @@ public class ActivityCommand extends AbstractSleeCommand {
 		public static final char contexts = 'n';
 		public static final char factories = 'm';
 
-		private static final String retrieveActivityContextIDBySbbEntityID = "retrieveActivityContextIDBySbbEntityID";
-		private static final String retrieveActivityContextIDBySbbID = "retrieveActivityContextIDBySbbID";
-		private static final String retrieveActivityContextIDByResourceAdaptorEntityName = "retrieveActivityContextIDByResourceAdaptorEntityName";
-		private static final String retrieveActivityContextIDByActivityType = "retrieveActivityContextIDByActivityType";
-		private static final String listActivityContexts = "listActivityContexts";
-		private static final String listActivityContextsFactories = "listActivityContextsFactories";
+		private static final String OPERATION_retrieveActivityContextIDBySbbEntityID = "retrieveActivityContextIDBySbbEntityID";
+		private static final String OPERATION_retrieveActivityContextIDBySbbID = "retrieveActivityContextIDBySbbID";
+		private static final String OPERATION_retrieveActivityContextIDByResourceAdaptorEntityName = "retrieveActivityContextIDByResourceAdaptorEntityName";
+		private static final String OPERATION_retrieveActivityContextIDByActivityType = "retrieveActivityContextIDByActivityType";
+		private static final String OPERATION_listActivityContexts = "listActivityContexts";
+		private static final String OPERATION_listActivityContextsFactories = "listActivityContextsFactories";
 
 		
 		
@@ -367,12 +373,12 @@ public class ActivityCommand extends AbstractSleeCommand {
 					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
 //				case sbbEID:
-//					super.operationName = retrieveActivityContextIDBySbbEntityID;
+//					super.operationName = OPERATION_retrieveActivityContextIDBySbbEntityID;
 //					optArg = opts.getOptarg();		
 //					addArg(optArg, String.class, false);
 //										break;
 				case sbbID:
-					super.operationName = retrieveActivityContextIDBySbbID;
+					super.operationName = OPERATION_retrieveActivityContextIDBySbbID;
 					optArg = opts.getOptarg();
 				
 					addArg(optArg, String.class, false);
@@ -380,7 +386,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 					
 					break;
 				case raEntity:
-					super.operationName = retrieveActivityContextIDByResourceAdaptorEntityName;
+					super.operationName = OPERATION_retrieveActivityContextIDByResourceAdaptorEntityName;
 					optArg = opts.getOptarg();
 					
 					addArg(optArg, String.class, false);
@@ -388,7 +394,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 					
 					break;
 				case activityType:
-					super.operationName = retrieveActivityContextIDByActivityType;
+					super.operationName = OPERATION_retrieveActivityContextIDByActivityType;
 					optArg = opts.getOptarg();
 					
 					addArg(optArg, String.class, false);
@@ -397,7 +403,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 					break;				
 					
 				case contexts:
-					super.operationName = listActivityContexts;
+					super.operationName = OPERATION_listActivityContexts;
 					optArg = opts.getOptarg();
 					
 					if(optArg == null)
@@ -408,7 +414,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 					addArg(Boolean.valueOf(optArg), boolean.class, false);
 					break;
 				case factories:
-					super.operationName = listActivityContextsFactories;
+					super.operationName = OPERATION_listActivityContextsFactories;
 					break;					
 
 				
@@ -443,9 +449,9 @@ public class ActivityCommand extends AbstractSleeCommand {
 		 * @see org.mobicents.tools.twiddle.op.AbstractOperation#unfoldArray(java.lang.String, java.lang.Object[])
 		 */
 		@Override
-		protected String unfoldArray(String prefix, Object[] array) {
+		protected String unfoldArray(String prefix, Object[] array, PropertyEditor editor) {
 			
-			if(super.operationName.equals(listActivityContexts))
+			if(super.operationName.equals(OPERATION_listActivityContexts))
 			{
 				//array of arrays of len 8 :)
 				StringBuffer sb = new StringBuffer();
@@ -460,10 +466,10 @@ public class ActivityCommand extends AbstractSleeCommand {
 					sb.append("Resource Adaptor  : ").append(rep[RA]).append("\n");
 					if(rep[SBB_ATTACHMENTS].getClass().isArray())
 					{
-						sb.append("SBB attached      : ").append(super.unfoldArray("     ", (Object[])rep[SBB_ATTACHMENTS])).append("\n");
-						sb.append("Names             : ").append(super.unfoldArray("     ", (Object[])rep[NAMES_BOUND_TO])).append("\n");
-						sb.append("Timers Attached   : ").append(super.unfoldArray("     ", (Object[])rep[TIMERS_ATTACHED])).append("\n");
-						sb.append("Data properties   : ").append(super.unfoldArray("     ", (Object[])rep[DATA_PROPERTIES])).append("\n");
+						sb.append("SBB attached      : ").append(super.unfoldArray("     ", (Object[])rep[SBB_ATTACHMENTS],null)).append("\n");
+						sb.append("Names             : ").append(super.unfoldArray("     ", (Object[])rep[NAMES_BOUND_TO],null)).append("\n");
+						sb.append("Timers Attached   : ").append(super.unfoldArray("     ", (Object[])rep[TIMERS_ATTACHED],null)).append("\n");
+						sb.append("Data properties   : ").append(super.unfoldArray("     ", (Object[])rep[DATA_PROPERTIES],null)).append("\n");
 					}else
 					{
 						sb.append("SBB attached      : ").append(rep[SBB_ATTACHMENTS]).append("\n");
@@ -476,7 +482,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 				return sb.toString();
 			}else
 			{
-				return super.unfoldArray(prefix, array);
+				return super.unfoldArray(prefix, array,editor);
 			}
 			
 		
@@ -486,10 +492,10 @@ public class ActivityCommand extends AbstractSleeCommand {
 	
 	private class EndOperation extends AbstractOperation {
 		
-
+		private static final String OPERATION_endActivity = "endActivity";
 		public EndOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "endActivity";
+			super.operationName = OPERATION_endActivity;
 		}
 
 		@Override

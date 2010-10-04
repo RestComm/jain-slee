@@ -90,7 +90,7 @@ public class ServiceCommand extends AbstractSleeCommand {
 		out.println("" + name + " -aServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=YYY,vendor=uuu,version=123.0.00]");
 		out.println("");
 		out.println("     2. Deactivate and activate services:");
-		out.println("" + name + " -c --tdServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=YYY,vendor=uuu,version=123.0.00] --taServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=YYY,vendor=uuu,version=123.0.00]");
+		out.println("" + name + " -c --td=ServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=YYY,vendor=uuu,version=123.0.00] --taServiceID[name=xxx,vendor=uuu,version=123.0.00];ServiceID[name=YYY,vendor=uuu,version=123.0.00]");
 		out.println("");
 		out.println("     3. Check which services are inactive:");
 		out.println("" + name + " -iInactive");
@@ -180,9 +180,10 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	private class ActivateOperation extends AbstractOperation {
 
+		private static final String OPERATION_activate = "activate";
 		public ActivateOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
-			this.operationName = "activate";
+			this.operationName = OPERATION_activate;
 		}
 
 		@Override
@@ -207,9 +208,10 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	private class DeactivateOperation extends AbstractOperation {
 
+		private static final String OPERATION_deactivate = "deactivate";
 		public DeactivateOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
-			this.operationName = "deactivate";
+			this.operationName = OPERATION_deactivate;
 		}
 
 		@Override
@@ -234,9 +236,10 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	private class GetServiceUsageMBeanOperation extends AbstractOperation {
 
+		private static final String OPERATION_getServiceUsageMBean = "getServiceUsageMBean";
 		public GetServiceUsageMBeanOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
-			this.operationName = "getServiceUsageMBean";
+			this.operationName = OPERATION_getServiceUsageMBean;
 		}
 
 		@Override
@@ -260,9 +263,10 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	private class GetServicesOperation extends AbstractOperation {
 
+		private static final String OPERATION_getServices = "getServices";
 		public GetServicesOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
-			this.operationName = "getServices";
+			this.operationName = OPERATION_getServices;
 		}
 
 		@Override
@@ -286,9 +290,10 @@ public class ServiceCommand extends AbstractSleeCommand {
 
 	private class GetStateOperation extends AbstractOperation {
 
+		private static final String OPERATION_getState = "getState";
 		public GetStateOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
-			this.operationName = "getState";
+			this.operationName = OPERATION_getState;
 		}
 
 		@Override
@@ -314,12 +319,13 @@ public class ServiceCommand extends AbstractSleeCommand {
 		// long opts for that
 		public static final char ta = 'z';
 		public static final char td = 'x';
+		private static final String OPERATION_deactivateAndActivate = "deactivateAndActivate";
 		private String toActivate;
 		private String toDeactivate;
 
 		public DeactivateAndActivateOperation(CommandContext context, Logger log, ServiceCommand serviceCommand) {
 			super(context, log, serviceCommand);
-			this.operationName = "deactivateAndActivate";
+			this.operationName = OPERATION_deactivateAndActivate;
 		}
 
 		@SuppressWarnings("unchecked")

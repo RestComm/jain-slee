@@ -131,8 +131,8 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 	// Command essentials //
 	////////////////////////
 	
-	private static final String DEFAULT_GET_OPERATION ="getDefaultProfile"; 
-	private static final String GET_OPERATION ="getProfile"; 
+	private static final String OPERATION_DEFAULT_GET ="getDefaultProfile"; 
+	private static final String OPERATION_GET ="getProfile"; 
 	
 	
 	//object name for profile
@@ -318,12 +318,12 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		if(profileName == null)
 		{
 			//default;
-			getOperationName = DEFAULT_GET_OPERATION;
+			getOperationName = OPERATION_DEFAULT_GET;
 			parms = new Object[]{profileTableName};
 			sig = new String[]{"java.lang.String"};
 		}else
 		{
-			getOperationName = GET_OPERATION;
+			getOperationName = OPERATION_GET;
 			parms = new Object[]{profileTableName,profileName};
 			sig = new String[]{"java.lang.String","java.lang.String"};
 		}

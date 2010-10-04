@@ -202,6 +202,10 @@ public class ProfileCommand extends AbstractSleeCommand {
 		public static final char table = 'o';
 		public static final char profile = 'p';
 
+		private static final String OPERATION_getProfileTables = "getProfileTables";
+		private static final String OPERATION_getProfiles = "getProfiles";
+		
+		
 		public ListOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			// operation is not set. its used to determine if more options were
@@ -225,7 +229,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 
 				case table:
 
-					super.operationName = "getProfileTables";
+					super.operationName = OPERATION_getProfileTables;
 					optArg = opts.getOptarg();
 
 					if (optArg != null) {
@@ -239,7 +243,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 					break;
 				case profile:
 
-					super.operationName = "getProfiles";
+					super.operationName = OPERATION_getProfiles;
 					optArg = opts.getOptarg();
 					addArg(optArg, String.class, false); // table name
 					break;
@@ -263,6 +267,9 @@ public class ProfileCommand extends AbstractSleeCommand {
 		public static final char profile_name = 'v';
 		public static final char profile_spec = 'm';
 
+		private static final String OPERATION_createProfile = "createProfile";
+		private static final String OPERATION_createProfileTable = "createProfileTable";
+		
 		private String stringTableName;
 		private String stringProfileName;
 		private String stringProfileSpec;
@@ -322,11 +329,11 @@ public class ProfileCommand extends AbstractSleeCommand {
 			}
 			if (this.stringProfileName != null) {
 				// create profile
-				super.operationName = "createProfile";
+				super.operationName = OPERATION_createProfile;
 				super.addArg(this.stringTableName, String.class, false);
 				super.addArg(this.stringProfileName, String.class, false);
 			} else {
-				super.operationName = "createProfileTable";
+				super.operationName = OPERATION_createProfileTable;
 				try {
 					super.addArg(this.stringProfileSpec, ProfileSpecificationID.class, true);
 				} catch (Exception e) {
@@ -336,12 +343,30 @@ public class ProfileCommand extends AbstractSleeCommand {
 			}
 
 		}
+
+		@Override
+		protected String prepareResultText() {
+			//FIXME: is this ok ?
+			if(super.operationName.equals(OPERATION_createProfile))
+			{
+				return "Profile created.";
+			}else
+			{
+				return "Profile Table created: "+super.operationResult; //??
+			}
+		}
+		
+		
+		
 	}
 
 	private class RemoveOperation extends AbstractOperation {
 		public static final char table_name = 'b';
 		public static final char profile_name = 'v';
 
+		private static final String OPERATION_removeProfile = "removeProfile";
+		private static final String OPERATION_removeProfileTable = "removeProfileTable";
+		
 		private String stringTableName;
 		private String stringProfileName;
 
@@ -384,24 +409,39 @@ public class ProfileCommand extends AbstractSleeCommand {
 			}
 			super.addArg(this.stringTableName, String.class, false);
 			if (this.stringProfileName == null) {
-				super.operationName = "removeProfileTable";
+				super.operationName = OPERATION_removeProfileTable;
 			} else {
-				super.operationName = "removeProfile";
+				super.operationName = OPERATION_removeProfile;
 				super.addArg(this.stringProfileName, String.class, false);
 			}
 		}
+		
+		@Override
+		protected String prepareResultText() {
+			//FIXME: is this ok ?
+			if(super.operationName.equals(OPERATION_removeProfile))
+			{
+				return "Profile removed.";
+			}else
+			{
+				return "Profile Table removed."; //??
+			}
+		}
+		
 	}
 
 	private class RenameOperation extends AbstractOperation {
 		public static final char current_name = 'k';
 		public static final char new_name = 'j';
 
+		private static final String OPERATION_renameProfileTable = "renameProfileTable";
+		
 		private String stringCurrentTableName;
 		private String stringNewTableName;
 
 		public RenameOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "renameProfileTable";
+			super.operationName = OPERATION_renameProfileTable;
 		}
 
 		@Override
@@ -439,12 +479,24 @@ public class ProfileCommand extends AbstractSleeCommand {
 			super.addArg(this.stringNewTableName, String.class, false);
 
 		}
+		
+		@Override
+		protected String prepareResultText() {
+			//FIXME: is this ok ?
+			return "Profile table renamed.";
+		}
 	}
 
 	private class GetOperation extends AbstractOperation {
 		public static final char profile_name = 'v';
 		public static final char profile_spec = 'm';
 		public static final char profile = 'x';
+		
+		private static final String OPERATION_getDefaultProfile = "getDefaultProfile";
+		private static final String OPERATION_getProfile = "getProfile";
+		private static final String OPERATION_getProfileSpecification = "getProfileSpecification";
+		
+		
 		// tricky.. ech
 		private String stringProfileSpec_TableName; // holds table name for
 		// getProfileSpecification(String
@@ -497,16 +549,16 @@ public class ProfileCommand extends AbstractSleeCommand {
 						+ "\", expects either \"--profile\" or \"--profile-spec\" to be present");
 			}
 			if (this.stringProfileSpec_TableName != null) {
-				super.operationName = "getProfileSpecification";
+				super.operationName = OPERATION_getProfileSpecification;
 				super.addArg(stringProfileSpec_TableName, String.class, false);
 			} else {
 				// its get other stuff.
 				if (this.stringProfileName_Name == null) {
 					// default
-					super.operationName = "getDefaultProfile";
+					super.operationName = OPERATION_getDefaultProfile;
 					super.addArg(stringProfile_TableName, String.class, false);
 				} else {
-					super.operationName = "getProfile";
+					super.operationName = OPERATION_getProfile;
 					super.addArg(stringProfile_TableName, String.class, false);
 					super.addArg(stringProfileName_Name, String.class, false);
 				}

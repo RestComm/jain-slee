@@ -34,7 +34,7 @@ public class AccessorOperation extends AbstractOperation {
 		this.beanFieldName = beanFieldName;
 		if(Character.isLowerCase(this.beanFieldName.charAt(0)))
 		{
-			//TODO:replace first char.
+			//TODO:replace first char. 
 			char c = this.beanFieldName.charAt(0);
 			c = Character.toUpperCase(c);
 			StringBuffer sb =  new StringBuffer();

@@ -138,14 +138,10 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	protected final static String RESOURCE_GET_METHOD = "getResourceUsageMBean";
 	protected ObjectName SERVICE_MANAGEMENT_MBEAN;
 	protected final static String SERVICE_GET_METHOD = "getServiceUsageMBean";
-	
-	protected final static String LIST_SETS_METHOD = "getUsageParameterSets";
+	//used not only in operation
 	protected final static String GET_SPECIFIC_BEAN_METHOD = "getUsageMBean";
-	protected final static String RESET_ALL_PARAMETERS_METHOD = "resetAllUsageParameters";
-	protected final static String CREATE_METHOD = "createUsageParameterSet";
-	protected final static String REMOVE_METHOD = "removeUsageParameterSet";
-	
-	
+
+
 	//name of provisioning mbean.
 	protected ObjectName provisioningMBeanName;
 	// get op from provisioning mbean.
@@ -442,12 +438,12 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	{
 		public static final char sets = 'v';
 		public static final char parameters = 'b';
-
+		private final static String OPERTION_getUsageParameterSets = "getUsageParameterSets";
 		public ListOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 
 			// default
-			super.operationName = LIST_SETS_METHOD;
+			super.operationName = OPERTION_getUsageParameterSets;
 		}
 
 		@Override
@@ -466,7 +462,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1] + " --> " + opts.getOptopt());
 
 				case sets:
-					super.operationName = LIST_SETS_METHOD;
+					super.operationName = OPERTION_getUsageParameterSets;
 					
 					break;
 				case parameters:
@@ -511,6 +507,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 					}else
 					{
 						parms = new Object[]{sbbID};
+						sig = new String[]{"javax.slee.SbbID"};
 						
 					}
 					ObjectName on = (ObjectName) conn.invoke(usageMgmtMBeanName, getMethod, parms, sig);
@@ -615,10 +612,13 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	
 	protected class ResetOperation extends AbstractOperation {
 		public static final char all = 'a';
+		
+		private final static String OPERATION_resetAllUsageParameters = "resetAllUsageParameters";
 		public boolean allIndication = false;
+		
 		public ResetOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = RESET_ALL_PARAMETERS_METHOD;
+			super.operationName = OPERATION_resetAllUsageParameters;
 		}
 
 		@Override
@@ -665,10 +665,10 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	}
 	protected class CreateOperation extends AbstractOperation
 	{
-
+		private final static String OPERATION_createUsageParameterSet = "createUsageParameterSet";
 		public CreateOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = CREATE_METHOD;
+			super.operationName = OPERATION_createUsageParameterSet;
 			
 		}
 
@@ -696,10 +696,10 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 	}
 	protected class DeleteOperation extends AbstractOperation
 	{
-
+		private final static String OPERATION_removeUsageParameterSet = "removeUsageParameterSet";
 		public DeleteOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = REMOVE_METHOD;
+			super.operationName = OPERATION_removeUsageParameterSet;
 			
 		}
 

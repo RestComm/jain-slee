@@ -21,6 +21,7 @@ import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -113,7 +114,7 @@ public class AlarmCommand extends AbstractSleeCommand {
 
 	protected void processArguments(String[] args) throws CommandException {
 
-		String sopts = ":c:d:a:l"; // "-" is required to allow non option
+		String sopts = ":cd:a:l"; // "-" is required to allow non option
 										// args(I think)!, ":" is for req,
 										// argument, lack of it after option
 										// means no args.
@@ -178,10 +179,10 @@ public class AlarmCommand extends AbstractSleeCommand {
 	}
 	private class IsActiveOperation extends AbstractOperation
 	{
-
+		private static final String OPERATION_isActive = "isActive";
 		public IsActiveOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			this.operationName="isActive";
+			this.operationName= OPERATION_isActive;
 		}
 
 		@Override
@@ -196,6 +197,19 @@ public class AlarmCommand extends AbstractSleeCommand {
 			addArg(optArg, String.class, false);
 			
 		}
+
+		@Override
+		protected String prepareResultText() {
+			Boolean b = (Boolean) super.operationResult;
+			if(b)
+			{
+				return "Alarm is active.";
+			}else
+			{
+				return "Alarm is inactive.";
+			}
+			
+		}
 		
 	}
 	
@@ -203,6 +217,10 @@ public class AlarmCommand extends AbstractSleeCommand {
 	private class GetDescriptorOperation extends AbstractOperation
 	{
 
+
+		private static final String OPERATION_getDescriptors = "getDescriptors";
+
+		private static final String OPERATION_getDescriptor = "getDescriptor";
 		public GetDescriptorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			//op name not set!
@@ -214,23 +232,27 @@ public class AlarmCommand extends AbstractSleeCommand {
 			
 			if (optArg.contains(";")) {
 				addArg(optArg.split(";"), String[].class, false);
-				operationName = "getDescriptors";
+				operationName = OPERATION_getDescriptors;
 			} else {
-				operationName = "getDescriptor";
+				operationName = OPERATION_getDescriptor;
 				addArg(optArg, String.class, false);
 			}
 			
 		}
 		//TODO: DISPLAY
 		
+		
+		
 	}
 
 	private class ListAlarmsOperation extends AbstractOperation {
 		public static final char nsrc = 'z';
 
+		private static final String OPERATION_getAlarms = "getAlarms";
+		
 		public ListAlarmsOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getAlarms";
+			super.operationName = OPERATION_getAlarms;
 		}
 
 		@Override
@@ -269,10 +291,32 @@ public class AlarmCommand extends AbstractSleeCommand {
 
 		}
 
+		@Override
+		protected String prepareResultText() {
+			if(super.operationResult == null)
+			{
+				return "No Alarms present";
+			}else
+			{
+				String[] alarms = (String[]) super.operationResult;
+				if(alarms.length == 0)
+				{
+					return "No Alarms present";
+				}else
+				{
+					return super.prepareResultText();
+				}
+			}
+		}
+		
+
 	}
 	
 	private class ClearAlarmsOperation extends AbstractOperation
 	{
+		private static final String OPERATION_clearAlarms = "clearAlarms";
+		private static final String OPERATION_clearAlarm = "clearAlarm";
+		
 		public static final char nsrc = 'v';
 		public static final char type = 'b';
 		public static final char id = 'x';
@@ -305,15 +349,15 @@ public class AlarmCommand extends AbstractSleeCommand {
 				
 				case nsrc:
 					stringNsrc = opts.getOptarg();
-					super.operationName = "clearAlarms";
+					super.operationName = OPERATION_clearAlarms;
 					break;
 				case type:
 					stringType = opts.getOptarg();
-					super.operationName = "clearAlarms";
+					super.operationName = OPERATION_clearAlarms;
 					break;
 				case id:
 					 stringID = opts.getOptarg();
-					 super.operationName = "clearAlarm";
+					 super.operationName = OPERATION_clearAlarm;
 					break;
 				default:
 					throw new CommandException("Operation \""+this.operationName+"\" for command: \""+sleeCommand.getName()+"\", found unexpected opt: "+args[opts.getOptind()-1]);
@@ -369,6 +413,29 @@ public class AlarmCommand extends AbstractSleeCommand {
 			
 			
 		}
+
+		@Override
+		protected String prepareResultText() {
+			if(operationName.equals(OPERATION_clearAlarm))
+			{
+				Boolean b = (Boolean) super.operationResult;
+				if(b)
+				{
+					return "Alarm has been cleared.";
+				}else
+				{
+					return "Alarm has not been cleared.";
+				}
+			}else
+			{
+				//clearAlarms return int number of cleared alarms
+				return "Number of Alarms cleared: "+super.operationResult;
+			}
+		}
+
+		
+		
+		
 		
 	}
 }

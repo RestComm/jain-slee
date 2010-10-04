@@ -168,6 +168,7 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 
 				super.operation = new ExecutedTasksOperation(super.context, super.log, this);
 				super.operation.buildOperation(getopt, args);
+				break;
 			case 'i':
 
 				super.operation = new IdleTimeOperation(super.context, super.log, this);
@@ -215,10 +216,10 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	}
 
 	private class MappedActivitiesOperation extends AbstractOperation {
-
+		private static final String OPERATION_getActivitiesMapped = "getActivitiesMapped";
 		public MappedActivitiesOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getActivitiesMapped";
+			super.operationName = OPERATION_getActivitiesMapped;
 		}
 
 		@Override
@@ -237,9 +238,12 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	}
 
 	private class AvgTimeOperation extends AbstractOperation {
+		
+		private static final String OPERATION_getAverageEventRoutingTime = "getAverageEventRoutingTime";
+		
 		public AvgTimeOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getAverageEventRoutingTime";
+			super.operationName = OPERATION_getAverageEventRoutingTime;
 		}
 
 		public static final char eventTypeId = 'z';
@@ -305,13 +309,13 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	}
 
 	private class EventsRoutedOperation extends AbstractOperation {
-
+		private static final String OPERATION_getEventsRouted = "getEventsRouted";
 		private String stringEventTypeId;
 		private String stringExecutor;
 
 		public EventsRoutedOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getEventsRouted";
+			super.operationName = OPERATION_getEventsRouted;
 		}
 
 		@Override
@@ -377,10 +381,10 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	}
 
 	private class ExecutedTasksOperation extends AbstractOperation {
-
+		private static final String OPERATION_getExecutedTasks = "getExecutedTasks";
 		public ExecutedTasksOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getExecutedTasks";
+			super.operationName = OPERATION_getExecutedTasks;
 		}
 
 		@Override
@@ -399,10 +403,10 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	}
 
 	private class IdleTimeOperation extends AbstractOperation {
-
+		private static final String OPERATION_getIdleTime = "getIdleTime";
 		public IdleTimeOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getIdleTime";
+			super.operationName = OPERATION_getIdleTime;
 		}
 
 		@Override
@@ -421,9 +425,10 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	}
 
 	private class MiscTasksOperation extends AbstractOperation {
+		private static final String OPERATION_getMiscTasksExecuted = "getMiscTasksExecuted";
 		public MiscTasksOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getMiscTasksExecuted";
+			super.operationName = OPERATION_getMiscTasksExecuted;
 		}
 
 		@Override
@@ -441,10 +446,10 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	}
 
 	private class ExecutingTimeOperation extends AbstractOperation {
-
+		private static final String OPERATION_getExecutingTime = "getExecutingTime";
 		public ExecutingTimeOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getExecutingTime";
+			super.operationName = OPERATION_getExecutingTime;
 		}
 
 		@Override
@@ -463,10 +468,10 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	}
 
 	private class MiscTimeOperation extends AbstractOperation {
-
+		private static final String OPERATION_getMiscTasksExecutingTime = "getMiscTasksExecutingTime";
 		public MiscTimeOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getMiscTasksExecutingTime";
+			super.operationName =OPERATION_getMiscTasksExecutingTime;
 		}
 
 		@Override
@@ -485,12 +490,14 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	}
 
 	private class RoutingTimeOperation extends AbstractOperation {
+		
+		private static final String OPERATION_getRoutingTime = "getRoutingTime";
 		private String stringEventTypeId;
 		private String stringExecutor;
 
 		public RoutingTimeOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getRoutingTime";
+			super.operationName = OPERATION_getRoutingTime;
 		}
 
 		@Override
@@ -557,9 +564,10 @@ public class RouterStatsCommand extends AbstractSleeCommand {
 	
 	private class PrintAllOperation extends AbstractOperation
 	{
+		private static final String OPERATION_printAllStats = "printAllStats";
 		public PrintAllOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "printAllStats";
+			super.operationName = OPERATION_printAllStats;
 		}
 
 		@Override

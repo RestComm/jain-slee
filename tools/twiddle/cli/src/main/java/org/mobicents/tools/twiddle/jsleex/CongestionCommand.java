@@ -37,7 +37,14 @@ import org.mobicents.tools.twiddle.op.AccessorOperation;
  * 
  */
 public class CongestionCommand extends AbstractSleeCommand {
+	
+	private final static String FIELD_PeriodBetweenChecks ="PeriodBetweenChecks";
+	private final static String FIELD_MinFreeMemoryToTurnOn ="MinFreeMemoryToTurnOn";
+	private final static String FIELD_MinFreeMemoryToTurnOff ="MinFreeMemoryToTurnOff";
+	private final static String FIELD_RefuseFireEvent ="RefuseFireEvent";
+	private final static String FIELD_RefuseStartActivity ="RefuseStartActivity";
 
+	
 	public CongestionCommand() {
 		super("congestion", "This command performs operations on Mobicents CongestionControlConfiguration MBean.");
 		// TODO Auto-generated constructor stub
@@ -118,31 +125,31 @@ public class CongestionCommand extends AbstractSleeCommand {
 
 			case 'p':
 
-				super.operation = new AccessorOperation(super.context, super.log, this,"PeriodBetweenChecks",int.class);
+				super.operation = new AccessorOperation(super.context, super.log, this,FIELD_PeriodBetweenChecks,int.class);
 				super.operation.buildOperation(getopt, args);
 
 				break;
 			case 'e':
 
-				super.operation = new AccessorOperation(super.context, super.log, this,"MinFreeMemoryToTurnOn",int.class);
+				super.operation = new AccessorOperation(super.context, super.log, this,FIELD_MinFreeMemoryToTurnOn,int.class);
 				super.operation.buildOperation(getopt, args);
 
 				break;
 			case 'd':
 
-				super.operation = new AccessorOperation(super.context, super.log, this,"MinFreeMemoryToTurnOff",int.class);
+				super.operation = new AccessorOperation(super.context, super.log, this,FIELD_MinFreeMemoryToTurnOff,int.class);
 				super.operation.buildOperation(getopt, args);
 
 				break;
 			case 'f':
 
-				super.operation = new AccessorOperation(super.context, super.log, this,"RefuseFireEvent",boolean.class);
+				super.operation = new AccessorOperation(super.context, super.log, this,FIELD_RefuseFireEvent,boolean.class);
 				super.operation.buildOperation(getopt, args);
 
 				break;
 			case 'a':
 
-				super.operation = new AccessorOperation(super.context, super.log, this,"RefuseStartActivity",boolean.class);
+				super.operation = new AccessorOperation(super.context, super.log, this,FIELD_RefuseStartActivity,boolean.class);
 				super.operation.buildOperation(getopt, args);
 
 				break;

@@ -105,7 +105,8 @@ public class TimerCommand extends AbstractSleeCommand {
 	private class ThreadsOperation extends AbstractOperation {
 		public static final char set = 's';
 		public static final char get = 'g';
-
+		private static final String OPERATION_setTimerThreads = "setTimerThreads";
+		private static final String OPERATION_getTimerThreads = "getTimerThreads";
 		public ThreadsOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			// op name is set depending on options
@@ -129,7 +130,7 @@ public class TimerCommand extends AbstractSleeCommand {
 
 				case set:
 
-					super.operationName = "setTimerThreads";
+					super.operationName = OPERATION_setTimerThreads;
 					optArg = opts.getOptarg();
 					try {
 						addArg(Integer.parseInt(optArg), int.class, false);
@@ -140,7 +141,7 @@ public class TimerCommand extends AbstractSleeCommand {
 					break;
 				case get:
 
-					super.operationName = "getTimerThreads";
+					super.operationName = OPERATION_getTimerThreads;
 
 					break;
 

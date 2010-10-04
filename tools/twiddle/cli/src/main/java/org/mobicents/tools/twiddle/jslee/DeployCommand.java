@@ -225,10 +225,10 @@ public class DeployCommand extends AbstractSleeCommand {
 	
 	private class GetReferringComponentsOperation extends AbstractOperation
 	{
-
+		public static final String OPERATION_getReferringComponents = "getReferringComponents";
 		public GetReferringComponentsOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getReferringComponents";
+			super.operationName = OPERATION_getReferringComponents;
 		}
 
 		@Override
@@ -252,7 +252,8 @@ public class DeployCommand extends AbstractSleeCommand {
 	
 	private class GetDescriptorsOperation extends AbstractOperation
 	{
-
+		private static final String OPERATION_getDescriptors = "getDescriptors";
+		private static final String OPERATION_getDescriptor = "getDescriptor";
 		
 		private String stringDUID;
 		private String stringCID;
@@ -277,11 +278,9 @@ public class DeployCommand extends AbstractSleeCommand {
 				case IsInstalledOperation.duid:
 	
 					stringDUID = opts.getOptarg();
-					super.operationName = "clearAlarms";
 					break;
 				case IsInstalledOperation.cid:
 					stringCID = opts.getOptarg();
-					super.operationName = "clearAlarms";
 					break;
 				
 				default:
@@ -302,11 +301,11 @@ public class DeployCommand extends AbstractSleeCommand {
 				if (stringCID.contains(";")) {
 					// arrays for ServiceID
 
-					super.operationName="getDescriptors";
+					super.operationName=OPERATION_getDescriptors;
 
 				}else
 				{
-					super.operationName="getDescriptor";
+					super.operationName=OPERATION_getDescriptor;
 				}
 				try{
 					addArg(stringCID, ComponentID.class, true);
@@ -320,11 +319,11 @@ public class DeployCommand extends AbstractSleeCommand {
 				if (stringDUID.contains(";")) {
 					// arrays for ServiceID
 
-					super.operationName="getDescriptors";
+					super.operationName=OPERATION_getDescriptors;
 
 				}else
 				{
-					super.operationName="getDescriptor";
+					super.operationName=OPERATION_getDescriptor;
 				}
 				try{
 					addArg(stringDUID, DeployableUnitID.class, true);
@@ -341,10 +340,10 @@ public class DeployCommand extends AbstractSleeCommand {
 	
 	private class DeployableUnitIDOperation extends AbstractOperation
 	{
-		
+		private static final String OPERATION_getDeployableUnit = "getDeployableUnit";
 		public DeployableUnitIDOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "getDeployableUnit";
+			super.operationName = OPERATION_getDeployableUnit;
 		}
 
 		@Override
@@ -356,10 +355,10 @@ public class DeployCommand extends AbstractSleeCommand {
 	
 	private class UninstallOperation extends AbstractOperation
 	{
-
+		private static final String OPERATION_uninstall = "uninstall";
 		public UninstallOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "uninstall";
+			super.operationName = OPERATION_uninstall;
 		}
 
 		@Override
@@ -383,10 +382,10 @@ public class DeployCommand extends AbstractSleeCommand {
 	
 	private class InstallOperation extends AbstractOperation
 	{
-		
+		private static final String OPERATION_install = "install";
 		public InstallOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "install";
+			super.operationName = OPERATION_install;
 		}
 
 		@Override
@@ -400,13 +399,16 @@ public class DeployCommand extends AbstractSleeCommand {
 	private class IsInstalledOperation extends AbstractOperation {
 		public static final char duid = 'n';
 		public static final char cid = 'm';
+		
+		private static final String OPERATION_isInstalled = "isInstalled";
+		
 		//TODO: remove this, remove options and make String check for DUID prefix ?
 		private String stringDUID;
 		private String stringCID;
 
 		public IsInstalledOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "isInstalled";
+			super.operationName = OPERATION_isInstalled;
 		}
 
 		@Override
@@ -471,6 +473,19 @@ public class DeployCommand extends AbstractSleeCommand {
 
 		}
 
+		@Override
+		protected String prepareResultText() {
+			Boolean b = (Boolean) super.operationResult;
+			if(b)
+			{
+				return "Is installed.";
+			}else
+			{
+				return "Is not installed.";
+			}
+		}
+		
+
 	}
 	
 	private class ListOperation extends AbstractOperation {
@@ -485,12 +500,20 @@ public class DeployCommand extends AbstractSleeCommand {
 		public static final char profile_specs = 'g';
 		
 		
+		private static final String OPERATION_getSbbs = "getSbbs";
+		private static final String OPERATION_getResourceAdaptorTypes ="getResourceAdaptorTypes";
+		private static final String OPERATION_getResourceAdaptors ="getResourceAdaptors";
+		private static final String OPERATION_getServices ="getServices";
+		private static final String OPERATION_getLibraries ="getLibraries";
+		private static final String OPERATION_getEventTypes ="getEventTypes";
+		private static final String OPERATION_getDeployableUnits ="getDeployableUnits";
+		private static final String OPERATION_getProfileSpecifications ="getProfileSpecifications";
+		
+		
 		
 		//service id which can be presen with 'q';
 		private String stringServiceID;
 		
-		
-
 		public ListOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			
@@ -510,9 +533,8 @@ public class DeployCommand extends AbstractSleeCommand {
 					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1] );
 
 				case sbbs:
-					super.operationName = "getSbbs";
+					super.operationName = OPERATION_getSbbs;
 					stringServiceID = opts.getOptarg();
-					System.err.println("ServiceID: "+stringServiceID);
 					if(stringServiceID!=null)
 					{
 						//we have service id;
@@ -524,26 +546,26 @@ public class DeployCommand extends AbstractSleeCommand {
 					}
 					break;		
 				case ra_types:
-					super.operationName = "getResourceAdaptorTypes";
+					super.operationName = OPERATION_getResourceAdaptorTypes;
 					break;				
 				case ras:
-					super.operationName = "getResourceAdaptors";
+					super.operationName = OPERATION_getResourceAdaptors;
 					break;			
 				case services:
-					super.operationName = "getServices";
+					super.operationName = OPERATION_getServices;
 					break;				
 				case libraries:
-					super.operationName = "getLibraries";
+					super.operationName = OPERATION_getLibraries;
 					break;				
 				case events:
-					super.operationName = "getEventTypes";
+					super.operationName = OPERATION_getEventTypes;
 					break;
 
 				case dus:
-					super.operationName = "getDeployableUnits";//FIXME: add editor for that
+					super.operationName = OPERATION_getDeployableUnits;//FIXME: add editor for that
 					break;
 				case profile_specs:
-					super.operationName = "getProfileSpecifications";
+					super.operationName = OPERATION_getProfileSpecifications;
 					break;
 				default:
 					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()

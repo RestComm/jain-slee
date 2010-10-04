@@ -20,6 +20,7 @@ package org.mobicents.tools.twiddle.op;
 import java.beans.PropertyEditor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
@@ -101,40 +102,7 @@ public abstract class AbstractOperation {
 		//default impl of display;
 		if (!context.isQuiet()) {
 			// Translate the result to text
-			String resultText = null;
-
-			if (operationResult != null) {
-					
-					try {
-						PropertyEditor editor = PropertyEditors.getEditor(operationResult.getClass());
-						editor.setValue(operationResult);
-						resultText = editor.getAsText();
-					} catch (RuntimeException e) {
-						// No property editor found or some conversion problem
-						//TODO: add something more sophisticated here
-						log.debug("No editor found: ",e);
-						//fallback op
-						if(operationResult.getClass().isArray())
-						{
-				
-							//TODO: this is not readable, but result can be passed into another invocation
-							Object[] arrayResult = (Object[]) operationResult;
-							resultText = unfoldArray("", arrayResult);
-						}else if(operationResult!=null)
-						{
-							resultText = operationResult.toString();
-						}else
-						{
-							resultText = "'success'";
-						}
-						
-					}
-			
-					log.debug("Converted result: " + resultText);
-				
-			} else {
-				resultText = "'success'";
-			}
+			String resultText = prepareResultText();
 
 			// render results to out
 			PrintWriter out = context.getWriter();
@@ -142,20 +110,86 @@ public abstract class AbstractOperation {
 			out.flush();
 		}
 	}
+	
+	
+	protected String prepareResultText() {
+		String resultText = null;
+
+		if (operationResult != null) {
+				
+				try {
+					if(operationResult instanceof Collection)
+					{
+						//convert to array?
+						Collection c = (Collection) operationResult;
+						Object[] arrayO = c.toArray();
+						operationResult = arrayO;
+					}
+					
+					//here we may have array as result, dont want that, we will handle how its displayed.
+					if(operationResult.getClass().isArray())
+					{
+						Object[] resultArray = (Object[]) operationResult;
+						Class memberClass =resultArray.getClass().getComponentType(); // get type of array stored classes.
+						PropertyEditor editor = PropertyEditors.getEditor(memberClass);
+						resultText = unfoldArray("", resultArray,editor);
+					}else
+					{
+						PropertyEditor editor = PropertyEditors.getEditor(operationResult.getClass());
+						editor.setValue(operationResult);
+						resultText = editor.getAsText();
+					}
+					
+				} catch (RuntimeException e) {
+					// No property editor found or some conversion problem
+					//TODO: add something more sophisticated here
+					log.debug("No editor found: ",e);
+					//fallback op
+					if(operationResult.getClass().isArray())
+					{
+			
+						//TODO: this is not readable, but result can be passed into another invocation
+						Object[] arrayResult = (Object[]) operationResult;
+						resultText = unfoldArray("", arrayResult,null);
+					}else
+					{
+						resultText = operationResult.toString();
+					}
+					
+				}
+		
+				log.debug("Converted result: " + resultText);
+			
+		} else {
+			resultText = "'success'";
+		}
+		return resultText;
+	}
+
 	/**
 	 * Default implementation.
 	 * @param prefix
 	 * @param array
 	 * @return
 	 */
-	protected String unfoldArray(String prefix, Object[] array)
+	protected String unfoldArray(String prefix, Object[] array,PropertyEditor editor)
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuffer sb = new StringBuffer("\n");
 		for(int index=0;index<array.length;index++)
 		{
-			 sb.append(array[index].toString());
+			if(editor!=null)
+			{
+				editor.setValue(array[index]);
+				sb.append(editor.getAsText());
+			}
+			else
+			{
+				sb.append(array[index].toString());
+			}
+			 
                 if (index < array.length-1) {
-                	sb.append(CID_SEPARATOR);
+                	//sb.append(CID_SEPARATOR);
+                	sb.append("\n");
                 }
 		}
 		

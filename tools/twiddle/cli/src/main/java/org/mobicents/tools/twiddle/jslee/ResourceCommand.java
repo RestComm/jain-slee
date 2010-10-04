@@ -240,12 +240,14 @@ public class ResourceCommand extends AbstractSleeCommand {
 		public static final char ra_link_name = 'v';
 		public static final char ra_entity_name = 'm';
 		
+		private static final String OPERATION_bindLinkName = "bindLinkName";
+		
 		private String linkName;
 		private String entityName;
 		
 		public BindOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "bindLinkName";
+			super.operationName = OPERATION_bindLinkName;
 		}
 
 		@Override
@@ -292,10 +294,10 @@ public class ResourceCommand extends AbstractSleeCommand {
 	private class UnBindOperation extends AbstractOperation
 	{
 
-		
+		private static final String OPERATION_unbindLinkName = "unbindLinkName";
 		public UnBindOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "unbindLinkName";
+			super.operationName = OPERATION_unbindLinkName;
 		}
 
 		@Override
@@ -308,10 +310,10 @@ public class ResourceCommand extends AbstractSleeCommand {
 	private class ActivateOperation extends AbstractOperation
 	{
 
-		
+		private static final String OPERATION_activateResourceAdaptorEntity = "activateResourceAdaptorEntity";
 		public ActivateOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "activateResourceAdaptorEntity";
+			super.operationName = OPERATION_activateResourceAdaptorEntity;
 		}
 
 		@Override
@@ -324,10 +326,11 @@ public class ResourceCommand extends AbstractSleeCommand {
 	private class DeactivateOperation extends AbstractOperation
 	{
 
+		private static final String OPERATION_deactivateResourceAdaptorEntity = "deactivateResourceAdaptorEntity";
 		
 		public DeactivateOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "deactivateResourceAdaptorEntity";
+			super.operationName = OPERATION_deactivateResourceAdaptorEntity;
 		}
 
 		@Override
@@ -339,11 +342,11 @@ public class ResourceCommand extends AbstractSleeCommand {
 	}
 	private class RemoveOperation extends AbstractOperation
 	{
-
+		private static final String OPERATION_removeResourceAdaptorEntity = "removeResourceAdaptorEntity";
 		
 		public RemoveOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "removeResourceAdaptorEntity";
+			super.operationName = OPERATION_removeResourceAdaptorEntity;
 		}
 
 		@Override
@@ -360,12 +363,14 @@ public class ResourceCommand extends AbstractSleeCommand {
 		private static final char config='i';
 		private static final char ra_id='j';
 		
+		private static final String OPERATION_createResourceAdaptorEntity = "createResourceAdaptorEntity";
+		
 		private String stringEntityName;
 		private String stringConfig;
 		private String stringRaID;
 		public CreateOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "createResourceAdaptorEntity";
+			super.operationName = OPERATION_createResourceAdaptorEntity;
 		}
 
 		@Override
@@ -432,6 +437,13 @@ public class ResourceCommand extends AbstractSleeCommand {
 		private static final char ra_entities_in_state='x';
 		private static final char ra_entities='q';
 
+		private static final String OPERATION_getBoundSbbs = "getBoundSbbs";
+		private static final String OPERATION_getLinkNames = "getLinkNames";
+		private static final String OPERATION_getResourceAdaptorEntities = "getResourceAdaptorEntities";
+		private static final String OPERATION_getResourceAdaptorEntity = "getResourceAdaptorEntity";
+	
+		
+		
 		public ListOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			//operation is set based on arg.
@@ -455,12 +467,12 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 			
 				case sbbs:
-					super.operationName = "getBoundSbbs";
+					super.operationName = OPERATION_getBoundSbbs;
 					String optArg = opts.getOptarg(); // arg is mandatory
 					super.addArg(optArg, String.class, false);
 					break;
 				case links:
-					super.operationName = "getLinkNames";
+					super.operationName = OPERATION_getLinkNames;
 					optArg = opts.getOptarg();
 					if(optArg!=null)
 					{
@@ -469,7 +481,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 					}
 					break;
 				case ra_entities:
-					super.operationName = "getResourceAdaptorEntities";
+					super.operationName = OPERATION_getResourceAdaptorEntities;
 					 optArg = opts.getOptarg();
 					if(optArg!=null)
 					{
@@ -487,16 +499,16 @@ public class ResourceCommand extends AbstractSleeCommand {
 					 optArg = opts.getOptarg();
 					 if(optArg.contains(";"))
 					 {
-						 super.operationName = "getResourceAdaptorEntities";
+						 super.operationName = OPERATION_getResourceAdaptorEntities;
 						 super.addArg(optArg.split(";"), String[].class, false);
 					 }else
 					 {
-						 super.operationName = "getResourceAdaptorEntity";
+						 super.operationName = OPERATION_getResourceAdaptorEntity;
 						 super.addArg(optArg, String.class, false);
 					 }
 					break;
 				case ra_entities_in_state:
-					super.operationName = "getResourceAdaptorEntities";
+					super.operationName = OPERATION_getResourceAdaptorEntities;
 					optArg = opts.getOptarg();
 					try {
 						super.addArg(optArg, ResourceAdaptorEntityState.class, true);
@@ -525,6 +537,12 @@ public class ResourceCommand extends AbstractSleeCommand {
 		private static final char config_by_id='m';
 		private static final char state='o';
 
+		private static final String OPERATION_getResourceAdaptor = "getResourceAdaptor";
+		private static final String OPERATION_getState = "getState";
+		private static final String OPERATION_getConfigurationProperties = "getConfigurationProperties";
+		private static final String OPERATION_getResourceUsageMBean = "getResourceUsageMBean";
+	
+		
 		public GetOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			//super.operationName = "removeResourceAdaptorEntity";
@@ -547,19 +565,21 @@ public class ResourceCommand extends AbstractSleeCommand {
 					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
 				case CreateOperation.ra_id:
-					super.operationName = "getResourceAdaptor";
+					super.operationName = OPERATION_getResourceAdaptor;
 					String optArg = opts.getOptarg();
 					//it must be entity name
 					super.addArg(optArg, String.class, false);
 					break;
 				case state:
-					super.operationName = "getState";
+					super.operationName = OPERATION_getState;
 					optArg = opts.getOptarg();
 					//it must be entity name
 					super.addArg(optArg, String.class, false);
 					break;
+					
+					//FIXME: decided to leave conf options listing as default, so its easier to copy/paste?
 				case config_by_id:
-					super.operationName = "getConfigurationProperties"; 
+					super.operationName = OPERATION_getConfigurationProperties; 
 					optArg = opts.getOptarg();
 					//it must be RA ID
 					try {
@@ -569,14 +589,14 @@ public class ResourceCommand extends AbstractSleeCommand {
 					}
 					break;
 				case config_by_name:
-					super.operationName = "getConfigurationProperties"; 
+					super.operationName = OPERATION_getConfigurationProperties; 
 					optArg = opts.getOptarg();
 					//it must be RA entity name
 	
 					super.addArg(optArg, String.class, false);
 					break;
 				case usage_mbean:
-					super.operationName = "getResourceUsageMBean"; 
+					super.operationName = OPERATION_getResourceUsageMBean; 
 					optArg = opts.getOptarg();
 					//it must be RA entity name
 	
@@ -600,13 +620,13 @@ public class ResourceCommand extends AbstractSleeCommand {
 	
 	private class UpdateConfigOperation extends AbstractOperation
 	{
-		
+		private static final String OPERATION_updateConfigurationProperties = "updateConfigurationProperties";
 		private String stringEntityName;
 		private String stringConfig;
 
 		public UpdateConfigOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			super.operationName = "updateConfigurationProperties";
+			super.operationName = OPERATION_updateConfigurationProperties;
 		}
 
 		@Override

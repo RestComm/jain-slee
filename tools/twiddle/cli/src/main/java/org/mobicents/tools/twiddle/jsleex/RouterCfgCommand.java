@@ -37,6 +37,9 @@ import org.mobicents.tools.twiddle.op.AccessorOperation;
  * 
  */
 public class RouterCfgCommand extends AbstractSleeCommand {
+	private static final String FIELD_ExecutorMapperClassName = "ExecutorMapperClassName";
+	private static final String FIELD_EventRouterThreads = "EventRouterThreads";
+	private static final String FIELD_CollectStats = "CollectStats";
 
 	public RouterCfgCommand() {
 		super("router.cfg", "This command performs operations on Mobicents EventRouterConfiguration MBean.");
@@ -97,19 +100,19 @@ public class RouterCfgCommand extends AbstractSleeCommand {
 
 			case 'm':
 
-				super.operation = new AccessorOperation(super.context, super.log, this,"ExecutorMapperClassName",String.class);
+				super.operation = new AccessorOperation(super.context, super.log, this,FIELD_ExecutorMapperClassName,String.class);
 				super.operation.buildOperation(getopt, args);
 
 				break;
 			case 't':
 
-				super.operation = new AccessorOperation(super.context, super.log, this,"EventRouterThreads",int.class);
+				super.operation = new AccessorOperation(super.context, super.log, this,FIELD_EventRouterThreads,int.class);
 				super.operation.buildOperation(getopt, args);
 
 				break;
 			case 'x':
 
-				super.operation = new AccessorOperation(super.context, super.log, this,"CollectStats",boolean.class);
+				super.operation = new AccessorOperation(super.context, super.log, this,FIELD_CollectStats,boolean.class);
 				super.operation.buildOperation(getopt, args);
 
 				break;

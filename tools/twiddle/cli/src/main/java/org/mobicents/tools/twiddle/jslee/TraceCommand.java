@@ -186,9 +186,11 @@ public class TraceCommand extends AbstractSleeCommand {
 
 	private class GetTracersUsedOperation extends AbstractOperation {
 
+		private static final String OPERATION_getTracersUsed = "getTracersUsed";
+		
 		public GetTracersUsedOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			this.operationName = "getTracersUsed";
+			this.operationName = OPERATION_getTracersUsed;
 		}
 
 		@Override
@@ -210,10 +212,12 @@ public class TraceCommand extends AbstractSleeCommand {
 	}
 
 	private class GetTracersSetOperation extends AbstractOperation {
-
+		
+		private static final String OPERATION_getTracersSet = "getTracersSet";
+		
 		public GetTracersSetOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			this.operationName = "getTracersSet";
+			this.operationName = OPERATION_getTracersSet;
 		}
 
 		@Override
@@ -241,6 +245,7 @@ public class TraceCommand extends AbstractSleeCommand {
 		public static final char name = 'v';
 		public static final char level = 'b';
 
+		private static final String OPERATION_setTraceLevel = "setTraceLevel";
 		private String stringCID;
 
 		private String stringNSRC;
@@ -250,7 +255,7 @@ public class TraceCommand extends AbstractSleeCommand {
 
 		public SetLevelOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			this.operationName = "setTraceLevel";
+			this.operationName = OPERATION_setTraceLevel;
 		}
 
 		@Override
@@ -341,7 +346,7 @@ public class TraceCommand extends AbstractSleeCommand {
 		public static final char cid = 'g';
 		public static final char nsrc = 'h';
 		public static final char name = 'j';
-
+		private static final String OPERATION_getTraceLevel = "getTraceLevel";
 		private String stringCID;
 
 		private String stringNSRC;
@@ -349,7 +354,7 @@ public class TraceCommand extends AbstractSleeCommand {
 
 		public GetLevelOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			this.operationName = "getTraceLevel";
+			this.operationName = OPERATION_getTraceLevel;
 		}
 
 		@Override
@@ -425,10 +430,10 @@ public class TraceCommand extends AbstractSleeCommand {
 
 		private String stringNSRC;
 		private String stringName;
-
+		private static final String OPERATION_unsetTraceLevel = "unsetTraceLevel";
 		public UnsetLevelOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
-			this.operationName = "getTraceLevel";
+			this.operationName = OPERATION_unsetTraceLevel;
 		}
 
 		@Override
