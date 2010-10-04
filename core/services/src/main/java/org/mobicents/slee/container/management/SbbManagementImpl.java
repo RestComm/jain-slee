@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.management;
 
+import java.lang.reflect.Method;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.LinkRef;
@@ -8,6 +10,7 @@ import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.facilities.AlarmFacility;
@@ -398,6 +401,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 			}
 
 		}
+		
 
 		/*
 		 * Bind the ejb-refs
@@ -405,66 +409,73 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		try {
 			envCtx.createSubcontext("ejb");
 		} catch (NameAlreadyBoundException ex) {
+			//envCtx = (Context)envCtx.lookup("ejb");
+			//6.13.4.1.1 - The SLEE specification recommends, but does not require, that all references to other EJBs be organized
+			//in the ejb subcontext of the SBB’s environment
+			//so it can be any :/
 			envCtx.lookup("ejb");
 		}
 
 		for (EjbRefDescriptor ejbRef : sbbComponent.getDescriptor().getEjbRefs()) {
 		
 			String jndiName = ejbRef.getEjbRefName();
+						
 			
-			if (logger.isDebugEnabled()) {
-				logger.debug("Binding ejb: " + ejbRef.getEjbRefName()
-						+ " with link to " + jndiName);
-			}
-
-			try {
-				envCtx.bind(ejbRef.getEjbRefName(), new LinkRef(jndiName));
-			} catch (NameAlreadyBoundException ex) {
-			}
-
 			/*
 			 * Validate the ejb reference has the correct type and classes as
 			 * specified in deployment descriptor
 			 */
+			  
+			String home = ejbRef.getHome();
+			String remote = ejbRef.getRemote();
+			//EJBs are bound to global name space.
+			//Object obj = new InitialContext().lookup("java:comp/env/" + ejbRef.getEjbRefName());
+			Object obj = new InitialContext().lookup( jndiName);
 
-			/*
-			 * TODO I think I know the problem here. It seems the ejb is loaded
-			 * AFTER the sbb is loaded, hence the validation fails here since it
-			 * cannot locate the ejb. We need to force the ejb to be loaded
-			 * before the sbb
-			 */
+			Object homeObject = null;
+			try {
 
-			/*
-			 * Commented out for now
-			 * 
-			 * 
-			 * Object obj = new InitialContext().lookup("java:comp/env/" +
-			 * ejbRef.getEjbRefName());
-			 * 
-			 * Object homeObject = null; try { Class homeClass =
-			 * Thread.currentThread().getContextClassLoader().loadClass(home);
-			 * 
-			 * homeObject = PortableRemoteObject.narrow(obj, homeClass);
-			 * 
-			 * if (!homeClass.isInstance(homeObject)) { throw new
-			 * DeploymentException("Looked up ejb home is not an instanceof " +
-			 * home); } } catch (ClassNotFoundException e) { throw new
-			 * DeploymentException("Failed to load class " + home); } catch
-			 * (ClassCastException e) { throw new DeploymentException("Failed to
-			 * lookup ejb reference using jndi name " + jndiName); }
-			 * 
-			 * Object ejb = null; try { Method m =
-			 * homeObject.getClass().getMethod("create", null); Object ejbObject =
-			 * m.invoke(home, null);
-			 * 
-			 * Class ejbClass =
-			 * Thread.currentThread().getContextClassLoader().loadClass(remote);
-			 * if (!ejbClass.isInstance(ejbObject)) { throw new
-			 * DeploymentException("Looked up ejb object is not an instanceof " +
-			 * remote); } } catch (ClassNotFoundException e) { throw new
-			 * DeploymentException("Failed to load class " + remote); }
-			 * 
-			 */
+				Class homeClass = Thread.currentThread().getContextClassLoader().loadClass(home);
+
+				homeObject = PortableRemoteObject.narrow(obj, homeClass);
+		
+				if (!homeClass.isInstance(homeObject)) {
+					throw new DeploymentException("Looked up ejb home is not an instanceof " + home);
+				}
+			} catch (ClassNotFoundException e) {
+				throw new DeploymentException("Failed to load class " + home,e);
+			} catch (ClassCastException e) {
+				throw new DeploymentException("Failed to lookup ejb reference using jndi name " + jndiName,e);
+			}
+
+			Object ejb = null;
+			try {
+				Method m = homeObject.getClass().getMethod("create", null);
+				Object ejbObject = m.invoke(homeObject, null);
+
+				Class ejbClass = Thread.currentThread().getContextClassLoader().loadClass(remote);
+				if (!ejbClass.isInstance(ejbObject)) {
+					throw new DeploymentException("Looked up ejb object is not an instanceof " + remote);
+				}
+			} catch (ClassNotFoundException e) {
+				throw new DeploymentException("Failed to load class " + remote,e);
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("Binding ejb: " + ejbRef.getEjbRefName()
+					+ " with link to " + jndiName);
+			}
+	
+			try {
+				String name = ejbRef.getEjbRefName();
+				NameParser parser = ctx.getNameParser("");
+				Name local = parser.parse(name);
+				int nameSize = local.size();
+				Context tempCtx = createSubContext(envCtx,local);
+				tempCtx.bind(local.get(nameSize-1), new LinkRef(jndiName));
+			
+			} catch (NameAlreadyBoundException ex) {
+				//should not happen, JIC.
+			}
 
 			/*
 			 * A note on the <ejb-link> link. The semantics of ejb-link when
@@ -539,7 +550,25 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 			}
 		}
 	}
+	private static Context createSubContext(Context ctx,Name local) throws Exception
+	{
 	
+		int nameSize = local.size();
+		Context tempCtx = ctx;
+
+		for (int a = 0; a < nameSize - 1; a++) {
+			String temp = local.get(a);
+			try {
+				tempCtx.lookup(temp);
+			} catch (NameNotFoundException ne) {
+				tempCtx.createSubcontext(temp);
+
+			} finally {
+				tempCtx = (Context) tempCtx.lookup(temp);
+			}
+		}
+		return tempCtx;
+	}
 	/*
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.container.management.SbbManagement#uninstallSbb(org.mobicents.slee.core.component.sbb.SbbComponent)
