@@ -63,13 +63,13 @@
 		<env-entry>
 			<env-entry-name>username</env-entry-name>
 			<env-entry-type>java.lang.String</env-entry-type>
-			<env-entry-value>${user}</env-entry-value>
+			<env-entry-value>mobicents.gtalk.bot</env-entry-value>
 		</env-entry>
 
 		<env-entry>
 			<env-entry-name>password</env-entry-name>
 			<env-entry-type>java.lang.String</env-entry-type>
-			<env-entry-value>${password}</env-entry-value>
+			<env-entry-value>m0b1c3nts</env-entry-value>
 		</env-entry>
 		
 		<resource-adaptor-type-binding>

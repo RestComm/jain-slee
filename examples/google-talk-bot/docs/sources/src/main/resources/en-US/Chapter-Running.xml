@@ -6,11 +6,9 @@
 	<title>Running the Example</title>
 	
 	<para>To try the example application a Google Talk account and client is needed, refer to the <ulink url="http://www.google.com/talk/">Google Talk</ulink> website for instructions.</para>
+	
 	<important>
-		<para>Ensure that <filename>sbb-jar.xml</filename> <literal>env-entries</literal> contain valid account credentials.</para>
-	</important>
-	<important>
-		<para>To exchange messages, the Google Talk account needs to add the Google Talk Bot account in its buddy list. Screenshot show google talk account for exampel is <literal>mobicents.org@gmail.com</literal>. However user must add account created for bot.</para>
+		<para>To exchange messages, the Google Talk account needs to add the Google Talk Bot account in its buddy list. The Google Talk Bot account is <literal>mobicents.gtalk.bot@gmail.com</literal>.</para>
 	</important>
 	
 	<para>Once Google Talk is fully setup and running, start &THIS.PLATFORM; JAIN SLEE and once the service is activated the <literal>Hi, I'm online too!</literal> message should popup, as depicted in the image below.</para> 

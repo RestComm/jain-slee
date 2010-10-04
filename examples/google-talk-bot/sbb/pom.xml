@@ -17,24 +17,5 @@
 			<version>${mobicents.resources.xmpp.version}</version>
 		</dependency>
 	</dependencies>
-	<build>
-		<filters>
-			<filter>${basedir}/../example.properties</filter>
-		</filters>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-				<excludes>
-					<exclude>org/**</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>org/**</include>
-				</includes>
-			</resource>
-		</resources>
-	</build>
+	
 </project>
