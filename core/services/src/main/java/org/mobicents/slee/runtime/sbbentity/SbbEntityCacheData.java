@@ -82,8 +82,8 @@ public class SbbEntityCacheData extends CacheData {
 	private static final String CMP_FIELDS_CHILD_NODE_NAME = "cmp-fields";
 	private static final Fqn CMP_FIELDS_CHILD_NODE_FQN = 
 		Fqn.fromElements(CMP_FIELDS_CHILD_NODE_NAME);
-	private Node<String,CmpWrapper> _cmpFieldsChildNode;
-	private Node<String,CmpWrapper> getCmpFieldsChildNode(boolean createIfNotExists) {
+	private Node<String,Object> _cmpFieldsChildNode;
+	private Node<String,Object> getCmpFieldsChildNode(boolean createIfNotExists) {
 		if (_cmpFieldsChildNode == null) {
 			final Node node = getNode();
 			_cmpFieldsChildNode = node.getChild(CMP_FIELDS_CHILD_NODE_NAME);
@@ -173,13 +173,13 @@ public class SbbEntityCacheData extends CacheData {
 		getNode().put(PRIORITY_NODE_MAP_KEY, priority);
 	}
 	
-	public void setCmpField(String cmpField, CmpWrapper cmpValue) {
-		final Node<String,CmpWrapper> node = getCmpFieldsChildNode(true);
+	public void setCmpField(String cmpField, Object cmpValue) {
+		final Node<String,Object> node = getCmpFieldsChildNode(true);
 		node.put(cmpField,cmpValue);
 	}
 
-	public CmpWrapper getCmpField(String cmpField) {
-		final Node<String,CmpWrapper> node = getCmpFieldsChildNode(false);
+	public Object getCmpField(String cmpField) {
+		final Node<String,Object> node = getCmpFieldsChildNode(false);
 		if (node == null) {
 			return null;
 		}

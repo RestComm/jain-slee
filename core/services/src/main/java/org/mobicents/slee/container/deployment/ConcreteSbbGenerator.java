@@ -14,11 +14,13 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
+import javax.slee.EventContext;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.Sbb;
 import javax.slee.SbbLocalObject;
 import javax.slee.management.DeploymentException;
+import javax.slee.profile.ProfileLocalObject;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.activity.ActivityContextInterface;
@@ -670,22 +672,125 @@ public class ConcreteSbbGenerator {
 					.get(getterMethodName);
 			if (getterMethod == null) {
 				getterMethod = (CtMethod) this.superClassesAbstractMethods
-						.get(getterMethodName);
+				.get(getterMethodName);
 			}
 			if (getterMethod == null) {
 				throw new SLEEException("can't find abstract method "
 						+ getterMethodName);
 			}
 
+			// generate the acessor method name sufix from type
+			String getterHandlerMethodName = "getCMPFieldOfType";
+			boolean getterHandlerMethodNeedResultCast = false;
+			String setterHandlerMethodName = "setCMPFieldOfType";
+			try {
+				CtClass ctClassCmpType = getterMethod.getReturnType();
+				if (ctClassCmpType.isPrimitive()) {
+					// boolean, byte, char, short, int, long, float, double
+					String ctClassCmpTypeName = ctClassCmpType.getName();
+					if (ctClassCmpTypeName.equals(boolean.class.getName())) {
+						getterHandlerMethodName += "Boolean";	
+					}
+					else if (ctClassCmpTypeName.equals(byte.class.getName())) {
+						getterHandlerMethodName += "Byte";	
+					}
+					else if (ctClassCmpTypeName.equals(char.class.getName())) {
+						getterHandlerMethodName += "Char";
+					}
+					else if (ctClassCmpTypeName.equals(short.class.getName())) {
+						getterHandlerMethodName += "Short";
+					}
+					else if (ctClassCmpTypeName.equals(int.class.getName())) {
+						getterHandlerMethodName += "Integer";
+					}
+					else if (ctClassCmpTypeName.equals(long.class.getName())) {
+						getterHandlerMethodName += "Long";
+					}
+					else if (ctClassCmpTypeName.equals(float.class.getName())) {
+						getterHandlerMethodName += "Float";
+					}
+					else if (ctClassCmpTypeName.equals(double.class.getName())) {
+						getterHandlerMethodName += "Double";
+					}
+					else {
+						throw new SLEEException("unexpected primitive type "
+								+ ctClassCmpTypeName);
+					}				
+					getterHandlerMethodNeedResultCast = true;
+					setterHandlerMethodName += "PrimitiveOrUnknown";
+				}
+				else {
+					// aci, event context, sbb local object, profile local object, Boolean, Byte, Char, Short, Integer, Long, Float, Double, unknown, array, enum, annotation
+					if (!ctClassCmpType.isArray() && !ctClassCmpType.isEnum() && !ctClassCmpType.isAnnotation()) {
+						// aci, event context, sbb local object, profile local object, Boolean, Byte, Char, Short, Integer, Long, Float, Double, unknown
+						Class<?> classCmpType = Thread.currentThread().getContextClassLoader().loadClass(ctClassCmpType.getName());
+						if (javax.slee.ActivityContextInterface.class.isAssignableFrom(classCmpType)) {
+							getterHandlerMethodName += "ActivityContextInterface";
+							setterHandlerMethodName += "ActivityContextInterface";
+						}
+						else if (EventContext.class.isAssignableFrom(classCmpType)) {
+							getterHandlerMethodName += "EventContext";
+							setterHandlerMethodName += "EventContext";
+						}
+						else if (ProfileLocalObject.class.isAssignableFrom(classCmpType)) {
+							getterHandlerMethodName += "ProfileLocalObject";
+							setterHandlerMethodName += "ProfileLocalObject";
+						}
+						else if (SbbLocalObject.class.isAssignableFrom(classCmpType)) {
+							getterHandlerMethodName += "SbbLocalObject";
+							setterHandlerMethodName += "SbbLocalObject";
+						}
+						else {
+							// Boolean, Byte, Char, Short, Integer, Long, Float, Double, unknown
+							String ctClassCmpTypeName = ctClassCmpType.getName();
+							if (ctClassCmpTypeName.equals(Boolean.class.getName())) {
+								getterHandlerMethodName += "Boolean";	
+							}
+							else if (ctClassCmpTypeName.equals(Byte.class.getName())) {
+								getterHandlerMethodName += "Byte";	
+							}
+							else if (ctClassCmpTypeName.equals(Character.class.getName())) {
+								getterHandlerMethodName += "Char";
+							}
+							else if (ctClassCmpTypeName.equals(Short.class.getName())) {
+								getterHandlerMethodName += "Short";
+							}
+							else if (ctClassCmpTypeName.equals(Integer.class.getName())) {
+								getterHandlerMethodName += "Integer";
+							}
+							else if (ctClassCmpTypeName.equals(Long.class.getName())) {
+								getterHandlerMethodName += "Long";
+							}
+							else if (ctClassCmpTypeName.equals(Float.class.getName())) {
+								getterHandlerMethodName += "Float";
+							}
+							else if (ctClassCmpTypeName.equals(Double.class.getName())) {
+								getterHandlerMethodName += "Double";
+							}
+							else {
+								getterHandlerMethodName += "Unknown";
+								getterHandlerMethodNeedResultCast = true;
+							}
+							setterHandlerMethodName += "PrimitiveOrUnknown";
+						}
+					}
+					else {
+						// array, enum, annotation == same as unknown
+						getterHandlerMethodName += "Unknown";
+						getterHandlerMethodNeedResultCast = true;
+						setterHandlerMethodName += "PrimitiveOrUnknown";
+					}								
+				}
+			} catch (Exception cce) {
+				throw new SLEEException("Cannot determine the cmp type for cmp field named "+fieldName, cce);
+			}
+			
 			try {
 				// copy method from abstract to concrete class
 				CtMethod concreteGetterMethod = CtNewMethod.copy(getterMethod,
 						sbbConcreteClass, null);
 				// create the method body
-				String concreteGetterMethodBody = "{ return ($r)"
-						+ SbbAbstractMethodHandler.class.getName()
-						+ ".getCMPField(sbbEntity,\"" + cmp.getCmpFieldName()
-						+ "\","+concreteGetterMethod.getReturnType().getName()+".class); }";
+				String concreteGetterMethodBody = "{ return " + ( getterHandlerMethodNeedResultCast ? "($r)" : "") + SbbAbstractMethodHandler.class.getName() + "." + getterHandlerMethodName+ "(sbbEntity,\"" + cmp.getCmpFieldName() + "\"); }";
 				if (logger.isTraceEnabled()) {
 		            logger.trace("Generated method " + getterMethodName
 							+ " , body = " + concreteGetterMethodBody);
@@ -716,7 +821,7 @@ public class ConcreteSbbGenerator {
 				// create the method body
 				String concreteSetterMethodBody = "{ "
 						+ SbbAbstractMethodHandler.class.getName()
-						+ ".setCMPField(sbbEntity,\"" + cmp.getCmpFieldName()
+						+ "."+setterHandlerMethodName+"(sbbEntity,\"" + cmp.getCmpFieldName()
 						+ "\",$1); }";
 				if (logger.isTraceEnabled()) {
 		            logger.trace("Generated method " + setterMethodName

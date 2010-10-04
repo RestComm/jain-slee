@@ -1,6 +1,5 @@
 package org.mobicents.slee.runtime.sbbentity;
 
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
@@ -15,9 +14,7 @@ import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
-import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
-import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
 
@@ -26,15 +23,11 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeThreadLocals;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.mobicents.slee.container.component.sbb.CMPFieldDescriptor;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.component.sbb.SbbComponent.EventHandlerMethod;
 import org.mobicents.slee.container.event.EventContext;
-import org.mobicents.slee.container.event.EventContextHandle;
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
-import org.mobicents.slee.container.profile.ProfileLocalObject;
-import org.mobicents.slee.container.profile.ProfileTable;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectPool;
 import org.mobicents.slee.container.sbb.SbbObjectState;
@@ -137,166 +130,28 @@ public class SbbEntityImpl implements SbbEntity {
 		return sbbEntityImmutableData.getConvergenceName();
 	}
 
-	/**
-	 * The generated code to access CMP Fields needs to call this method.
-	 * 
-	 * @param cmpField
-	 * @return
-	 * @throws TransactionRequiredLocalException
-	 * @throws SystemException
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.sbbentity.SbbEntity#getCMPField(java.lang.String)
 	 */
-	public Object getCMPField(String cmpFieldName)
-			throws TransactionRequiredLocalException {
-
-		if (doTraceLogs) {
-			log.trace("getCMPField(cmpFieldName = "+cmpFieldName+") ");
-		}
-
-		sleeContainer.getTransactionManager().mandateTransaction();
-
-		CmpWrapper cmpWrapper = (CmpWrapper) cacheData
-				.getCmpField(cmpFieldName);
-		if (cmpWrapper != null) {
-			switch (cmpWrapper.getType()) {
-
-			case sbblo:
-				// it's a sbbLocalObject cmp
-				String sbbEntityId = (String) cmpWrapper.getValue();
-				SbbEntity sbbEntity = sbbEntityFactory.getSbbEntity(sbbEntityId,false);
-				if (sbbEntity == null)
-					return null;
-				else if (sbbEntity.isRemoved())
-					return null;
-				else {
-					return sbbEntity.getSbbLocalObject();
-				}
-
-			case aci:
-				final ActivityContext ac = sleeContainer
-						.getActivityContextFactory().getActivityContext(
-								(ActivityContextHandle) cmpWrapper.getValue());
-				if (ac != null) {
-					return ac.getActivityContextInterface();
-				} else {
-					return null;
-				}
-
-			case eventctx:
-				final EventContextHandle eventContextHandle = (EventContextHandle) cmpWrapper
-						.getValue();
-				return sleeContainer.getEventContextFactory().getEventContext(eventContextHandle);
-
-			case profilelo:
-				ProfileLocalObjectCmpValue profileLocalObjectCmpValue = (ProfileLocalObjectCmpValue) cmpWrapper
-						.getValue();
-				try {
-					ProfileTable profileTable = sleeContainer
-							.getSleeProfileTableManager().getProfileTable(
-									profileLocalObjectCmpValue
-											.getProfileTableName());
-					ProfileLocalObject ploc = (ProfileLocalObject) profileTable
-							.find(profileLocalObjectCmpValue.getProfileName());
-					return ploc;
-				} catch (UnrecognizedProfileTableNameException e) {
-					if (log.isDebugEnabled()) {
-						log.debug("Unable to rebuild profile local object stored in CMP field, the profile table does not exist anymore: "
-								+ profileLocalObjectCmpValue
-										.getProfileTableName(), e);
-					}
-					return null;
-				} 
-
-			case normal:
-				return cmpWrapper.getValue();
-
-			default:
-				throw new SLEEException(
-						"invalid cmp type retrieved from cache "
-								+ cmpWrapper.getType());
-
-			}
-		} else {
-			return null;
-		}
-	}
-
-	public void setCMPField(String cmpFieldName, Object object)
-			throws TransactionRequiredLocalException {
-
+	public Object getCMPField(String cmpFieldName) {
 		if (log.isDebugEnabled()) {
-			log.debug("Sbb entity "+getSbbEntityId()+" setting cmp field "+cmpFieldName+" to "+object);
+			log.debug("Sbb entity "+getSbbEntityId()+" getting cmp field "+cmpFieldName);
 		}
-
 		sleeContainer.getTransactionManager().mandateTransaction();
-
-		CmpType cmpType = null;
-		Serializable cmpValue = null;
-
-		// TODO optimize by adding the cmp type to the generated setter method?
-		if (object instanceof javax.slee.SbbLocalObject) {
-			SbbLocalObjectImpl sbbLocalObjectImpl = null;
-			try {
-				sbbLocalObjectImpl = (SbbLocalObjectImpl) object;
-			} catch (ClassCastException e) {
-				throw new IllegalArgumentException("CMP value being set ("
-						+ object
-						+ ") is an unknown SbbLocalObject implementation");
-			}
-			CMPFieldDescriptor field = sbbComponent.getDescriptor().getCmpFields()
-					.get(cmpFieldName);
-			if (field.getSbbRef() != null
-					&& !field.getSbbRef().equals(
-							sbbLocalObjectImpl.getSbbEntity().getSbbComponent()
-									.getSbbID())) {
-				throw new IllegalArgumentException("CMP value being set ("
-						+ sbbLocalObjectImpl.getSbbEntity().getSbbComponent()
-								.getSbbID()
-						+ ") is for a different sbb then the one expected ("
-						+ field.getSbbRef() + ")");
-			}
-			cmpType = CmpType.sbblo;
-			cmpValue = sbbLocalObjectImpl.getSbbEntityId();
-		} else if (object instanceof javax.slee.ActivityContextInterface) {
-			org.mobicents.slee.container.activity.ActivityContextInterface activityContextInterfaceImpl = null;
-			try {
-				activityContextInterfaceImpl = (org.mobicents.slee.container.activity.ActivityContextInterface) object;
-			} catch (ClassCastException e) {
-				throw new IllegalArgumentException("CMP value being set ("
-						+ object
-						+ ") is an unknown ActivityContextInterface implementation");
-			}
-			cmpType = CmpType.aci;
-			cmpValue = activityContextInterfaceImpl.getActivityContext().getActivityContextHandle();
-		} else if (object instanceof javax.slee.EventContext) {
-			EventContext eventContextImpl = null;
-			try {
-				eventContextImpl = (EventContext) object;
-			} catch (ClassCastException e) {
-				throw new IllegalArgumentException("CMP value being set ("
-						+ object
-						+ ") is an unknown EventContext implementation");
-			}
-			cmpType = CmpType.eventctx;
-			cmpValue = eventContextImpl.getEventContextHandle();
-		} else if (object instanceof javax.slee.profile.ProfileLocalObject) {
-			ProfileLocalObject profileLocalObjectConcreteImpl = null;
-			try {
-				profileLocalObjectConcreteImpl = (ProfileLocalObject) object;
-			} catch (ClassCastException e) {
-				throw new IllegalArgumentException("CMP value being set ("
-						+ object
-						+ ") is an unknown ProfileLocalObject implementation");
-			}
-			cmpType = CmpType.profilelo;
-			cmpValue = new ProfileLocalObjectCmpValue(profileLocalObjectConcreteImpl
-					.getProfileTableName(), profileLocalObjectConcreteImpl.getProfileName());
-		} else {
-			cmpType = CmpType.normal;
-			cmpValue = (Serializable) object;
-		}
+		return cacheData.getCmpField(cmpFieldName); 
+	}
 		
-		CmpWrapper cmpWrapper = new CmpWrapper(cmpFieldName, cmpType, cmpValue);
-		cacheData.setCmpField(cmpFieldName, cmpWrapper);
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.sbbentity.SbbEntity#setCMPField(java.lang.String, java.lang.Object)
+	 */
+	public void setCMPField(String cmpFieldName, Object cmpFieldValue) {
+		if (log.isDebugEnabled()) {
+			log.debug("Sbb entity "+getSbbEntityId()+" setting cmp field "+cmpFieldName+" to value "+cmpFieldValue);
+		}
+		sleeContainer.getTransactionManager().mandateTransaction();							
+		cacheData.setCmpField(cmpFieldName, cmpFieldValue);
 	}
 
 	/*

@@ -5,6 +5,7 @@ import javax.slee.Address;
 import javax.slee.ChildRelation;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
+import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.UnrecognizedProfileNameException;
@@ -14,15 +15,20 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
+import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.component.sbb.CMPFieldDescriptor;
 import org.mobicents.slee.container.component.sbb.GetProfileCMPMethodDescriptor;
 import org.mobicents.slee.container.event.EventContext;
+import org.mobicents.slee.container.event.EventContextHandle;
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
 import org.mobicents.slee.container.management.ProfileManagement;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
+import org.mobicents.slee.container.profile.ProfileLocalObject;
 import org.mobicents.slee.container.profile.ProfileTable;
 import org.mobicents.slee.container.sbb.SbbObjectState;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.sbbentity.ProfileLocalObjectCmpValue;
 
 /**
  * The logic to implement sbb abstract methods.
@@ -32,86 +38,368 @@ import org.mobicents.slee.container.transaction.SleeTransactionManager;
  */
 public class SbbAbstractMethodHandler {
 
-	private static final Logger logger = Logger
-			.getLogger(SbbAbstractMethodHandler.class);
+	private static final Logger logger = Logger.getLogger(SbbAbstractMethodHandler.class);
 
-	private static final SleeContainer sleeContainer = SleeContainer
-			.lookupFromJndi();
-
-	
-	private static final Byte DEFAULT_VALUE_BYTE = Byte.valueOf((byte) 0);
+	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
 	// CMP ACCESSORs
 
-	public static Object getCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			Class<?> returnType) {
-
-		Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
-
+	private static final Boolean DEFAULT_CMP_VALUE_BOOLEAN = Boolean.FALSE;
+	private static final Byte DEFAULT_CMP_VALUE_BYTE = Byte.valueOf((byte) 0);
+	private static final Character DEFAULT_CMP_VALUE_CHAR = Character.valueOf((char) 0);
+	private static final Double DEFAULT_CMP_VALUE_DOUBLE = Double.valueOf(0);
+	private static final Float DEFAULT_CMP_VALUE_FLOAT = Float.valueOf(0);
+	private static final Integer DEFAULT_CMP_VALUE_INTEGER = Integer.valueOf(0);
+	private static final Long DEFAULT_CMP_VALUE_LONG = Long.valueOf(0);
+	private static final Short DEFAULT_CMP_VALUE_SHORT = Short.valueOf((short)0);
+	
+	public static void setCMPFieldOfTypePrimitiveOrUnknown(SbbEntity sbbEntity, String cmpFieldName,
+			char cmpFieldValue) {
+		SbbAbstractMethodHandler.setCMPFieldOfTypePrimitiveOrUnknown(sbbEntity,cmpFieldName, Character.valueOf(cmpFieldValue));
+	}
+	
+	public static void setCMPFieldOfTypePrimitiveOrUnknown(SbbEntity sbbEntity, String cmpFieldName,
+			byte cmpFieldValue) {
+		SbbAbstractMethodHandler.setCMPFieldOfTypePrimitiveOrUnknown(sbbEntity,cmpFieldName, Byte.valueOf(cmpFieldValue));
+	}
+	
+	public static void setCMPFieldOfTypePrimitiveOrUnknown(SbbEntity sbbEntity, String cmpFieldName,
+			short cmpFieldValue) {
+		SbbAbstractMethodHandler.setCMPFieldOfTypePrimitiveOrUnknown(sbbEntity,cmpFieldName, Short.valueOf(cmpFieldValue));
+	}
+	
+	public static void setCMPFieldOfTypePrimitiveOrUnknown(SbbEntity sbbEntity, String cmpFieldName,
+			int cmpFieldValue) {
+		SbbAbstractMethodHandler.setCMPFieldOfTypePrimitiveOrUnknown(sbbEntity,cmpFieldName, Integer.valueOf(cmpFieldValue));
+	}
+	
+	public static void setCMPFieldOfTypePrimitiveOrUnknown(SbbEntity sbbEntity, String cmpFieldName,
+			long cmpFieldValue) {
+		SbbAbstractMethodHandler.setCMPFieldOfTypePrimitiveOrUnknown(sbbEntity,cmpFieldName, Long.valueOf(cmpFieldValue));
+	}
+	
+	public static void setCMPFieldOfTypePrimitiveOrUnknown(SbbEntity sbbEntity, String cmpFieldName,
+			float cmpFieldValue) {
+		SbbAbstractMethodHandler.setCMPFieldOfTypePrimitiveOrUnknown(sbbEntity,cmpFieldName, Float.valueOf(cmpFieldValue));
+	}
+	
+	public static void setCMPFieldOfTypePrimitiveOrUnknown(SbbEntity sbbEntity, String cmpFieldName,
+			double cmpFieldValue) {
+		SbbAbstractMethodHandler.setCMPFieldOfTypePrimitiveOrUnknown(sbbEntity,cmpFieldName, Double.valueOf(cmpFieldValue));
+	}
+	
+	public static void setCMPFieldOfTypePrimitiveOrUnknown(SbbEntity sbbEntity, String cmpFieldName,
+			boolean cmpFieldValue) {
+		SbbAbstractMethodHandler.setCMPFieldOfTypePrimitiveOrUnknown(sbbEntity,cmpFieldName, Boolean.valueOf(cmpFieldValue));
+	}
+	
+	/**
+	 * 
+	 * @param sbbEntity
+	 * @param cmpFieldName
+	 * @param cmpFieldValue
+	 */
+	public static void setCMPFieldOfTypeActivityContextInterface(SbbEntity sbbEntity, String cmpFieldName, ActivityContextInterface cmpFieldValue) {
 		if (cmpFieldValue == null) {
-			if (returnType.isPrimitive()) {
-				if (returnType.equals(Integer.TYPE)) {
-					return new Integer(0);
-				} else if (returnType.equals(Boolean.TYPE)) {
-					return Boolean.FALSE;
-				} else if (returnType.equals(Byte.TYPE)) {
-					return DEFAULT_VALUE_BYTE;
-				} else if (returnType.equals(Long.TYPE)) {
-					return new Long(0);
-				} else if (returnType.equals(Double.TYPE)) {
-					return new Double(0);
-				} else if (returnType.equals(Float.TYPE)) {
-					return new Float(0);
-				}
+			sbbEntity.setCMPField(cmpFieldName, null);
+			return;
+		}
+		org.mobicents.slee.container.activity.ActivityContextInterface aci = null;
+		try {
+			aci = (org.mobicents.slee.container.activity.ActivityContextInterface) cmpFieldValue;
+		} catch (ClassCastException e) {
+			throw new IllegalArgumentException("CMP value being set (" + cmpFieldValue + ") is an unknown ActivityContextInterface implementation");
+		}
+		sbbEntity.setCMPField(cmpFieldName, aci.getActivityContext().getActivityContextHandle());
+	}
+
+	/**
+	 * 
+	 * @param sbbEntity
+	 * @param cmpFieldName
+	 * @param cmpFieldValue
+	 */
+	public static void setCMPFieldOfTypeEventContext(SbbEntity sbbEntity, String cmpFieldName, javax.slee.EventContext cmpFieldValue) {
+		if (cmpFieldValue == null) {
+			sbbEntity.setCMPField(cmpFieldName, null);
+			return;
+		}
+		EventContext eventContextImpl = null;
+		try {
+			eventContextImpl = (EventContext) cmpFieldValue;
+		} catch (ClassCastException e) {
+			throw new IllegalArgumentException("CMP value being set (" + cmpFieldValue + ") is an unknown EventContext implementation");
+		}
+		sbbEntity.setCMPField(cmpFieldName,eventContextImpl.getEventContextHandle());
+	}
+
+	/**
+	 * 
+	 * @param sbbEntity
+	 * @param cmpFieldName
+	 * @param cmpFieldValue
+	 */
+	public static void setCMPFieldOfTypePrimitiveOrUnknown(SbbEntity sbbEntity, String cmpFieldName, Object cmpFieldValue) {
+		sbbEntity.setCMPField(cmpFieldName,cmpFieldValue);
+	}
+
+	/**
+	 * 
+	 * @param sbbEntity
+	 * @param cmpFieldName
+	 * @param object
+	 */
+	public static void setCMPFieldOfTypeProfileLocalObject(SbbEntity sbbEntity, String cmpFieldName, javax.slee.profile.ProfileLocalObject cmpFieldValue) {
+		if (cmpFieldValue == null) {
+			sbbEntity.setCMPField(cmpFieldName, null);
+			return;
+		}
+		ProfileLocalObject profileLocalObjectConcreteImpl = null;
+		try {
+			profileLocalObjectConcreteImpl = (ProfileLocalObject) cmpFieldValue;
+		} catch (ClassCastException e) {
+			throw new IllegalArgumentException("CMP value being set (" + cmpFieldValue + ") is an unknown ProfileLocalObject implementation");
+		}
+		final ProfileLocalObjectCmpValue profileLocalObjectCmpValue = new ProfileLocalObjectCmpValue(profileLocalObjectConcreteImpl.getProfileTableName(),profileLocalObjectConcreteImpl.getProfileName());
+		sbbEntity.setCMPField(cmpFieldName, profileLocalObjectCmpValue);
+	}
+
+	/**
+	 * 
+	 * @param sbbEntity
+	 * @param cmpFieldName
+	 * @param cmpFieldValue
+	 */
+	public static void setCMPFieldOfTypeSbbLocalObject(SbbEntity sbbEntity, String cmpFieldName, SbbLocalObject cmpFieldValue) {
+		if (cmpFieldValue == null) {
+			sbbEntity.setCMPField(cmpFieldName, null);
+			return;
+		}
+		SbbLocalObjectImpl sbbLocalObjectImpl = null;
+		try {
+			sbbLocalObjectImpl = (SbbLocalObjectImpl) cmpFieldValue;
+		} catch (ClassCastException e) {
+			throw new IllegalArgumentException("CMP value being set ("+ cmpFieldValue+ ") is an unknown SbbLocalObject implementation");
+		}
+		final CMPFieldDescriptor field = sbbEntity.getSbbComponent().getDescriptor().getCmpFields().get(cmpFieldName);
+		if (field.getSbbRef() != null && !field.getSbbRef().equals(sbbLocalObjectImpl.getSbbEntity().getSbbComponent().getSbbID())) {
+			throw new IllegalArgumentException("CMP value being set ("+ sbbLocalObjectImpl.getSbbEntity().getSbbComponent().getSbbID()+ ") is for a different sbb then the one expected ("+ field.getSbbRef() + ")");
+		}
+		sbbEntity.setCMPField(cmpFieldName, sbbLocalObjectImpl.getSbbEntityId());
+	}
+	
+	/**
+	 * 
+	 * @param cmpFieldName
+	 * @param returnType
+	 * @return
+	 */
+	public static Object getCMPFieldOfTypeUnknown(SbbEntity sbbEntity,String cmpFieldName) {
+		return sbbEntity.getCMPField(cmpFieldName);
+	}
+	
+	/**
+	 * 
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static Integer getCMPFieldOfTypeInteger(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {
+			return DEFAULT_CMP_VALUE_INTEGER;
+		}
+		else {
+			return (Integer) cmpFieldValue;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static Boolean getCMPFieldOfTypeBoolean(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {			
+			return DEFAULT_CMP_VALUE_BOOLEAN;
+		}
+		else {
+			return (Boolean) cmpFieldValue;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static Byte getCMPFieldOfTypeByte(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {
+			return DEFAULT_CMP_VALUE_BYTE;
+		}
+		else {
+			return (Byte) cmpFieldValue;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static Character getCMPFieldOfTypeChar(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {			
+			return DEFAULT_CMP_VALUE_CHAR;
+		}
+		else {
+			return (Character) cmpFieldValue;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static Short getCMPFieldOfTypeShort(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {			
+			return DEFAULT_CMP_VALUE_SHORT;
+		}
+		else {
+			return (Short) cmpFieldValue;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static Long getCMPFieldOfTypeLong(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {
+			return DEFAULT_CMP_VALUE_LONG;
+		}
+		else {
+			return (Long) cmpFieldValue;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static Double getCMPFieldOfTypeDouble(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {
+			return DEFAULT_CMP_VALUE_DOUBLE;
+		}
+		else {
+			return (Double) cmpFieldValue;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static Float getCMPFieldOfTypeFloat(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {
+			return DEFAULT_CMP_VALUE_FLOAT;
+		}
+		else {
+			return (Float) cmpFieldValue;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param sbbEntity
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static ActivityContextInterface getCMPFieldOfTypeActivityContextInterface(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {
+			return null;
+		}
+		else {
+			final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext((ActivityContextHandle) cmpFieldValue);
+			if (ac != null) {
+				return ac.getActivityContextInterface();
+			} else {
+				return null;
 			}
 		}
-		return cmpFieldValue;
-	}
-
-	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			Object cmpFieldValue) {
-		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
-	}
-
-	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			byte cmpFieldValue) {
-		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
 	}
 	
-	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			short cmpFieldValue) {
-		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	/**
+	 * 
+	 * @param sbbEntity
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static javax.slee.EventContext getCMPFieldOfTypeEventContext(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {
+			return null;
+		}
+		else {
+			return sleeContainer.getEventContextFactory().getEventContext((EventContextHandle)cmpFieldValue);
+		}
 	}
 	
-	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			int cmpFieldValue) {
-		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	/**
+	 * 
+	 * @param sbbEntity
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static javax.slee.profile.ProfileLocalObject getCMPFieldOfTypeProfileLocalObject(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {
+			return null;
+		}
+		else {
+			final ProfileLocalObjectCmpValue profileLocalObjectCmpValue = (ProfileLocalObjectCmpValue) cmpFieldValue;
+			try {
+				final ProfileTable profileTable = sleeContainer.getSleeProfileTableManager().getProfileTable(profileLocalObjectCmpValue.getProfileTableName());
+				return profileTable.find(profileLocalObjectCmpValue.getProfileName());
+			} catch (UnrecognizedProfileTableNameException e) {
+				return null;
+			}
+		}
 	}
 	
-	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			long cmpFieldValue) {
-		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	/**
+	 * 
+	 * @param sbbEntity
+	 * @param cmpFieldName
+	 * @return
+	 */
+	public static SbbLocalObject getCMPFieldOfTypeSbbLocalObject(SbbEntity sbbEntity,String cmpFieldName) {
+		final Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
+		if (cmpFieldValue == null) {
+			return null;
+		}
+		else {
+			final SbbEntity anotherSbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity((String) cmpFieldValue,false);
+			if (anotherSbbEntity == null)
+				return null;
+			else if (anotherSbbEntity.isRemoved())
+				return null;
+			else {
+				return anotherSbbEntity.getSbbLocalObject();
+			}
+		}
 	}
 	
-	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			float cmpFieldValue) {
-		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
-	}
-	
-	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			double cmpFieldValue) {
-		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
-	}
-	
-	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			boolean cmpFieldValue) {
-		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
-	}
-	
-	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			char cmpFieldValue) {
-		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
-	}
 	// CHILD RELATION GETTER
 
 	/**
