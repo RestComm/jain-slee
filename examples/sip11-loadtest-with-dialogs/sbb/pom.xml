@@ -16,6 +16,11 @@
 			<artifactId>sip11-ratype</artifactId>
 			<version>${mobicents.resources.sip11.version}</version>
 		</dependency>
+		<dependency>
+				<groupId>org.mobicents.servers.jainslee.api</groupId>
+				<artifactId>jain-slee-11-ext</artifactId>
+				<version>1.0.0.BETA1</version>
+			</dependency>
 	</dependencies>
 	
 </project>

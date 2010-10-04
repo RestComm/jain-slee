@@ -54,8 +54,7 @@
   <!-- By adding rrs="true" (Record Route Sets), the route sets         -->
   <!-- are saved and used for following messages sent. Useful to test   -->
   <!-- against stateful SIP proxies/B2BUAs.                             -->
-  <recv response="200" rtd="true" rrs="true">
-  </recv>
+  <recv response="200" rtd="true" rrs="true"/>
 
   <pause milliseconds="150"/>
 
@@ -76,9 +75,7 @@
 
     ]]>
   </send>
-  
-  <recv response="200" optional="true" />
-  
+    
  <recv request="BYE" timeout="90000"/>
 <send>
 
