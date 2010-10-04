@@ -316,6 +316,36 @@
 
       <!-- Metric to show service state over time -->
       <metric property="state" displayName="State Code" dataType="trait" displayType="summary" />
+
+      <!-- SBBs belonging to this Service -->
+      <service name="ServiceSbb" class="ServiceSbbComponent" discovery="ServiceSbbDiscoveryComponent" description="SBBs">
+        <!-- Metric to show service state over time -->
+        <metric property="state" displayName="State Code" dataType="trait" displayType="summary" />
+        <!-- Metric to show sbb entities for this service over time -->
+        <metric property="SbbEntitiesCount" displayName="SBB Entities Count" dataType="trait" displayType="summary" />
+        
+        <!-- Usage Parameter Set -->
+        <service name="UsageParameterSet" class="ServiceSbbUsageParameterSetComponent" discovery="ServiceSbbUsageParameterSetDiscoveryComponent" description="Usage Parameter Sets">
+          <!-- Metric to show service state over time -->
+          <metric property="state" displayName="State Code" dataType="trait" displayType="summary" />
+          
+          <!-- Where parameters will be displayed -->
+          <resource-configuration>
+            <c:list-property name="usageParameter">
+              <c:map-property name="usageParameterDefinition">
+                <c:simple-property name="usageParameterName" displayName="Name" summary="true" description="Name of Usage Parameter" />
+                <c:simple-property name="usageParameterType" displayName="Type" summary="true" description="Type of Usage Parameter (Counter or Sample)">
+                  <c:property-options>
+                    <c:option value="Counter" />
+                    <c:option value="Sample" />
+                  </c:property-options>
+                </c:simple-property>
+                <c:simple-property name="usageParameterValue" displayName="Value" summary="true" description="Value of Usage Parameter" />
+              </c:map-property>
+            </c:list-property>
+          </resource-configuration>
+        </service>
+      </service>
     </service>
 
     <!-- JAIN SLEE Event Router Executor Component -->

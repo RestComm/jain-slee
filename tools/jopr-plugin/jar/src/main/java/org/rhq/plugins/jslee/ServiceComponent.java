@@ -227,4 +227,13 @@ public class ServiceComponent implements ResourceComponent<JainSleeServerCompone
       }
     }
   }
+
+  public ServiceID getServiceID() {
+    return this.serviceId;
+  }
+
+  public MBeanServerUtils getMBeanServerUtils() {
+    return this.mbeanUtils;
+  }
+
 }
