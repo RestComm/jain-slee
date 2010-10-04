@@ -10,6 +10,9 @@
 		<artifactId>cli-twiddle-docs</artifactId>
 	</parent>
 
+	<artifactId>cli-twiddle-docs-sources-jbcp</artifactId>
+	
+	
 	<name>Mobicents Twiddle CLI :: Docs :: ${pom.artifactId}</name>
 	<properties>
 		<THIS.PLATFORM>JBoss Communications</THIS.PLATFORM>

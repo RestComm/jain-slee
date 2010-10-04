@@ -15,7 +15,10 @@
 
 	<name>Mobicents Twiddle CLI :: ${pom.artifactId}</name>
 
-
+	<properties>
+		<tool.directory>${project.build.directory}/release</tool.directory>
+		<tool.directory.lib>${tool.directory}/lib</tool.directory.lib>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -400,4 +403,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>

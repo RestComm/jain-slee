@@ -72,7 +72,7 @@
 						<format>
 							<formatName>pdf</formatName>
 							<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-							<finalName>JBCP_${docs.bookid}_User_Guide.pdf</finalName>
+							<finalName>JBCP_SLEE_Tools_Twiddle_CLI_User_Guide.pdf</finalName>
 						</format>
 						<format>
 							<formatName>html</formatName>
@@ -87,10 +87,9 @@
 					</formats>
 					<options>
 						<xincludeSupported>true</xincludeSupported>
-						<!-- needed for uri-resolvers; can be ommitted if using 'current' uri 
-							scheme -->
+						<!-- needed for uri-resolvers; can be ommitted if using 'current' uri scheme -->
 						<!-- could also locate the docbook dependency and inspect its version... -->
-						<docbookVersion>1.72.0</docbookVersion>
+						<docbookVersion>1.72.0</docbookVersion>					
 					</options>
 				</configuration>
 			</plugin>
