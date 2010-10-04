@@ -8,7 +8,7 @@
 		<sbb-version>1.0</sbb-version>
 
 		<sbb-classes>
-			<sbb-abstract-class>
+			<sbb-abstract-class reentrant="True">
 				<sbb-abstract-class-name>org.mobicents.slee.example.sip11.b2b.SimpleSip11B2BTestSbb</sbb-abstract-class-name>
 				<cmp-field>
 					<cmp-field-name>incomingDialog</cmp-field-name>

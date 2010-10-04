@@ -234,7 +234,7 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 					.getSimpleName());
 		}
 		try {
-			Context ctx = (Context) new InitialContext()
+			final Context ctx = (Context) new InitialContext()
 					.lookup("java:comp/env");
 			sipActivityContextInterfaceFactory = (SipActivityContextInterfaceFactory) ctx
 					.lookup("slee/resources/jainsip/1.2/acifactory");
@@ -247,6 +247,8 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 
 	public void unsetSbbContext() {
 		this.sbbContext = null;
+		this.sipActivityContextInterfaceFactory = null;
+		this.sipProvider = null;
 	}
 
 	public void sbbCreate() throws javax.slee.CreateException {
