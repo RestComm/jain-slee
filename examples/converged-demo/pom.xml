@@ -54,7 +54,6 @@
 		<mobicents.resources.mgcp.version>2.1.0.GA</mobicents.resources.mgcp.version>
 		<mobicents.core.version>2.1.0.GA</mobicents.core.version>
 		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA4</mobicents.tools.mavenplugin.du.version>
-		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
 
 	<build>
@@ -81,6 +80,7 @@
 			<id>maven-release</id>
 			<modules>
 				<module>docs</module>
+				<module>release</module>
 			</modules>
 			<build>
 				<plugins>
@@ -101,65 +101,8 @@
 			<id>release</id>
 			<modules>
 				<module>docs</module>
+				<module>release</module>
 			</modules>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<inherited>false</inherited>
-						<executions>
-							<execution>
-								<phase>install</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										
-										
-										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/examples/converged-demo" verbose="true">
-											
-											<!-- JAR with events -->
-											<fileset dir="${basedir}/events-jar/target">
-												<include name="*converged-demo-custom-events-jar.jar" />
-											</fileset>
-											<!-- POJO PU -->
-											<fileset dir="${basedir}/pojo-pu/datasource">
-												<include name="ShoppingDemo-dev-ds.xml" />
-											</fileset>
-											<fileset dir="${basedir}/pojo-pu/target">
-												<include name="converged-demo-pojo-pu.jar" />
-											</fileset>
-											<!-- EAR -->
-											<fileset dir="${basedir}/web/ear/target">
-												<include name="**.ear" />
-											</fileset>
-											<!-- JSLEE DU -->
-											<fileset dir="${basedir}/slee/du/target">
-												<include name="**.jar" />
-												<include name="*.xml" />
-												<include name="*.properties" />
-											</fileset>
-										</copy>
-										
-									
-
-								
-										<copy overwrite="true" file="${basedir}/slee/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/converged-demo/du-management.xml" />
-									
-										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/converged-demo">
-											<filterset>
-												<filter token="JBOSS.PATH" value="${jboss.path}" />
-												<filter token="JBOSS.CONFIG" value="${node}" />
-											</filterset>
-										</copy>
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 	</profiles>
 

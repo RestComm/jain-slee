@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.0</version>
+		<version>2.10</version>
 	</parent>
 
 	<artifactId>mobicents-slee-example-sip-services</artifactId>
@@ -39,6 +39,7 @@
     			<module>proxy-with-initial-invite-services-DU</module>
     			<module>proxy-without-initial-invite-services-DU</module>
 				<module>docs</module>
+				<module>release</module>
     		</modules>
 			<build>
 				<plugins>
@@ -59,65 +60,11 @@
 		<profile>
 			<id>release</id>
 			<modules>
+				<module>proxy-with-initial-invite-services-DU</module>
+    			<module>proxy-without-initial-invite-services-DU</module>
 				<module>docs</module>
+				<module>release</module>
 			</modules>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<inherited>false</inherited>
-						<executions>
-							<execution>
-								<phase>install</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-									  <!-- Build the DUs for the release. -->
-                    <condition property="executable" value="mvn.bat">
-                      <os family="windows" />
-                    </condition>
-                    <property name="executable" value="mvn" />
-                    <exec executable="${executable}">
-                      <arg value="-f" />
-                      <arg value="./proxy-with-initial-invite-services-DU/pom.xml" />
-                      <arg value="install" />
-                    </exec>
-                    <exec executable="${executable}">
-                      <arg value="-f" />
-                      <arg value="./proxy-without-initial-invite-services-DU/pom.xml" />
-                      <arg value="install" />
-                    </exec>
-                    <!-- End of Build the DUs for the release. -->
-                    
-										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/examples/sip-services">
-											<fileset dir="${basedir}/proxy-without-initial-invite-services-DU/target">
-												<include name="**.jar" />
-												<include name="*.xml" />
-												<include name="*.properties" />
-											</fileset>
-											<fileset dir="${basedir}/proxy-with-initial-invite-services-DU/target">
-												<include name="**.jar" />
-												<include name="*.xml" />
-												<include name="*.properties" />
-											</fileset>
-										</copy>
-										<copy overwrite="true" file="${basedir}/proxy-without-initial-invite-services-DU/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/sip-services/proxy-without-initial-invite-du-management.xml" />
-										<copy overwrite="true" file="${basedir}/proxy-with-initial-invite-services-DU/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/sip-services/proxy-with-initial-invite-du-management.xml" />
-										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/sip-services">
-											<filterset>
-												<filter token="JBOSS.PATH" value="${jboss.path}" />
-                      							<filter token="JBOSS.CONFIG" value="${node}" />
-											</filterset>
-										</copy>
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 	</profiles>
 
