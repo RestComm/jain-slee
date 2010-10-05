@@ -36,55 +36,14 @@
 			<id>release</id>
 			<modules>
 				<module>docs</module>
+				<module>release</module>
 			</modules>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<inherited>false</inherited>
-						<executions>
-							<execution>
-								<phase>install</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<echo>HTTP Servlet release</echo>
-										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/resources/http-servlet">
-											<fileset dir="${basedir}/du/target">
-												<include name="**.jar" />
-												<include name="*.xml" />
-												<!-- currently not handled correctly by du plugin
-												 <include name="*.properties" />
-												 -->
-											</fileset>
-											<fileset dir="${basedir}/war/target">
-												<include name="*.war" />
-											</fileset>
-											<fileset dir="${basedir}/common/target">
-												<include name="*.jar" />
-											</fileset>
-										</copy>
-										<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/resources/http-servlet/du-management.xml" />
-										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/resources/http-servlet">
-                      <filterset>
-                        <filter token="JBOSS.PATH" value="${jboss.path}" />
-                        <filter token="JBOSS.CONFIG" value="${node}" />
-                      </filterset>
-										</copy>
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 		<profile>
 			<id>maven-release</id>
 			<modules>
 				<module>docs</module>
+				<module>release</module>
 			</modules>
 			<build>
 				<plugins>
