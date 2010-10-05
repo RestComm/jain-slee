@@ -622,7 +622,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * @see javax.sip.Dialog#isServer()
 	 */
 	public boolean isServer() {
-		return true;
+		return wrappedDialog.isServer();
 	}
 
 	/*
@@ -769,6 +769,14 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		if (wrappedDialog != null) {
 			wrappedDialog.setApplicationData(this);
 		}
+	}
+	
+	/**
+	 * Indicates if the dialog is UAC. 
+	 * @return
+	 */
+	public boolean isClientDialog() {
+		return false;
 	}
 	
 }

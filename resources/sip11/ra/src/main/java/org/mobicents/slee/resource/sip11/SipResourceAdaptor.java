@@ -536,7 +536,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		ClientTransactionWrapper ctw = null;
 		final Dialog d = responseEventExt.getDialog();
 		DialogWrapper dw = getDialogWrapper(d);
-		if (dw != null && !dw.isServer()) {
+		if (dw != null && dw.isClientDialog()) {
 			final ClientDialogWrapper cdw = (ClientDialogWrapper) dw;
 			if (!cdw.isConfirmed() && cdw.getState() == DialogState.CONFIRMED) {				
 				// now confirmed

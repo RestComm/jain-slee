@@ -278,7 +278,10 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public boolean isServer() {
-		return false;
+		if (wrappedDialog == null)
+			return false;
+		else
+			return super.isServer();
 	}
 
 	@Override
@@ -508,6 +511,11 @@ public class ClientDialogWrapper extends DialogWrapper {
 			throw new IllegalStateException(
 					"Dialog activity present, but no dialog creating request has been sent yet!");
 		}
+	}
+	
+	@Override
+	public boolean isClientDialog() {
+		return true;
 	}
 	
 	// serialization
