@@ -622,7 +622,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * @see javax.sip.Dialog#isServer()
 	 */
 	public boolean isServer() {
-		return wrappedDialog.isServer();
+		return true;
 	}
 
 	/*
