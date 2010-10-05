@@ -179,19 +179,12 @@
 			</build>		
 		</profile>
 		<profile>
-			<id>binary-release-mobicents</id>
+			<id>release</id>
 			<modules>
 				<module>docs</module>
 				<module>release</module>
 			</modules>
-		</profile>
-		<profile>
-			<id>binary-release-jbcp</id>
-			<modules>
-				<module>docs</module>
-				<module>release</module>
-			</modules>
-		</profile>		
+		</profile>				
 	</profiles>
 
 	<scm>

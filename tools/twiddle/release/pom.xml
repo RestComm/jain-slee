@@ -13,12 +13,11 @@
 
 	<artifactId>cli-twiddle-release</artifactId>
 
-
 	<name>Mobicents Twiddle CLI :: ${pom.artifactId}</name>
 
 	<profiles>
 		<profile>
-			<id>binary-release-mobicents</id>
+			<id>release</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -26,75 +25,14 @@
 						<inherited>false</inherited>
 						<executions>
 							<execution>
-								<id>clean</id>
-								<phase>clean</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<delete dir="${basedir}/../../../release/tools/cli"/>
-									</tasks>
-								</configuration>
-							</execution>
-							<execution>
-								<id>install</id>						
 								<phase>install</phase>
 								<goals>
 									<goal>run</goal>
 								</goals>
 								<configuration>
 									<tasks>
-										<copy todir="${basedir}/../../../release/tools/cli/docs">
-											<fileset
-												dir="${basedir}/../docs/jdocbook-mobicents/target/docbook/publish" />
-										</copy>
-										<copy todir="${basedir}/../../../release/tools/cli">
-											<fileset dir="../cli/target/release">
-												<include name="**" />
-											</fileset>
-										</copy>
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>binary-release-jbcp</id>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<inherited>false</inherited>
-						<executions>
-							<execution>
-								<id>clean</id>
-								<phase>clean</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<delete dir="${basedir}/../../../release/tools/cli"/>
-									</tasks>
-								</configuration>
-							</execution>
-							<execution>
-								<id>install</id>
-								<phase>install</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<copy todir="${basedir}/../../../release/tools/cli/docs">
-											<fileset dir="${basedir}/../docs/jdocbook-jbcp/target/docbook/publish" />
-										</copy>
-										<copy todir="${basedir}/../../../release/tools/cli">
-											<fileset dir="../cli/target/release">
+										<copy todir="${basedir}/../../../release/${release.name}/tools/twiddle">
+											<fileset dir="${basedir}/../cli/target/release">
 												<include name="**" />
 											</fileset>
 										</copy>
