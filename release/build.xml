@@ -2,7 +2,8 @@
 <project name="mobicents.release" default="release" basedir=".">
 
 	<property environment="sys"/>
-	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp,jcc,map,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
+	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp5,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
+	<!-- map and jcc require snapshots not available!!!! <property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp5,jcc,map,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>-->
 	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot,sip-b2bua,call-controller2,mgcp-demo,converged-demo"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
@@ -13,10 +14,10 @@
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
-	<property name="mms.version" value="2.0.0.CR3" />
+	<property name="mms.version" value="2.0.0.GA" />
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
-	<property name="diameter.version" value="1.3.0.FINAL" />
+	<property name="diameter.version" value="1.3.1.FINAL" />
 	<!--
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-${diameter.version}.zip"/>
 	-->
@@ -41,7 +42,7 @@
 
 	<target name="build-core" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
-			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
+			<arg line="install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
 		</exec>
 		<antcall target="build-docs">
 			<param name="docs.source.dir" value="${ant.file.mobicents.release}/../checkout/core/docs" />
@@ -58,13 +59,9 @@
 		</copy>
 	</target>
 
-
 	<target name="build-mmc" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin">
-			<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config} -P maven-release,set-svn-revision" />
-		</exec>
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin">
-			<arg line="-o install -P maven-release,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+			<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 		</exec>
 
 		<delete dir="${release.dir}/tmp"/>
@@ -78,10 +75,7 @@
 
 	<target name="build-remote-slee-connection" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/remote-slee-connection">
-			<arg line="clean install -P set-svn-revision" />
-		</exec>
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/remote-slee-connection">
-			<arg line="-o install -P release,set-svn-revision -Drelease.name=target" />
+			<arg line="install -P release,set-svn-revision -Drelease.name=target" />
 		</exec>
 
 		<copy failonerror="true" toDir="${release.dir}/tools/remote-slee-connection" overwrite="true">
@@ -90,6 +84,17 @@
 
 		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/remote-slee-connection" />
 
+	</target>
+
+	<target name="build-cli" description="">
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/twiddle">
+			<arg line="install -P release,set-svn-revision -Drelease.name=target" />
+		</exec>
+		<delete dir="${release.dir}/tmp" />
+		<copy failonerror="true" toDir="${release.dir}/tools/twiddle" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/twiddle" />
+		</copy>
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/twiddle" />
 	</target>
 
 	<target name="build-sip-balancer" description="">
@@ -116,10 +121,7 @@
 			<sequential>
 				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../checkout/resources/@{dir.name}]</echo>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
-					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config} -P set-svn-revision" />
-				</exec>
-				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
-					<arg line="-o install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+					<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
 		</for>
@@ -136,10 +138,7 @@
 			<sequential>
 				<echo>Packaging Example for release from DIR[${ant.file.mobicents.release}/../checkout/examples/@{dir.name}]</echo>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
-					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config} -P set-svn-revision" />
-				</exec>
-				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
-					<arg line="-o install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+					<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
 		</for>
@@ -163,7 +162,7 @@
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-mmc,build-remote-slee-connection,build-sip-balancer,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-mmc,build-remote-slee-connection,build-cli,build-sip-balancer,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files"> 
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
@@ -343,8 +342,8 @@
 	</target>
 
 	<target name="clean-downloads">
-	  <delete file="${ant.file.mobicents.release}/../media-server.zip" failonerror="false"/>
-	  <delete file="${ant.file.mobicents.release}/../diameter-mux.zip" failonerror="false"/>  
+		<delete file="${ant.file.mobicents.release}/../media-server.zip" failonerror="false"/>
+		<delete file="${ant.file.mobicents.release}/../diameter-mux.zip" failonerror="false"/>
 	</target>
 
 </project>
