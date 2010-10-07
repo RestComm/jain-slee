@@ -56,6 +56,7 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import javax.naming.InitialContext;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
+import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
 /**
  *
@@ -110,8 +111,12 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
             throw new ProviderUnavailableException(e.getMessage());
         }
         
+        //construct SCCP address
+        SccpAddressDesc desc = new SccpAddressDesc();
+        SccpAddress address = desc.load(properties);
+        
         try {
-            this.tcapStack = new TCAPStackImpl(sccpProvider);
+            this.tcapStack = new TCAPStackImpl(sccpProvider, address);
             this.tcapStack.configure(properties);
             this.tcapProvider = this.tcapStack.getProvider();
             this.tcapProvider.addTCListener(this);
