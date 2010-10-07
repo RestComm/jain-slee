@@ -94,7 +94,7 @@ import org.mobicents.protocols.ss7.isup.message.User2UserInformationMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartAvailableMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartTestMessage;
 import org.mobicents.protocols.ss7.mtp.provider.MtpProviderFactory;
-import org.mobicents.protocols.ss7.mtp.provider.m3ua.M3UAProvider;
+import org.mobicents.protocols.ss7.mtp.provider.m3ua.Provider;
 import org.mobicents.slee.resources.ss7.isup.events.TransactionEnded;
 import org.mobicents.slee.resources.ss7.isup.ratype.RAISUPProvider;
 
@@ -153,11 +153,9 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     ////////////////////////
     // MTP Provider props //
     ////////////////////////
-    private static final String PROPERTY_OPC = "isup.opc";
-    private static final String PROPERTY_DPC = "isup.dpc";
-    private static final String PROPERTY_SLS = "isup.sls";
-    private static final String PROPERTY_SSI = "isup.ssi";
-
+    private static final String PROPERTY_OPC = "mtp.opc";
+    private static final String PROPERTY_DPC = "mtp.apc";
+    
     private static int getEventFlags() {
         int eventFlags = EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK;
         EventFlags.setRequestProcessingFailedCallback(eventFlags);
@@ -242,13 +240,13 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 	public void raVerifyConfiguration(ConfigProperties configProperties) throws InvalidConfigurationException {
 
 		try {
-			Property p = configProperties.getProperty(M3UAProvider.PROPERTY_RADDRESS);
+			Property p = configProperties.getProperty(Provider.PROPERTY_RADDRESS);
 			if (p != null) {
 				this.serverAddress = (String) p.getValue();
 			}
 		
 
-			p = configProperties.getProperty(M3UAProvider.PROPERTY_RADDRESS);
+			p = configProperties.getProperty(Provider.PROPERTY_RADDRESS);
 			if (p != null) {
 				this.clientAddress = (String) p.getValue();
 			}
@@ -289,12 +287,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		if (configProperties.getProperty(PROPERTY_OPC) == null) {
 			throw new InvalidConfigurationException("No OPC set!");
 		}
-		if (configProperties.getProperty(PROPERTY_SSI) == null) {
-			throw new InvalidConfigurationException("No SSI set!");
-		}
-		if (configProperties.getProperty(PROPERTY_SLS) == null) {
-			throw new InvalidConfigurationException("No SLS set!");
-		}
+	
 	}
 
     public void raConfigurationUpdate(ConfigProperties arg0) {

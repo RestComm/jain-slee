@@ -40,31 +40,19 @@
 			<config-property-type>java.lang.String</config-property-type>
 			<config-property-value>127.0.0.1:1345</config-property-value>
 		</config-property>
-		<!-- Strictly ISUP stack now -->
 		<config-property>
-			<description>Default DPC used by ISUP layer for originating messages</description>
-			<config-property-name>isup.dpc</config-property-name>
+			<description>Default APC(DPC)</description>
+			<config-property-name>mtp.apc</config-property-name>
 			<config-property-type>java.lang.String</config-property-type>
 			<config-property-value>12345</config-property-value>
 		</config-property>
 		<config-property>
-			<description>Default OPC used by ISUP layer for originating messages</description>
-			<config-property-name>isup.opc</config-property-name>
+			<description>Default OPC</description>
+			<config-property-name>mtp.opc</config-property-name>
 			<config-property-type>java.lang.String</config-property-type>
 			<config-property-value>54321</config-property-value>
 		</config-property>
-		<config-property>
-			<description>Default SLS used by ISUP layer for originating messages</description>
-			<config-property-name>isup.sls</config-property-name>
-			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>0</config-property-value>
-		</config-property>
-		<config-property>
-			<description>Default SSI used by ISUP layer for originating messages</description>
-			<config-property-name>isup.ssi</config-property-name>
-			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>0</config-property-value>
-		</config-property>
+		
 		<config-property>
 			<description>Value of timeout in milisecond. It controls timeout of
 				client
