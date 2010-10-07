@@ -332,7 +332,6 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			linkMonitorThread.start();
 		} catch (IOException e) {
 			this.tracer.severe("Binding to SMSC Failed ", e);
-			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
 
