@@ -30,110 +30,52 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>provider</entry>
-					<entry>Specifies JccPeer object given a fully qualified classname
-						of the class which implements the JccPeer object or provider
-						acronym.</entry>
-					<entry>java.lang.String</entry>
-					<entry></entry>
-				</row>
+			   		<entry>sccp.service</entry>
+			   	    <entry>JNDI name of SCCP service.</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry>java:/mobicents/ss7/sccp</entry>
+			    </row>
 				<row>
-					<entry>config</entry>
-					<entry>The name of the property file which contains vendor/protocol
-						specific configuration</entry>
-					<entry>java.lang.String</entry>
-					<entry></entry>
-				</row>
+			   		<entry>sccp.noa</entry>
+			   	    <entry>Definition of Nature Of Address, ie. NATIONAL </entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>
+		    	<row>
+			   		<entry>sccp.ssn</entry>
+			   	    <entry>Specifies SSN of address</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>
+			    <row>
+			   		<entry>sccp.pointcode</entry>
+			   	    <entry>Specifies point code of address</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>
+			    <row>
+			   		<entry>sccp.np</entry>
+			   	    <entry>Specifies numbering plan of address</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>
+			    <row>
+			   		<entry>sccp.tt</entry>
+			   	    <entry>Specifies translation type of address</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>
+			    <row>
+			   		<entry>sccp.gt</entry>
+			   	    <entry>Specifies digits of address</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry></entry>
+			    </row>
+			    
 			</tbody>
 		</tgroup>
 	</table>
-	<para>Configuration option(<literal>provider</literal>) supports following values(aside class full name):</para>
-	<variablelist>
-		<varlistentry>
-			<term>TCP</term>
-			<listitem>
-				<para>Following configuration options are available for this driver:
-				</para>
-				<table frame="all" pgwide="1">
-					<title>config.properties values for  TCP SCCP provider</title>
-					<tgroup colsep="1" cols="4">
-						<colspec colnum="1" colname="c0" />
-						<colspec colnum="2" colname="c1" />
-						<colspec colnum="3" colname="c2" />
-						<colspec colnum="4" colname="c3" />
-						<thead>
-							<row>
-								<entry>Property Name</entry>
-								<entry>Description</entry>
-								<entry>Property Type</entry>
-								<entry>Default Value</entry>
-							</row>
-						</thead>
-						<tbody>
-							<row>
-								<entry>driver</entry>
-								<entry>
-									Configures stream driver of
-									<acronym>SCCP</acronym>
-									layer. Currently only TCP is supported.
-								</entry>
-								<entry>java.lang.String</entry>
-								<entry>TCP</entry>
-							</row>
-							<row>
-								<entry>server.ip</entry>
-								<entry>Driver configuration options. Specifies TCP address to
-									which driver will connect.</entry>
-								<entry>java.lang.String</entry>
-								<entry>127.0.0.1</entry>
-							</row>
-							<row>
-								<entry>server.port</entry>
-								<entry>Specifies server port to which driver will connect.
-								</entry>
-								<entry>java.lang.String</entry>
-								<entry>1345</entry>
-							</row>
-							<row>
-								<entry>sccp.opc</entry>
-								<entry>Default OPC used by SCCP layer for originating messages.
-								</entry>
-								<entry>java.lang.String</entry>
-								<entry>0</entry>
-							</row>
-							<row>
-								<entry>sccp.dpc</entry>
-								<entry>Default DPC used by SCCP layer for originating messages.
-								</entry>
-								<entry>java.lang.String</entry>
-								<entry>0</entry>
-							</row>
-							<row>
-								<entry>sccp.sls</entry>
-								<entry>Default SLS used by SCCP layer for originating messages.
-								</entry>
-								<entry>java.lang.String</entry>
-								<entry>0</entry>
-							</row>
-							<row>
-								<entry>sccp.ssi</entry>
-								<entry>Default SSI used by SCCP layer for originating messages.
-								</entry>
-								<entry>java.lang.String</entry>
-								<entry>0</entry>
-							</row>
-							<!--
-								This is set to SCCP value if used. <row> <entry>sccp.si</entry>
-								<entry>TODO</entry> <entry>java.lang.String</entry>
-								<entry>0</entry> </row>
-							-->
-
-						</tbody>
-					</tgroup>
-				</table>
-			</listitem>
-		</varlistentry>
-	</variablelist>
+	
 	<important>
 		<para>JAIN SLEE 1.1 Specification requires values set for properties
 			without a default value, which means the configuration for those
