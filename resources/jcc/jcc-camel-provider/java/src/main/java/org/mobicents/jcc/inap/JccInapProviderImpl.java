@@ -117,7 +117,6 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
         
         try {
             this.tcapStack = new TCAPStackImpl(sccpProvider, address);
-            this.tcapStack.configure(properties);
             this.tcapProvider = this.tcapStack.getProvider();
             this.tcapProvider.addTCListener(this);
             this.tcapStack.start();
