@@ -31,7 +31,7 @@
 									<tasks>
 										<copy overwrite="true"
 											todir="${basedir}/../../../release/${release.name}/resources/diameter-sh-server">
-											<fileset dir="${basedir}/du/target">
+											<fileset dir="${basedir}/../du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
 												<include name="*.properties" />
