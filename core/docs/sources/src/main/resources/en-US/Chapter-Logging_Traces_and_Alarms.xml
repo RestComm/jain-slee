@@ -21,7 +21,7 @@
 </category>]]>
 		</programlisting>    
 		<para>This limits the level of logging to INFO for all &THIS.PLATFORM; JAIN SLEE classes. It is possible to declare more categories with different level, to provide logs with greater detail.</para>
-    	<para>For instance, to provide detailed information on  &THIS.PLATFORM; JAIN SLEE transaction engine in separate log file(<filename>txmanager.log</filename>), file   <filename>conf/jboss-log4j.xml</filename> should contain entries as follows:</para>
+    	<para>For instance, to provide detailed information on &THIS.PLATFORM; JAIN SLEE transaction engine in separate log file(<filename>txmanager.log</filename>), file   <filename>conf/jboss-log4j.xml</filename> should contain entries as follows:</para>
 		<programlisting language="XML" role="XML"><![CDATA[
 <appender name="TXMANAGER" class="org.jboss.logging.appender.RollingFileAppender"> 
     <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/> 
@@ -42,6 +42,57 @@
 		</programlisting>    
 		<para>This creates a new file appender and specifies that it should be used by the logger (or category) for the package org.mobicents.slee.runtime.transaction.</para>
 		<para>The file appender is set up to produce a new log file every day rather than producing a new one every time you restart the server or writing to a single file indefinitely. The current log file is txmanager.log. Older files have the date they were written added to their filenames.</para>
+		
+		<section id="global_logging_config">
+			<title>Simplified Global Log4j Configuration</title>
+			<para>Besides manual logging configuration, described previously, &THIS.PLATFORM; JAIN SLEE also exposes management operations that greatly simplify such configuration, allowing the administrator to select through predefined and complete logging configuration presets. Such operations are available in MBean named <filename>org.mobicents.slee%3Aservice%3DMobicentsManagement</filename>, and the available presets are:</para>
+			
+			<variablelist>
+				<varlistentry>
+					<term>Level</term>
+					<listitem>
+						<itemizedlist>
+							<listitem>
+								<para>DEFAULT: Regular logging, at INFO level, displaying most user-related messages;</para>
+							</listitem>
+							<listitem>
+								<para>DEBUG: More verbose logging, mostly using DEBUG/TRACE level, displaying message of interest for developers;</para>
+							</listitem>
+							<listitem>
+								<para>PRODUCTION: Low verbosity and async logging, mostly in WARN level, for systems in production so that logging does impact performance.</para>
+							</listitem>
+						</itemizedlist>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+			
+			<para>The available management operations are:</para>
+			
+			<variablelist>
+				<varlistentry>
+					<term>JMX Operation</term>
+					<listitem>
+						<itemizedlist>
+							<listitem>
+								<para>getLoggingConfiguration: retrieves what is the current logging configuration;</para>
+							</listitem>
+							<listitem>
+								<para>switchLoggingConfiguration: allows switching to a different configuration preset;</para>
+							</listitem>
+							<listitem>
+								<para>setLoggingConfiguration: used to upload a complete logging configuration.</para>
+							</listitem>
+						</itemizedlist>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+			
+			<para>Custom presets can be easily deployed in the application server too. Simply name the configuration file as <filename>jboss-log4j.xml.PRESET_NAME</filename>, where <literal>PRESET_NAME</literal> should be unique preset name, and copy it to directory <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/log4j-templates</filename>, where <application>profile_name</application> is the server profile name.</para>
+			
+			<note><para>These procedures changes the whole &JEE.PLATFORM; Platform logging configuration, so it will affect also logging for other running applications besides the JAIN SLEE container.</para></note>
+			
+		</section>
+		
 	</section>
 	
 	<section id="alarm_facility">

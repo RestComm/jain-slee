@@ -199,6 +199,10 @@ Halting VM]]></screen>
 			</table>
 			<para>Through JMX this configuration can be changed with the container running. Note that such configuration changes are not persisted.</para>
 			<para>To change the configuraton use the JMX MBean named <application>org.mobicents.slee:service=MobicentsManagement</application>, which provides getters and setters to change each property defined in the persistent configuration, that is configurable with the container running. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
+		</section>		
+		<section id="logging_configuration">
+			<title>Logging Configuration</title>
+			<para>Logging configuration is documented in section <xref linkend="global_logging_config" /></para>
 		</section>
 		<section id="congestion_control_configuration_">
 			<title>Congestion Control Configuration</title>
