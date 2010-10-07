@@ -58,7 +58,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	private static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;// .NO_FLAGS;
 	private static final String _CONFIG_OPT_NAME_CONF = "configName";
 
-	private MAPStack mapStack = null;
+	private MAPStackImpl mapStack = null;
 	/**
 	 * This is local proxy of provider.
 	 */
@@ -194,7 +194,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
         SccpAddress localAddress = desc.load(properties);
 			
 			this.mapStack = new MAPStackImpl(sccpProvider, localAddress);
-			this.mapStack.configure(properties);
 			
 			
 		} catch (UnsatisfiedLinkError ex) {
