@@ -15,6 +15,8 @@
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 
 	<dependencies>
+	
+		<!-- 
 		<dependency>
 			<artifactId>mtp</artifactId>
 			<groupId>org.mobicents.protocols.ss7.mtp</groupId>
@@ -32,6 +34,33 @@
 			<version>${m3ua.version}</version>
 		</dependency>		
 
+		
+
+		<dependency>
+			<artifactId>sccp-api</artifactId>
+			<groupId>org.mobicents.protocols.ss7.sccp</groupId>
+			<version>${sccp.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>sccp-impl</artifactId>
+			<groupId>org.mobicents.protocols.ss7.sccp</groupId>
+			<version>${sccp.version}</version>
+		</dependency>
+
+	
+
+		<dependency>
+			<artifactId>stream</artifactId>
+			<groupId>org.mobicents.protocols.stream</groupId>
+			<version>${stream.version}</version>
+		</dependency>
+		
+		-->
+		<dependency>
+			<artifactId>asn</artifactId>
+			<groupId>org.mobicents.protocols.asn</groupId>
+			<version>${asn.version}</version>
+		</dependency>
 		<dependency>
 			<artifactId>map-api</artifactId>
 			<groupId>org.mobicents.protocols.ss7.map</groupId>
@@ -52,29 +81,6 @@
 			<artifactId>tcap-impl</artifactId>
 			<groupId>org.mobicents.protocols.ss7.tcap</groupId>
 			<version>${tcap.version}</version>
-		</dependency>
-
-		<dependency>
-			<artifactId>sccp-api</artifactId>
-			<groupId>org.mobicents.protocols.ss7.sccp</groupId>
-			<version>${sccp.version}</version>
-		</dependency>
-		<dependency>
-			<artifactId>sccp-impl</artifactId>
-			<groupId>org.mobicents.protocols.ss7.sccp</groupId>
-			<version>${sccp.version}</version>
-		</dependency>
-
-		<dependency>
-			<artifactId>asn</artifactId>
-			<groupId>org.mobicents.protocols.asn</groupId>
-			<version>${asn.version}</version>
-		</dependency>
-
-		<dependency>
-			<artifactId>stream</artifactId>
-			<groupId>org.mobicents.protocols.stream</groupId>
-			<version>${stream.version}</version>
 		</dependency>
 	</dependencies>
 

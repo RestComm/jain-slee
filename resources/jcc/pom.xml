@@ -26,37 +26,32 @@
 
 	<properties>
 	
-		<docs.ra.name>JCC</docs.ra.name>
+			<docs.ra.name>JCC</docs.ra.name>
 		<docs.ra.dirname>jcc</docs.ra.dirname>
 		<docs.bookid>JCC</docs.bookid>
 		<docs.profile>mobicents</docs.profile>
-		
-		<stream.version>1.0.0.BETA1</stream.version>
-		<tcap.version>1.0.0.BETA3</tcap.version>
-		<sccp.version>1.0.0.BETA3</sccp.version>
-		<asn.version>1.0.0.BETA2</asn.version>
-		<mtp.version>1.0.0.BETA3</mtp.version>
-		
+
+		<tcap.version>1.0.0.BETA3-SNAPSHOT</tcap.version>
+		<sccp.version>1.0.0.BETA3-SNAPSHOT</sccp.version>
+		<asn.version>1.0.0.BETA3-SNAPSHOT</asn.version>
+		<mtp.version>1.0.0.BETA4-SNAPSHOT</mtp.version>
+		<stream.version>1.0.0.BETA2-SNAPSHOT</stream.version>
+		<m3ua.version>1.0.0.BETA3-SNAPSHOT</m3ua.version>
+
+
 		<version.jcc>1.1</version.jcc>
 		<version.concurrent>1.3.4</version.concurrent>
-		<!--
-			<version.junit>3.8.2</version.junit>
-
-			<version.log4j>1.2.14</version.log4j> <version.jcc>1.1</version.jcc>
-		-->
+		<!-- <version.junit>3.8.2</version.junit> <version.log4j>1.2.14</version.log4j> 
+			<version.jcc>1.1</version.jcc> -->
 	</properties>
 	<dependencyManagement>
 		<dependencies>
 
-			<!--
-				<dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId>
-				<version>${version.log4j}</version> <scope>provided</scope>
-				</dependency> <dependency> <groupId>org.mobicents.core</groupId>
-				<artifactId>mobicents-core-jar</artifactId>
-				<version>${pom.version}</version> </dependency> <dependency>
-				<groupId>junit</groupId> <artifactId>junit</artifactId>
-				<version>${version.junit}</version> </dependency>
-			-->
+			<!-- <dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId> 
+				<version>${version.log4j}</version> <scope>provided</scope> </dependency> 
+				<dependency> <groupId>org.mobicents.core</groupId> <artifactId>mobicents-core-jar</artifactId> 
+				<version>${pom.version}</version> </dependency> <dependency> <groupId>junit</groupId> 
+				<artifactId>junit</artifactId> <version>${version.junit}</version> </dependency> -->
 			<dependency>
 				<groupId>concurrent</groupId>
 				<artifactId>concurrent</artifactId>
@@ -68,20 +63,23 @@
 				<artifactId>jcc</artifactId>
 				<version>${version.jcc}</version>
 			</dependency>
-			<!-- dependency>
+			<dependency>
 				<artifactId>stream</artifactId>
 				<groupId>org.mobicents.protocols.stream</groupId>
 				<version>${stream.version}</version>
+				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<artifactId>sccp-api</artifactId>
 				<groupId>org.mobicents.protocols.ss7.sccp</groupId>
 				<version>${sccp.version}</version>
+				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<artifactId>sccp-impl</artifactId>
 				<groupId>org.mobicents.protocols.ss7.sccp</groupId>
 				<version>${sccp.version}</version>
+				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<artifactId>tcap-api</artifactId>
@@ -97,13 +95,28 @@
 				<artifactId>mtp</artifactId>
 				<groupId>org.mobicents.protocols.ss7.mtp</groupId>
 				<version>${mtp.version}</version>
+				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mobicents.protocols.asn</groupId>
 				<artifactId>asn</artifactId>
 				<version>${asn.version}</version>
-			</dependency -->
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<artifactId>m3ua-api</artifactId>
+				<groupId>org.mobicents.protocols.ss7.m3ua</groupId>
+				<version>${m3ua.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<artifactId>m3ua-impl</artifactId>
+				<groupId>org.mobicents.protocols.ss7.m3ua</groupId>
+				<version>${m3ua.version}</version>
+				<scope>compile</scope>
+			</dependency>
 		</dependencies>
+	
 	</dependencyManagement>
 
 	<build>
