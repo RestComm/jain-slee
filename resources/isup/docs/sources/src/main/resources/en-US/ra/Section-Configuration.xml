@@ -9,73 +9,98 @@
 
 	<title>Configuration</title>
 
-	<para>The Resource Adaptor supports configuration only at Resource Adaptor Entity creation time, the following table enumerates the configuration properties:</para>
-	
+	<para>The Resource Adaptor supports configuration only at Resource
+		Adaptor Entity creation time, the following table enumerates the
+		configuration properties:</para>
+
 	<table frame="all" pgwide="1">
 		<title>Resource Adaptor's Configuration Properties</title>
 		<tgroup colsep="1" cols="4">
-		   	<colspec colnum="1" colname="c0"/>
-		    <colspec colnum="2" colname="c1"/>
-		    <colspec colnum="3" colname="c2"/>
-		    <colspec colnum="4" colname="c3"/>
-		    <thead>
+			<colspec colnum="1" colname="c0" />
+			<colspec colnum="2" colname="c1" />
+			<colspec colnum="3" colname="c2" />
+			<colspec colnum="4" colname="c3" />
+			<thead>
 				<row>
-		    	    <entry>Property Name</entry>
-		   	    	<entry>Description</entry>
-		   	    	<entry>Property Type</entry>
-		   	    	<entry>Default Value</entry>
-		    	</row>
+					<entry>Property Name</entry>
+					<entry>Description</entry>
+					<entry>Property Type</entry>
+					<entry>Default Value</entry>
+				</row>
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>driver</entry>
-			   	    <entry>Configures driver of <acronym>MTP</acronym> layer  </entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry>TCP</entry>
-			    </row>
+					<entry>mtp.driver</entry>
+					<entry>
+						Configures driver of
+						<acronym>MTP</acronym>
+						layer
+					</entry>
+					<entry>java.lang.String</entry>
+					<entry>m3ua</entry>
+				</row>
 				<row>
-			   		<entry>server.ip</entry>
-			   	    <entry>Configures address to which this stack connects to receive stream of <acronym>MTP</acronym> <acronym>MSU</acronym>  </entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry>localhost</entry>
-			    </row>
-			    <row>
-			   		<entry>server.port</entry>
-			   	    <entry>Configures port to which this stack connects.</entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry>1345</entry>
-			    </row>
-			    <row>
-			   		<entry>isup.dpc</entry>
-			   	    <entry>Default DPC used by ISUP layer for originating messages</entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry></entry>
-			    </row>
-			    <row>
-			   		<entry>isup.opc</entry>
-			   	    <entry>Default OPC used by ISUP layer for originating messages</entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry></entry>
-			    </row>
-			    <row>
-			   		<entry>isup.sls</entry>
-			   	    <entry>Default SLS used by ISUP layer for originating messages</entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry></entry>
-			    </row>
-			    <row>
-			   		<entry>isup.ssi</entry>
-			   	    <entry>Default SSI used by ISUP layer for originating messages</entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry></entry>
-			    </row>
-			   
+					<entry>mtp.address.remote</entry>
+					<entry>
+						Address of remote end of data link. It expects data in format:
+						<literal>IP:Port</literal>
+						.
+					</entry>
+					<entry>java.lang.String</entry>
+					<entry></entry>
+				</row>
+				<row>
+					<entry>mtp.address.local</entry>
+					<entry>As above. It points to local address to which data link is
+						bound.</entry>
+					<entry>java.lang.String</entry>
+					<entry></entry>
+				</row>
+				<row>
+					<entry>mtp.apc</entry>
+					<entry>Indicates adjacent point code (dpc for originating
+						messages).</entry>
+					<entry>java.lang.Integer</entry>
+					<entry></entry>
+				</row>
+				<row>
+					<entry>mtp.opc</entry>
+					<entry>Indiactes oritinating point code.</entry>
+					<entry>java.lang.Integer</entry>
+					<entry></entry>
+				</row>
+				<row>
+					<entry>isup.client.timeout</entry>
+					<entry>
+						Value of timeout in milisecond. It controls timeout of client
+						transaction. This value must be lower than
+						<literal>isup.general.timeout</literal>
+					</entry>
+					<entry>java.lang.Long</entry>
+					<entry>30.000</entry>
+				</row>
+				<row>
+					<entry>isup.general.timeout</entry>
+					<entry>
+						Value of timeout in millisecond. It controls how long
+						transaction
+						object lingers in stack before its released - in case
+						no action is
+						performed.
+						</entry>
+					<entry>java.lang.Long</entry>
+					<entry>120.000</entry>
+				</row>
+
 			</tbody>
-	 	</tgroup>
-	</table>		
-	
+		</tgroup>
+	</table>
+
 	<important>
-		<para>JAIN SLEE 1.1 Specification requires values set for properties without a default value, which means the configuration for those properties are mandatory, otherwise the Resource Adaptor Entity creation will fail!</para>
+		<para>JAIN SLEE 1.1 Specification requires values set for properties
+			without a default value, which means the configuration for those
+			properties are mandatory, otherwise the Resource Adaptor Entity
+			creation will fail!</para>
 	</important>
-	
+
 </section>
