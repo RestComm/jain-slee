@@ -3,6 +3,7 @@ package org.mobicents.slee.resource.map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.naming.InitialContext;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.SLEEException;
@@ -40,6 +41,7 @@ import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortInfo;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
+import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
 /**
  * 
@@ -74,7 +76,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	//name of config file
 	private String configName;
-
+        private SccpProvider sccpProvider;
 
 	private transient static final Address address = new Address(AddressPlan.IP, "localhost");
 
@@ -180,8 +182,18 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			tracer.info("Loaded properties: " + properties);
 
 
+        //obtain sccp service reference
+        tracer.info("Accesing SCCP service...");
+        String jndiName = properties.getProperty("sccp.service");
+            InitialContext ic = new InitialContext();
+            sccpProvider = (SccpProvider) ic.lookup(jndiName);
+            tracer.info("Sucssefully connected to SCCP service[" + jndiName + "]");
+        
+        //construct SCCP address
+        SccpAddressDesc desc = new SccpAddressDesc();
+        SccpAddress localAddress = desc.load(properties);
 			
-			this.mapStack = new MAPStackImpl();
+			this.mapStack = new MAPStackImpl(sccpProvider, localAddress);
 			this.mapStack.configure(properties);
 			
 			
