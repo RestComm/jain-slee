@@ -57,9 +57,9 @@
 		</title>
 		<tgroup colsep="1" cols="3">
 
-			<colspec colnum="1" colname="c0" colwidth="3*" />
-			<colspec colnum="2" colname="c1" colwidth="3*" />
-			<colspec colnum="3" colname="c2" colwidth="1*" />
+			<colspec colnum="1" colname="c0" colwidth="2*" />
+			<colspec colnum="2" colname="c1" colwidth="2*" />
+			<colspec colnum="3" colname="c2" colwidth="3*" />
 
 			<thead>
 				<row>
@@ -118,7 +118,7 @@
 				</row>
 
 				<row>
-					<entry>DELIVER_SM_RESP</entry>
+					<entry>DELIVER_SM _RESP</entry>
 					<entry>DeliverSMResp</entry>
 					<entry>
 						The SMPP PDU response sent from an ESME that
@@ -139,7 +139,7 @@
 				</row>
 
 				<row>
-					<entry>SUBMIT_SM_RESP</entry>
+					<entry>SUBMIT_SM _RESP</entry>
 					<entry>SubmitSMResp</entry>
 					<entry>
 						This is the response to the submit_sm PDU
@@ -163,7 +163,7 @@
 
 
 				<row>
-					<entry>DATA_SM_RESP</entry>
+					<entry>DATA_SM _RESP</entry>
 					<entry>DataSMResp</entry>
 					<entry>
 						This is the response to the data_sm PDU
@@ -181,7 +181,7 @@
 				</row>
 
 				<row>
-					<entry>SUBMIT_MULTI_RESP</entry>
+					<entry>SUBMIT_MULTI _RESP</entry>
 					<entry>SubmitMultiResp</entry>
 					<entry>
 						This is the response to the submit_multi PDU
@@ -198,7 +198,7 @@
 				</row>
 
 				<row>
-					<entry>QUERY_SM_RESP</entry>
+					<entry>QUERY_SM _RESP</entry>
 					<entry>QuerySMResp</entry>
 					<entry>
 						This is the response to the query_sm PDU
@@ -217,7 +217,7 @@
 					</entry>
 				</row>
 				<row>
-					<entry>CANCEL_SM_RESP</entry>
+					<entry>CANCEL_SM _RESP</entry>
 					<entry>CancelSMResp</entry>
 					<entry>
 						This is the response to the cancel_sm PDU
@@ -234,7 +234,7 @@
 					</entry>
 				</row>
 				<row>
-					<entry>REPLACE_SM_RESP</entry>
+					<entry>REPLACE_SM _RESP</entry>
 					<entry>ReplaceSMResp</entry>
 					<entry>
 						This is the response to the replace_sm PDU
@@ -243,7 +243,7 @@
 
 
 				<row>
-					<entry>SMPP_TIMEOUT_RESPONSE_SENT</entry>
+					<entry>SMPP_TIMEOUT _RESPONSE_SENT</entry>
 					<entry>SmppError</entry>
 					<entry>
 						This is issued when ESME receives SMPP PDU and
@@ -252,7 +252,7 @@
 					</entry>
 				</row>
 				<row>
-					<entry>SMPP_TIMEOUT_RESPONSE_RECEIVED</entry>
+					<entry>SMPP_TIMEOUT_ RESPONSE_RECEIVED</entry>
 					<entry>SmppError</entry>
 					<entry>
 						This is issued when ESME has sent SMPP PDU but
