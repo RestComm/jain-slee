@@ -58,7 +58,7 @@
 				    	  <row>
 				  		    <entry>executorMapperClassName</entry>
 				  		    <entry>Class</entry>
-				    	    <entry>this property defines the implementation class of Executor Mapper used by the Event Router, the one above and default uses the activity handle hashcode to do the mapping, an alternative is <classname>org.mobicents.slee.runtime.eventrouter.mapping.RoundRobinEventRouterExecutorMapper</classname>, which uses Round Robin algorithm.</entry>
+				    	    <entry>this property defines the implementation class of Executor Mapper used by the Event Router, the one above and default uses the activity handle hashcode to do the mapping, an alternative is <classname>org.mobicents.slee.runtime.eventrouter</classname><classname>.mapping.RoundRobinEventRouterExecutorMapper</classname>, which uses Round Robin algorithm.</entry>
 					      </row>					 
 			    	</tbody>
 			  	</tgroup>
