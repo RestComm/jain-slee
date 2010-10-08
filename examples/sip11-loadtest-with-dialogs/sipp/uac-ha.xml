@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scenario name="Basic Sipstone UAC">
+  
+  <send retrans="2000">
+    <![CDATA[
+
+      INVITE sip:callee[call_number]@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: caller[call_number] <sip:caller[call_number]@[local_ip]:[local_port]>;tag=[call_number]
+      To: callee[call_number] <sip:callee[call_number]@[remote_ip]:[remote_port]>
+      Call-ID: [call_id]
+      CSeq: 1 INVITE
+      Contact: sip:caller[call_number]@[local_ip]:[local_port]
+      Max-Forwards: 70
+      Content-Type: application/sdp
+      Content-Length: [len]
+
+      v=0
+      o=user1 53655765 2353687637 IN IP[local_ip_type] [local_ip]
+      s=-
+      c=IN IP[media_ip_type] [media_ip]
+      t=0 0
+      m=audio [media_port] RTP/AVP 0
+      a=rtpmap:0 PCMU/8000
+
+    ]]>
+  </send>
+
+  <recv response="100" optional="true" />
+
+  <recv response="180" optional="true" next ="rcv_200"/>
+
+  <recv response="200" rtd="true" rrs="true" />
+  
+  <!-- got 200, not 180, wait for it now and then go to pause-->
+
+  <recv response="100" optional="true" />
+
+  <recv response="180" next ="pause"/>
+
+  <label id="rcv_200"/>
+  
+  <!-- got 180, not 200, wait for it now -->
+
+  <recv response="100" optional="true" />
+
+  <recv response="200" rtd="true" rrs="true" />
+
+  <label id="pause"/>
+
+  <!-- damn 100s can show up everywhere :) -->
+
+  <recv response="100" timeout="100" ontimeout="ack" />
+
+  <pause milliseconds="100" />
+
+  <label id="ack"/>
+
+  <send>
+    <![CDATA[
+
+      ACK sip:callee[call_number]@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: caller[call_number] <sip:caller[call_number]@[local_ip]:[local_port]>;tag=[call_number]
+      To: callee[call_number] <sip:callee[call_number]@[remote_ip]:[remote_port]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 1 ACK
+      Max-Forwards: 70
+      [routes]
+      Content-Length: 0
+
+    ]]>
+  </send>
+    
+ <recv request="BYE" timeout="90000"/>
+
+ <send>
+   <![CDATA[
+      SIP/2.0 200 OK
+      [last_Via:]
+      [last_From:]
+      [last_To:]
+      [last_Call-ID:]
+      [last_CSeq:]
+      [last_Contact:]
+      [last_Record-Route:]
+      [routes]
+      Max-Forwards: 70
+      Content-Length: 0
+   ]]>
+ </send>
+ 
+ <pause milliseconds="30000"/>
+
+</scenario>
