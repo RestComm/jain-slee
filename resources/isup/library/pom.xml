@@ -24,11 +24,12 @@
 			<groupId>org.mobicents.protocols.ss7.isup</groupId>
 			<artifactId>isup-impl</artifactId>
 		</dependency>
+		
+		<!-- Dep for M3UA -->
 		<dependency>
 			<groupId>org.mobicents.protocols.ss7.mtp</groupId>
 			<artifactId>MTP</artifactId>
 		</dependency>
-		<!-- Dep for M3UA -->
 		<dependency>
 			<groupId>org.mobicents.protocols.stream</groupId>
 			<artifactId>stream</artifactId>
@@ -40,7 +41,8 @@
 		<dependency>
 			<artifactId>m3ua-impl</artifactId>
 			<groupId>org.mobicents.protocols.ss7.m3ua</groupId>
-		</dependency>		
+		</dependency>	
+			
 	</dependencies>
 
 	<build>
