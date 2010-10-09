@@ -24,7 +24,7 @@
 	</modules>
 
 	<properties>
-		<mobicents.core.jar.version>2.2.0.FINAL</mobicents.core.jar.version>
+		<mobicents.core.jar.version>2.0.0.GA</mobicents.core.jar.version>
 		<mobicents.resources.sip11.version>2.2.0.FINAL</mobicents.resources.sip11.version>
 		<!-- define which location service to use -->
 		<!-- location.service.className>org.mobicents.slee.services.sip.location.jpa.JPALocationService</location.service.className-->
