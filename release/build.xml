@@ -2,8 +2,7 @@
 <project name="mobicents.release" default="release" basedir=".">
 
 	<property environment="sys"/>
-	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp5,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
-	<!-- map and jcc require snapshots not available!!!! <property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp5,jcc,map,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>-->
+	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp5,jcc,map,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
 	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot,sip-b2bua,call-controller2,mgcp-demo,converged-demo"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
