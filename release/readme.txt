@@ -11,13 +11,16 @@ This is the binary release of Mobicents JAIN SLEE 2.x.
 Directory Structure
 -------------------
 
- +--- jboss-5.X.Y.GA			(JBoss AS with the JAIN SLEE 2.x container deployed)
- +--- resources					(JAIN SLEE Resource Adaptors and related scripts)
- +--- examples					(JAIN SLEE Application Examples)
- +--- tools/media-server  		(Mobicents Media Server Standalone, required by some examples)
- +--- tools/management-console	(JOPR Management Console)
- +--- tools/mobicents-diameter	(Diameter Mux, required by Diameter RAs)
- +--- tools/sip-balancer		(Mobicents SIP Load Balancer)
+ +--- jboss-5.X.Y.GA				(JBoss AS with the JAIN SLEE 2.x container deployed)
+ +--- resources						(JAIN SLEE Resource Adaptors and related scripts)
+ +--- examples						(JAIN SLEE Application Examples)
+ +--- tools/media-server  			(Mobicents Media Server Standalone, required by some examples)
+ +--- tools/management-console		(JOPR Management Console)
+ +--- tools/mobicents-diameter		(Diameter Mux, required by Diameter RAs)
+ +--- tools/remote-slee-connection	(Remote SLEE Connection Tool)
+ +--- tools/twiddle					(Twiddle Command Line Interface)
+ +--- tools/eclipslee				(EclipSLEE Plugin)
+ +--- tools/sip-balancer			(Mobicents SIP Load Balancer)
  
 Quick start
 -----------
@@ -40,6 +43,10 @@ Make sure that you have Apache Ant 1.7 installed and configured.
 
 Simply run this script and the deployment should start:
 ant -f examples/<exampledir>/build.xml deploy-all
+
+EclipSLEE Plugin
+----------------
+Simply copy the jar into the plugins dir inside Eclipse IDE and restart it.
 
 Documentation
 -------------
