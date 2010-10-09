@@ -4,7 +4,7 @@
 	<parent>
 	  	<artifactId>mgcp-demo-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>2.2.0-SNAPSHOT</version>    
+		<version>2.2.0.FINAL</version>    
 	</parent>
 
 	<artifactId>mgcp-demo-web</artifactId>
