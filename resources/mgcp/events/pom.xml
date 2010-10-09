@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>mgcp-parent</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>2.2.0.FINAL</version>
+		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>mgcp-events</artifactId>
