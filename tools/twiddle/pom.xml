@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.10</version>
+		<version>2.12</version>
 	</parent>
 
 	<groupId>org.mobicents.servers.jainslee.tools.twiddle</groupId>
@@ -28,7 +28,7 @@
 		<jboss.javaee.version>5.0.1.GA</jboss.javaee.version>
 		<jboss.security.version>2.0.3.SP1</jboss.security.version>
 		<getop.version>1.0.9</getop.version>
-		<mobicents.jslee.version>2.2.0-SNAPSHOT</mobicents.jslee.version>
+		<mobicents.jslee.version>2.2.0.FINAL</mobicents.jslee.version>
 	</properties>
 
 
