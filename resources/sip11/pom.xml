@@ -24,7 +24,7 @@
 	</modules>
 	
 	<properties>
-		<mobicents.slee.version>2.2.0-SNAPSHOT</mobicents.slee.version>
+		<mobicents.slee.version>2.2.0.FINAL</mobicents.slee.version>
 		<jsip.ha.version>0.13</jsip.ha.version>
 		<jsip.sip.ext.version>1.0.BETA1</jsip.sip.ext.version>
 		<loadbalancer.version>1.0.4.FINAL</loadbalancer.version>
