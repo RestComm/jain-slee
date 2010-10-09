@@ -1,12 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools.twiddle</groupId>
 		<artifactId>cli-twiddle-parent</artifactId>
-		<version>1.0.0.BETA-SNAPSHOT</version>
+		<version>1.0.0.BETA1</version>
 	</parent>
 
 
@@ -108,11 +107,11 @@
 						<configuration>
 							<tasks>
 								<copy todir="${tool.directory}" verbose="true">
-									<fileset dir="script" includes="*.sh"></fileset>
-									<fileset dir="script" includes="*.bat"></fileset>
+									<fileset dir="script" includes="*.sh" />
+									<fileset dir="script" includes="*.bat" />
 								</copy>
 								<copy todir="${tool.directory.lib}" verbose="true">
-									<fileset dir="script" includes="*.properties"></fileset>
+									<fileset dir="script" includes="*.properties" />
 								</copy>
 							</tasks>
 						</configuration>
