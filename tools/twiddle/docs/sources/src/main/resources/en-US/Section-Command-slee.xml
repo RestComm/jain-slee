@@ -84,7 +84,7 @@
 	</section>
 	<section id="slee_shutdown">
 		<title>shutdown</title>
-		<para><literal>shutdown</literal> operation termiantes container. Difference to <literal>stop</literal> is that container is no longer accessible. 
+		<para><literal>shutdown</literal> operation terminates container. Difference to <literal>stop</literal> is that container is no longer accessible. 
 		This operation does not accept options nor arguments.Example invocation:</para>
 		<example>
 			<title>Shutdown container</title>
@@ -94,7 +94,7 @@
 	</section>
 	<section id="slee_info">
 		<title>info</title>
-		<para><literal>info</literal> operation displays ifnormation about container. This information depends on implementation. 
+		<para><literal>info</literal> operation displays information about container. This information depends on implementation. 
 		This operation does not accept options nor arguments.Example invocation:</para>
 		<example>
 			<title>Print info about container</title>

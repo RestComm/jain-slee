@@ -30,7 +30,7 @@
 		</screen>
 		<itemizedlist>
 			<listitem>
-				<para>options - optins which affect how <literal>Twiddle</literal> executes, ie. address of server, user name/password</para>
+				<para>options - options which affect how <literal>Twiddle</literal> executes, ie. address of server, user name/password</para>
 			</listitem>
 			<listitem>
 				<para>command - command which should handle CLI invocation</para>
@@ -39,12 +39,12 @@
 				<para>command_arguments - options and arguments specific for command</para>
 			</listitem>
 		</itemizedlist>
-		<para>Following <literal>options</literal> can be passed diresctly to <literal>twiddle</literal>: </para>
+		<para>Following <literal>options</literal> can be passed directly to <literal>twiddle</literal>: </para>
 		<variablelist>
 			<varlistentry>
 				<term>--help-commands</term>
 				<listitem>
-					<para>dislpays available commands along with simple description.</para>
+					<para>displays available commands along with simple description.</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>

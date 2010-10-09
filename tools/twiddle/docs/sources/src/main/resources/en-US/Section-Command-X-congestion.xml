@@ -76,7 +76,7 @@
 	<section id="congestion_period">
 		<title>period</title>
 		<para>
-			<literal>period</literal> operation allwos to manage period between congestions checks. Period is expresed in seconds. This operation does not support argument. It supports following options:
+			<literal>period</literal> operation allows to manage period between congestion checks. Period is expressed in seconds. This operation does not support argument. It supports following options:
 			
 		<variablelist>
 				<varlistentry>
@@ -97,8 +97,8 @@
 	<section id="congestion_disable_level">
 		<title></title>
 		<para>
-			<literal>disable-level</literal> operatio allows to manage minimum level of free memory for congestion mechanism to stop limiting cotnainer.
-			It does not support arument. It supports following options
+			<literal>disable-level</literal> operation allows to manage minimum level of free memory for congestion mechanism to stop limiting container.
+			It does not support argument. It supports following options
 			
 			<variablelist>
 				<varlistentry>
@@ -110,7 +110,7 @@
 				<varlistentry>
 					<term>--set</term>
 					<listitem>
-						<para>instructs operation to set number of MBs to stop congestion mechanism. Requires number of MB(Mega Bytes).</para>
+						<para>instructs operation to set number of MBs to stop congestion mechanism. Requires number of MB (MegaBytes).</para>
 					</listitem>
 				</varlistentry>
 			</variablelist>
@@ -132,7 +132,7 @@
 				<varlistentry>
 					<term>--set</term>
 					<listitem>
-						<para>instructs operation to set number of MBs to start congestion mechanism. Requires number of MB(Mega Bytes).</para>
+						<para>instructs operation to set number of MBs to start congestion mechanism. Requires number of MB (MegaBytes).</para>
 					</listitem>
 				</varlistentry>
 			</variablelist>
@@ -141,7 +141,7 @@
 	<section id="congestion_refuse_event">
 		<title>refuse-event</title>
 		<para>
-			<literal>refuse-event</literal> operation allows to manage how congestion mechanism behaves. This operation allows to manage wheather events are
+			<literal>refuse-event</literal> operation allows to manage how congestion mechanism behaves. This operation allows to manage whether events are
 			allowed to be fired into container or not. It does not support argument. It supports following options:
 			
 			<variablelist>
@@ -163,7 +163,7 @@
 	<section id="congestion_refuse_activity">
 		<title>refuse-activity</title>
 		<para>
-			<literal>refuse-activity</literal> operation allows to manage how congestion mechanism behaves. This operation allows to manage wheather new activities 
+			<literal>refuse-activity</literal> operation allows to manage how congestion mechanism behaves. This operation allows to manage whether new activities 
 			can be created in container or not. It does not support argument. It supports following options:
 			<variablelist>
 				<varlistentry>

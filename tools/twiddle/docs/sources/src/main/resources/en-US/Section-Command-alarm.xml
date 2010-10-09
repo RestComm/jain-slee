@@ -61,7 +61,7 @@
 	<section id="alarm_clear">
 		<title>clear</title>
 		<para><literal>clear</literal> operation turns down alarms based on criteria passed in options. 
-		It requires either <replaceable>--id</replaceable> or <replaceable>--nsrc</replaceable> to be present. <literal>clear</literal> command supports followiong options: </para>
+		It requires either <replaceable>--id</replaceable> or <replaceable>--nsrc</replaceable> to be present. <literal>clear</literal> command supports following options: </para>
 		<variablelist>
 			<varlistentry>
 				<term>--id</term>
@@ -70,11 +70,11 @@
 			</varlistentry>
 			<varlistentry>
 				<term>--nsrc</term>
-				<listitem><para>specifies notification source for which alarms should be cleared. It requires argumnt which is valid notification source: RAEntityNotification[entity=LabRA]. This option excludes <replaceable>--id</replaceable>. Optionally it can be followed by <replaceable>--type</replaceable>.</para></listitem>
+				<listitem><para>specifies notification source for which alarms should be cleared. It requires argument which is valid notification source: RAEntityNotification[entity=LabRA]. This option excludes <replaceable>--id</replaceable>. Optionally it can be followed by <replaceable>--type</replaceable>.</para></listitem>
 			</varlistentry>
 			<varlistentry>
 				<term>--type</term>
-				<listitem><para>specifies type of alarm to be cleared. Type is service/component implementation specific. Type of alarm is passed as alarms metadata when it is created.
+				<listitem><para>specifies type of alarm to be cleared. Type is service/component implementation specific. Type of alarm is passed as alarms meta data when it is created.
 				Option requires argument which is string representation of type. Example call</para>
 					<example>
 					<title>Clear alarms of certain type for ProfileTable</title>
@@ -104,8 +104,8 @@
 	</section>
 	<section id="alarm_descriptor">
 		<title>descriptor</title>
-		<para><literal>descriptor</literal> operation fetches metadata for particular alarm. This inclues message, timestamp, level,.. etc. It requires alarm ID as argument.
-		It also accepts array argument. Members of array are separeted with <replaceable>;</replaceable>. Example calls: 
+		<para><literal>descriptor</literal> operation fetches meta data for particular alarm. This includes message, time stamp, level,.. etc. It requires alarm ID as argument.
+		It also accepts array argument. Members of array are separated with <replaceable>;</replaceable>. Example calls: 
 			<example>
 				<title>Fetch descriptor for alarm</title>
 				<screen>./twiddle.sh alarm -d415f719e-3a3d-42b4-acc1-4e84706f031a </screen>

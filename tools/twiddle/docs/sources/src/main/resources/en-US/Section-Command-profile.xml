@@ -134,7 +134,7 @@
 	</section>	
 	<section id="profile_rename">
 		<title>rename</title>
-		<para><literal>rename</literal> operation changes name of profile table, effectivly moving profiles to new table in the process. It does not support argument. It supports following options:</para>
+		<para><literal>rename</literal> operation changes name of profile table, effectively moving profiles to new table in the process. It does not support argument. It supports following options:</para>
 		<variablelist>
 			<varlistentry>
 				<term>--current-name</term>
@@ -147,16 +147,16 @@
 		</variablelist>
 		<example>
 			<title>Rename profile table</title>
-			<screen>./twiddle.sh profile -n --curent-name=CallControl --new-name=OldCCTable</screen>
+			<screen>./twiddle.sh profile -n --current-name=CallControl --new-name=OldCCTable</screen>
 		</example>
 	</section>	
 	<section id="profile_get">
 		<title>get</title>
-		<para><literal>get</literal> operation queries container for certain information. Type of retrieved information depends on suboptions. It does not support argument. Following options are supported:</para>
+		<para><literal>get</literal> operation queries container for certain information. Type of retrieved information depends on sub-options. It does not support argument. Following options are supported:</para>
 		<variablelist>
 			<varlistentry>
 				<term>--profile-spec</term>
-				<listitem><para>retreives profile ProfileSpecificationID for certain table. Requires profile table name as argument.</para>
+				<listitem><para>retrieves profile ProfileSpecificationID for certain table. Requires profile table name as argument.</para>
 					<example>
 						<title>Get specification id</title>
 						<screen>./twiddle.sh profile -g --profile-spec=CallControl</screen>

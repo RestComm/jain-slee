@@ -127,7 +127,7 @@
 		<para>
 			<literal>get</literal>
 			operation fetches value of parameter in certain set(default or
-			named). It does nto support argument. It supports following options:
+			named). It does not support argument. It supports following options:
 		</para>
 		<variablelist>
 			<varlistentry>
@@ -227,8 +227,8 @@
 		<title>notify</title>
 		<para>
 			<literal>notify</literal>
-			operation performs actions on notifiaction aspect of usage sets. It
-			allows to torun on/off notifications for certain parameter and query
+			operation performs actions on notification aspect of usage sets. It
+			allows to to run on/off notifications for certain parameter and query
 			about state of notification.
 			It does not support argument. It supports
 			following options:
@@ -248,7 +248,7 @@
 				</term>
 				<listitem>
 					<para>instructs operation to change state of notification.
-						This options requires boolean argument(true - notifiaction are
+						This options requires boolean argument(true - notification are
 						enabled).</para>
 					<example>
 						<title>Turn off notifications</title>

@@ -11,7 +11,7 @@
 		<acronym>SLEE</acronym>
 		MBean. Please refer to its documentation for details.
 		<literal>activity</literal>
-		allows to access inforamtion about activities and perform management
+		allows to access information about activities and perform management
 		operations. It supports following operations:
 	</para>
 	<table frame="all" pgwide="1">
@@ -71,7 +71,7 @@
 		<title>count</title>
 		<para>
 			<literal>count</literal>
-			operation simply returns curent count of activities. It does not
+			operation simply returns current count of activities. It does not
 			support argument nor options. Example call:
 			<example>
 				<title>List all deployed SBBs</title>
@@ -85,7 +85,7 @@ twiddle.sh activity -c
 		<title>query</title>
 		<para>
 			<literal>query</literal>
-			operation is capable of two things. First is to manage time between activity liveliness query(Refer to &THIS.PLATFORM; <acronym>JSLEE</acronym> Guide for descirption of livelines query). Second is trigerring livelines query.
+			operation is capable of two things. First is to manage time between activity liveliness query(Refer to &THIS.PLATFORM; <acronym>JSLEE</acronym> Guide for description of liveliness query). Second is triggering liveliness query.
 			It does not support argument. Optionally it may be followed by one of following options:
 		</para>
 		<variablelist>
@@ -93,7 +93,7 @@ twiddle.sh activity -c
 				<term>--set
 				</term>
 				<listitem>
-					<para>specifies number of seconds between livelines query. Requires number as argument.</para>
+					<para>specifies number of seconds between liveliness query. Requires number as argument.</para>
 					<example>
 						<title>Set time between query to 60 seconds</title>
 						<screen>
@@ -106,7 +106,7 @@ twiddle.sh activity -c
 				<term>--get
 				</term>
 				<listitem>
-					<para>Retrieves number of seconds between livelines queries.</para>
+					<para>Retrieves number of seconds between liveliness queries.</para>
 				</listitem>
 			</varlistentry>
 		</variablelist>
@@ -121,21 +121,21 @@ twiddle.sh activity -c
 		<title>idle</title>
 		<para>
 			<literal>idle</literal>
-			operation allows to manage maximum idle time for activity before it is eligible for reclamataion. It does not support argument. It supports following options:
+			operation allows to manage maximum idle time for activity before it is eligible for garbage collection. It does not support argument. It supports following options:
 		</para>
 		<variablelist>
 			<varlistentry>
 				<term>--set
 				</term>
 				<listitem>
-					<para>specifies number of seconds which indicates time allowed for activity to be not accessed. If this values is exceeded, next livelines query will try to free resoruce.</para>
+					<para>specifies number of seconds which indicates time allowed for activity to be not accessed. If this values is exceeded, next liveliness query will try to free resource.</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>
 				<term>--get
 				</term>
 				<listitem>
-					<para>fetches number of seconds indicating how long activity may be not accessed before livelines qury will reclaim it.</para>
+					<para>fetches number of seconds indicating how long activity may be not accessed before liveliness query will reclaim it.</para>
 				</listitem>
 			</varlistentry>
 		</variablelist>
@@ -145,14 +145,14 @@ twiddle.sh activity -c
 		<title>list</title>
 		<para>
 			<literal>list</literal>
-			operation lists certain inforamtion based on passed options. It does not support argument. It requires one option to be present. Following options are supported:
+			operation lists certain information based on passed options. It does not support argument. It requires one option to be present. Following options are supported:
 		</para>
 		<variablelist>
 			<varlistentry>
 				<term>--factories
 				</term>
 				<listitem>
-					<para>isntructs operation to list activity contexts factories registered in container. Does not support argument. Exampel call:</para>
+					<para>instructs operation to list activity contexts factories registered in container. Does not support argument. Example call:</para>
 					<example>	
 						<title>List factories</title>
 						<screen>
@@ -165,7 +165,7 @@ twiddle.sh activity -l --factories
 				<term>--contexts
 				</term>
 				<listitem>
-					<para>instructs operation to list activity contexts and data associated with them. It optionaly may take boolean argument. If argument is present and set to <replaceable>true</replaceable> 
+					<para>instructs operation to list activity contexts and data associated with them. It optionally may take boolean argument. If argument is present and set to <replaceable>true</replaceable> 
 					operation will list details in text form, otherwise only statistic is printed for activity context.</para>
 				</listitem>
 			</varlistentry>

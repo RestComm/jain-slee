@@ -8,8 +8,8 @@
 		command interacts with
 		<literal>javax.slee.management:name=Deployment</literal> Bean. It is standard
 		<acronym>SLEE</acronym>
-		MBean. <literal>deploy</literal> allows to access inforamtion about deployed components and change list of deployed components.
-		Also it allows access to components metadata. It supports following operations:
+		MBean. <literal>deploy</literal> allows to access information about deployed components and change list of deployed components.
+		Also it allows access to components meta data. It supports following operations:
 	</para>
 	<table frame="all" pgwide="1">
 		<title>
@@ -98,7 +98,7 @@
 		<title>list</title>
 		<para>
 			<literal>list</literal>
-			operation as name suggests lists various ifnormation about deployed components. It does not take argument. It requires options to be present, to indicate type of 
+			operation as name suggests lists various information about deployed components. It does not take argument. It requires options to be present, to indicate type of 
 			information that has to be listed. <literal>list</literal> supports following options:
 		</para>
 		<variablelist>
@@ -106,7 +106,7 @@
 				<term>--sbbs
 				</term>
 				<listitem>
-					<para>instructs to list deployed <literal>SbbID</literal>s. Optionaly this option takes argument. Argument must be in form of <literal>ServiceID</literal>:
+					<para>instructs to list deployed <literal>SbbID</literal>s. Optionally this option takes argument. Argument must be in form of <literal>ServiceID</literal>:
 					ServiceID[name=CallBlockingService,vendor=org.mobicents,version=0.1] . In case argument is present, <literal>SbbID</literal>s belonging to service are listed.
 					Example calls: </para>
 					<example>

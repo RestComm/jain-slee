@@ -169,7 +169,7 @@
 		<title>create</title>
 		<para>
 			<literal>create</literal>
-			operation creates new Resource Adaptor Entity. This operation does not activate created entity. It does not support arument, it requires all supported options to be present:
+			operation creates new Resource Adaptor Entity. This operation does not activate created entity. It does not support argument, it requires all supported options to be present:
 		</para>
 		<variablelist>
 			<varlistentry>
@@ -189,7 +189,7 @@
 			<varlistentry>
 				<term>--config</term>
 				<listitem>
-					<para>Specifies ConfigurationProperties passed to ResourceAdaptorObject during confgiuration part of its lifecycle.
+					<para>Specifies ConfigurationProperties passed to ResourceAdaptorObject during configuration part of its life-cycle.
 					Requires string representation of ConfigProperties.  Config property has general form of: (name:java.type=value) and array has different form, than in components, members are separated with <replaceable>,</replaceable> : [(cnf.prop),(cnf.prop)] </para>
 				</listitem>
 			</varlistentry>
@@ -220,7 +220,7 @@
 		<para>
 			<literal>update-config</literal>
 			operation updates configuration in specified entity. If new properties are verified by Resource Adaptor Object, old configuration properties are discarded and replaced with new set.
-			This operation does not support argument, it requries options to specify entity name and new configuration properties. <literal>update-config</literal> supports following options:
+			This operation does not support argument, it requires options to specify entity name and new configuration properties. <literal>update-config</literal> supports following options:
 		</para>
 		<variablelist>
 			<varlistentry>

@@ -112,11 +112,11 @@
 	</section>	
 	<section id="profile.edit_dirty">
 		<title>dirty</title>
-		<para><literal>dirty</literal> operation checks if profile data has been modified and not commited yet.  Does not support options nor arguments.</para>
+		<para><literal>dirty</literal> operation checks if profile data has been modified and not committed yet.  Does not support options nor arguments.</para>
 	</section>	
 	<section id="profile.edit_write">
 		<title>write</title>
-		<para><literal>write</literal> operation checks if profile is in edit mode, taht is if data can be writen into it. Does not support options nor arguments.</para>
+		<para><literal>write</literal> operation checks if profile is in edit mode, that is if data can be written into it. Does not support options nor arguments.</para>
 	</section>	
 	<section id="profile.edit_edit">
 		<title>edit</title>
@@ -124,7 +124,7 @@
 	</section>	
 	<section id="profile.edit_restore">
 		<title>restore</title>
-		<para><literal>restore</literal> operation revokes all cahnges performed on profile and marks profile as not editable. Does not support options nor arguments.</para>
+		<para><literal>restore</literal> operation revokes all changes performed on profile and marks profile as not editable. Does not support options nor arguments.</para>
 	</section>	
 	<section id="profile.edit_commit">
 		<title>commit</title>

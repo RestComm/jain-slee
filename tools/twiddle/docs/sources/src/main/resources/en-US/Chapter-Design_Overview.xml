@@ -49,7 +49,7 @@
 		</caption>
 	</mediaobject>
 	<para>
-		<literal>Command</literal>s group operation which logicaly belong to one category or act on same set of resources, ie. services.
+		<literal>Command</literal>s group operation which logically belong to one category or act on same set of resources, ie. services.
 	</para>
 	<!-- Dev: add about lifecycle of commands/operations? -->
 </chapter>

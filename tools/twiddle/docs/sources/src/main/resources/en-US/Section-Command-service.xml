@@ -6,7 +6,7 @@
 	<para><literal>service</literal> command interacts with <literal>javax.slee.management:name=ServiceManagement</literal>
 		MBean. It is standard
 		<acronym>JSLEE</acronym> MBean. <literal>service</literal> command allows to perform basic management operations on services
-		, like activateion, deactivation, state query   . It supports following operations:</para>
+		, like activation, deactivation, state query   . It supports following operations:</para>
 		<table frame="all" pgwide="1">
 			<title>Operations table for <literal>service</literal> command</title>
 			<tgroup colsep="1" cols="5">
@@ -88,7 +88,7 @@
 	</section>	
 	<section id="service_deactivate_and_activate">
 		<title>deactivate-and-activate</title>
-		<para><literal>deactivate-and-activate</literal> operation deactivates and activates certain set of services(order of options does not affect order of container operations). It does not support arument, it requries options to specify services sets: </para>
+		<para><literal>deactivate-and-activate</literal> operation deactivates and activates certain set of services(order of options does not affect order of container operations). It does not support argument, it requires options to specify services sets: </para>
 		<variablelist>
 			<varlistentry>
 				<term>--ta</term>
@@ -109,7 +109,7 @@
 	</section>	
 	<section id="service_services">
 		<title>services</title>
-		<para><literal>services</literal> operation lsits services in given state. Does not support options. Requires valid service state as argument. 
+		<para><literal>services</literal> operation lists services in given state. Does not support options. Requires valid service state as argument. 
 		Service can be either <replaceable>Active</replaceable> or <replaceable>Inactive</replaceable></para>
 		<variablelist>
 			<varlistentry>

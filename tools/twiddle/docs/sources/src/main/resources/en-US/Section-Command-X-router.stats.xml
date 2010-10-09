@@ -12,7 +12,7 @@
 		MBean.
 		<literal>router.stats</literal>
 		allows to access statistics information of router and container
-		executors. Note time statistics are measured in miliseconds. It
+		executors. Note time statistics are measured in milliseconds. It
 		supports following operations:
 	</para>
 	<table frame="all" pgwide="1">
@@ -124,10 +124,10 @@
 		<title>avg-time</title>
 		<para>
 			<literal>avg-time</literal>
-			operation return avarage time spent on routing certain event type. It
+			operation return average time spent on routing certain event type. It
 			does not support argument. It requires
 			<replaceable>--eventTypeId</replaceable>
-			optin to be present.
+			option to be present.
 			It support following options:
 		</para>
 		<variablelist>
@@ -135,11 +135,11 @@
 				<term>--eventTypeId
 				</term>
 				<listitem>
-					<para>specifies event type for which avarage time should be
+					<para>specifies event type for which average time should be
 						fetched. It is mandatory. It requires valid EventTypeID as
 						argument.</para>
 					<example>
-						<title>Get avarage time in all executors</title>
+						<title>Get average time in all executors</title>
 						<screen>./twiddle.sh router.stats --avg-time --eventTypeId=EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]</screen>
 					</example>
 				</listitem>
@@ -162,7 +162,7 @@
 			operation allows to retrieve information about number of routed
 			events. It does not support argument. It requires
 			<replaceable>--eventTypeId</replaceable>
-			optin to be present.
+			option to be present.
 			It support following options:
 		</para>
 		<variablelist>
@@ -202,7 +202,7 @@
 		<title>idle-time</title>
 		<para>
 			<literal>idle-time</literal>
-			operation return time in which executor was idle. Requires exeutor indes as argument(starting from 0).
+			operation return time in which executor was idle. Requires executor index as argument(starting from 0).
 		</para>
 	</section>
 	<section id="router.stats_misc_tasks">

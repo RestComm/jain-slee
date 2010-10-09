@@ -12,7 +12,7 @@
 		MBean.
 		<literal>trace</literal>
 		allows to manage trace level and tracers instances. Based on options
-		passed to operations it performs operations on 1.1 and 1.0 loggin
+		passed to operations it performs operations on 1.1 and 1.0 logging
 		facilities. It supports following operations:
 	</para>
 	<table frame="all" pgwide="1">
@@ -127,7 +127,7 @@
 						specifies notification source of which tracer(!) level should be
 						set. Excludes
 						<replaceable>--cid</replaceable>
-						option. Requries valid notification source as argument.
+						option. Requires valid notification source as argument.
 						<example>
 							<title>Set tracer level </title>
 							<screen>./twiddle.sh trace -s --nsrc=ProfileTableNotification[table=xxx] --name=tracer.name --level=WARNING</screen>
