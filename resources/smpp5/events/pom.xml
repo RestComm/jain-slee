@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>smpp5-parent</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>2.0.1-SNAPSHOT</version>
+		<version>1.0.0.BETA1</version>
 	</parent>
 	
 	<artifactId>smpp5-events</artifactId>

@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>mobicents-slee-ra-smpp5-docs</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>2.0.1-SNAPSHOT</version>
+		<version>1.0.0.BETA1</version>
 	</parent>
 
 	<artifactId>mobicents-slee-ra-smpp5-docs-jdocbook-jbcp</artifactId>
