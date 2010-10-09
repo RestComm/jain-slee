@@ -60,8 +60,8 @@
 	</target>
 
 	<target name="build-mmc" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin">
-			<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin">		
+			<arg line="install -P maven-release,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />		
 		</exec>
 
 		<delete dir="${release.dir}/tmp"/>
