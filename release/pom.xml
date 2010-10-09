@@ -62,6 +62,7 @@
 		<jain-sip-ext.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-sip-ext/1.0.BETA1</jain-sip-ext.connectionURL>
 	 	<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-sip-ha/0.12</jain-sip-ha.connectionURL>
 		<sip-balancer.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/tools/sip-balancer/1.0.4.FINAL</sip-balancer.connectionURL>
+		<sccp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/protocols/ss7/sccp/sccp-1.0.0.BETA3</sccp.connectionURL>
 
 		<!-- TRUNK -->
 		
@@ -200,6 +201,7 @@
 							<password>${checkout.password}</password>
 						</configuration>
 					</execution>
+					
 					<execution>
 						<id>ra-sip11-checkout</id>
 						<goals>
@@ -738,6 +740,27 @@
 							</checkoutDirectory>
 							<connectionUrl>
 								${sip-balancer.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>sccp-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/tools/sccp
+							</checkoutDirectory>
+							<connectionUrl>
+								${sccp.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
