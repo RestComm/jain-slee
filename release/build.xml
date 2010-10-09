@@ -115,6 +115,20 @@
 		</copy>
 	</target>
 
+	<target name="build-sccp" description="">
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/sccp">
+			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
+		</exec>
+
+		<copy failonerror="true" toDir="${release.dir}/tools/sccp/sccp-impl-stack" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sccp/sccp-impl/target/asccp-impl-stack"/>
+		</copy>
+
+		<copy failonerror="true" toDir="${release.dir}/tools/sccp/docs" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sccp/docs/jdocbook-${docs.profile}/target/docbook/publish"/>
+		</copy>
+	</target>
+
 	<target name="build-ras" description="Resource adaptors.">
 		<for delimiter="," param="dir.name" list="${ra.dirs}">
 			<sequential>
@@ -161,7 +175,8 @@
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-mmc,build-remote-slee-connection,build-cli,build-sip-balancer,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files"> 
+	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-mmc,build-remote-slee-connection,build-cli,build-sip-balancer,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">  
+
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
