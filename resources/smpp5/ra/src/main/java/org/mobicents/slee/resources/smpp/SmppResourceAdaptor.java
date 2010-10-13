@@ -117,6 +117,8 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	private int bindStatus;
 	private volatile boolean isBound = false;
 
+	private volatile boolean isClosed = false;
+
 	private Bind bind = null;
 
 	/**
@@ -323,16 +325,16 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		if (this.tracer.isInfoEnabled()) {
 			tracer.info("Activation RA " + this.raContext.getEntityName());
 		}
-
 		try {
 			bindSMSC();
 
-			// Start the ENQUIRE Link Thread
-			linkMonitorThread = new Thread(new LinkMonitor());
-			linkMonitorThread.start();
 		} catch (IOException e) {
 			this.tracer.severe("Binding to SMSC Failed ", e);
 		}
+
+		// Start the ENQUIRE Link Thread in any case
+		linkMonitorThread = new Thread(new LinkMonitor());
+		linkMonitorThread.start();
 	}
 
 	public void raConfigurationUpdate(ConfigProperties properties) {
@@ -376,6 +378,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 	public void raStopping() {
 		isBound = false;
+		isClosed = true;
 		this.smppSession.setIsAlive(false);
 
 		if (linkMonitorThread != null) {
@@ -519,6 +522,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			if (tracer.isFineEnabled()) {
 				tracer.fine(raContext.getEntityName() + " unbound successfuly");
 			}
+			semaphore.release();
 			break;
 		}
 
@@ -854,6 +858,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 				this.tracer.fine("The Receiver Thread for SMPP RA " + this.raContext.getEntityName()
 						+ " throws recovrable Exception ", recExcepEvent.getException());
 			}
+			this.reconnect();
 			break;
 		case org.mobicents.protocols.smpp.event.SMPPEvent.RECEIVER_EXIT:
 			org.mobicents.protocols.smpp.event.ReceiverExitEvent recExitEvent = (org.mobicents.protocols.smpp.event.ReceiverExitEvent) smppEvent;
@@ -862,7 +867,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			case org.mobicents.protocols.smpp.event.ReceiverExitEvent.EXCEPTION:
 				this.tracer.severe("The Receiver Thread for SMPP RA " + this.raContext.getEntityName()
 						+ " exited with error ", recExitEvent.getException());
-				// this.reconnect();
+				this.reconnect();
 				break;
 			case org.mobicents.protocols.smpp.event.ReceiverExitEvent.BIND_TIMEOUT:
 				if (this.tracer.isFineEnabled()) {
@@ -900,6 +905,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		try {
 			this.createBind();
 			protoSmppSession.bind(bind);
+			semaphore.drainPermits();
 			semaphore.tryAcquire(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			this.tracer.severe("Binding to SMS failed", e);
@@ -960,7 +966,9 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	private void reconnect() {
 		try {
 			unbindSMSC();
-			isBound = true;
+
+			this.protoSmppSession.closeLink();
+
 			bindSMSC();
 		} catch (Exception e) {
 			if (tracer.isSevereEnabled())
@@ -974,6 +982,10 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 		try {
 			protoSmppSession.unbind();
+
+			semaphore.drainPermits();
+			semaphore.tryAcquire(5, TimeUnit.SECONDS);
+
 			if (tracer.isInfoEnabled())
 				tracer.info(raContext.getEntityName() + ": unbinding from SMSC");
 		} catch (Exception e) {
@@ -1079,11 +1091,18 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 				tracer.fine("In LinkMonitor, isBound = " + isBound);
 
 			// We keep trying only of we are bound atleast once and we are Head Member
-			while (isBound) {
+			while (!isClosed) {
 				// long currentTime = System.currentTimeMillis();
 
 				try {
 					Thread.currentThread().sleep(enquireLinkTimeout);
+
+				} catch (InterruptedException e) {
+					if (tracer.isInfoEnabled())
+						tracer.info("Terminate link monitor: " + raContext.getEntityName());
+				}
+
+				try {
 
 					EnquireLink sm = new EnquireLink();
 					protoSmppSession.sendPacket(sm);
@@ -1101,16 +1120,13 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 						tracer.severe("Connection lost! for RA " + raContext.getEntityName() + "Communication failed",
 								ie);
 					reconnect();
-				} catch (InterruptedException e) {
-					if (tracer.isInfoEnabled())
-						tracer.info("Terminate link monitor: " + raContext.getEntityName());
 				} catch (BadCommandIDException ex) {
 					tracer.severe("BadCommandIDException. Failed to enquire link ", ex);
 				} catch (VersionException ex) {
 					if (tracer.isSevereEnabled())
 						tracer.severe("Failed to enquire link due to wrong Version ", ex);
 				}
-			}
+			}// while loop
 		}
 	}
 
