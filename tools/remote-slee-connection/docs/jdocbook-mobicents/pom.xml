@@ -101,7 +101,7 @@
 						<format>
 							<formatName>pdf</formatName>
 							<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-							<finalName>User_Guide.pdf</finalName>
+							<finalName>Mobicents_SLEE_Tool_Remote_Connection_User_Guide.pdf</finalName>
 						</format>
 						<format>
 							<formatName>html</formatName>
