@@ -69,7 +69,7 @@ public class AvpUtilities {
 
   static {
     // Just so we have it
-    parser = new MessageParser(null);
+    parser = new MessageParser();
   }
   
   public static void setParser(MessageParser singletonParser) {
