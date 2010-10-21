@@ -64,7 +64,6 @@ public class SbbEntityImpl implements SbbEntity {
 	// cache data
 	protected SbbEntityCacheData cacheData;
 
-	private boolean removed;
 	private final boolean created;
 	
 	// this is in cache data but we need to have it here also, to rebuild an sbb entity that was never really created due to tx rollback
@@ -696,7 +695,7 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#isRemoved()
 	 */
 	public boolean isRemoved() {
-		return removed;
+		return cacheData.isRemoved() || !cacheData.exists();
 	}
 
 	/**
@@ -704,7 +703,6 @@ public class SbbEntityImpl implements SbbEntity {
 	 */
 	private void removeFromCache() {
 		cacheData.remove();
-		removed = true;
 	}
 
 	/*

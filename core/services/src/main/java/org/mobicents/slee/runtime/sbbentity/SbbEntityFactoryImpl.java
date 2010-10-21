@@ -133,22 +133,45 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 			if (doTraceLogs)
 				logger.trace("Loading sbb entity " + sbbeId + " from cache");
 			
-			if (useLock) {				
-				final ReentrantLock lock = lockFacility.get(sbbeId);
-				lockOrFail(lock,sbbeId);
-				txContext.getAfterRollbackActions().add(new SbbEntityUnlockTransactionalAction(sbbEntity,lock,false,true,lockFacility));
-				txContext.getAfterCommitActions().add(new SbbEntityUnlockTransactionalAction(sbbEntity,lock,false,false,lockFacility));									
-			}
-			
-			// not found in tx, get from cache
+			// lock before retrieving from cache
+			final ReentrantLock lock = lockFacility.get(sbbeId);
+			lockOrFail(lock,sbbeId);													
+						
+			// get sbb entity data from cache
 			final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
 			if (!cacheData.exists()) {
 				lockFacility.remove(sbbeId);
 				return null;
 			}
 			
+			// build sbb entity instance
 			sbbEntity = new SbbEntityImpl(sbbeId,cacheData,this);				
-												
+			
+			// check if is root sbb entity
+			if(!sbbEntity.isRootSbbEntity()) {
+				// not, lock the root sbb entity
+				final ReentrantLock rootLock = lockFacility.get(sbbEntity.getRootSbbId());
+				if (!rootLock.tryLock()) {
+					// not able to lock the root, unlock the sbb entity to avoid deadlocks
+					lock.unlock();
+					// now ask lock for root
+					lockOrFail(rootLock,sbbEntity.getRootSbbId());					
+				}
+				else {
+					// unlock the sbb entity, not needed anymore, root is locked
+					lock.unlock();
+				}
+				// add tx actions to just unlock the root by passing null, in case of cascade removal the root entity will be fully 
+				// loaded and that op will add another tx action, which removes lock
+				txContext.getAfterRollbackActions().add(new SbbEntityUnlockTransactionalAction(null,rootLock,false,true,lockFacility));
+				txContext.getAfterCommitActions().add(new SbbEntityUnlockTransactionalAction(null,rootLock,false,false,lockFacility));
+			}
+			else {
+				// the sbb is root, add tx actions to unlock and possibly remove lock
+				txContext.getAfterRollbackActions().add(new SbbEntityUnlockTransactionalAction(sbbEntity,lock,false,true,lockFacility));
+				txContext.getAfterCommitActions().add(new SbbEntityUnlockTransactionalAction(sbbEntity,lock,false,false,lockFacility));				
+			}
+				
 			// store it in the tx, we need to do it due to sbb local object and
 			// current storing in sbb entity per tx
 			storeSbbEntityInTx(sbbEntity, txContext);
