@@ -49,8 +49,6 @@
 			<initial-event-select variable="ActivityContext" />
 		</event>
 		
-		<!-- END OF COMPONENT PROPERTIES SETUP -->
-
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>
