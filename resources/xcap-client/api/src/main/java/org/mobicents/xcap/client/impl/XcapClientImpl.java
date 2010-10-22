@@ -116,7 +116,7 @@ public class XcapClientImpl implements XcapClient {
 
 	private static final HttpContext NULL_HTTP_CONTEXT = null;
 
-	private XcapResponse execute(HttpUriRequest request,
+	private XcapResponse execute(URI uri, HttpUriRequest request,
 			Header[] additionalRequestHeaders, Credentials credentials)
 			throws IOException {
 
@@ -135,9 +135,10 @@ public class XcapClientImpl implements XcapClient {
 									.getWrappedCredentials()));
 		}
 
-		final XcapResponse response = client.execute(request, responseHandler,
+		final XcapResponseImpl response = client.execute(request, responseHandler,
 				httpContext);
-
+		response.setURI(uri);
+		
 		if (log.isDebugEnabled()) {
 			log.debug("Received:\n--BEGIN--\n" + response.toString()
 					+ "\n--END--");
@@ -173,7 +174,7 @@ public class XcapClientImpl implements XcapClient {
 					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
-		return execute(new HttpGet(uri), additionalRequestHeaders, credentials);
+		return execute(uri,new HttpGet(uri), additionalRequestHeaders, credentials);
 	}
 
 	/*
@@ -197,7 +198,7 @@ public class XcapClientImpl implements XcapClient {
 
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
-		return execute(request, additionalRequestHeaders, credentials);
+		return execute(uri,request, additionalRequestHeaders, credentials);
 
 	}
 
@@ -223,7 +224,7 @@ public class XcapClientImpl implements XcapClient {
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
 		request.setHeader(XcapConstant.HEADER_IF_MATCH, eTag);
-		return execute(request, additionalRequestHeaders, credentials);
+		return execute(uri,request, additionalRequestHeaders, credentials);
 
 	}
 
@@ -249,7 +250,7 @@ public class XcapClientImpl implements XcapClient {
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
 		request.setHeader(XcapConstant.HEADER_IF_NONE_MATCH, eTag);
-		return execute(request, additionalRequestHeaders, credentials);
+		return execute(uri,request, additionalRequestHeaders, credentials);
 
 	}
 
@@ -273,7 +274,7 @@ public class XcapClientImpl implements XcapClient {
 
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
-		return execute(request, additionalRequestHeaders, credentials);
+		return execute(uri,request, additionalRequestHeaders, credentials);
 
 	}
 
@@ -299,7 +300,7 @@ public class XcapClientImpl implements XcapClient {
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
 		request.setHeader(XcapConstant.HEADER_IF_MATCH, eTag);
-		return execute(request, additionalRequestHeaders, credentials);
+		return execute(uri,request, additionalRequestHeaders, credentials);
 	}
 
 	/*
@@ -324,7 +325,7 @@ public class XcapClientImpl implements XcapClient {
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
 		request.setHeader(XcapConstant.HEADER_IF_NONE_MATCH, eTag);
-		return execute(request, additionalRequestHeaders, credentials);
+		return execute(uri,request, additionalRequestHeaders, credentials);
 	}
 
 	/*
@@ -342,7 +343,7 @@ public class XcapClientImpl implements XcapClient {
 					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
-		return execute(new HttpDelete(uri), additionalRequestHeaders,
+		return execute(uri,new HttpDelete(uri), additionalRequestHeaders,
 				credentials);
 	}
 
@@ -365,7 +366,7 @@ public class XcapClientImpl implements XcapClient {
 
 		final HttpDelete request = new HttpDelete(uri);
 		request.setHeader(XcapConstant.HEADER_IF_MATCH, eTag);
-		return execute(request, additionalRequestHeaders, credentials);
+		return execute(uri,request, additionalRequestHeaders, credentials);
 	}
 
 	/*
@@ -387,7 +388,7 @@ public class XcapClientImpl implements XcapClient {
 
 		final HttpDelete request = new HttpDelete(uri);
 		request.setHeader(XcapConstant.HEADER_IF_NONE_MATCH, eTag);
-		return execute(request, additionalRequestHeaders, credentials);
+		return execute(uri,request, additionalRequestHeaders, credentials);
 	}
 
 }

@@ -10,7 +10,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.mobicents.xcap.client.XcapConstant;
-import org.mobicents.xcap.client.XcapResponse;
 import org.mobicents.xcap.client.header.Header;
 import org.mobicents.xcap.client.impl.header.HeaderImpl;
 
@@ -18,7 +17,7 @@ import org.mobicents.xcap.client.impl.header.HeaderImpl;
  * @author martins
  * 
  */
-public class XcapResponseHandler implements ResponseHandler<XcapResponse> {
+public class XcapResponseHandler implements ResponseHandler<XcapResponseImpl> {
 
 	/*
 	 * (non-Javadoc)
@@ -27,18 +26,24 @@ public class XcapResponseHandler implements ResponseHandler<XcapResponse> {
 	 * org.apache.http.client.ResponseHandler#handleResponse(org.apache.http
 	 * .HttpResponse)
 	 */
-	public XcapResponse handleResponse(HttpResponse httpResponse)
+	public XcapResponseImpl handleResponse(HttpResponse httpResponse)
 			throws ClientProtocolException, IOException {
 
 		int statusCode = httpResponse.getStatusLine().getStatusCode();
 
 		String eTag = null;
+		String mimetype = null;
 		if (statusCode == 200 || statusCode == 201) {
 			// sucessful response
 			org.apache.http.Header eTagHeader = httpResponse
 					.getFirstHeader(XcapConstant.HEADER_ETAG);
 			if (eTagHeader != null) {
 				eTag = eTagHeader.getValue();
+			}
+			org.apache.http.Header mimetypeHeader = httpResponse
+			.getFirstHeader(XcapConstant.HEADER_CONTENT_TYPE);
+			if (mimetypeHeader != null) {
+				mimetype = mimetypeHeader.getValue();
 			}
 		}
 
@@ -55,7 +60,7 @@ public class XcapResponseHandler implements ResponseHandler<XcapResponse> {
 				httpEntity)
 				: null;
 
-		return new XcapResponseImpl(statusCode, eTag, headers, xcapEntity);
+		return new XcapResponseImpl(statusCode, eTag, mimetype, headers, xcapEntity);
 	}
 
 }
