@@ -21,6 +21,7 @@ public class XcapConstant {
 	public static final String REQUEST_METHOD_DELETE = "DELETE";
 	public static final String HEADER_AUTHORIZATION = "Authorization";
 	public static final String HEADER_X_3GPP_Asserted_Identity = "X-3GPP-Asserted-Identity";
+	public static final String HEADER_X_XCAP_Asserted_Identity = "X-XCAP-Asserted-Identity";
 	public static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 	
 }
