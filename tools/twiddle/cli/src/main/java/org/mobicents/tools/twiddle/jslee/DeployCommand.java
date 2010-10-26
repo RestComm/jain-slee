@@ -521,8 +521,8 @@ public class DeployCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			
-			//not perfect, it will swallow everything that matches. but its ok.
+
+			// not perfect, it will swallow everything that matches. but its ok.
 			int code;
 			while ((code = opts.getopt()) != -1) {
 				switch (code) {
@@ -530,56 +530,57 @@ public class DeployCommand extends AbstractSleeCommand {
 					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
 				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1] );
+					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
 				case sbbs:
 					super.operationName = OPERATION_getSbbs;
 					stringServiceID = opts.getOptarg();
-					if(stringServiceID!=null)
-					{
-						//we have service id;
+					if (stringServiceID != null) {
+						// we have service id;
 						try {
 							addArg(stringServiceID, ServiceID.class, true);
 						} catch (Exception e) {
 							throw new CommandException("Failed to parse ServiceID: \"" + stringServiceID + "\"", e);
 						}
 					}
-					break;		
+					break;
 				case ra_types:
 					super.operationName = OPERATION_getResourceAdaptorTypes;
-					break;				
+					break;
 				case ras:
 					super.operationName = OPERATION_getResourceAdaptors;
-					break;			
+					break;
 				case services:
 					super.operationName = OPERATION_getServices;
-					break;				
+					break;
 				case libraries:
 					super.operationName = OPERATION_getLibraries;
-					break;				
+					break;
 				case events:
 					super.operationName = OPERATION_getEventTypes;
 					break;
 
 				case dus:
-					super.operationName = OPERATION_getDeployableUnits;//FIXME: add editor for that
+					super.operationName = OPERATION_getDeployableUnits;// FIXME:
+																		// add
+																		// editor
+																		// for
+																		// that
 					break;
 				case profile_specs:
 					super.operationName = OPERATION_getProfileSpecifications;
 					break;
 				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
+					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName() + "\", found unexpected opt: "
+							+ args[opts.getOptind() - 1]);
 
 				}
-				if(operationName == null)
-				{
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", requiers option to be present.");
-				}
+
 			}
 
-			
+			if (this.operationName == null) {
+				throw new CommandException(sleeCommand.getName() + " command requires option to be passed.");
+			}
 
 		}
 
