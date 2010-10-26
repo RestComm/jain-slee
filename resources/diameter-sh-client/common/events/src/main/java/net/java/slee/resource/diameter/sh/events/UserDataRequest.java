@@ -75,25 +75,7 @@ public interface UserDataRequest extends DiameterShMessage {
 
   static final int commandCode = 306;
 
-  /**
-   * Returns true if the Destination-Realm AVP is present in the message.
-   */
-  boolean hasDestinationRealm();
 
-  /**
-   * Sets the set of Supported-Features AVPs, with all the values in the given
-   * array. The AVPs will be added to message in the order in which they
-   * appear in the array.
-   * 
-   * Note: the array must not be altered by the caller following this call,
-   * and getSupportedFeatureses() is not guaranteed to return the same array
-   * instance, e.g. an "==" check would fail.
-   * 
-   * @throws IllegalStateException
-   *             if setSupportedFeatures or setSupportedFeatureses has already
-   *             been called
-   */
-  void setSupportedFeatureses(SupportedFeaturesAvp[] supportedFeatureses);
 
   /**
    * Returns true if the User-Identity AVP is present in the message.
@@ -264,33 +246,6 @@ public interface UserDataRequest extends DiameterShMessage {
    */
   void setCurrentLocation(CurrentLocationType currentLocation);
 
-  /**
-   * Returns the set of Proxy-Info AVPs. The returned array contains the AVPs
-   * in the order they appear in the message. A return value of null implies
-   * that no Proxy-Info AVPs have been set. The elements in the given array
-   * are ProxyInfo objects.
-   */
-  ProxyInfoAvp[] getProxyInfos();
 
-  /**
-   * Sets a single Proxy-Info AVP in the message, of type Grouped.
-   * 
-   * @throws IllegalStateException
-   *             if setProxyInfo or setProxyInfos has already been called
-   */
-  void setProxyInfo(ProxyInfoAvp proxyInfo);
-
-  /**
-   * Sets the set of Proxy-Info AVPs, with all the values in the given array.
-   * The AVPs will be added to message in the order in which they appear in
-   * the array.
-   * 
-   * Note: the array must not be altered by the caller following this call,
-   * and getProxyInfos() is not guaranteed to return the same array instance,
-   * e.g. an "==" check would fail.
-   * 
-   * @throws IllegalStateException
-   *             if setProxyInfo or setProxyInfos has already been called
-   */
 
 }
