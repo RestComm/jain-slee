@@ -25,6 +25,7 @@ public final class ResponseEvent implements Serializable {
 	
 	public ResponseEvent(Exception exception, URI uri) {
 		this.exception = exception;
+		this.uri = uri;
 		id = "null".hashCode()*31+exception.hashCode();
 	}
 	
