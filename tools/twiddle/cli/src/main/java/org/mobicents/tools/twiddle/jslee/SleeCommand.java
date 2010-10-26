@@ -26,6 +26,7 @@ import java.util.Arrays;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.slee.management.SleeState;
 
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
@@ -194,6 +195,7 @@ public class SleeCommand extends AbstractSleeCommand {
 				"SleeVendor",
 				"SleeVersion",
 				"Subsystems",
+				"State",
 		};
 		public InfoOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
@@ -226,18 +228,18 @@ public class SleeCommand extends AbstractSleeCommand {
 					String op = OPS[index];
 					sb.append(op);
 					sb.append("=");
-					System.err.println();
+					
 					Object res = conn.invoke(on, "get"+op, parms, sig);
-					if(res instanceof String)
+					
+					if(res instanceof String[])
 					{
-						String result = (String)res; 
-						sb.append(result);
-					}else
-					{
-						//sybsystems has String[]
 						String[] result = (String[]) res;
 						sb.append(Arrays.toString(result));
+					}else
+					{
+						sb.append(res);
 					}
+					
 					if(index+1!=OPS.length)
 					{
 						sb.append(",");
@@ -246,7 +248,13 @@ public class SleeCommand extends AbstractSleeCommand {
 				sb.append("]");
 				super.operationResult = sb.toString();
 				displayResult();
-			} catch (Exception e) {
+			}catch(javax.management.InstanceNotFoundException infe)
+			{
+				//this means no slee running/reployed
+				super.operationResult = "No container deployed.";
+				displayResult();
+			}
+			catch (Exception e) {
 				//add handle error here?
 				throw new CommandException("Failed to invoke \"" + this.operationName + "\" due to: ", e);
 			}
