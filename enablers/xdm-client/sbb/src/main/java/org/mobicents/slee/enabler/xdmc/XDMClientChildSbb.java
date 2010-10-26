@@ -33,10 +33,10 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild {
 
 	private static Tracer tracer;
 
-	private SbbContext sbbContext;
+	protected SbbContext sbbContext;
 
-	private XCAPClientResourceAdaptorSbbInterface xcapClientSbbInterface = null;
-	private XCAPClientActivityContextInterfaceFactory xcapClientACIF = null;
+	protected XCAPClientResourceAdaptorSbbInterface xcapClientSbbInterface = null;
+	protected XCAPClientActivityContextInterfaceFactory xcapClientACIF = null;
 
 	// -- SBB LOCAL OBJECT METHODS
 
