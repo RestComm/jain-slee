@@ -40,16 +40,6 @@ public interface AbortSessionRequest extends DiameterMessage {
   static final   int commandCode = 274;
 
   /**
-   * Returns true if the Destination-Host AVP is present in the message.
-   */
-  boolean hasDestinationHost();
-
-  /**
-   * Returns true if the Destination-Realm AVP is present in the message.
-   */
-  boolean hasDestinationRealm();
-
-  /**
    * Returns true if the Auth-Application-Id AVP is present in the message.
    */
   boolean hasAuthApplicationId();
