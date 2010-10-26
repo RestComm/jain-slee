@@ -263,7 +263,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 	/*
 	 * ResponseEvent handler
 	 */
-	public void onResponseEvent(ResponseEvent event, ActivityContextInterface aci) {
+	public void onGetResponseEvent(ResponseEvent event, ActivityContextInterface aci) {
 		
 		log.info("onResponseEvent(event="+event+",aci="+aci+")");
 		
