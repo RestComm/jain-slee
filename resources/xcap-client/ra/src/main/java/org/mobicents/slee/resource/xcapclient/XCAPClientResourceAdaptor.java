@@ -48,8 +48,22 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
     // JAIN SLEE tracer facility:
     private Tracer tracer;
     // Event fired:
-    private FireableEventType responseEvent;
+    private FireableEventType getResponseEvent;
+    private FireableEventType putResponseEvent;
+    private FireableEventType deleteResponseEvent;
    
+    public FireableEventType getGetResponseEventType() {
+		return getResponseEvent;
+	}
+    
+    public FireableEventType getDeleteResponseEventType() {
+		return deleteResponseEvent;
+	}
+    
+    public FireableEventType getPutResponseEventType() {
+		return putResponseEvent;
+	}
+    
 	/**
 	 * 
 	 * @param ah
@@ -145,14 +159,14 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 	 * @param event
 	 * @param handle
 	 */
-	public void processResponseEvent(ResponseEvent event, XCAPResourceAdaptorActivityHandle handle){
+	public void processResponseEvent(FireableEventType eventType, ResponseEvent event, XCAPResourceAdaptorActivityHandle handle){
         
     	if (tracer.isFineEnabled()) {    		            		
     		tracer.fine("NEW RESPONSE EVENT");        
     	}
                         
         try {                	
-            sleeEndpoint.fireEvent(handle,responseEvent, event, null, null);
+            sleeEndpoint.fireEvent(handle,eventType, event, null, null);
         } catch (Exception e) {           
             tracer.severe("unable to fire event",e);
         }        
@@ -372,16 +386,16 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 		
         this.sleeEndpoint = raContext.getSleeEndpoint();
         this.eventLookupFacility = raContext.getEventLookupFacility();
-        
+
         try {
-        	this.responseEvent = eventLookupFacility.getFireableEventType
-        	(new EventTypeID("ResponseEvent", "org.mobicents", "2.0"));
-            }
-				catch(Exception e)
-				{
-					if(tracer.isWarningEnabled())
-						tracer.warning("Could not look up Response Event",e);
-				}	
+        	this.getResponseEvent = eventLookupFacility.getFireableEventType(new EventTypeID("GetResponseEvent", "org.mobicents", "2.0"));
+        	this.putResponseEvent = eventLookupFacility.getFireableEventType(new EventTypeID("PutResponseEvent", "org.mobicents", "2.0"));
+        	this.deleteResponseEvent = eventLookupFacility.getFireableEventType(new EventTypeID("DeleteResponseEvent", "org.mobicents", "2.0"));
+        }
+        catch(Exception e) {
+        	if(tracer.isWarningEnabled())
+        		tracer.warning("Could not look up Response Event",e);
+        }	
 	}
 	
 	/*

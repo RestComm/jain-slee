@@ -4,7 +4,6 @@
 package org.mobicents.xcap.client.impl;
 
 import java.io.Serializable;
-import java.net.URI;
 
 import org.mobicents.xcap.client.XcapEntity;
 import org.mobicents.xcap.client.XcapResponse;
@@ -26,7 +25,6 @@ public class XcapResponseImpl implements XcapResponse, Serializable {
 	private final String mimetype;
 	private final Header[] headers;
 	private final XcapEntity xcapEntity;
-	private URI uri;
 	
 	/**
 	 * @param statusCode
@@ -79,18 +77,6 @@ public class XcapResponseImpl implements XcapResponse, Serializable {
 		return statusCode;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.xcap.client.XcapResponse#getURI()
-	 */
-	public URI getURI() {
-		return uri;
-	}
-	
-	public void setURI(URI uri) {
-		this.uri = uri;
-	}
-	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Response {").append("\nStatusCode: ").append(statusCode).append("\nHeaders: ");

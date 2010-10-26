@@ -1,6 +1,7 @@
 package org.mobicents.slee.resource.xcapclient;
 
 import java.io.Serializable;
+import java.net.URI;
 
 import org.mobicents.xcap.client.XcapResponse;
 
@@ -14,15 +15,21 @@ public final class ResponseEvent implements Serializable {
 	private XcapResponse response = null;
 	private Exception exception = null;
 	private int id;
+	private URI uri;
 	
-	public ResponseEvent(XcapResponse response) {
+	public ResponseEvent(XcapResponse response, URI uri) {
 		this.response = response;
+		this.uri = uri;
 		id = response.hashCode()*31+"null".hashCode();
 	}
 	
-	public ResponseEvent(Exception exception) {
+	public ResponseEvent(Exception exception, URI uri) {
 		this.exception = exception;
 		id = "null".hashCode()*31+exception.hashCode();
+	}
+	
+	public URI getURI() {
+		return uri;
 	}
 	
 	public XcapResponse getResponse() {

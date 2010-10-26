@@ -19,7 +19,7 @@ public class AsyncGetHandler extends AbstractAsyncHandler {
 	public AsyncGetHandler(XCAPClientResourceAdaptor ra,
 			XCAPResourceAdaptorActivityHandle handle, URI uri,
 			Header[] additionalRequestHeaders, Credentials credentials) {
-		super(ra, handle, uri, additionalRequestHeaders, credentials);
+		super(ra, handle, ra.getGetResponseEventType(), uri, additionalRequestHeaders, credentials);
 	}
 
 	@Override

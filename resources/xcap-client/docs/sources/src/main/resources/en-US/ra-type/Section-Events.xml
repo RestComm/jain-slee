@@ -9,7 +9,7 @@
 
 	<title>Events</title>
 
-	<para>There is a single events fired by &THIS.RA; Resource Adaptor, which represents a response to a request, received in a specific <literal>AsyncActivity</literal> instance.</para>
+	<para>There are three events fired by &THIS.RA; Resource Adaptor, which represents a response to each type of request, received in a specific <literal>AsyncActivity</literal> instance.</para>
 
 	<table frame="all" pgwide="1">
 		<title>Events fired on the AsyncActivity</title>
@@ -30,11 +30,25 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>ResponseEvent</entry>
+					<entry>GetResponseEvent</entry>
 					<entry>org.mobicents</entry>
 					<entry>2.0</entry>
 					<entry>org.mobicents. slee.resource. xcapclient. ResponseEvent</entry>					
-					<entry>A response to a XCAP request.</entry>
+					<entry>A response to a XCAP GET request.</entry>
+				</row>
+				<row>
+					<entry>PutResponseEvent</entry>
+					<entry>org.mobicents</entry>
+					<entry>2.0</entry>
+					<entry>org.mobicents. slee.resource. xcapclient. ResponseEvent</entry>					
+					<entry>A response to a XCAP PUT request.</entry>
+				</row>
+				<row>
+					<entry>DeleteResponseEvent</entry>
+					<entry>org.mobicents</entry>
+					<entry>2.0</entry>
+					<entry>org.mobicents. slee.resource. xcapclient. ResponseEvent</entry>					
+					<entry>A response to a XCAP DELETE request.</entry>
 				</row>
 			</tbody>
 		</tgroup>

@@ -3,6 +3,8 @@ package org.mobicents.slee.resource.xcapclient.handler;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.slee.resource.FireableEventType;
+
 import org.mobicents.slee.resource.xcapclient.ResponseEvent;
 import org.mobicents.slee.resource.xcapclient.XCAPClientResourceAdaptor;
 import org.mobicents.slee.resource.xcapclient.XCAPResourceAdaptorActivityHandle;
@@ -23,13 +25,15 @@ public abstract class AbstractAsyncHandler implements Runnable {
 	protected XCAPResourceAdaptorActivityHandle handle;
 	protected Header[] additionalRequestHeaders;
 	protected Credentials credentials;
-
+	protected FireableEventType eventType;
+	
 	protected AbstractAsyncHandler(XCAPClientResourceAdaptor ra,
-			XCAPResourceAdaptorActivityHandle handle, URI uri,
+			XCAPResourceAdaptorActivityHandle handle, FireableEventType eventType, URI uri,
 			Header[] additionalRequestHeaders, Credentials credentials) {
 		this.uri = uri;
 		this.ra = ra;
 		this.handle = handle;
+		this.eventType = eventType;
 		this.additionalRequestHeaders = additionalRequestHeaders;
 		this.credentials = credentials;
 	}
@@ -50,12 +54,12 @@ public abstract class AbstractAsyncHandler implements Runnable {
 			// execute method and get response
 			XcapResponse response = doRequest();
 			// create event with response
-			event = new ResponseEvent(response);
+			event = new ResponseEvent(response,uri);
 		} catch (Exception e) {
 			// create event with exception
-			event = new ResponseEvent(e);
+			event = new ResponseEvent(e,uri);
 		}
 		// process event
-		ra.processResponseEvent(event, handle);
+		ra.processResponseEvent(eventType, event, handle);
 	}
 }

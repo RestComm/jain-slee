@@ -28,7 +28,17 @@
         </resource-adaptor-type-classes>
         
         <event-type-ref>
-            <event-type-name>ResponseEvent</event-type-name>
+            <event-type-name>GetResponseEvent</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>2.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>PutResponseEvent</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>2.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>DeleteResponseEvent</event-type-name>
             <event-type-vendor>org.mobicents</event-type-vendor>
             <event-type-version>2.0</event-type-version>
         </event-type-ref>       

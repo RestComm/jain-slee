@@ -137,7 +137,6 @@ public class XcapClientImpl implements XcapClient {
 
 		final XcapResponseImpl response = client.execute(request, responseHandler,
 				httpContext);
-		response.setURI(uri);
 		
 		if (log.isDebugEnabled()) {
 			log.debug("Received:\n--BEGIN--\n" + response.toString()

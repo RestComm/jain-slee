@@ -24,7 +24,7 @@ public class AsyncPutIfMatchStringContentHandler extends AbstractAsyncHandler {
 			XCAPResourceAdaptorActivityHandle handle, URI uri, String eTag,
 			String mimetype, String content, Header[] additionalRequestHeaders,
 			Credentials credentials) {
-		super(ra, handle, uri, additionalRequestHeaders, credentials);
+		super(ra, handle, ra.getPutResponseEventType(), uri, additionalRequestHeaders, credentials);
 		this.mimetype = mimetype;
 		this.content = content;
 		this.eTag = eTag;

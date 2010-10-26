@@ -10,7 +10,21 @@
     </library-ref> 
     
     <event-definition>
-		<event-type-name>ResponseEvent</event-type-name>
+		<event-type-name>GetResponseEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>2.0</event-type-version>
+		<event-class-name>org.mobicents.slee.resource.xcapclient.ResponseEvent</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>PutResponseEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>2.0</event-type-version>
+		<event-class-name>org.mobicents.slee.resource.xcapclient.ResponseEvent</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>DeleteResponseEvent</event-type-name>
 		<event-type-vendor>org.mobicents</event-type-vendor>
 		<event-type-version>2.0</event-type-version>
 		<event-class-name>org.mobicents.slee.resource.xcapclient.ResponseEvent</event-class-name>

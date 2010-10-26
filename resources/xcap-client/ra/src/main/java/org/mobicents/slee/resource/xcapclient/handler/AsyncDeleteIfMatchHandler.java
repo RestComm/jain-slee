@@ -21,7 +21,7 @@ public class AsyncDeleteIfMatchHandler extends AbstractAsyncHandler {
 	public AsyncDeleteIfMatchHandler(XCAPClientResourceAdaptor ra,
 			XCAPResourceAdaptorActivityHandle handle, URI uri, String eTag,
 			Header[] additionalRequestHeaders, Credentials credentials) {
-		super(ra, handle, uri, additionalRequestHeaders, credentials);
+		super(ra, handle, ra.getDeleteResponseEventType(), uri, additionalRequestHeaders, credentials);
 		this.eTag = eTag;
 	}
 

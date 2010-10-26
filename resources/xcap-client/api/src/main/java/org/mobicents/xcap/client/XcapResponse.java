@@ -3,8 +3,6 @@
  */
 package org.mobicents.xcap.client;
 
-import java.net.URI;
-
 import org.mobicents.xcap.client.header.Header;
 
 /**
@@ -42,11 +40,5 @@ public interface XcapResponse {
 	 * @return
 	 */
 	public Header[] getHeaders();
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public URI getURI();
 	
 }

@@ -19,7 +19,7 @@ public class AsyncDeleteHandler extends AbstractAsyncHandler {
 	public AsyncDeleteHandler(XCAPClientResourceAdaptor ra,
 			XCAPResourceAdaptorActivityHandle handle, URI uri,
 			Header[] additionalRequestHeaders, Credentials credentials) {
-		super(ra, handle, uri, additionalRequestHeaders, credentials);
+		super(ra, handle, ra.getDeleteResponseEventType(),uri, additionalRequestHeaders, credentials);
 	}
 
 	@Override
