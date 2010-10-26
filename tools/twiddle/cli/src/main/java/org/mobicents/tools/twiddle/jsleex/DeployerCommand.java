@@ -40,6 +40,8 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
  */
 public class DeployerCommand extends AbstractSleeCommand {
 
+	private final static String _TO_SEPARATE="Deployable Units Waiting For Uninstall";
+	
 	public DeployerCommand() {
 		super("deployer", "This command performs operations on Mobicents DeploymentManager MBean.");
 	}
@@ -118,6 +120,7 @@ public class DeployerCommand extends AbstractSleeCommand {
 			opResult = opResult.replaceAll("<strong>", "");
 			opResult = opResult.replaceAll("</strong>", "");
 			opResult = opResult.replaceAll("<br>", "\n");
+			opResult = opResult.replace(_TO_SEPARATE, "\n"+_TO_SEPARATE);
 			super.operationResult = opResult;
 			
 			//and display
