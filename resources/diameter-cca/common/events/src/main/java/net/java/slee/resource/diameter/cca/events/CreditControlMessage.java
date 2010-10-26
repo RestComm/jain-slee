@@ -109,11 +109,6 @@ public interface CreditControlMessage extends DiameterMessage {
    * @throws IllegalStateException 
    */
   void setCcRequestType(CcRequestType ccRequestType) throws IllegalStateException;
-  /**
-   * Returns tru if Multiple-Services-Credit-Control AVP is present
-   * @return
-   */
-  public boolean hasMultipleServicesCreditControl();
   
   /**
    * Returns true if the CC-Request-Type AVP is present in the message.
@@ -165,6 +160,12 @@ public interface CreditControlMessage extends DiameterMessage {
    */
   boolean  hasEventTimestamp();
 
+  /**
+   * Returns tru if Multiple-Services-Credit-Control AVP is present
+   * @return
+   */
+  public boolean hasMultipleServicesCreditControl();
+  
   /**
    * Returns the set of Multiple-Services-Credit-Control AVPs.
    * 

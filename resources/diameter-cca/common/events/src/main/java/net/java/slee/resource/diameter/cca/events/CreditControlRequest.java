@@ -148,7 +148,7 @@ public interface CreditControlRequest extends CreditControlMessage {
    * 
    * @return
    */
-  java.lang.String getServiceContextId();
+  String getServiceContextId();
   
   /**
    * Sets the value of the Service-Context-Id AVP, of type UTF8String.
@@ -156,7 +156,7 @@ public interface CreditControlRequest extends CreditControlMessage {
    * @param serviceContextId
    * @throws IllegalStateException 
    */
-  void setServiceContextId(java.lang.String serviceContextId) throws IllegalStateException;
+  void setServiceContextId(String serviceContextId) throws IllegalStateException;
 
   /**
    * Returns true if the Service-Context-Id AVP is present in the message.

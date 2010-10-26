@@ -237,7 +237,7 @@ public interface CreditControlAnswer extends CreditControlMessage {
    * 
    * @return
    */
-  net.java.slee.resource.diameter.base.events.avp.DiameterURI[] getRedirectHosts();;
+  DiameterURI[] getRedirectHosts();
   
   /**
    * Sets a single Redirect-Host AVP in the message, of type DiameterURI.
