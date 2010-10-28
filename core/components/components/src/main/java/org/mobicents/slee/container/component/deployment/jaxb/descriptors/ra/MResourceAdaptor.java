@@ -75,6 +75,11 @@ public class MResourceAdaptor {
       this.configProperty.add( new MConfigProperty(configProperty11) );
     }
     
+    for(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ProfileSpecRef profileSpecRef : resourceAdaptor11.getProfileSpecRef())
+    {
+      this.profileSpecRef.add(new MProfileSpecRef(profileSpecRef));
+    }
+    
     this.resourceAdaptorClasses = new MResourceAdaptorClasses(resourceAdaptor11.getResourceAdaptorClasses());
 
   }
