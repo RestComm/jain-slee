@@ -49,6 +49,6 @@ public class DocumentSelectorBuilder {
 	 * @return
 	 */
 	public String toPercentEncodedString() {
-		return UriComponentEncoder.encodeQuery(this.toString());
+		return UriComponentEncoder.encodePath(this.toString());
 	}
 }
