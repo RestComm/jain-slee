@@ -87,7 +87,8 @@ public class RoClientSessionActivityImpl extends RoSessionActivityImpl implement
    */
   public RoCreditControlRequest createRoCreditControlRequest(CcRequestType type) {
     // Create the request
-    RoCreditControlRequest request = super.getRoMessageFactory().createRoCreditControlRequest(super.getSessionId(),type);
+    RoCreditControlRequest request = super.getRoMessageFactory().createRoCreditControlRequest(super.getSessionId()/*,type*/);
+    request.setCcRequestType(type);
 
     // If there's a Destination-Host, add the AVP
     if (destinationHost != null) {

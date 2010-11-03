@@ -17,14 +17,19 @@ public interface RoMessageFactory {
   public static final int  _RO_AUTH_APP_ID = 4;
 
   /**
+   * Creates a Credit Control Request message.
+   * 
+   * @return
+   */
+  public RoCreditControlRequest createRoCreditControlRequest(/*CcRequestType type*/);
+
+  /**
    * Creates a Credit Control Request message with the Session-Id AVP populated with the sessionId parameter.
    * 
    * @param sessionId
    * @return
    */
-  public RoCreditControlRequest createRoCreditControlRequest(CcRequestType type);
-
-  public RoCreditControlRequest createRoCreditControlRequest(String sessionId, CcRequestType type);
+  public RoCreditControlRequest createRoCreditControlRequest(String sessionId/*, CcRequestType type*/);
 
   /**
    * 

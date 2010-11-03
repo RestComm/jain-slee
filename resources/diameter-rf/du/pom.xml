@@ -15,11 +15,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>base-common-library</artifactId>
-			<version>${mobicents.diameter.resources.base-common.version}</version>
-		</dependency>
-		<dependency>
 			<artifactId>rf-events</artifactId>
 			<groupId>org.mobicents.servers.diameter.resources</groupId>
 			<version>${pom.version}</version>

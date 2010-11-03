@@ -95,21 +95,21 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
    * @see net.java.slee.resource.diameter.ro.RoMessageFactory#
    * createRoCreditControlRequest(AccountingRecordType accountingrecordtype)
    */
-  public RoCreditControlRequest createRoCreditControlRequest(CcRequestType type) {
+  public RoCreditControlRequest createRoCreditControlRequest(/*CcRequestType type*/) {
     RoCreditControlRequest ro = (RoCreditControlRequest) createRoCreditControlRequest(null, new DiameterAvp[] {});
     if (sessionId != null) {
       ro.setSessionId(sessionId);
     }
 
-    ro.setCcRequestType(type);
+    //ro.setCcRequestType(type);
 
     return ro;
   }
 
-  public RoCreditControlRequest createRoCreditControlRequest(String sessionId, CcRequestType type) {
-    RoCreditControlRequest ro = this.createRoCreditControlRequest(type);
+  public RoCreditControlRequest createRoCreditControlRequest(String sessionId/*, CcRequestType type*/) {
+    RoCreditControlRequest ro = this.createRoCreditControlRequest(/*type*/);
     ro.setSessionId(sessionId);
-    ro.setCcRequestType(type);
+    //ro.setCcRequestType(type);
     return ro;
   }
 
