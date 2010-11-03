@@ -4,24 +4,23 @@
 
 <event-jar>
 
-  <library-ref>
-    <library-name>diameter.cca.common</library-name>
-    <library-vendor>java.net</library-vendor>
-    <library-version>1.0</library-version>
-  </library-ref>
+	<library-ref>
+		<library-name>diameter.cca.common</library-name>
+		<library-vendor>java.net</library-vendor>
+		<library-version>1.0</library-version>
+	</library-ref>
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.ro.events.RoCreditControlRequest</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.ro.events.RoCreditControlRequest</event-class-name>
+	</event-definition>
 
-  <event-definition>
-    <event-type-name>net.java.slee.resource.diameter.cca.events.CreditControlRequest</event-type-name>
-    <event-type-vendor>java.net</event-type-vendor>
-    <event-type-version>0.8</event-type-version>
-    <event-class-name>net.java.slee.resource.diameter.cca.events.CreditControlRequest</event-class-name>
-  </event-definition>
-
-  <event-definition>
-    <event-type-name>net.java.slee.resource.diameter.cca.events.CreditControlAnswer</event-type-name>
-    <event-type-vendor>java.net</event-type-vendor>
-    <event-type-version>0.8</event-type-version>
-    <event-class-name>net.java.slee.resource.diameter.cca.events.CreditControlAnswer</event-class-name>
-  </event-definition>
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.ro.events.RoCreditControlAnswer</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.ro.events.RoCreditControlAnswer</event-class-name>
+	</event-definition>
 
 </event-jar>

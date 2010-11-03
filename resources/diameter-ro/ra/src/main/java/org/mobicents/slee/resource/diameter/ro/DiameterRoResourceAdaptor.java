@@ -53,19 +53,14 @@ import net.java.slee.resource.diameter.base.events.AccountingAnswer;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.ReAuthAnswer;
 import net.java.slee.resource.diameter.base.events.SessionTerminationAnswer;
-import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
-import net.java.slee.resource.diameter.cca.CreditControlAVPFactory;
-import net.java.slee.resource.diameter.cca.CreditControlMessageFactory;
-import net.java.slee.resource.diameter.cca.CreditControlServerSession;
-import net.java.slee.resource.diameter.cca.events.CreditControlAnswer;
-import net.java.slee.resource.diameter.cca.events.CreditControlMessage;
-import net.java.slee.resource.diameter.cca.events.CreditControlRequest;
 import net.java.slee.resource.diameter.ro.RoAvpFactory;
 import net.java.slee.resource.diameter.ro.RoClientSessionActivity;
 import net.java.slee.resource.diameter.ro.RoMessageFactory;
 import net.java.slee.resource.diameter.ro.RoProvider;
 import net.java.slee.resource.diameter.ro.RoServerSessionActivity;
+import net.java.slee.resource.diameter.ro.events.RoCreditControlAnswer;
+import net.java.slee.resource.diameter.ro.events.RoCreditControlRequest;
 
 import org.jboss.mx.util.MBeanServerLocator;
 import org.jdiameter.api.Answer;
@@ -80,10 +75,10 @@ import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.Stack;
-import org.jdiameter.api.cca.ClientCCASession;
-import org.jdiameter.api.cca.ServerCCASession;
+import org.jdiameter.api.ro.ClientRoSession;
+import org.jdiameter.api.ro.ServerRoSession;
 import org.jdiameter.client.api.ISessionFactory;
-import org.jdiameter.server.impl.app.cca.ServerCCASessionImpl;
+import org.jdiameter.server.impl.app.ro.ServerRoSessionImpl;
 import org.mobicents.diameter.stack.DiameterListener;
 import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
@@ -108,13 +103,9 @@ import org.mobicents.slee.resource.diameter.base.events.ReAuthRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.SessionTerminationAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.SessionTerminationRequestImpl;
 import org.mobicents.slee.resource.diameter.base.handlers.DiameterRAInterface;
-import org.mobicents.slee.resource.diameter.cca.CreditControlAVPFactoryImpl;
-import org.mobicents.slee.resource.diameter.cca.CreditControlMessageFactoryImpl;
-import org.mobicents.slee.resource.diameter.cca.CreditControlServerSessionImpl;
-import org.mobicents.slee.resource.diameter.cca.EventIDCache;
-import org.mobicents.slee.resource.diameter.cca.events.CreditControlAnswerImpl;
-import org.mobicents.slee.resource.diameter.cca.events.CreditControlRequestImpl;
-import org.mobicents.slee.resource.diameter.cca.handlers.CreditControlSessionFactory;
+import org.mobicents.slee.resource.diameter.ro.events.RoCreditControlAnswerImpl;
+import org.mobicents.slee.resource.diameter.ro.events.RoCreditControlRequestImpl;
+import org.mobicents.slee.resource.diameter.ro.handlers.RoSessionFactory;
 
 /**
  * Diameter Ro Resource Adaptor
@@ -200,9 +191,9 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
   private SessionFactory sessionFactory = null;
 
   // Ro RA Factories
-  protected CreditControlSessionFactory ccaSessionFactory = null;
+  protected RoSessionFactory ccaSessionFactory = null;
 
-  protected transient RoAvpFactory roAvpFactory = null;
+  protected RoAvpFactory roAvpFactory = null;
 
   protected RoMessageFactory roMessageFactory;
 
@@ -340,14 +331,14 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       this.baseMessageFactory = new DiameterMessageFactoryImpl(stack);
 
       this.roAvpFactory = new RoAvpFactoryImpl(baseAvpFactory);
-      this.roMessageFactory = new RoMessageFactoryImpl(baseMessageFactory, null, stack, roAvpFactory);
+      this.roMessageFactory = new RoMessageFactoryImpl(baseMessageFactory, null, stack);
 
       this.sessionFactory = this.stack.getSessionFactory();
-      this.ccaSessionFactory = new CreditControlSessionFactory(sessionFactory, this, defaultDirectDebitingFailureHandling, defaultCreditControlFailureHandling,  defaultValidityTime, defaultTxTimerValue);
+      this.ccaSessionFactory = new RoSessionFactory( this, sessionFactory,defaultDirectDebitingFailureHandling, defaultCreditControlFailureHandling,  defaultValidityTime, defaultTxTimerValue);
 
       // Register CCA App Session Factories
-      ((ISessionFactory) sessionFactory).registerAppFacory(ServerCCASession.class, this.ccaSessionFactory);
-      ((ISessionFactory) sessionFactory).registerAppFacory(ClientCCASession.class, this.ccaSessionFactory);
+      ((ISessionFactory) sessionFactory).registerAppFacory(ServerRoSession.class, this.ccaSessionFactory);
+      ((ISessionFactory) sessionFactory).registerAppFacory(ClientRoSession.class, this.ccaSessionFactory);
     }
     catch (Exception e) {
       tracer.severe("Error Activating Diameter Ro RA Entity", e);
@@ -594,8 +585,8 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
           throw new IllegalStateException("No activity for handle: "+handle);
         }
 
-        if(o instanceof CreditControlServerSessionImpl && event instanceof CreditControlRequest) {
-          ((CreditControlServerSessionImpl)o).fetchCurrentState((CreditControlRequest)event);
+        if(o instanceof RoServerSessionActivityImpl && event instanceof RoCreditControlRequest) {
+          ((RoServerSessionActivityImpl)o).fetchCurrentState((RoCreditControlRequest)event);
         }
         this.raContext.getSleeEndpoint().fireEvent(handle, eventID, event, address, null, EVENT_FLAGS);
 
@@ -651,8 +642,8 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     boolean isRequest = message.isRequest();
 
     switch (commandCode) {
-    case CreditControlMessage.commandCode: // CCR/CCA
-      return isRequest ? new CreditControlRequestImpl(message) : new CreditControlAnswerImpl(message);
+    case RoCreditControlRequest.commandCode: // CCR/CCA
+      return isRequest ? new RoCreditControlRequestImpl(message) : new RoCreditControlAnswerImpl(message);
     case AbortSessionAnswer.commandCode: // ASR/ASA
       return isRequest ? new AbortSessionRequestImpl(message) : new AbortSessionAnswerImpl(message);
     case SessionTerminationAnswer.commandCode: // STR/STA
@@ -748,7 +739,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
             }
             else if (activity instanceof RoClientSessionActivity) {
               RoClientSessionActivityImpl acc = (RoClientSessionActivityImpl) activity;
-              ClientCCASession appSession = this.diameterStack.getSession(activity.getSessionId(), ClientCCASession.class);
+              ClientRoSession appSession = this.diameterStack.getSession(activity.getSessionId(), ClientRoSession.class);
               session = appSession.getSessions().get(0);
               performBeforeReturnOnBase(activity, session);
               performBeforeReturnRo(acc, session);
@@ -757,7 +748,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
             }
             else if (activity instanceof RoServerSessionActivity) {
               RoServerSessionActivityImpl acc = (RoServerSessionActivityImpl) activity;
-              ServerCCASession appSession = this.diameterStack.getSession(activity.getSessionId(), ServerCCASession.class);
+              ServerRoSession appSession = this.diameterStack.getSession(activity.getSessionId(), ServerRoSession.class);
               session = appSession.getSessions().get(0);
               performBeforeReturnOnBase(activity, session);
               performBeforeReturnRo(acc, session);
@@ -775,30 +766,20 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
         // Two calls are required since Ro relies on CCA. CCA does not know anything about Ro so it needs its fields created.
         private void performBeforeReturnCC(RoServerSessionActivityImpl acc) {
-          //FIXME: overkill, but its done by CCA, extend it?
-          CreditControlAVPFactory ccaAvp = new CreditControlAVPFactoryImpl(baseAvpFactory);
-
-          acc.setCCAAvpFactory(ccaAvp);
-          //hack
-          acc.setCCAMessageFactory((CreditControlMessageFactory) acc.getRoMessageFactory());
+          
         }
 
         private void performBeforeReturnCC(RoClientSessionActivityImpl acc) {
-          //FIXME: overkill, but its done by CCA, extend it?
-          CreditControlAVPFactory ccaAvp = new CreditControlAVPFactoryImpl(baseAvpFactory);
-
-          acc.setCCAAvpFactory(ccaAvp);
-          //hack
-          acc.setCCAMessageFactory((CreditControlMessageFactory) acc.getRoMessageFactory());
+          
         }
 
         private void performBeforeReturnRo(RoServerSessionActivityImpl acc, Session session) {
-          acc.setRoMessageFactory(new RoMessageFactoryImpl(baseMessageFactory, session, stack, roAvpFactory));
+          acc.setRoMessageFactory(new RoMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
           // acc.setRoAvpFactory(roAvpFactory);
         }
 
         private void performBeforeReturnRo(RoClientSessionActivityImpl acc, Session session) {
-          acc.setRoMessageFactory(new RoMessageFactoryImpl(baseMessageFactory, session, stack, roAvpFactory));
+          acc.setRoMessageFactory(new RoMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
           // acc.setRoAvpFactory(roAvpFactory);
         }
 
@@ -857,7 +838,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     // * CCR - if we act as server, this is the message we receive
     // * NO other message should make it here, if it gets its an errro ?
     // FIXME: baranowb: check if ACR is vald here also
-    if(request.getCommandCode() == CreditControlRequest.commandCode) {
+    if(request.getCommandCode() == RoCreditControlRequest.commandCode) {
       DiameterActivity activity;
 
       try {
@@ -868,9 +849,9 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
         }
         else {
           // We can only have server session?, but for sake error catching
-          if(activity instanceof CreditControlServerSession) {
+          if(activity instanceof RoServerSessionActivity) {
             RoServerSessionActivityImpl session = (RoServerSessionActivityImpl) activity;
-            ((ServerCCASessionImpl)session.getSession()).processRequest(request);
+            ((ServerRoSessionImpl)session.getSession()).processRequest(request);
           }
         }
       }
@@ -933,7 +914,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
   // Ro/CCA Session Creation Listener --------------------------------------
 
-  public void sessionCreated(ClientCCASession ccClientSession) {
+  public void sessionCreated(ClientRoSession ccClientSession) {
     // Make sure it's a new session and there's no activity created yet.
     if(this.getActivity(getActivityHandle(ccClientSession.getSessions().get(0).getSessionId())) != null) {
       tracer.warning("Activity found for created Credit-Control Client Session. Shouldn't exist. Aborting.");
@@ -942,10 +923,10 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     // Get Message Factories (for Base and CCA)
     DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(ccClientSession.getSessions().get(0), this.stack);
-    CreditControlMessageFactory ccaMsgFactory = new CreditControlMessageFactoryImpl(baseMsgFactory, ccClientSession.getSessions().get(0), this.stack, this.roAvpFactory);
+    //RoMessageFactoryImpl ccaMsgFactory = new RoMessageFactoryImpl(baseMsgFactory, ccClientSession.getSessionId(), this.stack);
 
     // Create Client Activity
-    RoClientSessionActivityImpl activity = new RoClientSessionActivityImpl(ccaMsgFactory, this.roAvpFactory, ccClientSession, null, null, stack);
+    RoClientSessionActivityImpl activity = new RoClientSessionActivityImpl(baseMsgFactory, this.baseAvpFactory, ccClientSession, null, null, stack);
 
     //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
     //session.addStateChangeNotification(activity);
@@ -953,7 +934,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     addActivity(activity);
   }
 
-  public void sessionCreated(ServerCCASession ccServerSession)
+  public void sessionCreated(ServerRoSession ccServerSession)
   {
     // Make sure it's a new session and there's no activity created yet.
     if(this.getActivity(getActivityHandle(ccServerSession.getSessions().get(0).getSessionId())) != null) {
@@ -963,10 +944,10 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     // Get Message Factories (for Base and CCA)
     DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(ccServerSession.getSessions().get(0), this.stack);
-    CreditControlMessageFactory ccaMsgFactory = new CreditControlMessageFactoryImpl(baseMsgFactory, ccServerSession.getSessions().get(0), this.stack, this.roAvpFactory);
+  //RoMessageFactoryImpl ccaMsgFactory = new RoMessageFactoryImpl(baseMsgFactory, ccClientSession.getSessionId(), this.stack);
 
     // Create Server Activity
-    RoServerSessionActivityImpl activity = new RoServerSessionActivityImpl(ccaMsgFactory, this.roAvpFactory, ccServerSession, null, null, stack);
+    RoServerSessionActivityImpl activity = new RoServerSessionActivityImpl(baseMsgFactory, this.baseAvpFactory, ccServerSession, null, null, stack);
 
     //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
     //session.addStateChangeNotification(activity);
@@ -1018,7 +999,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     public RoClientSessionActivity createRoClientSessionActivity() throws CreateActivityException {
       try {
-        ClientCCASession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, authApplicationIds.get(0), ClientCCASession.class, new Object[]{});
+        ClientRoSession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, authApplicationIds.get(0), ClientRoSession.class, new Object[]{});
         sessionCreated(session);
         if (session == null) {
           tracer.severe("Failure creating Ro Client Session (null).");
@@ -1049,7 +1030,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       return this.ra.roMessageFactory;
     }
 
-    public CreditControlAnswer eventCreditControlRequest(CreditControlRequest ccr) throws IOException {
+    public RoCreditControlAnswer sendRoCreditControlRequest(RoCreditControlRequest ccr) throws IOException {
       try {
         String sessionId = ccr.getSessionId();
         DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
@@ -1060,7 +1041,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
         DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
 
-        return (CreditControlAnswer) activity.sendSyncMessage(ccr);
+        return (RoCreditControlAnswer) activity.sendSyncMessage(ccr);
       }
       catch (Exception e) {
         tracer.severe("Failure sending sync request.", e);
@@ -1070,85 +1051,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       return null;
     }
 
-    public CreditControlAnswer initialCreditControlRequest(CreditControlRequest ccr) throws IOException {
-      try {
-        String sessionId = ccr.getSessionId();
-        DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
-
-        if (!activities.containsKey(handle)) {
-          createActivity(((DiameterMessageImpl)ccr).getGenericData());
-        }
-
-        DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
-
-        return (CreditControlAnswer) activity.sendSyncMessage(ccr);
-      }
-      catch (Exception e) {
-        tracer.severe("Failure sending sync request.", e);
-      }
-
-      // FIXME Throw unknown message exception?
-      return null;
-    }
-
-    public CreditControlAnswer updateCreditControlRequest(CreditControlRequest ccr) throws IOException, IllegalArgumentException {
-      try {
-        String sessionId = ccr.getSessionId();
-        DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
-
-        if (!activities.containsKey(handle)) {
-          createActivity(((DiameterMessageImpl)ccr).getGenericData());
-        }
-
-        DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
-
-        return (CreditControlAnswer) activity.sendSyncMessage(ccr);
-      }
-      catch (Exception e) {
-        tracer.severe("Failure sending sync request.", e);
-      }
-
-      // FIXME Throw unknown message exception?
-      return null;
-    }
-
-    public CreditControlAnswer terminationCreditControlRequest(CreditControlRequest ccr) throws IOException, IllegalArgumentException {
-      try {
-        String sessionId = ccr.getSessionId();
-        DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
-
-        if (!activities.containsKey(handle)) {
-          createActivity(((DiameterMessageImpl)ccr).getGenericData());
-        }
-
-        DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
-
-        return (CreditControlAnswer) activity.sendSyncMessage(ccr);
-      }
-      catch (Exception e) {
-        tracer.severe("Failure sending sync request.", e);
-      }
-
-      // FIXME Throw unknown message exception?
-      return null;
-    }
-
-    public byte[] marshalRoCreditControlRequest(CreditControlRequest ccr) {
-      throw new UnsupportedOperationException();
-    }
-
-    public byte[] marshalRoCreditControlAnswer(CreditControlAnswer cca) {
-      throw new UnsupportedOperationException();
-    }
-
-    public CreditControlRequest unmarshalRoCreditControlRequest(byte[] b) throws IOException, AvpNotAllowedException {
-      throw new UnsupportedOperationException();
-    }
-
-    public CreditControlAnswer unmarshalRoCreditControlAnswer(byte[] b) throws IOException, AvpNotAllowedException {
-      throw new UnsupportedOperationException();
-    }
-
+  
     private DiameterActivity createActivity(Message message) throws CreateActivityException {
       String sessionId = message.getSessionId();
       DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
@@ -1192,7 +1095,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     private DiameterActivity createRoServerSessionActivity(Request message) throws CreateActivityException {
       try {
-        ServerCCASession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(message.getSessionId(), authApplicationIds.get(0), ServerCCASession.class, new Object[]{});
+        ServerRoSession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(message.getSessionId(), authApplicationIds.get(0), ServerRoSession.class, new Object[]{});
         sessionCreated(session);
         if (session == null) {
           tracer.severe("Failure creating Ro Server Session (null).");

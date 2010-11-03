@@ -2,32 +2,40 @@ package net.java.slee.resource.diameter.ro;
 
 import java.io.IOException;
 
-import net.java.slee.resource.diameter.cca.CreditControlServerSession;
-import net.java.slee.resource.diameter.cca.events.CreditControlAnswer;
+import net.java.slee.resource.diameter.base.events.ReAuthRequest;
+import net.java.slee.resource.diameter.ro.events.RoCreditControlAnswer;
 
 /**
- * An RoServerSessionActivity represents a charging control session for Credit Control servers.
+ * An RoServerSessionActivity represents a charging control session for Credit
+ * Control servers.
  * 
- * A single RoServerSessionActivity will be created for the Diameter session. All requests received for the session will be fired as events on the same RoServerSessionActivity.
+ * A single RoServerSessionActivity will be created for the Diameter session.
+ * All requests received for the session will be fired as events on the same
+ * RoServerSessionActivity.
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public interface RoServerSessionActivity extends RoSession, CreditControlServerSession {
+public interface RoServerSessionActivity extends RoSessionActivity {
 
   /**
-   * Create a Ro-specific Credit-Control-Answer message pre-populated with the AVPs appropriate for this session.
+   * Create a Ro-specific Credit-Control-Answer message pre-populated with the
+   * AVPs appropriate for this session.
    * 
    * @return a new CreditControlAnswer
    */
-  public CreditControlAnswer createRoCreditControlAnswer();
+  public RoCreditControlAnswer createRoCreditControlAnswer();
 
   /**
    * Sends a Credit-Control-Answer message to the peer.
    * 
-   * @param cca the CreditControlAnswer to send
-   * @throws IOException if an error occured sending the request to the peer
+   * @param cca
+   *            the CreditControlAnswer to send
+   * @throws IOException
+   *             if an error occured sending the request to the peer
    */
-  public void sendCreditControlAnswer(CreditControlAnswer cca) throws IOException;
+  public void sendRoCreditControlAnswer(RoCreditControlAnswer cca) throws IOException;
+
+  public void sendReAuthRequest(ReAuthRequest rar) throws java.io.IOException;
 
 }

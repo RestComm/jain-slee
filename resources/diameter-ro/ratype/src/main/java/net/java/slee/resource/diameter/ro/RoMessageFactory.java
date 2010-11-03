@@ -1,7 +1,8 @@
 package net.java.slee.resource.diameter.ro;
 
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
-import net.java.slee.resource.diameter.cca.events.CreditControlRequest;
+import net.java.slee.resource.diameter.cca.events.avp.CcRequestType;
+import net.java.slee.resource.diameter.ro.events.RoCreditControlRequest;
 
 /**
  * Used by applications to create Diameter Ro request messages.
@@ -16,22 +17,16 @@ public interface RoMessageFactory {
   public static final int  _RO_AUTH_APP_ID = 4;
 
   /**
-   * Creates an empty Credit Control Request message.
-   * 
-   * @return
-   */
-  public CreditControlRequest createRoCreditControlRequest();
-
-  /**
    * Creates a Credit Control Request message with the Session-Id AVP populated with the sessionId parameter.
    * 
    * @param sessionId
    * @return
    */
-  public CreditControlRequest createRoCreditControlRequest(String sessionId);
+  public RoCreditControlRequest createRoCreditControlRequest(CcRequestType type);
+
+  public RoCreditControlRequest createRoCreditControlRequest(String sessionId, CcRequestType type);
 
   /**
-   * Returns a reference to a message factory that can be used to create AVPs defined by the Diameter Base specification.
    * 
    * @return Base Diameter message factory
    */

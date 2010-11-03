@@ -13,16 +13,16 @@
 		<resource-adaptor-type-classes>
 
 			<activity-type>
-				<activity-type-name>net.java.slee.resource.diameter.ro.RoClientSession</activity-type-name>
+				<activity-type-name>net.java.slee.resource.diameter.ro.RoClientSessionActivity</activity-type-name>
 			</activity-type>
 
 			<activity-type>
-				<activity-type-name>net.java.slee.resource.diameter.ro.RoServerSession</activity-type-name>
+				<activity-type-name>net.java.slee.resource.diameter.ro.RoServerSessionActivity</activity-type-name>
 			</activity-type>
 
 			<activity-type>
-                <activity-type-name>org.jainslee.resources.diameter.base.DiameterActivity</activity-type-name>
-            </activity-type>
+				<activity-type-name>org.jainslee.resources.diameter.base.DiameterActivity</activity-type-name>
+			</activity-type>
 
 			<activity-context-interface-factory-interface>
 				<activity-context-interface-factory-interface-name>
@@ -35,13 +35,9 @@
 			</resource-adaptor-interface>
 		</resource-adaptor-type-classes>
 
+
 		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.base.events.CapabilitiesExchangeRequest</event-type-name>
-			<event-type-vendor>java.net</event-type-vendor>
-			<event-type-version>0.8</event-type-version>
-		</event-type-ref>
-		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.cca.events.CreditControlRequest</event-type-name>
+			<event-type-name>net.java.slee.resource.diameter.ro.events.RoCreditControlRequest</event-type-name>
 			<event-type-vendor>java.net</event-type-vendor>
 			<event-type-version>0.8</event-type-version>
 		</event-type-ref>
@@ -69,12 +65,7 @@
 		</event-type-ref>
 		<!-- SERVER SENDS: Answers == CCA, BASE -->
 		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.cca.events.CreditControlAnswer</event-type-name>
-			<event-type-vendor>java.net</event-type-vendor>
-			<event-type-version>0.8</event-type-version>
-		</event-type-ref>
-		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.base.events.CapabilitiesExchangeAnswer</event-type-name>
+			<event-type-name>net.java.slee.resource.diameter.ro.events.RoCreditControlAnswer</event-type-name>
 			<event-type-vendor>java.net</event-type-vendor>
 			<event-type-version>0.8</event-type-version>
 		</event-type-ref>

@@ -3,10 +3,9 @@ package net.java.slee.resource.diameter.ro;
 import java.io.IOException;
 
 import net.java.slee.resource.diameter.base.CreateActivityException;
-import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
-import net.java.slee.resource.diameter.cca.events.CreditControlAnswer;
-import net.java.slee.resource.diameter.cca.events.CreditControlRequest;
+import net.java.slee.resource.diameter.ro.events.RoCreditControlAnswer;
+import net.java.slee.resource.diameter.ro.events.RoCreditControlRequest;
 
 /**
  * The SBB interface for the Diameter Ro Resource Adaptor.
@@ -65,70 +64,9 @@ public interface RoProvider {
    * 
    * @param ccr the CreditControlRequest to send
    * @return the answer received 
-   * @throws IOException if an error occured sending the request to the peer
+   * @throws IOException if an error occurred sending the request to the peer
    */
-  public CreditControlAnswer eventCreditControlRequest(CreditControlRequest ccr) throws IOException;
-
-  /**
-   * Send an initial Credit-Control-Request that will start a credit control session, and block until the answer is received.
-   * 
-   * @param ccr
-   * @return
-   * @throws IOException if an error occured sending the request to the peer
-   */
-  public CreditControlAnswer initialCreditControlRequest(CreditControlRequest ccr) throws IOException;
-
-  /**
-   * Send an update (intermediate) Credit-Control-Request and block until the answer is received.
-   * 
-   * @param ccr
-   * @return
-   * @throws IOException if an error occured sending the request to the peer
-   * @throws IllegalArgumentException if the CreditControlRequest does not contain CC-Request-Number and Session-Id AVPs
-   */
-  public CreditControlAnswer updateCreditControlRequest(CreditControlRequest ccr) throws IOException, IllegalArgumentException ;
-
-  /**
-   * Send a termination Credit-Control-Request and block until the answer is received.
-   * 
-   * @param ccr the CreditControlRequest to send
-   * @return the answer received 
-   * @throws IOException if an error occured sending the request to the peer
-   * @throws IllegalArgumentException if the CreditControlRequest does not contain CC-Request-Number and Session-Id AVPs
-   */
-  public CreditControlAnswer terminationCreditControlRequest(CreditControlRequest ccr) throws IOException, IllegalArgumentException ;
-
-  /**
-   * Marshal a Credit-Control-Request into a byte array that can be serialized (e.g., stored in a CMP field).
-   * 
-   * @param ccr the Credit-Control-Request to marshal 
-   * @return a byte array with the marshalled data
-   */
-  public byte[] marshalRoCreditControlRequest(CreditControlRequest ccr);
-
-  /**
-   * Marshal a Credit-Control-Answer into a byte array that can be serialized (e.g., stored in a CMP field).
-   * 
-   * @param cca the Credit-Control-Answer to marshal 
-   * @return a byte array with the marshalled data
-   */
-  public byte[] marshalRoCreditControlAnswer(CreditControlAnswer cca);
-
-  /**
-   * Unmarshal a Credit-Control-Request from a byte array.
-   * 
-   * @param b the byte array to unmarshal
-   * @return a Credit-Control-Request constructed from the data in the byte array 
-   */
-  public CreditControlRequest unmarshalRoCreditControlRequest(byte[] b) throws IOException, AvpNotAllowedException;
-
-  /**
-   * Unmarshal a Credit-Control-Answer from a byte array.
-   * 
-   * @param b the byte array to unmarshal
-   * @return a Credit-Control-Answer constructed from the data in the byte array 
-   */
-  public CreditControlAnswer unmarshalRoCreditControlAnswer(byte[] b) throws IOException, AvpNotAllowedException;
+  public RoCreditControlAnswer sendRoCreditControlRequest(RoCreditControlRequest ccr) throws IOException;
 
   /**
    * Return the number of peers this Diameter resource adaptor is connected to.
