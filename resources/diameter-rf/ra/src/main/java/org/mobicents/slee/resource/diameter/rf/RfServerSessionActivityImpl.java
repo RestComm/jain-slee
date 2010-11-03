@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
+import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
@@ -121,8 +122,9 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
 
       // This is an answer.
       rawAnswer.setRequest(false);
-
-      return new RfAccountingAnswerImpl(rawAnswer);
+      RfAccountingAnswerImpl ans = new RfAccountingAnswerImpl(rawAnswer);
+      ans.setData(request);
+      return ans;
     } catch (Exception e) {
       logger.error("", e);
     }
@@ -156,6 +158,8 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
         // this.serverSession);
         // }
       }
+      //clean
+      clean(aca);
     } catch (JAvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     } catch (Exception e) {
@@ -202,8 +206,48 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
   }
 
   public RfAccountingAnswer createRfAccountingAnswer() {
-    throw new UnsupportedOperationException();
+	  RfAccountingAnswer answer = null;
+
+	    for(int index = 0; index < stateMessages.size(); index++) {
+	      if(stateMessages.get(index).getCommand().getCode() == RfAccountingRequest.commandCode) {
+	        RfAccountingRequest msg = (RfAccountingRequest) stateMessages.get(index);
+
+	        answer = createRfAccountingAnswer(msg);
+
+	        if(!answer.hasSessionId() && session != null) {
+	          answer.setSessionId(session.getSessionId());
+	        }
+	        answer.setAcctApplicationId(3L);
+
+	        ((DiameterMessageImpl)answer).setData(msg);
+	        break;
+	      }
+	    }
+
+	    return answer;
   }
+  
+  public void fetchSessionData(DiameterMessage msg, boolean incoming) {
+	    if(msg.getHeader().isRequest()) {
+	      //Well it should always be getting this on request and only once ?
+	      if(incoming) {
+	        //FIXME: add more ?
+	        //if(this.remoteRealm == null) {
+	        //  this.remoteRealm = msg.getOriginRealm();
+	        //}
+	        stateMessages.add((DiameterMessageImpl) msg);
+	      }
+	      else {
+	        //FIXME, do more :)
+	      }
+	    }
+	  }
+
+	  private void clean(DiameterMessageImpl msg) {
+	    if(msg.getData() != null) {
+	      this.stateMessages.remove(msg.removeData());
+	    }
+	  }
 
   public void setSession(ServerRfSession appSession) {
     this.serverSession = appSession;

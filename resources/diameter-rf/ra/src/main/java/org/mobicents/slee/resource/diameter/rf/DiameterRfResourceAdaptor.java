@@ -20,12 +20,14 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
+import javax.transaction.Transaction;
 
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterException;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.cca.events.CreditControlRequest;
 import net.java.slee.resource.diameter.rf.RfAvpFactory;
 import net.java.slee.resource.diameter.rf.RfClientSessionActivity;
 import net.java.slee.resource.diameter.rf.RfMessageFactory;
@@ -73,6 +75,7 @@ import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.base.events.ErrorAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.ExtensionDiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.base.handlers.DiameterRAInterface;
+import org.mobicents.slee.resource.diameter.cca.CreditControlServerSessionImpl;
 import org.mobicents.slee.resource.diameter.rf.events.RfAccountingAnswerImpl;
 import org.mobicents.slee.resource.diameter.rf.events.RfAccountingRequestImpl;
 import org.mobicents.slee.resource.diameter.rf.handlers.RfSessionFactory;
@@ -521,6 +524,15 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
           this.raContext.getSleeEndpoint().fireEventTransacted(handle, eventID, event, address, null, EVENT_FLAGS);
         }
         else */{
+        	//fetch state for Server Activities
+        	Object o = getActivity(handle);
+            if(o == null) {
+              Transaction t = raContext.getSleeTransactionManager().getTransaction();
+              throw new IllegalStateException("TX[ "+t+" ] No activity for handle: "+handle);
+            }
+            if(o instanceof RfServerSessionActivityImpl && event instanceof RfAccountingRequest) {
+              ((RfServerSessionActivityImpl)o).fetchSessionData((RfAccountingRequest)event,true);
+            }
           this.raContext.getSleeEndpoint().fireEvent(handle, eventID, event, address, null, EVENT_FLAGS);
         }       
         return true;
