@@ -13,6 +13,9 @@
 	<important>
 		<para>Specific shell characters must be escaped or value of argument must be quoted.</para>
 	</important>
+	<important>
+		<para>Some terminal intput include "\" - it indicates that command is continued from new line, if copy/paste is used on example, this sign should be removed.</para>
+	</important>
 	<note>
 		<para>Options and arguments can have long and short form. Short form <literal>-s</literal>, accept parameter without equal sign, ie: -slocalhost. 
 		Long options require equals sign, ie: --server=localhost</para>
@@ -25,9 +28,9 @@
 		<para>&THIS.PLATFORM; &THIS.APPLICATION; provide two scripts to run command line, <literal>Windows</literal> batch and <literal>*NIX</literal> bash script.
 		Both accept the same set of options/parameters:
 		</para>
-		<screen>
+		<!--<screen>--><programlisting>
 			twiddle.sh [options] &lt;command&gt; [command_arguments]
-		</screen>
+		<!--</screen>--></programlisting>
 		<itemizedlist>
 			<listitem>
 				<para>options - options which affect how <literal>Twiddle</literal> executes, ie. address of server, user name/password</para>

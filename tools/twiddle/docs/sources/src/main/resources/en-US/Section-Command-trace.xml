@@ -83,7 +83,7 @@
 		</para>
 		<example>
 			<title>Get list of tracer names</title>
-			<screen>./twiddle.sh trace -aProfileTableNotificationSource[table=ExampleTable]</screen>
+			<!-- <screen> --><programlisting>./twiddle.sh trace -aProfileTableNotificationSource[table=ExampleTable]<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	<section id="trace_tracers_set">
@@ -115,7 +115,9 @@
 						option. Example call:
 						<example>
 							<title>Set trace level in 1.0 facility</title>
-							<screen>./twiddle.sh trace -s --cid=SbbID[name=ProxySbb,vendor=mobicents,version=1.1] --level=WARNING</screen>
+							<!-- <screen> --><programlisting>
+./twiddle.sh trace -s --cid=\
+SbbID[name=ProxySbb,vendor=mobicents,version=1.1] --level=WARNING<!-- </screen> --></programlisting>
 						</example>
 					</para>
 				</listitem>
@@ -130,7 +132,9 @@
 						option. Requires valid notification source as argument.
 						<example>
 							<title>Set tracer level </title>
-							<screen>./twiddle.sh trace -s --nsrc=ProfileTableNotification[table=xxx] --name=tracer.name --level=WARNING</screen>
+							<!-- <screen> --><programlisting>
+./twiddle.sh trace -s --nsrc=ProfileTableNotification[table=xxx] \
+--name=tracer.name --level=WARNING<!-- </screen> --></programlisting>
 						</example>
 					</para>
 				</listitem>
@@ -205,7 +209,7 @@
 		</variablelist>
 		<example>
 			<title>Set tracer level </title>
-			<screen>./twiddle.sh trace -u --nsrc=ProfileTableNotification[table=xxx] --name=tracer.name</screen>
+			<!-- <screen> --><programlisting>./twiddle.sh trace -u --nsrc=ProfileTableNotification[table=xxx] --name=tracer.name<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	<section id="trace_get_level">
@@ -225,7 +229,7 @@
 						option. Example call:
 						<example>
 							<title>Get trace level in 1.0 facility</title>
-							<screen>./twiddle.sh trace -g --cid=SbbID[name=ProxySbb,vendor=mobicents,version=1.1]</screen>
+							<!-- <screen> --><programlisting>./twiddle.sh trace -g --cid=SbbID[name=ProxySbb,vendor=mobicents,version=1.1]<!-- </screen> --></programlisting>
 						</example>
 					</para>
 				</listitem>
@@ -240,7 +244,7 @@
 						option. Requries valid notification source as argument.
 						<example>
 							<title>Set tracer level </title>
-							<screen>./twiddle.sh trace -g --nsrc=ProfileTableNotification[table=xxx] --name=tracer.name </screen>
+							<!-- <screen> --><programlisting>./twiddle.sh trace -g --nsrc=ProfileTableNotification[table=xxx] --name=tracer.name <!-- </screen> --></programlisting>
 						</example>
 					</para>
 				</listitem>

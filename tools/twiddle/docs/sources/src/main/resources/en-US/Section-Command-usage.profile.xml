@@ -12,7 +12,7 @@
 		<acronym>JMX</acronym>
 		notification for certain parameter. General form of command looks as
 		follows:
-		<screen>usage.ra &lt;ProfileTableName&gt; [SetName] &lt;-operation[[arg] | [--option[=arg]]*]&gt;</screen>
+		<!-- <screen> --><programlisting>usage.ra &lt;ProfileTableName&gt; [SetName] &lt;-operation[[arg] | [--option[=arg]]*]&gt;<!-- </screen> --></programlisting>
 		Note that access to default set does not require [SetName] to be
 		present.</para>
 		<para>

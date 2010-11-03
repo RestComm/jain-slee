@@ -78,7 +78,8 @@
 				Option requires argument which is string representation of type. Example call</para>
 					<example>
 					<title>Clear alarms of certain type for ProfileTable</title>
-						<screen>./twiddle.sh alarm -c --nsrc=ProfileTableNotification[table=SMSSubscription] --type=TransientFailure</screen>
+						<!-- <screen> --><programlisting>./twiddle.sh alarm -c --nsrc=ProfileTableNotification[table=SMSSubscription] \
+						--type=TransientFailure<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>
@@ -95,7 +96,7 @@
 					</para>
 					<example>
 					<title>List alarms for ProfileTable</title>
-						<screen>./twiddle.sh alarm -l --nsrc=ProfileTableNotification[table=SMSSubscription]</screen>
+						<!-- <screen> --><programlisting>./twiddle.sh alarm -l --nsrc=ProfileTableNotification[table=SMSSubscription]<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 				
@@ -108,11 +109,11 @@
 		It also accepts array argument. Members of array are separated with <replaceable>;</replaceable>. Example calls: 
 			<example>
 				<title>Fetch descriptor for alarm</title>
-				<screen>./twiddle.sh alarm -d415f719e-3a3d-42b4-acc1-4e84706f031a </screen>
+				<!-- <screen> --><programlisting>./twiddle.sh alarm -d415f719e-3a3d-42b4-acc1-4e84706f031a <!-- </screen> --></programlisting>
 			</example>
 			<example>
 				<title>Fetch descriptor for alarms</title>
-				<screen>./twiddle.sh alarm -d415f719e-3a3d-42b4-acc1-4e84706f031a;415f719e-3a3d-42b4-acc1-4e84706f031b;415f719e-3a3d-42b4-acc1-4e84706f031c </screen>
+				<!-- <screen> --><programlisting>./twiddle.sh alarm -d415f719e-3a3d-42b4-acc1-4e84706f031a;415f719e-3a3d-42b4-acc1-4e84706f031b;415f719e-3a3d-42b4-acc1-4e84706f031c <!-- </screen> --></programlisting>
 			</example>
 		
 		</para>	

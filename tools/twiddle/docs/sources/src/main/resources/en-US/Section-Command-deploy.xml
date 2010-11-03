@@ -111,15 +111,16 @@
 					Example calls: </para>
 					<example>
 					<title>List all deployed SBBs</title>
-						<screen>
+						<!-- <screen> --><programlisting>
 twiddle.sh deploy -l --sbbs
-						</screen>
+						<!-- </screen> --></programlisting>
 					</example>
 					<example>
 					<title>List SBBs for service</title>
-						<screen>
-twiddle.sh deploy -l --sbbs=ServiceID[name=CallBlockingService,vendor=org.mobicents,version=0.1]
-						</screen>
+						<!-- <screen> --><programlisting>
+twiddle.sh deploy -l \
+--sbbs=ServiceID[name=CallBlockingService,vendor=org.mobicents,version=0.1]
+						<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>
@@ -191,9 +192,10 @@ twiddle.sh deploy -l --sbbs=ServiceID[name=CallBlockingService,vendor=org.mobice
 					<para>checks if component is deployed. Option requires argument which is valid component ID, that is ServiceID, SbbID, etc.</para>
 					<example>
 					<title>Check if profile specification is deployed</title>
-						<screen>
-twiddle.sh deploy -y --profile-spec=ProfileSpecificationID[name=ResourceInfoProfileSpec,vendor=javax.slee,version=1.0]
-						</screen>
+						<!-- <screen> --><programlisting>
+twiddle.sh deploy -y --profile-spec=\
+ProfileSpecificationID[name=ResourceInfoProfileSpec,vendor=javax.slee,version=1.0]
+						<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>
@@ -209,15 +211,15 @@ twiddle.sh deploy -y --profile-spec=ProfileSpecificationID[name=ResourceInfoProf
 		</para>
 		<example>
 		<title>Deploy DU</title>
-			<screen>
+			<!-- <screen> --><programlisting>
 twiddle.sh deploy -i/data/sip11-ra-DU-2.2.0-SNAPSHOT.jar
-			</screen>
+			<!-- </screen> --></programlisting>
 		</example>
 		<example>
 		<title>Deploy DU</title>
-			<screen>
+			<!-- <screen> --><programlisting>
 twiddle.sh deploy --install=file:///C:/workspace/resources/sip11-ra-DU-2.2.0-SNAPSHOT.jar
-			</screen>
+			<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	<section id="deploy_uninstall">
@@ -228,9 +230,9 @@ twiddle.sh deploy --install=file:///C:/workspace/resources/sip11-ra-DU-2.2.0-SNA
 		</para>
 		<example>
 		<title>UnDeploy DU</title>
-			<screen>
+			<!-- <screen> --><programlisting>
 twiddle.sh deploy --un-install=DeployableUnitID[url=file:/E:/servers/jboss-5.1.0.GA/server/default/deploy/call-controller2-DU-2.2.0-SNAPSHOT.jar/]
-			</screen>
+			<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	
@@ -248,9 +250,9 @@ twiddle.sh deploy --un-install=DeployableUnitID[url=file:/E:/servers/jboss-5.1.0
 					<para>fetches for DeployableUnit. Option requires argument in form of DeployableUnitID. Option accepts array argument.</para>
 					<example>
 						<title>Fetch descriptors for DUs</title>
-						<screen>
+						<!-- <screen> --><programlisting>
 twiddle.sh deploy -d --duid=DeployableUnitID[url=file:/E:/servers/jboss-5.1.0.GA/server/default/deploy/call-controller2-DU-2.2.0-SNAPSHOT.jar/];DeployableUnitID[url=file:/E:/servers/jboss-5.1.0.GA/server/default/deploy/sip-services-DU-2.2.0-SNAPSHOT.jar/]
-						</screen>
+						<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 				
@@ -262,16 +264,19 @@ twiddle.sh deploy -d --duid=DeployableUnitID[url=file:/E:/servers/jboss-5.1.0.GA
 					<para>fetches for DeployableUnit. Option requires argument in form of ComponentID. Option accepts array argument.</para>
 					<example>
 						<title>Fetch descriptors for event </title>
-						<screen>
-twiddle.sh deploy -d --cid=EventTypeID[name=javax.sip.Dialog.REGISTER,vendor=net.java.slee,version=1.2];SbbID[name=CallBlockingSbb,vendor=org.mobicents,version=0.1]
+						<!-- <screen> --><programlisting>
+twiddle.sh deploy -d --cid=\
+EventTypeID[name=javax.sip.Dialog.REGISTER,vendor=net.java.slee,version=1.2];\
+SbbID[name=CallBlockingSbb,vendor=org.mobicents,version=0.1]
 
-						</screen>
+						<!-- </screen> --></programlisting>
 					</example>
 					<example>
 						<title>Fetch descriptors for event and SBB</title>
-						<screen>
-twiddle.sh deploy -d --cid=EventTypeID[name=javax.sip.Dialog.REGISTER,vendor=net.java.slee,version=1.2]
-						</screen>
+						<!-- <screen> --><programlisting>
+twiddle.sh deploy -d --cid=\
+EventTypeID[name=javax.sip.Dialog.REGISTER,vendor=net.java.slee,version=1.2]
+						<!-- </screen> --></programlisting>
 					</example>
 					
 				</listitem>
@@ -287,9 +292,9 @@ twiddle.sh deploy -d --cid=EventTypeID[name=javax.sip.Dialog.REGISTER,vendor=net
 		</para>
 					<example>
 						<title>Check which components reference RA Type</title>
-						<screen>
+						<!-- <screen> --><programlisting>
 twiddle.sh deploy -rResourceAdaptorTypeID[name=jain-mgcp,vendor=net.java,version=2.0]
-						</screen>
+						<!-- </screen> --></programlisting>
 					</example>
 	</section>
 

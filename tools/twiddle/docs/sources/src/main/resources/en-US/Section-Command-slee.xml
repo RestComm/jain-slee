@@ -67,8 +67,8 @@
 		This operation does not accept options nor arguments. Example invocation:</para>
 		<example>
 			<title>Start container</title>
-			<screen>./twiddle.sh slee -r</screen>
-			<screen>./twiddle.sh slee --start</screen>
+			<!-- <screen> --><programlisting>./twiddle.sh slee -r<!-- </screen> --></programlisting>
+			<!-- <screen> --><programlisting>./twiddle.sh slee --start<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	<section id="slee_stop">
@@ -77,8 +77,8 @@
 		This operation does not accept options nor arguments.Example invocation:</para>
 		<example>
 			<title>Stop container</title>
-			<screen>./twiddle.sh slee -s</screen>
-			<screen>./twiddle.sh slee --stop</screen>
+			<!-- <screen> --><programlisting>./twiddle.sh slee -s<!-- </screen> --></programlisting>
+			<!-- <screen> --><programlisting>./twiddle.sh slee --stop<!-- </screen> --></programlisting>
 		</example>
 		
 	</section>
@@ -88,8 +88,8 @@
 		This operation does not accept options nor arguments.Example invocation:</para>
 		<example>
 			<title>Shutdown container</title>
-		<screen>./twiddle.sh slee -d</screen>
-		<screen>./twiddle.sh slee --shutdown</screen>
+		<!-- <screen> --><programlisting>./twiddle.sh slee -d<!-- </screen> --></programlisting>
+		<!-- <screen> --><programlisting>./twiddle.sh slee --shutdown<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	<section id="slee_info">
@@ -98,8 +98,8 @@
 		This operation does not accept options nor arguments.Example invocation:</para>
 		<example>
 			<title>Print info about container</title>
-		<screen>./twiddle.sh slee -i</screen>
-		<screen>./twiddle.sh slee --info</screen>
+		<!-- <screen> --><programlisting>./twiddle.sh slee -i<!-- </screen> --></programlisting>
+		<!-- <screen> --><programlisting>./twiddle.sh slee --info<!-- </screen> --></programlisting>
 		</example>
 	</section>
 </section>	

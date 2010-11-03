@@ -140,7 +140,9 @@
 						argument.</para>
 					<example>
 						<title>Get average time in all executors</title>
-						<screen>./twiddle.sh router.stats --avg-time --eventTypeId=EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]</screen>
+						<!-- <screen> --><programlisting>
+./twiddle.sh router.stats --avg-time --eventTypeId=\
+EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>
@@ -174,7 +176,9 @@
 						is mandatory. It requires valid EventTypeID as argument.</para>
 					<example>
 						<title>Get number of routed events in all executors</title>
-						<screen>./twiddle.sh router.stats --events-routed --eventTypeId=EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]</screen>
+						<!-- <screen> --><programlisting>
+./twiddle.sh router.stats --events-routed --eventTypeId=\
+EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>
@@ -227,7 +231,9 @@
 						is mandatory. It requires valid EventTypeID as argument.</para>
 					<example>
 						<title>Get number of routed events in all executors</title>
-						<screen>./twiddle.sh router.stats --routing-time --eventTypeId=EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]</screen>
+						<!-- <screen> --><programlisting>
+./twiddle.sh router.stats --routing-time --eventTypeId=\
+EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,version=1.0]<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>

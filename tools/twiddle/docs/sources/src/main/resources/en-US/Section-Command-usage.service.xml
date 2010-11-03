@@ -14,7 +14,7 @@
 		<acronym>JMX</acronym>
 		notification for certain parameter. General form of command looks as
 		follows:
-		<screen>usage.service &lt;ServiceID&gt; [SbbID] [SetName] &lt;-operation[[arg] | [--option[=arg]]*]&gt; </screen>
+		<!-- <screen> --><programlisting>usage.service &lt;ServiceID&gt; [SbbID] [SetName] &lt;-operation[[arg] | [--option[=arg]]*]&gt; <!-- </screen> --></programlisting>
 		Note that access to default set does not require [SetName] to be
 		present.
 		It supports following operations:
@@ -101,8 +101,9 @@
 						SbbID</para>
 					<example>
 						<title>List available sets</title>
-						<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] 
-						SbbID[name=example,vendor=mobicents,version=0.1] -l --sets</screen>
+						<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] -l --sets<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>
@@ -114,8 +115,9 @@
 						associated with each.</para>
 					<example>
 						<title>List parameters in set</title>
-						<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] 
-						SbbID[name=example,vendor=mobicents,version=0.1] -l --parameters</screen>
+						<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \ 
+SbbID[name=example,vendor=mobicents,version=0.1] -l --parameters<!-- </screen> --></programlisting>
 					</example>
 
 				</listitem>
@@ -152,18 +154,21 @@
 		</variablelist>
 		<example>
 			<title>Get parameter value from default set</title>
-			<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] 
-						SbbID[name=example,vendor=mobicents,version=0.1] -g --name=StreetName</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \ 
+SbbID[name=example,vendor=mobicents,version=0.1] -g --name=StreetName<!-- </screen> --></programlisting>
 		</example>
 		<example>
 			<title>Get parameter value from named set</title>
-			<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] 
-						SbbID[name=example,vendor=mobicents,version=0.1] Drake -g --name=StreetName</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -g --name=StreetName<!-- </screen> --></programlisting>
 		</example>
 		<example>
 			<title>Get parameter value from named set and reset</title>
-			<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] 
-						SbbID[name=example,vendor=mobicents,version=0.1] Drake -g --name=StreetName --rst</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -g --name=StreetName --rst<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	<section id="usage.service_reset">
@@ -185,17 +190,19 @@
 		</variablelist>
 		<example>
 			<title>Reset parameters in named set</title>
-			<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] 
-						SbbID[name=example,vendor=mobicents,version=0.1] Drake -r</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -r<!-- </screen> --></programlisting>
 		</example>
 		<example>
 			<title>Reset parameters in all sets</title>
-			<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] 
-						SbbID[name=example,vendor=mobicents,version=0.1] -r --all</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] -r --all<!-- </screen> --></programlisting>
 		</example>
 		<example>
 			<title>Reset parameters in all sets</title>
-			<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] -r --all</screen>
+			<!-- <screen> --><programlisting>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] -r --all<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	<section id="usage.service_create">
@@ -207,7 +214,9 @@
 		</para>
 		<example>
 			<title>Create usage parameter set</title>
-			<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] SbbID[name=example,vendor=mobicents,version=0.1] Drake -c</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -c<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	<section id="usage.service_delete">
@@ -219,7 +228,9 @@
 		</para>
 		<example>
 			<title>Delete usage parameter set</title>
-			<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] SbbID[name=example,vendor=mobicents,version=0.1] Drake -d</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -d<!-- </screen> --></programlisting>
 		</example>
 
 	</section>
@@ -252,9 +263,10 @@
 						enabled).</para>
 					<example>
 						<title>Turn off notifications</title>
-						<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] 
-SbbID[name=example,vendor=mobicents,version=0.1] Drake 
--n --name=Calls --value=false</screen>
+						<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake \
+-n --name=Calls --value=false<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>
@@ -265,9 +277,10 @@ SbbID[name=example,vendor=mobicents,version=0.1] Drake
 					<para>instructs operation to check state of notification. This option does not support arument.</para>
 					<example>
 						<title>Check state of notifications</title>
-						<screen>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] 
-SbbID[name=example,vendor=mobicents,version=0.1] Drake 
--n --name=Calls --is</screen>
+						<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake \
+-n --name=Calls --is<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 				

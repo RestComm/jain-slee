@@ -75,9 +75,9 @@
 			support argument nor options. Example call:
 			<example>
 				<title>List all deployed SBBs</title>
-				<screen>
+				<!-- <screen> --><programlisting>
 twiddle.sh activity -c
-					</screen>
+					<!-- </screen> --></programlisting>
 			</example>
 		</para>
 	</section>
@@ -96,9 +96,9 @@ twiddle.sh activity -c
 					<para>specifies number of seconds between liveliness query. Requires number as argument.</para>
 					<example>
 						<title>Set time between query to 60 seconds</title>
-						<screen>
+						<!-- <screen> --><programlisting>
 ./twiddle.sh activity -q --set=60
-						</screen>
+						<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>
@@ -112,9 +112,9 @@ twiddle.sh activity -c
 		</variablelist>
 		<example>
 			<title>Trigger query</title>
-			<screen>
+			<!-- <screen> --><programlisting>
 ./twiddle.sh activity -q
-			</screen>
+			<!-- </screen> --></programlisting>
 		</example>
 	</section>
 	<section id="activity_idle">
@@ -155,9 +155,9 @@ twiddle.sh activity -c
 					<para>instructs operation to list activity contexts factories registered in container. Does not support argument. Example call:</para>
 					<example>	
 						<title>List factories</title>
-						<screen>
+						<!-- <screen> --><programlisting>
 twiddle.sh activity -l --factories
-						</screen>
+						<!-- </screen> --></programlisting>
 					</example>
 				</listitem>
 			</varlistentry>

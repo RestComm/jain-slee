@@ -67,11 +67,16 @@
 		<para><literal>activate</literal> operation simply activates inactive service(Container will inform instance by emiting proper event). It does not support options. It requires ServiceID as argument, it accepts array of ServiceIDs as argument:</para>
 		<example>
 			<title>Activate service</title>
-			<screen>./twiddle.sh service -aServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0]</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh service \
+-aServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0]<!-- </screen> --></programlisting>
 		</example>
 		<example>
 			<title>Activate services</title>
-			<screen>./twiddle.sh service -aServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0];ServiceID[name=My_Service_Name2,vendor=spartan_dummy_inc,version=1.0]</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh service \
+-aServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0];\
+ServiceID[name=My_Service_Name2,vendor=spartan_dummy_inc,version=1.0]<!-- </screen> --></programlisting>
 		</example>
 	</section>	
 	<section id="service_deactivate">
@@ -79,11 +84,16 @@
 		<para><literal>deactivate</literal> operation simply deactivates active service(Container will inform instance by emiting proper event). It does not support options. It requires ServiceID as argument, it accepts array of ServiceIDs as argument:</para>
 		<example>
 			<title>Deactivate service </title>
-			<screen>./twiddle.sh service -dServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0]</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh service \
+-dServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0]<!-- </screen> --></programlisting>
 		</example>
 		<example>
 			<title>Deactivate services </title>
-			<screen>./twiddle.sh service -dServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0];ServiceID[name=X_Service,vendor=test_dummy_inc,version=1.0]</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh service \
+-dServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0];\
+ServiceID[name=X_Service,vendor=test_dummy_inc,version=1.0]<!-- </screen> --></programlisting>
 		</example>
 	</section>	
 	<section id="service_deactivate_and_activate">
@@ -102,9 +112,11 @@
 		</variablelist>
 		<example>
 			<title>Deactivate and activate services </title>
-			<screen>./twiddle.sh service -c 
---ta=ServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0];ServiceID[name=X_Service,vendor=test_dummy_inc,version=1.0]
---td=ServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0]</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh service -c \
+--ta=ServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0]\
+;ServiceID[name=X_Service,vendor=test_dummy_inc,version=1.0]\
+--td=ServiceID[name=My_Service_Name,vendor=test_dummy_inc,version=1.0]<!-- </screen> --></programlisting>
 		</example>
 	</section>	
 	<section id="service_services">

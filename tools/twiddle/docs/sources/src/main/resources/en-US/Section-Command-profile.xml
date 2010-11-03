@@ -72,7 +72,9 @@
 				<listitem><para>instructs operation to list table names present in container. It supports optional argument. If ProfileSpecificationID is present as argument, table names are listed only for that specification:</para>
 					<example>
 						<title>List table names for specific Profile Specification</title>
-						<screen>./twiddle.sh profile -l --table=ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0.1]</screen>
+						<!-- <screen> --><programlisting>
+./twiddle.sh profile -l --table=\
+ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0.1]</programlisting><!-- </screen> -->
 					</example>
 				</listitem>
 			</varlistentry>
@@ -103,11 +105,13 @@
 		</variablelist>
 		<example>
 			<title>Create profile table</title>
-			<screen>./twiddle.sh profile -c --table-name=NewCallControl --profile-spec=ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0.1]</screen>
+			<!-- <screen> --><programlisting>
+./twiddle.sh profile -c --table-name=NewCallControl --profile-spec=\
+ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0.1]<!-- </screen> --></programlisting>
 		</example>
 		<example>
 			<title>Create profile in table</title>
-			<screen>./twiddle.sh profile -c --table-name=NewCallControl --profile-name=newuser</screen>
+			<!-- <screen> --><programlisting>./twiddle.sh profile -c --table-name=NewCallControl --profile-name=newuser<!-- </screen> --></programlisting>
 		</example>
 	</section>	
 	<section id="profile_remove">
@@ -125,11 +129,11 @@
 		</variablelist>
 		<example>
 			<title>Remove profile table</title>
-			<screen>./twiddle.sh profile -r --table-name=NewCallControl</screen>
+			<!-- <screen> --><programlisting>./twiddle.sh profile -r --table-name=NewCallControl<!-- </screen> --></programlisting>
 		</example>
 		<example>
 			<title>Remove profile from table</title>
-			<screen>./twiddle.sh profile -r --table-name=NewCallControl --profile-name=newuser</screen>
+			<!-- <screen> --><programlisting>./twiddle.sh profile -r --table-name=NewCallControl --profile-name=newuser<!-- </screen> --></programlisting>
 		</example>
 	</section>	
 	<section id="profile_rename">
@@ -147,7 +151,7 @@
 		</variablelist>
 		<example>
 			<title>Rename profile table</title>
-			<screen>./twiddle.sh profile -n --current-name=CallControl --new-name=OldCCTable</screen>
+			<!-- <screen> --><programlisting>./twiddle.sh profile -n --current-name=CallControl --new-name=OldCCTable<!-- </screen> --></programlisting>
 		</example>
 	</section>	
 	<section id="profile_get">
@@ -159,7 +163,7 @@
 				<listitem><para>retrieves profile ProfileSpecificationID for certain table. Requires profile table name as argument.</para>
 					<example>
 						<title>Get specification id</title>
-						<screen>./twiddle.sh profile -g --profile-spec=CallControl</screen>
+						<!-- <screen> --><programlisting>./twiddle.sh profile -g --profile-spec=CallControl<!-- </screen> --></programlisting>
 					</example>				
 				</listitem>
 			</varlistentry>

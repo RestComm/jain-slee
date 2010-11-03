@@ -20,7 +20,7 @@
 	
 	<para>
 	<literal>profile.edit</literal> command expects two non operation/option arguments. Form of invocation looks as follows:
-	<screen>profile.edit &lt;profileTableName&gt; &lt;profileName&gt; &lt;-operation[[arg] | [--option[=arg]]]*></screen>
+	<!-- <screen> --><programlisting>profile.edit &lt;profileTableName&gt; &lt;profileName&gt; &lt;-operation[[arg] | [--option[=arg]]]*><!-- </screen> --></programlisting>
 	It supports following operations:</para>
 		<table frame="all" pgwide="1">
 			<title>Operations table for <literal>profile.edit</literal> command</title>
@@ -139,7 +139,7 @@
 		<para><literal>get</literal> operation operation fetches value of profile attribute. It requires attribute name as argument.</para>
 		<example>
 			<title>Get value of  <replaceable>voiceMailEnabled</replaceable>  attribute</title>
-			<screen>./twiddle.sh profile.edit CallControl gregory12 --get=voiceMailEnabled </screen>
+			<!-- <screen> --><programlisting>./twiddle.sh profile.edit CallControl gregory12 --get=voiceMailEnabled <!-- </screen> --></programlisting>
 		</example>
 	</section>	
 	<section id="profile.edit_set">
