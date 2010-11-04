@@ -1,8 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>pom</packaging>
-	
+
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
@@ -126,11 +127,16 @@
 				<version>${jboss.security.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.jboss.security</groupId>
+				<artifactId>jbosssx-client</artifactId>
+				<version>${jboss.security.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.jboss.integration</groupId>
 				<artifactId>jboss-transaction-spi</artifactId>
 				<version>${jboss.version}</version>
 			</dependency>
-
+			
 		</dependencies>
 	</dependencyManagement>
 
@@ -161,21 +167,21 @@
 			<id>maven-release</id>
 			<modules>
 				<module>docs</module>
-				<module>release</module>	
+				<module>release</module>
 			</modules>
 			<build>
 				<plugins>
 					<plugin>
-					  <groupId>org.apache.maven.plugins</groupId>
-					  <artifactId>maven-release-plugin</artifactId>
-					  <configuration>
-					    <autoVersionSubmodules>true</autoVersionSubmodules>
-					    <preparationGoals>clean install</preparationGoals>
-					    <tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/twiddle</tagBase>
-					  </configuration>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-release-plugin</artifactId>
+						<configuration>
+							<autoVersionSubmodules>true</autoVersionSubmodules>
+							<preparationGoals>clean install</preparationGoals>
+							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/twiddle</tagBase>
+						</configuration>
 					</plugin>
 				</plugins>
-			</build>		
+			</build>
 		</profile>
 		<profile>
 			<id>release</id>
@@ -183,7 +189,7 @@
 				<module>docs</module>
 				<module>release</module>
 			</modules>
-		</profile>				
+		</profile>
 	</profiles>
 
 	<scm>
@@ -197,7 +203,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
-   				<groupId>org.mobicents.tools</groupId>
+				<groupId>org.mobicents.tools</groupId>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
@@ -210,10 +216,11 @@
 					<eclipseProjectName>mobicents-slee-tools-twiddle-cli</eclipseProjectName>
 				</configuration>
 			</plugin>
-		</plugins>		
+		</plugins>
 	</build>
 
-	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
+	<!-- dupe info from parent, but it's only way to retrieve the parent without 
+		checkout -->
 
 	<repositories>
 		<repository>

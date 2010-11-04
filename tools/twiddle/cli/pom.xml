@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -84,6 +85,10 @@
 		<dependency>
 			<groupId>org.jboss.security</groupId>
 			<artifactId>jboss-security-spi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.security</groupId>
+			<artifactId>jbosssx-client</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.integration</groupId>
@@ -366,6 +371,22 @@
 										jboss-security-spi.jar
 									</destFileName>
 								</artifactItem>
+								<artifactItem>
+									<groupId>org.jboss.security</groupId>
+									<artifactId>jbosssx-client</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>
+										${tool.directory.lib}
+									</outputDirectory>
+									<destFileName>
+										jbossx-security-client.jar
+									</destFileName>
+								</artifactItem>
+								
+								
+									
+								
 								<artifactItem>
 									<groupId>org.jboss.integration</groupId>
 									<artifactId>jboss-transaction-spi</artifactId>

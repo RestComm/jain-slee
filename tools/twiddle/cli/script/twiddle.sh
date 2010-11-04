@@ -67,6 +67,7 @@ fi
     JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jboss-transaction-spi.jar"
     JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/concurrent.jar"
     JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/dom4j.jar"
+    JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jbossx-security-client.jar"
     
     #mobicents
     JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/cli-twiddle.jar"

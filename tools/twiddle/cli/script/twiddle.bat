@@ -59,6 +59,7 @@ if not "%JBOSS_CLASSPATH%" == "" GOTO HAVE_JB_CP
     set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jboss-transaction-spi.jar
     set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/concurrent.jar
     set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/dom4j.jar
+    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jbossx-security-client.jar
     
     rem mobicents
     set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/cli-twiddle.jar
