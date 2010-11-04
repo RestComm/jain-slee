@@ -12,7 +12,6 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
-import net.java.slee.resource.diameter.cca.events.avp.CcRequestType;
 import net.java.slee.resource.diameter.cca.events.avp.CreditControlAVPCodes;
 import net.java.slee.resource.diameter.ro.RoMessageFactory;
 import net.java.slee.resource.diameter.ro.events.RoCreditControlAnswer;
@@ -126,7 +125,7 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
     // catch (NoSuchAvpException e1) {
     // logger.error("Session-Id AVP not found in message", e1);
     // }
-    RoCreditControlAnswerImpl msg = (RoCreditControlAnswerImpl) createMessage(ccr.getHeader(), new DiameterAvp[] {});
+    RoCreditControlAnswerImpl msg = new RoCreditControlAnswerImpl(createMessage(ccr.getHeader(), new DiameterAvp[] {}));
 
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
