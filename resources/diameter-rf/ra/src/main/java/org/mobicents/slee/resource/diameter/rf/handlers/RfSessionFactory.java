@@ -55,6 +55,7 @@ public class RfSessionFactory extends RfSessionFactoryImpl {
    */
   public RfSessionFactory(DiameterRAInterface ra, SessionFactory sessionFactory) {
     super(sessionFactory);
+    this.ra = ra;
   }
 
   @Override
