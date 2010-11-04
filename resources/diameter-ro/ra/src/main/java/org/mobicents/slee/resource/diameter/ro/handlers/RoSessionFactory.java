@@ -55,6 +55,8 @@ public class RoSessionFactory extends RoSessionFactoryImpl {
     super.defaultCreditControlFailureHandling = defaultCreditControlFailureHandling;
     super.defaultValidityTime = defaultValidityTime;
     super.defaultTxTimerValue = defaultTxTimerValue;
+    
+    this.ra = ra;
   }
 
   @Override
