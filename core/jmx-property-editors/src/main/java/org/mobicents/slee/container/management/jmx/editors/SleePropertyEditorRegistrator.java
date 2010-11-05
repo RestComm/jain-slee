@@ -2,6 +2,7 @@ package org.mobicents.slee.container.management.jmx.editors;
 
 import java.beans.PropertyEditorManager;
 
+import javax.slee.Address;
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
@@ -24,6 +25,7 @@ import javax.slee.resource.ResourceAdaptorTypeID;
  * @author martins
  *
  */
+@SuppressWarnings("deprecation")
 public class SleePropertyEditorRegistrator {
 
 	/**
@@ -86,6 +88,8 @@ public class SleePropertyEditorRegistrator {
 				ServiceStatePropertyEditor.class);
 		PropertyEditorManager.registerEditor(ResourceAdaptorEntityState.class,
 				ResourceAdaptorEntityStatePropertyEditor.class);
+		PropertyEditorManager.registerEditor(Address.class,
+				AddressPropertyEditor.class);
 		
 	}
 }
