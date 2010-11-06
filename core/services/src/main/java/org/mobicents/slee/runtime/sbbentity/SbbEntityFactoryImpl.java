@@ -142,6 +142,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 			final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
 			if (!cacheData.exists()) {
 				lockFacility.remove(sbbeId);
+				lock.unlock();
 				return null;
 			}
 			

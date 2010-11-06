@@ -55,8 +55,7 @@ public class SbbEntityUnlockTransactionalAction implements TransactionalAction {
 			if (removeLock) {
 				lockFacility.remove(sbbEntity.getSbbEntityId());
 			}
-		}
-
+		}		
 		if (reentrantLock != null) {
 			reentrantLock.unlock();
 			if (logger.isTraceEnabled()) {
