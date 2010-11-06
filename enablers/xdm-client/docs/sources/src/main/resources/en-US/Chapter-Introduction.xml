@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_XDM_Client_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler</title>
+
+	<para>The JAIN SLEE &THIS.ENABLER; Enabler allows JAIN SLEE Applications to interact with XDM Servers, hiding the network protocol complexity. The Enabler consists in an SBB which can be used in child relations, with a simple asynchronous interface.</para>
+
+	<para>The XDM Server is a functional element used in OMA and 3GPP SIP Presence networks, to manage public user documents, in the XML format. An example of such documents is the user's buddy list. Essentially the XDM Server is an XCAP Server with additional interfaces, such as SIP Event Package XCAP Diff, which allows SIP subscriptions on changes done to documents through XCAP.</para>
+	
+</chapter>

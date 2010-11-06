@@ -1,0 +1,226 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_XDM_Client_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="using_the_enabler">
+
+	<title>Using the &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler</title>
+	
+	<para>In the last chapter we integrated the Enabler in the JAIN SLEE Service's Sbb, the Parent Sbb, in this chapter it is explained how to use the Enabler's Sbb, the Child Sbb.</para>
+	
+	<section id="the_child_sbblocalobject_interface">
+		
+		<title>The Child's SbbLocalObject Interface</title>
+		
+		<para>The &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler Sbb, the Child Sbb, implements the <literal>org.mobicents.slee.enabler.xdmc.XDMClientChildSbbLocalObject</literal>, which extends the <literal>javax.slee.SbbLocalObject</literal> and <literal>org.mobicents.slee.enabler.xdmc.XDMClientChild</literal> interfaces, the latter declares the methods which can be used to interact with the XDM Server:</para>
+		
+		<programlisting language="Java" role="JAVA"><![CDATA[
+package org.mobicents.slee.enabler.xdmc;
+
+import java.io.IOException;
+import java.net.URI;
+
+import org.mobicents.xcap.client.auth.Credentials;
+import org.mobicents.xcap.client.auth.CredentialsFactory;
+
+public interface XDMClientChild {
+
+	public void setParentSbb(XDMClientParentSbbLocalObject parentSbb);
+
+	public CredentialsFactory getCredentialsFactory();
+
+	public void get(URI uri, Credentials credentials) throws IOException;
+
+	public void get(URI uri, String assertedUserId) throws IOException;
+
+	public void put(URI uri, String mimetype, byte[] content,
+			Credentials credentials) throws IOException;
+
+	public void put(URI uri, String mimetype, byte[] content,
+			String assertedUserId) throws IOException;
+
+	public void putIfMatch(URI uri, String eTag, String mimetype,
+			byte[] content, Credentials credentials) throws IOException;
+
+	public void putIfMatch(URI uri, String eTag, String mimetype,
+			byte[] content, String assertedUserId) throws IOException;
+
+	public void putIfNoneMatch(URI uri, String eTag, String mimetype,
+			byte[] content, Credentials credentials) throws IOException;
+
+	public void putIfNoneMatch(URI uri, String eTag, String mimetype,
+			byte[] content, String assertedUserId) throws IOException;
+
+	public void delete(URI uri, Credentials credentials) throws IOException;
+
+	public void delete(URI uri, String assertedUserId) throws IOException;
+
+	public void deleteIfMatch(URI uri, String eTag, Credentials credentials)
+			throws IOException;
+
+	public void deleteIfMatch(URI uri, String eTag, String assertedUserId)
+			throws IOException;
+
+	public void deleteIfNoneMatch(URI uri, String eTag, Credentials credentials)
+			throws IOException;
+
+	public void deleteIfNoneMatch(URI uri, String eTag, String assertedUserId)
+			throws IOException;
+
+}
+		]]>
+		</programlisting>
+		
+		<variablelist>
+		
+			<varlistentry>
+				<term>The <literal>setParentSbb(XDMClientParentSbbLocalObject)</literal> method:</term>
+				<listitem>
+					<para>Passes the Parent's SbbLocalObject, which will be used by the Child Sbb to provide async results. If not invoked after the child creation the Enabler won't be able to callback the Parent Sbb.</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term>The <literal>getCredentialsFactory()</literal> method:</term>
+				<listitem>
+					<para>Retrieves the factory to create HTTP Digest authentication credentials, to be used in requests sent to the XDM Server.</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term>The <literal>get(URI,Credentials)</literal> method:</term>
+				<listitem>
+					<para>Retrieves the XML resource from the XDM Server, for the specified URI, using the specified HTTP Digest Credentials. Response is provided through parent's callback getResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>get(URI,String)</literal> method:</term>
+				<listitem>
+					<para>Retrieves the XML resource from the XDM server, for the specified URI, asserting the user id. Response is provided through parent's callback getResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>put(URI,String,byte[],Credentials)</literal> method:</term>
+				<listitem>
+					<para>Puts the specified content in the XDM Server, using the specified HTTP Digest Credentials. Response is provided through parent's callback putResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>put(URI,String,byte[],String)</literal> method:</term>
+				<listitem>
+					<para>Puts the specified content in the XDM Server, asserting the user id. Response is provided through parent's callback putResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>putIfMatch(URI,String,String,byte[],Credentials)</literal> method:</term>
+				<listitem>
+					<para>Puts the specified content in the XDM Server, using the specified HTTP Digest Credentials, if the ETag matches the document in the server. Response is provided through parent's callback putResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>putIfMatch(URI,String,String,byte[],String)</literal> method:</term>
+				<listitem>
+					<para>Puts the specified content in the XDM Server, asserting the user id, if the ETag matches the document in the server. Response is provided through parent's callback putResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>putIfNoneMatch(URI,String,String,byte[],Credentials)</literal> method:</term>
+				<listitem>
+					<para>Puts the specified content in the XDM Server, using the specified HTTP Digest Credentials, if the ETag does not matches the document in the server. Response is provided through parent's callback putResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>putIfNoneMatch(URI,String,String,byte[],String)</literal> method:</term>
+				<listitem>
+					<para>Puts the specified content in the XDM Server, asserting the user id, if the ETag does not matches the document in the server. Response is provided through parent's callback putResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>delete(URI,Credentials)</literal> method:</term>
+				<listitem>
+					<para>Deletes the document in the XDM Server, using the specified HTTP Digest Credentials. Response is provided through parent's callback deleteResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>delete(URI,String)</literal> method:</term>
+				<listitem>
+					<para>Deletes the document in the XDM Server, asserting the user id. Response is provided through parent's callback deleteResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>deleteIfMatch(URI,String,Credentials)</literal> method:</term>
+				<listitem>
+					<para>Deletes the document in the XDM Server, using the specified HTTP Digest Credentials, if the ETag matches the document in the server. Response is provided through parent's callback deleteResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>deleteIfMatch(URI,String,String)</literal> method:</term>
+				<listitem>
+					<para>Deletes the document in the XDM Server, asserting the user id, if the ETag matches the document in the server. Response is provided through parent's callback deleteResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>deleteIfNoneMatch(URI,String,Credentials)</literal> method:</term>
+				<listitem>
+					<para>Deletes the document in the XDM Server, using the specified HTTP Digest Credentials, if the ETag does not matches the document in the server. Response is provided through parent's callback deleteResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>deleteIfNoneMatch(URI,String,String)</literal> method:</term>
+				<listitem>
+					<para>Deletes the document in the XDM Server, asserting the user id, if the ETag does not matches the document in the server. Response is provided through parent's callback deleteResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+		</variablelist>
+		
+	</section>
+	
+	<section id="creating_and_retrieving_the_child_sbb">
+		<title>Creating And Retrieving The Child Sbb</title>
+		<para>The Child Relation in the Parent Sbb Abstract Class is used to create and retrieve the Child Sbb, it is important to not forget to pass the Parent's SbbLocalObject to the Child after creation:</para>
+		<programlisting language="Java" role="JAVA"><![CDATA[
+	public XDMClientChildSbbLocalObject getXDMClientChildSbb() {
+		final ChildRelation childRelation = getXDMClientChildRelation();
+		if (childRelation.isEmpty()) {
+			try {
+				// creates new instance
+				XDMClientChildSbbLocalObject sbb = (XDMClientChildSbbLocalObject) childRelation.create();
+				// passes the parent sbb local object to the child
+				sbb.setParentSbb((XDMClientParentSbbLocalObject) sbbContext.getSbbLocalObject());
+				return sbb;
+			} catch (Exception e) {
+				tracer.severe("Failed to create child sbb", e);
+				return null;
+			}
+		}
+		else {
+			// reuse the existent one
+			return (XDMClientChildSbbLocalObject) childRelation.iterator().next();
+		}
+	}
+		]]>
+		</programlisting>
+		<para>The SbbLocalObject of the Child could also be stored in a CMP Field for the simplest retreival, but unless you are going to reuse each instance several times it's better to have less state, specially in clustered environments.</para>		
+	</section>
+	
+	<section id="creating_uris">
+		<title>Creating URIs for XDM Server Resources</title>
+		<para>XCAP URIs are complex, but these can be easily created with the XCAP Client API, included with &THIS.PLATFORM; JAIN SLEE XCAP Client Resource Adaptor. Please refer to it's documentation on how to use such API.</para>            
+	</section>
+		 
+		
+</chapter>
+
