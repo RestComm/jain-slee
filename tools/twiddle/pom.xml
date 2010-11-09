@@ -28,7 +28,7 @@
 		<jboss.javaee.version>5.0.1.GA</jboss.javaee.version>
 		<jboss.security.version>2.0.3.SP1</jboss.security.version>
 		<getop.version>1.0.9</getop.version>
-		<mobicents.jslee.version>3.0.0-SNAPSHOT</mobicents.jslee.version>
+		<mobicents.jslee.version>2.2.1.FINAL</mobicents.jslee.version>
 	</properties>
 
 
