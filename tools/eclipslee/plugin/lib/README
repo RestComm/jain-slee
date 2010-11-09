@@ -1,0 +1,17 @@
+slee-src.jar
+
+  Contains the source for version 1.0 of the javax.slee packages.  This source has two 
+  uses.  Firstly, it contains the Javadoc used by the Plug-In for the javax.slee 
+  packages.  Secondly, it can be compiled and packaged up to form slee.jar.
+
+slee.jar  (optional)
+
+  This can be extracted from jain_slee-1_0-fr-api.zip.  If slee.jar is not provided here the user
+  will be prompted for the location of jain_slee-1_0-fr-api.zip on using the plug-in.
+
+jain_slee-1_0-fr-api.zip  (optional)
+
+  If this is not provided here the user will be prompted for its location on using the plug-in.
+  Note that there may be license issues that prevent this ZIP (and slee.jar) from being
+  distributed with the plug-in (in both binary and source form).  This file may be downloaded
+  from http://jcp.org/aboutJava/communityprocess/final/jsr022/index.html

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT resource-adaptor-instances-jar (description?, resource-adaptor-instances+)>
+<!ELEMENT resource-adaptor-instances (description?, resource-adaptor-ref, resource-adaptor-instance+)>
+<!ELEMENT resource-adaptor-ref (resource-adaptor-name, resource-adaptor-vendor, resource-adaptor-version)>
+<!ELEMENT resource-adaptor-name (#PCDATA)>
+<!ELEMENT resource-adaptor-vendor (#PCDATA)>
+<!ELEMENT resource-adaptor-version (#PCDATA)>
+<!ELEMENT resource-adaptor-instance (description?, resource-adaptor-instance-param*)>
+<!ATTLIST resource-adaptor-instance
+	name CDATA #REQUIRED
+	start CDATA #REQUIRED
+>
+<!ELEMENT resource-adaptor-instance-param (#PCDATA)>
+<!ATTLIST resource-adaptor-instance-param
+	name CDATA #REQUIRED
+>
+  

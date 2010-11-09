@@ -1,0 +1,7 @@
+__PACKAGE__
+
+public interface __NAME__SbbLocalObject extends javax.slee.SbbLocalObject {
+
+	// TODO: Any methods defined here must be implemented in __NAME__Sbb.java
+
+}

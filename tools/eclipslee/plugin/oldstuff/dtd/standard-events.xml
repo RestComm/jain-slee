@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.0//EN" "http://java.sun.com/dtd/slee-event-jar_1_0.dtd">
+
+<event-jar>
+    <description>
+        This XML file describes the standard event types defined in the
+        SLEE specification.
+    </description>
+    <event-definition>
+        <description>
+            Event type defintion for the Activity End Event
+        </description>
+        <event-type-name>javax.slee.ActivityEndEvent</event-type-name>
+        <event-type-vendor>javax.slee</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>javax.slee.ActivityEndEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            Event type defintion for the Service Started Event
+        </description>
+        <event-type-name>javax.slee.serviceactivity.ServiceStartedEvent</event-type-name>
+        <event-type-vendor>javax.slee</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>javax.slee.serviceactivity.ServiceStartedEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            Event type defintion for the Profile Added Event
+        </description>
+        <event-type-name>javax.slee.profile.ProfileAddedEvent</event-type-name>
+        <event-type-vendor>javax.slee</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>javax.slee.profile.ProfileAddedEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            Event type defintion for the Profile Removed Event
+        </description>
+        <event-type-name>javax.slee.profile.ProfileRemovedEvent</event-type-name>
+        <event-type-vendor>javax.slee</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>javax.slee.profile.ProfileRemovedEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            Event type defintion for the Profile Updated Event
+        </description>
+        <event-type-name>javax.slee.profile.ProfileUpdatedEvent</event-type-name>
+        <event-type-vendor>javax.slee</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>javax.slee.profile.ProfileUpdatedEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            Event type defintion for the Timer Event
+        </description>
+        <event-type-name>javax.slee.facilities.TimerEvent</event-type-name>
+        <event-type-vendor>javax.slee</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>javax.slee.facilities.TimerEvent</event-class-name>
+    </event-definition>
+</event-jar>

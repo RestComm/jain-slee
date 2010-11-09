@@ -1,0 +1,20 @@
+This archive contains two projects:
+
+  org.mobicents.eclipslee.ant
+  org.mobicents.eclipslee
+
+The first is a collection of ant tasks used to build and package JAIN SLEE
+components, such as deployable unit jars, SBB jars, etc.  The project builds
+a single jar file containing the ant tasks.  This jar file is then copied
+into the eclipslee project where it is bundled with the plug-in.
+
+The second is the main plug-in project.  The plug-in allows users to create
+and build JAIN SLEE components via a series of wizards.  The user may then 
+add functionality to the framework created by the plugin to create services.
+Components created by the plug-in deploy into any compliant SLEE.
+
+See the files BUILDING and LICENSE in each of the project directories for
+build instructions and license details.
+
+
+

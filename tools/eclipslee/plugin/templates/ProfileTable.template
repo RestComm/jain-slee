@@ -1,0 +1,17 @@
+__PACKAGE__
+
+import javax.slee.profile.ProfileTable;
+
+/**
+ * If this interface is specified as part of a profile specification it defines
+ * the methods that allow SLEE Components such as SBBs and Resource Adaptors to
+ * create, find, and remove Profiles from a Profile Table.
+ * <p>
+ * If this interface is not specified as part of a profile specification, then all
+ * the methods of the __NAME__ProfileCMP interface are visible as read-only 
+ * attribute to SLEE Components.
+ */
+
+public interface __NAME__ProfileTable extends ProfileTable {
+
+}

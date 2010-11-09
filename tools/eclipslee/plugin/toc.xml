@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="JAIN SLEE Plug-in User Guide">
+  <topic label="Getting Started" href="html/GettingStarted.html">
+    <topic label="Creating a Project" href="html/Project/index.html"/>
+    <topic label="External Components" href="html/External/index.html"/>
+  </topic>
+
+  <topic label="Creating Components">
+    <topic label="Profile Specification" href="html/Profile/index.html"/>
+    <topic label="Event" href="html/Event/index.html"/>
+    <topic label="Service Building Block (SBB)" href="html/Sbb/index.html"/>
+    <topic label="Service XML" href="html/Service/index.html"/>
+    <topic label="Deployable Unit" href="html/DeployableUnit/index.html"/>
+  </topic>
+
+  <topic label="Deploying Components">
+    <topic label="Deployable Unit" href="html/DeployableUnit/index.html"/>
+  </topic>
+
+  <topic label="Modifying Components" href="html/modify/index.html">
+    <topic label="Profile Specification" href="html/modify/Profile/index.html"/>
+    <topic label="Event" href="html/modify/Event/index.html"/>
+    <topic label="Service Building Block (SBB)" href="html/modify/Sbb/index.html"/>
+    <topic label="Service XML" href="html/modify/Service/index.html"/>
+    <topic label="Deployable Unit" href="html/modify/DeployableUnit/index.html"/>
+  </topic>
+
+  <topic label="Example Service" href="html/Example/index.html"/>
+
+
+</toc>

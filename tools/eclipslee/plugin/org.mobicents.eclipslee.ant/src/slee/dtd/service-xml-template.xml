@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE service-xml PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.0//EN" "http://java.sun.com/dtd/slee-service_1_0.dtd">
+
+<service-xml>
+    <description />
+    <service>
+        <description />
+        <service-name />
+        <service-vendor />
+        <service-version />
+        <root-sbb>
+            <description />
+            <sbb-name />
+            <sbb-vendor />
+            <sbb-version />
+        </root-sbb>
+        <default-priority />
+        <address-profile-table />
+        <resource-info-profile-table />
+    </service>
+</service-xml>

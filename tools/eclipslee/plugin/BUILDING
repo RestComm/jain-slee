@@ -1,0 +1,35 @@
+Prerequisites
+-------------
+
+Ensure that the following jar file is present:
+
+  lib/slee-tasks.jar
+
+If it is not present then it will be necessary to build the following project
+first:
+
+  org.mobicents.eclipslee.ant - slee-tasks.jar
+  
+Build instructions are contained in the root folder for that project.  Generally
+speaking, it will only be necessary to build this project once.
+  
+Additionally, xerces.jar must be present in the Plug-In's root folder.  This
+jar is used both to compile the Plug-In (it must be in the Project's Java Build
+Path) and by the Plug-In when it is run.
+
+Optionally, lib/slee.jar and lib/jain_slee-1_0-fr-api.zip may be present.  See
+lib/README for further details.
+
+Building
+--------
+
+This project uses the Eclipse build system and should automatically build on opening.  
+If it does not, open the Project menu and select Build Project.
+
+Testing
+-------
+
+The Plug-In can be tested by right clicking on "build.properties" and choosing "Run As"
+-> "Run" from the drop down menu.  This will start a new instance of Eclipse with the
+Plug-In installed into it.
+

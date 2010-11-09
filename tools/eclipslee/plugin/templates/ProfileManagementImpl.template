@@ -1,0 +1,29 @@
+__PACKAGE__
+
+import javax.slee.profile.ProfileManagement;
+import javax.slee.profile.ProfileVerificationException;
+
+/**
+ * Profile Management implementation class.
+ */
+
+public abstract class __NAME__ProfileManagementImpl implements ProfileManagement, __IMPLEMENTS__ {
+
+	/**
+	 * Initialize the profile with its default values.
+	 */
+
+    public void profileInitialize() {
+    }
+
+    public void profileLoad() {}
+    public void profileStore() {}
+
+	/**
+	 * Verify the profile's CMP field settings.
+	 * @throws ProfileVerificationException if any CMP field contains an invalid value
+     */
+     
+    public void profileVerify() throws ProfileVerificationException {
+    }
+}

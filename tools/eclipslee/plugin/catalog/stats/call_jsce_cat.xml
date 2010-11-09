@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xmlschema/stateventschema.xsd">
+	<name>stat:platform/call</name>
+	<SubFeats>
+		<SubFeat>
+			<Parent>1</Parent>
+			<Name>default</Name>
+			<Value>0</Value>
+			<Types>
+				<Type>
+					<Parent>1.0</Parent>
+					<Name>attempt</Name>
+					<Value>6</Value>
+					<RAP_NAME>Number of call attempts.</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS>Call attempts</UNITS>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.0.6</Parent>
+							<Name>number</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>A call attempt has been placed.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>call_attempt</MACRO>
+						</Event>
+					</Events>
+				</Type>
+				<Type>
+					<Parent>1.0</Parent>
+					<Name>duration</Name>
+					<Value>4</Value>
+					<RAP_NAME>Mean Call Duration Distribution.</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS>Seconds</UNITS>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.0.4</Parent>
+							<Name>time</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Duration of the call expressed in seconds.</DESC>
+							<SMPINCTYPE>a</SMPINCTYPE>
+							<MACRO>call_duration</MACRO>
+						</Event>
+					</Events>
+				</Type>
+				<Type>
+					<Parent>1.0</Parent>
+					<Name>overload</Name>
+					<Value>5</Value>
+					<RAP_NAME>Number of rejected calls due to overload.</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS>Rejected calls</UNITS>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.0.5</Parent>
+							<Name>rejected</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Call rejected due to overload</DESC>
+							<SMPINCTYPE>v</SMPINCTYPE>
+							<MACRO>overload_rej_calls</MACRO>
+						</Event>
+					</Events>
+				</Type>
+				<Type>
+					<Parent>1.0</Parent>
+					<Name>result</Name>
+					<Value>1</Value>
+					<RAP_NAME>Successful / Unsuccessful Calls Distribution.</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS>Calls</UNITS>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.0.1</Parent>
+							<Name>nok_data</Name>
+							<Value>3</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>The call has failed due to a database inconsistency.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>call_nok_data</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.1</Parent>
+							<Name>nok_service</Name>
+							<Value>4</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>The call has failed due to a network event (user release, busy, .. ) or due to an SSP or SCP execution failure.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>call_nok_service</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.1</Parent>
+							<Name>nok_user</Name>
+							<Value>2</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>The call has been released due to an user error.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>call_nok_user</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.1</Parent>
+							<Name>ok</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>The call has been completely successfull.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>call_ok</MACRO>
+						</Event>
+					</Events>
+				</Type>
+				<Type>
+					<Parent>1.0</Parent>
+					<Name>screening</Name>
+					<Value>7</Value>
+					<RAP_NAME>Screened call distribution</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS/>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.0.7</Parent>
+							<Name>incoming</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Calling party restriction occured</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>incom_clscr</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.7</Parent>
+							<Name>outgoing</Name>
+							<Value>2</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Destination restriction occured</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>outgo_clscr</MACRO>
+						</Event>
+					</Events>
+				</Type>
+				<Type>
+					<Parent>1.0</Parent>
+					<Name>success</Name>
+					<Value>3</Value>
+					<RAP_NAME>Main Call Events Occurrence Distribution.</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS>Call</UNITS>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.0.3</Parent>
+							<Name>acm_received</Name>
+							<Value>7</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>signal end of selection has been received</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>acm</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.3</Parent>
+							<Name>answered</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>The call has been answered.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>answer</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.3</Parent>
+							<Name>busy</Name>
+							<Value>2</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>The called number has been found busy.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>busy</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.3</Parent>
+							<Name>congestion</Name>
+							<Value>3</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>The call has encountered congestion.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>congestion</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.3</Parent>
+							<Name>no_reply</Name>
+							<Value>4</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>The no reply timeout has been reached.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>no_reply</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.3</Parent>
+							<Name>other_failure</Name>
+							<Value>5</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Another problem occured during the call.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>other_error</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.3</Parent>
+							<Name>premature_release</Name>
+							<Value>6</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Calling or called party has released the call before it becomes stable.</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>premature_release</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.3</Parent>
+							<Name>route_select_failure</Name>
+							<Value>8</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>route_select_failure in connect operation</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>route_select_failure</MACRO>
+						</Event>
+					</Events>
+				</Type>
+				<Type>
+					<Parent>1.0</Parent>
+					<Name>type</Name>
+					<Value>2</Value>
+					<RAP_NAME>Call type</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS>Calls</UNITS>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.0.2</Parent>
+							<Name>incoming</Name>
+							<Value>2</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Incoming call</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>incoming</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.0.2</Parent>
+							<Name>outgoing</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Outgoing call</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>outgoing</MACRO>
+						</Event>
+					</Events>
+				</Type>
+			</Types>
+		</SubFeat>
+		<SubFeat>
+			<Parent>1</Parent>
+			<Name>general</Name>
+			<Value>2</Value>
+			<Types>
+				<Type>
+					<Parent>1.2</Parent>
+					<Name>data</Name>
+					<Value>1</Value>
+					<RAP_NAME>call general data</RAP_NAME>
+					<REPTYPE>d</REPTYPE>
+					<UNITS/>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>addextratlv</Name>
+							<Value>14</Value>
+							<INCTYPE>i</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Add extra tlv</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>addextratlv</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>asciidump</Name>
+							<Value>8</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Ascii dump</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>asciidump</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>calltype</Name>
+							<Value>9</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>call type</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>calltype</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>cld</Name>
+							<Value>2</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>called number</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>cld</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>clg</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>calling number</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>clg</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>clg_cat</Name>
+							<Value>17</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Calling Party Category</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>clg_cat</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>clg_restr</Name>
+							<Value>16</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Calling restriction</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>clg_restr</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>cost</Name>
+							<Value>4</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>call cost</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>callcost</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>duration</Name>
+							<Value>6</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Call duration</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>duration</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>enddatetime</Name>
+							<Value>7</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>call end date time</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>enddatetime</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>msc_id</Name>
+							<Value>10</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>GMSC/MSC ID</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>msc_id</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>msisdn</Name>
+							<Value>13</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>mobile number</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>msisdn</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>redir_nbr</Name>
+							<Value>15</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Redirection number</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>redir_nbr</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>redirecting</Name>
+							<Value>12</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>call redirecting</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>redirecting</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>serv_key</Name>
+							<Value>11</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Service Key</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>serv_key</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>ssp</Name>
+							<Value>20</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Originating SSP</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>ssp</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>startdate</Name>
+							<Value>18</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Call start date</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>startdate</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>startdatetime</Name>
+							<Value>5</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>call start date time</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>startdatetime</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>starttime</Name>
+							<Value>19</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>Call start time</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>starttime</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.2.1</Parent>
+							<Name>xlated</Name>
+							<Value>3</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>u</DUMPIND>
+							<DESC>translated number</DESC>
+							<SMPINCTYPE>n</SMPINCTYPE>
+							<MACRO>xlated</MACRO>
+						</Event>
+					</Events>
+				</Type>
+			</Types>
+		</SubFeat>
+		<SubFeat>
+			<Parent>1</Parent>
+			<Name>none</Name>
+			<Value>3</Value>
+			<Types>
+				<Type>
+					<Parent>1.3</Parent>
+					<Name>destination</Name>
+					<Value>10</Value>
+					<RAP_NAME>Primary destination distribution</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS/>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.3.10</Parent>
+							<Name>adob_1</Name>
+							<Value>7</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>1st alternate destination on busy</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>adob_1</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.10</Parent>
+							<Name>adob_2</Name>
+							<Value>8</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>2nd alternate destination on busy</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>adob_2</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.10</Parent>
+							<Name>adoc_1</Name>
+							<Value>9</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>1st alternate destination on congestion</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>adoc_1</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.10</Parent>
+							<Name>adoc_2</Name>
+							<Value>10</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>2nd alternate destination on congestion</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>adoc_2</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.10</Parent>
+							<Name>adonr_1</Name>
+							<Value>5</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>1st alternate destination on no_reply</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>adonr_1</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.10</Parent>
+							<Name>adonr_2</Name>
+							<Value>6</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>2nd alternate destination on no_reply</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>adonr_2</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.10</Parent>
+							<Name>cal_feature</Name>
+							<Value>11</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>call limit feature</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>cal_limit</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.10</Parent>
+							<Name>dest</Name>
+							<Value>4</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>The call is routed to its main destination</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>dest</MACRO>
+						</Event>
+					</Events>
+				</Type>
+				<Type>
+					<Parent>1.3</Parent>
+					<Name>routing</Name>
+					<Value>20</Value>
+					<RAP_NAME>Cli screening call result</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS/>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.3.20</Parent>
+							<Name>call_badpin</Name>
+							<Value>7</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Call rejected</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>Call rejected</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.20</Parent>
+							<Name>call_badtype</Name>
+							<Value>6</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Call rejected</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>Call rejected</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.20</Parent>
+							<Name>call_cli_notfound</Name>
+							<Value>5</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Call rejected</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>Call rejected</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.20</Parent>
+							<Name>call_international</Name>
+							<Value>2</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Call routed to int destination</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>Call routed to int destination</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.20</Parent>
+							<Name>call_mob_business</Name>
+							<Value>4</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Call routed to mobbus destinat</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>Call routed to mobbus destinat</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.20</Parent>
+							<Name>call_mob_family</Name>
+							<Value>3</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Call routed to mobfam destinat</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>Call routed to mobfam destinat</MACRO>
+						</Event>
+						<Event>
+							<Parent>1.3.20</Parent>
+							<Name>call_national</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>Call routed to nat destination</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>Call routed to nat destination</MACRO>
+						</Event>
+					</Events>
+				</Type>
+				<Type>
+					<Parent>1.3</Parent>
+					<Name>stat_tickets</Name>
+					<Value>21</Value>
+					<RAP_NAME>Number of statistics sent</RAP_NAME>
+					<REPTYPE>c</REPTYPE>
+					<UNITS/>
+					<COM_STAT>False</COM_STAT>
+					<Events>
+						<Event>
+							<Parent>1.3.21</Parent>
+							<Name>tickets_nbr</Name>
+							<Value>1</Value>
+							<INCTYPE>n</INCTYPE>
+							<DUMPIND>n</DUMPIND>
+							<DESC>tickets_nbr</DESC>
+							<SMPINCTYPE>1</SMPINCTYPE>
+							<MACRO>tickets_nbr</MACRO>
+						</Event>
+					</Events>
+				</Type>
+			</Types>
+		</SubFeat>
+	</SubFeats>
+</component>

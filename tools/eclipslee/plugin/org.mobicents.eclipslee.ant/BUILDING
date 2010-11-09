@@ -1,0 +1,11 @@
+Prerequisites
+-------------
+
+If you wish to view the sources in Eclipse without red squiggles ensure that ant.jar
+is in the project's library path.  Project -> Properties -> Java Build Path -> Libraries
+
+Building
+--------
+
+Execute the ant build script.  The default target will compile, build and copy the
+slee-tasks.jar into the org.mobicents.eclipslee project.

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/plexus-utils-1.4.9.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="lib/xerces.jar"/>
+	<classpathentry kind="lib" path="lib/slee.jar"/>
+	<classpathentry kind="lib" path="lib/jbossall-client.jar"/>
+	<classpathentry kind="lib" path="lib/maven-model-2.2.1.jar" sourcepath="/Users/ammendonca/.m2/repository/org/apache/maven/maven-model/2.2.1/maven-model-2.2.1-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

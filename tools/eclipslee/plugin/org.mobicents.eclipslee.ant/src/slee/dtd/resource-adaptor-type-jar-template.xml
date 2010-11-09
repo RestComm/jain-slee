@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE resource-adaptor-type-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.0//EN" "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_0.dtd">
+
+<resource-adaptor-type-jar>
+    <description />
+    <resource-adaptor-type>
+        <description />
+        <resource-adaptor-type-name />
+        <resource-adaptor-type-vendor />
+        <resource-adaptor-type-version />
+        <resource-adaptor-type-classes>
+            <description />
+            <activity-type>
+                <description />
+                <activity-type-name />
+            </activity-type>
+            <activity-context-interface-factory-interface>
+                <description />
+                <activity-context-interface-factory-interface-name />
+            </activity-context-interface-factory-interface>
+            <resource-adaptor-interface>
+                <description />
+                <resource-adaptor-interface-name />
+            </resource-adaptor-interface>
+        </resource-adaptor-type-classes>
+        <event-type-ref>
+            <event-type-name />
+            <event-type-vendor />
+            <event-type-version />
+        </event-type-ref>
+    </resource-adaptor-type>
+</resource-adaptor-type-jar>
+

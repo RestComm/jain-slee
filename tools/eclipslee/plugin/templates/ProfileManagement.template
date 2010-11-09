@@ -1,0 +1,16 @@
+__PACKAGE__
+
+/**
+ * If this interface is specified as part of a profile specification it defines
+ * the set of CMP fields that are visible to management clients.
+ * <p>
+ * If this interface is not specified as part of a profile specification, then all
+ * the CMP fields of the __NAME__ProfileCMP interface are visible to management
+ * clients.
+ */
+
+public interface __NAME__ProfileManagement {
+
+  __VISIBLE_CMP_FIELDS__
+
+}

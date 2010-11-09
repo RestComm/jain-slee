@@ -1,0 +1,7 @@
+__PACKAGE__
+
+public interface __NAME__ProfileCMP {
+
+  __CMP_FIELDS__
+
+}

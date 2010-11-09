@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE profile-spec-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.0//EN" "http://java.sun.com/dtd/slee-profile-spec-jar_1_0.dtd">
+
+<profile-spec-jar>
+    <description />
+    <profile-spec>
+        <description />
+        <profile-spec-name />
+        <profile-spec-vendor />
+        <profile-spec-version />
+        <profile-classes>
+            <description />
+            <profile-cmp-interface-name />
+            <profile-management-interface-name />
+            <profile-management-abstract-class-name />
+        </profile-classes>
+        <profile-index unique="False"/>
+        <profile-hints single-profile="False"/>
+    </profile-spec>
+</profile-spec-jar>
+

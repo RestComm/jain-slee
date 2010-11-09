@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JAIN SLEE Service Creation Plug-In
+Bundle-SymbolicName: org.mobicents.eclipslee.servicecreation; singleton:=true
+Bundle-Version: 1.3.0
+Bundle-ClassPath: servicecreation.jar,
+ lib/slee.jar,
+ lib/xerces.jar,
+ lib/jbossall-client.jarlib/maven-model-2.2.1.jar,
+ lib/maven-model-2.2.1.jar,
+ lib/plexus-utils-1.4.9.jar
+Bundle-Activator: org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin
+Bundle-Vendor: Mobicents
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.ui,
+ org.eclipse.ant.core,
+ org.eclipse.ant.ui,
+ org.apache.ant,
+ org.eclipse.gef
+Bundle-ActivationPolicy: lazy

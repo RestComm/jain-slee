@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+This is the XML DTD for the JAIN SLEE 1.0 service component deployment
+desriptor.  All JAIN SLEE 1.0 service component deployment descriptors must
+include a DOCTYPE of the following form:
+
+  <!DOCTYPE service-xml PUBLIC
+        "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.0//EN"
+        "http://java.sun.com/dtd/slee-service_1_0.dtd">
+-->
+
+
+<!--
+The service-xml element is the root element of the service component
+deployment descriptor.  It contains an optional description about the profile
+specification jar file and one or more service definitions.
+-->
+<!ELEMENT service-xml (description?, service+)>
+
+<!--
+The service element defines a service component.  It contains an optional
+description about the service being defined, the name, vendor, and version of
+the service, a reference to the root sbb type, a default priority for the root
+sbb, and optional names of an address profile table and resource info profile
+table used by the service.
+
+Used in: service-xml
+-->
+<!ELEMENT service (description?, service-name, service-vendor, 
+          service-version, root-sbb, default-priority, address-profile-table?,
+          resource-info-profile-table?)>
+
+<!--
+The description element may contain any descriptive text about the parent
+element.
+
+Used in: service-xml, service, root-sbb
+-->
+<!ELEMENT description (#PCDATA)>
+
+<!--
+The service-name element contains the name of the service component.
+
+Used in: service
+
+Example:
+    <service-name>MyService</service-name>
+-->
+<!ELEMENT service-name (#PCDATA)>
+
+<!--
+The service-vendor element contains the vendor of the service component.
+
+Used in: service
+
+Example:
+    <service-vendor>My Company, Inc.</service-vendor>
+-->
+<!ELEMENT service-vendor (#PCDATA)>
+
+<!--
+The service-version element contains the version of the service component.
+The version number typically should have the general form
+"major-version.minor-version".
+
+Used in: service
+
+Example:
+    <service-version>1.0</service-version>
+-->
+<!ELEMENT service-version (#PCDATA)>
+
+<!--
+The root-sbb element defines the sbb component type of the service's root sbb.
+It contains an optional description about the root sbb, and the name, vendor,
+and version of the root sbb.
+
+Used in: service
+-->
+<!ELEMENT root-sbb (description?, sbb-name, sbb-vendor, sbb-version)>
+
+<!--
+The sbb-name element contains the name of an sbb component.
+
+Used in: root-sbb
+
+Example:
+    <sbb-name>MySbb</sbb-name>
+-->
+
+<!ELEMENT sbb-name (#PCDATA)>
+<!--
+The sbb-vendor element contains the vendor of an sbb component.
+
+Used in: root-sbb
+
+Example:
+    <sbb-name>My Company, Inc.</sbb-name>
+-->
+
+<!ELEMENT sbb-vendor (#PCDATA)>
+
+<!--
+The sbb-version element contains the version of an sbb component.
+
+Used in: root-sbb
+
+Example:
+    <sbb-name>1.0</sbb-name>
+-->
+<!ELEMENT sbb-version (#PCDATA)>
+
+<!-- 
+The default-priority element contains the default priority of the root sbb.
+The default priority must lie in the range -128 thru 127.
+
+Used in: service
+
+Example:
+    <default-priority>0</default-priority>
+-->
+<!ELEMENT default-priority (#PCDATA)>
+
+<!--
+The address-profile-table element contains the name of the address profile
+table used by the service.
+
+Used in: service
+
+Example:
+    <address-profile-table>MyAddresses</address-profile-table>
+-->
+<!ELEMENT address-profile-table (#PCDATA)>
+
+<!--
+The resource-info-profile-table element contains the name of the resource info
+profile table used by the service.
+
+Used in: service
+
+Example:
+    <resource-info-profile-table>MyResourceInfo</resourc-info-profile-table>
+-->
+<!ELEMENT resource-info-profile-table (#PCDATA)>
+
+
+<!-- 
+The ID mechanism is to allow tools that produce additional deployment
+information (ie. information beyond that contained by the standard SLEE
+deployment descriptors) to store the non-standard information in a separate
+file, and easily refer from those tools-specific files to the information in
+the standard deployment descriptor.  The SLEE architecture does not allow the
+tools to add the non-standard information into the SLEE-defined deployment
+descriptors. 
+-->
+<!ATTLIST service-xml id ID #IMPLIED>
+<!ATTLIST service id ID #IMPLIED>
+<!ATTLIST description id ID #IMPLIED>
+<!ATTLIST service-name id ID #IMPLIED>
+<!ATTLIST service-vendor id ID #IMPLIED>
+<!ATTLIST service-version id ID #IMPLIED>
+<!ATTLIST root-sbb id ID #IMPLIED>
+<!ATTLIST sbb-name id ID #IMPLIED>
+<!ATTLIST sbb-vendor id ID #IMPLIED>
+<!ATTLIST sbb-version id ID #IMPLIED>
+<!ATTLIST default-priority id ID #IMPLIED>
+<!ATTLIST address-profile-table id ID #IMPLIED>
+<!ATTLIST resource-info-profile-table id ID #IMPLIED>

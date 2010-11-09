@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="eclipselee"
+   name="JAIN SLEE Plug-in"
+   version="1.0.0"
+   provider-name="PTinovacao"
+   class="org.mobicents.eclipslee.MainPlugin">
+
+   <runtime>
+   </runtime>
+
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.jdt.core"/>
+   </requires>
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            name="JAIN SLEE Wizards"
+            id="JAIN SLEE ">
+      </category>
+      <wizard
+            class="org.mobicents.eclipslee.wizard.sbb.SBBNewWizard"
+            icon="icons/SBB.ico"
+            descriptionImage="icons/SBB.ico"
+            category="JAIN SLEE "
+            name="SBB Wizard"
+            id="org.mobicents.eclipslee.wizard.sbb.SBBNewWizard">
+      </wizard>
+      <wizard
+            icon="icons/projecto.ico"
+            class="org.mobicents.eclipslee.wizard.project.JAINSLEEProjectWizard"
+            category="JAIN SLEE "
+            descriptionImage="icons/projecto.ico"
+            project="true"
+            name="JAIN SLEE Project"
+            id="org.mobicents.eclipslee.wizard.project.JAINSLEEProjectWizard"/>
+   </extension>
+
+</plugin>

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<!-- 
+	 Builds the ant tasks used by the Plug-In generated build.xml file.
+     The jar containing the tasks is copied to ../org.mobicents.eclipslee/lib
+     which is where the Plug-In will look for it when packaging the Plug-In binary.
+-->
+
+<project name="eclipslee-ant-tasks" default="all">
+
+  <target name="init">    
+  	<fileset dir="src" id="slee-dtd">
+      <include name="slee/dtd/*.dtd"/>
+    </fileset>
+  </target>
+
+  <target name="clean" depends="init">
+    <delete dir="bin"/>
+    <delete dir="jars"/>
+  </target>
+
+  <target name="all" depends="build-ant-tasks,package-ant-tasks">
+  </target>
+	
+  <target name="build-ant-tasks" depends="init">
+    <mkdir dir="bin"/>
+    <javac classpath="${ant.home}/lib/ant.jar" srcdir="src" destdir="bin" deprecation="off" includes="org/mobicents/eclipslee/**/*.java"/>
+  </target>
+	
+  <target name="package-ant-tasks" depends="init,build-ant-tasks">
+    <mkdir dir="jars"/>
+  	<jar destfile="jars/slee-tasks.jar">
+         <fileset dir="bin" includes="**/*.class"/>
+         <fileset refid="slee-dtd"/>
+     </jar>  	
+     <copy file="jars/slee-tasks.jar" todir="../lib"/>
+  </target>
+
+</project>

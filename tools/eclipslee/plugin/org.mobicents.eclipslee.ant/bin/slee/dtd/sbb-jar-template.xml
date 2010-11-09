@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_0.dtd">
+
+<sbb-jar>
+    <description />
+    <sbb>
+        <description />
+        <sbb-name />
+        <sbb-vendor />
+        <sbb-version />
+        <sbb-alias />
+        <child-sbb>
+            <description />
+            <sbb-name />
+            <sbb-vendor />
+            <sbb-version />
+            <sbb-alias />
+        </child-sbb>
+        <profile-spec>
+            <description />
+            <profile-spec-name />
+            <profile-spec-vendor />
+            <profile-spec-version />
+            <profile-spec-alias />
+        </profile-spec>
+        <sbb-classes>
+            <description />
+            <sbb-abstract-class reentrant="False">
+                <description />
+                <sbb-abstract-class-name />
+                <cmp-field>
+                    <description />
+                    <cmp-field-name />
+                    <sbb-alias-ref />
+                </cmp-field>
+                <get-child-relation-method>
+                    <description />
+                    <sbb-alias-ref />
+                    <get-child-relation-method-name />
+                    <default-priority />
+                </get-child-relation-method>
+                <get-profile-cmp-method>
+                    <description />
+                    <profile-spec-alias-ref />
+                    <get-profile-cmp-method-name />
+                </get-profile-cmp-method>
+                <get-usage-parameters-method>
+                    <description />
+                    <get-usage-parameters-method-name />
+                </get-usage-parameters-method>
+            </sbb-abstract-class>
+            <sbb-local-interface>
+                <description />
+                <sbb-local-interface-name />
+            </sbb-local-interface>
+            <sbb-activity-context-interface>
+                <description />
+                <sbb-activity-context-interface-name />
+            </sbb-activity-context-interface>
+            <sbb-usage-parameters-interface>
+                <description />
+                <sbb-usage-parameters-interface-name />
+            </sbb-usage-parameters-interface>
+        </sbb-classes>
+        <address-profile-spec-ref />
+        <event event-direction="Receive">
+            <description />
+            <event-name />
+            <event-type-ref>
+                <event-type-name />
+                <event-type-vendor />
+                <event-type-version />
+            </event-type-ref>
+            <initial-event-select variable="Address" />
+            <initial-event-selector-method-name />
+            <event-resource-option />
+        </event>
+        <activity-context-attribute-alias>
+            <description />
+            <attribute-alias-name />
+            <sbb-activity-context-attribute-name />
+        </activity-context-attribute-alias>
+        <env-entry>
+            <description />
+            <env-entry-name />
+            <env-entry-type />
+            <env-entry-value />
+        </env-entry>
+        <resource-adaptor-type-binding>
+            <description />
+            <resource-adaptor-type-ref>
+                <resource-adaptor-type-name />
+                <resource-adaptor-type-vendor />
+                <resource-adaptor-type-version />
+            </resource-adaptor-type-ref>
+            <activity-context-interface-factory-name />
+            <resource-adaptor-entity-binding>
+                <description />
+                <resource-adaptor-object-name />
+                <resource-adaptor-entity-link />
+            </resource-adaptor-entity-binding>
+        </resource-adaptor-type-binding>
+        <ejb-ref>
+            <description />
+            <ejb-ref-name />
+            <ejb-ref-type />
+            <home />
+            <remote />
+            <ejb-link />
+        </ejb-ref>
+    </sbb>
+</sbb-jar>
+

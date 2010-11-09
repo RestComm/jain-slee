@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE profile-spec-jar PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.0//EN"
+  "http://java.sun.com/dtd/slee-profile-spec-jar_1_0.dtd">
+
+<profile-spec-jar>
+    <description>
+        This XML file defines the standard profile specifications described
+        in the SLEE specification.
+    </description>
+    <profile-spec>
+        <description>
+            Profile specification for the standard Address Profile Table
+        </description>
+        <profile-spec-name>AddressProfileSpec</profile-spec-name>
+        <profile-spec-vendor>javax.slee</profile-spec-vendor>
+        <profile-spec-version>1.0</profile-spec-version>
+        <profile-classes>
+            <profile-cmp-interface-name>
+                javax.slee.profile.AddressProfileCMP
+            </profile-cmp-interface-name>
+        </profile-classes>
+        <profile-index unique="True" >addresses</profile-index>
+    </profile-spec>
+    <profile-spec>
+        <description>
+            Profile specification for the standard Resource Info Profile Table
+        </description>
+        <profile-spec-name>ResourceInfoProfileSpec</profile-spec-name>
+        <profile-spec-vendor>javax.slee</profile-spec-vendor>
+        <profile-spec-version>1.0</profile-spec-version>
+        <profile-classes>
+            <profile-cmp-interface-name>
+                javax.slee.profile.ResourceInfoProfileCMP
+            </profile-cmp-interface-name>
+        </profile-classes>
+    </profile-spec>
+</profile-spec-jar>

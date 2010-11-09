@@ -1,0 +1,7 @@
+__PACKAGE__
+
+public interface __NAME__SbbUsage {
+
+  __USAGE_METHODS__
+
+}

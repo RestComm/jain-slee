@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../../xmlschema/alarmschema.xsd"
+	author="rkup" authoremail="rkup@etb.bel.alcatel.be"
+	updatedon="&quot;Wed, Aug 29, 2001&quot;" updatedby="rkup">
+	<name>alarm:platform/access</name>
+	<docname>alarm_platform_access</docname>
+	<description>
+		<short>Access catalog</short>
+		<long>Access catalog contains all the alarms related to incoherences in the
+			platform access.</long>
+	</description>
+	<events>
+		<event>
+			<Name>too_many_wrong_pw</Name>
+			<Number>1</Number>
+			<Level>warning</Level>
+			<Problem>Too many wrong passwords</Problem>
+			<Type>2</Type>
+			<Cause>More wrong passwords entered than allowed</Cause>
+			<Effect>Operator suspended</Effect>
+			<Action>Ask the access manager to create a new password for you</Action>
+		</event>
+	</events>
+	<dependencies>
+		<dependency>
+			<Component>lib:platform/alarm</Component>
+		</dependency>
+	</dependencies>
+</component>

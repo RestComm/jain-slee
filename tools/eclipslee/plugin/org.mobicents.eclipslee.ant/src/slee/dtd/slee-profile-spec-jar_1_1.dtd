@@ -1,0 +1,886 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+This is the XML DTD for the JAIN SLEE 1.1 profile specification component jar
+file deployment descriptor.  All JAIN SLEE 1.1 profile specification component
+jar file deployment descriptors must include a DOCTYPE of the following form:
+
+  <!DOCTYPE profile-spec-jar PUBLIC
+        "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN"
+        "http://java.sun.com/dtd/slee-profile-spec-jar_1_1.dtd">
+-->
+
+
+<!--
+The profile-spec-jar element is the root element of the profile specification
+jar deployment descriptor.  It contains an optional description about the
+profile specification jar file, one or more profile specification definitions,
+and an optional specification of additional security permissions that should be
+ granted to classes residing in the profile specification jar file.
+-->
+<!ELEMENT profile-spec-jar (description?, profile-spec+,
+          security-permissions?)>
+
+<!--
+The description element may contain any descriptive text about the parent
+element.
+
+Used in: profile-spec-jar, profile-spec, library-ref, profile-spec-ref,
+         collator, profile-classes, profile-cmp-interface, cmp-field,
+         profile-local-interface, profile-management-interface,
+         profile-abstract-class, profile-table-interface,
+         profile-usage-parameters-interface, env-entry, query,
+         security-permissions
+-->
+<!ELEMENT description (#PCDATA)>
+
+<!--
+The profile-spec element defines a profile specification.  It contains an
+optional description about the profile specification being defined, the name,
+vendor, and version of the profile specification, zero or more references to
+any required library components, zero or more references to other profile
+specifications used by this profile specification, mandatory information about
+the profile specification's interfaces and classes, zero or more JNDI
+environment entry definitions, zero or more collators for use in static queries
+or indexes, optional profile attribute indexing information and hints, zero or
+more static query definitions, and optional hints to the SLEE about the use of
+the profile specification.
+
+The profile-read-only attribute of this element specifies whether the SLEE
+Component object view of profiles created from this profile specification is
+read-only or read-write.  If the value of this attribute is True then SLEE
+components may not create, remove or modify profiles created from this profile
+specification.  If the value of this attribute is False, SLEE Components are
+permitted to create, remove, or modify profiles created from this profile
+specification.
+
+The profile-events-enabled attribute of this element specifies whether profile
+events will be fired on the profile table activities of profile tables created
+from this profile specification when profiles are added to, updated in, or
+removed from these profile table.
+
+Used in: profile-spec-jar
+-->
+<!ELEMENT profile-spec (description?, profile-spec-name, profile-spec-vendor,
+          profile-spec-version, library-ref*, profile-spec-ref*, collator*,
+          profile-classes, env-entry*, query*, profile-hints?)>
+
+<!--
+The profile-spec-name element contains the name of the profile specification
+component.
+
+Used in: profile-spec, profile-spec-ref
+
+Example:
+    <profile-spec-name>AddressProfileSpec</profile-spec-name>
+-->
+<!ELEMENT profile-spec-name (#PCDATA)>
+
+<!--
+The profile-spec-vendor element contains the vendor of the profile
+specification component.
+
+Used in: profile-spec, profile-spec-ref
+
+Example:
+    <profile-spec-vendor>javax.slee</profile-spec-vendor>
+-->
+<!ELEMENT profile-spec-vendor (#PCDATA)>
+
+<!--
+The profile-spec-version element contains the version of the profile
+specification component.  The version number typically should have the general
+form "major-version.minor-version".
+
+Used in: profile-spec, profile-spec-ref
+
+Example:
+    <profile-spec-version>1.0</profile-spec-version>
+-->
+<!ELEMENT profile-spec-version (#PCDATA)>
+
+<!--
+The library-ref element declares a reference to a library component containing
+common classes that the profile specification requires.  It contains an
+optional description and the name, vendor, and version of the library
+component.
+
+Used in: profile-spec
+-->
+<!ELEMENT library-ref (description?, library-name, library-vendor,
+          library-version)>
+
+<!--
+The library-name element contains the name of a library component.
+
+Used in: library-ref
+
+Example:
+    <library-name>JCC</library-name>
+-->
+<!ELEMENT library-name (#PCDATA)>
+
+<!--
+The library-vendor element contains the vendor of a library component.
+
+Used in: library-ref
+
+Example:
+    <library-vendor>javax.csapi.cc.jcc</library-vendor>
+-->
+<!ELEMENT library-vendor (#PCDATA)>
+
+<!--
+The library-version element contains the version of a library component.  The
+version number typically should have the general form
+"major-version.minor-version".
+
+Used in: library-ref
+
+Example:
+    <library-version>1.1</library-version>
+-->
+<!ELEMENT library-version (#PCDATA)>
+
+<!--
+The profile-spec-ref element declares a reference to a profile specification
+component type.  It contains an optional description about the reference and
+the name, vendor, and version of the referenced profile specification.
+
+Used in: profile-spec
+-->
+<!ELEMENT profile-spec-ref (description?, profile-spec-name,
+          profile-spec-vendor, profile-spec-version)>
+
+<!--
+The collator element defines a collator that can be used for locale-sensitive
+comparisons of profile attributes.  It contains an optional description,
+a mandatory alias for referencing the collator elsewhere in the deployment
+descriptor, the mandatory language for the collator's locale, and an optional
+country and variant for the language.  If the locale-variant element is
+specified, the locale-country element must also be specified.
+
+The optional strength attribute of this element specifies the strength property
+of the collator.  The optional decompostion attribute specifies the
+decomposition mode of the collator.  If either of these attributes are not
+specified the default properties of the collator for the specified locale are
+used.
+
+See java.text.Collator for details on the use of collators.
+
+Used in: profile-spec
+-->
+<!ELEMENT collator (description?, collator-alias, locale-language,
+          locale-country?, locale-variant?)>
+
+<!--
+The collator-alias element contains an arbitrary name that can be used to
+reference, elsewhere in the deployment descriptor, the collator being defined
+by the parent element.
+
+Used in: collator
+
+Example:
+    <collator-alias>US_English</collator-alias>
+-->
+<!ELEMENT collator-alias (#PCDATA)>
+
+<!--
+The locale-language element specifies an ISO language code that identifies the
+language of the locale.  These codes are the lower-case, two-letter codes as
+defined by ISO-639.
+
+Used in: collator
+
+Example:
+    <locale-language>en</locale-language>
+-->
+<!ELEMENT locale-language (#PCDATA)>
+
+<!--
+The locale-country element specifies an ISO country code that identifies a
+specific country for the locale language. These codes are the upper-case,
+two-letter codes as defined by ISO-3166.
+
+Used in: collator
+
+Example:
+    <locale-country>US</locale-country>
+-->
+<!ELEMENT locale-country (#PCDATA)>
+
+<!--
+The locale-variant element specifies a vendor or browser-specific variant to
+a locale language.
+
+Used in: collator
+
+Example:
+    <locale-variant>POSIX</locale-variant>
+-->
+<!ELEMENT locale-variant (#PCDATA)>
+
+<!--
+The profile-classes element contains an optional description about the classes
+and/or interfaces defined, a mandatory profile cmp interface declaration, and
+optional declarations for the profile local interface, profile management
+interface, profile abstract class, profile table interface, and usage
+parameters interface.
+
+Used in: profile-spec
+-->
+<!ELEMENT profile-classes (description?, profile-cmp-interface,
+          profile-local-interface?, profile-management-interface?,
+          profile-abstract-class?, profile-table-interface?,
+          profile-usage-parameters-interface?)>
+
+<!--
+The profile-cmp-interface element contains an optional description about the
+profile specification's cmp interface, the name of the cmp interface, and zero
+or more cmp field declarations,
+
+Used in: profile-classes
+-->
+<!ELEMENT profile-cmp-interface (description?, profile-cmp-interface-name,
+          cmp-field*)>
+
+<!--
+The profile-cmp-interface-name element contains the fully-qualified name of the
+profile specification's profile cmp interface.
+
+Used in: profile-cmp-interface
+
+Example:
+    <profile-cmp-interface-name>
+        javax.slee.profile.AddressProfileCMP
+    </profile-cmp-interface-name>
+-->
+<!ELEMENT profile-cmp-interface-name (#PCDATA)>
+
+<!--
+The cmp-field element declares properties for a cmp field defined in the
+profile CMP interface.  It contains an optional description, the name of the
+cmp field, and zero or more indexing hints.
+
+The unique attribute specifies if a particular value of the profile attribute
+specified by this CMP field can only appear at most once in a profile table
+created from this profile specification.  The default value of this attribute
+is "False".
+
+The optional unique-collator-ref attribute can only be specified if
+the unique is set to "True" and the Java type of the CMP field is
+java.lang.String.  This attribute references a collator by its collator-alias
+and is used to determine equality of string values for uniqueness testing
+in place of String.equals(Object).
+
+Used in: profile-cmp-interface
+-->
+<!ELEMENT cmp-field (description?, cmp-field-name, index-hint*)>
+
+<!--
+The cmp-field-name element contains the name of a cmp field defined in the
+profile CMP interface
+
+Used in: cmp-field
+
+Example:
+    <cmp-field-name>count</cmp-field-name>
+-->
+<!ELEMENT cmp-field-name (#PCDATA)>
+
+<!--
+The index-hint element is used to provide information to the SLEE about a
+type of query that may be executed against profiles in a profile table created
+from this profile specification.  The SLEE can use this information when
+deciding about what indexes it might create for the profile table.
+
+The query-operator attribute specifies a query term or operator that may be
+applied to the CMP field.
+
+The optional collator-ref attribute can only be specified if the Java type of
+the CMP field is java.lang.String.  This attribute references a collator by its
+collator-alias and is used to determine equality and ordering of string values
+in place of String.equals(Object) and String.compareTo(String).
+
+Used in: cmp-field
+
+Example:
+    <index-hint query-operator="less-than"/>
+-->
+<!ELEMENT index-hint EMPTY>
+
+<!--
+The profile-local-interface element contains an optional description about the
+profile specification's profile local interface, and the name of the profile
+local interface.
+
+The isolate-security-permissions attribute of this element controls whether or
+not security permissions of other classes in the call stack are propagated to
+the profile when a method on the Profile local interface is invoked.  If the
+value of this attribute is False, then a business method invoked on a Profile
+object as a result of an Profile local interface method invocation runs with
+an access control context that includes the protection domain(s) of the Profile
+Specification as well as the protection domains of any other classes in the
+call stack, such as the SLEE component that invoked the Profile local
+interface method.  If the value of this attribute is True, the SLEE
+automatically wraps the Profile local interface method invocation in an
+AccessController.doPrivileged() block in order to isolate the security
+permissions of the invoked Profile, i.e. the security permissions of other
+classes in the call stack do not affect the invoked Profile.  The default value
+of this attribute is False.
+
+Used in: profile-classes
+-->
+<!ELEMENT profile-local-interface (description?, profile-local-interface-name)>
+
+<!--
+The profile-local-interface-name element contains the fully-qualified name
+of the profile specification's profile local interface.
+
+Used in: profile-local-interface
+
+Example:
+    <profile-local-interface-name>
+        javax.slee.profile.AddressProfileLocal
+    </profile-local-interface-name>
+-->
+<!ELEMENT profile-local-interface-name (#PCDATA)>
+
+<!--
+The profile-management-interface element contains an optional description about
+the profile specification's profile management interface, and the name of the
+profile management interface.
+
+Used in: profile-classes
+-->
+<!ELEMENT profile-management-interface (description?,
+          profile-management-interface-name)>
+
+<!--
+The profile-management-interface-name element contains the fully-qualified name
+of the profile specification's profile management interface.
+
+Used in: profile-management-interface
+
+Example:
+    <profile-management-interface-name>
+        javax.slee.profile.AddressProfileManagement
+    </profile-management-interface-name>
+-->
+<!ELEMENT profile-management-interface-name (#PCDATA)>
+
+<!--
+The profile-abstract-class element contains an optional description about the
+profile specification's profile abstract class, and the name of the profile
+abstract class.
+
+The reentrant attribute of this element determines whether reentrant callbacks
+on the profile abstract class are permitted.  A reentrant callback occurs when
+a profile invokes a method on an profile local interface object which causes,
+either directly or indirectly, a method on the original profile to be invoked
+in the same transaction.  The default value of this attribute is False.
+
+Used in: profile-classes
+-->
+<!ELEMENT profile-abstract-class (description?, profile-abstract-class-name)>
+
+<!--
+The profile-abstract-class-name element contains the fully-qualified name of
+the profile specification's profile abstract class.
+
+Used in: profile-abstract-class
+
+Example:
+    <profile-abstract-class-name reentrant="False">
+        com.mycompany.profile.MyProfileImpl
+    </profile-abstract-class-name>
+-->
+<!ELEMENT profile-abstract-class-name (#PCDATA)>
+
+<!--
+The profile-table-interface element contains an optional description about the
+profile specification's profile table interface, and the name of the profile
+table interface.
+
+Used in: profile-classes
+-->
+<!ELEMENT profile-table-interface (description?, profile-table-interface-name)>
+
+<!--
+The profile-table-interface-name element contains the fully-qualified name of
+the profile specification's profile table interface.
+
+Used in: profile-classes
+
+Example:
+    <profile-table-interface-name>
+        com.mycompany.profile.MyProfileTable
+    </profile-table-interface-name>
+-->
+<!ELEMENT profile-table-interface-name (#PCDATA)>
+
+<!--
+The profile-usage-parameters-interface element declares a usage parameters
+interface for the profile specification.  It contains an optional description,
+the name of the usage parameters interface, and properties for zero or more
+usage parameters in the usage parameters interface.
+
+Used in: profile-classes
+-->
+<!ELEMENT profile-usage-parameters-interface (description?,
+          profile-usage-parameters-interface-name, usage-parameter*)>
+
+<!--
+The profile-usage-parameters-interface-name element contains the fully-qualified
+name of the profile specification's usage parameters interface.
+
+Used in: profile-usage-parameters-interface
+
+Example:
+    <profile-usage-parameters-interface-name>
+        com.mycompany.profile.MyProfileUsage
+    </profile-usage-parameters-interface-name>
+-->
+<!ELEMENT profile-usage-parameters-interface-name (#PCDATA)>
+
+<!--
+The usage-parameter element allows various properties of a usage parameter to
+be specified at deployment time.  The name attribute of this element contains
+the name of a usage parameter defined in the usage parameters interface.  The
+notifications-enabled attribute allows the initial state of the notification
+generation flag for the usage parameter in each usage parameter set it appears
+in to be specified.
+
+Used in: profile-usage-parameters-interface
+
+Example:
+    <usage-parameter name="counter" notifications-enabled="False">
+-->
+<!ELEMENT usage-parameter (#PCDATA)>
+
+<!--
+The env-entry element declares a constant that should be bound into the Profile
+Specification's JNDI environment.  It contains an optional description, the
+name and type of the constant, and an optional value.  If a value is not
+specified, one must be supplied during deployment.
+
+Used in: profile-spec
+-->
+<!ELEMENT env-entry (description?, env-entry-name, env-entry-type,
+          env-entry-value?)>
+
+<!--
+The env-entry-name element contains the namespace path, relative to the
+java:comp/env context, where the environment entry constant should be bound in
+the Profile Specification's JNDI environment.
+
+Used in: env-entry
+
+Example
+    <env-entry-name>maxConnections</env-entry-name>
+-->
+<!ELEMENT env-entry-name (#PCDATA)>
+
+<!--
+The env-entry-type element contains the fully-qualifed name of the class of a
+Profile Specification's environment entry constant.
+
+The following are the legal values of the env-entry-type element:
+java.lang.Integer, java.lang.Double, java.lang.Boolean, java.lang.Character,
+java.lang.Byte, java.lang.Short, java.lang.Long, and java.lang.Float,
+java.lang.String.
+
+Used in: env-entry
+
+Example:
+    <env-entry-type>java.lang.Integer</env-entry-type>
+-->
+<!ELEMENT env-entry-type (#PCDATA)>
+
+<!--
+The env-entry-value element contains the value of a Profile Specification's
+environment entry contant.  The value must be a string that is valid for the
+constructor of the environment entry's declared type that takes a single
+java.lang.String parameter, or for java.lang.Character environment entry types,
+a single character.
+
+Used in: env-entry
+
+Example:
+    <env-entry-value>5</env-entry>
+-->
+<!ELEMENT env-entry-value (#PCDATA)>
+
+<!--
+Static query operator terms.
+
+Used in: query, and, or, not
+-->
+<!ENTITY % term "(compare | range-match | longest-prefix-match | has-prefix |
+                  and | or | not)">
+
+<!--
+The query element declares a static query.  It contains an optional
+description, optional query options, zero or more query parameters, and a
+query search term.
+
+The name attribute of this element identifies the name of the query.
+
+Used in: profile-spec
+
+Example:
+    <query name="fromCountry">
+        ....
+    </query>
+-->
+<!ELEMENT query (description?, query-options?, query-parameter*, (%term;))>
+
+<!--
+The query-options element specifies options that apply to a query.
+
+The read-only attribute of this element indicates to the SLEE whether a SLEE
+component executing this query will interact with the profiles obtained via the
+query in a read-only or read-write manner within the same transaction the query
+is executed.  This is akin to SQL's SELECT ... vs. SELECT ... FOR UPDATE.  If
+pessimistic locking is being used by the SLEE for the profile table, a
+read-only query allows concurrent access to the same profiles via a shared
+reader lock, whereas a read-write query would require the SLEE to obtain an
+exclusive writer lock on the profiles, prohibiting concurrent access by SLEE
+components executing in different threads.  If this option is not specified for
+a query, the default value is equal to the value of the profile-read-only
+attribute of the enclosing profile-spec element.
+
+The max-matches attribute of this element specifies the maximum number of
+matching profiles that can be returned by the SLEE when the query is executed.
+This option allows smaller manageable sets of data to be returned from a query
+if it is expected that the query may return a large number of results.  If this
+option is not specified for a query, the SLEE will return all matching profiles
+when the query is executed.
+
+Used in: query
+
+Example:
+    <query-options read-only="True" max-matches="100"/>
+-->
+<!ELEMENT query-options EMPTY>
+
+<!--
+The query-parameter element specifies a parameter for a query.
+
+The name attribute of this element identifies the name of the query parameter.
+The type attribute specifies the type of the query parameter.  This is either
+a primitive type or a fully-qualified class name.
+
+Used in: query
+
+Examples:
+    <query-parameter name="age" type="int"/>
+    <query-parameter name="origin" type="java.lang.String"/>
+-->
+<!ELEMENT query-parameter EMPTY>
+
+<!--
+The compare element is used in a query expression to compare a profile
+attribute value to the value of a constant or query parameter.
+
+The attribute-name attribute of this element identifies the name of the
+profile attribute to compare.  The op attribute specifies the relational
+operator to apply.  The value attribute specifies a constant value to compare
+the profile attribute to, while the parameter attribute specifies the name of
+a query parameter whose value should be compared.  One and only one of the
+value attribute or parameter attribute must be specified.
+
+The following relational operators are supported:
+  - equals
+  - not-equals
+  - less-than
+  - less-than-or-equals
+  - greater-than
+  - greater-than-or-equals
+
+The collator-ref attribute of this element is optional.  It can only be
+specified if the type of the profile attribute is java.lang.String.  If
+specified it references a collator defined in a collator element of the
+enclosing profile-spec deployment descriptor element.  The collator is used
+to perform locale-sensitive comparisons on the profile attribute values.
+
+Used in: query, and, or, not
+
+Example:
+    <compare attribute-name="age" op="greater-than" parameter="age"/>
+-->
+<!ELEMENT compare EMPTY>
+
+<!--
+The range-match element is used in a query expression to compare a profile
+attribute value to a specified range of values.  The range may be defined by
+constant values, query parameters, or a mixture of both.
+
+The attribute-name attribute of this element identifies the name of the
+profile attribute to compare.
+
+The lower-bound of the range is specified by the from-value attribute, which
+specifies a constant value, or the from-parameter attribute, which specifies
+the name of a query parameter.  One and only one of the from-value attribute
+or from-parameter attribute must be specified.
+
+The upper-bound of the range is specified by the to-value attribute, which
+specifies a constant value, or the to-parameter attribute, which specifies the
+name of a query parameter.  One and only one of the to-value attribute or
+to-parameter attribute must be specified.
+
+The collator-ref attribute of this element is optional.  It can only be
+specified if the type of the profile attribute is java.lang.String.  If
+specified it references a collator defined in a collator element of the
+enclosing profile-spec deployment descriptor element.  The collator is used
+to perform locale-sensitive comparisons on the profile attribute values.
+
+Used in: query, and, or, not
+
+Example:
+    <range-match attribute-name="age" from-parameter="fromAge" toParameter="toAge"/>
+-->
+<!ELEMENT range-match EMPTY>
+
+<!--
+The longest-prefix-match element is used in a query expression to find the
+profile that contains the longest attribute value that is a prefix of the
+specified value constant or query parameter.
+
+The attribute-name attribute of this element identifies the name of the
+profile attribute to compare.  The profile attribute must be of the type
+java.lang.String.  The value attribute specifies a constant value to compare
+the profile attribute to, while the parameter attribute specifies the name of
+a query parameter whose value should be compared.  One and only one of the
+value attribute or parameter attribute must be specified.
+
+The collator-ref attribute of this element is optional.  If specified it
+references a collator defined in a collator element of the enclosing
+profile-spec deployment descriptor element.  The collator is used to perform
+locale-sensitive comparisons on the profile attribute values.
+
+Used in: query, and, or, not
+
+Example:
+    <longest-prefix-match attribute-name="addressPrefix" parameter="address"/>
+-->
+<!ELEMENT longest-prefix-match EMPTY>
+
+<!--
+Used in: query, and, or, not
+
+The has-prefix element is used in a query expression to find profiles for which
+the specified value constant or query parameter is a prefix of the specified
+profile attribute.
+
+The attribute-name attribute of this element identifies the name of the
+profile attribute to compare.  The profile attribute must be of the type
+java.lang.String.  The value attribute specifies a constant value to compare
+the profile attribute to, while the parameter attribute specifies the name of
+a query parameter whose value should be compared.  One and only one of the
+value attribute or parameter attribute must be specified.
+
+The collator-ref attribute of this element is optional.  If specified it
+references a collator defined in a collator element of the enclosing
+profile-spec deployment descriptor element.  The collator is used to perform
+locale-sensitive comparisons on the profile attribute values.
+
+Example:
+    <has-prefix attribute-name="addressPrefix" parameter="address"/>
+-->
+<!ELEMENT has-prefix EMPTY>
+
+<!--
+The and element contains two or more query expression terms.  An 'and' query
+expression will only match with a particular profile if all the terms of the
+'and' element match with the profile.
+
+Used in: query, and, or, not
+-->
+<!ELEMENT and ((%term;), (%term;)+)>
+
+<!--
+The or element contains two or more query expression terms.  An 'or' query
+expression will match with a particular profile if any of the terms of the 'or'
+element match with the profile.
+
+Used in: query, and, or, not
+-->
+<!ELEMENT or ((%term;), (%term;)+)>
+
+<!--
+The not element contains a query expression term.  A 'not' query expression
+will only match with a particular profile if the term of the 'or' element does
+not match with the profile.
+
+Used in: query, and, or, not
+-->
+<!ELEMENT not (%term;)>
+
+<!--
+The profile-hints element contains no text but defines a single-profile
+attribute.  This attribute, if set to "True", implies that a profile table
+created from this profile specification will only ever contain at most one
+profile.  The SLEE may be able to use this information to provide a better
+implementation of the profile specification.  The default value of this
+attribute is "False".
+
+Used in: profile-spec
+
+Example:
+    <profile-hints single-profile="True" />
+-->
+<!ELEMENT profile-hints EMPTY>
+
+<!--
+The security-permissions element allows additional permissions to be granted to
+classes included in the profile specification jar, over and above the default
+permissions granted by the SLEE.  It contains an optional description and a
+mandatory security permission specification.
+
+Used in: profile-spec-jar
+-->
+<!ELEMENT security-permissions (description?, security-permission-spec)>
+
+<!--
+The security-permission-spec element specifies security permissions based on
+the security policy file syntax. Refer to the following URL for definition of
+Sun's security policy file syntax:
+
+http://java.sun.com/j2se/1.4.2/docs/guide/security/PolicyFiles.html#FileSyntax
+
+Note: The codeBase argument of any grant entries in the security permission
+specification is ignored.  The SLEE assumes the code base to be profile
+specification component jar file.
+
+The security permissions specified here are granted to classes loaded from the
+profile specification jar file only.  They are not granted to classes loaded
+from any other dependent jar required by profile specification defined in the
+profile specification component jar's deployment descriptor, nor to any
+dependent library jars.
+
+Used in: security-permissions
+
+Example:
+<security-permission-spec>
+    grant {
+        permission java.lang.RuntimePermission "modifyThreadGroup";
+    };
+</security-permission-spec>
+-->
+<!ELEMENT security-permission-spec (#PCDATA)>
+
+<!--
+The ID mechanism is to allow tools that produce additional deployment
+information (ie. information beyond that contained by the standard SLEE
+deployment descriptors) to store the non-standard information in a separate
+file, and easily refer from those tools-specific files to the information in
+the standard deployment descriptor.  The SLEE architecture does not allow the
+tools to add the non-standard information into the SLEE-defined deployment
+descriptors. 
+-->
+<!ATTLIST profile-spec-jar id ID #IMPLIED>
+<!ATTLIST description id ID #IMPLIED>
+<!ATTLIST profile-spec 
+            profile-read-only (True|False) "True"
+            profile-events-enabled (True|False) "True"
+            id ID #IMPLIED>
+<!ATTLIST profile-spec-name id ID #IMPLIED>
+<!ATTLIST profile-spec-vendor id ID #IMPLIED>
+<!ATTLIST profile-spec-version id ID #IMPLIED>
+<!ATTLIST library-ref id ID #IMPLIED>
+<!ATTLIST library-name id ID #IMPLIED>
+<!ATTLIST library-vendor id ID #IMPLIED>
+<!ATTLIST library-version id ID #IMPLIED>
+<!ATTLIST profile-spec-ref id ID #IMPLIED>
+<!ATTLIST collator
+            strength (Primary|Secondary|Tertiary|Identical) #IMPLIED
+            decomposition (Full|Canonical|None) #IMPLIED
+            id ID #IMPLIED>
+<!ATTLIST collator-alias id ID #IMPLIED>
+<!ATTLIST locale-language id ID #IMPLIED>
+<!ATTLIST locale-country id ID #IMPLIED>
+<!ATTLIST locale-variant id ID #IMPLIED>
+<!ATTLIST profile-classes id ID #IMPLIED>
+<!ATTLIST profile-cmp-interface id ID #IMPLIED>
+<!ATTLIST profile-cmp-interface-name id ID #IMPLIED>
+<!ATTLIST cmp-field
+            unique (True|False) "False"
+            unique-collator-ref CDATA #IMPLIED
+            id ID #IMPLIED>
+<!ATTLIST cmp-field-name id ID #IMPLIED>
+<!ATTLIST index-hint
+            query-operator (equals|not-equals|less-than|less-than-or-equals|
+                greater-than|greater-than-or-equals|range-match|
+                longest-prefix-match|has-prefix) #REQUIRED
+            collator-ref CDATA #IMPLIED
+            id ID #IMPLIED>
+<!ATTLIST profile-local-interface
+            isolate-security-permissions (True|False) "False"
+            id ID #IMPLIED>
+<!ATTLIST profile-local-interface-name id ID #IMPLIED>
+<!ATTLIST profile-management-interface id ID #IMPLIED>
+<!ATTLIST profile-management-interface-name id ID #IMPLIED>
+<!ATTLIST profile-abstract-class
+            reentrant (True|False) "False"
+            id ID #IMPLIED>
+<!ATTLIST profile-abstract-class-name id ID #IMPLIED>
+<!ATTLIST profile-table-interface id ID #IMPLIED>
+<!ATTLIST profile-table-interface-name id ID #IMPLIED>
+<!ATTLIST profile-usage-parameters-interface id ID #IMPLIED>
+<!ATTLIST profile-usage-parameters-interface-name id ID #IMPLIED>
+<!ATTLIST usage-parameter
+            name CDATA #REQUIRED
+            notifications-enabled (True|False) "False"
+            id ID #IMPLIED>
+<!ATTLIST env-entry id ID #IMPLIED>
+<!ATTLIST env-entry-name id ID #IMPLIED>
+<!ATTLIST env-entry-type id ID #IMPLIED>
+<!ATTLIST env-entry-value id ID #IMPLIED>
+<!ATTLIST query
+            name CDATA #REQUIRED
+            id ID  #IMPLIED>
+<!ATTLIST query-parameter
+            name CDATA #REQUIRED
+            type CDATA #REQUIRED
+            id ID  #IMPLIED>
+<!ATTLIST query-options
+            read-only (True|False) #IMPLIED
+            max-matches CDATA #IMPLIED
+            id ID #IMPLIED>
+<!ATTLIST compare
+            attribute-name CDATA #REQUIRED
+            op (equals|not-equals|less-than|less-than-or-equals|
+                greater-than|greater-than-or-equals) #REQUIRED
+            value          CDATA #IMPLIED
+            parameter      CDATA #IMPLIED
+            collator-ref   CDATA #IMPLIED
+            id ID  #IMPLIED>
+<!ATTLIST range-match
+            attribute-name CDATA #REQUIRED
+            from-value     CDATA #IMPLIED
+            from-parameter CDATA #IMPLIED
+            to-value       CDATA #IMPLIED
+            to-parameter   CDATA #IMPLIED
+            collator-ref   CDATA #IMPLIED
+            id ID #IMPLIED>
+<!ATTLIST longest-prefix-match
+            attribute-name CDATA #REQUIRED
+            value          CDATA #IMPLIED
+            parameter      CDATA #IMPLIED
+            collator-ref   CDATA #IMPLIED
+            id ID  #IMPLIED>
+<!ATTLIST has-prefix
+            attribute-name CDATA #REQUIRED
+            value          CDATA #IMPLIED
+            parameter      CDATA #IMPLIED
+            collator-ref   CDATA #IMPLIED
+            id ID  #IMPLIED>
+<!ATTLIST and id ID  #IMPLIED>
+<!ATTLIST or id ID  #IMPLIED>
+<!ATTLIST not id ID  #IMPLIED>
+<!ATTLIST profile-hints
+            single-profile (True|False) "False"
+            id ID #IMPLIED>
+<!ATTLIST security-permissions id ID #IMPLIED>
+<!ATTLIST security-permission-spec id ID #IMPLIED>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xmlschema/alarmschema.xsd" author="bqui" authoremail="bqui@etb.bel.alcatel.be"
+	updatedon="&quot;Mon, Aug 27, 2001&quot;" updatedby="sevr">
+	<name>alarm:platform/config</name>
+	<docname>alarm_platform_config</docname>
+	<description>
+		<short>Configuration catalog.</short>
+		<long>Configuration catalog contains all the alarms related to incoherences in the
+			platform configuration.</long>
+	</description>
+	<events>
+		<event>
+			<Name>message_linked_chain</Name>
+			<Number>1</Number>
+			<Level>benign</Level>
+			<Problem>Message linked chain is not correct</Problem>
+			<Type>0</Type>
+			<Cause>Problem during service installation for messages</Cause>
+			<Effect>Possible effect on performance</Effect>
+			<Action>Re-install service messages for this service</Action>
+		</event>
+	</events>
+	<dependencies>
+		<dependency>
+			<Component>lib:platform/alarm</Component>
+		</dependency>
+	</dependencies>
+</component>
