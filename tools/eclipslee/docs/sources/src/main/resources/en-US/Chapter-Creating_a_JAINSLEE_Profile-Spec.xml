@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="creating_a_jainslee_profile-spec">
+	<title>Creating a JAIN SLEE Profile Specification</title>
+	<para>
+		To create a component it may be easier (but not mandatory) to first create a package to contain it. This package should be created as a child of the &lt;profile-spec-module&gt;/src/main/java folder. To do this right-click on the src folder and select <menuchoice><guimenu>New</guimenu><guisubmenu>Package</guisubmenu></menuchoice>. Give the new package a name using the popup dialog (shown below).
+		<figure>
+			<title>Creating a new Package in Eclipse</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_package.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new Package in Eclipse</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		In case a new package is not created at this point, it can still be created in the Component wizard, but no validation is performed at that time, regarding the package naming conventions.
+	</para>
+	<para>
+		To create a new JAIN SLEE Profile Specification, right-click on the created package (or the module entry if the package is not yet created) and choose <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> as shown below.
+		<figure>
+			<title>Creating a new JAIN SLEE Component in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_component.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new JAIN SLEE Component in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		A dialog should appear. Expand the <guilabel>JAIN SLEE</guilabel> item and choose <guilabel>JAIN SLEE Profile Specification</guilabel>. The dialog should now look like the following:
+		<figure>
+			<title>Creating a new JAIN SLEE Profile Specification in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_profile-spec.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new JAIN SLEE Profile Specification in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		Click <guibutton>Next</guibutton> to get the following dialog:
+		<figure>
+			<title>Selecting the package and name for a new JAIN SLEE Profile Specification in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_profile-spec_name.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Selecting the package and name for a new JAIN SLEE Profile Specification in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		The source folder and package dialogs will be completed if <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> has been selected from right-clicking on a package. Otherwise it may need to be chosen by selecting <guibutton>Browse...</guibutton> and selecting the desired locations or typing it's name in the appropriate field and it will be created in the end.
+	</para>
+	<para>
+		Name the Profile Specification; the name must end with "<filename>ProfileCMP.java</filename>". Then click <guibutton>Next</guibutton> to go to the component identity dialog, pictured below:
+		<figure>
+			<title>JAIN SLEE Profile Specification Identity dialog in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_profile-spec_identity.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Profile Specification Identity dialog in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		The Name, Vendor and Version fields are mandatory and are used by the SLEE to identify the profile specification. The description field is optional, but strongly recommended to be completed to allow easy identification of the profile specification in future.
+	</para>
+	<para>
+		After completing these fields click <guibutton>Next</guibutton> to modify the profile specification's CMP fields.
+	</para>
+	<para>
+		<figure>
+			<title>JAIN SLEE Profile Specification CMP Fields definition in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_profile-spec_cmp_fields.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Profile Specification CMP Fields definition in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+	<para>
+		To add a CMP field click on <guibutton>Add</guibutton>. This will add a blank row to the table. To edit the name of the field click on the row in the <guilabel>Name</guilabel> column, enter the name and press enter. The type can be edited in the same way. The <guilabel>visible</guilabel> field controls visibility to management clients. The <guilabel>indexed</guilabel> field specifies whether or not the CMP field is an indexed attribute. A <option>yes</option> value in the unique field indicates that the value stored in this field must be unique across all profiles of that profile specification. Please read the JAIN SLEE specification for further details on these parameters.
+	</para>
+	<para>
+		If the profile specification requires a custom abstract management class enable <guilabel>Create abstract management class</guilabel>.
+	</para>
+	<para>
+		Click <guibutton>Finish</guibutton> to create the profile specification.
+	</para>
+	<para>
+		The profile CMP Java file, <filename>MobicentsDemoProfileCMP.java</filename> is created in the specified package and opened for editing in the workspace. Management interface and abstract management class (if selected) are also created in the selected package. The <filename>profile-spec-jar.xml</filename> deployment descriptor is updated to reflect the new profile specification or created if not already present. The resulting workspace can be seen below.
+		<figure>
+			<title>JAIN SLEE Profile Specification created in workspace using EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_profile-spec_workspace.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Profile Specification created in workspace using EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+</chapter>
+

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="creating_and_managing_a_project">
+	<title>Creating and Managing a JAIN SLEE Project</title>
+	<section id="creating_a_project">
+		<title>Creating a JAIN SLEE Project</title>
+		<para>
+			It is necessary to create a JAIN SLEE project before JAIN SLEE components may be created.
+			This can be done from the workbench by selecting <menuchoice><guimenu>File</guimenu><guisubmenu>New</guisubmenu><guisubmenu>Project...</guisubmenu></menuchoice> as illustrated in the following figure.
+			<figure>
+				<title>Selecting "New Project..." in Eclipse</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_file_new_project.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Selecting "New Project..." in Eclipse</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+		<para>
+			This will create a <guilabel>New Project</guilabel> dialog as shown below. From this dialog expand <guilabel>JAIN SLEE</guilabel>, then select the revealed <guilabel>JAIN SLEE Project</guilabel>. Click <guibutton>Next</guibutton> to proceed to chosing a name and location for the new project.
+			<figure>
+				<title>Choosing a JAIN SLEE Project</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_jainslee_project.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Choosing a JAIN SLEE Project</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+		<para>
+			Give the project a name and if desired specify a non-default location. For the majority of people the default location will be fine; this is the current workspace. The following image shows a project with the name of 'MobicentsDemoProject' in the default location. Click <guibutton>Next</guibutton> to proceed to module selection or <guibutton>Finish</guibutton> to go with default (SBBs and Deployable Unit).
+			<figure>
+				<title>Choosing Name and Location of the JAIN SLEE Project</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_name_project.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Choosing Name and Location of the JAIN SLEE Project</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+		<para>
+			Choose the desired project modules to be created, from the list, as shown below. The correct Maven 2 modules will be created according to the selection, as well as the Deployable Unit descriptor.
+			<warning>
+				<title>Service Module</title>
+				<para>Do not select the "Service" Module as there's currently a problem with it and it will be automatically created even when unselected.</para>
+			</warning>
+			<figure>
+				<title>Choosing Name and Location of the JAIN SLEE Project</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_select_modules.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Choosing Name and Location of the JAIN SLEE Project</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			Click on <guibutton>Finish</guibutton> and the project with all the modules will be created in the selected location.
+		</para>
+		<para>
+			The following image depicts a workspace with a newly created JAIN SLEE project with the project folder, "MobicentsDemoProject", expanded.
+			<figure>
+				<title>Newly created project in workspace</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_project_workspace.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Newly created project in workspace</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+	</section>
+
+	<section id="managing_project_modules">
+		<title>Managing Project Modules</title>
+		<para>
+			It is possible to manage (ie, add and remove) modules once the project is created.
+		</para>
+		<section id="adding_new_modules">
+			<title>Adding New Modules</title>
+			<para>
+				Adding a new module can be done from the workbench by right-clicking the Project element and selecting <menuchoice><guimenu>Add Module</guimenu><guisubmenu>&lt;desired module type&gt;</guisubmenu></menuchoice> as illustrated in the following figure, for a Resource Adaptor Type.
+				<figure>
+					<title>Selecting "Add Module" in EclipSLEE</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-eclipslee_add_module.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Selecting "Add Module" in EclipSLEE</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+			</para>
+			<para>
+				This will create a <guilabel>New Module</guilabel> dialog as shown below. From this dialog it's possible to name the new module and select from which other existing modules this one will depend on (<guilabel>Dependency</guilabel>) and which ones will depend on the new one (<guilabel>Dependant</guilabel>).
+				<important>
+					<title>Deployable Unit as Dependant</title>
+					<para>The deployable unit (du) module must always be selected as dependant if the new module should be included in the maven generated Deployable Unit.</para>
+				</important>
+				<important>
+					<title>Module Name Suffix</title>
+					<para>The module name will always be suffixed with "-&lt;component_type&gt;" (eg: Using Name "custom" in example will result in "custom-ratype" module) so, avoid including it in the name.</para>
+				</important>
+				<figure>
+					<title>Choosing a JAIN SLEE Project</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-eclipslee_module_name_and_deps.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Choosing a JAIN SLEE Project</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+				Click on <guibutton>Finish</guibutton> and the new module will be created and dependencies in other modules will be updated to include it.
+			</para>
+		</section>
+
+		<section id="removing_existing_modules">
+			<title>Removing Existing Modules</title>
+			<para>
+				Removing an existing module can be done from the workbench by right-clicking the Project element and selecting <menuchoice><guimenu>Delete Module</guimenu><guisubmenu>&lt;desired module&gt;</guisubmenu></menuchoice> as illustrated in the following figure, for a Resource Adaptor Type.
+				<figure>
+					<title>Selecting "Delete Module" in EclipSLEE</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-eclipslee_delete_module.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Selecting "Delete Module" in EclipSLEE</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+			</para>
+			<para>
+				This will present a confirmation dialog to confirm the deletion of the module.
+				<important>
+					<title>Impossible to undo this operation!</title>
+					<para>Deleting a module is an irreversible operation, so it should be used carefully.</para>
+				</important>
+				<figure>
+					<title>Module deletion confirmation Dialog</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-eclipslee_delete_module_confirmation.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Module deletion confirmation Dialog</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+				Click on <guibutton>Yes</guibutton> to delete the module and update references in other modules. Clicking <guibutton>No</guibutton> cancels the operation without performing any action.
+			</para>
+		</section>
+	</section>
+	
+	<section id="managing_project_dependencies">
+		<title>Managing Project Dependencies</title>
+		<para>
+			Maven dependencies for each module can be added or removed using EclipSLEE, with no need to use third-party maven plugins.
+		</para>
+		<section id="adding_new_maven_dependency">
+			<title>Adding a New Maven Dependency</title>
+			<para>
+				Adding a new maven dependency can be done from the workbench by right-clicking the desired module pom file and selecting <guibutton>Add Maven Dependency</guibutton> as illustrated in the following figure.
+				<figure>
+					<title>Selecting "Add Maven Dependency" in EclipSLEE</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="300px" align="center" fileref="images/img-eclipslee_add_maven_dependency.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Selecting "Add Maven Dependency" in EclipSLEE</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+			</para>
+			<para>
+				This will create a <guilabel>New Maven Dependency</guilabel> dialog as shown below. From this dialog it's possible to define the dependency Group ID, Artifact ID and Version, as well as the scope with which the dependency should be added (defaulting to "compile"). The <guilabel>Add to classpath?</guilabel> option adds the new maven dependency to the project classpath, considering "M2_REPO" variable is set.
+				<important>
+					<title>Defining M2_REPO variable in Eclipse</title>
+					<para>...</para>
+				</important>
+				<figure>
+					<title>Defining a new Maven dependency in EclipSLEE</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-eclipslee_define_maven_dependency.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Defining a new Maven dependency in EclipSLEE</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+				Click on <guibutton>Finish</guibutton> and the new dependency will be added to the module's pom file and, if selected, the classpath updated with the new entry.
+			</para>
+		</section>
+
+		<section id="removing_maven_dependency">
+			<title>Removing a Maven Dependency</title>
+			<para>
+				Removing a Maven dependency can be done from the workbench by right-clicking the desired module pom file and selecting <menuchoice><guimenu>Remove Maven Dependency...</guimenu><guisubmenu>&lt;desired dependency&gt;</guisubmenu></menuchoice> as illustrated in the following figure.
+				<figure>
+					<title>Selecting "Remove Maven Dependency..." in EclipSLEE</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-eclipslee_remove_maven_dependency.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Selecting "Remove Maven Dependency..." in EclipSLEE</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+			</para>
+			<para>
+				This will present a confirmation dialog to confirm the removal of the maven dependency.
+				<figure>
+					<title>Maven Dependency removal confirmation Dialog</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-eclipslee_remove_maven_dependency_confirmation.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Maven Dependency removal confirmation Dialog</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+				Click on <guibutton>Yes</guibutton> to remove the maven dependency from the module and, if needed, update the classpath. Clicking <guibutton>No</guibutton> cancels the operation without performing any action.
+			</para>
+		</section>
+	</section>
+</chapter>
+

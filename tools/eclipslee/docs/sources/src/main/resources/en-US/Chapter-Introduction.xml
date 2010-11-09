@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="introduction">
+  <title>Introduction to &THIS.PLATFORM; JAIN SLEE Eclipse</title>
+	<para>The JAIN SLEE Eclipse Plug-in, <application>EclipSLEE</application>, is designed to help in the creation of the following JAIN SLEE components:</para>
+		<itemizedlist>
+			<listitem>
+				<para>Profile Specifications</para>
+			</listitem>
+			<listitem>
+				<para>Events</para>
+			</listitem>
+			<listitem>
+				<para>Service Building Blocks (SBBs)</para>
+			</listitem>
+			<listitem>
+				<para>Service XML Descriptors</para>
+			</listitem>
+			<listitem>
+				<para>Deployable Units</para>
+			</listitem>
+		</itemizedlist>
+	<para>
+		With this plug-in developers can construct complete services easily and quickly.
+		The plug-in takes care of generating the correct Maven 2 project structure, ensuring that XML descriptors are correct, as well as creating skeleton Java classes for developers to add service logic to.
+	</para>
+</chapter>

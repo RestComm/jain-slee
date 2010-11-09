@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="creating_a_jainslee_event">
+	<title>Creating a JAIN SLEE Event</title>
+	<para>
+		To create a component it may be easier (but not mandatory) to first create a package to contain it. This package should be created as a child of the &lt;event-module&gt;/src/main/java folder. To do this right-click on the src folder and select <menuchoice><guimenu>New</guimenu><guisubmenu>Package</guisubmenu></menuchoice>. Give the new package a name using the popup dialog (shown below).
+		<figure>
+			<title>Creating a new Package in Eclipse</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_package.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new Package in Eclipse</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		In case a new package is not created at this point, it can still be created in the Component wizard, but no validation is performed at that time, regarding the package naming conventions.
+	</para>
+	<para>
+		To create a new JAIN SLEE Event, right-click on the created package (or the module entry if the package is not yet created) and choose <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> as shown below.
+		<figure>
+			<title>Creating a new JAIN SLEE Component in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_component.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new JAIN SLEE Component in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		A dialog should appear. Expand the <guilabel>JAIN SLEE</guilabel> item and choose <guilabel>JAIN SLEE Event</guilabel>. The dialog should now look like the following:
+		<figure>
+			<title>Creating a new JAIN SLEE Event in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_event.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new JAIN SLEE Event in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		Click <guibutton>Next</guibutton> to get the following dialog:
+		<figure>
+			<title>Selecting the package and name for a new JAIN SLEE Event in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_event_name.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Selecting the package and name for a new JAIN SLEE Event in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		The source folder and package dialogs will be completed if <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> has been selected from right-clicking on a package. Otherwise it may need to be chosen by selecting <guibutton>Browse...</guibutton> and selecting the desired locations or typing it's name in the appropriate field and it will be created in the end.
+	</para>
+	<para>
+		Name the event; the name must end with "<filename>Event.java</filename>". Then click <guibutton>Next</guibutton> to go to the component identity dialog, pictured below:
+		<figure>
+			<title>JAIN SLEE Component Identity dialog in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_event_identity.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Component Identity dialog in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		The Name, Vendor and Version fields are mandatory and are used by the SLEE to identify the event. The description field is optional, but strongly recommended to be completed to allow easy identification of the event in future.
+	</para>
+	<para>
+		After completing these fields click <guibutton>Finish</guibutton> to create the event.
+	</para>
+	<para>
+		The event Java file, <filename>TestEvent.java</filename> is created in the specified package and opened for editing in the workspace. The <filename>event-jar.xml</filename> deployment descriptor is updated to reflect the new event or created if not already present. The resulting workspace can be seen below.
+		<figure>
+			<title>JAIN SLEE Event created in workspace using EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_event_workspace.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Event created in workspace using EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+</chapter>
+

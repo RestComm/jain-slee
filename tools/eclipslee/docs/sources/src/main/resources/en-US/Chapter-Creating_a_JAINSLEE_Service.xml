@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="creating_a_jainslee_service">
+	<title>Creating a JAIN SLEE Service</title>
+		<para>
+			The JAIN SLEE Service does not have a Maven module, instead it's part of the Deployable Unit module resources.
+		</para>
+		<para>To create a new JAIN SLEE Service, expand completely the du module folders, right-click on the resources folder and select <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> as shown below.
+		<figure>
+			<title>Creating a new JAIN SLEE Service in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_component_service.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new JAIN SLEE Service in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		A dialog should appear. Expand the <guilabel>JAIN SLEE</guilabel> item and choose <guilabel>JAIN SLEE Service</guilabel>. The dialog should now look like the following:
+		<figure>
+			<title>Creating a new JAIN SLEE Service in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_service.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new JAIN SLEE Service in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		Click <guibutton>Next</guibutton> to get the following dialog:
+		<figure>
+			<title>Selecting the package and name for a new JAIN SLEE Service in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_service_name.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Selecting the package and name for a new JAIN SLEE Service in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		The source folder dialog will be completed if <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> has been selected from right-clicking on the deployable unit module resources folder. Otherwise it may need to be chosen by selecting <guibutton>Browse...</guibutton> and selecting the desired location.
+	</para>
+	<para>
+		Name the service; the name must end with "<filename>service.xml</filename>", then click <guibutton>Next</guibutton> to specify the service's SLEE identity.
+		<figure>
+			<title>JAIN SLEE Service Identity dialog in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_service_identity.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Service Identity dialog in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		The Name, Vendor and Version fields are mandatory and are used by the SLEE to identify the event. The description field is optional, but strongly recommended to be completed to allow easy identification of the service in future.
+	</para>
+	<para>
+		After completing these fields click <guibutton>Next</guibutton> to select a root SBB.
+	</para>
+	<para>
+		<figure>
+			<title>JAIN SLEE Service Root SBB selection using EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_service_root_sbb.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Service Root SBB selection using EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		All available root SBBs are listed in the table. Select the one that should be used for this service.
+	</para>
+	<important>
+		<title>My SBB is not listed.. why?</title>
+		<para>Check the following if your SBB is not listed:
+			<itemizedlist>
+				<listitem>
+					<para>Does the SBB have at least one initial event? That is, an event with direction <option>Receive</option> or <option>FireAndReceive</option>, marked as <option>initial-event</option> and has at least one initial event selector.</para>
+				</listitem>
+				<listitem>
+					<para>Is the SBB shown in the project source list? If not, please cancel the Service wizard, refresh the project so it shows up and try again.</para>
+				</listitem>
+			</itemizedlist>
+		</para>
+	</important>
+	<para>
+		Specify the default event priority, and if available for your root SBB, enable or disable <option>Specify service address profile table</option> as required.
+	</para>
+	<para>
+		Click <guibutton>Finish</guibutton> to create the service.
+	</para>
+	<para>
+		The service descriptor is created in the specified folder and opened for editing in the workspace. The resulting workspace can be seen below.
+		<figure>
+			<title>JAIN SLEE Service created in workspace using EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_service_workspace.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Service created in workspace using EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+</chapter>
+

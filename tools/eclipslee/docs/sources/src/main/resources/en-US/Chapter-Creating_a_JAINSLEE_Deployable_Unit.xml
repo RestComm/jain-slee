@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="creating_a_jainslee_du">
+	<title>Creating a JAIN SLEE Deployable Unit</title>
+	<para>In order to create a Deployable Unit, the Mobicents Deployable Unit Plugin for Maven is to be used. Unfortunately the EclipSLEE plugin is not yet integrated with third-party Maven tools, and so this must be made manually.</para>
+	<important>
+		<title>Requirements</title>
+		<para>For this to work, Maven must be installed and JBOSS_HOME env var set to point to where Mobicents' JBoss AS is installed. See <xref linkend="jboss_home_setup" /> on how to do this.</para>
+	</important>
+	<para>In a terminal window, head to the project folder and run the following command: <command>mvn clean install</command>.</para>
+	<para>
+		The output should be similar to the following:
+<screen>
+...
+[INFO] Executing tasks
+     [copy] Copying 1 file to /Users/ammendonca/work/jboss/server/default/deploy
+...
+[INFO] ----------------------------------------------------------
+[INFO] BUILD SUCCESSFUL
+[INFO] ----------------------------------------------------------
+...
+</screen>
+	</para>
+	<para>At this time, the deployable unit descriptor and the JAR file have been created successfully and deployed to JBoss.</para>
+</chapter>
+
