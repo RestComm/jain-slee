@@ -4,11 +4,12 @@
 	<property environment="sys"/>
 	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp5,jcc,map,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
 	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot,sip-b2bua,call-controller2,mgcp-demo,converged-demo"/>
-	<property name="enablers.dirs" value="xdm-client"/>
+	<property name="enabler.dirs" value="xdm-client"/>
+	<property name="tool.dirs" value="jopr-plugin,eclipslee,remote-slee-connection,twiddle"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
-	<property name="release.version" value="2.2.1.FINAL-SNAPSHOT"/>
+	<property name="release.version" value="2.2.1.FINAL"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
 	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
@@ -62,43 +63,22 @@
 		</copy>
 	</target>
 
-	<target name="build-mmc" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin">
-			<arg line="install -P maven-release,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
-		</exec>
+	<target name="build-tools">
+			<for delimiter="," param="dir.name" list="${tool.dirs}">
+				<sequential>
+					<echo>Packaging TOOL for release from DIR[${ant.file.mobicents.release}/../checkout/tools/@{dir.name}]</echo>
+					<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/@{dir.name}">
+						<arg line="install -P maven-release,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+					</exec>
+				</sequential>
+			</for>
+			<delete dir="${release.dir}/tmp"/>
+			<copy failonerror="true" toDir="${release.dir}/tools" overwrite="true">
+				<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools"/>
+			</copy>
 
-		<delete dir="${release.dir}/tmp"/>
-		<copy failonerror="true" toDir="${release.dir}/tools/management-console" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/management-console"/>
-		</copy>
-
-		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/management-console"/>
-
-	</target>
-
-	<target name="build-remote-slee-connection" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/remote-slee-connection">
-			<arg line="install -P release,set-svn-revision -Drelease.name=target" />
-		</exec>
-
-		<copy failonerror="true" toDir="${release.dir}/tools/remote-slee-connection" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/remote-slee-connection" />
-		</copy>
-
-		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/remote-slee-connection" />
-
-	</target>
-
-	<target name="build-cli" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/twiddle">
-			<arg line="install -P release,set-svn-revision -Drelease.name=target" />
-		</exec>
-		<delete dir="${release.dir}/tmp" />
-		<copy failonerror="true" toDir="${release.dir}/tools/twiddle" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/twiddle" />
-		</copy>
-		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/twiddle" />
-	</target>
+			<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools"/>
+		</target>
 
 	<target name="build-sip-balancer" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer">
@@ -167,7 +147,7 @@
 	</target>
 
 	<target name="build-enablers" description="">
-		<for delimiter="," param="dir.name" list="${enablers.dirs}">
+		<for delimiter="," param="dir.name" list="${enabler.dirs}">
 			<sequential>
 				<echo>Packaging Enabler for release from DIR[${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}]</echo>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}">
@@ -195,7 +175,7 @@
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,get-eclipslee,checkout-sources,build-core,build-mmc,build-sccp,build-remote-slee-connection,build-cli,build-sip-balancer,build-ras,build-enablers,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-sccp,build-tools,get-eclipslee,build-sip-balancer,build-ras,build-enablers,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
 
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		<tstamp>

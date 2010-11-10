@@ -13,6 +13,7 @@ Directory Structure
 
  +--- jboss-5.X.Y.GA				(JBoss AS with the JAIN SLEE 2.x container deployed)
  +--- resources						(JAIN SLEE Resource Adaptors and related scripts)
+ +--- enablers						(JAIN SLEE Application Enablers)
  +--- examples						(JAIN SLEE Application Examples)
  +--- tools/media-server  			(Mobicents Media Server Standalone, required by some examples)
  +--- tools/management-console		(JOPR Management Console)

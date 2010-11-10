@@ -1,52 +1,42 @@
-The Mobicents team is proud to announce the release of
-Mobicents JAIN-SLEE 2.2.0.FINAL, the third major release of the 
-second generation Mobicents JAIN-SLEE AS.
+Say hello to Mobicents JAIN-SLEE 2.2.1.FINAL, a minor but very important 
+update to 2.2.0.FINAL release of the popular open source JAIN SLEE platform.
 
 Release Notes:
 
-Major enhancements were done in the JAIN SLEE Core:
+A couple of fixes were introduced in the JAIN SLEE Core, with respect to a 
+minor memory leak in SBB Entity locks, and a classloading issue which resulted 
+in Profile Specification Classes not visible to RAs.
 
-- Cluster performance optimization, 8x compared with 2.1.2.FINAL
-- Support for "Buddy Groups" clusters
-- Tracers performance optimization
-- Enhanced RA's SleeEndpoint with custom operations to help/optimize
-work in cluster mode
-- EJB support for SBBs, as defined by JAIN SLEE 1.1 standard
-- CMP Field Accessor Methods performance optimization
-- SbbContext/ProfileContext JAIN SLEE 1.1 Extension
-- ActivityContextInterface JAIN SLEE 1.1 Extension
-- Library XML Descriptor References JAIN SLEE 1.1 Extension
+Out of curiosity, the fix for the memory leak introduced another 
+performance jump, 2.2.1.FINAL is about 5 to 10% faster than last release.
+
+We also added a new JMX Text Editor for javax.slee.Address class, which 
+allows the usage of JMX Console to set MBean attributes of such type, 
+for instance in standard JAIN SLEE Address Profiles MBeans.
+
+This release includes an the last update to Diameter RAs and stack, recently 
+released with 1.3.2.FINAL standalone version.
+
+The XCAP Client RA API was also object of more tweaking, now provides 
+a unique Event Type for responses of each XCAP Request type and more 
+information exposed in the event object, such as the original request URI, 
+important to correlate asynchronous responses with requests. 
+
+Updated with a couple of fixes, the SMPP v5 RA continues to quickly evolve, 
+on its way to reach production quality, with the release of the second BETA.
+
+The Twiddle Command Line Interface was also updated, now with BETA2 release, 
+and also more readable documentation, as requested by the community.
  
-Several bug fixes, some of critical importance, are also included in 
-the JAIN SLEE core.
+Also, in last release we introduced the first technology preview of the new 
+EclipSLEE plugin, now we release its first BETA, which includes complete 
+documentation.
 
-One of the most important Resource Adaptors in the platform, the JAIN 
-SIP RA, was also deeply enhanced, specially on clustering and dialog 
-forking. The XCAP Client RA API was also object of an intense analysis, 
-and it is now completely independent of Apache HTTP Client.
-
-Now a few surprises, the demand for these is quite strong in the 
-community, and we are proud to finally release our Command Line 
-Interface, based on Twiddle, the new SMPP v5 Resource Adaptor, and the 
-first preview of the new Eclipse SLEE plugin.
-
-The Twiddle Command Line Interface is a new management tools which allows
-interaction with the server through shell scripts or quick commands.
- 
-The SMPP v5 Resource Adaptor is 100% new code, which supports the latest 
-SMPP specs version. The RA is also cluster aware, supporting high 
-availability and fault tolerance. 
- 
-The new EclipSLEE plugin takes a radical new direction, we believe that 
-such plugin, to be useful, must also be used by the Mobicents developers team. 
-The plugin now sets up and manages maven projects similar to the Mobicents RAs 
-and Examples, and on top of that it exposes forms to make it easier to add 
-or remove components/modules. This is just the beginning, a technology preview, 
-providing the foundations for a very high level development tool.
-
-Last but not least, this release also provides the second iteration over 
-SS7 technologies, with updated JCC and MAP Resource Adaptors, and for the 
-first we provide support for SCCP.
+Finally, there is no release without a new feature, we are happy to 
+introduce the XDM Client Enabler, which allows easy interaction with an XDM 
+Server, local or not. Enablers are SBBs which can be reused by 3rd party services, 
+through JAIN SLEE SBB Child Relations, and we plan to introduce more in next 
+releases, such as a SIP Presence Client, and a HSS Client.
 
 About Mobicents JAIN SLEE:
  
@@ -81,17 +71,17 @@ Twiddle CLI, for quick management of the application server. A SNMP
 adaptor is also available in the underlying JBoss AS.
 
 The full list of development issues with respect to this release can be found at
-http://code.google.com/p/mobicents/issues/list?can=1&q=component=JainSLEE%20version=2.2.0%20status=Fixed
+http://code.google.com/p/mobicents/issues/list?can=1&q=SLEE-+slee%3D2.2.1.FINAL
 
 What is included in this release:
 -------------------------------------------------------------------------------
 * JBoss AS 5.1.0.GA with Core compliant with JAIN SLEE 1.1 installed (in /jboss-5.1.0.GA)
 * Mobicents Jopr Web Management Console (in /tools/management-console)
 * Mobicents Media Server 2.0.0.GA (in /tools/media-server)
-* Mobicents Diameter 1.3.1.FINAL (in /tools/mobicents-diameter)
+* Mobicents Diameter 1.3.2.FINAL (in /tools/mobicents-diameter)
 * Mobicents SIP Load Balancer 1.0.4.FINAL (in /tools/sip-balancer)
 * Mobicents SLEE Remote Connection Tool 2.2.0.FINAL (in /tools/remote-slee-connection)
-* Mobicents EclipSLEE Plugin Preview (in /tools/eclipslee)
+* Mobicents EclipSLEE Plugin 2.0.0.BETA1 (in /tools/eclipslee)
 * Mobicents SCCP Provider 1.0.0.BETA3 (in /tools/sccp)
 * Resource adaptors: Diameter Base, Diameter CCA, Diameter
 Cx/Dx,Diameter Rf, Diameter Ro, Diameter Sh Client, Diameter Sh
@@ -100,30 +90,32 @@ Server, HTTP Servlet, HTTP Client, JCC, MAP, MGCP, SIP complaint with JAIN SLEE
 XMPP (in /resources)
 * Educational examples: Call Controller 2, Converged Demo, Google Talk Bot, MGCP Demo,
 SIP B2BUA, SIP Services, SIP Wake Up (in /examples)
+* Enablers: XDM Client (in /enablers)
 * Sources zip for debug purposes
 
 SVN sources and tag:
 -------------------------------------------------------------------------------
-http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/2.2.0.FINAL
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/2.2.1.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/jopr-plugin/2.2.0.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/remote-slee-connection/2.2.0.FINAL
-http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/twiddle/2.2.0.FINAL
-http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-base/2.2.0.FINAL
-http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/2.2.0.FINAL
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/twiddle/2.2.1.FINAL
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-base/2.2.1.FINAL
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/2.2.1.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cx-dx/2.2.0.FINAL
-http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-rf/2.2.0.FINAL
-http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-ro/2.2.0.FINAL
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-rf/2.2.1.FINAL
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-ro/2.2.1.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-client/2.2.0.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-server/2.2.0.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-client/2.2.0.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-servlet/2.2.0.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jcc/2.2.0.FINAL
-http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/map/1.0.0.BETA3 (note that in previous release this RA tag was 2.1.2.FINAL but was an error)
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/map/1.0.0.BETA3
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mgcp/2.2.0.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/2.2.0.FINAL
-http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp5/1.0.0.BETA1
-http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xcap-client/2.2.1.FINAL
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp5/1.0.0.BETA2
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xcap-client/2.2.2.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xmpp/2.2.0.FINAL
+http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/xdm-client/1.0.0.BETA1
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/call-controller2/2.2.0.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/google-talk-bot/2.2.0.FINAL
 http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/mgcp-demo/2.2.0.FINAL
@@ -141,7 +133,7 @@ The source code license is GPL.
 Download URL:
 -------------------------------------------------------------------------------
 
-http://downloads.sourceforge.net/project/mobicents/Mobicents%20JAIN%20SLEE%20Server/2.2.0.FINAL/mobicents-jainslee-2.2.0.FINAL-jboss-5.1.0.GA.zip
+http://downloads.sourceforge.net/project/mobicents/Mobicents%20JAIN%20SLEE%20Server/2.2.1.FINAL/mobicents-jainslee-2.2.1.FINAL-jboss-5.1.0.GA.zip
 
 Note that Mobicents JAIN SLEE 2.x requires JDK6.
 
