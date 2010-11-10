@@ -15,7 +15,6 @@ public class ProjectModulesPage extends WizardPage {
     setDescription("Please select the desired JAIN SLEE modules for your project");
   }
 
-  @Override
   public void createControl(Composite parent) {
     ProjectModulesPanel panel = new ProjectModulesPanel(parent, SWT.NONE);
     setControl(panel);
