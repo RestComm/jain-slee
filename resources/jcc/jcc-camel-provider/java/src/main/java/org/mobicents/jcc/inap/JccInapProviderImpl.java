@@ -115,6 +115,7 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
         SccpAddressDesc desc = new SccpAddressDesc();
         SccpAddress address = desc.load(properties);
         
+        logger.info("Local SCCP address: " + address);
         try {
             this.tcapStack = new TCAPStackImpl(sccpProvider, address);
             this.tcapProvider = this.tcapStack.getProvider();

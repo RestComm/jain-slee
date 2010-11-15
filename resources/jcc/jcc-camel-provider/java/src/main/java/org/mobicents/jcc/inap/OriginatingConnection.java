@@ -292,7 +292,11 @@ public class OriginatingConnection extends AbstractConnection {
 
         TCContinueRequest continueRequest = this.tcapProvider.getDialogPrimitiveFactory().createContinue(this.tcapDialog);
         
-        	this.tcapDialog.send(continueRequest);
+        //add this, so dialog can create APDU with answer
+        continueRequest.setApplicationContextName(super.tcapDialog.getApplicationContextName());
+        continueRequest.setUserInformation(super.tcapDialog.getUserInformation());
+        
+        this.tcapDialog.send(continueRequest);
 
         //switch called and calling party addresses
        // SccpAddress calledPartyAddress = connectionID.getCallingPartyAddress();

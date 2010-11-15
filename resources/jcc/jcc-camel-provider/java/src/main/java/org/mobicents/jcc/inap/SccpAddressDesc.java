@@ -55,11 +55,10 @@ public class SccpAddressDesc {
         
         int tt = -1;
         if (p.getProperty("sccp.tt") != null) {
-            ssn = Integer.parseInt(p.getProperty("sccp.tt"));
+            tt = Integer.parseInt(p.getProperty("sccp.tt"));
         }
         
         String digits = p.getProperty("sccp.gt");
-        
         if (noa != null && np != null & tt != -1) {
             GlobalTitle gt = GlobalTitle.getInstance(tt, np, noa, digits);
             return new SccpAddress(gt, ssn);
@@ -68,6 +67,7 @@ public class SccpAddressDesc {
             return new SccpAddress(gt, ssn);
         } else if (noa == null && np != null & tt != -1) {
             GlobalTitle gt = GlobalTitle.getInstance(tt, np, digits);
+            return new SccpAddress(gt, ssn);
         }
         return null;
     }
