@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>jsr309-parent</artifactId>
+        <groupId>org.mobicents.examples</groupId>
+        <version>2.1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>jsr309-sbb</artifactId>
+    <name>Mobicents :: Examples :: ${pom.artifactId}</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.mobicents.resources</groupId>
+            <artifactId>sip11-ratype</artifactId>
+            <version>${mobicents.resources.sip11.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.resources.mscontrol</groupId>
+            <artifactId>mscontrol-ratype</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.resources.mscontrol</groupId>
+            <artifactId>mscontrol-ra</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.slee</groupId>
+            <artifactId>jain-slee</artifactId>
+            <version>1.1</version>
+        </dependency>
+    </dependencies>
+</project>
