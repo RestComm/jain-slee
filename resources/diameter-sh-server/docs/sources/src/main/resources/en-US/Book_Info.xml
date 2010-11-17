@@ -13,19 +13,7 @@
 		<para>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor (<acronym>RA</acronym>) is the JAIN SLEE 1.1 RA for the server-side of <acronym>IMS</acronym> Sh Interface, the reference for interactions between the Home Subscriber Server (<acronym>HSS</acronym>) and the <acronym>SIP</acronym> Application Server (<acronym>AS</acronym>) and between the <acronym>HSS</acronym> and the <acronym>OSA</acronym> Service Capability Server (<acronym>SCS</acronym>), in the <acronym>IMS</acronym>. It is described in <ulink url="http://www.3gpp.org/ftp/Specs/html-info/29328.htm">TS29.328</ulink> and <ulink url="http://www.3gpp.org/ftp/Specs/html-info/29329.htm">TS29.329</ulink> by <acronym>3GPP</acronym>.</para>
 		<para>This RA implements the Resource Adaptor Type defined by Mobicents development teams.</para>		
 	</abstract>
-	
-	<corpauthor>
-		<inlinemediaobject>
-			<imageobject>
-				<imagedata
-					format="SVG"
-					fileref="images/icon.svg" />
-			</imageobject>
-			<textobject>
-				<phrase>Logo</phrase>
-			</textobject>
-		</inlinemediaobject>
-	</corpauthor>
+
 	<copyright>
 		<year>&YEAR;</year>
 		<holder>Red Hat, Inc.</holder>

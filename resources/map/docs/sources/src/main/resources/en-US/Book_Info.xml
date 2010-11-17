@@ -13,19 +13,7 @@
 		<para>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor (<acronym>RA</acronym>) is the JAIN SLEE 1.1 RA for the MAP Protocol, used in &THIS.PLATFORM; JAIN SLEE platform.</para>
 			
 	</abstract>
-	
-	<corpauthor>
-		<inlinemediaobject>
-			<imageobject>
-				<imagedata
-					format="SVG"
-					fileref="images/icon.svg" />
-			</imageobject>
-			<textobject>
-				<phrase>Logo</phrase>
-			</textobject>
-		</inlinemediaobject>
-	</corpauthor>
+
 	<copyright>
 		<year>&YEAR;</year>
 		<holder>Red Hat, Inc.</holder>

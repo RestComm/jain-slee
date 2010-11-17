@@ -12,19 +12,7 @@
 	<abstract>
 		<para>TODO</para>		
 	</abstract>
-	
-	<corpauthor>
-		<inlinemediaobject>
-			<imageobject>
-				<imagedata
-					format="SVG"
-					fileref="images/icon.svg" />
-			</imageobject>
-			<textobject>
-				<phrase>Logo</phrase>
-			</textobject>
-		</inlinemediaobject>
-	</corpauthor>
+
 	<copyright>
 		<year>&YEAR;</year>
 		<holder>Red Hat, Inc.</holder>

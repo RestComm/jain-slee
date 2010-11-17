@@ -39,19 +39,7 @@
 		With this plug-in developers can construct complete services easily and quickly. The plug-in takes care of ensuring that XML descriptors are correct, as well as creating skeleton Java classes for developers to add service logic to.
 		</para>
 	</abstract>
-	
-	<corpauthor>
-		<inlinemediaobject>
-			<imageobject>
-				<imagedata
-					format="SVG"
-					fileref="images/icon.svg" />
-			</imageobject>
-			<textobject>
-				<phrase>Logo</phrase>
-			</textobject>
-		</inlinemediaobject>
-	</corpauthor>
+
 	<copyright>
 		<year>&YEAR;</year>
 		<holder>Red Hat, Inc.</holder>
