@@ -1,0 +1,180 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright XXXX, Red Hat Middleware LLC, and individual contributors as indicated
+ * by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ * This program is distributed in the hope that it will be useful, but WITHOUT A
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
+
+package org.mobicents.slee.resource.mediacontrol.local;
+
+import java.io.Serializable;
+import java.net.URI;
+import java.util.Iterator;
+import javax.media.mscontrol.MediaConfig;
+import javax.media.mscontrol.MediaEventListener;
+import javax.media.mscontrol.MediaObject;
+import javax.media.mscontrol.MediaSession;
+import javax.media.mscontrol.MsControlException;
+import javax.media.mscontrol.Parameter;
+import javax.media.mscontrol.Parameters;
+import javax.media.mscontrol.join.JoinEventListener;
+import javax.media.mscontrol.join.Joinable;
+import javax.media.mscontrol.join.Joinable.Direction;
+import javax.media.mscontrol.join.JoinableStream;
+import javax.media.mscontrol.join.JoinableStream.StreamType;
+import javax.media.mscontrol.networkconnection.NetworkConnection;
+import javax.media.mscontrol.networkconnection.SdpPortManager;
+import javax.media.mscontrol.resource.Action;
+import javax.media.mscontrol.resource.AllocationEventListener;
+import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.NetworkConnectionActivityHandle;
+
+/**
+ *
+ * @author kulikov
+ */
+public class NetworkConnectionLocal extends MsActivity implements NetworkConnection {
+
+    private String ID = Long.toHexString(System.currentTimeMillis());
+    private NetworkConnection connection;
+    private McResourceAdaptor ra;
+        
+    protected NetworkConnectionLocal(NetworkConnection connection, McResourceAdaptor ra) {
+        this.connection = connection;
+        this.ra = ra;
+        this.connection.addListener(ra);
+        try {
+            this.connection.getSdpPortManager().addListener(ra);
+        } catch (Exception e) {
+        }
+    }
+    
+    @Override
+    public String getID() {
+        return ID;
+    }
+    
+    public SdpPortManager getSdpPortManager() throws MsControlException {
+        return connection.getSdpPortManager();
+    }
+
+    public JoinableStream getJoinableStream(StreamType type) throws MsControlException {
+        return connection.getJoinableStream(type);
+    }
+
+    public JoinableStream[] getJoinableStreams() throws MsControlException {
+        return connection.getJoinableStreams();
+    }
+
+    public Joinable[] getJoinees(Direction direction) throws MsControlException {
+        return connection.getJoinees(direction);
+    }
+
+    public Joinable[] getJoinees() throws MsControlException {
+        return connection.getJoinees();
+    }
+
+    public void join(Direction direction, Joinable other) throws MsControlException {
+        connection.join(direction, other);
+    }
+
+    public void unjoin(Joinable other) throws MsControlException {
+        connection.unjoin(other);
+    }
+
+    public void joinInitiate(Direction arg0, Joinable arg1, Serializable arg2) throws MsControlException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void unjoinInitiate(Joinable arg0, Serializable arg1) throws MsControlException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void addListener(JoinEventListener listener) {
+        throw new SecurityException("SBB can not assign listener");
+    }
+
+    public void removeListener(JoinEventListener arg0) {
+        throw new SecurityException("SBB can not assign listener");
+    }
+
+    public MediaSession getMediaSession() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void triggerAction(Action arg0) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public <R> R getResource(Class<R> type) throws MsControlException {
+        return connection.getResource(type);
+    }
+
+    public MediaConfig getConfig() {
+        return connection.getConfig();
+    }
+
+    public void confirm() throws MsControlException {
+        connection.confirm();
+    }
+
+    public URI getURI() {
+        return connection.getURI();
+    }
+
+    public void release() {
+        connection.release();
+    }
+
+    public void setParameters(Parameters p) {
+        connection.setParameters(p);
+    }
+
+    public Parameters getParameters(Parameter[] p) {
+        return connection.getParameters(p);
+    }
+
+    public Parameters createParameters() {
+        return connection.createParameters();
+    }
+
+    public Iterator<MediaObject> getMediaObjects() {
+        return connection.getMediaObjects();
+    }
+
+    public <T extends MediaObject> Iterator<T> getMediaObjects(Class<T> t) {
+        return connection.getMediaObjects(t);
+    }
+
+    public void addListener(AllocationEventListener arg0) {
+        throw new SecurityException("SBB can not assign listener");
+    }
+
+    public void removeListener(AllocationEventListener arg0) {
+        throw new SecurityException("SBB can not assign listener");
+    }
+
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof NetworkConnectionLocal && ((NetworkConnectionLocal) other).ID.equals(this.ID);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + (this.ID != null ? this.ID.hashCode() : 0);
+        return hash;
+    }
+}

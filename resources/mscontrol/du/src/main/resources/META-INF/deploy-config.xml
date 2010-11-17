@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy-config>
+	<ra-entity
+		resource-adaptor-id="ResourceAdaptorID[name=MSC-1.0-RA,vendor=org.mobicents,version=1.0]"		
+		entity-name="MSCRA">
+		<properties file="" />
+		<ra-link name="MSCRA" />
+	</ra-entity>
+</deploy-config>

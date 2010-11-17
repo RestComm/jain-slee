@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE resource-adaptor-type-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.1//EN" "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_1.dtd">
+<resource-adaptor-type-jar>
+    <description />
+    <resource-adaptor-type>
+        <description>Media server control resource adaptor (JSR-309)</description>
+        <resource-adaptor-type-name>MSC-1.0-RA</resource-adaptor-type-name>
+        <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+        <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+        <library-ref>
+            <library-name>msc-library</library-name>
+            <library-vendor>org.mobicents.resources</library-vendor>
+            <library-version>${pom.version}</library-version>
+        </library-ref>
+        <resource-adaptor-type-classes>
+            <activity-type>
+                <activity-type-name>javax.media.mscontrol.networkconnection.NetworkConnection</activity-type-name>
+            </activity-type>
+            <activity-context-interface-factory-interface>
+                <activity-context-interface-factory-interface-name>
+					org.mobicents.slee.resource.mediacontrol.MscActivityContextInterfaceFactory
+                </activity-context-interface-factory-interface-name>
+            </activity-context-interface-factory-interface>
+            <resource-adaptor-interface>
+                <resource-adaptor-interface-name>
+					javax.media.mscontrol.MsControlFactory
+                </resource-adaptor-interface-name>
+            </resource-adaptor-interface>
+        </resource-adaptor-type-classes>
+
+
+	<!-- SDP port manager events -->
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.networkconnection.SdpPortManagerEvent.ANSWER_GENERATED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.networkconnection.SdpPortManagerEvent.ANSWER_PROCESSED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.networkconnection.SdpPortManagerEvent.NETWORK_STREAM_FAILURE</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.networkconnection.SdpPortManagerEvent.OFFER_GENERATED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+    </resource-adaptor-type>
+</resource-adaptor-type-jar>
+
