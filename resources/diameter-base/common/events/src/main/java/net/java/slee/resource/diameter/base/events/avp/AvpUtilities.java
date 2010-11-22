@@ -102,6 +102,7 @@ public class AvpUtilities {
    */
   private static void performPreAddOperations(Message msg, int avpCode, long vendorId, AvpSet set) throws AvpNotAllowedException {
     if (msg == null) {
+    	//TODO: add validation here
       if (hasAvp(avpCode, vendorId, set) && !isAvpRemoveAllowed()) {
         throw new IllegalStateException("AVP is already present in message and cannot be overwritten.");
       }
