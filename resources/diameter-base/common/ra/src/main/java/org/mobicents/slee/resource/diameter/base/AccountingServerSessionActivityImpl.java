@@ -30,6 +30,7 @@ import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.AccountingAnswer;
 import net.java.slee.resource.diameter.base.events.AccountingRequest;
+import net.java.slee.resource.diameter.base.events.avp.AccountingRecordType;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
@@ -136,14 +137,11 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
       this.serverSession.sendAccountAnswer(new AccountAnswerImpl((Answer) aca.getGenericData()));
 
       // FIXME: check this?
-      if (isTerminateAfterProcessing()) {
+      if (this.serverSession.isStateless()) {
         endActivity();
-        //        this.serverSession.release();
-        //      
-        //      if(!serverSession.isValid()) {
-        //        String sessionId = this.serverSession.getSessions().get(0).getSessionId();
-        //        this.baseListener.sessionDestroyed(sessionId, this.serverSession);
-        //      }
+      }
+      else if(aca.getAccountingRecordType() == AccountingRecordType.STOP_RECORD) {
+        endActivity();
       }
     }
     catch (JAvpNotAllowedException e) {
