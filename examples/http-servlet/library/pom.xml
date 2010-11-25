@@ -12,7 +12,6 @@
 	</parent>
 
 	<artifactId>http-servlet-library</artifactId>
-	<groupId>org.mobicents.examples</groupId>
 	
 	<dependencies>
 		<dependency>

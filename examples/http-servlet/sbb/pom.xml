@@ -28,12 +28,12 @@
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>http-servlet-ratype</artifactId>
-			<version>${pom.version}</version>
+			<version>${mobicents.resources.http.servlet.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>http-servlet-events</artifactId>
-			<version>${pom.version}</version>
+			<version>${mobicents.resources.http.servlet.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.examples</groupId>
