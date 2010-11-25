@@ -43,7 +43,7 @@ public class HttpServletRaSbbInterfaceImpl implements HttpServletRaSbbInterface 
 		if (httpSession == null) {
 			throw new NullPointerException("null http session");
 		}
-		if (httpSession.getClass() != HttpSessionWrapper.class) {
+		if (!(httpSession instanceof HttpSessionWrapper)) {
 			throw new IllegalArgumentException();
 		}
 		final HttpSessionWrapper httpSessionWrapper = (HttpSessionWrapper) httpSession;

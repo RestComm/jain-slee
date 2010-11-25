@@ -442,7 +442,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 				.getSession(false);
 
 		final HttpServletRequestEvent event = new HttpServletRequestEventImpl(
-				request, response, this);
+				wrapper, response, this);
 		final FireableEventType eventType = eventIdCache.getEventType(
 				eventLookup, event, session);
 		if (eventIDFilter.filterEvent(eventType)) {
