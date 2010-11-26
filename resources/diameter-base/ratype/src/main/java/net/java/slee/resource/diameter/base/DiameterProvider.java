@@ -26,6 +26,7 @@
  */
 package net.java.slee.resource.diameter.base;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 
@@ -138,4 +139,6 @@ public interface DiameterProvider {
    * @return
    */
   DiameterIdentity[] getConnectedPeers();
+
+  public Validator getValidator();
 }

@@ -62,7 +62,6 @@ import org.mobicents.slee.resource.diameter.base.events.avp.VendorSpecificApplic
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- * @author Erick Svenson
  */
 public abstract class DiameterMessageImpl implements DiameterMessage {
 

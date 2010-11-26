@@ -21,7 +21,6 @@ import org.jdiameter.api.cca.ClientCCASession;
 import org.jdiameter.common.api.app.cca.ClientCCASessionState;
 import org.jdiameter.common.impl.app.auth.ReAuthAnswerImpl;
 import org.jdiameter.common.impl.app.cca.JCreditControlRequestImpl;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 /**
@@ -99,7 +98,7 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
     try {
       session.sendCreditControlRequest(new JCreditControlRequestImpl((Request) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -128,7 +127,7 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
     try {
       session.sendCreditControlRequest(new JCreditControlRequestImpl((Request) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -154,7 +153,7 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
     try {
       session.sendCreditControlRequest(new JCreditControlRequestImpl((Request) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -182,7 +181,7 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
     try {
       session.sendCreditControlRequest(new JCreditControlRequestImpl((Request) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -203,7 +202,7 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
     try {
       session.sendReAuthAnswer(new ReAuthAnswerImpl((Answer) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {

@@ -45,7 +45,6 @@ import org.jdiameter.api.acc.ServerAccSession;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.common.api.app.acc.ServerAccSessionState;
 import org.jdiameter.common.impl.app.acc.AccountAnswerImpl;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
@@ -144,7 +143,7 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
         endActivity();
       }
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {

@@ -2,6 +2,7 @@ package net.java.slee.resource.diameter.ro;
 
 import java.io.IOException;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.ro.events.RoCreditControlAnswer;
@@ -81,5 +82,7 @@ public interface RoProvider {
    * @return
    */
   DiameterIdentity[] getConnectedPeers();
+
+  Validator getValidator();
 
 }

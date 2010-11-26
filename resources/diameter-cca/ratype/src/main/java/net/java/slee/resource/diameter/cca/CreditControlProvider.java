@@ -1,5 +1,6 @@
 package net.java.slee.resource.diameter.cca;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 
@@ -63,5 +64,7 @@ public interface CreditControlProvider {
    * @return
    */
   DiameterIdentity[] getConnectedPeers();
+
+  Validator getValidator();
 
 }

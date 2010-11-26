@@ -52,7 +52,6 @@ import org.jdiameter.common.impl.app.sh.ProfileUpdateAnswerImpl;
 import org.jdiameter.common.impl.app.sh.PushNotificationRequestImpl;
 import org.jdiameter.common.impl.app.sh.SubscribeNotificationsAnswerImpl;
 import org.jdiameter.common.impl.app.sh.UserDataAnswerImpl;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.sh.events.DiameterShMessageImpl;
@@ -298,7 +297,7 @@ public class ShServerSubscriptionActivityImpl extends DiameterActivityImpl imple
       this.serverSession.sendPushNotificationRequest(new PushNotificationRequestImpl((Request) msg.getGenericData()));
       clean(msg);
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -319,7 +318,7 @@ public class ShServerSubscriptionActivityImpl extends DiameterActivityImpl imple
       this.serverSession.sendUserDataAnswer(new UserDataAnswerImpl((Answer) msg.getGenericData()));
       clean(msg);
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -341,7 +340,7 @@ public class ShServerSubscriptionActivityImpl extends DiameterActivityImpl imple
       this.serverSession.sendProfileUpdateAnswer(new ProfileUpdateAnswerImpl((Answer) msg.getGenericData()));
       clean(msg);
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -363,7 +362,7 @@ public class ShServerSubscriptionActivityImpl extends DiameterActivityImpl imple
       this.serverSession.sendSubscribeNotificationsAnswer(new SubscribeNotificationsAnswerImpl((Answer) msg.getGenericData()));
       clean(msg);
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {

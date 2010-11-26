@@ -1,5 +1,6 @@
 package net.java.slee.resource.diameter.cxdx;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 
@@ -86,5 +87,7 @@ public interface CxDxProvider {
    * @return
    */
   DiameterIdentity[] getConnectedPeers();
+
+  Validator getValidator();
 
 }

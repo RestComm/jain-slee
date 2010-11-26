@@ -47,7 +47,6 @@ import org.jdiameter.api.ro.ServerRoSession;
 import org.jdiameter.common.api.app.ro.ServerRoSessionState;
 import org.jdiameter.common.impl.app.auth.ReAuthRequestImpl;
 import org.jdiameter.common.impl.app.ro.RoCreditControlAnswerImpl;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 /**
@@ -105,13 +104,15 @@ public class RoServerSessionActivityImpl extends RoSessionActivityImpl implement
 
     try {
       session.sendCreditControlAnswer(new RoCreditControlAnswerImpl((Answer) msg.getGenericData()));
-    } catch (JAvpNotAllowedException e) {
-      AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
-      throw anae;
-    } catch (Exception e) {
-      e.printStackTrace();
-      IOException ioe = new IOException("Failed to send message, due to: " + e);
-      throw ioe;
+    }
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
+      throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
+    }
+    catch (Exception e) {
+      if(logger.isDebugEnabled()) {
+        logger.debug("Failed to send message, due to: ", e);
+      }
+      throw new IOException("Failed to send message, due to: " + e);
     }
   }
 
@@ -131,13 +132,15 @@ public class RoServerSessionActivityImpl extends RoSessionActivityImpl implement
 
     try {
       session.sendReAuthRequest(new ReAuthRequestImpl((Request) msg.getGenericData()));
-    } catch (JAvpNotAllowedException e) {
-      AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
-      throw anae;
-    } catch (Exception e) {
-      e.printStackTrace();
-      IOException ioe = new IOException("Failed to send message, due to: " + e);
-      throw ioe;
+    }
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
+      throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
+    }
+    catch (Exception e) {
+      if(logger.isDebugEnabled()) {
+        logger.debug("Failed to send message, due to: ", e);
+      }
+      throw new IOException("Failed to send message, due to: " + e);
     }
   }
 

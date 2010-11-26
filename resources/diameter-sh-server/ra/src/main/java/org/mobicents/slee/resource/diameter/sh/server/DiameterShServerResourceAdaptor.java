@@ -47,6 +47,7 @@ import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
@@ -85,6 +86,7 @@ import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 import org.mobicents.slee.resource.diameter.AbstractClusteredDiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.DiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.LocalDiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.ValidatorImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
@@ -895,6 +897,7 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
 
   class ShServerProviderImpl implements ShServerProvider {
     private DiameterShServerResourceAdaptor ra = null;
+    private Validator validator = new ValidatorImpl();
 
     private ArrayList<Integer> requestCodes = new ArrayList<Integer>();
 
@@ -968,6 +971,14 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
 
     public int getPeerCount() {
       return ra.getConnectedPeers().length;
+    }
+
+    /* (non-Javadoc)
+     * @see net.java.slee.resource.diameter.sh.server.ShServerProvider#getValidator()
+     */
+    @Override
+    public Validator getValidator() {
+      return this.validator;
     }
 
   }

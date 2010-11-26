@@ -134,6 +134,10 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
     return AvpUtilities.getParser().encodeAvpSet(avpSet);
   }
 
+  public AvpSet getGenericData() {
+	  return avpSet;
+  }
+
   public Object clone() {
     // TODO: Confirm it works as supposed! Findbugs complained...
     // return new GroupedAvpImpl(code, vendorId, mnd, prt, byteArrayValue());

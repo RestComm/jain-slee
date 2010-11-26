@@ -46,7 +46,6 @@ import org.jdiameter.api.Stack;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.rf.ServerRfSession;
 import org.jdiameter.common.api.app.rf.ServerRfSessionState;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.rf.events.RfAccountingAnswerImpl;
@@ -160,9 +159,11 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
       }
       //clean
       clean(aca);
-    } catch (JAvpNotAllowedException e) {
+    }
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       if (logger.isDebugEnabled()) {
         logger.debug("Failed to send message, due to: ", e);
       }

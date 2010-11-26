@@ -46,7 +46,6 @@ import org.jdiameter.api.sh.ClientShSession;
 import org.jdiameter.common.impl.app.sh.ProfileUpdateRequestImpl;
 import org.jdiameter.common.impl.app.sh.SubscribeNotificationsRequestImpl;
 import org.jdiameter.common.impl.app.sh.UserDataRequestImpl;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
@@ -87,7 +86,7 @@ public class ShClientActivityImpl extends DiameterActivityImpl implements ShClie
       DiameterMessageImpl msg = (DiameterMessageImpl) message;
       clientSession.sendProfileUpdateRequest(new ProfileUpdateRequestImpl((Request) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -104,7 +103,7 @@ public class ShClientActivityImpl extends DiameterActivityImpl implements ShClie
       .sendSubscribeNotificationsRequest(new SubscribeNotificationsRequestImpl(
           (Request) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -117,7 +116,7 @@ public class ShClientActivityImpl extends DiameterActivityImpl implements ShClie
       DiameterMessageImpl msg = (DiameterMessageImpl) message;
       this.clientSession.sendUserDataRequest(new UserDataRequestImpl((Request) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {

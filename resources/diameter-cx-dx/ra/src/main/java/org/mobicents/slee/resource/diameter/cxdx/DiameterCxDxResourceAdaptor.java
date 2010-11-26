@@ -46,6 +46,7 @@ import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
 import javax.slee.transaction.SleeTransactionManager;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
@@ -87,6 +88,7 @@ import org.mobicents.diameter.stack.DiameterListener;
 import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
 import org.mobicents.slee.resource.diameter.DiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.LocalDiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.ValidatorImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
@@ -941,6 +943,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
   private class CxDxProviderImpl implements CxDxProvider {
 
     protected DiameterCxDxResourceAdaptor ra;
+    protected Validator validator = new ValidatorImpl();
 
     /**
      * Constructor.
@@ -1095,6 +1098,14 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     public CxDxServerSessionActivity createCxDxServerSessionActivity() throws CreateActivityException {
       return createCxDxServerSessionActivity(null, null);
+    }
+
+    /* (non-Javadoc)
+     * @see net.java.slee.resource.diameter.cxdx.CxDxProvider#getValidator()
+     */
+    @Override
+    public Validator getValidator() {
+      return this.validator;
     }
   }
 

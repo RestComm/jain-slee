@@ -44,7 +44,6 @@ import org.jdiameter.api.cca.ServerCCASession;
 import org.jdiameter.common.api.app.cca.ServerCCASessionState;
 import org.jdiameter.common.impl.app.auth.ReAuthRequestImpl;
 import org.jdiameter.common.impl.app.cca.JCreditControlAnswerImpl;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 /**
@@ -111,7 +110,7 @@ public class CreditControlServerSessionImpl extends CreditControlSessionImpl imp
     try {
       session.sendCreditControlAnswer(new JCreditControlAnswerImpl((Answer) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
       throw anae;
     }
@@ -137,7 +136,7 @@ public class CreditControlServerSessionImpl extends CreditControlSessionImpl imp
     try {
       session.sendReAuthRequest(new ReAuthRequestImpl((Request) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
       throw anae;
     }

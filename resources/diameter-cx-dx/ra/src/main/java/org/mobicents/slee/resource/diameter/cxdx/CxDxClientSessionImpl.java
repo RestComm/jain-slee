@@ -54,7 +54,6 @@ import org.jdiameter.common.impl.app.cxdx.JPushProfileAnswerImpl;
 import org.jdiameter.common.impl.app.cxdx.JRegistrationTerminationAnswerImpl;
 import org.jdiameter.common.impl.app.cxdx.JServerAssignmentRequestImpl;
 import org.jdiameter.common.impl.app.cxdx.JUserAuthorizationRequestImpl;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 /**
@@ -203,7 +202,7 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
 
       appSession.sendLocationInformationRequest(new JLocationInfoRequestImpl(msg.getGenericData()));
     }
-    catch(JAvpNotAllowedException anae) {
+    catch(org.jdiameter.api.validation.AvpNotAllowedException anae) {
       throw new AvpNotAllowedException(anae.getMessage(),anae.getAvpCode(),anae.getVendorId());
     }
     catch (Exception e) {
@@ -220,7 +219,7 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
 
       appSession.sendMultimediaAuthRequest(new JMultimediaAuthRequestImpl(msg.getGenericData()));
     }
-    catch(JAvpNotAllowedException anae) {
+    catch(org.jdiameter.api.validation.AvpNotAllowedException anae) {
       throw new AvpNotAllowedException(anae.getMessage(),anae.getAvpCode(),anae.getVendorId());
     }
     catch (Exception e) {
@@ -237,7 +236,7 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
 
       appSession.sendPushProfileAnswer(new JPushProfileAnswerImpl(msg.getGenericData()));
     }
-    catch(JAvpNotAllowedException anae) {
+    catch(org.jdiameter.api.validation.AvpNotAllowedException anae) {
       throw new AvpNotAllowedException(anae.getMessage(),anae.getAvpCode(),anae.getVendorId());
     }
     catch (Exception e) {
@@ -254,7 +253,7 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
 
       appSession.sendRegistrationTerminationAnswer(new JRegistrationTerminationAnswerImpl(msg.getGenericData()));
     }
-    catch(JAvpNotAllowedException anae) {
+    catch(org.jdiameter.api.validation.AvpNotAllowedException anae) {
       throw new AvpNotAllowedException(anae.getMessage(),anae.getAvpCode(),anae.getVendorId());
     }
     catch (Exception e) {
@@ -271,7 +270,7 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
 
       appSession.sendServerAssignmentRequest(new JServerAssignmentRequestImpl(msg.getGenericData()));
     }
-    catch(JAvpNotAllowedException anae) {
+    catch(org.jdiameter.api.validation.AvpNotAllowedException anae) {
       throw new AvpNotAllowedException(anae.getMessage(),anae.getAvpCode(),anae.getVendorId());
     }
     catch (Exception e) {
@@ -288,7 +287,7 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
 
       appSession.sendUserAuthorizationRequest(new JUserAuthorizationRequestImpl(msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException anae) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException anae) {
       throw new AvpNotAllowedException(anae.getMessage(), anae.getAvpCode(), anae.getVendorId());
     }
     catch (Exception e) {

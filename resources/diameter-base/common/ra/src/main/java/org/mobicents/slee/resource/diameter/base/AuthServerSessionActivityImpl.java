@@ -45,7 +45,6 @@ import org.jdiameter.common.api.app.auth.ServerAuthSessionState;
 import org.jdiameter.common.impl.app.auth.AbortSessionRequestImpl;
 import org.jdiameter.common.impl.app.auth.ReAuthRequestImpl;
 import org.jdiameter.common.impl.app.auth.SessionTermAnswerImpl;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 /**
@@ -83,7 +82,7 @@ public class AuthServerSessionActivityImpl extends AuthSessionActivityImpl imple
       DiameterMessageImpl msg = (DiameterMessageImpl) request;
       this.serverSession.sendAbortSessionRequest(new AbortSessionRequestImpl(msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -107,7 +106,7 @@ public class AuthServerSessionActivityImpl extends AuthSessionActivityImpl imple
       DiameterMessageImpl msg = (DiameterMessageImpl) request;
       this.serverSession.sendReAuthRequest(new ReAuthRequestImpl(msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -134,7 +133,7 @@ public class AuthServerSessionActivityImpl extends AuthSessionActivityImpl imple
       DiameterMessageImpl msg = (DiameterMessageImpl) request;
       this.serverSession.sendSessionTerminationAnswer(new SessionTermAnswerImpl(msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {

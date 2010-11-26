@@ -2,6 +2,7 @@ package net.java.slee.resource.diameter.sh.server;
 
 import java.io.IOException;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
 import net.java.slee.resource.diameter.sh.events.PushNotificationAnswer;
@@ -68,5 +69,7 @@ public interface ShServerProvider {
    * @return
    */
   DiameterIdentity[] getConnectedPeers();
+
+  Validator getValidator();
 
 }

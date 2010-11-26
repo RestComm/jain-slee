@@ -53,7 +53,6 @@ import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.sh.ClientShSession;
 import org.jdiameter.common.impl.app.sh.PushNotificationAnswerImpl;
 import org.jdiameter.common.impl.app.sh.SubscribeNotificationsRequestImpl;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.diameter.dictionary.AvpDictionary;
 import org.mobicents.diameter.dictionary.AvpRepresentation;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
@@ -182,7 +181,7 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
       clean((DiameterShMessageImpl)answer);
       fetchSessionData(answer, false);
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -217,7 +216,7 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
       this.clientSession.sendSubscribeNotificationsRequest(new SubscribeNotificationsRequestImpl((Request) msg.getGenericData()));
       fetchSessionData(msg, false);
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -240,7 +239,7 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
 
       this.clientSession.sendSubscribeNotificationsRequest(new SubscribeNotificationsRequestImpl((Request) msg.getGenericData()));
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {

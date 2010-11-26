@@ -47,7 +47,6 @@ import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.mobicents.slee.resource.diameter.base.events.AbortSessionAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.CapabilitiesExchangeAnswerImpl;
@@ -177,7 +176,7 @@ public class DiameterActivityImpl implements DiameterActivity {
         throw new OperationNotSupportedException("Trying to send wrong type of message? [" + message.getClass() + "] \n" + message);
       }
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
@@ -241,7 +240,7 @@ public class DiameterActivityImpl implements DiameterActivity {
         throw new OperationNotSupportedException("Trying to send wrong type of message? [" + message.getClass() + "] \n" + message);
       }
     }
-    catch (JAvpNotAllowedException e) {
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {

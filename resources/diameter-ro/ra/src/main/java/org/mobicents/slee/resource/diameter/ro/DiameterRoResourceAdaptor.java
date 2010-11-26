@@ -44,6 +44,7 @@ import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
@@ -85,6 +86,7 @@ import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 import org.mobicents.slee.resource.diameter.AbstractClusteredDiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.DiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.LocalDiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.ValidatorImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
@@ -992,6 +994,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
   private class RoProviderImpl implements RoProvider {
 
     private DiameterRoResourceAdaptor ra;
+    private Validator validator = new ValidatorImpl();
 
     public RoProviderImpl(DiameterRoResourceAdaptor ra) {
       this.ra = ra;
@@ -1115,6 +1118,14 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     public int getPeerCount() {
       return ra.getConnectedPeers().length;
+    }
+
+    /* (non-Javadoc)
+     * @see net.java.slee.resource.diameter.ro.RoProvider#getValidator()
+     */
+    @Override
+    public Validator getValidator() {
+      return this.validator;
     }
   }
 

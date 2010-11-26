@@ -24,6 +24,7 @@ package net.java.slee.resource.diameter.rf;
 
 import java.io.IOException;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.rf.events.RfAccountingAnswer;
@@ -101,4 +102,7 @@ public interface RfProvider {
    * @return
    */
   DiameterIdentity[] getConnectedPeers();
+
+  Validator getValidator();
+
 }

@@ -48,6 +48,7 @@ import javax.transaction.InvalidTransactionException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
@@ -85,6 +86,7 @@ import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 import org.mobicents.slee.resource.diameter.AbstractClusteredDiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.DiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.LocalDiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.ValidatorImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
@@ -923,7 +925,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
   private class CreditControlProviderImpl implements CreditControlProvider {
 
     protected DiameterCCAResourceAdaptor ra = null;
-
+    protected Validator validator = new ValidatorImpl();
     public CreditControlProviderImpl(DiameterCCAResourceAdaptor ra) {
       super();
       this.ra = ra;
@@ -1037,6 +1039,14 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     public int getPeerCount() {
       DiameterIdentity[] connectedPeers = getConnectedPeers();
       return connectedPeers != null ? getConnectedPeers().length : -1;
+    }
+
+    /* (non-Javadoc)
+     * @see net.java.slee.resource.diameter.cca.CreditControlProvider#getValidator()
+     */
+    @Override
+    public Validator getValidator() {
+      return this.validator;
     }
   }
 

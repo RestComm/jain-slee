@@ -49,6 +49,7 @@ import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
 import javax.slee.transaction.SleeTransactionManager;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.AccountingClientSessionActivity;
 import net.java.slee.resource.diameter.base.AccountingServerSessionActivity;
 import net.java.slee.resource.diameter.base.AuthClientSessionActivity;
@@ -98,7 +99,6 @@ import org.jdiameter.client.api.ISessionFactory;
 import org.jdiameter.client.impl.app.acc.ClientAccSessionImpl;
 import org.jdiameter.client.impl.app.auth.ClientAuthSessionImpl;
 import org.jdiameter.client.impl.parser.MessageParser;
-import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.jdiameter.server.impl.app.acc.ServerAccSessionImpl;
 import org.jdiameter.server.impl.app.auth.ServerAuthSessionImpl;
 import org.mobicents.diameter.stack.DiameterListener;
@@ -109,6 +109,7 @@ import org.mobicents.slee.resource.cluster.ReplicatedData;
 import org.mobicents.slee.resource.diameter.AbstractClusteredDiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.DiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.LocalDiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.ValidatorImpl;
 import org.mobicents.slee.resource.diameter.base.events.AbortSessionAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.AbortSessionRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
@@ -770,7 +771,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
     // Obtain parser and store it in AvpUtilities
     MessageParser parser = ((IContainer)stack).getAssemblerFacility().getComponentInstance(MessageParser.class);
     AvpUtilities.setParser(parser);
-
+    AvpUtilities.setDictionary(stack.getDictionary());
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter Base RA :: Successfully initialized stack.");
     }
@@ -1126,6 +1127,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
     protected final Tracer tracer = getRaContext().getTracer("DiameterProvider");;
 
     protected DiameterBaseResourceAdaptor ra;
+    protected final Validator validator = new ValidatorImpl();
 
     /**
      * Constructor.
@@ -1375,7 +1377,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
           return activity.sendSyncMessage(message);
         }
       }
-      catch (JAvpNotAllowedException e) {
+      catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
         throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
       }
       catch (Exception e) {
@@ -1451,6 +1453,13 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
       return false;
     }
-  }
 
+    /* (non-Javadoc)
+     * @see net.java.slee.resource.diameter.base.DiameterProvider#getValidator()
+     */
+    @Override
+    public Validator getValidator() {
+      return this.validator;
+    }
+  }
 }

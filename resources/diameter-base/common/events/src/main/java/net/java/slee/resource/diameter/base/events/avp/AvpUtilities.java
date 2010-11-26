@@ -39,9 +39,11 @@ import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpDataException;
 import org.jdiameter.api.AvpSet;
 import org.jdiameter.api.Message;
+import org.jdiameter.api.validation.Dictionary;
+import org.jdiameter.api.validation.MessageRepresentation;
 import org.jdiameter.client.api.parser.ParseException;
 import org.jdiameter.client.impl.parser.MessageParser;
-import org.jdiameter.common.impl.validation.DiameterMessageValidator;
+import org.jdiameter.common.impl.validation.DictionaryImpl;
 import org.mobicents.diameter.dictionary.AvpDictionary;
 import org.mobicents.diameter.dictionary.AvpRepresentation;
 import org.mobicents.slee.resource.diameter.base.events.avp.DiameterAvpImpl;
@@ -67,13 +69,24 @@ public class AvpUtilities {
 
   private static boolean _AVP_REMOVAL_ALLOWED = true;
 
+  private static Dictionary dictionary;
+
   static {
     // Just so we have it
     parser = new MessageParser();
+    dictionary = DictionaryImpl.INSTANCE;
   }
   
   public static void setParser(MessageParser singletonParser) {
     parser = singletonParser;
+  }
+
+  public static Dictionary getDictionary() {
+    return dictionary;
+  }
+
+  public static void setDictionary(Dictionary dictionary) {
+    AvpUtilities.dictionary = dictionary;
   }
 
   public static MessageParser getParser() {
@@ -112,34 +125,28 @@ public class AvpUtilities {
     }
     else {
       // We might just invoke validate, but we need more info
-      DiameterMessageValidator validator = DiameterMessageValidator.getInstance();
-      if (!validator.isOn()) {
+     // DiameterMessageValidator validator = DiameterMessageValidator.getInstance();
+      if (!dictionary.isEnabled()) {
         return;
       }
-
-      if (!validator.isAllowed(msg.getCommandCode(), msg.getApplicationId(), msg.isRequest(), avpCode, vendorId)) {
+      MessageRepresentation msgRep = dictionary.getMessage(msg.getCommandCode(), msg.getApplicationId(), msg.isRequest());
+      if (!msgRep.isAllowed(avpCode, vendorId)) {
         throw new AvpNotAllowedException("Avp defined by code: " + avpCode + ", vendorId: " + vendorId + " is not allowed in message - code: " + msg.getCommandCode() + ", appId: "
             + msg.getApplicationId() + ", isRequest: " + msg.isRequest(), avpCode, vendorId);
       }
 
-      if (validator.hasRepresentation(msg.getCommandCode(), msg.getApplicationId(), msg.isRequest(), avpCode, vendorId)) {
-        // we are allowed to add this to msg
-        if (validator.isCountValidForMultiplicity(msg.getCommandCode(), msg.getApplicationId(), msg.isRequest(), msg.getAvps(), avpCode, vendorId)) {
-          // its ok.
-          return;
-        }
-        else if (isAvpRemoveAllowed()) {
-          AvpSet removed = set.removeAvp(avpCode);
-          removed.removeAvpByIndex(removed.size() - 1);
-          set.addAvp(removed);
-          return;
-        }
-        else {
-          throw new AvpNotAllowedException("Avp not allowed, count exceeded.", avpCode, vendorId);
-        }
+      if (msgRep.isCountValidForMultiplicity(msg.getAvps(), avpCode, vendorId,1)) { // 1 --> +1
+        // its ok.
+        return;
+      }
+      else if (isAvpRemoveAllowed()) {
+        AvpSet removed = set.removeAvp(avpCode);
+        removed.removeAvpByIndex(removed.size() - 1);
+        set.addAvp(removed);
+        return;
       }
       else {
-        //FIXME: add here something in case we don't allow add in default cases;
+        throw new AvpNotAllowedException("Avp not allowed, count exceeded.", avpCode, vendorId);
       }
     }
   }
