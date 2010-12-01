@@ -9,11 +9,11 @@
 		<sbb-version>1.0</sbb-version>
 		<sbb-alias>XxX</sbb-alias>
 
-		<library-ref>
+		<!-- library-ref>
 			<library-name>library-ussdgateway</library-name>
 			<library-vendor>org.mobicents</library-vendor>
 			<library-version>2.0</library-version>
-		</library-ref>
+		</library-ref -->
 		<library-ref>
 			<library-name>library-ussdexample</library-name>
 			<library-vendor>org.mobicents</library-vendor>

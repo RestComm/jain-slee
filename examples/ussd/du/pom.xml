@@ -17,11 +17,7 @@
 			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>
-		<dependency>
-			<artifactId>ussdgateway-library</artifactId>
-			<groupId>org.mobicents.applications.ussd</groupId>
-			<version>${version.ussdgateway}</version>
-		</dependency>
+
 		<dependency>
 			<artifactId>ussdexample-library</artifactId>
 			<groupId>org.mobicents.examples.ussd</groupId>
