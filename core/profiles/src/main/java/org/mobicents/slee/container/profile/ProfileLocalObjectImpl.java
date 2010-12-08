@@ -97,7 +97,12 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 		
 		return this._equals(other);
 	}
-
+	
+	@Override
+	public int hashCode() {
+		return getProfileTable().hashCode() * 31 + ((profileName == null) ? 0 : profileName.hashCode());
+	}	
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ProfileLocalObjectImpl) {
