@@ -121,10 +121,6 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 							+ sourceUrl.getFile(), e);
 		}
 
-		if (deployableUnitJar == null) {
-			throw new NullPointerException("null deployableUnitJar");
-		}
-
 		// get and parse du descriptor
 		JarEntry duXmlEntry = deployableUnitJar
 				.getJarEntry("META-INF/deployable-unit.xml");
@@ -642,7 +638,7 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 	  try {
 	    String fileWithPath = duURL.getFile();
 	    int start = fileWithPath.lastIndexOf('/') + 1;
-	    String filename = Math.abs(duURL.hashCode()) + "_" + fileWithPath.substring(start, fileWithPath.length());
+	    String filename = Math.abs((long)duURL.hashCode()) + "_" + fileWithPath.substring(start, fileWithPath.length());
 
 	    File tempFile = new File(deploymentRoot, filename);
 

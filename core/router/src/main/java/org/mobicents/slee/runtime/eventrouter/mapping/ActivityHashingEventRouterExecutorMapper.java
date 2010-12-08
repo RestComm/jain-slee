@@ -26,7 +26,7 @@ public class ActivityHashingEventRouterExecutorMapper extends
 	@Override
 	public EventRouterExecutor getExecutor(
 			ActivityContextHandle activityContextHandle) {
-		return executors[Math.abs(activityContextHandle.hashCode())
+		return executors[(activityContextHandle.hashCode() & Integer.MAX_VALUE)
 				% executors.length];
 	}
 

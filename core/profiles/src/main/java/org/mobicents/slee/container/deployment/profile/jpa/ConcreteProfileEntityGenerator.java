@@ -189,7 +189,7 @@ public class ConcreteProfileEntityGenerator {
     	  }
       }
       
-      String tableName = "SLEE_PE_"+profileComponent.getProfileCmpInterfaceClass().getSimpleName() + "_" + Math.abs(profileComponent.getComponentID().hashCode());
+      String tableName = "SLEE_PE_"+profileComponent.getProfileCmpInterfaceClass().getSimpleName() + "_" + Math.abs((long)profileComponent.getComponentID().hashCode());
       addTableAnnotation(tableName, uniqueConstraints, concreteProfileEntityClass);
       
       jpaProfileDataSource.setProfileEntityArrayAttrValueClassMap(profileEntityArrayAttrValueClassMap);
@@ -275,7 +275,7 @@ public class ConcreteProfileEntityGenerator {
 		  ClassGeneratorUtils.addAnnotation( Entity.class.getName(), new LinkedHashMap<String, Object>(), concreteArrayValueClass );    
 
 		  // generate a random table name
-		  addTableAnnotationToPEAAV("SLEE_PEAAV_"+profileComponent.getProfileCmpInterfaceClass().getSimpleName() + "_" + Math.abs(profileComponent.getComponentID().hashCode()) + profileAttributeName,unique,concreteArrayValueClass);  
+		  addTableAnnotationToPEAAV("SLEE_PEAAV_"+profileComponent.getProfileCmpInterfaceClass().getSimpleName() + "_" + Math.abs((long)profileComponent.getComponentID().hashCode()) + profileAttributeName,unique,concreteArrayValueClass);  
 		  		  
 		  // override @id
 		  String getIdNameMethodSrc = "public long getId() { return super.getId(); }";
