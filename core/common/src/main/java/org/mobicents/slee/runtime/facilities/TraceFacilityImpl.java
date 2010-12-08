@@ -58,7 +58,7 @@ public class TraceFacilityImpl implements TraceFacility {
 			+ "\n" + traceMBeanImpl;
 	}
 	
-	class MTraceLevel {
+	static class MTraceLevel {
 		private Level level;
 		private int seqno;
 

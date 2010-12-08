@@ -907,7 +907,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		}
 	}
 
-	public class SbbUsageMBeanMapKey {
+	public static class SbbUsageMBeanMapKey {
 
 		private final SbbID sbbID;
 		private final String paramName;

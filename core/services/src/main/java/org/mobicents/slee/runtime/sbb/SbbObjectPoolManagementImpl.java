@@ -317,7 +317,7 @@ public class SbbObjectPoolManagementImpl implements SbbObjectPoolManagementImplM
 		return "SbbObject Pool Management: " + "\n+-- Pools: " + pools.keySet();
 	}
 
-	private class ObjectPoolMapKey {
+	private static class ObjectPoolMapKey {
 		
 		private final ServiceID serviceID;
 		private final SbbID sbbID;

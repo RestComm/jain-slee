@@ -188,7 +188,7 @@ public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 				seqno, System.currentTimeMillis());
 	}
 
-	class ListenerFilterHandbackTriplet {
+	static class ListenerFilterHandbackTriplet {
 
 		NotificationListener notificationListener;
 

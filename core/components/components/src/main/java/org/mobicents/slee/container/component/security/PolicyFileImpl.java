@@ -696,7 +696,7 @@ public class PolicyFileImpl extends org.mobicents.slee.container.component.secur
 	 *         </a>
 	 * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
 	 */
-	private class GlobalPolicyHolder {
+	private static class GlobalPolicyHolder {
 		private final List<PolicyHolderEntry> policyHolderEntries = new ArrayList<PolicyHolderEntry>();
 		private final Map<ProtectionDomain, PermissionCollection> protectionDomain2PermissionCollection = new HashMap<ProtectionDomain, PermissionCollection>();
 		private final Set<String> loadedFiles = new HashSet<String>();
@@ -711,7 +711,7 @@ public class PolicyFileImpl extends org.mobicents.slee.container.component.secur
 
 	}
 
-	private class ImpliesAction implements PrivilegedExceptionAction {
+	private static class ImpliesAction implements PrivilegedExceptionAction {
 		private CodeSource cs;
 		private PolicyHolderEntry phe;
 

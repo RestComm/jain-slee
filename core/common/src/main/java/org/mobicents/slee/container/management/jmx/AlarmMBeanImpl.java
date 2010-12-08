@@ -472,7 +472,7 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 	 * 
 	 * @author Tim
 	 */
-	class RegisteredComp {
+	static class RegisteredComp {
 		public AtomicLong seqNo = new AtomicLong(0);
 
 		public long getSeqNo() {

@@ -368,7 +368,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	}
 
-	private class XComponentRepository implements ComponentRepository {
+	private static class XComponentRepository implements ComponentRepository {
 		public SbbComponent getComponentByID(SbbID id) {
 
 			return null;

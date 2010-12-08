@@ -179,7 +179,7 @@ public class ProfileTableTransactionView {
 	 * @author martins
 	 * 
 	 */
-	private class ProfileTransactionID {
+	private static class ProfileTransactionID {
 
 		private final String profileName;
 		private final String profileTableName;

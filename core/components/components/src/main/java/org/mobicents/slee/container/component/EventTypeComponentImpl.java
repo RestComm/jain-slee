@@ -54,7 +54,7 @@ public class EventTypeComponentImpl extends AbstractSleeComponent implements Eve
 	 */
 	private SortedSet<ServiceComponent> activeServicesWhichDefineEventAsInitial = new TreeSet<ServiceComponent>(new ActiveServicesWhichDefineEventAsInitialComparator());
 	
-	private class ActiveServicesWhichDefineEventAsInitialComparator implements Comparator<ServiceComponent> {
+	private static class ActiveServicesWhichDefineEventAsInitialComparator implements Comparator<ServiceComponent> {
 		public int compare(ServiceComponent o1, ServiceComponent o2) {
 			if (o1 == o2) {
 				return 0;

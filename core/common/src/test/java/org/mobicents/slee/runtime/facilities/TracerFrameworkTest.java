@@ -289,7 +289,7 @@ public class TracerFrameworkTest extends TestCase {
 		}
 	}
 
-	private class FakeTraceMBeanImpl extends TraceMBeanImpl {
+	private static class FakeTraceMBeanImpl extends TraceMBeanImpl {
 
 		public FakeTraceMBeanImpl() throws NotCompliantMBeanException {
 			super(null);
