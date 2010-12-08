@@ -43,7 +43,6 @@ public class JPAProfileTableFramework {
   private final ProfileManagementImpl sptm;
 
   private boolean isInitialized = false;
-  private static Boolean isLoading = false;
 
   private final SleeTransactionManager sleeTransactionManager;
 
@@ -55,7 +54,8 @@ public class JPAProfileTableFramework {
     this.configuration = configuration;
   }
 
-  private void createPersistenceUnit()
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+private void createPersistenceUnit()
   {
     try {
       HibernatePersistence hp = new HibernatePersistence();
@@ -127,9 +127,6 @@ public class JPAProfileTableFramework {
   }
 
   public void storeProfileTable(ProfileTableImpl profileTable) {
-    if(isLoading) {
-      return;
-    }
 
     if(logger.isTraceEnabled()) {
       logger.trace( "Storing into backend storage profile table " + profileTable );
@@ -197,7 +194,8 @@ public class JPAProfileTableFramework {
     }
   }
 
-  public ProfileSpecificationID getProfileSpecificationID(String profileTableName) {
+  @SuppressWarnings("unchecked")
+public ProfileSpecificationID getProfileSpecificationID(String profileTableName) {
 	  
 	  EntityManager em = null;
 	    
@@ -235,8 +233,7 @@ public class JPAProfileTableFramework {
 		if(logger.isDebugEnabled()) {
 			logger.debug("Profile Table named " + profileTableName + " found in JPA data source.");
 		}
-		synchronized (isLoading) {
-			isLoading = true;
+		synchronized (this) {
 			// ask for the profile table, the manager will build the local object
 			try {
 				sptm.loadProfileTableLocally(profileTableName, component);
@@ -246,7 +243,6 @@ public class JPAProfileTableFramework {
 					logger.debug("Unable to load profile table named "+profileTableName,e);
 				}
 			}
-			isLoading = false;
 		}
 	}
   }
@@ -270,7 +266,8 @@ public class JPAProfileTableFramework {
   /**
    * @return
    */
-  public Set<String> _getProfileTableNames(ProfileSpecificationID profileSpecificationID) {
+  @SuppressWarnings("unchecked")
+public Set<String> _getProfileTableNames(ProfileSpecificationID profileSpecificationID) {
 	  
 	  Set<String> resultSet = null;
 	  
