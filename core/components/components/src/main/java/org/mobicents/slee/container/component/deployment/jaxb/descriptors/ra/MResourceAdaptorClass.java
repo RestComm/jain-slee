@@ -11,17 +11,13 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
 public class MResourceAdaptorClass {
-
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorClass resourceAdaptorClass11;
   
   protected boolean supportsActiveReconfiguration = false;
   protected String description;
   protected String resourceAdaptorClassName;
 
   public MResourceAdaptorClass(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorClass resourceAdaptorClass11)
-  {
-    this.resourceAdaptorClass11 = resourceAdaptorClass11;
-    
+  {    
     if (resourceAdaptorClass11.getSupportsActiveReconfiguration() != null) {
     	this.supportsActiveReconfiguration = Boolean.parseBoolean(resourceAdaptorClass11.getSupportsActiveReconfiguration());
     }

@@ -17,9 +17,6 @@ import javax.slee.management.DeploymentException;
  */
 public class MDeployableUnit {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.du.DeployableUnit deployableUnit10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit deployableUnit11;
-
   private String description;
 
   private List<String> jarEntries = new ArrayList<String>();
@@ -29,7 +26,6 @@ public class MDeployableUnit {
   
   public MDeployableUnit(org.mobicents.slee.container.component.deployment.jaxb.slee.du.DeployableUnit deployableUnit10) throws DeploymentException
   {
-    this.deployableUnit10 = deployableUnit10;
 
     this.description = deployableUnit10.getDescription() == null ? null : deployableUnit10.getDescription().getvalue();
 
@@ -62,7 +58,6 @@ public class MDeployableUnit {
 
   public MDeployableUnit(org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit deployableUnit11) throws DeploymentException
   {
-    this.deployableUnit11 = deployableUnit11;
 
     this.description = deployableUnit11.getDescription() == null ? null : deployableUnit11.getDescription().getvalue();
 

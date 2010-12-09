@@ -8,17 +8,6 @@
  */
 package org.mobicents.slee.container.component.security;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.slee.management.DeploymentException;
-
-import sun.security.provider.PolicyParser;
 
 /**
  * Start time:12:56:13 2009-04-08<br>
@@ -39,13 +28,10 @@ public class PolicyHandler {
 		return policyHandler;
 	}
 
+	/*
 	private static final String _FILE_NAME = "local.policy";
 	private static final String _POLICY_PROP_URL = "policy.url.y";
 	
-	private List<URI> presentPolicyFiles = new ArrayList<URI>();
-
-	
-
 	private void instrumentCodeBase(File deployURL, PolicyParser pp) throws DeploymentException {
 
 		// Here we must instrument code base, so it either points to whole dir,
@@ -73,10 +59,7 @@ public class PolicyHandler {
 				}
 			}
 		}
-	}
-
-	private static int counter =1;
-	
+	}	
 	
 	public static void main(String[] args) {
 
@@ -92,5 +75,6 @@ public class PolicyHandler {
 			e.printStackTrace();
 		}
 	}
+	*/
 
 }

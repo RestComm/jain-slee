@@ -15,16 +15,11 @@ import java.util.List;
  */
 public class MResourceAdaptorTypeJar {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorTypeJar resourceAdaptorTypeJar10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorTypeJar resourceAdaptorTypeJar11;
-  
   private String description;
   private List<MResourceAdaptorType> resourceAdaptorType = new ArrayList<MResourceAdaptorType>();
 
   public MResourceAdaptorTypeJar(org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorTypeJar resourceAdaptorTypeJar10)
-  {
-    this.resourceAdaptorTypeJar10 = resourceAdaptorTypeJar10;
-    
+  {    
     this.description = resourceAdaptorTypeJar10.getDescription() == null ? null : resourceAdaptorTypeJar10.getDescription().getvalue();
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorType resourceAdaptorType10 : resourceAdaptorTypeJar10.getResourceAdaptorType())
@@ -34,9 +29,7 @@ public class MResourceAdaptorTypeJar {
   }
   
   public MResourceAdaptorTypeJar(org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorTypeJar resourceAdaptorTypeJar11)
-  {
-    this.resourceAdaptorTypeJar11 = resourceAdaptorTypeJar11;
-    
+  {    
     this.description = resourceAdaptorTypeJar11.getDescription() == null ? null : resourceAdaptorTypeJar11.getDescription().getvalue();
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorType resourceAdaptorType11 : resourceAdaptorTypeJar11.getResourceAdaptorType())
