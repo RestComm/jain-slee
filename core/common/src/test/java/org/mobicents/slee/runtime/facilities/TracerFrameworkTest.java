@@ -159,9 +159,9 @@ public class TracerFrameworkTest extends TestCase {
 
 	public void test3GetTracersSet() {
 		try {
-			Tracer orgMobicentsTest = this.ts.createTracer("org.mobicents.test", true);
+			this.ts.createTracer("org.mobicents.test", true);
 			Tracer orgMobicents = this.ts.createTracer("org.mobicents", false);
-			Tracer org = this.ts.createTracer("org", true);
+			this.ts.createTracer("org", true);
 
 			String[] tracersSet = this.ts.getDefinedTracerNames();
 
@@ -189,9 +189,9 @@ public class TracerFrameworkTest extends TestCase {
 
 	public void test3GetTracersUsed() {
 		try {
-			Tracer orgMobicentsTest = this.ts.createTracer("org.mobicents.test", false);
+			this.ts.createTracer("org.mobicents.test", false);
 			Tracer orgMobicents = this.ts.createTracer("org.mobicents", false);
-			Tracer org = this.ts.createTracer("org", false);
+			this.ts.createTracer("org", false);
 
 			String[] definedTracers = this.ts.getRequestedTracerNames();
 
@@ -226,7 +226,7 @@ public class TracerFrameworkTest extends TestCase {
 	public void test4TestNotificationType() {
 		try {
 			int localSeq = 0;
-			Tracer orgMobicentsTest = this.ts.createTracer("org.mobicents.test", false);
+			this.ts.createTracer("org.mobicents.test", false);
 			Tracer orgMobicents = this.ts.createTracer("org.mobicents", false);
 			Tracer org = this.ts.createTracer("org", false);
 			Tracer rootTracer = this.ts.createTracer("", false);
@@ -300,7 +300,6 @@ public class TracerFrameworkTest extends TestCase {
 		private NotificationSource expectedNotificationSource = null;
 		private TraceLevel expectedNotificatioTraceLevel = null;
 		private boolean shouldReceiveNotification = false;
-		private Throwable expectedCause = null;
 
 		public void setTestHarness(String expectedNotificationType, int expectedNotificationSequence, NotificationSource expectedNotificationSource, TraceLevel expectedNotificatioTraceLevel,
 				Throwable expectedCause, boolean shouldReceiveNotification) {
@@ -310,7 +309,6 @@ public class TracerFrameworkTest extends TestCase {
 			this.expectedNotificationSource = expectedNotificationSource;
 			this.expectedNotificatioTraceLevel = expectedNotificatioTraceLevel;
 			this.shouldReceiveNotification = shouldReceiveNotification;
-			this.expectedCause = expectedCause;
 		}
 
 		@Override
