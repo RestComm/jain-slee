@@ -8,15 +8,12 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
-import java.util.EnumSet;
-
 import javax.slee.EventTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEventSelect;
 import org.mobicents.slee.container.component.sbb.EventDirection;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
-import org.mobicents.slee.container.component.sbb.InitialEventSelectVariable;
 
 /**
  * Start time:12:50:56 2009-01-20<br>
@@ -35,12 +32,11 @@ public class MEventEntry implements EventEntryDescriptor {
 	private String description = null;
 	private EventTypeID eventReference=null;
 	
-	//private ComponentKey eventReference = null;
 	private String eventName = null;
-	private EnumSet<InitialEventSelectVariable> initialEventSelects = EnumSet.noneOf(InitialEventSelectVariable.class);
 	private String initialEventSelectorMethod = null;
 	private String resourceOption = null;
-
+	private final InitialEventSelectorVariablesImpl initialEventSelectorVariables = new InitialEventSelectorVariablesImpl();
+	
 	public MEventEntry(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.Event llEvent) {
 		super();
@@ -66,7 +62,7 @@ public class MEventEntry implements EventEntryDescriptor {
 		
 		if(llEvent.getInitialEventSelect()!=null) {
 			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.InitialEventSelect ies:llEvent.getInitialEventSelect()) {
-				this.initialEventSelects.add(InitialEventSelectVariable.valueOf(ies.getVariable()));
+				initialEventSelectorVariables.setVariable(InitialEventSelectVariable.valueOf(ies.getVariable()));
 			}
 		}
 		
@@ -100,7 +96,7 @@ public class MEventEntry implements EventEntryDescriptor {
 		
 		if(event.getInitialEventSelect()!=null) {
 			for(InitialEventSelect ies:event.getInitialEventSelect()) {
-				this.initialEventSelects.add(InitialEventSelectVariable.valueOf(ies.getVariable()));
+				initialEventSelectorVariables.setVariable(InitialEventSelectVariable.valueOf(ies.getVariable()));
 			}
 		}
 		
@@ -145,8 +141,9 @@ public class MEventEntry implements EventEntryDescriptor {
 		return eventName;
 	}
 
-	public EnumSet<InitialEventSelectVariable> getInitialEventSelects() {
-		return initialEventSelects;
+	@Override
+	public InitialEventSelectorVariablesImpl getInitialEventSelectVariables() {
+		return initialEventSelectorVariables;
 	}
 
 	public String getInitialEventSelectorMethod() {

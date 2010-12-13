@@ -3,8 +3,6 @@
  */
 package org.mobicents.slee.container.component.sbb;
 
-import java.util.EnumSet;
-
 import javax.slee.EventTypeID;
 
 /**
@@ -17,7 +15,7 @@ public interface EventEntryDescriptor {
 	 * 
 	 * @return
 	 */
-	public EnumSet<InitialEventSelectVariable> getInitialEventSelects();
+	public InitialEventSelectorVariables getInitialEventSelectVariables();
 
 	/**
 	 * 

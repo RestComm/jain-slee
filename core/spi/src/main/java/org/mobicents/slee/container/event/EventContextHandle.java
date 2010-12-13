@@ -11,4 +11,6 @@ import java.io.Serializable;
  */
 public interface EventContextHandle extends Serializable {
 
+	public String getId();
+	
 }

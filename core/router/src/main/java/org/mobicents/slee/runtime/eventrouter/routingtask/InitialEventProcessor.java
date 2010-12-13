@@ -5,14 +5,19 @@ import java.util.Collection;
 
 import javax.slee.Address;
 import javax.slee.SLEEException;
+import javax.slee.profile.AttributeNotIndexedException;
+import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.profile.UnrecognizedAttributeException;
+import javax.slee.profile.UnrecognizedProfileTableNameException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.component.profile.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
+import org.mobicents.slee.container.component.sbb.InitialEventSelectorVariables;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.event.EventContext;
@@ -27,26 +32,26 @@ public class InitialEventProcessor {
 	private static final Logger logger = Logger.getLogger(InitialEventProcessor.class);
 
 	private static final char NOT_SELECTED = '_';
-
+	private static final String NOT_SELECTED_STRING = "_";
+	private static final String ALL_NOT_SELECTED_EXCEPT_AC = "____";
+	
 	/**
 	 * Compute a convergence name for the Sbb for the given Slee event.
 	 * Convergence names are used to instantiate the Sbb. I really ought to move
 	 * this to SleeContainer.java
 	 * 
-	 * @param sleeEvent -
+	 * @param eventContext -
 	 *            slee event for the convergence name computation
 	 * @return the convergence name or null if this is not an initial event for
 	 *         this service
 	 */
-	private String computeConvergenceName(EventContext sleeEvent,
+	private String computeConvergenceName(EventContext eventContext,
 			ServiceComponent serviceComponent, SleeContainer sleeContainer) throws Exception {
 
 		final SbbComponent sbbComponent = serviceComponent.getRootSbbComponent();
-		EventEntryDescriptor mEventEntry = sbbComponent.getDescriptor().getEventEntries().get(sleeEvent.getEventTypeId());
-		InitialEventSelectorImpl selector = new InitialEventSelectorImpl(
-				sleeEvent.getEventTypeId(), sleeEvent.getEvent(), sleeEvent.getActivityContextHandle(), mEventEntry.getInitialEventSelects().clone(), mEventEntry.getInitialEventSelectorMethod(), sleeEvent
-				.getAddress());
-
+		final EventEntryDescriptor eventEntryDescriptor = sbbComponent.getDescriptor().getEventEntries().get(eventContext.getEventTypeId());
+		StringBuilder buff = null;
+		
 		/*
 		 * An initial-event-selector-method-name element. This element is
 		 * optional and is meaningful only if initial-event is true. It
@@ -56,29 +61,20 @@ public class InitialEventProcessor {
 		 * Section 8.5.4). Note that this method is not static. You can either
 		 * used a pooled instance of the object or create a new instance of the
 		 * object to run the specified method.
-		 */
-		if (selector.isSelectMethod()) {
-			// According to Section 8.5.4, page 115, some fields should be set
-			// before calling the selector method
-			// selector.setEvent(sleeEvent.getEventObject());
-			// selector.setEventName(); //TODO: not sure what value to put here
-			// selector.setActivity(sleeEvent.getActivityContext().getActivity());//TODO:
-			// see how to get the activity now
-			selector.setAddress(sleeEvent.getAddress());
-			selector.setCustomName(null);
-			selector.setInitialEvent(true);
-
+		 */		
+		if (eventEntryDescriptor.getInitialEventSelectorMethod() != null) {
+			// IES METHOD DEFINED
+			// invoke method
+			InitialEventSelectorImpl selector = new InitialEventSelectorImpl(eventContext,eventEntryDescriptor);
 			SbbObjectPool pool = sleeContainer.getSbbManagement().getObjectPool(serviceComponent.getServiceID(),
 					sbbComponent.getSbbID());
 			SbbObject sbbObject = (SbbObject) pool.borrowObject();
-			
 			Object[] args = new Object[] { selector };
-
 			ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
 			try {
 				Thread.currentThread().setContextClassLoader(
 						sbbComponent.getClassLoader());
-				final Method m = sbbComponent.getInitialEventSelectorMethods().get(selector.getSelectMethodName());
+				final Method m = sbbComponent.getInitialEventSelectorMethods().get(eventEntryDescriptor.getInitialEventSelectorMethod());
 				selector = (InitialEventSelectorImpl) m.invoke(sbbObject.getSbbConcrete(),
 						args);
 				if (selector == null) {
@@ -87,122 +83,125 @@ public class InitialEventProcessor {
 				if (!selector.isInitialEvent()) {
 					return null;
 				}
-
 			} finally {
 				Thread.currentThread().setContextClassLoader(oldCl);
 				pool.returnObject(sbbObject);
 			}
-		}
-
-		StringBuilder buff = new StringBuilder();
-
-		if (selector.isActivityContextSelected()) {
-			buff.append(sleeEvent.getActivityContextHandle().hashCode());
-		} else
-			buff.append(NOT_SELECTED);
-
-		// TODO the ProfileTle select varile for now is null
-
-		buff.append(NOT_SELECTED);
-
-		if (selector.isAddressSelected()) {
-			Address address = selector.getAddress();
-
-			if (address == null)
-				buff.append(NOT_SELECTED);
-			else
-				buff.append(address.toString());
-		} else
-			buff.append(NOT_SELECTED);
-
-		// If event type is selected append it to te convergence name.
-		if (selector.isEventTypeSelected()) {
-			buff.append(selector.getEventTypeID());
-		} else
-			buff.append(NOT_SELECTED);
-
-		/*
-		 * Event. The value of this variable (if selected) is unique for each
-		 * event fired, e.g. each invocation of an SBB fire event method or each
-		 * firing of an event by a resource adaptor (using SLEE vendor specific
-		 * fire event methods). It is unique regardless of whether the same pair
-		 * of event object and Activity Context object (in the case of SBB fired
-		 * event, or Activity object in case of resource adaptor fired event)
-		 * are passed to the fire event method. There are two unique events
-		 * fired in the following scenarios:
-		 * 
-		 * o An SBB invoking the same fire event method twice. From the SLEEs
-		 * perspective, the two fire method invocations fire two unique events
-		 * even if the Activity Context object and event object passed to the
-		 * fire event method are the same.
-		 * 
-		 * o An SBB firing an event in its event handler method. The event fired
-		 * through the fire event method is a different event even if the same
-		 * Activity Context object and event object passed to the event handler
-		 * method is passed to the fire event method.
-		 * 
-		 * o A resource adaptor entity invoking one or more SLEE provided
-		 * methods for firing events multiple times. From the SLEE???s
-		 * perspective, these invocations fire multiple unique events even if
-		 * the Activity object and event object passed are the same.
-		 */
-
-		if (selector.isEventSelected()) {
-			buff.append(sleeEvent.hashCode()); // TODO: use a more unique value
-			// than the hash code
-		} else
-			buff.append(NOT_SELECTED);
-		/*
-		 * The address attribute of the InitialEventSelector object provides the
-		 * default address. The value of this attribute may be null if there is
-		 * no default address. The value of this attribute determines the value
-		 * of the address variable in the convergence name if the address
-		 * variable is selected and is also used to look up Address Profiles in
-		 * the Address Profile Table of the Service if the Address Profile
-		 * variable is selected.
-		 * 
-		 * o If the address attribute is null when the initial event selector
-		 * method returns, then the address convergence name variable is not
-		 * selected, i.e. same as setting AddressSelected attribute to false.
-		 * 
-		 * o If the AddressProfile variable is set to true and the address is
-		 * not null but does not locate any Address Profile in the Address
-		 * Profile Table of the Service, then no convergence name is created,
-		 * i.e. same as setting PossibleInitialEvent to false.
-		 */
-		if (selector.isAddressProfileSelected()) {
-			
-			if (selector.getAddress() == null) {
-				buff.append(NOT_SELECTED);
+			// build convergence name
+			// AC VARIABLE
+			if (selector.isActivityContextSelected()) {
+				buff = new StringBuilder(Integer.toString(eventContext.getActivityContextHandle().hashCode()));
 			} else {
-				ProfileSpecificationID addressProfileId = sbbComponent.getDescriptor().getAddressProfileSpecRef();
-				ProfileSpecificationComponent profileSpecificationComponent = sleeContainer.getComponentRepository().getComponentByID(addressProfileId);
-			
-				String addressProfileTable = serviceComponent.getDescriptor().getAddressProfileTable();
-				// Cannot find an address profile table spec. 
-				if (addressProfileTable == null) {
-					throw new SLEEException("null address profile table in service !");
-				}
-				ProfileTable profileTable = sleeContainer.getSleeProfileTableManager().getProfileTable(addressProfileTable);
-				Collection<ProfileID> profileIDs = profileTable.getProfilesByAttribute(profileSpecificationComponent.isSlee11() ? "address" : "addresses", selector.getAddress(), profileSpecificationComponent.isSlee11());
+				buff = new StringBuilder(NOT_SELECTED_STRING);
+			}
+			// ADDRESS VARIABLE
+			if (selector.isAddressSelected() && selector.getAddress() != null) {
+				buff.append(selector.getAddress().toString());
+			}
+			else {
+				buff.append(NOT_SELECTED);
+			}
+			// EVENT TYPE
+			if (selector.isEventTypeSelected()) {
+				buff.append(eventContext.getEventTypeId());
+			}
+			else {
+				buff.append(NOT_SELECTED);
+			}
+			// EVENT
+			if (selector.isEventSelected()) {
+				buff.append(eventContext.getEventContextHandle().getId());
+			}
+			else {
+				buff.append(NOT_SELECTED);
+			}
+			// ADDRESS PROFILE
+			if (selector.isAddressProfileSelected() && selector.getAddress() != null) {
+				final Collection<ProfileID> profileIDs = getAddressProfilesMatching(selector.getAddress(), serviceComponent, sbbComponent, sleeContainer);
 				if (profileIDs.isEmpty())
 					// no profiles located
 					return null;
 				else {
 					buff.append(profileIDs.iterator().next());
-				}				
+				}
+			}
+			else {
+				buff.append(NOT_SELECTED);
+			}
+			// CUSTOM NAME
+			if (selector.getCustomName() != null) {
+				buff.append(selector.getCustomName());
 			}
 
-		} else
-			buff.append(NOT_SELECTED);
-
-		String customName = selector.getCustomName();
-
-		buff.append(customName);
-
+		}
+		else {
+			// NO IES METHOD DEFINED
+			// build convergence name considering the variabes selected in sbb's xml descriptor
+			// AC VARIABLE
+			final InitialEventSelectorVariables initialEventSelectorVariables = eventEntryDescriptor.getInitialEventSelectVariables();
+			if(initialEventSelectorVariables.isActivityContextSelected()) {
+				if (initialEventSelectorVariables.isActivityContextOnlySelected()) {
+					// special most used case where convergence name is only bound to activity context
+					return new StringBuilder(Integer.toString(eventContext.getActivityContextHandle().hashCode())).append(ALL_NOT_SELECTED_EXCEPT_AC).toString();
+				}
+				else {
+					buff = new StringBuilder(Integer.toString(eventContext.getActivityContextHandle().hashCode()));
+				}
+			}
+			else {
+				buff = new StringBuilder(NOT_SELECTED_STRING);
+			}
+			// ADDRESS VARIABLE
+			if(initialEventSelectorVariables.isAddressSelected() && eventContext.getAddress() != null) {
+				buff.append(eventContext.getAddress().toString());
+			}
+			else {
+				buff.append(NOT_SELECTED);
+			}
+			// EVENT TYPE
+			if(initialEventSelectorVariables.isEventTypeSelected()) {
+				buff.append(eventContext.getEventTypeId());
+			}
+			else {
+				buff.append(NOT_SELECTED);
+			}
+			// EVENT
+			if(initialEventSelectorVariables.isEventSelected()) {
+				buff.append(eventContext.getEventContextHandle().getId());
+			}
+			else {
+				buff.append(NOT_SELECTED);
+			}
+			// ADDRESS PROFILE
+			if(initialEventSelectorVariables.isAddressProfileSelected() && eventContext.getAddress() != null) {
+				final Collection<ProfileID> profileIDs = getAddressProfilesMatching(eventContext.getAddress(), serviceComponent, sbbComponent, sleeContainer);
+				if (profileIDs.isEmpty())
+					// no profiles located
+					return null;
+				else {
+					buff.append(profileIDs.iterator().next());
+				} 
+			}
+			else {
+				buff.append(NOT_SELECTED);
+			}
+		}
+		
 		return buff.toString();
 	}
 
+	private Collection<ProfileID> getAddressProfilesMatching(Address address, ServiceComponent serviceComponent, SbbComponent sbbComponent, SleeContainer sleeContainer) throws NullPointerException, UnrecognizedProfileTableNameException, SLEEException, UnrecognizedAttributeException, AttributeNotIndexedException, AttributeTypeMismatchException {
+		ProfileSpecificationID addressProfileId = sbbComponent.getDescriptor().getAddressProfileSpecRef();
+		ProfileSpecificationComponent profileSpecificationComponent = sleeContainer.getComponentRepository().getComponentByID(addressProfileId);
+		String addressProfileTable = serviceComponent.getDescriptor().getAddressProfileTable();
+		// Cannot find an address profile table spec. 
+		if (addressProfileTable == null) {
+			throw new SLEEException("null address profile table in service !");
+		}
+		ProfileTable profileTable = sleeContainer.getSleeProfileTableManager().getProfileTable(addressProfileTable);
+		return profileTable.getProfilesByAttribute(profileSpecificationComponent.isSlee11() ? "address" : "addresses", address, profileSpecificationComponent.isSlee11());		
+	}
+	
 	public SbbEntity processInitialEvent(ServiceComponent serviceComponent,
 			EventContext deferredEvent, SleeContainer sleeContainer,
 			ActivityContext ac) {

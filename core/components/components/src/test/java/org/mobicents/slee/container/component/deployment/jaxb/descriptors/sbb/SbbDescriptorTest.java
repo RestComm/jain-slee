@@ -11,11 +11,10 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.slee.EventTypeID;
 import javax.slee.management.DeploymentException;
@@ -32,7 +31,6 @@ import org.mobicents.slee.container.component.sbb.EventDirection;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
 import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
 import org.mobicents.slee.container.component.sbb.GetProfileCMPMethodDescriptor;
-import org.mobicents.slee.container.component.sbb.InitialEventSelectVariable;
 import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDescriptor;
 import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDescriptor;
 import org.mobicents.slee.container.component.sbb.SbbAbstractClassDescriptor;
@@ -224,19 +222,13 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Event entry direction is not equal Receive",eventEntry.getEventDirection()==EventDirection.Receive);
 		
 		assertNotNull("Event entry initial event selector method is null",eventEntry.getInitialEventSelectorMethod());
-		assertTrue("Event entry initial event selector method is not equal "+_INITIAL_EVENT_SELECTOR_METHOD_NAME,eventEntry.getInitialEventSelectorMethod().compareTo(_INITIAL_EVENT_SELECTOR_METHOD_NAME)==0);
-		
-		assertNotNull("Event entry initial selects list is null",eventEntry.getInitialEventSelects());
-		
-		
-		
-		EnumSet<InitialEventSelectVariable> iSelect=eventEntry.getInitialEventSelects();
-		
-		assertNotNull("Event initial selects list is null",iSelect);
-		assertTrue("Event initial selects list size is not equal 1",iSelect.size()==1);
-		
-		assertTrue("Event initial select variable is equal Address",iSelect.contains(InitialEventSelectVariable.Address));
-		
+		assertTrue("Event entry initial event selector method is not equal "+_INITIAL_EVENT_SELECTOR_METHOD_NAME,eventEntry.getInitialEventSelectorMethod().compareTo(_INITIAL_EVENT_SELECTOR_METHOD_NAME)==0);		
+						
+		assertTrue("Event initial select variable Address is selected",eventEntry.getInitialEventSelectVariables().isAddressSelected());
+		assertTrue("Event initial select variable ActivityContext is not selected",!eventEntry.getInitialEventSelectVariables().isActivityContextSelected());
+		assertTrue("Event initial select variable AddressProfile is not selected",!eventEntry.getInitialEventSelectVariables().isAddressProfileSelected());
+		assertTrue("Event initial select variable Event is not selected",!eventEntry.getInitialEventSelectVariables().isEventSelected());
+		assertTrue("Event initial select variable EventType is not selected",!eventEntry.getInitialEventSelectVariables().isEventTypeSelected());
 	
 		Set<Entry<String, String>> aciAliasses=sbb.getActivityContextAttributeAliases().entrySet();
 		
