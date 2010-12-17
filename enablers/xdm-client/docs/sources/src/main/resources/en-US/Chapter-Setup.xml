@@ -10,11 +10,11 @@
 		<para>Ensure that the following requirements have been met before continuing with the install.</para>
 		<section id="hardware_requirements">
 			<title>Hardware Requirements</title>
-			<para>The Example doesn't change the &THIS.PLATFORM; JAIN SLEE Hardware Requirements, refer to &THIS.PLATFORM; JAIN SLEE documentation for more information.</para>
+			<para>The Enabler doesn't change the &THIS.PLATFORM; JAIN SLEE Hardware Requirements, refer to &THIS.PLATFORM; JAIN SLEE documentation for more information.</para>
 		</section>
 		<section id="software_prerequisites">
 			<title>Software Prerequisites</title>
-			<para>The Example requires &THIS.PLATFORM; JAIN SLEE properly set, with the XCAP Client Resource Adaptor deployed.</para>
+			<para>The Enabler requires &THIS.PLATFORM; JAIN SLEE properly set, with the XCAP Client Resource Adaptor deployed.</para>
 		</section>
 	</section>	
 	
