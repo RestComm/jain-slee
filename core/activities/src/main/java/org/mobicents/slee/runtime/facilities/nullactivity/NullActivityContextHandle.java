@@ -55,15 +55,12 @@ public class NullActivityContextHandle implements ActivityContextHandle {
 
 	@Override
 	public boolean equals(Object obj) {
-
 		if (this == obj) {
 			return true;
 		}
-		
 		if (obj == null) {
 			return false;
 		}
-		
 		if (obj.getClass() == this.getClass()) {
 			final NullActivityContextHandle other = (NullActivityContextHandle) obj;
 			return other.activityHandle.equals(this.activityHandle);
@@ -79,6 +76,6 @@ public class NullActivityContextHandle implements ActivityContextHandle {
 	
 	@Override
 	public String toString() {
-		return new StringBuilder ("ACH=").append(getActivityType()).append('>').append(activityHandle).toString(); 		
+		return new StringBuilder("ACH=").append(getActivityType()).append('>').append(activityHandle).toString(); 		
 	}
 }
