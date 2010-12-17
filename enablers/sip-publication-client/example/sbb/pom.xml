@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.enablers.sip.example</groupId>
+		<artifactId>sip-publication-client</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>sip-publication-client-sbb</artifactId>
+
+	<dependencies>
+		<dependency>
+			<artifactId>sip-publication-client-sbb</artifactId>
+			<groupId>org.mobicents.servers.jainslee.enablers</groupId>
+			<version>1.0.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+
+	</dependencies>
+
+</project>
