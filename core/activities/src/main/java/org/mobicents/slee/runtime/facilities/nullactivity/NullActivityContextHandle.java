@@ -3,6 +3,10 @@
  */
 package org.mobicents.slee.runtime.facilities.nullactivity;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityHandle;
@@ -18,7 +22,7 @@ public class NullActivityContextHandle implements ActivityContextHandle {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private final NullActivityHandle activityHandle;
+	private transient NullActivityHandle activityHandle;
 	
 	private transient NullActivityImpl activityObject;
 	
@@ -78,4 +82,17 @@ public class NullActivityContextHandle implements ActivityContextHandle {
 	public String toString() {
 		return new StringBuilder("ACH=").append(getActivityType()).append('>').append(activityHandle).toString(); 		
 	}
+	
+	// serialization
+
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		stream.defaultWriteObject();
+		stream.writeUTF(((NullActivityHandleImpl)activityHandle).getId());
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException,
+				ClassNotFoundException {
+		stream.defaultReadObject();
+		this.activityHandle = new NullActivityHandleImpl(stream.readUTF());
+	} 
 }
