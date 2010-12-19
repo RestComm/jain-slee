@@ -223,19 +223,11 @@ public class JccCallImpl implements JccCall {
     
     protected synchronized void remove(JccConnection connection) {
         //remove connection from call
-    	if(logger.isInfoEnabled())
-    	{
-    		logger.info("Removing from call: "+callID+", connection: "+connection.toString()+"---"+connection.getAddress().getName()+", from list: "+connections);
-    	}
     	
         connections.remove(connection.getAddress().getName());
         
         //remove connection from provider
         long id = ((AbstractConnection) connection).getID().getId();
-        if(logger.isInfoEnabled())
-    	{
-    		logger.info("Removing from call: "+callID+", connection: "+id+", from provider: "+provider.connections);
-    	}
         provider.connections.remove(new Long(id));
         
         //clear call if there is no more connections

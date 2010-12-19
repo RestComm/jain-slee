@@ -841,8 +841,6 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 				try {
 					Thread.currentThread().sleep(60000);
 					logger.info("activities=" + activities.size() + ", handlers=" + handlers.size());
-					logger.info("activities: "+activities);
-					logger.info("handlers: "+handlers);
 				} catch (InterruptedException e) {
 					stopped = true;
 				}

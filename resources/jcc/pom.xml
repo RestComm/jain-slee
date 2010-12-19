@@ -31,8 +31,8 @@
 		<docs.bookid>JCC</docs.bookid>
 		<docs.profile>mobicents</docs.profile>
 
-		<tcap.version>1.0.0.BETA3</tcap.version>
-		<sccp.version>1.0.0.BETA3</sccp.version>
+		<tcap.version>1.0.0.BETA4-SNAPSHOT</tcap.version>
+		<sccp.version>1.0.0.BETA4-SNAPSHOT</sccp.version>
 		<asn.version>1.0.0.BETA2</asn.version>
 		<mtp.version>1.0.0.BETA4</mtp.version>
 		<stream.version>1.0.0.BETA1</stream.version>
