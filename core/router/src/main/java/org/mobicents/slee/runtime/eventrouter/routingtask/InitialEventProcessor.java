@@ -25,7 +25,6 @@ import org.mobicents.slee.container.profile.ProfileTable;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectPool;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
-import org.mobicents.slee.container.service.Service;
 
 public class InitialEventProcessor {
 
@@ -225,57 +224,38 @@ public class InitialEventProcessor {
 		 * service deployment. The names set is composed by only one
 		 * convergence name the error is due an error in the pseudocode
 		 */
-		final Service service = sleeContainer.getServiceManagement().getService(serviceComponent);			
-		if (service.getState().isActive()) {
+		String name = null;
+		try {
+			name = computeConvergenceName(deferredEvent,serviceComponent,sleeContainer);
+		}
+		catch (Exception e) {
+			logger.error("Failed to compute convergance name: "+e.getMessage(),e);
+		}
 
-			String name = null;
-			
-			try {
-				name = computeConvergenceName(deferredEvent,serviceComponent,sleeContainer);
-			}
-			catch (Exception e) {
-				logger.error("Failed to compute convergance name: "+e.getMessage(),e);
-			}
-			
-			if (name != null) {
-
-				if (!service.containsConvergenceName(name)) {
-
-					if (logger.isDebugEnabled()) {
-						logger.debug("Computed convergence name for "+serviceComponent+" and "+deferredEvent+" is "
-								+ name + ", creating sbb entity and attaching to activity context.");
-					}
-
-					// Create a new root sbb entity
-					sbbEntity = service.addChild(name);
-
-					// attach sbb entity on AC
-					if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
-						// do the reverse on the sbb entity
-						sbbEntity.afterACAttach(deferredEvent.getActivityContextHandle());
-					}
-
-				} else {
-
-					if (logger.isDebugEnabled()) {
-						logger.debug("Computed convergence name for "+service+" and "+deferredEvent+" is "
-								+ name + ", sbb entity already exists, attaching to activity context (if not attached yet)");
-					}
-					// get sbb entity for this convergence name
-					sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(service.getRootSbbEntityId(name),true);
-					if (sbbEntity != null) {
-						// attach sbb entity on AC
-						if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
-							// do the reverse on the sbb entity
-							sbbEntity.afterACAttach(deferredEvent.getActivityContextHandle());
-						}
-					}
+		if (name != null) {
+			sbbEntity = sleeContainer.getSbbEntityFactory().createRootSbbEntity(serviceComponent.getServiceID(),name);
+			if (sbbEntity.isCreated()) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Computed convergence name for "+serviceComponent+" and "+deferredEvent+" is "
+							+ name + ", creating sbb entity and attaching to activity context.");
 				}
-
+				// set priority
+				sbbEntity.setPriority(serviceComponent.getDescriptor().getDefaultPriority());				
 			} else {
 				if (logger.isDebugEnabled()) {
-					logger.debug("Computed convergence name for "+service+" and "+deferredEvent+" is null, either the root sbb is not interested in the event or an error occurred.");
-				}
+					logger.debug("Computed convergence name for "+serviceComponent.getServiceID()+" and "+deferredEvent+" is "
+							+ name + ", sbb entity already exists, attaching to activity context (if not attached yet)");
+				}				
+			}
+			// ensure sbb entity is attached to AC
+			if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
+				// do the reverse on the sbb entity
+				sbbEntity.afterACAttach(deferredEvent.getActivityContextHandle());
+			}
+
+		} else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Computed convergence name for "+serviceComponent.getServiceID()+" and "+deferredEvent+" is null, either the root sbb is not interested in the event or an error occurred.");
 			}
 		}
 		

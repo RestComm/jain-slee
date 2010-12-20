@@ -4,8 +4,8 @@
 package org.mobicents.slee.resource;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.Marshaler;
@@ -27,9 +27,16 @@ public class ResourceAdaptorActivityContextHandleImpl implements ResourceAdaptor
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private transient ActivityHandle activityHandle;
-	private transient ResourceAdaptorEntity raEntity;
-		
+	private ActivityHandle activityHandle;
+	private ResourceAdaptorEntity raEntity;
+	
+	/**
+	 * not to be used, needed due to externalizable
+	 */
+	public ResourceAdaptorActivityContextHandleImpl() {
+
+	}
+	
 	/**
 	 * 
 	 */
@@ -66,17 +73,18 @@ public class ResourceAdaptorActivityContextHandleImpl implements ResourceAdaptor
 		return ActivityType.RA;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
-
 		if (this == obj) {
 			return true;
-		}
-		
+		}	
 		if (obj == null) {
 			return false;
 		}
-		
 		if (obj.getClass() == this.getClass()) {
 			final ResourceAdaptorActivityContextHandleImpl other = (ResourceAdaptorActivityContextHandleImpl) obj;
 			return other.activityHandle.equals(this.activityHandle) && other.raEntity.equals(this.raEntity);
@@ -85,74 +93,81 @@ public class ResourceAdaptorActivityContextHandleImpl implements ResourceAdaptor
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		return activityHandle.hashCode() * 31 + raEntity.hashCode();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return new StringBuilder ("RA:").append(getResourceAdaptorEntity().getName()).append(':').append(activityHandle).toString(); 		
 	}
 	
-	// serialization
-	
-	private void writeObject(ObjectOutputStream stream) throws IOException {
-
-	  stream.defaultWriteObject();
-	  
-	  // write ra entity name
-	  stream.writeUTF(raEntity.getName());
-	  
-	  // write activity handle
-	  if (activityHandle.getClass() == ActivityHandleReference.class) {
-		  // a reference
-		  stream.writeBoolean(true);
-		  final ActivityHandleReference reference = (ActivityHandleReference) activityHandle;
-		  stream.writeObject(reference.getAddress());
-		  stream.writeUTF(reference.getId());
-	  }
-	  else {
-		  stream.writeBoolean(false);
-		  final Marshaler marshaler = raEntity.getMarshaler();
-		  if (marshaler != null) {
-			  marshaler.marshalHandle(activityHandle, stream);
-		  }
-		  else {
-			  throw new IOException("marshaller from RA is null");
-		  }
-	  }
-	   
-	} 
-
-	private void readObject(ObjectInputStream stream) throws IOException,
+	/*
+	 * (non-Javadoc)
+	 * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
+	 */
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-
-		stream.defaultReadObject();
-
 		// read ra entity name
-		final String raEntityName = stream.readUTF();
-
+		final String raEntityName = in.readUTF();
 		// read activity handle
 		this.raEntity = SleeContainer.lookupFromJndi().getResourceManagement()
-				.getResourceAdaptorEntity(raEntityName);
+		.getResourceAdaptorEntity(raEntityName);
 		if (raEntity == null) {
 			throw new IOException("RA Entity with name " + raEntityName
 					+ " not found.");
 		}
-
 		// read activity handle
-		boolean handleReference = stream.readBoolean();
+		boolean handleReference = in.readBoolean();
 		if (handleReference) {
-			activityHandle = new ActivityHandleReference(null, (Address) stream.readObject(), stream.readUTF());
+			// a reference
+			activityHandle = new ActivityHandleReference(null, (Address) in.readObject(), in.readUTF());
 		} else {
 			final Marshaler marshaler = raEntity.getMarshaler();
 			if (marshaler != null) {
-				activityHandle = marshaler.unmarshalHandle(stream);
+				activityHandle = marshaler.unmarshalHandle(in);
 			} else {
 				throw new IOException("marshaller from RA is null");
 			}
 		}
-	} 
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
+	 */
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		// write ra entity name
+		out.writeUTF(raEntity.getName());
+		// write activity handle
+		if (activityHandle.getClass() == ActivityHandleReference.class) {
+			// a reference
+			out.writeBoolean(true);
+			final ActivityHandleReference reference = (ActivityHandleReference) activityHandle;
+			out.writeObject(reference.getAddress());
+			out.writeUTF(reference.getId());
+		}
+		else {
+			out.writeBoolean(false);
+			final Marshaler marshaler = raEntity.getMarshaler();
+			if (marshaler != null) {
+				marshaler.marshalHandle(activityHandle, out);
+			}
+			else {
+				throw new IOException("marshaller from RA is null");
+			}
+		}
+	}
 	
 }

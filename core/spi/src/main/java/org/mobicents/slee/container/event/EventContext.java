@@ -14,6 +14,7 @@ import javax.slee.resource.FailureReason;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.LocalActivityContext;
 import org.mobicents.slee.container.component.service.ServiceComponent;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * Extended {@link javax.slee.EventContext} interface.
@@ -90,7 +91,7 @@ public interface EventContext extends javax.slee.EventContext {
 	 * 
 	 * @return
 	 */
-	public Set<String> getSbbEntitiesThatHandledEvent();
+	public Set<SbbEntityID> getSbbEntitiesThatHandledEvent();
 
 	/**
 	 * 

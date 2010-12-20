@@ -6,13 +6,12 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
-import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectPool;
 import org.mobicents.slee.container.sbb.SbbObjectState;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
-import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 
@@ -79,20 +78,21 @@ public class HandleSbbRollback {
 				txContext.setEventRoutingTransactionData(new EventRoutingTransactionDataImpl(de,aci));
 				// we have to refresh the sbb entity by reading it frmo the
 				// cache
-				SbbEntity sbbEntityReloaded = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntity.getSbbEntityId(),true);
+				final SbbEntityID sbbEntityID = sbbEntity.getSbbEntityId();
+				SbbEntity sbbEntityReloaded = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityID,true);
 				if (sbbEntityReloaded == null) {
 					// sbb entity does not exists, recreate it
-					if (sbbEntity.isRootSbbEntity()) {
-						ServiceComponent serviceComponent = sleeContainer.getComponentRepository().getComponentByID(sbbEntity.getServiceId());
-						final Service service = sleeContainer.getServiceManagement().getService(serviceComponent);
-						sbbEntity = service.addChild(sbbEntity.getServiceConvergenceName());
+					if (sbbEntityID.isRootSbbEntity()) {
+						sbbEntityReloaded = sleeContainer.getSbbEntityFactory().createRootSbbEntity(sbbEntityID.getServiceID(), sbbEntityID.getServiceConvergenceName());						
 					}
 					else {
-						sbbEntity = sleeContainer.getSbbEntityFactory().createSbbEntity(sbbEntity.getSbbId(), sbbEntity.getServiceId(), sbbEntity.getParentSbbEntityId(), sbbEntity.getParentChildRelation(), sbbEntity.getRootSbbId(), sbbEntity.getServiceConvergenceName());
+						sbbEntityReloaded = sleeContainer.getSbbEntityFactory().createNonRootSbbEntity(sbbEntityID.getParentSBBEntityID(),sbbEntityID.getParentChildRelation());						
 					}
+					sbbEntityReloaded.setPriority(sbbEntity.getPriority());
+					sbbEntity = sbbEntityReloaded;
 					if(keepSbbEntityIfTxRollbacks) {
 						// recreate attachment too
-						if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
+						if (ac.attachSbbEntity(sbbEntityID)) {
 							sbbEntity.afterACAttach(ac.getActivityContextHandle());
 						}
 					}

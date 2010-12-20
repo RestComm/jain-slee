@@ -11,6 +11,7 @@ import org.jboss.cache.Node;
 import org.mobicents.cache.CacheData;
 import org.mobicents.cache.MobicentsCache;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * 
@@ -22,16 +23,11 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
 
 public class SbbEntityCacheData extends CacheData {
 
-	/**
-	 * the fqn of the node that holds all activity context cache child nodes
-	 */
-	public final static String parentNodeFqn = "sbb-entity";
-
+	
 	// node map keys
 
 	private static final Boolean MISC_NODE_MAP_VALUE = Boolean.TRUE;
 
-	private static final String SBB_ENTITY_IMMUTABLE_DATA_NODE_MAP_KEY = "idata";
 	private static final String PRIORITY_NODE_MAP_KEY = "priority";
 		
 	private static final String ATTACHED_ACs_CHILD_NODE_NAME = "ac";
@@ -49,7 +45,7 @@ public class SbbEntityCacheData extends CacheData {
 		return _attachedACsChildNode;
 	}
 	
-	protected static final String CHILD_RELATIONs_CHILD_NODE_NAME = "chd-rel";
+	protected static final String CHILD_RELATIONs_CHILD_NODE_NAME = "chd";
 	protected static final Fqn CHILD_RELATIONs_CHILD_NODE_FQN = 
 		Fqn.fromElements(CHILD_RELATIONs_CHILD_NODE_NAME);
 	private Node _childRelationsChildNode;
@@ -94,27 +90,31 @@ public class SbbEntityCacheData extends CacheData {
 		return _cmpFieldsChildNode;
 	}
 	
+	private final SbbEntityID sbbEntityID;
+	
+	private static Fqn getFqn(SbbEntityID sbbEntityID) {
+		if (sbbEntityID.isRootSbbEntity()) {
+			return Fqn.fromElements(SbbEntityFactoryCacheData.SBB_ENTITY_FACTORY_FQN_NAME,sbbEntityID.getServiceID(),sbbEntityID.getServiceConvergenceName());
+		}
+		else {
+			return Fqn.fromRelativeElements(getFqn(sbbEntityID.getParentSBBEntityID()),CHILD_RELATIONs_CHILD_NODE_NAME,sbbEntityID.getParentChildRelation(),((NonRootSbbEntityID)sbbEntityID).getChildID()); 
+		}
+	}
+	
 	/**
 	 * 
 	 * @param sbbEntityId
 	 */
-	public SbbEntityCacheData(String sbbEntityId, MobicentsCache cache) {
-		super(Fqn.fromElements(parentNodeFqn, sbbEntityId), cache);
+	public SbbEntityCacheData(SbbEntityID sbbEntityId, MobicentsCache cache) {
+		super(getFqn(sbbEntityId), cache);
+		this.sbbEntityID = sbbEntityId;
 	}
 
-	public Object getSbbEntityImmutableData() {
-		return getNode().get(SBB_ENTITY_IMMUTABLE_DATA_NODE_MAP_KEY);
-	}
-
-	public void setSbbEntityImmutableData(Object obj) {
-		getNode().put(SBB_ENTITY_IMMUTABLE_DATA_NODE_MAP_KEY, obj);
-	}
-
-	public void attachActivityContext(Object ac) {
+	public void attachActivityContext(ActivityContextHandle ac) {
 		getAttachedACsChildNode(true).put(ac, MISC_NODE_MAP_VALUE);
 	}
 
-	public void detachActivityContext(Object ac) {
+	public void detachActivityContext(ActivityContextHandle ac) {
 		final Node node  = getAttachedACsChildNode(false);
 		if (node != null) {
 			node.remove(ac);
@@ -188,7 +188,7 @@ public class SbbEntityCacheData extends CacheData {
 		}
 	}
 	
-	public Set<String> getChildRelationSbbEntities(String getChildRelationMethod) {
+	public Set<SbbEntityID> getChildRelationSbbEntities(String getChildRelationMethod) {
 		final Node node = getChildRelationsChildNode(false);
 		if (node == null) {
 			return Collections.emptySet();
@@ -197,57 +197,26 @@ public class SbbEntityCacheData extends CacheData {
 		if (childNode == null) {
 			return Collections.emptySet();
 		} else {
-			return childNode.getChildrenNames();
+			Set<SbbEntityID> result = new HashSet<SbbEntityID>();
+			for(Object obj : childNode.getChildrenNames()) {
+				result.add(new NonRootSbbEntityID(sbbEntityID, getChildRelationMethod,(String)obj));
+			}			
+			return result;
 		}
 	}
 
-	public void removeChildRelationSbbEntity(String getChildRelationMethod,
-			String sbbEntityId) {
-		final Node node = getChildRelationsChildNode(false);
-		if (node != null) {
-			final Node childNode = node.getChild(getChildRelationMethod);
-			if (childNode != null) {
-				childNode.removeChild(sbbEntityId);
-			}
-		}
-	}
-
-	public void addChildRelationSbbEntity(String getChildRelationMethod,
-			String sbbEntityId) {
-		final Node node = getChildRelationsChildNode(true);
-		Node childNode = node.getChild(getChildRelationMethod);
-		if (childNode == null) {
-			childNode = node.addChild(Fqn.fromElements(getChildRelationMethod));
-		}
-		childNode.addChild(Fqn.fromElements(sbbEntityId));
-	}
-
-	public boolean childRelationHasSbbEntity(String getChildRelationMethod,
-			String sbbEntityId) {
-		final Node node = getChildRelationsChildNode(false);
-		if (node == null) {
-			return false;
-		}
-		Node childNode = node.getChild(getChildRelationMethod);
-		if (childNode == null) {
-			return false;
-		} else {
-			return childNode.hasChild(sbbEntityId);
-		}
-	}
-
-	public Set<String> getAllChildSbbEntities() {
+	public Set<SbbEntityID> getAllChildSbbEntities() {
 		Node childRelationsNode = getChildRelationsChildNode(false);
 		if (childRelationsNode == null || childRelationsNode.isLeaf()) {
 			return Collections.emptySet();
 		}
 		else {
-			Set<String> result = new HashSet<String>();
+			Set<SbbEntityID> result = new HashSet<SbbEntityID>();
 			Node childRelationNode = null;
 			for (Object obj : childRelationsNode.getChildren()) {
 				childRelationNode = (Node) obj;
 				for (Object sbbEntityId : childRelationNode.getChildrenNames()) {
-					result.add((String) sbbEntityId);
+					result.add(new NonRootSbbEntityID(sbbEntityID,(String)childRelationNode.getFqn().getLastElement(),(String)sbbEntityId));
 				}
 			}
 			return result;

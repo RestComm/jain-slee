@@ -14,6 +14,7 @@ import javax.slee.ServiceID;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.LocalActivityContext;
 import org.mobicents.slee.container.component.service.ServiceComponent;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * @author martins
@@ -41,7 +42,7 @@ public class DefaultEventContextData implements EventContextData {
 	/**
 	 * the set containing all sbb entities that handled the event so far
 	 */
-	private Set<String> sbbEntitiesThatHandledEvent;
+	private Set<SbbEntityID> sbbEntitiesThatHandledEvent;
 
 	/**
 	 * the ordered list containing all active services that will process this
@@ -154,9 +155,9 @@ public class DefaultEventContextData implements EventContextData {
 	 * @seeorg.mobicents.slee.container.event.EventContextData#
 	 * getSbbEntitiesThatHandledEvent()
 	 */
-	public Set<String> getSbbEntitiesThatHandledEvent() {
+	public Set<SbbEntityID> getSbbEntitiesThatHandledEvent() {
 		if (sbbEntitiesThatHandledEvent == null) {
-			sbbEntitiesThatHandledEvent = new HashSet<String>();
+			sbbEntitiesThatHandledEvent = new HashSet<SbbEntityID>();
 		}
 		return sbbEntitiesThatHandledEvent;
 	}

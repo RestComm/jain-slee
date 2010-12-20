@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.slee.ActivityContextInterface;
 
 import org.mobicents.slee.container.event.EventContext;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * The context of event routing stored in the transaction.
@@ -37,5 +38,5 @@ public interface EventRoutingTransactionData {
 	 * 
 	 * @return
 	 */
-	public Set<String> getInvokedNonReentrantSbbEntities();
+	public Set<SbbEntityID> getInvokedNonReentrantSbbEntities();
 }

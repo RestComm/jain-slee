@@ -4,16 +4,23 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.slee.ServiceID;
+
 import org.apache.log4j.Logger;
 import org.jboss.cache.Fqn;
-import org.mobicents.cluster.DataRemovalListener;
+import org.jboss.cache.notifications.annotation.CacheListener;
+import org.jboss.cache.notifications.annotation.NodeRemoved;
+import org.jboss.cache.notifications.event.NodeRemovedEvent;
+import org.mobicents.cache.MobicentsCache;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * 
  * @author martins
  *
  */
+@CacheListener(sync = false)
 public class SbbEntityLockFacility {
 
 	private static final Logger logger = Logger.getLogger(SbbEntityLockFacility.class);
@@ -22,13 +29,17 @@ public class SbbEntityLockFacility {
 	/**
 	 * 
 	 */
-	private final ConcurrentHashMap<String,ReentrantLock> locks = new ConcurrentHashMap<String, ReentrantLock>();
+	private final ConcurrentHashMap<SbbEntityID,ReentrantLock> locks = new ConcurrentHashMap<SbbEntityID, ReentrantLock>();
 	
 	/**
 	 * 
 	 */
 	public SbbEntityLockFacility(SleeContainer container) {
-		container.getCluster().addDataRemovalListener(new DataRemovaClusterListener());			
+		//container.getCluster().addDataRemovalListener(new DataRemovaClusterListener());
+		MobicentsCache cache = container.getCluster().getMobicentsCache();
+		if (!cache.isLocalMode()) {
+			cache.getJBossCache().addCacheListener(this);
+		}
 	}
 	
 	/**
@@ -36,7 +47,7 @@ public class SbbEntityLockFacility {
 	 * @param sbbEntityId
 	 * @return
 	 */
-	public ReentrantLock get(String sbbEntityId) {
+	public ReentrantLock get(SbbEntityID sbbEntityId) {
 		ReentrantLock lock = locks.get(sbbEntityId);
 		if (lock == null) {
 			final ReentrantLock newLock = new ReentrantLock();
@@ -56,7 +67,7 @@ public class SbbEntityLockFacility {
 	 * @param sbbEntityId
 	 * @return
 	 */
-	public ReentrantLock remove(String sbbEntityId) {
+	public ReentrantLock remove(SbbEntityID sbbEntityId) {
 		if(doTraceLogs) {
 			logger.trace(Thread.currentThread()+" removed lock for "+sbbEntityId);
 		}
@@ -67,17 +78,19 @@ public class SbbEntityLockFacility {
 	 * 
 	 * @return
 	 */
-	public Set<String> getSbbEntitiesWithLocks() {
+	public Set<SbbEntityID> getSbbEntitiesWithLocks() {
 		return locks.keySet();
 	}
 	
+	// FIXME this does not work in the new sbbe tree model, ensure cluster framework gets such feature
+	/*
 	private class DataRemovaClusterListener implements DataRemovalListener {
 
-		private final Fqn<?> baseFqn = Fqn.fromElements(SbbEntityCacheData.parentNodeFqn);
+		private final Fqn<?> baseFqn = null;
 		
 		@SuppressWarnings("unchecked")
 		public void dataRemoved(Fqn arg0) {
-			final String sbbEntityId = (String) arg0.getLastElement();
+			final SbbEntityID sbbEntityId = (SbbEntityID) arg0.getLastElement();
 			if(locks.remove(sbbEntityId) != null) {
 				if(doTraceLogs) {
 					logger.trace("Remotely removed lock for "+sbbEntityId);
@@ -90,5 +103,60 @@ public class SbbEntityLockFacility {
 			return baseFqn;
 		}
 		
-	}
+	}*/
+	
+	@NodeRemoved
+	public void onNodeRemovedEvent(NodeRemovedEvent event) {
+		if(!event.isOriginLocal() && !event.isPre()) {			
+			// remote node removal
+			Fqn<?> fqn = event.getFqn();
+			if(doTraceLogs) {
+				logger.trace("onNodeRemovedEvent( fqn = "+fqn+", size = "+fqn.size()+" )");
+			}
+			if (fqn.get(0).equals(SbbEntityFactoryCacheData.SBB_ENTITY_FACTORY_FQN_NAME)) {
+				// is child of sbb entity factory cache data, i.e., /sbbe
+				int fqnSize = fqn.size();				
+				if (fqnSize < 3) {
+					return;
+				}
+				SbbEntityID sbbEntityID = null;
+				if (fqnSize == 3) {
+					// /sbbe/serviceid/convergenceName root sbb entity
+					ServiceID serviceID = (ServiceID) fqn.get(1);
+					String convergenceName = (String) fqn.get(2);
+					sbbEntityID = new RootSbbEntityID(serviceID, convergenceName);
+					if(doTraceLogs) {
+						logger.trace("Root sbb entity "+sbbEntityID+" was remotely removed, ensuring there is no local lock");
+					}
+				}
+				else {
+					// must end as /chd/chdRelationName/childId
+					if(!fqn.get(fqnSize-3).equals(SbbEntityCacheData.CHILD_RELATIONs_CHILD_NODE_NAME)) {
+						return;
+					}
+					// let get the party started and rebuild the sbb entity id!
+					ServiceID serviceID = (ServiceID) fqn.get(1);
+					String convergenceName = (String) fqn.get(2);
+					sbbEntityID = new RootSbbEntityID(serviceID, convergenceName);
+					int i = 3;
+					while(fqnSize >= i+3) {
+						// fqn get(i) is chd, skip 
+						String childRelationName = (String) fqn.get(i+1);
+						String childId = (String) fqn.get(i+2);
+						sbbEntityID = new NonRootSbbEntityID(sbbEntityID, childRelationName, childId);
+						i+=3;
+					}
+					if(doTraceLogs) {
+						logger.trace("Non root sbb entity "+sbbEntityID+" was remotely removed, ensuring there is no local lock");
+					}
+				}
+				if(locks.remove(sbbEntityID) != null) {
+					if(doTraceLogs) {
+						logger.trace("Remotely removed lock for "+sbbEntityID);
+					}
+				}
+			}
+		}
+	}	
+		
  }

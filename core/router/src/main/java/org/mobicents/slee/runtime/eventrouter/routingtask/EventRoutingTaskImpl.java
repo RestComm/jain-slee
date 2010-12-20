@@ -23,6 +23,7 @@ import org.mobicents.slee.container.eventrouter.EventRoutingTask;
 import org.mobicents.slee.container.eventrouter.SbbInvocationState;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 
 public class EventRoutingTaskImpl implements EventRoutingTask {
@@ -174,7 +175,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 						+ serviceComponents);
 			
 			boolean finished;
-			String rootSbbEntityId;
+			SbbEntityID rootSbbEntityId;
 			ClassLoader invokerClassLoader;
 			SbbEntity sbbEntity;
 			SbbObject sbbObject;
@@ -183,7 +184,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 			NextSbbEntityFinder.Result nextSbbEntityFinderResult;
 			ActivityContext ac = null;
 			Exception caught = null;
-			Set<String> sbbEntitiesThatHandledCurrentEvent;
+			Set<SbbEntityID> sbbEntitiesThatHandledCurrentEvent;
 			boolean deliverEvent; 
 			boolean rollbackTx;
 			boolean rollbackOnlySet;
@@ -319,9 +320,11 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 							invokerClassLoader = sbbEntity.getSbbComponent().getClassLoader();
 							Thread.currentThread().setContextClassLoader(invokerClassLoader);
 
-							rootSbbEntityId = sbbEntity.getRootSbbId();
+							if (!sbbEntity.getSbbEntityId().isRootSbbEntity()) {
+								rootSbbEntityId = sbbEntity.getSbbEntityId().getRootSBBEntityID();
+							}
 
-							SleeThreadLocals.setInvokingService(sbbEntity.getServiceId());
+							SleeThreadLocals.setInvokingService(sbbEntity.getSbbEntityId().getServiceID());
 
 							// we deliver the event in case it is an initial
 							// event processing or if the highest priority
@@ -337,7 +340,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 								if (sbbEntity.isCreated() && !txMgr.getRollbackOnly()) {
 									keepSbbEntityIfTxRollbacks = true;
 								}
-
+								
 								// GET AND CHECK EVENT MASK FOR THIS SBB ENTITY
 								Set<EventTypeID> eventMask = sbbEntity.getMaskedEventTypes(eventContext.getActivityContextHandle());
 								if (eventMask == null || !eventMask.contains(eventContext.getEventTypeId())) {
@@ -411,7 +414,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 										// so we do the remove in the same
 										// invocation
 										// sequence as the Op
-										container.getSbbEntityFactory().removeSbbEntity(sbbEntity,true,true);
+										container.getSbbEntityFactory().removeSbbEntity(sbbEntity,true);
 									}
 								}
 							}
@@ -444,7 +447,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 							// no more services to process event as initial
 							try {
 								if (nextSbbEntityFinder.next(ac, eventContext,sbbEntitiesThatHandledCurrentEvent,container) == null) {
-								//if (nextSbbEntityFinder.next(ac, de.getEventTypeId(),de.getService(),sbbEntitiesThatHandledCurrentEvent) == null && sbbEntitiesThatHandledCurrentEvent.contains(sbbEntity.getSbbEntityId())) {
+								//if (nextSbbEntityFinder.next(ac, de.getEventTypeId(),de.getService(),sbbEntitiesThatHandledCurrentEvent) == null && sbbEntitiesThatHandledCurrentEvent.contains(sbbEntity.getSbbEntityID())) {
 									// no more attached sbb entities to route the event
 									finished = true;
 								}
@@ -482,7 +485,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 						try {
 							rootSbbEntity = container.getSbbEntityFactory().getSbbEntity(rootSbbEntityId,false);
 							if (rootSbbEntity != null) {
-								container.getSbbEntityFactory().removeSbbEntity(rootSbbEntity,true,false);
+								container.getSbbEntityFactory().removeSbbEntity(rootSbbEntity,false);
 							}
 						} catch (Exception e) {
 							logger.error("Failure while routing event; third phase. Event Posting ["+ eventContext + "]", e);

@@ -7,6 +7,7 @@ import javax.slee.ActivityContextInterface;
 
 import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * The context of event routing stored in the transaction
@@ -20,7 +21,7 @@ public class EventRoutingTransactionDataImpl implements EventRoutingTransactionD
 	 * a linked list with the non reentrant sbb entities in the call tree, since the event was
 	 * passed to the event handler method
 	 */
-	private Set<String> invokedSbbEntities = null;
+	private Set<SbbEntityID> invokedSbbEntities = null;
 
 	/**
 	 * the event being delivered
@@ -44,9 +45,9 @@ public class EventRoutingTransactionDataImpl implements EventRoutingTransactionD
 	 * 
 	 * @return
 	 */
-	public Set<String> getInvokedNonReentrantSbbEntities() {
+	public Set<SbbEntityID> getInvokedNonReentrantSbbEntities() {
 		if (invokedSbbEntities == null) {
-			invokedSbbEntities = new HashSet<String>();
+			invokedSbbEntities = new HashSet<SbbEntityID>();
 		}
 		return invokedSbbEntities;
 	}

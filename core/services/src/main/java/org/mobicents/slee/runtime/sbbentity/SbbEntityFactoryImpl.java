@@ -6,15 +6,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.slee.SLEEException;
-import javax.slee.SbbID;
 import javax.slee.ServiceID;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionRequiredException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
 
@@ -47,23 +45,51 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		this.lockFacility = new SbbEntityLockFacility(sleeContainer);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntityFactory#createSbbEntity(javax.slee.SbbID, javax.slee.ServiceID, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	public SbbEntityImpl createSbbEntity(SbbID sbbId, ServiceID svcId,
-			String parentSbbEntityId, String parentChildRelation,
-			String rootSbbEntityId, String convergenceName) {
-		
-		final String sbbeId = sleeContainer.getUuidGenerator().createUUID();
-		
-		return _createSbbEntity(sbbeId, sbbId, svcId, parentSbbEntityId, parentChildRelation, rootSbbEntityId, convergenceName);
-	}
+	@Override
+	public SbbEntity createNonRootSbbEntity(SbbEntityID parentSbbEntityID,String parentChildRelation) {
 
-	public SbbEntityImpl _createSbbEntity(String sbbeId, SbbID sbbId, ServiceID svcId,
-			String parentSbbEntityId, String parentChildRelation,
-			String rootSbbEntityId, String convergenceName) {
+		// warning: if this childID becomes something else then a uuid then the
+		// equals and hashcode of NonRootSbbEntityID must be changed
+		final String childID = sleeContainer.getUuidGenerator().createUUID();
+
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+
+		// get lock
+		final ReentrantLock lock = lockFacility.get(parentSbbEntityID.getRootSBBEntityID());
+		lockOrFail(lock,parentSbbEntityID.getRootSBBEntityID());
+		// we hold the lock now
+				
+		// create sbb entity
+		final NonRootSbbEntityID sbbeId = new NonRootSbbEntityID(parentSbbEntityID, parentChildRelation, childID);
+		final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
+		cacheData.create();
 		
+		final SbbEntityImpl sbbEntity = new SbbEntityImpl(sbbeId, cacheData, true, this);
+
+		// store it in the tx, we need to do it due to sbb local object and
+		// current storing in sbb entity per tx
+		storeSbbEntityInTx(sbbEntity, txContext);
+
+		// add tx actions to unlock root when the tx ends
+		final TransactionalAction txAction = new TransactionalAction() {			
+			@Override
+			public void execute() {
+				lock.unlock();				
+			}
+		};
+		txContext.getAfterRollbackActions().add(txAction);
+		txContext.getAfterCommitActions().add(txAction);
+
+		return sbbEntity;
+
+	}
+	
+	@Override
+	public SbbEntity createRootSbbEntity(ServiceID serviceID,
+			String convergenceName) {
+		
+		final RootSbbEntityID sbbeId = new RootSbbEntityID(serviceID, convergenceName);
+
 		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 
 		// get lock
@@ -72,44 +98,62 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		// we hold the lock now
 				
 		// create sbb entity
-		final SbbEntityImmutableData sbbEntityImmutableData = new SbbEntityImmutableData(sbbId, svcId, parentSbbEntityId, parentChildRelation, rootSbbEntityId, convergenceName);
 		final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
-		cacheData.create();
-		cacheData.setSbbEntityImmutableData(sbbEntityImmutableData);
+		SbbEntityImpl sbbEntity = null;
+		if (cacheData.create()) {
+			sbbEntity = new SbbEntityImpl(sbbeId, cacheData, true, this);
+			// add tx actions wrt lock
+			final TransactionalAction rollbackTxAction = new TransactionalAction() {			
+				@Override
+				public void execute() {
+					lockFacility.remove(sbbeId);
+					lock.unlock();
+				}
+			};
+			final TransactionalAction commitTxAction = new TransactionalAction() {			
+				@Override
+				public void execute() {
+					lock.unlock();				
+				}
+			};
+			txContext.getAfterRollbackActions().add(rollbackTxAction);
+			txContext.getAfterCommitActions().add(commitTxAction);
+			
+		}
+		else {
+			sbbEntity = new SbbEntityImpl(sbbeId, cacheData, false, this);
+			// add tx actions wrt lock
+			final TransactionalAction txAction = new TransactionalAction() {			
+				@Override
+				public void execute() {
+					lock.unlock();
+				}
+			};
+			txContext.getAfterRollbackActions().add(txAction);
+			txContext.getAfterCommitActions().add(txAction);			
+		}
 		
-		final SbbEntityImpl sbbEntity = new SbbEntityImpl(sbbeId, sbbEntityImmutableData, cacheData, this);
-
 		// store it in the tx, we need to do it due to sbb local object and
 		// current storing in sbb entity per tx
 		storeSbbEntityInTx(sbbEntity, txContext);
-
-		// add tx actions to unlock it when the tx ends
-		SbbEntityUnlockTransactionalAction rollbackAction = new SbbEntityUnlockTransactionalAction(sbbEntity,lock,true,true,lockFacility);
-		SbbEntityUnlockTransactionalAction commitAction = new SbbEntityUnlockTransactionalAction(sbbEntity,lock,true,false,lockFacility);
-		txContext.getAfterRollbackActions().add(rollbackAction);
-		txContext.getAfterCommitActions().add(commitAction);
 		
-		return sbbEntity;
+		return sbbEntity;		
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntityFactory#createRootSbbEntity(javax.slee.SbbID, javax.slee.ServiceID, java.lang.String)
-	 */
-	public SbbEntityImpl createRootSbbEntity(SbbID sbbId, ServiceID svcId,
-			String convergenceName) {
-		
-		final String sbbeId = new StringBuilder().append(svcId.hashCode()).append(convergenceName).toString();
-		
-		return _createSbbEntity(sbbeId, sbbId, svcId, null, null, sbbeId, convergenceName);
+	@Override
+	public Set<SbbEntityID> getRootSbbEntityIDs(ServiceID serviceID) {
+		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster());
+		if (cacheData.exists()) {
+			return cacheData.getRootSbbEntityIDs(serviceID);
+		}
+		else {
+			return Collections.emptySet();
+		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntityFactory#getSbbEntity(java.lang.String, boolean)
-	 */
-	public SbbEntityImpl getSbbEntity(String sbbeId,boolean useLock) {
-
+	@Override
+	public SbbEntity getSbbEntity(SbbEntityID sbbeId, boolean lockSbbEntity) {
+		
 		if (sbbeId == null)
 			throw new NullPointerException("Null Sbbeid");
 
@@ -134,44 +178,37 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 			if (doTraceLogs)
 				logger.trace("Loading sbb entity " + sbbeId + " from cache");
 			
-			// lock before retrieving from cache
-			final ReentrantLock lock = lockFacility.get(sbbeId);
-			lockOrFail(lock,sbbeId);													
+			// lock before retrieving from cache?
+			ReentrantLock lock = null;
+			SbbEntityID lockedSbbEntityID = null;
+			if (lockSbbEntity) {
+				lockedSbbEntityID = sbbeId.getRootSBBEntityID();
+				lock = lockFacility.get(lockedSbbEntityID);
+				lockOrFail(lock,lockedSbbEntityID);											
+			}															
 						
 			// get sbb entity data from cache
 			final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
-			if (!cacheData.exists()) {
-				lockFacility.remove(sbbeId);
+			if (!cacheData.exists() && lock != null) {
+				lockFacility.remove(lockedSbbEntityID);
 				lock.unlock();
 				return null;
 			}
 			
 			// build sbb entity instance
-			sbbEntity = new SbbEntityImpl(sbbeId,cacheData,this);				
+			sbbEntity = new SbbEntityImpl(sbbeId,cacheData,false,this);				
 			
-			// check if is root sbb entity
-			if(!sbbEntity.isRootSbbEntity()) {
-				// not, lock the root sbb entity
-				final ReentrantLock rootLock = lockFacility.get(sbbEntity.getRootSbbId());
-				if (!rootLock.tryLock()) {
-					// not able to lock the root, unlock the sbb entity to avoid deadlocks
-					lock.unlock();
-					// now ask lock for root
-					lockOrFail(rootLock,sbbEntity.getRootSbbId());					
-				}
-				else {
-					// unlock the sbb entity, not needed anymore, root is locked
-					lock.unlock();
-				}
-				// add tx actions to just unlock the root by passing null, in case of cascade removal the root entity will be fully 
-				// loaded and that op will add another tx action, which removes lock
-				txContext.getAfterRollbackActions().add(new SbbEntityUnlockTransactionalAction(null,rootLock,false,true,lockFacility));
-				txContext.getAfterCommitActions().add(new SbbEntityUnlockTransactionalAction(null,rootLock,false,false,lockFacility));
-			}
-			else {
-				// the sbb is root, add tx actions to unlock and possibly remove lock
-				txContext.getAfterRollbackActions().add(new SbbEntityUnlockTransactionalAction(sbbEntity,lock,false,true,lockFacility));
-				txContext.getAfterCommitActions().add(new SbbEntityUnlockTransactionalAction(sbbEntity,lock,false,false,lockFacility));				
+			if(lock != null) {
+				// add tx actions wrt lock				
+				final ReentrantLock fLock = lock;
+				final TransactionalAction txAction = new TransactionalAction() {			
+					@Override
+					public void execute() {
+						fLock.unlock();
+					}
+				};
+				txContext.getAfterRollbackActions().add(txAction);
+				txContext.getAfterCommitActions().add(txAction);
 			}
 				
 			// store it in the tx, we need to do it due to sbb local object and
@@ -179,17 +216,15 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 			storeSbbEntityInTx(sbbEntity, txContext);
 		}
 		return sbbEntity;
+		
 	}
-
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntityFactory#removeSbbEntity(org.mobicents.slee.runtime.sbbentity.SbbEntityImpl, boolean, boolean)
-	 */
+	
+	@Override
 	public void removeSbbEntity(SbbEntity sbbEntity,
-			boolean removeFromParent, boolean useCurrentClassLoader) throws TransactionRequiredException, SystemException {
+			boolean useCurrentClassLoader) {
 	
 		if (useCurrentClassLoader) {
-			removeSbbEntityWithCurrentClassLoader(sbbEntity, removeFromParent);
+			removeSbbEntityWithCurrentClassLoader(sbbEntity);
 		}
 		else {
 			ClassLoader oldClassLoader = Thread.currentThread()
@@ -197,7 +232,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 			try {
 				Thread.currentThread().setContextClassLoader(
 						sbbEntity.getSbbComponent().getClassLoader());
-				removeSbbEntityWithCurrentClassLoader(sbbEntity, removeFromParent);
+				removeSbbEntityWithCurrentClassLoader(sbbEntity);
 			} finally {
 				// restore old class loader
 				Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -211,27 +246,21 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	 * 
 	 * @param sbbEntity
 	 *            the sbb entity to remove
-	 * @param removeFromParent
-	 *            indicates if the entity should be remove from it's parent also
-	 * @throws SystemException 
-	 * @throws TransactionRequiredException 
-	 * @throws TransactionRequiredException
-	 * @throws SystemException
 	 */
 	private void removeSbbEntityWithCurrentClassLoader(
-			final SbbEntity sbbEntity, boolean removeFromParent) throws TransactionRequiredException, SystemException {
-		
+			final SbbEntity sbbEntity) {		
 		// remove entity
-		sbbEntity.remove(removeFromParent);
+		sbbEntity.remove();
 		// remove from tx data
-		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext(); 
-		txContext.getData().remove(sbbEntity.getSbbEntityId());	
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		final SbbEntityID sbbEntityID = sbbEntity.getSbbEntityId();
+		txContext.getData().remove(sbbEntityID);	
 		// if sbb entity is not root add a tx action to ensure lock is removed
-		if (!sbbEntity.isRootSbbEntity()) {
+		if (sbbEntityID.isRootSbbEntity()) {
 			TransactionalAction txAction = new TransactionalAction() {
 				@Override
 				public void execute() {
-					lockFacility.remove(sbbEntity.getSbbEntityId());
+					lockFacility.remove(sbbEntityID);
 				}
 			};
 			txContext.getAfterCommitActions().add(txAction);
@@ -259,7 +288,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	 * @param txManager
 	 * @return
 	 */
-	private static SbbEntityImpl getSbbEntityFromTx(String sbbeId,
+	private static SbbEntityImpl getSbbEntityFromTx(SbbEntityID sbbeId,
 			TransactionContext txContext) {
 		return txContext != null ? (SbbEntityImpl) txContext.getData().get(
 					sbbeId) : null;		
@@ -271,7 +300,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	 * @param sbbeId
 	 * @throws SLEEException
 	 */
-	private static void lockOrFail(ReentrantLock lock, String sbbeId) throws SLEEException {
+	private static void lockOrFail(ReentrantLock lock, SbbEntityID sbbeId) throws SLEEException {
 		if (doTraceLogs) {
 			logger.trace(Thread.currentThread()+" trying to acquire lock "+lock+" for sbb entity with id "+sbbeId);
 		}
@@ -294,7 +323,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	 * 
 	 * @return
 	 */
-	public Set<String> getSbbEntityIDs() {
+	public Set<SbbEntityID> getSbbEntityIDs() {
 		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster());
 		if (cacheData.exists()) {
 			return cacheData.getSbbEntities();

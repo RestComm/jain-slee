@@ -14,6 +14,7 @@ import javax.slee.resource.FailureReason;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.LocalActivityContext;
 import org.mobicents.slee.container.component.service.ServiceComponent;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * A differed event. When an SBB posts an event, it winds up as one of these.
@@ -80,7 +81,7 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.container.event.EventContext#getSbbEntitiesThatHandledEvent()
 	 */
-	public Set<String> getSbbEntitiesThatHandledEvent() {
+	public Set<SbbEntityID> getSbbEntitiesThatHandledEvent() {
 		return data.getSbbEntitiesThatHandledEvent();
 	}
 	

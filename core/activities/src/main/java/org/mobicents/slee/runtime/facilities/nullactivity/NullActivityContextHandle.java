@@ -4,8 +4,8 @@
 package org.mobicents.slee.runtime.facilities.nullactivity;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityType;
@@ -13,7 +13,7 @@ import org.mobicents.slee.container.facilities.nullactivity.NullActivityHandle;
 
 /**
  * @author martins
- *
+ * 
  */
 public class NullActivityContextHandle implements ActivityContextHandle {
 
@@ -21,11 +21,17 @@ public class NullActivityContextHandle implements ActivityContextHandle {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private transient NullActivityHandle activityHandle;
-	
-	private transient NullActivityImpl activityObject;
-	
+
+	private NullActivityHandle activityHandle;
+	private NullActivityImpl activityObject;
+
+	/**
+	 * not to be used, needed due to externalizable
+	 */
+	public NullActivityContextHandle() {
+
+	}
+
 	/**
 	 * 
 	 */
@@ -33,15 +39,23 @@ public class NullActivityContextHandle implements ActivityContextHandle {
 		this.activityHandle = activityHandle;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.activity.ActivityContextHandle#getActivityHandle()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.runtime.activity.ActivityContextHandle#getActivityHandle
+	 * ()
 	 */
 	public NullActivityHandle getActivityHandle() {
 		return activityHandle;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.activity.ActivityContextHandle#getActivityObject()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.runtime.activity.ActivityContextHandle#getActivityObject
+	 * ()
 	 */
 	public Object getActivityObject() {
 		if (activityObject == null) {
@@ -49,14 +63,23 @@ public class NullActivityContextHandle implements ActivityContextHandle {
 		}
 		return activityObject;
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.activity.ActivityContextHandle#getActivityType()
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.runtime.activity.ActivityContextHandle#getActivityType
+	 * ()
 	 */
 	public ActivityType getActivityType() {
 		return ActivityType.NULL;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -72,27 +95,47 @@ public class NullActivityContextHandle implements ActivityContextHandle {
 			return false;
 		}
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		return activityHandle.hashCode();
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return new StringBuilder("ACH=").append(getActivityType()).append('>').append(activityHandle).toString(); 		
-	}
-	
-	// serialization
-
-	private void writeObject(ObjectOutputStream stream) throws IOException {
-		stream.defaultWriteObject();
-		stream.writeUTF(((NullActivityHandleImpl)activityHandle).getId());
+		return new StringBuilder("ACH=").append(getActivityType()).append('>')
+				.append(activityHandle).toString();
 	}
 
-	private void readObject(ObjectInputStream stream) throws IOException,
-				ClassNotFoundException {
-		stream.defaultReadObject();
-		this.activityHandle = new NullActivityHandleImpl(stream.readUTF());
-	} 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
+	 */
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		this.activityHandle = new NullActivityHandleImpl(in.readUTF());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
+	 */
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeUTF(((NullActivityHandleImpl) activityHandle).getId());
+	}
+
 }

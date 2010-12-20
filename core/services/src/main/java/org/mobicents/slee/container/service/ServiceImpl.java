@@ -1,7 +1,5 @@
 package org.mobicents.slee.container.service;
 
-import java.util.Set;
-
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
@@ -12,7 +10,6 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.component.service.ServiceComponent;
-import org.mobicents.slee.container.sbbentity.SbbEntity;
 
 /**
  * Service implementation. This is the run-time representation of the service
@@ -116,63 +113,6 @@ public class ServiceImpl implements Service {
 			}
 		}
 		return ServiceState.INACTIVE;
-	}
-
-	/**
-	 * Get the SBB entity values for the service.  Note operation is rather
-	 * expensive as reading all the SBB entities from the cache.  Avoid using
-	 * it whenever possible
-	 * 
-	 *  
-	 */
-	public Set<String> getChildObj() {
-		return cacheData.getChildSbbEntities();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.service.Service#containsConvergenceName(java.lang.String)
-	 */
-	public boolean containsConvergenceName(String convergenceName) {
-		return cacheData.hasChild(convergenceName);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.service.Service#addChild(java.lang.String)
-	 */
-	public SbbEntity addChild(String convergenceName) {
-
-		if (doDebugLogs) {
-			logger.debug(getServiceID().toString() + " adding convergence name "+convergenceName);
-		}
-
-		// create root sbb entity
-		SbbEntity sbbEntity = sleeContainer.getSbbEntityFactory().createRootSbbEntity(getRootSbbID(),
-				serviceComponent.getServiceID(), convergenceName);
-		if (sbbEntity.isCreated()) {
-			// set default priority
-			sbbEntity.setPriority(getDefaultPriority());
-			// store in service's cache data
-			cacheData.addChild(convergenceName, sbbEntity.getSbbEntityId());
-		}
-
-		return sbbEntity;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.service.Service#getRootSbbEntityId(java.lang.String)
-	 */
-	public String getRootSbbEntityId(String convergenceName) {
-		return cacheData.getChild(convergenceName);
-	}
-
-	public void removeConvergenceName(String convergenceName) {
-		if (doDebugLogs) {
-			logger.debug(getServiceID().toString() + " removing convergence name "+convergenceName);
-		}
-		cacheData.removeChild(convergenceName);
 	}
 
 	/**

@@ -7,6 +7,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Set;
 
 import javax.slee.ActivityContextInterface;
@@ -15,8 +16,6 @@ import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedEventException;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionRequiredException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -24,15 +23,17 @@ import org.mobicents.slee.container.SleeThreadLocals;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
+import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.component.sbb.SbbComponent.EventHandlerMethod;
+import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectPool;
 import org.mobicents.slee.container.sbb.SbbObjectState;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
-import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionDataImpl;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
@@ -55,20 +56,20 @@ public class SbbEntityImpl implements SbbEntity {
 
 	static private final Logger log = Logger.getLogger(SbbEntityImpl.class);
 	
-	private final String sbbeId; // This is the primary key of the SbbEntity.
+	private final SbbEntityID sbbeId; // This is the primary key of the SbbEntity.
 
-	private final SbbComponent sbbComponent;
 	private SbbObject sbbObject;
-	private final SbbObjectPool pool;
+
+	// cache some objects that may be expensive to retrieve from sbb entity id
+	private SbbID _sbbID = null;
+	private SbbObjectPool _pool = null;
+	private SbbComponent _sbbComponent = null;
 
 	// cache data
 	protected SbbEntityCacheData cacheData;
 
 	private final boolean created;
-	
-	// this is in cache data but we need to have it here also, to rebuild an sbb entity that was never really created due to tx rollback
-	private transient SbbEntityImmutableData sbbEntityImmutableData;
-	
+		
 	private final SbbEntityFactoryImpl sbbEntityFactory;
 	private final SleeContainer sleeContainer;
 	
@@ -84,49 +85,20 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @param convergenceName
 	 * @param svcId
 	 */
-	SbbEntityImpl(String sbbEntityId, SbbEntityImmutableData sbbEntityImmutableData, SbbEntityCacheData cacheData, SbbEntityFactoryImpl sbbEntityFactory) {
+	SbbEntityImpl(SbbEntityID sbbEntityId, SbbEntityCacheData cacheData, boolean created, SbbEntityFactoryImpl sbbEntityFactory) {
 		this.sbbEntityFactory = sbbEntityFactory;
 		this.sleeContainer = sbbEntityFactory.getSleeContainer();
 		this.sbbeId = sbbEntityId;
 		this.cacheData = cacheData;
-		this.sbbEntityImmutableData = sbbEntityImmutableData;
-		
-		this.pool = sleeContainer.getSbbManagement().getObjectPool(
-				sbbEntityImmutableData.getServiceID(), sbbEntityImmutableData.getSbbID());
-		this.sbbComponent = pool.getSbbComponent();
-		this.created = true;		
-	}
-
-	/**
-	 * Constructors an already existing sbb entity from the cache given it's
-	 * id.
-	 * @param sbbEntityId
-	 * @param cacheData
-	 * @param sbbEntityFactory
-	 */
-	SbbEntityImpl(String sbbEntityId, SbbEntityCacheData cacheData, SbbEntityFactoryImpl sbbEntityFactory) {
-		
-		if (sbbEntityId == null)
-			throw new NullPointerException(
-					"SbbEntity cannot be instantiated for sbbeId == null");
-
-		this.sbbEntityFactory = sbbEntityFactory;
-		this.sleeContainer = sbbEntityFactory.getSleeContainer();
-
-		this.sbbeId = sbbEntityId;
-		this.cacheData = cacheData;
-		this.sbbEntityImmutableData = (SbbEntityImmutableData) cacheData.getSbbEntityImmutableData();
-		this.pool = sleeContainer.getSbbManagement().getObjectPool(getServiceId(), getSbbId());
-		this.sbbComponent = pool.getSbbComponent();
-		this.created = false;
+		this.created = created;		
 	}
 
 	public ServiceID getServiceId() {
-		return sbbEntityImmutableData.getServiceID();
+		return sbbeId.getServiceID();
 	}
 
 	public String getServiceConvergenceName() {
-		return sbbEntityImmutableData.getConvergenceName();
+		return sbbeId.getServiceConvergenceName();
 	}
 
 	/*
@@ -163,7 +135,7 @@ public class SbbEntityImpl implements SbbEntity {
 		cacheData.attachActivityContext(ach);
 
 		// update event mask
-		Set<EventTypeID> maskedEvents = sbbComponent.getDescriptor().getDefaultEventMask();
+		Set<EventTypeID> maskedEvents = getSbbComponent().getDescriptor().getDefaultEventMask();
 		if (maskedEvents != null && !maskedEvents.isEmpty()) {
 			cacheData.updateEventMask(ach, new HashSet<EventTypeID>(maskedEvents));
 		}
@@ -207,12 +179,12 @@ public class SbbEntityImpl implements SbbEntity {
 			EventEntryDescriptor sbbEventEntry = null;
 			for (int i = 0; i < eventMask.length; i++) {
 				
-				eventTypeID = sbbComponent.getDescriptor().getEventTypes().get(eventMask[i]);
+				eventTypeID = getSbbComponent().getDescriptor().getEventTypes().get(eventMask[i]);
 				if (eventTypeID == null)
 					throw new UnrecognizedEventException(
 							"Event is not known by this SBB.");
 				
-				sbbEventEntry = sbbComponent.getDescriptor()
+				sbbEventEntry = getSbbComponent().getDescriptor()
 						.getEventEntries().get(eventTypeID);
 				if (sbbEventEntry.isReceived()) {
 					maskedEvents.add(eventTypeID);
@@ -253,25 +225,17 @@ public class SbbEntityImpl implements SbbEntity {
 			Iterator<EventTypeID> evMaskIt = maskedEvents.iterator();
 			for (int i = 0; evMaskIt.hasNext(); i++) {
 				EventTypeID eventTypeId = evMaskIt.next();
-				events[i] = sbbComponent.getDescriptor().getEventEntries().get(
+				events[i] = getSbbComponent().getDescriptor().getEventEntries().get(
 						eventTypeId).getEventName();
 			}
 			return events;
 		}
 	}
 
-	public String getRootSbbId() {
-		return sbbEntityImmutableData.getRootSbbEntityID();
-	}
-
-	public boolean isRootSbbEntity() {
-		return getParentSbbEntityId() == null;
-	}
-
 	public int getAttachmentCount() {
 		int attachmentCount = getActivityContexts().size();
 		// needs to add all children attachement counts too
-		for (String sbbEntityId : cacheData.getAllChildSbbEntities()) {
+		for (SbbEntityID sbbEntityId : cacheData.getAllChildSbbEntities()) {
 			// recreated the sbb entity
 			SbbEntity childSbbEntity = sbbEntityFactory.getSbbEntity(sbbEntityId, false);
 			if (childSbbEntity != null) {
@@ -281,20 +245,30 @@ public class SbbEntityImpl implements SbbEntity {
 		return attachmentCount;
 	}
 
+	private Byte priority = null;
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#getPriority()
 	 */
 	public byte getPriority() {
-		return cacheData.getPriority().byteValue();
+		if (priority == null) {
+			priority = cacheData.getPriority();
+		}
+		if (priority == null) {
+			// TODO check if alternative to fetch default priority and have non null only for custom performs good
+			return 0;
+		}
+		return priority.byteValue();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#setPriority(byte)
 	 */
-	public void setPriority(byte priority) {
-		cacheData.setPriority(Byte.valueOf(priority));
+	public void setPriority(byte value) {
+		priority = Byte.valueOf(value);
+		cacheData.setPriority(priority);
 		if (log.isDebugEnabled()) {
 			log.debug("Sbb entity "+getSbbEntityId()+" priority set to " + priority);
 		}
@@ -302,39 +276,14 @@ public class SbbEntityImpl implements SbbEntity {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#remove(boolean)
+	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#remove()
 	 */
-	public void remove(boolean removeFromParent)
-			throws TransactionRequiredException, SystemException {
+	public void remove() {
 	
 		if (doTraceLogs) {
-			log.trace("remove(removeFromParent="+removeFromParent+")");
+			log.trace("remove()");
 		}
 
-		if (removeFromParent) {
-			removeFromParent();
-		}
-		removeEntityTree();
-
-		if (log.isDebugEnabled()) {
-			log.debug("Removed sbb entity " + getSbbEntityId());
-		}
-	}
-
-	/**
-	 * Removes the entity tree from this entity, that is, all sbb entities on
-	 * it's child relations.
-	 * 
-	 * @throws TransactionRequiredException
-	 * @throws SystemException
-	 */
-	private void removeEntityTree() throws TransactionRequiredException,
-			SystemException {
-
-		if (doTraceLogs) {
-			log.trace("removeEntityTree()");
-		}
-		
 		// removes the SBB entity from all Activity Contexts.
 		for (Iterator<ActivityContextHandle> i = this.getActivityContexts().iterator(); i.hasNext();) {
 			ActivityContextHandle ach = i.next();
@@ -374,19 +323,19 @@ public class SbbEntityImpl implements SbbEntity {
 			}
 		}
 
-		// gather all entities in child relations from cache
-		Set<String> childSbbEntities = cacheData.getAllChildSbbEntities();
-
-		// remove this entity data from cache
-		removeFromCache();
-
-		// now remove children
-		for (Object childSbbEntityId : childSbbEntities) {
-			SbbEntity childSbbEntity = sbbEntityFactory.getSbbEntity((String) childSbbEntityId,false);
+		// remove children
+		for (SbbEntityID childSbbEntityId : cacheData.getAllChildSbbEntities()) {
+			SbbEntity childSbbEntity = sbbEntityFactory.getSbbEntity(childSbbEntityId,false);
 			if (childSbbEntity != null) {
-				// recreated the sbb entity and remove it
-				sbbEntityFactory.removeSbbEntity(childSbbEntity, false,true);
+				// recreate the sbb entity and remove it
+				sbbEntityFactory.removeSbbEntity(childSbbEntity,false);
 			}
+		}
+
+		cacheData.remove();
+				
+		if (log.isDebugEnabled()) {
+			log.debug("Removed sbb entity " + getSbbEntityId());
 		}
 	}
 
@@ -397,7 +346,7 @@ public class SbbEntityImpl implements SbbEntity {
 	public void trashObject() {
 		try {
 			// FIXME shouldn't just return the object to the pool?
-			this.pool.returnObject(sbbObject);
+			getObjectPool().returnObject(sbbObject);
 			this.sbbObject = null;
 		} catch (Exception e) {
 			throw new RuntimeException("Unexpected exception ", e);
@@ -421,7 +370,7 @@ public class SbbEntityImpl implements SbbEntity {
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#getSbbEntityId()
 	 */
-	public String getSbbEntityId() {
+	public SbbEntityID getSbbEntityId() {
 		return this.sbbeId;
 	}
 
@@ -430,7 +379,33 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#getSbbId()
 	 */
 	public SbbID getSbbId() {
-		return sbbEntityImmutableData.getSbbID();
+		if (_sbbID == null) {
+			ServiceComponent serviceComponent = sleeContainer.getComponentRepository().getComponentByID(getServiceId());
+			SbbComponent sbbComponent = null;
+			if (sbbeId.isRootSbbEntity()) {
+				_sbbID = serviceComponent.getRootSbbComponent().getSbbID();
+			}
+			else {
+				// put chain of parent sbb entity ids in a stack 
+				final LinkedList<SbbEntityID> stack = new LinkedList<SbbEntityID>();
+				SbbEntityID sbbEntityID = sbbeId.getParentSBBEntityID();
+				while(!sbbEntityID.isRootSbbEntity()) {
+					stack.push(sbbEntityID);
+					sbbEntityID = sbbEntityID.getParentSBBEntityID();
+				}
+				// now find out the sbb component of the parent
+				sbbComponent = serviceComponent.getRootSbbComponent();
+				GetChildRelationMethodDescriptor getChildRelationMethodDescriptor = null;
+				while(!stack.isEmpty()) {
+					sbbEntityID = stack.pop();
+					getChildRelationMethodDescriptor = sbbComponent.getDescriptor().getGetChildRelationMethodsMap().get(sbbEntityID.getParentChildRelation());
+					sbbComponent = sleeContainer.getComponentRepository().getComponentByID(getChildRelationMethodDescriptor.getSbbID());
+				}
+				getChildRelationMethodDescriptor = sbbComponent.getDescriptor().getGetChildRelationMethodsMap().get(sbbeId.getParentChildRelation());
+				_sbbID = getChildRelationMethodDescriptor.getSbbID();				
+			}
+		}
+		return _sbbID;
 	}
 
 	/*
@@ -442,6 +417,7 @@ public class SbbEntityImpl implements SbbEntity {
 
 		
 		// get event handler method
+		final SbbComponent sbbComponent = getSbbComponent();
 		final EventHandlerMethod eventHandlerMethod = sbbComponent
 				.getEventHandlerMethods().get(sleeEvent.getEventTypeId());
 		// build aci
@@ -552,7 +528,7 @@ public class SbbEntityImpl implements SbbEntity {
 		this.sbbObject.sbbPassivate();
 		this.sbbObject.setState(SbbObjectState.POOLED);
 		this.sbbObject.setSbbEntity(null);
-		this.pool.returnObject(this.sbbObject);
+		getObjectPool().returnObject(this.sbbObject);
 		this.sbbObject = null;
 		if (childsWithSbbObjects != null) {
 			for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
@@ -575,7 +551,7 @@ public class SbbEntityImpl implements SbbEntity {
 		this.sbbObject.sbbRemove();
 		this.sbbObject.setState(SbbObjectState.POOLED);
 		this.sbbObject.setSbbEntity(null);
-		this.pool.returnObject(this.sbbObject);
+		getObjectPool().returnObject(this.sbbObject);
 		this.sbbObject = null;
 		if (childsWithSbbObjects != null) {
 			for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
@@ -594,7 +570,10 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#getObjectPool()
 	 */
 	public SbbObjectPool getObjectPool() {
-		return this.pool;
+		if (_pool == null) {
+			_pool = sleeContainer.getSbbManagement().getObjectPool(getServiceId(), getSbbId());			
+		}
+		return this._pool;
 	}
 
 	/*
@@ -610,7 +589,10 @@ public class SbbEntityImpl implements SbbEntity {
 	}
 
 	public SbbComponent getSbbComponent() {
-		return this.sbbComponent;
+		if (_sbbComponent == null) {
+			_sbbComponent = sleeContainer.getComponentRepository().getComponentByID(getSbbId());
+		}
+		return _sbbComponent;
 	}
 
 	/*
@@ -618,7 +600,7 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#getChildRelation(java.lang.String)
 	 */
 	public ChildRelationImpl getChildRelation(String accessorName) {
-		return new ChildRelationImpl(this.sbbComponent.getDescriptor()
+		return new ChildRelationImpl(this.getSbbComponent().getDescriptor()
 				.getGetChildRelationMethodsMap().get(accessorName), this);		
 	}
 
@@ -666,10 +648,10 @@ public class SbbEntityImpl implements SbbEntity {
 			log.trace("getSbbLocalObject()");
 
 		// The concrete class generated in ConcreteLocalObjectGenerator
-		final Class<?> sbbLocalClass = sbbComponent.getSbbLocalInterfaceConcreteClass();
+		final Class<?> sbbLocalClass = getSbbComponent().getSbbLocalInterfaceConcreteClass();
 		if (sbbLocalClass != null) {
 			Object[] objs = { this };
-			Constructor<?> constructor = sbbComponent.getSbbLocalObjectClassConstructor();
+			Constructor<?> constructor = getSbbComponent().getSbbLocalObjectClassConstructor();
 			if (constructor == null) {
 				final Class<?>[] types = { SbbEntityImpl.class };
 				try {
@@ -677,7 +659,7 @@ public class SbbEntityImpl implements SbbEntity {
 				} catch (Throwable e) {
 					throw new SLEEException("Unable to retrieve sbb local object generated class constructor",e);
 				}
-				sbbComponent.setSbbLocalObjectClassConstructor(constructor);
+				getSbbComponent().setSbbLocalObjectClassConstructor(constructor);
 			}
 			try {
 				return (SbbLocalObjectImpl) constructor.newInstance(objs);
@@ -704,54 +686,6 @@ public class SbbEntityImpl implements SbbEntity {
 	private void removeFromCache() {
 		cacheData.remove();
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#getParentChildRelation()
-	 */
-	public String getParentChildRelation() {
-		return sbbEntityImmutableData.getParentChildRelationName();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#getParentSbbEntityId()
-	 */
-	public String getParentSbbEntityId() {
-		return sbbEntityImmutableData.getParentSbbEntityID();
-	}
-
-	// It removes the SBB entity from the ChildRelation object that the SBB
-	// entity belongs
-	// to.
-	private void removeFromParent() throws TransactionRequiredException,
-			SystemException {
-
-		if (doTraceLogs) {
-			log.trace("removeFromParent()");
-		}
-
-		if (this.getParentSbbEntityId() != null) {
-			SbbEntityImpl parent = sbbEntityFactory.getSbbEntity(this.getParentSbbEntityId(),false);
-			if (parent != null) {
-					parent.getChildRelation(getParentChildRelation()).removeChild(
-							this.getSbbEntityId());
-			}
-		} else {
-			// it's a root sbb entity, remove from service
-			try {
-				Service service = sleeContainer.getServiceManagement()
-						.getService(this.getServiceId());
-				service.removeConvergenceName(this.getServiceConvergenceName());
-			} catch (Exception e) {
-				log.info("Failed to remove the root sbb entity " + this.sbbeId
-						+ " with convergence name "
-						+ this.getServiceConvergenceName()
-						+ " from the service " + this.getServiceId(), e);
-			}
-		}
-	}
-
 	private Set<SbbEntity> childsWithSbbObjects = null;
 
 	protected void addChildWithSbbObject(SbbEntity childSbbEntity) {
@@ -774,7 +708,7 @@ public class SbbEntityImpl implements SbbEntity {
 		
 		try {
 			// get one object from the pool
-			this.sbbObject = (SbbObject) this.pool.borrowObject();
+			this.sbbObject = (SbbObject) getObjectPool().borrowObject();
 			// invoke the appropriate sbb life-cycle methods
 			this.sbbObject.setSbbEntity(this);
 			if (created) {
@@ -809,6 +743,6 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @see org.mobicents.slee.container.sbbentity.SbbEntity#isReentrant()
 	 */
 	public boolean isReentrant() {
-		return sbbComponent.isReentrant();
+		return getSbbComponent().isReentrant();
 	}
 }

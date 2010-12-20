@@ -27,6 +27,7 @@ import org.mobicents.slee.container.profile.ProfileLocalObject;
 import org.mobicents.slee.container.profile.ProfileTable;
 import org.mobicents.slee.container.sbb.SbbObjectState;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.sbbentity.ProfileLocalObjectCmpValue;
 
@@ -389,7 +390,7 @@ public class SbbAbstractMethodHandler {
 			return null;
 		}
 		else {
-			final SbbEntity anotherSbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity((String) cmpFieldValue,false);
+			final SbbEntity anotherSbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity((SbbEntityID) cmpFieldValue,false);
 			if (anotherSbbEntity == null)
 				return null;
 			else if (anotherSbbEntity.isRemoved())
@@ -568,20 +569,20 @@ public class SbbAbstractMethodHandler {
 			throws UnrecognizedUsageParameterSetNameException {
 		if (logger.isTraceEnabled()) {
 			logger.trace("getSbbUsageParameterSet(): serviceId = "
-					+ sbbEntity.getServiceId() + " , sbbID = "
+					+ sbbEntity.getSbbEntityId().getServiceID() + " , sbbID = "
 					+ sbbEntity.getSbbId() + " , name = " + name);
 		}
-		return getServiceUsageMBeanImpl(sbbEntity.getServiceId())
+		return getServiceUsageMBeanImpl(sbbEntity.getSbbEntityId().getServiceID())
 				.getInstalledUsageParameterSet(sbbEntity.getSbbId(), name);
 	}
 
 	public static Object getDefaultSbbUsageParameterSet(SbbEntity sbbEntity) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("getDefaultSbbUsageParameterSet(): "
-					+ sbbEntity.getServiceId() + " sbbID = "
+					+ sbbEntity.getSbbEntityId().getServiceID() + " sbbID = "
 					+ sbbEntity.getSbbId());
 		}
-		return getServiceUsageMBeanImpl(sbbEntity.getServiceId())
+		return getServiceUsageMBeanImpl(sbbEntity.getSbbEntityId().getServiceID())
 				.getDefaultInstalledUsageParameterSet(sbbEntity.getSbbId());
 	}
 

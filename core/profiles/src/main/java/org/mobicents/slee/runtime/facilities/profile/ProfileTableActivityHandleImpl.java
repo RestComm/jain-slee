@@ -1,6 +1,9 @@
 package org.mobicents.slee.runtime.facilities.profile;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import org.jgroups.Address;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -13,16 +16,16 @@ import org.mobicents.slee.container.profile.ProfileTableActivityHandle;
  * @author martins
  *
  */
-public class ProfileTableActivityHandleImpl implements ProfileTableActivityHandle, Serializable {
+public class ProfileTableActivityHandleImpl implements ProfileTableActivityHandle, Externalizable {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private final String profileTable;
+	private transient String profileTable;
 
-	private final Address clusterLocalAddress; 
+	private transient Address clusterLocalAddress; 
 	
 	public ProfileTableActivityHandleImpl(String profileTable, Address clusterLocalAddress) {
 		this.profileTable = profileTable;
@@ -63,8 +66,25 @@ public class ProfileTableActivityHandleImpl implements ProfileTableActivityHandl
 		return profileTable;
 	}
 	
+	public Address getClusterLocalAddress() {
+		return clusterLocalAddress;
+	}
+	
 	@Override
 	public String toString() {
 		return profileTable;
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		profileTable = in.readUTF();
+		clusterLocalAddress = (Address) in.readObject();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeUTF(profileTable);
+		out.writeObject(clusterLocalAddress);
 	}
 }

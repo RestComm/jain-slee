@@ -27,6 +27,7 @@ import org.mobicents.slee.container.event.ReferencesHandler;
 import org.mobicents.slee.container.facilities.ActivityContextNamingFacility;
 import org.mobicents.slee.container.facilities.TimerFacility;
 import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandle;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
@@ -304,7 +305,7 @@ public class ActivityContextImpl implements ActivityContext {
 	 *         the SBB Entitiy has already been attached before, return false
 	 */
 
-	public boolean attachSbbEntity(String sbbEntityId) {
+	public boolean attachSbbEntity(SbbEntityID sbbEntityId) {
 
 		boolean attached = cacheData.attachSbbEntity(sbbEntityId);
 		if (attached) {
@@ -324,7 +325,7 @@ public class ActivityContextImpl implements ActivityContext {
 	 * 
 	 * @param sbbEntityId
 	 */
-	public void detachSbbEntity(String sbbEntityId) throws javax.slee.TransactionRequiredLocalException {
+	public void detachSbbEntity(SbbEntityID sbbEntityId) throws javax.slee.TransactionRequiredLocalException {
 
 		boolean detached = cacheData.detachSbbEntity(sbbEntityId);
 		
@@ -347,10 +348,10 @@ public class ActivityContextImpl implements ActivityContext {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public Set<String> getSortedSbbAttachmentSet(Set<String> excludeSet) {
-		final Set<String> sbbAttachementSet = cacheData.getSbbEntitiesAttached();
+	public Set<SbbEntityID> getSortedSbbAttachmentSet(Set<SbbEntityID> excludeSet) {
+		final Set<SbbEntityID> sbbAttachementSet = cacheData.getSbbEntitiesAttached();
 		final SortedSet orderSbbSet = new TreeSet(sbbEntityComparator);
-		for (String sbbEntityId : sbbAttachementSet) {
+		for (SbbEntityID sbbEntityId : sbbAttachementSet) {
 			if (!excludeSet.contains(sbbEntityId)) {
 				orderSbbSet.add(sbbEntityId);
 			}
@@ -359,7 +360,7 @@ public class ActivityContextImpl implements ActivityContext {
 	}	
 	
 	@SuppressWarnings("unchecked")
-	public Set<String> getSbbAttachmentSet() {
+	public Set<SbbEntityID> getSbbAttachmentSet() {
 		return cacheData.getSbbEntitiesAttached();	
 	}
 	

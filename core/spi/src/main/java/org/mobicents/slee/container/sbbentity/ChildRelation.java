@@ -15,6 +15,6 @@ public interface ChildRelation extends javax.slee.ChildRelation {
 	 * 
 	 * @return
 	 */
-	public Set<String> getSbbEntitySet();
+	public Set<SbbEntityID> getSbbEntitySet();
 	
 }

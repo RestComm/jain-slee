@@ -3,7 +3,7 @@
  */
 package org.mobicents.slee.container.activity;
 
-import java.io.Serializable;
+import java.io.Externalizable;
 
 import javax.slee.resource.ActivityHandle;
 
@@ -13,7 +13,7 @@ import javax.slee.resource.ActivityHandle;
  * @author martins
  * 
  */
-public interface ActivityContextHandle extends Serializable {
+public interface ActivityContextHandle extends Externalizable {
 
 	/**
 	 * 

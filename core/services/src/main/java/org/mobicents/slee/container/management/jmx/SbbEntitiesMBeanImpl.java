@@ -18,6 +18,7 @@ import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescript
 import org.mobicents.slee.container.sbbentity.ChildRelation;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.service.Service;
 
 public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implements
@@ -30,7 +31,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 		this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();
 	}
 
-	public Object[] retrieveSbbEntitiesBySbbId(String sbbId) {
+	public Object[] retrieveSbbEntitiesBySbbId(SbbEntityID sbbId) {
 		// FIXME retrieveSbbEntitiesBySbbId
 		// emmartins: this one is even uglier than going through all sbb
 		// entity trees, because you need to find all child relations with this
@@ -44,7 +45,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 		ArrayList result = new ArrayList();
 		try {
 
-			Iterator<String> sbbes = retrieveAllSbbEntitiesIds().iterator();
+			Iterator<SbbEntityID> sbbes = retrieveAllSbbEntitiesIds().iterator();
 			while (sbbes.hasNext()) {
 				try {
 					SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbes.next(),false);
@@ -62,8 +63,8 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 		}
 	}
 
-	private Set<String> retrieveAllSbbEntitiesIds() throws SystemException, NullPointerException, ManagementException, NotSupportedException {
-		Set<String> result = new HashSet<String>();
+	private Set<SbbEntityID> retrieveAllSbbEntitiesIds() throws SystemException, NullPointerException, ManagementException, NotSupportedException {
+		Set<SbbEntityID> result = new HashSet<SbbEntityID>();
 
 		final SleeContainer sleeContainer = getSleeContainer();
 
@@ -72,10 +73,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 
 			for (ServiceID serviceID : sleeContainer.getServiceManagement().getServices(ServiceState.ACTIVE)) {
 				try {
-					Service service = sleeContainer.getServiceManagement()
-							.getService(serviceID);
-					for (String rootSbbId : (Collection<String>) service
-							.getChildObj()) {
+					for (SbbEntityID rootSbbId : sbbEntityFactory.getRootSbbEntityIDs(serviceID)) {
 						result.addAll(getChildSbbEntities(rootSbbId));
 					}
 				} catch (Exception e) {
@@ -93,16 +91,16 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 		return result;
 	}
 
-	private Set<String> getChildSbbEntities(String sbbEntityId) {
+	private Set<SbbEntityID> getChildSbbEntities(SbbEntityID sbbEntityId) {
 
-		Set<String> result = new HashSet<String>();
+		Set<SbbEntityID> result = new HashSet<SbbEntityID>();
 
 		try {
 			SbbEntity sbbEntity = getSbbEntityById(sbbEntityId);
 			for (GetChildRelationMethodDescriptor method : sbbEntity.getSbbComponent().getDescriptor().getGetChildRelationMethodsMap().values()) {
 				ChildRelation childRelationImpl = sbbEntity.getChildRelation(method.getChildRelationMethodName());
 				if (childRelationImpl != null) {
-					for (String childSbbEntityId : childRelationImpl.getSbbEntitySet()) {
+					for (SbbEntityID childSbbEntityId : childRelationImpl.getSbbEntitySet()) {
 						result.addAll(getChildSbbEntities(childSbbEntityId));
 					}
 				}
@@ -122,16 +120,15 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 			sleeContainer.getTransactionManager().begin();
 			if (entity == null)
 				return null;
-			info[0] = entity.getSbbEntityId();
-			info[1] = entity.getParentSbbEntityId();
-			info[2] = entity.getRootSbbId();
+			info[0] = entity.getSbbEntityId().toString();
+			info[1] = String.valueOf(entity.getSbbEntityId().getParentSBBEntityID());
+			info[2] = String.valueOf(entity.getSbbEntityId().getRootSBBEntityID());
 			info[3] = entity.getSbbId().toString();
 			info[4] = Byte.toString(entity.getPriority());
-			info[5] = entity.getServiceConvergenceName();
+			info[5] = entity.getSbbEntityId().getServiceConvergenceName();
 			// FIXME to remove in mmc
 			info[6] = null;
-			if (entity.getServiceId() != null)
-				info[7] = entity.getServiceId().toString();
+			info[7] = String.valueOf(entity.getSbbEntityId().getServiceID());
 			// FIXME to remove in mmc
 			info[8] = null;
 			Set acsSet = entity.getActivityContexts();
@@ -148,7 +145,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 		return info;
 	}
 
-	private SbbEntity getSbbEntityById(String sbbeId) {
+	private SbbEntity getSbbEntityById(SbbEntityID sbbeId) {
 		try {
 			return sbbEntityFactory.getSbbEntity(sbbeId, false);
 		} catch (Exception e) {
@@ -157,16 +154,16 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 
 	}
 
-	public Object[] retrieveSbbEntityInfo(String sbbeId) {
+	public Object[] retrieveSbbEntityInfo(SbbEntityID sbbeId) {
 		SbbEntity entity = getSbbEntityById(sbbeId);
 		return sbbEntityToArray(entity);
 	}
 
-	public void removeSbbEntity(String sbbeId) {
+	public void removeSbbEntity(SbbEntityID sbbeId) {
 		try {
 			SleeContainer sleeContainer = getSleeContainer();
 			sleeContainer.getTransactionManager().begin();
-			sbbEntityFactory.removeSbbEntity(getSbbEntityById(sbbeId), true,false);
+			sbbEntityFactory.removeSbbEntity(getSbbEntityById(sbbeId),false);
 			sleeContainer.getTransactionManager().commit();
 		} catch (Exception e) {
 			e.printStackTrace();

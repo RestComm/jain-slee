@@ -1,14 +1,16 @@
 package org.mobicents.slee.runtime.facilities;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import javax.slee.Address;
 import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
+import javax.slee.facilities.TimerPreserveMissed;
 
+import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.timers.PeriodicScheduleStrategy;
 import org.mobicents.timers.TimerTaskData;
-import org.mobicents.slee.container.activity.ActivityContextHandle;
 
 /**
  * TODO
@@ -25,37 +27,37 @@ public class TimerFacilityTimerTaskData extends TimerTaskData implements Seriali
 	/**
 	 * 
 	 */
-	private final ActivityContextHandle ach;
+	private transient ActivityContextHandle ach;
 
 	/**
      * 
      */
-	private final Address address;
+	private transient Address address;
 
 	/**
      * 
      */
-	private final TimerOptions timerOptions;
+	private transient TimerOptions timerOptions;
 
 	/**
      * 
      */
-	private final int numRepetitions;
+	private transient int numRepetitions;
 
 	/**
      * 
      */
-	private int executions = 0;
+	private transient int executions = 0;
 
 	/**
      * 
      */
-	private int missedRepetitions = 0;
+	private transient int missedRepetitions = 0;
 
 	/**
      * 
      */
-	private long lastTick;
+	private transient long lastTick;
 	
 	/**
 	 * 
@@ -168,6 +170,10 @@ public class TimerFacilityTimerTaskData extends TimerTaskData implements Seriali
 		this.missedRepetitions = missedRepetitions;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "TimerFacilityTimerTaskData[ timerID = " + getTimerID()
@@ -179,6 +185,10 @@ public class TimerFacilityTimerTaskData extends TimerTaskData implements Seriali
 				+ " , period = " + getPeriod() + " , lastTick = " + lastTick + " ]";
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public long getScheduledTime() {
 		final long period = getPeriod();
 		long scheduledTime = getStartTime();
@@ -187,4 +197,30 @@ public class TimerFacilityTimerTaskData extends TimerTaskData implements Seriali
 		}
 		return scheduledTime;
 	}
+	
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		out.writeObject(ach);
+		out.writeObject(address);
+		out.writeInt(executions);
+		out.writeLong(lastTick);
+		out.writeInt(missedRepetitions);
+		out.writeInt(numRepetitions);
+		out.writeBoolean(timerOptions.isPersistent());
+		out.writeLong(timerOptions.getTimeout());
+		out.writeInt(timerOptions.getPreserveMissed().toInt());
+	}
+    
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    	ach = (ActivityContextHandle) in.readObject();
+		address = (Address) in.readObject();
+		executions = in.readInt();
+		lastTick = in.readLong();
+		missedRepetitions = in.readInt();
+		numRepetitions = in.readInt();
+		final boolean persistent = in.readBoolean();
+		final long timeout = in.readLong();
+		final TimerPreserveMissed preserveMissed = TimerPreserveMissed.fromInt(in.readInt());
+		timerOptions = new TimerOptions(persistent, timeout, preserveMissed);
+    }
+	
 }

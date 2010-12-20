@@ -12,6 +12,7 @@ import javax.slee.ServiceID;
 
 import org.mobicents.slee.container.activity.LocalActivityContext;
 import org.mobicents.slee.container.component.service.ServiceComponent;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * @author martins
@@ -62,7 +63,7 @@ public interface EventContextData {
 	 * 
 	 * @return
 	 */
-	public Set<String> getSbbEntitiesThatHandledEvent();
+	public Set<SbbEntityID> getSbbEntitiesThatHandledEvent();
 
 	/**
 	 * 

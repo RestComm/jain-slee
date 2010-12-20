@@ -29,6 +29,7 @@ import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandl
 import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextImpl;
@@ -375,17 +376,16 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 					SbbID idBeingLookedUp = (SbbID) propertyEditor.getValue();
 					boolean match = false;
 					SbbID implSbbID = null;
-					for (Object obj : ac.getSbbAttachmentSet()) {
-						String sbbEID = (String) obj;
-						if (sbbEntityIdToSbbID.containsKey(sbbEID)) {
-							implSbbID = (SbbID) sbbEntityIdToSbbID.get(sbbEID);
+					for (SbbEntityID sbbEntityID : ac.getSbbAttachmentSet()) {
+						if (sbbEntityIdToSbbID.containsKey(sbbEntityID)) {
+							implSbbID = (SbbID) sbbEntityIdToSbbID.get(sbbEntityID);
 						} else {
-							SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbEID,false);
+							SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbEntityID,false);
 							if (sbbe == null) {
 								continue;
 							}
 							implSbbID = sbbe.getSbbId();
-							sbbEntityIdToSbbID.put(sbbEID, implSbbID);
+							sbbEntityIdToSbbID.put(sbbEntityID, implSbbID);
 						}
 
 						if (!implSbbID.equals(idBeingLookedUp)) {

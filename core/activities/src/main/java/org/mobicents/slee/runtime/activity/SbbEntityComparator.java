@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * Comparator used to sort a set of sbb entities.
@@ -12,7 +13,7 @@ import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
  * @author martins
  * 
  */
-public class SbbEntityComparator implements Comparator<String> {
+public class SbbEntityComparator implements Comparator<SbbEntityID> {
 
 	private final SbbEntityFactory sbbEntityFactory;
 	
@@ -28,7 +29,7 @@ public class SbbEntityComparator implements Comparator<String> {
 	 * 
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	public int compare(String sbbeId1, String sbbeId2) {
+	public int compare(SbbEntityID sbbeId1, SbbEntityID sbbeId2) {
 
 		final SbbEntity sbbe1 = sbbEntityFactory.getSbbEntity(sbbeId1,true);
 		final SbbEntity sbbe2 = sbbEntityFactory.getSbbEntity(sbbeId2,true);
@@ -106,9 +107,9 @@ public class SbbEntityComparator implements Comparator<String> {
 	private LinkedList<SbbEntity> priorityOfSbb(SbbEntity sbbe) {
 		final LinkedList<SbbEntity> list = new LinkedList<SbbEntity>();
 		// push all non root sbb entities
-		while (!sbbe.isRootSbbEntity()) {
+		while (!sbbe.getSbbEntityId().isRootSbbEntity()) {
 			list.addFirst(sbbe);
-			sbbe = sbbEntityFactory.getSbbEntity(sbbe.getParentSbbEntityId(),false);
+			sbbe = sbbEntityFactory.getSbbEntity(sbbe.getSbbEntityId().getParentSBBEntityID(),false);
 			if (sbbe == null) {
 				// edge case where a parent sbb entity was concurrently removed, ignore this sbb entity
 				return null;

@@ -13,6 +13,7 @@ import org.mobicents.slee.container.deployment.interceptors.SbbLocalObjectInterc
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
 import org.mobicents.slee.container.sbb.SbbLocalObject;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
@@ -226,7 +227,7 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
         }
         
         try {
-        	sleeContainer.getSbbEntityFactory().removeSbbEntity(sbbEntity, true,false);
+        	sleeContainer.getSbbEntityFactory().removeSbbEntity(sbbEntity,false);
         } catch (Throwable e) {
             throw new SLEEException("Removal of the sbb entity failed",e);
         }
@@ -294,13 +295,13 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
      * (non-Javadoc)
      * @see org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete#getSbbEntityId()
      */
-    public String getSbbEntityId() {
+    public SbbEntityID getSbbEntityId() {
         return sbbEntity.getSbbEntityId();
     }
     
     private static class RolledBackAction implements TransactionalAction {
         
-    	final String sbbeId;
+    	final SbbEntityID sbbeId;
     	
     	private Object event;
 
@@ -308,7 +309,7 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
 
     	private boolean removeRollback;
 
-        public RolledBackAction(String sbbeId,Object event,
+        public RolledBackAction(SbbEntityID sbbeId,Object event,
                 ActivityContextInterface activityContextInterface,
                 boolean removeRollback) {
             this.event = event;

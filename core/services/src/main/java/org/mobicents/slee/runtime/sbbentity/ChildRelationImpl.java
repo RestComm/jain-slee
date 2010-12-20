@@ -25,8 +25,8 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
 import org.mobicents.slee.container.sbbentity.ChildRelation;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 
 /**
@@ -57,7 +57,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
     private HashSet<SbbLocalObject> getLocalObjects() {
         HashSet<SbbLocalObject> localObjects = new HashSet<SbbLocalObject>();
         SbbEntity childSbbEntity = null;
-        for (String sbbEntityId : sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod.getChildRelationMethodName())) {
+        for (SbbEntityID sbbEntityId : sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod.getChildRelationMethodName())) {
             childSbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId, false);
         	if (childSbbEntity != null) {
         		localObjects.add(childSbbEntity.getSbbLocalObject());
@@ -95,13 +95,32 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      *  
      */
     public boolean contains(Object object) {
-        if (!(object instanceof SbbLocalObject))
+        
+    	if (!(object instanceof SbbLocalObject))
             return false;
-        SbbLocalObjectImpl sbblocal = (SbbLocalObjectImpl) object;
-        String sbbEntityId = sbblocal.getSbbEntityId();
-        return sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod.getChildRelationMethodName(), sbbEntityId);
+        
+    	final SbbLocalObjectImpl sbblocal = (SbbLocalObjectImpl) object;
+        final SbbEntityID sbbEntityId = sbblocal.getSbbEntityId();
+        if(!idBelongsToChildRelation(sbbEntityId)) {
+        	return false;
+        }
+        
+        return new SbbEntityCacheData(sbbEntityId,sleeContainer.getCluster().getMobicentsCache()).exists();
     }
 
+    private boolean idBelongsToChildRelation(SbbEntityID sbbEntityID) {
+    	 if(sbbEntityID.isRootSbbEntity()) {
+         	return false;
+         }
+         if(!sbbEntityID.getParentChildRelation().equals(getChildRelationMethod.getChildRelationMethodName())) {
+         	return false;
+         }
+         if(!sbbEntityID.getParentSBBEntityID().equals(sbbEntity.getSbbEntityId())) {
+         	return false;
+         }
+         return true;
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -114,14 +133,11 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
     	
     	sleeTransactionManager.mandateTransaction();
 
-        SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory().createSbbEntity(
-						this.getChildRelationMethod.getSbbID(),
-						this.sbbEntity.getServiceId(),
-						this.sbbEntity.getSbbEntityId(),
-						this.getChildRelationMethod.getChildRelationMethodName(),
-						this.sbbEntity.getRootSbbId(),
-						this.sbbEntity.getServiceConvergenceName());
-      
+		SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory()
+				.createNonRootSbbEntity(
+						sbbEntity.getSbbEntityId(),
+						getChildRelationMethod.getChildRelationMethodName());
+
         if (logger.isDebugEnabled())
             logger.debug("ChildRelation.create() : Created Sbb Entity: " + childSbbEntity.getSbbEntityId());
 
@@ -174,7 +190,6 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
             childSbbEntity.trashObject();
         } 
         
-        sbbEntity.cacheData.addChildRelationSbbEntity(getChildRelationMethod.getChildRelationMethodName(),childSbbEntity.getSbbEntityId());
         sbbEntity.addChildWithSbbObject(childSbbEntity);
         return childSbbEntity.getSbbLocalObject();
     }
@@ -265,17 +280,16 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         if (object == null)
             throw new NullPointerException("Null arg for remove ");
         
-        if (!(object instanceof SbbLocalObjectImpl))
+        if (!(object instanceof SbbLocalObject))
             return false;
         
-        SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl)object;
-        	       
-        if (sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod.getChildRelationMethodName(), sbbLocalObjectImpl.getSbbEntityId())) {
-        	sbbLocalObjectImpl.remove();
-        	return true;
+    	final SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) object;
+        if(!idBelongsToChildRelation(sbbLocalObjectImpl.getSbbEntityId()) && !sbbLocalObjectImpl.getSbbEntity().isRemoved()) {
+        	return false;
         }
         else {
-        	return false;
+        	sbbLocalObjectImpl.remove();
+        	return true;
         }
     }
     
@@ -312,13 +326,9 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
     	if (c == null)
             throw new NullPointerException("null collection!");
         
-        for ( Iterator it = c.iterator(); it.hasNext(); ) {
-            SbbLocalObjectConcrete sbbLocalInterface = ( SbbLocalObjectConcrete) it.next();
-            if (!sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod.getChildRelationMethodName(), sbbLocalInterface.getSbbEntityId())) {                        	
-            	if(logger.isDebugEnabled()) {
-                	logger.debug("containsAll : collection = " + c + " > "+sbbLocalInterface.getSbbEntityId()+" not in child relation");
-                }
-                return false;
+        for (Iterator it = c.iterator(); it.hasNext(); ) {
+            if (!contains(it.next())) {                        	
+            	return false;
             }
         }
         
@@ -377,13 +387,9 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         return localObjects.toArray(a);
     }
      
-    public Set<String> getSbbEntitySet(){
-    	return new HashSet<String>(sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod.getChildRelationMethodName()));
+    public Set<SbbEntityID> getSbbEntitySet(){
+    	return new HashSet<SbbEntityID>(sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod.getChildRelationMethodName()));
     }
-
-	public void removeChild(String sbbEntityId) {
-		sbbEntity.cacheData.removeChildRelationSbbEntity(getChildRelationMethod.getChildRelationMethodName(), sbbEntityId);
-	}
     
 	// --- ITERATOR
 	
@@ -410,8 +416,8 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      */
     class ChildRelationIterator implements Iterator {
 
-        private Iterator<String> myIterator;
-        private String nextEntity;
+        private Iterator<SbbEntityID> myIterator;
+        private SbbEntityID nextEntity;
         private SbbLocalObject nextSbbLocalObject;
         
         public ChildRelationIterator() {        	        	

@@ -18,6 +18,7 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.LocalActivityContext;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 
@@ -99,7 +100,7 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
 
-		Iterator<String> i = null;
+		Iterator<SbbEntityID> i = null;
 
 		while (true) {
 
@@ -112,7 +113,7 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 					Service service = sleeContainer
 							.getServiceManagement().getService(serviceID);
 					if (service.getState() == ServiceState.INACTIVE) {
-						i = service.getChildObj().iterator();
+						i = sleeContainer.getSbbEntityFactory().getRootSbbEntityIDs(serviceID).iterator();
 					} else {
 						// wrong service state, finish task
 						break;
@@ -120,7 +121,7 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 				}
 
 				if (i.hasNext()) {
-					final String sbbEntityId = (String) i.next();
+					final SbbEntityID sbbEntityId = (SbbEntityID) i.next();
 					// get sbb entity
 					SbbEntity sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId,true);
 					if (sbbEntity == null) {
@@ -199,15 +200,8 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 						} 
 					}
 					
-					try {		
-						// finally remove sbb entity
-						sleeContainer.getSbbEntityFactory().removeSbbEntity(sbbEntity, false,false);
-					} catch (Exception ex) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("error removing entity "
-									+ sbbEntity.getSbbEntityId(), ex);
-						}
-					}
+					// finally remove sbb entity
+					sleeContainer.getSbbEntityFactory().removeSbbEntity(sbbEntity,false);
 					
 				} else {
 					// no more entities, finish task

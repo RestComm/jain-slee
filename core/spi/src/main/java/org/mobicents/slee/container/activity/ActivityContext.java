@@ -17,6 +17,7 @@ import org.mobicents.slee.container.event.EventProcessingFailedCallback;
 import org.mobicents.slee.container.event.EventProcessingSucceedCallback;
 import org.mobicents.slee.container.event.ReferencesHandler;
 import org.mobicents.slee.container.event.EventUnreferencedCallback;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * @author martins
@@ -47,7 +48,7 @@ public interface ActivityContext {
 	 *         the SBB Entitiy has already been attached before, return false
 	 */
 
-	public boolean attachSbbEntity(String sbbEntityId);
+	public boolean attachSbbEntity(SbbEntityID sbbEntityId);
 
 	/**
 	 * attach the given timer to the current activity context.
@@ -63,7 +64,7 @@ public interface ActivityContext {
 	 * 
 	 * @param sbbEntityId
 	 */
-	public void detachSbbEntity(String sbbEntityId)
+	public void detachSbbEntity(SbbEntityID sbbEntityId)
 			throws javax.slee.TransactionRequiredLocalException;
 
 	/**
@@ -145,7 +146,7 @@ public interface ActivityContext {
 	 */
 	public Object getDataAttribute(String key);
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Map getDataAttributes();
 
 	public LocalActivityContext getLocalActivityContext();
@@ -157,7 +158,7 @@ public interface ActivityContext {
 	 */
 	public Set<String> getNamingBindings();
 
-	public Set<String> getSbbAttachmentSet();
+	public Set<SbbEntityID> getSbbAttachmentSet();
 
 	/**
 	 * get an ordered copy of the set of SBBs attached to this ac. The ordering
@@ -166,7 +167,7 @@ public interface ActivityContext {
 	 * @return list of SbbEIDs
 	 * 
 	 */
-	public Set<String> getSortedSbbAttachmentSet(Set<String> excludeSet);
+	public Set<SbbEntityID> getSortedSbbAttachmentSet(Set<SbbEntityID> excludeSet);
 
 	/**
 	 * test if the activity context is ending.

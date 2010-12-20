@@ -22,6 +22,8 @@
 
 package org.mobicents.slee.runtime.sbb;
 
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
+
 /**
  *An Implementation interface for Sbb Local Object.
  *This is implemented by both the default implementation 
@@ -32,7 +34,7 @@ package org.mobicents.slee.runtime.sbb;
  */
 public interface SbbLocalObjectConcrete {
     
-    public String getSbbEntityId();
+    public SbbEntityID getSbbEntityId();
     
     public ClassLoader getContextClassLoader();
 

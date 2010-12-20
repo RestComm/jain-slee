@@ -9,6 +9,7 @@ import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
 import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * 
@@ -48,22 +49,22 @@ public class NextSbbEntityFinder {
 	 *         event.
 	 */
 	public Result next(ActivityContext ac,
-			EventContext sleeEvent, Set<String> sbbEntitiesThatHandledCurrentEvent, SleeContainer sleeContainer) {
+			EventContext sleeEvent, Set<SbbEntityID> sbbEntitiesThatHandledCurrentEvent, SleeContainer sleeContainer) {
 		
-		String sbbEntityId = null;
+		SbbEntityID sbbEntityId = null;
 		SbbEntity sbbEntity = null;
 		EventEntryDescriptor mEventEntry = null;
 				
 		// get the highest priority sbb from sbb entities attached to AC
-		for (Iterator<?> iter = ac.getSortedSbbAttachmentSet(sbbEntitiesThatHandledCurrentEvent).iterator(); iter
+		for (Iterator<SbbEntityID> iter = ac.getSortedSbbAttachmentSet(sbbEntitiesThatHandledCurrentEvent).iterator(); iter
 				.hasNext();) {
-			sbbEntityId = (String) iter.next();
+			sbbEntityId = iter.next();
 			sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId,true);
 			if (sbbEntity == null) {
 				// ignore, sbb entity has been removed
 				continue;
 			}
-			if (sleeEvent.getService() != null && !sleeEvent.getService().equals(sbbEntity.getServiceId())) {
+			if (sleeEvent.getService() != null && !sleeEvent.getService().equals(sbbEntityId.getServiceID())) {
 				if (!sleeEvent.isActivityEndEvent()) {
 					continue;
 				}

@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 
 /**
@@ -53,7 +54,7 @@ public class SbbLocalObjectInterceptor {
 		final Method meth = sbbConcrete.getClass().getMethod(methodName, types);
 		final SbbEntity sbbEntity = sbbConcrete.getSbbEntity();
 		
-		Set<String> invokedsbbEntities = null;
+		Set<SbbEntityID> invokedsbbEntities = null;
 		if (!sbbEntity.isReentrant()) {
 			invokedsbbEntities = sleeContainer
 				.getTransactionManager().getTransactionContext()

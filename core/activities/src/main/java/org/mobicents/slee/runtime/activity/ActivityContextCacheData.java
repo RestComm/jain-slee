@@ -12,6 +12,7 @@ import org.jboss.cache.Node;
 import org.mobicents.cache.CacheData;
 import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * 
@@ -214,7 +215,7 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param sbbEntityId
 	 * @return true if it was attached, false if already was attached
 	 */
-	public boolean attachSbbEntity(String sbbEntityId) {
+	public boolean attachSbbEntity(SbbEntityID sbbEntityId) {
 		final Node node = getAttachedSbbsNode(true);
 		if (!node.hasChild(sbbEntityId)) {
 			node.addChild(Fqn.fromElements(sbbEntityId));
@@ -229,7 +230,7 @@ public class ActivityContextCacheData extends CacheData {
 	 * 
 	 * @param sbbEntityId
 	 */
-	public boolean detachSbbEntity(String sbbEntityId) {
+	public boolean detachSbbEntity(SbbEntityID sbbEntityId) {
 		final Node node  = getAttachedSbbsNode(false);
 		return node != null ? node.removeChild(sbbEntityId) : false;		
 	}
@@ -249,9 +250,10 @@ public class ActivityContextCacheData extends CacheData {
 	 * 
 	 * @return
 	 */
-	public Set getSbbEntitiesAttached() {
+	@SuppressWarnings("unchecked")
+	public Set<SbbEntityID> getSbbEntitiesAttached() {
 		final Node node  = getAttachedSbbsNode(false);
-		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;		
+		return node != null ? node.getChildrenNames() : Collections.emptySet();		
 	}
 
 	/**
