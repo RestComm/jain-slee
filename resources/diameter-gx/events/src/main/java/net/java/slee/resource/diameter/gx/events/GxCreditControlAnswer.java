@@ -1,0 +1,192 @@
+/*
+ * JBoss, Home of Professional Open Source
+ *
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
+package net.java.slee.resource.diameter.gx.events;
+
+import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
+import net.java.slee.resource.diameter.gx.events.avp.ChargingInformation;
+import net.java.slee.resource.diameter.gx.events.avp.ChargingRuleInstall;
+import net.java.slee.resource.diameter.gx.events.avp.ChargingRuleRemove;
+import net.java.slee.resource.diameter.gx.events.avp.EventTrigger;
+
+/**
+ * Interface defining GxCreditControlAnswer message as defined in 3GPP TS 29.210 V6.7.0 (2006-12). It has following structure:
+ *
+ * <pre>
+ *
+ *    <CC-Answer> ::=  < Diameter Header: 272, PXY >
+ *				 < Session-Id >
+ *				 { Auth-Application-Id }
+ *				 { Origin-Host }
+ *				 { Origin-Realm }
+ *				 [ Result-Code ]
+ *				 [ Experimental-Result ]
+ * 				 { CC-Request-Type }
+ *				 { CC-Request-Number }
+ *				*[ Event-Trigger ]
+ *				 [ Origin-State-Id ]
+ *				*[ Charging-Rule-Remove ]
+ *				*[ Charging-Rule-Install ]
+ *				 [ Charging-Information ]
+ *				 [ Error-Message ]
+ * 				 [ Error-Reporting-Host ]
+ *				*[ Failed-AVP ]
+ *				*[ Proxy-Info ]
+ *				*[ Route-Record ]
+ *				*[ AVP ]
+ *
+ * 
+ * </pre>
+ *
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ * @author <a href="mailto:carl-magnus.bjorkell@emblacom.com"> Carl-Magnus Björkell </a>
+ * @author <a href="mailto:karthikeyan_s@spanservices.com"> Karthikeyan Shanmugam (EmblaCom)</a>
+ */
+public interface GxCreditControlAnswer extends GxCreditControlMessage {
+
+    /**
+     * Check if the we have a Result-Code AVP in this message.
+     * @return true if the Result-Code AVP is present in the message.
+     */
+    boolean hasResultCode();
+
+    /**
+     * Returns the value of the Result-Code AVP, of type Unsigned32. Use
+     * {@link #hasResultCode()} to check the existence of this AVP.
+     *
+     * @return the value of the Result-Code AVP
+     */
+    long getResultCode();
+
+    /**
+     * Sets the value of the Result-Code AVP, of type Unsigned32.
+     * @param resultCode the result code to set.
+     */
+    void setResultCode(long resultCode);
+    
+    /**
+     * Returns the value of Event-Trigger AVP of type Enumerated.
+     * @return EventTrigger the
+     */
+    EventTrigger getEventTrigger();
+
+    /**
+     * Check if the we have a Event-Trigger AVP in this message. Defined in 3GPP TS 29.210
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329210v670
+     * @return boolean
+     */
+    boolean hasEventTrigger();
+
+    /**
+     * Sets the value of the Event-Trigger AVP, of type Enumerated. Defined in 3GPP TS 29.210
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329210v670
+     * @param eventTrigger
+     */
+    void setEventTrigger(EventTrigger eventTrigger);
+
+    /**
+     * Returns the value of Charging-Rule-Remove AVP of type Grouped. Defined in 3GPP TS 29.210
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329210v670
+     * @return ChargingRuleRemove
+     */
+    ChargingRuleRemove getChargingRuleRemove();
+
+    /**
+     * Returns true if Charging-Rule-Remove AVP is present in the message. Defined in 3GPP TS 29.210
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329210v670
+     * @return boolean
+     */
+    boolean hasChargingRuleRemove();
+
+    /**
+     * Sets the value of the Charging-Rule-Remove AVP, of type Grouped. Defined in 3GPP TS 29.210
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329210v670
+     * @param chargingRuleRemove
+     */
+    void setChargingRuleRemove(ChargingRuleRemove chargingRuleRemove);
+
+    /**
+     * Returns the value of Charging-Rule-Install AVP of type Grouped. Defined in 3GPP TS 29.210
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329210v670
+     * @return ChargingRuleInstall
+     */
+    ChargingRuleInstall getChargingRuleInstall();
+
+    /**
+     * Returns true if Charging-Rule-Install AVP is present in the message. Defined in 3GPP TS 29.210
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329210v670
+     * @return boolean
+     */
+    boolean hasChargingRuleInstall();
+
+    /**
+     * Sets the value of the Charging-Rule-Install AVP, of type Grouped. Defined in 3GPP TS 29.210
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329210v670
+     * @param chargingRuleInstall
+     */
+    void setChargingRuleInstall(final ChargingRuleInstall chargingRuleInstall);
+
+    /**
+     * Returns the value of Charging-Information AVP of type Grouped. Defined in 3GPP TS 29.229
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0429229v6b0
+     * @return ChargingInformation
+     */
+    ChargingInformation getChargingInformation();
+
+    /**
+     * Returns true if Charging-Information AVP is present in the message. Defined in 3GPP TS 29.229
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0429229v6b0
+     * @return
+     */
+    boolean hasChargingInformation();
+
+    /**
+     * Sets the value of the Charging-Information AVP, of type Grouped. Defined in 3GPP TS 29.229
+     * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0429229v6b0
+     * @param chargingInformation
+     */
+    void setChargingInformation(final ChargingInformation chargingInformation);
+
+    //TODO Need to add Error-Message and Error-Reporting-Host AVps
+    /**
+     * Returns the set of Failed-AVP AVPs.
+     * @return an array of Failed-AVP AVPs
+     */
+    FailedAvp[] getFailedAvps();
+
+    /**
+     * Sets a single Failed-AVP AVP in the message, of type Grouped.
+     *
+     * @param failedAvp
+     * @throws IllegalStateException
+     */
+    void setFailedAvp(final FailedAvp failedAvp) throws IllegalStateException;
+
+    /**
+     * Sets the set of Failed-AVP AVPs, with all the values in the given array.
+     *
+     * @param failedAvps
+     * @throws IllegalStateException
+     */
+    void setFailedAvps(final FailedAvp[] failedAvps) throws IllegalStateException;
+}
