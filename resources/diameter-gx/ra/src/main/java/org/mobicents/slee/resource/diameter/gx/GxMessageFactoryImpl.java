@@ -1,0 +1,231 @@
+/*
+ * JBoss, Home of Professional Open Source
+ *
+ * Copyright 2010, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
+package org.mobicents.slee.resource.diameter.gx;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import net.java.slee.resource.diameter.base.DiameterMessageFactory;
+import net.java.slee.resource.diameter.base.events.DiameterHeader;
+import net.java.slee.resource.diameter.base.events.DiameterMessage;
+import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
+import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
+import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
+import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
+import net.java.slee.resource.diameter.cca.events.avp.CreditControlAVPCodes;
+import net.java.slee.resource.diameter.gx.GxMessageFactory;
+import net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer;
+import net.java.slee.resource.diameter.gx.events.GxCreditControlMessage;
+import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+
+import org.apache.log4j.Logger;
+import org.jdiameter.api.ApplicationId;
+import org.jdiameter.api.AvpSet;
+import org.jdiameter.api.IllegalDiameterStateException;
+import org.jdiameter.api.InternalException;
+import org.jdiameter.api.Message;
+import org.jdiameter.api.Stack;
+import org.mobicents.slee.resource.diameter.gx.events.GxCreditControlAnswerImpl;
+import org.mobicents.slee.resource.diameter.gx.events.GxCreditControlRequestImpl;
+
+/**
+ * Implementation of {@link GxMessageFactory}.
+ *
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ * @author <a href="mailto:carl-magnus.bjorkell@emblacom.com"> Carl-Magnus Björkell </a>
+ */
+public class GxMessageFactoryImpl implements GxMessageFactory {
+
+    protected final static Set<Integer> ids;
+
+    static {
+        final Set<Integer> _ids = new HashSet<Integer>();
+
+        _ids.add(CreditControlAVPCodes.CC_Request_Type);
+        _ids.add(CreditControlAVPCodes.CC_Request_Number);
+
+        ids = Collections.unmodifiableSet(_ids);
+    }
+    protected DiameterMessageFactory baseFactory = null;
+    protected String sessionId;
+    protected Stack stack;
+    protected Logger logger = Logger.getLogger(this.getClass());
+
+    // protected RfAVPFactory rfAvpFactory = null;
+    public GxMessageFactoryImpl(final DiameterMessageFactory baseFactory, final String sessionId, final Stack stack) {
+        super();
+
+        this.baseFactory = baseFactory;
+        this.sessionId = sessionId;
+        this.stack = stack;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GxCreditControlRequest createGxCreditControlRequest() {
+        final GxCreditControlRequest gx = (GxCreditControlRequest) createGxCreditControlRequest(null, new DiameterAvp[]{});
+        if (sessionId != null) {
+            gx.setSessionId(sessionId);
+        }
+
+        return gx;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GxCreditControlRequest createGxCreditControlRequest(String sessionId) {
+        final GxCreditControlRequest gx = this.createGxCreditControlRequest();
+        gx.setSessionId(sessionId);
+        return gx;
+    }
+
+    public GxCreditControlAnswer createGxCreditControlAnswer(final GxCreditControlRequest request) {
+        // Create the answer from the request
+        final GxCreditControlRequestImpl ccr = (GxCreditControlRequestImpl) request;
+
+        final GxCreditControlAnswerImpl msg = new GxCreditControlAnswerImpl(createMessage(ccr.getHeader(), new DiameterAvp[]{}));
+
+        msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
+        msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
+        msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_HOST);
+        msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_REALM);
+        msg.setSessionId(request.getSessionId());
+        // Now copy the needed AVPs
+
+        final DiameterAvp[] messageAvps = request.getAvps();
+        if (messageAvps != null) {
+            for (DiameterAvp a : messageAvps) {
+                try {
+                    if (ids.contains(a.getCode())) {
+                        msg.addAvp(a);
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to add AVP to answer. Code[" + a.getCode() + "]", e);
+                }
+            }
+        }
+        addOrigin(msg);
+        return msg;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DiameterMessageFactory getBaseMessageFactory() {
+        return this.baseFactory;
+    }
+
+    private GxCreditControlMessage createGxCreditControlRequest(final DiameterHeader diameterHeader, final DiameterAvp[] avps) throws IllegalArgumentException {
+
+        boolean isRequest = false;
+        if (diameterHeader == null) {
+            isRequest = true;
+        }
+
+        GxCreditControlMessage msg = null;
+        if (!isRequest) {
+            final Message raw = createMessage(diameterHeader, avps);
+            raw.setProxiable(true);
+            raw.setRequest(false);
+            msg = new GxCreditControlAnswerImpl(raw);
+        } else {
+            final Message raw = createMessage(null, avps);
+            raw.setProxiable(true);
+            raw.setRequest(true);
+            msg = new GxCreditControlRequestImpl(raw);
+        }
+
+        return msg;
+    }
+
+    public Message createMessage(final DiameterHeader header, final DiameterAvp[] avps) throws AvpNotAllowedException {
+        final Message msg = createRawMessage(header);
+
+        final AvpSet set = msg.getAvps();
+        for (DiameterAvp avp : avps) {
+            addAvp(avp, set);
+        }
+
+        return msg;
+    }
+
+    protected Message createRawMessage(final DiameterHeader header) {
+        int commandCode = 0;
+        long endToEndId = 0;
+        long hopByHopId = 0;
+
+        final ApplicationId aid = ApplicationId.createByAuthAppId(0, _GX_AUTH_APP_ID);
+        if (header != null) {
+            // Answer
+            commandCode = header.getCommandCode();
+            endToEndId = header.getEndToEndId();
+            hopByHopId = header.getHopByHopId();
+        } else {
+            commandCode = GxCreditControlRequest.commandCode;
+        }
+
+        try {
+            if (header != null) {
+                return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+            } else {
+                return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
+            }
+        } catch (IllegalDiameterStateException e) {
+            logger.error("Failed to get session factory for message creation.", e);
+        } catch (InternalException e) {
+            logger.error("Failed to create new raw session for message creation.", e);
+        }
+
+        return null;
+    }
+
+    protected void addAvp(final DiameterAvp avp, final AvpSet set) {
+        // FIXME: alexandre: Should we look at the types and add them with proper function?
+        if (avp instanceof GroupedAvp) {
+            final AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+
+            final DiameterAvp[] groupedAVPs = ((GroupedAvp) avp).getExtensionAvps();
+            for (DiameterAvp avpFromGroup : groupedAVPs) {
+                addAvp(avpFromGroup, avpSet);
+            }
+        } else if (avp != null) {
+            set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+        }
+    }
+
+    private void addOrigin(final DiameterMessage msg) {
+        if (!msg.hasOriginHost()) {
+            msg.setOriginHost(new DiameterIdentity(stack.getMetaData().getLocalPeer().getUri().getFQDN().toString()));
+        }
+        if (!msg.hasOriginRealm()) {
+            msg.setOriginRealm(new DiameterIdentity(stack.getMetaData().getLocalPeer().getRealmName()));
+        }
+    }
+}
