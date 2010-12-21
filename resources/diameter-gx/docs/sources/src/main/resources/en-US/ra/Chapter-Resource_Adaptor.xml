@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="ra">
+
+	<title>Resource Adaptor Implementation</title>
+
+	<para>This <acronym>RA</acronym> uses the &THIS.PLATFORM; Diameter Stack, an improvement over <ulink url="http://jdiameter.dev.java.net">jDiameter Stack</ulink>. The stack is the result of the work done by &THIS.PLATFORM; Diameter and jDiameter development teams, and source code is provided in all releases.</para>
+	
+	<xi:include
+		xmlns:xi="http://www.w3.org/2001/XInclude"
+		href="Section-Configuration.xml" />
+	
+	<xi:include
+		xmlns:xi="http://www.w3.org/2001/XInclude"
+		href="Section-Default_Resource_Adaptor_Entities.xml" />
+	
+	<xi:include
+		xmlns:xi="http://www.w3.org/2001/XInclude"
+		href="Section-Logging_Traces_and_Alarms.xml" />	
+		
+</chapter>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_events">
+
+	<title>Events</title>
+
+	<para>&THIS.RA; Resource Adaptor Type declares the Diameter Credit Control Application specific events, ie, Credit-Control-Request/Answer.</para>
+	<para>The following tables shows which events are fired on each activity.</para>
+
+	<table frame="all" pgwide="1">
+		<title>Events received on Gx Server Activity</title>
+		<tgroup colsep="1" cols="4">
+		   	<colspec colnum="1" colname="c0" colwidth="2.5*" />
+		    <colspec colnum="2" colname="c1" colwidth="1*" />
+		    <colspec colnum="3" colname="c2" colwidth="1*" />
+		    <colspec colnum="4" colname="c3" colwidth="2.5*" />
+		    <thead>
+				<row>
+		    	    <entry>Name</entry>
+		   	    	<entry>Vendor</entry>
+		   	    	<entry>Version</entry>
+		   	    	<entry>Class</entry>
+		    	</row>
+			</thead>
+			<tbody>
+				<row>
+			   		<entry>net.java.slee.resource.diameter.gx.events. GxCreditControlRequest</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   	    <entry>net.java.slee.resource.diameter.gx.events. GxCreditControlRequest</entry>
+			    </row>
+			</tbody>
+	 	</tgroup>
+	</table>
+	<table frame="all" pgwide="1">
+		<title>Events received on Gx Client Activity</title>
+		<tgroup colsep="1" cols="4">
+		   	<colspec colnum="1" colname="c0" colwidth="2.5*" />
+		    <colspec colnum="2" colname="c1" colwidth="1*" />
+		    <colspec colnum="3" colname="c2" colwidth="1*" />
+		    <colspec colnum="4" colname="c3" colwidth="2.5*" />
+		    <thead>
+				<row>
+		    	    <entry>Name</entry>
+		   	    	<entry>Vendor</entry>
+		   	    	<entry>Version</entry>
+		   	    	<entry>Class</entry>
+		    	</row>
+			</thead>
+			<tbody>
+				<row>
+			   		<entry>net.java.slee.resource.diameter.gx.events. GxCreditControlAnswer</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource.diameter.gx.events. GxCreditControlAnswer</entry>
+			    </row>	    
+			</tbody>
+	 	</tgroup>
+	</table>
+
+	<important>
+		<para>Spaces where introduced in <literal>Name</literal> and <literal>Event Class</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>
+</section>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_ra_interface">
+
+	<title>Resource Adaptor Interface</title>
+
+	<para>The &THIS.PLATFORM; &THIS.RA; Resource Adaptor SBB Interface provides SBBs with access to the Diameter objects required for creating and sending messages. It is defined as follows: </para>
+
+	<programlisting role="JAVA" langugage="Java">
+	package net.java.slee.resource.diameter.gx;
+
+	import java.io.IOException;
+
+	import net.java.slee.resource.diameter.base.CreateActivityException;
+	import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
+	import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+	import net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer;
+	import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+
+	public interface GxProvider {
+
+		public GxMessageFactory getGxMessageFactory();
+
+		public GxAvpFactory getGxAvpFactory();
+
+		public GxClientSessionActivity createGxClientSessionActivity()
+			throws CreateActivityException;
+
+		public GxClientSessionActivity createGxClientSessionActivity(
+			DiameterIdentity destinationHost, DiameterIdentity destinationRealm)
+				throws CreateActivityException;
+
+		public GxCreditControlAnswer sendGxCreditControlRequest(GxCreditControlRequest ccr)
+			throws IOException;
+
+		public DiameterIdentity[] getConnectedPeers();
+
+		public int getPeerCount();
+
+		public Validator getValidator();
+
+	}
+	</programlisting>
+	
+	<para>
+		<variablelist>
+			<varlistentry>
+				<term>public GxMessageFactory getGxMessageFactory();</term>
+				<listitem><para>This method returns a message factory to be used to create concrete implementations of Gx credit control messages.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GxAvpFactory getGxAvpFactory();</term>
+				<listitem><para>This method returns an avp factory to be used to create concrete implementations of Gx credit control AVPs.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GxClientSessionActivity createGxClientSessionActivity() throws CreateActivityException;</term>
+				<listitem><para>This method creates a new activity to send and receive Diameter messages.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GxClientSessionActivity createGxClientSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;</term>
+				<listitem><para>This method creates a new activity to send and receive Diameter messages.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GxCreditControlAnswer sendGxCreditControlRequest(GxCreditControlRequest ccr) throws IOException;</term>
+				<listitem><para>This method sends a Credit-Control-Request message to the appropriate peers, and block until the response is received then return it.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public DiameterIdentity[] getConnectedPeers();</term>
+				<listitem><para>This method returns the identities of peers this Diameter resource adaptor is connected to.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public int getPeerCount();</term>
+				<listitem><para>This method returns the number of peers this Diameter resource adaptor is connected to.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public Validator getValidator();</term>
+				<listitem><para>This method returns the Diameter Message and AVP validator instance.</para></listitem>
+			</varlistentry>
+		</variablelist>
+	</para>
+</section>
