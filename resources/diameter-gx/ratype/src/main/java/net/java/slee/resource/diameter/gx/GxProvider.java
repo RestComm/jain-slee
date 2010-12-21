@@ -24,6 +24,7 @@ package net.java.slee.resource.diameter.gx;
 
 import java.io.IOException;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer;
@@ -104,4 +105,12 @@ public interface GxProvider {
      * @return
      */
     DiameterIdentity[] getConnectedPeers();
+
+    /**
+     * Returns the Diameter Validator
+     * 
+     * @return
+     */
+    Validator getValidator();
+
 }

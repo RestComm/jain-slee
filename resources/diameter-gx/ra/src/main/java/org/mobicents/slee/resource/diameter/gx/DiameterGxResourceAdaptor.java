@@ -44,6 +44,7 @@ import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
 import javax.slee.transaction.SleeTransactionManager;
 
+import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
@@ -86,6 +87,7 @@ import org.mobicents.slee.resource.cluster.ReplicatedData;
 import org.mobicents.slee.resource.diameter.AbstractClusteredDiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.DiameterActivityManagement;
 import org.mobicents.slee.resource.diameter.LocalDiameterActivityManagement;
+import org.mobicents.slee.resource.diameter.ValidatorImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
@@ -877,6 +879,7 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
     private class GxProviderImpl implements GxProvider {
 
         private DiameterGxResourceAdaptor ra;
+        private Validator validator = new ValidatorImpl();
 
         public GxProviderImpl(final DiameterGxResourceAdaptor ra) {
             this.ra = ra;
@@ -995,6 +998,11 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
 
         public int getPeerCount() {
             return ra.getConnectedPeers().length;
+        }
+
+        @Override
+        public Validator getValidator() {
+            return this.validator;
         }
     }
 
