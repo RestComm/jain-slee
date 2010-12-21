@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.diameter.resources</groupId>
 		<artifactId>mobicents-slee-ra-diameter-gx-docs</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0.BETA1</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-ra-diameter-gx-docs-sources-mobicents</artifactId>	
