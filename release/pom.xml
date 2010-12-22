@@ -19,9 +19,9 @@
 		<checkout.username>ze carlos</checkout.username>
 		<checkout.password />
 		<tag.version>2.2.1.FINAL</tag.version>
-		  
+		<!--   
 		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/${tag.version}</core.connectionURL>
-		  
+		 -->  
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-base/${tag.version}</ra.diameter-base.connectionURL>
 		<ra.diameter-cca.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/${tag.version}</ra.diameter-cca.connectionURL>
 		<ra.diameter-cx-dx.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cx-dx/2.2.0.FINAL</ra.diameter-cx-dx.connectionURL>
@@ -62,9 +62,9 @@
 
 		<!-- TRUNK -->
 		
-		<!--
+		
 		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</core.connectionURL>
-		 
+		<!-- 
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-base</ra.diameter-base.connectionURL>
 		<ra.diameter-cca.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</ra.diameter-cca.connectionURL>
 		<ra.diameter-cx-dx.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cx-dx</ra.diameter-cx-dx.connectionURL>
