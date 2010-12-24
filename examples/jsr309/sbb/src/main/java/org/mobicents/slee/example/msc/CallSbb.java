@@ -4,10 +4,15 @@
  */
 package org.mobicents.slee.example.msc;
 
+import java.net.URI;
 import java.text.ParseException;
 import javax.media.mscontrol.MediaSession;
 import javax.media.mscontrol.MsControlException;
 import javax.media.mscontrol.MsControlFactory;
+import javax.media.mscontrol.join.JoinEvent;
+import javax.media.mscontrol.join.Joinable.Direction;
+import javax.media.mscontrol.mediagroup.MediaGroup;
+import javax.media.mscontrol.mediagroup.PlayerEvent;
 import javax.media.mscontrol.networkconnection.NetworkConnection;
 import javax.media.mscontrol.networkconnection.SdpPortManager;
 import javax.media.mscontrol.networkconnection.SdpPortManagerEvent;
@@ -42,12 +47,15 @@ import org.mobicents.slee.resource.mediacontrol.MscActivityContextInterfaceFacto
  */
 public class CallSbb implements Sbb {
 
+    public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
+    public final static String WELCOME = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/RQNT-ULAW.wav";
+
+    public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
+    
     private Request request;
     private RequestEvent event;
     protected static int CALL_ID_GEN = 1;
     protected static int GEN = 1000;
-    public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
-    public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
     protected SbbContext sbbContext;
     protected Tracer tracer;
     protected SleeSipProvider sipProvider;
@@ -57,10 +65,17 @@ public class CallSbb implements Sbb {
     protected SipActivityContextInterfaceFactory acif;
     private MsControlFactory mscFactory;
     private MscActivityContextInterfaceFactory mscAcifFactory;
+    
+    private NetworkConnection connection;
+    private MediaGroup ivr;
+    
+    private MediaSession session = null;
+
     private static Logger logger = Logger.getLogger(CallSbb.class);
 
     public void onInvite(RequestEvent event, ActivityContextInterface aci) {
         logger.info("Receive call ");
+        this.event = event;
         request = event.getRequest();
 
         //sending provisional response to the UA which indiactes that initial request 
@@ -78,7 +93,7 @@ public class CallSbb implements Sbb {
         ActivityContextInterface callActivity = null;
         try {
             Dialog dialog = sipProvider.getNewDialog(event.getServerTransaction());
-            dialog.terminateOnBye(false);
+            dialog.terminateOnBye(true);
             callActivity = acif.getActivityContextInterface((DialogActivity) dialog);
             callActivity.attach(sbbContext.getSbbLocalObject());
         } catch (Exception e) {
@@ -88,7 +103,6 @@ public class CallSbb implements Sbb {
             return;
         }
 
-        MediaSession session = null;
         try {
             session = mscFactory.createMediaSession();
         } catch (MsControlException e) {
@@ -98,7 +112,6 @@ public class CallSbb implements Sbb {
         }
 
         logger.info("Created media session: " + session);
-        NetworkConnection connection = null;
         try {
             connection = session.createNetworkConnection(NetworkConnection.BASIC);
         } catch (MsControlException e) {
@@ -133,9 +146,15 @@ public class CallSbb implements Sbb {
         }
     }
 
+    public void onStreamFailure(SdpPortManagerEvent evt, ActivityContextInterface aci) {
+        logger.info("Receive network failure event:");
+        reject(request);
+    }
+    
     public void onAnswerGenerated(SdpPortManagerEvent evt, ActivityContextInterface aci) {
         logger.info("Receive answer generated event:");
         byte[] sdp = evt.getMediaServerSdp();
+        System.out.println("Request=" + request + ", sdp=" + new String(sdp));
         ContentTypeHeader contentType = null;
         try {
             contentType = headerFactory.createContentTypeHeader("application", "sdp");
@@ -160,8 +179,49 @@ public class CallSbb implements Sbb {
         } catch (Exception e) {
             tracer.info("Can not send SIP response: ", e);
         }
+        
+        joinInitiate();
     }
 
+    private void joinInitiate() {
+        try {
+            ivr = session.createMediaGroup(MediaGroup.PLAYER_RECORDER_SIGNALDETECTOR);
+            connection.joinInitiate(Direction.DUPLEX, ivr, "context");
+        } catch (Exception e) {
+            tracer.severe("Unable to initiate join: ", e);
+        }
+    }
+    
+    public void onJoined(JoinEvent event, ActivityContextInterface aci) {
+        tracer.info("**** LOCAL CONNECION WAS CREATED");
+        
+        ActivityContextInterface activityContextInterface = null;
+        try {
+            activityContextInterface = mscAcifFactory.getActivityContextInterface(ivr);
+            activityContextInterface.attach(sbbContext.getSbbLocalObject());
+        } catch (Exception e) {
+            tracer.severe("Unexpected error", e);
+            return;
+        }
+        
+        URI uri = null;
+        try {
+            uri = new URI(WELCOME);
+            ivr.getPlayer().play(uri, null, null);
+        } catch (Exception e) {
+            tracer.severe("Unexpected error", e);
+        }
+    }
+
+    public void onAnnouncementCompleted(PlayerEvent event, ActivityContextInterface aci) {
+        System.out.println("********** ANNOUNCEMENT COMPLETED *************");
+    }
+    
+    public void onDisconnect(RequestEvent event, ActivityContextInterface aci) {
+        logger.info("Disconnecting call");
+        connection.release();
+    }
+    
     private void reject(Request request) {
         try {
             Response response = messageFactory.createResponse(Response.SERVER_INTERNAL_ERROR, request);
@@ -170,6 +230,7 @@ public class CallSbb implements Sbb {
         }
     }
 
+    
     public void setSbbContext(SbbContext sbbContext) {
         this.sbbContext = sbbContext;
         this.tracer = sbbContext.getTracer("JSR-309-DEMO");
@@ -180,7 +241,9 @@ public class CallSbb implements Sbb {
             sipProvider = (SleeSipProvider) ctx.lookup("slee/resources/jainsip/1.2/provider");
             acif = (SipActivityContextInterfaceFactory) ctx.lookup("slee/resources/jainsip/1.2/acifactory");
             messageFactory = sipProvider.getMessageFactory();
-
+            headerFactory = sipProvider.getHeaderFactory();
+            addressFactory = sipProvider.getAddressFactory();
+            
             mscFactory = (MsControlFactory) ctx.lookup("slee/resources/media/1.0/provider");
             mscAcifFactory = (MscActivityContextInterfaceFactory) ctx.lookup("slee/resources/media/1.0/acifactory");
         } catch (Exception ne) {
