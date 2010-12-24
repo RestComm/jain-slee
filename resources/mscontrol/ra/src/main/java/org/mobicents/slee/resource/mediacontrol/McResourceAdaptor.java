@@ -183,7 +183,15 @@ public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, A
             e.printStackTrace();
         }
     }
-        
+    
+    public void terminateActivity(ActivityHandle handle) {
+        MsActivity activity = (MsActivity) activities.remove(handle);
+        if (activity != null) {
+            handlers.remove(activity.getID());
+        }
+        sleeEndpoint.endActivity(handle);
+    }
+    
     public Object getActivity(ActivityHandle handle) {
         System.out.println("==== GET ACTIVITY ");
         return activities.get(handle);
@@ -215,6 +223,7 @@ public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, A
     }
 
     protected void fireEvent(String eventName, ActivityHandle activityHandle, MediaEvent event) {
+        tracer.info("Fire event: " + event);
         FireableEventType eventID = null;
         try {
             EventTypeID eventTypeId = new EventTypeID(eventName, "org.mobicents", "1.0");
@@ -232,7 +241,7 @@ public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, A
             ue.printStackTrace();
             throw new RuntimeException("JccResourceAdaptor.firEvent(): UnrecognizedEventException caught.", ue);
         }
-
+System.out.println("EventID=" + eventID);
         if (eventID == null) {
             if (tracer.isWarningEnabled()) {
                 tracer.warning("Unknown event type: " + eventName);

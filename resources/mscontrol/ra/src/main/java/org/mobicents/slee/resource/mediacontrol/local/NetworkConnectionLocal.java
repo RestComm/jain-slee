@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Iterator;
 import javax.media.mscontrol.MediaConfig;
-import javax.media.mscontrol.MediaEventListener;
 import javax.media.mscontrol.MediaObject;
 import javax.media.mscontrol.MediaSession;
 import javax.media.mscontrol.MsControlException;
@@ -44,7 +43,7 @@ import org.mobicents.slee.resource.mediacontrol.NetworkConnectionActivityHandle;
  *
  * @author kulikov
  */
-public class NetworkConnectionLocal extends MsActivity implements NetworkConnection {
+public class NetworkConnectionLocal extends MsActivity implements NetworkConnection, LocalJoinable {
 
     private String ID = Long.toHexString(System.currentTimeMillis());
     private NetworkConnection connection;
@@ -53,11 +52,6 @@ public class NetworkConnectionLocal extends MsActivity implements NetworkConnect
     protected NetworkConnectionLocal(NetworkConnection connection, McResourceAdaptor ra) {
         this.connection = connection;
         this.ra = ra;
-        this.connection.addListener(ra);
-        try {
-            this.connection.getSdpPortManager().addListener(ra);
-        } catch (Exception e) {
-        }
     }
     
     @Override
@@ -93,22 +87,30 @@ public class NetworkConnectionLocal extends MsActivity implements NetworkConnect
         connection.unjoin(other);
     }
 
-    public void joinInitiate(Direction arg0, Joinable arg1, Serializable arg2) throws MsControlException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void joinInitiate(Direction direction, Joinable otherParty, Serializable context) throws MsControlException {
+        this.connection.joinInitiate(direction, ((LocalJoinable)otherParty).getOrigin(), context);
     }
 
-    public void unjoinInitiate(Joinable arg0, Serializable arg1) throws MsControlException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void unjoinInitiate(Joinable otherParty, Serializable context) throws MsControlException {
+        this.connection.unjoinInitiate(otherParty, context);
     }
 
     public void addListener(JoinEventListener listener) {
         throw new SecurityException("SBB can not assign listener");
     }
-
+    
     public void removeListener(JoinEventListener arg0) {
         throw new SecurityException("SBB can not assign listener");
     }
 
+    public void addActivityHandle(NetworkConnectionActivityHandle h) {
+        connection.addListener(h);
+    }
+    
+    public void removeActivityHandle(NetworkConnectionActivityHandle h) {
+        connection.removeListener(h);
+    }
+    
     public MediaSession getMediaSession() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -161,6 +163,7 @@ public class NetworkConnectionLocal extends MsActivity implements NetworkConnect
         throw new SecurityException("SBB can not assign listener");
     }
 
+    
     public void removeListener(AllocationEventListener arg0) {
         throw new SecurityException("SBB can not assign listener");
     }
@@ -168,7 +171,18 @@ public class NetworkConnectionLocal extends MsActivity implements NetworkConnect
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof NetworkConnectionLocal && ((NetworkConnectionLocal) other).ID.equals(this.ID);
+        if (this == other) {
+            return true;
+        }
+        
+        if (other == null) {
+            return false;
+        }
+        
+        if (other.getClass() != this.getClass()) {
+            return false;
+        }
+        return ((NetworkConnectionLocal) other).ID.equals(this.ID);
     }
 
     @Override
@@ -176,5 +190,9 @@ public class NetworkConnectionLocal extends MsActivity implements NetworkConnect
         int hash = 5;
         hash = 59 * hash + (this.ID != null ? this.ID.hashCode() : 0);
         return hash;
+    }
+
+    public Joinable getOrigin() {
+        return this.connection;
     }
 }

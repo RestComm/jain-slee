@@ -33,6 +33,7 @@ import javax.media.mscontrol.mixer.MediaMixer;
 import javax.media.mscontrol.networkconnection.NetworkConnection;
 import javax.media.mscontrol.vxml.VxmlDialog;
 import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MediaGroupActivityHandle;
 import org.mobicents.slee.resource.mediacontrol.NetworkConnectionActivityHandle;
 
 /**
@@ -56,16 +57,25 @@ public class SessionLocal implements MediaSession {
         return local;
     }
 
-    public NetworkConnection createNetworkConnection(Configuration<NetworkConnection> arg0, Parameters arg1) throws MsControlException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public NetworkConnection createNetworkConnection(Configuration<NetworkConnection> config, Parameters params) throws MsControlException {
+        NetworkConnectionLocal local = new NetworkConnectionLocal(session.createNetworkConnection(config, params), ra);
+        NetworkConnectionActivityHandle h = new NetworkConnectionActivityHandle(ra, local);
+        ra.createActivity(h, local);
+        return local;
     }
 
-    public NetworkConnection createNetworkConnection(MediaConfig arg0, Parameters arg1) throws MsControlException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public NetworkConnection createNetworkConnection(MediaConfig cfg, Parameters params) throws MsControlException {
+        NetworkConnectionLocal local = new NetworkConnectionLocal(session.createNetworkConnection(cfg, params), ra);
+        NetworkConnectionActivityHandle h = new NetworkConnectionActivityHandle(ra, local);
+        ra.createActivity(h, local);
+        return local;
     }
 
-    public MediaGroup createMediaGroup(Configuration<MediaGroup> arg0) throws MsControlException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public MediaGroup createMediaGroup(Configuration<MediaGroup> config) throws MsControlException {
+        MediaGroupLocal local = new MediaGroupLocal(this, session.createMediaGroup(config));
+        MediaGroupActivityHandle h = new MediaGroupActivityHandle(ra, local);
+        ra.createActivity(h, local);
+        return local;
     }
 
     public MediaGroup createMediaGroup(Configuration<MediaGroup> arg0, Parameters arg1) throws MsControlException {

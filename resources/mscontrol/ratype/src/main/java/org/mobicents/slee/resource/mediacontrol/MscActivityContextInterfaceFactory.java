@@ -4,6 +4,7 @@
  */
 package org.mobicents.slee.resource.mediacontrol;
 
+import javax.media.mscontrol.mediagroup.MediaGroup;
 import javax.media.mscontrol.networkconnection.NetworkConnection;
 import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
@@ -16,5 +17,7 @@ import javax.slee.UnrecognizedActivityException;
 public interface MscActivityContextInterfaceFactory {
 
     public ActivityContextInterface getActivityContextInterface(NetworkConnection connection)
+            throws NullPointerException, UnrecognizedActivityException, FactoryException;
+    public ActivityContextInterface getActivityContextInterface(MediaGroup group)
             throws NullPointerException, UnrecognizedActivityException, FactoryException;
 }

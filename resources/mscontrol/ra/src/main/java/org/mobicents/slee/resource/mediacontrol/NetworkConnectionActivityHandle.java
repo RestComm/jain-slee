@@ -20,6 +20,9 @@ package org.mobicents.slee.resource.mediacontrol;
 
 import javax.media.mscontrol.MediaEvent;
 import javax.media.mscontrol.MediaEventListener;
+import javax.media.mscontrol.MsControlException;
+import javax.media.mscontrol.join.JoinEvent;
+import javax.media.mscontrol.join.JoinEventListener;
 import javax.media.mscontrol.networkconnection.SdpPortManagerEvent;
 import javax.slee.resource.ActivityHandle;
 import org.mobicents.slee.resource.mediacontrol.local.NetworkConnectionLocal;
@@ -28,20 +31,31 @@ import org.mobicents.slee.resource.mediacontrol.local.NetworkConnectionLocal;
  *
  * @author kulikov
  */
-public class NetworkConnectionActivityHandle implements ActivityHandle, MediaEventListener {
+public class NetworkConnectionActivityHandle implements ActivityHandle, MediaEventListener, JoinEventListener {
     private NetworkConnectionLocal connection;
     private McResourceAdaptor ra;
     
-    public NetworkConnectionActivityHandle(McResourceAdaptor ra, NetworkConnectionLocal connection) {
+    public NetworkConnectionActivityHandle(McResourceAdaptor ra, NetworkConnectionLocal connection) throws MsControlException {
         this.ra = ra;
         this.connection = connection;
+        connection.getSdpPortManager().addListener(this);
+        connection.addActivityHandle(this);
     }
     
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof NetworkConnectionLocal)) {
+        if (this == other) {
+            return true;
+        }
+        
+        if (other == null) {
             return false;
-        }        
+        }
+        
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+        
         return ((NetworkConnectionActivityHandle)other).connection.equals(this.connection);
     }
 
@@ -62,6 +76,16 @@ public class NetworkConnectionActivityHandle implements ActivityHandle, MediaEve
             ra.fireEvent("javax.media.mscontrol.networkconnection.SdpPortManagerEvent.ANSWER_PROCESSED", this, event);
         } else if (event.getEventType().equals(SdpPortManagerEvent.NETWORK_STREAM_FAILURE)) {
             ra.fireEvent("javax.media.mscontrol.networkconnection.SdpPortManagerEvent.NETWORK_STREAM_FAILURE", this, event);
+            ra.terminateActivity(this);
         }
+    }
+
+    public void onEvent(JoinEvent event) {
+        if (event.getEventType().equals(JoinEvent.JOINED)) {
+            //TODO: wrap event to with local objects
+            ra.fireEvent("javax.media.mscontrol.join.JoinEvent.JOINED", this, event);
+        } else if (event.getEventType().equals(JoinEvent.UNJOINED)) {
+            ra.fireEvent("javax.media.mscontrol.join.JoinEvent.UNJOINED", this, event);
+        } 
     }
 }

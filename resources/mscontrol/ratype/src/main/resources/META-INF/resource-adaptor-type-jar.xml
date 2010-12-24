@@ -50,6 +50,47 @@
             <event-type-vendor>org.mobicents</event-type-vendor>
             <event-type-version>1.0</event-type-version>
         </event-type-ref>
+        
+        <!-- JOIN EVENTS -->
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.join.JoinEvent.JOINED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.join.JoinEvent.UNJOINED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        
+        <!-- Media Player Events -->
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mediagroup.PlayerEvent.PLAY_COMPLETED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mediagroup.PlayerEvent.PAUSED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mediagroup.PlayerEvent.RESUMED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mediagroup.PlayerEvent.SPEED_CHANGED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mediagroup.PlayerEvent.VOLUME_CHANGED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        
     </resource-adaptor-type>
 </resource-adaptor-type-jar>
 
