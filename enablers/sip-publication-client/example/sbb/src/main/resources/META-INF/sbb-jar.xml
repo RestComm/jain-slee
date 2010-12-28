@@ -35,7 +35,7 @@
 				</get-child-relation-method>
 			</sbb-abstract-class>
 			<sbb-local-interface>
-				<sbb-local-interface-name>org.mobicents.slee.enabler.sip.PublicationClientParentLocalObject</sbb-local-interface-name>
+				<sbb-local-interface-name>org.mobicents.slee.enabler.sip.PublicationClientParentSbbLocalObject</sbb-local-interface-name>
 			</sbb-local-interface>
 			
 		</sbb-classes>

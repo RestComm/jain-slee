@@ -34,16 +34,14 @@
 					<description>Stores entity used in publication request.</description>
 					<cmp-field-name>entityCMP</cmp-field-name>
 				</cmp-field>
-				
-				<!-- flags to indicate refresh requests -->
 				<cmp-field>
 					<description></description>
-					<cmp-field-name>refreshCMP</cmp-field-name>
+					<cmp-field-name>publishRequestTypeCMP</cmp-field-name>
 				</cmp-field>
 	
 			</sbb-abstract-class>
 			<sbb-local-interface>
-				<sbb-local-interface-name>org.mobicents.slee.enabler.sip.PublicationClientChildLocalObject</sbb-local-interface-name>
+				<sbb-local-interface-name>org.mobicents.slee.enabler.sip.PublicationClientChildSbbLocalObject</sbb-local-interface-name>
 			</sbb-local-interface>
 			<sbb-activity-context-interface>
 				<sbb-activity-context-interface-name>
@@ -149,7 +147,7 @@
 			<description>Used as time difference between expires value and automatic refresh request.</description>
 			<env-entry-name>expires.drift</env-entry-name>
 			<env-entry-type>java.lang.Integer</env-entry-type>
-			<env-entry-value>5</env-entry-value>
+			<env-entry-value>15</env-entry-value>
 		</env-entry>
 		-->
 		<resource-adaptor-type-binding>

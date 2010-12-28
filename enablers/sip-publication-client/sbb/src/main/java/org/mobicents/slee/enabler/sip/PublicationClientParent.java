@@ -32,43 +32,43 @@ public interface PublicationClientParent {
 	 * @param child
 	 *            - enabler, which handles publication
 	 */
-	public void afterNewPublication(Result result, PublicationClientChildLocalObject child);
+	public void afterNewPublication(Result result, PublicationClientChildSbbLocalObject child);
 
 	/**
 	 * Callback indicating state of publication refresh. Its behaviour is
 	 * similar to
-	 * {@link #afterNewPublication(Result, PublicationClientChildLocalObject)}.
+	 * {@link #afterNewPublication(Result, PublicationClientChildSbbLocalObject)}.
 	 * 
 	 * @param result
 	 *            - object holding information about operation
 	 * @param child
 	 *            - enabler, which handles publication
 	 */
-	public void afterRefreshPublication(Result result, PublicationClientChildLocalObject child);
+	public void afterRefreshPublication(Result result, PublicationClientChildSbbLocalObject child);
 
 	/**
 	 * Callback method indicating state of publication update. Its behaviour is
 	 * similar to
-	 * {@link #afterNewPublication(Result, PublicationClientChildLocalObject)}.
+	 * {@link #afterNewPublication(Result, PublicationClientChildSbbLocalObject)}.
 	 * 
 	 * @param result
 	 *            - object holding information about operation
 	 * @param child
 	 *            - enabler, which handles publication
 	 */
-	public void afterUpdatePublication(Result result, PublicationClientChildLocalObject child);
+	public void afterUpdatePublication(Result result, PublicationClientChildSbbLocalObject child);
 
 	/**
 	 * Callback method indicating state of publication remove. Its behaviour is
 	 * similar to
-	 * {@link #afterNewPublication(Result, PublicationClientChildLocalObject)}.
+	 * {@link #afterNewPublication(Result, PublicationClientChildSbbLocalObject)}.
 	 * 
 	 * @param result
 	 *            - object holding information about operation
 	 * @param child
 	 *            - enabler, which handles publication
 	 */
-	public void afterRemovePublication(Result result, PublicationClientChildLocalObject child);
+	public void afterRemovePublication(Result result, PublicationClientChildSbbLocalObject child);
 
 	/**
 	 * Callback method indicating that communication failed. Enabler must be
@@ -76,7 +76,7 @@ public interface PublicationClientParent {
 	 * 
 	 * @param sbbLocalObject
 	 */
-	void newPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
+	void newPublicationFailed(PublicationClientChildSbbLocalObject sbbLocalObject);
 
 	/**
 	 * Callback method indicating that communication failed. Enabler must be
@@ -84,7 +84,7 @@ public interface PublicationClientParent {
 	 * 
 	 * @param sbbLocalObject
 	 */
-	void refreshPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
+	void refreshPublicationFailed(PublicationClientChildSbbLocalObject sbbLocalObject);
 
 	/**
 	 * Callback method indicating that communication failed. Enabler must be
@@ -92,6 +92,6 @@ public interface PublicationClientParent {
 	 * 
 	 * @param sbbLocalObject
 	 */
-	void removePublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
+	void removePublicationFailed(PublicationClientChildSbbLocalObject sbbLocalObject);
 
 }

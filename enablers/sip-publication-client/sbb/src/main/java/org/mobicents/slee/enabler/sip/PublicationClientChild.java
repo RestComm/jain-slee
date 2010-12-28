@@ -120,6 +120,6 @@ public interface PublicationClientChild {
 	 * 
 	 * @param parent
 	 */
-	public void setParentSbb(PublicationClientParentLocalObject parent);
+	public void setParentSbb(PublicationClientParentSbbLocalObject parent);
 
 }

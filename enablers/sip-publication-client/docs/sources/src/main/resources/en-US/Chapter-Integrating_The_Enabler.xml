@@ -50,7 +50,7 @@
 		<para>
 			The SbbLocalObject which must be used or extended by the Parent's Sbb
 			is named
-			<literal>org.mobicents.slee.enabler.sip.PublicationClientParentLocalObject
+			<literal>org.mobicents.slee.enabler.sip.PublicationClientParentSbbLocalObject
 			</literal>
 			, which extends the
 			<literal>javax.slee.SbbLocalObject</literal>
@@ -66,13 +66,13 @@ package org.mobicents.slee.enabler.sip;
 
 public interface PublicationClientParent {
 
-	public void afterNewPublication(Result result, PublicationClientChildLocalInterface child);
+	public void afterNewPublication(Result result, PublicationClientChildLocalObject child);
 
-	public void afterRefreshPublication(Result result, PublicationClientChildLocalInterface child);
+	public void afterRefreshPublication(Result result, PublicationClientChildLocalObject child);
 
-	public void afterUpdatePublication(Result result, PublicationClientChildLocalInterface child);
+	public void afterUpdatePublication(Result result, PublicationClientChildLocalObject child);
 
-	public void afterRemovePublication(Result result, PublicationClientChildLocalInterface child);
+	public void afterRemovePublication(Result result, PublicationClientChildLocalObject child);
 
 	void newPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
 
@@ -89,7 +89,7 @@ public interface PublicationClientParent {
 				<term>
 					The
 					<literal>afterNewPublication(Result result,
-						PublicationClientChildLocalInterface child);</literal>
+						PublicationClientChildLocalObject child);</literal>
 					method:
 				</term>
 				<listitem>
@@ -102,7 +102,7 @@ public interface PublicationClientParent {
 				<term>
 					The
 					<literal>afterRefreshPublication(Result result,
-						PublicationClientChildLocalInterface child);</literal>
+						PublicationClientChildLocalObject child);</literal>
 					method:
 				</term>
 				<listitem>
@@ -114,7 +114,7 @@ public interface PublicationClientParent {
 				<term>
 					The
 					<literal>afterUpdatePublication(Result result,
-						PublicationClientChildLocalInterface child);</literal>
+						PublicationClientChildLocalObject child);</literal>
 					method:
 				</term>
 				<listitem>
@@ -126,7 +126,7 @@ public interface PublicationClientParent {
 				<term>
 					The
 					<literal>afterRemovePublication(Result result,
-						PublicationClientChildLocalInterface child);</literal>
+						PublicationClientChildLocalObject child);</literal>
 					method:
 				</term>
 				<listitem>
@@ -176,7 +176,7 @@ public interface PublicationClientParent {
 		<para>
 			The Parent Sbb Abstract Class must implement the callbacks on it's
 			SbbLocalObject, that is, must implement the
-			<literal>org.mobicents.slee.enabler.xdmc.XDMClientParent</literal>
+			<literal>org.mobicents.slee.enabler.sip.PublicationClientParent</literal>
 			interface discussed in last section.
 		</para>
 		<para>

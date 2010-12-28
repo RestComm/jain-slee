@@ -18,7 +18,7 @@
 		which can be used in child relations, with a simple synchronous
 		interface.
 	</para>
-
+	<para>Enabler abstracts communication described in <link linkend="http://tools.ietf.org/html/rfc3903">RFC3903</link>.  </para>
 	<para>The SIP Presence Server is a functional element used to manage UA
 		status.
 		Server performs following tasks:</para>

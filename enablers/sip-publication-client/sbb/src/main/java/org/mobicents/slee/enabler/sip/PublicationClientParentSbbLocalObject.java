@@ -23,6 +23,6 @@ import javax.slee.SbbLocalObject;
  * @author baranowb
  *
  */
-public interface PublicationClientParentLocalObject extends PublicationClientParent,SbbLocalObject {
+public interface PublicationClientParentSbbLocalObject extends PublicationClientParent,SbbLocalObject {
 
 }

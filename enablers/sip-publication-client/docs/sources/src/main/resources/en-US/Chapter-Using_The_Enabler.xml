@@ -51,7 +51,7 @@
 		<para>The &THIS.PLATFORM;
 			JAIN SLEE &THIS.ENABLER;
 			Enabler Sbb, the Child Sbb, implements the
-			<literal>org.mobicents.slee.enabler.sip.PublicationClientChildLocalObject
+			<literal>org.mobicents.slee.enabler.sip.PublicationClientChildSbbLocalObject
 			</literal>
 			, which extends the
 			<literal>javax.slee.SbbLocalObject</literal>
@@ -219,9 +219,9 @@ public interface PublicationClientChild {
 		if (childRelation.isEmpty()) {
 			try {
 				// creates new instance
-				SipPublicationClientChildSbbLocalInterface sbb = (SipPublicationClientChildSbbLocalInterface) childRelation.create();
+				SipPublicationClientChildSbbLocalInterface sbb = (PublicationClientChildSbbLocalObject) childRelation.create();
 				// passes the parent sbb local object to the child
-				sbb.setParentSbb((SipPublicationClientParentSbbLocalInterface) sbbContext.getSbbLocalObject());
+				sbb.setParentSbb((PublicationClientParentSbbLocalObject) sbbContext.getSbbLocalObject());
 				return sbb;
 			} catch (Exception e) {
 				tracer.severe("Failed to create child sbb", e);
@@ -232,15 +232,18 @@ public interface PublicationClientChild {
 			Iterator it = childRelation.iterator();
 			while(it.hasNext())
 			{
-				SipPublicationClientChildSbbLocalInterface child = (SipPublicationClientChildSbbLocalInterface) childRelation.iterator().next();
+				PublicationClientChildSbbLocalObject child = (PublicationClientChildSbbLocalObject) childRelation.iterator().next();
 				if(entity.equals(child.getEntity)
 				{
 					return child;
 				}
 				
 			}
+			SipPublicationClientChildSbbLocalInterface sbb = (PublicationClientChildSbbLocalObject) childRelation.create();
+				// passes the parent sbb local object to the child
+				sbb.setParentSbb((PublicationClientParentSbbLocalObject) sbbContext.getSbbLocalObject());
 			//else we should search for child.getEntity == null, but...
-			return (SipPublicationClientChildSbbLocalInterface) childRelation.new();
+			return sbb;
 		}
 	}
 		]]>

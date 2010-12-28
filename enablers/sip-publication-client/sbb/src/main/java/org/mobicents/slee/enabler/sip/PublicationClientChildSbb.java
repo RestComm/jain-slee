@@ -83,7 +83,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	// //////////////////
 
 	@Override
-	public void setParentSbb(PublicationClientParentLocalObject parent) {
+	public void setParentSbb(PublicationClientParentSbbLocalObject parent) {
 		setParentSbbCMP(parent);
 	}
 
@@ -362,8 +362,8 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	/////////////////
 	// CMP Methods //
 	/////////////////
-	public abstract void setParentSbbCMP(PublicationClientParentLocalObject parent);
-	public abstract PublicationClientParentLocalObject getParentSbbCMP();
+	public abstract void setParentSbbCMP(PublicationClientParentSbbLocalObject parent);
+	public abstract PublicationClientParentSbbLocalObject getParentSbbCMP();
 	public abstract void setEntityCMP(String d);
 	public abstract String getEntityCMP();
 	public abstract void  setEventPackageCMP(String eventPackage);
@@ -421,7 +421,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			//update ETag
 			this.setETagCMP(SIP_ETag.getETag());
 			try{
-				this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+				this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 			}catch(Exception e)
 			{
 				if(tracer.isSevereEnabled())
@@ -438,7 +438,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			//update ETag
 			this.setETagCMP(SIP_ETag.getETag());
 			try{
-				this.getParentSbbCMP().afterRefreshPublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+				this.getParentSbbCMP().afterRefreshPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 			}catch(Exception e)
 			{
 				if(tracer.isSevereEnabled())
@@ -453,7 +453,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			//update ETag
 			this.setETagCMP(SIP_ETag.getETag());
 			try{
-				this.getParentSbbCMP().afterUpdatePublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+				this.getParentSbbCMP().afterUpdatePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 			}catch(Exception e)
 			{
 				if(tracer.isSevereEnabled())
@@ -468,7 +468,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			//update ETag
 			this.setETagCMP(SIP_ETag.getETag());
 			try{
-				this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+				this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 			}catch(Exception e)
 			{
 				if(tracer.isSevereEnabled())
@@ -512,7 +512,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			case NEW:
 	
 				try{
-					this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+					this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 				}catch(Exception e)
 				{
 					if(tracer.isSevereEnabled())
@@ -525,7 +525,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			case UPDATE:
 				//just deliver
 				try{
-					this.getParentSbbCMP().afterUpdatePublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+					this.getParentSbbCMP().afterUpdatePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 				}catch(Exception e)
 				{
 					if(tracer.isSevereEnabled())
@@ -550,7 +550,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 				}
 
 				try{
-					this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+					this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 				}catch(Exception e)
 				{
 					if(tracer.isSevereEnabled())
@@ -634,7 +634,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		case NEW:
 			
 			try {
-				getParentSbbCMP().newPublicationFailed((PublicationClientChildLocalObject) sbbContext.getSbbLocalObject());
+				getParentSbbCMP().newPublicationFailed((PublicationClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -646,7 +646,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			//failed to refresh, we should get notify when it times out.
 			
 			try {
-				getParentSbbCMP().refreshPublicationFailed((PublicationClientChildLocalObject) sbbContext.getSbbLocalObject());
+				getParentSbbCMP().refreshPublicationFailed((PublicationClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -657,7 +657,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		case REMOVE:
 			//failed to remove, we will receive notify.
 			try {
-				getParentSbbCMP().removePublicationFailed((PublicationClientChildLocalObject) sbbContext.getSbbLocalObject());
+				getParentSbbCMP().removePublicationFailed((PublicationClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -952,7 +952,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		case NEW:
 
 			try{
-				this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+				this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 			}catch(Exception e)
 			{
 				if(tracer.isSevereEnabled())
@@ -965,7 +965,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			break;
 		case REFRESH:
 			try{
-				this.getParentSbbCMP().afterRefreshPublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+				this.getParentSbbCMP().afterRefreshPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 			}catch(Exception e)
 			{
 				if(tracer.isSevereEnabled())
@@ -978,7 +978,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		case UPDATE:
 			
 			try{
-				this.getParentSbbCMP().afterUpdatePublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+				this.getParentSbbCMP().afterUpdatePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 			}catch(Exception e)
 			{
 				if(tracer.isSevereEnabled())
@@ -990,7 +990,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			break;
 		case REMOVE:
 			try{
-				this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
+				this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 			}catch(Exception e)
 			{
 				if(tracer.isSevereEnabled())
