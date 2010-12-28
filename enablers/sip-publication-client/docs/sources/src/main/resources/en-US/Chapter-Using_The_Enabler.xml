@@ -67,9 +67,12 @@ package org.mobicents.slee.enabler.sip;
 
 public interface PublicationClientChild {
 	
-	public void newPublication(String entity, String eventPackage, String document, String contentType, String contentSubType, int expires) throws PublicationException;
+	public void newPublication(String entity, String eventPackage, String document
+		, String contentType, String contentSubType
+		, int expires) throws PublicationException;
 
-	public void updatePublication(String document, String contentType, String contentSubType, int expires) throws PublicationException;
+	public void updatePublication(String document, String contentType, String contentSubType
+	, int expires) throws PublicationException;
 
 	public void removePublication() throws PublicationException;
 
@@ -294,7 +297,7 @@ public interface PublicationClientChild {
 						</entry>
 						<entry>
 							<para>Specifies time drift, in seconds, between value of Expires/Min-Expires values and automatic refresh performed by enabler. For instance if Expires value passed(and accepted by ECS/PA)
-							is 3600, time drift set to 10, Enabler will refresh publication after 3590
+							is 3600, time drift set to 10, Enabler will refresh publication after 3590 seconds
 							</para>
 						</entry>
 					</row>

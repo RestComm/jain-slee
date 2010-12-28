@@ -151,13 +151,22 @@ public abstract class PublicationClientParentSbb implements Sbb, PublicationClie
 	
 	public void afterNewPublication(Result result, PublicationClientChildLocalObject child) {
 		tracer.info("GOT AFTER NEW PUB!: "+result);
-
+		if(result.getStatusCode()>299)
+		{
+			//ie.
+			child.remove();
+		}
 	}
 
 	public void afterRefreshPublication(Result result, PublicationClientChildLocalObject child) {
 		tracer.info("GOT AFTER REF PUB!: "+result);
 
-	
+		if(result.getStatusCode()>299)
+		{
+			//ie.
+			child.remove();
+		}else
+		{
 			//lets update. just to see more flow.
 			try {
 				child.updatePublication(fancyXML, "application", "pidf+xml", 61);
@@ -165,17 +174,43 @@ public abstract class PublicationClientParentSbb implements Sbb, PublicationClie
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
+		}
 	}
 
 	public void afterUpdatePublication(Result result, PublicationClientChildLocalObject child) {
 		tracer.info("GOT AFTER UPD PUB!: "+result);
+		if(result.getStatusCode()>299)
+		{
+			//ie.
+			child.remove();
+		}
 
 	}
 
 	public void afterRemovePublication(Result result, PublicationClientChildLocalObject child) {
 		tracer.info("GOT AFTER REM PUB!: "+result);
+		child.remove();
 
+	}
+
+	@Override
+	public void newPublicationFailed(PublicationClientChildLocalObject sbbLocalObject) {
+		tracer.info("GOT NEW PUB FAILURE!");
+		sbbLocalObject.remove();
+	}
+
+	@Override
+	public void refreshPublicationFailed(PublicationClientChildLocalObject sbbLocalObject) {
+		tracer.info("GOT REFRESH PUB FAILURE!");
+		sbbLocalObject.remove();
+		
+	}
+
+	@Override
+	public void removePublicationFailed(PublicationClientChildLocalObject sbbLocalObject) {
+		tracer.info("GOT REMOVE PUB FAILURE!");
+		sbbLocalObject.remove();
+		
 	}
 
 }

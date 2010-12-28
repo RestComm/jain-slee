@@ -16,7 +16,4 @@ public interface PublicationClientChildActivityContextInterface extends javax.sl
 
 	public TimerID getExpiresTimerID();
 
-	public void setPublishRequestType(PublishRequestType t);
-
-	public PublishRequestType getPublishRequestType();
 }

@@ -59,7 +59,7 @@ import net.java.slee.resource.sip.SleeSipProvider;
  */
 public abstract class PublicationClientChildSbb implements Sbb, PublicationClientChild {
 
-	private static final int DEFAULT_EXPIRES_DRIFT = 5;
+	private static final int DEFAULT_EXPIRES_DRIFT = 15;
 	private static Tracer tracer;
 
 	protected SbbContext sbbContext;
@@ -100,7 +100,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	@Override
 	public boolean isRefreshing()
 	{
-		return this.getRefreshCMP();
+		return this.getPublishRequestTypeCMP() == PublishRequestType.REFRESH;
 	}
 	//FIXME: should xxxPulication methods throw exception to indicate failure and not clean state? boolean return value is ambiguous.
 	@Override
@@ -143,7 +143,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		try {
 			String[] ents = entity.split("@");
 			SipURI test = addressFactory.createSipURI(ents[0], ents[1]);
-		} catch (ParseException e1) {
+		} catch (Exception e1) {
 			throw new IllegalArgumentException("Failed to parse entity!",e1);
 		}
 		//otherwise lets kick off.
@@ -172,7 +172,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			//Dont start timer here, since we don't have ETag!
 			//startExpiresTimer();
 			
-			asSbbActivityContextInterface(ctxAci).setPublishRequestType(PublishRequestType.NEW);
+			setPublishRequestTypeCMP(PublishRequestType.NEW);
 			ctx.sendRequest();
 			clear = false;
 		} catch (TransactionUnavailableException e) {
@@ -232,9 +232,9 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		{
 			throw new IllegalArgumentException("expires must be greater than 0.");
 		}
-		if(getRefreshCMP())
+		if(getPublishRequestTypeCMP() != null)
 		{
-			throw new PublicationException("Enabler is refreshing, cannot send another PUBLISH!"); 
+			throw new PublicationException("Enabler is "+getPublishRequestTypeCMP()+", cannot update publication!"); 
 		}
 		cancelExpiresTimer();
 		//update expire
@@ -257,8 +257,9 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			//start timer here, if ECS/PA return something else, we will reschedule.
 			startExpiresTimer();
 			
-			asSbbActivityContextInterface(ctxAci).setPublishRequestType(PublishRequestType.UPDATE);
+			
 			ctx.sendRequest();
+			setPublishRequestTypeCMP(PublishRequestType.UPDATE);
 		}  catch (TransactionUnavailableException e) {
 			if(tracer.isSevereEnabled())
 			{
@@ -298,9 +299,9 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		{
 			throw new IllegalStateException("Enabler does not handle any publication, cannot remove!");
 		}
-		if(getRefreshCMP())
+		if(getPublishRequestTypeCMP() != null)
 		{
-			throw new PublicationException("Enabler is refreshing, cannot send another PUBLISH!"); 
+			throw new PublicationException("Enabler is "+getPublishRequestTypeCMP()+", cannot remove publication!"); 
 		}else
 		{
 			cancelExpiresTimer(); // so no refresh is created.
@@ -318,13 +319,11 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 				ctx = this.sleeSipProvider.getNewClientTransaction(r);
 				ctxAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
 				ctxAci.attach(this.sbbContext.getSbbLocalObject());
-				
+				//cancel timer here, if ECS/PA return something else, we will reschedule.
+				cancelExpiresTimer();
 
-				//start timer here, if ECS/PA return something else, we will reschedule.
-				startExpiresTimer();
-				
-				asSbbActivityContextInterface(ctxAci).setPublishRequestType(PublishRequestType.REMOVE);
 				ctx.sendRequest();
+				setPublishRequestTypeCMP(PublishRequestType.REMOVE);
 			}  catch (TransactionUnavailableException e) {
 				if(tracer.isSevereEnabled())
 				{
@@ -373,9 +372,9 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	public abstract int getExpiresCMP();
 	public abstract void setETagCMP(String d);
 	public abstract String getETagCMP();
-	//flags for simple concurrency control, since SBB is REENTRANT
-	public abstract boolean getRefreshCMP();
-	public abstract void setRefreshCMP(boolean b);
+	//type of ongoing request.
+	public abstract void setPublishRequestTypeCMP(PublishRequestType t);
+	public abstract PublishRequestType getPublishRequestTypeCMP();
 	
 	 
 	
@@ -397,8 +396,8 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	}
 
 	public void onSuccessRespEvent(ResponseEvent event, ActivityContextInterface ac) {
-		//if (tracer.isFineEnabled())
-			tracer.info("Received 2xx (SUCCESS) response:\n"+event.getResponse());
+		if (tracer.isFineEnabled())
+			tracer.fine("Received 2xx (SUCCESS) response:\n"+event.getResponse());
 		//2xx, great, lets see...
 		Response response = event.getResponse();
 		//get ETag
@@ -413,11 +412,9 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		
 		}
 		Result result = new Result(response.getStatusCode(),SIP_ETag.getETag(),expiresHeader.getExpires(),getEntityCMP());
-		
-		
-		
-		PublicationClientChildActivityContextInterface pccAci = asSbbActivityContextInterface(ac);
-		switch (pccAci.getPublishRequestType()) {
+		PublishRequestType type = getPublishRequestTypeCMP();
+		setPublishRequestTypeCMP(null);
+		switch (type) {
 		case NEW:
 			cancelExpiresTimer();
 			startExpiresTimer();
@@ -449,7 +446,6 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 					tracer.severe("Exception in publication parent!", e);
 				}
 			}
-			setRefreshCMP(false);
 			break;
 		case UPDATE:
 			cancelExpiresTimer();
@@ -480,8 +476,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 					tracer.severe("Exception in publication parent!", e);
 				}
 			}
-			
-			this.clear();
+			//this.clear();
 			break;
 		}
 	}
@@ -511,10 +506,11 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 //			   423 (Interval Too Brief) response.
 
 			//in this case, we may issue another command, let
-			PublicationClientChildActivityContextInterface pccAci = asSbbActivityContextInterface(ac);
-			switch (pccAci.getPublishRequestType()) {
+			PublishRequestType type = getPublishRequestTypeCMP();
+			setPublishRequestTypeCMP(null);
+			switch (type) {
 			case NEW:
-				this.clear();
+	
 				try{
 					this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
 				}catch(Exception e)
@@ -552,7 +548,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 				{
 					tracer.severe("Received 423 on REMOVE request!");
 				}
-				this.clear();
+
 				try{
 					this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildLocalObject) this.sbbContext.getSbbLocalObject());
 				}catch(Exception e)
@@ -614,7 +610,14 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 
 	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 		// refresh time?
-		setRefreshCMP(true);
+		if(getPublishRequestTypeCMP() != null)
+		{
+			if(tracer.isSevereEnabled())
+			{
+				tracer.severe("Performing "+getPublishRequestTypeCMP()+", skipping refresh.");
+			}
+			return;
+		}
 		PublicationClientChildActivityContextInterface naAci = asSbbActivityContextInterface(aci);
 		naAci.setExpiresTimerID(null);
 		
@@ -623,7 +626,46 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	}
 
 	public void onTransactionTimeoutEvent(TimeoutEvent event,ActivityContextInterface ac) {
-		//TODO: add 5xx/4xx ?
+		//bad, failed to communicate
+		PublishRequestType type = getPublishRequestTypeCMP();
+		setPublishRequestTypeCMP(null);
+		//add clear, and pass more as arg to identify culprit?
+		switch (type) {
+		case NEW:
+			
+			try {
+				getParentSbbCMP().newPublicationFailed((PublicationClientChildLocalObject) sbbContext.getSbbLocalObject());
+			} catch (Exception e) {
+				if (tracer.isSevereEnabled()) {
+					tracer.severe("Received exception from parent on subscribe callback", e);
+				}
+			}
+			//this.clear();
+			break;
+		case REFRESH:
+			//failed to refresh, we should get notify when it times out.
+			
+			try {
+				getParentSbbCMP().refreshPublicationFailed((PublicationClientChildLocalObject) sbbContext.getSbbLocalObject());
+			} catch (Exception e) {
+				if (tracer.isSevereEnabled()) {
+					tracer.severe("Received exception from parent on subscribe callback", e);
+				}
+			}
+			//this.clear();
+			break;
+		case REMOVE:
+			//failed to remove, we will receive notify.
+			try {
+				getParentSbbCMP().removePublicationFailed((PublicationClientChildLocalObject) sbbContext.getSbbLocalObject());
+			} catch (Exception e) {
+				if (tracer.isSevereEnabled()) {
+					tracer.severe("Received exception from parent on subscribe callback", e);
+				}
+			}
+			//this.clear();
+			break;
+		}
 	}
 	
 	public void onActivityEndEvent(javax.slee.ActivityEndEvent event, ActivityContextInterface aci) {
@@ -647,7 +689,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		setETagCMP(null);
 		setEventPackageCMP(null);
 		setExpiresCMP(0);//?
-		setRefreshCMP(false);
+		setPublishRequestTypeCMP(null);
 		//kill null ac
 		for(ActivityContextInterface aci: this.sbbContext.getActivities())
 		{
@@ -903,8 +945,10 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		//fill data we have.
 		Result result = new Result(statusCode,getETagCMP(),getExpiresCMP(),getEntityCMP());
 		PublicationClientChildActivityContextInterface pccAci = asSbbActivityContextInterface(ac);
-		this.clear();
-		switch (pccAci.getPublishRequestType()) {
+		this.clear(); //FIXME: ok to clear?
+		PublishRequestType type = getPublishRequestTypeCMP();
+		setPublishRequestTypeCMP(null);
+		switch (type) {
 		case NEW:
 
 			try{
@@ -982,7 +1026,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			//start timer here, if ECS/PA return something else, we will reschedule.
 			startExpiresTimer();
 			
-			asSbbActivityContextInterface(ctxAci).setPublishRequestType(PublishRequestType.REFRESH);
+			setPublishRequestTypeCMP(PublishRequestType.REFRESH);
 			ctx.sendRequest();
 			clear = false;
 			
@@ -1017,9 +1061,10 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		}finally
 		{
 			if(clear)
-			{
+			{	
 				//something went wrong, clear publication state.
 				this.clear();
+				//TODO: remove?
 			}
 		}
 	}
@@ -1090,6 +1135,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	 */
 	@Override
 	public void sbbRemove() {
+		this.clear();
 	}
 
 	/*

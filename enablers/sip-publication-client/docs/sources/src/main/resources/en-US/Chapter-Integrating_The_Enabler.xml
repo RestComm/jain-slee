@@ -74,6 +74,11 @@ public interface PublicationClientParent {
 
 	public void afterRemovePublication(Result result, PublicationClientChildLocalInterface child);
 
+	void newPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
+
+	void refreshPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
+
+	void removePublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
 }
 		]]>
 		</programlisting>
@@ -127,6 +132,38 @@ public interface PublicationClientParent {
 				<listitem>
 					<para>Callback from the Enabler providing details about remove
 						publication request.</para>
+				</listitem>
+			</varlistentry>
+			
+			
+			<varlistentry>
+				<term>
+					The
+					<literal>newPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);</literal>
+					method:
+				</term>
+				<listitem>
+					<para>Callback from the Enabler, indicating communication failure. Enabler must be discarded.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>refreshPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);</literal>
+					method:
+				</term>
+				<listitem>
+					<para>Callback from the Enabler, indicating communication failure. Enabler must be discarded.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>removePublicationFailed(PublicationClientChildLocalObject sbbLocalObject);</literal>
+					method:
+				</term>
+				<listitem>
+					<para>Callback from the Enabler, indicating communication failure. Enabler must be discarded.</para>
 				</listitem>
 			</varlistentry>
 
