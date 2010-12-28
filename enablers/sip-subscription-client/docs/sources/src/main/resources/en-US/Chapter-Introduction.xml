@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_SIP_Subscription_Client_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction
+		to &THIS.PLATFORM;
+		JAIN SLEE &THIS.ENABLER;
+		Enabler
+	</title>
+	<para>The
+		JAIN SLEE &THIS.ENABLER;
+		Enabler allows JAIN SLEE Applications to interact with SIP Presence
+		Servers,
+		hiding the network protocol complexity. The Enabler consists
+		of SBB,
+		which can be used in child relations, with a simple synchronous
+		interface.
+	</para>
+	<para>Enabler abstracts communication described in <link linkend="http://tools.ietf.org/html/rfc3265">RFC3265</link>.  </para>
+	<para>The SIP Presence Server is a functional element used to manage UA
+		status.
+		Server performs following tasks:</para>
+	<itemizedlist>
+		<listitem>
+			<para>Manages publications from one or more presence source(s) of a
+				certain presentity. This includes refreshing presence information,
+				replacing existing presence information with newly-published
+				information, or removing presence information</para>
+		</listitem>
+		<listitem>
+			<para>Manages subscriptions from watchers to presence information and
+				generates notifications about presence information state changes,
+				and retrieves the presence authorization rules from the XDM Server
+			</para>
+		</listitem>
+		<listitem>
+			<para>Manages subscriptions from watcher information subscribers to
+				watcher information and generates notifications about watcher
+				information state changes</para>
+		</listitem>
+		
+	</itemizedlist>
+</chapter>

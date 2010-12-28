@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN"
+                         "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
+<sbb-jar>
+
+	<sbb>
+
+		<description />
+
+		<sbb-name>SipSubscriptionClientParentSbb</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.0</sbb-version>
+
+		<!-- Delegate to this child SBB if we need to do registrations -->
+		<sbb-ref>
+			<sbb-name>SipSubscriptionClientChildSbb</sbb-name>
+			<sbb-vendor>org.mobicents</sbb-vendor>
+			<sbb-version>1.0</sbb-version>
+			<sbb-alias>SubscriptionChildSbb</sbb-alias>
+		</sbb-ref>
+
+		<sbb-classes>
+			<sbb-abstract-class reentrant="True">
+				<sbb-abstract-class-name>org.mobicents.slee.enabler.sip.example.SubscriptionClientParentSbb</sbb-abstract-class-name>
+				<cmp-field>
+					<cmp-field-name>notifyCount</cmp-field-name>
+				</cmp-field>
+				<get-child-relation-method>
+					<sbb-alias-ref>SubscriptionChildSbb</sbb-alias-ref>
+					<get-child-relation-method-name>
+						getSubscriptionClientChildSbbChildRelation
+					</get-child-relation-method-name>
+					<default-priority>0</default-priority>
+				</get-child-relation-method>
+			</sbb-abstract-class>
+			<sbb-local-interface>
+				<sbb-local-interface-name>org.mobicents.slee.enabler.sip.SubscriptionClientParentSbbLocalObject</sbb-local-interface-name>
+			</sbb-local-interface>
+			
+		</sbb-classes>
+		<event event-direction="Receive" initial-event="True">
+			<event-name>StartServiceEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.serviceactivity.ServiceStartedEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+		
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.ActivityEndEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+	</sbb>
+</sbb-jar>

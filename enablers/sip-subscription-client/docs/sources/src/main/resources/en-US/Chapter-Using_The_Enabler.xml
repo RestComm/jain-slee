@@ -1,0 +1,371 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_SIP_Subscription_Client_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="using_the_enabler">
+
+	<title>Using
+		the &THIS.PLATFORM;
+		JAIN SLEE &THIS.ENABLER;
+		Enabler
+	</title>
+
+	<para>In the last chapter we integrated the Enabler in the JAIN SLEE
+		Service's Sbb, the Parent Sbb, in this chapter it is explained how to
+		use the Enabler's Sbb, the Child Sbb.</para>
+	<para>Enabler performs following tasks:</para>
+	<variablelist>
+		<varlistentry>
+			<term>manage subscription</term>
+			<listitem>
+				<para>send subscription events on behalf of Parent Sbb</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>automatic refresh</term>
+			<listitem>
+				<para>based on values exchanged between Enabler and Presenc Server,
+					Enabler keeps track of subscription life time(expiration)
+					and issues
+					refresh requests to Presence Server</para>
+			</listitem>
+		</varlistentry>
+
+	</variablelist>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/interactions1.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>JAIN
+				SLEE &THIS.ENABLER;
+				Enabler control flow
+			</para>
+		</caption>
+	</mediaobject>
+
+	<section id="the_child_sbblocalobject_interface">
+
+		<title>The Child's SbbLocalObject Interface</title>
+
+		<para>The &THIS.PLATFORM;
+			JAIN SLEE &THIS.ENABLER;
+			Enabler Sbb, the Child Sbb, implements the
+			<literal>org.mobicents.slee.enabler.sip.SubscriptionClientChildSbbLocalObject
+			</literal>
+			, which extends the
+			<literal>javax.slee.SbbLocalObject</literal>
+			and
+			<literal>org.mobicents.slee.enabler.sip.SubscriptionClientChild
+			</literal>
+			interfaces, the latter declares the methods which can be used to
+			interact with the SIP Presence Server:
+		</para>
+
+		<programlisting language="Java" role="JAVA"><![CDATA[
+package org.mobicents.slee.enabler.sip;
+
+public interface SubscriptionClientChild {
+
+	public void setParentSbb(SubscriptionClientParentLocalObject parent);
+
+	public boolean isSubscriptionActive();
+
+	public String getSubscriber();
+
+	public String getEventPackage();
+
+	public String getNotifier();
+
+	public int getExpires();
+
+	public String getContentType();
+	
+	public String getContentSubType();
+
+	public boolean isRefreshing();
+
+	public void subscribe(String subscriber, String subscriberdisplayName
+		, String notifier, String eventPackage, int expires, String content,
+			String contentType, String contentSubtype) throws SubscriptionException;
+
+
+	public void unsubscribe() throws SubscriptionException;
+
+}
+		]]>
+		</programlisting>
+
+		<variablelist>
+
+			<varlistentry>
+				<term>
+					The
+					<literal>setParentSbb(SubscriptionClientParentLocalObject parent);
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>Passes the Parent's SbbLocalObject, which will be used by the
+						Child Sbb to provide async results. If not invoked after the child
+						creation the Enabler won't be able to callback the Parent Sbb.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>isSubscriptionActive();
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>indicates if subscription is active, to be more precise, if
+						enabler manages dialog.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>getSubscriber();
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>returns subscriber used for subscription in Presence Server.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>getNotifier();
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>returns notifier(Presence Server) used as target for
+						subscribtion. 
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>getEventPackage();
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>
+						returns event package used in subscrption, ie.
+						<literal>presence</literal>
+						or
+						<literal>presence.winfo</literal>
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>getExpires();
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>returns currently used expire value. Expire value indicates
+						number of seconds subscription will be active.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>getContentType();
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>returns main content type of documents, to which enabler
+						subscribed itself.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>getContentSubType();
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>returns content sub type of documents, to which enabler
+						subscribed itself.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>isRefreshing();
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>indicates if enabler is currently refreshing subscription. If
+						it does, no other actions are allowed, ie. unsubscription.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>subscribe(String subscriber, String subscriberdisplayName
+					</literal>
+					<literal>, String notifier, String eventPackage, int expires, String
+						</literal>
+					<literal>content,String contentType, String contentSubtype) throws SubscriptionException;</literal>
+					method:
+				</term>
+				<listitem>
+					<para>
+						this method should be called to subscribe enabler to certain
+						document in Presence Server, optionally user may pass
+						<literal>document</literal>
+						.
+						It throws exception in case of transport error or wrong arguments.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					The
+					<literal>unsubscribe() throws SubscriptionException;
+					</literal>
+					method:
+				</term>
+				<listitem>
+					<para>
+						this method should be called to explicitly unsubscribe from
+						publication. If enabler is refreshing, when this method is called,
+						it will throw exception.
+					</para>
+				</listitem>
+			</varlistentry>
+
+		</variablelist>
+
+	</section>
+
+	<section id="creating_and_retrieving_the_child_sbb">
+		<title>Creating And Retrieving The Child Sbb</title>
+		<para>The Child Relation in the Parent Sbb Abstract Class is used to
+			create and retrieve the Child Sbb, it is important to not forget to
+			pass the Parent's SbbLocalObject to the Child after creation:</para>
+		<programlisting language="Java" role="JAVA"><![CDATA[
+public SubscriptionClientChildLocalObject getPublicationClientChildSbb(String entity) {
+	final ChildRelation childRelation = getSipPublicationClientChildRelation();
+	if (childRelation.isEmpty()) {
+		try {
+			// creates new instance
+			SubscriptionClientChildLocalObject sbb = (SubscriptionClientChildLocalObject) childRelation.create();
+			// passes the parent sbb local object to the child
+			sbb.setParentSbb((SubscriptionClientParentLocalObject) sbbContext.getSbbLocalObject());
+			return sbb;
+		} catch (Exception e) {
+			tracer.severe("Failed to create child sbb", e);
+			return null;
+		}
+	}
+	else {
+		Iterator it = childRelation.iterator();
+		while(it.hasNext())
+		{
+			SubscriptionClientChildLocalObject child = (SubscriptionClientChildLocalObject) childRelation.iterator().next();
+			if(entity.equals(child.getEntity)
+			{
+				return child;
+			}
+			
+		}
+		// creates new instance
+		SubscriptionClientChildLocalObject sbb = (SubscriptionClientChildLocalObject) childRelation.create();
+		// passes the parent sbb local object to the child
+		sbb.setParentSbb((SubscriptionClientParentLocalObject) sbbContext.getSbbLocalObject());
+		return sbb;
+	}
+}
+		]]>
+		</programlisting>
+		<para>The SbbLocalObject of the Child could also be stored in a CMP
+			Field for the simplest retreival, but unless you are going to reuse
+			each instance several times it's better to have less state, specially
+			in clustered environments.</para>
+	</section>
+	<section id="configuring_child_sbb">
+		<title>Enabler configuration</title>
+		<para>
+			Enabler can be configured with
+			<acronym>SLEE</acronym>
+			environment entries. Currently following entries are supported:
+		</para>
+		<table frame="all" pgwide="1">
+			<title>Environment entry table
+			</title>
+			<tgroup colsep="1" cols="3">
+				<colspec colnum="1" colname="c0" colwidth="2*" />
+				<colspec colnum="2" colname="c1" colwidth="3*" />
+				<colspec colnum="3" colname="c2" colwidth="3*" />
+				<thead>
+					<row>
+						<entry>Name</entry>
+						<entry>Type</entry>
+						<entry>Description</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>
+							<para>server.address
+							</para>
+						</entry>
+						<entry>
+							<para>java.lang.String
+							</para>
+						</entry>
+						<entry>
+							<para>Specifies address to which requests should be forwarded. It
+								has form of ip:port pair.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>
+							<para>expires.drift
+							</para>
+						</entry>
+						<entry>
+							<para>java.lang.Integer
+							</para>
+						</entry>
+						<entry>
+							<para>Specifies time drift, in seconds, between value of
+								Expires/Min-Expires values and automatic refresh performed by
+								enabler. For instance if Expires value passed(and accepted by
+								ECS/PA)
+								is 3600, time drift set to 10, Enabler will refresh
+								publication
+								after 3590
+							</para>
+						</entry>
+					</row>
+				</tbody>
+			</tgroup>
+		</table>
+	</section>
+
+
+
+</chapter>
+

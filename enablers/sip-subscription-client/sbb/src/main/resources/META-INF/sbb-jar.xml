@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN"
+                         "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
+<sbb-jar>
+
+	<sbb>
+
+		<description />
+
+		<sbb-name>SipSubscriptionClientChildSbb</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.0</sbb-version>
+
+		<sbb-classes>
+			<sbb-abstract-class reentrant="True">
+				<sbb-abstract-class-name>org.mobicents.slee.enabler.sip.SubscriptionClientChildSbb</sbb-abstract-class-name>
+				<cmp-field>
+					<description>Stores reference to publication client parent, this
+						parent will be notified about publication events.</description>
+					<cmp-field-name>parentSbbCMP</cmp-field-name>
+				</cmp-field>
+
+				<cmp-field>
+					<description></description>
+					<cmp-field-name>eventPackageCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
+					<cmp-field-name>subscriberCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
+					<cmp-field-name>notifierCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
+					<cmp-field-name>expiresCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
+					<cmp-field-name>contentTypeCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
+					<cmp-field-name>contentSubTypeCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
+					<cmp-field-name>subscribeRequestTypeCMP</cmp-field-name>
+				</cmp-field>
+			</sbb-abstract-class>
+			<sbb-local-interface>
+				<sbb-local-interface-name>org.mobicents.slee.enabler.sip.SubscriptionClientChildSbbLocalObject</sbb-local-interface-name>
+			</sbb-local-interface>
+			<sbb-activity-context-interface>
+				<sbb-activity-context-interface-name>
+					org.mobicents.slee.enabler.sip.SubscriptionClientChildActivityContextInterface
+				</sbb-activity-context-interface-name>
+			</sbb-activity-context-interface>
+		</sbb-classes>
+
+		<!-- Answers -->
+		<event event-direction="Receive" initial-event="False">
+			<event-name>InfoRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.PROVISIONAL</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>SuccessRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.SUCCESS</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>RedirRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.REDIRECT</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ClientErrorRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.CLIENT_ERROR</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ServerErrorRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.SERVER_ERROR</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>GlobalFailureRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.GLOBAL_FAILURE</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<!-- still answer, but special, to handle fork -->
+		<event event-direction="Receive" initial-event="False">
+			<event-name>DialogForked</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.Dialog.FORKED</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<!-- Notify request: should always be in dialog. -->
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>Notify</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.Dialog.NOTIFY</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<!-- timeout and activity end -->
+		<event event-direction="Receive" initial-event="False">
+			<event-name>TransactionTimeoutEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.Timeout.TRANSACTION</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+		</event>
+
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.ActivityEndEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>TimerEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.slee.facilities.TimerEvent</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+		<!--
+		<env-entry>
+			<description>ECS/PA address, if present, it will be used in route header.</description>
+			<env-entry-name>server.address</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>sip:127.0.0.1:5060</env-entry-value>
+		</env-entry>
+		<env-entry>
+			<description>Used as time difference between expires value and automatic refresh request.</description>
+			<env-entry-name>expires.drift</env-entry-name>
+			<env-entry-type>java.lang.Integer</env-entry-type>
+			<env-entry-value>15</env-entry-value>
+		</env-entry>
+		-->
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					JAIN SIP
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					javax.sip
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.2
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/jainsip/1.2/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/jainsip/1.2/provider
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					SipRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+	</sbb>
+</sbb-jar>
