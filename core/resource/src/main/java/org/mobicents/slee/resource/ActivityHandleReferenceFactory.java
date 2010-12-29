@@ -156,7 +156,7 @@ public class ActivityHandleReferenceFactory {
 			logger.trace("getActivityHandle( reference = "+reference+" )");
 		}
 		
-		ActivityHandle ah = null;//reference.getReference();
+		ActivityHandle ah = reference.getReference();
 		if (ah == null) {
 			ah = localCacheData.getActivityHandle(reference);
 		}
