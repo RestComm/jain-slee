@@ -1524,7 +1524,9 @@
          <!-- We have no asynchronous notification listeners -->
          <property name="listenerAsyncPoolSize">0</property>        
          
-	     <property name="lockParentForChildInsertRemove">false</property>        
+	     <property name="lockParentForChildInsertRemove">false</property>
+	     
+	     <property name="exposeManagementStatistics">false</property>    	             
          
       </bean>
    </value>

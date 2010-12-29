@@ -29,7 +29,6 @@
 	<!-- local cache -->
 	
 	<bean name="Mobicents.JAINSLEE.LocalCacheConfig" class="org.jboss.cache.config.Configuration">  
-         
       <property name="runtimeConfig">
          <bean name="MobicentsJAINSLEEJBossLocalCacheRuntimeConfig" class="org.jboss.cache.config.RuntimeConfig">
             <property name="transactionManager">
@@ -37,12 +36,12 @@
             </property>
          </bean>
       </property>
-      
       <property name="isolationLevel">REPEATABLE_READ</property>
       <property name="cacheMode">LOCAL</property>
       <property name="lockParentForChildInsertRemove">false</property>
       <property name="lockAcquisitionTimeout">15000</property>
       <property name="useLockStriping">false</property>
+      <property name="exposeManagementStatistics">false</property>          
    </bean>
    
 	<bean name="Mobicents.JAINSLEE.LocalCache" class="org.mobicents.cache.MobicentsCache">
