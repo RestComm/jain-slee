@@ -772,7 +772,7 @@
 							<scmVersionType>revision</scmVersionType>
 							<skipCheckoutIfExists>true</skipCheckoutIfExists>
 							<checkoutDirectory>
-								${checkout.basedir}/tools/sip-balancer
+								${checkout.basedir}/extra/sip-balancer
 							</checkoutDirectory>
 							<connectionUrl>
 								${sip-balancer.connectionURL}
@@ -793,7 +793,7 @@
 							<scmVersionType>revision</scmVersionType>
 							<skipCheckoutIfExists>true</skipCheckoutIfExists>
 							<checkoutDirectory>
-								${checkout.basedir}/tools/sccp
+								${checkout.basedir}/extra/sccp
 							</checkoutDirectory>
 							<connectionUrl>
 								${sccp.connectionURL}

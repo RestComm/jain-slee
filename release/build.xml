@@ -81,35 +81,35 @@
 		</target>
 
 	<target name="build-sip-balancer" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer">
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer">
 			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
 		</exec>
 
-		<copy failonerror="true" toDir="${release.dir}/tools/sip-balancer" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer/jar/target">
+		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/jar/target">
 				<include name="**.jar" />
 			</fileset>
-			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer/config-examples">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/config-examples">
 				<include name="**.properties" />
 			</fileset>
 		</copy>
 
-		<copy failonerror="true" toDir="${release.dir}/tools/sip-balancer/docs" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer/docs/jdocbook-${docs.profile}/target/docbook/publish"/>
+		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer/docs" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/docs/jdocbook-${docs.profile}/target/docbook/publish"/>
 		</copy>
 	</target>
 
 	<target name="build-sccp" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/sccp">
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sccp">
 			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
 		</exec>
 
-		<copy failonerror="true" toDir="${release.dir}/tools/sccp/sccp-impl-stack" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sccp/sccp-impl/target/asccp-impl-stack"/>
+		<copy failonerror="true" toDir="${release.dir}/extra/sccp/sccp-impl-stack" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sccp/sccp-impl/target/asccp-impl-stack"/>
 		</copy>
 
-		<copy failonerror="true" toDir="${release.dir}/tools/sccp/docs" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sccp/docs/jdocbook-${docs.profile}/target/docbook/publish"/>
+		<copy failonerror="true" toDir="${release.dir}/extra/sccp/docs" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sccp/docs/jdocbook-${docs.profile}/target/docbook/publish"/>
 		</copy>
 	</target>
 
@@ -302,7 +302,11 @@
 			<fileset dir="${ant.file.mobicents.release}/../checkout/tools"
         		     excludes=""/>
 		</copy>
-
+		<copy todir="${release.dir}/src/mobicents/servers/jain-slee/extra" includeEmptyDirs="false">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/extra"
+		        		     excludes=""/>
+		</copy>
+		
 		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src" />
 
 		<antcall target="checksum">
@@ -328,8 +332,8 @@
 	</target>
 
 	<target name="unzip-mms">
-		<delete dir="${release.dir}/tools/media-server" failonerror="false" />
-		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/tools/media-server" />
+		<delete dir="${release.dir}/extra/media-server" failonerror="false" />
+		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/media-server" />
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" property="got.diameter" />
@@ -339,8 +343,8 @@
 	</target>
 
 	<target name="unzip-diameter">
-		<delete dir="${release.dir}/tools/mobicents-diameter" failonerror="false" />
-		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/tools/mobicents-diameter" />
+		<delete dir="${release.dir}/extra/mobicents-diameter" failonerror="false" />
+		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/extra/mobicents-diameter" />
 	</target>
 
 	<target name="get-eclipslee">

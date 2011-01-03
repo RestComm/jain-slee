@@ -15,13 +15,14 @@ Directory Structure
  +--- resources						(JAIN SLEE Resource Adaptors and related scripts)
  +--- enablers						(JAIN SLEE Application Enablers)
  +--- examples						(JAIN SLEE Application Examples)
- +--- tools/media-server  			(Mobicents Media Server Standalone, required by some examples)
  +--- tools/management-console		(JOPR Management Console)
- +--- tools/mobicents-diameter		(Diameter Mux, required by Diameter RAs)
  +--- tools/remote-slee-connection	(Remote SLEE Connection Tool)
  +--- tools/twiddle					(Twiddle Command Line Interface)
  +--- tools/eclipslee				(EclipSLEE Plugin)
- +--- tools/sip-balancer			(Mobicents SIP Load Balancer)
+ +--- extra/media-server  			(Mobicents Media Server Standalone, required by some examples)
+ +--- extra/mobicents-diameter		(Diameter Mux, required by Diameter RAs)
+ +--- extra/sccp					(SCCP Stack)
+ +--- extra/sip-balancer			(Mobicents SIP Load Balancer)
  
 Quick start
 -----------
