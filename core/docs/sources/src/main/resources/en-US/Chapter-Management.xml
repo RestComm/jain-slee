@@ -33,8 +33,8 @@
 			xmlns:xi="http://www.w3.org/2001/XInclude" />		
 	</section>
 		
-	<section id="management_web_consoles">
-		<title>Management Web Consoles</title>
+	<section id="management_consoles">
+		<title>Management Consoles</title>
 
 		<section id="management_jmx_console">
 			<title>JMX Console</title>
@@ -74,7 +74,12 @@
 			<para>The JMX Console is simple but the MBeans operations were made considering its invocation by management clients, not people using browsers. &MANAGEMENT.PLATFORM; was developed to become Red Hat's Middleware Administration Tool, providing an unified interface and extensible model, to be used to control, monitor and manage servers individually, and clusters.</para>
 			<para>&THIS.PLATFORM; JAIN SLEE binary release includes a &MANAGEMENT.PLATFORM; Console in <filename>tools/management-console</filename>, with standalone documentation.</para>			
 		</section>
-
+		<section id="management_twiddle_cli">
+			<title><literal>TWIDDLE</literal> <acronym>CLI</acronym></title>
+			<para>Both, <acronym>JMX</acronym> Console and  &MANAGEMENT.PLATFORM; Console, are graphic(web) based tools. Some deployments may require command line access to &THIS.PLATFORM; <acronym>SLEE</acronym>.
+			To aid such cases, &THIS.PLATFORM; offers <literal>TWIDDLE</literal> based <acronym>CLI</acronym>. It allows to manage single instance (remote or local) of &THIS.PLATFORM; <acronym>SLEE</acronym> server. </para>
+			<para>&THIS.PLATFORM; JAIN SLEE binary release includes a <literal>TWIDDLE</literal> <acronym>CLI</acronym> in <filename>tools/twiddle</filename>, with standalone documentation.</para>			
+		</section>
 	</section>
 				
 </chapter>
