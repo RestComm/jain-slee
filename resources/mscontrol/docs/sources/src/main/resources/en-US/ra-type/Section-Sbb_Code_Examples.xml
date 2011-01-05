@@ -11,7 +11,7 @@
 	<section
 		id="ratype_sbb_code_examples_create_connection">
 
-		<title>Connection Creation & Process SIP Invite</title>
+		<title>Connection Creation &amp; Process SIP Invite</title>
 
 		<para>
 			The following code example shows how to process
