@@ -59,7 +59,7 @@
                         <exclude>jtidy:jtidy</exclude>
                     </classpathExcludes>
                     <resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-                    <eclipseProjectName>mobicents-slee-ra-jcc</eclipseProjectName>
+                    <eclipseProjectName>mobicents-slee-ra-mscontrol</eclipseProjectName>
                 </configuration>
             </plugin>
         </plugins>
@@ -91,8 +91,8 @@
                         <artifactId>maven-release-plugin</artifactId>
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
-                            <tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jcc</tagBase>
-                            <branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/resources/jcc</branchBase>
+                            <tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mscontrol</tagBase>
+                            <branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/resources/mscontrol</branchBase>
                             <preparationGoals>clean install</preparationGoals>
                         </configuration>
                     </plugin>
@@ -101,9 +101,9 @@
         </profile>
     </profiles>
     <scm>
-        <connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jcc</connection>
-        <developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jcc</developerConnection>
-        <url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jcc</url>
+        <connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mscontrol</connection>
+        <developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mscontrol</developerConnection>
+        <url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mscontrol</url>
     </scm>
 	
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
