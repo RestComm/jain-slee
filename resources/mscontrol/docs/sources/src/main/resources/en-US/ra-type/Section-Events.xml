@@ -43,7 +43,7 @@
 		<varlistentry>
 			<term>name prefix</term>
 			<listitem>
-				<para>javax.media.mscontrol.networkconnection.SdpPortManagerEvent</para>
+				<para>javax.media.mscontrol.networkconnection.SdpPortManagerEvent.</para>
 				<para>Note that this is name prefix. Full event name is concatenation of this prefix and name listed in table below.</para>
 			</listitem>
 		</varlistentry>
@@ -77,20 +77,20 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>.ANSWER_GENERATED</entry>
-					<entry></entry>
+					<entry>ANSWER_GENERATED</entry>
+					<entry>Generated when media server returns <literal>SDP</literal>. This <literal>SDP</literal> is answer to one present in client request, ie. in <literal>SIP INVITE</literal> </entry>
 				</row>
 				<row>
-					<entry>.ANSWER_PROCESSED</entry>
-					<entry></entry>
+					<entry>ANSWER_PROCESSED</entry>
+					<entry>Generated when media server is processing <literal>SDP</literal> offer.</entry>
 				</row>
 				<row>
-					<entry>.NETWORK_STREAM_FAILURE</entry>
-					<entry></entry>
+					<entry>NETWORK_STREAM_FAILURE</entry>
+					<entry>Generated on failure in media server. <literal>SDP</literal> present indicates remaining available streams.</entry>
 				</row>
 				<row>
-					<entry>.OFFER_GENERATED</entry>
-					<entry></entry>
+					<entry>OFFER_GENERATED</entry>
+					<entry>Generated when media server returns <literal>SDP</literal> offer. </entry>
 				</row>
 			</tbody>
 		</tgroup>
@@ -98,7 +98,7 @@
 	
 	<para>
 		Events fired on
-		<literal>NetworkConnection</literal>
+		<literal>MediaGroup</literal>
 		Activity
 		has following:
 	</para>
@@ -120,14 +120,12 @@
 	</variablelist>
 	
 	
-	<table
-		frame="all"
-		pgwide="1">
-		<title>Events fired on the <literal>MediaGroup</literal> Activity</title>
-		<tgroup colsep="1" cols="3" align="left">
-			<colspec colnum="1" colname="c0"/>
-			<colspec colnum="2" colname="c1"/>
-			<colspec colnum="3" colname="c2" />
+	<table frame="all" pgwide="1">
+			<title>Events fired on the <literal>MediaGroup</literal> Activity</title>
+			<tgroup colsep="1" cols="3">
+				<colspec colnum="1" colname="c0" colwidth="2*"/>
+				<colspec colnum="2" colname="c1" colwidth="2*"/>
+				<colspec colnum="3" colname="c2" colwidth="1*"/>
 
 			<thead>
 				<row>
@@ -138,39 +136,74 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>javax.media.mscontrol. join.JoinEvent.JOINED</entry>
-					<entry>javax.media.mscontrol. join.JoinEvent</entry>					
-					<entry></entry>
+					<entry>javax.media 
+					.mscontrol. 
+					join.JoinEvent 
+					.JOINED</entry>
+					<entry>javax.media 
+					.mscontrol. 
+					join.JoinEvent</entry>					
+					<entry>Generated when resources are joined, ie. <literal>MediaGroup</literal> and <literal>NetworkConnection</literal></entry>
 				</row>
 				<row>
-					<entry>javax.media.mscontrol. join.JoinEvent.UNJOINED</entry>
-					<entry>javax.media.mscontrol. join.JoinEvent</entry>			
-					<entry></entry>
+					<entry>javax.media 
+					.mscontrol. 
+					join.JoinEvent.
+					 UNJOINED</entry>
+					<entry>javax.media 
+					.mscontrol. 
+					join.JoinEvent</entry>			
+					<entry>Generated when resource are disconnected.</entry>
 				</row>
 				<row>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.PLAY_COMPLETED</entry>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>					
-					<entry></entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEvent 
+					.PLAY_COMPLETED</entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEven</entry>					
+					<entry>Generated when player finishes its task.</entry>
 				</row>
 				<row>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.PAUSED</entry>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>					
-					<entry></entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEvent 
+					.PAUSED</entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEven</entry>					
+					<entry>Generated when player ceases media stream.</entry>
 				</row>
 				<row>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.RESUMED</entry>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>					
-					<entry></entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEvent 
+					.RESUMED</entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEven</entry>					
+					<entry>Generated when player starts playback from moment it paused previously.</entry>
 				</row>
 				<row>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.SPEED_CHANGED</entry>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>					
-					<entry></entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEvent 
+					.SPEED_CHANGED</entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEven</entry>					
+					<entry>Generated when speed of playback changes.</entry>
 				</row>
 				<row>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.VOLUME_CHANGED</entry>
-					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>						
-					<entry></entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEvent 
+					.VOLUME_CHANGED</entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					PlayerEven</entry>						
+					<entry>Generated when volume of playback changes.</entry>
 				</row>
 				
 			</tbody>
