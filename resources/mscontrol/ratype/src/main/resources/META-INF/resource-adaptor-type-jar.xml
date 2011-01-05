@@ -16,6 +16,10 @@
             <activity-type>
                 <activity-type-name>javax.media.mscontrol.networkconnection.NetworkConnection</activity-type-name>
             </activity-type>
+            <activity-type>
+                <activity-type-name>javax.media.mscontrol.mediagroup.MediaGroup</activity-type-name>
+            </activity-type>
+            
             <activity-context-interface-factory-interface>
                 <activity-context-interface-factory-interface-name>
 					org.mobicents.slee.resource.mediacontrol.MscActivityContextInterfaceFactory

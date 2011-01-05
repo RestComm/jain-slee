@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section
+	id="ratype_ra_interface">
+
+	<title>Resource Adaptor Interface</title>
+
+	<para>The &THIS.RA;
+		Resource Adaptor interface, of type
+		<literal>javax.media.mscontrol.MsControlFactory</literal>
+		, is used by an SBB to interact with Media resources. It is defined as follows:
+	</para>
+	<programlisting
+		language="Java"
+		role="JAVA">  <![CDATA[
+package javax.media.mscontrol;
+public interface MsControlFactory {
+    
+    public Properties getProperties();
+
+    public MediaSession createMediaSession() throws MsControlException ;
+
+    public MediaConfig getMediaConfig(Configuration<?> cfg) throws MediaConfigException ;
+
+    public MediaConfig getMediaConfig(Reader reader) throws MediaConfigException ;
+
+    public Parameters createParameters() ;
+
+    public VideoLayout createVideoLayout(String mimeType,Reader xmlDef) throws MediaConfigException;
+
+    public VideoLayout[] getPresetLayouts(int numberOfActiveRegions) throws MediaConfigException ;
+
+    public VideoLayout getPresetLayout(String type) throws MediaConfigException ;
+
+    public MediaObject getMediaObject(URI mediaObjectURI) ;
+
+
+}]]>
+    </programlisting>
+	<variablelist>
+		<varlistentry>
+			<term>
+				The
+				<literal>getProperties()</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Gets a read-only copy of this factory's properties</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				The
+				<literal>createMediaSession() throws MsControlException</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Creates MediaSession object which is a container and factory for media objects.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				The
+				<literal>
+					getMediaConfig(Configuration&lt;?&gt; cfg) throws MediaConfigException</literal> method:</term>
+      <listitem>
+        <para>Return an instance of predefined MediaConfig, as described by the given Configuration</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>getMediaConfig(Reader reader) throws MediaConfigException</literal> method:</term>
+      <listitem>
+        <para>Create an instance of MediaConfig, from an xml byte stream (for example a file, or a String)</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>createParameters()</literal> method:</term>
+      <listitem>
+        <para>Create an empty Parameters map</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>createVideoLayout(String mimeType,Reader xmlDef) throws MediaConfigException</literal> method:</term>
+      <listitem>
+        <para>Factory method for creating a instance of VideoLayout.</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>getPresetLayouts(int numberOfActiveRegions) throws MediaConfigException</literal> method:</term>
+      <listitem>
+        <para>Returns an array of mixer VideoLayouts that are supported by the mediaserver. 
+Each entry in the array may differ from the previous by the size of the regions, decoration, etc. </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>getPresetLayout(String type) throws MediaConfigException</literal> method:</term>
+      <listitem>
+        <para>Returns a VideoLayout (supported by the mediaserver), with the characteristics as defined by type</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>The <literal>getMediaObject(URI mediaObjectURI) </literal> method:</term>
+      <listitem>
+        <para>Search for a MediaObject with the given URI. 
+The search is performed in the child objects of this factory (recursively).</para>
+      </listitem>
+    </varlistentry>
+    
+  </variablelist>
+	
+</section>

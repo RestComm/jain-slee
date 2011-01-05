@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section
+	id="ratype_activities">
+	<title>Activities</title>
+	<para>&THIS.RA;
+		Resource Adaptor type defines two activities. Both are created and destroyed explicitly by
+		<literal>SBB</literal>
+		. Activity objects are:
+		<itemizedlist>
+			<listitem>
+				<para>javax.media.mscontrol.networkconnection.NetworkConnection</para>
+			</listitem>
+			<listitem>
+				<para>javax.media.mscontrol.mediagroup.MediaGroup</para>
+			</listitem>
+		</itemizedlist>
+	</para>
+	<para>
+		The
+		<literal>NetworkConnection</literal>
+		activity represents connection to peer over
+		<literal>RTP</literal>
+		. It is used to as handle to peer capabilities and data stream.
+	</para>
+	<para>
+		The
+		<literal>MediaGroup</literal>
+		activity represents set of connections, on which certain operations are performed.
+		<literal>MediaGroup</literal> is used with <literal>NetworkConnection</literal> activity.
+	</para>
+</section>

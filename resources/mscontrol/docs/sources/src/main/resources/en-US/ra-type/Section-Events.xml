@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section
+	id="ratype_events">
+
+	<title>Events</title>
+
+	<para>The
+		Events fired by &THIS.RA;
+		Resource Adaptor represent changes in call or connection.
+	</para>
+	<para>
+		Events fired on
+		<literal>NetworkConnection</literal>
+		Activity
+
+		has following:
+	</para>
+	<variablelist>
+		<varlistentry>
+			<term>class</term>
+			<listitem>
+				<para>javax.media.mscontrol.networkconnection.SdpPortManagerEvent</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>vendor</term>
+			<listitem>
+				<para>org.mobicents</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>version</term>
+			<listitem>
+				<para>1.0</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>name prefix</term>
+			<listitem>
+				<para>javax.media.mscontrol.networkconnection.SdpPortManagerEvent</para>
+				<para>Note that this is name prefix. Full event name is concatenation of this prefix and name listed in table below.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+	<table
+		frame="all"
+		pgwide="1">
+		<title>
+			Events fired on the
+			<literal>NetworkConnection</literal>
+			Activity
+		</title>
+		<tgroup
+			colsep="1"
+			cols="2"
+			align="left">
+			<colspec
+				colnum="1"
+				colname="c0" />
+			<colspec
+				colnum="2"
+				colname="c1" />
+
+
+			<thead>
+				<row>
+					<entry>Name</entry>
+					<entry>Description</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>.ANSWER_GENERATED</entry>
+					<entry></entry>
+				</row>
+				<row>
+					<entry>.ANSWER_PROCESSED</entry>
+					<entry></entry>
+				</row>
+				<row>
+					<entry>.NETWORK_STREAM_FAILURE</entry>
+					<entry></entry>
+				</row>
+				<row>
+					<entry>.OFFER_GENERATED</entry>
+					<entry></entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</table>
+	
+	<para>
+		Events fired on
+		<literal>NetworkConnection</literal>
+		Activity
+		has following:
+	</para>
+	<variablelist>
+		
+		<varlistentry>
+			<term>vendor</term>
+			<listitem>
+				<para>org.mobicents</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>version</term>
+			<listitem>
+				<para>1.0</para>
+			</listitem>
+		</varlistentry>
+		
+	</variablelist>
+	
+	
+	<table
+		frame="all"
+		pgwide="1">
+		<title>Events fired on the <literal>MediaGroup</literal> Activity</title>
+		<tgroup colsep="1" cols="3" align="left">
+			<colspec colnum="1" colname="c0"/>
+			<colspec colnum="2" colname="c1"/>
+			<colspec colnum="3" colname="c2" />
+
+			<thead>
+				<row>
+					<entry>Name</entry>
+					<entry>Event Class</entry>
+					<entry>Description</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>javax.media.mscontrol. join.JoinEvent.JOINED</entry>
+					<entry>javax.media.mscontrol. join.JoinEvent</entry>					
+					<entry></entry>
+				</row>
+				<row>
+					<entry>javax.media.mscontrol. join.JoinEvent.UNJOINED</entry>
+					<entry>javax.media.mscontrol. join.JoinEvent</entry>			
+					<entry></entry>
+				</row>
+				<row>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.PLAY_COMPLETED</entry>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>					
+					<entry></entry>
+				</row>
+				<row>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.PAUSED</entry>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>					
+					<entry></entry>
+				</row>
+				<row>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.RESUMED</entry>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>					
+					<entry></entry>
+				</row>
+				<row>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.SPEED_CHANGED</entry>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>					
+					<entry></entry>
+				</row>
+				<row>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEvent.VOLUME_CHANGED</entry>
+					<entry>javax.media.mscontrol.mediagroup. PlayerEven</entry>						
+					<entry></entry>
+				</row>
+				
+			</tbody>
+		</tgroup>
+	</table>
+	<important>
+		<para>
+			Spaces where introduced in
+			<literal>Name</literal>
+			,
+			<literal>Vendor</literal>
+			and
+			<literal>Event Class</literal>
+			column values, to correctly render the table. Please remove them when using copy/paste.
+		</para>
+	</important>
+	<important>
+		<para>More details for each event type may be obtained on the javadocs of each event type class.</para>
+	</important>
+</section>
