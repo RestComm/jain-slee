@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+	
+	<para>The &THIS.EXAMPLE; Example is JAIN SLEE 1.1 Application which participates in SIP sessions, as an UAS. The SIP messages exchange is depicted in the image below.</para> 
+	
+	<mediaobject>
+		<imageobject>
+			<imagedata
+				width="300px"
+				align="center"
+				fileref="images/sip-uas.png"
+				format="PNG"/>
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; Example Functionality</para>
+		</caption>
+	</mediaobject>
+	
+</chapter>
+

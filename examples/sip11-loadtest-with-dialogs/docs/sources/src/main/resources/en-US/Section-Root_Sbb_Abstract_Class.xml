@@ -1,0 +1,108 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="root_sbb_abstract_class">
+			<title>The Root SBB Abstract Class</title>
+			<para> The class <literal>org.mobicents.slee.example.sip.SipUASExampleSbb</literal> includes all the service logic for the example.</para>
+		
+			<section id="root_sbb_abstract_class_setSbbContext">
+				<title>The setSbbContext(SbbContext) method</title>
+				<para>The <literal>javax.slee.SbbObject</literal>'s <literal>setSbbContext(SbbContext)</literal> is used by SBBs to store the SBB's context into a class field. The SBB should take the opportunity to also store objects, such as SLEE facilities, which are reused by all service logic entities, a.k.a. SbbEntities, and are stored in the JNDI environment.</para>
+            	
+            	<para>The class fields and <literal>setSbbContext(SbbContext)</literal> method's and related code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
+	public void setSbbContext(SbbContext context) {
+		sbbContext = (SbbContextExt) context;
+		sipActivityContextInterfaceFactory = (SipActivityContextInterfaceFactory) sbbContext
+				.getActivityContextInterfaceFactory(sipRATypeID);
+		sleeSipProvider = (SleeSipProvider) sbbContext
+				.getResourceAdaptorInterface(sipRATypeID, sipRALink);
+		addressFactory = sleeSipProvider.getAddressFactory();
+		headerFactory = sleeSipProvider.getHeaderFactory();
+		messageFactory = sleeSipProvider.getMessageFactory();
+		timerFacility = sbbContext.getTimerFacility();
+	}
+            	]]>
+            	</programlisting>
+        	</section>
+        	
+			<section id="root_sbb_abstract_class_invite_event_handler">
+				<title>The SIP INVITE Event Handler Method</title>
+				<para>The SIP INVITE is the starting point of each instance of the service logic, its responsibility is:</para>
+				
+				<itemizedlist>
+					<listitem>
+				        <para>Create the SIP Dialog activity, which represents the session, and attach the SbbEntity, to receive further SIP messages.</para>
+	   				</listitem>
+	   				<listitem>
+				        <para>Set the session timer.</para>
+	   				</listitem>
+	   				<listitem>
+				        <para>Send RINGING response back to the UAC.</para>
+	   				</listitem>
+	   				<listitem>
+				        <para>Send OK response back to the UAC, to continue the session setup.</para>
+	   				</listitem>
+				</itemizedlist>
+            	
+            	<para>The event handler code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
+		// Initial request
+	public void onInviteEvent(RequestEvent event, ActivityContextInterface aci) {
+		final SbbLocalObject sbbLocalObject = this.sbbContext
+				.getSbbLocalObject();
+		aci.detach(sbbLocalObject);
+
+		final ServerTransaction serverTransaction = requestEvent
+				.getServerTransaction();
+		try {
+			// create dialog and attach this entity to it's aci
+			final DialogActivity dialog = (DialogActivity) sleeSipProvider
+					.getNewDialog(serverTransaction);
+			final ActivityContextInterfaceExt dialogAci = (ActivityContextInterfaceExt) sipActivityContextInterfaceFactory
+					.getActivityContextInterface(dialog);
+			dialogAci.attach(sbbLocalObject);
+			// set timer of 60 secs on the dialog aci
+			timerFacility.setTimer(dialogAci, null,
+					System.currentTimeMillis() + 60000L, getTimerOptions());
+			// send 180
+			Response response = messageFactory.createResponse(Response.RINGING,
+					requestEvent.getRequest());
+			response.addHeader(getContactHeader());
+			serverTransaction.sendResponse(response);
+			// send 200 ok
+			response = messageFactory.createResponse(Response.OK, requestEvent
+					.getRequest());
+			response.addHeader(getContactHeader());
+			serverTransaction.sendResponse(response);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+            	]]>
+				</programlisting>
+			</section>
+        	
+        	<section id="root_sbb_abstract_class_timer_event_handler">
+				<title>The Timer Event Handler Method</title>
+				<para>The Timer Event is received when the session timer expires, the application then sends a BYE request to the other party, requesting the session termination.</para>
+            	
+            	<para>The event handler method's code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
+	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
+		aci.detach(sbbContext.getSbbLocalObject());
+		final DialogActivity dialog = (DialogActivity) aci.getActivity();
+		try {
+			dialog.sendRequest(dialog.createRequest(Request.BYE));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+            	]]>
+            	</programlisting>
+        	</section>
+        	
+		</section>	

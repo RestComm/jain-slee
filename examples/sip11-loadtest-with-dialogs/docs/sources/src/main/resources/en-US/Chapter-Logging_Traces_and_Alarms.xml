@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="logging_traces_and_alarms">
+
+	<title>Traces and Alarms</title>
+
+	<section id="tracers">
+		<title>Tracers</title>
+		<important>
+       		<para>Spaces where introduced in log4j category name to properly render page. Please remove them when using copy/paste.</para>
+		</important>
+		<para>The example Application uses a single JAIN SLEE 1.1 Tracer, named <literal>SipUASExampleSbb</literal>. 
+		The related log4j category is 
+		<literal>javax.slee.SbbNotification[service=ServiceID[name=</literal>
+		<literal>SIP UAS,vendor=org.mobicents,version=1.0],</literal>
+		<literal>sbb=SbbID[name=SIP UAS,vendor=org.mobicents,version=1.0]]</literal>.
+		</para>
+	</section>	
+	
+	<section id="alarms">
+		<title>Alarms</title>
+		<para>The example Application does not sets JAIN SLEE Alarms.</para>
+	</section>
+	
+</chapter>

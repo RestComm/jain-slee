@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
+
+	<para>This example application plays the User Agent Server (UAS) role in a SIP session setup, using the JAIN SIP Resource Adaptor specified in the JAIN SLEE 1.1 specification.</para>
+	
+	<para>The application receives and sets up new sessions. After setup is complete, a specific timer expiration will signal the application to terminate the session.</para>
+	
+</chapter>

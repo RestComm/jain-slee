@@ -1,4 +1,4 @@
-package org.mobicents.slee.example.loadtest.sip11;
+package org.mobicents.slee.example.sip;
 
 import java.text.ParseException;
 
@@ -28,7 +28,7 @@ import net.java.slee.resource.sip.SleeSipProvider;
 import org.mobicents.slee.ActivityContextInterfaceExt;
 import org.mobicents.slee.SbbContextExt;
 
-public abstract class SimpleCallSetupTerminatedByServerWithDialogsTestSbb
+public abstract class SipUASExampleSbb
 		implements javax.slee.Sbb {
 
 	private static final ResourceAdaptorTypeID sipRATypeID = new ResourceAdaptorTypeID(

@@ -4,11 +4,11 @@
 
 <service-xml>
     <service>
-        <service-name>SimpleCallSetupTerminatedByServerWithDialogsTestService</service-name>
+        <service-name>SIP UAS</service-name>
         <service-vendor>org.mobicents</service-vendor>
         <service-version>1.0</service-version>
         <root-sbb>
-            <sbb-name>SimpleCallSetupTerminatedByServerWithDialogsTestSBB</sbb-name>
+            <sbb-name>SIP UAS</sbb-name>
             <sbb-vendor>org.mobicents</sbb-vendor>
             <sbb-version>1.0</sbb-version>
         </root-sbb>

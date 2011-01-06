@@ -1,0 +1,86 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="root_sbb_descriptor">
+			<title>Root SBB XML Descriptor</title>
+			<para>The Root SBB XML Descriptor has to be provided and match the abstract class code.</para>
+		
+			<para>First relevant part is the declaration of the <literal>sbb-classes</literal> element, where the sbb class abstract name must be specified:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+		<sbb-classes>
+            <sbb-abstract-class reentrant="True">
+                <sbb-abstract-class-name>org.mobicents.slee.example.sip.SipUASExampleSbb</sbb-abstract-class-name>
+            </sbb-abstract-class>
+        </sbb-classes>
+			]]>
+			</programlisting>
+			
+			<para>Then the events handled by the SBB must be specified too:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+		<event event-direction="Receive" initial-event="True">
+			<event-name>ServiceStartedEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.serviceactivity.ServiceStartedEvent
+			</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+		    	
+        <event event-direction="Receive" initial-event="True">
+            <event-name>InviteEvent</event-name>
+            <event-type-ref>
+                <event-type-name>javax.sip.message.Request.INVITE</event-type-name>
+                <event-type-vendor>net.java.slee</event-type-vendor>
+                <event-type-version>1.2</event-type-version>
+            </event-type-ref>
+            <initial-event-select variable="ActivityContext"/>
+        </event>
+         
+        <event event-direction="Receive" initial-event="False">
+            <event-name>TimerEvent</event-name>
+            <event-type-ref>
+                <event-type-name>javax.slee.facilities.TimerEvent</event-type-name>
+                <event-type-vendor>javax.slee</event-type-vendor>
+                <event-type-version>1.0</event-type-version>
+            </event-type-ref>
+        </event>
+			]]>
+			</programlisting>
+			<para>Note that there is a single event defined as initial, which triggers the sbb logic, remaining events all happen in activities that the service instance is already attached, abstracting the application from calculating which session it handles.</para>
+	
+			<para>Finally, the SIP11 Resource Adaptor must be specified also, otherwise SLEE won't put its SBB Interface in the SBB's JNDI Context:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					JAIN SIP
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					javax.sip
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.2
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/jainsip/1.2/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/jainsip/1.2/provider
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					SipRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+			]]>
+			</programlisting>
+			
+		</section>

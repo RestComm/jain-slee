@@ -1,0 +1,13 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="running">
+
+	<title>Running the Example</title>
+	
+	<para>To run the example application, first start the JAIN SLEE container, wait for the message <literal>Service activated, now execute SIPP script.</literal> to be displayed in the console, then execute the SIPP script, <filename>run.sh</filename> or <filename>run.bat</filename> depending on which Operating System being used, in <filename>sipp</filename> directory.</para>
+	
+	<para>The script is UAC party, responsible to create the sessions. All the traffic should be printed in the application server console. The usage of SIPP scripts requires SIPP to be in <literal>$PATH</literal> environment variable.</para> 
+		
+</chapter>
+

@@ -2,16 +2,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<artifactId>mobicents-slee-example-sip11-loadtest-with-dialogs</artifactId>
+		<artifactId>mobicents-slee-example-sip-uas</artifactId>
 		<groupId>org.mobicents.examples</groupId>
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>sip11-loadtest-with-dialogs-DU</artifactId>
+	<artifactId>mobicents-slee-example-sip-uas-DU</artifactId>
 									
 	<dependencies>
 		<dependency>
-			<artifactId>sip11-loadtest-with-dialogs-sbb</artifactId>
+			<artifactId>mobicents-slee-example-sip-uas-sbb</artifactId>
 			<groupId>org.mobicents.examples</groupId>
 			<version>${pom.version}</version>
 		</dependency>
