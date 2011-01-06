@@ -308,7 +308,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 					tracer.severe("Received 423 on REMOVE request!");
 				}
 				try{
-					this.getParentSbbCMP().refreshPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+					this.getParentSbbCMP().removePublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 				}
 				catch(Exception e) {
 					if(tracer.isSevereEnabled()) {
