@@ -19,79 +19,72 @@ package org.mobicents.slee.enabler.sip;
 
 /**
  * @author baranowb
+ * @author martins
  */
 public interface PublicationClientParent {
 
 	/**
-	 * This method is called when publication enabler receives answer for
-	 * publication creating request. If answer indicates success, it can be used
-	 * to manage publication, otherwise it must be discarded.
+	 * Callback method indicating that new publication request succeed.
 	 * 
-	 * @param result
-	 *            - object holding information about operation
 	 * @param child
-	 *            - enabler, which handles publication
+	 *            the enabler, which handles publication
 	 */
-	public void afterNewPublication(Result result, PublicationClientChildSbbLocalObject child);
+	public void newPublicationSucceed(PublicationClientChildSbbLocalObject child);
 
 	/**
-	 * Callback indicating state of publication refresh. Its behaviour is
-	 * similar to
-	 * {@link #afterNewPublication(Result, PublicationClientChildSbbLocalObject)}.
+	 * Callback method indicating that modify publication request succeed.
 	 * 
-	 * @param result
-	 *            - object holding information about operation
 	 * @param child
-	 *            - enabler, which handles publication
+	 *            the enabler, which handles publication
 	 */
-	public void afterRefreshPublication(Result result, PublicationClientChildSbbLocalObject child);
+	public void modifyPublicationSucceed(PublicationClientChildSbbLocalObject child);
 
 	/**
-	 * Callback method indicating state of publication update. Its behaviour is
-	 * similar to
-	 * {@link #afterNewPublication(Result, PublicationClientChildSbbLocalObject)}.
+	 * Callback method indicating that remove publication request succeed.
 	 * 
-	 * @param result
-	 *            - object holding information about operation
 	 * @param child
-	 *            - enabler, which handles publication
+	 *            the enabler, which handles publication
 	 */
-	public void afterUpdatePublication(Result result, PublicationClientChildSbbLocalObject child);
+	public void removePublicationSucceed(PublicationClientChildSbbLocalObject child);
 
 	/**
-	 * Callback method indicating state of publication remove. Its behaviour is
-	 * similar to
-	 * {@link #afterNewPublication(Result, PublicationClientChildSbbLocalObject)}.
+	 * Callback method indicating that new publication request failed. Enabler
+	 * must be discarded.
 	 * 
-	 * @param result
-	 *            - object holding information about operation
-	 * @param child
-	 *            - enabler, which handles publication
-	 */
-	public void afterRemovePublication(Result result, PublicationClientChildSbbLocalObject child);
-
-	/**
-	 * Callback method indicating that communication failed. Enabler must be
-	 * discarded
-	 * 
+	 * @param errorCode
 	 * @param sbbLocalObject
 	 */
-	void newPublicationFailed(PublicationClientChildSbbLocalObject sbbLocalObject);
+	public void newPublicationFailed(int errorCode,
+			PublicationClientChildSbbLocalObject sbbLocalObject);
 
 	/**
-	 * Callback method indicating that communication failed. Enabler must be
-	 * discarded
+	 * Callback method indicating that modify publication request failed.
+	 * Enabler must be discarded.
 	 * 
+	 * @param errorCode
 	 * @param sbbLocalObject
 	 */
-	void refreshPublicationFailed(PublicationClientChildSbbLocalObject sbbLocalObject);
+	public void modifyPublicationFailed(int errorCode,
+			PublicationClientChildSbbLocalObject sbbLocalObject);
 
 	/**
-	 * Callback method indicating that communication failed. Enabler must be
-	 * discarded
+	 * Callback method indicating that refresh publication request failed.
+	 * Enabler must be discarded.
 	 * 
+	 * @param errorCode
 	 * @param sbbLocalObject
 	 */
-	void removePublicationFailed(PublicationClientChildSbbLocalObject sbbLocalObject);
+	public void refreshPublicationFailed(int errorCode,
+			PublicationClientChildSbbLocalObject sbbLocalObject);
+
+	/**
+	 * Callback method indicating that remove publication request failed.
+	 * Enabler must be discarded.
+	 * 
+	 * @param errorCode
+	 * @param sbbLocalObject
+	 */
+	public void removePublicationFailed(int errorCode,
+			PublicationClientChildSbbLocalObject sbbLocalObject);
 
 }

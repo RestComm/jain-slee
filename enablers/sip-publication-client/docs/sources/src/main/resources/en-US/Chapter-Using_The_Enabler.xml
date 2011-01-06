@@ -23,10 +23,10 @@
 		<varlistentry>
 			<term>automatic refresh</term>
 			<listitem>
-				<para>based on values exchanged between Enabler and Presenc Server,
+				<para>based on values exchanged between Enabler and Server,
 					Enabler keeps track of publication life time(expiration)
 					and issues
-					refresh requests to Presence Server</para>
+					refresh requests to Server</para>
 			</listitem>
 		</varlistentry>
 
@@ -59,7 +59,7 @@
 			<literal>org.mobicents.slee.enabler.sip.PublicationClientChild
 			</literal>
 			interfaces, the latter declares the methods which can be used to
-			interact with the SIP Presence Server:
+			interact with the Server:
 		</para>
 
 		<programlisting language="Java" role="JAVA"><![CDATA[
@@ -67,22 +67,17 @@ package org.mobicents.slee.enabler.sip;
 
 public interface PublicationClientChild {
 	
-	public void newPublication(String entity, String eventPackage, String document
-		, String contentType, String contentSubType
-		, int expires) throws PublicationException;
+	public void newPublication(String entity, String eventPackage, String document, String contentType, String contentSubType, int expires);
 
-	public void updatePublication(String document, String contentType, String contentSubType
-	, int expires) throws PublicationException;
+	public void modifyPublication(String document, String contentType, String contentSubType, int expires);
 
-	public void removePublication() throws PublicationException;
+	public void removePublication();
 
 	public String getEntity();
 
 	public String getETag();
-	
-	public boolean isRefreshing();
 
-	public void setParent(PublicationClientParentLocalInterface parent);
+	public void setParentSbb(PublicationClientParentSbbLocalObject parent);
 
 }
 		]]>
@@ -103,22 +98,7 @@ public interface PublicationClientChild {
 						creation the Enabler won't be able to callback the Parent Sbb.
 					</para>
 				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>
-					The
-					<literal>boolean isRefreshing();</literal>
-					method:
-				</term>
-				<listitem>
-					<para>
-						checks if Enabler is performing automatic refresh publication. If
-						it returns
-						<literal>true</literal>
-						, remove or update operations are not performed.
-					</para>
-				</listitem>
-			</varlistentry>
+			</varlistentry>			
 			<varlistentry>
 				<term>
 					The
@@ -126,7 +106,7 @@ public interface PublicationClientChild {
 					method:
 				</term>
 				<listitem>
-					<para>Fetches last SIP-ETag value returned by Presence Server.
+					<para>Fetches last SIP-ETag value returned by Server.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -151,7 +131,7 @@ public interface PublicationClientChild {
 				</term>
 				<listitem>
 					<para>
-						Creates new publication in Presence Server.
+						Creates new publication in Server.
 						<literal>PUBLISH</literal>
 						request is constructed with passed arguments.
 					</para>
@@ -160,32 +140,27 @@ public interface PublicationClientChild {
 			<varlistentry>
 				<term>
 					The
-					<literal>boolean updatePublication(String document, String
+					<literal>modifyPublication(String document, String
 						contentType, String contentSubType, int expires);</literal>
 					method:
 				</term>
 				<listitem>
 					<para>
-						Issues update
+						Issues modify
 						<literal>PUBLISH</literal>
 						request. Request is constructed with data passed as arguments and
 						state stored
 						when
 						<literal>new</literal>
-						publication is sent to server(event package, entity, ETag). If
-						Enabler performs automatic refresh, this method returns
-						<literal>false</literal>
-						.
+						publication is sent to server(event package, entity, ETag).
 					</para>
 				</listitem>
 			</varlistentry>
 
-
-
 			<varlistentry>
 				<term>
 					The
-					<literal>boolean removePublication();</literal>
+					<literal>removePublication();</literal>
 					method:
 				</term>
 				<listitem>
@@ -194,12 +169,9 @@ public interface PublicationClientChild {
 						<literal>PUBLISH</literal>
 						request. Request is constructed with data passed as arguments and
 						state stored
-						when previous publications are sent to server(event
+						when previous publications are sent to server (event
 						package, entity,
-						ETag). If Enabler performs automatic refresh, this
-						method returns
-						<literal>false</literal>
-						.
+						ETag).
 					</para>
 				</listitem>
 			</varlistentry>
@@ -214,7 +186,7 @@ public interface PublicationClientChild {
 			create and retrieve the Child Sbb, it is important to not forget to
 			pass the Parent's SbbLocalObject to the Child after creation:</para>
 		<programlisting language="Java" role="JAVA"><![CDATA[
-	public PublicationClientChildLocalInterface getPublicationClientChildSbb(String entity) {
+	public PublicationClientChildLocalInterface getPublicationClientChildSbb() {
 		final ChildRelation childRelation = getSipPublicationClientChildRelation();
 		if (childRelation.isEmpty()) {
 			try {
@@ -229,27 +201,13 @@ public interface PublicationClientChild {
 			}
 		}
 		else {
-			Iterator it = childRelation.iterator();
-			while(it.hasNext())
-			{
-				PublicationClientChildSbbLocalObject child = (PublicationClientChildSbbLocalObject) childRelation.iterator().next();
-				if(entity.equals(child.getEntity)
-				{
-					return child;
-				}
-				
-			}
-			SipPublicationClientChildSbbLocalInterface sbb = (PublicationClientChildSbbLocalObject) childRelation.create();
-				// passes the parent sbb local object to the child
-				sbb.setParentSbb((PublicationClientParentSbbLocalObject) sbbContext.getSbbLocalObject());
-			//else we should search for child.getEntity == null, but...
-			return sbb;
+			(PublicationClientChildSbbLocalObject) return childRelation.iterator().next();
 		}
 	}
 		]]>
 		</programlisting>
 		<para>The SbbLocalObject of the Child could also be stored in a CMP
-			Field for the simplest retreival, but unless you are going to reuse
+			Field for the simplest retrieval, but unless you are going to reuse
 			each instance several times it's better to have less state, specially
 			in clustered environments.</para>
 	</section>

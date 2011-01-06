@@ -20,7 +20,7 @@
 		<para>The Service's Sbb will be referred as the Parent Sbb in the
 			following sections.</para>
 	</important>
-	<para>Relation betweeen Parent Sbb, Enabler instance and publications in Presence Server look as follows:</para>
+	<para>Relation betweeen Parent Sbb, Enabler instance and publications in Server look as follows:</para>
 	<mediaobject>
 		<imageobject>
 			<imagedata width="300px" align="center"
@@ -66,19 +66,23 @@ package org.mobicents.slee.enabler.sip;
 
 public interface PublicationClientParent {
 
-	public void afterNewPublication(Result result, PublicationClientChildLocalObject child);
+	public void newPublicationSucceed(PublicationClientChildSbbLocalObject child);
 
-	public void afterRefreshPublication(Result result, PublicationClientChildLocalObject child);
+	public void modifyPublicationSucceed(PublicationClientChildSbbLocalObject child);
 
-	public void afterUpdatePublication(Result result, PublicationClientChildLocalObject child);
+	public void removePublicationSucceed(PublicationClientChildSbbLocalObject child);
 
-	public void afterRemovePublication(Result result, PublicationClientChildLocalObject child);
+	public void newPublicationFailed(int errorCode,
+			PublicationClientChildSbbLocalObject sbbLocalObject);
 
-	void newPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
+	public void modifyPublicationFailed(int errorCode,
+			PublicationClientChildSbbLocalObject sbbLocalObject);
 
-	void refreshPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
+	public void refreshPublicationFailed(int errorCode,
+			PublicationClientChildSbbLocalObject sbbLocalObject);
 
-	void removePublicationFailed(PublicationClientChildLocalObject sbbLocalObject);
+	public void removePublicationFailed(int errorCode,
+			PublicationClientChildSbbLocalObject sbbLocalObject);
 }
 		]]>
 		</programlisting>
@@ -88,50 +92,42 @@ public interface PublicationClientParent {
 			<varlistentry>
 				<term>
 					The
-					<literal>afterNewPublication(Result result,
-						PublicationClientChildLocalObject child);</literal>
+					<literal>newPublicationSucceed(PublicationClientChildSbbLocalObject)</literal>
 					method:
 				</term>
 				<listitem>
-					<para>Callback from the Enabler providing details about new
-						publication.</para>
+					<para>Callback method indicating that new publication request succeed.</para>
 				</listitem>
 			</varlistentry>
 
 			<varlistentry>
 				<term>
 					The
-					<literal>afterRefreshPublication(Result result,
-						PublicationClientChildLocalObject child);</literal>
+					<literal>modifyPublicationSucceed(PublicationClientChildSbbLocalObject)</literal>
 					method:
 				</term>
 				<listitem>
-					<para>Callback from the Enabler providing details about automatic
-						refresh publication request.</para>
+					<para>Callback method indicating that modify publication request succeed.</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>
 				<term>
 					The
-					<literal>afterUpdatePublication(Result result,
-						PublicationClientChildLocalObject child);</literal>
+					<literal>removePublicationSucceed(PublicationClientChildSbbLocalObject)</literal>
 					method:
 				</term>
 				<listitem>
-					<para>Callback from the Enabler providing details about update
-						publication request.</para>
+					<para>Callback method indicating that remove publication request succeed.</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>
 				<term>
 					The
-					<literal>afterRemovePublication(Result result,
-						PublicationClientChildLocalObject child);</literal>
+					<literal>newPublicationFailed(int,PublicationClientChildSbbLocalObject)</literal>
 					method:
 				</term>
 				<listitem>
-					<para>Callback from the Enabler providing details about remove
-						publication request.</para>
+					<para>Callback method indicating that new publication request failed. Enabler must be discarded.</para>
 				</listitem>
 			</varlistentry>
 			
@@ -139,31 +135,31 @@ public interface PublicationClientParent {
 			<varlistentry>
 				<term>
 					The
-					<literal>newPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);</literal>
+					<literal>refreshPublicationFailed(int,PublicationClientChildSbbLocalObject)</literal>
 					method:
 				</term>
 				<listitem>
-					<para>Callback from the Enabler, indicating communication failure. Enabler must be discarded.</para>
+					<para>Callback method indicating that refresh publication request failed. Enabler must be discarded.</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>
 				<term>
 					The
-					<literal>refreshPublicationFailed(PublicationClientChildLocalObject sbbLocalObject);</literal>
+					<literal>modifyPublicationFailed(int,PublicationClientChildSbbLocalObject)</literal>
 					method:
 				</term>
 				<listitem>
-					<para>Callback from the Enabler, indicating communication failure. Enabler must be discarded.</para>
+					<para>Callback method indicating that modify publication request failed. Enabler must be discarded.</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>
 				<term>
 					The
-					<literal>removePublicationFailed(PublicationClientChildLocalObject sbbLocalObject);</literal>
+					<literal>removePublicationFailed(int,PublicationClientChildSbbLocalObject)</literal>
 					method:
 				</term>
 				<listitem>
-					<para>Callback from the Enabler, indicating communication failure. Enabler must be discarded.</para>
+					<para>Callback method indicating that remove publication request failed. Enabler must be discarded.</para>
 				</listitem>
 			</varlistentry>
 
@@ -257,8 +253,6 @@ public interface PublicationClientParent {
 			</varlistentry>
 
 		</variablelist>
-
-
 
 	</section>
 

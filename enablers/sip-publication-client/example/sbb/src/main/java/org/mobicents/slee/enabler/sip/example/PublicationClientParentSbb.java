@@ -22,21 +22,14 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.ChildRelation;
 import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
-import javax.slee.SLEEException;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
-import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.Tracer;
 import javax.slee.serviceactivity.ServiceActivity;
 
 import org.mobicents.slee.enabler.sip.PublicationClientChildSbbLocalObject;
 import org.mobicents.slee.enabler.sip.PublicationClientParent;
 import org.mobicents.slee.enabler.sip.PublicationClientParentSbbLocalObject;
-import org.mobicents.slee.enabler.sip.PublicationException;
-import org.mobicents.slee.enabler.sip.Result;
-
-
-
 
 /**
  * @author baranowb
@@ -113,104 +106,73 @@ public abstract class PublicationClientParentSbb implements Sbb, PublicationClie
 		try {
 			child = (PublicationClientChildSbbLocalObject)this.getPublicationClientChildSbbChildRelation().create();
 			child.setParentSbb((PublicationClientParentSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			child.newPublication("alan@127.0.0.1:5090", "presence", fancyXML, "application", "pidf+xml", 61);
-		} catch (TransactionRequiredLocalException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SLEEException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (CreateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (PublicationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			child.newPublication("sip:alan@127.0.0.1:5090", "presence", fancyXML, "application", "pidf+xml", 61);
+		} catch (Throwable e) {
+			tracer.severe("failure",e);
 		}
-		
 	}
 	
 	public void onActivityEndEvent(javax.slee.ActivityEndEvent event, ActivityContextInterface aci) {
 		if (tracer.isFineEnabled())
 			tracer.fine("Received Activtiy End: "+aci.getActivity());
-		if(aci.getActivity() instanceof ServiceActivity)
-		{
-			ServiceActivity sa = (ServiceActivity) aci.getActivity();
-			if(sa.getService().equals(this.sbbContext.getService()))
-			{
-				PublicationClientChildSbbLocalObject child = (PublicationClientChildSbbLocalObject)this.getPublicationClientChildSbbChildRelation().iterator().next();
-				try {
-					child.removePublication();
-				} catch (PublicationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		if(aci.getActivity() instanceof ServiceActivity) {
+			PublicationClientChildSbbLocalObject child = (PublicationClientChildSbbLocalObject)this.getPublicationClientChildSbbChildRelation().iterator().next();
+			try {
+				child.removePublication();
+			} catch (Throwable e) {
+				tracer.severe("failure",e);
 			}
+
 		}
 	}
 	
-	public void afterNewPublication(Result result, PublicationClientChildSbbLocalObject child) {
-		tracer.info("GOT AFTER NEW PUB!: "+result);
-		if(result.getStatusCode()>299)
-		{
-			//ie.
-			child.remove();
+	@Override
+	public void newPublicationSucceed(PublicationClientChildSbbLocalObject child) {
+		//lets update. just to see more flow.
+		tracer.info("newPublicationSucceed()");
+		try {
+			child.modifyPublication(fancyXML, "application", "pidf+xml", 61);
+		} catch (Throwable e) {
+			tracer.severe("failure",e);
 		}
 	}
-
-	public void afterRefreshPublication(Result result, PublicationClientChildSbbLocalObject child) {
-		tracer.info("GOT AFTER REF PUB!: "+result);
-
-		if(result.getStatusCode()>299)
-		{
-			//ie.
-			child.remove();
-		}else
-		{
-			//lets update. just to see more flow.
-			try {
-				child.updatePublication(fancyXML, "application", "pidf+xml", 61);
-			} catch (PublicationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+	
+	@Override
+	public void modifyPublicationSucceed(
+			PublicationClientChildSbbLocalObject child) {
+		tracer.info("modifyPublicationSucceed()");
 	}
 
-	public void afterUpdatePublication(Result result, PublicationClientChildSbbLocalObject child) {
-		tracer.info("GOT AFTER UPD PUB!: "+result);
-		if(result.getStatusCode()>299)
-		{
-			//ie.
-			child.remove();
-		}
-
-	}
-
-	public void afterRemovePublication(Result result, PublicationClientChildSbbLocalObject child) {
-		tracer.info("GOT AFTER REM PUB!: "+result);
+	@Override
+	public void removePublicationSucceed(
+			PublicationClientChildSbbLocalObject child) {
+		tracer.info("removePublicationSucceed()");
 		child.remove();
-
+	}
+	
+	@Override
+	public void newPublicationFailed(int errorCode, PublicationClientChildSbbLocalObject child) {
+		tracer.info("newPublicationFailed( error = "+errorCode+")");
+		child.remove();
 	}
 
 	@Override
-	public void newPublicationFailed(PublicationClientChildSbbLocalObject sbbLocalObject) {
-		tracer.info("GOT NEW PUB FAILURE!");
-		sbbLocalObject.remove();
+	public void modifyPublicationFailed(int errorCode,
+			PublicationClientChildSbbLocalObject child) {
+		tracer.info("modifyPublicationFailed( error = "+errorCode+")");
+		child.remove();
+	}
+	
+	@Override
+	public void refreshPublicationFailed(int errorCode, PublicationClientChildSbbLocalObject child) {
+		tracer.info("refreshPublicationFailed( error = "+errorCode+")");
+		child.remove();		
 	}
 
 	@Override
-	public void refreshPublicationFailed(PublicationClientChildSbbLocalObject sbbLocalObject) {
-		tracer.info("GOT REFRESH PUB FAILURE!");
-		sbbLocalObject.remove();
-		
-	}
-
-	@Override
-	public void removePublicationFailed(PublicationClientChildSbbLocalObject sbbLocalObject) {
-		tracer.info("GOT REMOVE PUB FAILURE!");
-		sbbLocalObject.remove();
-		
+	public void removePublicationFailed(int errorCode, PublicationClientChildSbbLocalObject child) {
+		tracer.info("removePublicationFailed( error = "+errorCode+")");
+		child.remove();		
 	}
 
 }

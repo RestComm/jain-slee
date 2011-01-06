@@ -53,15 +53,11 @@ public interface PublicationClientChild {
 	 *            - number of seconds for which publication should be active. If
 	 *            its equal to 0, it means ESC/PA should determine expires
 	 *            interval by itself.
-	 * @throws PublicationException
-	 *             - thrown when something bad happens, ie. Enabler is not able
-	 *             to communicate with ECS/PA
 	 */
-	public void newPublication(String entity, String eventPackage, String document, String contentType, String contentSubType, int expires)
-			throws PublicationException;
+	public void newPublication(String entity, String eventPackage, String document, String contentType, String contentSubType, int expires);
 
 	/**
-	 * Updates publication with passed document. Update request uses stored
+	 * Modifies publication with passed document. Update request uses stored
 	 * information(ETag,entity,ecs address and MIME).
 	 * 
 	 * @param document
@@ -72,22 +68,15 @@ public interface PublicationClientChild {
 	 *            - sub type of MIME type
 	 * @param expires
 	 *            - number of seconds for which publication should be active
-	 * @throws PublicationException
-	 *             - thrown when something bad happens, ie. Enabler is not able
-	 *             to communicate with ECS/PA or call is done when Enabler refreshes publication when call is made.
 	 */
-	public void updatePublication(String document, String contentType, String contentSubType, int expires) throws PublicationException;
+	public void modifyPublication(String document, String contentType, String contentSubType, int expires);
 
 	/**
 	 * Issues remove request. Request uses uses stored
 	 * information(ETag,entity,ecs address). After this operation, Publication
 	 * child can be used to public something new. 
-	 * 
-	 * @throws PublicationException
-	 *             - thrown when something bad happens, ie. Enabler is not able
-	 *             to communicate with ECS/PA or call is done when Enabler refreshes publication when call is made.
 	 */
-	public void removePublication() throws PublicationException;
+	public void removePublication();
 
 	/**
 	 * Retrieve entity for which this child publishes.
@@ -102,18 +91,6 @@ public interface PublicationClientChild {
 	 * @return
 	 */
 	public String getETag();
-
-	/**
-	 * Indicates if refresh operation is ongoing.
-	 * 
-	 * @return <ul>
-	 *         <li><b>true</b> - if refresh is performed, remove|update should
-	 *         not be performed.</li>
-	 *         <li><b>false</b> - if no refresh is performed, remove|update can
-	 *         be issued.</li>
-	 *         </ul>
-	 */
-	public boolean isRefreshing();
 
 	/**
 	 * Set parent which will be notified about call results.

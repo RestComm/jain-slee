@@ -2,6 +2,7 @@ package org.mobicents.slee.enabler.sip;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -9,16 +10,13 @@ import javax.naming.NamingException;
 import javax.sip.ClientTransaction;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ResponseEvent;
-import javax.sip.SipException;
 import javax.sip.TimeoutEvent;
-import javax.sip.TransactionUnavailableException;
 import javax.sip.TransportNotSupportedException;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
-import javax.sip.address.SipURI;
+import javax.sip.address.URI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
-import javax.sip.header.ContentLengthHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.EventHeader;
 import javax.sip.header.ExpiresHeader;
@@ -39,30 +37,36 @@ import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
+import javax.slee.SbbLocalObject;
 import javax.slee.facilities.TimerEvent;
-import javax.slee.facilities.TimerFacility;
+import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
-import javax.slee.facilities.TimerPreserveMissed;
 import javax.slee.facilities.Tracer;
 import javax.slee.nullactivity.NullActivity;
-import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
-import javax.slee.nullactivity.NullActivityFactory;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
+
+import org.mobicents.slee.ActivityContextInterfaceExt;
+import org.mobicents.slee.SbbContextExt;
 
 /**
  * SIP Publication Client SLEE Enabler. It creates PUBLISH interaction and manages
  * it. It automatically refreshes publication based on content of ECS/PA response. It keeps map of ETag to publish interaction.
  * 
  * @author baranowb
+ * @author martins
  */
 public abstract class PublicationClientChildSbb implements Sbb, PublicationClientChild {
 
 	private static final int DEFAULT_EXPIRES_DRIFT = 15;
+	private static final ResourceAdaptorTypeID sipResourceAdaptorTypeID = new ResourceAdaptorTypeID("JAIN SIP","javax.sip","1.2");
+	private static final TimerOptions TIMER_OPTIONS = new TimerOptions();
+
 	private static Tracer tracer;
 
-	protected SbbContext sbbContext;
+	protected SbbContextExt sbbContext;
 
 	//sip ra
 	protected SipActivityContextInterfaceFactory sipActivityContextInterfaceFactory = null;
@@ -73,10 +77,6 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	protected HeaderFactory headerFactory;
 	protected Address ecsAddress;
 	protected int expiresDrift = DEFAULT_EXPIRES_DRIFT;
-	//slee stuff
-	protected TimerFacility timerFacility;
-	protected NullActivityContextInterfaceFactory nullACIFactory;
-	protected NullActivityFactory nullActivityFactory;
 	
 	// //////////////////
 	// SBB LO methods //
@@ -97,268 +97,88 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		return this.getETagCMP();
 	}
 
-	@Override
-	public boolean isRefreshing()
-	{
-		return this.getPublishRequestTypeCMP() == PublishRequestType.REFRESH;
+	private boolean isBusy() {
+		return this.getPublishRequestTypeCMP() != null;
 	}
-	//FIXME: should xxxPulication methods throw exception to indicate failure and not clean state? boolean return value is ambiguous.
+	
 	@Override
-	public void newPublication(String entity, String eventPackage, String document, String contentType, String contentSubType, int expires) throws PublicationException{
-		//initial, we should check if there is publication active 
-		if(isPublicationActive())
-		{
-			throw new IllegalStateException("Enabler is handling publication for: "+this.getEntityCMP());
-		}
+	public void newPublication(String entity, String eventPackage, String document, String contentType, String contentSubType, int expires) {
 		
-		//check args
-		if(entity == null)
-		{
-			throw new IllegalArgumentException("entity must not be null.");
-		}
-		if(eventPackage == null)
-		{
-			throw new IllegalArgumentException("eventPackage must not be null.");
-		}
-		
-		if(contentType == null)
-		{
-			throw new IllegalArgumentException("contentType must not be null.");
-		}
-		
-		if(contentSubType == null)
-		{
-			throw new IllegalArgumentException("contentSubType must not be null.");
-		}
-		if(document == null)
-		{
-			throw new IllegalArgumentException("document must not be null.");
-		}
-		if(expires < 0)
-		{
-			throw new IllegalArgumentException("expires must be greater or equal to 0.");
-		}
-		
-		//test if we can create SipURI from entity!
+		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
 		try {
-			String[] ents = entity.split("@");
-			SipURI test = addressFactory.createSipURI(ents[0], ents[1]);
-		} catch (Exception e1) {
-			throw new IllegalArgumentException("Failed to parse entity!",e1);
-		}
-		//otherwise lets kick off.
-		
-		
-		//PublicationClientChildActivityContextInterface pccAci = asSbbActivityContextInterface(naAci);
-		//store some data.
-		
-		this.setEntityCMP(entity);
-		this.setEventPackageCMP(eventPackage);
-		this.setExpiresCMP(expires);
-		
-		
-		ClientTransaction ctx = null;
-		ActivityContextInterface ctxAci = null;
-		boolean clear = true;
-		try {
-
-			Request r = createNewPublishRequest( contentType, contentSubType, document);
-			
-			ctx = this.sleeSipProvider.getNewClientTransaction(r);
-			ctxAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
-			ctxAci.attach(this.sbbContext.getSbbLocalObject());
-			
-
-			//Dont start timer here, since we don't have ETag!
-			//startExpiresTimer();
-			
-			setPublishRequestTypeCMP(PublishRequestType.NEW);
+			Request r = createNewPublishRequest(entity,eventPackage,expires,contentType,contentSubType,document);
+			ClientTransaction ctx = this.sleeSipProvider.getNewClientTransaction(r);
+			ActivityContextInterface aci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
+			aci.attach(sbbLocalObject);			
 			ctx.sendRequest();
-			clear = false;
-		} catch (TransactionUnavailableException e) {
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to create SIP transaction!", e);
+			// set cmps
+			this.setPublishRequestTypeCMP(PublishRequestType.NEW);
+			this.setEntityCMP(entity);
+			this.setEventPackageCMP(eventPackage);
+		} catch (Throwable e) {
+			if(tracer.isSevereEnabled()) {
+				tracer.severe("Failed to create publication", e);
 			}
-			//no CTX
-			throw new PublicationException(e);
-		} catch (SipException e) {
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to send SIP request!", e);
-			}
-			
-			//tx is here...
-			ctxAci.detach(this.sbbContext.getSbbLocalObject());
-			//it will timeout?
-		} catch (Exception e) {
-			//ParseException, InvalidArgumentException
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to create SIP message!", e);
-			}
-			//no CTX
-			throw new PublicationException(e);
-		}finally
-		{
-			if(clear)
-			{
-				this.clear();
-			}
+			getParentSbbCMP().newPublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
 		}
 	}
 
 	@Override
-	public void updatePublication(String document, String contentType, String contentSubType, int expires)  throws PublicationException{
-		if(!isPublicationActive())
-		{
-			throw new IllegalStateException("Enabler does not handle any publication, cannot update!");
-		}
-		//check args
-		if(contentType == null)
-		{
-			throw new IllegalArgumentException("contentType must not be null.");
-		}
+	public void modifyPublication(String document, String contentType, String contentSubType, int expires) {
 		
-		if(contentSubType == null)
-		{
-			throw new IllegalArgumentException("contentSubType must not be null.");
-		}
-		if(document == null)
-		{
-			throw new IllegalArgumentException("document must not be null.");
-		}
-		if(expires <= 0)
-		{
-			throw new IllegalArgumentException("expires must be greater than 0.");
-		}
-		if(getPublishRequestTypeCMP() != null)
-		{
-			throw new PublicationException("Enabler is "+getPublishRequestTypeCMP()+", cannot update publication!"); 
-		}
-		cancelExpiresTimer();
-		//update expire
-		//TODO: ensure its not less than min expires?
-		this.setExpiresCMP(expires);
-		
-		
-		//issue request.
-		ClientTransaction ctx = null;
-		ActivityContextInterface ctxAci = null;
-		try {
-
-			Request r = createUpdatePublishRequest( contentType, contentSubType, document);
-			
-			ctx = this.sleeSipProvider.getNewClientTransaction(r);
-			ctxAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
-			ctxAci.attach(this.sbbContext.getSbbLocalObject());
-			
-
-			//start timer here, if ECS/PA return something else, we will reschedule.
-			startExpiresTimer();
-			
-			
-			ctx.sendRequest();
-			setPublishRequestTypeCMP(PublishRequestType.UPDATE);
-		}  catch (TransactionUnavailableException e) {
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to create SIP transaction!", e);
-			}
-			//no CTX
-			throw new PublicationException(e);
-		} catch (SipException e) {
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to send SIP request!", e);
-			}
-			
-			//tx is here...
-			ctxAci.detach(this.sbbContext.getSbbLocalObject());
-			//it will timeout?
-		} catch (Exception e) {
-			//ParseException, InvalidArgumentException
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to create SIP message!", e);
-			}
-			//no CTX
-			throw new PublicationException(e);
-		}finally
-		{
-			
-		}
-
-		return;
-	}
-
-
-	@Override
-	public void removePublication()  throws PublicationException{
-		if(!isPublicationActive())
-		{
-			throw new IllegalStateException("Enabler does not handle any publication, cannot remove!");
-		}
-		if(getPublishRequestTypeCMP() != null)
-		{
-			throw new PublicationException("Enabler is "+getPublishRequestTypeCMP()+", cannot remove publication!"); 
-		}else
-		{
-			cancelExpiresTimer(); // so no refresh is created.
-			//set to 0, its done in REMOVE action, makes publication expire immediately.
-			this.setExpiresCMP(0);
-			
-			
-			//issue request.
-			ClientTransaction ctx = null;
-			ActivityContextInterface ctxAci = null;
-			try {
-
-				Request r = createRemovePublishRequest();
-				
-				ctx = this.sleeSipProvider.getNewClientTransaction(r);
-				ctxAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
-				ctxAci.attach(this.sbbContext.getSbbLocalObject());
-				//cancel timer here, if ECS/PA return something else, we will reschedule.
-				cancelExpiresTimer();
-
-				ctx.sendRequest();
-				setPublishRequestTypeCMP(PublishRequestType.REMOVE);
-			}  catch (TransactionUnavailableException e) {
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Failed to create SIP transaction!", e);
-				}
-				//no CTX
-				throw new PublicationException(e);
-			} catch (SipException e) {
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Failed to send SIP request!", e);
-				}
-				
-				//tx is here...
-				ctxAci.detach(this.sbbContext.getSbbLocalObject());
-				//it will timeout?
-			} catch (Exception e) {
-				//ParseException, InvalidArgumentException
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Failed to create SIP message!", e);
-				}
-				//no CTX
-				throw new PublicationException(e);
-			}finally
-			{
-				
-			}
+		// delay the request in case there is another ongoing request
+		if (isBusy()) {
+			setPostponedRequestCMP(new PostponedModifyPublicationRequest(document, contentType, contentSubType, expires));
 			return;
 		}
+		
+		cancelExpiresTimer(false);
+		
+		//issue request.
+		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
+		try {
+			Request r = createUpdatePublishRequest( contentType, contentSubType, document);			
+			ClientTransaction ctx = this.sleeSipProvider.getNewClientTransaction(r);
+			ActivityContextInterface aci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
+			aci.attach(sbbLocalObject);
+			ctx.sendRequest();
+			setPublishRequestTypeCMP(PublishRequestType.UPDATE);
+		} catch (Throwable e) {
+			if(tracer.isSevereEnabled()) {
+				tracer.severe("Failed to modify publication", e);
+			}
+			getParentSbbCMP().modifyPublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
+		}
+	}
+
+
+	@Override
+	public void removePublication() {
+		
+		if(isBusy()) {
+			setPostponedRequestCMP(new PostponedRemovePublicationRequest());
+			return;
+		}
+		
+		cancelExpiresTimer(true); 
+
+		//issue request.
+		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
+		try {
+			Request r = createRemovePublishRequest();
+			ClientTransaction ctx = this.sleeSipProvider.getNewClientTransaction(r);
+			ActivityContextInterface aci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
+			aci.attach(sbbLocalObject);
+			ctx.sendRequest();
+			setPublishRequestTypeCMP(PublishRequestType.REMOVE);
+		} catch (Throwable e) {
+			if(tracer.isSevereEnabled()) {
+				tracer.severe("Failed to remove publication", e);
+			}
+			getParentSbbCMP().removePublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
+		}
 	}
 	
-	
-	
-
 	/////////////////
 	// CMP Methods //
 	/////////////////
@@ -372,133 +192,90 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	public abstract int getExpiresCMP();
 	public abstract void setETagCMP(String d);
 	public abstract String getETagCMP();
+	public abstract void setPostponedRequestCMP(PostponedRequest pr);
+	public abstract PostponedRequest getPostponedRequestCMP();
+	
 	//type of ongoing request.
 	public abstract void setPublishRequestTypeCMP(PublishRequestType t);
 	public abstract PublishRequestType getPublishRequestTypeCMP();
-	
-	 
-	
-	//public abstract void setTimerIDCMP( TimerID expires);
-	//public abstract TimerID getTimerIDCMP();
-	///////////////////////
-	// As SBB ACI method //
-    ///////////////////////
-	public abstract PublicationClientChildActivityContextInterface asSbbActivityContextInterface(ActivityContextInterface aci);
-	
+		
 	////////////////////
 	// Event handlers //
 	////////////////////
 	
-	public void onInfoRespEvent(ResponseEvent event, ActivityContextInterface ac) {
-		if (tracer.isFineEnabled())
-			tracer.fine("Received 1xx (SUCCESS) response:\n"+event.getResponse());
-		//here , we do nothing.
-	}
-
-	public void onSuccessRespEvent(ResponseEvent event, ActivityContextInterface ac) {
+	public void onSuccessRespEvent(ResponseEvent event, ActivityContextInterface aci) {
+		
 		if (tracer.isFineEnabled())
 			tracer.fine("Received 2xx (SUCCESS) response:\n"+event.getResponse());
-		//2xx, great, lets see...
-		Response response = event.getResponse();
-		//get ETag
 		
-		SIPETagHeader SIP_ETag = (SIPETagHeader) response.getHeader(SIPETagHeader.NAME);
-		ExpiresHeader expiresHeader = (ExpiresHeader) response.getHeader(ExpiresHeader.NAME);
-		if(getExpiresCMP() == 0 || expiresHeader!=null)
-		{
-			//update expires time.
-			setExpiresCMP(expiresHeader.getExpires());
-			
+		final SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
+		aci.detach(sbbLocalObject);
 		
+		final Response response = event.getResponse();
+		final SIPETagHeader sipeTagHeader = (SIPETagHeader) response.getHeader(SIPETagHeader.NAME);
+		if(sipeTagHeader != null) {
+			this.setETagCMP(sipeTagHeader.getETag());
 		}
-		Result result = new Result(response.getStatusCode(),SIP_ETag.getETag(),expiresHeader.getExpires(),getEntityCMP());
-		PublishRequestType type = getPublishRequestTypeCMP();
+				
+		final PublishRequestType type = getPublishRequestTypeCMP();
+		
+		if (type != PublishRequestType.REMOVE) {
+			final ExpiresHeader expiresHeader = (ExpiresHeader) response.getHeader(ExpiresHeader.NAME);
+			if(expiresHeader!=null && expiresHeader.getExpires() != 0) {
+				//update expires time.
+				setExpiresCMP(expiresHeader.getExpires());
+				startExpiresTimer();
+			}
+		}
+		
+		PostponedRequest postponedRequest = null;
 		setPublishRequestTypeCMP(null);
-		switch (type) {
-		case NEW:
-			cancelExpiresTimer();
-			startExpiresTimer();
-			//update ETag
-			this.setETagCMP(SIP_ETag.getETag());
-			try{
-				this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			}catch(Exception e)
-			{
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Exception in publication parent!", e);
-				}
+
+		try{
+			switch (type) {
+			case NEW:
+				postponedRequest = getPostponedRequestCMP();
+				this.getParentSbbCMP().newPublicationSucceed((PublicationClientChildSbbLocalObject) sbbLocalObject);
+				break;
+			case REFRESH:
+				postponedRequest = getPostponedRequestCMP();
+				break;
+			case UPDATE:
+				postponedRequest = getPostponedRequestCMP();
+				this.getParentSbbCMP().modifyPublicationSucceed((PublicationClientChildSbbLocalObject) sbbLocalObject);
+				break;
+			case REMOVE:
+				this.getParentSbbCMP().removePublicationSucceed((PublicationClientChildSbbLocalObject) sbbLocalObject);
+				break;
 			}
-			
-			//
-			break;
-		case REFRESH:
-			cancelExpiresTimer();
-			startExpiresTimer();
-			//update ETag
-			this.setETagCMP(SIP_ETag.getETag());
-			try{
-				this.getParentSbbCMP().afterRefreshPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			}catch(Exception e)
-			{
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Exception in publication parent!", e);
-				}
-			}
-			break;
-		case UPDATE:
-			cancelExpiresTimer();
-			startExpiresTimer();
-			//update ETag
-			this.setETagCMP(SIP_ETag.getETag());
-			try{
-				this.getParentSbbCMP().afterUpdatePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			}catch(Exception e)
-			{
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Exception in publication parent!", e);
-				}
-			}
-			
-			break;
-		case REMOVE:
-			cancelExpiresTimer();
-			//update ETag
-			this.setETagCMP(SIP_ETag.getETag());
-			try{
-				this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			}catch(Exception e)
-			{
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Exception in publication parent!", e);
-				}
-			}
-			//this.clear();
-			break;
 		}
+		catch(Exception e) {
+			if(tracer.isSevereEnabled()) {
+				tracer.severe("Exception in publication parent!", e);
+			}
+		}
+
+		if (postponedRequest != null) {
+			// refresh may be concurrent with another request, if there is a
+			// postponed request resume it now
+			postponedRequest.resume(this);
+		}
+		
 	}
 
-	public void onRedirRespEvent(ResponseEvent event, ActivityContextInterface ac) {
-		if (tracer.isFineEnabled())
-			tracer.fine("Received 3xx (REDIRECT) response:\n"+event.getResponse());
-		//3xx should not happen? since ECS/PA acts like proxy?
-	}
-
-	public void onClientErrorRespEvent(ResponseEvent event, ActivityContextInterface ac) {
+	public void onClientErrorRespEvent(ResponseEvent event, ActivityContextInterface aci) {
+		
 		if (tracer.isFineEnabled())
 			tracer.fine("Received 4xx (CLIENT ERROR) response:\n"+event.getResponse());
 		
-		Response response = event.getResponse();
+		aci.detach(sbbContext.getSbbLocalObject());
+		
+		final Response response = event.getResponse();
 		int statusCode = response.getStatusCode();
 		
-		if(statusCode == 423)
-		{
+		if(statusCode == 423) {
 			
-			MinExpiresHeader minExpires = (MinExpiresHeader) response.getHeader(MinExpiresHeader.NAME);
-			Result result = new Result(423, getETagCMP(),minExpires.getExpires(),getEntityCMP());
+			final MinExpiresHeader minExpires = (MinExpiresHeader) response.getHeader(MinExpiresHeader.NAME);
 //			   If an EPA receives a 423 (Interval Too Brief) response to a PUBLISH
 //			   request, it MAY retry the publication after changing the expiration
 //			   interval in the Expires header field to be equal to or greater than
@@ -507,61 +284,42 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 
 			//in this case, we may issue another command, let
 			PublishRequestType type = getPublishRequestTypeCMP();
-			setPublishRequestTypeCMP(null);
+			setPublishRequestTypeCMP(null);			
+			Request request = null;
+			ContentTypeHeader cTypeHeader = null;
 			switch (type) {
 			case NEW:
-	
-				try{
-					this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-				}catch(Exception e)
-				{
-					if(tracer.isSevereEnabled())
-					{
-						tracer.severe("Exception in publication parent!", e);
-					}
-				}
-				break;
-			
+				request = event.getClientTransaction().getRequest();
+				cTypeHeader = (ContentTypeHeader) request.getHeader(ContentTypeHeader.NAME);
+				newPublication(getEntityCMP(), getEventPackageCMP(), (String) request.getContent(), cTypeHeader.getContentType(), cTypeHeader.getContentSubType(), minExpires.getExpires());
+				break;			
 			case UPDATE:
-				//just deliver
-				try{
-					this.getParentSbbCMP().afterUpdatePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-				}catch(Exception e)
-				{
-					if(tracer.isSevereEnabled())
-					{
-						tracer.severe("Exception in publication parent!", e);
-					}
-				}
-				break;
-				
+				request = event.getClientTransaction().getRequest();
+				cTypeHeader = (ContentTypeHeader) request.getHeader(ContentTypeHeader.NAME);
+				modifyPublication((String) request.getContent(), cTypeHeader.getContentType(), cTypeHeader.getContentSubType(), minExpires.getExpires());
+				break;				
 			case REFRESH:
-				//we handle refresh, but it IS weird to receive this :)
-				setExpiresCMP(minExpires.getExpires()*2); //??
-				cancelExpiresTimer();
-				startExpiresTimer();
+				setExpiresCMP(minExpires.getExpires()); //??
 				doRefresh();
 				break;
 			case REMOVE:
 				//should not happen?
-				if(tracer.isSevereEnabled())
-				{
+				if(tracer.isSevereEnabled()) {
 					tracer.severe("Received 423 on REMOVE request!");
 				}
-
 				try{
-					this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-				}catch(Exception e)
-				{
-					if(tracer.isSevereEnabled())
-					{
+					this.getParentSbbCMP().refreshPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+				}
+				catch(Exception e) {
+					if(tracer.isSevereEnabled()) {
 						tracer.severe("Exception in publication parent!", e);
 					}
 				}
 				break;
 			}
-		}else
-		{
+			
+		}
+		else {
 			
 			//ALL OTHER cases == very bad, can't be repaired?
 //			   If an EPA receives a 412 (Conditional Request Failed) response, it
@@ -589,182 +347,113 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 //		      ESC MUST reject the request with an appropriate response, such as
 //		      415 (Unsupported Media Type), and skip the remainder of the steps.
 			
-			handleFailure(statusCode,ac);
+			handleFailure(statusCode,aci);
 		}
 
 	}
 
 
 
-	public void onServerErrorRespEvent(ResponseEvent event, ActivityContextInterface ac) {
+	public void onServerErrorRespEvent(ResponseEvent event, ActivityContextInterface aci) {
+		
 		if (tracer.isFineEnabled())
 			tracer.fine("Received 5xx (SERVER ERROR) response:\n"+event.getResponse());
-		handleFailure(event.getResponse().getStatusCode(),ac);
+		
+		aci.detach(sbbContext.getSbbLocalObject());
+		handleFailure(event.getResponse().getStatusCode(),aci);
 	}
 
-	public void onGlobalFailureRespEvent(ResponseEvent event, ActivityContextInterface ac) {
+	public void onGlobalFailureRespEvent(ResponseEvent event, ActivityContextInterface aci) {
+		
 		if (tracer.isFineEnabled())
 			tracer.fine("Received 6xx (GLOBAL FAILURE) response:\n"+event.getResponse());
-		handleFailure(event.getResponse().getStatusCode(),ac);
+		
+		aci.detach(sbbContext.getSbbLocalObject());
+		handleFailure(event.getResponse().getStatusCode(),aci);
 	}
 
 	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 		// refresh time?
-		if(getPublishRequestTypeCMP() != null)
-		{
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Performing "+getPublishRequestTypeCMP()+", skipping refresh.");
+		if(isBusy()) {
+			if(tracer.isFineEnabled()) {
+				tracer.fine("Performing "+getPublishRequestTypeCMP()+", skipping refresh.");
 			}
 			return;
 		}
-		PublicationClientChildActivityContextInterface naAci = asSbbActivityContextInterface(aci);
-		naAci.setExpiresTimerID(null);
+		
+		if (tracer.isFineEnabled())
+			tracer.fine("Refreshing publication.");
 		
 		doRefresh();
-
 	}
 
-	public void onTransactionTimeoutEvent(TimeoutEvent event,ActivityContextInterface ac) {
-		//bad, failed to communicate
-		PublishRequestType type = getPublishRequestTypeCMP();
-		setPublishRequestTypeCMP(null);
-		//add clear, and pass more as arg to identify culprit?
-		switch (type) {
-		case NEW:
-			
-			try {
-				getParentSbbCMP().newPublicationFailed((PublicationClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
-			} catch (Exception e) {
-				if (tracer.isSevereEnabled()) {
-					tracer.severe("Received exception from parent on subscribe callback", e);
-				}
-			}
-			//this.clear();
-			break;
-		case REFRESH:
-			//failed to refresh, we should get notify when it times out.
-			
-			try {
-				getParentSbbCMP().refreshPublicationFailed((PublicationClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
-			} catch (Exception e) {
-				if (tracer.isSevereEnabled()) {
-					tracer.severe("Received exception from parent on subscribe callback", e);
-				}
-			}
-			//this.clear();
-			break;
-		case REMOVE:
-			//failed to remove, we will receive notify.
-			try {
-				getParentSbbCMP().removePublicationFailed((PublicationClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
-			} catch (Exception e) {
-				if (tracer.isSevereEnabled()) {
-					tracer.severe("Received exception from parent on subscribe callback", e);
-				}
-			}
-			//this.clear();
-			break;
-		}
-	}
-	
-	public void onActivityEndEvent(javax.slee.ActivityEndEvent event, ActivityContextInterface aci) {
+	public void onTransactionTimeoutEvent(TimeoutEvent event,ActivityContextInterface aci) {
+		
 		if (tracer.isFineEnabled())
-			tracer.fine("Received Activtiy End: "+aci.getActivity());
+			tracer.fine("Received Tx Timeout");
+		
+		aci.detach(sbbContext.getSbbLocalObject());		
+		handleFailure(Response.SERVER_TIMEOUT,aci);
 	}
 	
 	////////////////////////////
 	// Private helper methods //
 	////////////////////////////
 	
-	private boolean isPublicationActive()
-	{
-		return this.getEntityCMP()!=null;
-	}
-	/**
-	 * 
-	 */
-	private void clear() {
-		setEntityCMP(null);
-		setETagCMP(null);
-		setEventPackageCMP(null);
-		setExpiresCMP(0);//?
-		setPublishRequestTypeCMP(null);
-		//kill null ac
-		for(ActivityContextInterface aci: this.sbbContext.getActivities())
-		{
-			if(aci instanceof NullActivity)
-			{
-				((NullActivity)aci.getActivity()).endActivity();
+	private ActivityContextInterface getTimerACI() {
+		for(ActivityContextInterface aci : this.sbbContext.getActivities()) {
+			if(aci.getActivity() instanceof NullActivity) {
+				return aci;
 			}
-			//kill detach from ctx?
 		}
+		return null;
 	}
+	
 	/**
 	 * 
 	 */
 	private void startExpiresTimer() {
-		if(getExpiresCMP()==0)
-		{
-			//nothing yet.
-			return;
-		}
-		ActivityContextInterface naAci = null;
-		ActivityContextInterface[] acis = this.sbbContext.getActivities();
-		for(ActivityContextInterface aci:acis)
-		{
-			if(aci.getActivity() instanceof NullActivity)
-			{
-				NullActivity na = (NullActivity) aci.getActivity();
-				naAci = this.nullACIFactory.getActivityContextInterface(na);
-			}
-		}
-		
+		ActivityContextInterface naAci = getTimerACI();
 		if (naAci == null) {
 			// create activity for this publication;
-			NullActivity na = this.nullActivityFactory.createNullActivity();
-			naAci = this.nullACIFactory.getActivityContextInterface(na);
+			NullActivity na = sbbContext.getNullActivityFactory().createNullActivity();
+			naAci = sbbContext.getNullActivityContextInterfaceFactory().getActivityContextInterface(na);
 			// attach.
 			naAci.attach(this.sbbContext.getSbbLocalObject());
 		}
 		long expires = this.getExpiresCMP();
 		
 		//lets schedule a bit earlier. 5s?
-		if(expires-expiresDrift >0)
-		{
+		if(expires-expiresDrift >0) {
 			expires-=expiresDrift;
 		}
-		
-		TimerOptions to = new TimerOptions(100, TimerPreserveMissed.LAST);
-		//this.setTimerIDCMP(this.timerFacility.setTimer(naAci,null,System.currentTimeMillis()+expires,to));
-		this.asSbbActivityContextInterface(naAci).setExpiresTimerID(this.timerFacility.setTimer(naAci,null,System.currentTimeMillis()+expires*1000,to));
+				
+		TimerID timerID = sbbContext.getTimerFacility().setTimer(naAci,null,System.currentTimeMillis()+expires*1000,TIMER_OPTIONS);
+		if(tracer.isInfoEnabled()) {
+			tracer.info("set publication timer: "+timerID);
+		}
 	}
-
 
 	/**
 	 * 
 	 */
-	private void cancelExpiresTimer() {
-		ActivityContextInterface naAci = null;
-		ActivityContextInterface[] acis = this.sbbContext.getActivities();
-		for(ActivityContextInterface aci:acis)
-		{
-			if(aci.getActivity() instanceof NullActivity)
-			{
-				NullActivity na = (NullActivity) aci.getActivity();
-				naAci = this.nullACIFactory.getActivityContextInterface(na);
-			}
-		}
-		
+	private void cancelExpiresTimer(boolean detachActivity) {
+		ActivityContextInterface naAci = getTimerACI();
 		if (naAci != null) {
-			PublicationClientChildActivityContextInterface aci = asSbbActivityContextInterface(naAci);
-			if(aci.getExpiresTimerID()!=null)
-			{
-				this.timerFacility.cancelTimer(aci.getExpiresTimerID());
+			ActivityContextInterfaceExt naAciExt = (ActivityContextInterfaceExt) naAci;
+			TimerID[] timerIDs = naAciExt.getTimers();
+			if (timerIDs.length > 0) {
+				if(tracer.isInfoEnabled()) {
+					tracer.info("canceling publication timer: "+timerIDs[0]);
+				}
+				sbbContext.getTimerFacility().cancelTimer(timerIDs[0]);
+			}
+			if (detachActivity) {
+				naAci.detach(sbbContext.getSbbLocalObject());
 			}
 		}
-		
 	}
+	
 	/**
 	 * @param expires
 	 * @param eventPackage
@@ -777,32 +466,17 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	 * @throws TransportNotSupportedException 
 	 * @throws InvalidArgumentException 
 	 */
-	protected Request createPublishRequest() throws ParseException, TransportNotSupportedException, InvalidArgumentException{
+	protected Request createPublishRequest(String entity) throws ParseException, TransportNotSupportedException, InvalidArgumentException{
 		
-		String[] ents = getEntityCMP().split("@");
-		SipURI fromAddress = addressFactory.createSipURI(ents[0], ents[1]);
-
-		Address fromNameAddress = addressFactory.createAddress(fromAddress);
-		FromHeader fromHeader = headerFactory.createFromHeader(fromNameAddress, this.hashCode() + "_" + System.currentTimeMillis());
-
-		// create To Header
-		SipURI toAddress = addressFactory.createSipURI(ents[0], ents[1]);
-		Address toNameAddress = addressFactory.createAddress(toAddress);
-
-		ToHeader toHeader = headerFactory.createToHeader(toNameAddress, null);
-
-		// create Request URI
-		SipURI requestURI = addressFactory.createSipURI(ents[0], ents[1]);
-
-		// Create ViaHeaders
-
-		ArrayList viaHeaders = new ArrayList();
+		URI entityURI = addressFactory.createURI(entity);
+		Address entityAddress = addressFactory.createAddress(entityURI);
 		
-		ViaHeader viaHeader = sleeSipProvider.getLocalVia(sleeSipProvider.getListeningPoints()[0].getTransport(), null/*null branch? */);
+		FromHeader fromHeader = headerFactory.createFromHeader(entityAddress,null);
+		ToHeader toHeader = headerFactory.createToHeader(entityAddress, null);
 
-		// add via headers
-		viaHeaders.add(viaHeader);
-
+		List<ViaHeader> viaHeaders = new ArrayList<ViaHeader>();
+		viaHeaders.add(sleeSipProvider.getLocalVia("UDP", null));
+		
 		// Create a new CallId header
 		CallIdHeader callIdHeader = sleeSipProvider.getNewCallId();
 
@@ -813,11 +487,10 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		MaxForwardsHeader maxForwards = headerFactory.createMaxForwardsHeader(70); //leave it as 70?
 
 		// Create the request.
-		Request request = messageFactory.createRequest(requestURI, Request.PUBLISH, callIdHeader, cSeqHeader, fromHeader, toHeader, viaHeaders, maxForwards);
+		Request request = messageFactory.createRequest(entityURI, Request.PUBLISH, callIdHeader, cSeqHeader, fromHeader, toHeader, viaHeaders, maxForwards);
 
 		//add route header?
-		if(this.ecsAddress!=null)
-		{
+		if(this.ecsAddress!=null) {
 			RouteHeader routeHeader = headerFactory.createRouteHeader(this.ecsAddress);
 			request.addHeader(routeHeader);
 		}
@@ -830,32 +503,24 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	 * @param document
 	 * @return
 	 */
-	protected Request createNewPublishRequest(String contentType, String contentSubType, String document) throws ParseException, TransportNotSupportedException, InvalidArgumentException {
+	protected Request createNewPublishRequest(String entity, String eventPackage, int expires, String contentType, String contentSubType, String document) throws ParseException, TransportNotSupportedException, InvalidArgumentException {
 
-		Request request = this.createPublishRequest();
+		Request request = this.createPublishRequest(entity);
 		//if expires is >0 add it, if not, skip;
 		if(getExpiresCMP()>0)
 		{
-			ExpiresHeader expiresHeader = this.headerFactory.createExpiresHeader(getExpiresCMP());
+			ExpiresHeader expiresHeader = this.headerFactory.createExpiresHeader(expires);
 			request.addHeader(expiresHeader);
 		}
 		
 		//add custom header
-		EventHeader eventHeader = this.headerFactory.createEventHeader(getEventPackageCMP());
+		EventHeader eventHeader = this.headerFactory.createEventHeader(eventPackage);
 		request.addHeader(eventHeader);
 		
 		//add content
-		
 		ContentTypeHeader contentTypeHeader = this.headerFactory.createContentTypeHeader(contentType, contentSubType);
-		//request.addHeader(contentTypeHeader);
-		byte[] rawContent = document.getBytes(); //is this proper for this casE?
-		ContentLengthHeader contentLengthHeader = this.headerFactory.createContentLengthHeader(rawContent.length);
-		request.addHeader(contentLengthHeader);
-		request.setContent(rawContent, contentTypeHeader);
-		if(tracer.isInfoEnabled())
-		{
-			tracer.info("Created NPR:\n"+request+"\n----------------------------------------------------------");
-		}
+		request.setContent(document, contentTypeHeader);
+		
 		return request;
 	}
 	/**
@@ -865,7 +530,8 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	 * @return
 	 */
 	protected Request createUpdatePublishRequest(String contentType, String contentSubType, String document)throws ParseException, TransportNotSupportedException, InvalidArgumentException {
-		Request request = this.createPublishRequest();
+		
+		Request request = this.createPublishRequest(getEntity());
 		
 		//expires always here
 		ExpiresHeader expiresHeader = this.headerFactory.createExpiresHeader(getExpiresCMP());
@@ -879,24 +545,17 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		request.addHeader(eventHeader);
 		
 		//add content
-		
 		ContentTypeHeader contentTypeHeader = this.headerFactory.createContentTypeHeader(contentType, contentSubType);
-		//request.addHeader(contentTypeHeader);
-		byte[] rawContent = document.getBytes(); //is this proper for this casE?
-		ContentLengthHeader contentLengthHeader = this.headerFactory.createContentLengthHeader(rawContent.length);
-		request.addHeader(contentLengthHeader);
-		request.setContent(rawContent, contentTypeHeader);
-		if(tracer.isInfoEnabled())
-		{
-			tracer.info("Created UPR:\n"+request+"\n----------------------------------------------------------");
-		}
+		request.setContent(document, contentTypeHeader);
+		
 		return request;
 	}
 	/**
 	 * @return
 	 */
 	protected Request createRemovePublishRequest() throws ParseException, TransportNotSupportedException, InvalidArgumentException{
-		Request request = this.createPublishRequest();
+		
+		Request request = this.createPublishRequest(getEntity());
 		
 		//expires always here
 		ExpiresHeader expiresHeader = this.headerFactory.createExpiresHeader(0);
@@ -905,20 +564,17 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		//add SIP-If-Match
 		SIPIfMatchHeader sipIfMatch = this.headerFactory.createSIPIfMatchHeader(getETagCMP());
 		request.addHeader(sipIfMatch);
+		
 		//add custom header
 		EventHeader eventHeader = this.headerFactory.createEventHeader(getEventPackageCMP());
 		request.addHeader(eventHeader);
-		ContentLengthHeader contentLengthHeader = this.headerFactory.createContentLengthHeader(0);
-		request.addHeader(contentLengthHeader);
-		if(tracer.isInfoEnabled())
-		{
-			tracer.info("Created RPR:\n"+request+"\n----------------------------------------------------------");
-		}
+		
 		return request;
 	}
 	
 	protected Request createRefreshPublishRequest() throws ParseException, TransportNotSupportedException, InvalidArgumentException{
-		Request request = this.createPublishRequest();
+		
+		Request request = this.createPublishRequest(getEntity());
 		
 		//expires always here
 		ExpiresHeader expiresHeader = this.headerFactory.createExpiresHeader(getExpiresCMP());
@@ -927,15 +583,11 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		//add SIP-If-Match
 		SIPIfMatchHeader sipIfMatch = this.headerFactory.createSIPIfMatchHeader(getETagCMP());
 		request.addHeader(sipIfMatch);
+		
 		//add custom header
 		EventHeader eventHeader = this.headerFactory.createEventHeader(getEventPackageCMP());
 		request.addHeader(eventHeader);
-		ContentLengthHeader contentLengthHeader = this.headerFactory.createContentLengthHeader(0);
-		request.addHeader(contentLengthHeader);
-		if(tracer.isInfoEnabled())
-		{
-			tracer.info("Created RefPR:\n"+request+"\n----------------------------------------------------------");
-		}
+				
 		return request;
 	}
 	/**
@@ -943,129 +595,52 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	 */
 	protected void handleFailure(int statusCode,ActivityContextInterface ac) {
 		//fill data we have.
-		Result result = new Result(statusCode,getETagCMP(),getExpiresCMP(),getEntityCMP());
-		PublicationClientChildActivityContextInterface pccAci = asSbbActivityContextInterface(ac);
-		this.clear(); //FIXME: ok to clear?
 		PublishRequestType type = getPublishRequestTypeCMP();
-		setPublishRequestTypeCMP(null);
-		switch (type) {
-		case NEW:
-
-			try{
-				this.getParentSbbCMP().afterNewPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			}catch(Exception e)
-			{
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Exception in publication parent!", e);
-				}
-			}
-			
-			
-			break;
-		case REFRESH:
-			try{
-				this.getParentSbbCMP().afterRefreshPublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			}catch(Exception e)
-			{
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Exception in publication parent!", e);
-				}
-			}
-
-			break;
-		case UPDATE:
-			
-			try{
-				this.getParentSbbCMP().afterUpdatePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			}catch(Exception e)
-			{
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Exception in publication parent!", e);
-				}
-			}
-
-			break;
-		case REMOVE:
-			try{
-				this.getParentSbbCMP().afterRemovePublication(result, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			}catch(Exception e)
-			{
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Exception in publication parent!", e);
-				}
-			}
-
-			break;
+		if (type != null) {
+			setPublishRequestTypeCMP(null);
 		}
-		
+		try{
+			switch (type) {
+			case NEW:
+				this.getParentSbbCMP().newPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+				break;
+			case REFRESH:
+				this.getParentSbbCMP().refreshPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+				break;
+			case UPDATE:
+				this.getParentSbbCMP().modifyPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+				break;
+			case REMOVE:
+				this.getParentSbbCMP().removePublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+				break;
+			}
+		}
+		catch(Exception e) {
+			if(tracer.isSevereEnabled()) {
+				tracer.severe("Exception in publication parent!", e);
+			}
+		}
 	}
-	
-
-	
+		
 	/**
 	 * 
 	 */
 	protected void doRefresh() {
 		//issue request.
-		ClientTransaction ctx = null;
-		ActivityContextInterface ctxAci = null;
-		boolean clear = true;
+		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
 		try {
 
-			Request r = createRefreshPublishRequest();
-			
-			ctx = this.sleeSipProvider.getNewClientTransaction(r);
-			ctxAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
-			ctxAci.attach(this.sbbContext.getSbbLocalObject());
-			
-
-			//start timer here, if ECS/PA return something else, we will reschedule.
-			startExpiresTimer();
-			
-			setPublishRequestTypeCMP(PublishRequestType.REFRESH);
+			final Request r = createRefreshPublishRequest();			
+			final ClientTransaction ctx = this.sleeSipProvider.getNewClientTransaction(r);
+			ActivityContextInterface ctxAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
+			ctxAci.attach(sbbLocalObject);
 			ctx.sendRequest();
-			clear = false;
-			
-		} catch (TransactionUnavailableException e) {
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to create SIP transaction!", e);
+			setPublishRequestTypeCMP(PublishRequestType.REFRESH);			
+		} catch (Throwable e) {
+			if(tracer.isSevereEnabled()) {
+				tracer.severe("Failed to refresh publication", e);
 			}
-			//no CTX
-		
-		} catch (ParseException e) {
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to create SIP message!", e);
-			}
-			//no CTX
-		} catch (InvalidArgumentException e) {
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to SIP message!", e);
-			}
-			//no CTX
-		} catch (SipException e) {
-			if(tracer.isSevereEnabled())
-			{
-				tracer.severe("Failed to send SIP request!", e);
-			}
-			
-			//tx is here...
-			ctxAci.detach(this.sbbContext.getSbbLocalObject());
-			//it will timeout?
-		}finally
-		{
-			if(clear)
-			{	
-				//something went wrong, clear publication state.
-				this.clear();
-				//TODO: remove?
-			}
+			getParentSbbCMP().refreshPublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
 		}
 	}
 
@@ -1135,7 +710,6 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	 */
 	@Override
 	public void sbbRemove() {
-		this.clear();
 	}
 
 	/*
@@ -1163,62 +737,48 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	 */
 	@Override
 	public void setSbbContext(SbbContext sbbContext) {
-		this.sbbContext = sbbContext;
+		this.sbbContext = (SbbContextExt) sbbContext;
 		if (tracer == null) {
 			tracer = sbbContext.getTracer(PublicationClientChildSbb.class.getSimpleName());
 		}
 		try {
-			Context context = (Context) new InitialContext().lookup("java:comp/env");
 			//sip ra
-			this.sipActivityContextInterfaceFactory = (SipActivityContextInterfaceFactory) context.lookup("slee/resources/jainsip/1.2/acifactory");
-			this.sleeSipProvider = (SleeSipProvider) context.lookup("slee/resources/jainsip/1.2/provider");
+			this.sipActivityContextInterfaceFactory = (SipActivityContextInterfaceFactory) this.sbbContext.getActivityContextInterfaceFactory(sipResourceAdaptorTypeID);
+			this.sleeSipProvider = (SleeSipProvider) this.sbbContext.getResourceAdaptorInterface(sipResourceAdaptorTypeID, "SipRA");
 			//sip stuff
 			this.messageFactory = this.sleeSipProvider.getMessageFactory();
 			this.addressFactory = this.sleeSipProvider.getAddressFactory();
 			this.headerFactory = this.sleeSipProvider.getHeaderFactory();
-			
-			//slee stuff
-			context = new InitialContext(); //new, since facilities names are absolute path.
-			this.timerFacility = (TimerFacility) context.lookup(TimerFacility.JNDI_NAME);
-			this.nullACIFactory = (NullActivityContextInterfaceFactory) context.lookup(NullActivityContextInterfaceFactory.JNDI_NAME);
-			this.nullActivityFactory = (NullActivityFactory) context.lookup(NullActivityFactory.JNDI_NAME);
-			
 			//env, conf
+			Context context = (Context) new InitialContext();
 			try{
 				String serverAddress = (String) context.lookup("server.address");
-				if(serverAddress!=null)
-				{	
+				if(serverAddress!=null) {	
 					//RFC show entity as SIP URI and ECS address?
 					this.ecsAddress = this.sleeSipProvider.getAddressFactory().createAddress(serverAddress);
 				}
-			}catch(NamingException e)
-			{
-				if(tracer.isInfoEnabled())
-				{
+			}
+			catch(NamingException e) {
+				if(tracer.isInfoEnabled()) {
 					tracer.info("No ECS/PA address to use in Route header.");
 				}
 			}
 			
 			try{
 				String expireTime = (String) context.lookup("expires.drift");
-				if(expireTime!=null)
-				{	
+				if(expireTime!=null) {	
 					int intExpireTime = Integer.parseInt(expireTime);
-					if(intExpireTime<0)
-					{
-						if(tracer.isInfoEnabled())
-						{
+					if(intExpireTime<0) {
+						if(tracer.isInfoEnabled()) {
 							tracer.info("Expire time drift less than zero, using default: "+this.expiresDrift+"s.");
 						}
-					}else
-					{
+					}
+					else {
 						this.expiresDrift = intExpireTime;
-						if(tracer.isInfoEnabled())
-						{
+						if(tracer.isInfoEnabled()) {
 							tracer.info("Expire time drift set to: "+this.expiresDrift+"s.");
 						}
-					}
-					
+					}					
 				}
 			}catch(NamingException e)
 			{
