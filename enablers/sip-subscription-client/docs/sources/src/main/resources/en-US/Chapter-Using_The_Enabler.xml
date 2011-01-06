@@ -23,10 +23,10 @@
 		<varlistentry>
 			<term>automatic refresh</term>
 			<listitem>
-				<para>based on values exchanged between Enabler and Presenc Server,
+				<para>based on values exchanged between Enabler and Server,
 					Enabler keeps track of subscription life time(expiration)
 					and issues
-					refresh requests to Presence Server</para>
+					refresh requests to Server</para>
 			</listitem>
 		</varlistentry>
 
@@ -59,7 +59,7 @@
 			<literal>org.mobicents.slee.enabler.sip.SubscriptionClientChild
 			</literal>
 			interfaces, the latter declares the methods which can be used to
-			interact with the SIP Presence Server:
+			interact with the SIP Event Server:
 		</para>
 
 		<programlisting language="Java" role="JAVA"><![CDATA[
@@ -69,26 +69,15 @@ public interface SubscriptionClientChild {
 
 	public void setParentSbb(SubscriptionClientParentLocalObject parent);
 
-	public boolean isSubscriptionActive();
-
 	public String getSubscriber();
 
 	public String getEventPackage();
 
 	public String getNotifier();
 
-	public int getExpires();
-
-	public String getContentType();
-	
-	public String getContentSubType();
-
-	public boolean isRefreshing();
-
 	public void subscribe(String subscriber, String subscriberdisplayName
 		, String notifier, String eventPackage, int expires, String content,
 			String contentType, String contentSubtype) throws SubscriptionException;
-
 
 	public void unsubscribe() throws SubscriptionException;
 
@@ -115,25 +104,12 @@ public interface SubscriptionClientChild {
 			<varlistentry>
 				<term>
 					The
-					<literal>isSubscriptionActive();
-					</literal>
-					method:
-				</term>
-				<listitem>
-					<para>indicates if subscription is active, to be more precise, if
-						enabler manages dialog.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>
-					The
 					<literal>getSubscriber();
 					</literal>
 					method:
 				</term>
 				<listitem>
-					<para>returns subscriber used for subscription in Presence Server.
+					<para>returns subscriber used for subscription in Server.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -145,8 +121,8 @@ public interface SubscriptionClientChild {
 					method:
 				</term>
 				<listitem>
-					<para>returns notifier(Presence Server) used as target for
-						subscribtion. 
+					<para>returns notifier used as target for
+						subscription. 
 					</para>
 				</listitem>
 			</varlistentry>
@@ -165,59 +141,7 @@ public interface SubscriptionClientChild {
 						<literal>presence.winfo</literal>
 					</para>
 				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>
-					The
-					<literal>getExpires();
-					</literal>
-					method:
-				</term>
-				<listitem>
-					<para>returns currently used expire value. Expire value indicates
-						number of seconds subscription will be active.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>
-					The
-					<literal>getContentType();
-					</literal>
-					method:
-				</term>
-				<listitem>
-					<para>returns main content type of documents, to which enabler
-						subscribed itself.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>
-					The
-					<literal>getContentSubType();
-					</literal>
-					method:
-				</term>
-				<listitem>
-					<para>returns content sub type of documents, to which enabler
-						subscribed itself.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>
-					The
-					<literal>isRefreshing();
-					</literal>
-					method:
-				</term>
-				<listitem>
-					<para>indicates if enabler is currently refreshing subscription. If
-						it does, no other actions are allowed, ie. unsubscription.
-					</para>
-				</listitem>
-			</varlistentry>
+			</varlistentry>			
 			<varlistentry>
 				<term>
 					The
@@ -231,7 +155,7 @@ public interface SubscriptionClientChild {
 				<listitem>
 					<para>
 						this method should be called to subscribe enabler to certain
-						document in Presence Server, optionally user may pass
+						document in Server, optionally user may pass
 						<literal>document</literal>
 						.
 						It throws exception in case of transport error or wrong arguments.
@@ -264,7 +188,7 @@ public interface SubscriptionClientChild {
 			create and retrieve the Child Sbb, it is important to not forget to
 			pass the Parent's SbbLocalObject to the Child after creation:</para>
 		<programlisting language="Java" role="JAVA"><![CDATA[
-public SubscriptionClientChildLocalObject getPublicationClientChildSbb(String entity) {
+public SubscriptionClientChildLocalObject getPublicationClientChildSbb() {
 	final ChildRelation childRelation = getSipPublicationClientChildRelation();
 	if (childRelation.isEmpty()) {
 		try {
@@ -279,27 +203,13 @@ public SubscriptionClientChildLocalObject getPublicationClientChildSbb(String en
 		}
 	}
 	else {
-		Iterator it = childRelation.iterator();
-		while(it.hasNext())
-		{
-			SubscriptionClientChildLocalObject child = (SubscriptionClientChildLocalObject) childRelation.iterator().next();
-			if(entity.equals(child.getEntity)
-			{
-				return child;
-			}
-			
-		}
-		// creates new instance
-		SubscriptionClientChildLocalObject sbb = (SubscriptionClientChildLocalObject) childRelation.create();
-		// passes the parent sbb local object to the child
-		sbb.setParentSbb((SubscriptionClientParentLocalObject) sbbContext.getSbbLocalObject());
-		return sbb;
+		return (SubscriptionClientChildLocalObject) childRelation.iterator().next();
 	}
 }
 		]]>
 		</programlisting>
 		<para>The SbbLocalObject of the Child could also be stored in a CMP
-			Field for the simplest retreival, but unless you are going to reuse
+			Field for the simplest retrieval, but unless you are going to reuse
 			each instance several times it's better to have less state, specially
 			in clustered environments.</para>
 	</section>
@@ -353,7 +263,7 @@ public SubscriptionClientChildLocalObject getPublicationClientChildSbb(String en
 							<para>Specifies time drift, in seconds, between value of
 								Expires/Min-Expires values and automatic refresh performed by
 								enabler. For instance if Expires value passed(and accepted by
-								ECS/PA)
+								Server)
 								is 3600, time drift set to 10, Enabler will refresh
 								publication
 								after 3590

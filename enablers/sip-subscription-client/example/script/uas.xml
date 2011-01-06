@@ -23,7 +23,7 @@
         SIP/2.0 200 OK
         [last_Via:]
         [last_From:]
-        [last_To:]
+        [last_To:];tag=[call_number]
         [last_Call-ID:]
         [last_CSeq:]
        	Expires: 61
@@ -40,7 +40,7 @@
   
         NOTIFY [$3] SIP/2.0
         Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=z9hG4bK-[branch]
-        From: [$2]
+        From: [$2];tag=[call_number]
         To: [$1]
         [last_Call-ID:]
         CSeq: [cseq] NOTIFY
@@ -80,7 +80,7 @@
         SIP/2.0 200 OK
         [last_Via:]
         [last_From:]
-        [last_To:]
+        [last_To:];tag=[call_number]
         [last_Call-ID:]
         [last_CSeq:]
        	Expires: 61
@@ -109,7 +109,7 @@
   
         NOTIFY [$3] SIP/2.0
         Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=z9hG4bK-[branch]
-        From: [$2]
+        From: [$2];tag=[call_number]
         To: [$1]
         [last_Call-ID:]
         CSeq: [cseq] NOTIFY
@@ -139,7 +139,7 @@
   
         NOTIFY [$3] SIP/2.0
         Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=z9hG4bK-[branch]
-        From: [$2]
+        From: [$2];tag=[call_number]
         To: [$1]
         [last_Call-ID:]
         CSeq: [cseq] NOTIFY

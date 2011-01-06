@@ -1,38 +1,27 @@
 package org.mobicents.slee.enabler.sip;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.sip.ClientTransaction;
-import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.SipException;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionUnavailableException;
-import javax.sip.TransportNotSupportedException;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
-import javax.sip.address.SipURI;
+import javax.sip.address.URI;
 import javax.sip.header.AcceptHeader;
-import javax.sip.header.CSeqHeader;
-import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
-import javax.sip.header.ContentLengthHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.EventHeader;
 import javax.sip.header.ExpiresHeader;
-import javax.sip.header.FromHeader;
 import javax.sip.header.HeaderFactory;
-import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.SubscriptionStateHeader;
-import javax.sip.header.ToHeader;
-import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -42,18 +31,18 @@ import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.facilities.TimerEvent;
-import javax.slee.facilities.TimerFacility;
+import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
-import javax.slee.facilities.TimerPreserveMissed;
 import javax.slee.facilities.Tracer;
-import javax.slee.nullactivity.NullActivity;
-import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
-import javax.slee.nullactivity.NullActivityFactory;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.DialogForkedEvent;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
+
+import org.mobicents.slee.ActivityContextInterfaceExt;
+import org.mobicents.slee.SbbContextExt;
 
 /**
  * SIP Subscription Client SLEE Enabler.
@@ -62,9 +51,11 @@ import net.java.slee.resource.sip.SleeSipProvider;
  */
 public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionClientChild {
 	private static final int DEFAULT_EXPIRES_DRIFT = 15;
+	private static final ResourceAdaptorTypeID sipResourceAdaptorTypeID = new ResourceAdaptorTypeID("JAIN SIP","javax.sip","1.2");
+	private static final TimerOptions TIMER_OPTIONS = new TimerOptions();
 	private static Tracer tracer;
 
-	protected SbbContext sbbContext;
+	protected SbbContextExt sbbContext;
 
 	// sip ra
 	protected SipActivityContextInterfaceFactory sipActivityContextInterfaceFactory = null;
@@ -73,11 +64,6 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	protected MessageFactory messageFactory;
 	protected AddressFactory addressFactory;
 	protected HeaderFactory headerFactory;
-
-	// slee stuff
-	protected TimerFacility timerFacility;
-	protected NullActivityContextInterfaceFactory nullACIFactory;
-	protected NullActivityFactory nullActivityFactory;
 
 	// something more
 	protected int expiresDrift = DEFAULT_EXPIRES_DRIFT;
@@ -108,44 +94,9 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	}
 
 	@Override
-	public int getExpires() {
-		return getExpiresCMP();
-	}
-
-	@Override
-	public boolean isRefreshing() {
-		return this.getSubscribeRequestTypeCMP() == SubscribeRequestType.REFRESH;
-	}
-
-	@Override
-	public String getContentType() {
-		return getContentTypeCMP();
-	}
-
-	@Override
-	public String getContentSubType() {
-		return getContentSubTypeCMP();
-	}
-
-	@Override
-	public boolean isSubscriptionActive() {
-		// one dialog, one subscription, its active, when there is dialog in
-		// case of this enabler.
-		DialogActivity da = getDialogActivity();
-		if (da != null) {
-			DialogState dialogState = da.getState();
-			// it will only go to TERM, since we do Dialog.delete();
-			if (dialogState != DialogState.TERMINATED) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, String eventPackage, int expires, String content,
+	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, String eventPackage, int expires,
 			String contentType, String contentSubType) throws SubscriptionException {
-		if (isSubscriptionActive()) {
+		if (getSubscriber() != null) {
 			throw new IllegalStateException("Active subscription found for: " + getSubscriber() + ", events: " + getEventPackage());
 		}
 
@@ -177,14 +128,6 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			throw new IllegalArgumentException("contentSubType argument must not be null!");
 		}
 
-		// test notifier
-		try {
-			String[] ents = notifier.split("@");
-			SipURI test = addressFactory.createSipURI(ents[0], ents[1]);
-		} catch (Exception e1) {
-			throw new IllegalArgumentException("Failed to parse notifier!", e1);
-		}
-
 		// store all data.
 		this.setSubscriberCMP(subscriber);
 		this.setNotifierCMP(notifier);
@@ -192,62 +135,55 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		this.setContentTypeCMP(contentType);
 		this.setContentSubTypeCMP(contentSubType);
 		this.setEventPackageCMP(eventPackage);
-		// this.setExpiresCMP(expires); //dont set expires, on 2xx we check if
-		// its zero, if zero, than no NOTIFY race, and we can start it.
 
 		// lets get started
+		ActivityContextInterface aci = null;
 		try {
-			Request subscribeRequest = createInitialSubscribe(subscriber, subscriberdisplayName, notifier, eventPackage, expires, contentType, contentSubType,
-					content);
-			// this will be activity, but we dont attach
-			// since there will be DialogActivity
-			ClientTransaction ctx = this.sleeSipProvider.getNewClientTransaction(subscribeRequest);
+			Address from = addressFactory.createAddress(subscriber);
+			from.setDisplayName(subscriberdisplayName);
+			Address to = addressFactory.createAddress(notifier);
+			DialogActivity dialogActivity = sleeSipProvider.getNewDialog(from,to);
+			
+			Request subscribeRequest = createInitialSubscribe(dialogActivity, eventPackage, expires, contentType, contentSubType);
 			// DA
-			DialogActivity da = (DialogActivity) this.sleeSipProvider.getNewDialog(ctx);
-			ActivityContextInterface daAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(da);
+			aci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(dialogActivity);
 			setSubscribeRequestTypeCMP(SubscribeRequestType.NEW);
 			// attach after send, so we dont have to worry about detaching?
-			daAci.attach(this.sbbContext.getSbbLocalObject());
+			aci.attach(this.sbbContext.getSbbLocalObject());
 			// now lets send :)
-			da.sendRequest(ctx);
+			dialogActivity.sendRequest(subscribeRequest);
 
 		} catch (TransactionUnavailableException e) {
 			// failed to create tx
 			if (tracer.isSevereEnabled()) {
 				tracer.severe("Failed to create client transaction", e);
 			}
-			this.clear();
 			throw new SubscriptionException("Failed to create client transaction", e);
 		} catch (Exception e) {
 			// failed to create dialog or send msg.
 			if (tracer.isSevereEnabled()) {
 				tracer.severe("Failed to create dialog or send SUBSRIBE", e);
 			}
-			ActivityContextInterface daAci = getDialogAci();
-			if (daAci != null) {
+			if (aci != null) {
 				// its a failure on init, just terminate
-				daAci.detach(this.sbbContext.getSbbLocalObject());
-				((DialogActivity) daAci.getActivity()).delete();
+				aci.detach(this.sbbContext.getSbbLocalObject());
+				((DialogActivity) aci.getActivity()).delete();
 			}
-			this.clear();
 			throw new SubscriptionException("Failed to create dialog or send SUBSRIBE", e);
-
 		}
-
 	}
 
 	@Override
 	public void unsubscribe() throws SubscriptionException {
-		if (!isSubscriptionActive()) {
-			throw new IllegalStateException("No active subscruption active to ubsubscribe from!");
-		}
+		
 		if (getSubscribeRequestTypeCMP() != null) {
 			throw new SubscriptionException("Enabler is " + getSubscribeRequestTypeCMP() + ", cannot unsubscribe.");
 		}
 
 		try {
-			cancelExpiresTimer();
-			DialogActivity da = getDialogActivity();
+			ActivityContextInterface aci = getDialogAci();
+			cancelExpiresTimer(aci);
+			DialogActivity da = (DialogActivity) aci.getActivity();
 			Request unsubscribeRequest = createUnSubscribe(da);
 			da.sendRequest(unsubscribeRequest);
 
@@ -308,21 +244,9 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 
 	public abstract void setSubscribeRequestTypeCMP(SubscribeRequestType s);
 
-	// /////////////////////
-	// As SBB ACI method //
-	// /////////////////////
-	
-	public abstract SubscriptionClientChildActivityContextInterface asSbbActivityContextInterface(ActivityContextInterface aci);
-
 	// /////////////////////////////////
 	// Event handlers, for SUBSCRIBE //
 	// /////////////////////////////////
-
-	public void onInfoRespEvent(ResponseEvent event, ActivityContextInterface ac) {
-		if (tracer.isFineEnabled())
-			tracer.fine("Received 1xx (SUCCESS) response:\n" + event.getResponse());
-		// here , we do nothing.
-	}
 
 	public void onSuccessRespEvent(ResponseEvent event, ActivityContextInterface ac) {
 		if (tracer.isFineEnabled())
@@ -339,20 +263,11 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 				// proper value
 				ExpiresHeader expiresHeader = response.getExpires();
 				setExpiresCMP(expiresHeader.getExpires());
-				startExpiresTimer();
+				startExpiresTimer(getDialogAci());
 			}
 
 			try {
-				getParentSbbCMP().afterSubscribe(response.getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
-			} catch (Exception e) {
-				if (tracer.isSevereEnabled()) {
-					tracer.severe("Received exception from parent on subscribe callback", e);
-				}
-			}
-			break;
-		case REFRESH:
-			try {
-				getParentSbbCMP().afterRefresh(event.getResponse().getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				getParentSbbCMP().subscribeSucceed(response.getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -361,7 +276,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			break;
 		case REMOVE:
 			try {
-				getParentSbbCMP().afterRemove(event.getResponse().getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				getParentSbbCMP().unsubscribeSucceed(event.getResponse().getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -376,25 +291,25 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		if (tracer.isFineEnabled())
 			tracer.fine("Received 3xx (REDIRECT) response:\n" + event.getResponse());
 		// 3xx should not happen? since ECS/PA acts like proxy?
-		handleFailure(event, ac);
+		handleFailure(event.getResponse().getStatusCode(), ac);
 	}
 
 	public void onClientErrorRespEvent(ResponseEvent event, ActivityContextInterface ac) {
 		if (tracer.isFineEnabled())
 			tracer.fine("Received 4xx (CLIENT ERROR) response:\n" + event.getResponse());
-		handleFailure(event, ac);
+		handleFailure(event.getResponse().getStatusCode(), ac);
 	}
 
 	public void onServerErrorRespEvent(ResponseEvent event, ActivityContextInterface ac) {
 		if (tracer.isFineEnabled())
 			tracer.fine("Received 5xx (SERVER ERROR) response:\n" + event.getResponse());
-		handleFailure(event, ac);
+		handleFailure(event.getResponse().getStatusCode(), ac);
 	}
 
 	public void onGlobalFailureRespEvent(ResponseEvent event, ActivityContextInterface ac) {
 		if (tracer.isFineEnabled())
 			tracer.fine("Received 6xx (GLOBAL FAILURE) response:\n" + event.getResponse());
-		handleFailure(event, ac);
+		handleFailure(event.getResponse().getStatusCode(), ac);
 	}
 
 	// //////////////////////////////
@@ -483,8 +398,8 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 				notify.setExpires(subscriptionStateHeader.getExpires());
 				setExpiresCMP(notify.getExpires());
 				// reset timer if any
-				cancelExpiresTimer();
-				startExpiresTimer();
+				cancelExpiresTimer(aci);
+				startExpiresTimer(aci);
 			}
 
 			break;
@@ -526,7 +441,9 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		try {
 			if(state == SubscriptionStatus.terminated)
 			{
-				getDialogActivity().delete();
+				cancelExpiresTimer(aci);
+				aci.detach(sbbContext.getSbbLocalObject());
+				((DialogActivity)aci.getActivity()).delete();
 			}
 			getParentSbbCMP().onNotify(notify, (SubscriptionClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 		} catch (Exception e) {
@@ -577,22 +494,14 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	// /////////////////////////////
 	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 		// time to refresh :)
-		if (!isSubscriptionActive()) {
-			// weird
-			if (tracer.isSevereEnabled()) {
-				tracer.severe("Got timer event, but there is no active subscription!");
-			}
-			return;
-		}
-		cancelExpiresTimer(); // JIC, to remove TID from ACI.
+		
 		if (getSubscribeRequestTypeCMP() != null) {
 			return;
 		}
 
 		try {
-
-			Request refreshSubscribe = createRefresh(getDialogActivity(), getExpiresCMP());
-			DialogActivity da = getDialogActivity();
+			DialogActivity da = (DialogActivity) aci.getActivity();
+			Request refreshSubscribe = createRefresh(da, getExpiresCMP());
 			da.sendRequest(refreshSubscribe);
 			setSubscribeRequestTypeCMP(SubscribeRequestType.REFRESH);
 		} catch (Exception e) {
@@ -604,50 +513,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 
 	public void onTransactionTimeoutEvent(TimeoutEvent event, ActivityContextInterface ac) {
 		// bad, failed to communicate
-		SubscribeRequestType type = getSubscribeRequestTypeCMP();
-		setSubscribeRequestTypeCMP(null);
-		switch (type) {
-		case NEW:
-
-			try {
-				getParentSbbCMP().subscribeFailed((SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
-			} catch (Exception e) {
-				if (tracer.isSevereEnabled()) {
-					tracer.severe("Received exception from parent on subscribe callback", e);
-				}
-			}
-		
-			break;
-		case REFRESH:
-			// failed to refresh, we should get notify when it times out.
-
-			try {
-				getParentSbbCMP().refreshFailed((SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
-			} catch (Exception e) {
-				if (tracer.isSevereEnabled()) {
-					tracer.severe("Received exception from parent on subscribe callback", e);
-				}
-			}
-
-			break;
-		case REMOVE:
-			// failed to remove, we will receive notify.
-			try {
-				getParentSbbCMP().removeFailed((SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
-			} catch (Exception e) {
-				if (tracer.isSevereEnabled()) {
-					tracer.severe("Received exception from parent on subscribe callback", e);
-				}
-			}
-
-			break;
-		}
-
-	}
-
-	public void onActivityEndEvent(javax.slee.ActivityEndEvent event, ActivityContextInterface aci) {
-		if (tracer.isFineEnabled())
-			tracer.fine("Received Activtiy End: " + aci.getActivity());
+		handleFailure(Response.SERVER_TIMEOUT, ac);
 	}
 
 	// //////////////////////////
@@ -677,39 +543,23 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	}
 
 	/**
-	 * 
-	 */
-	protected void removeDialog() {
-		DialogActivity da = getDialogActivity();
-		if (da != null && da.getState() != DialogState.TERMINATED) {
-			try{
-				//be nice, try to free server resources.
-				unsubscribe();
-			}catch (Exception e) {
-				if(tracer.isSevereEnabled())
-				{
-					tracer.severe("Failed to send unsubscribe");
-				}
-			}
-			
-			//after that, we dont care.
-			da.delete();
-		}
-	}
-
-	/**
 	 * @param event
 	 * @param ac
 	 */
-	protected void handleFailure(ResponseEvent event, ActivityContextInterface ac) {
+	protected void handleFailure(int errorCode, ActivityContextInterface ac) {
 		SubscribeRequestType type = getSubscribeRequestTypeCMP();
 		setSubscribeRequestTypeCMP(null);
-		Response response = event.getResponse();
+		DialogActivity dialogActivity = (DialogActivity) ac.getActivity();
+		if (dialogActivity != null) {
+			ac.detach(sbbContext.getSbbLocalObject());
+			cancelExpiresTimer(ac);
+			dialogActivity.delete();			
+		}
 		switch (type) {
 		case NEW:
 			// if its NEW... ops, we can do clear.
 			try {
-				getParentSbbCMP().afterSubscribe(response.getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				getParentSbbCMP().subscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -719,9 +569,8 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			break;
 		case REFRESH:
 			// failed to refresh, we should get notify when it times out.
-
 			try {
-				getParentSbbCMP().afterRefresh(event.getResponse().getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				getParentSbbCMP().resubscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -738,7 +587,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		case REMOVE:
 			// failed to remove, we will receive notify.
 			try {
-				getParentSbbCMP().afterRemove(event.getResponse().getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				getParentSbbCMP().unsubscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -756,84 +605,20 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	 * @param notifier
 	 * @param content
 	 * @return
-	 * @throws TransportNotSupportedException
 	 * @throws ParseException
 	 * @throws InvalidArgumentException
+	 * @throws SipException 
 	 */
-	protected Request createInitialSubscribe(String subscriber, String subscriberdisplayName, String notifier, String eventPackage, int expires,
-			String contentType, String contentSubType, String content) throws TransportNotSupportedException, ParseException, InvalidArgumentException {
-		// No dialog, we need to forge everything, lets go.
-		// SUBSCRIBE sip:$notifier SIP/2.0
-		// Via: SIP/2.0/[transport]
-		// [local_ip]:[local_port];branch=z9hG4bK-[pid]-[call_number]-[$counter]
-		// From:<$subscriberDisplay> $subscriber@localip;tag=[call_number]
-		// To: $notifier
-		// Call-ID: [call_id]
-		// CSeq: [cseq] SUBSCRIBE
-		// Contact: sip:$subscriber
-		// Max-Forwards: 70
-		// Expires: [$expires]
-		// Event: $eventPackage
-		// Accept: $contentType/$contetnSubType
-		// Content-Length: $ln
-		// YYY
-		ViaHeader viaHeader = sleeSipProvider.getLocalVia(sleeSipProvider.getListeningPoints()[0].getTransport(), null/*
-																													 * null
-																													 * branch
-																													 * ?
-																													 */);
-
-		SipURI fromAddress = addressFactory.createSipURI(subscriber, viaHeader.getHost());
-
-		Address fromNameAddress = addressFactory.createAddress(fromAddress);
-		fromNameAddress.setDisplayName(subscriberdisplayName);
-		FromHeader fromHeader = headerFactory.createFromHeader(fromNameAddress, this.hashCode() + "_" + System.currentTimeMillis());
-		// remove port if present;
-		String[] ents = notifier.split("@");
-
-		// create To Header
-		SipURI toAddress = addressFactory.createSipURI(ents[0], ents[1]);
-		// NOTE: dont remove port, if its removed, Dialog methods to create
-		// referesh for instance wont work properly.
-		// if(toAddress.getPort()!=-1)
-		// {
-		// //remove it from this hdr, it will be present in Request URI
-		// toAddress.setPort(-1);
-		// }
-		Address toNameAddress = addressFactory.createAddress(toAddress);
-
-		ToHeader toHeader = headerFactory.createToHeader(toNameAddress, null);
-		// set To-Tag???
-		toHeader.setTag(System.currentTimeMillis() + "_" + toHeader.hashCode());
-		// create Request URI
-		SipURI requestURI = addressFactory.createSipURI(ents[0], ents[1]);
-
-		// Create ViaHeaders
-
-		ArrayList viaHeaders = new ArrayList();
-		// add via headers
-		viaHeaders.add(viaHeader);
-
-		// Create a new CallId header
-		CallIdHeader callIdHeader = sleeSipProvider.getNewCallId();
-
-		// Create a new Cseq header
-		CSeqHeader cSeqHeader = headerFactory.createCSeqHeader(1L, Request.SUBSCRIBE);
-
-		// Create a new MaxForwardsHeader
-		MaxForwardsHeader maxForwards = headerFactory.createMaxForwardsHeader(70); // leave
-																					// it
-																					// as
-																					// 70?
-
-		// Create the request.
-		Request request = messageFactory.createRequest(requestURI, Request.SUBSCRIBE, callIdHeader, cSeqHeader, fromHeader, toHeader, viaHeaders, maxForwards);
-
-		SipURI contactUri = (SipURI) fromAddress.clone();
-		contactUri.setPort(viaHeader.getPort());
-		ContactHeader contactHeader = this.headerFactory.createContactHeader(this.addressFactory.createAddress(contactUri));
-		request.addHeader(contactHeader);
-
+	protected Request createInitialSubscribe(DialogActivity da, String eventPackage, int expires,
+			String contentType, String contentSubType) throws ParseException, InvalidArgumentException, SipException {
+		
+		final Request request = da.createRequest(Request.SUBSCRIBE);
+		
+		URI contactURI = sleeSipProvider.getLocalSipURI(sleeSipProvider.getListeningPoints()[0].getTransport());
+		Address contactAddress = addressFactory.createAddress(contactURI);
+		ContactHeader contactHeader = headerFactory.createContactHeader(contactAddress);
+		request.setHeader(contactHeader);
+		
 		EventHeader eventHeader = this.headerFactory.createEventHeader(eventPackage);
 		request.addHeader(eventHeader);
 
@@ -842,16 +627,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 
 		ExpiresHeader expiresHeader = this.headerFactory.createExpiresHeader(expires);
 		request.addHeader(expiresHeader);
-		if (content != null) {
-			ContentTypeHeader contentTypeHeader = this.headerFactory.createContentTypeHeader(acceptHeader.getContentType(), acceptHeader.getContentSubType());
-			// request.addHeader(contentTypeHeader);
-			byte[] rawContent = content.getBytes(); // is this proper for this
-													// casE?
-			ContentLengthHeader contentLengthHeader = this.headerFactory.createContentLengthHeader(rawContent.length);
-			request.addHeader(contentLengthHeader);
-			request.setContent(rawContent, contentTypeHeader);
-		}
-
+		
 		// add route header?
 		if (this.ecsAddress != null) {
 			RouteHeader routeHeader = headerFactory.createRouteHeader(this.ecsAddress);
@@ -895,73 +671,27 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		return request;
 	}
 
-	protected void clear() {
-		cancelExpiresTimer();
-		setContentSubTypeCMP(null);
-		setContentTypeCMP(null);
-		setSubscriberCMP(null);
-		setSubscribeRequestTypeCMP(null);
-		setEventPackageCMP(null);
-		setExpiresCMP(0);
-		setNotifierCMP(null);
-	}
-
 	/**
 	 * 
 	 */
-	private void startExpiresTimer() {
-		if (getExpiresCMP() == 0) {
-			// nothing yet.
-			return;
-		}
-		ActivityContextInterface naAci = null;
-		ActivityContextInterface[] acis = this.sbbContext.getActivities();
-		for (ActivityContextInterface aci : acis) {
-			if (aci.getActivity() instanceof NullActivity) {
-				NullActivity na = (NullActivity) aci.getActivity();
-				naAci = this.nullACIFactory.getActivityContextInterface(na);
-			}
-		}
-
-		if (naAci == null) {
-			// create activity for this publication;
-			NullActivity na = this.nullActivityFactory.createNullActivity();
-			naAci = this.nullACIFactory.getActivityContextInterface(na);
-			// attach.
-			naAci.attach(this.sbbContext.getSbbLocalObject());
-		}
+	private void startExpiresTimer(ActivityContextInterface aci) {
 		long expires = this.getExpiresCMP();
-
-		// lets schedule a bit earlier. 5s?
-		if (expires - expiresDrift > 0) {
-			expires -= expiresDrift;
-		}
-
-		TimerOptions to = new TimerOptions(100, TimerPreserveMissed.LAST);
-		// this.setTimerIDCMP(this.timerFacility.setTimer(naAci,null,System.currentTimeMillis()+expires,to));
-		this.asSbbActivityContextInterface(naAci).setExpiresTimerID(this.timerFacility.setTimer(naAci, null, System.currentTimeMillis() + expires * 1000, to));
+		//lets schedule a bit earlier. 5s?
+		if(expires-expiresDrift >0) {
+			expires-=expiresDrift;
+		}				
+		sbbContext.getTimerFacility().setTimer(aci,null,System.currentTimeMillis()+expires*1000,TIMER_OPTIONS);
 	}
 
 	/**
 	 * 
 	 */
-	private void cancelExpiresTimer() {
-		ActivityContextInterface naAci = null;
-		ActivityContextInterface[] acis = this.sbbContext.getActivities();
-		for (ActivityContextInterface aci : acis) {
-			if (aci.getActivity() instanceof NullActivity) {
-				NullActivity na = (NullActivity) aci.getActivity();
-				naAci = this.nullACIFactory.getActivityContextInterface(na);
-			}
+	private void cancelExpiresTimer(ActivityContextInterface aci) {
+		ActivityContextInterfaceExt aciExt = (ActivityContextInterfaceExt) aci;
+		TimerID[] timerIDs = aciExt.getTimers();
+		if (timerIDs.length > 0) {
+			sbbContext.getTimerFacility().cancelTimer(timerIDs[0]);
 		}
-
-		if (naAci != null) {
-			SubscriptionClientChildActivityContextInterface aci = asSbbActivityContextInterface(naAci);
-			if (aci.getExpiresTimerID() != null) {
-				this.timerFacility.cancelTimer(aci.getExpiresTimerID());
-			}
-		}
-
 	}
 
 	// ////////////////////////////////
@@ -1029,11 +759,6 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	 */
 	@Override
 	public void sbbRemove() {
-		// if this is called, its means there wont be any msgs, remove
-		// everything.
-		removeDialog();
-		//help SLEE?
-		this.clear();
 	}
 
 	/*
@@ -1061,58 +786,54 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	 */
 	@Override
 	public void setSbbContext(SbbContext sbbContext) {
-		this.sbbContext = sbbContext;
+		this.sbbContext = (SbbContextExt) sbbContext;
 		if (tracer == null) {
 			tracer = sbbContext.getTracer(SubscriptionClientChildSbb.class.getSimpleName());
 		}
 		try {
-			Context context = (Context) new InitialContext().lookup("java:comp/env");
-			// sip ra
-			this.sipActivityContextInterfaceFactory = (SipActivityContextInterfaceFactory) context.lookup("slee/resources/jainsip/1.2/acifactory");
-			this.sleeSipProvider = (SleeSipProvider) context.lookup("slee/resources/jainsip/1.2/provider");
-			// sip stuff
+			//sip ra
+			this.sipActivityContextInterfaceFactory = (SipActivityContextInterfaceFactory) this.sbbContext.getActivityContextInterfaceFactory(sipResourceAdaptorTypeID);
+			this.sleeSipProvider = (SleeSipProvider) this.sbbContext.getResourceAdaptorInterface(sipResourceAdaptorTypeID, "SipRA");
+			//sip stuff
 			this.messageFactory = this.sleeSipProvider.getMessageFactory();
 			this.addressFactory = this.sleeSipProvider.getAddressFactory();
 			this.headerFactory = this.sleeSipProvider.getHeaderFactory();
-
-			// slee stuff
-			context = new InitialContext(); // new, since facilities names are
-											// absolute path.
-			this.timerFacility = (TimerFacility) context.lookup(TimerFacility.JNDI_NAME);
-			this.nullACIFactory = (NullActivityContextInterfaceFactory) context.lookup(NullActivityContextInterfaceFactory.JNDI_NAME);
-			this.nullActivityFactory = (NullActivityFactory) context.lookup(NullActivityFactory.JNDI_NAME);
-			// env, conf
-			try {
+			//env, conf
+			Context context = (Context) new InitialContext();
+			try{
 				String serverAddress = (String) context.lookup("server.address");
-				if (serverAddress != null) {
-					// RFC show entity as SIP URI and ECS address?
+				if(serverAddress!=null) {	
+					//RFC show entity as SIP URI and ECS address?
 					this.ecsAddress = this.sleeSipProvider.getAddressFactory().createAddress(serverAddress);
 				}
-			} catch (NamingException e) {
-				if (tracer.isInfoEnabled()) {
+			}
+			catch(NamingException e) {
+				if(tracer.isInfoEnabled()) {
 					tracer.info("No ECS/PA address to use in Route header.");
 				}
 			}
-
-			try {
+			
+			try{
 				String expireTime = (String) context.lookup("expires.drift");
-				if (expireTime != null) {
+				if(expireTime!=null) {	
 					int intExpireTime = Integer.parseInt(expireTime);
-					if (intExpireTime < 0) {
-						if (tracer.isInfoEnabled()) {
-							tracer.info("Expire time drift less than zero, using default: " + this.expiresDrift + "s.");
-						}
-					} else {
-						this.expiresDrift = intExpireTime;
-						if (tracer.isInfoEnabled()) {
-							tracer.info("Expire time drift set to: " + this.expiresDrift + "s.");
+					if(intExpireTime<0) {
+						if(tracer.isInfoEnabled()) {
+							tracer.info("Expire time drift less than zero, using default: "+this.expiresDrift+"s.");
 						}
 					}
-
+					else {
+						this.expiresDrift = intExpireTime;
+						if(tracer.isInfoEnabled()) {
+							tracer.info("Expire time drift set to: "+this.expiresDrift+"s.");
+						}
+					}					
 				}
-			} catch (NamingException e) {
-				if (tracer.isInfoEnabled()) {
-					tracer.info("No Expire time drift, using default: " + this.expiresDrift + "s.");
+			}catch(NamingException e)
+			{
+				if(tracer.isInfoEnabled())
+				{
+					tracer.info("No Expire time drift, using default: "+this.expiresDrift+"s.");
 				}
 			}
 		} catch (NamingException e) {

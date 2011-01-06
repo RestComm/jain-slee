@@ -98,11 +98,7 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 		try {
 			child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().create();
 			child.setParentSbb((SubscriptionClientParentSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			child.subscribe("416147", "secret_name", "14313471@127.0.0.1:5090", "presence", 61, null, "application", "pidf+xml"); // null
-																																	// content
-																																	// is
-																																	// allowed
-																																	// :)
+			child.subscribe("sip:14313471@127.0.0.1:5090", "secret_name", "sip:14313471@127.0.0.1:5090", "presence", 61, "application", "pidf+xml"); // null
 		} catch (TransactionRequiredLocalException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -134,21 +130,15 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 	}
 
 	@Override
-	public void afterSubscribe(int responseCode, SubscriptionClientChildSbbLocalObject enabler) {
-		tracer.info("afterSubscribe: " + responseCode);
-
+	public void subscribeSucceed(int responseCode,
+			SubscriptionClientChildSbbLocalObject enabler) {
+		tracer.info("subscribeSucceed: " + responseCode);
 	}
 
 	@Override
-	public void afterRefresh(int responseCode, SubscriptionClientChildSbbLocalObject enabler) {
-		tracer.info("afterRefresh: " + responseCode);
-
-	}
-
-	@Override
-	public void afterRemove(int responseCode, SubscriptionClientChildSbbLocalObject enabler) {
-		tracer.info("afterRemove: " + responseCode);
-		
+	public void unsubscribeSucceed(int responseCode,
+			SubscriptionClientChildSbbLocalObject enabler) {
+		tracer.info("unsubscribeSucceed: " + responseCode);		
 	}
 
 	@Override
@@ -182,7 +172,8 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 	}
 
 	@Override
-	public void subscribeFailed(SubscriptionClientChildSbbLocalObject sbbLocalObject) {
+	public void subscribeFailed(int responseCode,
+			SubscriptionClientChildSbbLocalObject sbbLocalObject) {
 		tracer.info("subscribeFailed");
 		ChildRelation childRelation = this.getSubscriptionClientChildSbbChildRelation();
 		if (childRelation.size() > 0) {
@@ -195,7 +186,8 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 	}
 
 	@Override
-	public void refreshFailed(SubscriptionClientChildSbbLocalObject sbbLocalObject) {
+	public void resubscribeFailed(int responseCode,
+			SubscriptionClientChildSbbLocalObject sbbLocalObject) {
 		tracer.info("refreshFailed");
 		ChildRelation childRelation = this.getSubscriptionClientChildSbbChildRelation();
 		if (childRelation.size() > 0) {
@@ -208,7 +200,8 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 	}
 
 	@Override
-	public void removeFailed(SubscriptionClientChildSbbLocalObject sbbLocalObject) {
+	public void unsubscribeFailed(int responseCode,
+			SubscriptionClientChildSbbLocalObject sbbLocalObject) {
 		tracer.info("removeFailed");
 		ChildRelation childRelation = this.getSubscriptionClientChildSbbChildRelation();
 		if (childRelation.size() > 0) {
@@ -237,7 +230,6 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 		} else {
 			// do nothing, we did unsub before
 		}
-
 	}
 
 }

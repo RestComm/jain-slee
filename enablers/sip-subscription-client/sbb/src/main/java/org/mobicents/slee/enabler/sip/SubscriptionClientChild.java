@@ -33,24 +33,11 @@ public interface SubscriptionClientChild {
 	 */
 	public void setParentSbb(SubscriptionClientParentSbbLocalObject parent);
 
-	public boolean isSubscriptionActive();
-
 	public String getSubscriber();
 
 	public String getEventPackage();
 
 	public String getNotifier();
-
-	public int getExpires();
-
-	public String getContentType();
-	
-	public String getContentSubType();
-	
-	/**
-	 * @return
-	 */
-	public boolean isRefreshing();
 
 	// TODO: should there be eventTemplate also ?
 	/**
@@ -61,12 +48,11 @@ public interface SubscriptionClientChild {
 	 * @param eventPackage
 	 * @param subscriptionId
 	 * @param expires
-	 * @param content
 	 * @param contentType
 	 * @param contentSubtype
 	 * @throws SubscriptionException
 	 */
-	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, String eventPackage, int expires, String content,
+	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, String eventPackage, int expires, 
 			String contentType, String contentSubtype) throws SubscriptionException;
 
 	/**

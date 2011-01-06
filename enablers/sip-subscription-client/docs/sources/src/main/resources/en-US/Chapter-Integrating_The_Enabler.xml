@@ -66,19 +66,17 @@ package org.mobicents.slee.enabler.sip;
 
 public interface SubscriptionClientParent {
 
-	public void afterSubscribe(int responseCode, SubscriptionClientChildLocalObject enabler);
+	public void subscribeSucceed(int responseCode, SubscriptionClientChildLocalObject enabler);
 
-	public void afterRefresh(int responseCode, SubscriptionClientChildLocalObject enabler);
-
-	public void afterRemove(int responseCode, SubscriptionClientChildLocalObject enabler);
+	public void unsubscribeSucceed(int responseCode, SubscriptionClientChildLocalObject enabler);
 
 	public void onNotify(Notify notify, SubscriptionClientChildLocalObject enabler);
 
-	void subscribeFailed(SubscriptionClientChildLocalObject sbbLocalObject);
+	public void subscribeFailed(int responseCode, SubscriptionClientChildLocalObject sbbLocalObject);
 
-	void refreshFailed(SubscriptionClientChildLocalObject sbbLocalObject);
+	public void resubscribeFailed(int responseCode, SubscriptionClientChildLocalObject sbbLocalObject);
 
-	void removeFailed(SubscriptionClientChildLocalObject sbbLocalObject);
+	public void unsubscribeFailed(int responseCode, SubscriptionClientChildLocalObject sbbLocalObject);
 
 }
 		]]>
@@ -89,7 +87,7 @@ public interface SubscriptionClientParent {
 			<varlistentry>
 				<term>
 					The
-					<literal>afterSubscribe(int responseCode, SubscriptionClientChildLocalObject enabler);</literal>
+					<literal>subscribeSucceed(int responseCode, SubscriptionClientChildLocalObject enabler);</literal>
 					method:
 				</term>
 				<listitem>
@@ -99,17 +97,7 @@ public interface SubscriptionClientParent {
 			<varlistentry>
 				<term>
 					The
-					<literal>void afterRefresh(int responseCode, SubscriptionClientChildLocalObject enabler);</literal>
-					method:
-				</term>
-				<listitem>
-					<para>Callback from the Enabler providing details about refresh subscription. If it indicates error, enabler instance should be discarded.</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>
-					The
-					<literal>afterRemove(int responseCode, SubscriptionClientChildLocalObject enabler);</literal>
+					<literal>unsubscribeSucceed(int responseCode, SubscriptionClientChildLocalObject enabler);</literal>
 					method:
 				</term>
 				<listitem>
@@ -139,7 +127,7 @@ public interface SubscriptionClientParent {
 			<varlistentry>
 				<term>
 					The
-					<literal>refreshFailed(SubscriptionClientChildLocalObject sbbLocalObject);</literal>
+					<literal>resubscribeFailed(SubscriptionClientChildLocalObject sbbLocalObject);</literal>
 					method:
 				</term>
 				<listitem>
@@ -149,7 +137,7 @@ public interface SubscriptionClientParent {
 			<varlistentry>
 				<term>
 					The
-					<literal>removeFailed(SubscriptionClientChildLocalObject sbbLocalObject);</literal>
+					<literal>unsubscribeFailed(SubscriptionClientChildLocalObject sbbLocalObject);</literal>
 					method:
 				</term>
 				<listitem>
