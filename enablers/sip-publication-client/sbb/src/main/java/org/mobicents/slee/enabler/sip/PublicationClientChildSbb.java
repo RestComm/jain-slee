@@ -426,12 +426,8 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		//lets schedule a bit earlier. 5s?
 		if(expires-expiresDrift >0) {
 			expires-=expiresDrift;
-		}
-				
-		TimerID timerID = sbbContext.getTimerFacility().setTimer(naAci,null,System.currentTimeMillis()+expires*1000,TIMER_OPTIONS);
-		if(tracer.isInfoEnabled()) {
-			tracer.info("set publication timer: "+timerID);
-		}
+		}				
+		sbbContext.getTimerFacility().setTimer(naAci,null,System.currentTimeMillis()+expires*1000,TIMER_OPTIONS);
 	}
 
 	/**
@@ -443,9 +439,6 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			ActivityContextInterfaceExt naAciExt = (ActivityContextInterfaceExt) naAci;
 			TimerID[] timerIDs = naAciExt.getTimers();
 			if (timerIDs.length > 0) {
-				if(tracer.isInfoEnabled()) {
-					tracer.info("canceling publication timer: "+timerIDs[0]);
-				}
 				sbbContext.getTimerFacility().cancelTimer(timerIDs[0]);
 			}
 			if (detachActivity) {
