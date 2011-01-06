@@ -28,28 +28,8 @@
 		</layout>
 	</appender>
 
-	<category name="org.apache">
-		<priority value="INFO"/>
-	</category>
-
-	<category name="jacorb">
-		<priority value="WARN"/>
-	</category>
-	
-	<category name="org.jgroups">
-		<priority value="WARN"/>
-	</category>
-	
-	<category name="org.quartz">
-		<priority value="INFO"/>
-	</category>
-
-	<category name="org.jboss.management">
-		<priority value="INFO"/>
-	</category>
-
-	<category name="org.jboss.serial">
-		<priority value="INFO"/>
+	<category name="javax.slee">
+		<priority value="INFO" />
 	</category>
 	
 	<category name="org.mobicents">

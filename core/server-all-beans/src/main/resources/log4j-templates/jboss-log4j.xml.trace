@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
-<!-- $Id: jboss-log4j.xml 72500 2008-04-21 16:41:36Z rrajesh $ -->
+<!-- $Id: jboss-log4j.xml 65459 2007-09-19 00:25:51Z dimitris@jboss.org $ -->
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
@@ -9,6 +9,7 @@
 		<errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
 		<param name="File" value="${jboss.server.log.dir}/server.log"/>
 		<param name="Append" value="false"/>
+		<param name="Threshold" value="TRACE"/>
 
 		<param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
@@ -20,21 +21,25 @@
 	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
 		<errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
 		<param name="Target" value="System.out"/>
-		<param name="Threshold" value="WARN"/>
+		<param name="Threshold" value="TRACE"/>
+
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
 		</layout>
 	</appender>
 	
-	<appender name="ASYNC" class="org.apache.log4j.AsyncAppender">
-		<errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
-		<appender-ref ref="FILE"/>
-		<appender-ref ref="CONSOLE"/>		
-	</appender>	
-
+	<category name="javax.slee">
+		<priority value="TRACE" />
+	</category>
+			
+	<category name="org.mobicents">
+		<priority value="TRACE" />
+	</category>
+	
 	<root>
-		<level value="WARN"/>
-		<appender-ref ref="ASYNC"/>
+		<level value="INFO"/>
+		<appender-ref ref="CONSOLE"/>
+		<appender-ref ref="FILE"/>
 	</root>
 
 </log4j:configuration>
