@@ -25,8 +25,11 @@
  */
 package net.java.slee.resource.diameter.sh.events;
 
+import java.io.IOException;
+
 import net.java.slee.resource.diameter.base.events.avp.ExperimentalResultAvp;
 import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
+import net.java.slee.resource.diameter.sh.events.avp.userdata.ShData;
 
 /**
  * Defines an interface representing the User-Data-Answer command.
@@ -128,12 +131,28 @@ public interface UserDataAnswer extends DiameterShMessage {
   String getUserData();
 
   /**
+   * Returns the value of the User-Data AVP, of type UserData.
+   * 
+   * @return the value of the User-Data AVP or null if it has not been set on
+   *         this message
+   */
+  ShData getUserDataObject() throws IOException;
+
+  /**
    * Sets the value of the User-Data AVP, of type UserData.
    * 
    * @throws IllegalStateException
    *             if setUserData has already been called
    */
   void setUserData(String userData);
+
+  /**
+   * Sets the value of the User-Data AVP, of type UserData.
+   * 
+   * @throws IllegalStateException
+   *             if setUserData has already been called
+   */
+  void setUserDataObject(ShData userData) throws IOException;
 
   /**
    * Returns the set of Failed-AVP AVPs. The returned array contains the AVPs
