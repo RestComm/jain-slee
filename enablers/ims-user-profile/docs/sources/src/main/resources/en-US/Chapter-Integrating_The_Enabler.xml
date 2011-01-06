@@ -1,0 +1,250 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_IMS_User_Profile_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="integrating">
+
+	<title>Integrating the &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler</title>
+	
+	<para>This chapter explains how to setup a JAIN SLEE Service Sbb to use the Enabler.</para>
+
+	<para>In short terms, a Service's Sbb will define the Enabler's Sbb as a child, and to achieve that it will need to setup the XML Descriptor, Abstract Class and SbbLocalObject interface.</para>
+	
+	<important><para>The Service's Sbb will be referred as the Parent Sbb in the following sections.</para></important>
+	
+	<section id="parent_sbb_local_object_interface">
+		
+		<title>The Parent's SbbLocalObject Interface</title>
+		
+		<para>The &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler Sbb provides asynchronous callbacks to the Parent's Sbb, and that can only be achieved if the Parent's SbbLocalObject extends a specific Java interface, deployed also by the Enabler, and provides it's SbbLocalObject to the Enabler's Sbb, through a specific method exposed by the latter interface. The Enabler stores the Parent's SbbLocalObject and uses it when a callback to the Parent's Sbb is needed.</para>
+		
+		<para>The SbbLocalObject which must be used or extended by the Parent's Sbb is named <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParentSbbLocalObject</literal>, which extends the <literal>javax.slee.SbbLocalObject</literal> and <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParent</literal> interfaces, the latter declares the callbacks which must be implemented in the Parent's Sbb Abstract Class:</para>
+		
+		<programlisting language="Java" role="JAVA"><![CDATA[
+package org.mobicents.slee.enabler.ims.userprofile;
+
+import net.java.slee.resource.diameter.sh.events.avp.userdata.ShData;
+
+public interface IMSUserProfileParent {
+
+  // Sh-Pull Operations Callbacks ---------------------------------------------
+
+  public void deliverRepositoryData(String publicIdentity, byte[][] serviceIndication,
+            long resultCode, ShData data);
+
+  public void deliverIMSPublicIdentity(String publicIdentity, byte[] msisdn, 
+            int identitySet, long resultCode, ShData data);
+
+  public void deliverIMSUserState(String publicIdentity, long resultCode, ShData data);
+
+  public void deliverSCSCFName(String publicIdentity, long resultCode, ShData data);
+
+  public void deliverInitialFilterCriteria(String publicIdentity, String serverName,
+            long resultCode, ShData data);
+
+  public void deliverLocationInformation(byte[] msisdn, int requestedDomain, long resultCode, 
+            ShData data);
+
+  public void deliverUserState(byte[] msisdn, int requestedDomain, long resultCode, ShData data);
+
+  public void deliverChargingInformation(String publicIdentity, byte[] msisdn, long resultCode, 
+            ShData data);
+
+  public void deliverMSISDN(String publicIdentity, byte[] msisdn, long resultCode, ShData data);
+
+  public void deliverPSIActivation(String publicIdentity, long resultCode, ShData data);
+
+  // Sh-Update Operations Callbacks -------------------------------------------
+
+  public String updateRepositoryDataResponse(String publicIdentity, long resultCode);
+
+  public String updatePSIActivationResponse(String publicIdentity, long resultCode);
+
+  // Sh-Subscribe Operations Callbacks ----------------------------------------
+
+  public String subscribeRepositoryDataResponse(String publicIdentity, byte[][] serviceIndication,
+            long resultCode);
+
+  public String subscribeIMSUserStateResponse(String publicIdentity, long resultCode);
+
+  public String subscribeSCSCFNameResponse(String publicIdentity, long resultCode);
+
+  public String subscribeInitialFilterCriteriaResponse(String publicIdentity, String serverName, 
+            long resultCode);
+
+  public String subscribePSIActivationResponse(String publicIdentity, long resultCode);
+
+}
+		]]>
+		</programlisting>
+		
+		<variablelist>
+		
+			<varlistentry>
+				<term>The <literal>deliverRepositoryData(String, byte[][], long, ShData)</literal> method:</term>
+				<listitem>
+					<para>Callback from the Enabler providing the response for a request for the "Repository Data" data type.</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term>The <literal>deliverIMSPublicIdentity(String, byte[], int, long, ShData)</literal> method:</term>
+				<listitem>
+                    <para>Callback from the Enabler providing the response for a request for the "IMS Public Identity" data type.</para>
+				</listitem>
+			</varlistentry>
+
+            <varlistentry>
+                <term>The <literal>deliverIMSUserState(String, long, ShData)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request for the "IMS User State" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>deliverSCSCFName(String, long, ShData)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request for the "S-CSCF Name" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>deliverInitialFilterCriteria(String, String, long, ShData)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request for the "Initial Filter Criteria" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>deliverLocationInformation(byte[], int, long, ShData)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request for the "Location Information" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>deliverUserState(byte[], int, long, ShData)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request for the "User State" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>deliverChargingInformation(String, byte[], long, ShData)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request for the "Charging Information" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>deliverMSISDN(String, byte[], long, ShData)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request for the "MSISDN" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>deliverPSIActivation(String, long, ShData)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request for the "PSI Activation" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>updateRepositoryDataResponse(String, long)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request to update the "Repository Data" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>updatePSIActivationResponse(String, long)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request to update the "PSI Activation" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>subscribeRepositoryDataResponse(String, byte[][], int, long)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request to subscribe/unsubscribe to the "Repository Data" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>subscribeIMSUserStateResponse(String, int, long)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request to subscribe/unsubscribe to the "User State" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>subscribeSCSCFNameResponse(String, int, long)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request to subscribe/unsubscribe to the "S-CSCF Name" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>subscribeInitialFilterCriteriaResponse(String, String, int, long)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request to subscribe/unsubscribe to the "Initial Filter Criteria" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>subscribePSIActivationResponse(String, int, long)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing the response for a request to subscribe/unsubscribe to the "PSI Activation" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+		</variablelist>
+		
+	</section>
+	
+	<section id="parent_sbb_abstract_class">
+		<title>The Parent's Sbb Abstract Class</title>
+		<para>The Parent Sbb Abstract Class must implement the callbacks on it's SbbLocalObject, that is, must implement the <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParent</literal> interface discussed in last section.</para>
+		<para>The Enabler's Sbb is a Child Sbb, and JAIN SLEE 1.1 Child Relations requires an abstract method in the Sbb Abstract Class, to retrieve the <literal>javax.slee.ChildRelation</literal> object, which is used to create or access specific Child Sbbs. This method should be:</para>
+		<programlisting language="Java" role="JAVA"><![CDATA[
+	public abstract ChildRelation getIMSUserProfileChildRelation();
+		]]>
+		</programlisting>
+	</section>
+	
+	<section id="parent_sbb_xml_descriptor">
+		<title>The Parent's Sbb XML Descriptor</title>
+		<para>The Parent's Sbb must define a reference to the Enabler's Child Sbb, declare which is the method name to get the related ChildRelation object, and also ensure the SbbLocalObject interface is defined correctly.</para>
+		<para>A reference to the Enabler's Child Sbb is defined right after the Parent's Sbb Vendor ID element, using the following XML element:</para>
+		<programlisting language="XML" role="XML"><![CDATA[
+		<sbb-ref>
+    		<sbb-name>IMSUserProfileChildSbb</sbb-name>
+			<sbb-vendor>org.mobicents</sbb-vendor>
+			<sbb-version>1.0</sbb-version>
+    		<sbb-alias>imsUserProfileChildSbb</sbb-alias>
+    	</sbb-ref>
+		]]>
+		</programlisting>
+		<para>The method name to get the Enabler's ChildRelation object must be defined after the CMP Fields (if any), this XML element links the sbb-alias previously defined with the abstract method declared in the Parent's Sbb Abstract Class:</para>
+		<programlisting language="XML" role="XML"><![CDATA[
+		<get-child-relation-method>                	
+        	<sbb-alias-ref>imsUserProfileChildSbb</sbb-alias-ref>
+            <get-child-relation-method-name>getIMSUserProfileChildRelation</get-child-relation-method-name>
+            <default-priority>0</default-priority>
+        </get-child-relation-method>
+		]]>
+		</programlisting>
+		<para>Finally, after the <literal>sbb-abstract-class</literal> element the Parent's SbbLocalObject interface name is defined:</para>
+		<programlisting language="XML" role="XML"><![CDATA[
+		<sbb-local-interface>
+            <sbb-local-interface-name>...</sbb-local-interface-name>
+        </sbb-local-interface>
+		]]>
+		</programlisting>		
+                
+	</section>
+	
+	 
+		
+</chapter>
+

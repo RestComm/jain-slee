@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_IMS_User_Profile_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler</title>
+
+	<para>The JAIN SLEE &THIS.ENABLER; Enabler allows JAIN SLEE Applications to interact with a Home Subscriber Server (HSS), hiding the network protocol complexity. The Enabler consists in an SBB which can be used in child relations, with a simple asynchronous interface.</para>
+
+	<para>The HSS is the master user database used in a IP Multimedia Subsystem (IMS) environment. It contains the subscription-related information to support the network entities actually handling calls/sessions. As an example, the HSS provides support to the call control servers in order to complete the routing/roaming procedures by solving authentication, authorisation, naming/addressing resolution, location dependencies, etc.</para>
+
+</chapter>
