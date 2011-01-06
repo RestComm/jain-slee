@@ -48,6 +48,7 @@ import org.mobicents.slee.SbbContextExt;
  * SIP Subscription Client SLEE Enabler.
  * 
  * @author baranowb
+ * @author emartins
  */
 public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionClientChild {
 	private static final int DEFAULT_EXPIRES_DRIFT = 15;
@@ -148,7 +149,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			// DA
 			aci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(dialogActivity);
 			setSubscribeRequestTypeCMP(SubscribeRequestType.NEW);
-			// attach after send, so we dont have to worry about detaching?
+			// attach to DA
 			aci.attach(this.sbbContext.getSbbLocalObject());
 			// now lets send :)
 			dialogActivity.sendRequest(subscribeRequest);
@@ -194,15 +195,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			if (tracer.isSevereEnabled()) {
 				tracer.severe("Failed to  send unSUBSRIBE", e);
 			}
-			// just fail?
-			// ActivityContextInterface daAci = getDialogAci();
-			// if (daAci != null) {
-			// // its a failure on init, just terminate
-			// daAci.detach(this.sbbContext.getSbbLocalObject());
-			// ((DialogActivity) daAci.getActivity()).delete();
-			// }
 
-			// this.clear();
 			this.setSubscribeRequestTypeCMP(null);
 			throw new SubscriptionException("Failed to send unSUBSRIBE", e);
 		}
@@ -319,12 +312,13 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	public void onNotify(RequestEvent event, ActivityContextInterface aci) {
 		if (tracer.isFineEnabled())
 			tracer.fine("Received Notify, on activity: " + aci.getActivity() + "\nRequest:\n" + event.getRequest());
-		// TODO add more here? 4xx,5xx,6xx responses ?
+		
 		Request request = event.getRequest();
 
 		EventHeader eventHeader = (EventHeader) request.getHeader(EventHeader.NAME);
 		if (eventHeader == null || !eventHeader.getEventType().equals(getEventPackageCMP())) {
 			try {
+				// TODO add more here? 4xx,5xx,6xx responses ?
 				Response badEventResponse = this.messageFactory.createResponse(Response.BAD_EVENT, request);
 
 				event.getServerTransaction().sendResponse(badEventResponse);
@@ -557,7 +551,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		}
 		switch (type) {
 		case NEW:
-			// if its NEW... ops, we can do clear.
+
 			try {
 				getParentSbbCMP().subscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
@@ -576,13 +570,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 					tracer.severe("Received exception from parent on subscribe callback", e);
 				}
 			}
-			// if(response.getStatusCode() ==
-			// Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST)
-			// {
-			// //we did not get notify, and there is no subscription.
-			// this.clear(); //nothing will ever happen.
-			//
-			// }
+
 			break;
 		case REMOVE:
 			// failed to remove, we will receive notify.
@@ -593,7 +581,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 					tracer.severe("Received exception from parent on subscribe callback", e);
 				}
 			}
-			// this.clear();
+
 			break;
 		}
 
