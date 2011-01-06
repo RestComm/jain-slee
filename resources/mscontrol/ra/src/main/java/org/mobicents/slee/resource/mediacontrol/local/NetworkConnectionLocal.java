@@ -47,11 +47,16 @@ public class NetworkConnectionLocal extends MsActivity implements NetworkConnect
 
     private String ID = Long.toHexString(System.currentTimeMillis());
     private NetworkConnection connection;
+    private SdpPortManagerLocal sdpPortManager;
     private McResourceAdaptor ra;
+    private MediaSessionLocal mediaSession;
         
-    protected NetworkConnectionLocal(NetworkConnection connection, McResourceAdaptor ra) {
+    protected NetworkConnectionLocal(NetworkConnection connection, MediaSessionLocal mediaSession, McResourceAdaptor ra) throws MsControlException {
         this.connection = connection;
         this.ra = ra;
+        this.mediaSession = mediaSession;
+        this.sdpPortManager = new SdpPortManagerLocal(connection.getSdpPortManager(), this, mediaSession);
+        
     }
     
     @Override
@@ -60,22 +65,26 @@ public class NetworkConnectionLocal extends MsActivity implements NetworkConnect
     }
     
     public SdpPortManager getSdpPortManager() throws MsControlException {
-        return connection.getSdpPortManager();
+    	return sdpPortManager;
     }
 
     public JoinableStream getJoinableStream(StreamType type) throws MsControlException {
+    	//TODO: change this. add proxy
         return connection.getJoinableStream(type);
     }
 
     public JoinableStream[] getJoinableStreams() throws MsControlException {
+    	//TODO: change this. add proxy
         return connection.getJoinableStreams();
     }
 
     public Joinable[] getJoinees(Direction direction) throws MsControlException {
+    	//TODO: change this. add proxy
         return connection.getJoinees(direction);
     }
 
     public Joinable[] getJoinees() throws MsControlException {
+    	//TODO: change this. add proxy
         return connection.getJoinees();
     }
 

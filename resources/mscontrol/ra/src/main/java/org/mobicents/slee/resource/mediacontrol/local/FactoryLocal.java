@@ -50,7 +50,7 @@ public class FactoryLocal implements MsControlFactory {
     }
 
     public MediaSession createMediaSession() throws MsControlException {
-        return new SessionLocal(factory.createMediaSession(), ra);
+        return new MediaSessionLocal(factory.createMediaSession(), ra);
     }
 
     public MediaConfig getMediaConfig(Configuration<?> cfg) throws MediaConfigException {

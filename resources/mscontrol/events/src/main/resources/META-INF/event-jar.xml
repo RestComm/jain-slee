@@ -84,5 +84,30 @@
             <event-type-version>1.0</event-type-version>
             <event-class-name>javax.media.mscontrol.mediagroup.PlayerEvent</event-class-name>
         </event-definition>
+        <!-- Recorder Events -->
+        <event-definition>
+            <event-type-name>javax.media.mscontrol.mediagroup.RecorderEvent.PAUSED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+            <event-class-name>javax.media.mscontrol.mediagroup.RecorderEvent</event-class-name>
+        </event-definition>
+        <event-definition>
+            <event-type-name>javax.media.mscontrol.mediagroup.RecorderEvent.RESUMED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+            <event-class-name>javax.media.mscontrol.mediagroup.RecorderEvent</event-class-name>
+        </event-definition>
+        <event-definition>
+            <event-type-name>javax.media.mscontrol.mediagroup.RecorderEvent.RECORD_COMPLETED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+            <event-class-name>javax.media.mscontrol.mediagroup.RecorderEvent</event-class-name>
+        </event-definition>
+        <event-definition>
+            <event-type-name>javax.media.mscontrol.mediagroup.RecorderEvent.STARTED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+            <event-class-name>javax.media.mscontrol.mediagroup.RecorderEvent</event-class-name>
+        </event-definition>
         
 </event-jar>

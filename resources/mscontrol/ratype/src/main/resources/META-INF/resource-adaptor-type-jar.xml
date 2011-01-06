@@ -95,6 +95,28 @@
             <event-type-version>1.0</event-type-version>
         </event-type-ref>
         
+        <!-- Recorder Events -->
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mediagroup.RecorderEvent.PAUSED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mediagroup.RecorderEvent.RESUMED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mediagroup.RecorderEvent.RECORD_COMPLETED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mediagroup.RecorderEvent.STARTED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        
     </resource-adaptor-type>
 </resource-adaptor-type-jar>
 

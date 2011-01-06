@@ -21,6 +21,7 @@ package org.mobicents.slee.resource.mediacontrol.local;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Iterator;
+
 import javax.media.mscontrol.MediaConfig;
 import javax.media.mscontrol.MediaObject;
 import javax.media.mscontrol.MediaSession;
@@ -29,7 +30,6 @@ import javax.media.mscontrol.Parameter;
 import javax.media.mscontrol.Parameters;
 import javax.media.mscontrol.join.JoinEventListener;
 import javax.media.mscontrol.join.Joinable;
-import javax.media.mscontrol.join.Joinable.Direction;
 import javax.media.mscontrol.join.JoinableStream;
 import javax.media.mscontrol.join.JoinableStream.StreamType;
 import javax.media.mscontrol.mediagroup.MediaGroup;
@@ -49,19 +49,25 @@ public class MediaGroupLocal extends MsActivity implements MediaGroup, LocalJoin
     private String ID = Long.toHexString(System.currentTimeMillis());
     
     private MediaGroup group;
-    private SessionLocal session;
+    private MediaSessionLocal mediaSession;
+    private PlayerLocal player;
+    private RecorderLocal recorder;
     
-    public MediaGroupLocal(SessionLocal session, MediaGroup group) {
+    public MediaGroupLocal(MediaSessionLocal mediaSession, MediaGroup group) throws MsControlException {
         this.group = group;
-        this.session = session;
+        this.mediaSession= mediaSession;
+        if(group.getPlayer()!=null)
+        	this.player = new PlayerLocal(group.getPlayer(), mediaSession, this);
+        if(group.getRecorder()!=null)
+        	this.recorder = new RecorderLocal(group.getRecorder(), this, mediaSession);
     }
     
     public Player getPlayer() throws MsControlException {
-        return group.getPlayer();
+        return this.player;
     }
 
     public Recorder getRecorder() throws MsControlException {
-        return group.getRecorder();
+        return this.recorder;
     }
 
     public SignalDetector getSignalDetector() throws MsControlException {
@@ -117,7 +123,7 @@ public class MediaGroupLocal extends MsActivity implements MediaGroup, LocalJoin
     }
 
     public MediaSession getMediaSession() {
-        return session;
+        return mediaSession;
     }
 
     public void triggerAction(Action action) {
@@ -157,10 +163,12 @@ public class MediaGroupLocal extends MsActivity implements MediaGroup, LocalJoin
     }
 
     public Iterator<MediaObject> getMediaObjects() {
+    	//TODO: add proxy
         return group.getMediaObjects();
     }
 
     public <T extends MediaObject> Iterator<T> getMediaObjects(Class<T> res) {
+    	//TODO: add proxy
         return group.getMediaObjects(res);
     }
 

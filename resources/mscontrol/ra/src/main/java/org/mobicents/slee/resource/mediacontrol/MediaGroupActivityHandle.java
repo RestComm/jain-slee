@@ -20,11 +20,20 @@ package org.mobicents.slee.resource.mediacontrol;
 
 import javax.media.mscontrol.MediaEvent;
 import javax.media.mscontrol.MediaEventListener;
+import javax.media.mscontrol.MsControlException;
 import javax.media.mscontrol.join.JoinEvent;
 import javax.media.mscontrol.join.JoinEventListener;
-import javax.media.mscontrol.mediagroup.MediaGroup;
 import javax.media.mscontrol.mediagroup.PlayerEvent;
+import javax.media.mscontrol.mediagroup.RecorderEvent;
 import javax.slee.resource.ActivityHandle;
+
+import org.mobicents.slee.resource.mediacontrol.local.MediaGroupLocal;
+import org.mobicents.slee.resource.mediacontrol.local.MediaSessionLocal;
+import org.mobicents.slee.resource.mediacontrol.local.PlayerLocal;
+import org.mobicents.slee.resource.mediacontrol.local.RecorderLocal;
+import org.mobicents.slee.resource.mediacontrol.local.event.JoinEventLocal;
+import org.mobicents.slee.resource.mediacontrol.local.event.PlayerEventLocal;
+import org.mobicents.slee.resource.mediacontrol.local.event.RecorderEventLocal;
 
 /**
  *
@@ -32,19 +41,19 @@ import javax.slee.resource.ActivityHandle;
  */
 public class MediaGroupActivityHandle implements ActivityHandle, JoinEventListener, MediaEventListener {
     private McResourceAdaptor ra;
-    private MediaGroup mediaGroup;
+    private MediaGroupLocal mediaGroup;
     
-    public MediaGroupActivityHandle(McResourceAdaptor ra, MediaGroup mediaGroup) {
+    public MediaGroupActivityHandle(McResourceAdaptor ra, MediaGroupLocal mediaGroup) {
         this.ra = ra;
         this.mediaGroup = mediaGroup;
         
         try {
             if (mediaGroup.getPlayer() != null) {
-                mediaGroup.getPlayer().addListener(this);
+                ((PlayerLocal)mediaGroup.getPlayer()).addListenerLocal(this);
             }
         
             if (mediaGroup.getRecorder() != null) {
-                mediaGroup.getRecorder().addListener(this);
+                ((RecorderLocal)mediaGroup.getRecorder()).addListenerLocal(this);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,26 +85,52 @@ public class MediaGroupActivityHandle implements ActivityHandle, JoinEventListen
     }
 
     public void onEvent(JoinEvent event) {
+    	//TODO: fix this once MediaGroup handles joinable properly.
+    	JoinEventLocal localEvent = new JoinEventLocal(event,mediaGroup);
         if (event.getEventType().equals(JoinEvent.JOINED)) {
-            //TODO: wrap event to with local objects
-            ra.fireEvent("javax.media.mscontrol.join.JoinEvent.JOINED", this, event);
+            ra.fireEvent("javax.media.mscontrol.join.JoinEvent.JOINED", this, localEvent);
         } else if (event.getEventType().equals(JoinEvent.UNJOINED)) {
-            ra.fireEvent("javax.media.mscontrol.join.JoinEvent.UNJOINED", this, event);
+            ra.fireEvent("javax.media.mscontrol.join.JoinEvent.UNJOINED", this, localEvent);
         } 
     }
 
-    public void onEvent(MediaEvent event) {
-        if (event.getEventType().equals(PlayerEvent.PLAY_COMPLETED)) {
-            //TODO: wrap event to with local objects
-            ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.PLAY_COMPLETED", this, event);
-        } else if (event.getEventType().equals(PlayerEvent.PAUSED)) {
-            ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.PAUSED", this, event);
-        } else if (event.getEventType().equals(PlayerEvent.RESUMED)) {
-            ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.RESUMED", this, event);
-        } else if (event.getEventType().equals(PlayerEvent.SPEED_CHANGED)) {
-            ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.SPEED_CHANGED", this, event);
-        } else if (event.getEventType().equals(PlayerEvent.VOLUME_CHANGED)) {
-            ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.VOLUME_CHANGED", this, event);
-        } 
-    }
+	public void onEvent(MediaEvent event) {
+
+		if (event instanceof PlayerEvent) {
+			try {
+				PlayerEventLocal localEvent = new PlayerEventLocal((PlayerEvent)event,(PlayerLocal)mediaGroup.getPlayer());
+				if (event.getEventType().equals(PlayerEvent.PLAY_COMPLETED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.PLAY_COMPLETED", this, localEvent);
+				} else if (event.getEventType().equals(PlayerEvent.PAUSED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.PAUSED", this, localEvent);
+				} else if (event.getEventType().equals(PlayerEvent.RESUMED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.RESUMED", this, localEvent);
+				} else if (event.getEventType().equals(PlayerEvent.SPEED_CHANGED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.SPEED_CHANGED", this, localEvent);
+				} else if (event.getEventType().equals(PlayerEvent.VOLUME_CHANGED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.VOLUME_CHANGED", this, localEvent);
+				} else if (event.getEventType().equals(PlayerEvent.PAUSED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.PlayerEvent.PAUSED", this, localEvent);
+				}
+			} catch (MsControlException e) {
+				e.printStackTrace();
+			}
+		} else
+		{
+			try {
+				RecorderEventLocal localEvent = new RecorderEventLocal((RecorderEvent) event, (RecorderLocal) mediaGroup.getRecorder());
+				if (event.getEventType().equals(RecorderEvent.PAUSED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.RecorderEvent.PAUSED", this, localEvent);
+				} else if (event.getEventType().equals(RecorderEvent.RECORD_COMPLETED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.RecorderEvent.RECORD_COMPLETED", this, localEvent);
+				} else if (event.getEventType().equals(RecorderEvent.RESUMED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.RecorderEvent.RESUMED", this, localEvent);
+				} else if (event.getEventType().equals(RecorderEvent.STARTED)) {
+					ra.fireEvent("javax.media.mscontrol.mediagroup.RecorderEvent.STARTED", this, localEvent);
+				}
+			} catch (MsControlException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

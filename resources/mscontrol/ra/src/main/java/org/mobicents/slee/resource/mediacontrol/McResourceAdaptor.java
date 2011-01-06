@@ -178,7 +178,6 @@ public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, A
         handlers.put(a.getID(), h);
         try {
             this.sleeEndpoint.startActivity(h, a);
-            System.out.println("====STARTED ACTIVITY: " + a);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -193,14 +192,11 @@ public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, A
     }
     
     public Object getActivity(ActivityHandle handle) {
-        System.out.println("==== GET ACTIVITY ");
         return activities.get(handle);
     }
 
     public ActivityHandle getActivityHandle(Object activity) {
-        System.out.println("==== GET ACTIVITY HANDLE");
         ActivityHandle h = handlers.get(((MsActivity)activity).getID());
-        System.out.println("HANDLE=" + h);
         return h;
     }
 
@@ -241,7 +237,7 @@ public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, A
             ue.printStackTrace();
             throw new RuntimeException("JccResourceAdaptor.firEvent(): UnrecognizedEventException caught.", ue);
         }
-System.out.println("EventID=" + eventID);
+
         if (eventID == null) {
             if (tracer.isWarningEnabled()) {
                 tracer.warning("Unknown event type: " + eventName);

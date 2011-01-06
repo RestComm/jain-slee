@@ -20,9 +20,9 @@ package org.mobicents.slee.resource.mediacontrol.local;
 
 import java.net.URI;
 import java.util.Iterator;
+
 import javax.media.mscontrol.Configuration;
 import javax.media.mscontrol.MediaConfig;
-import javax.media.mscontrol.MediaEventListener;
 import javax.media.mscontrol.MediaObject;
 import javax.media.mscontrol.MediaSession;
 import javax.media.mscontrol.MsControlException;
@@ -32,6 +32,7 @@ import javax.media.mscontrol.mediagroup.MediaGroup;
 import javax.media.mscontrol.mixer.MediaMixer;
 import javax.media.mscontrol.networkconnection.NetworkConnection;
 import javax.media.mscontrol.vxml.VxmlDialog;
+
 import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.MediaGroupActivityHandle;
 import org.mobicents.slee.resource.mediacontrol.NetworkConnectionActivityHandle;
@@ -40,39 +41,39 @@ import org.mobicents.slee.resource.mediacontrol.NetworkConnectionActivityHandle;
  *
  * @author kulikov
  */
-public class SessionLocal implements MediaSession {
+public class MediaSessionLocal implements MediaSession {
 
-    private MediaSession session;
+    private MediaSession mediaSession;
     private McResourceAdaptor ra;
     
-    protected SessionLocal(MediaSession session, McResourceAdaptor ra) {
-        this.session = session;
+    protected MediaSessionLocal(MediaSession mediaSession, McResourceAdaptor ra) {
+        this.mediaSession = mediaSession;
         this.ra = ra;
     }
     
     public NetworkConnection createNetworkConnection(Configuration<NetworkConnection> cfg) throws MsControlException {
-        NetworkConnectionLocal local = new NetworkConnectionLocal(session.createNetworkConnection(cfg), ra);
+        NetworkConnectionLocal local = new NetworkConnectionLocal(mediaSession.createNetworkConnection(cfg),this, ra);
         NetworkConnectionActivityHandle h = new NetworkConnectionActivityHandle(ra, local);
         ra.createActivity(h, local);
         return local;
     }
 
     public NetworkConnection createNetworkConnection(Configuration<NetworkConnection> config, Parameters params) throws MsControlException {
-        NetworkConnectionLocal local = new NetworkConnectionLocal(session.createNetworkConnection(config, params), ra);
+        NetworkConnectionLocal local = new NetworkConnectionLocal(mediaSession.createNetworkConnection(config, params),this, ra);
         NetworkConnectionActivityHandle h = new NetworkConnectionActivityHandle(ra, local);
         ra.createActivity(h, local);
         return local;
     }
 
     public NetworkConnection createNetworkConnection(MediaConfig cfg, Parameters params) throws MsControlException {
-        NetworkConnectionLocal local = new NetworkConnectionLocal(session.createNetworkConnection(cfg, params), ra);
+        NetworkConnectionLocal local = new NetworkConnectionLocal(mediaSession.createNetworkConnection(cfg, params),this, ra);
         NetworkConnectionActivityHandle h = new NetworkConnectionActivityHandle(ra, local);
         ra.createActivity(h, local);
         return local;
     }
 
     public MediaGroup createMediaGroup(Configuration<MediaGroup> config) throws MsControlException {
-        MediaGroupLocal local = new MediaGroupLocal(this, session.createMediaGroup(config));
+        MediaGroupLocal local = new MediaGroupLocal(this, mediaSession.createMediaGroup(config));
         MediaGroupActivityHandle h = new MediaGroupActivityHandle(ra, local);
         ra.createActivity(h, local);
         return local;
@@ -103,39 +104,47 @@ public class SessionLocal implements MediaSession {
     }
 
     public Object getAttribute(String arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.mediaSession.getAttribute(arg0);
     }
 
     public void removeAttribute(String arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.mediaSession.removeAttribute(arg0);
     }
 
     public void setAttribute(String arg0, Object arg1) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.mediaSession.setAttribute(arg0, arg1);
     }
 
     public Iterator<String> getAttributeNames() {
-        throw new UnsupportedOperationException("Not supported yet.");
+         return this.mediaSession.getAttributeNames();
     }
 
     public URI getURI() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.mediaSession.getURI();
     }
 
     public void release() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	//fast solution, get proxies and release them.
+//        Iterator<MediaObject> it = this.getMediaObjects();
+//        while(it.hasNext())
+//        {
+//        	it.next().release();
+//        	it.remove();
+//        }
+        
+        this.mediaSession.release();
     }
 
     public void setParameters(Parameters arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.mediaSession.setParameters(arg0);
     }
 
     public Parameters getParameters(Parameter[] arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
+       return this.mediaSession.getParameters(arg0);
     }
 
     public Parameters createParameters() {
-        throw new UnsupportedOperationException("Not supported yet.");
+       return this.mediaSession.createParameters();
     }
 
     public Iterator<MediaObject> getMediaObjects() {

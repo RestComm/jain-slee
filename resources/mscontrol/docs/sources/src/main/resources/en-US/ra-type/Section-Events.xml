@@ -12,14 +12,15 @@
 
 	<para>The
 		Events fired by &THIS.RA;
-		Resource Adaptor represent changes in call or connection.
+		Resource Adaptor represent changes in call or connection. Tables below detail information about events fired by &THIS.RA; Resource Adaptor Type.
 	</para>
+	
 	<para>
+		For proper rendering some values have been removed from table.
 		Events fired on
 		<literal>NetworkConnection</literal>
 		Activity
-
-		has following:
+		have following:
 	</para>
 	<variablelist>
 		<varlistentry>
@@ -97,10 +98,11 @@
 	</table>
 	
 	<para>
+		For proper rendering some values have been removed from table.
 		Events fired on
 		<literal>MediaGroup</literal>
 		Activity
-		has following:
+		have following:
 	</para>
 	<variablelist>
 		
@@ -155,6 +157,8 @@
 					join.JoinEvent</entry>			
 					<entry>Generated when resource are disconnected.</entry>
 				</row>
+				
+				<!-- Play Events -->
 				<row>
 					<entry>javax.media 
 					.mscontrol.mediagroup. 
@@ -206,6 +210,35 @@
 					<entry>Generated when volume of playback changes.</entry>
 				</row>
 				
+				<!-- Recorder Events -->
+				<row>
+					<entry>javax.media .mscontrol.mediagroup .RecorderEvent .PAUSED</entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					RecordEven</entry>						
+					<entry>Generated when media server pauses recording.</entry>
+				</row>
+				<row>
+					<entry>javax.media .mscontrol.mediagroup .RecorderEvent .RECORD_COMPLETED</entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					RecordEven</entry>						
+					<entry>Generated when media server completes recording, either by request or by internal media server call.</entry>
+				</row>
+				<row>
+					<entry>javax.media .mscontrol.mediagroup .RecorderEvent .RESUMED</entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					RecordEven</entry>						
+					<entry>Generated when media server resumes recording.</entry>
+				</row>
+				<row>
+					<entry>javax.media .mscontrol.mediagroup .RecorderEvent .STARTED</entry>
+					<entry>javax.media 
+					.mscontrol.mediagroup. 
+					RecordEven</entry>						
+					<entry>Generated when media server starts recording.</entry>
+				</row>
 			</tbody>
 		</tgroup>
 	</table>
