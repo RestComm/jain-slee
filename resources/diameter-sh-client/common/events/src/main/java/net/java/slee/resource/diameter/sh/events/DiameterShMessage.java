@@ -25,6 +25,8 @@
  */
 package net.java.slee.resource.diameter.sh.events;
 
+import java.io.Serializable;
+
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
@@ -40,7 +42,7 @@ import net.java.slee.resource.diameter.sh.events.avp.SupportedFeaturesAvp;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public interface DiameterShMessage extends DiameterMessage {
+public interface DiameterShMessage extends DiameterMessage, Serializable {
 
   /**
    * Returns true if the Vendor-Specific-Application-Id AVP is present in the
