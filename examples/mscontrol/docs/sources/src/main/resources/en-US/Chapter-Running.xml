@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="running">
+
+	<title>Running the Example</title>
+	
+	<para>To run example simply call <literal>SLEE</literal> container. Example takes all addresses as its target.
+	You should hear playback from speakers once call is established.</para> 
+	
+</chapter>
+

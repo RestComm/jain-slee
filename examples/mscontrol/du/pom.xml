@@ -4,17 +4,17 @@
 	<packaging>pom</packaging>
 
 	<parent>
-		<artifactId>jsr309-parent</artifactId>
+		<artifactId>mscontrol-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
 		<version>2.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>jsr309-demo-DU</artifactId>
+	<artifactId>mscontrol-demo-DU</artifactId>
 	<name>Mobicents :: Examples :: ${pom.artifactId}</name>
 
 	<dependencies>
 		<dependency>
-			<artifactId>jsr309-sbb</artifactId>
+			<artifactId>mscontrol-sbb</artifactId>
 			<groupId>org.mobicents.examples</groupId>
 			<version>${pom.version}</version>
 		</dependency>

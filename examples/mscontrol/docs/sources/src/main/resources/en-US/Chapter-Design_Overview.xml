@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+	
+	<para>This example consists of single <literal>Service</literal> with single <literal>Sbb</literal>.</para> 
+	<para><literal>CallSbb</literal> listens for incoming SIP call. To be specific, it awaits <literal>SIP INVITE</literal>.
+	Once it receives <literal>INVITE</literal>, it creates session with Media Server, through <literal>MS Control RA</literal>
+	.
+	 </para>
+	 <para>Note that since RA is a preview, it does not support all operations.</para>
+</chapter>
+

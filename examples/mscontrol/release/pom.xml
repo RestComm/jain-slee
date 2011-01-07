@@ -1,0 +1,87 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>mscontrol-parent</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>2.1.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>mscontrol-release</artifactId>
+
+	<packaging>pom</packaging>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<properties>
+				<release.dir>${basedir}/../../../release/${release.name}/examples/mscontrol</release.dir>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<copy
+											overwrite="true"
+											todir="${release.dir}">
+											<fileset
+												dir="${basedir}/../slee/services-du/target">
+												<include
+													name="**.jar" />
+												<include
+													name="*.xml" />
+												<include
+													name="*.properties" />
+											</fileset>
+										</copy>
+
+										<copy
+											overwrite="true"
+											file="${basedir}/../web/target/mscontrol-audio.war"
+											todir="${release.dir}" />
+										<copy
+											overwrite="true"
+											file="${basedir}/../slee/services-du/target/build.xml"
+											tofile="${release.dir}/du-management.xml" />
+
+										<copy
+											overwrite="true"
+											file="${basedir}/../README.txt"
+											tofile="${release.dir}/README.txt" />
+
+										<copy
+											overwrite="true"
+											file="${basedir}/build.xml"
+											todir="${release.dir}">
+											<filterset>
+												<filter
+													token="JBOSS.PATH"
+													value="${jboss.path}" />
+												<filter
+													token="JBOSS.CONFIG"
+													value="${node}" />
+											</filterset>
+										</copy>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

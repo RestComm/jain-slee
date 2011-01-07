@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="introduction">
+
+	<title>Introduction
+		to &THIS.PLATFORM;
+		JAIN SLEE &THIS.EXAMPLE;
+		Example
+	</title>
+	<para>
+		This example demonstrates how MS Control RA can be used as Media
+		Gateway Call Controller to control the Media Gateway (Media
+		Server)
+	</para>
+	<para>
+		Prior knowledge of
+		<literal>JSR309(MSC)</literal>
+		is necessary to understand this example.
+		To learn about
+		<literal>JSR309</literal>
+		, look at
+		<ulink
+			url="http://jcp.org/en/jsr/detail?id=309">JSR Homepage</ulink>
+		. Knowledge of MS Control RA is
+		also desired.
+	</para>
+
+</chapter>
