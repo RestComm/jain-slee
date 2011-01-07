@@ -39,7 +39,7 @@ public interface IMSUserProfileChild {
    * 
    * @param parent
    */
-  public void setParentSbb(IMSUserProfileParentSbbLocalObject parentSbb);
+  public void setParentSbbCMP(IMSUserProfileParentSbbLocalObject parentSbb);
 
   public UserDataObjectFactory getUserDataObjectFactory();
 

@@ -533,7 +533,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
 
   // -- EVENT HANDLERS FOR DIAMETER REQUESTS ----------------------------------
 
-  public void onSubscribeNotificationsAnswer(SubscribeNotificationsAnswer event, RequestMappingACI aci) {
+  public void onSubscriptionNotificationsAnswer(SubscribeNotificationsAnswer event, RequestMappingACI aci) {
     SubscribeNotificationsRequest snr = (SubscribeNotificationsRequest) aci.getRequest();
 
     aci.detach(sbbContext.getSbbLocalObject());

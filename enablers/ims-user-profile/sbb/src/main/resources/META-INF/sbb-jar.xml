@@ -21,6 +21,11 @@
 			<sbb-local-interface>
 				<sbb-local-interface-name>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChildSbbLocalObject</sbb-local-interface-name>
 			</sbb-local-interface>
+            <sbb-activity-context-interface>
+                <sbb-activity-context-interface-name>
+                    org.mobicents.slee.enabler.ims.userprofile.RequestMappingACI
+                </sbb-activity-context-interface-name>
+             </sbb-activity-context-interface>
 		</sbb-classes>
 
         <event event-direction="Receive" initial-event="True">
