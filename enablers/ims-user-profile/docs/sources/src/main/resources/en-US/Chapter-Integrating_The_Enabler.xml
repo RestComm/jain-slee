@@ -72,6 +72,11 @@ public interface IMSUserProfileParent {
             long resultCode);
 
   public String subscribePSIActivationResponse(String publicIdentity, long resultCode);
+  
+  // Sh-Notify Operations Callbacks -------------------------------------------
+
+  public void receivedProfileUpdate(String userIdentity, byte[] msisdn, ShData data, 
+            String originRealm, String originHost);
 
 }
 		]]>
@@ -195,6 +200,13 @@ public interface IMSUserProfileParent {
                 <term>The <literal>subscribePSIActivationResponse(String, int, long)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing the response for a request to subscribe/unsubscribe to the "PSI Activation" data type.</para>
+                </listitem>
+            </varlistentry>
+        
+            <varlistentry>
+                <term>The <literal>receivedProfileUpdate(String, byte[], ShData, String, String)</literal> method:</term>
+                <listitem>
+                    <para>Callback from the Enabler providing a received Profile Update for a subscribed profile, for any data type.</para>
                 </listitem>
             </varlistentry>
         

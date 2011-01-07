@@ -36,11 +36,13 @@ import javax.slee.facilities.Tracer;
 
 import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ObjectFactory;
 
+import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
 import net.java.slee.resource.diameter.sh.client.ShClientActivity;
 import net.java.slee.resource.diameter.sh.client.ShClientActivityContextInterfaceFactory;
 import net.java.slee.resource.diameter.sh.client.ShClientMessageFactory;
 import net.java.slee.resource.diameter.sh.client.ShClientProvider;
+import net.java.slee.resource.diameter.sh.client.ShClientSubscriptionActivity;
 import net.java.slee.resource.diameter.sh.events.DiameterShMessage;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateRequest;
@@ -82,12 +84,18 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return new ObjectFactory();
   }
   
-  public String getRepositoryData(String publicIdentity, byte[][] serviceIndications) throws IOException {
+  public String getRepositoryData(String publicIdentity, byte[][] serviceIndications, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.REPOSITORY_DATA);
     udr.setServiceIndications(serviceIndications);
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
     
@@ -98,12 +106,18 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String getIMSPublicIdentity(String publicIdentity, byte[] msisdn, int identitySet) throws IOException {
+  public String getIMSPublicIdentity(String publicIdentity, byte[] msisdn, int identitySet, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.IMS_PUBLIC_IDENTITY);
     udr.setIdentitySet(IdentitySetType.fromInt(identitySet));
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
@@ -114,11 +128,17 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String getIMSUserState(String publicIdentity) throws IOException {
+  public String getIMSUserState(String publicIdentity, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.IMS_USER_STATE);
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
@@ -129,11 +149,17 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String getSCSCFName(String publicIdentity) throws IOException {
+  public String getSCSCFName(String publicIdentity, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.S_CSCFNAME);
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
@@ -144,12 +170,18 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String getInitialFilterCriteria(String publicIdentity, String serverName) throws IOException {
+  public String getInitialFilterCriteria(String publicIdentity, String serverName, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.INITIAL_FILTER_CRITERIA);
     udr.setServerName(serverName);
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
@@ -160,12 +192,18 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String getLocationInformation(byte[] msisdn, int requestedDomain) throws IOException {
+  public String getLocationInformation(byte[] msisdn, int requestedDomain, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(null, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.LOCATION_INFORMATION);
     udr.setRequestedDomain(RequestedDomainType.fromInt(requestedDomain));
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
@@ -176,12 +214,18 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String getUserState(byte[] msisdn, int requestedDomain) throws IOException {
+  public String getUserState(byte[] msisdn, int requestedDomain, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(null, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.USER_STATE);
     udr.setRequestedDomain(RequestedDomainType.fromInt(requestedDomain));
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
@@ -192,11 +236,17 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String getChargingInformation(String publicIdentity, byte[] msisdn) throws IOException {
+  public String getChargingInformation(String publicIdentity, byte[] msisdn, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.CHARGING_INFORMATION);
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
@@ -207,11 +257,17 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String getMSISDN(String publicIdentity, byte[] msisdn) throws IOException {
+  public String getMSISDN(String publicIdentity, byte[] msisdn, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.MSISDN);
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
@@ -222,11 +278,17 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String getPSIActivation(String publicIdentity) throws IOException {
+  public String getPSIActivation(String publicIdentity, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.PSI_ACTIVATION);
 
+    // Set destination -- Realm is mandatory, host is optional
+    udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      udr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
@@ -237,7 +299,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String updateRepositoryData(String publicIdentity, ShData data) throws IOException {
+  public String updateRepositoryData(String publicIdentity, ShData data, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     // Constructor does not allow to use ShData directly, using empty and filling separately
@@ -247,6 +309,12 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     pur.setDataReference(DataReferenceType.REPOSITORY_DATA);
     pur.setUserDataObject(data);
 
+    // Set destination -- Realm is mandatory, host is optional
+    pur.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      pur.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendProfileUpdateRequest(pur);
 
@@ -257,7 +325,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String updatePSIActivation(String publicIdentity, ShData data) throws IOException {
+  public String updatePSIActivation(String publicIdentity, ShData data, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     // Constructor does not allow to use ShData directly, using empty and filling separately
@@ -267,6 +335,12 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     pur.setDataReference(DataReferenceType.PSI_ACTIVATION);
     pur.setUserDataObject(data);
 
+    // Set destination -- Realm is mandatory, host is optional
+    pur.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      pur.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendProfileUpdateRequest(pur);
 
@@ -277,7 +351,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String subscribeRepositoryData(String publicIdentity, byte[][] serviceIndications, int subscriptionRequestType) throws IOException {
+  public String subscribeRepositoryData(String publicIdentity, byte[][] serviceIndications, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.REPOSITORY_DATA, SubsReqType.fromInt(subscriptionRequestType));
@@ -290,6 +364,12 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
 
     snr.setServiceIndications(serviceIndicationStrings);
 
+    // Set destination -- Realm is mandatory, host is optional
+    snr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      snr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendSubscribeNotificationsRequest(snr);
     
@@ -300,11 +380,17 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String subscribeIMSUserState(String publicIdentity, int subscriptionRequestType) throws IOException {
+  public String subscribeIMSUserState(String publicIdentity, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.IMS_USER_STATE, SubsReqType.fromInt(subscriptionRequestType));
 
+    // Set destination -- Realm is mandatory, host is optional
+    snr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      snr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendSubscribeNotificationsRequest(snr);
     
@@ -315,11 +401,17 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String subscribeSCSCFName(String publicIdentity, int subscriptionRequestType) throws IOException {
+  public String subscribeSCSCFName(String publicIdentity, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.S_CSCFNAME, SubsReqType.fromInt(subscriptionRequestType));
 
+    // Set destination -- Realm is mandatory, host is optional
+    snr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      snr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendSubscribeNotificationsRequest(snr);
     
@@ -330,12 +422,18 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String subscribeInitialFilterCriteria(String publicIdentity, String serverName, int subscriptionRequestType) throws IOException {
+  public String subscribeInitialFilterCriteria(String publicIdentity, String serverName, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.INITIAL_FILTER_CRITERIA, SubsReqType.fromInt(subscriptionRequestType));
     snr.setServerName(serverName);
 
+    // Set destination -- Realm is mandatory, host is optional
+    snr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      snr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
+
     ShClientActivity activity = getShClientActivity();
     activity.sendSubscribeNotificationsRequest(snr);
     
@@ -346,10 +444,16 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String subscribePSIActivation(String publicIdentity, int subscriptionRequestType) throws IOException {
+  public String subscribePSIActivation(String publicIdentity, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.PSI_ACTIVATION, SubsReqType.fromInt(subscriptionRequestType));
+
+    // Set destination -- Realm is mandatory, host is optional
+    snr.setDestinationRealm(new DiameterIdentity(destinationRealm));
+    if(destinationHost != null) {
+      snr.setDestinationHost(new DiameterIdentity(destinationHost));
+    }
 
     ShClientActivity activity = getShClientActivity();
     activity.sendSubscribeNotificationsRequest(snr);
@@ -491,7 +595,30 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
   }
 
   public void onPushNotificationRequest(PushNotificationRequest event, RequestMappingACI aci) {
-    // TODO: Fill method
+    // Send success response
+    try {
+      ShClientSubscriptionActivity activity  = (ShClientSubscriptionActivity) aci.getActivity();
+      activity.sendPushNotificationAnswer(2001L, true);
+    }
+    catch (IOException e) {
+      tracer.warning("Failed to sen Push-Notification-Answer.", e);
+    }
+    
+    // Retrieve useful data from request
+    String [] userIdentityValues = getUserIdentityValues(event);
+    
+    ShData data = null;
+
+    try {
+      data = event.getUserDataObject();
+    }
+    catch (Exception e) {
+      tracer.severe("Unable to extract User-Data from Push-Notification-Request.", e);
+      return;
+    }
+
+    // Deliver to parent
+    getParentSbbCMP().receivedProfileUpdate(userIdentityValues[0], userIdentityValues[1].getBytes(), data, event.getOriginRealm().toString(), event.getOriginHost().toString());
   }
 
   public void onUserDataAnswer(UserDataAnswer event, RequestMappingACI aci) {

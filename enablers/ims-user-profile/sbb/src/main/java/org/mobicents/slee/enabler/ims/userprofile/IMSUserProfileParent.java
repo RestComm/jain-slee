@@ -70,4 +70,8 @@ public interface IMSUserProfileParent {
 
   public String subscribePSIActivationResponse(String publicIdentity, int subscriptionRequestType, long resultCode);
 
+  // Sh-Notify Operations Callbacks -------------------------------------------
+
+  public void receivedProfileUpdate(String userIdentity, byte[] msisdn, ShData data, String originRealm, String originHost);
+
 }

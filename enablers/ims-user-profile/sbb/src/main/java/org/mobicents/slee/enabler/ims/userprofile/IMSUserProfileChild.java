@@ -80,42 +80,42 @@ public interface IMSUserProfileChild {
 
   // Sh-Pull Operations -------------------------------------------------------
 
-  public String getRepositoryData(String publicIdentity, byte[][] serviceIndication) throws IOException;
+  public String getRepositoryData(String publicIdentity, byte[][] serviceIndication, String destinationRealm, String destinationHost) throws IOException;
 
-  public String getIMSPublicIdentity(String publicIdentity, byte[] msisdn, int identitySet) throws IOException;
+  public String getIMSPublicIdentity(String publicIdentity, byte[] msisdn, int identitySet, String destinationRealm, String destinationHost) throws IOException;
 
-  public String getIMSUserState(String publicIdentity) throws IOException;
+  public String getIMSUserState(String publicIdentity, String destinationRealm, String destinationHost) throws IOException;
 
-  public String getSCSCFName(String publicIdentity) throws IOException;
+  public String getSCSCFName(String publicIdentity, String destinationRealm, String destinationHost) throws IOException;
 
-  public String getInitialFilterCriteria(String publicIdentity, String serverName) throws IOException;
+  public String getInitialFilterCriteria(String publicIdentity, String serverName, String destinationRealm, String destinationHost) throws IOException;
 
-  public String getLocationInformation(byte[] msisdn, int requestedDomain) throws IOException;
+  public String getLocationInformation(byte[] msisdn, int requestedDomain, String destinationRealm, String destinationHost) throws IOException;
 
-  public String getUserState(byte[] msisdn, int requestedDomain) throws IOException;
+  public String getUserState(byte[] msisdn, int requestedDomain, String destinationRealm, String destinationHost) throws IOException;
 
-  public String getChargingInformation(String publicIdentity, byte[] msisdn) throws IOException;
+  public String getChargingInformation(String publicIdentity, byte[] msisdn, String destinationRealm, String destinationHost) throws IOException;
 
-  public String getMSISDN(String publicIdentity, byte[] msisdn) throws IOException;
+  public String getMSISDN(String publicIdentity, byte[] msisdn, String destinationRealm, String destinationHost) throws IOException;
 
-  public String getPSIActivation(String publicIdentity) throws IOException;
+  public String getPSIActivation(String publicIdentity, String destinationRealm, String destinationHost) throws IOException;
 
   // Sh-Update Operations -----------------------------------------------------
 
-  public String updateRepositoryData(String publicIdentity, ShData data) throws IOException;
+  public String updateRepositoryData(String publicIdentity, ShData data, String destinationRealm, String destinationHost) throws IOException;
 
-  public String updatePSIActivation(String publicIdentity, ShData data) throws IOException;
+  public String updatePSIActivation(String publicIdentity, ShData data, String destinationRealm, String destinationHost) throws IOException;
   
   // Sh-Subscribe Operations --------------------------------------------------
 
-  public String subscribeRepositoryData(String publicIdentity, byte[][] serviceIndication, int subscriptionRequestType) throws IOException;
+  public String subscribeRepositoryData(String publicIdentity, byte[][] serviceIndication, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException;
 
-  public String subscribeIMSUserState(String publicIdentity, int subscriptionRequestType) throws IOException;
+  public String subscribeIMSUserState(String publicIdentity, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException;
 
-  public String subscribeSCSCFName(String publicIdentity, int subscriptionRequestType) throws IOException;
+  public String subscribeSCSCFName(String publicIdentity, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException;
 
-  public String subscribeInitialFilterCriteria(String publicIdentity, String serverName, int subscriptionRequestType) throws IOException;
+  public String subscribeInitialFilterCriteria(String publicIdentity, String serverName, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException;
 
-  public String subscribePSIActivation(String publicIdentity, int subscriptionRequestType) throws IOException;
+  public String subscribePSIActivation(String publicIdentity, int subscriptionRequestType, String destinationRealm, String destinationHost) throws IOException;
 
 }
