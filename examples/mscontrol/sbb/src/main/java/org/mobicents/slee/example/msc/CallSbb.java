@@ -21,6 +21,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sip.Dialog;
 import javax.sip.RequestEvent;
+import javax.sip.ServerTransaction;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.ContactHeader;
@@ -38,247 +39,317 @@ import javax.slee.facilities.Tracer;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
-import org.apache.log4j.Logger;
+
 import org.mobicents.slee.resource.mediacontrol.MscActivityContextInterfaceFactory;
 
 /**
- *
+ * 
  * @author kulikov
  */
 public class CallSbb implements Sbb {
 
-    public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
-    public final static String WELCOME = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/RQNT-ULAW.wav";
+	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
+	public final static String WELCOME = "http://" + JBOSS_BIND_ADDRESS + ":8080/mscontrol/audio/RQNT-ULAW.wav";
 
-    public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
-    
-    private Request request;
-    private RequestEvent event;
-    protected static int CALL_ID_GEN = 1;
-    protected static int GEN = 1000;
-    protected SbbContext sbbContext;
-    protected Tracer tracer;
-    protected SleeSipProvider sipProvider;
-    protected AddressFactory addressFactory;
-    protected HeaderFactory headerFactory;
-    protected MessageFactory messageFactory;
-    protected SipActivityContextInterfaceFactory acif;
-    private MsControlFactory mscFactory;
-    private MscActivityContextInterfaceFactory mscAcifFactory;
-    
-    private NetworkConnection connection;
-    private MediaGroup ivr;
-    
-    private MediaSession session = null;
+	public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
 
-    private static Logger logger = Logger.getLogger(CallSbb.class);
+	protected static int CALL_ID_GEN = 1;
+	protected static int GEN = 1000;
+	protected SbbContext sbbContext;
+	protected Tracer tracer;
+	protected SleeSipProvider sipProvider;
+	protected AddressFactory addressFactory;
+	protected HeaderFactory headerFactory;
+	protected MessageFactory messageFactory;
+	protected SipActivityContextInterfaceFactory acif;
+	private MsControlFactory mscFactory;
+	private MscActivityContextInterfaceFactory mscAcifFactory;
 
-    public void onInvite(RequestEvent event, ActivityContextInterface aci) {
-        logger.info("Receive call ");
-        this.event = event;
-        request = event.getRequest();
+	public void onInvite(RequestEvent event, ActivityContextInterface aci) {
+		tracer.info("Receive call ");
 
-        //sending provisional response to the UA which indiactes that initial request 
-        //successfuly reach call controller and is going to be handled
-        try {
-            Response response = messageFactory.createResponse(Response.TRYING, request);
-            event.getServerTransaction().sendResponse(response);
-        } catch (Exception e) {
-            //Can not send provisional response? Forget about this request.
-            return;
-        }
+		Request request = event.getRequest();
 
-        //Provisional response sent so possible to obtain SIP Dialog activity and attach this
-        //SBB to the Dialog activity. Dialog activity can be used to maintain current state too.
-        ActivityContextInterface callActivity = null;
-        try {
-            Dialog dialog = sipProvider.getNewDialog(event.getServerTransaction());
-            dialog.terminateOnBye(true);
-            callActivity = acif.getActivityContextInterface((DialogActivity) dialog);
-            callActivity.attach(sbbContext.getSbbLocalObject());
-        } catch (Exception e) {
-            //oops, this is unexpected core problem. there is only one way - terminate call
-            tracer.severe("Unexpected error", e);
-            reject(request);
-            return;
-        }
+		// sending provisional response to the UA which indiactes that initial
+		// request
+		// successfuly reach call controller and is going to be handled
+		try {
+			Response response = messageFactory.createResponse(Response.TRYING, request);
+			event.getServerTransaction().sendResponse(response);
+		} catch (Exception e) {
+			// Can not send provisional response? Forget about this request.
+			return;
+		}
 
-        try {
-            session = mscFactory.createMediaSession();
-        } catch (MsControlException e) {
-            tracer.severe("Unexpected error", e);
-            reject(request);
-            return;
-        }
+		// Provisional response sent so possible to obtain SIP Dialog activity
+		// and attach this
+		// SBB to the Dialog activity. Dialog activity can be used to maintain
+		// current state too.
+		ActivityContextInterface callActivity = null;
+		try {
+			Dialog dialog = sipProvider.getNewDialog(event.getServerTransaction());
+			dialog.terminateOnBye(true);
+			callActivity = acif.getActivityContextInterface((DialogActivity) dialog);
+			callActivity.attach(sbbContext.getSbbLocalObject());
+		} catch (Exception e) {
+			// oops, this is unexpected core problem. there is only one way -
+			// terminate call
+			tracer.severe("Unexpected error", e);
+			reject();
+			return;
+		}
+		MediaSession session = null;
+		try {
+			session = mscFactory.createMediaSession();
+		} catch (MsControlException e) {
+			tracer.severe("Unexpected error", e);
+			reject();
+			return;
+		}
 
-        logger.info("Created media session: " + session);
-        try {
-            connection = session.createNetworkConnection(NetworkConnection.BASIC);
-        } catch (MsControlException e) {
-            tracer.severe("Unexpected error", e);
-            reject(request);
-            return;
-        }
+		tracer.info("Created media session: " + session);
+		NetworkConnection connection = null;
+		try {
+			connection = session.createNetworkConnection(NetworkConnection.BASIC);
+		} catch (MsControlException e) {
+			tracer.severe("Unexpected error", e);
+			reject();
+			return;
+		}
 
-        logger.info("Created network connection: " + connection);
-        //creating media connection activity context interface
-        ActivityContextInterface activityContextInterface = null;
-        try {
-            activityContextInterface = mscAcifFactory.getActivityContextInterface(connection);
-            activityContextInterface.attach(sbbContext.getSbbLocalObject());
-        } catch (Exception e) {
-            tracer.severe("Unexpected error", e);
-            reject(request);
-            return;
-        }
+		tracer.info("Created network connection: " + connection);
+		// creating media connection activity context interface
+		ActivityContextInterface activityContextInterface = null;
+		try {
+			activityContextInterface = mscAcifFactory.getActivityContextInterface(connection);
+			activityContextInterface.attach(sbbContext.getSbbLocalObject());
+		} catch (Exception e) {
+			tracer.severe("Unexpected error", e);
+			reject();
+			return;
+		}
 
-        SdpPortManager sdpManager = null;
-        try {
-            sdpManager = connection.getSdpPortManager();
-        } catch (MsControlException e) {
-        }
+		SdpPortManager sdpManager = null;
+		try {
+			sdpManager = connection.getSdpPortManager();
+		} catch (MsControlException e) {
+		}
 
-        logger.info("SDP Manager: " + sdpManager);
-        try {
-            sdpManager.processSdpOffer((byte[]) request.getContent());
-            logger.info("SDP Manager: sent process offer request");
-        } catch (SdpPortManagerException e) {
-        }
-    }
+		tracer.info("SDP Manager: " + sdpManager);
+		try {
+			sdpManager.processSdpOffer((byte[]) request.getContent());
+			tracer.info("SDP Manager: sent process offer request");
+		} catch (SdpPortManagerException e) {
+		}
+	}
 
-    public void onStreamFailure(SdpPortManagerEvent evt, ActivityContextInterface aci) {
-        logger.info("Receive network failure event:");
-        reject(request);
-    }
-    
-    public void onAnswerGenerated(SdpPortManagerEvent evt, ActivityContextInterface aci) {
-        logger.info("Receive answer generated event:");
-        byte[] sdp = evt.getMediaServerSdp();
-        System.out.println("Request=" + request + ", sdp=" + new String(sdp));
-        ContentTypeHeader contentType = null;
-        try {
-            contentType = headerFactory.createContentTypeHeader("application", "sdp");
-        } catch (ParseException ex) {
-        }
+	public void onStreamFailure(SdpPortManagerEvent evt, ActivityContextInterface aci) {
+		tracer.info("Failed to process SDP:");
+		reject();
+	}
 
-        String localAddress = sipProvider.getListeningPoints()[0].getIPAddress();
-        int localPort = sipProvider.getListeningPoints()[0].getPort();
+	public void onAnswerGenerated(SdpPortManagerEvent evt, ActivityContextInterface aci) {
+		tracer.info("Received SDP answer:");
+		byte[] sdp = evt.getMediaServerSdp();
 
-        Address contactAddress = null;
-        try {
-            contactAddress = addressFactory.createAddress("sip:" + localAddress + ":" + localPort);
-        } catch (ParseException ex) {
-        }
-        ContactHeader contact = headerFactory.createContactHeader(contactAddress);
+		ContentTypeHeader contentType = null;
+		try {
+			contentType = headerFactory.createContentTypeHeader("application", "sdp");
+		} catch (ParseException ex) {
+		}
 
-        try {
-            Response ok = messageFactory.createResponse(Response.OK, request, contentType, sdp);
-            ok.setHeader(contact);
-            event.getServerTransaction().sendResponse(ok);
-        //provider.sendResponse(ok);
-        } catch (Exception e) {
-            tracer.info("Can not send SIP response: ", e);
-        }
-        
-        joinInitiate();
-    }
+		String localAddress = sipProvider.getListeningPoints()[0].getIPAddress();
+		int localPort = sipProvider.getListeningPoints()[0].getPort();
 
-    private void joinInitiate() {
-        try {
-            ivr = session.createMediaGroup(MediaGroup.PLAYER_RECORDER_SIGNALDETECTOR);
-            connection.joinInitiate(Direction.DUPLEX, ivr, "context");
-        } catch (Exception e) {
-            tracer.severe("Unable to initiate join: ", e);
-        }
-    }
-    
-    public void onJoined(JoinEvent event, ActivityContextInterface aci) {
-        tracer.info("**** LOCAL CONNECION WAS CREATED");
-        
-        ActivityContextInterface activityContextInterface = null;
-        try {
-            activityContextInterface = mscAcifFactory.getActivityContextInterface(ivr);
-            activityContextInterface.attach(sbbContext.getSbbLocalObject());
-        } catch (Exception e) {
-            tracer.severe("Unexpected error", e);
-            return;
-        }
-        
-        URI uri = null;
-        try {
-            uri = new URI(WELCOME);
-            ivr.getPlayer().play(uri, null, null);
-        } catch (Exception e) {
-            tracer.severe("Unexpected error", e);
-        }
-    }
+		Address contactAddress = null;
+		try {
+			contactAddress = addressFactory.createAddress("sip:" + localAddress + ":" + localPort);
+		} catch (ParseException ex) {
+		}
+		ContactHeader contact = headerFactory.createContactHeader(contactAddress);
 
-    public void onAnnouncementCompleted(PlayerEvent event, ActivityContextInterface aci) {
-        System.out.println("********** ANNOUNCEMENT COMPLETED *************");
-    }
-    
-    public void onDisconnect(RequestEvent event, ActivityContextInterface aci) {
-        logger.info("Disconnecting call");
-        connection.release();
-    }
-    
-    private void reject(Request request) {
-        try {
-            Response response = messageFactory.createResponse(Response.SERVER_INTERNAL_ERROR, request);
-            sipProvider.sendResponse(response);
-        } catch (Exception ex) {
-        }
-    }
+		try {
+			ServerTransaction st = getServerTransaction();
+			
+			Response ok = messageFactory.createResponse(Response.OK, st.getRequest(), contentType, sdp);
+			ok.setHeader(contact);
+			st.sendResponse(ok);
+			// provider.sendResponse(ok);
+		} catch (Exception e) {
+			tracer.info("Can not send SIP response: ", e);
+		}
 
-    
-    public void setSbbContext(SbbContext sbbContext) {
-        this.sbbContext = sbbContext;
-        this.tracer = sbbContext.getTracer("JSR-309-DEMO");
-        try {
-            Context ctx = (Context) new InitialContext().lookup("java:comp/env");
+		joinInitiate();
+	}
 
-            // initialize SIP API
-            sipProvider = (SleeSipProvider) ctx.lookup("slee/resources/jainsip/1.2/provider");
-            acif = (SipActivityContextInterfaceFactory) ctx.lookup("slee/resources/jainsip/1.2/acifactory");
-            messageFactory = sipProvider.getMessageFactory();
-            headerFactory = sipProvider.getHeaderFactory();
-            addressFactory = sipProvider.getAddressFactory();
-            
-            mscFactory = (MsControlFactory) ctx.lookup("slee/resources/media/1.0/provider");
-            mscAcifFactory = (MscActivityContextInterfaceFactory) ctx.lookup("slee/resources/media/1.0/acifactory");
-        } catch (Exception ne) {
-            logger.error("Could not set SBB context:", ne);
-        }
-    }
+	private void joinInitiate() {
+		try {
+			NetworkConnection connection = null;
+			MediaSession session = connection.getMediaSession();
+			MediaGroup ivr = session.createMediaGroup(MediaGroup.PLAYER_RECORDER_SIGNALDETECTOR);
+			connection.joinInitiate(Direction.DUPLEX, ivr, "context");
+			ActivityContextInterface activityContextInterface = mscAcifFactory.getActivityContextInterface(ivr);
+			activityContextInterface.attach(sbbContext.getSbbLocalObject());
+			
+		} catch (Exception e) {
+			tracer.severe("Unable to initiate join: ", e);
+		}
+	}
 
-    public void unsetSbbContext() {
-        this.sbbContext = null;
-    }
+	public void onJoined(JoinEvent event, ActivityContextInterface aci) {
+		tracer.info("**** LOCAL CONNECION WAS CREATED");
 
-    public void sbbCreate() throws CreateException {
-    }
+		URI uri = null;
+		try {
+			uri = new URI(WELCOME);
+			getMediaGroup().getPlayer().play(uri, null, null);
+		} catch (Exception e) {
+			tracer.severe("Unexpected error", e);
+		}
+	}
 
-    public void sbbPostCreate() throws CreateException {
-    }
+	public void onAnnouncementCompleted(PlayerEvent event, ActivityContextInterface aci) {
+		System.out.println("********** ANNOUNCEMENT COMPLETED *************");
+		ActivityContextInterface[] acis = this.sbbContext.getActivities();
+		sendBye();
+		releaseMedia();
+	}
 
-    public void sbbActivate() {
-    }
+	public void onDisconnect(RequestEvent event, ActivityContextInterface aci) {
+		tracer.info("Disconnecting call");
+		releaseMedia();
+	}
 
-    public void sbbPassivate() {
-    }
+	private void reject() {
+		try {
+			ServerTransaction  st = getServerTransaction();
+			Response response = messageFactory.createResponse(Response.SERVER_INTERNAL_ERROR, st.getRequest());
+			st.sendResponse(response);
+		} catch (Exception ex) {
+		}
+	}
 
-    public void sbbLoad() {
-    }
+	private NetworkConnection getNetworkConnection() {
+		for (ActivityContextInterface aci : this.sbbContext.getActivities()) {
+			if (aci.getActivity() instanceof NetworkConnection) {
+				NetworkConnection nc = (NetworkConnection) aci.getActivity();
+				return nc;
+			}
+		}
+		return null;
+	}
 
-    public void sbbStore() {
-    }
+	private MediaGroup getMediaGroup() {
+		for (ActivityContextInterface aci : this.sbbContext.getActivities()) {
+			if (aci.getActivity() instanceof MediaGroup) {
+				MediaGroup mg = (MediaGroup) aci.getActivity();
+				return mg;
+			}
+		}
+		return null;
+	}
 
-    public void sbbRemove() {
-    }
+	private DialogActivity getDialogActivity() {
+		for (ActivityContextInterface aci : this.sbbContext.getActivities()) {
+			if (aci.getActivity() instanceof DialogActivity) {
 
-    public void sbbExceptionThrown(Exception arg0, Object arg1, ActivityContextInterface arg2) {
-    }
+				DialogActivity da = (DialogActivity) aci.getActivity();
+				return da;
+			}
+		}
+		return null;
+	}
 
-    public void sbbRolledBack(RolledBackContext arg0) {
-    }
+	private ServerTransaction getServerTransaction() {
+		for (ActivityContextInterface aci : this.sbbContext.getActivities()) {
+			if (aci.getActivity() instanceof ServerTransaction) {
+
+				ServerTransaction da = (ServerTransaction) aci.getActivity();
+				return da;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 */
+	private void releaseMedia() {
+		MediaGroup mg = getMediaGroup();
+		if (mg != null) {
+			mg.release();
+		}
+
+		NetworkConnection nc = getNetworkConnection();
+		if (nc != null) {
+			nc.release();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void sendBye() {
+
+		DialogActivity da = getDialogActivity();
+		if (da != null) {
+			try {
+				Request bye = da.createRequest(Request.BYE);
+				da.sendRequest(bye);
+			} catch (Exception e) {
+				tracer.severe("Caught exception, something bad happened.", e);
+			}
+		}
+	}
+
+	public void setSbbContext(SbbContext sbbContext) {
+		this.sbbContext = sbbContext;
+		this.tracer = sbbContext.getTracer("MS-Control-DEMO");
+		try {
+			Context ctx = (Context) new InitialContext().lookup("java:comp/env");
+
+			// initialize SIP API
+			sipProvider = (SleeSipProvider) ctx.lookup("slee/resources/jainsip/1.2/provider");
+			acif = (SipActivityContextInterfaceFactory) ctx.lookup("slee/resources/jainsip/1.2/acifactory");
+			messageFactory = sipProvider.getMessageFactory();
+			headerFactory = sipProvider.getHeaderFactory();
+			addressFactory = sipProvider.getAddressFactory();
+
+			mscFactory = (MsControlFactory) ctx.lookup("slee/resources/media/1.0/provider");
+			mscAcifFactory = (MscActivityContextInterfaceFactory) ctx.lookup("slee/resources/media/1.0/acifactory");
+		} catch (Exception ne) {
+			tracer.severe("Could not set SBB context:", ne);
+		}
+	}
+
+	public void unsetSbbContext() {
+		this.sbbContext = null;
+	}
+
+	public void sbbCreate() throws CreateException {
+	}
+
+	public void sbbPostCreate() throws CreateException {
+	}
+
+	public void sbbActivate() {
+	}
+
+	public void sbbPassivate() {
+	}
+
+	public void sbbLoad() {
+	}
+
+	public void sbbStore() {
+	}
+
+	public void sbbRemove() {
+	}
+
+	public void sbbExceptionThrown(Exception arg0, Object arg1, ActivityContextInterface arg2) {
+	}
+
+	public void sbbRolledBack(RolledBackContext arg0) {
+	}
 }
