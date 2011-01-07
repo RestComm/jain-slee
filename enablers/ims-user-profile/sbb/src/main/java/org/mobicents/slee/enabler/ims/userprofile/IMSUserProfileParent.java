@@ -60,7 +60,7 @@ public interface IMSUserProfileParent {
 
   // Sh-Subscribe Operations Callbacks ----------------------------------------
 
-  public String subscribeRepositoryDataResponse(String publicIdentity, byte[][] serviceIndication, int subscriptionRequestType, long resultCode);
+  public String subscribeRepositoryDataResponse(String publicIdentity, byte[][] serviceIndications, int subscriptionRequestType, long resultCode);
 
   public String subscribeIMSUserStateResponse(String publicIdentity, int subscriptionRequestType, long resultCode);
 

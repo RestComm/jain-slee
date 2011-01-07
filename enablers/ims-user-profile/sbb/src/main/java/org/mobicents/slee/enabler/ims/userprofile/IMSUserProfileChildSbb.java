@@ -90,7 +90,11 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
 
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
-
+    
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
@@ -103,6 +107,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
@@ -114,6 +122,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
@@ -125,6 +137,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
@@ -137,6 +153,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
@@ -149,6 +169,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
@@ -161,6 +185,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
@@ -172,6 +200,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
@@ -183,6 +215,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
@@ -194,9 +230,137 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ShClientActivity activity = getShClientActivity();
     activity.sendUserDataRequest(udr);
 
+    // Store request for future matching
+    storeRequestInACI(activity, udr);
+    
+    // Return Session-Id, may be used as identifier
     return activity.getSessionId();
   }
 
+  public String updateRepositoryData(String publicIdentity, ShData data) throws IOException {
+    UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
+
+    // Constructor does not allow to use ShData directly, using empty and filling separately
+    ProfileUpdateRequest pur = diameterShClientMessageFactory.createProfileUpdateRequest();
+    
+    pur.setUserIdentity(publicIdentityAvp);
+    pur.setDataReference(DataReferenceType.REPOSITORY_DATA);
+    pur.setUserDataObject(data);
+
+    ShClientActivity activity = getShClientActivity();
+    activity.sendProfileUpdateRequest(pur);
+
+    // Store request for future matching
+    storeRequestInACI(activity, pur);
+    
+    // Return Session-Id, may be used as identifier
+    return activity.getSessionId();
+  }
+
+  public String updatePSIActivation(String publicIdentity, ShData data) throws IOException {
+    UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
+
+    // Constructor does not allow to use ShData directly, using empty and filling separately
+    ProfileUpdateRequest pur = diameterShClientMessageFactory.createProfileUpdateRequest();
+    
+    pur.setUserIdentity(publicIdentityAvp);
+    pur.setDataReference(DataReferenceType.PSI_ACTIVATION);
+    pur.setUserDataObject(data);
+
+    ShClientActivity activity = getShClientActivity();
+    activity.sendProfileUpdateRequest(pur);
+
+    // Store request for future matching
+    storeRequestInACI(activity, pur);
+    
+    // Return Session-Id, may be used as identifier
+    return activity.getSessionId();
+  }
+
+  public String subscribeRepositoryData(String publicIdentity, byte[][] serviceIndications, int subscriptionRequestType) throws IOException {
+    UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
+
+    SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.REPOSITORY_DATA, SubsReqType.fromInt(subscriptionRequestType));
+    
+    // hack.. to be fixed in Resource Adaptor
+    String[] serviceIndicationStrings = new String[serviceIndications.length];
+    for (int i = 0; i < serviceIndications.length; i++) {
+      serviceIndicationStrings[i] = new String(serviceIndications[i]);
+    }
+
+    snr.setServiceIndications(serviceIndicationStrings);
+
+    ShClientActivity activity = getShClientActivity();
+    activity.sendSubscribeNotificationsRequest(snr);
+    
+    // Store request for future matching
+    storeRequestInACI(activity, snr);
+    
+    // Return Session-Id, may be used as identifier
+    return activity.getSessionId();
+  }
+
+  public String subscribeIMSUserState(String publicIdentity, int subscriptionRequestType) throws IOException {
+    UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
+
+    SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.IMS_USER_STATE, SubsReqType.fromInt(subscriptionRequestType));
+
+    ShClientActivity activity = getShClientActivity();
+    activity.sendSubscribeNotificationsRequest(snr);
+    
+    // Store request for future matching
+    storeRequestInACI(activity, snr);
+    
+    // Return Session-Id, may be used as identifier
+    return activity.getSessionId();
+  }
+
+  public String subscribeSCSCFName(String publicIdentity, int subscriptionRequestType) throws IOException {
+    UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
+
+    SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.S_CSCFNAME, SubsReqType.fromInt(subscriptionRequestType));
+
+    ShClientActivity activity = getShClientActivity();
+    activity.sendSubscribeNotificationsRequest(snr);
+    
+    // Store request for future matching
+    storeRequestInACI(activity, snr);
+    
+    // Return Session-Id, may be used as identifier
+    return activity.getSessionId();
+  }
+
+  public String subscribeInitialFilterCriteria(String publicIdentity, String serverName, int subscriptionRequestType) throws IOException {
+    UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
+
+    SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.INITIAL_FILTER_CRITERIA, SubsReqType.fromInt(subscriptionRequestType));
+    snr.setServerName(serverName);
+
+    ShClientActivity activity = getShClientActivity();
+    activity.sendSubscribeNotificationsRequest(snr);
+    
+    // Store request for future matching
+    storeRequestInACI(activity, snr);
+    
+    // Return Session-Id, may be used as identifier
+    return activity.getSessionId();
+  }
+
+  public String subscribePSIActivation(String publicIdentity, int subscriptionRequestType) throws IOException {
+    UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
+
+    SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.PSI_ACTIVATION, SubsReqType.fromInt(subscriptionRequestType));
+
+    ShClientActivity activity = getShClientActivity();
+    activity.sendSubscribeNotificationsRequest(snr);
+    
+    // Store request for future matching
+    storeRequestInACI(activity, snr);
+    
+    // Return Session-Id, may be used as identifier
+    return activity.getSessionId();
+  }
+  
   // -- HELPER METHODS --------------------------------------------------------
 
   private UserIdentityAvp createUserIdentityAvp(String publicIdentity, byte[] msisdn) {
@@ -254,6 +418,13 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     catch (Exception e) {
       throw new IOException(e.getMessage(), e);
     }
+  }
+  
+  private void storeRequestInACI(ShClientActivity activity, DiameterShMessage message) {
+    ActivityContextInterface aci = diameterShClientACIF.getActivityContextInterface(activity);
+    RequestMappingACI rmACI = asSbbActivityContextInterface(aci);
+    
+    rmACI.setRequest(message);
   }
 
   // -- EVENT HANDLERS FOR DIAMETER REQUESTS ----------------------------------

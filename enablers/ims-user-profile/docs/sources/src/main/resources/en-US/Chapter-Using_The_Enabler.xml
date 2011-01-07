@@ -26,7 +26,7 @@ public interface IMSUserProfileChild {
 
   // Sh-Pull Operations -------------------------------------------------------
 
-  public String getRepositoryData(String publicIdentity, byte[][] serviceIndication) 
+  public String getRepositoryData(String publicIdentity, byte[][] serviceIndications) 
             throws IOException;
 
   public String getIMSPublicIdentity(String publicIdentity, byte[] msisdn, int identitySet) 
@@ -57,7 +57,7 @@ public interface IMSUserProfileChild {
   
   // Sh-Subscribe Operations --------------------------------------------------
 
-  public String subscribeRepositoryData(String publicIdentity, byte[][] serviceIndication, 
+  public String subscribeRepositoryData(String publicIdentity, byte[][] serviceIndications, 
             int subscriptionRequestType) throws IOException;
 
   public String subscribeIMSUserState(String publicIdentity, int subscriptionRequestType) 
