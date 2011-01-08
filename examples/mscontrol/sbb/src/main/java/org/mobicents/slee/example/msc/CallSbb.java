@@ -209,7 +209,7 @@ public class CallSbb implements Sbb {
 	}
 
 	public void onAnnouncementCompleted(PlayerEvent event, ActivityContextInterface aci) {
-		System.out.println("********** ANNOUNCEMENT COMPLETED *************");
+		tracer.info("********** ANNOUNCEMENT COMPLETED *************");
 		ActivityContextInterface[] acis = this.sbbContext.getActivities();
 		sendBye();
 		releaseMedia();
