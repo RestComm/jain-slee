@@ -89,13 +89,13 @@ public class TSePoTri implements SePoTri {
     @XmlElement(name = "Method")
     protected String method;
     @XmlElement(name = "SIPHeader")
-    protected Header sipHeader;
+    protected THeader sipHeader;
     @XmlElement(name = "SessionCase")
     protected Short sessionCase;
     @XmlElement(name = "SessionDescription")
-    protected SessionDescription sessionDescription;
+    protected TSessionDescription sessionDescription;
     @XmlElement(name = "Extension")
-    protected SePoTriExtension extension;
+    protected TSePoTriExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -162,7 +162,7 @@ public class TSePoTri implements SePoTri {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.SePoTri#setSIPHeader(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Header)
      */
     public void setSIPHeader(Header value) {
-        this.sipHeader = value;
+        this.sipHeader = (THeader) value;
     }
 
     /* (non-Javadoc)
@@ -190,7 +190,7 @@ public class TSePoTri implements SePoTri {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.SePoTri#setSessionDescription(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TSessionDescription)
      */
     public void setSessionDescription(SessionDescription value) {
-        this.sessionDescription = value;
+        this.sessionDescription = (TSessionDescription) value;
     }
 
     /* (non-Javadoc)
@@ -204,7 +204,7 @@ public class TSePoTri implements SePoTri {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.SePoTri#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TSePoTriExtension)
      */
     public void setExtension(SePoTriExtension value) {
-        this.extension = value;
+        this.extension = (TSePoTriExtension) value;
     }
 
     /* (non-Javadoc)

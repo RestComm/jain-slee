@@ -98,15 +98,15 @@ public class TCSLocationInformation implements CSLocationInformation {
     @XmlElement(name = "GeodeticInformation")
     protected String geodeticInformation;
     @XmlElement(name = "VLRNumber")
-    protected ISDNAddress vlrNumber;
+    protected TISDNAddress vlrNumber;
     @XmlElement(name = "MSCNumber")
-    protected ISDNAddress mscNumber;
+    protected TISDNAddress mscNumber;
     @XmlElement(name = "CurrentLocationRetrieved")
     protected Boolean currentLocationRetrieved;
     @XmlElement(name = "AgeOfLocationInformation")
     protected Integer ageOfLocationInformation;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -205,7 +205,7 @@ public class TCSLocationInformation implements CSLocationInformation {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.CSLocationInformation#setVLRNumber(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TISDNAddress)
      */
     public void setVLRNumber(ISDNAddress value) {
-        this.vlrNumber = value;
+        this.vlrNumber = (TISDNAddress) value;
     }
 
     /* (non-Javadoc)
@@ -219,7 +219,7 @@ public class TCSLocationInformation implements CSLocationInformation {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.CSLocationInformation#setMSCNumber(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TISDNAddress)
      */
     public void setMSCNumber(ISDNAddress value) {
-        this.mscNumber = value;
+        this.mscNumber = (TISDNAddress) value;
     }
 
     /* (non-Javadoc)
@@ -261,7 +261,7 @@ public class TCSLocationInformation implements CSLocationInformation {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.CSLocationInformation#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TExtension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

@@ -71,7 +71,7 @@ public class TPublicIdentity implements PublicIdentity {
     @XmlElement(name = "MSISDN")
     protected List<String> msisdn;
     @XmlElement(name = "Extension")
-    protected PublicIdentityExtension extension;
+    protected TPublicIdentityExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -106,7 +106,7 @@ public class TPublicIdentity implements PublicIdentity {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PublicIdentity#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TPublicIdentityExtension)
      */
     public void setExtension(PublicIdentityExtension value) {
-        this.extension = value;
+        this.extension = (TPublicIdentityExtension) value;
     }
 
     /* (non-Javadoc)

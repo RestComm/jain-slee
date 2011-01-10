@@ -63,7 +63,7 @@ public class TShIMSDataExtension2 implements ShIMSDataExtension2 {
     @XmlElement(name = "DSAI")
     protected List<TDSAI> dsai;
     @XmlElement(name = "Extension")
-    protected ShIMSDataExtension3 extension;
+    protected TShIMSDataExtension3 extension;
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShIMSDataExtension2#getDSAI()
@@ -86,7 +86,7 @@ public class TShIMSDataExtension2 implements ShIMSDataExtension2 {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShIMSDataExtension2#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShIMSDataExtension3)
      */
     public void setExtension(ShIMSDataExtension3 value) {
-        this.extension = value;
+        this.extension = (TShIMSDataExtension3) value;
     }
 
 }

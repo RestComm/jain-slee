@@ -63,7 +63,7 @@ public class TShIMSDataExtension3 implements ShIMSDataExtension3 {
     @XmlElement(name = "ServiceLevelTraceInfo")
     protected List<String> serviceLevelTraceInfo;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShIMSDataExtension3#getServiceLevelTraceInfo()
@@ -86,7 +86,7 @@ public class TShIMSDataExtension3 implements ShIMSDataExtension3 {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShIMSDataExtension3#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
 }

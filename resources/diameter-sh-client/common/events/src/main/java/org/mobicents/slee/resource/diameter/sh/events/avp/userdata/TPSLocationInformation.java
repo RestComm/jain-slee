@@ -96,13 +96,13 @@ public class TPSLocationInformation implements PSLocationInformation {
     @XmlElement(name = "GeodeticInformation")
     protected String geodeticInformation;
     @XmlElement(name = "SGSNNumber")
-    protected ISDNAddress sgsnNumber;
+    protected TISDNAddress sgsnNumber;
     @XmlElement(name = "CurrentLocationRetrieved")
     protected Boolean currentLocationRetrieved;
     @XmlElement(name = "AgeOfLocationInformation")
     protected Integer ageOfLocationInformation;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -201,7 +201,7 @@ public class TPSLocationInformation implements PSLocationInformation {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PSLocationInformation#setSGSNNumber(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ISDNAddress)
      */
     public void setSGSNNumber(ISDNAddress value) {
-        this.sgsnNumber = value;
+        this.sgsnNumber = (TISDNAddress) value;
     }
 
     /* (non-Javadoc)
@@ -243,7 +243,7 @@ public class TPSLocationInformation implements PSLocationInformation {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PSLocationInformation#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

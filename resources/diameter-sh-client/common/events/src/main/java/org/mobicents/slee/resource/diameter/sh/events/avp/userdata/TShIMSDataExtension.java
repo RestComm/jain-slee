@@ -61,7 +61,7 @@ public class TShIMSDataExtension implements ShIMSDataExtension {
     @XmlElement(name = "PSIActivation")
     protected Short psiActivation;
     @XmlElement(name = "Extension")
-    protected ShIMSDataExtension2 extension;
+    protected TShIMSDataExtension2 extension;
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShIMSDataExtension#getPSIActivation()
@@ -88,7 +88,7 @@ public class TShIMSDataExtension implements ShIMSDataExtension {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShIMSDataExtension#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShIMSDataExtension2)
      */
     public void setExtension(ShIMSDataExtension2 value) {
-        this.extension = value;
+        this.extension = (TShIMSDataExtension2) value;
     }
 
 }

@@ -27,35 +27,6 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ApplicationServer;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.CSLocationInformation;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ChargingInformation;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.DSAI;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.Extension;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.Header;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.IFCs;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ISDNAddress;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.InitialFilterCriteria;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.PSLocationInformation;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.PublicIdentity;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.PublicIdentityExtension;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.PublicIdentityExtension2;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.SePoTri;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.SePoTriExtension;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ServiceData;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.SessionDescription;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShData;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension2;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShIMSData;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShIMSDataExtension;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShIMSDataExtension2;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShIMSDataExtension3;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.TransparentData;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.Trigger;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory;
-
-
 /**
  * This object contains factory methods for each  Java content interface and Java element interface 
  * generated in the org.mobicents.slee.resource.diameter.sh.events.avp.userdata package. 
@@ -67,7 +38,7 @@ import net.java.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFact
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 @XmlRegistry
-public class ObjectFactory implements UserDataObjectFactory {
+public class ObjectFactory {
 
     private final static QName _ShData_QNAME = new QName("", "Sh-Data");
 
@@ -82,182 +53,182 @@ public class ObjectFactory implements UserDataObjectFactory {
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createChargingInformation()
      */
-    public ChargingInformation createChargingInformation() {
+    public TChargingInformation createChargingInformation() {
         return new TChargingInformation();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createTrigger()
      */
-    public Trigger createTrigger() {
+    public TTrigger createTrigger() {
         return new TTrigger();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createSePoTriExtension()
      */
-    public SePoTriExtension createSePoTriExtension() {
+    public TSePoTriExtension createSePoTriExtension() {
         return new TSePoTriExtension();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createApplicationServer()
      */
-    public ApplicationServer createApplicationServer() {
+    public TApplicationServer createApplicationServer() {
         return new TApplicationServer();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createIFCs()
      */
-    public IFCs createIFCs() {
+    public TIFCs createIFCs() {
         return new TIFCs();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createPublicIdentityExtension()
      */
-    public PublicIdentityExtension createPublicIdentityExtension() {
+    public TPublicIdentityExtension createPublicIdentityExtension() {
         return new TPublicIdentityExtension();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createServiceData()
      */
-    public ServiceData createServiceData() {
+    public TServiceData createServiceData() {
         return new TServiceData();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createShDataExtension2()
      */
-    public ShDataExtension2 createShDataExtension2() {
+    public TShDataExtension2 createShDataExtension2() {
         return new TShDataExtension2();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createShIMSDataExtension()
      */
-    public ShIMSDataExtension createShIMSDataExtension() {
+    public TShIMSDataExtension createShIMSDataExtension() {
         return new TShIMSDataExtension();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createShDataExtension()
      */
-    public ShDataExtension createShDataExtension() {
+    public TShDataExtension createShDataExtension() {
         return new TShDataExtension();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createCSLocationInformation()
      */
-    public CSLocationInformation createCSLocationInformation() {
+    public TCSLocationInformation createCSLocationInformation() {
         return new TCSLocationInformation();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createInitialFilterCriteria()
      */
-    public InitialFilterCriteria createInitialFilterCriteria() {
+    public TInitialFilterCriteria createInitialFilterCriteria() {
         return new TInitialFilterCriteria();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createHeader()
      */
-    public Header createHeader() {
+    public THeader createHeader() {
         return new THeader();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createPublicIdentity()
      */
-    public PublicIdentity createPublicIdentity() {
+    public TPublicIdentity createPublicIdentity() {
         return new TPublicIdentity();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createSessionDescription()
      */
-    public SessionDescription createSessionDescription() {
+    public TSessionDescription createSessionDescription() {
         return new TSessionDescription();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createPSLocationInformation()
      */
-    public PSLocationInformation createPSLocationInformation() {
+    public TPSLocationInformation createPSLocationInformation() {
         return new TPSLocationInformation();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createShData()
      */
-    public ShData createShData() {
+    public TShData createShData() {
         return new TShData();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createShIMSData()
      */
-    public ShIMSData createShIMSData() {
+    public TShIMSData createShIMSData() {
         return new TShIMSData();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createShIMSDataExtension3()
      */
-    public ShIMSDataExtension3 createShIMSDataExtension3() {
+    public TShIMSDataExtension3 createShIMSDataExtension3() {
         return new TShIMSDataExtension3();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createShIMSDataExtension2()
      */
-    public ShIMSDataExtension2 createShIMSDataExtension2() {
+    public TShIMSDataExtension2 createShIMSDataExtension2() {
         return new TShIMSDataExtension2();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createISDNAddress()
      */
-    public ISDNAddress createISDNAddress() {
+    public TISDNAddress createISDNAddress() {
         return new TISDNAddress();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createExtension()
      */
-    public Extension createExtension() {
+    public TExtension createExtension() {
         return new TExtension();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createPublicIdentityExtension2()
      */
-    public PublicIdentityExtension2 createPublicIdentityExtension2() {
+    public TPublicIdentityExtension2 createPublicIdentityExtension2() {
         return new TPublicIdentityExtension2();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createDSAI()
      */
-    public DSAI createDSAI() {
+    public TDSAI createDSAI() {
         return new TDSAI();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createTransparentData()
      */
-    public TransparentData createTransparentData() {
+    public TTransparentData createTransparentData() {
         return new TTransparentData();
     }
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory#createSePoTri()
      */
-    public SePoTri createSePoTri() {
+    public TSePoTri createSePoTri() {
         return new TSePoTri();
     }
 

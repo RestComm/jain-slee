@@ -74,17 +74,17 @@ import net.java.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension2;
 public class TShDataExtension implements ShDataExtension {
 
     @XmlElement(name = "RegisteredIdentities")
-    protected PublicIdentity registeredIdentities;
+    protected TPublicIdentity registeredIdentities;
     @XmlElement(name = "ImplicitIdentities")
-    protected PublicIdentity implicitIdentities;
+    protected TPublicIdentity implicitIdentities;
     @XmlElement(name = "AllIdentities")
-    protected PublicIdentity allIdentities;
+    protected TPublicIdentity allIdentities;
     @XmlElement(name = "AliasIdentities")
-    protected PublicIdentity aliasIdentities;
+    protected TPublicIdentity aliasIdentities;
     @XmlElement(name = "AliasesRepositoryData")
     protected List<TTransparentData> aliasesRepositoryData;
     @XmlElement(name = "Extension")
-    protected ShDataExtension2 extension;
+    protected TShDataExtension2 extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -99,7 +99,7 @@ public class TShDataExtension implements ShDataExtension {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension#setRegisteredIdentities(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PublicIdentity)
      */
     public void setRegisteredIdentities(PublicIdentity value) {
-        this.registeredIdentities = value;
+        this.registeredIdentities = (TPublicIdentity) value;
     }
 
     /* (non-Javadoc)
@@ -113,7 +113,7 @@ public class TShDataExtension implements ShDataExtension {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension#setImplicitIdentities(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PublicIdentity)
      */
     public void setImplicitIdentities(PublicIdentity value) {
-        this.implicitIdentities = value;
+        this.implicitIdentities = (TPublicIdentity) value;
     }
 
     /* (non-Javadoc)
@@ -127,7 +127,7 @@ public class TShDataExtension implements ShDataExtension {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension#setAllIdentities(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PublicIdentity)
      */
     public void setAllIdentities(PublicIdentity value) {
-        this.allIdentities = value;
+        this.allIdentities = (TPublicIdentity) value;
     }
 
     /* (non-Javadoc)
@@ -141,7 +141,7 @@ public class TShDataExtension implements ShDataExtension {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension#setAliasIdentities(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PublicIdentity)
      */
     public void setAliasIdentities(PublicIdentity value) {
-        this.aliasIdentities = value;
+        this.aliasIdentities = (TPublicIdentity) value;
     }
 
     /* (non-Javadoc)
@@ -165,7 +165,7 @@ public class TShDataExtension implements ShDataExtension {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShDataExtension2)
      */
     public void setExtension(ShDataExtension2 value) {
-        this.extension = value;
+        this.extension = (TShDataExtension2) value;
     }
 
     /* (non-Javadoc)

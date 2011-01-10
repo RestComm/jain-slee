@@ -71,7 +71,7 @@ public class TSessionDescription implements SessionDescription {
     @XmlElement(name = "Content")
     protected String content;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -114,7 +114,7 @@ public class TSessionDescription implements SessionDescription {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.SessionDescription#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

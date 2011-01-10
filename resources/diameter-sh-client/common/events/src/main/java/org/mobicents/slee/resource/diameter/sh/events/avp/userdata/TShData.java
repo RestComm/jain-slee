@@ -81,21 +81,21 @@ import net.java.slee.resource.diameter.sh.events.avp.userdata.ShIMSData;
 public class TShData implements ShData {
 
     @XmlElement(name = "PublicIdentifiers")
-    protected PublicIdentity publicIdentifiers;
+    protected TPublicIdentity publicIdentifiers;
     @XmlElement(name = "RepositoryData")
     protected List<TTransparentData> repositoryData;
     @XmlElement(name = "Sh-IMS-Data")
-    protected ShIMSData shIMSData;
+    protected TShIMSData shIMSData;
     @XmlElement(name = "CSLocationInformation")
-    protected CSLocationInformation csLocationInformation;
+    protected TCSLocationInformation csLocationInformation;
     @XmlElement(name = "PSLocationInformation")
-    protected PSLocationInformation psLocationInformation;
+    protected TPSLocationInformation psLocationInformation;
     @XmlElement(name = "CSUserState")
     protected Short csUserState;
     @XmlElement(name = "PSUserState")
     protected Short psUserState;
     @XmlElement(name = "Extension")
-    protected ShDataExtension extension;
+    protected TShDataExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -110,7 +110,7 @@ public class TShData implements ShData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShData#setPublicIdentifiers(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PublicIdentity)
      */
     public void setPublicIdentifiers(PublicIdentity value) {
-        this.publicIdentifiers = value;
+        this.publicIdentifiers = (TPublicIdentity) value;
     }
 
     /* (non-Javadoc)
@@ -134,7 +134,7 @@ public class TShData implements ShData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShData#setShIMSData(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShIMSData)
      */
     public void setShIMSData(ShIMSData value) {
-        this.shIMSData = value;
+        this.shIMSData = (TShIMSData) value;
     }
 
     /* (non-Javadoc)
@@ -148,7 +148,7 @@ public class TShData implements ShData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShData#setCSLocationInformation(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.CSLocationInformation)
      */
     public void setCSLocationInformation(CSLocationInformation value) {
-        this.csLocationInformation = value;
+        this.csLocationInformation = (TCSLocationInformation) value;
     }
 
     /* (non-Javadoc)
@@ -162,7 +162,7 @@ public class TShData implements ShData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShData#setPSLocationInformation(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PSLocationInformation)
      */
     public void setPSLocationInformation(PSLocationInformation value) {
-        this.psLocationInformation = value;
+        this.psLocationInformation = (TPSLocationInformation) value;
     }
 
     /* (non-Javadoc)
@@ -204,7 +204,7 @@ public class TShData implements ShData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShData#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShDataExtension)
      */
     public void setExtension(ShDataExtension value) {
-        this.extension = value;
+        this.extension = (TShDataExtension) value;
     }
 
     /* (non-Javadoc)

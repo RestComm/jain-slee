@@ -75,13 +75,13 @@ public class TShIMSData implements ShIMSData {
     @XmlElement(name = "SCSCFName")
     protected String scscfName;
     @XmlElement(name = "IFCs")
-    protected IFCs ifCs;
+    protected TIFCs ifCs;
     @XmlElement(name = "IMSUserState")
     protected Short imsUserState;
     @XmlElement(name = "ChargingInformation")
-    protected ChargingInformation chargingInformation;
+    protected TChargingInformation chargingInformation;
     @XmlElement(name = "Extension")
-    protected ShIMSDataExtension extension;
+    protected TShIMSDataExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -110,7 +110,7 @@ public class TShIMSData implements ShIMSData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShIMSData#setIFCs(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.IFCs)
      */
     public void setIFCs(IFCs value) {
-        this.ifCs = value;
+        this.ifCs = (TIFCs) value;
     }
 
     /* (non-Javadoc)
@@ -138,7 +138,7 @@ public class TShIMSData implements ShIMSData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShIMSData#setChargingInformation(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ChargingInformation)
      */
     public void setChargingInformation(ChargingInformation value) {
-        this.chargingInformation = value;
+        this.chargingInformation = (TChargingInformation) value;
     }
 
     /* (non-Javadoc)
@@ -152,7 +152,7 @@ public class TShIMSData implements ShIMSData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShIMSData#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShIMSDataExtension)
      */
     public void setExtension(ShIMSDataExtension value) {
-        this.extension = value;
+        this.extension = (TShIMSDataExtension) value;
     }
 
     /* (non-Javadoc)

@@ -63,7 +63,7 @@ public class TPublicIdentityExtension2 implements PublicIdentityExtension2 {
     @XmlSchemaType(name = "anyURI")
     protected String wildcardedIMPU;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PublicIdentityExtension2#getWildcardedIMPU()
@@ -90,7 +90,7 @@ public class TPublicIdentityExtension2 implements PublicIdentityExtension2 {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PublicIdentityExtension2#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
 }

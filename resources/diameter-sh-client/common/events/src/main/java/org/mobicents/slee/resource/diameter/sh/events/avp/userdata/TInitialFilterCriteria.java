@@ -73,11 +73,11 @@ public class TInitialFilterCriteria implements InitialFilterCriteria {
     @XmlElement(name = "Priority")
     protected int priority;
     @XmlElement(name = "TriggerPoint")
-    protected Trigger triggerPoint;
+    protected TTrigger triggerPoint;
     @XmlElement(name = "ApplicationServer", required = true)
-    protected ApplicationServer applicationServer;
+    protected TApplicationServer applicationServer;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -106,7 +106,7 @@ public class TInitialFilterCriteria implements InitialFilterCriteria {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.InitialFilterCriteria#setTriggerPoint(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TTrigger)
      */
     public void setTriggerPoint(Trigger value) {
-        this.triggerPoint = value;
+        this.triggerPoint = (TTrigger) value;
     }
 
     /* (non-Javadoc)
@@ -120,7 +120,7 @@ public class TInitialFilterCriteria implements InitialFilterCriteria {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.InitialFilterCriteria#setApplicationServer(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ApplicationServer)
      */
     public void setApplicationServer(ApplicationServer value) {
-        this.applicationServer = value;
+        this.applicationServer = (TApplicationServer) value;
     }
 
     /* (non-Javadoc)
@@ -134,7 +134,7 @@ public class TInitialFilterCriteria implements InitialFilterCriteria {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.InitialFilterCriteria#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

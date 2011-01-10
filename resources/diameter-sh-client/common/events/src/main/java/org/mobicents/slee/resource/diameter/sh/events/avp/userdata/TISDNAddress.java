@@ -67,7 +67,7 @@ public class TISDNAddress implements ISDNAddress {
     @XmlElement(name = "Address", required = true)
     protected List<String> address;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -92,7 +92,7 @@ public class TISDNAddress implements ISDNAddress {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ISDNAddress#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

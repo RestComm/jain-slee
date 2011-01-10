@@ -75,7 +75,7 @@ public class TApplicationServer implements ApplicationServer {
     @XmlElement(name = "ServiceInfo")
     protected String serviceInfo;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -132,7 +132,7 @@ public class TApplicationServer implements ApplicationServer {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ApplicationServer#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TExtension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

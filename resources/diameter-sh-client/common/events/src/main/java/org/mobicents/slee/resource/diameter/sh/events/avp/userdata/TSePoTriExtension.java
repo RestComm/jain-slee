@@ -63,7 +63,7 @@ public class TSePoTriExtension implements SePoTriExtension {
     @XmlElement(name = "RegistrationType", type = Short.class)
     protected List<Short> registrationType;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
 
     /* (non-Javadoc)
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.SePoTriExtension#getRegistrationType()
@@ -86,7 +86,7 @@ public class TSePoTriExtension implements SePoTriExtension {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.SePoTriExtension#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
 }

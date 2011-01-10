@@ -66,9 +66,9 @@ import net.java.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension2;
 public class TShDataExtension2 implements ShDataExtension2 {
 
     @XmlElement(name = "DeletedIdentities")
-    protected PublicIdentity deletedIdentities;
+    protected TPublicIdentity deletedIdentities;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -83,7 +83,7 @@ public class TShDataExtension2 implements ShDataExtension2 {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension2#setDeletedIdentities(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.PublicIdentity)
      */
     public void setDeletedIdentities(PublicIdentity value) {
-        this.deletedIdentities = value;
+        this.deletedIdentities = (TPublicIdentity) value;
     }
 
     /* (non-Javadoc)
@@ -97,7 +97,7 @@ public class TShDataExtension2 implements ShDataExtension2 {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ShDataExtension2#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

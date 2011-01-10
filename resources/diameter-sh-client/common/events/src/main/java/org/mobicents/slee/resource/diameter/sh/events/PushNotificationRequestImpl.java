@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
@@ -54,9 +55,10 @@ public class PushNotificationRequestImpl extends DiameterShMessageImpl implement
 
   private static JAXBContext initJAXBContext() {
     try {
-      return JAXBContext.newInstance("net.java.slee.resource.diameter.sh.events.avp.userdata");
+      return JAXBContext.newInstance(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShData.class);
     }
     catch (Exception e) {
+    	e.printStackTrace();
       // we can't throw exception
       return null;
     }
@@ -123,7 +125,8 @@ public class PushNotificationRequestImpl extends DiameterShMessageImpl implement
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
       byte[] data = getAvpAsRaw(DiameterShAvpCodes.USER_DATA, DiameterShAvpCodes.SH_VENDOR_ID);
-      shDataObject = (ShData) unmarshaller.unmarshal(new ByteArrayInputStream(data));
+      JAXBElement jaxbElem = (JAXBElement) unmarshaller.unmarshal(new ByteArrayInputStream(data));
+      shDataObject = (ShData) jaxbElem.getValue();
     }
     catch (Exception e) {
       throw new IOException("Failed to unmarshal User-Data AVP into JAXB Object", e);

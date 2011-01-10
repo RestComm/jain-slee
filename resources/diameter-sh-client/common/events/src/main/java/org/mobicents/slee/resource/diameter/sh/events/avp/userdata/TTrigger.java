@@ -71,7 +71,7 @@ public class TTrigger implements Trigger {
     @XmlElement(name = "SPT")
     protected List<TSePoTri> spt;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -110,7 +110,7 @@ public class TTrigger implements Trigger {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Trigger#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

@@ -67,7 +67,7 @@ public class TIFCs implements IFCs {
     @XmlElement(name = "InitialFilterCriteria")
     protected List<TInitialFilterCriteria> initialFilterCriteria;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -92,7 +92,7 @@ public class TIFCs implements IFCs {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.IFCs#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

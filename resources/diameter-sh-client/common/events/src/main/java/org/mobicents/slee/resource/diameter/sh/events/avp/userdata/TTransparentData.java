@@ -74,9 +74,9 @@ public class TTransparentData implements TransparentData {
     @XmlElement(name = "SequenceNumber")
     protected int sequenceNumber;
     @XmlElement(name = "ServiceData")
-    protected ServiceData serviceData;
+    protected TServiceData serviceData;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -119,7 +119,7 @@ public class TTransparentData implements TransparentData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TransparentData#setServiceData(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ServiceData)
      */
     public void setServiceData(ServiceData value) {
-        this.serviceData = value;
+        this.serviceData = (TServiceData) value;
     }
 
     /* (non-Javadoc)
@@ -133,7 +133,7 @@ public class TTransparentData implements TransparentData {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TransparentData#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.Extension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)

@@ -79,7 +79,7 @@ public class TChargingInformation implements ChargingInformation {
     @XmlElement(name = "SecondaryChargingCollectionFunctionName")
     protected String secondaryChargingCollectionFunctionName;
     @XmlElement(name = "Extension")
-    protected Extension extension;
+    protected TExtension extension;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
 
@@ -150,7 +150,7 @@ public class TChargingInformation implements ChargingInformation {
      * @see org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ChargingInformation#setExtension(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TExtension)
      */
     public void setExtension(Extension value) {
-        this.extension = value;
+        this.extension = (TExtension) value;
     }
 
     /* (non-Javadoc)
