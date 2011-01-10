@@ -16,29 +16,29 @@
 			<property name="jnpHost" value="${jnpHost}" />
 			<property name="jnpPort" value="${jnpPort}" />
 		</ant>
-		<ant antfile="${home}../../resources/mgcp/build.xml" target="deploy-jmx" inheritAll="false">
+		<ant antfile="${home}../../resources/mscontrol/build.xml" target="deploy-jmx" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 			<property name="jnpHost" value="${jnpHost}" />
 			<property name="jnpPort" value="${jnpPort}" />
 		</ant>
-		<ant antfile="${home}../../examples/mscontrol/du-management.xml" target="deploy-jmx" inheritAll="false">
+		<ant antfile="${home}../../examples/mscontrol-demo/du-management.xml" target="deploy-jmx" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 			<property name="jnpHost" value="${jnpHost}" />
 			<property name="jnpPort" value="${jnpPort}" />
 		</ant>
-		<copy file="${home}../../examples/mscontrol/mscontrol-audio.war" todir="${deploy.dir}"/>
+		<copy file="${home}../../examples/mscontrol-demo/mscontrol-audio.war" todir="${deploy.dir}"/>
 	</target>
 
 	<target name="undeploy-all-jmx">
-		<ant antfile="${home}../../examples/mscontrol/du-management.xml" target="undeploy-jmx" inheritAll="false">
+		<ant antfile="${home}../../examples/mscontrol-demo/du-management.xml" target="undeploy-jmx" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 			<property name="jnpHost" value="${jnpHost}" />
 			<property name="jnpPort" value="${jnpPort}" />
 		</ant>
-		<ant antfile="${home}../../resources/mgcp/build.xml" target="undeploy-jmx" inheritAll="false">
+		<ant antfile="${home}../../resources/mscontrol/build.xml" target="undeploy-jmx" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 			<property name="jnpHost" value="${jnpHost}" />
@@ -54,8 +54,8 @@
 	</target>
 
 	<target name="deploy-all">
-		<copy file="${home}../../examples/mscontrol/mscontrol-audio.war" todir="${deploy.dir}"/>
-		<ant antfile="${home}../../resources/mgcp/build.xml" target="deploy" inheritAll="false">
+		<copy file="${home}../../examples/mscontrol-demo/mscontrol-audio.war" todir="${deploy.dir}"/>
+		<ant antfile="${home}../../resources/mscontrol/build.xml" target="deploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
@@ -63,14 +63,14 @@
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
-		<ant antfile="${home}../../examples/mscontrol/du-management.xml" target="deploy" inheritAll="false">
+		<ant antfile="${home}../../examples/mscontrol-demo/du-management.xml" target="deploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
 	</target>
 
 	<target name="undeploy-all">
-		<ant antfile="${home}../../examples/mscontrol/du-management.xml" target="undeploy" inheritAll="false">
+		<ant antfile="${home}../../examples/mscontrol-demo/du-management.xml" target="undeploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
@@ -78,7 +78,7 @@
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
-		<ant antfile="${home}../../resources/mgcp/build.xml" target="undeploy" inheritAll="false">
+		<ant antfile="${home}../../resources/mscontrol/build.xml" target="undeploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>

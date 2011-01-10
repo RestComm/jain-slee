@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<artifactId>mobicents-slee-example-mscontrol-docs</artifactId>
+		<artifactId>mobicents-slee-example-mscontrol-demo-docs</artifactId>
 		<groupId>org.mobicents.examples</groupId>
 		<version>2.1.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>mobicents-slee-example-mscontrol-docs-sources-jbcp</artifactId>
+	<artifactId>mobicents-slee-example-mscontrol-demo-docs-sources-jbcp</artifactId>
 			
 	<properties>
 		<THIS.PLATFORM>JBoss Communications</THIS.PLATFORM>
@@ -45,7 +45,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>
-									<artifactId>mobicents-slee-example-mscontrol-docs-sources</artifactId>
+									<artifactId>mobicents-slee-example-mscontrol-demo-docs-sources</artifactId>
 									<version>${pom.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
