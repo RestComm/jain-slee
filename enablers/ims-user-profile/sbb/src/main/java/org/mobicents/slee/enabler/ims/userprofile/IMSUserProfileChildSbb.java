@@ -35,6 +35,7 @@ import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
 
 import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ObjectFactory;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactoryImpl;
 
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
@@ -81,7 +82,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
   // -- SBB LOCAL OBJECT METHODS ----------------------------------------------
 
   public UserDataObjectFactory getUserDataObjectFactory() {
-    return new ObjectFactory();
+    return new UserDataObjectFactoryImpl(new ObjectFactory());
   }
   
   public String getRepositoryData(String publicIdentity, byte[][] serviceIndications, String destinationRealm, String destinationHost) throws IOException {
