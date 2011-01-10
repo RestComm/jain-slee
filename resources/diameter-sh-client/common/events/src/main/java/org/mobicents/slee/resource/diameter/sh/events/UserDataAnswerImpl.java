@@ -57,7 +57,7 @@ public class UserDataAnswerImpl extends DiameterShMessageImpl implements UserDat
 
   private static JAXBContext initJAXBContext() {
     try {
-      return JAXBContext.newInstance("net.java.slee.resource.diameter.sh.events.avp.userdata");
+      return JAXBContext.newInstance(org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShData.class);
     }
     catch (Exception e) {
       // we can't throw exception
