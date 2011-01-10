@@ -22,60 +22,58 @@
 		<programlisting language="Java" role="JAVA"><![CDATA[
 package org.mobicents.slee.enabler.ims.userprofile;
 
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShData;
-
 public interface IMSUserProfileParent {
 
   // Sh-Pull Operations Callbacks ---------------------------------------------
 
   public void deliverRepositoryData(String publicIdentity, byte[][] serviceIndication,
-            long resultCode, ShData data);
+            long resultCode, String data);
 
   public void deliverIMSPublicIdentity(String publicIdentity, byte[] msisdn, 
-            int identitySet, long resultCode, ShData data);
+            int identitySet, long resultCode, String data);
 
-  public void deliverIMSUserState(String publicIdentity, long resultCode, ShData data);
+  public void deliverIMSUserState(String publicIdentity, long resultCode, String data);
 
-  public void deliverSCSCFName(String publicIdentity, long resultCode, ShData data);
+  public void deliverSCSCFName(String publicIdentity, long resultCode, String data);
 
   public void deliverInitialFilterCriteria(String publicIdentity, String serverName,
-            long resultCode, ShData data);
+            long resultCode, String data);
 
   public void deliverLocationInformation(byte[] msisdn, int requestedDomain, long resultCode, 
-            ShData data);
+            String data);
 
-  public void deliverUserState(byte[] msisdn, int requestedDomain, long resultCode, ShData data);
+  public void deliverUserState(byte[] msisdn, int requestedDomain, long resultCode, String data);
 
   public void deliverChargingInformation(String publicIdentity, byte[] msisdn, long resultCode, 
-            ShData data);
+            String data);
 
-  public void deliverMSISDN(String publicIdentity, byte[] msisdn, long resultCode, ShData data);
+  public void deliverMSISDN(String publicIdentity, byte[] msisdn, long resultCode, String data);
 
-  public void deliverPSIActivation(String publicIdentity, long resultCode, ShData data);
+  public void deliverPSIActivation(String publicIdentity, long resultCode, String data);
 
   // Sh-Update Operations Callbacks -------------------------------------------
 
-  public String updateRepositoryDataResponse(String publicIdentity, long resultCode);
+  public void updateRepositoryDataResponse(String publicIdentity, long resultCode);
 
-  public String updatePSIActivationResponse(String publicIdentity, long resultCode);
+  public void updatePSIActivationResponse(String publicIdentity, long resultCode);
 
   // Sh-Subscribe Operations Callbacks ----------------------------------------
 
-  public String subscribeRepositoryDataResponse(String publicIdentity, byte[][] serviceIndication,
+  public void subscribeRepositoryDataResponse(String publicIdentity, byte[][] serviceIndication,
             long resultCode);
 
-  public String subscribeIMSUserStateResponse(String publicIdentity, long resultCode);
+  public void subscribeIMSUserStateResponse(String publicIdentity, long resultCode);
 
-  public String subscribeSCSCFNameResponse(String publicIdentity, long resultCode);
+  public void subscribeSCSCFNameResponse(String publicIdentity, long resultCode);
 
-  public String subscribeInitialFilterCriteriaResponse(String publicIdentity, String serverName, 
+  public void subscribeInitialFilterCriteriaResponse(String publicIdentity, String serverName, 
             long resultCode);
 
-  public String subscribePSIActivationResponse(String publicIdentity, long resultCode);
+  public void subscribePSIActivationResponse(String publicIdentity, long resultCode);
   
   // Sh-Notify Operations Callbacks -------------------------------------------
 
-  public void receivedProfileUpdate(String userIdentity, byte[] msisdn, ShData data, 
+  public void receivedProfileUpdate(String userIdentity, byte[] msisdn, String data, 
             String originRealm, String originHost);
 
 }
@@ -85,70 +83,70 @@ public interface IMSUserProfileParent {
 		<variablelist>
 		
 			<varlistentry>
-				<term>The <literal>deliverRepositoryData(String, byte[][], long, ShData)</literal> method:</term>
+				<term>The <literal>deliverRepositoryData(String, byte[][], long, String)</literal> method:</term>
 				<listitem>
 					<para>Callback from the Enabler providing the response for a request for the "Repository Data" data type.</para>
 				</listitem>
 			</varlistentry>
 
 			<varlistentry>
-				<term>The <literal>deliverIMSPublicIdentity(String, byte[], int, long, ShData)</literal> method:</term>
+				<term>The <literal>deliverIMSPublicIdentity(String, byte[], int, long, String)</literal> method:</term>
 				<listitem>
                     <para>Callback from the Enabler providing the response for a request for the "IMS Public Identity" data type.</para>
 				</listitem>
 			</varlistentry>
 
             <varlistentry>
-                <term>The <literal>deliverIMSUserState(String, long, ShData)</literal> method:</term>
+                <term>The <literal>deliverIMSUserState(String, long, String)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing the response for a request for the "IMS User State" data type.</para>
                 </listitem>
             </varlistentry>
         
             <varlistentry>
-                <term>The <literal>deliverSCSCFName(String, long, ShData)</literal> method:</term>
+                <term>The <literal>deliverSCSCFName(String, long, String)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing the response for a request for the "S-CSCF Name" data type.</para>
                 </listitem>
             </varlistentry>
         
             <varlistentry>
-                <term>The <literal>deliverInitialFilterCriteria(String, String, long, ShData)</literal> method:</term>
+                <term>The <literal>deliverInitialFilterCriteria(String, String, long, String)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing the response for a request for the "Initial Filter Criteria" data type.</para>
                 </listitem>
             </varlistentry>
         
             <varlistentry>
-                <term>The <literal>deliverLocationInformation(byte[], int, long, ShData)</literal> method:</term>
+                <term>The <literal>deliverLocationInformation(byte[], int, long, String)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing the response for a request for the "Location Information" data type.</para>
                 </listitem>
             </varlistentry>
         
             <varlistentry>
-                <term>The <literal>deliverUserState(byte[], int, long, ShData)</literal> method:</term>
+                <term>The <literal>deliverUserState(byte[], int, long, String)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing the response for a request for the "User State" data type.</para>
                 </listitem>
             </varlistentry>
         
             <varlistentry>
-                <term>The <literal>deliverChargingInformation(String, byte[], long, ShData)</literal> method:</term>
+                <term>The <literal>deliverChargingInformation(String, byte[], long, String)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing the response for a request for the "Charging Information" data type.</para>
                 </listitem>
             </varlistentry>
         
             <varlistentry>
-                <term>The <literal>deliverMSISDN(String, byte[], long, ShData)</literal> method:</term>
+                <term>The <literal>deliverMSISDN(String, byte[], long, String)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing the response for a request for the "MSISDN" data type.</para>
                 </listitem>
             </varlistentry>
         
             <varlistentry>
-                <term>The <literal>deliverPSIActivation(String, long, ShData)</literal> method:</term>
+                <term>The <literal>deliverPSIActivation(String, long, String)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing the response for a request for the "PSI Activation" data type.</para>
                 </listitem>
@@ -204,7 +202,7 @@ public interface IMSUserProfileParent {
             </varlistentry>
         
             <varlistentry>
-                <term>The <literal>receivedProfileUpdate(String, byte[], ShData, String, String)</literal> method:</term>
+                <term>The <literal>receivedProfileUpdate(String, byte[], String, String, String)</literal> method:</term>
                 <listitem>
                     <para>Callback from the Enabler providing a received Profile Update for a subscribed profile, for any data type.</para>
                 </listitem>

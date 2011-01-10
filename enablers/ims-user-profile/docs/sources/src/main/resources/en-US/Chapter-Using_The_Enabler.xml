@@ -18,13 +18,9 @@ package org.mobicents.slee.enabler.ims.userprofile;
 
 import java.io.IOException;
 
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShData;
-
 public interface IMSUserProfileChild {
 
   public void setParentSbb(IMSUserProfileParentSbbLocalObject parentSbb);
-
-  public UserDataObjectFactory getUserDataObjectFactory();
 
   // Sh-Pull Operations -------------------------------------------------------
 
@@ -60,10 +56,10 @@ public interface IMSUserProfileChild {
 
   // Sh-Update Operations -----------------------------------------------------
 
-  public String updateRepositoryData(String publicIdentity, ShData data, String destinationRealm, 
+  public String updateRepositoryData(String publicIdentity, String data, String destinationRealm, 
             String destinationHost) throws IOException;
 
-  public String updatePSIActivation(String publicIdentity, ShData data, String destinationRealm, 
+  public String updatePSIActivation(String publicIdentity, String data, String destinationRealm, 
             String destinationHost) throws IOException;
   
   // Sh-Subscribe Operations --------------------------------------------------
@@ -95,13 +91,6 @@ public interface IMSUserProfileChild {
                 <term>The <literal>setParentSbb(IMSUserProfileParentSbbLocalObject)</literal> method:</term>
                 <listitem>
                     <para>Passes the Parent's SbbLocalObject, which will be used by the Child Sbb to provide async results. If not invoked after the child creation the Enabler won't be able to callback the Parent Sbb.</para>
-                </listitem>
-            </varlistentry>
-
-            <varlistentry>
-                <term>The <literal>getUserDataObjectFactory()</literal> method:</term>
-                <listitem>
-                    <para>Returns the UserDataObjectFactory to allow to create ShData objects to be passed while updating profiles.</para>
                 </listitem>
             </varlistentry>
 
@@ -176,14 +165,14 @@ public interface IMSUserProfileChild {
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.updateRepositoryData(String, ShData, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.updateRepositoryData(String, String, String, String)</literal> method:</term>
                 <listitem>
                     <para>Updates the "Repository Data" data type from the HSS, for the specified Public Identity. Response is provided through parent's callback updateRepositoryDataResponse(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.updatePSIActivation(String, ShData, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.updatePSIActivation(String, String, String, String)</literal> method:</term>
                 <listitem>
                     <para>Updates the "PSI Activation" data type from the HSS, for the specified Public Identity. Response is provided through parent's callback updatePSIActivationResponse(...).</para>
                 </listitem>

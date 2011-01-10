@@ -22,8 +22,6 @@
  */
 package org.mobicents.slee.enabler.ims.userprofile;
 
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShData;
-
 /**
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
@@ -32,46 +30,182 @@ public interface IMSUserProfileParent {
 
   // Sh-Pull Operations Callbacks ---------------------------------------------
 
-  public void deliverRepositoryData(String publicIdentity, byte[][] serviceIndication, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the Repository Data data requested in getRepositoryData(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param serviceIndications the Service-Indication(s) value(s) from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverRepositoryData(String publicIdentity, byte[][] serviceIndications, long resultCode, String data);
 
-  public void deliverIMSPublicIdentity(String publicIdentity, byte[] msisdn, int identitySet, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the IMS Public Identity data requested in getIMSPublicIdentity(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request (if any)
+   * @param msisdn the MSISDN value from the original request (if any)
+   * @param identitySet the Identity-Set value, identifying which identities to retrieve, from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverIMSPublicIdentity(String publicIdentity, byte[] msisdn, int identitySet, long resultCode, String data);
 
-  public void deliverIMSUserState(String publicIdentity, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the IMS User State data requested in getIMSUserState(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverIMSUserState(String publicIdentity, long resultCode, String data);
 
-  public void deliverSCSCFName(String publicIdentity, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the S-CSCF Name data requested in getSCSCFName(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverSCSCFName(String publicIdentity, long resultCode, String data);
 
-  public void deliverInitialFilterCriteria(String publicIdentity, String serverName, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the Initial Filter Criteria data requested in getInitialFilterCriteria(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param serverName the Server-Name value, a SIP URI identifying the AS, from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverInitialFilterCriteria(String publicIdentity, String serverName, long resultCode, String data);
 
-  public void deliverLocationInformation(byte[] msisdn, int requestedDomain, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the Location Information data requested in getLocationInformation(..)
+   * 
+   * @param msisdn the MSISDN value from the original request
+   * @param requestedDomain the Requested-Domain value, indicating the access domain for which the data was requested, from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverLocationInformation(byte[] msisdn, int requestedDomain, long resultCode, String data);
 
-  public void deliverUserState(byte[] msisdn, int requestedDomain, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the User State data requested in getUserState(..)
+   * 
+   * @param msisdn the MSISDN value from the original request
+   * @param requestedDomain the Requested-Domain value, indicating the access domain for which the data was requested, from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverUserState(byte[] msisdn, int requestedDomain, long resultCode, String data);
 
-  public void deliverChargingInformation(String publicIdentity, byte[] msisdn, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the Charging Information data requested in getChargingInformation(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request (if any)
+   * @param msisdn the MSISDN value from the original request (if any)
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverChargingInformation(String publicIdentity, byte[] msisdn, long resultCode, String data);
 
-  public void deliverMSISDN(String publicIdentity, byte[] msisdn, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the MSISDN data requested in getMSISDN(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request (if any)
+   * @param msisdn the MSISDN value from the original request (if any)
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverMSISDN(String publicIdentity, byte[] msisdn, long resultCode, String data);
 
-  public void deliverPSIActivation(String publicIdentity, long resultCode, ShData data);
+  /**
+   * Callback method to deliver the PSI Activation data requested in getPSIActivation(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   * @param data a String containing the XML for the received data
+   */
+  public void deliverPSIActivation(String publicIdentity, long resultCode, String data);
 
   // Sh-Update Operations Callbacks -------------------------------------------
 
-  public String updateRepositoryDataResponse(String publicIdentity, long resultCode);
+  /**
+   * Callback method to deliver the result of the profile update for Repository Data made through updateRepositoryData(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   */
+  public void updateRepositoryDataResponse(String publicIdentity, long resultCode);
 
-  public String updatePSIActivationResponse(String publicIdentity, long resultCode);
+  /**
+   * Callback method to deliver the result of the profile update for PSI Activation made through updatePSIActivation(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   */
+  public void updatePSIActivationResponse(String publicIdentity, long resultCode);
 
   // Sh-Subscribe Operations Callbacks ----------------------------------------
 
-  public String subscribeRepositoryDataResponse(String publicIdentity, byte[][] serviceIndications, int subscriptionRequestType, long resultCode);
+  /**
+   * Callback method to deliver the result of the profile subscription for Repository Data made through subscribeRepositoryData(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param serviceIndications the Service-Indication(s) value(s) from the original request
+   * @param subscriptionRequestType the Subscription-Request-Type value, indicating whether to SUBSCRIBE (0) or UNSUBSCRIBE (1) to profile, from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   */
+  public void subscribeRepositoryDataResponse(String publicIdentity, byte[][] serviceIndications, int subscriptionRequestType, long resultCode);
 
-  public String subscribeIMSUserStateResponse(String publicIdentity, int subscriptionRequestType, long resultCode);
+  /**
+   * Callback method to deliver the result of the profile subscription for IMS User State made through subscribeIMSUserState(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param subscriptionRequestType the Subscription-Request-Type value, indicating whether to SUBSCRIBE (0) or UNSUBSCRIBE (1) to profile, from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   */
+  public void subscribeIMSUserStateResponse(String publicIdentity, int subscriptionRequestType, long resultCode);
 
-  public String subscribeSCSCFNameResponse(String publicIdentity, int subscriptionRequestType, long resultCode);
+  /**
+   * Callback method to deliver the result of the profile subscription for S-CSCF Name made through subscribeSCSCFName(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param subscriptionRequestType the Subscription-Request-Type value, indicating whether to SUBSCRIBE (0) or UNSUBSCRIBE (1) to profile, from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   */
+  public void subscribeSCSCFNameResponse(String publicIdentity, int subscriptionRequestType, long resultCode);
 
-  public String subscribeInitialFilterCriteriaResponse(String publicIdentity, String serverName, int subscriptionRequestType, long resultCode);
+  /**
+   * Callback method to deliver the result of the profile subscription for Initial Filter Criteria made through subscribeInitialFilterCriteria(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param serverName the Server-Name value, a SIP URI identifying the AS, from the original request
+   * @param subscriptionRequestType the Subscription-Request-Type value, indicating whether to SUBSCRIBE (0) or UNSUBSCRIBE (1) to profile, from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   */
+  public void subscribeInitialFilterCriteriaResponse(String publicIdentity, String serverName, int subscriptionRequestType, long resultCode);
 
-  public String subscribePSIActivationResponse(String publicIdentity, int subscriptionRequestType, long resultCode);
+  /**
+   * Callback method to deliver the result of the profile subscription for PSI Activation made through subscribePSIActivation(..)
+   * 
+   * @param publicIdentity the IMS Public User Identity or Public Service Identity value from the original request
+   * @param subscriptionRequestType the Subscription-Request-Type value, indicating whether to SUBSCRIBE (0) or UNSUBSCRIBE (1) to profile, from the original request
+   * @param resultCode the Diameter Result-Code received in the answer
+   */
+  public void subscribePSIActivationResponse(String publicIdentity, int subscriptionRequestType, long resultCode);
 
   // Sh-Notify Operations Callbacks -------------------------------------------
 
-  public void receivedProfileUpdate(String userIdentity, byte[] msisdn, ShData data, String originRealm, String originHost);
+  /**
+   * Callback method to deliver a received update of a profile subscription
+   * 
+   * @param userIdentity the IMS Public User Identity or Public Service Identity value for the received update (if any)
+   * @param msisdn the MSISDN value for the received update (if any)
+   * @param data a String containing the XML for the updated data
+   * @param originRealm the Diameter realm from where this update was originated
+   * @param originHost the Diameter host from where this update was originated
+   */
+  public void receivedProfileUpdate(String userIdentity, byte[] msisdn, String data, String originRealm, String originHost);
 
 }

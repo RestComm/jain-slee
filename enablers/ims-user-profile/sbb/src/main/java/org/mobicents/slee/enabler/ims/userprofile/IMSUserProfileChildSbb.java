@@ -34,9 +34,6 @@ import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
 
-import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ObjectFactory;
-import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactoryImpl;
-
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
 import net.java.slee.resource.diameter.sh.client.ShClientActivity;
@@ -57,8 +54,6 @@ import net.java.slee.resource.diameter.sh.events.avp.IdentitySetType;
 import net.java.slee.resource.diameter.sh.events.avp.RequestedDomainType;
 import net.java.slee.resource.diameter.sh.events.avp.SubsReqType;
 import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.ShData;
-import net.java.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory;
 
 /**
  * IMS User Profile SLEE Enabler.
@@ -80,10 +75,6 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
   public abstract RequestMappingACI asSbbActivityContextInterface(ActivityContextInterface aci);
 
   // -- SBB LOCAL OBJECT METHODS ----------------------------------------------
-
-  public UserDataObjectFactory getUserDataObjectFactory() {
-    return new UserDataObjectFactoryImpl(new ObjectFactory());
-  }
   
   public String getRepositoryData(String publicIdentity, byte[][] serviceIndications, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
@@ -300,15 +291,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String updateRepositoryData(String publicIdentity, ShData data, String destinationRealm, String destinationHost) throws IOException {
+  public String updateRepositoryData(String publicIdentity, String data, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
-    // Constructor does not allow to use ShData directly, using empty and filling separately
-    ProfileUpdateRequest pur = diameterShClientMessageFactory.createProfileUpdateRequest();
-    
-    pur.setUserIdentity(publicIdentityAvp);
-    pur.setDataReference(DataReferenceType.REPOSITORY_DATA);
-    pur.setUserDataObject(data);
+    ProfileUpdateRequest pur = diameterShClientMessageFactory.createProfileUpdateRequest(publicIdentityAvp, DataReferenceType.REPOSITORY_DATA, data.getBytes());
 
     // Set destination -- Realm is mandatory, host is optional
     pur.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -326,15 +312,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     return activity.getSessionId();
   }
 
-  public String updatePSIActivation(String publicIdentity, ShData data, String destinationRealm, String destinationHost) throws IOException {
+  public String updatePSIActivation(String publicIdentity, String data, String destinationRealm, String destinationHost) throws IOException {
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
-    // Constructor does not allow to use ShData directly, using empty and filling separately
-    ProfileUpdateRequest pur = diameterShClientMessageFactory.createProfileUpdateRequest();
-    
-    pur.setUserIdentity(publicIdentityAvp);
-    pur.setDataReference(DataReferenceType.PSI_ACTIVATION);
-    pur.setUserDataObject(data);
+    ProfileUpdateRequest pur = diameterShClientMessageFactory.createProfileUpdateRequest(publicIdentityAvp, DataReferenceType.PSI_ACTIVATION, data.getBytes());
 
     // Set destination -- Realm is mandatory, host is optional
     pur.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -607,16 +588,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     
     // Retrieve useful data from request
     String [] userIdentityValues = getUserIdentityValues(event);
-    
-    ShData data = null;
-
-    try {
-      data = event.getUserDataObject();
-    }
-    catch (Exception e) {
-      tracer.severe("Unable to extract User-Data from Push-Notification-Request.", e);
-      return;
-    }
+    String data = event.getUserData();
 
     // Deliver to parent
     getParentSbbCMP().receivedProfileUpdate(userIdentityValues[0], userIdentityValues[1].getBytes(), data, event.getOriginRealm().toString(), event.getOriginHost().toString());
@@ -627,17 +599,8 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
 
     aci.detach(sbbContext.getSbbLocalObject());
 
-    ShData data = null;
-
-    try {
-      data = event.getUserDataObject();
-    }
-    catch (Exception e) {
-      tracer.severe("Unable to extract User-Data from User-Data-Answer.", e);
-      return;
-    }
-
     String [] userIdentityValues = getUserIdentityValues(udr);
+    String data = event.getUserData();
     long resultCode = event.getResultCode();
 
     // only one data ref should be present.. but at least one must!
