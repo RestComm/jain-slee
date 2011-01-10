@@ -15,10 +15,10 @@
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
-	<property name="mms.version" value="2.0.0.GA" />
+	<property name="mms.version" value="2.1.0.BETA1" />
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
-	<property name="diameter.version" value="1.3.2.FINAL" />
+	<property name="diameter.version" value="1.3.3.FINAL" />
 	<!--
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-${diameter.version}.zip"/>
 	-->
