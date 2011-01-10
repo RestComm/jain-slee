@@ -74,7 +74,7 @@
 						<format>
 							<formatName>pdf</formatName>
 							<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-							<finalName>User_Guide.pdf</finalName>
+							<finalName>JBCP_SLEE_Example_USSD_User_Guide.pdf</finalName>
 						</format>
 						<format>
 							<formatName>html</formatName>
