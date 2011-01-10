@@ -37,7 +37,7 @@
 											overwrite="true"
 											todir="${release.dir}">
 											<fileset
-												dir="${basedir}/../slee/services-du/target">
+												dir="${basedir}/../du/target">
 												<include
 													name="**.jar" />
 												<include
@@ -53,13 +53,8 @@
 											todir="${release.dir}" />
 										<copy
 											overwrite="true"
-											file="${basedir}/../slee/services-du/target/build.xml"
+											file="${basedir}/../du/target/build.xml"
 											tofile="${release.dir}/du-management.xml" />
-
-										<copy
-											overwrite="true"
-											file="${basedir}/../README.txt"
-											tofile="${release.dir}/README.txt" />
 
 										<copy
 											overwrite="true"
