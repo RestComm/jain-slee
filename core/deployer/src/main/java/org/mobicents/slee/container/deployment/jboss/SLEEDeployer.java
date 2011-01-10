@@ -147,7 +147,7 @@ public class SLEEDeployer extends AbstractSimpleVFSRealDeployer<SLEEDeploymentMe
     if(this.waitingList.size() > 0) {
     	if(logger.isInfoEnabled())
     	{
-    		logger.info("><><><><><><><><>< Deployment of JAIN SLEE deployable-units complete. " + (failCount == 0 ? "No" : failCount) + " failures. ><><><><><><><><><");
+    		logger.info("Deployment of JAIN SLEE deployable-units complete. " + (failCount == 0 ? "No" : failCount) + " failures.");
     	}
     }
 

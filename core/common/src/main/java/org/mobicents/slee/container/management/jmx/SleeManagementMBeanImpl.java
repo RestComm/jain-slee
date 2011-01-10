@@ -666,20 +666,24 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	
 	// ah ah
 
-	private static final String rLogo = " ><><><><><><><><>< ";
+	private static final String rLogo = " >< >< >< >< >< >< >< ";
 	private static final String lLogo = rLogo;
 
 	private String generateMessageWithLogo(String message) {
-		return lLogo + getSleeName() + ' ' + getSleeVersion() + ' ' + message
+		return lLogo + getSleeName() + " " + getSleeVersion() + " \"" + getSleeCodeName() + "\" " + message
 				+ rLogo;
 	}
 
+	public String getSleeCodeName() {
+		return Version.instance.getProperty("codename");
+	}
+	
 	public String getSleeName() {
 		String name = Version.instance.getProperty("name");
 		if (name != null) {
 			return name;
 		} else {
-			return "Mobicents JAIN SLEE Server";
+			return "Mobicents JAIN SLEE";
 		}
 	}
 
