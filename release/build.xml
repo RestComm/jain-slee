@@ -2,7 +2,7 @@
 <project name="mobicents.release" default="release" basedir=".">
 
 	<property environment="sys"/>
-	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp5,jcc,map,mgcp,mscontrol,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
+	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp5,jcc,map,mgcp,mscontrol,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
 	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo,mscontrol-demo,converged-demo"/>
 	<property name="enabler.dirs" value="xdm-client,sip-publication-client,sip-subscription-client,ims-user-profile"/>
 	<property name="tool.dirs" value="jopr-plugin,eclipslee,remote-slee-connection,twiddle"/>
