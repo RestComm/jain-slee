@@ -184,7 +184,7 @@ public class CallSbb implements Sbb {
 
 	private void joinInitiate() {
 		try {
-			NetworkConnection connection = null;
+			NetworkConnection connection = getNetworkConnection();
 			MediaSession session = connection.getMediaSession();
 			MediaGroup ivr = session.createMediaGroup(MediaGroup.PLAYER_RECORDER_SIGNALDETECTOR);
 			connection.joinInitiate(Direction.DUPLEX, ivr, "context");

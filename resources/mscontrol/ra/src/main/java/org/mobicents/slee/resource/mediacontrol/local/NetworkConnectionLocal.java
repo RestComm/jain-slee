@@ -121,7 +121,7 @@ public class NetworkConnectionLocal extends MsActivity implements NetworkConnect
     }
     
     public MediaSession getMediaSession() {
-        throw new UnsupportedOperationException("Not supported yet.");
+       return mediaSession;
     }
 
     public void triggerAction(Action arg0) {
