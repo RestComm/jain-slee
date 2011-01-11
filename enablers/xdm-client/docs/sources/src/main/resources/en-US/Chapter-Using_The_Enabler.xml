@@ -197,7 +197,8 @@ public interface XDMClientChild {
 		if (childRelation.isEmpty()) {
 			try {
 				// creates new instance
-				XDMClientChildSbbLocalObject sbb = (XDMClientChildSbbLocalObject) childRelation.create();
+				XDMClientChildSbbLocalObject sbb = 
+					(XDMClientChildSbbLocalObject) childRelation.create();
 				// passes the parent sbb local object to the child
 				sbb.setParentSbb((XDMClientParentSbbLocalObject) sbbContext.getSbbLocalObject());
 				return sbb;
