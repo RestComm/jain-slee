@@ -51,37 +51,37 @@
             	<para>The event handler code:</para>
             	<programlisting language="Java" role="JAVA"><![CDATA[
 		// Initial request
-	public void onInviteEvent(RequestEvent event, ActivityContextInterface aci) {
-		final SbbLocalObject sbbLocalObject = this.sbbContext
-				.getSbbLocalObject();
-		aci.detach(sbbLocalObject);
-
-		final ServerTransaction serverTransaction = requestEvent
-				.getServerTransaction();
-		try {
-			// create dialog and attach this entity to it's aci
-			final DialogActivity dialog = (DialogActivity) sleeSipProvider
-					.getNewDialog(serverTransaction);
-			final ActivityContextInterfaceExt dialogAci = (ActivityContextInterfaceExt) sipActivityContextInterfaceFactory
-					.getActivityContextInterface(dialog);
-			dialogAci.attach(sbbLocalObject);
-			// set timer of 60 secs on the dialog aci
-			timerFacility.setTimer(dialogAci, null,
-					System.currentTimeMillis() + 60000L, getTimerOptions());
-			// send 180
-			Response response = messageFactory.createResponse(Response.RINGING,
-					requestEvent.getRequest());
-			response.addHeader(getContactHeader());
-			serverTransaction.sendResponse(response);
-			// send 200 ok
-			response = messageFactory.createResponse(Response.OK, requestEvent
-					.getRequest());
-			response.addHeader(getContactHeader());
-			serverTransaction.sendResponse(response);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+public void onInviteEvent(RequestEvent event, ActivityContextInterface aci) {
+	final SbbLocalObject sbbLocalObject = this.sbbContext
+			.getSbbLocalObject();
+	aci.detach(sbbLocalObject);
+	final ServerTransaction serverTransaction = requestEvent
+			.getServerTransaction();
+	try {
+		// create dialog and attach this entity to it's aci
+		final DialogActivity dialog = (DialogActivity) sleeSipProvider
+				.getNewDialog(serverTransaction);
+		final ActivityContextInterfaceExt dialogAci =
+			 (ActivityContextInterfaceExt) sipActivityContextInterfaceFactory
+				.getActivityContextInterface(dialog);
+		dialogAci.attach(sbbLocalObject);
+		// set timer of 60 secs on the dialog aci
+		timerFacility.setTimer(dialogAci, null,
+				System.currentTimeMillis() + 60000L, getTimerOptions());
+		// send 180
+		Response response = messageFactory.createResponse(Response.RINGING,
+				requestEvent.getRequest());
+		response.addHeader(getContactHeader());
+		serverTransaction.sendResponse(response);
+		// send 200 ok
+		response = messageFactory.createResponse(Response.OK, requestEvent
+				.getRequest());
+		response.addHeader(getContactHeader());
+		serverTransaction.sendResponse(response);
+	} catch (Exception ex) {
+		ex.printStackTrace();
 	}
+}
             	]]>
 				</programlisting>
 			</section>
