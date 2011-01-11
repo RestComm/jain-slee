@@ -9,7 +9,13 @@
 	<property name="jnpPort" value="1099" />
 
 	<target name="deploy-all-jmx">
-		<ant antfile="${home}../../resources/xcap-client/build.xml" target="deploy-jmx" inheritAll="false">
+		<ant antfile="${home}../../resources/diameter-base/build.xml" target="deploy-jmx" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+			<property name="jnpHost" value="${jnpHost}" />
+			<property name="jnpPort" value="${jnpPort}" />
+		</ant>
+		<ant antfile="${home}../../resources/diameter-sh-client/build.xml" target="deploy-jmx" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 			<property name="jnpHost" value="${jnpHost}" />
@@ -24,7 +30,13 @@
 	</target>
 
 	<target name="undeploy-all-jmx">
-		<ant antfile="${home}../../enablers/ims-user-profile/du-management.xml" target="undeploy-jmx" inheritAll="false">
+		<ant antfile="${home}../../resources/diameter-base/build.xml" target="undeploy-jmx" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+			<property name="jnpHost" value="${jnpHost}" />
+			<property name="jnpPort" value="${jnpPort}" />
+		</ant>
+		<ant antfile="${home}../../resources/diameter-sh-client/build.xml" target="undeploy-jmx" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 			<property name="jnpHost" value="${jnpHost}" />
@@ -39,7 +51,11 @@
 	</target>
 
 	<target name="deploy-all">
-		<ant antfile="${home}../../resources/xcap-client/build.xml" target="deploy" inheritAll="false">
+		<ant antfile="${home}../../resources/diameter-base/build.xml" target="deploy" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+		</ant>
+		<ant antfile="${home}../../resources/diameter-sh-client/build.xml" target="deploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
@@ -50,7 +66,11 @@
 	</target>
 
 	<target name="undeploy-all">
-		<ant antfile="${home}../../enablers/ims-user-profile/du-management.xml" target="undeploy" inheritAll="false">
+		<ant antfile="${home}../../resources/diameter-base/build.xml" target="undeploy" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+		</ant>
+		<ant antfile="${home}../../resources/diameter-sh-client/build.xml" target="undeploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
