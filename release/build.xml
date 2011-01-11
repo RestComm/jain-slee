@@ -24,7 +24,6 @@
 	-->
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
-
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_1.3.0.jar"/>
 	<property name="eclipslee.download.url" value ="http://mobicents.googlecode.com/files/${eclipslee.jar}"/>
 
