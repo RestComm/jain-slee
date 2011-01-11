@@ -67,9 +67,11 @@ package org.mobicents.slee.enabler.sip;
 
 public interface PublicationClientChild {
 	
-	public void newPublication(String entity, String eventPackage, String document, String contentType, String contentSubType, int expires);
+	public void newPublication(String entity, String eventPackage, String document, String contentType, 
+		String contentSubType, int expires);
 
-	public void modifyPublication(String document, String contentType, String contentSubType, int expires);
+	public void modifyPublication(String document, String contentType
+		, String contentSubType, int expires);
 
 	public void removePublication();
 
@@ -186,25 +188,26 @@ public interface PublicationClientChild {
 			create and retrieve the Child Sbb, it is important to not forget to
 			pass the Parent's SbbLocalObject to the Child after creation:</para>
 		<programlisting language="Java" role="JAVA"><![CDATA[
-	public PublicationClientChildLocalInterface getPublicationClientChildSbb() {
-		final ChildRelation childRelation = getSipPublicationClientChildRelation();
-		if (childRelation.isEmpty()) {
-			try {
-				// creates new instance
-				SipPublicationClientChildSbbLocalInterface sbb = (PublicationClientChildSbbLocalObject) childRelation.create();
-				// passes the parent sbb local object to the child
-				sbb.setParentSbb((PublicationClientParentSbbLocalObject) sbbContext.getSbbLocalObject());
-				return sbb;
-			} catch (Exception e) {
-				tracer.severe("Failed to create child sbb", e);
-				return null;
-			}
+public PublicationClientChildLocalInterface getPublicationClientChildSbb() {
+	final ChildRelation childRelation = getSipPublicationClientChildRelation();
+	if (childRelation.isEmpty()) {
+		try {
+			// creates new instance
+			SipPublicationClientChildSbbLocalInterface sbb = 
+				(PublicationClientChildSbbLocalObject) childRelation.create();
+			// passes the parent sbb local object to the child
+			sbb.setParentSbb((PublicationClientParentSbbLocalObject) 
+				sbbContext.getSbbLocalObject());
+			return sbb;
+		} catch (Exception e) {
+			tracer.severe("Failed to create child sbb", e);
+			return null;
 		}
-		else {
-			(PublicationClientChildSbbLocalObject) return childRelation.iterator().next();
-		}
+	}else {
+		(PublicationClientChildSbbLocalObject) return childRelation.iterator().next();
 	}
-		]]>
+}
+	]]>
 		</programlisting>
 		<para>The SbbLocalObject of the Child could also be stored in a CMP
 			Field for the simplest retrieval, but unless you are going to reuse
