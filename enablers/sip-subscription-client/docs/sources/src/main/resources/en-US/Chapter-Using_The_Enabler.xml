@@ -193,9 +193,11 @@ public SubscriptionClientChildLocalObject getPublicationClientChildSbb() {
 	if (childRelation.isEmpty()) {
 		try {
 			// creates new instance
-			SubscriptionClientChildLocalObject sbb = (SubscriptionClientChildLocalObject) childRelation.create();
+			SubscriptionClientChildLocalObject sbb = 
+				(SubscriptionClientChildLocalObject) childRelation.create();
 			// passes the parent sbb local object to the child
-			sbb.setParentSbb((SubscriptionClientParentLocalObject) sbbContext.getSbbLocalObject());
+			sbb.setParentSbb((SubscriptionClientParentLocalObject) 
+				sbbContext.getSbbLocalObject());
 			return sbb;
 		} catch (Exception e) {
 			tracer.severe("Failed to create child sbb", e);
@@ -203,7 +205,8 @@ public SubscriptionClientChildLocalObject getPublicationClientChildSbb() {
 		}
 	}
 	else {
-		return (SubscriptionClientChildLocalObject) childRelation.iterator().next();
+		return (SubscriptionClientChildLocalObject) 
+			childRelation.iterator().next();
 	}
 }
 		]]>

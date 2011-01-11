@@ -66,17 +66,23 @@ package org.mobicents.slee.enabler.sip;
 
 public interface SubscriptionClientParent {
 
-	public void subscribeSucceed(int responseCode, SubscriptionClientChildLocalObject enabler);
+	public void subscribeSucceed(int responseCode, 
+		SubscriptionClientChildLocalObject enabler);
 
-	public void unsubscribeSucceed(int responseCode, SubscriptionClientChildLocalObject enabler);
+	public void unsubscribeSucceed(int responseCode, 
+		SubscriptionClientChildLocalObject enabler);
 
-	public void onNotify(Notify notify, SubscriptionClientChildLocalObject enabler);
+	public void onNotify(Notify notify, 
+		SubscriptionClientChildLocalObject enabler);
 
-	public void subscribeFailed(int responseCode, SubscriptionClientChildLocalObject sbbLocalObject);
+	public void subscribeFailed(int responseCode, S
+		ubscriptionClientChildLocalObject sbbLocalObject);
 
-	public void resubscribeFailed(int responseCode, SubscriptionClientChildLocalObject sbbLocalObject);
+	public void resubscribeFailed(int responseCode, 
+		SubscriptionClientChildLocalObject sbbLocalObject);
 
-	public void unsubscribeFailed(int responseCode, SubscriptionClientChildLocalObject sbbLocalObject);
+	public void unsubscribeFailed(int responseCode, 
+		SubscriptionClientChildLocalObject sbbLocalObject);
 
 }
 		]]>
