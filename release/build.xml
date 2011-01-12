@@ -356,8 +356,9 @@
 	</target>
 
 	<target name="clean-downloads">
-		<delete file="${ant.file.mobicents.release}/../media-server.zip" failonerror="false"/>
-		<delete file="${ant.file.mobicents.release}/../diameter-mux.zip" failonerror="false"/>
+		<delete file="${ant.file.mobicents.release}/../${mms.distro.zip.path}" failonerror="false"/>
+		<delete file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" failonerror="false"/>
+		<delete file="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" failonerror="false"/>
 	</target>
 
 </project>
