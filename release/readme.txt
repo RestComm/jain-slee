@@ -19,9 +19,9 @@ Directory Structure
  +--- tools/remote-slee-connection	(Remote SLEE Connection Tool)
  +--- tools/twiddle					(Twiddle Command Line Interface)
  +--- tools/eclipslee				(EclipSLEE Plugin)
- +--- extra/media-server  			(Mobicents Media Server Standalone, required by some examples)
- +--- extra/mobicents-diameter		(Diameter Mux, required by Diameter RAs)
- +--- extra/sccp					(SCCP Stack)
+ +--- extra/mobicents-media-server  (Mobicents Media Server Standalone, required by some examples, MGCP and MSControl RAs)
+ +--- extra/mobicents-diameter		(Mobicents Diameter Mux, required by Diameter RAs)
+ +--- extra/mobicents-ss7			(Mobicents SS7, required by JCC and MAP RAs)
  +--- extra/sip-balancer			(Mobicents SIP Load Balancer)
  
 Quick start
