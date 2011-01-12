@@ -34,7 +34,7 @@
 				<configuration />
 				<executions>
 					<execution>
-						<phase>install</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>create</goal>
 						</goals>
