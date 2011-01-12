@@ -2,32 +2,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>mobicents-mscontrol</artifactId>
-        <groupId>org.mobicents.resources.mscontrol</groupId>
-        <version>3.0.0-SNAPSHOT</version>
-    </parent>
-    <artifactId>mscontrol-ra-DU</artifactId>
+   <parent>
+		<artifactId>mobicents-slee-ra-mscontrol</artifactId>
+		<groupId>org.mobicents.resources.mscontrol</groupId>
+    	<version>3.0.0-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>mobicents-slee-ra-mscontrol-DU</artifactId>
+
     <name>Mobicents :: Resources :: ${pom.artifactId}</name>
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>mscontrol-events</artifactId>
+			<artifactId>mobicents-slee-ra-mscontrol-events</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>msc-library</artifactId>
+            <artifactId>mobicents-slee-ra-mscontrol-library</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>mscontrol-ratype</artifactId>
+			<artifactId>mobicents-slee-ra-mscontrol-ratype</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>mscontrol-ra</artifactId>
+			<artifactId>mobicents-slee-ra-mscontrol-ra</artifactId>
             <version>${pom.version}</version>
         </dependency>
     </dependencies>
