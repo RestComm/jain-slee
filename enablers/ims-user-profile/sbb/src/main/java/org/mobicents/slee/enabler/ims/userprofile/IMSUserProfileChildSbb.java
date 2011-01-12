@@ -488,7 +488,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
       }
     }
     else {
-      tracer.warning("User-Identity AVP missing in UDR.");
+      tracer.warning("User-Identity AVP missing in Diameter Sh Message.");
     }
 
     return new String[]{publicIdentity, msisdn};
@@ -510,44 +510,38 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     ActivityContextInterface aci = diameterShClientACIF.getActivityContextInterface(activity);
     RequestMappingACI rmACI = asSbbActivityContextInterface(aci);
     
-    rmACI.setRequest(message);
+    rmACI.setRequestData(new MessageData(message));
   }
 
   // -- EVENT HANDLERS FOR DIAMETER REQUESTS ----------------------------------
 
   public void onSubscriptionNotificationsAnswer(SubscribeNotificationsAnswer event, RequestMappingACI aci) {
-    SubscribeNotificationsRequest snr = (SubscribeNotificationsRequest) aci.getRequest();
+    MessageData snrData = aci.getRequestData();
 
     aci.detach(sbbContext.getSbbLocalObject());
 
-    String [] userIdentityValues = getUserIdentityValues(snr);
-    SubsReqType subsReqType = snr.getSubsReqType();
+    SubsReqType subsReqType = snrData.getSubsReqType();
     long resultCode = event.getResultCode();
 
     // only one data ref should be present.. but at least one must!
-    DataReferenceType dataRef = snr.getDataReferences()[0];
+    DataReferenceType dataRef = snrData.getDataReferences()[0];
     switch(dataRef.getValue()) {
     case DataReferenceType._REPOSITORY_DATA:
-      // hack.. to be fixed in Resource Adaptor
-      String[] serviceIndicationStrings = snr.getServiceIndications();
-      byte[][] serviceIndicationBytes = new byte[serviceIndicationStrings.length][];
-      for (int i = 0; i < serviceIndicationStrings.length; i++) {
-        serviceIndicationBytes[i] = serviceIndicationStrings[i].getBytes();
-      }
+      byte[][] serviceIndications = snrData.getServiceIndications();
 
-      getParentSbbCMP().subscribeRepositoryDataResponse(userIdentityValues[0], serviceIndicationBytes, subsReqType.getValue(), resultCode);
+      getParentSbbCMP().subscribeRepositoryDataResponse(snrData.getPublicIdentity(), serviceIndications, subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._IMS_USER_STATE:
-      getParentSbbCMP().subscribeIMSUserStateResponse(userIdentityValues[0], subsReqType.getValue(), resultCode);
+      getParentSbbCMP().subscribeIMSUserStateResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._S_CSCFNAME:
-      getParentSbbCMP().subscribeSCSCFNameResponse(userIdentityValues[0], subsReqType.getValue(), resultCode);
+      getParentSbbCMP().subscribeSCSCFNameResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._INITIAL_FILTER_CRITERIA:
-      getParentSbbCMP().subscribeInitialFilterCriteriaResponse(userIdentityValues[0], snr.getServerName(), subsReqType.getValue(), resultCode);
+      getParentSbbCMP().subscribeInitialFilterCriteriaResponse(snrData.getPublicIdentity(), snrData.getServerName(), subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._PSI_ACTIVATION:
-      getParentSbbCMP().subscribePSIActivationResponse(userIdentityValues[0], subsReqType.getValue(), resultCode);
+      getParentSbbCMP().subscribePSIActivationResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
       break;
     default:
       //
@@ -555,20 +549,19 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
   }
 
   public void onProfileUpdateAnswer(ProfileUpdateAnswer event, RequestMappingACI aci) {
-    ProfileUpdateRequest pur = (ProfileUpdateRequest) aci.getRequest();
+    MessageData purData = aci.getRequestData();
 
     aci.detach(sbbContext.getSbbLocalObject());
-    DataReferenceType dataRef = pur.getDataReference();
+    DataReferenceType dataRef = purData.getDataReference();
 
-    String [] userIdentityValues = getUserIdentityValues(pur);
     long resultCode = event.getResultCode();
 
     switch(dataRef.getValue()) {
     case DataReferenceType._REPOSITORY_DATA:
-      getParentSbbCMP().updateRepositoryDataResponse(userIdentityValues[0], resultCode);
+      getParentSbbCMP().updateRepositoryDataResponse(purData.getPublicIdentity(), resultCode);
       break;
     case DataReferenceType._PSI_ACTIVATION:
-      getParentSbbCMP().updatePSIActivationResponse(userIdentityValues[0], resultCode);
+      getParentSbbCMP().updatePSIActivationResponse(purData.getPublicIdentity(), resultCode);
       break;
       default:
         //
@@ -595,49 +588,48 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
   }
 
   public void onUserDataAnswer(UserDataAnswer event, RequestMappingACI aci) {
-    UserDataRequest udr = (UserDataRequest) aci.getRequest();
+    MessageData udrData = aci.getRequestData();
 
     aci.detach(sbbContext.getSbbLocalObject());
 
-    String [] userIdentityValues = getUserIdentityValues(udr);
     String data = event.getUserData();
     long resultCode = event.getResultCode();
 
     // only one data ref should be present.. but at least one must!
-    DataReferenceType dataRef = udr.getDataReferences()[0];
+    DataReferenceType dataRef = udrData.getDataReferences()[0];
     switch(dataRef.getValue()) {
     case DataReferenceType._REPOSITORY_DATA:
-      getParentSbbCMP().deliverRepositoryData(userIdentityValues[0], udr.getServiceIndications(), resultCode, data);
+      getParentSbbCMP().deliverRepositoryData(udrData.getPublicIdentity(), udrData.getServiceIndications(), resultCode, data);
       break;
     case DataReferenceType._IMS_PUBLIC_IDENTITY:
-      IdentitySetType identitySet = udr.getIdentitySet();
-      getParentSbbCMP().deliverIMSPublicIdentity(userIdentityValues[0], userIdentityValues[1].getBytes(), identitySet != null ? identitySet.getValue() : null, resultCode, data);
+      IdentitySetType identitySet = udrData.getIdentitySet();
+      getParentSbbCMP().deliverIMSPublicIdentity(udrData.getPublicIdentity(), udrData.getMsisdn(), identitySet != null ? identitySet.getValue() : null, resultCode, data);
       break;
     case DataReferenceType._IMS_USER_STATE:
-      getParentSbbCMP().deliverIMSUserState(userIdentityValues[0], resultCode, data);
+      getParentSbbCMP().deliverIMSUserState(udrData.getPublicIdentity(), resultCode, data);
       break;
     case DataReferenceType._S_CSCFNAME:
-      getParentSbbCMP().deliverSCSCFName(userIdentityValues[0], resultCode, data);
+      getParentSbbCMP().deliverSCSCFName(udrData.getPublicIdentity(), resultCode, data);
       break;
     case DataReferenceType._INITIAL_FILTER_CRITERIA:
-      getParentSbbCMP().deliverInitialFilterCriteria(userIdentityValues[0], udr.getServerName(), resultCode, data);
+      getParentSbbCMP().deliverInitialFilterCriteria(udrData.getPublicIdentity(), udrData.getServerName(), resultCode, data);
       break;
     case DataReferenceType._LOCATION_INFORMATION:
-      RequestedDomainType requestedDomain = udr.getRequestedDomain();
-      getParentSbbCMP().deliverLocationInformation(userIdentityValues[1].getBytes(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
+      RequestedDomainType requestedDomain = udrData.getRequestedDomain();
+      getParentSbbCMP().deliverLocationInformation(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
       break;
     case DataReferenceType._USER_STATE:
-      requestedDomain = udr.getRequestedDomain();
-      getParentSbbCMP().deliverUserState(userIdentityValues[1].getBytes(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
+      requestedDomain = udrData.getRequestedDomain();
+      getParentSbbCMP().deliverUserState(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
       break;
     case DataReferenceType._CHARGING_INFORMATION:
-      getParentSbbCMP().deliverChargingInformation(userIdentityValues[0], userIdentityValues[1].getBytes(), resultCode, data);
+      getParentSbbCMP().deliverChargingInformation(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
       break;
     case DataReferenceType._MSISDN:
-      getParentSbbCMP().deliverMSISDN(userIdentityValues[0], userIdentityValues[1].getBytes(), resultCode, data);
+      getParentSbbCMP().deliverMSISDN(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
       break;
     case DataReferenceType._PSI_ACTIVATION:
-      getParentSbbCMP().deliverPSIActivation(userIdentityValues[0], resultCode, data);
+      getParentSbbCMP().deliverPSIActivation(udrData.getPublicIdentity(), resultCode, data);
       break;
     default:
       //

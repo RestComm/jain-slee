@@ -24,16 +24,14 @@ package org.mobicents.slee.enabler.ims.userprofile;
 
 import javax.slee.ActivityContextInterface;
 
-import net.java.slee.resource.diameter.sh.events.DiameterShMessage;
-
 /**
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
  */
 public interface RequestMappingACI extends ActivityContextInterface {
 
-  public DiameterShMessage getRequest();
+  public MessageData getRequestData();
 
-  void setRequest(DiameterShMessage request);
+  void setRequestData(MessageData data);
 
 }
