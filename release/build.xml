@@ -15,15 +15,22 @@
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
+	
 	<property name="mms.version" value="2.1.0.BETA1" />
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
+	
+	<property name="ss7.version" value="1.0.0.BETA6" />
+	<property name="ss7.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Protocols%20Suite/1.0.0.B6/mobicents-ss7-${ss7.version}.zip"/>
+	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip"/>
+	
 	<property name="diameter.version" value="1.3.3.FINAL" />
 	<!--
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-${diameter.version}.zip"/>
 	-->
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
+	
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_1.3.0.jar"/>
 	<property name="eclipslee.download.url" value ="http://mobicents.googlecode.com/files/${eclipslee.jar}"/>
 
@@ -98,20 +105,6 @@
 		</copy>
 	</target>
 
-	<target name="build-sccp" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sccp">
-			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
-		</exec>
-
-		<copy failonerror="true" toDir="${release.dir}/extra/sccp/sccp-impl-stack" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sccp/sccp-impl/target/asccp-impl-stack"/>
-		</copy>
-
-		<copy failonerror="true" toDir="${release.dir}/extra/sccp/docs" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sccp/docs/jdocbook-${docs.profile}/target/docbook/publish"/>
-		</copy>
-	</target>
-
 	<target name="build-ras" description="Resource adaptors.">
 		<for delimiter="," param="dir.name" list="${ra.dirs}">
 			<sequential>
@@ -161,15 +154,7 @@
 		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/enablers" />
 	</target>
 
-	<!--
-	<target name="build-mms" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/mms">
-			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -Dmaven.test.skip=true -P set-svn-revision" />
-		</exec>
-	</target>
-	-->
-
-	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-sccp,build-tools,get-eclipslee,build-sip-balancer,build-ras,build-enablers,build-examples,build-sources-for-debug-zip">
+	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-core,build-tools,get-eclipslee,build-sip-balancer,build-ras,build-enablers,build-examples,build-sources-for-debug-zip">
 
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		<tstamp>
@@ -326,10 +311,21 @@
 	</target>
 
 	<target name="unzip-mms">
-		<delete dir="${release.dir}/extra/media-server" failonerror="false" />
-		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/media-server" />
+		<delete dir="${release.dir}/extra/mobicents-media-server" failonerror="false" />
+		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/mobicents-media-server" />
 	</target>
 
+	<available file="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" property="got.ss7" />
+	<target name="get-ss7" unless="got.ss7">
+		<echo>Downloading Mobicents SS7</echo>
+		<get dest="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" src="${ss7.download.url}"/>
+	</target>
+
+	<target name="unzip-ss7">
+		<delete dir="${release.dir}/extra/mobicents-ss7" failonerror="false" />
+		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/mobicents-ss7" />
+	</target>
+	
 	<available file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" property="got.diameter" />
 	<target name="get-diameter" unless="got.diameter">
 		<echo>Downloading Mobicents Diameter</echo>
