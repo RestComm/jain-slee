@@ -73,7 +73,7 @@
 		<!-- 
 		<sip-balancer.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/tools/sip-balancer/1.0.4.FINAL</sip-balancer.connectionURL>
 		 -->
-		<sccp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/protocols/ss7/sccp/sccp-1.0.0.BETA6</sccp.connectionURL>
+		<sccp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/protocols/ss7/mobicents-ss7-1.0.0.BETA6/sccp</sccp.connectionURL>
 
 		<!-- TRUNK -->
 		
