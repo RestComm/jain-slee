@@ -2,8 +2,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<packaging>jainslee-du</packaging>
-
 	<parent>
 		<artifactId>mgcp-demo-slee</artifactId>
 		<groupId>org.mobicents.examples</groupId>
@@ -62,7 +60,7 @@
 				<configuration />
 				<executions>
 					<execution>
-						<phase>install</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>create</goal>
 						</goals>
