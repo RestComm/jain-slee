@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.12</version>
+		<version>2.16</version>
 	</parent>
 
 	<artifactId>converged-demo-parent</artifactId>
@@ -53,7 +53,6 @@
 		<mobicents.resources.sip11.version>2.1.0.GA</mobicents.resources.sip11.version>
 		<mobicents.resources.mgcp.version>2.1.0.GA</mobicents.resources.mgcp.version>
 		<mobicents.core.version>2.1.0.GA</mobicents.core.version>
-		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA4</mobicents.tools.mavenplugin.du.version>
 	</properties>
 
 	<build>
