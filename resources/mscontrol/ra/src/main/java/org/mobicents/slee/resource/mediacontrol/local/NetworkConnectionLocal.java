@@ -145,7 +145,13 @@ public class NetworkConnectionLocal extends MsActivity implements NetworkConnect
     }
 
     public void release() {
-        connection.release();
+    	try{
+    		connection.release();
+    	}catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
+    	this.ra.endActivity(this);
     }
 
     public void setParameters(Parameters p) {

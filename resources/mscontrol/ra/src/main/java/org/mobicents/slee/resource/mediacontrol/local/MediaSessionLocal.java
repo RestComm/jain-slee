@@ -73,7 +73,7 @@ public class MediaSessionLocal implements MediaSession {
     }
 
     public MediaGroup createMediaGroup(Configuration<MediaGroup> config) throws MsControlException {
-        MediaGroupLocal local = new MediaGroupLocal(this, mediaSession.createMediaGroup(config));
+        MediaGroupLocal local = new MediaGroupLocal(this, mediaSession.createMediaGroup(config),ra);
         MediaGroupActivityHandle h = new MediaGroupActivityHandle(ra, local);
         ra.createActivity(h, local);
         return local;
@@ -124,6 +124,7 @@ public class MediaSessionLocal implements MediaSession {
     }
 
     public void release() {
+    	//BS....
     	//fast solution, get proxies and release them.
 //        Iterator<MediaObject> it = this.getMediaObjects();
 //        while(it.hasNext())

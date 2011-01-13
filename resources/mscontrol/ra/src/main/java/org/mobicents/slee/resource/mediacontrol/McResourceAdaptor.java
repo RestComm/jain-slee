@@ -24,6 +24,7 @@ import javax.media.mscontrol.MediaEventListener;
 import javax.media.mscontrol.MsControlFactory;
 import javax.media.mscontrol.resource.AllocationEvent;
 import javax.media.mscontrol.resource.AllocationEventListener;
+import javax.media.mscontrol.spi.Driver;
 import javax.media.mscontrol.spi.DriverManager;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
@@ -49,8 +50,12 @@ import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
 import javax.slee.resource.UnrecognizedActivityHandleException;
+
+import org.mobicents.javax.media.mscontrol.spi.DriverImpl;
 import org.mobicents.slee.resource.mediacontrol.local.FactoryLocal;
+import org.mobicents.slee.resource.mediacontrol.local.MediaGroupLocal;
 import org.mobicents.slee.resource.mediacontrol.local.MsActivity;
+import org.mobicents.slee.resource.mediacontrol.local.NetworkConnectionLocal;
 
 /**
  *
@@ -59,6 +64,7 @@ import org.mobicents.slee.resource.mediacontrol.local.MsActivity;
 public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, AllocationEventListener {
     //Media control factory
     private MsControlFactory mscFactory;
+    private Driver mscDriver;
     private ResourceAdaptorContext context;
     private SleeEndpoint sleeEndpoint;
     private EventLookupFacility eventLookupFacility;
@@ -134,7 +140,10 @@ public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, A
             tracer.info("Loading resource adaptor configuration: " + configName);
             config.load(this.getClass().getResourceAsStream("/" + configName));
             tracer.info("Resource adaptor successfully configured");
-            mscFactory = new FactoryLocal(DriverManager.getFactory(driverName, config), this);
+            mscDriver = DriverManager.getDriver(driverName);
+            tracer.info("Created MSC Driver: "+mscDriver+", from name: "+driverName);
+            mscFactory = new FactoryLocal(mscDriver.getFactory(config), this);
+            
             tracer.info("Successfully started driver " + driverName);
         } catch (Exception e) {
             tracer.severe("Can not activate driver[" + driverName + "]", e);
@@ -145,6 +154,10 @@ public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, A
     }
 
     public void raInactive() {
+    	if(mscDriver instanceof DriverImpl)
+    	{
+    		((DriverImpl)mscDriver).shutdown();
+    	}
     }
 
     public void raVerifyConfiguration(ConfigProperties config) throws InvalidConfigurationException {
@@ -290,4 +303,15 @@ public class McResourceAdaptor implements ResourceAdaptor, MediaEventListener, A
     public void onEvent(AllocationEvent arg0) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+    
+    //to avoid messive changes...
+	/**
+	 * @param msActivty
+	 */
+	public void endActivity(MsActivity msActivty) {
+		ActivityHandle ac = this.handlers.get(msActivty.getID());
+		this.sleeEndpoint.endActivity(ac);
+		
+	}
+
 }

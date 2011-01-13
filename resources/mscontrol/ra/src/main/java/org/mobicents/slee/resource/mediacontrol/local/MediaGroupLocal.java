@@ -40,6 +40,8 @@ import javax.media.mscontrol.mediagroup.signals.SignalGenerator;
 import javax.media.mscontrol.resource.Action;
 import javax.media.mscontrol.resource.AllocationEventListener;
 
+import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+
 /**
  *
  * @author kulikov
@@ -52,10 +54,12 @@ public class MediaGroupLocal extends MsActivity implements MediaGroup, LocalJoin
     private MediaSessionLocal mediaSession;
     private PlayerLocal player;
     private RecorderLocal recorder;
+    private McResourceAdaptor ra;
     
-    public MediaGroupLocal(MediaSessionLocal mediaSession, MediaGroup group) throws MsControlException {
+    public MediaGroupLocal(MediaSessionLocal mediaSession, MediaGroup group, McResourceAdaptor ra) throws MsControlException {
         this.group = group;
         this.mediaSession= mediaSession;
+        this.ra = ra;
         if(group.getPlayer()!=null)
         	this.player = new PlayerLocal(group.getPlayer(), mediaSession, this);
         if(group.getRecorder()!=null)
@@ -147,7 +151,14 @@ public class MediaGroupLocal extends MsActivity implements MediaGroup, LocalJoin
     }
 
     public void release() {
-        group.release();
+    	try{
+    		group.release();
+    	}catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
+    	this.ra.endActivity(this);
+    	
     }
 
     public void setParameters(Parameters parameters) {
