@@ -28,13 +28,6 @@
       <version>${pom.version}</version>
     </dependency>
 
-    <!-- runtime - deps for other jain slee 1.1 libraries -->
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <artifactId>base-common-library</artifactId>
-      <version>${mobicents.diameter.resources.base-common.version}</version>
-      <scope>runtime</scope>
-    </dependency>
 	</dependencies>
 	
 	<build>
@@ -47,6 +40,11 @@
 					<library-name>diameter.sh.common</library-name>
 					<library-vendor>java.net</library-vendor>
 					<library-version>1.0</library-version>
+					<library-ref>
+						<library-name>diameter.base.common</library-name>
+						<library-vendor>java.net</library-vendor>
+						<library-version>1.0</library-version>
+					</library-ref>
 				</configuration>
 				<executions>
 					<execution>
