@@ -18,7 +18,7 @@
 	</modules>
 	
 	<properties>
-		<mobicents.slee.version>2.2.0.FINAL</mobicents.slee.version>
+		<mobicents.slee.version>${pom.version}</mobicents.slee.version>
 	</properties>
 	
 	<scm>
