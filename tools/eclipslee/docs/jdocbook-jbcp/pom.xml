@@ -28,7 +28,7 @@
 								<configuration>
 									<tasks>
 										<!-- copy docs -->
-										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/tools/remote-slee-connection/docs">
+										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/tools/eclipslee/docs">
 											<fileset dir="${basedir}/target/docbook/publish" />
 										</copy>
 									</tasks>
