@@ -39,12 +39,13 @@
 		<section id="management_jmx_console">
 			<title>JMX Console</title>
 			
-			<para>&JEE.PLATFORM; provides a simple web console that gives quick access to all MBeans registred in the server, which includes the ones defined by the JAIN SLEE 1.1 specification.</para>
+			<para>&JEE.PLATFORM; provides a simple web console that gives quick access to all MBeans registered in the server, which includes the ones defined by the JAIN SLEE 1.1 specification.</para>
 
-			<para>To access the JMX console, with the server running, point a web browser to <literal>http://ip:8080/jmx-console</literal>, where <literal>ip</literal> is the IP/Host the container is bound, which is 127.0.0.1/localhost by default.</para>			
-
-			<variablelist>
-				<para>MBeans in domain <literal>javax.slee</literal> are all standard JAIN SLEE 1.1 MBeans, while the ones in domain <literal>org.mobicents.slee</literal> are proprietary to &THIS.PLATFORM; JAIN SLEE, the following ones are of particular interest:</para>					
+			<para>To access the JMX console once the server is running, point a web browser to <literal>http://ip:8080/jmx-console</literal>, where <literal>ip</literal> is the IP/Host the container is bound. Unless set during start up, the IP/Host will be <literal>127.0.0.1/localhost</literal> by default.</para>			
+      <para>
+      MBeans in the domain <literal>javax.slee</literal> are all standard JAIN SLEE 1.1 MBeans, while the ones in the domain <literal>org.mobicents.slee</literal> are proprietary to &THIS.PLATFORM; JAIN SLEE. The following ones are of particular interest:
+      </para>
+			<variablelist>					
 		    	<varlistentry>
 				 	<term><literal>org.mobicents.slee:service=MobicentsManagement</literal></term>
 				    <listitem>

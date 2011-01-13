@@ -52,7 +52,7 @@
 
 		<section id="binary_release_snapshot">
 			<title>Binary Release Snapshot</title>
-			<para>You can download the Binary Snapshot zip files from <ulink url="http://hudson.jboss.org/hudson/view/Mobicents/job/MobicentsSleeRelease/"/>. The installation is similar to the <xref linkend="binary_release"/> one.</para>
+			<para>You can download the Binary Snapshot zip files from <ulink url="http://hudson.jboss.org/hudson/view/Mobicents/job/Mobicents-Slee-2.x-Release/"/>. The installation is similar to the <xref linkend="binary_release"/> one.</para>
 		</section>	
 		
 		<section id="release_source_building">

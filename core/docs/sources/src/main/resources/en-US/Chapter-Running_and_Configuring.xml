@@ -67,8 +67,12 @@ Halting VM]]></screen>
 	
 	<section id="configuration">
 		<title>Configuring &THIS.PLATFORM; JAIN SLEE</title>
-		<para>Configuration is done through an XML descriptor for each <xref linkend="server_profiles" />. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/META-INF</filename>, where <application>profile_name</application> is the server profile name.</para>
-		<warning><para>This configuration greatly affects performance or correctness of the container behavior, this is truly for advanced users that know the internals of the container.</para></warning>
+		<para>JAIN SLEE is configured through an XML descriptor for each <xref linkend="server_profiles" />. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/META-INF</filename>, where <application>profile_name</application> is the server profile name.</para>
+    <warning>
+      <para>
+      This configuration greatly affects performance or correctness of the container behavior. This is for advanced users that know the internals of the container.
+      </para>
+    </warning>
 		
 		<xi:include href="Section-Event_Router_Configuration.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -78,7 +82,11 @@ Halting VM]]></screen>
 				
 		<section id="profiles_configuration">
 			<title>Configuring JAIN SLEE Profiles</title>
-			<para>JAIN SLEE Profiles is a component used to store data, usually related with a user and/or service profile. &THIS.PLATFORM; JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API (JPA) Datasource, through Hibernate. There are two configurations for JAIN SLEE Profiles provided as JBoss Microcontainer Beans:</para>
+			<para>JAIN SLEE Profiles is a component used to store data, usually related with a user and/or service profile. JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API (<acronym>JPA</acronym>) Datasource, through Hibernate.
+      </para>
+      <para>
+      There are two configurations for JAIN SLEE Profiles provided as JBoss Microcontainer Beans:
+      </para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <bean name="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig"
 	class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
@@ -97,7 +105,7 @@ Halting VM]]></screen>
 </bean>]]>
 			</programlisting>
 			<important>
-				<para>One can change those configurations or create additional ones. For new ones ensure that the name attribute of the bean element is unique</para>
+				<para>Configurations can be changed, or new ones can be added. For new ones, ensure that the name attribute of the bean element is unique.</para>
 			</important>
 			<table frame="all" pgwide="1">
 			  	<title>JAIN SLEE Profiles Bean Configuration</title>
@@ -116,22 +124,22 @@ Halting VM]]></screen>
 					      <row>
 					      	<entry>persistProfiles</entry>
 				    	    <entry>boolean</entry>
-				       		<entry>if true profile changes are persisted into the data source</entry>
+				       		<entry>If true, profile changes are persisted into the data source.</entry>
 					      </row>
 					      <row>
 					        <entry>clusteredProfiles</entry>
 					        <entry>boolean</entry>
-					        <entry>if true then the container is aware there is a shared data source and that updates may be done by other nodes (e.g. delete a JAIN SLEE profile table</entry>
+					        <entry>If true, then the container is aware there is a shared data source and that updates may be done by other nodes (for example, deletion of a JAIN SLEE profile table).</entry>
 					      </row>
 				    	  <row>
 				  		    <entry>hibernateDatasource</entry>
 				  		    <entry>String</entry>
-				    	    <entry>the name of the Java Datasource deployed in the &JEE.PLATFORM;</entry>
+				    	    <entry>The name of the Java Datasource deployed in the &JEE.PLATFORM;.</entry>
 					      </row>
 					      <row>
 					        <entry>hibernateDialect</entry>
 					        <entry>String</entry>
-					        <entry>the java class name of the hibernate dialect to use, related with the selected datasource</entry>
+					        <entry>The java class name of the hibernate dialect to use, related with the selected datasource.</entry>
 				    	  </row>
 			    	</tbody>
 			  	</tgroup>
@@ -147,11 +155,11 @@ Halting VM]]></screen>
 	<property name="clusteredUsageMBeans">false</property>		
 </bean>]]>
 			</programlisting>
-			<para>There is a single property to configure, named clusteredUsageMBeans, with a boolean value. Set this property to true if usage param values should be shared by all cluster nodes. This option means a significant performance penalty, but makes it possible to learn the current values for whole cluster by chekcing a single node. Use only if there is no other solution such as a management client that gets each node values and then does appropriate calculations.</para>
+			<para>There is a single property to configure, named clusteredUsageMBeans, with a boolean value. Set this property to <parameter>true</parameter> if the usage param values should be shared by all cluster nodes. This option means a significant performance penalty, but makes it possible to learn the current values for the whole cluster by checking a single node. Use this only if there is no other solution, such as a management client, that gets the value of each node and then does the appropriate calculations.</para>
 		</section>
 		<section id="other_configurations">
 			<title>Other Configurations</title>
-			<para>Other &THIS.PLATFORM; JAIN SLEE runtime configuration is done through the following JBoss Microcontainer Bean:</para>
+			<para>Other JAIN SLEE runtime configuration is done through the following JBoss Microcontainer Bean:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <bean name="Mobicents.JAINSLEE.MobicentsManagement"
 	class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
@@ -182,23 +190,23 @@ Halting VM]]></screen>
 					      <row>
 					      	<entry>entitiesRemovalDelay</entry>
 				    	    <entry>int</entry>
-				       		<entry>the number of minutes before the container force the ending of sbb entities from a service being deactivated</entry>
+				       		<entry>The number of minutes before the container forces the ending of SBB entities from a service being deactivated.</entry>
 					      </row>
 					      <row>
 					        <entry>timerThreads</entry>
 					        <entry>int</entry>
-					        <entry>the number of threads used by the timer facility</entry>
+					        <entry>The number of threads used by the timer facility.</entry>
 					      </row>
 					      <row>
 					        <entry>loadClassesFirstFromAS</entry>
 					        <entry>boolean</entry>
-					        <entry>if true a classloader always looks for classes first in the container own classloader, which shares and imports classes from &JEE.PLATFORM;</entry>
+					        <entry>If true, a classloader always looks for classes first in the container's own classloader, which shares and imports classes from &JEE.PLATFORM;.</entry>
 				    	  </row>
 			    	</tbody>
 			  	</tgroup>
 			</table>
-			<para>Through JMX this configuration can be changed with the container running. Note that such configuration changes are not persisted.</para>
-			<para>To change the configuraton use the JMX MBean named <application>org.mobicents.slee:service=MobicentsManagement</application>, which provides getters and setters to change each property defined in the persistent configuration, that is configurable with the container running. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
+			<para>This configuration can be changed with the container running with JMX. Note that such configuration changes are not persisted.</para>
+			<para>To change the configuraton, use the JMX MBean named <application>org.mobicents.slee:service=MobicentsManagement</application>, which provides getters and setters to change each property defined in the persistent configuration that is configurable with the container running. The JMX Console can be used to use this MBean, as described in <xref linkend="management_jmx_console"/>.</para>
 		</section>		
 		<section id="logging_configuration">
 			<title>Logging Configuration</title>

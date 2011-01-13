@@ -7,39 +7,39 @@
 
 	<title>Introduction to &THIS.PLATFORM; JAIN SLEE</title>
 
-	<para><acronym>JAIN SLEE</acronym> is the specification for a Java Service Logic and Execution Environment (<acronym>SLEE</acronym>) architecture, done in Java Community Process (<acronym>JCP</acronym>) by several individuals and companies, including Red Hat. A <acronym>SLEE</acronym> is an application server, or service container, which defines a component model for structuring the logic of communications services as a collection of reusable components, and for composing these components into even more sophisticated services. This model was designed and optimized for event driven applications.</para>
+	<para>JAIN SLEE is the specification for a Java Service Logic and Execution Environment (SLEE) architecture, created in the Java Community Process (JCP) by several individuals and companies, including Red Hat. A SLEE is an application server, or service container, which defines a component model for structuring the logic of communications services as a collection of reusable components, and for combining these components into even more sophisticated services. This model was designed and optimized for event-driven applications.</para>
 	
-	<para>In addition to the service component model, the <acronym>SLEE</acronym> also defines management interfaces used to administer the container and the service components executing within, and a set of standard facilities, which provides common features, such as timers, traces and alarms, to JAIN SLEE components.</para>
+	<para>In addition to the service component model, the SLEE also defines management interfaces used to administer the container and the service components executing within, and a set of standard facilities, which provide common features, such as timers, traces and alarms, to JAIN SLEE components.</para>
 	
-	<para>&THIS.PLATFORM; <acronym>JAIN SLEE</acronym> is the first and only open source platform certified for <acronym>JAIN SLEE</acronym> 1.1 compliance, providing a highly-scalable, event-driver application server with a robust component model and a fault-tolerant execution environment.</para>
+	<para>&THIS.PLATFORM; JAIN SLEE is the first and only open source platform certified for JAIN SLEE 1.1 compliance, providing a highly scalable, event-driven application server with a robust component model and a fault tolerant execution environment.</para>
 	
-	<mediaobject>
-		<imageobject>
-			<imagedata
-				width="410"
-				align="center"
-				fileref="images/introduction-slee_and_jee.png"
-				format="PNG"/>
-		</imageobject>
-		<caption>
-			<para>Overview of &THIS.PLATFORM; JAIN SLEE</para>
-		</caption>
-	</mediaobject>
+  <figure>
+    <title>Overview of JAIN SLEE</title>
+    <mediaobject>
+      <imageobject>
+        <imagedata
+          width="410"
+          align="center"
+          fileref="images/introduction-slee_and_jee.png"
+          format="PNG"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
 	
 	<para>&THIS.PLATFORM; <acronym>JAIN SLEE</acronym> is built on top of the open source award winning &JEE.PLATFORM;, which means that &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> complements <acronym>JAIN SLEE</acronym> with Java Enterprise (<acronym>JEE</acronym>) 5 container features, allowing strong convergence of different application models, for even feature richer communication services, for instance, the Web and <acronym>SIP</acronym> can be combined to achieve a more sophisticated and natural user experience. &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> inherits quality management features and tools from &JEE.PLATFORM;, such as the JMX Console, &MANAGEMENT.PLATFORM; Plugins and SNMP Adaptor.</para>
 	
-	<mediaobject>
-		<imageobject>
-			<imagedata
-				align="center"
-				fileref="images/introduction-platform.png"
-				format="PNG"/>
-		</imageobject>
-		<caption>
-			<para>&THIS.PLATFORM; Platform</para>
-		</caption>
-	</mediaobject>
+  <figure>
+    <title>&THIS.PLATFORM; Platform</title>
+    <mediaobject>
+      <imageobject>
+        <imagedata
+          align="center"
+          fileref="images/introduction-platform.png"
+          format="PNG" />
+      </imageobject>
+    </mediaobject>
+  </figure>
 	
-	<para>&THIS.PLATFORM; <acronym>JAIN SLEE</acronym> can also be complemented with &THIS.PLATFORM; <acronym>SIP Servlets</acronym> and &THIS.PLATFORM; <acronym>Media Server</acronym>, providing unique value and integration features not found elsewhere.</para>
+	<para>&THIS.PLATFORM; JAIN SLEE can also be complemented with &THIS.PLATFORM; <acronym>SIP</acronym> Servlets and &THIS.PLATFORM; Media Server, providing unique value and integration features not found elsewhere.</para>
 	
 </chapter>

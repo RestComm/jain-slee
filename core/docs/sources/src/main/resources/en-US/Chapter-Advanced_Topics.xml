@@ -42,20 +42,46 @@ ant</screen>
 	</section>		
 	
 	<section id="eclipse_ide">
-		<title>Setting &THIS.PLATFORM; JAIN SLEE Source Code Projects in Eclipse IDE</title>
-		<para>The &THIS.PLATFORM; JAIN SLEE Core, each RA, and each Example, are worked out with separated Eclipse IDE Projects.</para>
-		<orderedlist>
-			<para>Two alternatives to setup a specific project:</para>
-			<listitem>
-		        <para>In the checked out directory of the project, and with Eclipse IDE closed, open a terminal/command-line and do: </para>
-		        <screen>mvn mobicents:eclipse
-mvn -Declipse.workspace=YOUR_RELATIVE_PATH_TO_ECLIPSE_WORKSPACE eclipse:add-maven-repo</screen>
-		        <para>Install M2Eclipse if you want to do maven builds within Eclipse.</para>
-		    </listitem>
-		    <listitem>
-		        <para>Install M2Eclipse plugin and use "Import..." subselect "Maven Projects" feature, just be sure you turn off "Resolve Workspace projects" and "Separate projects for modules" in "Advanced" options on the bottom of the window. If the project is big, such as the &THIS.PLATFORM; JAIN SLEE Core, M2Eclipse may be considerable slower options, due to dynamic Maven2 Dependency Management.</para>
-			</listitem>		    
-		</orderedlist>		
+		<title>Setting JAIN SLEE Source Code Projects in Eclipse IDE</title>
+		<para>The JAIN SLEE Core, each RA, and each example, are worked out with separated Eclipse IDE Projects.</para>
+    <para>
+    There are two alternatives to set up a specific project:
+    </para>
+    <procedure>
+      <title>Via Command Line</title>
+      <step>
+        <para>
+        In the checked out directory of the project, and with Eclipse IDE closed, open a terminal.
+        </para>
+      </step>
+      <step>
+        <para>
+        Run the following:
+        </para>
+        <screen>
+<![CDATA[]mvn mobicents:eclipse
+mvn -Declipse.workspace=YOUR_RELATIVE_PATH_TO_ECLIPSE_WORKSPACE eclipse:add-maven-repo]]>
+        </screen>
+      </step>
+      <step>
+        <para>
+        Install M2Eclipse if you want to do maven builds within Eclipse.
+        </para>
+      </step>
+    </procedure>
+    <procedure>
+      <title>With Eclipse IDE</title>
+      <step>
+        <para>
+        Install the M2Eclipse plugin and use "Import..." and subselect the "Maven Projects" feature.
+        </para>
+        <important>
+          <para>
+          Ensure the "Resolve Workspace projects" and "Separate projects for modules" in the "Advanced" options on the bottom of the window are turned off. If the project is large, such as the JAIN SLEE Core, M2Eclipse may be a considerable slower option, due to dynamic Maven2 Dependency Management.
+          </para>
+        </important>
+      </step>
+    </procedure>
 	</section>		
 					
 </chapter>

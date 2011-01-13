@@ -5,9 +5,9 @@
 	
 	<title>Congestion Control</title>
 	
-	<para>&THIS.PLATFORM; JAIN SLEE can monitor the memory available in the JVM and in case it drops to a certain level (percentage) new events and/or activity startup are rejected, and at the same time a JAIN SLEE Alarm, which can send JMX notifications, is raised. This feature is called Congestion Control and the container will turn it off automatically once another available memory level is reached.</para>
+	<para>JAIN SLEE can monitor the memory available in the JVM. In case it drops to a certain level (percentage), new events and/or activity startups are rejected, and at the same time a JAIN SLEE Alarm (which can send JMX notifications) is raised. This feature is called Congestion Control, and the container will turn it off automatically once another available memory level is reached.</para>
 	
-	<para>If Congestion Control rejects an operation a <classname>javax.slee.SleeException</classname> is thrown, which means that if the feature is to be used the Resource Adaptors and Applications need to handle such use case, and behave properly.</para>
+	<para>If Congestion Control rejects an operation, a <classname>javax.slee.SleeException</classname> is thrown. This means that if the feature is to be used, the Resource Adaptors and Applications need to handle such use case, and behave properly.</para>
 	
 	<para>The type of JAIN SLEE Alarm raised is <application>org.mobicents.slee.management.alarm.congestion</application>.</para>
 	
@@ -16,7 +16,7 @@
 	<section id="congestion_control_configuration">
 		<title>Congestion Control Configuration</title>
 	
-		<para>Congestion Control feature is configured through an XML file or through a JMX MBean, note that changes applied through JMX are not persisted, once the container is restarted the configuration will revert to the one in the XML file.</para>
+		<para>The Congestion Control feature is configured through an XML file or through a JMX MBean. Changes applied through JMX are not persisted, and once the container is restarted the configuration will revert to the one in the XML file.</para>
 	
 		<section id="congestion_control_persistent_configuration">
 			<title>Congestion Control Persistent Configuration</title>
@@ -53,27 +53,27 @@
 					      <row>
 					      	<entry>periodBetweenChecks</entry>
 				    	    <entry>int</entry>
-				       		<entry>the available memory level is checked periodically, this property defines the period, in seconds, between these checks, and if set to 0 turns off the Congestion Control feature</entry>
+				       		<entry>The available memory level is checked periodically, this property defines the period, in seconds, between these checks, and if set to 0 turns off the Congestion Control feature.</entry>
 					      </row>
 					      <row>
 					        <entry>minFreeMemoryToTurnOn</entry>
 					        <entry>int</entry>
-					        <entry>this property defines the minimum free memory percentage, which if reached turns ON the Congestion Control feature</entry>
+					        <entry>This property defines the minimum free memory percentage, which if reached turns ON the Congestion Control feature.</entry>
 					      </row>
 				    	  <row>
 				  		    <entry>minFreeMemoryToTurnOff</entry>
 				  		    <entry>int</entry>
-				    	    <entry>this property defines the minimum free memory percentage, which if reached turns OFF the Congestion Control feature. This value should be considerably higher than minFreeMemoryToTurnOn, otherwise the feature may be turning on and off all the time</entry>
+				    	    <entry>This property defines the minimum free memory percentage, which if reached turns OFF the Congestion Control feature. This value should be considerably higher than minFreeMemoryToTurnOn, otherwise the feature may be turning on and off all the time.</entry>
 					      </row>
 					      <row>
 					        <entry>refuseStartActivity</entry>
 					        <entry>boolean</entry>
-					        <entry>if true and the Congestion Control feature is ON, the container rejects activity startups, no matter it's a request from a Resource Adaptor or SBB</entry>
+					        <entry>If true and the Congestion Control feature is ON, the container rejects activity startups, no matter it's a request from a Resource Adaptor or SBB.</entry>
 				    	  </row>
 				    	  <row>
 					        <entry>refuseFireEvent</entry>
 					        <entry>boolean</entry>
-					        <entry>if true and the Congestion Control feature is ON, the container rejects the firing of events, no matter it's a request from a Resource Adaptor or SBB</entry>
+					        <entry>If true and the Congestion Control feature is ON, the container rejects the firing of events, no matter it's a request from a Resource Adaptor or SBB.</entry>
 				    	  </row>
 			    	</tbody>
 			  	</tgroup>
@@ -82,7 +82,7 @@
 		
 		<section id="congestion_control_jmx_configuration">
 			<title>Congestion Control JMX Configuration</title>
-			<para>Through JMX the Congestion Control feature configuration can be changed with the container running. Note that such configuration changes are not persisted.</para>
+			<para>Through JMX, the Congestion Control feature configuration can be changed with the container running. These configuration changes are not persisted.</para>
 			
 			<para>The JMX MBean which can be used to change the Congestion Control configuration is named <application>org.mobicents.slee:name=CongestionControlConfiguration</application>, and provides getters and setters to change each property defined in the persistent configuration. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
 		</section>	
@@ -90,4 +90,3 @@
 	</section>	
 	
 </section>
-	

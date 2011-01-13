@@ -28,9 +28,9 @@
 			<title>Software Prerequisites</title>
 			<variablelist>	
 				<varlistentry>
-					<term>JDK 5 or Higher</term>
+					<term>JDK 6</term>
 					<listitem>
-						<para>A working installation of the Java Development Kit (<acronym>JDK</acronym>) version 5 or higher is required in order to run the &THIS.PLATFORM; JAIN SLEE. Note that the &JEE.PLATFORM; is a runtime dependency, but comes bundled with the binary distribution.</para>
+						<para>A working installation of the Java Development Kit (<acronym>JDK</acronym>) version 6 is required in order to run the &THIS.PLATFORM; JAIN SLEE. Note that the &JEE.PLATFORM; is a runtime dependency, but comes bundled with the binary distribution.</para>
 						
 						<para>For instructions on how to install the JDK, refer to <xref
 							linkend="jdk-installing_configuring_and_running"/>.</para>							

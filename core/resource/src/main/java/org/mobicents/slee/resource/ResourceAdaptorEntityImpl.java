@@ -119,7 +119,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * @throws InvalidConfigurationException
 	 * @throws InvalidArgumentException
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ResourceAdaptorEntityImpl(String name,
 			ResourceAdaptorComponent component,
 			ConfigProperties entityProperties, ResourceManagementImpl resourceManagement,
@@ -286,8 +286,9 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 			if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
 				try {
 					object.raInactive();
-				} catch (InvalidStateException e) {
-					logger.error(e.getMessage(), e);
+				}
+				catch (Throwable t) {
+					logger.error("Got exception invoking raInactive() for entity "+name, t);
 				}
 			}
 			if (state.isStopping()) {
@@ -310,7 +311,12 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		this.state = ResourceAdaptorEntityState.ACTIVE;
 		// if slee is running then activate ra object
 		if (sleeContainer.getSleeState().isRunning()) {
-			object.raActive();
+			try {
+				object.raActive();
+			}
+			catch (Throwable t) {
+				logger.error("Got exception invoking raActive() for entity "+name, t);
+			}
 		}
 	}
 

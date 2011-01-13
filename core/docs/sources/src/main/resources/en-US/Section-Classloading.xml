@@ -5,39 +5,40 @@
 	
 	<title>Class Loading</title>
 	
-	<para>Each JAIN SLEE Component has its own class loader, <literal>ComponentClassLoader</literal> in package named <literal>org.mobicents.slee.container.component.deployment.classloading</literal>, this class loader sees the component classes contained in the component jar (<literal>URLClassLoaderDomain</literal>) - by declaring it as the parent class loader - plus the classes seen by each component it refers. It does not see classes from a component that it does not depend on.</para>
-	<para>&THIS.PLATFORM; JAIN SLEE defines a class loading domain with the APIs required in the JAIN SLEE 1.1 container (JAIN SLEE, JDBC, JMX, ...). This domain (JBoss Microcontainer ClassLoadingDomain) imports all classes shared in the &JEE.PLATFORM;, and acts like the parent domain for all <literal>URLClassLoaderDomain</literal>s, which means that a class imported by SLEE class loading domain will always be used first.</para>
+	<para>Each JAIN SLEE Component has its own classloader (<literal>ComponentClassLoader</literal>) in the package named <literal>org.mobicents.slee.container.component.deployment.classloading</literal>. This classloader sees the component classes contained in the component jar (<literal>URLClassLoaderDomain</literal>) by declaring it as the parent classloader, and adding the classes seen by each component it refers. It does not see classes from a component that it does not depend on.
+  </para>
+	<para>JAIN SLEE defines a class loading domain with the <acronym>API</acronym>s required in the JAIN SLEE 1.1 container (for example, JAIN SLEE, <acronym>JBDC</acronym> and <acronym>JMX</acronym>). This domain (<literal>JBoss Microcontainer ClassLoadingDomain</literal>) imports all classes shared in the &JEE.PLATFORM;, and acts like the parent domain for all <literal>URLClassLoaderDomain</literal>s, which means that a class imported by a SLEE classloading domain will always be used first.</para>
 	
-	<mediaobject>
-		<imageobject>
-			<imagedata
-				width="410"
-				align="center"
-				fileref="images/classloading.png"
-				format="PNG"/>
-		</imageobject>
-		<caption>
-			<para>Classloading example in &THIS.PLATFORM; JAIN SLEE</para>
-		</caption>
-	</mediaobject>
+    <figure>
+      <title>Classloading example in JBCP JAIN SLEE</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata
+            width="600"
+            align="center"
+            fileref="images/classloading.png"
+            format="PNG"/>
+        </imageobject>
+      </mediaobject>
+    </figure>
 	
 	<itemizedlist>
 	    <listitem>
-        	<para>The <literal>SIP INVITE Event</literal> component refers the <literal>JAIN SIP Library</literal> in its XML descriptor, thus its class loader domain depends on the class loader domain of the JAIN SIP Library.</para>
+        	<para>The <literal>SIP INVITE Event</literal> component refers to the <literal>JAIN SIP Library</literal> in its XML descriptor, and its classloader domain depends on the classloader domain of the JAIN SIP Library.</para>
    		</listitem>
 	    <listitem>
-        	<para>The <literal>SIP RA Type</literal> component refers all Events in SIP RA Event JAR in its XML descriptor, thus its class loader domain depends on the class loader domain of the SIP Event JAR, and inherits its dependencies, the JAIN SIP library class loading domain.</para>
+        	<para>The <literal>SIP RA Type</literal> component refers to all Events in the SIP RA Event jar in its XML descriptor, and its classloader domain depends on the classloader domain of the SIP Event JAR and inherits its dependencies, including the JAIN SIP library classloading domain.</para>
     	</listitem>
 	    <listitem>
-        	<para>The <literal>SIP RA</literal> component refers the <literal>SIP RA Type</literal> component in its XML descriptor, thus its class loader domain depends on the class loader domain of the SIP RA Type Component JAR, and inherits its dependencies, the SIP Event JAR and JAIN SIP library class loading domains.</para>
+        	<para>The <literal>SIP RA</literal> component refers to the <literal>SIP RA Type</literal> component in its XML descriptor, and its classloader domain depends on the classloader domain of the SIP RA Type Component jar, and inherits its dependencies. This includes the SIP Event jar and JAIN SIP library classloading domains.</para>
     	</listitem>
     	<listitem>
-        	<para>The <literal>SBB</literal> component refers the <literal>SIP RA Type</literal> component and <literal>SIP INVITE Event</literal> in its XML descriptor, thus its class loader domain depends on the class loader domain of the SIP RA Type Component JAR, and inherits its dependencies, the SIP Event JAR and JAIN SIP library class loading domains. Of course, directly depends also on the class loader domain of the SIP Event JAR.</para>
+        	<para>The <literal>SBB</literal> component refers to the <literal>SIP RA Type</literal> component and <literal>SIP INVITE Event</literal> in its XML descriptor. Its classloader domain depends on the class loader domain of the SIP RA Type Component jar, and inherits its dependencies; the SIP Event jar and the JAIN SIP library classloading domains. It also depends on the classloader domain of the SIP Event jar.</para>
     	</listitem>
 	</itemizedlist>
 	
 	<important>
-		<para>Note that the &JEE.PLATFORM; does not sees classes of deployed JAIN SLEE components, which means that for compoennts that somehow are complemented with Java EE components, the common classes must be deployed on &JEE.PLATFORM;, directly or included in the Java EE component, if this one exports its classes.</para>
+		<para>&JEE.PLATFORM; does not see the classes of deployed JAIN SLEE components. This means that if it exports its classes for components that are complemented with Java EE components, the common classes must be deployed on &JEE.PLATFORM;, either directly or included in the Java EE component.</para>
 	</important>
 </section>
 	

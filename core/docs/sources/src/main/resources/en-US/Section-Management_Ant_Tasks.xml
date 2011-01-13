@@ -4,7 +4,7 @@
 <section id="management_tools_ant_tasks">
 	<title>Ant Tasks</title>
 		
-	<para>&THIS.PLATFORM; JAIN SLEE includes some tasks for Apache Ant, which can be used for common management tasks done through JMX, when the container is running. The tasks come bundled in <filename>$JBOSS_HOME/server/default/deploy/mobicents-slee/lib/ant-tasks.jar</filename> jar, and to use these, the Ant script must include the following code:</para>
+	<para>JAIN SLEE includes some tasks for Apache Ant, which can be used for common management tasks done through <acronym>JMX</acronym>, when the container is running. The tasks come bundled in <filename>$JBOSS_HOME/server/default/deploy/mobicents-slee/lib/ant-tasks.jar</filename>. To use these, the Ant script must include the following code:</para>
 		
 	<programlisting language="XML" role="XML"><![CDATA[
 <property environment="system" />
@@ -36,30 +36,30 @@
 	    <varlistentry>
 	        <term><parameter>node</parameter></term>
 	        <listitem>
-	            <para>this property defines the server configuration profile to be used, for further information about those refer to <xref linkend="server_profiles" /></para>
+	            <para>This property defines the server configuration profile to be used, for further information about those refer to <xref linkend="server_profiles" />.</para>
 	        </listitem>
 		</varlistentry>
 		<varlistentry>
 			<term><parameter>jnpHost</parameter></term>
 		    <listitem>
-		 	   <para>the host/ip which &THIS.PLATFORM; JAIN SLEE is bound</para>
+		 	   <para>The host/ip which &THIS.PLATFORM; JAIN SLEE is bound.</para>
 		    </listitem>
 		</varlistentry>
 		<varlistentry>
 			<term><parameter>jnpPort</parameter></term>
 		    <listitem>
-		 	   <para>the port which the JMX Agent is listening</para>
+		 	   <para>The port which the JMX Agent is listening.</para>
 		    </listitem>
 		</varlistentry>		    
 	</variablelist>
 
 	<important>
-		<para>The properties values can be overriden when invoking the Ant script, simply use the param <literal>-DpropertyName=propertyValue</literal>, for instance, one could change the server profile from <application>default</application> to <application>all</application> using <literal>-Dnode=all</literal>.</para>
+		<para>The property values can be overridden when invoking the Ant script. To do this, use the parameter <parameter>-DpropertyName=propertyValue</parameter>. For example, the server profile can be changed from <application>default</application> to <application>all</application> using <parameter>-Dnode=all</parameter>.</para>
 	</important>
 		
 	<section id="management_tools_ant_tasks_slee-management">
 		<title>SLEE Management Task</title>
-		<para>The <literal>slee-management</literal> task allows a script to manage JAIN SLEE deployable units, services and resource adaptors. The operations, or sub-tasks, are done through JMX.</para>
+		<para>The <literal>slee-management</literal> task allows a script to manage JAIN SLEE deployable units, services and resource adapters. The operations, or sub-tasks, are done through <acronym>JMX</acronym>.</para>
 			
 		<programlisting language="XML" role="XML"><![CDATA[
 <slee-management jnpport="${jnpPort}" host="${jnpHost}">

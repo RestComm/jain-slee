@@ -5,13 +5,23 @@
 	
 	<title>Event Router Statistics and Configuration</title>
 	
-	<para>&THIS.PLATFORM; JAIN SLEE Event Router is the module responsible for creating new service instances and delivering events to all interested parties, it is capable of doing the routing of several events in parallel, through the usage of multiple executors, each bound to a different thread.</para>
+	<para>The JAIN SLEE Event Router is the module responsible for creating new service instances and delivering events to all interested parties. It is capable of doing the routing of several events in parallel, through the usage of multiple executors, each bound to a different thread.</para>
 	
-	<para>The Event Router is also able to account performance and load statistics, indicating the number of activities being assigned or several timings regarding event routing, globally or for each individual executor/thread. Statistics are turned on by default and may be retrieved through JMX MBean named <application>org.mobicents.slee:name=EventRouterStatistics</application>.</para>
+	<para>The Event Router is also able to account performance and load statistics, indicating the number of activities being assigned or several timings regarding event routing, globally or for each individual executor/thread. Statistics are turned on by default and may be retrieved through the JMX MBean <application>org.mobicents.slee:name=EventRouterStatistics</application>.</para>
 
-	<para>An important sub-module of the Event Router is the Executor Mapper, which is responsible to assign activities to the available executors. &THIS.PLATFORM; JAIN SLEE includes two different Executor Mappers, the default one distributes taking into account the hashcode of the activity handle, an alternative uses round robin algorithm. In case of advanced performance tunning it is advised to try the different implementations available, or even provide a custom one. The Executor Mapper is nothing more than a interface <classname>org.mobicents.slee.container.eventrouter.EventRouterExecutorMapper</classname>, very simple to implement. To deploy a custom implementation all needed is to drop the implementation class or classes, packed in a jar file, in the server profile <filename>deploy</filename> directory.</para>
+	<para>
+  An important sub-module of the Event Router is the Executor Mapper, which is responsible for assigning activities to the available executors. JAIN SLEE includes two different Executor Mappers. The default one takes into account the hashcode of the activity handle when distributing, while the alternative uses a round robin algorithm.
+  </para>
+  <note>
+    <para>
+    In the case of advanced performance tuning, it is advised to try the different implementations available, or even provide a custom one.
+    </para>
+  </note>
+  <para>
+  The Executor Mapper is nothing more than an interface: <classname>org.mobicents.slee.container.eventrouter.EventRouterExecutorMapper</classname>. To deploy a custom implementation, drop the implementation class or classes, packed in a jar file, in the server profile <filename>/deploy</filename> directory.
+  </para>
 	
-	<para>The whole Event Router is a critical component with respect to the container's performance and its configuration can be tuned, through a XML file and a JMX MBean.</para>
+	<para>The whole Event Router is a critical component with respect to the container's performance. Its configuration can be tuned, through an XML file and a JMX MBean.</para>
 	
 		<section id="event_router_persistent_configuration">
 			<title>Event Router Persistent Configuration</title>
@@ -58,7 +68,7 @@
 				    	  <row>
 				  		    <entry>executorMapperClassName</entry>
 				  		    <entry>Class</entry>
-				    	    <entry>this property defines the implementation class of Executor Mapper used by the Event Router, the one above and default uses the activity handle hashcode to do the mapping, an alternative is <classname>org.mobicents.slee.runtime.eventrouter</classname><classname>.mapping.RoundRobinEventRouterExecutorMapper</classname>, which uses Round Robin algorithm.</entry>
+				    	    <entry>This property defines the implementation class of Executor Mapper used by the Event Router, the one above and default uses the activity handle hashcode to do the mapping, an alternative is <classname>org.mobicents.slee.runtime.eventrouter</classname><classname>.mapping.RoundRobinEventRouterExecutorMapper</classname>, which uses Round Robin algorithm.</entry>
 					      </row>					 
 			    	</tbody>
 			  	</tgroup>
@@ -67,9 +77,9 @@
 		
 		<section id="event_router_jmx_configuration">
 			<title>Event Router JMX Configuration</title>
-			<para>Through JMX the Event Router module configuration can be changed with the container running. Note that such configuration changes are not persisted.</para>
+			<para>Through JMX, the Event Router module configuration can be changed while the container is running. These configuration changes are not persisted.</para>
 			
-			<para>The JMX MBean which can be used to change the Event Router configuration is named <application>org.mobicents.slee:name=EventRouterConfiguration</application>, and provides getters and setters to change each property defined in the persistent configuration. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
+			<para>The JMX MBean that can be used to change the Event Router configuration is named <application>org.mobicents.slee:name=EventRouterConfiguration</application>, and provides getters and setters to change each property defined in the persistent configuration. See <xref linkend="management_jmx_console"/> for how the JMX Console can be used to use this MBean.</para>
 		</section>	
 		
 </section>
