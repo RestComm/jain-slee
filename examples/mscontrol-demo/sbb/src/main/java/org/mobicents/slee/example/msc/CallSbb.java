@@ -35,6 +35,7 @@ import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
+import javax.slee.SbbLocalObject;
 import javax.slee.facilities.Tracer;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
@@ -68,6 +69,8 @@ public class CallSbb implements Sbb {
 	public void onInvite(RequestEvent event, ActivityContextInterface aci) {
 		tracer.info("Receive call ");
 
+		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
+		
 		Request request = event.getRequest();
 
 		// sending provisional response to the UA which indiactes that initial
@@ -90,7 +93,7 @@ public class CallSbb implements Sbb {
 			Dialog dialog = sipProvider.getNewDialog(event.getServerTransaction());
 			dialog.terminateOnBye(true);
 			callActivity = acif.getActivityContextInterface((DialogActivity) dialog);
-			callActivity.attach(sbbContext.getSbbLocalObject());
+			callActivity.attach(sbbLocalObject);
 		} catch (Exception e) {
 			// oops, this is unexpected core problem. there is only one way -
 			// terminate call
@@ -122,7 +125,7 @@ public class CallSbb implements Sbb {
 		ActivityContextInterface activityContextInterface = null;
 		try {
 			activityContextInterface = mscAcifFactory.getActivityContextInterface(connection);
-			activityContextInterface.attach(sbbContext.getSbbLocalObject());
+			activityContextInterface.attach(sbbLocalObject);
 		} catch (Exception e) {
 			tracer.severe("Unexpected error", e);
 			reject();
@@ -169,8 +172,9 @@ public class CallSbb implements Sbb {
 		ContactHeader contact = headerFactory.createContactHeader(contactAddress);
 
 		try {
-			ServerTransaction st = getServerTransaction();
-			
+			ActivityContextInterface serverTxACI = getServerTransactionACI();
+			serverTxACI.detach(sbbContext.getSbbLocalObject());
+			ServerTransaction st = (ServerTransaction) serverTxACI.getActivity();
 			Response ok = messageFactory.createResponse(Response.OK, st.getRequest(), contentType, sdp);
 			ok.setHeader(contact);
 			st.sendResponse(ok);
@@ -222,7 +226,9 @@ public class CallSbb implements Sbb {
 
 	private void reject() {
 		try {
-			ServerTransaction  st = getServerTransaction();
+			ActivityContextInterface serverTxACI = getServerTransactionACI();
+			serverTxACI.detach(sbbContext.getSbbLocalObject());
+			ServerTransaction st = (ServerTransaction) serverTxACI.getActivity();
 			Response response = messageFactory.createResponse(Response.SERVER_INTERNAL_ERROR, st.getRequest());
 			st.sendResponse(response);
 		} catch (Exception ex) {
@@ -260,12 +266,10 @@ public class CallSbb implements Sbb {
 		return null;
 	}
 
-	private ServerTransaction getServerTransaction() {
+	private ActivityContextInterface getServerTransactionACI() {
 		for (ActivityContextInterface aci : this.sbbContext.getActivities()) {
 			if (aci.getActivity() instanceof ServerTransaction) {
-
-				ServerTransaction da = (ServerTransaction) aci.getActivity();
-				return da;
+				return aci;
 			}
 		}
 		return null;
