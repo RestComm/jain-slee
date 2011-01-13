@@ -1,9 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">	
 	
 	<modelVersion>4.0.0</modelVersion>
-	
-	<packaging>jainslee-library</packaging>
-	
+		
 	<parent>
 		<artifactId>mobicents-slee-example-sip-services</artifactId>
 		<groupId>org.mobicents.examples</groupId>
@@ -33,13 +31,6 @@
 			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>
-		<!-- this lib components depends on sip ra lib -->
-		<dependency>
-			<artifactId>sip11-library</artifactId>
-			<groupId>org.mobicents.resources</groupId>
-			<version>${mobicents.resources.sip11.version}</version>
-			<scope>runtime</scope>
-		</dependency>
 	</dependencies>
 	
 	<build>
@@ -47,13 +38,25 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<version>${mobicents.tools.mavenplugin.library.version}</version>
 				<extensions>true</extensions>
 				<configuration>
 					<library-name>sip-services-library</library-name>
 					<library-vendor>org.mobicents</library-vendor>
 					<library-version>1.2</library-version>
+					<library-ref>
+						<library-name>jain-sip</library-name>
+						<library-vendor>javax.sip</library-vendor>
+						<library-version>1.2</library-version>
+					</library-ref>
 				</configuration>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
