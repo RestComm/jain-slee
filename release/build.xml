@@ -51,7 +51,7 @@
 	</condition>
 
 	<target name="build-core" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
 			<arg line="install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
 		</exec>
 		<antcall target="build-docs">
@@ -61,7 +61,7 @@
 	</target>
 
 	<target name="build-docs" description="">
-		<exec executable="${mvn.executable}" dir="${docs.source.dir}">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${docs.source.dir}">
 			<arg line="clean install -P ${docs.profile}" />
 		</exec>
 		<copy failonerror="true" toDir="${docs.dest.dir}" overwrite="true">
@@ -73,7 +73,7 @@
 			<for delimiter="," param="dir.name" list="${tool.dirs}">
 				<sequential>
 					<echo>Packaging TOOL for release from DIR[${ant.file.mobicents.release}/../checkout/tools/@{dir.name}]</echo>
-					<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/@{dir.name}">
+					<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/@{dir.name}">
 						<arg line="install -P maven-release,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 					</exec>
 				</sequential>
@@ -87,7 +87,7 @@
 		</target>
 
 	<target name="build-sip-balancer" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer">
 			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
 		</exec>
 
@@ -109,7 +109,7 @@
 		<for delimiter="," param="dir.name" list="${ra.dirs}">
 			<sequential>
 				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../checkout/resources/@{dir.name}]</echo>
-				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
+				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
 					<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
@@ -126,7 +126,7 @@
 		<for delimiter="," param="dir.name" list="${example.dirs}">
 			<sequential>
 				<echo>Packaging Example for release from DIR[${ant.file.mobicents.release}/../checkout/examples/@{dir.name}]</echo>
-				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
+				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
 					<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
@@ -142,7 +142,7 @@
 		<for delimiter="," param="dir.name" list="${enabler.dirs}">
 			<sequential>
 				<echo>Packaging Enabler for release from DIR[${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}]</echo>
-				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}">
+				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}">
 					<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
@@ -350,7 +350,7 @@
 	<target name="checkout-sources">
 		<echo>Checking out sources</echo>
 		<delete dir="${ant.file.mobicents.release}/../checkout" />
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../">
 			<arg line="validate -P checkout" />
 		</exec>
 	</target>
