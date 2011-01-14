@@ -11,6 +11,7 @@
 		
 	<packaging>jdocbook</packaging>
 	
+	<!-- 
 	<profiles>
 		<profile>
 			<id>release</id>
@@ -27,7 +28,7 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<!-- copy docs -->
+					
 										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/tools/eclipslee/docs">
 											<fileset dir="${basedir}/target/docbook/publish" />
 										</copy>
@@ -40,7 +41,7 @@
 			</build>
 		</profile>
 	</profiles>
-	
+	 -->
 	<build>
 		<plugins>
 			<plugin>
