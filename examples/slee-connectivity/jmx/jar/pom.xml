@@ -23,7 +23,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
-			<artifactId>jar</artifactId>
+			<artifactId>spi</artifactId>
 		</dependency>
 		<dependency>
 			<artifactId>event-pojo</artifactId>

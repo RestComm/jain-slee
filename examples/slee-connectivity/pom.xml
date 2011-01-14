@@ -22,7 +22,7 @@
 	</modules>
 
 	<properties>
-		<mobicents.servers.jainslee.version>2.0.0.GA</mobicents.servers.jainslee.version>
+		<mobicents.servers.jainslee.version>3.0.0-SNAPSHOT</mobicents.servers.jainslee.version>
 		
 		<!-- Docs properties -->
 		<docs.example.name>SleeConnectivity</docs.example.name>
@@ -40,7 +40,7 @@
 			<dependency>
 				<groupId>org.mobicents.servers.jainslee.core</groupId>
 				<version>${mobicents.servers.jainslee.version}</version>
-				<artifactId>jar</artifactId>
+				<artifactId>spi</artifactId>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
