@@ -813,14 +813,6 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
   // NetworkReqListener Implementation -----------------------------------
 
   public Answer processRequest(Request request) {
-    //final SleeTransactionManager txManager = raContext.getSleeTransactionManager();
-
-    //boolean terminateTx = false;
-    //
-    //try {
-    //  txManager.begin();
-    //  terminateTx = true;
-
     // Here we receive initial request for which session does not exist!
     // Valid messages are:
     // * CCR - if we act as server, this is the message we receive
@@ -850,22 +842,6 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     else {
       tracer.severe("Diameter CCA RA :: Received unexpected Request. Either its not CCR or session should exist to handle this, Command-Code: "+request.getCommandCode()+", Session-Id: "+request.getSessionId());
     }
-
-    //  terminateTx = false;
-    //  txManager.commit();     
-    //}
-    //catch (Throwable e) {
-    //  tracer.severe(e.getMessage(), e);
-    //
-    //  if (terminateTx) {
-    //    try {
-    //      txManager.rollback();
-    //    }
-    //    catch (Throwable t) {
-    //      tracer.severe(t.getMessage(), t);
-    //    }
-    //  }
-    //}
 
     // Returning null so we can answer later
     return null;

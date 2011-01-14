@@ -44,7 +44,6 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
-import javax.slee.transaction.SleeTransactionManager;
 
 import net.java.slee.resource.diameter.Validator;
 import net.java.slee.resource.diameter.base.CreateActivityException;
@@ -800,30 +799,11 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
    * @see org.jdiameter.api.NetworkReqListener#processRequest(org.jdiameter.api.Request)
    */
   public Answer processRequest(Request request) {
-    final SleeTransactionManager txManager = raContext.getSleeTransactionManager();
-
-    boolean terminateTx = false;
-
     try {
-      txManager.begin();
-      terminateTx = true;
-
       raProvider.createActivity(request);
-
-      // do nothing here, if its valid it should be processed, if not we will get exception
-      terminateTx = false;
-      txManager.commit();     
     }
     catch (Throwable e) {
       tracer.severe(e.getMessage(), e);
-      if (terminateTx) {
-        try {
-          txManager.rollback();
-        }
-        catch (Throwable t) {
-          tracer.severe(t.getMessage(), t);
-        }
-      }
     }
 
     // returning null so we can answer later
