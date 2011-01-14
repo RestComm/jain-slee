@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+  <!DOCTYPE scenario SYSTEM "sipp.dtd">
+   <!-- Basic UAS subs response, no race between initial notify and 2xx -->
+  <scenario name="Basic UAS subs response">
+	
+	<!-- initial, lets store some data -->                           
+    <recv request="SUBSCRIBE">
+    	<action>
+	 		<ereg regexp=".*" search_in="hdr" header="From:" assign_to="1" />
+	 		<ereg regexp=".*" search_in="hdr" header="To:" assign_to="2" />
+	 		<ereg regexp="sip:.*[^>]" search_in="hdr" header="Contact:" assign_to="3" />
+	 		<ereg regexp=".*" search_in="hdr" header="Accept:" assign_to="4" />
+	 		<ereg regexp=".*" search_in="hdr" header="Event:" assign_to="5" />
+	 		<ereg regexp=".*" search_in="hdr" header="Expires:" assign_to="6" /> <!-- Store, will be used to check for zero -->
+	 		<todouble assign_to="7" variable="6" />
+	 	</action>
+    </recv>
+
+  
+    <send>
+      <![CDATA[
+  
+        SIP/2.0 200 OK
+        [last_Via:]
+        [last_From:]
+        [last_To:];tag=[call_number]
+        [last_Call-ID:]
+        [last_CSeq:]
+       	Expires: 61
+        Content-Length: 0
+  
+      ]]>
+    </send>
+  
+    
+  	<pause milliseconds="400"/>
+  	
+  	<send>
+      <![CDATA[
+  
+        NOTIFY [$3] SIP/2.0
+        Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=z9hG4bK-[branch]
+        From: [$2];tag=[call_number]
+        To: [$1]
+        [last_Call-ID:]
+        CSeq: [cseq] NOTIFY
+       	Subscription-State: active;expires=61
+       	Content-Type: [$4]
+       	Event: [$5]
+        Content-Length: [len]
+        
+        1
+        
+      ]]>
+    </send>
+
+ 	<recv response="200" crlf="true" />
+ 	
+ 	
+ 	
+ 	<!-- now depending on Expires, we do different things -->
+ 	<label id="loop_begin" />
+ 	<!-- fetch all required data, to check if msg contains everything -->
+ 	<recv request="SUBSCRIBE">
+    	<action>
+	 		<ereg regexp=".*" search_in="hdr" header="From:" assign_to="1" />
+	 		<ereg regexp=".*" search_in="hdr" header="To:" assign_to="2" />
+	 		<ereg regexp="sip:.*[^>]" search_in="hdr" header="Contact:" assign_to="3" />
+	 		<ereg regexp=".*" search_in="hdr" header="Accept:" assign_to="4" />
+	 		<ereg regexp=".*" search_in="hdr" header="Event:" assign_to="5" />
+	 		<ereg regexp=".*" search_in="hdr" header="Expires:" assign_to="6" /> <!-- Store, will be used to check for zero -->
+	 		<todouble assign_to="7" variable="6" />
+	 	</action>
+    </recv>
+
+  
+    <send  crlf="true">
+      <![CDATA[
+  
+        SIP/2.0 200 OK
+        [last_Via:]
+        [last_From:]
+        [last_To:];tag=[call_number]
+        [last_Call-ID:]
+        [last_CSeq:]
+       	Expires: 61
+        Content-Length: 0
+  
+      ]]>
+    </send>
+  
+  	<!-- check expires, if zero, send notify with term, else, active -->
+    <nop>
+    	<action>
+      		<test assign_to="empty" variable="7" compare="equal" value="0"/>
+      		<test assign_to="not_empty" variable="7" compare="greater_than" value="0"/>
+    	</action>
+  	</nop>
+  	
+    <nop test="empty" next="loop_send_notify_terminated" />
+    <nop test="not_empty" next="loop_send_notify_active" />
+    
+    <label id="loop_send_notify_active" />
+    <!-- one cant pass variable here.... ech -->
+  	<pause milliseconds="30000"/>
+  	
+  	<send>
+      <![CDATA[
+  
+        NOTIFY [$3] SIP/2.0
+        Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=z9hG4bK-[branch]
+        From: [$2];tag=[call_number]
+        To: [$1]
+        [last_Call-ID:]
+        CSeq: [cseq] NOTIFY
+       	Subscription-State: active;expires=61
+       	Content-Type: [$4]
+       	Event: [$5]
+        Content-Length: [len]
+        
+        1
+        
+      ]]>
+    </send>
+
+ 	<recv response="200" crlf="true" />
+ 	
+ 	
+ 	<!-- back to loop start, wait for subs -->
+ 	 <nop test="not_empty" next="loop_begin" />
+ 	
+ 	
+ 	<label id="loop_send_notify_terminated" />
+    
+  	<pause milliseconds="400"/>
+  	
+  	<send>
+      <![CDATA[
+  
+        NOTIFY [$3] SIP/2.0
+        Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=z9hG4bK-[branch]
+        From: [$2];tag=[call_number]
+        To: [$1]
+        [last_Call-ID:]
+        CSeq: [cseq] NOTIFY
+       	Subscription-State: terminated;reason=deactivated
+       	Content-Type: [$4]
+       	Event: [$5]
+        Content-Length: [len]
+        
+        1
+        
+      ]]>
+    </send>
+
+ 	<recv response="200" crlf="true" />
+ 	
+ 		
+   <!-- Keep the call open for a while in case the 200 is lost to be     -->
+   <!-- able to retransmit it if we receive the BYE again.               -->
+   <pause milliseconds="4000"/>
+ 
+ 
+   <!-- definition of the response time repartition table (unit is ms)   -->
+   <ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200"/>
+ 
+   <!-- definition of the call length repartition table (unit is ms)     -->
+   <CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000"/>
+ 
+ </scenario>
+ 
