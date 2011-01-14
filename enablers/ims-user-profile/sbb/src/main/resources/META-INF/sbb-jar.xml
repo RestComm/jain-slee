@@ -38,7 +38,7 @@
             <initial-event-select variable="ActivityContext" />
         </event>
 
-        <event event-direction="Receive" initial-event="False">
+        <event event-direction="Receive" initial-event="True">
             <event-name>UserDataAnswer</event-name>
             <event-type-ref>
                 <event-type-name>net.java.slee.resource.diameter.sh.events.UserDataAnswer</event-type-name>
@@ -48,7 +48,7 @@
             <initial-event-select variable="ActivityContext" />
         </event>
 
-        <event event-direction="Receive" initial-event="False">
+        <event event-direction="Receive" initial-event="True">
             <event-name>ProfileUpdateAnswer</event-name>
             <event-type-ref>
                 <event-type-name>net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer</event-type-name>
@@ -58,7 +58,7 @@
             <initial-event-select variable="ActivityContext" />
         </event>
 
-        <event event-direction="Receive" initial-event="False">
+        <event event-direction="Receive" initial-event="True">
             <event-name>SubscriptionNotificationsAnswer</event-name>
             <event-type-ref>
                 <event-type-name>net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer</event-type-name>

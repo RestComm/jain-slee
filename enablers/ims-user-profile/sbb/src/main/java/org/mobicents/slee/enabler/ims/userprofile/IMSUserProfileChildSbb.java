@@ -34,6 +34,7 @@ import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
 
+import net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
 import net.java.slee.resource.diameter.sh.client.ShClientActivity;
@@ -80,6 +81,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.REPOSITORY_DATA);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
     udr.setServiceIndications(serviceIndications);
 
     // Set destination -- Realm is mandatory, host is optional
@@ -102,6 +104,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.IMS_PUBLIC_IDENTITY);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
     udr.setIdentitySet(IdentitySetType.fromInt(identitySet));
 
     // Set destination -- Realm is mandatory, host is optional
@@ -124,6 +127,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.IMS_USER_STATE);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -145,6 +149,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.S_CSCFNAME);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -166,6 +171,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.INITIAL_FILTER_CRITERIA);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
     udr.setServerName(serverName);
 
     // Set destination -- Realm is mandatory, host is optional
@@ -188,6 +194,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(null, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.LOCATION_INFORMATION);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
     udr.setRequestedDomain(RequestedDomainType.fromInt(requestedDomain));
 
     // Set destination -- Realm is mandatory, host is optional
@@ -210,6 +217,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(null, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.USER_STATE);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
     udr.setRequestedDomain(RequestedDomainType.fromInt(requestedDomain));
 
     // Set destination -- Realm is mandatory, host is optional
@@ -232,6 +240,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.CHARGING_INFORMATION);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -253,6 +262,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, msisdn);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.MSISDN);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -274,6 +284,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     UserDataRequest udr = diameterShClientMessageFactory.createUserDataRequest(publicIdentityAvp, DataReferenceType.PSI_ACTIVATION);
+    udr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     udr.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -295,6 +306,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     ProfileUpdateRequest pur = diameterShClientMessageFactory.createProfileUpdateRequest(publicIdentityAvp, DataReferenceType.REPOSITORY_DATA, data.getBytes());
+    pur.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     pur.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -316,6 +328,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     ProfileUpdateRequest pur = diameterShClientMessageFactory.createProfileUpdateRequest(publicIdentityAvp, DataReferenceType.PSI_ACTIVATION, data.getBytes());
+    pur.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     pur.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -337,7 +350,8 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.REPOSITORY_DATA, SubsReqType.fromInt(subscriptionRequestType));
-    
+    snr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
+
     // hack.. to be fixed in Resource Adaptor
     String[] serviceIndicationStrings = new String[serviceIndications.length];
     for (int i = 0; i < serviceIndications.length; i++) {
@@ -366,6 +380,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.IMS_USER_STATE, SubsReqType.fromInt(subscriptionRequestType));
+    snr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     snr.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -387,6 +402,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.S_CSCFNAME, SubsReqType.fromInt(subscriptionRequestType));
+    snr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     snr.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -408,6 +424,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.INITIAL_FILTER_CRITERIA, SubsReqType.fromInt(subscriptionRequestType));
+    snr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
     snr.setServerName(serverName);
 
     // Set destination -- Realm is mandatory, host is optional
@@ -430,6 +447,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     UserIdentityAvp publicIdentityAvp = createUserIdentityAvp(publicIdentity, null);
 
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.PSI_ACTIVATION, SubsReqType.fromInt(subscriptionRequestType));
+    snr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
     // Set destination -- Realm is mandatory, host is optional
     snr.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -576,7 +594,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
       activity.sendPushNotificationAnswer(2001L, true);
     }
     catch (IOException e) {
-      tracer.warning("Failed to sen Push-Notification-Answer.", e);
+      tracer.warning("Failed to send Push-Notification-Answer.", e);
     }
     
     // Retrieve useful data from request
@@ -589,8 +607,6 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
 
   public void onUserDataAnswer(UserDataAnswer event, RequestMappingACI aci) {
     MessageData udrData = aci.getRequestData();
-
-    aci.detach(sbbContext.getSbbLocalObject());
 
     String data = event.getUserData();
     long resultCode = event.getResultCode();
@@ -634,6 +650,8 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     default:
       //
     }
+
+    aci.detach(sbbContext.getSbbLocalObject());
   }
 
   // -- CMP FIELDs ------------------------------------------------------------

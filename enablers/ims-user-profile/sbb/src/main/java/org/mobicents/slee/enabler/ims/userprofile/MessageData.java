@@ -70,12 +70,18 @@ public class MessageData implements Serializable {
       UserIdentityAvp uIdAvp = udr.getUserIdentity();
       this.publicIdentity = uIdAvp.getPublicIdentity();
       this.msisdn = uIdAvp.getMsisdn();
-      
+
       this.dataReferences = udr.getDataReferences();
       this.serviceIndications = udr.getServiceIndications();
-      this.identitySet = udr.getIdentitySet();
-      this.serverName = udr.getServerName();
-      this.requestedDomain = udr.getRequestedDomain();
+      if(udr.hasIdentitySet()) {
+        this.identitySet = udr.getIdentitySet();        
+      }
+      if(udr.hasServerName()) {
+        this.serverName = udr.getServerName();
+      }
+      if(udr.hasRequestedDomain()) {
+        this.requestedDomain = udr.getRequestedDomain();
+      }
     }
     else if(message instanceof ProfileUpdateRequest) {
       ProfileUpdateRequest pur = (ProfileUpdateRequest) message;
@@ -84,7 +90,7 @@ public class MessageData implements Serializable {
       UserIdentityAvp uIdAvp = pur.getUserIdentity();
       this.publicIdentity = uIdAvp.getPublicIdentity();
       this.msisdn = uIdAvp.getMsisdn();
-      
+
       this.dataReference = pur.getDataReference();
     }
     else if(message instanceof SubscribeNotificationsRequest) {
@@ -94,8 +100,10 @@ public class MessageData implements Serializable {
       UserIdentityAvp uIdAvp = snr.getUserIdentity();
       this.publicIdentity = uIdAvp.getPublicIdentity();
       this.msisdn = uIdAvp.getMsisdn();
-      
-      this.subsReqType = snr.getSubsReqType();
+
+      if(snr.hasSubsReqType()) {
+        this.subsReqType = snr.getSubsReqType();
+      }
       this.dataReferences = snr.getDataReferences();
 
       String[] serviceIndicationStrings = snr.getServiceIndications();
@@ -104,7 +112,9 @@ public class MessageData implements Serializable {
         this.serviceIndications[i] = serviceIndicationStrings[i].getBytes();
       }
 
-      this.serverName = snr.getServerName();
+      if(snr.hasServerName()) {
+        this.serverName = snr.getServerName();
+      }
     }
     else if(message instanceof PushNotificationRequest) {
       PushNotificationRequest pnr = (PushNotificationRequest) message;
