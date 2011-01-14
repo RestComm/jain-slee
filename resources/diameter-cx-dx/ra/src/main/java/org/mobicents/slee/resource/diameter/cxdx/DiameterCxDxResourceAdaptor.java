@@ -935,13 +935,8 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
     }
 
     private DiameterActivity createActivity(Message message) throws CreateActivityException {
-      String sessionId = message.getSessionId();
-      DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
-
-      if (activities.containsKey(handle)) {
-        return activities.get(handle);
-      }
-      else {
+      DiameterActivity activity = activities.get(getActivityHandle(message.getSessionId()));
+      if(activity == null) {
         if (message.isRequest()) {
           if(message.getCommandCode() == PushProfileRequest.COMMAND_CODE || message.getCommandCode() == RegistrationTerminationRequest.COMMAND_CODE) {
             return createCxDxClientSessionActivity((Request) message);
@@ -952,9 +947,10 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
         }
         else {
           throw new IllegalStateException("Got answer, there should already be activity.");
-
         }
       }
+      
+      return activity;
     }
 
     private DiameterActivity createCxDxServerSessionActivity(Request request) throws CreateActivityException {

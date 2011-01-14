@@ -1269,13 +1269,9 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
      * @return
      */
     DiameterActivity createActivity(Message message) throws CreateActivityException {
-      String sessionId = message.getSessionId();
-      DiameterActivityHandle handle = getActivityHandle(sessionId);
-
-      if (activities.containsKey(handle)) {
-        return activities.get(handle);
-      }
-      else {
+      DiameterActivity activity = activities.get(getActivityHandle(message.getSessionId()));
+      
+      if(activity == null) {
         DiameterIdentity destinationHost = null;
         DiameterIdentity destinationRealm = null;
 
@@ -1311,6 +1307,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
           return this.createActivity(destinationHost, destinationRealm, message.getSessionId());
         }
       }
+      
+      return activity;
     }
 
     /*
@@ -1349,11 +1347,10 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
           String sessionId = message.getSessionId();
           DiameterActivityHandle handle = getActivityHandle(sessionId);
 
-          if (!activities.containsKey(handle)) {
-            createActivity(msg.getGenericData());
-          }
-
           DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
+          if (activity == null) {
+            activity = (DiameterActivityImpl) createActivity(msg.getGenericData());
+          }
 
           return activity.sendSyncMessage(message);
         }

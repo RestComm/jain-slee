@@ -958,7 +958,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
   }
 
   public boolean sessionExists(String sessionId) {
-    return this.activities.containsKey(new DiameterActivityHandle(sessionId));
+    return this.activities.containsKey(getActivityHandle(sessionId));
   }
 
   public void sessionDestroyed(String sessionId, Object appSession) {
@@ -1035,14 +1035,11 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     public RoCreditControlAnswer sendRoCreditControlRequest(RoCreditControlRequest ccr) throws IOException {
       try {
-        String sessionId = ccr.getSessionId();
-        DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
+        DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(getActivityHandle(ccr.getSessionId()));
 
-        if (!activities.containsKey(handle)) {
-          createActivity(((DiameterMessageImpl)ccr).getGenericData());
+        if (activity == null) {
+          activity = (DiameterActivityImpl) createActivity(((DiameterMessageImpl)ccr).getGenericData());
         }
-
-        DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
 
         return (RoCreditControlAnswer) activity.sendSyncMessage(ccr);
       }
@@ -1056,13 +1053,9 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
   
     private DiameterActivity createActivity(Message message) throws CreateActivityException {
-      String sessionId = message.getSessionId();
-      DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
+      DiameterActivity activity = activities.get(getActivityHandle(message.getSessionId()));
 
-      if (activities.containsKey(handle)) {
-        return activities.get(handle);
-      }
-      else {
+      if (activity == null) {
         if (message.isRequest()) {
           return createRoServerSessionActivity((Request) message);
         }
@@ -1094,6 +1087,8 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
           return (DiameterActivity) createRoClientSessionActivity(destinationHost, destinationRealm);
         }
       }
+      
+      return activity;
     }
 
     private DiameterActivity createRoServerSessionActivity(Request message) throws CreateActivityException {

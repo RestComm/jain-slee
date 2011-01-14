@@ -864,7 +864,7 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
     }
 
     public boolean sessionExists(final String sessionId) {
-        return this.activities.containsKey(new DiameterActivityHandle(sessionId));
+        return this.activities.containsKey(getActivityHandle(sessionId));
     }
 
     public void sessionDestroyed(final String sessionId, final Object appSession) {
@@ -921,14 +921,11 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
 
         public GxCreditControlAnswer sendGxCreditControlRequest(final GxCreditControlRequest ccr) throws IOException {
             try {
-                final String sessionId = ccr.getSessionId();
-                final DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
+                DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(getActivityHandle(ccr.getSessionId()));
 
-                if (!activities.containsKey(handle)) {
-                    createActivity(((DiameterMessageImpl) ccr).getGenericData());
+                if (activity == null) {
+                    activity = (DiameterActivityImpl) createActivity(((DiameterMessageImpl) ccr).getGenericData());
                 }
-
-                final DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
 
                 return (GxCreditControlAnswer) activity.sendSyncMessage(ccr);
             } catch (Exception e) {
@@ -940,12 +937,8 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
         }
 
         private DiameterActivity createActivity(final Message message) throws CreateActivityException {
-            final String sessionId = message.getSessionId();
-            final DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
-
-            if (activities.containsKey(handle)) {
-                return activities.get(handle);
-            } else {
+            DiameterActivity activity = activities.get(getActivityHandle(message.getSessionId()));
+            if (activity == null) {
                 if (message.isRequest()) {
                     return createGxServerSessionActivity((Request) message);
                 } else {
@@ -974,6 +967,8 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
                     return (DiameterActivity) createGxClientSessionActivity(destinationHost, destinationRealm);
                 }
             }
+            
+            return activity;
         }
 
         private DiameterActivity createGxServerSessionActivity(final Request message) throws CreateActivityException {

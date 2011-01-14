@@ -905,13 +905,9 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
     }
 
     private DiameterActivity createActivity(Message message) throws CreateActivityException {
-      String sessionId = message.getSessionId();
-      DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
+      DiameterActivity activity = activities.get(getActivityHandle(message.getSessionId()));
 
-      if (activities.containsKey(handle)) {
-        return activities.get(handle);
-      }
-      else {
+      if (activity == null) {
         if (message.isRequest()) {
           return createRfServerSessionActivity((Request) message);
         }
@@ -943,6 +939,8 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
           return createRfClientSessionActivity(destinationHost, destinationRealm);
         }
       }
+
+      return activity;
     }
 
     private DiameterActivity createRfServerSessionActivity(Request request) throws CreateActivityException {
@@ -997,14 +995,11 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     public RfAccountingAnswer sendRfAccountingRequest(RfAccountingRequest accountingRequest) {
       try {
-        String sessionId = accountingRequest.getSessionId();
-        DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
+        DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(getActivityHandle(accountingRequest.getSessionId()));
 
-        if (!activities.containsKey(handle)) {
-          createActivity(((DiameterMessageImpl)accountingRequest).getGenericData());
+        if (activity == null) {
+          activity = (DiameterActivityImpl) createActivity(((DiameterMessageImpl)accountingRequest).getGenericData());
         }
-
-        DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
 
         return (RfAccountingAnswer) activity.sendSyncMessage(accountingRequest);
       }

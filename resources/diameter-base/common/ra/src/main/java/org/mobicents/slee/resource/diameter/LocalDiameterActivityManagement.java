@@ -42,11 +42,10 @@ public class LocalDiameterActivityManagement implements DiameterActivityManageme
   }
 
   public void put(DiameterActivityHandle handle, DiameterActivity activity) {
-    // JIC check
-    if(this.activities.containsKey(handle)) {
-      throw new IllegalArgumentException("There is already activity for: "+handle+" -- "+this.activities.get(handle));
+    DiameterActivity existingActivity = this.activities.putIfAbsent(handle, activity);
+    if(existingActivity != null) {
+      throw new IllegalArgumentException("There is already activity for '" + handle + "': " + existingActivity);
     }
-    this.activities.put(handle, activity);
   }
 
   public DiameterActivity remove(DiameterActivityHandle handle) {

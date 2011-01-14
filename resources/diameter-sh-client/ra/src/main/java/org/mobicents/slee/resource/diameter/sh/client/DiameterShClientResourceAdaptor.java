@@ -1030,22 +1030,18 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
      * @return
      */
     DiameterActivity createActivity(Message message) throws CreateActivityException {
-      String sessionId = message.getSessionId();
-      DiameterActivityHandle handle = getActivityHandle(sessionId);
+      DiameterActivity activity = activities.get(getActivityHandle(message.getSessionId()));
 
-      if (activities.containsKey(handle)) {
-        return activities.get(handle);
-      }
-      else {
+      if (activity == null) {
         //FIXME: baranowb: here we can receive only (valid) PNR, other message are errors?
         if(message.getCommandCode() != PushNotificationRequestImpl.commandCode) {
           throw new CreateActivityException("Cant create activity for unexpected message:\r\n" + message);
         }
 
-        ShClientSubscriptionActivityImpl activity = (ShClientSubscriptionActivityImpl) this.createShClientSubscriptionActivity(new PushNotificationRequestImpl( message));
-
-        return activity;
+        return (ShClientSubscriptionActivityImpl) this.createShClientSubscriptionActivity(new PushNotificationRequestImpl( message));
       }
+
+      return activity;
     }
 
     private ShClientSubscriptionActivity createShClientSubscriptionActivity(net.java.slee.resource.diameter.sh.events.PushNotificationRequest pushNotificationRequest) {
