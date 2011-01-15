@@ -23,7 +23,7 @@
 	</modules>
 	<properties>
 		<mobicents.smppapi.version>
-			1.0.0.BETA2
+			1.0.0.FINAL
 		</mobicents.smppapi.version>
 	</properties>
 
