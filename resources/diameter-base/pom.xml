@@ -27,8 +27,8 @@
 
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.jdiameter.version>1.5.4.1-build416-SNAPSHOT</mobicents.diameter.jdiameter.version>
-    <mobicents.diameter.mux.version>1.4.0-SNAPSHOT</mobicents.diameter.mux.version>
+    <mobicents.diameter.jdiameter.version>1.5.4.1-build415</mobicents.diameter.jdiameter.version>
+    <mobicents.diameter.mux.version>1.3.3.FINAL</mobicents.diameter.mux.version>
     <mobicents.slee.version>2.2.1.FINAL</mobicents.slee.version>
     <!-- Documentation Related Properties -->
     <docs.profile>mobicents</docs.profile>
