@@ -27,6 +27,10 @@ public class ProfileTableActivityHandleImpl implements ProfileTableActivityHandl
 
 	private transient Address clusterLocalAddress; 
 	
+	public ProfileTableActivityHandleImpl() {
+		// for externalizable only
+	}
+	
 	public ProfileTableActivityHandleImpl(String profileTable, Address clusterLocalAddress) {
 		this.profileTable = profileTable;
 		this.clusterLocalAddress = clusterLocalAddress;
@@ -62,6 +66,14 @@ public class ProfileTableActivityHandleImpl implements ProfileTableActivityHandl
 		return profileTable.hashCode() * 31 + (clusterLocalAddress == null ? 0 : clusterLocalAddress.hashCode()) ;
 	}
     
+	public void setClusterLocalAddress(Address clusterLocalAddress) {
+		this.clusterLocalAddress = clusterLocalAddress;
+	}
+	
+	public void setProfileTable(String profileTable) {
+		this.profileTable = profileTable;
+	}
+	
 	public String getProfileTable() {
 		return profileTable;
 	}
