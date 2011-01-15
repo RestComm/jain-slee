@@ -101,25 +101,34 @@
 			</build>		
 		</profile>
 	</profiles>
-	
+
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
-   				<groupId>org.mobicents.tools</groupId>
+				<groupId>org.mobicents.tools</groupId>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
 					<excludePoms />
 					<classpathExcludes>
 						<exclude>xml-apis:xml-apis</exclude>
-						<exclude>jtidy:jtidy</exclude>																		
+						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
 					<eclipseProjectName>mobicents-slee-core</eclipseProjectName>
 				</configuration>
 			</plugin>
-		</plugins>		
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>					
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 	
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
