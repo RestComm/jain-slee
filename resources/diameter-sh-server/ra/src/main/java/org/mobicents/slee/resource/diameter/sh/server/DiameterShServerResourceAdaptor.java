@@ -656,14 +656,14 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       ShServerSubscriptionActivityImpl _activity = new ShServerSubscriptionActivityImpl(shServerMsgFactory, this.shAvpFactory, session, null, null);
       _activity.setSessionListener(this);
       activity = _activity;
+      activityCreated(activity, true);
     }
     else {
       ShServerActivityImpl _activity = new ShServerActivityImpl(shServerMsgFactory, this.shAvpFactory, session, null, null);
       _activity.setSessionListener(this);
       activity = _activity;
+      activityCreated(activity, false);
     }
-
-    activityCreated(activity);
   }
 
   /*
@@ -684,11 +684,17 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
    * 
    * @param ac the activity that has been created
    */
-  private void activityCreated(DiameterActivity ac) {
+  private void activityCreated(DiameterActivity ac, boolean suspended) {
     try {
       // Inform SLEE that Activity Started
       DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+
+      if (suspended) {
+        sleeEndpoint.startActivitySuspended(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      }
+      else {
+        sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      }
 
       // Put it into our activities map
       activities.put(activity.getActivityHandle(), activity);

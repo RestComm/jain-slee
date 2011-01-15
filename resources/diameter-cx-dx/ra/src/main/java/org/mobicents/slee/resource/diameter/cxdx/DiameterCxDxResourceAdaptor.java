@@ -652,11 +652,17 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
    * 
    * @param ac the activity that has been created
    */
-  private void addActivity(DiameterActivity ac) {
+  private void addActivity(DiameterActivity ac, boolean suspended) {
     try {
       // Inform SLEE that Activity Started
       DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, DEFAULT_ACTIVITY_FLAGS);
+
+      if (suspended) {
+        sleeEndpoint.startActivitySuspended(activity.getActivityHandle(), activity, DEFAULT_ACTIVITY_FLAGS);
+      }
+      else {
+        sleeEndpoint.startActivity(activity.getActivityHandle(), activity, DEFAULT_ACTIVITY_FLAGS);
+      }
 
       // Set the listener
       activity.setSessionListener(this);
@@ -884,7 +890,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
     // TODO: Do we need to manage session?
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity);
+    addActivity(activity, true);
   }
 
   /*
@@ -973,7 +979,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
       }
 
       CxDxServerSessionImpl activity = new CxDxServerSessionImpl(ra.cxdxMessageFactory, ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, (DiameterIdentity)null, (DiameterIdentity)null,stack);
-      addActivity(activity);
+      addActivity(activity, false);
 
       if(request != null) {
         if(request.getCommandCode() == LocationInfoRequest.COMMAND_CODE) {
@@ -1005,7 +1011,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
       try {
         ServerCxDxSession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, ApplicationId.createByAuthAppId(10415L, 16777216L), ServerCxDxSession.class);
         CxDxServerSessionImpl activity = new CxDxServerSessionImpl(ra.cxdxMessageFactory, ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, destinationHost, destinationRealm, stack);
-        addActivity(activity);
+        addActivity(activity, false);
         return activity;
       }
       catch (Exception e) {
@@ -1022,7 +1028,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
         ClientCxDxSession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, ApplicationId.createByAuthAppId(10415L, 16777216L), ClientCxDxSession.class);
 
         CxDxClientSessionImpl activity = new CxDxClientSessionImpl(new CxDxMessageFactoryImpl(session.getSessions().get(0),stack), ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, destinationHost, destinationRealm, ra.sleeEndpoint);
-        addActivity(activity);
+        addActivity(activity, true);
         return activity;
       }
       catch (Exception e) {
@@ -1036,7 +1042,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
         ClientCxDxSession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(sessionId, ApplicationId.createByAuthAppId(10415L, 16777216L), ClientCxDxSession.class);
 
         CxDxClientSessionImpl activity = new CxDxClientSessionImpl(new CxDxMessageFactoryImpl(session.getSessions().get(0),stack), ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, null, null, ra.sleeEndpoint);
-        addActivity(activity);
+        addActivity(activity, true);
 
         if(request != null) {
           if(request.getCommandCode() == PushProfileRequest.COMMAND_CODE) {

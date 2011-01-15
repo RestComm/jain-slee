@@ -666,11 +666,16 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
    * 
    * @param ac the activity that has been created
    */
-  private void activityCreated(DiameterActivity ac) {
+  private void activityCreated(DiameterActivity ac, boolean suspended) {
     try {
       // Inform SLEE that Activity Started
       DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      if (suspended) {
+        sleeEndpoint.startActivitySuspended(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);        
+      }
+      else {
+        sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      }
 
       // Put it into our activites map
       activities.put(activity.getActivityHandle(), activity);
@@ -875,7 +880,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
 
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    activityCreated(activity);
+    activityCreated(activity, true);
   }
 
   private void sessionCreated(ServerCCASession ccServerSession) {
@@ -893,7 +898,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     CreditControlServerSessionImpl activity = new CreditControlServerSessionImpl(ccaMsgFactory,this.ccaAvpFactory,ccServerSession,null,null);
 
     activity.setSessionListener(this);
-    activityCreated(activity);
+    activityCreated(activity, false);
   }
 
   // Credit Control Provider Implementation ------------------------------------

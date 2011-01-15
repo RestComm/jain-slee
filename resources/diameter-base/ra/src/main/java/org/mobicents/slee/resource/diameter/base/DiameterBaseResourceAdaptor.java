@@ -718,11 +718,17 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
    * 
    * @param ac the activity that has been created
    */
-  private void addActivity(DiameterActivity ac) {
+  private void addActivity(DiameterActivity ac, boolean suspended) {
     try {
       // Inform SLEE that Activity Started
       DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+
+      if (suspended) {
+        sleeEndpoint.startActivitySuspended(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      }
+      else {
+        sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      }
 
       // Put it into our activites map
       activities.put(activity.getActivityHandle(), activity);
@@ -963,7 +969,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity);
+    addActivity(activity, false);
   }
 
   /*
@@ -977,7 +983,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity);
+    addActivity(activity, false);
   }
 
   /*
@@ -991,7 +997,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity);
+    addActivity(activity, true);
   }
 
   /*
@@ -1005,7 +1011,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     activity.setSessionListener(this);
     // session.addStateChangeNotification(activity);
-    addActivity(activity);
+    addActivity(activity, true);
   }
 
   /*
@@ -1020,7 +1026,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
     // TODO: Do we need to manage session?
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity);
+    addActivity(activity, true);
   }
 
   //  /*

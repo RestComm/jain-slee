@@ -602,11 +602,17 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
    * 
    * @param ac the activity that has been created
    */
-  private void addActivity(DiameterActivity ac) {
+  private void addActivity(DiameterActivity ac, boolean suspended) {
     try {
       // Inform SLEE that Activity Started
       DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+
+      if (suspended) {
+        sleeEndpoint.startActivitySuspended(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      }
+      else {
+        sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      }
 
       // Set the listener
       activity.setSessionListener(this);
@@ -827,7 +833,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     activity.setSessionListener(this);
     session.addStateChangeNotification(activity);
-    addActivity(activity);
+    addActivity(activity, true);
   }
 
   /*
@@ -841,7 +847,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity);
+    addActivity(activity, false);
   }
 
   /*

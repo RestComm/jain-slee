@@ -661,11 +661,17 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
    * 
    * @param ac the activity that has been created
    */
-  private void activityCreated(DiameterActivity ac) {
+  private void activityCreated(DiameterActivity ac, boolean suspended) {
     try {
       // Inform SLEE that Activity Started
       DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+
+      if (suspended) {
+        sleeEndpoint.startActivitySuspended(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      }
+      else {
+        sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+      }
 
       // Put it into our activites map
       activities.put(activity.getActivityHandle(), activity);
@@ -1063,7 +1069,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
       ShClientSubscriptionActivityImpl activity = new ShClientSubscriptionActivityImpl(getSessionShMessageFactory(session), shAvpFactory, session, null, null);
       activity.fetchSessionData(pushNotificationRequest,true);
       activity.setSessionListener(ra);
-      activityCreated(activity);
+      activityCreated(activity, false);
 
       //FIXME: baranowb: this is akward, jdiam has weird api
       //This is trick to trigger fire and state machine
@@ -1091,7 +1097,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
       ShClientActivityImpl activity = new ShClientActivityImpl(getSessionShMessageFactory(session), shAvpFactory, session, null, null);
 
       activity.setSessionListener(ra);
-      activityCreated(activity);
+      activityCreated(activity, true);
 
       return activity;
     }
@@ -1192,7 +1198,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
 
       ShClientSubscriptionActivityImpl activity = new ShClientSubscriptionActivityImpl(getSessionShMessageFactory(session), shAvpFactory, session, null, null);
       activity.setSessionListener(ra);
-      activityCreated(activity);
+      activityCreated(activity, true);
 
       return activity;
     }

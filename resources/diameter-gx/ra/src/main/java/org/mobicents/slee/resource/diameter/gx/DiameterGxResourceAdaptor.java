@@ -676,11 +676,17 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
      *
      * @param ac the activity that has been created
      */
-    private void addActivity(final DiameterActivity ac) {
+    private void addActivity(final DiameterActivity ac, boolean suspended) {
         try {
             // Inform SLEE that Activity Started
             final DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-            sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+
+            if (suspended) {
+              sleeEndpoint.startActivitySuspended(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+            }
+            else {
+              sleeEndpoint.startActivity(activity.getActivityHandle(), activity, MARSHALABLE_ACTIVITY_FLAGS);
+            }
 
             // Set the listener
             activity.setSessionListener(this);
@@ -842,7 +848,7 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
         //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
         //session.addStateChangeNotification(activity);
         activity.setSessionListener(this);
-        addActivity(activity);
+        addActivity(activity, true);
     }
 
     public void sessionCreated(final ServerGxSession gxServerSession) {
@@ -860,7 +866,7 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
         //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
         //session.addStateChangeNotification(activity);
         activity.setSessionListener(this);
-        addActivity(activity);
+        addActivity(activity, false);
     }
 
     public boolean sessionExists(final String sessionId) {
