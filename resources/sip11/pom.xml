@@ -27,7 +27,7 @@
 		<mobicents.slee.version>2.2.0.FINAL</mobicents.slee.version>
 		<jsip.ha.version>0.13</jsip.ha.version>
 		<jsip.sip.ext.version>1.0.BETA1</jsip.sip.ext.version>
-		<loadbalancer.version>1.0.4.FINAL</loadbalancer.version>
+		<loadbalancer.version>1.2.FINAL</loadbalancer.version>
 		<docs.profile>mobicents</docs.profile>
 		<docs.ra.name>SIP11</docs.ra.name>
 		<docs.ra.dirname>sip11</docs.ra.dirname>
