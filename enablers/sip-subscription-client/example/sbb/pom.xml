@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.enablers.sip.example</groupId>
 		<artifactId>sip-subscription-client</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0.BETA1</version>
 	</parent>
 
 	<artifactId>sip-subscription-client-sbb</artifactId>
@@ -13,7 +13,7 @@
 		<dependency>
 			<artifactId>sip-subscription-client-sbb</artifactId>
 			<groupId>org.mobicents.servers.jainslee.enablers</groupId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.0.BETA1</version>
 			<scope>compile</scope>
 		</dependency>
 
