@@ -9,7 +9,7 @@
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
-	<property name="release.version" value="2.3.0-SNAPSHOT"/>
+	<property name="release.version" value="2.3.0.FINAL"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
 	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
@@ -31,7 +31,7 @@
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
 	
-	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_1.3.0.jar"/>
+	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0.BETA1.jar"/>
 	<property name="eclipslee.download.url" value ="http://mobicents.googlecode.com/files/${eclipslee.jar}"/>
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
@@ -74,7 +74,7 @@
 				<sequential>
 					<echo>Packaging TOOL for release from DIR[${ant.file.mobicents.release}/../checkout/tools/@{dir.name}]</echo>
 					<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/@{dir.name}">
-						<arg line="install -P maven-release,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+						<arg line="install -P mobicents,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 					</exec>
 				</sequential>
 			</for>
@@ -156,7 +156,12 @@
 
 	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-core,build-tools,get-eclipslee,build-sip-balancer,build-ras,build-enablers,build-examples,build-sources-for-debug-zip">
 
+		<!-- copy log4j presets -->
+		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${release.dir}/jboss-${jboss.version}/server/default/conf/jboss-log4j.xml" overwrite="true" />
+		<copy file="${release.dir}/jboss-${jboss.version}/server/all/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${release.dir}/jboss-${jboss.version}/server/all/conf/jboss-log4j.xml" overwrite="true" />
+		<!-- copy distribution readme -->
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
+
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
