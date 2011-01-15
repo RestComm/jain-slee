@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.enablers</groupId>
 		<artifactId>sip-subscription-client</artifactId>
-		<version>1.0.0.BETA1</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>sip-subscription-client-DU</artifactId>
