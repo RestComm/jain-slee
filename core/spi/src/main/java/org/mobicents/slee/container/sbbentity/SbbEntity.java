@@ -90,7 +90,7 @@ public interface SbbEntity {
 	/**
 	 * Remove the SbbEntity (Spec. 5.5.4) It detaches the SBB entity from all
 	 * Activity Contexts. It invokes the appropriate life cycle methods (see
-	 * Section 6.3) of an SBB object that caches the SBB entity’s state. It
+	 * Section 6.3) of an SBB object that caches the SBB entity's state. It
 	 * removes the SBB entity from the ChildRelation object that the SBB entity
 	 * belongs to. It removes the persistent representation of the SBB entity.
 	 * 
