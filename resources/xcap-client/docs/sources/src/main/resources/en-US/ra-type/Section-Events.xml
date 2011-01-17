@@ -30,21 +30,21 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>GetResponseEvent</entry>
+					<entry>GetResponse Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>2.0</entry>
 					<entry>org.mobicents. slee.resource. xcapclient. ResponseEvent</entry>					
 					<entry>A response to a XCAP GET request.</entry>
 				</row>
 				<row>
-					<entry>PutResponseEvent</entry>
+					<entry>PutResponse Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>2.0</entry>
 					<entry>org.mobicents. slee.resource. xcapclient. ResponseEvent</entry>					
 					<entry>A response to a XCAP PUT request.</entry>
 				</row>
 				<row>
-					<entry>DeleteResponseEvent</entry>
+					<entry>DeleteResponse Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>2.0</entry>
 					<entry>org.mobicents. slee.resource. xcapclient. ResponseEvent</entry>					
