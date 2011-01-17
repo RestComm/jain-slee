@@ -40,9 +40,42 @@
 		</classpath>
 	</taskdef>
 
-	<condition property="mvn.executable" value="${sys.M2_HOME}\bin\mvn.bat" else="mvn">
-		<os family="windows"/>
+	<condition property="mvn.executable" value="${sys.M2_HOME}\bin\mvn.bat">
+		<and>
+			<os family="windows"/>
+			<isset property="sys.M2_HOME"/>
+		</and>
 	</condition>
+	
+	<condition property="mvn.executable" value="mvn.bat">
+		<and>
+			<os family="windows"/>
+			<not>
+				<isset property="sys.M2_HOME"/>
+			</not>	
+		</and>
+	</condition>
+	
+	<condition property="mvn.executable" value="${sys.M2_HOME}/bin/mvn">
+		<and>
+			<not>
+				<os family="windows"/>
+			</not>	
+			<isset property="sys.M2_HOME"/>
+		</and>
+	</condition>
+	
+	<condition property="mvn.executable" value="mvn">
+		<and>
+			<not>
+				<os family="windows"/>
+			</not>	
+			<not>
+				<isset property="sys.M2_HOME"/>
+			</not>	
+		</and>
+	</condition>
+	
 	<condition property="default.jboss.config">
 		<equals arg1="${jboss.config}" arg2="default"/>
 	</condition>
