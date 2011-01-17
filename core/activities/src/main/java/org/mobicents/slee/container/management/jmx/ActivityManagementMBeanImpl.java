@@ -360,14 +360,13 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 					break;
 
 				case LIST_BY_SBBENTITY:
-
-					// is this enough ?
-					if (comparisonCriteria.equals("")
-							|| !ac.getSbbAttachmentSet().contains(
-									comparisonCriteria)) {
-						ac = null;
+					
+					for (SbbEntityID sbbEntityID : ac.getSbbAttachmentSet()) {
+						if (sbbEntityID.toString().equals(comparisonCriteria)) {
+							break;
+						}
 					}
-
+					ac = null;
 					break;
 
 				case LIST_BY_SBBID:
