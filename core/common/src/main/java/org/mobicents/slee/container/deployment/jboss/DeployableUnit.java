@@ -33,7 +33,7 @@ import org.xml.sax.SAXParseException;
  * Deployable Components. Contains all the DU dependencies, install/uninstall
  * actions needed for the DU and post-install and pre-uninstall actions.
  * 
- * @author Alexandre Mendonça
+ * @author Alexandre Mendon√ßa
  * @version 1.0
  */
 public class DeployableUnit {
