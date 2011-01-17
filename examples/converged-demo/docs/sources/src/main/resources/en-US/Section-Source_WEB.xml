@@ -53,21 +53,21 @@ JSF web pages. They update the data model based on the user input.
 						</entry>
 					</row>
 					<row>
-						<entry>AfterOrderProcessedAction</entry>
+						<entry>AfterOrder ProcessedAction</entry>
 						<entry>Stateless</entry>
 						<entry>
 							Bean to handle the jBPM transition event
 						</entry>
 					</row>
 					<row>
-						<entry>AfterShippingAction</entry>
+						<entry>AfterShipping Action</entry>
 						<entry>Stateless</entry>
 						<entry>
 							Bean to handle the jBPM transition event
 						</entry>
 					</row>
 					<row>
-						<entry>AuthenticatorAction</entry>
+						<entry>Authenticator Action</entry>
 						<entry>Stateless</entry>
 						<entry>
 							Authenticates the user trying to log in the &THIS.EXAMPLE;
@@ -89,7 +89,7 @@ JSF web pages. They update the data model based on the user input.
 						</entry>
 					</row>
 					<row>
-						<entry>EditCustomerAction</entry>
+						<entry>EditCustomer Action</entry>
 						<entry>Stateful</entry>
 						<entry>
 							Used to edit the logged in user's profile
@@ -110,7 +110,7 @@ JSF web pages. They update the data model based on the user input.
 						</entry>
 					</row>
 					<row>
-						<entry>OrderApprovalAction</entry>
+						<entry>OrderApproval Action</entry>
 						<entry>Stateless</entry>
 						<entry>
 							Bean to handle the jBPM transition event
@@ -131,21 +131,21 @@ JSF web pages. They update the data model based on the user input.
 						</entry>
 					</row>
 					<row>
-						<entry>ShoppingCartBean</entry>
+						<entry>ShoppingCart Bean</entry>
 						<entry>Stateful</entry>
 						<entry>
 							Bean represents Shopping Cart 
 						</entry>
 					</row>
 					<row>
-						<entry>ShowOrdersAction</entry>
+						<entry>ShowOrders Action</entry>
 						<entry>Stateful</entry>
 						<entry>
 							Bean to show the Order for the corresponding user
 						</entry>
 					</row>
 					<row>
-						<entry>StoreManagerBean</entry>
+						<entry>StoreManager Bean</entry>
 						<entry>Stateful</entry>
 						<entry>
 							Bean that helps manager to check inventory, get total sales, get number of orders etc
