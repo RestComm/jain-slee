@@ -200,10 +200,10 @@ public class JPAQueryBuilder {
   {
     // An op attribute. 
     // This attribute identifies the binary operator to apply to the Profile attribute 
-    // value. It can be one of the following values: “equals”, “not-equals”, “less-than”, 
-    // “less-than-or-equals”, “greater-than”, or “greater-than-or-equals”. If the Java 
+    // value. It can be one of the following values: equals, not-equals, less-than, 
+    // less-than-or-equals, greater-than, or greater-than-or-equals. If the Java 
     // type of the Profile attribute is boolean or java.lang.Boolean then only 
-    // the “equals”, or “not-equals” operator are allowed.
+    // the equals, or not-equals operator are allowed.
 
     String sqlOperator = null;
 

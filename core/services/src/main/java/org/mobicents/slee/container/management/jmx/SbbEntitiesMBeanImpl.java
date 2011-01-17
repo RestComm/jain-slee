@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.management.NotCompliantMBeanException;
+import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ServiceState;
@@ -31,16 +32,30 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 		this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();
 	}
 
-	public Object[] retrieveSbbEntitiesBySbbId(SbbEntityID sbbId) {
-		// FIXME retrieveSbbEntitiesBySbbId
-		// emmartins: this one is even uglier than going through all sbb
-		// entity trees, because you need to find all child relations with this
-		// Id, in all services, and then collect all child sbb entities, why not
-		// only by service ID, code in
-		// retreiveAllSbbEntitiesIds can be reused
-		return null;
+	@Override
+	public Object[] retrieveSbbEntitiesBySbbId(SbbID sbbId) throws ManagementException {
+		ArrayList result = new ArrayList();
+		try {
+
+			Iterator<SbbEntityID> sbbes = retrieveAllSbbEntitiesIds().iterator();
+			while (sbbes.hasNext()) {
+				try {
+					SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbes.next(),false);
+					if (sbbe != null && sbbe.getSbbId().equals(sbbId)) {
+						result.add(sbbEntityToArray(sbbe));
+					}
+				} catch (Exception e) {
+					// ignore
+				}
+			}
+			return result.toArray();
+		} catch (Exception e) {
+			throw new ManagementException(
+					"Failed to build set of existent sbb entities", e);
+		}
 	}
 
+	@Override
 	public Object[] retrieveAllSbbEntities() throws ManagementException {
 		ArrayList result = new ArrayList();
 		try {
