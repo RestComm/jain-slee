@@ -14,7 +14,7 @@
 		<para>Specific shell characters must be escaped or value of argument must be quoted.</para>
 	</important>
 	<important>
-		<para>Some terminal intput include "\" - it indicates that command is continued from new line, if copy/paste is used on example, this sign should be removed.</para>
+		<para>Some terminal input include "\" - it indicates that command is continued from new line, if copy/paste is used on example, this sign should be removed.</para>
 	</important>
 	<note>
 		<para>Options and arguments can have long and short form. Short form <literal>-s</literal>, accept parameter without equal sign, ie: -slocalhost. 
