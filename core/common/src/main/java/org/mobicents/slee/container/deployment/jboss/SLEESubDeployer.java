@@ -28,7 +28,7 @@ import org.mobicents.slee.container.management.jmx.MobicentsManagement;
  * This is the Deployer main class where the AS will invoke the lifecycle methods
  * for new deployments.
  * 
- * @author Alexandre MendonÁa
+ * @author Alexandre Mendonça
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

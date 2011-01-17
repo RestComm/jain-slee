@@ -35,7 +35,7 @@ import org.mobicents.slee.container.management.jmx.MobicentsManagement;
  * This class represents the Manager responsible for executing deployment actions
  * and for controlling dependencies and monitoring new deployments using the deployer.
  * 
- * @author Alexandre MendonÁa
+ * @author Alexandre Mendonça
  * @version 1.0
  */
 @SuppressWarnings("deprecation")

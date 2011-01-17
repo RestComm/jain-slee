@@ -37,7 +37,7 @@ import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEd
  * Event Type Definition, RA Type, Resource Adaptor, SBB or Service. It also contains
  * the dependencies and the install/uninstall actions needed for that component.
  * 
- * @author Alexandre MendonÁa
+ * @author Alexandre Mendonça
  * @version 1.0
  */
 public class DeployableComponent

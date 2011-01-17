@@ -12,7 +12,7 @@ import org.jboss.mx.util.ObjectNameFactory;
  * Simple MBean for obtaining current deployer status which will show what's
  * deployed and what's on the waiting list for deployment and undeployment.
  * 
- * @author Alexandre MendonÁa
+ * @author Alexandre Mendonça
  * @version 1.0
  */
 @SuppressWarnings("deprecation")
