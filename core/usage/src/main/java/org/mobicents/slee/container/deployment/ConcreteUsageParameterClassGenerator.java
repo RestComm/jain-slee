@@ -142,7 +142,7 @@ public class ConcreteUsageParameterClassGenerator {
          * parameter name from the method name of the declared method.The SBB
          * Developer declares an increment method to declare the presence of and
          * to permit updates to a counter-type usage parameter. The method name
-         * of the increment method is derived by adding an “increment” prefix to
+         * of the increment method is derived by adding an increment prefix to
          * the usage parameter name. ( See chapter 11.2.1 ).
          */
         String methodName = method.getName();
@@ -158,10 +158,10 @@ public class ConcreteUsageParameterClassGenerator {
         } else if (methodName.startsWith("sample")) {
             /*
              * Sample-type usage parameters. The SBB can add sample values to a
-             * sample -type usage parameter. The Adminstrator can get the
+             * sample -type usage parameter. The Administrator can get the
              * minimum, maximum, mean, and number of the sample values added to
              * a sample -type usage parameter and reset the state of the usage
-             * parameter through the SLEE’s management interface.
+             * parameter through the SLEE's management interface.
              */
             
             paramName = Introspector.decapitalize(methodName.substring("sample".length()));
@@ -200,10 +200,10 @@ public class ConcreteUsageParameterClassGenerator {
         } else if (methodName.startsWith("sample")) {
             /*
              * Sample-type usage parameters. The SBB can add sample values to a
-             * sample -type usage parameter. The Adminstrator can get the
+             * sample -type usage parameter. The Administrator can get the
              * minimum, maximum, mean, and number of the sample values added to
              * a sample -type usage parameter and reset the state of the usage
-             * parameter through the SLEE’s management interface.
+             * parameter through the SLEE's management interface.
              */
 
             body += "public void " + methodName + "( long longValue ) { ";
