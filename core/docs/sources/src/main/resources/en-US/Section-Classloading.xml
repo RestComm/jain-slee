@@ -10,7 +10,7 @@
 	<para>JAIN SLEE defines a class loading domain with the <acronym>API</acronym>s required in the JAIN SLEE 1.1 container (for example, JAIN SLEE, <acronym>JBDC</acronym> and <acronym>JMX</acronym>). This domain (<literal>JBoss Microcontainer ClassLoadingDomain</literal>) imports all classes shared in the &JEE.PLATFORM;, and acts like the parent domain for all <literal>URLClassLoaderDomain</literal>s, which means that a class imported by a SLEE classloading domain will always be used first.</para>
 	
     <figure>
-      <title>Classloading example in JBCP JAIN SLEE</title>
+      <title>Classloading example in &THIS.PLATFORM; JAIN SLEE</title>
       <mediaobject>
         <imageobject>
           <imagedata
