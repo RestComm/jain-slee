@@ -5,7 +5,7 @@
 	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp5,jcc,map,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
 	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo,converged-demo"/>
 	<property name="enabler.dirs" value="xdm-client,sip-publication-client,sip-subscription-client,ims-user-profile"/>
-	<property name="tool.dirs" value="jopr-plugin,eclipslee,remote-slee-connection,twiddle"/>
+	<property name="tool.dirs" value="management-console,eclipslee,remote-slee-connection,twiddle"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
@@ -15,22 +15,22 @@
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
-	
+
 	<property name="mms.version" value="2.1.0.BETA1" />
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
-	
+
 	<property name="ss7.version" value="1.0.0.BETA6" />
 	<property name="ss7.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Protocols%20Suite/1.0.0.B6/mobicents-ss7-${ss7.version}.zip"/>
 	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip"/>
-	
+
 	<property name="diameter.version" value="1.3.3.FINAL" />
 	<!--
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-${diameter.version}.zip"/>
 	-->
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
-	
+
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0.BETA1.jar"/>
 	<property name="eclipslee.download.url" value ="http://mobicents.googlecode.com/files/${eclipslee.jar}"/>
 
@@ -46,36 +46,36 @@
 			<isset property="sys.M2_HOME"/>
 		</and>
 	</condition>
-	
+
 	<condition property="mvn.executable" value="mvn.bat">
 		<and>
 			<os family="windows"/>
 			<not>
 				<isset property="sys.M2_HOME"/>
-			</not>	
+			</not>
 		</and>
 	</condition>
-	
+
 	<condition property="mvn.executable" value="${sys.M2_HOME}/bin/mvn">
 		<and>
 			<not>
 				<os family="windows"/>
-			</not>	
+			</not>
 			<isset property="sys.M2_HOME"/>
 		</and>
 	</condition>
-	
+
 	<condition property="mvn.executable" value="mvn">
 		<and>
 			<not>
 				<os family="windows"/>
-			</not>	
+			</not>
 			<not>
 				<isset property="sys.M2_HOME"/>
-			</not>	
+			</not>
 		</and>
 	</condition>
-	
+
 	<condition property="default.jboss.config">
 		<equals arg1="${jboss.config}" arg2="default"/>
 	</condition>
@@ -89,7 +89,7 @@
 		</exec>
 		<antcall target="build-docs">
 			<param name="docs.source.dir" value="${ant.file.mobicents.release}/../checkout/core/docs" />
-			<param name="docs.dest.dir" value="${release.dir}/docs" />
+			<param name="docs.dest.dir" value="${release.dir}/docs/container/user-guide" />
 		</antcall>
 	</target>
 
@@ -102,57 +102,48 @@
 		</copy>
 	</target>
 
-	<target name="build-tools">
-			<for delimiter="," param="dir.name" list="${tool.dirs}">
-				<sequential>
-					<echo>Packaging TOOL for release from DIR[${ant.file.mobicents.release}/../checkout/tools/@{dir.name}]</echo>
-					<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/@{dir.name}">
-						<arg line="install -P mobicents,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
-					</exec>
-				</sequential>
-			</for>
-			<delete dir="${release.dir}/tmp"/>
-			<copy failonerror="true" toDir="${release.dir}/tools" overwrite="true">
-				<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools"/>
-			</copy>
-
-			<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools"/>
-		</target>
-
-	<target name="build-sip-balancer" description="">
-		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer">
-			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
-		</exec>
-
-		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/jar/target">
-				<include name="**.jar" />
-			</fileset>
-			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/config-examples">
-				<include name="**.properties" />
-			</fileset>
-		</copy>
-
-		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer/docs" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/docs/jdocbook-${docs.profile}/target/docbook/publish"/>
-		</copy>
-	</target>
-
 	<target name="build-ras" description="Resource adaptors.">
 		<for delimiter="," param="dir.name" list="${ra.dirs}">
 			<sequential>
 				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../checkout/resources/@{dir.name}]</echo>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
-					<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+					<arg line="install javadoc:aggregate -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
+				<move toDir="${release.dir}/docs/resources/@{dir.name}/user-guide" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/resources/@{dir.name}/docs" />
+				</move>
+				<copy failonerror="true" toDir="${release.dir}/docs/resources/@{dir.name}/javadoc" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}/target/site/apidocs" />
+				</copy>
 			</sequential>
 		</for>
-		<delete dir="${release.dir}/tmp"/>
+		<delete dir="${release.dir}/tmp" />
 		<copy failonerror="true" toDir="${release.dir}/resources" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/resources"/>
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/resources" />
 		</copy>
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/resources" />
+	</target>
 
-		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/resources"/>
+	<target name="build-enablers" description="">
+		<for delimiter="," param="dir.name" list="${enabler.dirs}">
+			<sequential>
+				<echo>Packaging Enabler for release from DIR[${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}]</echo>
+				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}">
+					<arg line="install javadoc:aggregate -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+				</exec>
+				<move toDir="${release.dir}/docs/enablers/@{dir.name}/user-guide" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/enablers/@{dir.name}/docs" />
+				</move>
+				<copy failonerror="true" toDir="${release.dir}/docs/enablers/@{dir.name}/javadoc" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}/target/site/apidocs" />
+				</copy>
+			</sequential>
+		</for>
+		<delete dir="${release.dir}/tmp" />
+		<copy failonerror="true" toDir="${release.dir}/enablers" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/enablers" />
+		</copy>
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/enablers" />
 	</target>
 
 	<target name="build-examples" description="Examples.">
@@ -162,29 +153,52 @@
 				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
 					<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
-			</sequential>
-		</for>
-		<delete dir="${release.dir}/tmp"/>
-		<copy failonerror="true" toDir="${release.dir}/examples" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/examples"/>
-		</copy>
-		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/examples"/>
-	</target>
-
-	<target name="build-enablers" description="">
-		<for delimiter="," param="dir.name" list="${enabler.dirs}">
-			<sequential>
-				<echo>Packaging Enabler for release from DIR[${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}]</echo>
-				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}">
-					<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
-				</exec>
+				<move toDir="${release.dir}/docs/examples/@{dir.name}/user-guide" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/examples/@{dir.name}/docs" />
+				</move>
 			</sequential>
 		</for>
 		<delete dir="${release.dir}/tmp" />
-		<copy failonerror="true" toDir="${release.dir}/enablers" overwrite="true">
-			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/enablers" />
+		<copy failonerror="true" toDir="${release.dir}/examples" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/examples" />
 		</copy>
-		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/enablers" />
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/examples" />
+	</target>
+
+	<target name="build-tools">
+		<for delimiter="," param="dir.name" list="${tool.dirs}">
+			<sequential>
+				<echo>Packaging TOOL for release from DIR[${ant.file.mobicents.release}/../checkout/tools/@{dir.name}]</echo>
+				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/@{dir.name}">
+					<arg line="install -P mobicents,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+				</exec>
+				<move toDir="${release.dir}/docs/tools/@{dir.name}/user-guide" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/@{dir.name}/docs" />
+				</move>
+			</sequential>
+		</for>
+		<delete dir="${release.dir}/tmp" />
+		<copy failonerror="true" toDir="${release.dir}/tools" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools" />
+		</copy>
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools" />
+	</target>
+
+	<target name="build-sip-balancer" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer">
+			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
+		</exec>
+		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/jar/target">
+				<include name="**.jar" />
+			</fileset>
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/config-examples">
+				<include name="**.properties" />
+			</fileset>
+		</copy>
+		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer/docs" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/docs/jdocbook-${docs.profile}/target/docbook/publish" />
+		</copy>
 	</target>
 
 	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-core,build-tools,get-eclipslee,build-sip-balancer,build-ras,build-enablers,build-examples,build-sources-for-debug-zip">
@@ -320,10 +334,10 @@
         		     excludes=""/>
 		</copy>
 		<copy todir="${release.dir}/src/mobicents/servers/jain-slee/extra" includeEmptyDirs="false">
-					<fileset dir="${ant.file.mobicents.release}/../checkout/extra"
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra"
 		        		     excludes=""/>
 		</copy>
-		
+
 		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src" />
 
 		<antcall target="checksum">
@@ -363,7 +377,7 @@
 		<delete dir="${release.dir}/extra/mobicents-ss7" failonerror="false" />
 		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/mobicents-ss7" />
 	</target>
-	
+
 	<available file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" property="got.diameter" />
 	<target name="get-diameter" unless="got.diameter">
 		<echo>Downloading Mobicents Diameter</echo>

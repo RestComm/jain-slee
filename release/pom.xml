@@ -850,7 +850,7 @@
 							<scmVersionType>revision</scmVersionType>
 							<skipCheckoutIfExists>true</skipCheckoutIfExists>
 							<checkoutDirectory>
-								${checkout.basedir}/tools/jopr-plugin
+								${checkout.basedir}/tools/management-console
 							</checkoutDirectory>
 							<connectionUrl>
 								${jopr-plugin.connectionURL}
