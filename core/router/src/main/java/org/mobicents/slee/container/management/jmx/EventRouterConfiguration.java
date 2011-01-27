@@ -18,6 +18,17 @@ public class EventRouterConfiguration implements
 	private Integer eventRouterThreads;
 	private String executorMapperClassName;
 	private Boolean collectStats;
+	private boolean confirmSbbEntityAttachement;
+	
+	@Override
+	public boolean isConfirmSbbEntityAttachement() {
+		return confirmSbbEntityAttachement;
+	}
+	
+	@Override
+	public void setConfirmSbbEntityAttachement(boolean value) {
+		this.confirmSbbEntityAttachement = value;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean#getEventRouterThreads()

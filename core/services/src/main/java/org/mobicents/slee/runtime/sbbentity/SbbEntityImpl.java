@@ -585,7 +585,7 @@ public class SbbEntityImpl implements SbbEntity {
 	}
 
 	public boolean isAttached(ActivityContextHandle ach) {
-		return this.getActivityContexts().contains(ach);
+		return cacheData.isAttached(ach);
 	}
 
 	public SbbComponent getSbbComponent() {

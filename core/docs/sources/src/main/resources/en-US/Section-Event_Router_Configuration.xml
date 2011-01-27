@@ -65,6 +65,11 @@
 					        <entry>boolean</entry>
 					        <entry>defines if performance and load statistics should be collected, turning this feature off will increase performance</entry>
 					      </row>
+					      <row>
+					      	<entry>confirmSbbEntityAttachement</entry>
+					      	<entry>boolean</entry>
+					        <entry>defines if the event router should reconfirm that sbb entities are attached to activity context, before delivering event, this will avoid that a sbb entity handles concurrent events after it detachs, turning this feature off will increase performance</entry>
+					      </row>
 				    	  <row>
 				  		    <entry>executorMapperClassName</entry>
 				  		    <entry>Class</entry>

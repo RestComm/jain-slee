@@ -165,6 +165,16 @@ public class SbbEntityCacheData extends CacheData {
 		return result;			
 	}
 
+	public boolean isAttached(ActivityContextHandle ach) {
+		final Node node = getAttachedACsChildNode(false);
+		if (node == null) {
+			return false;
+		}
+		else {
+			return node.get(ach) != null;
+		}
+	}
+	
 	public Byte getPriority() {
 		return (Byte) getNode().get(PRIORITY_NODE_MAP_KEY);
 	}

@@ -106,4 +106,8 @@ public class EventRouterImpl extends AbstractSleeContainerModule implements Even
 		return executorMapper;
 	}
 
+	public EventRouterConfiguration getConfiguration() {
+		return configuration;
+	}	
+
 }

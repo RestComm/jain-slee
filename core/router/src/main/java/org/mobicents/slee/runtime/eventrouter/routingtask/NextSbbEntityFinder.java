@@ -8,8 +8,10 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
 import org.mobicents.slee.container.event.EventContext;
+import org.mobicents.slee.container.management.jmx.EventRouterConfiguration;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
+import org.mobicents.slee.runtime.eventrouter.EventRouterImpl;
 
 /**
  * 
@@ -35,7 +37,10 @@ public class NextSbbEntityFinder {
 			this.deliverEvent = deliverEvent;
 		}
 	}
-		
+
+	private final EventRouterConfiguration eventRouterConfiguration = ((EventRouterImpl) SleeContainer
+			.lookupFromJndi().getEventRouter()).getConfiguration();
+
 	/**
 	 * Retrieves the next sbb entity to handle the event.
 	 * 
@@ -62,6 +67,10 @@ public class NextSbbEntityFinder {
 			sbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(sbbEntityId,true);
 			if (sbbEntity == null) {
 				// ignore, sbb entity has been removed
+				continue;
+			}
+			if (eventRouterConfiguration.isConfirmSbbEntityAttachement() && !sbbEntity.isAttached(ac.getActivityContextHandle())) {
+				// detached by a concurrent tx, see Issue 2313 				
 				continue;
 			}
 			if (sleeEvent.getService() != null && !sleeEvent.getService().equals(sbbEntityId.getServiceID())) {

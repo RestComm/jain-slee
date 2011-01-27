@@ -55,4 +55,16 @@ public interface EventRouterConfigurationMBean {
 	public void setExecutorMapperClassName(String className)
 			throws ClassNotFoundException;
 
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isConfirmSbbEntityAttachement();
+	
+	/**
+	 * 
+	 * @param value
+	 */
+	public void setConfirmSbbEntityAttachement(boolean value);
+	
 }

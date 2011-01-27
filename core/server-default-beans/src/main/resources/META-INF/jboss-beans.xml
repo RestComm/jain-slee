@@ -133,6 +133,7 @@
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=EventRouterConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean.class,registerDirectly=true)</annotation>
 		<property name="eventRouterThreads">8</property>
 		<property name="collectStats">true</property>
+		<property name="confirmSbbEntityAttachement">true</property>		
 		<property name="executorMapperClassName">org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper</property>
 	</bean>
 		
