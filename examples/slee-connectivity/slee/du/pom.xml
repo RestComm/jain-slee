@@ -15,13 +15,11 @@
 
 
 	<dependencies>
-	<!-- 
 		<dependency>
 			<artifactId>slee-connectivity-example-library</artifactId>
 			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>
-		 -->
 		<dependency>
 			<artifactId>slee-connectivity-custom-events</artifactId>
 			<groupId>${pom.groupId}</groupId>

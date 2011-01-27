@@ -9,6 +9,8 @@ import javax.slee.connection.ExternalActivityHandle;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.connector.local.SleeConnectionService;
+import org.mobicents.slee.container.component.ComponentRepository;
+import org.mobicents.slee.container.component.SleeComponent;
 
 /**
  * 
@@ -28,11 +30,13 @@ public class RemoteSleeConnectionServiceImpl implements RemoteSleeConnectionServ
 	private static final Logger log = Logger
 			.getLogger(RemoteSleeConnectionServiceImpl.class);
 	private SleeConnectionService service;
+	private ComponentRepository repository;
 	
-	public RemoteSleeConnectionServiceImpl(SleeConnectionService service) {
+	public RemoteSleeConnectionServiceImpl(SleeConnectionService service,ComponentRepository repository) {
 		if (log.isDebugEnabled())
 			log.debug("Creating RemoteSleeConnectionServiceImpl");
 		this.service = service;
+		this.repository = repository;
 	}
 
 	/**
@@ -58,8 +62,33 @@ public class RemoteSleeConnectionServiceImpl implements RemoteSleeConnectionServ
 			ExternalActivityHandle activityHandle, Address address)
 			throws 
 			RemoteException {
+		final boolean deserialize =  event instanceof RemoteEventWrapper;
+		if(deserialize)
+		{
+			final ClassLoader origCL = Thread.currentThread().getContextClassLoader();    	
+			try {
 
+				RemoteEventWrapper rew = (RemoteEventWrapper) event;
+				// we have to switch CL, lookup component CL, switch CTX, load
+				// event and fire...
+				SleeComponent sleeComponent = this.repository.getComponentByID(eventType);
+				Thread.currentThread().setContextClassLoader(sleeComponent.getClassLoader());
+				event = rew.getEvent();
+			} catch (Exception e) {
+				// be good citized
+				throw new RemoteException("Failed to fire event due to:", e);
+			} finally {
+				Thread.currentThread().setContextClassLoader(origCL);
+			}
+		}else
+		{
+			//for some reason someone called RMI localy, not VIA
+		}
+		
+		
 		try {
+			
+			
 			this.service.fireEvent(event, eventType, activityHandle, address);
 		} catch (Exception e) {
 			//be good citized

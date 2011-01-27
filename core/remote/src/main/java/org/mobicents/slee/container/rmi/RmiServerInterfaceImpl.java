@@ -31,7 +31,7 @@ public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implemen
 
 			InitialContext ctx = new InitialContext();
 
-			RemoteSleeConnectionService stub = new RemoteSleeConnectionServiceImpl(super.sleeContainer.getSleeConnectionService());
+			RemoteSleeConnectionService stub = new RemoteSleeConnectionServiceImpl(super.sleeContainer.getSleeConnectionService(),super.sleeContainer.getComponentRepository());
 			rmiServer =  new RMIServerImpl(this.jndiName,RemoteSleeConnectionService.class,stub);
 			
 			stub = (RemoteSleeConnectionService) rmiServer.createStub();

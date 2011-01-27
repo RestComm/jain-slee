@@ -15,6 +15,7 @@
 
 
 	<modules>
+		<module>library</module>
 		<module>events</module>
 		<module>sbb</module>
 		<module>du</module>

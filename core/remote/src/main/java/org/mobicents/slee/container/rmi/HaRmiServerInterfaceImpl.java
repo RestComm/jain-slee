@@ -50,7 +50,7 @@ RmiServerInterface {
 			HAPartition myPartition = (HAPartition) ctx
 					.lookup("/HAPartition/DefaultPartition");
 
-			RemoteSleeConnectionService stub = new RemoteSleeConnectionServiceImpl(super.sleeContainer.getSleeConnectionService());
+			RemoteSleeConnectionService stub = new RemoteSleeConnectionServiceImpl(super.sleeContainer.getSleeConnectionService(),super.sleeContainer.getComponentRepository());
 			rmiServer = new HARMIServerImpl(myPartition, this.jndiName,RemoteSleeConnectionService.class, stub);
 			stub = (RemoteSleeConnectionService) rmiServer
 			 					.createHAStub(new FirstAvailable());

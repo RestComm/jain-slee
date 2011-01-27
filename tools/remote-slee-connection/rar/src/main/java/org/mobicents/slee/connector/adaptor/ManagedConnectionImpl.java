@@ -1,9 +1,13 @@
 package org.mobicents.slee.connector.adaptor;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.connector.remote.RemoteEventWrapper;
 import org.mobicents.slee.connector.remote.RemoteSleeConnectionService;
 import org.mobicents.slee.connector.remote.EventInvocation;
+
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -395,15 +399,23 @@ public class ManagedConnectionImpl implements ManagedConnection,
 			log.debug("Firing single event on SLEE:" + event);
 		}
 		try {
-			this.rmiStub.fireEvent(event, eventType, activityHandle, address);
+			RemoteEventWrapper rew = new RemoteEventWrapper((Serializable) event);
+			this.rmiStub.fireEvent(rew, eventType, activityHandle, address);
 		} catch (RemoteException e) {
 			String s = "Failed to invoke fireEvent";
 			log.error(s, e);
 			ResourceException ex = new ResourceException(s);
 			ex.setLinkedException(e);
 			throw ex;
+		} catch (IOException e) {
+			String s = "Failed to invoke serielize event";
+			log.error(s, e);
+			ResourceException ex = new ResourceException(s);
+			ex.setLinkedException(e);
+			throw ex;
 		}
 	}
+
 
 	private void fireEventLater(Object event, EventTypeID eventType,
 			ExternalActivityHandle activityHandle, Address address) {
