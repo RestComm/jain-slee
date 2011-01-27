@@ -336,7 +336,6 @@
 							<password>${checkout.password}</password>
 						</configuration>
 					</execution>
-					<!-- 
 					<execution>
 						<id>ra-mscontrol-checkout</id>
 						<goals>
@@ -357,7 +356,6 @@
 							<password>${checkout.password}</password>
 						</configuration>
 					</execution>
-					 -->
 					<execution>
 						<id>ra-diameter-base-checkout</id>
 						<goals>
@@ -760,7 +758,6 @@
 							<password>${checkout.password}</password>
 						</configuration>
 					</execution>
-					<!--
 					<execution>
 						<id>example-mscontrol-demo-checkout</id>
 						<goals>
@@ -781,7 +778,6 @@
 							<password>${checkout.password}</password>
 						</configuration>
 					</execution>
-					 -->
 					<execution>
 						<id>example-mgcp-demo-checkout</id>
 						<goals>
