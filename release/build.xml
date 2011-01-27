@@ -107,7 +107,7 @@
 			<sequential>
 				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../checkout/resources/@{dir.name}]</echo>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
-					<arg line="install javadoc:aggregate -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+					<arg line="install javadoc:aggregate -P release,${docs.profile},set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 				<move toDir="${release.dir}/docs/resources/@{dir.name}/user-guide" overwrite="true">
 					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/resources/@{dir.name}/docs" />
@@ -129,7 +129,7 @@
 			<sequential>
 				<echo>Packaging Enabler for release from DIR[${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}]</echo>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}">
-					<arg line="install javadoc:aggregate -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+					<arg line="install javadoc:aggregate -P release,${docs.profile},set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 				<move toDir="${release.dir}/docs/enablers/@{dir.name}/user-guide" overwrite="true">
 					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/enablers/@{dir.name}/docs" />
@@ -151,7 +151,7 @@
 			<sequential>
 				<echo>Packaging Example for release from DIR[${ant.file.mobicents.release}/../checkout/examples/@{dir.name}]</echo>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
-					<arg line="install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+					<arg line="install -P release,${docs.profile},set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 				<move toDir="${release.dir}/docs/examples/@{dir.name}/user-guide" overwrite="true">
 					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/examples/@{dir.name}/docs" />
@@ -170,7 +170,7 @@
 			<sequential>
 				<echo>Packaging TOOL for release from DIR[${ant.file.mobicents.release}/../checkout/tools/@{dir.name}]</echo>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/@{dir.name}">
-					<arg line="install -P mobicents,release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+					<arg line="install -P ${docs.profile},release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 				<move toDir="${release.dir}/docs/tools/@{dir.name}/user-guide" overwrite="true">
 					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/@{dir.name}/docs" />
