@@ -17,7 +17,7 @@
         </dependency>
         <dependency>
             <groupId>org.mobicents.resources.mscontrol</groupId>
-            <artifactId>mscontrol-ratype</artifactId>
+            <artifactId>mobicents-slee-ra-mscontrol-ratype</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.slee</groupId>
