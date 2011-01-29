@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -105,13 +106,24 @@ public class DeployableUnitJarComponentBuilder {
 		try {
 			// now extract the jar file to a new dir
 			File componentJarDeploymentDir = new File(deploymentDir,
-					componentJarFileName.replaceAll("/","-") + "-contents");
+					componentJarFileName + "-contents");
 			if (!componentJarDeploymentDir.exists()) {
-				if (!componentJarDeploymentDir.mkdir()) {
-					throw new SLEEException("dir for jar "
-							+ componentJarFileName + " not created in "
-							+ deploymentDir);
+				// the jar may not be on root of DU, create additional dirs if needed
+				LinkedList<File> dirsToCreate = new LinkedList<File>();
+				File dir = componentJarDeploymentDir.getParentFile();
+				while(!dir.equals(deploymentDir)) {
+					dirsToCreate.addFirst(dir);
+					dir = dir.getParentFile();
 				}
+				for (File f : dirsToCreate) {
+					f.mkdir();
+				}
+				// now create the dir for the component jar
+				if (!componentJarDeploymentDir.mkdir()) {
+						throw new SLEEException("dir for jar "
+								+ componentJarFileName + " not created in "
+								+ deploymentDir);					
+				}				
 			} else {
 				throw new SLEEException("dir for jar " + componentJarFileName
 						+ " already exists in " + deploymentDir);
