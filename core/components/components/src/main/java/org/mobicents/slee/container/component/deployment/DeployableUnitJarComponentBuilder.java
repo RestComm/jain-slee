@@ -105,7 +105,7 @@ public class DeployableUnitJarComponentBuilder {
 		try {
 			// now extract the jar file to a new dir
 			File componentJarDeploymentDir = new File(deploymentDir,
-					componentJarFileName + "-contents");
+					componentJarFileName.replaceAll("/","-") + "-contents");
 			if (!componentJarDeploymentDir.exists()) {
 				if (!componentJarDeploymentDir.mkdir()) {
 					throw new SLEEException("dir for jar "
