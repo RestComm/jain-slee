@@ -100,7 +100,7 @@
 				<executions />
 				<configuration>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>maven-slee-tools-maven-du-plugin</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-tools-maven-du-plugin</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>
