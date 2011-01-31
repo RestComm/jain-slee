@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="jain-slee-basic-service">
+	<requiredProperties>
+		<!-- 
+		<requiredProperty key="mobicentsVersion">
+			<defaultValue>2.0.0.GA</defaultValue>
+		</requiredProperty>
+		 -->
+		 <requiredProperty key="mobicentsParentVersion">
+			<defaultValue>2.4</defaultValue>
+		</requiredProperty>
+		<requiredProperty key="mobicentsEclipsePluginVersion">
+			<defaultValue>1.0.0.BETA2</defaultValue>
+		</requiredProperty>
+		<requiredProperty key="mobicentsDUPluginVersion">
+			<defaultValue>2.0.0.BETA3</defaultValue>
+		</requiredProperty>		
+		<requiredProperty key="mobicentsLibraryPluginVersion">
+			<defaultValue>1.0.0.BETA1</defaultValue>
+		</requiredProperty>
+	</requiredProperties>
+	
+	<!-- there are no file sets -->
+</archetype-descriptor>
