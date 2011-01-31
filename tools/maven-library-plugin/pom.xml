@@ -67,7 +67,7 @@
 				<executions />
 				<configuration>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>maven-library-plugin</eclipseProjectName>
+					<eclipseProjectName>maven-slee-tools-maven-library-plugin</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>
