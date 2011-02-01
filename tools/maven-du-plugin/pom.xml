@@ -21,7 +21,7 @@
 		<name>Mobicents</name>
 		<url>http://www.mobicents.org</url>
 	</organization>
-	
+
 	<inceptionYear>2008</inceptionYear>
 
 	<prerequisites>
@@ -59,6 +59,18 @@
 			<version>2.0</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-dependency-plugin</artifactId>
+			<version>2.1</version>
+		</dependency>
+		<dependency>
+
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>2.0.9</version>
+
+		</dependency>
+		<dependency>
 			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
 			<version>1.1</version>
@@ -93,6 +105,15 @@
 
 	<build>
 		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<skipDescriptor>true</skipDescriptor>
+				</configuration>
+			</plugin>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
 				<groupId>org.mobicents.tools</groupId>
@@ -100,15 +121,22 @@
 				<executions />
 				<configuration>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+					</classpathExcludes>
 					<eclipseProjectName>mobicents-slee-tools-maven-du-plugin</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<profiles>
 		<profile>
 			<id>maven-release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>

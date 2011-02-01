@@ -13,41 +13,30 @@ import org.apache.maven.plugin.MojoExecutionException;
 /**
  * Generates a JAIN SLEE 1.1 Deployable Unit Descriptor, from content in a
  * specific directory.
- * 
- * @goal generate-du-descriptor
- * @phase generate-resources
  */
 public class DeployableUnitDescriptorMojo extends AbstractMojo {
 	
 	/**
 	 * The directory where SLEE component jars will be placed, in the DU jar.
 	 * If set, each <jar/> entry in the DU descriptor will be <jar>${duJarDirectory}/jarFileName</jar>, otherwise it will be will be <jar>jarFileName</jar> 
-	 * 
-	 * @parameter expression="${duJarDirectory}" default-value="jars"
 	 */
 	private String duJarDirectory;
 	
 	/**
 	 * The directory where SLEE service xml descriptors will be placed, in the DU jar.
 	 * If set, each <service/> entry in the DU descriptor will be <service>${duServiceDirectory}/serviceXmlFileName</service>, otherwise it will be will be <service>serviceXmlFileName</service> 
-	 * 
-	 * @parameter expression="${duServiceDirectory}" default-value="services"
 	 */
 	private String duServiceDirectory;
 	
 	/**
 	 * Directory to be used as the source for SLEE component jars.
 	 * If not set, ${workDirectory}/${duJarDirectory} or ${workDirectory} will be used, depending if ${duJarDirectory} is set or not.
-	 * 
-	 * @parameter expression="${jarInputDirectory}"
 	 */
 	private File jarInputDirectory;
 
 	/**
 	 * Directory to be used as the source for SLEE service xml descriptors.
 	 * If not set, ${workDirectory}/${duServiceDirectory} or ${workDirectory} will be used, depending if ${duServiceDirectory} is set or not.
-	 *  
-	 * @parameter expression="${serviceInputDirectory}"
 	 */
 	private File serviceInputDirectory;
 
@@ -55,16 +44,11 @@ public class DeployableUnitDescriptorMojo extends AbstractMojo {
 	 * Directory to be used as the output for the generated SLEE du xml
 	 * descriptor.
 	 * If not set, ${workDirectory}/META-INF will be used
-	 * 
-	 * @parameter expression="${duXmlOutputDirectory}"
 	 */
 	private File duXmlOutputDirectory;
 	
 	/**
 	 * The work directory is used to calculate other directories which may not be set.
-	 * 
-	 * @parameter expression="${workDirectory}" default-value="${project.build.outputDirectory}"
-	 * @required
 	 */
 	private File workDirectory;
 	

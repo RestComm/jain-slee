@@ -39,45 +39,30 @@ import org.xml.sax.SAXParseException;
 /**
  * Generates a Ant script, which can be used to deploy/undeploy JAIN SLEE
  * Deployable Units.
- * 
- * @goal generate-ant-management-script
- * @phase install
  */
 public class AntManagementScriptMojo extends AbstractMojo {
 
 	/**
 	 * The location of the deploy-config.xml file, which is used by Mobicents
 	 * JAIN SLEE to create RA entities and links.
-	 * 
-	 * @parameter expression="${deployConfigFile}" default-value=
-	 *            "${project.build.outputDirectory}/META-INF/deploy-config.xml"
-	 * @required
 	 */
 	private File deployConfigFile;
 
 	/**
 	 * Name of the generated script file.
 	 * 
-	 * @parameter expression="${scriptFileName}" default-value="build.xml"
-	 * @required
 	 */
 	private String scriptFileName;
 
 	/**
 	 * Name of the DU jar file.
 	 * 
-	 * @parameter expression="${duFileName}"
-	 *            default-value="${project.build.finalName}.jar"
-	 * @required
 	 */
 	private String duFileName;
 
 	/**
 	 * Directory to be used as the source for SLEE service xml descriptors.
 	 * 
-	 * @parameter expression="${serviceInputDirectory}"
-	 *            default-value="${project.build.outputDirectory}/services"
-	 * @required
 	 */
 	private File serviceInputDirectory;
 
@@ -85,9 +70,6 @@ public class AntManagementScriptMojo extends AbstractMojo {
 	 * Directory to be used as the output for the generated ant management
 	 * script.
 	 * 
-	 * @parameter expression="${outputDirectory}"
-	 *            default-value="${project.build.directory}"
-	 * @required
 	 */
 	private File outputDirectory;
 
