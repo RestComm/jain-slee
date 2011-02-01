@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+  <name>maven-library-plugin</name>
+  <description>Mobicents Maven2 plugin to build JAIN SLEE 1.1 Library descriptors.</description>
+  <groupId>org.mobicents.tools</groupId>
+  <artifactId>maven-library-plugin</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <goalPrefix>library</goalPrefix>
+  <isolatedRealm>false</isolatedRealm>
+  <inheritedByDefault>true</inheritedByDefault>
+  <mojos>
+    <mojo>
+      <goal>copy-dependencies</goal>
+      <description>Goal that copies the project dependencies from the repository to a defined
+location.</description>
+      <requiresDependencyResolution>test</requiresDependencyResolution>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <phase>process-sources</phase>
+      <implementation>org.apache.maven.plugin.dependency.CopyDependenciesMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>classifier</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Specify classifier to look for. Example: sources</description>
+        </parameter>
+        <parameter>
+          <name>copyPom</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Also copy the pom of each artifact.</description>
+        </parameter>
+        <parameter>
+          <name>excludeArtifactIds</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Comma separated list of Artifact names too exclude.</description>
+        </parameter>
+        <parameter>
+          <name>excludeClassifiers</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Comma Separated list of Classifiers to exclude. Empty String indicates
+don&apos;t exclude anything (default).</description>
+        </parameter>
+        <parameter>
+          <name>excludeGroupIds</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Comma separated list of GroupId Names to exclude.</description>
+        </parameter>
+        <parameter>
+          <name>excludeScope</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Scope to exclude. An Empty string indicates no scopes (default).</description>
+        </parameter>
+        <parameter>
+          <name>excludeTransitive</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>If we should exclude transitive dependencies</description>
+        </parameter>
+        <parameter>
+          <name>excludeTypes</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Comma Separated list of Types to exclude. Empty String indicates don&apos;t
+exclude anything (default).</description>
+        </parameter>
+        <parameter>
+          <name>failOnMissingClassifierArtifact</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>This only applies if the classifier parameter is used.</description>
+        </parameter>
+        <parameter>
+          <name>includeArtifactIds</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Comma separated list of Artifact names to include.</description>
+        </parameter>
+        <parameter>
+          <name>includeClassifiers</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Comma Separated list of Classifiers to include. Empty String indicates
+include everything (default).</description>
+        </parameter>
+        <parameter>
+          <name>includeGroupIds</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Comma separated list of GroupIds to include.</description>
+        </parameter>
+        <parameter>
+          <name>includeScope</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Scope to include. An Empty string indicates all scopes (default).</description>
+        </parameter>
+        <parameter>
+          <name>includeTypes</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Comma Separated list of Types to include. Empty String indicates include
+everything (default).</description>
+        </parameter>
+        <parameter>
+          <name>local</name>
+          <type>org.apache.maven.artifact.repository.ArtifactRepository</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description>Location of the local repository.</description>
+        </parameter>
+        <parameter>
+          <name>markersDirectory</name>
+          <type>java.io.File</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Directory to store flag files</description>
+        </parameter>
+        <parameter>
+          <name>outputAbsoluteArtifactFilename</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Output absolute filename for resolved artifacts</description>
+        </parameter>
+        <parameter>
+          <name>outputDirectory</name>
+          <type>java.io.File</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Default location used for mojo unless overridden in ArtifactItem</description>
+        </parameter>
+        <parameter>
+          <name>overWriteIfNewer</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Overwrite artifacts that don&apos;t exist or are older than the source.</description>
+        </parameter>
+        <parameter>
+          <name>overWriteReleases</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Overwrite release artifacts</description>
+        </parameter>
+        <parameter>
+          <name>overWriteSnapshots</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Overwrite snapshot artifacts</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description>POM</description>
+        </parameter>
+        <parameter>
+          <name>reactorProjects</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description>Contains the full list of projects in the reactor.</description>
+        </parameter>
+        <parameter>
+          <name>remoteRepos</name>
+          <type>java.util.List</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description>List of Remote Repositories used by the resolver</description>
+        </parameter>
+        <parameter>
+          <name>silent</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>If the plugin should be silent.</description>
+        </parameter>
+        <parameter>
+          <name>stripVersion</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Strip artifact version during copy</description>
+        </parameter>
+        <parameter>
+          <name>type</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Specify type to look for when constructing artifact based on classifier.
+Example: java-source,jar,war</description>
+        </parameter>
+        <parameter>
+          <name>useRepositoryLayout</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Place each artifact in the same directory layout as a default repository.
+&lt;br/&gt;example: /outputDirectory/junit/junit/3.8.1/junit-3.8.1.jar</description>
+        </parameter>
+        <parameter>
+          <name>useSubDirectoryPerArtifact</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Place each file in a separate subdirectory. (example
+/outputDirectory/junit-3.8.1-jar)</description>
+        </parameter>
+        <parameter>
+          <name>useSubDirectoryPerType</name>
+          <type>boolean</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Place each type of file in a separate subdirectory. (example
+/outputDirectory/jars /outputDirectory/wars etc)</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <silent implementation="boolean" default-value="false">${silent}</silent>
+        <includeTypes implementation="java.lang.String" default-value="">${includeTypes}</includeTypes>
+        <includeClassifiers implementation="java.lang.String" default-value="">${includeClassifiers}</includeClassifiers>
+        <type implementation="java.lang.String" default-value="java-source">${type}</type>
+        <outputDirectory implementation="java.io.File" default-value="${project.build.outputDirectory}/jars">${outputDirectory}</outputDirectory>
+        <reactorProjects implementation="java.util.List">${reactorProjects}</reactorProjects>
+        <useSubDirectoryPerType implementation="boolean" default-value="false">${mdep.useSubDirectoryPerType}</useSubDirectoryPerType>
+        <outputAbsoluteArtifactFilename implementation="boolean" default-value="false">${outputAbsoluteArtifactFilename}</outputAbsoluteArtifactFilename>
+        <includeScope implementation="java.lang.String" default-value="">${includeScope}</includeScope>
+        <overWriteReleases implementation="boolean" default-value="false">${overWriteReleases}</overWriteReleases>
+        <markersDirectory implementation="java.io.File" default-value="${project.build.directory}/dependency-maven-plugin-markers">${markersDirectory}</markersDirectory>
+        <stripVersion implementation="boolean" default-value="false">${mdep.stripVersion}</stripVersion>
+        <excludeGroupIds implementation="java.lang.String" default-value="">${excludeGroupIds}</excludeGroupIds>
+        <failOnMissingClassifierArtifact implementation="boolean" default-value="true">${mdep.failOnMissingClassifierArtifact}</failOnMissingClassifierArtifact>
+        <excludeArtifactIds implementation="java.lang.String" default-value="">${excludeArtifactIds}</excludeArtifactIds>
+        <excludeScope implementation="java.lang.String" default-value="">${excludeScope}</excludeScope>
+        <excludeTypes implementation="java.lang.String" default-value="">${excludeTypes}</excludeTypes>
+        <useRepositoryLayout implementation="boolean" default-value="false">${mdep.useRepositoryLayout}</useRepositoryLayout>
+        <copyPom implementation="boolean" default-value="false">${mdep.copyPom}</copyPom>
+        <excludeTransitive implementation="boolean" default-value="true">${excludeTransitive}</excludeTransitive>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+        <classifier implementation="java.lang.String" default-value="">${classifier}</classifier>
+        <includeGroupIds implementation="java.lang.String" default-value="">${includeGroupIds}</includeGroupIds>
+        <includeArtifactIds implementation="java.lang.String" default-value="">${includeArtifactIds}</includeArtifactIds>
+        <overWriteIfNewer implementation="boolean" default-value="true">${overWriteIfNewer}</overWriteIfNewer>
+        <local implementation="org.apache.maven.artifact.repository.ArtifactRepository">${localRepository}</local>
+        <excludeClassifiers implementation="java.lang.String" default-value="">${excludeClassifiers}</excludeClassifiers>
+        <overWriteSnapshots implementation="boolean" default-value="false">${overWriteSnapshots}</overWriteSnapshots>
+        <useSubDirectoryPerArtifact implementation="boolean" default-value="false">${mdep.useSubDirectoryPerArtifact}</useSubDirectoryPerArtifact>
+        <remoteRepos implementation="java.util.List">${project.remoteArtifactRepositories}</remoteRepos>
+      </configuration>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.artifact.resolver.ArtifactCollector</role>
+          <field-name>artifactCollector</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.repository.ArtifactRepositoryFactory</role>
+          <field-name>repositoryFactory</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.metadata.ArtifactMetadataSource</role>
+          <field-name>artifactMetadataSource</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.resolver.ArtifactResolver</role>
+          <field-name>resolver</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.installer.ArtifactInstaller</role>
+          <field-name>installer</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
+          <field-name>factory</field-name>
+        </requirement>
+        <requirement>
+          <role>org.codehaus.plexus.archiver.manager.ArchiverManager</role>
+          <field-name>archiverManager</field-name>
+        </requirement>
+      </requirements>
+    </mojo>
+    <mojo>
+      <goal>generate-descriptor</goal>
+      <description>Base class for creating a library jar.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <phase>generate-resources</phase>
+      <implementation>org.mobicents.slee.tools.maven.plugins.library.LibraryDescriptorMojo</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <threadSafe>false</threadSafe>
+      <parameters>
+        <parameter>
+          <name>jarInputDirectory</name>
+          <type>java.io.File</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>Directory to be used as the source for SLEE component jars.</description>
+        </parameter>
+        <parameter>
+          <name>project</name>
+          <type>org.apache.maven.project.MavenProject</type>
+          <required>true</required>
+          <editable>false</editable>
+          <description>The Maven project.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <jarInputDirectory implementation="java.io.File" default-value="${project.build.outputDirectory}/jars">${jarInputDirectory}</jarInputDirectory>
+        <project implementation="org.apache.maven.project.MavenProject">${project}</project>
+      </configuration>
+    </mojo>
+  </mojos>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-dependency-plugin</artifactId>
+      <type>jar</type>
+      <version>2.1</version>
+    </dependency>
+  </dependencies>
+</plugin>
