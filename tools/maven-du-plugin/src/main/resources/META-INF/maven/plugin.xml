@@ -447,8 +447,7 @@ If not set, ${workDirectory}/${duServiceDirectory} or ${workDirectory} will be u
       </configuration>
     </mojo>
   </mojos>
-  <dependencies>
-    
+  <dependencies>    
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-dependency-plugin</artifactId>
@@ -461,7 +460,6 @@ If not set, ${workDirectory}/${duServiceDirectory} or ${workDirectory} will be u
       <type>jar</type>
       <version>1.1</version>
     </dependency>
-    
   </dependencies>
 </plugin>
     
