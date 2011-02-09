@@ -1,0 +1,92 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="clustering">
+
+	<title>High Availability abd Fault Tolerance</title>
+
+	<para>JAIN SLEE supports clustering, whether it is simple high availability or complete fault tolerance support. This is achieved through the replication of the container state. It also exposes a clustering <acronym>API</acronym> for JAIN SLEE Resource Adaptors components, which live outside the container.</para>
+	
+	<section id="container_clustering">
+		<title>&THIS.PLATFORM; JAIN SLEE Cluster</title>
+		<para>JAIN SLEE clustering is defined by the server profile selected:</para>
+    <variablelist>			
+      <varlistentry>
+        <term>default</term>
+        <listitem>
+          <para>
+          This configuration provides no state replication. It is best used for pure high availability cluster setups.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>all</term>
+        <listitem>				            
+          <para>
+          This configuration provides state replication, and is useful for fault tolerance cluster setups. All activity context and <acronym>SBB</acronym> entity data is replicated across the cluster.
+          </para>
+          <para>
+          Timers are failed over. All timers running in a node that leaves the cluster, or fails, are recreated in another node.
+          </para>
+          <para>
+          Events are not failed over due to performance restraints. This means that an event fired will be lost if its cluster node fails before it is routed.
+          </para>
+        </listitem>
+      </varlistentry>				    
+    </variablelist>
+		
+		<important>
+			<para>JAIN SLEE reuses the &JEE.PLATFORM; clustering framework, and if all nodes of a cluster are in the same network then the underlying &JEE.PLATFORM; clustering will automatically handle the discovery of new cluster nodes and join these to the cluster. For more complicated setups, refer to the &JEE.PLATFORM; clustering documentation.</para>
+		</important>
+		
+		<section id="container_clustering_components_management">
+			<title>Managing Components in &THIS.PLATFORM; JAIN SLEE Cluster</title>
+      <para>JAIN SLEE clustering does not require special components management. Components can be deployed and undeployed in all cluster modes, including fault tolerance setups, and the cluster will handle the operation correctly. However, there are certain behaviours in fault tolerance setups to be aware of:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term><literal>Service Activation</literal></term>
+            <listitem>
+              <para>
+              JAIN SLEE Service started events are only fired on the first cluster node started.
+              </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>Service Deactivation</literal></term>
+            <listitem>				            
+              <para>
+              Only the last node will force the removal of the service's <acronym>SBB</acronym> entities.
+              </para>
+            </listitem>
+        </varlistentry>		
+        <varlistentry>
+          <term><literal>Resource Adaptor Entity Deactivation</literal></term>
+            <listitem>				            
+              <para>
+              Only the last node will force the removal of all its activities.
+              </para>
+            </listitem>
+        </varlistentry>				    
+      </variablelist>
+		</section>
+	</section>
+			
+	<xi:include href="Section-Clustering_Fault_Tolerant_RA.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<section id="container_clustering_ra_activity_replication">
+		<title>Resource Adaptor Activity Replication</title>
+		<para>
+    The Resource Adaptor API includes an optional component named <classname>javax.slee.resource.Marshaler</classname>, which is responsible, besides other functions, for converting Activity Handles to byte arrays and vice-versa. Also relevant, the Resource Adaptor, when starting activities, may provide a flag indicating that the container may marshall the activity (using the Marshaler). In case of a container cluster with data replication, if an activity is to be replicated then the Marshaler must be provided and the activity flags must activate the flag MAY_MARSHALL, otherwise the activity is not replicated and if a node fails all its activities are removed from the container cluster.
+		</para>
+    <note>
+      <para>
+      The activity replication doesn't mean that the activity object is replicated by any means, only the related Activity Handle. The Resource Adaptor must use the Fault Tolerant RA API or its own means to replicate any additional data to support that presence of the activity in all nodes of the cluster. Usage of the Fault Tolerant RA API is recommended since it reuses the clustering setup of the container.
+      </para>
+    </note>
+	</section>
+						
+</chapter>
+

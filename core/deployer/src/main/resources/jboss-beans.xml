@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+  <bean name="Mobicents.JAINSLEE.ParserDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEEParserDeployer" />
+
+  <bean name="Mobicents.JAINSLEE.Deployer" class="org.mobicents.slee.container.deployment.jboss.SLEEDeployer">
+    <constructor><parameter><inject bean="JMXKernel" property="serviceController"/></parameter></constructor>
+  </bean>
+  
+</deployment>

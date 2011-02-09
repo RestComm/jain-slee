@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+	<section id="install_alternatives">
+		<title>Install Alternatives</title>
+		
+		<variablelist>
+		    <varlistentry>
+		        <term>Binary Release</term>
+		        <listitem>
+		            <para>The binary release is a zip file containing an already built binary release of JBoss Communications JAIN SLEE</para>
+		        </listitem>
+		    </varlistentry>  
+		</variablelist>
+
+		<section id="binary_release">
+			<title>Binary Release</title>
+			<para>You can download the Binary zip files from <ulink url="?"/>.</para>
+			<procedure>
+				<para>In this form of installation, simply unzip the downloaded zip file to the directory of your choice on any operating system that supports the zip format.</para>
+  				<step>
+				    <title>Unzip the release file</title>
+				    <para>Unzip the file to extract the archive contents into the location of your choice. You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named jbcp-jainslee-&THIS.VERSION;.zip to the /jbcp directory.</para>
+				    <screen>
+				    [usr]$ cd /jbcp
+				    [usr]$ jar -xvf jbcp-jainslee-&THIS.VERSION;.zip
+					</screen>
+  				</step>
+				<step>
+			    	<title>Setting up JBOSS_HOME Environment Variable</title>
+				    <para> You should now have a directory called mobicents-jainslee-&THIS.VERSION;. Next you need to set your JBOSS_HOME environment variables. This is discussed in <xref linkend="jboss_home_setup"/>.</para>
+				</step>
+			</procedure>      
+		</section>	
+	</section>

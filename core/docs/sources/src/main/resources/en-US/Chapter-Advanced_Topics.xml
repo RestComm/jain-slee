@@ -1,0 +1,88 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="advanced_topics">
+
+	<title>Advanced Topics</title>
+
+	<xi:include href="Section-Classloading.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<xi:include href="Section-Congestion_Control.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+			
+	<xi:include href="Section-JPA_SLEE_Profiles_Mapping.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<section id="testing_tck">
+		<title>Testing the JAIN SLEE 1.1 TCK</title>
+		
+		<orderedlist>
+			<para>To run the JAIN SLEE 1.1 TCK:</para>
+			<listitem>
+		        <para>Checkout and build the container source code as explained in <xref linkend="install" />.</para>
+		    </listitem>
+		    <listitem>
+		        <para>Install the TCK Resource Adaptor and Plugin:</para>
+		        <screen>cd tck/jain-slee-1.1
+mvn install</screen>		        
+			</listitem>
+		    <listitem>
+		        <para>Setup JAVA_OPTS environment variable to include -XX:MaxPermSize=128M -Djboss.defined.home=<literal>/Volumes/2/jboss-5.1.0.GA</literal> -Djava.security.manager=default -Djava.security.policy=<literal>file:///Volumes/2/workspace/mobicents-jainslee-2/</literal>tck/jain-slee-1.1/tck-security.policy, replacing the <literal>absolute paths</literal> with $JBOSS_HOME and the path of the svn checkout.</para>
+		    </listitem>
+		    <listitem>
+		        <para>Unzip and run the JAIN SLEE 1.1 TCK distribution:</para>
+		        <screen>unzip testsuite.zip
+cd testsuite
+ant</screen>
+		         <important><para>No test should fail.</para></important>
+		    </listitem>
+		</orderedlist>		
+	</section>		
+	
+	<section id="eclipse_ide">
+		<title>Setting JAIN SLEE Source Code Projects in Eclipse IDE</title>
+		<para>The JAIN SLEE Core, each RA, and each example, are worked out with separated Eclipse IDE Projects.</para>
+    <para>
+    There are two alternatives to set up a specific project:
+    </para>
+    <procedure>
+      <title>Via Command Line</title>
+      <step>
+        <para>
+        In the checked out directory of the project, and with Eclipse IDE closed, open a terminal.
+        </para>
+      </step>
+      <step>
+        <para>
+        Run the following:
+        </para>
+        <screen>
+<![CDATA[]mvn mobicents:eclipse
+mvn -Declipse.workspace=YOUR_RELATIVE_PATH_TO_ECLIPSE_WORKSPACE eclipse:add-maven-repo]]>
+        </screen>
+      </step>
+      <step>
+        <para>
+        Install M2Eclipse if you want to do maven builds within Eclipse.
+        </para>
+      </step>
+    </procedure>
+    <procedure>
+      <title>With Eclipse IDE</title>
+      <step>
+        <para>
+        Install the M2Eclipse plugin and use "Import..." and subselect the "Maven Projects" feature.
+        </para>
+        <important>
+          <para>
+          Ensure the "Resolve Workspace projects" and "Separate projects for modules" in the "Advanced" options on the bottom of the window are turned off. If the project is large, such as the JAIN SLEE Core, M2Eclipse may be a considerable slower option, due to dynamic Maven2 Dependency Management.
+          </para>
+        </important>
+      </step>
+    </procedure>
+	</section>		
+					
+</chapter>
+

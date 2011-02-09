@@ -1,0 +1,31 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="slee_1_1_extensions">
+
+	<title>JAIN SLEE 1.1 Extensions</title>
+	
+	<para>&THIS.PLATFORM; <acronym>JAIN SLEE</acronym> exposes proprietary extensions to the <acronym>JAIN SLEE</acronym> 1.1 specification, to allow the development of easier or more powerful application code.</para>
+	
+	<para>The extensions were discussed among multiple <acronym>JAIN SLEE</acronym> vendors, and should become part of the standard in next revision, but there is no guarantee that portability won't be lost when using those.</para>
+	
+	<para>The extensions source code is available in the Mobicents Community SVN, specifically at <ulink url="http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/api/extensions/1.0.0.BETA1"/>. The setup for the source project in Eclipse IDE is similar to the container core, as seen in  <xref linkend="eclipse_ide"/>.</para>
+	
+	<para>Java archives (JARs) with compiled classes, javadocs and sources are available in the JBoss Maven Repository at <ulink url="http://repository.jboss.org/nexus/content/groups/public/org/mobicents/servers/jainslee/api/jain-slee-11-ext/1.0.0.BETA1/"/></para>
+	
+	<xi:include href="Section-Extension_SbbContext.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+			
+	<xi:include href="Section-Extension_ProfileContext.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<xi:include href="Section-Extension_ActivityContextInterface.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+					
+	<xi:include href="Section-Extension_Library_References.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	 			
+</chapter>
+

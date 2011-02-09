@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE profile-spec-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN" "http://java.sun.com/dtd/slee-profile-spec-jar_1_1.dtd">
+
+<profile-spec-jar>
+	<description />
+	<profile-spec profile-read-only="True"
+		profile-events-enabled="True">
+		<description />
+		<profile-spec-name>DVAL</profile-spec-name>
+		<profile-spec-vendor>DVAL2</profile-spec-vendor>
+		<profile-spec-version>DVAL3</profile-spec-version>
+
+		<library-ref>
+			<description />
+			<library-name>DVAL</library-name>
+			<library-vendor>DVAL2</library-vendor>
+			<library-version>DVAL3</library-version>
+		</library-ref>
+
+		<profile-spec-ref>
+			<description />
+			<profile-spec-name>DVAL</profile-spec-name>
+			<profile-spec-vendor>DVAL2</profile-spec-vendor>
+			<profile-spec-version>DVAL3</profile-spec-version>
+		</profile-spec-ref>
+
+		<collator strength="Primary" decomposition="None">
+			<description />
+			<collator-alias>DVAL</collator-alias>
+			<locale-language>DVAL2</locale-language>
+			<locale-country>DVAL3</locale-country>
+			<locale-variant>DVAL4</locale-variant>
+		</collator>
+
+		<profile-classes>
+			<description />
+			<profile-cmp-interface>
+				<description />
+				<profile-cmp-interface-name>DVAL</profile-cmp-interface-name>
+				<cmp-field unique="False">
+					<description />
+					<cmp-field-name>DVAL</cmp-field-name>
+					<index-hint query-operator="equals" collator-ref="DVAL" />
+				</cmp-field>
+			</profile-cmp-interface>
+			<profile-local-interface
+				isolate-security-permissions="False">
+				<description />
+				<profile-local-interface-name>DVAL</profile-local-interface-name>
+			</profile-local-interface>
+			<profile-management-interface>
+				<description />
+				<profile-management-interface-name>DVAL</profile-management-interface-name>
+			</profile-management-interface>
+			<profile-abstract-class reentrant="True">
+				<description />
+				<profile-abstract-class-name>DVAL</profile-abstract-class-name>
+			</profile-abstract-class>
+			<profile-table-interface>
+				<description />
+				<profile-table-interface-name>DVAL</profile-table-interface-name>
+			</profile-table-interface>
+			<profile-usage-parameters-interface>
+				<description />
+				<profile-usage-parameters-interface-name>DVAL</profile-usage-parameters-interface-name>
+				<usage-parameter name="DVAL" notifications-enabled="False" />
+			</profile-usage-parameters-interface>
+		</profile-classes>
+
+		<env-entry>
+			<description />
+			<env-entry-name>DVAL</env-entry-name>
+			<env-entry-type>DVAL2</env-entry-type>
+			<env-entry-value>DVAL3</env-entry-value>
+		</env-entry>
+
+		<query name="DVAL">
+			<description />
+			<query-options read-only="True" max-matches="100" />
+			<query-parameter name="DVAL" type="DVAL" />
+			<compare attribute-name="DVAL" op="equals" collator-ref="DVAL" />
+		</query>
+
+		<profile-hints single-profile="False" />
+	</profile-spec>
+	<profile-spec profile-read-only="True"
+		profile-events-enabled="True">
+		<description />
+		<profile-spec-name>DVAL</profile-spec-name>
+		<profile-spec-vendor>DVAL2</profile-spec-vendor>
+		<profile-spec-version>DVAL3</profile-spec-version>
+
+		<library-ref>
+			<description />
+			<library-name>DVAL</library-name>
+			<library-vendor>DVAL2</library-vendor>
+			<library-version>DVAL3</library-version>
+		</library-ref>
+
+		<profile-spec-ref>
+			<description />
+			<profile-spec-name>DVAL</profile-spec-name>
+			<profile-spec-vendor>DVAL2</profile-spec-vendor>
+			<profile-spec-version>DVAL3</profile-spec-version>
+		</profile-spec-ref>
+
+		<collator strength="Primary" decomposition="None">
+			<description />
+			<collator-alias>DVAL</collator-alias>
+			<locale-language>DVAL2</locale-language>
+			<locale-country>DVAL3</locale-country>
+			<locale-variant>DVAL4</locale-variant>
+		</collator>
+
+		<profile-classes>
+			<description />
+			<profile-cmp-interface>
+				<description />
+				<profile-cmp-interface-name>DVAL</profile-cmp-interface-name>
+				<cmp-field unique="False">
+					<description />
+					<cmp-field-name>DVAL</cmp-field-name>
+					<index-hint query-operator="equals" collator-ref="DVAL" />
+				</cmp-field>
+			</profile-cmp-interface>
+			<profile-local-interface
+				isolate-security-permissions="False">
+				<description />
+				<profile-local-interface-name>DVAL</profile-local-interface-name>
+			</profile-local-interface>
+			<profile-management-interface>
+				<description />
+				<profile-management-interface-name>DVAL</profile-management-interface-name>
+			</profile-management-interface>
+			<profile-abstract-class reentrant="True">
+				<description />
+				<profile-abstract-class-name>DVAL</profile-abstract-class-name>
+			</profile-abstract-class>
+			<profile-table-interface>
+				<description />
+				<profile-table-interface-name>DVAL</profile-table-interface-name>
+			</profile-table-interface>
+			<profile-usage-parameters-interface>
+				<description />
+				<profile-usage-parameters-interface-name>DVAL</profile-usage-parameters-interface-name>
+				<usage-parameter name="DVAL" notifications-enabled="False" />
+			</profile-usage-parameters-interface>
+		</profile-classes>
+
+		<env-entry>
+			<description />
+			<env-entry-name>DVAL</env-entry-name>
+			<env-entry-type>DVAL2</env-entry-type>
+			<env-entry-value>DVAL3</env-entry-value>
+		</env-entry>
+
+		<query name="DVAL">
+			<description />
+			<query-options read-only="True" max-matches="100" />
+			<query-parameter name="DVAL" type="DVAL" />
+			<compare attribute-name="DVAL" op="equals" collator-ref="DVAL" />
+		</query>
+
+		<profile-hints single-profile="False" />
+	</profile-spec>
+
+	<security-permissions>
+		<description />
+		<security-permission-spec>DVAL</security-permission-spec>
+	</security-permissions>
+</profile-spec-jar>

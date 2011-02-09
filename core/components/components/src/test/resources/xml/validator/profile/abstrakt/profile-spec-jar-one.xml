@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE profile-spec-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN" "http://java.sun.com/dtd/slee-profile-spec-jar_1_1.dtd">
+
+<profile-spec-jar>
+	<description />
+
+	<profile-spec profile-read-only="True"
+		profile-events-enabled="True">
+		<description />
+		<profile-spec-name>DVAL</profile-spec-name>
+		<profile-spec-vendor>DVAL2</profile-spec-vendor>
+		<profile-spec-version>DVAL3</profile-spec-version>
+
+
+
+		<profile-classes>
+			<description />
+			<profile-cmp-interface>
+				<description />
+				<profile-cmp-interface-name>org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileBaseCMPInterface</profile-cmp-interface-name>
+				<cmp-field>
+					<description />
+					<cmp-field-name>masterTestArray</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>masterTest</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>masterTestSerializable</cmp-field-name>
+				</cmp-field>
+			</profile-cmp-interface>
+			<profile-local-interface
+				isolate-security-permissions="False">
+				<description />
+				<profile-local-interface-name>org.mobicents.slee.container.component.validator.profile.abstrakt.LocalInterfaceOk</profile-local-interface-name>
+			</profile-local-interface>
+			<profile-management-interface>
+				<profile-management-interface-name>org.mobicents.slee.container.component.validator.profile.abstrakt.ManagementInterfaceOk</profile-management-interface-name>
+			</profile-management-interface>
+			<profile-abstract-class reentrant="True">
+				<description />
+				<profile-abstract-class-name>org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassOk</profile-abstract-class-name>
+			</profile-abstract-class>
+			<profile-usage-parameters-interface>
+				<description />
+				<profile-usage-parameters-interface-name>org.mobicents.slee.container.component.validator.profile.abstrakt.UsageOkInterface</profile-usage-parameters-interface-name>
+				<usage-parameter name="sample"
+					notifications-enabled="True" />
+				<usage-parameter name="sampleTwo"
+					notifications-enabled="True" />
+				<usage-parameter name="sampleIncrement"
+					notifications-enabled="True" />
+			</profile-usage-parameters-interface>
+		</profile-classes>
+	</profile-spec>
+</profile-spec-jar>
+

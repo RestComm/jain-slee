@@ -1,0 +1,129 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="slee_1_1_extensions_sbbcontext">
+	
+	<title>SbbContext Extension</title>
+	
+	<para>This extension to JAIN SLEE 1.1 introduces <filename>org.mobicents.slee.SbbContextExt</filename> interface, which extends <filename>javax.slee.SbbContext</filename> with methods to retrieve SLEE factories and facilities, avoiding the usage of JNDI context.</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee;
+
+import javax.slee.ActivityContextInterface;
+import javax.slee.Sbb;
+import javax.slee.SbbContext;
+import javax.slee.facilities.ActivityContextNamingFacility;
+import javax.slee.facilities.AlarmFacility;
+import javax.slee.facilities.TimerFacility;
+import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
+import javax.slee.nullactivity.NullActivityFactory;
+import javax.slee.profile.ProfileFacility;
+import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
+import javax.slee.resource.ResourceAdaptorTypeID;
+import javax.slee.serviceactivity.ServiceActivityContextInterfaceFactory;
+import javax.slee.serviceactivity.ServiceActivityFactory;
+
+public interface SbbContextExt extends SbbContext {
+
+	public Object getActivityContextInterfaceFactory(
+			ResourceAdaptorTypeID raTypeID) throws NullPointerException,
+			IllegalArgumentException;
+
+	public ActivityContextNamingFacility getActivityContextNamingFacility();
+
+	public AlarmFacility getAlarmFacility();
+
+	public NullActivityContextInterfaceFactory getNullActivityContextInterfaceFactory();
+
+	public NullActivityFactory getNullActivityFactory();
+
+	public ProfileFacility getProfileFacility();
+
+	public ProfileTableActivityContextInterfaceFactory getProfileTableActivityContextInterfaceFactory();
+
+	public Object getResourceAdaptorInterface(ResourceAdaptorTypeID raTypeID,
+			String raEntityLink) throws NullPointerException,
+			IllegalArgumentException;
+
+	public ServiceActivityContextInterfaceFactory getServiceActivityContextInterfaceFactory();
+
+	public ServiceActivityFactory getServiceActivityFactory();
+
+	public TimerFacility getTimerFacility();
+}]]>
+    </programlisting>
+    
+    <variablelist>
+    	
+		<varlistentry>
+			<term>The <literal>getActivityContextInterfaceFactory(ResourceAdaptorTypeID)</literal> method:</term>
+			<listitem>
+				<para>Retrieves the ActivityContextInterface factory for the Resource Adaptor Type with the specified ID.</para>
+			</listitem>
+		</varlistentry>
+    	<varlistentry>
+			<term>The <literal>getActivityContextNamingFacility()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Activity Context Naming Facility.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>getAlarmFacility()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Alarm Facility.</para>
+			</listitem>
+		</varlistentry>
+    	<varlistentry>
+			<term>The <literal>getNullActivityContextInterfaceFactory()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Null Activity Context Interface Factory.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>getNullActivityFactory()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Null Activity Factor.</para>
+			</listitem>
+		</varlistentry>
+    	<varlistentry>
+			<term>The <literal>getProfileFacility()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Profile Facility.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>getProfileTableActivityContextInterfaceFactory()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Profile Table Activity Context Interface Factory.</para>
+			</listitem>
+		</varlistentry>
+    	<varlistentry>
+			<term>The <literal>getResourceAdaptorInterface(ResourceAdaptorTypeID,String)</literal> method:</term>
+			<listitem>
+				<para>Retrieves the interface to interact with a specific Resource Adaptor entity, identified by both the entity link name and the Resource Adaptor Type ID.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>getServiceActivityContextInterfaceFactory()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Service Activity Context Interface Factory.</para>
+			</listitem>
+		</varlistentry>
+    	<varlistentry>
+			<term>The <literal>getServiceActivityFactory()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Service Activity Factory.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>getTimerFacility()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Timer Facility.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+		
+</section>
+	

@@ -1,0 +1,154 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>mobicents-parent</artifactId>
+		<version>2.15</version>
+	</parent>
+	
+	<groupId>org.mobicents.servers.jainslee.core</groupId>
+	<artifactId>mobicents-slee-core</artifactId>
+	<version>3.0.0-SNAPSHOT</version>
+	
+	<packaging>pom</packaging>
+	
+	<name>Mobicents :: JAIN SLEE :: Core</name>
+	
+	<scm>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/branches/servers/jain-slee/3.x.y/core</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/branches/servers/jain-slee/3.x.y/core</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/branches/servers/jain-slee/3.x.y/core</url>
+	</scm>
+
+	<modules>
+		<module>jmx-property-editors</module>
+		<module>spi</module>
+		<module>common</module>
+		<module>usage</module>
+		<module>activities</module>
+		<module>events</module>
+		<module>profiles</module>
+		<module>remote</module>
+		<module>router</module>
+		<module>transaction</module>
+		<module>components</module>
+		<module>fault-tolerant-ra</module>
+		<module>resource</module>
+		<module>timers</module>
+		<module>services</module>
+		<module>congestion</module>
+		<module>ant-tasks</module>	
+		<module>standard-components</module>
+		<module>server-resources</module>
+		<module>server-default-beans</module>
+		<module>server-all-beans</module>
+		<module>deployer</module>	
+	</modules>
+
+	<properties>
+		<slee.name>Mobicents JAIN SLEE</slee.name>
+		<slee.vendor>JBoss, a Red Hat division</slee.vendor>
+		<slee.version>${pom.version}</slee.version>
+		<slee.codename>SUPERSONIC</slee.codename>
+		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
+		<mobicents.cluster.version>2.0-SNAPSHOT</mobicents.cluster.version>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.mobicents.servers.jainslee.api</groupId>
+				<artifactId>jain-slee-11-ext</artifactId>
+				<version>1.0.0.BETA1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.cluster</groupId>
+				<artifactId>mobicents-cluster-spi</artifactId>
+				<version>${mobicents.cluster.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.cluster</groupId>
+				<artifactId>mobicents-cluster-timers</artifactId>
+				<version>${mobicents.cluster.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.cluster</groupId>
+				<artifactId>mobicents-cluster-infinispan</artifactId>
+				<version>${mobicents.cluster.version}</version>
+			</dependency>		
+		</dependencies>
+	</dependencyManagement>
+			
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>docs</module>	
+			</modules>
+			<build>
+				<plugins>
+					<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/3.x.y/core</tagBase>
+						<preparationGoals>clean install</preparationGoals>
+					</configuration>
+					</plugin>
+				</plugins>
+			</build>		
+		</profile>
+	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<groupId>org.mobicents.tools</groupId>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms />
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+					</classpathExcludes>
+					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<eclipseProjectName>mobicents-slee-core-3.x</eclipseProjectName>
+				</configuration>
+			</plugin>
+			<!-- 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>					
+				</configuration>
+			</plugin>
+			 -->
+		</plugins>
+	</build>
+	
+	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
+
+	<repositories>
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+	
+</project>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_0.dtd">
+<sbb-jar>   
+    <sbb>      
+        <description/>
+        
+        <sbb-name>Sbb2</sbb-name>
+        <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-version>1.0</sbb-version>
+                
+        <sbb-classes>
+            <sbb-abstract-class reentrant="False">
+                <sbb-abstract-class-name>org.mobicents.slee.container.component.test.du2.Sbb2</sbb-abstract-class-name> 
+                <cmp-field>
+                    <description />
+                    <cmp-field-name>sbb1</cmp-field-name>                    
+                </cmp-field>                      
+	        </sbb-abstract-class>		                
+        </sbb-classes>            
+        <event event-direction="Receive" initial-event="False">
+            <description />
+            <event-name>ServiceStartedEvent</event-name>
+            <event-type-ref>
+                <event-type-name> javax.slee.serviceactivity.ServiceStartedEvent </event-type-name>
+				<event-type-vendor> javax.slee </event-type-vendor>
+				<event-type-version> 1.0 </event-type-version>
+            </event-type-ref>
+            <initial-event-select variable="ActivityContext" />            
+        </event>
+    </sbb>
+</sbb-jar>

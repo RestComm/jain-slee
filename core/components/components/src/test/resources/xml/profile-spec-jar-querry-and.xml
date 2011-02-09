@@ -1,0 +1,56 @@
+<!DOCTYPE profile-spec-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN" "http://java.sun.com/dtd/slee-profile-spec-jar_1_1.dtd">
+
+<profile-spec-jar>
+	<description />
+
+	<profile-spec profile-read-only="True"
+		profile-events-enabled="True">
+		<description />
+		<profile-spec-name>DVAL</profile-spec-name>
+		<profile-spec-vendor>DVAL2</profile-spec-vendor>
+		<profile-spec-version>DVAL3</profile-spec-version>
+
+		<profile-classes>
+			<description />
+			<profile-cmp-interface>
+				<description />
+				<profile-cmp-interface-name>DVAL</profile-cmp-interface-name>
+				<cmp-field>
+					<description />
+					<cmp-field-name>DVAL</cmp-field-name>
+					<index-hint query-operator="equals" collator-ref="DVAL" />
+				</cmp-field>
+			</profile-cmp-interface>
+			<profile-management-interface>
+				<description />
+				<profile-management-interface-name>DVAL</profile-management-interface-name>
+			</profile-management-interface>
+			<profile-abstract-class reentrant="True">
+				<description />
+				<profile-abstract-class-name>DVAL</profile-abstract-class-name>
+			</profile-abstract-class>
+		</profile-classes>
+
+
+		<query name="query">
+			<description />
+			<query-options read-only="True" max-matches="100" />
+			<query-parameter name="query-parameter" type="java.lang.String" />
+			<and>
+			<!-- FIXME: this might need fixing, for now its ok -->
+			 	<compare attribute-name="attribute-name" op="equals" collator-ref="collator-ref" value="value" parameter="parameter"/>
+			 	<compare attribute-name="attribute-name" op="equals" collator-ref="collator-ref" value="value" parameter="parameter"/>
+			 	<has-prefix attribute-name="attribute-name" collator-ref="collator-ref" value="value" parameter="parameter"/>
+			 	<longest-prefix-match  attribute-name="attribute-name" collator-ref="collator-ref" value="value" parameter="parameter"/>
+			</and>
+		</query>
+
+		<profile-hints single-profile="False" />
+	</profile-spec>
+
+	<security-permissions>
+		<description />
+		<security-permission-spec>DVAL</security-permission-spec>
+	</security-permissions>
+</profile-spec-jar>		
+	

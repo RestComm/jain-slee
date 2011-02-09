@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE profile-spec-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN" "http://java.sun.com/dtd/slee-profile-spec-jar_1_1.dtd">
+
+<profile-spec-jar>
+	<description />
+
+	<profile-spec profile-read-only="True"
+		profile-events-enabled="True">
+		<description />
+		<profile-spec-name>DVAL</profile-spec-name>
+		<profile-spec-vendor>DVAL2</profile-spec-vendor>
+		<profile-spec-version>DVAL3</profile-spec-version>
+
+		<collator strength="Primary" decomposition="None">
+			<description />
+			<collator-alias>single-collator</collator-alias>
+			<locale-language>DVAL2</locale-language>
+			<locale-country>DVAL3</locale-country>
+			<locale-variant>DVAL4</locale-variant>
+		</collator>
+
+		<profile-classes>
+			<description />
+			<profile-cmp-interface>
+				<description />
+				<profile-cmp-interface-name>org.mobicents.slee.container.component.validator.profile.tableinterface.ProfileCMPInterface</profile-cmp-interface-name>
+				<cmp-field>
+					<description />
+					<cmp-field-name>simpleBooleanCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>wrapperBooleanCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>simpleStringCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>simpleIntegerCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>wrapperIntegerCMP</cmp-field-name>
+				</cmp-field>
+			</profile-cmp-interface>
+
+			<profile-table-interface>
+				<description />
+				<profile-table-interface-name>org.mobicents.slee.container.component.validator.profile.tableinterface.ProfileTableInterfaceOk</profile-table-interface-name>
+			</profile-table-interface>
+
+
+
+
+		</profile-classes>
+		<query name="firstQuery">
+			<description />
+			<query-options read-only="True" max-matches="100" />
+			<query-parameter name="booleanParameter" type="boolean" />
+			<query-parameter name="booleanWParameter" type="java.lang.Boolean" />
+			<query-parameter name="stringParameter" type="java.lang.String" />
+
+			<and>
+				<!-- FIXME: this might need fixing, for now its ok -->
+				<compare attribute-name="simpleBooleanCMP" op="equals"
+					parameter="booleanParameter" />
+				<compare attribute-name="wrapperBooleanCMP" op="not-equals"
+					parameter="booleanWParameter" />
+				<has-prefix attribute-name="simpleStringCMP"
+					collator-ref="single-collator" parameter="stringParameter" />
+				<longest-prefix-match attribute-name="simpleStringCMP"
+					collator-ref="single-collator" parameter="stringParameter" />
+			</and>
+		</query>
+		<query name="secondQuery">
+			<description />
+			<query-options read-only="True" max-matches="100" />
+			<query-parameter name="stringParameter" type="java.lang.String" />
+			<query-parameter name="integerWParameter" type="java.lang.Integer" />
+			<and>
+				<!-- FIXME: this might need fixing, for now its ok -->
+				<compare attribute-name="simpleStringCMP" op="equals"
+					parameter="stringParameter" />
+				<compare attribute-name="wrapperIntegerCMP" op="not-equals"
+					parameter="integerWParameter" />
+			</and>
+		</query>
+	</profile-spec>
+</profile-spec-jar>
+

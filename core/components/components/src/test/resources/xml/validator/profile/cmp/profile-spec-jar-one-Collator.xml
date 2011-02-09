@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE profile-spec-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN" "http://java.sun.com/dtd/slee-profile-spec-jar_1_1.dtd">
+
+<profile-spec-jar>
+	<description />
+
+	<profile-spec profile-read-only="True"
+		profile-events-enabled="True">
+		<description />
+		<profile-spec-name>DVAL</profile-spec-name>
+		<profile-spec-vendor>DVAL2</profile-spec-vendor>
+		<profile-spec-version>DVAL3</profile-spec-version>
+
+
+		<collator strength="Primary" decomposition="None">
+			<description />
+			<collator-alias>DVAL</collator-alias>
+			<locale-language>DVAL2</locale-language>
+			<locale-country>DVAL3</locale-country>
+			<locale-variant>DVAL4</locale-variant>
+		</collator>
+		<profile-classes>
+			<description />
+			<profile-cmp-interface>
+				<description />
+				<profile-cmp-interface-name>org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceOk</profile-cmp-interface-name>
+				<cmp-field>
+					<description />
+					<cmp-field-name>masterTestArray</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>masterTest</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>masterTestSerializable</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>withCollator</cmp-field-name>
+					<index-hint query-operator="equals" collator-ref="DVAL" />
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>withoutCollatorBoolean</cmp-field-name>
+				</cmp-field>
+			</profile-cmp-interface>
+
+		</profile-classes>
+	</profile-spec>
+</profile-spec-jar>

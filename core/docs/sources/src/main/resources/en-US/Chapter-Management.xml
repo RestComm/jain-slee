@@ -1,0 +1,87 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="management">
+
+	<title>Managing &THIS.PLATFORM; JAIN SLEE</title>
+
+	<section id="management_jmx_agent">
+		<title>JAIN SLEE JMX Agent</title>
+		<para>The JMX Agent exposes all MBeans running in the server, including the ones mandated by the JAIN SLEE 1.1 specification.</para>
+		<important>
+			<para>The operations done through the JMX Agent are not kept once the server is shutdown. For instance, if a deployable unit is installed through JMX, and the server is shutdown, once the server is started again the deployable unit will not be installed.</para>
+		</important>
+		<important>
+			<para>By default, the JMX Agent listens to port 1099, and is only available at the host/ip which the server is bound.</para>
+		</important>
+	</section>
+	
+	<section id="management_snmp_agent">
+		<title>SNMP Agent</title>
+		<para>&JEE.PLATFORM; provides an SNMP Agent, which can be used to ...</para>
+		<important><para>TODO</para></important>
+	</section>
+			
+	<section id="management_components">
+		<title>Managing JAIN SLEE Components</title>
+		
+		<xi:include href="Section-Management_Persistent_File_Deployer.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+			
+		<xi:include href="Section-Management_Ant_Tasks.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />		
+	</section>
+		
+	<section id="management_consoles">
+		<title>Management Consoles</title>
+
+		<section id="management_jmx_console">
+			<title>JMX Console</title>
+			
+			<para>&JEE.PLATFORM; provides a simple web console that gives quick access to all MBeans registered in the server, which includes the ones defined by the JAIN SLEE 1.1 specification.</para>
+
+			<para>To access the JMX console once the server is running, point a web browser to <literal>http://ip:8080/jmx-console</literal>, where <literal>ip</literal> is the IP/Host the container is bound. Unless set during start up, the IP/Host will be <literal>127.0.0.1/localhost</literal> by default.</para>			
+      <para>
+      MBeans in the domain <literal>javax.slee</literal> are all standard JAIN SLEE 1.1 MBeans, while the ones in the domain <literal>org.mobicents.slee</literal> are proprietary to &THIS.PLATFORM; JAIN SLEE. The following ones are of particular interest:
+      </para>
+			<variablelist>					
+		    	<varlistentry>
+				 	<term><literal>org.mobicents.slee:service=MobicentsManagement</literal></term>
+				    <listitem>
+				       <para>the MBean which can be used to make non persistent changes to the server configuration, in runtime. The operation <literal>dumpContainerState</literal> displays a textual snapshot of the server's state, which can be used to quickly look for memory leaks or other debug/profiling related tasks.</para>
+		    	    </listitem>
+				</varlistentry>
+				<varlistentry>
+			   	    <term><literal>org.mobicents.slee:name=DeployerMBean</literal></term>
+			        <listitem>				            
+			        	<para>the MBean allows interaction with the persistent deployable unit deployer. The operation <literal>showStatus</literal> displays a textual snapshot of the deployers's state, which can be used to quickly find out if there is any deployable unit deployment pending, for instance, due to missing dependencies.</para>
+		    		 </listitem>
+				</varlistentry>
+				<varlistentry>
+			   	    <term><literal>org.mobicents.slee:name=CongestionControlConfiguration</literal></term>
+			        <listitem>				            
+			        	<para>the MBean allows changing or retrieving the Congestion Control feature, with the container running. Details are provided in section <xref linkend="congestion_control_configuration" />.</para>
+		    		 </listitem>
+				</varlistentry>		
+						    
+			</variablelist>
+				
+			<important><para>For further information about JAIN SLEE 1.1 MBeans and their operations refer to the JAIN SLEE 1.1 Specification, all are covered with great detail.</para></important>
+		</section>
+		
+		<section id="management_jon_console">
+			<title>&MANAGEMENT.PLATFORM; Console</title>
+			<para>The JMX Console is simple but the MBeans operations were made considering its invocation by management clients, not people using browsers. &MANAGEMENT.PLATFORM; was developed to become Red Hat's Middleware Administration Tool, providing an unified interface and extensible model, to be used to control, monitor and manage servers individually, and clusters.</para>
+			<para>&THIS.PLATFORM; JAIN SLEE binary release includes a &MANAGEMENT.PLATFORM; Console in <filename>tools/management-console</filename>, with standalone documentation.</para>			
+		</section>
+		<section id="management_twiddle_cli">
+			<title><literal>TWIDDLE</literal> <acronym>CLI</acronym></title>
+			<para>Both, <acronym>JMX</acronym> Console and  &MANAGEMENT.PLATFORM; Console, are graphic(web) based tools. Some deployments may require command line access to &THIS.PLATFORM; <acronym>SLEE</acronym>.
+			To aid such cases, &THIS.PLATFORM; offers <literal>TWIDDLE</literal> based <acronym>CLI</acronym>. It allows to manage single instance (remote or local) of &THIS.PLATFORM; <acronym>SLEE</acronym> server. </para>
+			<para>&THIS.PLATFORM; JAIN SLEE binary release includes a <literal>TWIDDLE</literal> <acronym>CLI</acronym> in <filename>tools/twiddle</filename>, with standalone documentation.</para>			
+		</section>
+	</section>
+				
+</chapter>
+

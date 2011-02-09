@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+This is the XML DTD for the JAIN SLEE 1.1 extended library component jar file deployment
+descriptor, defined in the Mobicents community.  All JAIN SLEE 1.1 extended library
+component jar file deployment descriptors must include a DOCTYPE of the following form:
+
+  <!DOCTYPE library-jar PUBLIC
+        "-//Sun Microsystems, Inc.//DTD JAIN SLEE Ext Library 1.1//EN"
+        "http://mobicents.org/slee/dtd/slee-library-jar_1_1-ext.dtd">
+-->
+
+
+<!--
+The library-jar element is the root element of the library jar deployment
+descriptor.  It contains an optional description about the library jar file,
+one or more library definitions, and an optional specification of additional
+security permissions that should be granted to any classes contained in the
+library component jar itself.
+-->
+<!ELEMENT library-jar (description?, library+, security-permissions?)>
+
+<!--
+The description element may contain any descriptive text about the parent
+element.
+
+Used in: library-jar, library, library-ref, jar, security-permissions
+-->
+<!ELEMENT description (#PCDATA)>
+
+<!--
+The library element defines a library.  It contains an optional description
+about the library, the name, vendor, and version of the library being defined,
+zero or more references to any other components that this library
+depends on, and information about zero or more jar files that contain
+prepackaged classes and resources to be included with the library.
+
+The classes and resources for a library are the sum total of the classes and
+resources contained in:
+- the library component jar itself (if any)
+- the library jars specified by the jar elements (if any)
+
+All these classes are loaded by the same classloader.
+
+Used in: library-jar
+-->
+<!ELEMENT library (description?, library-name, library-vendor, library-version,
+ event-type-ref*, library-ref*, profile-spec-ref*, resource-adaptor-type-ref*,
+ sbb-ref*, jar*)>
+
+<!--
+The library-name element contains the name of a library component.
+
+Used in: library, library-ref
+
+Example:
+    <library-name>JCC</library-name>
+-->
+<!ELEMENT library-name (#PCDATA)>
+
+<!--
+The library-vendor element contains the vendor of a library component.
+
+Used in: library, library-ref
+
+Example:
+    <library-vendor>javax.csapi.cc.jcc</library-vendor>
+-->
+<!ELEMENT library-vendor (#PCDATA)>
+
+<!--
+The library-version element contains the version of a library component.  The
+version number typically should have the general form
+"major-version.minor-version".
+
+Used in: library, library-ref
+
+Example:
+    <library-version>1.1</library-version>
+-->
+<!ELEMENT library-version (#PCDATA)>
+
+<!--
+The event-type-ref element identifies an event type that the library classes depend.
+It contains the name, vendor,and version of the event type.
+
+Used in: library
+-->
+<!ELEMENT event-type-ref (event-type-name, event-type-vendor, 
+          event-type-version)>
+
+<!--
+The event-type-name element contains the name of an event type referred by
+the library.
+
+Used in: event-type-ref
+
+Example:
+    <event-type-name>
+        javax.csapi.cc.jcc.JccCallEvent.CALL_CREATED
+    </event-type-name>
+-->
+<!ELEMENT event-type-name (#PCDATA)>
+
+<!--
+The event-type-vendor element contains the vendor of an event type referred by
+the library
+
+Used in: event-type-ref
+
+Example:
+    <event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+-->
+<!ELEMENT event-type-vendor (#PCDATA)>
+
+<!--
+The event-type-version element contains the version of an event type referred by
+the library
+
+Used in: event-type-ref
+
+Example:
+    <event-type-version>1.1</event-type-version>
+-->
+<!ELEMENT event-type-version (#PCDATA)>
+
+          
+<!--
+The library-ref element declares a reference to another library component that
+this library component depends on.  It contains an optional description and the
+name, vendor, and version of the library component.
+
+Used in: library
+-->
+<!ELEMENT library-ref (description?, library-name, library-vendor,
+          library-version)>
+
+<!--
+The profile-spec-ref element identifies an profile specification that the library
+classes depend. It contains an optional description about the reference, and the
+name, vendor, and version of the referenced profile specification.
+
+Used in: library
+-->
+<!ELEMENT profile-spec-ref (description?, profile-spec-name,
+          profile-spec-vendor, profile-spec-version)>
+
+<!--
+The profile-spec-name element contains the name of a profile specification
+component.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-name>AddressProfileSpec</profile-spec-name>
+-->
+<!ELEMENT profile-spec-name (#PCDATA)>
+
+<!--
+The profile-spec-vendor element contains the vendor of a profile specification
+component.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-name>javax.slee</profile-spec-name>
+-->
+<!ELEMENT profile-spec-vendor (#PCDATA)>
+
+<!--
+The profile-spec-version element contains the version of a profile
+specification component.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-version>1.0</profile-spec-version>
+-->
+<!ELEMENT profile-spec-version (#PCDATA)>
+          
+<!--
+The resource-adaptor-type-ref element identifies an resource adaptor type that the
+library classes depend. It contains the name, vendor,and version of the RA type.
+
+Used in: library
+-->
+<!ELEMENT resource-adaptor-type-ref (resource-adaptor-type-name,
+ 		  resource-adaptor-type-vendor, resource-adaptor-type-version)>
+
+<!--
+The resource-adaptor-type-name element contains the name of a resource
+adaptor type component referred by the library.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-name>JCC</resource-adaptor-type-name>
+-->
+<!ELEMENT resource-adaptor-type-name (#PCDATA)>
+
+<!--
+The resource-adaptor-type-vendor element contains the vendor of a resource
+adaptor type component referred by the library.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-vendor>
+        javax.csapi.cc.jcc
+    </resource-adaptor-type-vendor>
+-->
+<!ELEMENT resource-adaptor-type-vendor (#PCDATA)>
+
+<!--
+The resource-adaptor-type-version element contains the version of a resource
+adaptor type component referred by the library.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-version>1.1</resource-adaptor-type-version>
+-->
+<!ELEMENT resource-adaptor-type-version (#PCDATA)>
+
+<!--
+The sbb-ref element identifies an SBB that the library classes depend.
+It contains the name, vendor,and version of the SBB.
+
+Used in: library
+-->
+<!ELEMENT sbb-ref (sbb-name, sbb-vendor, 
+          sbb-version)>
+
+<!--
+The sbb-name element contains the name of a SBB component referred
+ by the library.
+
+
+Used in: sbb-ref
+
+Example: 
+    <sbb-name>MySbb</sbb-name>
+-->
+<!ELEMENT sbb-name (#PCDATA)>
+
+<!--
+The sbb-vendor element contains the vendor of a SBB component referred
+ by the library.
+
+Used in: sbb-ref
+
+Example: 
+    <sbb-vendor>My Company, Inc.</sbb-vendor>
+-->
+<!ELEMENT sbb-vendor (#PCDATA)>
+
+<!--
+The sbb-version element contains the version of a SBB component referred
+ by the library.
+
+Used in: sbb-ref
+
+Example: 
+    <sbb-version>1.0</sbb-version>
+-->
+<!ELEMENT sbb-version (#PCDATA)>
+
+
+<!--
+The jar element declares a library jar.  It contains an optional description,
+the name of the jar file within in the library component jar, and an optional
+specification of additional security permissions that should be granted to
+classes contained in the library jar.
+
+Used in: library
+-->
+<!ELEMENT jar (description?, jar-name, security-permissions?)>
+
+<!--
+The jar-name element contains the name of a jar file packaged within the
+library component jar.  The jar file will be included in the classloader for
+the library component.  The name must be relative URL, relative to the base of
+the library component jar file.
+
+Used in: jar
+
+Example:
+    <jar-name>jcc-1.1.jar</jar-name>
+-->
+<!ELEMENT jar-name (#PCDATA)>
+
+<!-- 
+The security-permissions element allows additional permissions to be granted
+to classes included in the jars in the library, over and above the default
+permissions granted by the SLEE.  It contains an optional description and a
+mandatory security permission specification.
+
+Used in: library-jar, jar
+-->
+<!ELEMENT security-permissions (description?, security-permission-spec)>
+
+<!--
+The security-permission-spec element specifies security permissions based on
+the security policy file syntax. Refer to the following URL for definition of
+Sun's security policy file syntax:
+
+http://java.sun.com/j2se/1.4.2/docs/guide/security/PolicyFiles.html#FileSyntax
+
+Note: The codeBase argument of any grant entries in the security permission
+specification is ignored.  The SLEE assumes the code bases to be library jars
+included in the library.
+
+The security permissions specified here are granted to the classes contained in
+the jars included in the library being specified only.  They are not granted to
+classes from any other dependent library component.
+
+Used in: security-permissions
+
+Example:
+<security-permission-spec>
+    grant {
+        permission java.lang.RuntimePermission "modifyThreadGroup";
+    };
+</security-permission-spec>
+-->
+<!ELEMENT security-permission-spec (#PCDATA)>
+
+
+<!-- 
+The ID mechanism is to allow tools that produce additional deployment
+information (ie. information beyond that contained by the standard SLEE
+deployment descriptors) to store the non-standard information in a separate
+file, and easily refer from those tools-specific files to the information in
+the standard deployment descriptor.  The SLEE architecture does not allow the
+tools to add the non-standard information into the SLEE-defined deployment
+descriptors.
+-->
+<!ATTLIST library-jar id ID #IMPLIED>
+<!ATTLIST description id ID #IMPLIED>
+<!ATTLIST library id ID #IMPLIED>
+<!ATTLIST library-name id ID #IMPLIED>
+<!ATTLIST library-vendor id ID #IMPLIED>
+<!ATTLIST library-version id ID #IMPLIED>
+<!ATTLIST event-type-ref id ID #IMPLIED>
+<!ATTLIST event-type-name id ID #IMPLIED>
+<!ATTLIST event-type-vendor id ID #IMPLIED>
+<!ATTLIST event-type-version id ID #IMPLIED>
+<!ATTLIST library-ref id ID #IMPLIED>
+<!ATTLIST profile-spec-ref id ID #IMPLIED>
+<!ATTLIST profile-spec-name id ID #IMPLIED>
+<!ATTLIST profile-spec-vendor id ID #IMPLIED>
+<!ATTLIST profile-spec-version id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-ref id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-name id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-vendor id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-version id ID #IMPLIED>
+<!ATTLIST sbb-ref id ID #IMPLIED>
+<!ATTLIST sbb-name id ID #IMPLIED>
+<!ATTLIST sbb-vendor id ID #IMPLIED>
+<!ATTLIST sbb-version id ID #IMPLIED>
+<!ATTLIST jar id ID #IMPLIED>
+<!ATTLIST jar-name id ID #IMPLIED>
+<!ATTLIST security-permissions id ID #IMPLIED>
+<!ATTLIST security-permission-spec id ID #IMPLIED>

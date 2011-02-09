@@ -1,0 +1,43 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="slee_1_1_extensions_aci">
+	
+	<title>ActivityContextInterface Extension</title>
+	
+	<para>This simple extension to JAIN SLEE 1.1 introduces <filename>org.mobicents.slee.ActivityContextInterfaceExt</filename> interface, which extends <filename>javax.slee.ActivityContextInterface</filename> with methods to retrieve the timers and names bound to the ACI.</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee;
+
+import javax.slee.ActivityContextInterface;
+import javax.slee.facilities.TimerID;
+
+public interface ActivityContextInterfaceExt extends ActivityContextInterface {
+
+	public TimerID[] getTimers();
+
+	public String[] getNamesBound();
+
+}]]>
+    </programlisting>
+    
+    <variablelist>
+    	<varlistentry>
+			<term>The <literal>getTimers()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the IDs of timers currently set which are related to the ACI.</para>
+			</listitem>
+		</varlistentry>
+	
+		<varlistentry>
+			<term>The <literal>getNamesBound()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the names currently bound to the ACI.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+		
+</section>
+	
