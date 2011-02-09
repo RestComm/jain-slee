@@ -195,6 +195,11 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
             DeployableUnitDescriptorFactory dudf = SleeContainer.lookupFromJndi().getComponentManagement().getDeployableUnitManagement().getDeployableUnitDescriptorFactory();
             DeployableUnitDescriptor duDesc = dudf.parse(duJarFile.getInputStream(duXmlEntry));
 
+            // If the filename is present, an undeploy in on the way... let's wait
+            while(deployableUnits.containsKey(fileName)) {
+              Thread.sleep(getWaitTimeBetweenOperations());
+            }
+
             // Add it to the deployable units map.
             deployableUnits.put(fileName, deployerDU);
 
