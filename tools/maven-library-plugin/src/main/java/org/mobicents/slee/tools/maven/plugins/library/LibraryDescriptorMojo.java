@@ -156,7 +156,7 @@ public class LibraryDescriptorMojo extends AbstractMojo {
 
 		for (String jar : jars) {
 			xml += "\t\t<jar>\r\n" + "\t\t\t<jar-name>" + jar
-					+ "</jar-name>\r\n" + "\t\t<jar>\r\n";
+					+ "</jar-name>\r\n" + "\t\t</jar>\r\n";
 		}
 
 		xml += "\t</library>\r\n</library-jar>\r\n";
