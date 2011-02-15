@@ -131,10 +131,7 @@
 
 	<profiles>
 		<profile>
-			<id>maven-release</id>
-			<modules>
-				<module>docs</module>
-			</modules>
+			<id>maven-release</id>			
 			<build>
 				<plugins>
 					<plugin>
