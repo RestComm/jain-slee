@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
 <section id="clustering_fault_tolerant_ra_api">
   <title>Fault Tolerant Resource Adaptor API</title>
   <para>JAIN SLEE Resource Adaptors exist on the boundary between the container and the underlying protocol. The specification contract requires the <acronym>RA</acronym> object to implement the <literal>javax.slee.resource.ResourceAdaptor</literal> interface. This interface defines callbacks, which SLEE uses to interact with the <acronym>RA</acronym>, including one to provide the <literal>javax.slee.resource.ResourceAdaptorContext</literal> object. The Resource Adaptor Context provides <acronym>RA</acronym> object facilities to interact with SLEE.

@@ -1,21 +1,21 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
 <authorgroup
 	id="authors">
 	<author>
 		<firstname>Alexandre</firstname>
 		<surname>Mendonça</surname>
-		<email>&AUTHOR_EMAIL_ALEX;</email>
+		<email>&AUTHOR.EMAIL.ALEX;</email>
 	</author>
 	<author>
 		<firstname>Amit</firstname>
 		<surname>Bhayani</surname>
-		<email>&AUTHOR_EMAIL_AMIT;</email>
+		<email>&AUTHOR.EMAIL.AMIT;</email>
 	</author>
 	<author>
 		<firstname>Bartosz</firstname>
 		<surname>Baranowski</surname>
-		<email>&AUTHOR_EMAIL_BARTOSZ;</email>
+		<email>&AUTHOR.EMAIL.BARTOSZ;</email>
 	</author>
 	<author>
 		<firstname>Douglas</firstname>
@@ -25,12 +25,12 @@
 	<author>
 		<firstname>Eduardo</firstname>
 		<surname>Martins</surname>
-		<email>&AUTHOR_EMAIL_EDUARDO;</email>
+		<email>&AUTHOR.EMAIL.EDUARDO;</email>
 	</author>
 	<author>
 		<firstname>Ivelin</firstname>
 		<surname>Ivanov</surname>
-		<email>&AUTHOR_EMAIL_IVELIN;</email>
+		<email>&AUTHOR.EMAIL.IVELIN;</email>
 	</author>
 	<author>
         <firstname>Jared</firstname>

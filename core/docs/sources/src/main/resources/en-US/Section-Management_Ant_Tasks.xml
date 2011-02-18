@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
 
 <section id="management_tools_ant_tasks">
 	<title>Ant Tasks</title>
@@ -67,7 +67,7 @@
 </slee-management>]]>
 		</programlisting>
 			
-		<para>The attributes have the same meaning as the properties <xref linkend="management_tools_ant_tasks">listed</xref> in the script code to import the tasks.</para>
+		<para>The attributes have the same meaning as the properties listed in the script code to import the tasks here: <xref linkend="management_tools_ant_tasks" />.</para>
 			
 		<section id="management_tools_ant_tasks_slee-management_install_du">
 			<title>Install Deployable Unit Sub-Task</title>
