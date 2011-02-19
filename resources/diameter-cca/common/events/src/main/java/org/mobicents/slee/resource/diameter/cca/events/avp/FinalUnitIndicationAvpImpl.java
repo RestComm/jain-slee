@@ -133,7 +133,7 @@ public class FinalUnitIndicationAvpImpl extends GroupedAvpImpl implements FinalU
    * (net.java.slee.resource.diameter.cca.events.avp.FinalUnitActionType)
    */
   public void setFinalUnitAction(FinalUnitActionType finalUnitAction) {
-    addAvp(CreditControlAVPCodes.Final_Unit_Action, (long)finalUnitAction.getValue());
+    addAvp(CreditControlAVPCodes.Final_Unit_Action, finalUnitAction.getValue());
   }
 
   /*

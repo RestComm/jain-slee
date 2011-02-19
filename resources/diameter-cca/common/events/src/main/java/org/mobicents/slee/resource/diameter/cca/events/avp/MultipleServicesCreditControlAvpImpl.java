@@ -299,7 +299,7 @@ public class MultipleServicesCreditControlAvpImpl extends GroupedAvpImpl impleme
    * @see net.java.slee.resource.diameter.cca.events.avp.MultipleServicesCreditControlAvp#setTariffChangeUsage(net.java.slee.resource.diameter.cca.events.avp.TariffChangeUsageType)
    */
   public void setTariffChangeUsage(TariffChangeUsageType tariffChangeUsage) {
-    addAvp(CreditControlAVPCodes.Tariff_Change_Usage, (long)tariffChangeUsage.getValue());
+    addAvp(CreditControlAVPCodes.Tariff_Change_Usage, tariffChangeUsage.getValue());
   }
 
   /*

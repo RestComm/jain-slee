@@ -198,7 +198,7 @@ public class ServerAssignmentAnswerImpl extends DiameterMessageImpl implements S
    * @see net.java.slee.resource.diameter.cxdx.events.ServerAssignmentAnswer#setAuthSessionState(net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType)
    */
   public void setAuthSessionState(AuthSessionStateType authSessionState) {
-    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, (long)authSessionState.getValue());
+    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, authSessionState.getValue());
   }
 
   /* (non-Javadoc)
@@ -219,7 +219,7 @@ public class ServerAssignmentAnswerImpl extends DiameterMessageImpl implements S
    * @see net.java.slee.resource.diameter.cxdx.events.ServerAssignmentAnswer#setLooseRouteIndication(net.java.slee.resource.diameter.cxdx.events.avp.LooseRouteIndication)
    */
   public void setLooseRouteIndication(LooseRouteIndication looseRouteIndication) {
-    addAvp(LOOSE_ROUTE_INDICATION, CXDX_VENDOR_ID, (long)looseRouteIndication.getValue());
+    addAvp(LOOSE_ROUTE_INDICATION, CXDX_VENDOR_ID, looseRouteIndication.getValue());
   }
 
   /* (non-Javadoc)

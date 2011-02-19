@@ -337,7 +337,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
   }
 
   public void setRedirectHostUsage(RedirectHostUsageType redirectHostUsage) {
-    addAvp(Avp.REDIRECT_HOST_USAGE, (long)redirectHostUsage.getValue());
+    addAvp(Avp.REDIRECT_HOST_USAGE, redirectHostUsage.getValue());
   }
 
   public RedirectHostUsageType getRedirectHostUsage() {

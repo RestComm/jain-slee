@@ -136,7 +136,7 @@ public class MultimediaAuthenticationAnswerImpl extends DiameterMessageImpl impl
    * @see net.java.slee.resource.diameter.cxdx.events.MultimediaAuthenticationAnswer#setAuthSessionState(net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType)
    */
   public void setAuthSessionState(AuthSessionStateType authSessionState) {
-    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, (long)authSessionState.getValue());
+    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, authSessionState.getValue());
   }
 
   /* (non-Javadoc)

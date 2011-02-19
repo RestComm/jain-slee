@@ -178,7 +178,7 @@ public class CreditControlAnswerImpl extends CreditControlMessageImpl implements
    */
   public void setCcSessionFailover(CcSessionFailoverType ccSessionFailover) throws IllegalStateException
   {
-    addAvp(CreditControlAVPCodes.CC_Session_Failover, (long)ccSessionFailover.getValue());
+    addAvp(CreditControlAVPCodes.CC_Session_Failover, ccSessionFailover.getValue());
   }
 
   /* (non-Javadoc)
@@ -186,7 +186,7 @@ public class CreditControlAnswerImpl extends CreditControlMessageImpl implements
    */
   public void setCheckBalanceResult(CheckBalanceResultType checkBalanceResult) throws IllegalStateException
   {
-    addAvp(CreditControlAVPCodes.Check_Balance_Result, (long)checkBalanceResult.getValue());
+    addAvp(CreditControlAVPCodes.Check_Balance_Result, checkBalanceResult.getValue());
   }
 
   /* (non-Javadoc)
@@ -202,7 +202,7 @@ public class CreditControlAnswerImpl extends CreditControlMessageImpl implements
    */
   public void setCreditControlFailureHandling(CreditControlFailureHandlingType creditControlFailureHandling) throws IllegalStateException
   {
-    addAvp(CreditControlAVPCodes.Credit_Control_Failure_Handling, (long)creditControlFailureHandling.getValue());
+    addAvp(CreditControlAVPCodes.Credit_Control_Failure_Handling, creditControlFailureHandling.getValue());
   }
 
   /* (non-Javadoc)
@@ -210,7 +210,7 @@ public class CreditControlAnswerImpl extends CreditControlMessageImpl implements
    */
   public void setDirectDebitingFailureHandling(DirectDebitingFailureHandlingType directDebitingFailureHandling) throws IllegalStateException
   {
-    addAvp(CreditControlAVPCodes.Direct_Debiting_Failure_Handling, (long)directDebitingFailureHandling.getValue());
+    addAvp(CreditControlAVPCodes.Direct_Debiting_Failure_Handling, directDebitingFailureHandling.getValue());
   }
 
   /* (non-Javadoc)

@@ -60,7 +60,7 @@ public class RoCreditControlAnswerImpl extends RoCreditControlMessageImpl implem
    */
   @Override
   public void setCcSessionFailover(CcSessionFailoverType ccSessionFailover) throws IllegalStateException {
-    addAvp(CreditControlAVPCodes.CC_Session_Failover, (long) ccSessionFailover.getValue());
+    addAvp(CreditControlAVPCodes.CC_Session_Failover, ccSessionFailover.getValue());
   }
 
   /*
@@ -114,7 +114,7 @@ public class RoCreditControlAnswerImpl extends RoCreditControlMessageImpl implem
    */
   @Override
   public void setCreditControlFailureHandling(CreditControlFailureHandlingType creditControlFailureHandling) throws IllegalStateException {
-    addAvp(CreditControlAVPCodes.Credit_Control_Failure_Handling, (long) creditControlFailureHandling.getValue());
+    addAvp(CreditControlAVPCodes.Credit_Control_Failure_Handling, creditControlFailureHandling.getValue());
   }
 
   /*

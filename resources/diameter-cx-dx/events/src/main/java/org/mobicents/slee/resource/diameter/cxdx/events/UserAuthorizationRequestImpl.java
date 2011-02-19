@@ -126,7 +126,7 @@ public class UserAuthorizationRequestImpl extends DiameterMessageImpl implements
    * @see net.java.slee.resource.diameter.cxdx.events.UserAuthorizationRequest#setAuthSessionState(net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType)
    */
   public void setAuthSessionState(AuthSessionStateType authSessionState) {
-    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, (long)authSessionState.getValue());
+    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, authSessionState.getValue());
   }
 
   /* (non-Javadoc)
@@ -163,7 +163,7 @@ public class UserAuthorizationRequestImpl extends DiameterMessageImpl implements
    * @see net.java.slee.resource.diameter.cxdx.events.UserAuthorizationRequest#setUserAuthorizationType(net.java.slee.resource.diameter.cxdx.events.avp.UserAuthorizationType)
    */
   public void setUserAuthorizationType(UserAuthorizationType userAuthorizationType) {
-    addAvp(USER_AUTHORIZATION_TYPE, CXDX_VENDOR_ID, (long)userAuthorizationType.getValue());
+    addAvp(USER_AUTHORIZATION_TYPE, CXDX_VENDOR_ID, userAuthorizationType.getValue());
   }
 
   /* (non-Javadoc)

@@ -100,7 +100,7 @@ public class SubscriptionIdAvpImpl extends GroupedAvpImpl implements Subscriptio
    * @see net.java.slee.resource.diameter.cca.events.avp.SubscriptionIdAvp#setSubscriptionIdType(net.java.slee.resource.diameter.cca.events.avp.SubscriptionIdType)
    */
   public void setSubscriptionIdType(SubscriptionIdType type) {
-    addAvp(CreditControlAVPCodes.Subscription_Id_Type, (long)type.getValue());
+    addAvp(CreditControlAVPCodes.Subscription_Id_Type, type.getValue());
   }
 
 }

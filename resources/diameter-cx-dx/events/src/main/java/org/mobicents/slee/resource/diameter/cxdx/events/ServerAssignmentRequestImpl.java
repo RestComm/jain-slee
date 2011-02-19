@@ -179,14 +179,14 @@ public class ServerAssignmentRequestImpl extends DiameterMessageImpl implements 
    * @see net.java.slee.resource.diameter.cxdx.events.ServerAssignmentRequest#setAuthSessionState(net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType)
    */
   public void setAuthSessionState(AuthSessionStateType authSessionState) {
-    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, (long)authSessionState.getValue());
+    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, authSessionState.getValue());
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.ServerAssignmentRequest#setMultipleRegistrationIndication(net.java.slee.resource.diameter.cxdx.events.avp.MultipleRegistrationIndication)
    */
   public void setMultipleRegistrationIndication(MultipleRegistrationIndication multipleRegistrationIndication) {
-    addAvp(MULTIPLE_REGISTRATION_INDICATION, CXDX_VENDOR_ID, (long)multipleRegistrationIndication.getValue());
+    addAvp(MULTIPLE_REGISTRATION_INDICATION, CXDX_VENDOR_ID, multipleRegistrationIndication.getValue());
   }
 
   /* (non-Javadoc)
@@ -216,7 +216,7 @@ public class ServerAssignmentRequestImpl extends DiameterMessageImpl implements 
    * @see net.java.slee.resource.diameter.cxdx.events.ServerAssignmentRequest#setServerAssignmentType(net.java.slee.resource.diameter.cxdx.events.avp.ServerAssignmentType)
    */
   public void setServerAssignmentType(ServerAssignmentType serverAssignmentType) {
-    addAvp(SERVER_ASSIGNMENT_TYPE, CXDX_VENDOR_ID, (long)serverAssignmentType.getValue());
+    addAvp(SERVER_ASSIGNMENT_TYPE, CXDX_VENDOR_ID, serverAssignmentType.getValue());
   }
 
   /* (non-Javadoc)
@@ -246,7 +246,7 @@ public class ServerAssignmentRequestImpl extends DiameterMessageImpl implements 
    * @see net.java.slee.resource.diameter.cxdx.events.ServerAssignmentRequest#setUserDataAlreadyAvailable(net.java.slee.resource.diameter.cxdx.events.avp.UserDataAlreadyAvailable)
    */
   public void setUserDataAlreadyAvailable(UserDataAlreadyAvailable userDataAlreadyAvailable) {
-    addAvp(USER_DATA_ALREADY_AVAILABLE, CXDX_VENDOR_ID, (long)userDataAlreadyAvailable.getValue());
+    addAvp(USER_DATA_ALREADY_AVAILABLE, CXDX_VENDOR_ID, userDataAlreadyAvailable.getValue());
   }
 
   /* (non-Javadoc)

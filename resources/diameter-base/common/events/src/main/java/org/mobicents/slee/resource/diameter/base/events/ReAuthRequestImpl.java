@@ -53,7 +53,7 @@ public class ReAuthRequestImpl extends DiameterMessageImpl implements ReAuthRequ
   }
 
   public void setReAuthRequestType(ReAuthRequestType reAuthRequestType) {
-    addAvp(Avp.RE_AUTH_REQUEST_TYPE, (long)reAuthRequestType.getValue());
+    addAvp(Avp.RE_AUTH_REQUEST_TYPE, reAuthRequestType.getValue());
   }
 
   @Override

@@ -123,7 +123,7 @@ public class ProfileUpdateRequestImpl extends DiameterShMessageImpl implements P
    * @see net.java.slee.resource.diameter.sh.server.events.ProfileUpdateRequest#setDataReference(net.java.slee.resource.diameter.sh.events.avp.DataReferenceType)
    */
   public void setDataReference(DataReferenceType dataReference) {
-    addAvp(DiameterShAvpCodes.DATA_REFERENCE, DiameterShAvpCodes.SH_VENDOR_ID, (long)dataReference.getValue());
+    addAvp(DiameterShAvpCodes.DATA_REFERENCE, DiameterShAvpCodes.SH_VENDOR_ID, dataReference.getValue());
   }
 
   /* 

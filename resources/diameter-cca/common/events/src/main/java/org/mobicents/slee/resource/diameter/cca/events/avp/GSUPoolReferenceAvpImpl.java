@@ -111,7 +111,7 @@ public class GSUPoolReferenceAvpImpl extends GroupedAvpImpl implements GSUPoolRe
    * (net.java.slee.resource.diameter.cca.events.avp.CcUnitType)
    */
   public void setCreditControlUnitType(CcUnitType ccUnitType) {
-    addAvp(CreditControlAVPCodes.CC_Unit_Type, (long)ccUnitType.getValue());
+    addAvp(CreditControlAVPCodes.CC_Unit_Type, ccUnitType.getValue());
   }
 
   /*

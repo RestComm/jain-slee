@@ -131,7 +131,7 @@ public abstract class AccountingMessageImpl extends DiameterMessageImpl implemen
   }
 
   public void setAccountingRealtimeRequired(AccountingRealtimeRequiredType accountingRealtimeRequired) {
-    addAvp(Avp.ACCOUNTING_REALTIME_REQUIRED, (long)accountingRealtimeRequired.getValue());
+    addAvp(Avp.ACCOUNTING_REALTIME_REQUIRED, accountingRealtimeRequired.getValue());
   }
 
 }

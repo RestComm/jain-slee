@@ -63,7 +63,7 @@ public class SessionTerminationRequestImpl  extends SessionTerminationMessageImp
   }
 
   public void setTerminationCause(TerminationCauseType terminationCause) {
-    addAvp(Avp.TERMINATION_CAUSE, (long)terminationCause.getValue());
+    addAvp(Avp.TERMINATION_CAUSE, terminationCause.getValue());
   }
 
 

@@ -71,7 +71,7 @@ public class SubscribeNotificationsRequestImpl extends DiameterShMessageImpl imp
    */
   public void setDataReference(DataReferenceType dataReference)
   {
-    addAvp(DiameterShAvpCodes.DATA_REFERENCE, DiameterShAvpCodes.SH_VENDOR_ID, (long)dataReference.getValue());
+    addAvp(DiameterShAvpCodes.DATA_REFERENCE, DiameterShAvpCodes.SH_VENDOR_ID, dataReference.getValue());
   }
 
   /* (non-Javadoc)
@@ -174,7 +174,7 @@ public class SubscribeNotificationsRequestImpl extends DiameterShMessageImpl imp
    * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setSubsReqType(net.java.slee.resource.diameter.sh.events.avp.SubsReqType)
    */
   public void setSubsReqType(SubsReqType subsReqType) {
-    addAvp(DiameterShAvpCodes.SUBS_REQ_TYPE, DiameterShAvpCodes.SH_VENDOR_ID, (long)subsReqType.getValue());
+    addAvp(DiameterShAvpCodes.SUBS_REQ_TYPE, DiameterShAvpCodes.SH_VENDOR_ID, subsReqType.getValue());
   }
 
   /* (non-Javadoc)

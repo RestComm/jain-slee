@@ -96,7 +96,7 @@ public class RedirectServerAvpImpl extends GroupedAvpImpl implements RedirectSer
    * (net.java.slee.resource.diameter.cca.events.avp.RedirectAddressType)
    */
   public void setRedirectAddressType(RedirectAddressType redirectAddressType) {
-    addAvp(CreditControlAVPCodes.Redirect_Address_Type, (long)redirectAddressType.getValue());
+    addAvp(CreditControlAVPCodes.Redirect_Address_Type, redirectAddressType.getValue());
   }
 
   /*

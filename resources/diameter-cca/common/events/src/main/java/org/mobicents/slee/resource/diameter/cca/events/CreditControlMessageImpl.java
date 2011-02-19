@@ -157,7 +157,7 @@ public abstract class CreditControlMessageImpl extends DiameterMessageImpl imple
    */
   public void setCcRequestType(CcRequestType ccRequestType) throws IllegalStateException
   {
-    addAvp(CreditControlAVPCodes.CC_Request_Type, (long)ccRequestType.getValue());
+    addAvp(CreditControlAVPCodes.CC_Request_Type, ccRequestType.getValue());
   }
 
   /* (non-Javadoc)

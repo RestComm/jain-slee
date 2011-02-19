@@ -260,7 +260,7 @@ public class CreditControlRequestImpl extends CreditControlMessageImpl implement
    */
   public void setMultipleServicesIndicator(MultipleServicesIndicatorType multipleServicesIndicator) throws IllegalStateException
   {
-    addAvp(CreditControlAVPCodes.Multiple_Services_Indicator, (long)multipleServicesIndicator.getValue());
+    addAvp(CreditControlAVPCodes.Multiple_Services_Indicator, multipleServicesIndicator.getValue());
   }
 
   /*
@@ -269,7 +269,7 @@ public class CreditControlRequestImpl extends CreditControlMessageImpl implement
    */
   public void setRequestedAction(RequestedActionType requestedAction) throws IllegalStateException
   {
-    addAvp(CreditControlAVPCodes.Requested_Action, (long)requestedAction.getValue());
+    addAvp(CreditControlAVPCodes.Requested_Action, requestedAction.getValue());
   }
 
   /*
@@ -345,7 +345,7 @@ public class CreditControlRequestImpl extends CreditControlMessageImpl implement
    */
   public void setTerminationCause(TerminationCauseType terminationCause) throws IllegalStateException
   {
-    addAvp(DiameterAvpCodes.TERMINATION_CAUSE, (long)terminationCause.getValue());
+    addAvp(DiameterAvpCodes.TERMINATION_CAUSE, terminationCause.getValue());
   }
 
   /*

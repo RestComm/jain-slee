@@ -402,7 +402,7 @@ public class ImsInformationImpl extends GroupedAvpImpl implements ImsInformation
    * @see net.java.slee.resource.diameter.ro.events.avp.ImsInformation#setNodeFunctionality(net.java.slee.resource.diameter.ro.events.avp.NodeFunctionality)
    */
   public void setNodeFunctionality( NodeFunctionality nodeFunctionality ) {
-    addAvp(DiameterRoAvpCodes.NODE_FUNCTIONALITY, DiameterRoAvpCodes.TGPP_VENDOR_ID, (long)nodeFunctionality.getValue());
+    addAvp(DiameterRoAvpCodes.NODE_FUNCTIONALITY, DiameterRoAvpCodes.TGPP_VENDOR_ID, nodeFunctionality.getValue());
   }
 
   /* (non-Javadoc)

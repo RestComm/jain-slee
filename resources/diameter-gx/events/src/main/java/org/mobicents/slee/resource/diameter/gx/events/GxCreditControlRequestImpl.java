@@ -121,7 +121,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      */
     @Override
     public void setTerminationCause(TerminationCauseType terminationCause) throws IllegalStateException {
-        addAvp(DiameterAvpCodes.TERMINATION_CAUSE, (long) terminationCause.getValue());
+        addAvp(DiameterAvpCodes.TERMINATION_CAUSE, terminationCause.getValue());
     }
 
     /*
@@ -382,7 +382,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#setPdpSessionOperation(net.java.slee.resource.diameter.gx.events.avp.PDPSessionOperation)
      */
     public void setPdpSessionOperation(PDPSessionOperation pdpSessionOperation) {
-        addAvp(DiameterGxAvpCodes.PDP_SESSION_OPERATION, DiameterGxAvpCodes.TGPP_VENDOR_ID, (long)pdpSessionOperation.getValue());
+        addAvp(DiameterGxAvpCodes.PDP_SESSION_OPERATION, DiameterGxAvpCodes.TGPP_VENDOR_ID, pdpSessionOperation.getValue());
     }
 
     /**

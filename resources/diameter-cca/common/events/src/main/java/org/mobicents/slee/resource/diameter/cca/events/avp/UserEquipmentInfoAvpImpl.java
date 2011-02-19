@@ -88,7 +88,7 @@ public class UserEquipmentInfoAvpImpl extends GroupedAvpImpl implements UserEqui
    * (net.java.slee.resource.diameter.cca.events.avp.UserEquipmentInfoType)
    */
   public void setUserEquipmentInfoType(UserEquipmentInfoType type) {
-    addAvp(CreditControlAVPCodes.User_Equipment_Info_Type, (long)type.getValue());
+    addAvp(CreditControlAVPCodes.User_Equipment_Info_Type, type.getValue());
   }
 
   /*

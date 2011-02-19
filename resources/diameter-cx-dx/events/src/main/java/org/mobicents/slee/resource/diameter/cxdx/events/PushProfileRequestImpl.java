@@ -115,7 +115,7 @@ public class PushProfileRequestImpl extends DiameterMessageImpl implements PushP
    * @see net.java.slee.resource.diameter.cxdx.events.PushProfileRequest#setAuthSessionState(net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType)
    */
   public void setAuthSessionState(AuthSessionStateType authSessionState) {
-    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, (long)authSessionState.getValue());
+    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, authSessionState.getValue());
   }
 
   /* (non-Javadoc)

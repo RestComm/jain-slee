@@ -74,7 +74,7 @@ public class DiameterShMessageImpl extends DiameterMessageImpl implements Diamet
   }
 
   public void setAuthSessionState(AuthSessionStateType authSessionState) {
-    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, (long)authSessionState.getValue());
+    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, authSessionState.getValue());
   }
 
   public void setSupportedFeatures(SupportedFeaturesAvp supportedFeatures) {

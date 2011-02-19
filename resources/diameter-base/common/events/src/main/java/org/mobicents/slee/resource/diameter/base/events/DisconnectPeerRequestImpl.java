@@ -64,7 +64,7 @@ public class DisconnectPeerRequestImpl extends DiameterMessageImpl implements Di
   }
 
   public void setDisconnectCause(DisconnectCauseType disconnectCause) {
-    addAvp(Avp.DISCONNECT_CAUSE, (long)disconnectCause.getValue());
+    addAvp(Avp.DISCONNECT_CAUSE, disconnectCause.getValue());
   }
 
 }

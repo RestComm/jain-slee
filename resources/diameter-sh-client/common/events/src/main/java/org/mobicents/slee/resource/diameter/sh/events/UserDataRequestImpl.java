@@ -146,14 +146,14 @@ public class UserDataRequestImpl extends DiameterShMessageImpl implements UserDa
    * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setCurrentLocation(net.java.slee.resource.diameter.sh.events.avp.CurrentLocationType)
    */
   public void setCurrentLocation(CurrentLocationType currentLocation) {
-    addAvp(DiameterShAvpCodes.CURRENT_LOCATION, DiameterShAvpCodes.SH_VENDOR_ID, (long)currentLocation.getValue());
+    addAvp(DiameterShAvpCodes.CURRENT_LOCATION, DiameterShAvpCodes.SH_VENDOR_ID, currentLocation.getValue());
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setDataReference(net.java.slee.resource.diameter.sh.events.avp.DataReferenceType)
    */
   public void setDataReference(DataReferenceType dataReference) {
-    addAvp(DiameterShAvpCodes.DATA_REFERENCE, DiameterShAvpCodes.SH_VENDOR_ID, (long)dataReference.getValue());
+    addAvp(DiameterShAvpCodes.DATA_REFERENCE, DiameterShAvpCodes.SH_VENDOR_ID, dataReference.getValue());
   }
 
   /* (non-Javadoc)
@@ -169,14 +169,14 @@ public class UserDataRequestImpl extends DiameterShMessageImpl implements UserDa
    * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setIdentitySet(net.java.slee.resource.diameter.sh.events.avp.IdentitySetType)
    */
   public void setIdentitySet(IdentitySetType identitySet) {
-    addAvp(DiameterShAvpCodes.IDENTITY_SET, DiameterShAvpCodes.SH_VENDOR_ID, (long)identitySet.getValue());
+    addAvp(DiameterShAvpCodes.IDENTITY_SET, DiameterShAvpCodes.SH_VENDOR_ID, identitySet.getValue());
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setRequestedDomain(net.java.slee.resource.diameter.sh.events.avp.RequestedDomainType)
    */
   public void setRequestedDomain(RequestedDomainType requestedDomain) {
-    addAvp(DiameterShAvpCodes.REQUESTED_DOMAIN, DiameterShAvpCodes.SH_VENDOR_ID, (long)requestedDomain.getValue());
+    addAvp(DiameterShAvpCodes.REQUESTED_DOMAIN, DiameterShAvpCodes.SH_VENDOR_ID, requestedDomain.getValue());
   }
 
   /* (non-Javadoc)

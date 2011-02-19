@@ -129,7 +129,7 @@ public class LocationInfoRequestImpl extends DiameterMessageImpl implements Loca
    * @see net.java.slee.resource.diameter.cxdx.events.LocationInfoRequest#setAuthSessionState(net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType)
    */
   public void setAuthSessionState(AuthSessionStateType authSessionState) {
-    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, (long) authSessionState.getValue());
+    addAvp(DiameterAvpCodes.AUTH_SESSION_STATE, authSessionState.getValue());
   }
 
   /*
@@ -138,7 +138,7 @@ public class LocationInfoRequestImpl extends DiameterMessageImpl implements Loca
    * @see net.java.slee.resource.diameter.cxdx.events.LocationInfoRequest#setOriginatingRequest(net.java.slee.resource.diameter.cxdx.events.avp.OriginatingRequest)
    */
   public void setOriginatingRequest(OriginatingRequest originatingRequest) {
-    addAvp(ORIGINATING_REQUEST, CXDX_VENDOR_ID, (long) originatingRequest.getValue());
+    addAvp(ORIGINATING_REQUEST, CXDX_VENDOR_ID, originatingRequest.getValue());
   }
 
   /*
@@ -176,7 +176,7 @@ public class LocationInfoRequestImpl extends DiameterMessageImpl implements Loca
    * @see net.java.slee.resource.diameter.cxdx.events.LocationInfoRequest#setUserAuthorizationType(net.java.slee.resource.diameter.cxdx.events.avp.UserAuthorizationType)
    */
   public void setUserAuthorizationType(UserAuthorizationType userAuthorizationType) {
-    addAvp(USER_AUTHORIZATION_TYPE, CXDX_VENDOR_ID, (long) userAuthorizationType.getValue());
+    addAvp(USER_AUTHORIZATION_TYPE, CXDX_VENDOR_ID, userAuthorizationType.getValue());
   }
 
 }

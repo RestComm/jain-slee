@@ -90,7 +90,7 @@ public abstract class RoCreditControlMessageImpl extends DiameterMessageImpl imp
    */
   @Override
   public void setCcRequestType(CcRequestType ccRequestType) throws IllegalStateException {
-    addAvp(CreditControlAVPCodes.CC_Request_Type, (long) ccRequestType.getValue());
+    addAvp(CreditControlAVPCodes.CC_Request_Type, ccRequestType.getValue());
   }
 
   /*
