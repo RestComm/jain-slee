@@ -15,49 +15,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.resource.mediacontrol.local.event;
+package org.mobicents.slee.resource.mediacontrol.wrapper.mediagroup;
 
-import javax.media.mscontrol.networkconnection.SdpPortManager;
-import javax.media.mscontrol.networkconnection.SdpPortManagerEvent;
+import javax.media.mscontrol.mediagroup.signals.SignalGenerator;
+import javax.media.mscontrol.mediagroup.signals.SignalGeneratorEvent;
+import javax.media.mscontrol.resource.ResourceEvent;
 
-import org.mobicents.slee.resource.mediacontrol.local.SdpPortManagerLocal;
+import org.mobicents.slee.resource.mediacontrol.wrapper.ResourceEventWrapper;
 
 /**
  * @author baranowb
- * 
+ *
  */
-public class SdpPortManagerEventLocal extends ResourceEventLocal implements SdpPortManagerEvent {
+public class SignalGeneratorEventWrapper extends ResourceEventWrapper implements SignalGeneratorEvent {
 
-	private SdpPortManagerLocal sdpPortManagerLocal;
-
+	public static final String EMIT_SIGNALS_COMPLETED = "javax.media.mscontrol.mediagroup.signals.SignalGeneratorEvent.EMIT_SIGNALS_COMPLETED";
+	
+	protected final SignalGeneratorEvent wrappedEvent;
+	protected final SignalGeneratorWrapper source;
 	/**
 	 * @param resourceEvent
 	 */
-	public SdpPortManagerEventLocal(SdpPortManagerEvent resourceEvent, SdpPortManagerLocal sdpPortManagerLocal) {
+	public SignalGeneratorEventWrapper(ResourceEvent resourceEvent,SignalGeneratorWrapper source) {
 		super(resourceEvent);
-		this.sdpPortManagerLocal = sdpPortManagerLocal;
+		this.wrappedEvent = (SignalGeneratorEvent) resourceEvent;
+		this.source = source;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.media.mscontrol.networkconnection.SdpPortManagerEvent#getMediaServerSdp
-	 * ()
-	 */
-	@Override
-	public byte[] getMediaServerSdp() {
-
-		return ((SdpPortManagerEvent) super.resourceEvent).getMediaServerSdp();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
 	@Override
-	public SdpPortManager getSource() {
-		return sdpPortManagerLocal;
+	public SignalGenerator getSource() {
+		return this.source;
 	}
+
 }

@@ -4,13 +4,13 @@
 <resource-adaptor-jar>
     <resource-adaptor id="MSC_1.0_RA">
         <description>Media control resource adaptor (JSR-309)</description>
-        <resource-adaptor-name>MSC-1.0-RA</resource-adaptor-name>
+        <resource-adaptor-name>MsControl</resource-adaptor-name>
         <resource-adaptor-vendor>org.mobicents</resource-adaptor-vendor>
         <resource-adaptor-version>1.0</resource-adaptor-version>
         <resource-adaptor-type-ref>
-            <resource-adaptor-type-name>MSC-1.0-RA</resource-adaptor-type-name>
-            <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
-            <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+            <resource-adaptor-type-name>MsControl</resource-adaptor-type-name>
+        <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+        <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
         </resource-adaptor-type-ref>
         <library-ref>
             <library-name>msc-library</library-name>

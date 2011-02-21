@@ -108,6 +108,9 @@ Each entry in the array may differ from the previous by the size of the regions,
       <listitem>
         <para>Search for a MediaObject with the given URI. 
 The search is performed in the child objects of this factory (recursively).</para>
+		<note>
+			<para>Not supported currently.</para>
+		</note>
       </listitem>
     </varlistentry>
     

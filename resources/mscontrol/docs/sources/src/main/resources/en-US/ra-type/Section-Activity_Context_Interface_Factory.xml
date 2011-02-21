@@ -28,12 +28,20 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
 import javax.slee.UnrecognizedActivityException;
 
-public interface MscActivityContextInterfaceFactory {
+public interface McActivityContextInterfaceFactory {
 
-    public ActivityContextInterface getActivityContextInterface(NetworkConnection connection)
-            throws NullPointerException, UnrecognizedActivityException, FactoryException;
-    public ActivityContextInterface getActivityContextInterface(MediaGroup group)
-            throws NullPointerException, UnrecognizedActivityException, FactoryException;
+	public ActivityContextInterface getActivityContextInterface(MediaSession mediaSession) throws NullPointerException, UnrecognizedActivityException,
+			FactoryException;
+
+	public ActivityContextInterface getActivityContextInterface(NetworkConnection connection) throws NullPointerException, UnrecognizedActivityException,
+			FactoryException;
+
+	public ActivityContextInterface getActivityContextInterface(MediaGroup group) throws NullPointerException, UnrecognizedActivityException, FactoryException;
+
+	public ActivityContextInterface getActivityContextInterface(MediaMixer mixer) throws NullPointerException, UnrecognizedActivityException, FactoryException;
+
+	public ActivityContextInterface getActivityContextInterface(VxmlDialog mixer) throws NullPointerException, UnrecognizedActivityException, FactoryException;
+
 }
 ]]>
      </programlisting>

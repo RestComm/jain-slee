@@ -4,17 +4,30 @@
 	id="revision_history">
 	<title>Revision History</title>
 	<simpara>
-		<revhistory>		
+		<revhistory>	
 			<revision>
 				<revnumber>1.0</revnumber>
-				<date>Tue Dec 30 2009</date>
+				<date>Wed Sat 15 20011</date>
 				<author>
-					<firstname>Eduardo</firstname>
-					<surname>Martins</surname>
+					<firstname>Bartosz</firstname>
+					<surname>Baranowski</surname>
 				</author>
 				<revdescription>
 					<simplelist>
 						<member>Creation of the &THIS.PLATFORM; JAIN SLEE &THIS.RA; RA User Guide.</member>
+					</simplelist>
+				</revdescription>
+			</revision>	
+			<revision>
+				<revnumber>1.1</revnumber>
+				<date>Wed Feb 15 20011</date>
+				<author>
+					<firstname>Bartosz</firstname>
+					<surname>Baranowski</surname>
+				</author>
+				<revdescription>
+					<simplelist>
+						<member>Update of the &THIS.PLATFORM; JAIN SLEE &THIS.RA; RA User Guide.</member>
 					</simplelist>
 				</revdescription>
 			</revision>

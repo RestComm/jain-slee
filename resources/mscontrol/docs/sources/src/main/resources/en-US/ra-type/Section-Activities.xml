@@ -9,29 +9,172 @@
 	id="ratype_activities">
 	<title>Activities</title>
 	<para>&THIS.RA;
-		Resource Adaptor type defines two activities. Both are created and destroyed explicitly by
-		<literal>SBB</literal>
-		. Activity objects are:
+		Resource Adaptor type defines following activities:
 		<itemizedlist>
+			<listitem>
+				<para>javax.media.mscontrol.MediaSession</para>
+			</listitem>
 			<listitem>
 				<para>javax.media.mscontrol.networkconnection.NetworkConnection</para>
 			</listitem>
 			<listitem>
 				<para>javax.media.mscontrol.mediagroup.MediaGroup</para>
 			</listitem>
+			<listitem>
+				<para>javax.media.mscontrol.mixer.MediaMixer</para>
+			</listitem>
+			<listitem>
+				<para>javax.media.mscontrol.vxml.VxmlDialog</para>
+			</listitem>
+
 		</itemizedlist>
 	</para>
-	<para>
-		The
-		<literal>NetworkConnection</literal>
-		activity represents connection to peer over
-		<literal>RTP</literal>
-		. It is used to as handle to peer capabilities and data stream.
-	</para>
-	<para>
-		The
-		<literal>MediaGroup</literal>
-		activity represents set of connections, on which certain operations are performed.
-		<literal>MediaGroup</literal> is used with <literal>NetworkConnection</literal> activity.
-	</para>
+	<section
+		id="ratype_activities_media_session">
+		<title>Media Session</title>
+		<para>
+			The
+			<literal>MediaSession</literal>
+			activity represents interaction with controlled media server. It is parent activity of all other activities. That is
+			if its termianted,
+			all activities created by it are also terminated.
+			<literal>MediaSession</literal>
+			is target for only
+			<literal>ActivityEndEvent</literal>
+			. It is terminated explicitly by invoking its
+			<methodname>release</methodname>
+			method.
+		</para>
+	</section>
+	<section
+		id="ratype_activities_network_connection">
+		<title>Network Connection</title>
+		<para>
+			The
+			<literal>NetworkConnection</literal>
+			activity represents connection to peer over
+			<literal>RTP</literal>
+			. It is used to as handle to peer capabilities and data stream. It is released when one of following condition occurs:
+			<itemizedlist>
+				<listitem>
+					<para>Failure of stream, which is followed by specific event and termination of activity.</para>
+				</listitem>
+				<listitem>
+					<para>
+						Termination of
+						<literal>MediaSession</literal>
+						activity.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Invocation of
+						<literal>NetworkConnection</literal>
+						<methodname>release</methodname>
+						method.
+					</para>
+					
+					
+				</listitem>
+
+			</itemizedlist>
+		</para>
+	</section>
+	<section
+		id="ratype_activities_media_group">
+		<title>Media Group</title>
+		<para>
+			The
+			<literal>MediaGroup</literal>
+			activity represents set of connections, on which certain operations are performed.
+			<literal>MediaGroup</literal>
+			is used with
+			other activities to, for instance generete signal and stream them. It is released when one of following condition occurs:
+			<itemizedlist>
+				<listitem>
+					<para>
+						Termination of
+						<literal>MediaSession</literal>
+						activity.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Invocation of
+						<literal>MediaGroup</literal>
+						<methodname>release</methodname>
+						method.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						When <literal>IRRECOVERABLE_FAILURE</literal> event is received.
+					</para>
+				</listitem>
+				
+			</itemizedlist>
+		</para>
+	</section>
+	<section
+		id="ratype_activities_media_mixer">
+		<title>Media Mixer</title>
+		<para>The
+			<literal>MediaMixer</literal>
+			activity represents mixing capabilities of underlying media server. It is used with other activities to mix their streams. It is released when one of following condition occurs:
+			<itemizedlist>
+				<listitem>
+					<para>
+						Termination of
+						<literal>MediaSession</literal>
+						activity.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Invocation of
+						<literal>MediaMixer</literal>
+						<methodname>release</methodname>
+						method.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						When <literal>IRRECOVERABLE_FAILURE</literal> event is received.
+					</para>
+				</listitem>
+			</itemizedlist>
+		</para>
+	</section>
+	<section
+		id="ratype_activities_media_vxml_dialog">
+		<title>VXML Dialog</title>
+		<para>The
+			<literal>VxmlDialog</literal>
+			activity represents VoiceXML interaction of media server and user agents. It is released when one of following condition occurs:
+			<itemizedlist>
+				<listitem>
+					<para>
+						Termination of
+						<literal>MediaSession</literal>
+						activity.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Invocation of
+						<literal>VxmlDialog</literal>
+						<methodname>release</methodname>
+						method.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Activtiy receives one of following events: <literal>DISCONNECTION_REQUESTED</literal>, <literal>ERROR_EVENT</literal> or <literal>EXITED</literal>.
+					</para>
+				</listitem>
+			</itemizedlist>
+		</para>
+	</section>
+
+
 </section>

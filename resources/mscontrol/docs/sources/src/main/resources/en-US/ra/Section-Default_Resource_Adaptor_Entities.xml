@@ -25,29 +25,24 @@
 	<programlisting
 		language="XML"
 		role="XML"><![CDATA[
-  <resource-adaptor-type-binding>
-   <resource-adaptor-type-ref>
-    <resource-adaptor-type-name>
-     MSC-1.0-RA
-    </resource-adaptor-type-name>
-    <resource-adaptor-type-vendor>
-     org.mobicents
-    </resource-adaptor-type-vendor>
-    <resource-adaptor-type-version>
-     1.0
-    </resource-adaptor-type-version>
-   </resource-adaptor-type-ref>
-   <activity-context-interface-factory-name>
-    slee/resources/msc/1.0/acifactory
-   </activity-context-interface-factory-name>
-   <resource-adaptor-entity-binding>
-    <resource-adaptor-object-name>
-     slee/resources/msc/1.0/sbbinterface
-    </resource-adaptor-object-name>
-    <resource-adaptor-entity-link>
-     MSCRA
-    </resource-adaptor-entity-link>
-   </resource-adaptor-entity-binding>
-  </resource-adaptor-type-binding>]]>
+        <resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>MsControl</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/media/1.0/acifactory
+            </activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/media/1.0/provider
+                </resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					MSCRA
+                </resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+		]]>
  </programlisting>
 </section>

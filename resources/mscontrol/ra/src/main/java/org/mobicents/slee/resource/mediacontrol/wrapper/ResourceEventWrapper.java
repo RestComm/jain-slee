@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.resource.mediacontrol.local.event;
+package org.mobicents.slee.resource.mediacontrol.wrapper;
 
 import javax.media.mscontrol.EventType;
 import javax.media.mscontrol.MediaErr;
@@ -25,22 +25,22 @@ import javax.media.mscontrol.resource.Trigger;
 
 /**
  * @author baranowb
- *
+ * 
  */
-public class ResourceEventLocal {
-
+public abstract class ResourceEventWrapper {
+	//NOTE: dont implement interface here. it will not allow to subclass this class and define specific getSource....
 	protected ResourceEvent resourceEvent;
 
 	/**
 	 * @param resourceEvent
 	 */
-	public ResourceEventLocal(ResourceEvent resourceEvent) {
+	public ResourceEventWrapper(ResourceEvent resourceEvent) {
 		super();
 		this.resourceEvent = resourceEvent;
 	}
 
 	public MediaErr getError() {
-		return resourceEvent.getError(); 
+		return resourceEvent.getError();
 	}
 
 	public String getErrorText() {
@@ -62,6 +62,7 @@ public class ResourceEventLocal {
 	public Trigger getRTCTrigger() {
 		return resourceEvent.getRTCTrigger();
 	}
+
 
 
 }

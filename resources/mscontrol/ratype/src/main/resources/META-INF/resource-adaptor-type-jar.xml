@@ -4,7 +4,7 @@
     <description />
     <resource-adaptor-type>
         <description>Media server control resource adaptor (JSR-309)</description>
-        <resource-adaptor-type-name>MSC-1.0-RA</resource-adaptor-type-name>
+        <resource-adaptor-type-name>MsControl</resource-adaptor-type-name>
         <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
         <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
         <library-ref>
@@ -19,10 +19,19 @@
             <activity-type>
                 <activity-type-name>javax.media.mscontrol.mediagroup.MediaGroup</activity-type-name>
             </activity-type>
+            <activity-type>
+                <activity-type-name>javax.media.mscontrol.MediaSession</activity-type-name>
+            </activity-type>
+            <activity-type>
+                <activity-type-name>javax.media.mscontrol.mixer.MediaMixer</activity-type-name>
+            </activity-type>
+            <activity-type>
+                <activity-type-name>javax.media.mscontrol.vxml.VxmlDialog</activity-type-name>
+            </activity-type>
             
             <activity-context-interface-factory-interface>
                 <activity-context-interface-factory-interface-name>
-					org.mobicents.slee.resource.mediacontrol.MscActivityContextInterfaceFactory
+					org.mobicents.slee.resource.mediacontrol.McActivityContextInterfaceFactory
                 </activity-context-interface-factory-interface-name>
             </activity-context-interface-factory-interface>
             <resource-adaptor-interface>
@@ -116,6 +125,115 @@
             <event-type-vendor>org.mobicents</event-type-vendor>
             <event-type-version>1.0</event-type-version>
         </event-type-ref>
+        
+        <!-- MIXER events -->
+        <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mixer.MediaMixer.ACTIVE_INPUTS_CHANGED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+         <event-type-ref>
+            <event-type-name>javax.media.mscontrol.mixer.MediaMixer.MOST_ACTIVE_INPUT_CHANGED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        
+        <!-- VXML Dialog events -->
+         <event-type-ref>
+            <event-type-name>javax.media.mscontrol.vxml.VxmlDialogEvent.DISCONNECTION_REQUESTED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+         <event-type-ref>
+            <event-type-name>javax.media.mscontrol.vxml.VxmlDialogEvent.ERROR_EVENT</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+         <event-type-ref>
+            <event-type-name>javax.media.mscontrol.vxml.VxmlDialogEvent.EXITED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+         <event-type-ref>
+            <event-type-name>javax.media.mscontrol.vxml.VxmlDialogEvent.MIDCALL_EVENT_RECEIVED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+         <event-type-ref>
+            <event-type-name>javax.media.mscontrol.vxml.VxmlDialogEvent.PREPARED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+         <event-type-ref>
+            <event-type-name>javax.media.mscontrol.vxml.VxmlDialogEvent.STARTED</event-type-name>
+            <event-type-vendor>org.mobicents</event-type-vendor>
+            <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        
+        <!-- Allocation events -->
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.resource.AllocationEvent.IRRECOVERABLE_FAILURE</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.resource.AllocationEvent.ALLOCATION_CONFIRMED</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<!-- signal detector events -->
+	
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.mediagroup.signals.SignalDetectorEvent.FLUSH_BUFFER_COMPLETED</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.mediagroup.signals.SignalDetectorEvent.OVERFLOWED</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.mediagroup.signals.SignalDetectorEvent.PATTERN_MATCHED</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.mediagroup.signals.SignalDetectorEvent.RECEIVE_SIGNALS_COMPLETED</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.mediagroup.signals.SignalDetectorEvent.SIGNAL_DETECTED</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	<!-- Signal gen events -->
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.mediagroup.signals.SignalGeneratorEvent.EMIT_SIGNALS_COMPLETED</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<!-- video -->
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.resource.video.VideoRendererEvent.RENDERING_COMPLETED</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<!-- speech: SPEECH - its not in specs...  -->
+	
+	<event-type-ref>
+		<event-type-name>javax.media.mscontrol.mediagroup.signals.SpeechRecognitionEvent.SPEECH</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
         
     </resource-adaptor-type>
 </resource-adaptor-type-jar>

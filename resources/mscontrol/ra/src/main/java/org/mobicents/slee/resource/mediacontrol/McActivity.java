@@ -15,48 +15,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.resource.mediacontrol.local.event;
-
-import javax.media.mscontrol.mediagroup.Recorder;
-import javax.media.mscontrol.mediagroup.RecorderEvent;
-
-import org.mobicents.slee.resource.mediacontrol.local.RecorderLocal;
+package org.mobicents.slee.resource.mediacontrol;
 
 /**
  * @author baranowb
- * 
+ *
  */
-public class RecorderEventLocal extends ResourceEventLocal implements RecorderEvent {
-	
-	private RecorderLocal recorder;
+public interface McActivity {
 
-	/**
-	 * @param resourceEvent
-	 */
-	public RecorderEventLocal(RecorderEvent resourceEvent,RecorderLocal recorder) {
-		super(resourceEvent);
-		this.recorder = recorder;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.media.mscontrol.MediaEvent#getSource()
-	 */
-	@Override
-	public Recorder getSource() {
-
-		return recorder;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.media.mscontrol.mediagroup.RecorderEvent#getDuration()
-	 */
-	@Override
-	public int getDuration() {
-		return ((RecorderEvent) super.resourceEvent).getDuration();
-	}
-
+	public McActivityHandle getActivityHandle();
+	public McResourceAdaptor getRA();
+	public void release();
 }

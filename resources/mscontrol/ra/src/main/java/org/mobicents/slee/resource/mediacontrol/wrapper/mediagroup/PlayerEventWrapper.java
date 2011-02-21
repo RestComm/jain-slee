@@ -15,31 +15,42 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.resource.mediacontrol.local.event;
+package org.mobicents.slee.resource.mediacontrol.wrapper.mediagroup;
 
 import javax.media.mscontrol.mediagroup.Player;
 import javax.media.mscontrol.mediagroup.PlayerEvent;
 import javax.media.mscontrol.resource.Action;
 
-import org.mobicents.slee.resource.mediacontrol.local.PlayerLocal;
+import org.mobicents.slee.resource.mediacontrol.wrapper.ResourceEventWrapper;
 
 /**
  * @author baranowb
- *
+ * 
  */
-public class PlayerEventLocal extends ResourceEventLocal implements PlayerEvent{
+public class PlayerEventWrapper extends ResourceEventWrapper implements PlayerEvent {
+	public static final String PLAY_COMPLETED = "javax.media.mscontrol.mediagroup.PlayerEvent.PLAY_COMPLETED";
 
-	private PlayerLocal player;
-	
+	public static final String PAUSED = "javax.media.mscontrol.mediagroup.PlayerEvent.PAUSED";
+
+	public static final String RESUMED = "javax.media.mscontrol.mediagroup.PlayerEvent.RESUMED";
+
+	public static final String SPEED_CHANGED = "javax.media.mscontrol.mediagroup.PlayerEvent.SPEED_CHANGED";
+
+	public static final String VOLUME_CHANGED = "javax.media.mscontrol.mediagroup.PlayerEvent.VOLUME_CHANGED";
+
+	private PlayerWrapper player;
+
 	/**
 	 * @param resourceEvent
 	 */
-	public PlayerEventLocal(PlayerEvent resourceEvent,PlayerLocal player) {
+	public PlayerEventWrapper(PlayerEvent resourceEvent, PlayerWrapper player) {
 		super(resourceEvent);
 		this.player = player;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
 	@Override
@@ -47,30 +58,34 @@ public class PlayerEventLocal extends ResourceEventLocal implements PlayerEvent{
 		return player;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see javax.media.mscontrol.mediagroup.PlayerEvent#getChangeType()
 	 */
 	@Override
 	public Action getChangeType() {
-		return ((PlayerEvent)super.resourceEvent).getChangeType();
+		return ((PlayerEvent) super.resourceEvent).getChangeType();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see javax.media.mscontrol.mediagroup.PlayerEvent#getIndex()
 	 */
 	@Override
 	public int getIndex() {
-		return ((PlayerEvent)super.resourceEvent).getIndex();
+		return ((PlayerEvent) super.resourceEvent).getIndex();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see javax.media.mscontrol.mediagroup.PlayerEvent#getOffset()
 	 */
 	@Override
 	public int getOffset() {
-		return ((PlayerEvent)super.resourceEvent).getOffset();
+		return ((PlayerEvent) super.resourceEvent).getOffset();
 	}
-
-	
 
 }
