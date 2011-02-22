@@ -39,10 +39,14 @@ import net.java.slee.resource.diameter.sh.events.avp.DataReferenceType;
 import net.java.slee.resource.diameter.sh.events.avp.DiameterShAvpCodes;
 import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
 import net.java.slee.resource.diameter.sh.events.avp.userdata.ShData;
+import net.java.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactory;
 
 import org.jdiameter.api.Message;
 import org.mobicents.slee.resource.diameter.sh.events.DiameterShMessageImpl;
 import org.mobicents.slee.resource.diameter.sh.events.avp.UserIdentityAvpImpl;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ObjectFactory;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShData;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactoryImpl;
 
 /**
  * 
@@ -53,7 +57,10 @@ import org.mobicents.slee.resource.diameter.sh.events.avp.UserIdentityAvpImpl;
  */
 public class ProfileUpdateRequestImpl extends DiameterShMessageImpl implements ProfileUpdateRequest {
 
+  private static final long serialVersionUID = -5829214729454907100L;
+
   private static JAXBContext jaxbContext = initJAXBContext();
+  private static UserDataObjectFactory udof = new UserDataObjectFactoryImpl(new ObjectFactory());
 
   private static JAXBContext initJAXBContext() {
     try {
@@ -153,7 +160,7 @@ public class ProfileUpdateRequestImpl extends DiameterShMessageImpl implements P
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
       byte[] data = getAvpAsRaw(DiameterShAvpCodes.USER_DATA, DiameterShAvpCodes.SH_VENDOR_ID);
-      JAXBElement jaxbElem = (JAXBElement) unmarshaller.unmarshal(new ByteArrayInputStream(data));
+      JAXBElement<TShData> jaxbElem = udof.createShData((TShData) unmarshaller.unmarshal(new ByteArrayInputStream(data)));
       shDataObject = (ShData) jaxbElem.getValue();
     }
     catch (Exception e) {
@@ -176,7 +183,8 @@ public class ProfileUpdateRequestImpl extends DiameterShMessageImpl implements P
    */
   public void setUserDataObject(ShData userData) throws IOException {
     try {
-      Marshaller marshaller = jaxbContext.createMarshaller();
+      
+      Marshaller marshaller =  JAXBContext.newInstance("org.mobicents.slee.resource.diameter.sh.events.avp.userdata", getClass().getClassLoader()).createMarshaller();
 
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       marshaller.marshal(userData, baos);

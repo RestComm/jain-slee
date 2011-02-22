@@ -1,22 +1,21 @@
 /*
  * JBoss, Home of Professional Open Source
- * 
- * Copyright 2010, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @authors tag. All rights reserved.
+ * Copyright 2010, Red Hat, Inc. and/or its affiliates, and individual
+ * contributors as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a full listing
  * of individual contributors.
- *
+ * 
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License, v. 2.0.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
  * General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free
+ * v. 2.0 along with this distribution; if not, write to the Free 
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
@@ -233,7 +232,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
    */
   public void sendLocationInfoAnswer(LocationInfoAnswer locationInfoAnswer) throws IOException {
     DiameterMessageImpl msg = (DiameterMessageImpl) locationInfoAnswer;
-    JLocationInfoAnswerImpl answer = new JLocationInfoAnswerImpl(msg.getGenericData());
+    JLocationInfoAnswerImpl answer = new JLocationInfoAnswerImpl((Answer) msg.getGenericData());
     try {
       appSession.sendLocationInformationAnswer(answer);
     }
@@ -254,7 +253,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
    */
   public void sendMultimediaAuthenticationAnswer(MultimediaAuthenticationAnswer multimediaAuthenticationAnswer) throws IOException {
     DiameterMessageImpl msg = (DiameterMessageImpl) multimediaAuthenticationAnswer;
-    JMultimediaAuthAnswerImpl answer = new JMultimediaAuthAnswerImpl(msg.getGenericData());
+    JMultimediaAuthAnswerImpl answer = new JMultimediaAuthAnswerImpl((Answer) msg.getGenericData());
     try {
       appSession.sendMultimediaAuthAnswer(answer);
     }
@@ -317,7 +316,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
    */
   public void sendServerAssignmentAnswer(ServerAssignmentAnswer serverAssignmentAnswer) throws IOException {
     DiameterMessageImpl msg = (DiameterMessageImpl) serverAssignmentAnswer;
-    JServerAssignmentAnswerImpl answer = new JServerAssignmentAnswerImpl(msg.getGenericData());
+    JServerAssignmentAnswerImpl answer = new JServerAssignmentAnswerImpl((Answer) msg.getGenericData());
     try {
       appSession.sendServerAssignmentAnswer(answer);
     }
@@ -338,7 +337,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
    */
   public void sendUserAuthorizationAnswer(UserAuthorizationAnswer userAuthorizationAnswer) throws IOException {
     DiameterMessageImpl msg = (DiameterMessageImpl) userAuthorizationAnswer;
-    JUserAuthorizationAnswerImpl answer = new JUserAuthorizationAnswerImpl(msg.getGenericData());
+    JUserAuthorizationAnswerImpl answer = new JUserAuthorizationAnswerImpl((Answer) msg.getGenericData());
     try {
       appSession.sendUserAuthorizationAnswer(answer);
     }

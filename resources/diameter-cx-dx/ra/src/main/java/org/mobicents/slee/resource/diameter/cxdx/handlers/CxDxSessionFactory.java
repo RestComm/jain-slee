@@ -1,22 +1,21 @@
 /*
  * JBoss, Home of Professional Open Source
- * 
- * Copyright 2010, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @authors tag. All rights reserved.
+ * Copyright 2010, Red Hat, Inc. and/or its affiliates, and individual
+ * contributors as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a full listing
  * of individual contributors.
- *
+ * 
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License, v. 2.0.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
  * General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free
+ * v. 2.0 along with this distribution; if not, write to the Free 
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
@@ -252,84 +251,84 @@ public class CxDxSessionFactory extends CxDxSessionFactoryImpl {
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createLocationInfoAnswer(org.jdiameter.api.Answer)
    */
-  public AppAnswerEvent createLocationInfoAnswer(Answer answer) {
+  public JLocationInfoAnswer createLocationInfoAnswer(Answer answer) {
     return new JLocationInfoAnswerImpl(answer);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createLocationInfoRequest(org.jdiameter.api.Request)
    */
-  public AppRequestEvent createLocationInfoRequest(Request request) {
+  public JLocationInfoRequest createLocationInfoRequest(Request request) {
     return new JLocationInfoRequestImpl(request);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createMultimediaAuthAnswer(org.jdiameter.api.Answer)
    */
-  public AppAnswerEvent createMultimediaAuthAnswer(Answer answer) {
+  public JMultimediaAuthAnswer createMultimediaAuthAnswer(Answer answer) {
     return new JMultimediaAuthAnswerImpl(answer);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createMultimediaAuthRequest(org.jdiameter.api.Request)
    */
-  public AppRequestEvent createMultimediaAuthRequest(Request request) {
+  public JMultimediaAuthRequest createMultimediaAuthRequest(Request request) {
     return new JMultimediaAuthRequestImpl(request);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createPushProfileAnswer(org.jdiameter.api.Answer)
    */
-  public AppAnswerEvent createPushProfileAnswer(Answer answer) {
+  public JPushProfileAnswer createPushProfileAnswer(Answer answer) {
     return new JPushProfileAnswerImpl(answer);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createPushProfileRequest(org.jdiameter.api.Request)
    */
-  public AppRequestEvent createPushProfileRequest(Request request) {
+  public JPushProfileRequest createPushProfileRequest(Request request) {
     return new JPushProfileRequestImpl(request);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createRegistrationTerminationAnswer(org.jdiameter.api.Answer)
    */
-  public AppAnswerEvent createRegistrationTerminationAnswer(Answer answer) {
+  public JRegistrationTerminationAnswer createRegistrationTerminationAnswer(Answer answer) {
     return new JRegistrationTerminationAnswerImpl(answer);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createRegistrationTerminationRequest(org.jdiameter.api.Request)
    */
-  public AppRequestEvent createRegistrationTerminationRequest(Request request) {
+  public JRegistrationTerminationRequest createRegistrationTerminationRequest(Request request) {
     return new JRegistrationTerminationRequestImpl(request);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createServerAssignmentAnswer(org.jdiameter.api.Answer)
    */
-  public AppAnswerEvent createServerAssignmentAnswer(Answer answer) {
+  public JServerAssignmentAnswer createServerAssignmentAnswer(Answer answer) {
     return new JServerAssignmentAnswerImpl(answer);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createServerAssignmentRequest(org.jdiameter.api.Request)
    */
-  public AppRequestEvent createServerAssignmentRequest(Request request) {
+  public JServerAssignmentRequest createServerAssignmentRequest(Request request) {
     return new JServerAssignmentRequestImpl(request);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createUserAuthorizationAnswer(org.jdiameter.api.Answer)
    */
-  public AppAnswerEvent createUserAuthorizationAnswer(Answer answer) {
+  public JUserAuthorizationAnswer createUserAuthorizationAnswer(Answer answer) {
     return new JUserAuthorizationAnswerImpl(answer);
   }
 
   /* (non-Javadoc)
    * @see org.jdiameter.common.api.app.cxdx.ICxDxMessageFactory#createUserAuthorizationRequest(org.jdiameter.api.Request)
    */
-  public AppRequestEvent createUserAuthorizationRequest(Request request) {
+  public JUserAuthorizationRequest createUserAuthorizationRequest(Request request) {
     return new JUserAuthorizationRequestImpl(request);
   }
 
