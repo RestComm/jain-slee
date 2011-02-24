@@ -968,6 +968,10 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			unbindSMSC();
 
 			this.protoSmppSession.closeLink();
+		} catch (Exception e) {
+			// ignore all errors during unbinding
+		}
+		try {
 
 			bindSMSC();
 		} catch (Exception e) {
