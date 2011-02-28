@@ -6,22 +6,21 @@
 			<defaultValue>2.0.0.GA</defaultValue>
 		</requiredProperty>
 		 -->
-		 <requiredProperty key="mobicentsParentVersion">
-			<defaultValue>2.4</defaultValue>
+		<requiredProperty key="mobicentsParentVersion">
+			<defaultValue>2.16</defaultValue>
 		</requiredProperty>
 		<requiredProperty key="mobicentsEclipsePluginVersion">
 			<defaultValue>1.0.0.BETA2</defaultValue>
 		</requiredProperty>
 		<requiredProperty key="mobicentsDUPluginVersion">
-			<defaultValue>2.0.0.BETA3</defaultValue>
-		</requiredProperty>	
+			<defaultValue>2.0.0.BETA4</defaultValue>
+		</requiredProperty>		
 		<requiredProperty key="mobicentsLibraryPluginVersion">
-			<defaultValue>1.0.0.BETA1</defaultValue>
+			<defaultValue>1.0.0.BETA2</defaultValue>
 		</requiredProperty>
 		<requiredProperty key="mobicentsFtRaVersion">
-			<defaultValue>2.0.0.GA</defaultValue>
+			<defaultValue>2.3.0.FINAL</defaultValue>
 		</requiredProperty>
-		
 	</requiredProperties>
 	
 	<!-- there are no file sets -->

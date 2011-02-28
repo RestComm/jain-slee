@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE service-xml PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.0//EN"
-                             "http://java.sun.com/dtd/slee-service_1_1.dtd">
+<!DOCTYPE service-xml PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.0//EN" "http://java.sun.com/dtd/slee-service_1_0.dtd">
 <service-xml>
     <service>
         <description/>

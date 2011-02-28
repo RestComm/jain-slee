@@ -43,10 +43,11 @@ import org.mobicents.slee.resource.cluster.*;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 
+
 /**
  * 
  * dummy Ra. it reads 192B from socket, converts to string and uses it as
- * activig handle. Fires event based on '1' count in data
+ * activity handle. Fires event based on '1' count in data
  * 
  */
 public class DummyResourceAdaptor implements
@@ -112,6 +113,7 @@ public class DummyResourceAdaptor implements
 			.newSingleThreadExecutor();
 	private Future streamFuture;
 	private Runner runner;
+	private boolean active = false;
 	private boolean connected = false;
 
 	// Connection operations --------------------------------------------
@@ -273,6 +275,7 @@ public class DummyResourceAdaptor implements
 	 */
 	public void raActive() {
 		try {
+			this.active = true;
 			this.provider = new DummyProviderImpl();
 			this.readSelector = SelectorProvider.provider().openSelector();
 
@@ -295,6 +298,7 @@ public class DummyResourceAdaptor implements
 			tracer.info("Initiaited server on: " + this.bindAddress + ":"
 					+ this.localAddress);
 		} catch (Exception ex) {
+			this.active = false;
 			String msg = "error in initializing resource adaptor";
 			tracer.severe(msg, ex);
 			throw new RuntimeException(msg, ex);
@@ -309,6 +313,7 @@ public class DummyResourceAdaptor implements
 	public void raInactive() {
 		if (this.streamFuture != null) {
 			try {
+				this.active = false;
 				this.streamFuture.cancel(false);
 				this.streamFuture = null;
 				this.serverSocketChannel.close();
@@ -455,7 +460,6 @@ public class DummyResourceAdaptor implements
 			}
 
 			String s = (String) properties.getProperty(_BIND_ADDRESS).getValue();
-			String localAddress;
 			if (s == null) {
 				this.localAddress = "127.0.0.1";
 			} else {
@@ -703,7 +707,7 @@ public class DummyResourceAdaptor implements
 	public void setFaultTolerantResourceAdaptorContext(
 			FaultTolerantResourceAdaptorContext<DummyActivityHandle, DummyActivity> context) {
 		this.ftRaContext = context;
-		this.activities = ftRaContext.getReplicateData();
+		this.activities = ftRaContext.getReplicatedDataWithFailover(true);
 	}
 
 	public void unsetFaultTolerantResourceAdaptorContext() {
@@ -718,6 +722,14 @@ public class DummyResourceAdaptor implements
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#dataRemoved(java.io.Serializable)
+	 */
+	@Override
+	public void dataRemoved(DummyActivityHandle arg0) {
+		this.activities.remove(arg0);
+		
+	}
 	// inner class:
 
 	private class DummyProviderImpl implements DummyProvider {

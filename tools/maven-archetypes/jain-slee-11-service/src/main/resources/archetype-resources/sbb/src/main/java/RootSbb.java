@@ -47,11 +47,12 @@ public abstract class RootSbb implements javax.slee.Sbb {
 	 * Called when an sbb object is instantied and enters the pooled state.
 	 */
 	public void setSbbContext(SbbContext context) {
+		this.logger = context.getTracer("TracerName-PutSomething-Here");
 		if (logger.isFineEnabled()) {
 			logger.fine("setSbbContext(...)");
 		}
 		this.sbbContext = context;
-		this.logger = context.getTracer("TracerName-PutSomething-Here");
+		
 	}
 
 	public void unsetSbbContext() {
