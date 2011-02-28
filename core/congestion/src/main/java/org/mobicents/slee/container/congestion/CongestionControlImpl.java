@@ -47,22 +47,19 @@ public class CongestionControlImpl extends AbstractSleeContainerModule implement
 	}
 	
 	@Override
-	public void sleeStarting() {
-		super.sleeStarting();
+	public void sleeInitialization() {
 		alarmFacility = sleeContainer.getAlarmManagement().newAlarmFacility(new CongestionControlNotification(sleeContainer.getCluster().getLocalAddress()));
 	}
 	
 	@Override
-	public void beforeSleeRunning() {
-		super.beforeSleeRunning();
+	public void sleeStarting() {
 		// this will schedule the timer task if congestion control is on
 		configurationUpdate();
 	}
 	
 	@Override
-	public void sleeStopped() {
-		reset();
-		super.sleeStopped();		
+	public void sleeStopping() {
+		reset();		
 	}
 	
 	private void reset() {

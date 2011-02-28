@@ -23,6 +23,7 @@
 
 	<modules>
 		<module>jmx-property-editors</module>
+		<module>deployer</module>
 		<module>spi</module>
 		<module>common</module>
 		<module>usage</module>
@@ -42,8 +43,7 @@
 		<module>standard-components</module>
 		<module>server-resources</module>
 		<module>server-default-beans</module>
-		<module>server-all-beans</module>
-		<module>deployer</module>	
+		<module>server-all-beans</module>			
 	</modules>
 
 	<properties>
@@ -52,7 +52,7 @@
 		<slee.version>${pom.version}</slee.version>
 		<slee.codename>SUPERSONIC</slee.codename>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<mobicents.cluster.version>1.6</mobicents.cluster.version>
+		<mobicents.cluster.version>1.8-SNAPSHOT</mobicents.cluster.version>
 	</properties>
 	
 	<dependencyManagement>

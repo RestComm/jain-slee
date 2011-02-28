@@ -95,7 +95,7 @@ public class SbbObjectPoolManagementImpl implements SbbObjectPoolManagementImplM
 
 		createObjectPool(serviceID,sbbComponent);
 
-		if (sleeTransactionManager != null) {
+		if (sleeTransactionManager != null && sleeTransactionManager.getTransactionContext() != null) {
 			// add a rollback action to remove sbb object pool
 			TransactionalAction action = new TransactionalAction() {
 				public void execute() {

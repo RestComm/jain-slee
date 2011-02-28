@@ -27,11 +27,8 @@ public class NullActivityFactoryImpl extends AbstractSleeContainerModule
 	private static Logger logger = Logger
 			.getLogger(NullActivityFactoryImpl.class);
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeStarting()
-	 */
 	@Override
-	public void sleeStarting() {
+	public void sleeInitialization() {
 		JndiRegistrationManager.registerWithJndi("slee/nullactivity", "nullactivityfactory",
 				this);
 	}

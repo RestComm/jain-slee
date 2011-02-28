@@ -105,7 +105,9 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * the ra allowed event types, cached here for optimal runtime performance
 	 */
 	private final Set<EventTypeID> allowedEventTypes;
-		
+	
+	private boolean setFTContext = true;
+	
 	/**
 	 * Creates a new entity with the specified name, for the specified ra
 	 * component and with the provided entity config properties. The entity
@@ -176,11 +178,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 							"should not happen, setting ra context on ra entity creation",
 							e);
 			throw new SLEEException(e.getMessage(), e);
-		}
-		if (object.isFaultTolerant()) {
-			// set fault tolerant context, it is a ft ra
-			object.setFaultTolerantResourceAdaptorContext(new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer.getCluster(),(FaultTolerantResourceAdaptor) object.getResourceAdaptorObject()));
-		}
+		}		
 		// configure
 		object.raConfigure(entityProperties);
 		// process to inactive state
@@ -243,9 +241,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	public void updateConfigurationProperties(ConfigProperties properties)
 			throws InvalidConfigurationException, InvalidStateException {
 		if (!component.getDescriptor().getSupportsActiveReconfiguration()
-				&& (sleeContainer.getSleeState() == SleeState.RUNNING
-						|| sleeContainer.getSleeState() == SleeState.STOPPING || sleeContainer
-						.getSleeState() == SleeState.STARTING)
+				&& (sleeContainer.getSleeState() != SleeState.STOPPED)
 				&& (state == ResourceAdaptorEntityState.ACTIVE || state == ResourceAdaptorEntityState.STOPPING)) {
 			throw new InvalidStateException(
 					"the value of the supports-active-reconfiguration attribute of the resource-adaptor-class element in the deployment descriptor of the Resource Adaptor of the resource adaptor entity is False and the resource adaptor entity is in the Active or Stopping state and the SLEE is in the Starting, Running, or Stopping state");
@@ -257,10 +253,27 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	/**
 	 * Signals that the container is in RUNNING state
 	 */
-	public void sleeRunning() throws InvalidStateException {
+	public void sleeRunning() throws InvalidStateException {		
 		// if entity is active then activate the ra object
 		if (this.state.isActive()) {
-			object.raActive();
+			if (setFTContext) {
+				setFTContext = false;
+				if (object.isFaultTolerant()) {
+					// set fault tolerant context, it is a ft ra
+					try {
+						object.setFaultTolerantResourceAdaptorContext(new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer.getCluster(),(FaultTolerantResourceAdaptor) object.getResourceAdaptorObject()));
+					}
+					catch (Throwable t) {
+						logger.error("Got exception invoking setFaultTolerantResourceAdaptorContext(...) for entity "+name, t);
+					}					
+				}
+			}
+			try {
+				object.raActive();
+			}
+			catch (Throwable t) {
+				logger.error("Got exception invoking raActive() for entity "+name, t);
+			}
 		}
 	}
 
@@ -270,7 +283,12 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 */
 	public void sleeStopping() throws InvalidStateException, TransactionRequiredLocalException {
 		if (state != null && state.isActive()) {
-			object.raStopping();
+			try {
+				object.raStopping();
+			}
+			catch (Throwable t) {
+				logger.error("Got exception from RA object",t);
+			}
 			scheduleAllActivitiesEnd();
 		}
 	}
@@ -310,7 +328,19 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		}
 		this.state = ResourceAdaptorEntityState.ACTIVE;
 		// if slee is running then activate ra object
-		if (sleeContainer.getSleeState().isRunning()) {
+		if (sleeContainer.getSleeState() == SleeState.RUNNING) {
+			if (setFTContext) {
+				setFTContext = false;
+				if (object.isFaultTolerant()) {
+					// set fault tolerant context, it is a ft ra
+					try {
+						object.setFaultTolerantResourceAdaptorContext(new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer.getCluster(),(FaultTolerantResourceAdaptor) object.getResourceAdaptorObject()));
+					}
+					catch (Throwable t) {
+						logger.error("Got exception invoking setFaultTolerantResourceAdaptorContext(...) for entity "+name, t);
+					}					
+				}
+			}
 			try {
 				object.raActive();
 			}
@@ -371,7 +401,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		// schedule the end of all activities if the node is the single member of the cluster
 		boolean skipActivityEnding = !sleeContainer.getCluster().isSingleMember();
 		
-		if (!skipActivityEnding && hasActivites(null)) {
+		if (!skipActivityEnding && hasActivities(null)) {
 			logger.info("RA entity "+name+" activities end scheduled.");
 			timerTask = new EndAllActivitiesRAEntityTimerTask(this,sleeContainer);
 		}
@@ -384,11 +414,8 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * Checks if the entity has activities besides the one passed as parameter (if not null).
 	 * @param exceptHandle
 	 * @return
-	 * @throws TransactionRequiredLocalException
 	 */
-	private boolean hasActivites(ActivityHandle exceptHandle) throws TransactionRequiredLocalException {
-
-		boolean newTx = sleeContainer.getTransactionManager().requireTransaction();
+	private boolean hasActivities(ActivityHandle exceptHandle) {
 		try {	
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
@@ -402,15 +429,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		} 
-		finally {
-			if (newTx) {
-				try {
-					sleeContainer.getTransactionManager().commit();
-				} catch (Throwable e) {
-					logger.error(e.getMessage(),e);
-				}
-			}
-		}
+		
 		return false;
 	}
 
@@ -625,19 +644,13 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 */
 	public void activityEnded(final ActivityHandle handle, int activityFlags) {
 		ActivityHandle ah = null;
-		if (ActivityFlags.hasSleeMayMarshal(activityFlags)) {
-			// handle is not a reference
-			ah = handle;
+		if (handle instanceof ActivityHandleReference) {
+			// handle is a ref, derrefer and remove the ref
+			ah = resourceManagement.getHandleReferenceFactory().removeActivityHandleReference((ActivityHandleReference) handle);			
 		}
 		else {
-			if (resourceManagement.getHandleReferenceFactory() == null) {
-				// local mode, handle is not a reference
-				ah = handle;
-			}
-			else {
-				// handle is a ref, derrefer and remove the ref
-				ah = resourceManagement.getHandleReferenceFactory().removeActivityHandleReference((ActivityHandleReference) handle);
-			}
+			// handle is not a reference
+			ah = handle;
 		}
 		if (ah != null && ActivityFlags.hasRequestEndedCallback(activityFlags)) {
 			object.activityEnded(ah);
@@ -645,7 +658,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
 			// the ra object is stopping, check if the timer task is still
 			// needed
-			if (!hasActivites(handle)) {
+			if (!hasActivities(handle)) {
 				if (timerTask != null) {
 					timerTask.cancel();
 				}

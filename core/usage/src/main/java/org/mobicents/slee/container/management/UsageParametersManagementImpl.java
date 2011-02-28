@@ -13,7 +13,6 @@ import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBean;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
-import org.mobicents.slee.container.usage.UsageMBeansConfiguration;
 
 /**
  * @author martins
@@ -21,25 +20,6 @@ import org.mobicents.slee.container.usage.UsageMBeansConfiguration;
  */
 public class UsageParametersManagementImpl extends AbstractSleeContainerModule
 		implements UsageParametersManagement {
-
-	private final UsageMBeansConfiguration configuration;
-
-	/**
-	 * @param configuration
-	 */
-	public UsageParametersManagementImpl(UsageMBeansConfiguration configuration) {
-		this.configuration = configuration;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seeorg.mobicents.slee.container.management.UsageParametersManagement#
-	 * getConfiguration()
-	 */
-	public UsageMBeansConfiguration getConfiguration() {
-		return configuration;
-	}
 
 	/*
 	 * (non-Javadoc)

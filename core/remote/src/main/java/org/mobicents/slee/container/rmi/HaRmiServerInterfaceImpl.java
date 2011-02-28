@@ -32,11 +32,8 @@ RmiServerInterface {
 		
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeStarting()
-	 */
 	@Override
-	public void sleeStarting() {
+	public void sleeInitialization() {
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Starting Slee Service HARMI Server");
@@ -68,9 +65,6 @@ RmiServerInterface {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeShutdown()
-	 */
 	@Override
 	public void sleeShutdown() {
 		try {

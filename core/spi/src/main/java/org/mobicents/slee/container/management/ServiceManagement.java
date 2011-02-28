@@ -21,7 +21,6 @@ import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainerModule;
 import org.mobicents.slee.container.component.service.ServiceComponent;
-import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceActivityFactory;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
 
@@ -124,17 +123,6 @@ public interface ServiceManagement extends SleeContainerModule {
 
 	/**
 	 * 
-	 * Retrieves {@link ServiceImpl} with the specified {@link ServiceID}.
-	 * 
-	 * @param serviceID
-	 * @return
-	 * @throws UnrecognizedServiceException
-	 */
-	public Service getService(ServiceID serviceID)
-			throws UnrecognizedServiceException;
-
-	/**
-	 * 
 	 * @return
 	 */
 	public ServiceActivityFactory getServiceActivityFactory();
@@ -178,12 +166,6 @@ public interface ServiceManagement extends SleeContainerModule {
 	 * @return
 	 */
 	public boolean isRAEntityLinkNameReferenced(String raLinkName) ;
-
-	/**
-	 * @param serviceComponent
-	 * @return
-	 */
-	public Service getService(ServiceComponent serviceComponent);
 
 	/**
 	 * @param activityHandle

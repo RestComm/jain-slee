@@ -22,12 +22,14 @@ public class DeploymentManagerMBeanImpl extends StandardMBean implements Deploym
   private File tempDeployDir;
   private File deployDir;
   private File farmDeployDir;
-
-  public DeploymentManagerMBeanImpl() throws NotCompliantMBeanException {
+  private final SleeContainerDeployerImpl sleeContainerDeployer;
+  
+  public DeploymentManagerMBeanImpl(SleeContainerDeployerImpl sleeContainerDeployer) throws NotCompliantMBeanException {
     super(DeploymentManagerMBean.class);
     this.tempDeployDir = createTempDUJarsDeploymentRoot();
     this.deployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "deploy");
     this.farmDeployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "farm");
+    this.sleeContainerDeployer = sleeContainerDeployer;
   }
 
   /*
@@ -35,7 +37,7 @@ public class DeploymentManagerMBeanImpl extends StandardMBean implements Deploym
    * @see org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBean#showStatus()
    */
   public String showStatus() {
-    return DeploymentManager.INSTANCE.showStatus();
+    return sleeContainerDeployer.getDeploymentManager().showStatus();
   }
 
   /*

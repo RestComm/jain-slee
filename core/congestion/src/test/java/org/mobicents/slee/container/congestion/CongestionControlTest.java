@@ -20,12 +20,12 @@ public class CongestionControlTest {
 		configuration = new CongestionControlConfiguration();
 		scheduler = new ScheduledThreadPoolExecutor(1);
 		congestionControl = new TCongestionControlImpl(configuration,scheduler);
-		congestionControl.beforeSleeRunning();
+		congestionControl.sleeStarting();
 	}
 	
 	@After
 	public void after() {
-		congestionControl.sleeStopped();
+		congestionControl.sleeStopping();
 		scheduler.shutdownNow();
 	}
 	

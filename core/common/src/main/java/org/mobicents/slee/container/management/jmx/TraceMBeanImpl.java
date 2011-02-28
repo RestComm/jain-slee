@@ -486,26 +486,9 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 		
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeShutdown()
-	 */
-	public void sleeShutdown() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStart()
-	 */
-	public void beforeSleeRunning() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#afterSleeRunning()
-	 */
-	public void afterSleeRunning() {
+	@Override
+	public void sleeInitialization() {
+		JndiRegistrationManager.registerWithJndi("slee/facilities", TraceMBeanImpl.JNDI_NAME, traceFacility);
 		Runnable r = new Runnable() {			
 			public void run() {
 				for(TracerStorage ts : tracerStorage.values()) {
@@ -516,28 +499,21 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 		scheduledFuture = sleeContainer.getNonClusteredScheduler().scheduleWithFixedDelay(r, LOG4J_LEVEL_SYNC_PERIOD,LOG4J_LEVEL_SYNC_PERIOD, TimeUnit.MINUTES);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStopping()
-	 */
-	public void sleeStopping() {
-		// TODO Auto-generated method stub
+	@Override
+	public void sleeStarting() {
 		
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStop()
-	 */
-	public void sleeStopped() {
+	@Override
+	public void sleeStopping() {
+		
+	}
+	
+	@Override
+	public void sleeShutdown() {
 		if (!sleeContainer.getNonClusteredScheduler().isShutdown()) {
 			scheduledFuture.cancel(false);
 		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeInit()
-	 */
-	public void sleeStarting() {
-		JndiRegistrationManager.registerWithJndi("slee/facilities", TraceMBeanImpl.JNDI_NAME, traceFacility);		
 	}
 	
 }

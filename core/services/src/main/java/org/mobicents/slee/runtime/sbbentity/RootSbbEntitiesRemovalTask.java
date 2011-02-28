@@ -16,10 +16,10 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.LocalActivityContext;
+import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
-import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 
 public class RootSbbEntitiesRemovalTask extends TimerTask {
@@ -110,9 +110,8 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 
 				if (i == null) {
 					// get service
-					Service service = sleeContainer
-							.getServiceManagement().getService(serviceID);
-					if (service.getState() == ServiceState.INACTIVE) {
+					ServiceComponent serviceComponent = sleeContainer.getComponentRepository().getComponentByID(serviceID);
+					if (serviceComponent == null || serviceComponent.getServiceState() == ServiceState.INACTIVE) {
 						i = sleeContainer.getSbbEntityFactory().getRootSbbEntityIDs(serviceID).iterator();
 					} else {
 						// wrong service state, finish task

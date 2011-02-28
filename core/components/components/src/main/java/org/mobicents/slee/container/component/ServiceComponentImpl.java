@@ -10,7 +10,9 @@ import javax.slee.ServiceID;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.ServiceState;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
 import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDescriptor;
@@ -29,6 +31,8 @@ import org.mobicents.slee.container.management.jmx.ServiceUsageMBean;
  */
 public class ServiceComponentImpl extends AbstractSleeComponent implements ServiceComponent {
 
+	private static final Logger LOGGER = Logger.getLogger(ServiceComponentImpl.class);
+	
 	/**
 	 * the service descriptor
 	 */
@@ -62,6 +66,8 @@ public class ServiceComponentImpl extends AbstractSleeComponent implements Servi
 	 * the time in milliseconds this component was created
 	 */
 	private final long creationTime = System.currentTimeMillis();
+	
+	private ServiceState serviceState = ServiceState.INACTIVE;
 	
 	/**
 	 * 
@@ -253,5 +259,18 @@ public class ServiceComponentImpl extends AbstractSleeComponent implements Servi
 	@Override
 	public String toString() {
 		return getServiceID().toString();
+	}
+	
+	@Override
+	public ServiceState getServiceState() {
+		return serviceState;
+	}
+	
+	@Override
+	public void setServiceState(ServiceState state) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Changing "+getServiceID()+" state to "+serviceState);
+		}
+		this.serviceState = state;
 	}
 }

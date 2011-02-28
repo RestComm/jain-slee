@@ -21,7 +21,7 @@
           <literal>setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext context)</literal>
         </term>
         <listitem>
-          <para>This method provides the RA with the <literal>org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext</literal> object, which gives access to facilities related with the cluster. This method is invoked by SLEE right after invoking <literal>setResourceAdaptorContext( ResourceAdaptorContext context)</literal> from JAIN SLEE 1.1 specs.</para>
+          <para>This method provides the RA with the <literal>org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext</literal> object, which gives access to facilities related with the cluster. This method is invoked by SLEE after invoking <literal>raConfigure(ConfigProperties properties)</literal> from JAIN SLEE 1.1 specs.</para>
         </listitem>
       </varlistentry>
       <varlistentry>

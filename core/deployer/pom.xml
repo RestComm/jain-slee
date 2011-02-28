@@ -11,7 +11,7 @@
 	<artifactId>deployer</artifactId>
 
 	<dependencies>
-		<dependency>
+		<!-- <dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>spi</artifactId>
 			<version>${pom.version}</version>
@@ -21,12 +21,16 @@
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>common</artifactId>
 			<version>${pom.version}</version>
+		</dependency> -->
+		
+		<dependency>
+			<groupId>javax.slee</groupId>
+           	<artifactId>jain-slee</artifactId>           	
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
            	<artifactId>jboss-as-j2se</artifactId>           	
-		</dependency>
-		
+		</dependency>		
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
   			<artifactId>jboss-as-system-jmx</artifactId>

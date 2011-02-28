@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
+import javax.slee.management.ServiceState;
 
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.SleeComponent;
@@ -92,5 +93,17 @@ public interface ServiceComponent extends SleeComponent {
 	 * @param serviceUsageMBean
 	 */
 	public void setServiceUsageMBean(ServiceUsageMBean serviceUsageMBean);
+	
+	/**
+	 * 
+	 * @param state
+	 */
+	public void setServiceState(ServiceState state);
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public ServiceState getServiceState();
 		
 }

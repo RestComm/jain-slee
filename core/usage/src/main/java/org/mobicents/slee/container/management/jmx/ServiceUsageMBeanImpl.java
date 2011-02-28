@@ -2,7 +2,6 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +31,6 @@ import org.mobicents.slee.container.component.SleeComponentWithUsageParametersIn
 import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.runtime.usage.AbstractUsageParameterSet;
-import org.mobicents.slee.runtime.usage.cluster.UsageMBeanCacheData;
 
 /**
  * 
@@ -161,30 +159,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			InvalidArgumentException,
 			UsageParameterSetNameAlreadyExistsException, ManagementException {
 		_createUsageParameterSet(sbbId, null, false);
-		//This method is called always for deployment of elements which may use usage 
-		//params, now lets check if we have some parameter sets in cluster	
-		checkClusteredParameters(sbbId);
-	}
-	
-	private void checkClusteredParameters(SbbID sbbId) throws NullPointerException, ManagementException, UnrecognizedSbbException, InvalidArgumentException {
-		if (sleeContainer.getUsageParametersManagement().getConfiguration().isClusteredUsageMBeans()) {
-			SbbNotification sbbNotification = new SbbNotification(serviceID,sbbId);
-			Collection<String> existingParamNames = UsageMBeanCacheData.getExistingSets(sbbNotification,this.sleeContainer.getCluster().getMobicentsCache());
-
-			for(String eParamName:existingParamNames)
-			{
-				SbbUsageMBeanMapKey mapKey = new SbbUsageMBeanMapKey(sbbId, eParamName);
-				if (!this.usageMBeans.containsKey(mapKey))
-				{
-					try{
-						_createUsageParameterSet(sbbId,eParamName,false);
-					}catch(UsageParameterSetNameAlreadyExistsException e)
-					{						
-						logger.error(e.getMessage(),e);									
-					}
-				}
-			}
-		}		
 	}
 	
 	/*
@@ -462,7 +436,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
 		
-		checkClusteredParameters(sbbId);
 		// get the sbb component
 		SbbComponent sbbComponent = sleeContainer.getComponentRepository()
 				.getComponentByID(sbbId);
@@ -570,18 +543,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		}
 		
 		if (bean == null || bean.getObjectName() == null) {
-			if(sleeContainer.getUsageParametersManagement().getConfiguration().isClusteredUsageMBeans() && UsageMBeanCacheData.setExists(new SbbNotification(serviceID, sbbId), name,sleeContainer.getCluster().getMobicentsCache()))
-			{
-				try {
-					_createUsageParameterSet(sbbId, name, true);
-					return _getSbbUsageMBean(sbbId, name);
-				} catch (Exception e) {
-					throw new ManagementException("Failed to recreate usage parameter set: "+name+", for: "+new SbbNotification(serviceID, sbbId),e);
-				}
-			}else
-			{
-				throw new UnrecognizedUsageParameterSetNameException(name);				
-			}
+			throw new UnrecognizedUsageParameterSetNameException(name);				
 		} else {
 			return bean.getObjectName();
 		}
@@ -616,7 +578,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 						"no usage parameter interface for " + sbbId);
 			}
 		}
-		checkClusteredParameters(sbbId);
 		// get service component and check if the sbb belongs to the service
 		ServiceComponent serviceComponent = sleeContainer
 				.getComponentRepository().getComponentByID(getService());
@@ -836,20 +797,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		SbbUsageMBeanMapKey mapKey = new SbbUsageMBeanMapKey(sbbID, name);
 		UsageMBeanImpl usageMBean = usageMBeans.get(mapKey);
 		if (usageMBean == null) {
-			if(sleeContainer.getUsageParametersManagement().getConfiguration().isClusteredUsageMBeans() && UsageMBeanCacheData.setExists(new SbbNotification(serviceID, sbbID), name,sleeContainer.getCluster().getMobicentsCache()))
-			{
-				try {
-					checkClusteredParameters(sbbID);
-					return _getInstalledUsageParameterSet(sbbID,name);
-				} catch (Exception e) {
-					logger.error(e.getMessage(),e);
-				} 
-				//FIXME: or throw runtime?
-				return null;
-			}else
-			{
-				return null;
-			}
+			return null;
 		} else {
 			return usageMBean.getUsageParameter();
 		}

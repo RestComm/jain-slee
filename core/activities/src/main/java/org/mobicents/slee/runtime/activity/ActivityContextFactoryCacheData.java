@@ -22,14 +22,14 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	/**
 	 * the fqn of the node that holds all activity context cache child nodes
 	 */
-	private final static Fqn parentNodeFqn = Fqn.fromElements(ActivityContextCacheData.parentNodeFqn);
+	final static Fqn NODE_FQN = Fqn.fromElements(ActivityContextCacheData.parentNodeFqn);
 
 	/**
 	 * 
 	 * @param activityContextId
 	 */
 	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
-		super(parentNodeFqn, cluster.getMobicentsCache());
+		super(NODE_FQN, cluster.getMobicentsCache());
 	}
 
 	/**

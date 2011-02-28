@@ -51,11 +51,8 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 	
 	private SbbObjectPoolManagementImpl sbbPoolManagement;
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeInit()
-	 */
 	@Override
-	public void sleeStarting() {
+	public void sleeInitialization() {
 		sbbPoolManagement = new SbbObjectPoolManagementImpl(sleeContainer);
 		sbbPoolManagement.register();
 	}
@@ -411,7 +408,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		} catch (NameAlreadyBoundException ex) {
 			//envCtx = (Context)envCtx.lookup("ejb");
 			//6.13.4.1.1 - The SLEE specification recommends, but does not require, that all references to other EJBs be organized
-			//in the ejb subcontext of the SBB’s environment
+			//in the ejb subcontext of the SBBï¿½s environment
 			//so it can be any :/
 			envCtx.lookup("ejb");
 		}

@@ -19,6 +19,8 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.activity.ActivityContext;
+import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
 import org.mobicents.slee.container.component.profile.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
@@ -74,11 +76,8 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 		
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeInit()
-	 */
 	@Override
-	public void sleeStarting() {
+	public void sleeInitialization() {
 		this.objectPoolManagement = new ProfileObjectPoolManagement(sleeContainer);
 		this.objectPoolManagement.register();
 		this.profileTableActivityContextInterfaceFactory = new ProfileTableActivityContextInterfaceFactoryImpl(sleeContainer,this);
@@ -398,17 +397,90 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 		return profileTableFramework.getProfileTableNames(id);	
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.AbstractSleeContainerModule#afterSleeRunning()
-	 */
 	@Override
-	public void afterSleeRunning() {
-		super.afterSleeRunning();
+	public void sleeStarting() {
 		if (sleeContainer.getCluster().isHeadMember()) {
 			startAllProfileTableActivities();
 		}
 	}
 	
+	@Override
+	public void sleeStopping() {
+		if (sleeContainer.getCluster().isSingleMember()) {
+			stopAllProfileTableActivities();
+		}
+	}
+	
+	private void stopAllProfileTableActivities() {
+
+		logger.info("Ending all profile table activities...");
+
+		try {
+
+			for (ActivityContextHandle handle : sleeContainer
+					.getActivityContextFactory()
+					.getAllActivityContextsHandles()) {
+				if (handle.getActivityType() == ActivityType.PTABLE) {
+					try {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Ending profile table activity " + handle);
+						}
+						ActivityContext ac = sleeContainer
+						.getActivityContextFactory()
+						.getActivityContext(handle);
+						if (ac != null) {
+							ac.endActivity();
+						}
+					} catch (Exception e) {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Failed to end profile table activity "
+									+ handle, e);
+						}
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			logger
+			.error(
+					"Exception while ending all profile table activities",
+					e);
+
+		} 
+
+		// wait all activities end
+
+		boolean loop;
+		do {
+			loop = false;
+
+			try {
+				for (ActivityContextHandle handle : sleeContainer
+						.getActivityContextFactory()
+						.getAllActivityContextsHandles()) {
+					if (handle.getActivityType() == ActivityType.PTABLE) {
+						logger.info("Waiting for profile table activity "+handle+" to end...");
+						loop = true;
+						break;
+					}
+				}
+			} catch (Exception e) {
+				if (logger.isDebugEnabled()) {
+					logger.debug(e.getMessage(), e);
+				}
+			}
+			if (loop) {
+				try {
+					// wait a sec
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		} while (loop);
+
+	}
+
 	/**
 	 * 
 	 */

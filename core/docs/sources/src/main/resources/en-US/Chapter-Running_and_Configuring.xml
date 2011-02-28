@@ -146,17 +146,6 @@ Halting VM]]></screen>
 			</table>
 			<para>To switch the active configuration simply change the parameter injected in the bean named <application>Mobicents.JAINSLEE.Container</application>.</para>
 		</section>
-		<section id="usageparams_configuration">
-			<title>Configuring JAIN SLEE Usage Params</title>
-			<para>JAIN SLEE Usage Params are usage statistics of several JAIN SLEE concepts, such as the SBB, Service, Resource Adaptor or Profile Table. Configuration for JAIN SLEE Usage Params is done through a JBoss Microcontainer Bean:</para>
-			<programlisting language="XML" role="XML"><![CDATA[
-<bean name="Mobicents.JAINSLEE.UsageMbeans.Config"
-	class="org.mobicents.slee.runtime.usage.UsageMBeansConfiguration">
-	<property name="clusteredUsageMBeans">false</property>		
-</bean>]]>
-			</programlisting>
-			<para>There is a single property to configure, named clusteredUsageMBeans, with a boolean value. Set this property to <parameter>true</parameter> if the usage param values should be shared by all cluster nodes. This option means a significant performance penalty, but makes it possible to learn the current values for the whole cluster by checking a single node. Use this only if there is no other solution, such as a management client, that gets the value of each node and then does the appropriate calculations.</para>
-		</section>
 		<section id="other_configurations">
 			<title>Other Configurations</title>
 			<para>Other JAIN SLEE runtime configuration is done through the following JBoss Microcontainer Bean:</para>

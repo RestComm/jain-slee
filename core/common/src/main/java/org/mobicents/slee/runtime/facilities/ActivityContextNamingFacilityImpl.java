@@ -36,14 +36,16 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
     
     private ActivityContextNamingFacilityCacheData cacheData;
     
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.container.SleeContainerModule#sleeStarting()
-     */
-    public void sleeStarting() {
-    	cacheData = new ActivityContextNamingFacilityCacheData(sleeContainer.getCluster());
-    	cacheData.create();
+    @Override
+    public void sleeInitialization() {
     	JndiRegistrationManager.registerWithJndi("slee/facilities", "activitycontextnaming",
 				this);
+    }
+    
+    @Override
+    public void sleeStarting() {
+    	cacheData = new ActivityContextNamingFacilityCacheData(sleeContainer.getCluster());
+    	cacheData.create();    	
     }
 
     /*

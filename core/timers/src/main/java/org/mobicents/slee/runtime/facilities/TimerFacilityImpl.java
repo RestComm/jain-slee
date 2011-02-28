@@ -57,20 +57,14 @@ public class TimerFacilityImpl extends AbstractSleeContainerModule implements Ti
 		this.configuration = configuration;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeStarting()
-	 */
 	@Override
-	public void sleeStarting() {
+	public void sleeInitialization() {
 		JndiRegistrationManager.registerWithJndi("slee/facilities", TimerFacilityImpl.JNDI_NAME,
 				this);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeRunning()
-	 */
 	@Override
-	public void beforeSleeRunning() {
+	public void sleeStarting() {
 		if (scheduler != null) {
 			scheduler.shutdownNow();
 		}

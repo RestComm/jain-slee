@@ -20,6 +20,7 @@ public abstract class AbstractSleeContainerModule implements
 	 * 
 	 * @see org.mobicents.slee.container.SleeContainerModule#getSleeContainer()
 	 */
+	@Override
 	public SleeContainer getSleeContainer() {
 		return sleeContainer;
 	}
@@ -31,49 +32,46 @@ public abstract class AbstractSleeContainerModule implements
 	 * org.mobicents.slee.container.SleeContainerModule#setSleeContainer(org
 	 * .mobicents.slee.container.SleeContainer)
 	 */
+	@Override
 	public void setSleeContainer(SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeInit()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.SleeContainerModule#sleeInitialization()
 	 */
+	@Override
+	public void sleeInitialization() {
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStarting()
+	 */
+	@Override
 	public void sleeStarting() {
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStopping()
+	 */
+	@Override
+	public void sleeStopping() {
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.slee.container.SleeContainerModule#sleeShutdown()
 	 */
+	@Override
 	public void sleeShutdown() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStart()
-	 */
-	public void beforeSleeRunning() {
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#afterSleeRunning()
-	 */
-	public void afterSleeRunning() {		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStopping()
-	 */
-	public void sleeStopping() {
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStop()
-	 */
-	public void sleeStopped() {
-	}
 }

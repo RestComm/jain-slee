@@ -563,51 +563,24 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeShutdown()
-	 */
-	public void sleeShutdown() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStart()
-	 */
-	public void beforeSleeRunning() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#afterSleeRunning()
-	 */
-	public void afterSleeRunning() {
-		// TODO Auto-generated method stub
-		
+	@Override
+	public void sleeInitialization() {
+		JndiRegistrationManager.registerWithJndi("slee/facilities", AlarmMBeanImpl.JNDI_NAME,this);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStopping()
-	 */
-	public void sleeStopping() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStop()
-	 */
-	public void sleeStopped() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.SleeContainerModule#sleeInit()
-	 */
+	@Override
 	public void sleeStarting() {
-		JndiRegistrationManager.registerWithJndi("slee/facilities", AlarmMBeanImpl.JNDI_NAME,this);		
+		
+	}
+	
+	@Override
+	public void sleeStopping() {
+		
+	}
+	
+	@Override
+	public void sleeShutdown() {
+		
 	}
 	
 }

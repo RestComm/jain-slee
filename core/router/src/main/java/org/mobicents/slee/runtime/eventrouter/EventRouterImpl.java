@@ -42,20 +42,14 @@ public class EventRouterImpl extends AbstractSleeContainerModule implements Even
 		this.configuration = configuration;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeInit()
-	 */
 	@Override
-	public void sleeStarting() {
+	public void sleeInitialization() {
 		logger
 		.info("Mobicents JAIN SLEE Event Router started.");
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeStart()
-	 */
 	@Override
-	public void beforeSleeRunning() {
+	public void sleeStarting() {
 		// get ridden of old executors, if any
 		if (this.executors != null) {
 			for (EventRouterExecutor executor : this.executors) {

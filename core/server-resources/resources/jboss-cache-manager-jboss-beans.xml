@@ -1500,7 +1500,7 @@
 
          <!-- Must use REPL since used for timestamp caching. 
               Must use SYNC to maintain cache coherency for entities. -->
-         <property name="cacheMode">REPL_SYNC</property> 
+         <property name="cacheMode">REPL_ASYNC</property> 
          <property name="clusterName">${jboss.partition.name:DefaultPartition}-mobicents-slee</property>        
          <property name="multiplexerStack">${jboss.default.jgroups.stack:udp}</property>
          <!-- Used for timestamps, so must fetch state. 
@@ -1519,10 +1519,10 @@
          <property name="useRegionBasedMarshalling">true</property>
          <property name="inactiveOnStartup">true</property>
 
-         <!-- Disable asynchronous RPC marshalling/sending -->
-         <property name="serializationExecutorPoolSize">0</property>        
-         <!-- We have no asynchronous notification listeners -->
-         <property name="listenerAsyncPoolSize">0</property>        
+         <!-- Disable asynchronous RPC marshalling/sending
+         <property name="serializationExecutorPoolSize">0</property> -->        
+         <!-- We have no asynchronous notification listeners
+         <property name="listenerAsyncPoolSize">0</property> -->       
          
 	     <property name="lockParentForChildInsertRemove">false</property>
 	     

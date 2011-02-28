@@ -44,7 +44,6 @@ import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
 import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
-import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
 import org.mobicents.slee.resource.ActivityHandleReferenceFactory;
@@ -1018,21 +1017,17 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	}
 	
 	@Override
-	public void sleeStarting() {
-		super.sleeStarting();
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.AbstractSleeContainerModule#afterSleeRunning()
-	 */
-	@Override
-	public void afterSleeRunning() {
-		super.afterSleeRunning();
+	public void sleeInitialization() {
 		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
 			handleReferenceFactory = new ActivityHandleReferenceFactory(this);
+		}		
+	}
+	
+	@Override
+	public void sleeStarting() {
+		if (handleReferenceFactory != null) {
 			handleReferenceFactory.init();
-		}
+		}	
 		for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
 			try {
 				raEntity.sleeRunning();
@@ -1044,35 +1039,13 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.AbstractSleeContainerModule#sleeStopping()
-	 */
 	@Override
 	public void sleeStopping() {
-		super.sleeStopping();
-		stopResourceAdaptors();
-	}
-	
-	@Override
-	public void sleeStopped() {
-		super.sleeStopped();
-		if (handleReferenceFactory != null) {
-			handleReferenceFactory.remove();
-			handleReferenceFactory = null;
-		}
-	}
-	
-	private void stopResourceAdaptors() {
 		
 		logger.info("Stopping all active resource adaptors ...");
 		
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-		
-		boolean rb = true;
 		try {
-			
-			sleeTransactionManager.begin();
-			
+				
 			// inform all ra entities that we are stopping the container
 			for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
 				try {
@@ -1082,26 +1055,12 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				}
 			}
 								
-			rb = false;
 		} catch (Exception e) {
 			logger
 					.error(
 							"Exception while stopping resource adaptors",
 							e);
 
-		} finally {
-			try {
-				if (rb) {
-					sleeTransactionManager.rollback();
-				} else {
-					sleeTransactionManager.commit();
-				}
-			} catch (Exception e) {
-				logger
-						.error(
-								"Error in tx management while stopping resource adaptors",
-								e);
-			}
 		}
 
 		// wait till all ra entity objects are stopped
@@ -1130,6 +1089,9 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				}
 			}
 		} while (loop);
+		if (handleReferenceFactory != null) {
+			handleReferenceFactory.remove();
+		}
 	}
 
 	/**

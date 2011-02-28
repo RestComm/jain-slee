@@ -15,7 +15,8 @@
       <property name="lockParentForChildInsertRemove">false</property>
       <property name="lockAcquisitionTimeout">15000</property>
       <property name="useLockStriping">false</property>
-      <property name="exposeManagementStatistics">false</property>    
+      <property name="exposeManagementStatistics">false</property> 
+      <property name="shutdownHookBehavior">DONT_REGISTER</property>   
    </bean>
    
 	<bean name="Mobicents.JAINSLEE.Cache" class="org.mobicents.cache.MobicentsCache">
@@ -29,6 +30,10 @@
       <constructor>
           <parameter><value-factory bean="Mobicents.JAINSLEE.Cache" method="getJBossCache"/></parameter>
       </constructor>
+      <start method="start" ignored="true"/>
+      <stop method="stop" ignored="true"/>
+      <destroy method="destroy" ignored="true"/>
+      <demand>Mobicents.JAINSLEE.SleeManagement</demand>      
    </bean>
    	
 	<bean name="Mobicents.JAINSLEE.Cluster" class="org.mobicents.cluster.DefaultMobicentsCluster">
@@ -213,19 +218,9 @@
 		<property name="jndiName">/slee-rmi-connector</property>
 	</bean>	
 	
-	<bean name="Mobicents.JAINSLEE.UsageMbeans.Config" class="org.mobicents.slee.runtime.usage.UsageMBeansConfigurationImpl">
-		<property name="clusteredUsageMBeans">false</property>		
-	</bean>
-	
 	<bean name="Mobicents.JAINSLEE.UsageParametersManagement"
-		class="org.mobicents.slee.container.management.UsageParametersManagementImpl">
-		<constructor>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.UsageMbeans.Config" />
-			</parameter>
-		</constructor>
-	</bean>			
-
+		class="org.mobicents.slee.container.management.UsageParametersManagementImpl" />
+		
 	<bean name="Mobicents.JAINSLEE.SbbEntityFactory"
 		class="org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryImpl" />
 	
@@ -259,9 +254,35 @@
 			</parameter>
 		</constructor>	
 	</bean>	
+			
+	<bean name="Mobicents.JAINSLEE.InternalDeployer"
+		class="org.mobicents.slee.container.deployment.jboss.SleeContainerDeployerImpl">
+		<property name="externalDeployer"><inject bean="Mobicents.JAINSLEE.ExternalDeployer" /></property>
+	</bean>				
+	
+	<bean name="Mobicents.JAINSLEE.DeployerMBean"
+		class="org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBeanImpl">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=DeployerMBean",exposedInterface=org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBean.class,registerDirectly=true)</annotation>
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.InternalDeployer" />				
+			</parameter>
+		</constructor>
+	</bean>
+	
+	<bean name="Mobicents.JAINSLEE.DeploymentMBean"
+		class="org.mobicents.slee.container.management.jmx.DeploymentMBeanImpl">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=Deployment",exposedInterface=org.mobicents.slee.container.management.jmx.DeploymentMBeanImplMBean.class,registerDirectly=true)</annotation>
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.InternalDeployer" />				
+			</parameter>
+		</constructor>
+	</bean>
 						
 	<bean name="Mobicents.JAINSLEE.Container" class="org.mobicents.slee.container.SleeContainer">
 		<constructor>
+			<parameter><inject bean="JMXKernel" property="mbeanServer"/></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.ComponentsManagement" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.SbbManagement" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.ServiceManagement" /></parameter>
@@ -284,19 +305,10 @@
 			<parameter><inject bean="Mobicents.JAINSLEE.SbbEntityFactory" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.CongestionControl" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.SleeConnectionService" /></parameter>
-			<parameter><inject bean="Mobicents.JAINSLEE.SleeConnectionFactory" /></parameter>			
+			<parameter><inject bean="Mobicents.JAINSLEE.SleeConnectionFactory" /></parameter>
+			<parameter><inject bean="Mobicents.JAINSLEE.InternalDeployer" /></parameter>			
 		</constructor>
 		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>
-	</bean>
-
-	<bean name="Mobicents.JAINSLEE.DeploymentMBean"
-		class="org.mobicents.slee.container.management.jmx.DeploymentMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=Deployment",exposedInterface=org.mobicents.slee.container.management.jmx.DeploymentMBeanImplMBean.class,registerDirectly=true)</annotation>
-		<constructor>
-			<parameter>
-				<inject bean="Mobicents.JAINSLEE.Container" />
-			</parameter>
-		</constructor>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.ServiceManagementMBean"
@@ -381,13 +393,9 @@
 			<value-factory bean="Mobicents.JAINSLEE.ActivityManagementMBean"
 				method="getObjectName" />
 		</property>
-	</bean>
-
-	<bean name="Mobicents.JAINSLEE.DeployerMBean"
-		class="org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=DeployerMBean",exposedInterface=org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBean.class,registerDirectly=true)</annotation>
-		<demand>Mobicents.JAINSLEE.SleeManagement</demand>
-	</bean>
+		<start method="startSlee"/>
+    	<stop method="stopSlee"/>
+	</bean>	
 	
 	<bean name="Mobicents.JAINSLEE.LogManagementMBean"
 		class="org.mobicents.slee.container.management.jmx.log.MobicentsLogManagerMBeanImpl">

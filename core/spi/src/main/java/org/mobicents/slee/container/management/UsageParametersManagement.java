@@ -13,19 +13,12 @@ import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBean;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBean;
-import org.mobicents.slee.container.usage.UsageMBeansConfiguration;
 
 /**
  * @author martins
  * 
  */
 public interface UsageParametersManagement extends SleeContainerModule {
-
-	/**
-	 * 
-	 * @return
-	 */
-	public UsageMBeansConfiguration getConfiguration();
 
 	/**
 	 * 

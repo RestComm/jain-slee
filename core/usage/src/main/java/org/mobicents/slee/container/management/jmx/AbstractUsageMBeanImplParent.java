@@ -2,7 +2,6 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,7 +23,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
 import org.mobicents.slee.runtime.usage.AbstractUsageParameterSet;
-import org.mobicents.slee.runtime.usage.cluster.UsageMBeanCacheData;
 
 /**
  * Abstract class code for a "parent" usage mbean, such as the
@@ -197,29 +195,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	public void createUsageParameterSet() throws NullPointerException,
 			InvalidArgumentException,
 			UsageParameterSetNameAlreadyExistsException, ManagementException {
-		_createUsageParameterSet(null);
-		
-		//This method is called always for deployment of elements which may use usage 
-		//params, now lets check if we have some parameter sets in cluster
-		checkClusteredParameters();		
-	}
-	
-	private void checkClusteredParameters() throws NullPointerException, ManagementException {
-		if (sleeContainer.getUsageParametersManagement().getConfiguration().isClusteredUsageMBeans()) {
-			Collection<String> existingParamNames = UsageMBeanCacheData.getExistingSets(this.notificationSource,this.sleeContainer.getCluster().getMobicentsCache());
-			for(String eParamName:existingParamNames)
-			{
-				if(!this.usageMBeans.containsKey(eParamName))
-				{
-					try{
-						_createUsageParameterSet(eParamName);
-					}catch(UsageParameterSetNameAlreadyExistsException e)
-					{
-						//we can ignore, this should not happen
-					}
-				}
-			}
-		}		
+		_createUsageParameterSet(null);	
 	}
 
 	/**
@@ -419,21 +395,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			usageMBeanImpl = defaultUsageMBean;
 		}
 		if (usageMBeanImpl == null) {
-			
-			if(sleeContainer.getUsageParametersManagement().getConfiguration().isClusteredUsageMBeans() && UsageMBeanCacheData.setExists(notificationSource, name,sleeContainer.getCluster().getMobicentsCache()))
-			{
-				try {
-					_createUsageParameterSet(name);
-					return _getUsageMBean(name);
-				} catch (NullPointerException e) {
-					throw new ManagementException("Failed recreating usage param bean!",e);
-				} catch (UsageParameterSetNameAlreadyExistsException e) {
-					throw new ManagementException("Failed recreating usage param bean!",e);
-				}
-			}else
-			{
-				throw new UnrecognizedUsageParameterSetNameException(name);	
-			}
+			throw new UnrecognizedUsageParameterSetNameException(name);				
 		} else {
 			return usageMBeanImpl.getObjectName();
 		}
@@ -462,7 +424,6 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	public String[] getUsageParameterSets() throws ManagementException {
 		
 		ensureMBeanIsNotClosed();
-		checkClusteredParameters();
 		return getUsageParameterNamesSet().toArray(new String[0]);
 	}
 
@@ -471,11 +432,6 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	 * @return
 	 */
 	public Set<String> getUsageParameterNamesSet() {
-		try {
-			checkClusteredParameters();
-		} catch (Throwable e) {
-			getLogger().error(e.getMessage(),e);			
-		}
 		return usageMBeans.keySet();
 	}
 
@@ -571,7 +527,6 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	public void resetAllUsageParameters() throws ManagementException {
 		
 		ensureMBeanIsNotClosed();
-		checkClusteredParameters();
 		try {
 			for (UsageMBeanImpl usageMBeanImpl : usageMBeans.values()) {
 				usageMBeanImpl.resetAllUsageParameters();
@@ -660,19 +615,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 		} else {
 			UsageMBeanImpl usageMBean = usageMBeans.get(name);
 			if (usageMBean == null) {
-				if(sleeContainer.getUsageParametersManagement().getConfiguration().isClusteredUsageMBeans() && UsageMBeanCacheData.setExists(notificationSource, name,sleeContainer.getCluster().getMobicentsCache()))
-				{
-					try {
-						_createUsageParameterSet(name);
-						return getInstalledUsageParameterSet(name);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					} 
-
-				}else
-				{
-					return null;
-				}
+				return null;
 			} else {
 				return usageMBean.getUsageParameter();
 			}

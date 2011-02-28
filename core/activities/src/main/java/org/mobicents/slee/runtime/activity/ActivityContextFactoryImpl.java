@@ -56,14 +56,15 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		return configuration;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeStarting()
-	 */
+	@Override
+	public void sleeInitialization() {
+		sleeContainer.getCluster().addDataRemovalListener(new DataRemovaClusterListener());		
+	}
+	
 	@Override
 	public void sleeStarting() {
 		cacheData = new ActivityContextFactoryCacheData(sleeContainer.getCluster());
 		cacheData.create();
-		sleeContainer.getCluster().addDataRemovalListener(new DataRemovaClusterListener());
 	}
 	
 	/*
@@ -203,7 +204,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 
 		@SuppressWarnings("unchecked")
 		public Fqn getBaseFqn() {
-			return cacheData.getNodeFqn();
+			return ActivityContextFactoryCacheData.NODE_FQN;
 		}
 		
 	}

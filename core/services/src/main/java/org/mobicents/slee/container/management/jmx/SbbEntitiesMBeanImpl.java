@@ -20,7 +20,6 @@ import org.mobicents.slee.container.sbbentity.ChildRelation;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
-import org.mobicents.slee.container.service.Service;
 
 public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implements
 		SbbEntitiesMBeanImplMBean {

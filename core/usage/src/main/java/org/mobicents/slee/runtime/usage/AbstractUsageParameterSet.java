@@ -12,7 +12,6 @@ import javax.slee.usage.SampleStatistics;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.UsageMBeanImpl;
-import org.mobicents.slee.runtime.usage.cluster.UsageMBeanCacheData;
 import org.mobicents.slee.runtime.usage.local.UsageMBeanLocalData;
 
 /**
@@ -50,12 +49,7 @@ public abstract class AbstractUsageParameterSet {
 		}
 		
 		// now init.
-		if (sleeContainer.getUsageParametersManagement().getConfiguration().isClusteredUsageMBeans()) {
-			this.usageMbeanData = new UsageMBeanCacheData(notificationSource,this.parameterSetName,sleeContainer.getCluster().getMobicentsCache());
-		}
-		else {
-			this.usageMbeanData = new UsageMBeanLocalData(notificationSource,this.parameterSetName);
-		}
+		this.usageMbeanData = new UsageMBeanLocalData(notificationSource,this.parameterSetName);
 		this.usageMbeanData.create();
 		
 		Collection<String> paramNames = this.getParameterNames();

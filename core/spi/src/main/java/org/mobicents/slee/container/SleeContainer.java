@@ -1,7 +1,8 @@
 package org.mobicents.slee.container;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.ConsoleHandler;
@@ -10,11 +11,10 @@ import java.util.logging.Handler;
 import javax.management.MBeanServer;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import javax.slee.InvalidStateException;
 import javax.slee.management.SleeState;
 
 import org.apache.log4j.Logger;
-import org.jboss.mx.util.MBeanServerLocator;
 import org.jboss.util.naming.Util;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
@@ -27,6 +27,7 @@ import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
 import org.mobicents.slee.container.component.du.DeployableUnitManagement;
 import org.mobicents.slee.container.congestion.CongestionControl;
+import org.mobicents.slee.container.deployment.SleeContainerDeployer;
 import org.mobicents.slee.container.event.EventContextFactory;
 import org.mobicents.slee.container.eventrouter.EventRouter;
 import org.mobicents.slee.container.facilities.ActivityContextNamingFacility;
@@ -102,7 +103,7 @@ public class SleeContainer {
 	}
 
 	
-	private ArrayList<SleeContainerModule> modules = new ArrayList<SleeContainerModule>();
+	private LinkedList<SleeContainerModule> modules = new LinkedList<SleeContainerModule>();
 	
 	private final SleeTransactionManager sleeTransactionManager;
 	private final MobicentsCluster cluster;
@@ -164,6 +165,7 @@ public class SleeContainer {
  	
 	private final MobicentsSleeConnectionFactory sleeConnectionFactory; 
 
+	private final SleeContainerDeployer deployer;
 	
 	/**
 	 * Creates a new instance of SleeContainer -- This is called from the
@@ -171,6 +173,7 @@ public class SleeContainer {
 	 * 
 	 */
 	public SleeContainer(
+			MBeanServer mBeanServer,
 			ComponentManagement componentManagement,
 			SbbManagement sbbManagement,
 			ServiceManagement serviceManagement,
@@ -189,11 +192,9 @@ public class SleeContainer {
 			TraceManagement traceMBeanImpl,
 			UsageParametersManagement usageParametersManagement,
 			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
-			SleeConnectionService sleeConnectionService, MobicentsSleeConnectionFactory sleeConnectionFactory) throws Exception {
+			SleeConnectionService sleeConnectionService, MobicentsSleeConnectionFactory sleeConnectionFactory, SleeContainerDeployer sleeContainerDeployer) throws Exception {
 		
-		// created in STOPPED state and remain so until started
-		this.sleeState = SleeState.STOPPED;
-		this.mbeanServer = MBeanServerLocator.locateJBoss();
+		this.mbeanServer = mBeanServer;
 
 		this.sleeTransactionManager = sleeTransactionManager;
 		addModule(sleeTransactionManager);
@@ -206,8 +207,6 @@ public class SleeContainer {
 						this.getClass().getClassLoader());
 
 		this.cluster = cluster;
-		cluster.getMobicentsCache().setReplicationClassLoader(
-				this.replicationClassLoader);
 		this.localCache = localCache;
 
 		this.uuidGenerator = new MobicentsUUIDGenerator(cluster
@@ -221,19 +220,7 @@ public class SleeContainer {
 
 		this.usageParametersManagement = usageParametersManagement;
 		addModule(usageParametersManagement);
-
-		this.serviceManagement = serviceManagement;
-		addModule(serviceManagement);
-
-		this.sbbManagement = sbbManagement;
-		addModule(sbbManagement);
-
-		this.resourceManagement = resourceManagement;
-		addModule(resourceManagement);
-
-		this.sleeProfileTableManager = profileManagement;
-		addModule(sleeProfileTableManager);
-
+				
 		this.activityContextFactory = activityContextFactory;
 		addModule(activityContextFactory);
 
@@ -272,6 +259,24 @@ public class SleeContainer {
 		
 		this.sleeConnectionFactory = sleeConnectionFactory;
 		addModule(sleeConnectionFactory);
+
+		// these must be the last ones to be notified of startup, and in this
+		// order
+		this.resourceManagement = resourceManagement;
+		addModule(resourceManagement);
+
+		this.sbbManagement = sbbManagement;
+		addModule(sbbManagement);
+
+		this.serviceManagement = serviceManagement;
+		addModule(serviceManagement);	
+		
+		this.sleeProfileTableManager = profileManagement;
+		addModule(sleeProfileTableManager);
+
+		this.deployer = sleeContainerDeployer;
+		addModule(sleeContainerDeployer);	
+
 	}
 
 	private void addModule(SleeContainerModule module) {
@@ -322,6 +327,14 @@ public class SleeContainer {
 		return cluster;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public SleeContainerDeployer getDeployer() {
+		return deployer;
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -530,77 +543,154 @@ public class SleeContainer {
 		return uuidGenerator;
 	}
 
-	
 	/**
-	 * Set the current state of the Slee Container. CAUTION: Do not invoke this
-	 * method directly! Use the SleeManagementMBean to change the Slee State
 	 * 
-	 * @param SleeState
+	 * @param newState
 	 */
-	public void setSleeState(SleeState newState) {
-		for (SleeContainerModule module : modules) {
+	public void setSleeState(final SleeState newState) throws InvalidStateException {
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Changing state: " + sleeState + " -> " + newState);
+		}
+
+		validateStateTransition(sleeState, newState);
+
+		if (sleeState == null) {
+			if (newState == SleeState.STOPPED) {
+				beforeModulesInitialization();
+				for (Iterator<SleeContainerModule> i = modules.iterator(); i
+						.hasNext();) {
+					i.next().sleeInitialization();
+				}
+				afterModulesInitialization();
+			}
+		} else if (sleeState == SleeState.STARTING) {
 			if (newState == SleeState.RUNNING) {
-				module.beforeSleeRunning();
-			} else if (newState == SleeState.STOPPED) {
-				module.sleeStopping();
+				for (Iterator<SleeContainerModule> i = modules.iterator(); i
+						.hasNext();) {
+					i.next().sleeStarting();
+				}
+			}
+		} else if (sleeState == SleeState.STOPPED) {
+			if (newState == null) {
+				beforeModulesShutdown();
+				for (Iterator<SleeContainerModule> i = modules
+						.descendingIterator(); i.hasNext();) {
+					i.next().sleeShutdown();
+				}
+				afterModulesShutdown();
+			}
+		} else if (sleeState == SleeState.STOPPING) {
+			if (newState == SleeState.STOPPED) {
+				for (Iterator<SleeContainerModule> i = modules
+						.descendingIterator(); i.hasNext();) {
+					i.next().sleeStopping();
+				}
 			}
 		}
+
 		this.sleeState = newState;
-		for (SleeContainerModule module : modules) {
-			if (newState == SleeState.RUNNING) {
-				module.afterSleeRunning();
-			} else if (newState == SleeState.STOPPED) {
-				module.sleeStopped();
+
+	}
+
+	/**
+	 * Ensures the standard SLEE lifecycle.
+	 * 
+	 * @param oldState
+	 * @param newState
+	 * @throws InvalidStateException
+	 */
+	private void validateStateTransition(SleeState oldState, SleeState newState)
+			throws InvalidStateException {
+		if (oldState == null) {
+			if (newState != SleeState.STOPPED) {
+				throw new InvalidStateException(
+						"illegal slee state transition: " + oldState + " -> "
+								+ newState);
+			}
+		} else if (oldState == SleeState.STOPPED) {
+			if (newState != null && newState != SleeState.STARTING) {
+				throw new InvalidStateException(
+						"illegal slee state transition: " + oldState + " -> "
+								+ newState);
+			}
+		} else if (oldState == SleeState.STARTING) {
+			if (newState != SleeState.STOPPING && newState != SleeState.RUNNING) {
+				throw new InvalidStateException(
+						"illegal slee state transition: " + oldState + " -> "
+								+ newState);
+			}
+		} else if (oldState == SleeState.RUNNING) {
+			if (newState != SleeState.STOPPING) {
+				throw new InvalidStateException(
+						"illegal slee state transition: " + oldState + " -> "
+								+ newState);
+			}
+		} else if (oldState == SleeState.STOPPING) {
+			if (newState != SleeState.STOPPED) {
+				throw new InvalidStateException(
+						"illegal slee state transition: " + oldState + " -> "
+								+ newState);
 			}
 		}
 	}
+	
+	public void beforeModulesInitialization() {
+		try {
+			// init jndi
+			Context ctx = new InitialContext();
+			ctx = Util.createSubcontext(ctx, JVM_ENV + CTX_SLEE);
+			Util.createSubcontext(ctx, "resources");
+			Util.createSubcontext(ctx, "container");
+			Util.createSubcontext(ctx, "facilities");
+			Util.createSubcontext(ctx, "sbbs");
+			ctx = Util.createSubcontext(ctx, "nullactivity");
+			Util.createSubcontext(ctx, "factory");
+			Util.createSubcontext(ctx, "nullactivitycontextinterfacefactory");
+			registerWithJndi();
 
-	/**
-	 * 
-	 * Cleanup in the reverse order of init()
-	 * 
-	 * @throws NamingException
-	 * 
-	 */
-	public void sleeShutdown() throws NamingException {
-		for (SleeContainerModule module : modules) {
-			module.sleeShutdown();
+			// Register property editors for the composite SLEE types so that the
+			// jboss jmx console can pass it as an argument.
+			new SleePropertyEditorRegistrator().register();
+
 		}
-		unregisterWithJndi();
-		Context ctx = new InitialContext();
-		Util.unbind(ctx, JVM_ENV + CTX_SLEE);
-	}
-
-	/**
-	 * Initialization code.
-	 * 
-	 */
-	public void sleeStarting() throws Exception {
-
-		logger.info("Initializing SLEE container...");
-
-		// init jndi
-		Context ctx = new InitialContext();
-		ctx = Util.createSubcontext(ctx, JVM_ENV + CTX_SLEE);
-		Util.createSubcontext(ctx, "resources");
-		Util.createSubcontext(ctx, "container");
-		Util.createSubcontext(ctx, "facilities");
-		Util.createSubcontext(ctx, "sbbs");
-		ctx = Util.createSubcontext(ctx, "nullactivity");
-		Util.createSubcontext(ctx, "factory");
-		Util.createSubcontext(ctx, "nullactivitycontextinterfacefactory");
-
-		registerWithJndi();
-
-		// Register property editors for the composite SLEE types so that the
-		// jboss jmx console can pass it as an argument.
-		new SleePropertyEditorRegistrator().register();
-
-		for (SleeContainerModule module : modules) {
-			module.sleeStarting();
+		catch (Exception e) {
+			throw new RuntimeException(e.getMessage(),e);
+		}
+		// start local cache if needed
+		if(localCache != null) {
+			localCache.startCache();
 		}
 	}
-
+	
+	public void afterModulesInitialization() {
+		// start cluster
+		cluster.startCluster();
+		if (cluster.getMobicentsCache().isLocalMode()) {
+			cluster.getMobicentsCache().setReplicationClassLoader(
+				this.replicationClassLoader);
+		}
+	}
+	
+	public void beforeModulesShutdown() {
+		// stop the cluster
+		cluster.stopCluster();
+	}
+	
+	public void afterModulesShutdown() {		
+		try {
+			unregisterWithJndi();
+			Context ctx = new InitialContext();
+			Util.unbind(ctx, JVM_ENV + CTX_SLEE);
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e.getMessage(),e);
+		}
+		// stop local cache if needed
+		if(localCache != null) {
+			localCache.stopCache();
+		}
+	}
 
 	// JNDI RELATED
 

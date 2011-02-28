@@ -20,6 +20,16 @@ import javax.xml.validation.SchemaFactory;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.deployment.jboss.action.ActivateResourceAdaptorEntityAction;
+import org.mobicents.slee.container.deployment.jboss.action.BindLinkNameAction;
+import org.mobicents.slee.container.deployment.jboss.action.CreateResourceAdaptorEntityAction;
+import org.mobicents.slee.container.deployment.jboss.action.DeactivateResourceAdaptorEntityAction;
+import org.mobicents.slee.container.deployment.jboss.action.InstallDeployableUnitAction;
+import org.mobicents.slee.container.deployment.jboss.action.ManagementAction;
+import org.mobicents.slee.container.deployment.jboss.action.RemoveResourceAdaptorEntityAction;
+import org.mobicents.slee.container.deployment.jboss.action.UnbindLinkNameAction;
+import org.mobicents.slee.container.deployment.jboss.action.UninstallDeployableUnitAction;
+import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,33 +66,37 @@ public class DeployableUnit {
   private Collection<String> dependencies = new ArrayList<String>();
 
   // The install actions needed to install/activate this DU components.
-  private Collection<Object[]> installActions = new ArrayList<Object[]>();
+  private Collection<ManagementAction> installActions = new ArrayList<ManagementAction>();
 
   // The post-install actions needed to install/activate this DU components.
-  private HashMap<String, Collection<Object[]>> postInstallActions = new HashMap<String, Collection<Object[]>>();
+  private HashMap<String, Collection<ManagementAction>> postInstallActions = new HashMap<String, Collection<ManagementAction>>();
 
   // The pre-uninstall actions needed to deactivate/uninstall this DU components.
-  private HashMap<String, Collection<Object[]>> preUninstallActions = new HashMap<String, Collection<Object[]>>();
+  private HashMap<String, Collection<ManagementAction>> preUninstallActions = new HashMap<String, Collection<ManagementAction>>();
 
   // The install actions needed to deactivate/uninstall this DU components.
-  private Collection<Object[]> uninstallActions = new ArrayList<Object[]>();
+  private Collection<ManagementAction> uninstallActions = new ArrayList<ManagementAction>();
 
   // A flag indicating wether this DU is installed
   private boolean isInstalled = false;
 
+  private final SleeContainerDeployerImpl sleeContainerDeployer;
+  
   /**
    * Constructor.
    * @param duDeploymentInfo this DU deployment info.
    * @param deploymentManager the DeploymentManager in charge of this DU.
    * @throws Exception 
    */
-  public DeployableUnit(DeployableUnitWrapper du) throws Exception
+  public DeployableUnit(DeployableUnitWrapper du,SleeContainerDeployerImpl sleeContainerDeployer) throws Exception
   {
+	  this.sleeContainerDeployer = sleeContainerDeployer;
+	  
     this.diShortName = du.getFileName();
     this.diURL = du.getUrl();
 
     // First action for the DU is always install.
-    installActions.add(new Object[] { "install", diURL.toString() });
+    installActions.add(new InstallDeployableUnitAction(diURL.toString(), sleeContainerDeployer.getDeploymentMBean()));
 
     // Parse the deploy-config.xml to obtain post-install/pre-uninstall actions
     parseDeployConfig();
@@ -109,7 +123,7 @@ public class DeployableUnit {
     installActions.addAll(dc.getInstallActions());
 
     // .. post-install actions (if any) ..
-    Collection<Object[]> postInstallActionsStrings = postInstallActions
+    Collection<ManagementAction> postInstallActionsStrings = postInstallActions
     .remove(dc.getComponentKey());
 
     if (postInstallActionsStrings != null
@@ -129,27 +143,25 @@ public class DeployableUnit {
 
       String raName = cid.getName();
 
+      ResourceManagement resourceManagement = sleeContainerDeployer.getSleeContainer().getResourceManagement();
+      
       // Add the default Create and Activate RA Entity actions to the Install Actions
-      installActions.add(new Object[] { "createResourceAdaptorEntity",
-          cid, raName, new ConfigProperties() });
-      installActions.add(new Object[] { "activateResourceAdaptorEntity",
-          raName });
+      installActions.add(new CreateResourceAdaptorEntityAction((ResourceAdaptorID) cid, raName, new ConfigProperties(), resourceManagement));
+      installActions.add(new ActivateResourceAdaptorEntityAction(raName, resourceManagement));
 
       // Create default link
-      installActions.add(new Object[] { "bindLinkName", raName, raName });
+      installActions.add(new BindLinkNameAction(raName, raName, resourceManagement));
 
       // Remove default link
-      uninstallActions.add(new Object[] { "unbindLinkName", raName });
+      uninstallActions.add(new UnbindLinkNameAction(raName, resourceManagement));
 
       // Add the default Deactivate and Remove RA Entity actions to the Uninstall Actions
-      uninstallActions.add(new Object[] {
-          "deactivateResourceAdaptorEntity", raName });
-      uninstallActions.add(new Object[] { "removeResourceAdaptorEntity",
-          raName });
+      uninstallActions.add(new DeactivateResourceAdaptorEntityAction(raName, resourceManagement));
+      uninstallActions.add(new RemoveResourceAdaptorEntityAction(raName, resourceManagement));
     }
 
     // .. pre-uninstall actions (if any) ..
-    Collection<Object[]> preUninstallActionsStrings = preUninstallActions
+    Collection<ManagementAction> preUninstallActionsStrings = preUninstallActions
     .remove(dc.getComponentKey());
 
     if (preUninstallActionsStrings != null)
@@ -197,7 +209,7 @@ public class DeployableUnit {
     Collection<String> externalDependencies = getExternalDependencies();
 
     // Remove those that are already installed...
-    externalDependencies.removeAll(DeploymentManager.INSTANCE.getDeployedComponents());
+    externalDependencies.removeAll(sleeContainerDeployer.getDeploymentManager().getDeployedComponents());
 
     // Some remaining?
     if (externalDependencies.size() > 0) {
@@ -230,7 +242,7 @@ public class DeployableUnit {
     // For each component in the DU ..
     for (String componentId : componentIDs) {
       // Check if it is already deployed
-      if (DeploymentManager.INSTANCE.getDeployedComponents().contains(componentId)) {
+      if (sleeContainerDeployer.getDeploymentManager().getDeployedComponents().contains(componentId)) {
         duplicates.add(componentId);
       }
     }
@@ -263,8 +275,8 @@ public class DeployableUnit {
    * Getter for the Install Actions.
    * @return a Collection of actions.
    */
-  public Collection<Object[]> getInstallActions() {
-    ArrayList<Object[]> iActions = new ArrayList<Object[]>();
+  public Collection<ManagementAction> getInstallActions() {
+    ArrayList<ManagementAction> iActions = new ArrayList<ManagementAction>();
 
     iActions.addAll(installActions);
 
@@ -282,8 +294,8 @@ public class DeployableUnit {
    * Getter for the Uninstall Actions.
    * @return a Collection of actions.
    */
-  public Collection<Object[]> getUninstallActions() {
-    Collection<Object[]> uActions = new ArrayList(uninstallActions);
+  public Collection<ManagementAction> getUninstallActions() {
+    Collection<ManagementAction> uActions = new ArrayList<ManagementAction>(uninstallActions);
 
     // Let's check if we have some remaining install actions
     if (preUninstallActions.values().size() > 0) {
@@ -293,7 +305,7 @@ public class DeployableUnit {
     }
 
     // To make sure uninstall is the last action, we add it just when we return them.
-    uActions.add(new Object[] { "uninstall", diURL.toString() });
+    uActions.add(new UninstallDeployableUnitAction(diURL.toString(), sleeContainerDeployer.getDeploymentMBean()));
 
     return uActions;
   }
@@ -427,11 +439,13 @@ public class DeployableUnit {
         String raId = null;
 
         // The collection of Post-Install Actions
-        Collection<Object[]> cPostInstallActions = new ArrayList<Object[]>();
+        Collection<ManagementAction> cPostInstallActions = new ArrayList<ManagementAction>();
 
         // The collection of Pre-Uninstall Actions
-        Collection<Object[]> cPreUninstallActions = new ArrayList<Object[]>();
+        Collection<ManagementAction> cPreUninstallActions = new ArrayList<ManagementAction>();
 
+        final ResourceManagement resourceManagement = sleeContainerDeployer.getSleeContainer().getResourceManagement();
+        
         // Iterate through each ra-entity node
         for (int i = 0; i < raEntities.getLength(); i++) {
           Element raEntity = (Element) raEntities.item(i);
@@ -478,8 +492,8 @@ public class DeployableUnit {
           ResourceAdaptorID componentID = (ResourceAdaptorID) cidpe.getValue();
 
           // Add the Create and Activate RA Entity actions to the Post-Install Actions
-          cPostInstallActions.add(new Object[] {"createResourceAdaptorEntity", componentID,entityName, props});
-          cPostInstallActions.add(new Object[] {"activateResourceAdaptorEntity", entityName});
+          cPostInstallActions.add(new CreateResourceAdaptorEntityAction(componentID, entityName, props, resourceManagement));
+          cPostInstallActions.add(new ActivateResourceAdaptorEntityAction(entityName, resourceManagement));
 
           // Each RA might have zero or more links.. get them
           NodeList links = raEntity.getElementsByTagName("ra-link");
@@ -487,14 +501,14 @@ public class DeployableUnit {
           for (int j = 0; j < links.getLength(); j++) {
             String linkName = ((Element) links.item(j)).getAttribute("name");
 
-            cPostInstallActions.add(new Object[] {"bindLinkName", entityName, linkName});
+            cPostInstallActions.add(new BindLinkNameAction(linkName, entityName, resourceManagement));
 
-            cPreUninstallActions.add(new Object[] {"unbindLinkName", linkName});
+            cPreUninstallActions.add(new UnbindLinkNameAction(linkName, resourceManagement));
           }
 
           // Add the Deactivate and Remove RA Entity actions to the Pre-Uninstall Actions
-          cPreUninstallActions.add(new Object[] {"deactivateResourceAdaptorEntity", entityName});
-          cPreUninstallActions.add(new Object[] {"removeResourceAdaptorEntity", entityName});
+          cPreUninstallActions.add(new DeactivateResourceAdaptorEntityAction(entityName, resourceManagement));
+          cPreUninstallActions.add(new RemoveResourceAdaptorEntityAction(entityName, resourceManagement));
 
           // Finally add the actions to the respective hashmap.
           if (raId != null) {
@@ -515,10 +529,9 @@ public class DeployableUnit {
             }
           }
 
-          // Now we clean the lists for the next round (might come a new RA ID)...
-          cPostInstallActions = new ArrayList<Object[]>();
-          cPreUninstallActions = new ArrayList<Object[]>();
-
+          // recreate the lists for the next round (might come a new RA ID)...
+          cPostInstallActions = new ArrayList<ManagementAction>();
+          cPreUninstallActions = new ArrayList<ManagementAction>();
           raId = null;
 
         }
@@ -552,7 +565,7 @@ public class DeployableUnit {
   }
   
   public boolean areComponentsStillPresent() {
-    Collection<String> presentComponents = DeploymentManager.INSTANCE.getDeployedComponents();
+    Collection<String> presentComponents = sleeContainerDeployer.getDeploymentManager().getDeployedComponents();
 
     for(String cId : this.componentIDs) {
       if(!presentComponents.contains(cId)) {

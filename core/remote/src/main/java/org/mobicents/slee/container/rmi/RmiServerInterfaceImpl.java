@@ -19,11 +19,8 @@ public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implemen
 	
 	private String jndiName;
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeStarting()
-	 */
 	@Override
-	public void sleeStarting() {
+	public void sleeInitialization() {
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Starting Slee Service RMI Server");
@@ -49,9 +46,6 @@ public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implemen
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeShutdown()
-	 */
 	@Override
 	public void sleeShutdown() {
 		try {

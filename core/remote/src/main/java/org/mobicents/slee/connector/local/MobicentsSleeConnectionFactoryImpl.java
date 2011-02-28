@@ -103,14 +103,8 @@ public class MobicentsSleeConnectionFactoryImpl extends AbstractSleeContainerMod
 		
 	}
 
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.container.AbstractSleeContainerModule#sleeStarting()
-	 */
 	@Override
-	public void sleeStarting() {
-		
-		super.sleeStarting();
+	public void sleeInitialization() {
 		this.service = super.sleeContainer.getSleeConnectionService();
 		//bind
 		try{
@@ -124,7 +118,6 @@ public class MobicentsSleeConnectionFactoryImpl extends AbstractSleeContainerMod
 
 	@Override
 	public void sleeShutdown() {
-		super.sleeShutdown();
 		//unbind
 		try {
 			Context ctx;

@@ -37,11 +37,8 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	
 	protected SbbEntityLockFacility lockFacility;
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.core.AbstractSleeContainerModule#sleeStarting()
-	 */
 	@Override
-	public void sleeStarting() {
+	public void sleeInitialization() {
 		this.lockFacility = new SbbEntityLockFacility(sleeContainer);
 	}
 	

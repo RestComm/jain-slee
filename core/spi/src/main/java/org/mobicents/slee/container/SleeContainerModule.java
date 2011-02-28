@@ -8,7 +8,7 @@ package org.mobicents.slee.container;
  *
  */
 public interface SleeContainerModule {
-	
+		
 	/**
 	 * 
 	 * @return
@@ -18,36 +18,26 @@ public interface SleeContainerModule {
 	/**
 	 * 
 	 */
-	public void setSleeContainer(SleeContainer sleeContainer);
+	void setSleeContainer(SleeContainer sleeContainer);
 	
 	/**
 	 * 
 	 */
-	public void sleeStarting();
+	void sleeInitialization();
 	
 	/**
 	 * 
 	 */
-	public void afterSleeRunning();
+	void sleeStarting();
+		
+	/**
+	 * 
+	 */
+	void sleeStopping();
 	
 	/**
 	 * 
 	 */
-	public void beforeSleeRunning();
-	
-	/**
-	 * 
-	 */
-	public void sleeStopping();
-	
-	/**
-	 * 
-	 */
-	public void sleeStopped();
-	
-	/**
-	 * 
-	 */
-	public void sleeShutdown();
+	void sleeShutdown();
 	
 }
