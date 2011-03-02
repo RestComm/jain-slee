@@ -13,8 +13,6 @@
 	<artifactId>maven-du-plugin</artifactId>
 	<version>2.0.0-SNAPSHOT</version>
 
-	<packaging>maven-plugin</packaging>
-
 	<description>Maven plugin to build JAIN SLEE deployable units.</description>
 
 	<organization>
