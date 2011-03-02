@@ -35,12 +35,13 @@ public class JccProviderLocal implements JccProvider {
     private JccCall call;
     private JccConnection connection;
     
-    /** 
-     * Creates a new instance of JccProviderLocal 
-     */
-    public JccProviderLocal(JccProvider provider) {
-        this.provider = provider;
-    }
+    public void setProvider(JccProvider provider) {
+		this.provider = provider;
+	}
+    
+    public JccProvider getProvider() {
+		return provider;
+	}
 
     /**
      * Only the resource adaptor can add itself as a listener.

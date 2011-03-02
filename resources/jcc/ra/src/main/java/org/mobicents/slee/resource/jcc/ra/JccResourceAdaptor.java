@@ -82,7 +82,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 	private static final String _CONFIG_OPT_NAME_CONF = "configName";
 
 	
-	private JccProviderLocal provider;
+	private JccProviderLocal provider = new JccProviderLocal();
 	private Address address = new Address(AddressPlan.IP, "127.0.0.1");
 	private Tracer logger = null;
 	private ConcurrentReaderHashMap activities = new ConcurrentReaderHashMap();
@@ -291,7 +291,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 
 		try {
 			JccPeer peer = JccPeerFactory.getJccPeer(peerName);
-			provider = new JccProviderLocal(peer.getProvider(xmlJCCConfiguration));
+			provider.setProvider(peer.getProvider(xmlJCCConfiguration));
 
 			provider.addConnectionListener(this, null);
 			provider.addCallListener(this);
@@ -362,7 +362,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
 		stopped = true;
 		monitor.interrupt();
 		monitor = null;
-
+		
 	}
 
 	/*
