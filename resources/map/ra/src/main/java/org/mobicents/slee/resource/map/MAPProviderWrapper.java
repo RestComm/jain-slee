@@ -20,12 +20,15 @@ public class MAPProviderWrapper implements MAPProvider {
 	private org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = null;
 	private MAPResourceAdaptor mapRsrcAdap = null;
 
-	protected MAPProviderWrapper(org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider,
-			MAPResourceAdaptor mapRsrcAdap) {
-		this.mapProvider = mapProvider;
+	protected MAPProviderWrapper(MAPResourceAdaptor mapRsrcAdap) {
 		this.mapRsrcAdap = mapRsrcAdap;
 	}
 
+	public void setMapProvider(
+			org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider) {
+		this.mapProvider = mapProvider;
+	}
+	
 	public void addMAPDialogListener(MAPDialogListener arg0) {
 		throw new UnsupportedOperationException();
 	}

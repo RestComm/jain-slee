@@ -62,7 +62,8 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * This is local proxy of provider.
 	 */
-	protected MAPProviderWrapper mapProviderWrapper = null;
+	protected MAPProviderWrapper mapProviderWrapper = new MAPProviderWrapper(this);
+	
 	private Tracer tracer;
 	private transient SleeEndpoint sleeEndpoint = null;
 
@@ -156,7 +157,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.mapStack.start();
 			org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = this.mapStack.getMAPProvider();
 
-			this.mapProviderWrapper = new MAPProviderWrapper(mapProvider, this);
+			this.mapProviderWrapper.setMapProvider(mapProvider);
 
 			mapProvider.addMAPDialogListener(this);
 			mapProvider.addMAPServiceListener(this);
@@ -209,7 +210,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		mapProvider.removeMAPDialogListener(this);
 		mapProvider.removeMAPServiceListener(this);
 		this.mapStack.stop();
-
 	}
 
 	public void raStopping() {
