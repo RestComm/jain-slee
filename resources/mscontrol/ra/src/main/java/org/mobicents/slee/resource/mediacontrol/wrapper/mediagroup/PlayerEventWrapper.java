@@ -53,7 +53,7 @@ public class PlayerEventWrapper extends ResourceEventWrapper implements PlayerEv
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public Player getSource() {
 		return player;
 	}
@@ -63,7 +63,7 @@ public class PlayerEventWrapper extends ResourceEventWrapper implements PlayerEv
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.PlayerEvent#getChangeType()
 	 */
-	@Override
+	
 	public Action getChangeType() {
 		return ((PlayerEvent) super.resourceEvent).getChangeType();
 	}
@@ -73,7 +73,7 @@ public class PlayerEventWrapper extends ResourceEventWrapper implements PlayerEv
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.PlayerEvent#getIndex()
 	 */
-	@Override
+	
 	public int getIndex() {
 		return ((PlayerEvent) super.resourceEvent).getIndex();
 	}
@@ -83,7 +83,7 @@ public class PlayerEventWrapper extends ResourceEventWrapper implements PlayerEv
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.PlayerEvent#getOffset()
 	 */
-	@Override
+	
 	public int getOffset() {
 		return ((PlayerEvent) super.resourceEvent).getOffset();
 	}

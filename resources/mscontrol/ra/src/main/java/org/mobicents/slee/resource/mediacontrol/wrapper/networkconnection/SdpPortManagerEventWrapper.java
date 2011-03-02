@@ -48,7 +48,7 @@ public class SdpPortManagerEventWrapper extends ResourceEventWrapper implements 
 	 * javax.media.mscontrol.networkconnection.SdpPortManagerEvent#getMediaServerSdp
 	 * ()
 	 */
-	@Override
+	
 	public byte[] getMediaServerSdp() {
 
 		return ((SdpPortManagerEvent) super.resourceEvent).getMediaServerSdp();
@@ -59,7 +59,7 @@ public class SdpPortManagerEventWrapper extends ResourceEventWrapper implements 
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public SdpPortManager getSource() {
 		return this.sdpPortManagerWrapper;
 	}

@@ -48,7 +48,7 @@ public class AllocationEventWrapper  implements AllocationEvent {
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public ResourceContainer getSource() {
 		return this.source;
 	}

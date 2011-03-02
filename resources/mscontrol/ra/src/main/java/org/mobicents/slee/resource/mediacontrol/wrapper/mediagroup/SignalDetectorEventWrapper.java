@@ -53,7 +53,7 @@ public class SignalDetectorEventWrapper extends ResourceEventWrapper implements 
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public SignalDetector getSource() {
 		return this.source;
 	}

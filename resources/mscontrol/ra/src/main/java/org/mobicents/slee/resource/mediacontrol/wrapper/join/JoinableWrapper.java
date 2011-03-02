@@ -82,7 +82,7 @@ public abstract class JoinableWrapper implements JoinableExt {
 	 * 
 	 * @see javax.media.mscontrol.join.Joinable#getJoinees()
 	 */
-	@Override
+	
 	public Joinable[] getJoinees() throws MsControlException {
 		return this.joinees.values().toArray(new Joinable[this.joinees.size()]);
 	}
@@ -94,7 +94,7 @@ public abstract class JoinableWrapper implements JoinableExt {
 	 * javax.media.mscontrol.join.Joinable#getJoinees(javax.media.mscontrol.
 	 * join.Joinable.Direction)
 	 */
-	@Override
+	
 	public Joinable[] getJoinees(Direction direction) throws MsControlException {
 		// damn tricky, depend on impl to show us what we must pass....
 		Joinable[] filter = this.wrappedObject.getJoinees(direction);
@@ -105,7 +105,7 @@ public abstract class JoinableWrapper implements JoinableExt {
 		return filter;
 	}
 
-	@Override
+	
 	public void join(Direction direction, Joinable other) throws MsControlException {
 		// should we fire event
 		// this does nasty thing - lock thread.
@@ -125,7 +125,7 @@ public abstract class JoinableWrapper implements JoinableExt {
 		}
 	}
 
-	@Override
+	
 	public void joinInitiate(Direction direction, Joinable other, Serializable ctx) throws MsControlException {
 		// FIXME: this may not work properly if unjoin is called on other
 		// FIXME 2: it does not work...
@@ -146,13 +146,13 @@ public abstract class JoinableWrapper implements JoinableExt {
 		}
 	}
 
-	@Override
+	
 	public void unjoin(Joinable other) throws MsControlException {
 		JoinableExt otherWrapper = (JoinableExt) other;
 		this.wrappedObject.unjoin((Joinable) otherWrapper.getWrappedObject());
 	}
 
-	@Override
+	
 	public void unjoinInitiate(Joinable other, Serializable ctx) throws MsControlException {
 		JoinableExt otherWrapper = (JoinableExt) other;
 		this.wrappedObject.unjoinInitiate((Joinable) otherWrapper.getWrappedObject(), ctx);
@@ -163,18 +163,18 @@ public abstract class JoinableWrapper implements JoinableExt {
 	// returns activity handle on which we must deliver events from lst :)
 	protected abstract McActivityHandle getEventHandle();
 
-	@Override
+	
 	public void addJoinee(JoinableExt otherJoinable) {
 		this.joinees.put((Joinable) otherJoinable.getWrappedObject(), otherJoinable);
 	}
 
-	@Override
+	
 	public void removeJoinee(JoinableExt otherJoinable) {
 		this.joinees.remove((Joinable) otherJoinable.getWrappedObject());
 
 	}
 
-	@Override
+	
 	public Object getWrappedObject() {
 		return this.wrappedObject;
 	}
@@ -208,7 +208,7 @@ public abstract class JoinableWrapper implements JoinableExt {
 
 		}
 
-		@Override
+		
 		public void onEvent(JoinEvent event) {
 			if (event.getThisJoinable().equals(this.thisJoinable.getWrappedObject()) && event.getOtherJoinable().equals(this.otherJoinable.getWrappedObject())) {
 				JoinEventWrapper localEvent = new JoinEventWrapper(event, source, thisJoinable, otherJoinable);

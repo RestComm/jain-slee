@@ -73,7 +73,7 @@ public class SignalGeneratorWrapper implements SignalGenerator, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.resource.Resource#getContainer()
 	 */
-	@Override
+	
 	public MediaGroup getContainer() {
 		return this.mediaGroup;
 	}
@@ -83,7 +83,7 @@ public class SignalGeneratorWrapper implements SignalGenerator, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.MediaEventNotifier#getMediaSession()
 	 */
-	@Override
+	
 	public MediaSession getMediaSession() {
 		return this.mediaSession;
 	}
@@ -96,7 +96,7 @@ public class SignalGeneratorWrapper implements SignalGenerator, Wrapper {
 	 * javax.media.mscontrol.Value[], javax.media.mscontrol.resource.RTC[],
 	 * javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public void emitSignals(Value[] signals, RTC[] rtc, Parameters optargs) throws MsControlException {
 		this.wrappedSignalGenerator.emitSignals(signals, rtc, optargs);
 	}
@@ -109,7 +109,7 @@ public class SignalGeneratorWrapper implements SignalGenerator, Wrapper {
 	 * java.lang.String, javax.media.mscontrol.resource.RTC[],
 	 * javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public void emitSignals(String signals, RTC[] rtc, Parameters optargs) throws MsControlException {
 		this.wrappedSignalGenerator.emitSignals(signals, rtc, optargs);
 	}
@@ -119,7 +119,7 @@ public class SignalGeneratorWrapper implements SignalGenerator, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.signals.SignalGenerator#stop()
 	 */
-	@Override
+	
 	public void stop() {
 		this.wrappedSignalGenerator.stop();
 
@@ -146,7 +146,7 @@ public class SignalGeneratorWrapper implements SignalGenerator, Wrapper {
 		/* (non-Javadoc)
 		 * @see javax.media.mscontrol.MediaEventListener#onEvent(javax.media.mscontrol.MediaEvent)
 		 */
-		@Override
+		
 		public void onEvent(SignalGeneratorEvent realEvent) {
 			if(logger.isFineEnabled())
 			{
@@ -177,7 +177,7 @@ public class SignalGeneratorWrapper implements SignalGenerator, Wrapper {
 	 * javax.media.mscontrol.MediaEventNotifier#addListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void addListener(MediaEventListener<SignalGeneratorEvent> arg0) {
 		throw new SecurityException();
 	}
@@ -189,7 +189,7 @@ public class SignalGeneratorWrapper implements SignalGenerator, Wrapper {
 	 * javax.media.mscontrol.MediaEventNotifier#removeListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void removeListener(MediaEventListener<SignalGeneratorEvent> arg0) {
 		throw new SecurityException();
 	}
@@ -203,7 +203,7 @@ public class SignalGeneratorWrapper implements SignalGenerator, Wrapper {
 	 * org.mobicents.slee.resource.mediacontrol.wrapper.Wrapper#getWrappedObject
 	 * ()
 	 */
-	@Override
+	
 	public Object getWrappedObject() {
 		return this.wrappedSignalGenerator;
 	}

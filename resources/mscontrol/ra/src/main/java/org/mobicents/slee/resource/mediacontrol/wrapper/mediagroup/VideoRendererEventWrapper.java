@@ -46,7 +46,7 @@ public class VideoRendererEventWrapper extends ResourceEventWrapper implements V
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public VideoRenderer getSource() {
 		return this.source;
 	}

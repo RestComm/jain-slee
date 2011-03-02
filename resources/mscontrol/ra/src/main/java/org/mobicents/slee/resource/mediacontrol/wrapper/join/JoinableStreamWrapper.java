@@ -45,14 +45,14 @@ public class JoinableStreamWrapper extends JoinableWrapper implements JoinableSt
 	 * 
 	 * @see javax.media.mscontrol.join.JoinableStream#getType()
 	 */
-	@Override
+	
 	public StreamType getType() {
 		return this.wrappedJoinableStream.getType();
 	}
 
 	// ------------------------ private --------------
 
-	@Override
+	
 	protected McActivityHandle getEventHandle() {
 		// return container handle?
 		return joinableContainer.getEventHandle();

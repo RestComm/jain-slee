@@ -68,7 +68,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * 
 	 * @see javax.media.mscontrol.resource.Resource#getContainer()
 	 */
-	@Override
+	
 	public NetworkConnection getContainer() {
 		return this.networkConnection;
 	}
@@ -78,7 +78,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * 
 	 * @see javax.media.mscontrol.MediaEventNotifier#getMediaSession()
 	 */
-	@Override
+	
 	public MediaSession getMediaSession() {
 		return this.mediaSession;
 	}
@@ -89,7 +89,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * @see
 	 * javax.media.mscontrol.networkconnection.SdpPortManager#generateSdpOffer()
 	 */
-	@Override
+	
 	public void generateSdpOffer() throws SdpPortManagerException {
 		this.wrappedSDPPortManager.generateSdpOffer();
 	}
@@ -100,7 +100,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * @see
 	 * javax.media.mscontrol.networkconnection.SdpPortManager#getCodecPolicy()
 	 */
-	@Override
+	
 	public CodecPolicy getCodecPolicy() {
 		return wrappedSDPPortManager.getCodecPolicy();
 	}
@@ -111,7 +111,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * @see javax.media.mscontrol.networkconnection.SdpPortManager#
 	 * getMediaServerSessionDescription()
 	 */
-	@Override
+	
 	public byte[] getMediaServerSessionDescription() throws SdpPortManagerException {
 		return wrappedSDPPortManager.getMediaServerSessionDescription();
 	}
@@ -122,7 +122,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * @see javax.media.mscontrol.networkconnection.SdpPortManager#
 	 * getUserAgentSessionDescription()
 	 */
-	@Override
+	
 	public byte[] getUserAgentSessionDescription() throws SdpPortManagerException {
 		return wrappedSDPPortManager.getUserAgentSessionDescription();
 	}
@@ -134,7 +134,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * javax.media.mscontrol.networkconnection.SdpPortManager#processSdpAnswer
 	 * (byte[])
 	 */
-	@Override
+	
 	public void processSdpAnswer(byte[] arg0) throws SdpPortManagerException {
 		wrappedSDPPortManager.processSdpAnswer(arg0);
 
@@ -147,7 +147,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * javax.media.mscontrol.networkconnection.SdpPortManager#processSdpOffer
 	 * (byte[])
 	 */
-	@Override
+	
 	public void processSdpOffer(byte[] arg0) throws SdpPortManagerException {
 		wrappedSDPPortManager.processSdpOffer(arg0);
 
@@ -159,7 +159,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * @see
 	 * javax.media.mscontrol.networkconnection.SdpPortManager#rejectSdpOffer()
 	 */
-	@Override
+	
 	public void rejectSdpOffer() throws SdpPortManagerException {
 		wrappedSDPPortManager.rejectSdpOffer();
 
@@ -172,7 +172,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * javax.media.mscontrol.networkconnection.SdpPortManager#setCodecPolicy
 	 * (javax.media.mscontrol.networkconnection.CodecPolicy)
 	 */
-	@Override
+	
 	public void setCodecPolicy(CodecPolicy arg0) throws SdpPortManagerException {
 		wrappedSDPPortManager.setCodecPolicy(arg0);
 
@@ -187,7 +187,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * javax.media.mscontrol.MediaEventNotifier#removeListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void removeListener(MediaEventListener<SdpPortManagerEvent> arg0) {
 		throw new SecurityException("SBB can't register listener");
 
@@ -200,7 +200,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * javax.media.mscontrol.MediaEventNotifier#addListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void addListener(MediaEventListener<SdpPortManagerEvent> arg0) {
 		throw new SecurityException("SBB can't register listener");
 
@@ -224,7 +224,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 		 * javax.media.mscontrol.MediaEventListener#onEvent(javax.media.mscontrol
 		 * .MediaEvent)
 		 */
-		@Override
+		
 		public void onEvent(SdpPortManagerEvent event) {
 			SdpPortManagerEventWrapper localEvent = new SdpPortManagerEventWrapper(event, wrapper);
 			if (event.getEventType().equals(SdpPortManagerEvent.OFFER_GENERATED)) {

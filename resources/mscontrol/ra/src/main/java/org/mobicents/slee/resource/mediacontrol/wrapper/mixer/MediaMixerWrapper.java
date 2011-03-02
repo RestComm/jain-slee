@@ -60,7 +60,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.resource.ResourceContainer#confirm()
 	 */
-	@Override
+	
 	public void confirm() throws MsControlException {
 		this.wrappedMediaMixer.confirm();
 	}
@@ -70,7 +70,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.resource.ResourceContainer#getConfig()
 	 */
-	@Override
+	
 	public MediaConfig getConfig() {
 		return this.wrappedMediaMixer.getConfig();
 	}
@@ -82,7 +82,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.resource.ResourceContainer#getResource(java.lang
 	 * .Class)
 	 */
-	@Override
+	
 	public <R> R getResource(Class<R> resourceClass) throws MsControlException {
 		// TODO: 1. add check for what??
 		// TODO: 2. return MixerAdapter... ?
@@ -96,7 +96,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.resource.ResourceContainer#triggerAction(javax.
 	 * media.mscontrol.resource.Action)
 	 */
-	@Override
+	
 	public void triggerAction(Action action) {
 		this.wrappedMediaMixer.triggerAction(action);
 
@@ -107,7 +107,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.MediaObject#release()
 	 */
-	@Override
+	
 	public void release() {
 		// call super, to release joined,inform MediaSessionWrapper, ...etc
 		this.wrappedMediaMixer.removeListener(this.mmwAllocationEventListener);
@@ -125,7 +125,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.mixer.MediaMixer#createMixerAdapter(javax.media
 	 * .mscontrol.Configuration)
 	 */
-	@Override
+	
 	public MixerAdapter createMixerAdapter(Configuration<MixerAdapter> config) throws MsControlException {
 		MixerAdapter realMixedAdapter = this.wrappedMediaMixer.createMixerAdapter(config);
 		return createWrapper(realMixedAdapter);
@@ -138,13 +138,13 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.mixer.MediaMixer#createMixerAdapter(javax.media
 	 * .mscontrol.Configuration, javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public MixerAdapter createMixerAdapter(Configuration<MixerAdapter> config, Parameters parms) throws MsControlException {
 		MixerAdapter realMixedAdapter = this.wrappedMediaMixer.createMixerAdapter(config, parms);
 		return createWrapper(realMixedAdapter);
 	}
 
-	@Override
+	
 	protected McActivityHandle getEventHandle() {
 		//ql, we are no activity :)
 		return this.getActivityHandle();
@@ -157,13 +157,13 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.mixer.MediaMixer#createMixerAdapter(javax.media
 	 * .mscontrol.MediaConfig, javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public MixerAdapter createMixerAdapter(MediaConfig config, Parameters parms) throws MsControlException {
 		MixerAdapter realMixedAdapter = this.wrappedMediaMixer.createMixerAdapter(config, parms);
 		return createWrapper(realMixedAdapter);
 	}
 	
-	@Override
+	
 	public McActivityHandle getActivityHandle() {
 		return this.handle;
 	}
@@ -193,7 +193,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.MediaEventNotifier#addListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void addListener(MediaEventListener<MixerEvent> arg0) {
 		throw new SecurityException();
 
@@ -206,19 +206,19 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.MediaEventNotifier#removeListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void removeListener(MediaEventListener<MixerEvent> arg0) {
 		throw new SecurityException();
 
 	}
 
-	@Override
+	
 	public void addListener(AllocationEventListener arg0) {
 		throw new SecurityException();
 
 	}
 
-	@Override
+	
 	public void removeListener(AllocationEventListener arg0) {
 		throw new SecurityException();
 
@@ -238,7 +238,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 		/* (non-Javadoc)
 		 * @see javax.media.mscontrol.MediaEventListener#onEvent(javax.media.mscontrol.MediaEvent)
 		 */
-		@Override
+		
 		public void onEvent(MixerEvent mixerEvent) {
 			//now we need to calculate.
 			//get real joinables and cross check against map

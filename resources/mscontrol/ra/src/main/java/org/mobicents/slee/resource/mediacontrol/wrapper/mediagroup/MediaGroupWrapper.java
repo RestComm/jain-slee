@@ -62,7 +62,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.resource.ResourceContainer#confirm()
 	 */
-	@Override
+	
 	public void confirm() throws MsControlException {
 		this.wrappedMediaGroup.confirm();
 
@@ -73,7 +73,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.resource.ResourceContainer#getConfig()
 	 */
-	@Override
+	
 	public MediaConfig getConfig() {
 		return this.wrappedMediaGroup.getConfig();
 	}
@@ -85,7 +85,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.resource.ResourceContainer#getResource(java.lang
 	 * .Class)
 	 */
-	@Override
+	
 	public <R> R getResource(Class<R> filter) throws MsControlException {
 		// this will return some resource... player, recorder, speech
 		// recognition... echl
@@ -125,7 +125,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.resource.ResourceContainer#triggerAction(javax.
 	 * media.mscontrol.resource.Action)
 	 */
-	@Override
+	
 	public void triggerAction(Action action) {
 		this.wrappedMediaGroup.triggerAction(action);
 
@@ -136,7 +136,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.MediaObject#release()
 	 */
-	@Override
+	
 	public void release() {
 		// call super, to release joined,inform MediaSessionWrapper, ...etc
 		super.release();
@@ -151,7 +151,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.MediaGroup#getPlayer()
 	 */
-	@Override
+	
 	public Player getPlayer() throws MsControlException {
 		if (this.player == null) {
 			Player realPlayer = this.wrappedMediaGroup.getPlayer();
@@ -166,7 +166,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.MediaGroup#getRecorder()
 	 */
-	@Override
+	
 	public Recorder getRecorder() throws MsControlException {
 		if (this.recorder == null) {
 			Recorder realRecorder = this.wrappedMediaGroup.getRecorder();
@@ -181,7 +181,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.MediaGroup#getSignalDetector()
 	 */
-	@Override
+	
 	public SignalDetector getSignalDetector() throws MsControlException {
 		if (this.signalDetector == null) {
 			SignalDetector realSignalDetector = this.wrappedMediaGroup.getSignalDetector();
@@ -196,7 +196,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.MediaGroup#getSignalGenerator()
 	 */
-	@Override
+	
 	public SignalGenerator getSignalGenerator() throws MsControlException {
 		if (this.signalGenerator == null) {
 			SignalGenerator realSignalGenerator = this.wrappedMediaGroup.getSignalGenerator();
@@ -211,13 +211,13 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.MediaGroup#stop()
 	 */
-	@Override
+	
 	public void stop() {
 		this.wrappedMediaGroup.stop();
 	}
 
 	// --------------------------- JSLEE specific ------------------
-	@Override
+	
 	protected McActivityHandle getEventHandle() {
 		return this.getActivityHandle();
 	}
@@ -238,7 +238,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.resource.AllocationEventNotifier#addListener(javax
 	 * .media.mscontrol.resource.AllocationEventListener)
 	 */
-	@Override
+	
 	public void addListener(AllocationEventListener arg0) {
 		throw new SecurityException();
 	}
@@ -250,7 +250,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * javax.media.mscontrol.resource.AllocationEventNotifier#removeListener
 	 * (javax.media.mscontrol.resource.AllocationEventListener)
 	 */
-	@Override
+	
 	public void removeListener(AllocationEventListener arg0) {
 		throw new SecurityException();
 	}

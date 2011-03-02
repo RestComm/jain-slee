@@ -75,7 +75,7 @@ public class RecorderWrapper implements Recorder, Wrapper {
 	 * @see javax.media.mscontrol.mediagroup.Recorder#record(java.net.URI,
 	 * javax.media.mscontrol.resource.RTC[], javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public void record(URI uri, RTC[] rtc, Parameters parameters) throws MsControlException {
 		this.wrappedRecorder.record(uri, rtc, parameters);
 	}
@@ -85,7 +85,7 @@ public class RecorderWrapper implements Recorder, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.Recorder#stop()
 	 */
-	@Override
+	
 	public void stop() {
 		this.wrappedRecorder.stop();
 
@@ -107,7 +107,7 @@ public class RecorderWrapper implements Recorder, Wrapper {
 	 * javax.media.mscontrol.MediaEventNotifier#removeListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void removeListener(MediaEventListener<RecorderEvent> arg0) {
 		throw new SecurityException();
 
@@ -120,7 +120,7 @@ public class RecorderWrapper implements Recorder, Wrapper {
 	 * javax.media.mscontrol.MediaEventNotifier#addListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void addListener(MediaEventListener<RecorderEvent> arg0) {
 		throw new SecurityException();
 
@@ -135,7 +135,7 @@ public class RecorderWrapper implements Recorder, Wrapper {
 	 * org.mobicents.slee.resource.mediacontrol.wrapper.Wrapper#getWrappedObject
 	 * ()
 	 */
-	@Override
+	
 	public Object getWrappedObject() {
 		return this.wrappedRecorder;
 	}
@@ -158,7 +158,7 @@ public class RecorderWrapper implements Recorder, Wrapper {
 		 * javax.media.mscontrol.MediaEventListener#onEvent(javax.media.mscontrol
 		 * .MediaEvent)
 		 */
-		@Override
+		
 		public void onEvent(RecorderEvent event) {
 			RecorderEventWrapper localEvent = new RecorderEventWrapper(event, wrapper);
 			if (event.getEventType().equals(RecorderEvent.PAUSED)) {

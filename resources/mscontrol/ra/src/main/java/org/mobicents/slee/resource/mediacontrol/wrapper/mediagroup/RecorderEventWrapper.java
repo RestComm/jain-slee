@@ -50,7 +50,7 @@ public class RecorderEventWrapper extends ResourceEventWrapper implements Record
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public Recorder getSource() {
 
 		return recorder;
@@ -61,7 +61,7 @@ public class RecorderEventWrapper extends ResourceEventWrapper implements Record
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.RecorderEvent#getDuration()
 	 */
-	@Override
+	
 	public int getDuration() {
 		return ((RecorderEvent) super.resourceEvent).getDuration();
 	}

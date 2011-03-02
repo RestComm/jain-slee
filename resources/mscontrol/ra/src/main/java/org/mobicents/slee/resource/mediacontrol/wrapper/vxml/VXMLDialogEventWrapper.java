@@ -63,7 +63,7 @@ public class VXMLDialogEventWrapper implements VxmlDialogEvent {
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public VxmlDialog getSource() {
 		return this.source;
 	}
@@ -73,7 +73,7 @@ public class VXMLDialogEventWrapper implements VxmlDialogEvent {
 	 * 
 	 * @see javax.media.mscontrol.vxml.VxmlDialogEvent#getEventName()
 	 */
-	@Override
+	
 	public String getEventName() {
 		return this.wrappedEvent.getEventName();
 	}
@@ -83,7 +83,7 @@ public class VXMLDialogEventWrapper implements VxmlDialogEvent {
 	 * 
 	 * @see javax.media.mscontrol.vxml.VxmlDialogEvent#getNameList()
 	 */
-	@Override
+	
 	public Map<String, Object> getNameList() {
 		// FIXME: potentially dangerous?
 		return this.wrappedEvent.getNameList();
@@ -92,7 +92,7 @@ public class VXMLDialogEventWrapper implements VxmlDialogEvent {
 	/* (non-Javadoc)
 	 * @see javax.media.mscontrol.MediaEvent#getError()
 	 */
-	@Override
+	
 	public MediaErr getError() {
 		return this.wrappedEvent.getError();
 	}
@@ -100,7 +100,7 @@ public class VXMLDialogEventWrapper implements VxmlDialogEvent {
 	/* (non-Javadoc)
 	 * @see javax.media.mscontrol.MediaEvent#getErrorText()
 	 */
-	@Override
+	
 	public String getErrorText() {
 		return this.wrappedEvent.getErrorText();
 	}
@@ -108,7 +108,7 @@ public class VXMLDialogEventWrapper implements VxmlDialogEvent {
 	/* (non-Javadoc)
 	 * @see javax.media.mscontrol.MediaEvent#getEventType()
 	 */
-	@Override
+	
 	public EventType getEventType() {
 		return this.wrappedEvent.getEventType();
 	}
@@ -116,7 +116,7 @@ public class VXMLDialogEventWrapper implements VxmlDialogEvent {
 	/* (non-Javadoc)
 	 * @see javax.media.mscontrol.MediaEvent#isSuccessful()
 	 */
-	@Override
+	
 	public boolean isSuccessful() {
 		return this.wrappedEvent.isSuccessful();
 	}

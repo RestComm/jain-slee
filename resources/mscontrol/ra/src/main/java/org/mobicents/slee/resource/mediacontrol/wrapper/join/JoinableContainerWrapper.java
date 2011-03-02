@@ -76,7 +76,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 		this.wrappedJoinableContainer = (JoinableContainer) wrappedObject;
 	}
 
-	@Override
+	
 	public MediaSession getMediaSession() {
 		return this.mediaSession;
 	}
@@ -88,7 +88,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 	 * javax.media.mscontrol.join.JoinableContainer#getJoinableStream(javax.
 	 * media.mscontrol.join.JoinableStream.StreamType)
 	 */
-	@Override
+	
 	public JoinableStream getJoinableStream(StreamType arg0) throws MsControlException {
 
 		JoinableStream js = this.wrappedJoinableContainer.getJoinableStream(arg0);
@@ -108,7 +108,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 	 * 
 	 * @see javax.media.mscontrol.join.JoinableContainer#getJoinableStreams()
 	 */
-	@Override
+	
 	public JoinableStream[] getJoinableStreams() throws MsControlException {
 		JoinableStream[] streams = this.wrappedJoinableContainer.getJoinableStreams();
 		if (this.joinableStreams.size() != streams.length) {
@@ -133,7 +133,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 	 * 
 	 * @see javax.media.mscontrol.join.Joinable#getJoinees()
 	 */
-	@Override
+	
 	public Joinable[] getJoinees() throws MsControlException {
 		return this.joinees.values().toArray(new Joinable[this.joinees.size()]);
 	}
@@ -145,7 +145,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 	 * javax.media.mscontrol.join.Joinable#getJoinees(javax.media.mscontrol.
 	 * join.Joinable.Direction)
 	 */
-	@Override
+	
 	public Joinable[] getJoinees(Direction direction) throws MsControlException {
 		// damn tricky, depend on impl to show us what we must pass....
 		Joinable[] filter = this.wrappedJoinableContainer.getJoinees(direction);
@@ -156,7 +156,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 		return filter;
 	}
 
-	@Override
+	
 	public void join(Direction direction, Joinable other) throws MsControlException {
 		// should we fire event
 		// this does nasty thing - lock thread.
@@ -176,7 +176,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 		}
 	}
 
-	@Override
+	
 	public void joinInitiate(Direction direction, Joinable other, Serializable ctx) throws MsControlException {
 		// FIXME: this may not work properly if unjoin is called on other
 		// FIXME 2: it does not work...
@@ -197,19 +197,19 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 		}
 	}
 
-	@Override
+	
 	public void unjoin(Joinable other) throws MsControlException {
 		JoinableExt otherWrapper = (JoinableExt) other;
 		this.wrappedJoinableContainer.unjoin((Joinable) otherWrapper.getWrappedObject());
 	}
 
-	@Override
+	
 	public void unjoinInitiate(Joinable other, Serializable ctx) throws MsControlException {
 		JoinableExt otherWrapper = (JoinableExt) other;
 		this.wrappedJoinableContainer.unjoinInitiate((Joinable) otherWrapper.getWrappedObject(), ctx);
 	}
 
-	@Override
+	
 	public void release() {
 		// remove join lsts
 		Iterator<WrapperJoinEventListener> it = this.joinListeners.iterator();
@@ -232,7 +232,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 	 * javax.media.mscontrol.join.JoinEventNotifier#addListener(javax.media.
 	 * mscontrol.join.JoinEventListener)
 	 */
-	@Override
+	
 	public void addListener(JoinEventListener arg0) {
 		throw new SecurityException();
 
@@ -245,7 +245,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 	 * javax.media.mscontrol.join.JoinEventNotifier#removeListener(javax.media
 	 * .mscontrol.join.JoinEventListener)
 	 */
-	@Override
+	
 	public void removeListener(JoinEventListener arg0) {
 		throw new SecurityException();
 	}
@@ -254,12 +254,12 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 	// return activity handle on which events must be delivered.
 	protected abstract McActivityHandle getEventHandle();
 
-	@Override
+	
 	public void addJoinee(JoinableExt otherJoinable) {
 		this.joinees.put((Joinable) otherJoinable.getWrappedObject(), (JoinableExt) otherJoinable);
 	}
 
-	@Override
+	
 	public void removeJoinee(JoinableExt otherJoinable) {
 		this.joinees.remove((Joinable) otherJoinable.getWrappedObject());
 
@@ -292,7 +292,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 
 		}
 
-		@Override
+		
 		public void onEvent(JoinEvent event) {
 			if (event.getThisJoinable().equals(this.thisJoinable.getWrappedObject()) && event.getOtherJoinable().equals(this.otherJoinable.getWrappedObject())) {
 				JoinEventWrapper localEvent = new JoinEventWrapper(event, source, thisJoinable, otherJoinable);

@@ -45,7 +45,7 @@ public class SignalGeneratorEventWrapper extends ResourceEventWrapper implements
 	/* (non-Javadoc)
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public SignalGenerator getSource() {
 		return this.source;
 	}

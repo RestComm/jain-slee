@@ -55,7 +55,7 @@ public class JoinEventWrapper implements JoinEvent {
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getError()
 	 */
-	@Override
+	
 	public MediaErr getError() {
 		return this.wrappedEvent.getError();
 	}
@@ -65,7 +65,7 @@ public class JoinEventWrapper implements JoinEvent {
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getErrorText()
 	 */
-	@Override
+	
 	public String getErrorText() {
 		return this.wrappedEvent.getErrorText();
 	}
@@ -75,7 +75,7 @@ public class JoinEventWrapper implements JoinEvent {
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getEventType()
 	 */
-	@Override
+	
 	public EventType getEventType() {
 		return this.wrappedEvent.getEventType();
 	}
@@ -85,7 +85,7 @@ public class JoinEventWrapper implements JoinEvent {
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public Joinable getSource() {
 		return this.source;
 	}
@@ -95,7 +95,7 @@ public class JoinEventWrapper implements JoinEvent {
 	 * 
 	 * @see javax.media.mscontrol.MediaEvent#isSuccessful()
 	 */
-	@Override
+	
 	public boolean isSuccessful() {
 		return this.wrappedEvent.isSuccessful();
 	}
@@ -105,7 +105,7 @@ public class JoinEventWrapper implements JoinEvent {
 	 * 
 	 * @see javax.media.mscontrol.join.JoinEvent#getContext()
 	 */
-	@Override
+	
 	public Serializable getContext() {
 		return this.wrappedEvent.getContext();
 	}
@@ -115,7 +115,7 @@ public class JoinEventWrapper implements JoinEvent {
 	 * 
 	 * @see javax.media.mscontrol.join.JoinEvent#getOtherJoinable()
 	 */
-	@Override
+	
 	public Joinable getOtherJoinable() {
 		return this.otherJoinable;
 	}
@@ -125,7 +125,7 @@ public class JoinEventWrapper implements JoinEvent {
 	 * 
 	 * @see javax.media.mscontrol.join.JoinEvent#getThisJoinable()
 	 */
-	@Override
+	
 	public Joinable getThisJoinable() {
 		return this.thisJoinable;
 	}

@@ -73,7 +73,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.MediaObject#getMediaObjects()
 	 */
-	@Override
+	
 	public Iterator<MediaObject> getMediaObjects() {
 		return new ArrayList<MediaObject>(this.realToWrapperMap.values()).iterator();
 	}
@@ -83,7 +83,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.MediaObject#getMediaObjects(java.lang.Class)
 	 */
-	@Override
+	
 	public <T extends MediaObject> Iterator<T> getMediaObjects(Class<T> filter) {
 		ArrayList<T> localList = new ArrayList<T>();
 		Iterator<MediaObject> allObjects = this.getMediaObjects();
@@ -104,7 +104,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.MediaObject#createParameters()
 	 */
-	@Override
+	
 	public Parameters createParameters() {
 		return wrappedObject.createParameters();
 	}
@@ -116,7 +116,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	 * javax.media.mscontrol.MediaObject#getParameters(javax.media.mscontrol
 	 * .Parameter[])
 	 */
-	@Override
+	
 	public Parameters getParameters(Parameter[] params) {
 
 		return this.wrappedObject.getParameters(params);
@@ -127,7 +127,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.MediaObject#getURI()
 	 */
-	@Override
+	
 	public URI getURI() {
 		return this.wrappedObject.getURI();
 	}
@@ -139,7 +139,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	 * javax.media.mscontrol.MediaObject#setParameters(javax.media.mscontrol
 	 * .Parameters)
 	 */
-	@Override
+	
 	public void setParameters(Parameters params) {
 		this.wrappedObject.setParameters(params);
 
@@ -150,7 +150,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.MediaObject#release()
 	 */
-	@Override
+	
 	public void release() {
 		Set<MediaObjectWrapper> childs = new HashSet<MediaObjectWrapper>(this.realToWrapperMap.values());
 		for (MediaObjectWrapper child : childs) {
@@ -168,7 +168,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 		this.realToWrapperMap.remove(child.getWrappedObject());
 	}
 
-	@Override
+	
 	public MediaObject getWrappedObject() {
 		return wrappedObject;
 	}
@@ -203,7 +203,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 			this.eventHandle = eventHandle;
 		}
 
-		@Override
+		
 		public void onEvent(AllocationEvent allocationEvent) {
 			// event type is damn interface... ech.
 			EventType type = allocationEvent.getEventType();

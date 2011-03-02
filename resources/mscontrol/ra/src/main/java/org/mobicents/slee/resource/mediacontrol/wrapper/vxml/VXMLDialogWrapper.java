@@ -60,7 +60,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 	 * 
 	 * @see javax.media.mscontrol.join.JoinableDialog#getJoinables()
 	 */
-	@Override
+	
 	public Joinable[] getJoinables() {
 		// damn tricky.... ech - why JSR creates special method for that...
 		// instead to relly on reusing existing ones....
@@ -69,22 +69,22 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 		return null;
 	}
 
-	@Override
+	
 	public void acceptEvent(String arg0, Map<String, Object> arg1) {
 		this.wrappedVXMLDialog.acceptEvent(arg0, arg1);
 	}
 
-	@Override
+	
 	public void prepare(String arg0, Parameters arg1, Map<String, Object> arg2) {
 		this.wrappedVXMLDialog.prepare(arg0, arg1, arg2);
 	}
 
-	@Override
+	
 	public void prepare(URL arg0, Parameters arg1, Map<String, Object> arg2) {
 		this.wrappedVXMLDialog.prepare(arg0, arg1, arg2);
 	}
 
-	@Override
+	
 	public void start(Map<String, Object> arg0) {
 		this.wrappedVXMLDialog.start(arg0);
 	}
@@ -94,7 +94,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 	 * 
 	 * @see javax.media.mscontrol.vxml.VxmlDialog#terminate(boolean)
 	 */
-	@Override
+	
 	public void terminate(boolean immediatly) {
 		// FIXME: add remove lst as conditional op??
 		this.wrappedVXMLDialog.terminate(immediatly);
@@ -107,7 +107,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 
 	}
 
-	@Override
+	
 	public void release() {
 
 		if (!activityTerminated) {
@@ -125,7 +125,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 	 * @see org.mobicents.slee.resource.mediacontrol.wrapper.join.
 	 * JoinableContainerWrapper#getActivityHandle()
 	 */
-	@Override
+	
 	public McActivityHandle getActivityHandle() {
 		return this.activityHandle;
 }
@@ -134,7 +134,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWrapper#getEventHandle()
 	 */
-	@Override
+	
 	protected McActivityHandle getEventHandle() {
 		return this.getActivityHandle();
 	}
@@ -158,7 +158,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 		 * javax.media.mscontrol.MediaEventListener#onEvent(javax.media.mscontrol
 		 * .MediaEvent)
 		 */
-		@Override
+		
 		public void onEvent(VxmlDialogEvent vxmlDialogEvent) {
 			VXMLDialogEventWrapper localEvent = new VXMLDialogEventWrapper(vxmlDialogEvent, source);
 			EventType eventType = localEvent.getEventType();
@@ -205,7 +205,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 	 * javax.media.mscontrol.MediaEventNotifier#addListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void addListener(MediaEventListener<VxmlDialogEvent> arg0) {
 		throw new SecurityException();
 
@@ -218,7 +218,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 	 * javax.media.mscontrol.MediaEventNotifier#removeListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void removeListener(MediaEventListener<VxmlDialogEvent> arg0) {
 		throw new SecurityException();
 

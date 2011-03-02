@@ -59,7 +59,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * 
 	 * @see javax.media.mscontrol.MediaObject#release()
 	 */
-	@Override
+	
 	public void release() {
 		super.release();
 		super.ra.endActivity(getActivityHandle());
@@ -72,7 +72,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createMediaGroup(javax.media.mscontrol
 	 * .Configuration)
 	 */
-	@Override
+	
 	public MediaGroup createMediaGroup(Configuration<MediaGroup> config) throws MsControlException {
 		MediaGroup realMediaGroup = this.wrappedSession.createMediaGroup(config);
 		return createWrapper(realMediaGroup);
@@ -85,7 +85,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createMediaGroup(javax.media.mscontrol
 	 * .Configuration, javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public MediaGroup createMediaGroup(Configuration<MediaGroup> config, Parameters parameters) throws MsControlException {
 		MediaGroup realMediaGroup = this.wrappedSession.createMediaGroup(config, parameters);
 		return createWrapper(realMediaGroup);
@@ -98,7 +98,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createMediaGroup(javax.media.mscontrol
 	 * .MediaConfig, javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public MediaGroup createMediaGroup(MediaConfig config, Parameters parameters) throws MsControlException {
 		MediaGroup realMediaGroup = this.wrappedSession.createMediaGroup(config, parameters);
 		return createWrapper(realMediaGroup);
@@ -111,7 +111,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createMediaMixer(javax.media.mscontrol
 	 * .Configuration)
 	 */
-	@Override
+	
 	public MediaMixer createMediaMixer(Configuration<MediaMixer> config) throws MsControlException {
 		MediaMixer realMixer = this.wrappedSession.createMediaMixer(config);
 		return createWrapper(realMixer);
@@ -124,7 +124,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createMediaMixer(javax.media.mscontrol
 	 * .Configuration, javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public MediaMixer createMediaMixer(Configuration<MediaMixer> config, Parameters parameters) throws MsControlException {
 		MediaMixer realMixer = this.wrappedSession.createMediaMixer(config, parameters);
 		return createWrapper(realMixer);
@@ -137,7 +137,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createMediaMixer(javax.media.mscontrol
 	 * .MediaConfig, javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public MediaMixer createMediaMixer(MediaConfig config, Parameters parameters) throws MsControlException {
 		MediaMixer realMixer = this.wrappedSession.createMediaMixer(config, parameters);
 		return createWrapper(realMixer);
@@ -150,7 +150,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createNetworkConnection(javax.media
 	 * .mscontrol.Configuration)
 	 */
-	@Override
+	
 	public NetworkConnection createNetworkConnection(Configuration<NetworkConnection> config) throws MsControlException {
 		NetworkConnection realNetworkConnection = this.wrappedSession.createNetworkConnection(config);
 		return createWrapper(realNetworkConnection);
@@ -163,7 +163,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createNetworkConnection(javax.media
 	 * .mscontrol.Configuration, javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public NetworkConnection createNetworkConnection(Configuration<NetworkConnection> config, Parameters parameters) throws MsControlException {
 		NetworkConnection realNetworkConnection = this.wrappedSession.createNetworkConnection(config, parameters);
 		return createWrapper(realNetworkConnection);
@@ -176,7 +176,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createNetworkConnection(javax.media
 	 * .mscontrol.MediaConfig, javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public NetworkConnection createNetworkConnection(MediaConfig config, Parameters parameters) throws MsControlException {
 		NetworkConnection realNetworkConnection = this.wrappedSession.createNetworkConnection(config, parameters);
 		return createWrapper(realNetworkConnection);
@@ -189,7 +189,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * javax.media.mscontrol.MediaSession#createVxmlDialog(javax.media.mscontrol
 	 * .Parameters)
 	 */
-	@Override
+	
 	public VxmlDialog createVxmlDialog(Parameters arg0) throws MsControlException {
 		
 		VxmlDialog realDialog = this.wrappedSession.createVxmlDialog(arg0);
@@ -203,7 +203,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * 
 	 * @see javax.media.mscontrol.MediaSession#getAttribute(java.lang.String)
 	 */
-	@Override
+	
 	public Object getAttribute(String arg0) {
 		return this.wrappedSession.getAttribute(arg0);
 	}
@@ -213,7 +213,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * 
 	 * @see javax.media.mscontrol.MediaSession#getAttributeNames()
 	 */
-	@Override
+	
 	public Iterator<String> getAttributeNames() {
 		return this.wrappedSession.getAttributeNames();
 	}
@@ -223,7 +223,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * 
 	 * @see javax.media.mscontrol.MediaSession#removeAttribute(java.lang.String)
 	 */
-	@Override
+	
 	public void removeAttribute(String arg0) {
 		this.wrappedSession.removeAttribute(arg0);
 
@@ -235,7 +235,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	 * @see javax.media.mscontrol.MediaSession#setAttribute(java.lang.String,
 	 * java.lang.Object)
 	 */
-	@Override
+	
 	public void setAttribute(String arg0, Object arg1) {
 		this.wrappedSession.setAttribute(arg0, arg1);
 	}

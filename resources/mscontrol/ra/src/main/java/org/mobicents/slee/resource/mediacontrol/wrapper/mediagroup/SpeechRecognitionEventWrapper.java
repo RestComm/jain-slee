@@ -46,7 +46,7 @@ public class SpeechRecognitionEventWrapper extends SignalDetectorEventWrapper im
 	 * @see javax.media.mscontrol.mediagroup.signals.SpeechRecognitionEvent#
 	 * getSemanticResult()
 	 */
-	@Override
+	
 	public URL getSemanticResult() {
 
 		return this.wrappedEvent.getSemanticResult();
@@ -58,7 +58,7 @@ public class SpeechRecognitionEventWrapper extends SignalDetectorEventWrapper im
 	 * @see
 	 * javax.media.mscontrol.mediagroup.signals.SpeechRecognitionEvent#getTag()
 	 */
-	@Override
+	
 	public String getTag() {
 
 		return this.wrappedEvent.getTag();
@@ -71,7 +71,7 @@ public class SpeechRecognitionEventWrapper extends SignalDetectorEventWrapper im
 	 * javax.media.mscontrol.mediagroup.signals.SpeechRecognitionEvent#getUserInput
 	 * ()
 	 */
-	@Override
+	
 	public String getUserInput() {
 		return this.wrappedEvent.getUserInput();
 	}

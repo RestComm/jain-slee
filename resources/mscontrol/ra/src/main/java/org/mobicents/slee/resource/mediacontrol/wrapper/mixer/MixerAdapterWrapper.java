@@ -66,7 +66,7 @@ public class MixerAdapterWrapper extends JoinableContainerWrapper implements Mix
 	 * 
 	 * @see javax.media.mscontrol.resource.ResourceContainer#confirm()
 	 */
-	@Override
+	
 	public void confirm() throws MsControlException {
 		this.wrappedMixerAdapter.confirm();
 
@@ -77,7 +77,7 @@ public class MixerAdapterWrapper extends JoinableContainerWrapper implements Mix
 	 * 
 	 * @see javax.media.mscontrol.resource.ResourceContainer#getConfig()
 	 */
-	@Override
+	
 	public MediaConfig getConfig() {
 		return this.wrappedMixerAdapter.getConfig();
 	}
@@ -89,7 +89,7 @@ public class MixerAdapterWrapper extends JoinableContainerWrapper implements Mix
 	 * javax.media.mscontrol.resource.ResourceContainer#getResource(java.lang
 	 * .Class)
 	 */
-	@Override
+	
 	public <R> R getResource(Class<R> filter) throws MsControlException {
 		// once again this method...
 		return this.wrappedMixerAdapter.getResource(filter);
@@ -102,7 +102,7 @@ public class MixerAdapterWrapper extends JoinableContainerWrapper implements Mix
 	 * javax.media.mscontrol.resource.ResourceContainer#triggerAction(javax.
 	 * media.mscontrol.resource.Action)
 	 */
-	@Override
+	
 	public void triggerAction(Action action) {
 		this.wrappedMixerAdapter.triggerAction(action);
 
@@ -110,13 +110,13 @@ public class MixerAdapterWrapper extends JoinableContainerWrapper implements Mix
 
 	// --------------------------- not allowed ---------------------
 
-	@Override
+	
 	public void addListener(AllocationEventListener arg0) {
 		throw new SecurityException();
 
 	}
 
-	@Override
+	
 	public void removeListener(AllocationEventListener arg0) {
 		throw new SecurityException();
 
@@ -128,7 +128,7 @@ public class MixerAdapterWrapper extends JoinableContainerWrapper implements Mix
 	 * @see org.mobicents.slee.resource.mediacontrol.wrapper.join.
 	 * JoinableContainerWrapper#getEventHandle()
 	 */
-	@Override
+	
 	protected McActivityHandle getEventHandle() {
 		return this.mediaMixer.getEventHandle();
 	}

@@ -48,7 +48,7 @@ public class MixerEventWrapper extends ResourceEventWrapper implements MixerEven
 	/* (non-Javadoc)
 	 * @see javax.media.mscontrol.MediaEvent#getSource()
 	 */
-	@Override
+	
 	public MediaMixer getSource() {
 		return this.source;
 	}
@@ -57,7 +57,7 @@ public class MixerEventWrapper extends ResourceEventWrapper implements MixerEven
 	/* (non-Javadoc)
 	 * @see javax.media.mscontrol.mixer.MixerEvent#getActiveInputs()
 	 */
-	@Override
+	
 	public Joinable[] getActiveInputs() {
 		return this.activeInputs;
 	}

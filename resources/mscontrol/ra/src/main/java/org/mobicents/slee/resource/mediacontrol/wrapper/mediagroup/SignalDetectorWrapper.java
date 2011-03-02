@@ -73,7 +73,7 @@ public class SignalDetectorWrapper implements SignalDetector, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.resource.Resource#getContainer()
 	 */
-	@Override
+	
 	public MediaGroup getContainer() {
 		return this.mediaGroup;
 	}
@@ -83,7 +83,7 @@ public class SignalDetectorWrapper implements SignalDetector, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.MediaEventNotifier#getMediaSession()
 	 */
-	@Override
+	
 	public MediaSession getMediaSession() {
 		return this.mediaSession;
 	}
@@ -94,7 +94,7 @@ public class SignalDetectorWrapper implements SignalDetector, Wrapper {
 	 * @see
 	 * javax.media.mscontrol.mediagroup.signals.SignalDetector#flushBuffer()
 	 */
-	@Override
+	
 	public void flushBuffer() throws MsControlException {
 		wrappedSignalDetector.flushBuffer();
 
@@ -108,7 +108,7 @@ public class SignalDetectorWrapper implements SignalDetector, Wrapper {
 	 * (int, javax.media.mscontrol.Parameter[],
 	 * javax.media.mscontrol.resource.RTC[], javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public void receiveSignals(int numSignals, Parameter[] patternLabels, RTC[] rtc, Parameters optargs) throws MsControlException {
 		wrappedSignalDetector.receiveSignals(numSignals, patternLabels, rtc, optargs);
 	}
@@ -118,7 +118,7 @@ public class SignalDetectorWrapper implements SignalDetector, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.signals.SignalDetector#stop()
 	 */
-	@Override
+	
 	public void stop() {
 		wrappedSignalDetector.stop();
 
@@ -132,7 +132,7 @@ public class SignalDetectorWrapper implements SignalDetector, Wrapper {
 	 * javax.media.mscontrol.MediaEventNotifier#removeListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void removeListener(MediaEventListener<SignalDetectorEvent> arg0) {
 		throw new SecurityException();
 
@@ -145,7 +145,7 @@ public class SignalDetectorWrapper implements SignalDetector, Wrapper {
 	 * javax.media.mscontrol.MediaEventNotifier#addListener(javax.media.mscontrol
 	 * .MediaEventListener)
 	 */
-	@Override
+	
 	public void addListener(MediaEventListener<SignalDetectorEvent> arg0) {
 		throw new SecurityException();
 
@@ -160,7 +160,7 @@ public class SignalDetectorWrapper implements SignalDetector, Wrapper {
 	 * org.mobicents.slee.resource.mediacontrol.wrapper.Wrapper#getWrappedObject
 	 * ()
 	 */
-	@Override
+	
 	public Object getWrappedObject() {
 		return this.wrappedSignalDetector;
 	}
@@ -183,7 +183,7 @@ public class SignalDetectorWrapper implements SignalDetector, Wrapper {
 		 * javax.media.mscontrol.MediaEventListener#onEvent(javax.media.mscontrol
 		 * .MediaEvent)
 		 */
-		@Override
+		
 		public void onEvent(SignalDetectorEvent realEvent) {
 			if (logger.isFineEnabled()) {
 				logger.fine("Signal Deteted: " + realEvent.getEventType() + ", on: " + wrapper);

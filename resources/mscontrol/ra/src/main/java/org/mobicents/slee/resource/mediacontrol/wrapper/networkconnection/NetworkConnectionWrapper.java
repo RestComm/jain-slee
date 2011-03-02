@@ -61,7 +61,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	 * 
 	 * @see javax.media.mscontrol.resource.ResourceContainer#confirm()
 	 */
-	@Override
+	
 	public void confirm() throws MsControlException {
 		this.wrappedNetworkConnection.confirm();
 
@@ -72,7 +72,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	 * 
 	 * @see javax.media.mscontrol.resource.ResourceContainer#getConfig()
 	 */
-	@Override
+	
 	public MediaConfig getConfig() {
 		return this.wrappedNetworkConnection.getConfig();
 	}
@@ -84,7 +84,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	 * javax.media.mscontrol.resource.ResourceContainer#getResource(java.lang
 	 * .Class)
 	 */
-	@Override
+	
 	public <R> R getResource(Class<R> filter) throws MsControlException {
 		R filteredResource;
 		try {
@@ -104,7 +104,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	 * javax.media.mscontrol.resource.ResourceContainer#triggerAction(javax.
 	 * media.mscontrol.resource.Action)
 	 */
-	@Override
+	
 	public void triggerAction(Action action) {
 		this.wrappedNetworkConnection.triggerAction(action);
 	}
@@ -114,7 +114,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	 * 
 	 * @see javax.media.mscontrol.MediaObject#release()
 	 */
-	@Override
+	
 	public void release() {
 		// remove lst.
 		this.wrappedNetworkConnection.removeListener(this.ncwAllocationEventListener);
@@ -131,7 +131,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	 * javax.media.mscontrol.networkconnection.NetworkConnection#getSdpPortManager
 	 * ()
 	 */
-	@Override
+	
 	public SdpPortManager getSdpPortManager() throws MsControlException {
 		if (this.sdpPortManager == null) {
 			SdpPortManager realSdpPortManager = this.wrappedNetworkConnection.getSdpPortManager();
@@ -149,7 +149,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 		return this.handle;
 	}
 
-	@Override
+	
 	protected McActivityHandle getEventHandle() {
 		return this.getActivityHandle();
 	}
@@ -163,7 +163,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	 * javax.media.mscontrol.resource.AllocationEventNotifier#addListener(javax
 	 * .media.mscontrol.resource.AllocationEventListener)
 	 */
-	@Override
+	
 	public void addListener(AllocationEventListener arg0) {
 		throw new SecurityException();
 	}
@@ -175,7 +175,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	 * javax.media.mscontrol.resource.AllocationEventNotifier#removeListener
 	 * (javax.media.mscontrol.resource.AllocationEventListener)
 	 */
-	@Override
+	
 	public void removeListener(AllocationEventListener arg0) {
 		throw new SecurityException();
 	}

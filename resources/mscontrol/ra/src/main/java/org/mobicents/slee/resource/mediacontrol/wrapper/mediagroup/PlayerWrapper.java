@@ -74,7 +74,7 @@ public class PlayerWrapper implements Player, Wrapper {
 	 * @see javax.media.mscontrol.mediagroup.Player#play(java.net.URI[],
 	 * javax.media.mscontrol.resource.RTC[], javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public void play(URI[] uri, RTC[] rtc, Parameters parameters) throws MsControlException {
 		this.wrappedPlayer.play(uri, rtc, parameters);
 
@@ -86,7 +86,7 @@ public class PlayerWrapper implements Player, Wrapper {
 	 * @see javax.media.mscontrol.mediagroup.Player#play(java.net.URI,
 	 * javax.media.mscontrol.resource.RTC[], javax.media.mscontrol.Parameters)
 	 */
-	@Override
+	
 	public void play(URI uri, RTC[] rtc, Parameters parameters) throws MsControlException {
 		this.wrappedPlayer.play(uri, rtc, parameters);
 
@@ -97,7 +97,7 @@ public class PlayerWrapper implements Player, Wrapper {
 	 * 
 	 * @see javax.media.mscontrol.mediagroup.Player#stop(boolean)
 	 */
-	@Override
+	
 	public void stop(boolean stopAll) {
 		this.wrappedPlayer.stop(stopAll);
 
@@ -128,7 +128,7 @@ public class PlayerWrapper implements Player, Wrapper {
 	 * org.mobicents.slee.resource.mediacontrol.wrapper.Wrapper#getWrappedObject
 	 * ()
 	 */
-	@Override
+	
 	public Object getWrappedObject() {
 		return this.wrappedPlayer;
 	}
@@ -151,7 +151,7 @@ public class PlayerWrapper implements Player, Wrapper {
 		 * javax.media.mscontrol.MediaEventListener#onEvent(javax.media.mscontrol
 		 * .MediaEvent)
 		 */
-		@Override
+		
 		public void onEvent(PlayerEvent event) {
 			PlayerEventWrapper localEvent = new PlayerEventWrapper(event, wrapper);
 			if (event.getEventType().equals(PlayerEvent.PLAY_COMPLETED)) {
