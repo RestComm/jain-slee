@@ -35,7 +35,7 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
    
     private  ConcurrentHashMap<XCAPResourceAdaptorActivityHandle, AsyncActivityImpl> activities;    
     
-    private  XCAPClientResourceAdaptorSbbInterface sbbInterface;
+    private  XCAPClientResourceAdaptorSbbInterfaceImpl sbbInterface;
     private  XcapClient client;
     private  ExecutorService executorService = Executors.newCachedThreadPool();
     
@@ -279,11 +279,10 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 	 */
 	public void raActive() {
 		// init client
-		client = new XcapClientImpl();
-		// create sbb interface
-		sbbInterface = new XCAPClientResourceAdaptorSbbInterfaceImpl(this);
+		client = new XcapClientImpl();		
 		activities = new ConcurrentHashMap<XCAPResourceAdaptorActivityHandle, AsyncActivityImpl>();
 		executorService = Executors.newCachedThreadPool();
+		sbbInterface.setActive(true);
 	}
 
 	/*
@@ -309,12 +308,12 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 	 * @see javax.slee.resource.ResourceAdaptor#raInactive()
 	 */
 	public void raInactive() {
+		sbbInterface.setActive(false);
 		activities = null;
 		client.shutdown();
 		client=null;
 		executorService.shutdown();
 		executorService = null;
-		sbbInterface = null;		
 	}
 
 	/*
@@ -383,7 +382,7 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 	public void setResourceAdaptorContext(javax.slee.resource.ResourceAdaptorContext raContext) {
 		this.raContext = raContext; 
 		this.tracer = raContext.getTracer("XCAPClientResourceAdaptor");
-		
+		sbbInterface = new XCAPClientResourceAdaptorSbbInterfaceImpl(this);
         this.sleeEndpoint = raContext.getSleeEndpoint();
         this.eventLookupFacility = raContext.getEventLookupFacility();
 
@@ -407,6 +406,7 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 		this.tracer = null;
 		this.sleeEndpoint = null;
 		this.eventLookupFacility = null;
+		this.sbbInterface = null;		
 	}
 	
 }

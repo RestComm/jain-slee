@@ -27,17 +27,30 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 
 	private static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;
 
+	private boolean active;
+	
 	public XCAPClientResourceAdaptorSbbInterfaceImpl(
 			XCAPClientResourceAdaptor ra) {
 		this.ra = ra;
 	}
 
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	
+	private void checkState() throws IllegalStateException {
+		if (!active) {
+			throw new IllegalStateException("RA not active");
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.xcap.client.XcapClient#getCredentialsFactory()
 	 */
 	public CredentialsFactory getCredentialsFactory() {
+		checkState();
 		return ra.getClient().getCredentialsFactory();
 	}
 
@@ -47,6 +60,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * @see org.mobicents.xcap.client.XcapClient#getHeaderFactory()
 	 */
 	public HeaderFactory getHeaderFactory() {
+		checkState();
 		return ra.getClient().getHeaderFactory();
 	}
 
@@ -59,6 +73,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 */
 	public AsyncActivity createActivity()
 			throws ActivityAlreadyExistsException, StartActivityException {
+		checkState();
 		// generate id
 		final String id = UUID.randomUUID().toString();
 		// create handle
@@ -82,6 +97,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 */
 	public XcapResponse delete(URI uri, Header[] additionalRequestHeaders,
 			Credentials credentials) throws IOException {
+		checkState();
 		return ra.getClient()
 				.delete(uri, additionalRequestHeaders, credentials);
 	}
@@ -96,6 +112,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	public XcapResponse deleteIfMatch(URI uri, String eTag,
 			Header[] additionalRequestHeaders, Credentials credentials)
 			throws IOException {
+		checkState();
 		return ra.getClient().deleteIfMatch(uri, eTag,
 				additionalRequestHeaders, credentials);
 	}
@@ -110,6 +127,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	public XcapResponse deleteIfNoneMatch(URI uri, String eTag,
 			Header[] additionalRequestHeaders, Credentials credentials)
 			throws IOException {
+		checkState();
 		return ra.getClient().deleteIfNoneMatch(uri, eTag,
 				additionalRequestHeaders, credentials);
 	}
@@ -123,6 +141,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 */
 	public XcapResponse get(URI uri, Header[] additionalRequestHeaders,
 			Credentials credentials) throws IOException {
+		checkState();
 		return ra.getClient().get(uri, additionalRequestHeaders, credentials);
 	}
 
@@ -137,6 +156,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	public XcapResponse put(URI uri, String mimetype, String content,
 			Header[] additionalRequestHeaders, Credentials credentials)
 			throws IOException {
+		checkState();
 		return ra.getClient().put(uri, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -151,6 +171,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	public XcapResponse put(URI uri, String mimetype, byte[] content,
 			Header[] additionalRequestHeaders, Credentials credentials)
 			throws IOException {
+		checkState();
 		return ra.getClient().put(uri, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -166,6 +187,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
 			String content, Header[] additionalRequestHeaders,
 			Credentials credentials) throws IOException {
+		checkState();
 		return ra.getClient().putIfMatch(uri, eTag, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -181,6 +203,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
 			byte[] content, Header[] additionalRequestHeaders,
 			Credentials credentials) throws IOException {
+		checkState();
 		return ra.getClient().putIfMatch(uri, eTag, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -196,6 +219,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	public XcapResponse putIfNoneMatch(URI uri, String eTag, String mimetype,
 			String content, Header[] additionalRequestHeaders,
 			Credentials credentials) throws IOException {
+		checkState();
 		return ra.getClient().putIfNoneMatch(uri, eTag, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -211,6 +235,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	public XcapResponse putIfNoneMatch(URI uri, String eTag, String mimetype,
 			byte[] content, Header[] additionalRequestHeaders,
 			Credentials credentials) throws IOException {
+		checkState();
 		return ra.getClient().putIfNoneMatch(uri, eTag, mimetype, content,
 				additionalRequestHeaders, credentials);
 	}
@@ -232,6 +257,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * org.mobicents.xcap.client.XcapClient#unsetAuthenticationCredentials()
 	 */
 	public void unsetAuthenticationCredentials() {
+		checkState();
 		ra.getClient().unsetAuthenticationCredentials();
 	}
 
@@ -243,6 +269,7 @@ public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
 	 * .mobicents.xcap.client.auth.Credentials)
 	 */
 	public void setAuthenticationCredentials(Credentials credentials) {
+		checkState();
 		ra.getClient().setAuthenticationCredentials(credentials);
 	}
 
