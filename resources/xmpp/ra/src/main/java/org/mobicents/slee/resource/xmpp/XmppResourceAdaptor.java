@@ -52,6 +52,7 @@ public class XmppResourceAdaptor implements ResourceAdaptor {
     	this.sleeEndpoint = arg0.getSleeEndpoint();
     	this.log = arg0.getTracer(getClass().getSimpleName());
     	eventTypeCache = new FireableEventTypeCache(log);
+    	this.sbbInterface = new XmppResourceAdaptorSbbInterfaceImpl(this);
     }
     
     /* (non-Javadoc)
@@ -63,7 +64,7 @@ public class XmppResourceAdaptor implements ResourceAdaptor {
      * @see javax.slee.resource.ResourceAdaptor#raActive()
      */
     public void raActive() {
-    	this.sbbInterface = new XmppResourceAdaptorSbbInterfaceImpl(this);
+    	this.sbbInterface.setActive(true);
     	this.activities = new ConcurrentHashMap<XmppActivityHandle, XmppConnection>();
     	this.eventTypeFilter = new FireableEventTypeFilter();
     }
@@ -84,7 +85,7 @@ public class XmppResourceAdaptor implements ResourceAdaptor {
      * @see javax.slee.resource.ResourceAdaptor#raInactive()
      */
     public void raInactive() {
-    	this.sbbInterface = null;
+    	this.sbbInterface.setActive(false);
     	this.activities = null;
     	this.eventTypeFilter = null;
     }
@@ -103,6 +104,7 @@ public class XmppResourceAdaptor implements ResourceAdaptor {
     	this.sleeEndpoint = null;
     	this.log = null;
     	this.eventTypeCache = null;
+    	this.sbbInterface = null;
     }
 
     // config management methods

@@ -21,6 +21,7 @@ public class XmppResourceAdaptorSbbInterfaceImpl implements XmppResourceAdaptorS
 
 	private final XmppResourceAdaptor ra;
 	private final Tracer tracer;
+	private boolean active = false;
 	
 	/**
 	 * @param ra
@@ -31,10 +32,21 @@ public class XmppResourceAdaptorSbbInterfaceImpl implements XmppResourceAdaptorS
 		this.tracer = ra.getTracer();
 	}
 
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	
+	private void checkState() throws IllegalStateException {
+		if (!active) {
+			throw new IllegalStateException("RA not active");
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.resource.xmpp.XmppResourceAdaptorSbbInterface#getXmppConnection(java.lang.String)
 	 */
 	public XmppConnection getXmppConnection(String connectionId) {
+		checkState();
 		return ra.getActivity(new XmppActivityHandle(connectionId));
 	}
 	
@@ -45,6 +57,8 @@ public class XmppResourceAdaptorSbbInterfaceImpl implements XmppResourceAdaptorS
 			int serverPort, String serviceName, String username,
 			String password, String resource, Collection<Class<?>> packetFilters)
 			throws XMPPException {
+		
+		checkState();
 		
 		if(connectionID == null) {
 			throw new NullPointerException("null connection id");
@@ -92,6 +106,8 @@ public class XmppResourceAdaptorSbbInterfaceImpl implements XmppResourceAdaptorS
 			String componentSecret, Collection<Class<?>> packetFilters)
 			throws XMPPException {
 		
+		checkState();
+		
 		if(connectionID == null) {
 			throw new NullPointerException("null connection id");
 		}
@@ -134,6 +150,9 @@ public class XmppResourceAdaptorSbbInterfaceImpl implements XmppResourceAdaptorS
 	 * @see org.mobicents.slee.resource.xmpp.XmppResourceAdaptorSbbInterface#disconnect(java.lang.String)
 	 */
 	public void disconnect(String connectionID) {
+		
+		checkState();
+		
 		try {	    	    
     		XmppActivityHandle handle = new XmppActivityHandle(connectionID);
     		XmppConnection connection = (XmppConnection) ra.getActivities().get(handle);
@@ -150,6 +169,9 @@ public class XmppResourceAdaptorSbbInterfaceImpl implements XmppResourceAdaptorS
 	 * @see org.mobicents.slee.resource.xmpp.XmppResourceAdaptorSbbInterface#sendPacket(java.lang.String, org.jivesoftware.smack.packet.Packet)
 	 */
 	public void sendPacket(String connectionID, Packet packet) {
+		
+		checkState();
+		
 		try {
     		XmppActivityHandle handle = new XmppActivityHandle(connectionID);
     		XmppConnection connection = (XmppConnection) ra.getActivities().get(handle);
