@@ -13,9 +13,8 @@
 	<artifactId>maven-library-plugin</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 
-	<packaging>maven-plugin</packaging>
 
-	<description>Mobicents Maven2 plugin to build JAIN SLEE 1.1 Library descriptors.</description>
+	<description>Mobicents Maven plugin to build JAIN SLEE 1.1 Library jars.</description>
 
 	<organization>
 		<name>Mobicents</name>
@@ -111,7 +110,7 @@
 						<artifactId>maven-release-plugin</artifactId>
 						<configuration>
 							<autoVersionSubmodules>true</autoVersionSubmodules>
-							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/maven-library-plugin</tagBase>
+							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/tools/maven-library-plugin</tagBase>
 						</configuration>
 					</plugin>
 				</plugins>

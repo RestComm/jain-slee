@@ -325,11 +325,27 @@ Example: java-source,jar,war</description>
       <threadSafe>false</threadSafe>
       <parameters>
         <parameter>
+          <name>jarDirectory</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The directory where jars will be placed, in the Library jar.
+If set, each &lt;jar/&gt; entry in the Library descriptor will be &lt;jar-name&gt;${jarDirectory}/jarFileName&lt;/jar-name&gt;, otherwise it will be will be &lt;jar-name&gt;jarFileName&lt;/jar-name&gt;</description>
+        </parameter>
+        <parameter>
           <name>jarInputDirectory</name>
           <type>java.io.File</type>
           <required>false</required>
           <editable>true</editable>
-          <description>Directory to be used as the source for SLEE component jars.</description>
+          <description>Directory to be used as the source for jars.
+If not set, ${workDirectory}/${jarDirectory} or ${workDirectory} will be used, depending if ${jarDirectory} is set or not.</description>
+        </parameter>
+        <parameter>
+          <name>workDirectory</name>
+          <type>java.io.File</type>
+          <required>true</required>
+          <editable>true</editable>
+          <description>The work directory is used to calculate other directories which may not be set.</description>
         </parameter>
         <parameter>
           <name>project</name>
@@ -340,7 +356,9 @@ Example: java-source,jar,war</description>
         </parameter>
       </parameters>
       <configuration>
-        <jarInputDirectory implementation="java.io.File" default-value="${project.build.outputDirectory}/jars">${jarInputDirectory}</jarInputDirectory>
+        <jarDirectory implementation="java.lang.String" default-value="jars">${jarDirectory}</jarDirectory>
+       	<jarInputDirectory implementation="java.io.File">${jarInputDirectory}</jarInputDirectory>
+        <workDirectory implementation="java.io.File" default-value="${project.build.outputDirectory}">${workDirectory}</workDirectory>
         <project implementation="org.apache.maven.project.MavenProject">${project}</project>
       </configuration>
     </mojo>

@@ -38,11 +38,23 @@ public class LibraryDescriptorMojo extends AbstractMojo {
 	private MavenProject project;
 
 	/**
-	 * Directory to be used as the source for SLEE component jars.
+	 * Directory to be used as the source for the library jars.
+	 * If not set, ${workDirectory}/${jarDirectory} or ${workDirectory} will be used, depending if ${jarDirectory} is set or not.
 	 * 
 	 */
 	private File jarInputDirectory;
 
+	/**
+	 * The directory where jars will be placed, in the Library jar.
+	 * If set, each <jar/> entry in the Library descriptor will contain a <jar-name>${jarDirectory}/jarFileName</jar-name>, otherwise it will be will be <jar-name>jarFileName</jar-name> 
+	 */
+	private String jarDirectory;
+		
+	/**
+	 * The work directory is used to calculate other directories which may not be set.
+	 */
+	private File workDirectory;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -53,6 +65,8 @@ public class LibraryDescriptorMojo extends AbstractMojo {
 			getLog().debug("Executing Maven JAIN SLEE 1.1 Library Plugin");
 		}
 
+		setupDirectories();
+		
 		// Obtain the name#vendor#version from pom
 		this.libraryId = getLibraryRef(project);
 
@@ -87,6 +101,21 @@ public class LibraryDescriptorMojo extends AbstractMojo {
 
 		generateLibraryDeploymentDescritptor(jars);
 
+	}
+
+	private void setupDirectories() {
+		
+		if (jarInputDirectory == null) {
+			if (jarDirectory == null) {
+				jarInputDirectory = workDirectory;
+			}
+			else {
+				jarInputDirectory = new File(workDirectory,jarDirectory);
+			}
+		}
+		if (getLog().isDebugEnabled()) {
+			getLog().debug("Jar input directory: "+jarInputDirectory.getAbsolutePath());
+		}
 	}
 
 	/**
@@ -155,8 +184,13 @@ public class LibraryDescriptorMojo extends AbstractMojo {
 		}
 
 		for (String jar : jars) {
-			xml += "\t\t<jar>\r\n" + "\t\t\t<jar-name>" + jar
-					+ "</jar-name>\r\n" + "\t\t</jar>\r\n";
+			xml += "\t\t<jar>\r\n" + "\t\t\t<jar-name>";
+			if (jarDirectory == null) {
+				xml +=jar;
+			} else {
+				xml += jarDirectory+'/'+jar;
+			}
+			xml += "</jar-name>\r\n" + "\t\t</jar>\r\n";
 		}
 
 		xml += "\t</library>\r\n</library-jar>\r\n";
