@@ -54,12 +54,12 @@ public class McActivityHandle implements ActivityHandle {
 		return  result;
 	}
 	
-	@Override
+	
 	public int hashCode() {
 		return hash;
 	}
 
-	@Override
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -75,7 +75,7 @@ public class McActivityHandle implements ActivityHandle {
 			return false;
 		return true;
 	}
-	@Override
+	
 	public String toString() {
 		return "McActivityHandle [uid=" + uid + ", hash=" + hash + ", hashCode()=" + hashCode() + "]";
 	}
