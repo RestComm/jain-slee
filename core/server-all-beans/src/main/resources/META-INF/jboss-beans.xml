@@ -5,11 +5,9 @@
    
 	<bean name="Mobicents.JAINSLEE.Cache" class="org.mobicents.cache.MobicentsCache">
 		<constructor>
-		   <!-- if cache config is done here it leaks, till an alternative is found the config is in cache manager @ $JBOSS_HOME/server/all/deploy/cluster/jboss-cache-manager.sar/META-INF/jboss-cache-manager-jboss-beans.xml -->	
-          <parameter><inject bean="CacheManager"/></parameter>
- 		  <parameter class="java.lang.String">mobicents-slee-replicated-cache</parameter> 
-		  <parameter>true</parameter> 
-     	</constructor>		
+ 		  <parameter class="java.lang.String">${jboss.server.home.dir}/deploy/mobicents-slee/META-INF/jboss-cache-config.xml</parameter> 
+     	</constructor>
+     	<demand>RealTransactionManager</demand>		
 	</bean>
 
    	<!-- cluster member failover elector -->

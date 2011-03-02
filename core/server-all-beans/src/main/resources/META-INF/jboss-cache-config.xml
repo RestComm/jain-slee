@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jbosscache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="urn:jboss:jbosscache-core:config:3.1">
+
+	<locking lockAcquisitionTimeout="30000" useLockStriping="false" />
+
+	<transaction
+		transactionManagerLookupClass="org.jboss.cache.transaction.JBossTransactionManagerLookup" />
+
+	<jmxStatistics enabled="false" />
+
+	<startup regionsInactiveOnStartup="true" />
+
+	<shutdown hookBehavior="DONT_REGISTER" />
+
+	<serialization useLazyDeserialization="true"
+		useRegionBasedMarshalling="false" />
+
+	<clustering
+		clusterName="${jboss.partition.name:DefaultPartition}-mobicents-slee-replicated">
+		<async />
+		<jgroupsConfig multiplexerStack="${jboss.default.jgroups.stack:udp}" />
+	</clustering>
+
+</jbosscache>

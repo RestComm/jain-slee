@@ -10,10 +10,8 @@
             </property>
          </bean>
       </property>
-      <property name="isolationLevel">REPEATABLE_READ</property>
       <property name="cacheMode">LOCAL</property>
-      <property name="lockParentForChildInsertRemove">false</property>
-      <property name="lockAcquisitionTimeout">15000</property>
+      <property name="lockAcquisitionTimeout">30000</property>
       <property name="useLockStriping">false</property>
       <property name="exposeManagementStatistics">false</property> 
       <property name="shutdownHookBehavior">DONT_REGISTER</property>   
