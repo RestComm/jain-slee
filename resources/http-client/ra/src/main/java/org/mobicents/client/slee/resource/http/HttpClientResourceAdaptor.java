@@ -53,6 +53,7 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 		} catch (Throwable e) {
 			throw new RuntimeException(e.getMessage(),e);
 		}
+		sbbInterface = new HttpClientResourceAdaptorSbbInterfaceImpl(this);
 	}	
 	
 	/* (non-Javadoc)
@@ -68,7 +69,6 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 	public void raActive() {
 		activities = new ConcurrentHashMap<HttpClientActivityHandle, HttpClientActivity>();
 		executorService = Executors.newCachedThreadPool();
-		sbbInterface = new HttpClientResourceAdaptorSbbInterfaceImpl(this);
 		tracer.info("entity activated.");
 	}
 	
@@ -88,7 +88,6 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 		activities = null;
 		executorService.shutdown();
 		executorService = null;
-		sbbInterface = null;
 	}
 	
 	/* (non-Javadoc)
@@ -104,6 +103,7 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 	public void unsetResourceAdaptorContext() {
 		resourceAdaptorContext = null;
 		tracer = null;
+		sbbInterface = null;
 	}
 	
 	// CONFIG MANAGENT
