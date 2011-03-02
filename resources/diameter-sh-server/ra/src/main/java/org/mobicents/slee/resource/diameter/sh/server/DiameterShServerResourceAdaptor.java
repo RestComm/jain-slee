@@ -230,20 +230,18 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
 
   public void setResourceAdaptorContext(ResourceAdaptorContext context) {
     this.raContext = context;
-
     this.tracer = context.getTracer("DiameterShServerResourceAdaptor");
-
     this.sleeEndpoint = context.getSleeEndpoint();
     this.eventLookup = context.getEventLookupFacility();
+    this.raProvider = new ShServerProviderImpl(this);
   }
 
   public void unsetResourceAdaptorContext() {
     this.raContext = null;
-
     this.tracer = null;
-
     this.sleeEndpoint = null;
     this.eventLookup = null;
+    this.raProvider = null;
   }
 
   // FT Lifecycle methods ------------------------------------------------
@@ -303,8 +301,6 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       if(object instanceof DiameterStackMultiplexerMBean) {
         this.diameterMux = (DiameterStackMultiplexerMBean) object;
       }
-
-      this.raProvider = new ShServerProviderImpl(this);
 
       //this.activities = new ConcurrentHashMap<ActivityHandle, DiameterActivity>();
 
