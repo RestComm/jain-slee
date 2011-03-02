@@ -112,6 +112,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 		sleeEndpoint = arg0.getSleeEndpoint();
 		eventLookup = arg0.getEventLookupFacility();
 		requestLock = new RequestLock();
+		httpRaSbbinterface = new HttpServletRaSbbInterfaceImpl(this);
 	}
 
 	/*
@@ -132,7 +133,6 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 	public void raActive() {
 		// register in manager
 		HttpServletResourceEntryPointManager.putResourceEntryPoint(name, this);
-		this.httpRaSbbinterface = new HttpServletRaSbbInterfaceImpl(this);
 	}
 
 	/*
@@ -149,8 +149,6 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 	 * @see javax.slee.resource.ResourceAdaptor#raInactive()
 	 */
 	public void raInactive() {
-		
-		this.httpRaSbbinterface = null;
 		// unregister from manager
 		HttpServletResourceEntryPointManager.removeResourceEntryPoint(name);
 	}
@@ -177,6 +175,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 		sleeEndpoint = null;
 		eventLookup = null;
 		requestLock = null;
+		httpRaSbbinterface = null;
 	}
 
 	// config management methods
