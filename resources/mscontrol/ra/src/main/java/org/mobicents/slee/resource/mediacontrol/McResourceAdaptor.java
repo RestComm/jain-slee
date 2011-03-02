@@ -17,6 +17,8 @@
  */
 package org.mobicents.slee.resource.mediacontrol;
 
+import java.io.Reader;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,9 +26,16 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.media.mscontrol.Configuration;
+import javax.media.mscontrol.MediaConfig;
+import javax.media.mscontrol.MediaConfigException;
 import javax.media.mscontrol.MediaEvent;
+import javax.media.mscontrol.MediaObject;
 import javax.media.mscontrol.MediaSession;
+import javax.media.mscontrol.MsControlException;
 import javax.media.mscontrol.MsControlFactory;
+import javax.media.mscontrol.Parameters;
+import javax.media.mscontrol.resource.video.VideoLayout;
 import javax.media.mscontrol.spi.Driver;
 import javax.media.mscontrol.spi.DriverManager;
 import javax.slee.Address;
@@ -56,8 +65,7 @@ import javax.slee.resource.SleeEndpoint;
 import javax.slee.resource.StartActivityException;
 import javax.slee.resource.UnrecognizedActivityHandleException;
 
-import org.mobicents.javax.media.mscontrol.spi.DriverImpl;
-import org.mobicents.slee.resource.mediacontrol.wrapper.MsControlFactoryWrapper;
+import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 
 /**
  * 
@@ -73,7 +81,7 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	private static final int ACTIVITY_FLAGS = ActivityFlags.setRequestEndedCallback(ActivityFlags.REQUEST_ACTIVITY_UNREFERENCED_CALLBACK);
 	
 	// Media control factory
-	private MsControlFactory mscFactory;
+	private MsControlFactoryWrapper mscFactory;
 	private Driver mscDriver;
 	private ResourceAdaptorContext context;
 	private SleeEndpoint sleeEndpoint;
@@ -83,7 +91,6 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	// Driver configuration
 	private Properties config = new Properties();
 	private String driverName;
-	//private Address address = new Address(AddressPlan.IP, "127.0.0.1");
 	private Map<McActivityHandle, McActivity> activities = Collections.synchronizedMap(new HashMap<McActivityHandle, McActivity>());
 	
 	/**
@@ -91,7 +98,7 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	 */
 	public McResourceAdaptor() {
 		super();
-		// TODO Auto-generated constructor stub
+		this.mscFactory = new MsControlFactoryWrapper(this);
 	}
 
 	public void setResourceAdaptorContext(ResourceAdaptorContext context) {
@@ -131,7 +138,8 @@ public class McResourceAdaptor implements ResourceAdaptor {
 			
 			this.mscDriver = DriverManager.getDriver(this.driverName);
 			this.tracer.info("Created MSC Driver: " + mscDriver + ", from name: " + driverName);
-			this.mscFactory = new MsControlFactoryWrapper(this.mscDriver.getFactory(this.config), this);
+			this.mscFactory.setFactory(this.mscDriver.getFactory(config));
+			this.mscFactory.setActive(true);
 			this.tracer.info("Successfully started MSC RA Entity:" + this.context.getEntityName());
 		} catch (Exception e) {
 			tracer.severe("Can not activate driver[" + driverName + "]", e);
@@ -139,6 +147,8 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	}
 
 	public void raStopping() {
+		//set it before becoming inactive?
+		this.mscFactory.setActive(false);
 		Set<McActivity> acs = new HashSet<McActivity>(this.activities.values());
 		for(McActivity a:acs)
 		{
@@ -146,17 +156,19 @@ public class McResourceAdaptor implements ResourceAdaptor {
 			if(a instanceof MediaSession)
 				a.release();
 		}
+		
 	}
+	
 
 	public void raInactive() {
-		if (mscDriver instanceof DriverImpl) {
-			((DriverImpl) mscDriver).shutdown();
-		}
+
 		if(this.activities.size()>0)
 		{
 			this.tracer.severe("Some activities still remain! "+this.activities);
 		}
 		this.activities.clear();
+		this.mscDriver = null;
+		this.mscFactory.setFactory(null);
 	}
 
 	public void raVerifyConfiguration(ConfigProperties config) throws InvalidConfigurationException {
@@ -330,5 +342,167 @@ public class McResourceAdaptor implements ResourceAdaptor {
 		//hmm just to have single logging framework working...
 		String name = getClass().getName();
 		return this.context.getTracer(name);
+	}
+	
+	//seems like it has to be in RA class?
+	/**
+	 * This wrapper is actually a provider of RA.
+	 * 
+	 * @author baranowb
+	 * 
+	 */
+	public class MsControlFactoryWrapper implements MsControlFactory {
+
+		protected MsControlFactory wrappedFactory;
+		protected McResourceAdaptor ra; //required to pass into other wrappers
+		protected boolean active = false;
+
+		/**
+		 * @param wrappedFactory
+		 * @param ra
+		 */
+		public MsControlFactoryWrapper(McResourceAdaptor ra) {
+			super();
+			this.ra = ra;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see javax.media.mscontrol.MsControlFactory#createMediaSession()
+		 */
+		
+		public MediaSession createMediaSession() throws MsControlException {
+			if(!active){
+				throw new IllegalStateException("Factory is not ready!");
+			}
+			MediaSessionWrapper msw = new MediaSessionWrapper(this.wrappedFactory.createMediaSession(), this.ra);
+			try {
+				this.ra.startActivity(msw);
+			} catch (Exception e) {
+				throw new MsControlException("Failed to create MsControl resource.", e);
+			}
+			return msw;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see javax.media.mscontrol.MsControlFactory#createParameters()
+		 */
+		
+		public Parameters createParameters() {
+			if(!active){
+				throw new IllegalStateException("Factory is not ready!");
+			}
+			return this.wrappedFactory.createParameters();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * javax.media.mscontrol.MsControlFactory#createVideoLayout(java.lang.String
+		 * , java.io.Reader)
+		 */
+		
+		public VideoLayout createVideoLayout(String mimeType, Reader xmlDef) throws MediaConfigException {
+			if(!active){
+				throw new IllegalStateException("Factory is not ready!");
+			}
+			return this.wrappedFactory.createVideoLayout(mimeType, xmlDef);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * javax.media.mscontrol.MsControlFactory#getMediaConfig(javax.media.mscontrol
+		 * .Configuration)
+		 */
+		
+		public MediaConfig getMediaConfig(Configuration<?> configuration) throws MediaConfigException {
+			if(!active){
+				throw new IllegalStateException("Factory is not ready!");
+			}
+			return this.wrappedFactory.getMediaConfig(configuration);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * javax.media.mscontrol.MsControlFactory#getMediaConfig(java.io.Reader)
+		 */
+		
+		public MediaConfig getMediaConfig(Reader xmlDef) throws MediaConfigException {
+			if(!active){
+				throw new IllegalStateException("Factory is not ready!");
+			}
+			return this.wrappedFactory.getMediaConfig(xmlDef);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see javax.media.mscontrol.MsControlFactory#getMediaObject(java.net.URI)
+		 */
+		
+		public MediaObject getMediaObject(URI arg0) {
+			// TODO
+			throw new UnsupportedOperationException();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * javax.media.mscontrol.MsControlFactory#getPresetLayout(java.lang.String)
+		 */
+		
+		public VideoLayout getPresetLayout(String type) throws MediaConfigException {
+			if(!active){
+				throw new IllegalStateException("Factory is not ready!");
+			}
+			return this.wrappedFactory.getPresetLayout(type);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see javax.media.mscontrol.MsControlFactory#getPresetLayouts(int)
+		 */
+		
+		public VideoLayout[] getPresetLayouts(int numberOfLiveRegions) throws MediaConfigException {
+			if(!active){
+				throw new IllegalStateException("Factory is not ready!");
+			}
+			return this.wrappedFactory.getPresetLayouts(numberOfLiveRegions);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see javax.media.mscontrol.MsControlFactory#getProperties()
+		 */
+		
+		public Properties getProperties() {
+			if(!active){
+				throw new IllegalStateException("Factory is not ready!");
+			}
+			return this.wrappedFactory.getProperties();
+		}
+
+		/**
+		 * @param factory
+		 */
+		public void setFactory(MsControlFactory factory) {
+				this.wrappedFactory = factory;
+		}
+
+		public void setActive(boolean active) {
+			this.active = active;
+		}
+
 	}
 }
