@@ -4,7 +4,7 @@
 <chapter
 	id="clustering">
 
-	<title>High Availability abd Fault Tolerance</title>
+	<title>High Availability and Fault Tolerance</title>
 
 	<para>JAIN SLEE supports clustering, whether it is simple high availability or complete fault tolerance support. This is achieved through the replication of the container state. It also exposes a clustering <acronym>API</acronym> for JAIN SLEE Resource Adaptors components, which live outside the container.</para>
 	
