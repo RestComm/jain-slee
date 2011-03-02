@@ -137,7 +137,7 @@
 						<artifactId>maven-release-plugin</artifactId>
 						<configuration>
 							<autoVersionSubmodules>true</autoVersionSubmodules>
-							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/maven-du-plugin</tagBase>
+							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/tools/maven-du-plugin</tagBase>
 						</configuration>
 					</plugin>
 				</plugins>
