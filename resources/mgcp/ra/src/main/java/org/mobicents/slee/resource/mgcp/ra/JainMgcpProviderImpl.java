@@ -35,25 +35,30 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 	private Tracer tracer = null;
 
 	private final MgcpResourceAdaptor ra;
-	private final JainMgcpStackProviderImpl provider;
+	private JainMgcpStackProviderImpl provider;
 	private MgcpStackListener listener = new MgcpStackListener();
 
 	private HashMap<Integer, JainMgcpCommandEvent> commandsEventMap = new HashMap<Integer, JainMgcpCommandEvent>();
 
-	public JainMgcpProviderImpl(MgcpResourceAdaptor ra, jain.protocol.ip.mgcp.JainMgcpProvider jainMgcpProvider,
+	public JainMgcpProviderImpl(MgcpResourceAdaptor ra,
 			Tracer tracer) {
 		this.ra = ra;
-		this.provider = (JainMgcpStackProviderImpl) jainMgcpProvider;
-		this.tracer = tracer;
-		try {
-			this.provider.addJainMgcpListener(listener);
-		} catch (Throwable e) {
-			String msg = "Couldn't register MgcpStackListener to JainMgcpStackProviderImpl";
-			tracer.severe(msg, e);
-			throw new RuntimeException(msg, e);
-		}
+		this.tracer = tracer;		
 	}
 
+	public void setProvider(JainMgcpStackProviderImpl provider) {
+		this.provider = provider;
+		if (this.provider != null) {
+			try {
+				this.provider.addJainMgcpListener(listener);
+			} catch (Throwable e) {
+				String msg = "Couldn't register MgcpStackListener to JainMgcpStackProviderImpl";
+				tracer.severe(msg, e);
+				throw new RuntimeException(msg, e);
+			}
+		}
+	}
+	
 	public MgcpConnectionActivity getConnectionActivity(ConnectionIdentifier connectionIdentifier,
 			EndpointIdentifier endpointIdentifier) {
 		return getConnectionActivity(connectionIdentifier, endpointIdentifier, true);

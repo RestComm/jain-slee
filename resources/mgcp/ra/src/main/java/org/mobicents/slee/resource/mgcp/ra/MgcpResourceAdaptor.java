@@ -63,6 +63,7 @@ import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.mgcp.event.TransactionTimeout;
 
 import org.mobicents.protocols.mgcp.stack.JainMgcpStackImpl;
+import org.mobicents.protocols.mgcp.stack.JainMgcpStackProviderImpl;
 
 /**
  * 
@@ -176,7 +177,7 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 			InetAddress inetAddress = InetAddress.getByName(this.stackAddress);
 			stack = new JainMgcpStackImpl(inetAddress, port);
 
-			mgcpProvider = new JainMgcpProviderImpl(this, stack.createProvider(), tracer);
+			mgcpProvider.setProvider((JainMgcpStackProviderImpl) stack.createProvider());
 			this.sleeEndpoint = resourceAdaptorContext.getSleeEndpoint();
 
 			mgcpActivityManager = new MgcpActivityManager();
@@ -219,7 +220,6 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 			this.mgcpProvider.delete();
 			// stack is closed automaticly after above.
 			this.stack = null;
-			this.mgcpProvider = null;
 		} catch (Throwable ex) {
 			String msg = "error in de-activating resource adaptor";
 			tracer.severe(msg, ex);
@@ -274,10 +274,12 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	public void setResourceAdaptorContext(ResourceAdaptorContext raContext) {
 		this.resourceAdaptorContext = raContext;
 		tracer = resourceAdaptorContext.getTracer(MgcpResourceAdaptor.class.getSimpleName());
+		mgcpProvider = new JainMgcpProviderImpl(this,tracer);
 	}
 
 	public void unsetResourceAdaptorContext() {
 		this.resourceAdaptorContext = null;
+		mgcpProvider = null;
 	}
 
 	public void processMgcpCommandEvent(JainMgcpCommandEvent event) {
