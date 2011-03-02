@@ -241,20 +241,18 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
 
   public void setResourceAdaptorContext(ResourceAdaptorContext context) {
     this.raContext = context;
-
     this.tracer = context.getTracer("DiameterRoResourceAdaptor");
-
     this.sleeEndpoint = context.getSleeEndpoint();
     this.eventLookup = context.getEventLookupFacility();
+    this.raProvider = new RoProviderImpl(this);
   }
 
   public void unsetResourceAdaptorContext() {
     this.raContext = null;
-
     this.tracer = null;
-
     this.sleeEndpoint = null;
     this.eventLookup = null;
+    this.raProvider = null;
   }
 
   // FT Lifecycle methods ------------------------------------------------
@@ -317,8 +315,6 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       if(object instanceof DiameterStackMultiplexerMBean) {
         this.diameterMux = (DiameterStackMultiplexerMBean) object;
       }
-
-      this.raProvider = new RoProviderImpl(this);
 
       //this.activities = new ConcurrentHashMap<ActivityHandle, DiameterActivity>();
 
