@@ -276,18 +276,20 @@ public class DeployableUnit {
    * @return a Collection of actions.
    */
   public Collection<ManagementAction> getInstallActions() {
-    ArrayList<ManagementAction> iActions = new ArrayList<ManagementAction>();
+    
+	  ArrayList<ManagementAction> iActions = new ArrayList<ManagementAction>();
 
-    iActions.addAll(installActions);
+	  // if we have some remaining post install actions it means it is actions related with components already installed
+	  // thus should be executed first
+	  if (postInstallActions.values().size() > 0) {
+		  for (String componentId : postInstallActions.keySet()) {
+			  iActions.addAll(postInstallActions.get(componentId));
+		  }
+	  }
 
-    // Let's check if we have some remaining install actions
-    if (postInstallActions.values().size() > 0) {
-      for (String componentId : postInstallActions.keySet()) {
-        iActions.addAll(postInstallActions.get(componentId));
-      }
-    }
+	  iActions.addAll(installActions);
 
-    return iActions;
+	  return iActions;
   }
 
   /**
@@ -295,19 +297,20 @@ public class DeployableUnit {
    * @return a Collection of actions.
    */
   public Collection<ManagementAction> getUninstallActions() {
-    Collection<ManagementAction> uActions = new ArrayList<ManagementAction>(uninstallActions);
+	  Collection<ManagementAction> uActions = new ArrayList<ManagementAction>(uninstallActions);
 
-    // Let's check if we have some remaining install actions
-    if (preUninstallActions.values().size() > 0) {
-      for (String componentId : preUninstallActions.keySet()) {
-        uActions.addAll(preUninstallActions.get(componentId));
-      }
-    }
+	  // ensures uninstall is the last action related with DU components
+	  uActions.add(new UninstallDeployableUnitAction(diURL.toString(), sleeContainerDeployer.getDeploymentMBean()));
 
-    // To make sure uninstall is the last action, we add it just when we return them.
-    uActions.add(new UninstallDeployableUnitAction(diURL.toString(), sleeContainerDeployer.getDeploymentMBean()));
+	  // if we have some remaining uninstall actions it means it is actions related with components not in DU
+	  // thus should be executed last
+	  if (preUninstallActions.values().size() > 0) {
+		  for (String componentId : preUninstallActions.keySet()) {
+			  uActions.addAll(preUninstallActions.get(componentId));
+		  }
+	  }
 
-    return uActions;
+	  return uActions;
   }
 
   /**
