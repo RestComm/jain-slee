@@ -37,11 +37,14 @@ import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.SbbLocalObject;
 import javax.slee.facilities.Tracer;
+
+import org.mobicents.slee.resource.mediacontrol.MsActivityContextInterfaceFactory;
+
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
 
-import org.mobicents.slee.resource.mediacontrol.MscActivityContextInterfaceFactory;
+
 
 /**
  * 
@@ -64,7 +67,7 @@ public class CallSbb implements Sbb {
 	protected MessageFactory messageFactory;
 	protected SipActivityContextInterfaceFactory acif;
 	private MsControlFactory mscFactory;
-	private MscActivityContextInterfaceFactory mscAcifFactory;
+	private MsActivityContextInterfaceFactory mscAcifFactory;
 
 	public void onInvite(RequestEvent event, ActivityContextInterface aci) {
 		tracer.info("Receive call ");
@@ -320,7 +323,7 @@ public class CallSbb implements Sbb {
 			addressFactory = sipProvider.getAddressFactory();
 
 			mscFactory = (MsControlFactory) ctx.lookup("slee/resources/media/1.0/provider");
-			mscAcifFactory = (MscActivityContextInterfaceFactory) ctx.lookup("slee/resources/media/1.0/acifactory");
+			mscAcifFactory = (MsActivityContextInterfaceFactory) ctx.lookup("slee/resources/media/1.0/acifactory");
 		} catch (Exception ne) {
 			tracer.severe("Could not set SBB context:", ne);
 		}
