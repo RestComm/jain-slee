@@ -8,15 +8,25 @@ import java.util.Arrays;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpVersion;
+import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.mobicents.xcap.client.XcapClient;
@@ -41,6 +51,7 @@ public class XcapClientImpl implements XcapClient {
 	private static final Log log = LogFactory.getLog(XcapClientImpl.class);
 
 	private final DefaultHttpClient client;
+	
 	private final XcapResponseHandler responseHandler = new XcapResponseHandler();
 	private final SingleCredentialsProvider credentialsProvider = new SingleCredentialsProvider();
 	private final HeaderFactoryImpl headerFactory = new HeaderFactoryImpl();
@@ -50,11 +61,30 @@ public class XcapClientImpl implements XcapClient {
 	 * 
 	 */
 	public XcapClientImpl() {
-		client = new DefaultHttpClient();
-		client.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
-				HttpVersion.HTTP_1_0);
-		client.getParams().setParameter(
-				CoreProtocolPNames.HTTP_CONTENT_CHARSET, "UTF-8");
+		HttpParams params = new SyncBasicHttpParams();
+        params.setParameter(HttpProtocolParams.PROTOCOL_VERSION,
+                HttpVersion.HTTP_1_1);
+        params.setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE,
+                false);
+        params.setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK,
+                false);
+        params.setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE,
+                8 * 1024);
+        params.setIntParameter(HttpConnectionParams.SO_TIMEOUT,
+                15000);
+        params.setParameter(CoreProtocolPNames.HTTP_CONTENT_CHARSET, "UTF-8");
+        SchemeRegistry schemeRegistry = new SchemeRegistry();
+        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+        schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
+        this.client = new DefaultHttpClient(new ThreadSafeClientConnManager(schemeRegistry), params);
+        this.client.setHttpRequestRetryHandler(new HttpRequestRetryHandler() {
+
+            public boolean retryRequest(
+                    final IOException exception, int executionCount, final HttpContext context) {
+                return false;
+            }
+
+        });
 		client.setCredentialsProvider(credentialsProvider);
 	}
 
