@@ -146,7 +146,7 @@ public class XcapClientImpl implements XcapClient {
 
 	private static final HttpContext NULL_HTTP_CONTEXT = null;
 
-	private XcapResponse execute(URI uri, HttpUriRequest request,
+	private XcapResponse execute(HttpUriRequest request,
 			Header[] additionalRequestHeaders, Credentials credentials)
 			throws IOException {
 
@@ -203,7 +203,7 @@ public class XcapClientImpl implements XcapClient {
 					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
-		return execute(uri,new HttpGet(uri), additionalRequestHeaders, credentials);
+		return execute(new HttpGet(uri), additionalRequestHeaders, credentials);
 	}
 
 	/*
@@ -227,7 +227,7 @@ public class XcapClientImpl implements XcapClient {
 
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
-		return execute(uri,request, additionalRequestHeaders, credentials);
+		return execute(request, additionalRequestHeaders, credentials);
 
 	}
 
@@ -253,7 +253,7 @@ public class XcapClientImpl implements XcapClient {
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
 		request.setHeader(XcapConstant.HEADER_IF_MATCH, eTag);
-		return execute(uri,request, additionalRequestHeaders, credentials);
+		return execute(request, additionalRequestHeaders, credentials);
 
 	}
 
@@ -279,7 +279,7 @@ public class XcapClientImpl implements XcapClient {
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
 		request.setHeader(XcapConstant.HEADER_IF_NONE_MATCH, eTag);
-		return execute(uri,request, additionalRequestHeaders, credentials);
+		return execute(request, additionalRequestHeaders, credentials);
 
 	}
 
@@ -303,7 +303,7 @@ public class XcapClientImpl implements XcapClient {
 
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
-		return execute(uri,request, additionalRequestHeaders, credentials);
+		return execute(request, additionalRequestHeaders, credentials);
 
 	}
 
@@ -329,7 +329,7 @@ public class XcapClientImpl implements XcapClient {
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
 		request.setHeader(XcapConstant.HEADER_IF_MATCH, eTag);
-		return execute(uri,request, additionalRequestHeaders, credentials);
+		return execute(request, additionalRequestHeaders, credentials);
 	}
 
 	/*
@@ -354,7 +354,7 @@ public class XcapClientImpl implements XcapClient {
 		final HttpPut request = new HttpPut(uri);
 		setRequestEntity(request, content, mimetype);
 		request.setHeader(XcapConstant.HEADER_IF_NONE_MATCH, eTag);
-		return execute(uri,request, additionalRequestHeaders, credentials);
+		return execute(request, additionalRequestHeaders, credentials);
 	}
 
 	/*
@@ -372,7 +372,7 @@ public class XcapClientImpl implements XcapClient {
 					+ Arrays.toString(additionalRequestHeaders) + " ) )");
 		}
 
-		return execute(uri,new HttpDelete(uri), additionalRequestHeaders,
+		return execute(new HttpDelete(uri), additionalRequestHeaders,
 				credentials);
 	}
 
@@ -395,7 +395,7 @@ public class XcapClientImpl implements XcapClient {
 
 		final HttpDelete request = new HttpDelete(uri);
 		request.setHeader(XcapConstant.HEADER_IF_MATCH, eTag);
-		return execute(uri,request, additionalRequestHeaders, credentials);
+		return execute(request, additionalRequestHeaders, credentials);
 	}
 
 	/*
@@ -417,7 +417,7 @@ public class XcapClientImpl implements XcapClient {
 
 		final HttpDelete request = new HttpDelete(uri);
 		request.setHeader(XcapConstant.HEADER_IF_NONE_MATCH, eTag);
-		return execute(uri,request, additionalRequestHeaders, credentials);
+		return execute(request, additionalRequestHeaders, credentials);
 	}
 
 }
