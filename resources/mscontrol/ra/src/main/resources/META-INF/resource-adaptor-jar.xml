@@ -24,16 +24,14 @@
                 </resource-adaptor-class-name>
             </resource-adaptor-class>
         </resource-adaptor-classes>
+        <!-- 
         <config-property>
-            <config-property-name>driverName</config-property-name>
+            <config-property-name>driver.name</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
             <config-property-value>org.mobicents</config-property-value>
         </config-property>
-        <config-property>
-            <config-property-name>configName</config-property-name>
-            <config-property-type>java.lang.String</config-property-type>
-            <config-property-value>msc.properties</config-property-value>
-        </config-property>
+       
+         -->
     </resource-adaptor>
     <security-permissions>
         <description>

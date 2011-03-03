@@ -138,7 +138,8 @@ public class McResourceAdaptor implements ResourceAdaptor {
 			
 			this.mscDriver = DriverManager.getDriver(this.driverName);
 			this.tracer.info("Created MSC Driver: " + mscDriver + ", from name: " + driverName);
-			this.mscFactory.setFactory(this.mscDriver.getFactory(config));
+			
+			this.mscFactory.setFactory(this.mscDriver.getFactory(this.config));
 			this.mscFactory.setActive(true);
 			this.tracer.info("Successfully started MSC RA Entity:" + this.context.getEntityName());
 		} catch (Exception e) {
@@ -171,14 +172,40 @@ public class McResourceAdaptor implements ResourceAdaptor {
 		this.mscFactory.setFactory(null);
 	}
 
-	public void raVerifyConfiguration(ConfigProperties config) throws InvalidConfigurationException {
-		Property driverProperty = config.getProperty(DRIVER);
+	public void raVerifyConfiguration(ConfigProperties cfg) throws InvalidConfigurationException {
+		Property driverProperty = cfg.getProperty(DRIVER);
 		if(driverProperty == null || driverProperty.getValue() == null || !driverProperty.getType().equals("java.lang.String"))
 		{
 			throw new InvalidConfigurationException("No driver property specified!");
 		}
+		String driverName = null;
+		Properties config = new Properties();
+		for(Property p:cfg.getProperties())
+		{
+			
+			if(p.getName().equals(DRIVER))
+			{
+				driverName = (String)p.getValue(); //it must be string
+			}else
+			{
+				//add to props.
+				config.put(p.getName(), p.getValue());
+			}
+		}
 		
-		//TODO: add check on driver
+		Driver d = DriverManager.getDriver(driverName);	
+		if(d== null)
+		{
+			throw new InvalidConfigurationException("Failed to create driver for: "+driverName);
+		}
+		try {
+			if(d.getFactory(config) == null)
+			{
+				throw new InvalidConfigurationException("Failed to create MscFactory for: "+config);
+			}
+		} catch (MsControlException e) {
+			throw new InvalidConfigurationException("Failed to create MscFactory for: "+config,e);
+		}
 	}
 
 	public void raConfigurationUpdate(ConfigProperties config) {
