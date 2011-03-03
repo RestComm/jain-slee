@@ -136,7 +136,15 @@ public class SbbWizard extends BaseWizard {
 	public void doFinish(IProgressMonitor monitor) throws CoreException {
 
 		try {
-			IFolder folder = getSourceContainer().getFolder(new Path(this.getPackageName().replaceAll("\\.", "/")));
+	    IFolder folder = getSourceContainer().getFolder(new Path(""));//.getFolder(new Path(this.getPackageName().replaceAll("\\.", "/")));
+	    
+	    // This allows implicit package creation
+	    for(String path : this.getPackageName().split("\\.")) {
+	      folder = folder.getFolder(path);
+	      if(!folder.exists()) {
+	        folder.create(true, true, monitor);
+	      }
+	    }
 
 			String sbbBaseName = getFileName().substring(0, getFileName().indexOf(ENDS));
 			String abstractFilename = sbbBaseName + "Sbb.java";

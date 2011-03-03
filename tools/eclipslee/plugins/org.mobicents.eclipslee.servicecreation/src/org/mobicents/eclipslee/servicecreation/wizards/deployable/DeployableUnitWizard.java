@@ -81,8 +81,16 @@ public class DeployableUnitWizard extends Wizard implements INewWizard {
 			monitor.beginTask("Creating JAIN SLEE DeployableUnit " + getFileName(), 2);
 			
 			// The folder that will contain the Foo-deployable-unit.xml file.
-			IFolder folder = getSourceContainer().getFolder(new Path(this.getPackageName().replaceAll("\\.", "/")));
-			
+	    IFolder folder = getSourceContainer().getFolder(new Path(""));//.getFolder(new Path(this.getPackageName().replaceAll("\\.", "/")));
+	    
+	    // This allows implicit package creation
+	    for(String path : this.getPackageName().split("\\.")) {
+	      folder = folder.getFolder(path);
+	      if(!folder.exists()) {
+	        folder.create(true, true, monitor);
+	      }
+	    }
+
 			// Get the ant build file.
 			IPath antBuildPath = new Path("/build.xml");
 			IFile projectFile = getSourceContainer().getProject().getFile(antBuildPath);

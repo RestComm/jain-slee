@@ -88,7 +88,17 @@ public class ServiceWizard extends BaseWizard {
       if (!resourceFolder.exists()) {
         resourceFolder.create(true, true, monitor);
       }
-			IFolder folder = getSourceContainer().getFolder(new Path(this.getPackageName().replaceAll("\\.", "/")));
+
+      IFolder folder = getSourceContainer().getFolder(new Path(""));//.getFolder(new Path(this.getPackageName().replaceAll("\\.", "/")));
+      
+      // This allows implicit package creation
+      for(String path : this.getPackageName().split("\\.")) {
+        folder = folder.getFolder(path);
+        if(!folder.exists()) {
+          folder.create(true, true, monitor);
+        }
+      }
+
 			final IFile xmlFile = FileUtil.createFromInputStream(resourceFolder, new Path(getFileName()), serviceXML.getInputStreamFromXML(), monitor);
 
 			monitor.worked(1);
