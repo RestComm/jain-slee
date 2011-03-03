@@ -28,9 +28,9 @@ import javax.media.mscontrol.join.Joinable;
 import javax.media.mscontrol.vxml.VxmlDialog;
 import javax.media.mscontrol.vxml.VxmlDialogEvent;
 
-import org.mobicents.slee.resource.mediacontrol.McActivity;
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivity;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWrapper;
 
@@ -38,11 +38,11 @@ import org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWr
  * @author baranowb
  * 
  */
-public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlDialog, McActivity {
+public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlDialog, MsActivity {
 
 	protected final VxmlDialog wrappedVXMLDialog;
 	protected final VXMLDialogEventListener vxmlDialogEventListener = new VXMLDialogEventListener(this);
-	protected final McActivityHandle activityHandle = new McActivityHandle(this);
+	protected final MsActivityHandle activityHandle = new MsActivityHandle(this);
 	private boolean activityTerminated = false;
 
 	/**
@@ -50,7 +50,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 	 * @param mediaSession
 	 * @param ra
 	 */
-	public VXMLDialogWrapper(MediaObject wrappedObject, MediaSessionWrapper mediaSession, McResourceAdaptor ra) {
+	public VXMLDialogWrapper(MediaObject wrappedObject, MediaSessionWrapper mediaSession, MsResourceAdaptor ra) {
 		super(wrappedObject, mediaSession, ra);
 		this.wrappedVXMLDialog = (VxmlDialog) wrappedObject;
 	}
@@ -126,7 +126,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 	 * JoinableContainerWrapper#getActivityHandle()
 	 */
 	
-	public McActivityHandle getActivityHandle() {
+	public MsActivityHandle getActivityHandle() {
 		return this.activityHandle;
 }
 
@@ -135,7 +135,7 @@ public class VXMLDialogWrapper extends JoinableContainerWrapper implements VxmlD
 	 * @see org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWrapper#getEventHandle()
 	 */
 	
-	protected McActivityHandle getEventHandle() {
+	protected MsActivityHandle getEventHandle() {
 		return this.getActivityHandle();
 	}
 	// ------------------- private -----------------------

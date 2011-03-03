@@ -24,9 +24,9 @@ import javax.media.mscontrol.networkconnection.SdpPortManager;
 import javax.media.mscontrol.resource.Action;
 import javax.media.mscontrol.resource.AllocationEventListener;
 
-import org.mobicents.slee.resource.mediacontrol.McActivity;
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivity;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWrapper;
 
@@ -34,9 +34,9 @@ import org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWr
  * @author baranowb
  * 
  */
-public class NetworkConnectionWrapper extends JoinableContainerWrapper implements NetworkConnection, McActivity {
+public class NetworkConnectionWrapper extends JoinableContainerWrapper implements NetworkConnection, MsActivity {
 
-	protected final McActivityHandle handle = new McActivityHandle(this);
+	protected final MsActivityHandle handle = new MsActivityHandle(this);
 	protected final NetworkConnection wrappedNetworkConnection;
 	protected final WrapperAllocationEventListener ncwAllocationEventListener = new WrapperAllocationEventListener(this,this.handle);
 	protected SdpPortManagerWrapper sdpPortManager; // not final, since it may
@@ -46,7 +46,7 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	 * @param wrappedObject
 	 * @param ra
 	 */
-	public NetworkConnectionWrapper(NetworkConnection wrappedObject, MediaSessionWrapper mediaSession, McResourceAdaptor ra) {
+	public NetworkConnectionWrapper(NetworkConnection wrappedObject, MediaSessionWrapper mediaSession, MsResourceAdaptor ra) {
 		super(wrappedObject, mediaSession, ra);
 		if (mediaSession == null) {
 			throw new IllegalArgumentException("MediaSession must not be null.");
@@ -145,12 +145,12 @@ public class NetworkConnectionWrapper extends JoinableContainerWrapper implement
 	/**
 	 * @return
 	 */
-	public McActivityHandle getActivityHandle() {
+	public MsActivityHandle getActivityHandle() {
 		return this.handle;
 	}
 
 	
-	protected McActivityHandle getEventHandle() {
+	protected MsActivityHandle getEventHandle() {
 		return this.getActivityHandle();
 	}
 

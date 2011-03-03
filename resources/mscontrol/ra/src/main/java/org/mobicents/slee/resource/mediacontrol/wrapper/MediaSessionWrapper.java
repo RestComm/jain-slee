@@ -29,9 +29,9 @@ import javax.media.mscontrol.mixer.MediaMixer;
 import javax.media.mscontrol.networkconnection.NetworkConnection;
 import javax.media.mscontrol.vxml.VxmlDialog;
 
-import org.mobicents.slee.resource.mediacontrol.McActivity;
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivity;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.mediagroup.MediaGroupWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.mixer.MediaMixerWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.networkconnection.NetworkConnectionWrapper;
@@ -41,15 +41,15 @@ import org.mobicents.slee.resource.mediacontrol.wrapper.vxml.VXMLDialogWrapper;
  * @author baranowb
  * 
  */
-public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSession, McActivity {
+public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSession, MsActivity {
 
-	protected McActivityHandle handle = new McActivityHandle(this);
+	protected MsActivityHandle handle = new MsActivityHandle(this);
 	protected MediaSession wrappedSession;
 
 	/**
 	 * @param wrappedObject
 	 */
-	public MediaSessionWrapper(MediaSession wrappedSession, McResourceAdaptor ra) {
+	public MediaSessionWrapper(MediaSession wrappedSession, MsResourceAdaptor ra) {
 		super(wrappedSession, ra);
 		this.wrappedSession = wrappedSession;
 	}
@@ -245,7 +245,7 @@ public class MediaSessionWrapper extends MediaObjectWrapper implements MediaSess
 	/**
 	 * @return
 	 */
-	public McActivityHandle getActivityHandle() {
+	public MsActivityHandle getActivityHandle() {
 		return this.handle;
 	}
 

@@ -29,9 +29,9 @@ import javax.media.mscontrol.mixer.MixerEvent;
 import javax.media.mscontrol.resource.Action;
 import javax.media.mscontrol.resource.AllocationEventListener;
 
-import org.mobicents.slee.resource.mediacontrol.McActivity;
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivity;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWrapper;
 
@@ -39,9 +39,9 @@ import org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWr
  * @author baranowb
  * 
  */
-public class MediaMixerWrapper extends JoinableContainerWrapper implements MediaMixer,McActivity {
+public class MediaMixerWrapper extends JoinableContainerWrapper implements MediaMixer,MsActivity {
 	
-	protected McActivityHandle handle = new McActivityHandle(this);
+	protected MsActivityHandle handle = new MsActivityHandle(this);
 	protected final MediaMixer wrappedMediaMixer;
 	protected final WrapperAllocationEventListener mmwAllocationEventListener = new WrapperAllocationEventListener(this,handle);
 	protected final MMWMediaEventListener nnwMediaEventListener = new MMWMediaEventListener(this);
@@ -49,7 +49,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	 * @param wrappedObject
 	 * @param ra
 	 */
-	public MediaMixerWrapper(MediaMixer wrappedObject, MediaSessionWrapper mediaSession, McResourceAdaptor ra) {
+	public MediaMixerWrapper(MediaMixer wrappedObject, MediaSessionWrapper mediaSession, MsResourceAdaptor ra) {
 		super(wrappedObject, (MediaSessionWrapper) mediaSession, ra);
 		this.wrappedMediaMixer = wrappedObject;
 		this.wrappedMediaMixer.addListener(this.mmwAllocationEventListener);
@@ -145,7 +145,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	}
 
 	
-	protected McActivityHandle getEventHandle() {
+	protected MsActivityHandle getEventHandle() {
 		//ql, we are no activity :)
 		return this.getActivityHandle();
 	}
@@ -164,7 +164,7 @@ public class MediaMixerWrapper extends JoinableContainerWrapper implements Media
 	}
 	
 	
-	public McActivityHandle getActivityHandle() {
+	public MsActivityHandle getActivityHandle() {
 		return this.handle;
 	}
 	// ----------------------- private -------------------

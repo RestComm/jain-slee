@@ -25,7 +25,7 @@ import javax.media.mscontrol.networkconnection.SdpPortManager;
 import javax.media.mscontrol.networkconnection.SdpPortManagerEvent;
 import javax.media.mscontrol.networkconnection.SdpPortManagerException;
 
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 
 /**
@@ -37,7 +37,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	private final SdpPortManager wrappedSDPPortManager;
 	private final NetworkConnectionWrapper networkConnection;
 	private final MediaSessionWrapper mediaSession;
-	private final McResourceAdaptor ra;
+	private final MsResourceAdaptor ra;
 
 	/**
 	 * @param sdpPortManager
@@ -45,7 +45,7 @@ public class SdpPortManagerWrapper implements SdpPortManager {
 	 * @param mediaSession
 	 */
 	public SdpPortManagerWrapper(SdpPortManager sdpPortManager, NetworkConnectionWrapper networkConnection, MediaSessionWrapper mediaSession,
-			McResourceAdaptor ra) {
+			MsResourceAdaptor ra) {
 		super();
 		this.wrappedSDPPortManager = sdpPortManager;
 		this.networkConnection = networkConnection;

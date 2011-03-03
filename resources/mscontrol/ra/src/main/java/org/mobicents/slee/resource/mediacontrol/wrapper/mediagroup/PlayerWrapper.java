@@ -28,7 +28,7 @@ import javax.media.mscontrol.mediagroup.Player;
 import javax.media.mscontrol.mediagroup.PlayerEvent;
 import javax.media.mscontrol.resource.RTC;
 
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.Wrapper;
 
@@ -41,14 +41,14 @@ public class PlayerWrapper implements Player, Wrapper {
 	protected final Player wrappedPlayer;
 	protected final MediaGroupWrapper mediaGroup;
 	protected final MediaSessionWrapper mediaSession;
-	protected final McResourceAdaptor ra;
+	protected final MsResourceAdaptor ra;
 	protected final PlayerEventWrapperListener playerListener = new PlayerEventWrapperListener(this);
 
 	/**
 	 * @param wrappedObject
 	 * @param ra
 	 */
-	public PlayerWrapper(Player wrappedObject, MediaGroupWrapper mediaGroup, MediaSessionWrapper mediaSession, McResourceAdaptor ra) {
+	public PlayerWrapper(Player wrappedObject, MediaGroupWrapper mediaGroup, MediaSessionWrapper mediaSession, MsResourceAdaptor ra) {
 		if (wrappedObject == null) {
 			throw new IllegalArgumentException("Player must not be null.");
 		}
@@ -59,7 +59,7 @@ public class PlayerWrapper implements Player, Wrapper {
 			throw new IllegalArgumentException("MediaSession must not be null.");
 		}
 		if (ra == null) {
-			throw new IllegalArgumentException("McResourceAdaptor must not be null.");
+			throw new IllegalArgumentException("MsResourceAdaptor must not be null.");
 		}
 		this.mediaGroup = mediaGroup;
 		this.mediaSession = mediaSession;

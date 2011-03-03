@@ -71,7 +71,7 @@ import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
  * 
  * @author baranowb
  */
-public class McResourceAdaptor implements ResourceAdaptor {
+public class MsResourceAdaptor implements ResourceAdaptor {
 
 	/**
 	 * RA config property which holds driver name.
@@ -91,12 +91,12 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	// Driver configuration
 	private Properties config = new Properties();
 	private String driverName;
-	private Map<McActivityHandle, McActivity> activities = Collections.synchronizedMap(new HashMap<McActivityHandle, McActivity>());
+	private Map<MsActivityHandle, MsActivity> activities = Collections.synchronizedMap(new HashMap<MsActivityHandle, MsActivity>());
 	
 	/**
 	 * 
 	 */
-	public McResourceAdaptor() {
+	public MsResourceAdaptor() {
 		super();
 		this.mscFactory = new MsControlFactoryWrapper(this);
 	}
@@ -150,8 +150,8 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	public void raStopping() {
 		//set it before becoming inactive?
 		this.mscFactory.setActive(false);
-		Set<McActivity> acs = new HashSet<McActivity>(this.activities.values());
-		for(McActivity a:acs)
+		Set<MsActivity> acs = new HashSet<MsActivity>(this.activities.values());
+		for(MsActivity a:acs)
 		{
 			//release only on media session, rest will be released as children
 			if(a instanceof MediaSession)
@@ -234,7 +234,7 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	}
 
 	public Object getActivity(ActivityHandle handle) {
-		if (handle instanceof McActivityHandle) {
+		if (handle instanceof MsActivityHandle) {
 			return activities.get(handle);
 		} else {
 			return null;
@@ -243,8 +243,8 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	}
 
 	public ActivityHandle getActivityHandle(Object activity) {
-		if (activity instanceof McActivity) {
-			McActivity mcActivity = (McActivity) activity;
+		if (activity instanceof MsActivity) {
+			MsActivity mcActivity = (MsActivity) activity;
 			return mcActivity.getActivityHandle();
 		}
 
@@ -265,7 +265,7 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	}
 
 	public void activityEnded(ActivityHandle handle) {
-		if (handle instanceof McActivityHandle) {
+		if (handle instanceof MsActivityHandle) {
 			this.activities.remove(handle);
 		}
 	}
@@ -342,7 +342,7 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	/**
 	 * @param activityHandle
 	 */
-	public void endActivity(McActivityHandle activityHandle) {
+	public void endActivity(MsActivityHandle activityHandle) {
 		this.sleeEndpoint.endActivity(activityHandle);
 	}
 
@@ -354,9 +354,9 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	 * @throws NullPointerException
 	 * @throws ActivityAlreadyExistsException
 	 */
-	public void startActivity(McActivity wrapper) throws ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException,
+	public void startActivity(MsActivity wrapper) throws ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException,
 			StartActivityException {
-		McActivityHandle handle = wrapper.getActivityHandle();
+		MsActivityHandle handle = wrapper.getActivityHandle();
 		if (this.activities.containsKey(handle)) {
 			throw new IllegalArgumentException("Activity already present: " + handle);
 		}
@@ -381,14 +381,14 @@ public class McResourceAdaptor implements ResourceAdaptor {
 	public class MsControlFactoryWrapper implements MsControlFactory {
 
 		protected MsControlFactory wrappedFactory;
-		protected McResourceAdaptor ra; //required to pass into other wrappers
+		protected MsResourceAdaptor ra; //required to pass into other wrappers
 		protected boolean active = false;
 
 		/**
 		 * @param wrappedFactory
 		 * @param ra
 		 */
-		public MsControlFactoryWrapper(McResourceAdaptor ra) {
+		public MsControlFactoryWrapper(MsResourceAdaptor ra) {
 			super();
 			this.ra = ra;
 		}

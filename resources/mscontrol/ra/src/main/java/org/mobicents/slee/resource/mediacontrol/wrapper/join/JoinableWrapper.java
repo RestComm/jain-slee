@@ -29,8 +29,8 @@ import javax.media.mscontrol.join.JoinEventListener;
 import javax.media.mscontrol.join.Joinable;
 import javax.media.mscontrol.join.JoinableContainer;
 
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 
 /**
  * @author baranowb
@@ -44,7 +44,7 @@ public abstract class JoinableWrapper implements JoinableExt {
 																// as source. It
 																// should be
 																// "wrapper"
-	protected final McResourceAdaptor ra;
+	protected final MsResourceAdaptor ra;
 
 	protected final Map<Joinable, JoinableExt> joinees = new HashMap<Joinable, JoinableExt>();
 	// we keep ref to listeners, since on release( )without unjoin impl will
@@ -58,12 +58,12 @@ public abstract class JoinableWrapper implements JoinableExt {
 	 * @param joinableContainer
 	 * @param ra
 	 */
-	public JoinableWrapper(Joinable wrappedObject, JoinableContainerWrapper joinableContainer, McResourceAdaptor ra) {
+	public JoinableWrapper(Joinable wrappedObject, JoinableContainerWrapper joinableContainer, MsResourceAdaptor ra) {
 		if (wrappedObject == null) {
 			throw new IllegalArgumentException("Joinable must not be null.");
 		}
 		if (ra == null) {
-			throw new IllegalArgumentException("McResourceAdaptor must not be null.");
+			throw new IllegalArgumentException("MsResourceAdaptor must not be null.");
 		}
 		if (joinableContainer == null) {
 			throw new IllegalArgumentException("JoinableContainer must not be null.");
@@ -161,7 +161,7 @@ public abstract class JoinableWrapper implements JoinableExt {
 	// -------------------- private --------------------
 
 	// returns activity handle on which we must deliver events from lst :)
-	protected abstract McActivityHandle getEventHandle();
+	protected abstract MsActivityHandle getEventHandle();
 
 	
 	public void addJoinee(JoinableExt otherJoinable) {

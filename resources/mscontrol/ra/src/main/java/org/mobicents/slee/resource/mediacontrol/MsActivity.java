@@ -21,9 +21,9 @@ package org.mobicents.slee.resource.mediacontrol;
  * @author baranowb
  *
  */
-public interface McActivity {
+public interface MsActivity {
 
-	public McActivityHandle getActivityHandle();
-	public McResourceAdaptor getRA();
+	public MsActivityHandle getActivityHandle();
+	public MsResourceAdaptor getRA();
 	public void release();
 }

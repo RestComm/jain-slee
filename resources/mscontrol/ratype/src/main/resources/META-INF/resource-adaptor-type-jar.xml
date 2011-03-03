@@ -31,7 +31,7 @@
             
             <activity-context-interface-factory-interface>
                 <activity-context-interface-factory-interface-name>
-					org.mobicents.slee.resource.mediacontrol.McActivityContextInterfaceFactory
+					org.mobicents.slee.resource.mediacontrol.MsActivityContextInterfaceFactory
                 </activity-context-interface-factory-interface-name>
             </activity-context-interface-factory-interface>
             <resource-adaptor-interface>

@@ -19,8 +19,8 @@ package org.mobicents.slee.resource.mediacontrol.wrapper.join;
 
 import javax.media.mscontrol.join.JoinableStream;
 
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 
 /**
  * @author baranowb
@@ -34,7 +34,7 @@ public class JoinableStreamWrapper extends JoinableWrapper implements JoinableSt
 	 * @param wrappedObject
 	 * @param ra
 	 */
-	public JoinableStreamWrapper(JoinableStream wrappedObject, JoinableContainerWrapper joinableContainer, McResourceAdaptor ra) {
+	public JoinableStreamWrapper(JoinableStream wrappedObject, JoinableContainerWrapper joinableContainer, MsResourceAdaptor ra) {
 		super(wrappedObject, joinableContainer, ra);
 
 		this.wrappedJoinableStream = wrappedObject;
@@ -53,7 +53,7 @@ public class JoinableStreamWrapper extends JoinableWrapper implements JoinableSt
 	// ------------------------ private --------------
 
 	
-	protected McActivityHandle getEventHandle() {
+	protected MsActivityHandle getEventHandle() {
 		// return container handle?
 		return joinableContainer.getEventHandle();
 	}

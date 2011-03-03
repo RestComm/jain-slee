@@ -25,14 +25,14 @@ import javax.slee.resource.ActivityHandle;
  * @author baranowb
  *
  */
-public class McActivityHandle implements ActivityHandle {
+public class MsActivityHandle implements ActivityHandle {
 	
 	private final String uid;
 	private final int hash;
 
 	
 
-	public McActivityHandle(McActivity activity) {
+	public MsActivityHandle(MsActivity activity) {
 		super();
 		this.uid = new UID().toString()+"_"+activity.toString();
 		this.hash = createHash();
@@ -40,7 +40,7 @@ public class McActivityHandle implements ActivityHandle {
 	/**
 	 * @param uid
 	 */
-	public McActivityHandle(String uid) {
+	public MsActivityHandle(String uid) {
 		super();
 		this.uid = uid;
 		this.hash = createHash();
@@ -67,7 +67,7 @@ public class McActivityHandle implements ActivityHandle {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		McActivityHandle other = (McActivityHandle) obj;
+		MsActivityHandle other = (MsActivityHandle) obj;
 		if (uid == null) {
 			if (other.uid != null)
 				return false;
@@ -77,7 +77,7 @@ public class McActivityHandle implements ActivityHandle {
 	}
 	
 	public String toString() {
-		return "McActivityHandle [uid=" + uid + ", hash=" + hash + ", hashCode()=" + hashCode() + "]";
+		return "MsActivityHandle [uid=" + uid + ", hash=" + hash + ", hashCode()=" + hashCode() + "]";
 	}
 	
 	

@@ -35,8 +35,8 @@ import javax.media.mscontrol.join.JoinableContainer;
 import javax.media.mscontrol.join.JoinableStream;
 import javax.media.mscontrol.join.JoinableStream.StreamType;
 
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaObjectWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 
@@ -66,7 +66,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 	 * @param mediaSession
 	 * @param ra
 	 */
-	public JoinableContainerWrapper(MediaObject wrappedObject, MediaSessionWrapper mediaSession, McResourceAdaptor ra) {
+	public JoinableContainerWrapper(MediaObject wrappedObject, MediaSessionWrapper mediaSession, MsResourceAdaptor ra) {
 		super(wrappedObject, ra);
 		if (mediaSession == null) {
 			throw new IllegalArgumentException("MediaSession must not be null.");
@@ -252,7 +252,7 @@ public abstract class JoinableContainerWrapper extends MediaObjectWrapper implem
 
 	// ---------------------- private/protected
 	// return activity handle on which events must be delivered.
-	protected abstract McActivityHandle getEventHandle();
+	protected abstract MsActivityHandle getEventHandle();
 
 	
 	public void addJoinee(JoinableExt otherJoinable) {

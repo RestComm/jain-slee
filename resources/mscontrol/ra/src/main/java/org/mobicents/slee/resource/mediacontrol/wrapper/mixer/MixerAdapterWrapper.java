@@ -23,8 +23,8 @@ import javax.media.mscontrol.mixer.MixerAdapter;
 import javax.media.mscontrol.resource.Action;
 import javax.media.mscontrol.resource.AllocationEventListener;
 
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWrapper;
 
@@ -42,7 +42,7 @@ public class MixerAdapterWrapper extends JoinableContainerWrapper implements Mix
 	 * @param mediaSession
 	 * @param ra
 	 */
-	public MixerAdapterWrapper(MixerAdapter wrappedObject, MediaMixerWrapper mediaMixer, MediaSessionWrapper mediaSession, McResourceAdaptor ra) {
+	public MixerAdapterWrapper(MixerAdapter wrappedObject, MediaMixerWrapper mediaMixer, MediaSessionWrapper mediaSession, MsResourceAdaptor ra) {
 		super(wrappedObject, mediaSession, ra);// media session wrapper passed
 												// as arg to avoid cast...
 		if (mediaMixer == null) {
@@ -129,7 +129,7 @@ public class MixerAdapterWrapper extends JoinableContainerWrapper implements Mix
 	 * JoinableContainerWrapper#getEventHandle()
 	 */
 	
-	protected McActivityHandle getEventHandle() {
+	protected MsActivityHandle getEventHandle() {
 		return this.mediaMixer.getEventHandle();
 	}
 

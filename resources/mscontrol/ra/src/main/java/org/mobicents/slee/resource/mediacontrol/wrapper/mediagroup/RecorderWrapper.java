@@ -28,7 +28,7 @@ import javax.media.mscontrol.mediagroup.Recorder;
 import javax.media.mscontrol.mediagroup.RecorderEvent;
 import javax.media.mscontrol.resource.RTC;
 
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.Wrapper;
 
@@ -41,14 +41,14 @@ public class RecorderWrapper implements Recorder, Wrapper {
 	protected final Recorder wrappedRecorder;
 	protected final MediaGroupWrapper mediaGroup;
 	protected final MediaSessionWrapper mediaSession;
-	protected final McResourceAdaptor ra;
+	protected final MsResourceAdaptor ra;
 	protected final RecorderEventWrapperListener recorderListener = new RecorderEventWrapperListener(this);
 
 	/**
 	 * @param mediaGroup
 	 * @param mediaSession
 	 */
-	public RecorderWrapper(Recorder recorder, MediaGroupWrapper mediaGroup, MediaSessionWrapper mediaSession, McResourceAdaptor ra) {
+	public RecorderWrapper(Recorder recorder, MediaGroupWrapper mediaGroup, MediaSessionWrapper mediaSession, MsResourceAdaptor ra) {
 
 		if (recorder == null) {
 			throw new IllegalArgumentException("Recorder must not be null.");
@@ -60,7 +60,7 @@ public class RecorderWrapper implements Recorder, Wrapper {
 			throw new IllegalArgumentException("MediaSession must not be null.");
 		}
 		if (ra == null) {
-			throw new IllegalArgumentException("McResourceAdaptor must not be null.");
+			throw new IllegalArgumentException("MsResourceAdaptor must not be null.");
 		}
 		this.mediaGroup = mediaGroup;
 		this.mediaSession = mediaSession;

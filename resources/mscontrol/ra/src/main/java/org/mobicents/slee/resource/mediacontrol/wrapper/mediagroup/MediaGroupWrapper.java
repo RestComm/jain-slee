@@ -27,9 +27,9 @@ import javax.media.mscontrol.mediagroup.signals.SignalGenerator;
 import javax.media.mscontrol.resource.Action;
 import javax.media.mscontrol.resource.AllocationEventListener;
 
-import org.mobicents.slee.resource.mediacontrol.McActivity;
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivity;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
 import org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWrapper;
 
@@ -37,9 +37,9 @@ import org.mobicents.slee.resource.mediacontrol.wrapper.join.JoinableContainerWr
  * @author baranowb
  * 
  */
-public class MediaGroupWrapper extends JoinableContainerWrapper implements MediaGroup, McActivity {
+public class MediaGroupWrapper extends JoinableContainerWrapper implements MediaGroup, MsActivity {
 
-	protected final McActivityHandle handle = new McActivityHandle(this);
+	protected final MsActivityHandle handle = new MsActivityHandle(this);
 
 	protected final MediaGroup wrappedMediaGroup;
 	protected PlayerWrapper player;
@@ -51,7 +51,7 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 	 * @param wrappedObject
 	 * @param ra
 	 */
-	public MediaGroupWrapper(MediaGroup wrappedMediaGroup, MediaSessionWrapper mediaSession, McResourceAdaptor ra) {
+	public MediaGroupWrapper(MediaGroup wrappedMediaGroup, MediaSessionWrapper mediaSession, MsResourceAdaptor ra) {
 		super(wrappedMediaGroup, mediaSession, ra);
 		this.wrappedMediaGroup = wrappedMediaGroup;
 		this.wrappedMediaGroup.addListener(this.mgwAllocationEventWrapper);
@@ -218,14 +218,14 @@ public class MediaGroupWrapper extends JoinableContainerWrapper implements Media
 
 	// --------------------------- JSLEE specific ------------------
 	
-	protected McActivityHandle getEventHandle() {
+	protected MsActivityHandle getEventHandle() {
 		return this.getActivityHandle();
 	}
 
 	/**
 	 * @return
 	 */
-	public McActivityHandle getActivityHandle() {
+	public MsActivityHandle getActivityHandle() {
 		return this.handle;
 	}
 

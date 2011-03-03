@@ -35,8 +35,8 @@ import javax.media.mscontrol.resource.AllocationEventListener;
 import javax.media.mscontrol.resource.ResourceContainer;
 import javax.slee.facilities.Tracer;
 
-import org.mobicents.slee.resource.mediacontrol.McActivityHandle;
-import org.mobicents.slee.resource.mediacontrol.McResourceAdaptor;
+import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
+import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
 import org.mobicents.slee.resource.mediacontrol.wrapper.networkconnection.NetworkConnectionWrapper;
 
 /**
@@ -49,19 +49,19 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 
 	protected final Tracer logger;
 	protected final MediaObject wrappedObject;
-	protected final McResourceAdaptor ra;
+	protected final MsResourceAdaptor ra;
 	// map which holds childred if present. Maps real object to wrapper.
 	protected final Map<MediaObject, MediaObjectWrapper> realToWrapperMap = Collections.synchronizedMap(new HashMap<MediaObject, MediaObjectWrapper>());
 
 	/**
 	 * 
 	 */
-	public MediaObjectWrapper(MediaObject wrappedObject, McResourceAdaptor ra) {
+	public MediaObjectWrapper(MediaObject wrappedObject, MsResourceAdaptor ra) {
 		if (wrappedObject == null) {
 			throw new IllegalArgumentException("MediaObject must not be null.");
 		}
 		if (ra == null) {
-			throw new IllegalArgumentException("McResourceAdaptor must not be null.");
+			throw new IllegalArgumentException("MsResourceAdaptor must not be null.");
 		}
 		this.ra = ra;
 		this.wrappedObject = wrappedObject;
@@ -176,7 +176,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	
 	// -------------- private --------------
 	
-	public McResourceAdaptor getRA()
+	public MsResourceAdaptor getRA()
 	{
 		return this.ra;
 	}
@@ -186,7 +186,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	protected class WrapperAllocationEventListener implements AllocationEventListener {
 
 		private final MediaObjectWrapper wrapper;
-		private final McActivityHandle eventHandle; //to avoid definition in media object wrapper, we pass it as arg.
+		private final MsActivityHandle eventHandle; //to avoid definition in media object wrapper, we pass it as arg.
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -197,7 +197,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 		/**
 		 * @param wrapper
 		 */
-		public WrapperAllocationEventListener(MediaObjectWrapper wrapper,McActivityHandle eventHandle) {
+		public WrapperAllocationEventListener(MediaObjectWrapper wrapper,MsActivityHandle eventHandle) {
 			super();
 			this.wrapper = wrapper;
 			this.eventHandle = eventHandle;

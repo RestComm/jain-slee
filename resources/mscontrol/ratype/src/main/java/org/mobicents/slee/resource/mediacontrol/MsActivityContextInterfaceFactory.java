@@ -19,7 +19,7 @@ import javax.slee.UnrecognizedActivityException;
  * @author kulikov
  * @author baranowb
  */
-public interface McActivityContextInterfaceFactory {
+public interface MsActivityContextInterfaceFactory {
 
 	public ActivityContextInterface getActivityContextInterface(MediaSession mediaSession) throws NullPointerException, UnrecognizedActivityException,
 			FactoryException;
