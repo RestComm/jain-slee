@@ -9,12 +9,9 @@
 
 	<jmxStatistics enabled="false" />
 
-	<startup regionsInactiveOnStartup="true" />
-
 	<shutdown hookBehavior="DONT_REGISTER" />
 
-	<serialization useLazyDeserialization="true"
-		useRegionBasedMarshalling="false" />
+	<serialization useRegionBasedMarshalling="true" />
 
 	<clustering
 		clusterName="${jboss.partition.name:DefaultPartition}-mobicents-slee-replicated">

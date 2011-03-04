@@ -666,10 +666,10 @@ public class SleeContainer {
 	public void afterModulesInitialization() {
 		// start cluster
 		cluster.startCluster();
-		/*if (!cluster.getMobicentsCache().isLocalMode()) {
+		if (!cluster.getMobicentsCache().isLocalMode()) {
 			cluster.getMobicentsCache().setReplicationClassLoader(
 				this.replicationClassLoader);
-		}*/
+		}
 	}
 	
 	public void beforeModulesShutdown() {
