@@ -726,8 +726,8 @@ public class SbbComponentValidator implements Validator {
 				passed = false;
 
 				errorBuffer = appendToBuffer(
-						this.component.getAbstractSbbClass()
-								+ "Defined  get child rekatuib method: "
+						this.component.getAbstractSbbClass() //rekatuib ??
+								+ "Defined  get child relation method: "
 								+ mMetod.getChildRelationMethodName()
 								+ " is not matched by any abstract method, either its not abstract, is private, has parameter or has wrong return type(should be javax.slee.ChildRelation)!!",
 						"6.8", errorBuffer);
