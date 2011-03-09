@@ -153,7 +153,7 @@ public class SbbCMPConfigDialog extends Dialog implements ModifyListener, Select
 		data = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
 		sbbLabel.setLayoutData(data);
 		
-		sbbCombo = new Combo(row, SWT.NONE);
+		sbbCombo = new Combo(row, SWT.READ_ONLY);
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		sbbCombo.setLayoutData(data);
 	

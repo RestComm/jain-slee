@@ -70,12 +70,13 @@ public abstract class BaseFinder {
 	public static final int SOURCE = 2;
 	public static final int JARS = 4;
 	public static final int JAR_DIR= 8;
-	public static final int ALL = CLASSPATH | SOURCE | JARS;
-	public static final int BINARY = CLASSPATH | JARS;
 	public static final int SLEEDTD_DIR = 16;
 	public static final int MAVEN_PROJECT = 32;
 	
-	/**Component type*/
+  public static final int ALL = CLASSPATH | SOURCE | JARS | MAVEN_PROJECT;
+  public static final int BINARY = CLASSPATH | JARS;
+
+  /**Component type*/
 	public static final int SBB_JAR=1;
 	public static final int PROFILE_JAR=2;
 	public static final int EVENT_JAR=3;

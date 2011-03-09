@@ -100,6 +100,11 @@ public class SbbFinder extends BaseFinder {
 		
 		try {
 			IContainer folder = unit.getCorrespondingResource().getParent();
+			// ammendonca: for maven we have XML at .../src/main/resources/META-INF, we are at .../src/main/java/<package>/...
+			while(!folder.getName().equals("main")) {
+			  folder = folder.getParent();
+			}
+			folder = folder.getFolder(new Path("resources/META-INF"));
 			IResource children[] = folder.members(IResource.FILE);
 			
 			for (int i = 0; i < children.length; i++) {

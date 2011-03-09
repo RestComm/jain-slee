@@ -33,6 +33,7 @@ public class SbbCMPPage extends WizardPage implements WizardChangeListener {
 	
 	
 	private static final String PAGE_DESCRIPTION = "Specify the Sbb's CMP fields.";
+  private String projectName;
 	
 	/**
 	 * @param pageName
@@ -56,7 +57,7 @@ public class SbbCMPPage extends WizardPage implements WizardChangeListener {
 			if (filePage.getSourceContainer() == null)
 				return;
 			
-			String projectName = filePage.getSourceContainer().getProject().getName();
+			this.projectName = filePage.getSourceContainer().getProject().getName();
 			SbbCMPPanel panel = (SbbCMPPanel) getControl();
 			if (panel != null)
 				panel.setProject(projectName);
@@ -66,7 +67,9 @@ public class SbbCMPPage extends WizardPage implements WizardChangeListener {
 	}
 
 	private void initialize() {
-		// Initialize any sensible default values - in this case none.	
+		// Initialize any sensible default values	
+    SbbCMPPanel panel = (SbbCMPPanel) getControl();
+    panel.setProject(projectName);
 	}
 	
 	private void dialogChanged() {
