@@ -86,6 +86,13 @@
             id="org.mobicents.eclipslee.servicecreation.wizards.service.ServiceWizard">
       </wizard>
       <wizard
+            name="JAIN SLEE Resource Adaptor Type"
+            icon="icons/Event-icon.gif"
+            category="org.mobicents.eclipslee.servicecreation"
+            class="org.mobicents.eclipslee.servicecreation.wizards.ratype.RaTypeWizard"
+            id="org.mobicents.eclipslee.servicecreation.wizards.ratype.RaTypeWizard">
+      </wizard>
+      <wizard
             name="JAIN SLEE Deployable Unit"
             icon="icons/DU-icon.gif"
             category="org.mobicents.eclipslee.servicecreation"
@@ -636,8 +643,17 @@
                class="org.mobicents.eclipslee.servicecreation.popup.actions.DeleteModuleSubmenu"
                enablesFor="1"
                icon="icons/mobicents/mobicents_icon_16x16.png"
-               id="org.mobicents.eclipslee.servicecreation.Deploy.Menu.Action"
+               id="org.mobicents.eclipslee.servicecreation.Modules.Menu.Delete"
                label="Delete Module"
+               menubarPath="additions"
+               style="pulldown">
+         </action>
+         <action
+               class="org.mobicents.eclipslee.servicecreation.popup.actions.EditModuleSubmenu"
+               enablesFor="1"
+               icon="icons/mobicents/mobicents_icon_16x16.png"
+               id="org.mobicents.eclipslee.servicecreation.Modules.Menu.Edit"
+               label="Edit Module"
                menubarPath="additions"
                style="pulldown">
          </action>
@@ -645,7 +661,7 @@
                class="org.mobicents.eclipslee.servicecreation.popup.actions.AddModuleSubmenu"
                enablesFor="1"
                icon="icons/mobicents/mobicents_icon_16x16.png"
-               id="org.mobicents.eclipslee.servicecreation.Deploy.Menu.Action"
+               id="org.mobicents.eclipslee.servicecreation.Modules.Menu.Add"
                label="Add Module"
                menubarPath="additions"
                style="pulldown">
