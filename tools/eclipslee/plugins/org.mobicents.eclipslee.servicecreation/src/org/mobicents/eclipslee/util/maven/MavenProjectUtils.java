@@ -1,6 +1,7 @@
 package org.mobicents.eclipslee.util.maven;
 
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
 
@@ -10,8 +11,10 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.mobicents.eclipslee.servicecreation.util.ProjectModules;
 
@@ -443,4 +446,56 @@ public class MavenProjectUtils {
       e.printStackTrace();
     }
   }
+
+  public static Model readPomFile(IProject project, String moduleName) {
+    try {
+      MavenXpp3Reader reader = new MavenXpp3Reader();
+      IFile pomFile = moduleName == null ? project.getFile("pom.xml") : project.getFolder(moduleName).getFile("pom.xml");
+      Model model = reader.read(new InputStreamReader(pomFile.getContents()));
+      return model;
+    }
+    catch (Exception e) {
+      return null;
+    }
+  }
+  
+  public static String getArtifactId(Model model) {
+    return model.getArtifactId();
+  }
+
+  public static String getGroupId(Model model) {
+    return model.getGroupId() == null ? model.getParent().getGroupId() : model.getGroupId();
+  }
+
+  public static String getVersion(Model model) {
+    return model.getVersion() == null ? model.getParent().getVersion() : model.getVersion();
+  }
+
+  public static boolean hasDependency(Model model, Dependency dep) {
+    for(Dependency modelDep : model.getDependencies()) {
+      if(modelDep.getArtifactId().equals(dep.getArtifactId()) && modelDep.getGroupId().equals(dep.getGroupId()) && modelDep.getVersion().equals(dep.getVersion())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean addDependency(Model model, Dependency dep) {
+    if(!hasDependency(model, dep)) {
+      model.getDependencies().add(dep);
+      return true;
+    }
+    return false;
+  }
+
+  public static boolean removeDependency(Model model, Dependency dep) {
+    for(Dependency modelDep : model.getDependencies()) {
+      if(modelDep.getArtifactId().equals(dep.getArtifactId()) && modelDep.getGroupId().equals(dep.getGroupId()) && modelDep.getVersion().equals(dep.getVersion())) {
+        model.removeDependency(modelDep);
+        return true;
+      }
+    }
+    return false;
+  }
+
 }

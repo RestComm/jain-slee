@@ -216,10 +216,12 @@ public class AddModuleAction implements IObjectActionDelegate {
             if(button.getSelection()) {
               IFile ownPom = project.getFolder(fullModuleName).getFile("pom.xml");
               Model ownModel = reader.read(new InputStreamReader(ownPom.getContents()));
+              IFile dependencyPom = project.getFolder((String) button.getData()).getFile("pom.xml");
+              Model dependencyModel = reader.read(new InputStreamReader(dependencyPom.getContents()));
               Dependency dep = new Dependency();
-              dep.setGroupId(parentModel.getGroupId());
-              dep.setArtifactId((String) button.getData());
-              dep.setVersion(parentModel.getVersion());
+              dep.setGroupId(dependencyModel.getGroupId());
+              dep.setArtifactId(dependencyModel.getArtifactId());
+              dep.setVersion(dependencyModel.getVersion());
               ownModel.addDependency(dep);
               MavenProjectUtils.writePomFile(ownModel, ownPom.getLocation().toOSString());
             }
@@ -231,11 +233,18 @@ public class AddModuleAction implements IObjectActionDelegate {
           IJavaProject javaProject = JavaCore.create(parentPom.getProject());
           IClasspathEntry[] classpath = javaProject.getRawClasspath();
           IClasspathEntry[] extendedCP = new IClasspathEntry[classpath.length+2];
-          extendedCP[extendedCP.length-2] = JavaCore.newSourceEntry(project.getFullPath().append(fullModuleName + "/src/main/java"));
-          extendedCP[extendedCP.length-1] = JavaCore.newSourceEntry(project.getFullPath().append(fullModuleName + "/src/main/resources"));
 
-          // Copy contents from the first array to the extended array
-          System.arraycopy(classpath, 0, extendedCP, 0, classpath.length);
+          // so we can place sources on top..
+          boolean isAdded = false;
+          for(int i = 0; i < classpath.length; i++) {
+            IClasspathEntry cpEntry = classpath[i];
+            if(!isAdded && cpEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
+              extendedCP[i] = JavaCore.newSourceEntry(project.getFullPath().append(fullModuleName + "/src/main/java"));
+              extendedCP[i+1] = JavaCore.newSourceEntry(project.getFullPath().append(fullModuleName + "/src/main/resources"));
+              isAdded = true;
+            }
+            extendedCP[isAdded ? i+2 : i] = cpEntry;
+          }
 
           javaProject.setRawClasspath(extendedCP, null);
 
@@ -260,8 +269,9 @@ public class AddModuleAction implements IObjectActionDelegate {
 
     protected ModuleNamePage(String pageName) {
       super(pageName);
-      setTitle("Module Name");
-      setDescription("Please enter the module name");
+      setTitle("Add New " + moduleType.toUpperCase() + " Module");
+      setDescription("Please enter the module name and select on which modules it will depend on (dependency)\n" +
+      		"and which ones will depend on this new module (dependants)");
       initialize();
     }
 
@@ -324,6 +334,7 @@ public class AddModuleAction implements IObjectActionDelegate {
   
         for(String module : parentModel.getModules()) {
           Button depButton = new Button(otherComposite, SWT.CHECK | SWT.BORDER | SWT.CENTER);
+          depButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
           depButton.setText("");
           depButton.setData(module);
           if(module.equals("du")) {
@@ -331,6 +342,7 @@ public class AddModuleAction implements IObjectActionDelegate {
           }
           dependenciesButtons.add(depButton);
           depButton = new Button(otherComposite, SWT.CHECK | SWT.BORDER | SWT.CENTER);
+          depButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
           depButton.setText("");
           depButton.setData(module);
           if(module.equals("du")) {
