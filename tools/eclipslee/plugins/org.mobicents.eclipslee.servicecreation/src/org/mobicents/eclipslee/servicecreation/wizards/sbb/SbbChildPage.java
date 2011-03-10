@@ -34,6 +34,7 @@ import org.mobicents.eclipslee.xml.SbbJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbChildPage extends WizardPage implements WizardChangeListener {
 
@@ -85,7 +86,7 @@ public class SbbChildPage extends WizardPage implements WizardChangeListener {
 				panel.clearChildren();
 				
 				// Find all available children.
-				DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.BINARY, project);
+				DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
 				for (int i = 0; i < xml.length; i++) {
 					
 					SbbJarXML jarXML = (SbbJarXML) xml[i];

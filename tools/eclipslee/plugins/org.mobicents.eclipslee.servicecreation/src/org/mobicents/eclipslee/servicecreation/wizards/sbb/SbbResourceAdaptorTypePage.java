@@ -33,6 +33,7 @@ import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbResourceAdaptorTypePage extends WizardPage implements WizardChangeListener {
 	
@@ -79,7 +80,7 @@ public class SbbResourceAdaptorTypePage extends WizardPage implements WizardChan
 				panel.clearResourceAdaptorType();
 				
 				// Find all available ResourceAdaptorTypes.
-				DTDXML xml[] = ResourceAdaptorTypeFinder.getDefault().getComponents(BaseFinder.BINARY | BaseFinder.MAVEN_PROJECT, project);
+				DTDXML xml[] = ResourceAdaptorTypeFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
 				
 				for (int i = 0; i < xml.length; i++) {
 					ResourceAdaptorTypeJarXML ev = (ResourceAdaptorTypeJarXML) xml[i];

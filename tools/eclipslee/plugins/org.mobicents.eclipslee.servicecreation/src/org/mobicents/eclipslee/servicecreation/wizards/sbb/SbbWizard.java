@@ -17,12 +17,10 @@
 package org.mobicents.eclipslee.servicecreation.wizards.sbb;
 
 import java.util.HashMap;
-import java.util.Vector;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IWorkbenchPage;
@@ -33,14 +31,6 @@ import org.mobicents.eclipslee.servicecreation.util.CMPUtil;
 import org.mobicents.eclipslee.servicecreation.util.FileUtil;
 import org.mobicents.eclipslee.servicecreation.wizards.generic.BaseWizard;
 import org.mobicents.eclipslee.util.Utils;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntBuildTargetXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntCleanTargetXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntInitTargetXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntJavacXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntPathXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntProjectXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntTargetXML;
-import org.mobicents.eclipslee.util.slee.xml.components.ComponentNotFoundException;
 import org.mobicents.eclipslee.util.slee.xml.components.EventXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ProfileSpecXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeXML;
@@ -58,10 +48,10 @@ import org.mobicents.eclipslee.xml.EventJarXML;
 import org.mobicents.eclipslee.xml.ProfileSpecJarXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 import org.mobicents.eclipslee.xml.SbbJarXML;
-import org.mobicents.eclipslee.util.Utils;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbWizard extends BaseWizard {
 	
@@ -120,15 +110,15 @@ public class SbbWizard extends BaseWizard {
 		createLocalIface = sbbClassesPage.createSbbLocalObject();
 		
 		events = sbbEventsPage.getSelectedEvents();
-		profiles = new HashMap[]{};//sbbProfilePage.getSelectedProfiles();
+		profiles = sbbProfilePage.getSelectedProfiles();
 		
-		addressProfile = null;//sbbProfilePage.getAddressProfileSpec();
+		addressProfile = sbbProfilePage.getAddressProfileSpec();
 		
-		children = new HashMap[]{};//sbbChildPage.getSelectedChildren();
+		children = sbbChildPage.getSelectedChildren();
 		
 		envEntries = sbbEnvEntryPage.getEnvEntries();
 		
-		raTypes = new HashMap[]{};//sbbResourceAdaptorTypePage.getResourceAdaptorTypes();
+		raTypes = sbbResourceAdaptorTypePage.getResourceAdaptorTypes();
 		
 		return super.performFinish();		
 	}
@@ -147,7 +137,7 @@ public class SbbWizard extends BaseWizard {
 	    }
 
 			String sbbBaseName = getFileName().substring(0, getFileName().indexOf(ENDS));
-			String abstractFilename = sbbBaseName + "Sbb.java";
+			//String abstractFilename = sbbBaseName + "Sbb.java";
 			String usageFilename = sbbBaseName + "SbbUsage.java";
 			String xmlFilename = /*sbbBaseName + "-*/"sbb-jar.xml";
 			String localFilename = sbbBaseName + "SbbLocalObject.java";
@@ -166,7 +156,7 @@ public class SbbWizard extends BaseWizard {
 			monitor.beginTask("Creating SBB: " + sbbBaseName, stages);
 
 			// Substitution map
-			HashMap subs = new HashMap();
+			HashMap<String, String> subs = new HashMap<String, String>();
 			subs.put("__NAME__", sbbBaseName);
 			subs.put("__PACKAGE__", Utils.getPackageTemplateValue(getPackageName()));
 			

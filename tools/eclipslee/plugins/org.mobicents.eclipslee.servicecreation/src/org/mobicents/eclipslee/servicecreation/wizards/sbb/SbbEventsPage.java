@@ -18,7 +18,6 @@ package org.mobicents.eclipslee.servicecreation.wizards.sbb;
 
 import java.util.HashMap;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -35,6 +34,7 @@ import org.mobicents.eclipslee.xml.EventJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbEventsPage extends WizardPage implements WizardChangeListener {
 
@@ -84,7 +84,7 @@ public class SbbEventsPage extends WizardPage implements WizardChangeListener {
 				panel.clearEvents();
 				
 				// Find all available events.
-				DTDXML xml[] = EventFinder.getDefault().getComponents(BaseFinder.BINARY | BaseFinder.MAVEN_PROJECT, project);
+				DTDXML xml[] = EventFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
 				for (int i = 0; i < xml.length; i++) {
 					EventJarXML ev = (EventJarXML) xml[i];
 					EventXML[] events = ev.getEvents();

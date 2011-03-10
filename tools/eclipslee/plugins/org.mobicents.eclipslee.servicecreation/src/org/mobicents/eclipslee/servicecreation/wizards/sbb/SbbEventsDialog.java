@@ -34,6 +34,7 @@ import org.mobicents.eclipslee.xml.EventJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbEventsDialog extends Dialog {
 
@@ -56,7 +57,7 @@ public class SbbEventsDialog extends Dialog {
 			public void run() {
 	*/			
 				// Find all available events.
-				DTDXML xml[] = EventFinder.getDefault().getComponents(BaseFinder.BINARY, projectName);
+				DTDXML xml[] = EventFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, projectName);
 				for (int i = 0; i < xml.length; i++) {
 					EventJarXML ev = (EventJarXML) xml[i];
 					EventXML[] events = ev.getEvents();

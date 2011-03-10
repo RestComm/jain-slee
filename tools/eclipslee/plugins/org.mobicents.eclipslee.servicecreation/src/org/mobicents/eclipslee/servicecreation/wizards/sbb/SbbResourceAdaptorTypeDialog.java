@@ -35,6 +35,7 @@ import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbResourceAdaptorTypeDialog extends Dialog {
 
@@ -56,7 +57,7 @@ public class SbbResourceAdaptorTypeDialog extends Dialog {
 			public void run() {
 				
 				// Find all available profiles.
-				DTDXML xml[] = ResourceAdaptorTypeFinder.getDefault().getComponents(BaseFinder.BINARY, projectName);
+				DTDXML xml[] = ResourceAdaptorTypeFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, projectName);
 				for (int i = 0; i < xml.length; i++) {
 					ResourceAdaptorTypeJarXML jarXML = (ResourceAdaptorTypeJarXML) xml[i];
 					ResourceAdaptorTypeXML ratypes[] = jarXML.getResourceAdaptorTypes();

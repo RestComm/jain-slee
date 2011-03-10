@@ -34,6 +34,7 @@ import org.mobicents.eclipslee.xml.ProfileSpecJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbProfileDialog extends Dialog {
 
@@ -58,7 +59,7 @@ public class SbbProfileDialog extends Dialog {
 			public void run() {
 				
 				// Find all available profiles.
-				DTDXML xml[] = ProfileSpecFinder.getDefault().getComponents(BaseFinder.BINARY, projectName);
+				DTDXML xml[] = ProfileSpecFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, projectName);
 				for (int i = 0; i < xml.length; i++) {
 					ProfileSpecJarXML jarXML = (ProfileSpecJarXML) xml[i];
 					ProfileSpecXML profiles[] = jarXML.getProfileSpecs();

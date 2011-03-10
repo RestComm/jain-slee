@@ -35,6 +35,7 @@ import org.mobicents.eclipslee.xml.SbbJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbChildDialog extends Dialog {
 
@@ -57,7 +58,7 @@ public class SbbChildDialog extends Dialog {
 			public void run() {
 				
 				// Find all available SBBs.
-				DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.BINARY, projectName);
+				DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, projectName);
 				for (int i = 0; i < xml.length; i++) {
 					SbbJarXML jarXML = (SbbJarXML) xml[i];
 					SbbXML sbbs[] = jarXML.getSbbs();

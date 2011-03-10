@@ -33,6 +33,7 @@ import org.mobicents.eclipslee.xml.ProfileSpecJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbProfilePage extends WizardPage implements WizardChangeListener {
 
@@ -111,7 +112,7 @@ public class SbbProfilePage extends WizardPage implements WizardChangeListener {
 				panel.clearProfiles();
 				
 				// Find all available profiles.
-				DTDXML xml[] = ProfileSpecFinder.getDefault().getComponents(BaseFinder.BINARY | BaseFinder.MAVEN_PROJECT, projectName);
+				DTDXML xml[] = ProfileSpecFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, projectName);
 				for (int i = 0; i < xml.length; i++) {
 					ProfileSpecJarXML ev = (ProfileSpecJarXML) xml[i];
 					ProfileSpecXML[] events = ev.getProfileSpecs();
