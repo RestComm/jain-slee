@@ -31,6 +31,7 @@
 
 package org.mobicents.eclipslee.servicecreation.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -57,12 +59,16 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
+import org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin;
 import org.mobicents.eclipslee.util.slee.xml.DTDXML;
+import org.mobicents.eclipslee.xml.EventJarXML;
+import org.mobicents.eclipslee.xml.ProfileSpecJarXML;
 
 
 /**
  * @author cath  modified by Skhiri dit Gabouje Sabri
  * @author Vladimir Ralev
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public abstract class BaseFinder {
 
@@ -71,7 +77,7 @@ public abstract class BaseFinder {
 	public static final int JARS = 4;
 	public static final int JAR_DIR= 8;
 	public static final int SLEEDTD_DIR = 16;
-	public static final int MAVEN_PROJECT = 32;
+  public static final int MAVEN_PROJECT = 32;
 	
   public static final int ALL = CLASSPATH | SOURCE | JARS | MAVEN_PROJECT;
   public static final int BINARY = CLASSPATH | JARS;
@@ -93,7 +99,7 @@ public abstract class BaseFinder {
 	
 	
 	/** Cache of components [Type, component]*/
-	private HashMap componentCache = new HashMap();
+	private HashMap<Integer, Vector<DTDXML>> componentCache = new HashMap<Integer, Vector<DTDXML>>();
 	
 
 	/**
@@ -130,13 +136,12 @@ public abstract class BaseFinder {
 	 * @return
 	 */
 	public DTDXML[] getComponents(int type) {
-				
-		Vector components = new Vector();
+		Vector<DTDXML> components = new Vector<DTDXML>();
 		Integer typeInt = new Integer(type);
 		
 		if ((type & CLASSPATH) == CLASSPATH) {
 			if(componentCache.containsKey(typeInt)){
-				components.addAll((Vector) componentCache.get(typeInt));
+				components.addAll(componentCache.get(typeInt));
 			}else{
 				components.addAll(getComponentsFromClassPath());
 				if(components.size() >0){
@@ -148,7 +153,7 @@ public abstract class BaseFinder {
 
 		if ((type & SOURCE) == SOURCE) {
 			if(componentCache.containsKey(typeInt)){
-				components.addAll((Vector) componentCache.get(typeInt));
+				components.addAll(componentCache.get(typeInt));
 			}else{
 				components.addAll(getComponentsFromProjects());
 				if(components.size() >0){
@@ -159,7 +164,7 @@ public abstract class BaseFinder {
 		
 		if ((type & JARS) == JARS) {
 			if(componentCache.containsKey(typeInt)){
-				components.addAll((Vector) componentCache.get(typeInt));
+				components.addAll(componentCache.get(typeInt));
 			}else{
 				components.addAll(getComponentsFromJars());
 				if(components.size() >0){
@@ -168,14 +173,20 @@ public abstract class BaseFinder {
 			}
 		}
 				
-		return (DTDXML []) components.toArray(new DTDXML[components.size()]);
+		return components.toArray(new DTDXML[components.size()]);
 	}
 	
 	public DTDXML[] getComponents(int type, String projectName) {
-		
-		Vector components = new Vector();
-		
-		if ((type & SOURCE) == SOURCE) {
+		Vector<DTDXML> components = new Vector<DTDXML>();
+
+    if(this.getClass().equals(EventFinder.class)) {
+      components.addAll(getComponentsFromPlugin(EVENT_JAR));
+    }
+    else if(this.getClass().equals(ProfileSpecFinder.class)) {
+      components.addAll(getComponentsFromPlugin(PROFILE_JAR));
+    }
+
+    if ((type & SOURCE) == SOURCE) {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IProject project = root.getProject(projectName);
 			for(String module : ProjectModules.AVAILABLE_MODULES) {
@@ -218,12 +229,16 @@ public abstract class BaseFinder {
       components.addAll(getComponentsFromContainer(project));
     }
     
-		return (DTDXML []) components.toArray(new DTDXML[components.size()]);		
+		return components.toArray(new DTDXML[components.size()]);		
 	}
 	
 public DTDXML[] getComponents(int type, String projectName, int componentType) {
 		
-		Vector components = new Vector();
+		Vector<DTDXML> components = new Vector<DTDXML>();
+
+		// get SLEE default components
+		components.addAll(getComponentsFromPlugin(componentType));
+
 		if ((type & SOURCE) == SOURCE) {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IProject project = root.getProject(projectName);
@@ -259,12 +274,12 @@ public DTDXML[] getComponents(int type, String projectName, int componentType) {
 			components.addAll(getComponentsFromJars(sleeJar));
 		}
 		
-		return (DTDXML []) components.toArray(new DTDXML[components.size()]);		
+		return components.toArray(new DTDXML[components.size()]);		
 	}
 	
 public DTDXML[] getComponents(int type, String projectName, IProgressMonitor monitor) {
 		
-		Vector components = new Vector();		
+		Vector<DTDXML> components = new Vector<DTDXML>();		
 		if ((type & SOURCE) == SOURCE) {
 			monitor.subTask("Searching in project SRC");
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -301,12 +316,12 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 			components.addAll(getComponentsFromJars(sleeJar, monitor,20, 0));
 		}
 		
-		return (DTDXML []) components.toArray(new DTDXML[components.size()]);		
+		return components.toArray(new DTDXML[components.size()]);		
 	}
 /**@osp modifcation insert the type of component to look for*/
 public DTDXML[] getComponents(int type, String projectName, IProgressMonitor monitor, int componentType) {
 	
-	Vector components = new Vector();		
+	Vector<DTDXML> components = new Vector<DTDXML>();		
 	if ((type & SOURCE) == SOURCE) {
 		monitor.subTask("Searching in project SRC");
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -344,7 +359,7 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 		components.addAll(getComponentsFromJars(sleeJar, monitor,20, 0));
 	}
 	
-	return (DTDXML []) components.toArray(new DTDXML[components.size()]);		
+	return components.toArray(new DTDXML[components.size()]);		
 }
 	
 
@@ -418,8 +433,8 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return
 	 */
 	
-	private Vector getComponentsFromClassPath(String projectName) {
-		Vector components = new Vector();
+	private Vector<DTDXML> getComponentsFromClassPath(String projectName) {
+		Vector<DTDXML> components = new Vector<DTDXML>();
 		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject project = root.getProject(projectName);
@@ -449,8 +464,8 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return
 	 */
 	
-	private Vector getComponentsFromClassPath() {
-		Vector components = new Vector();
+	private Vector<DTDXML> getComponentsFromClassPath() {
+		Vector<DTDXML> components = new Vector<DTDXML>();
 		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject projects[] = root.getProjects();
@@ -482,13 +497,13 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return
 	 */
 	
-	protected Vector getComponentsFromJar(IPath jarPath) {		
-		Vector components = new Vector();
+	protected Vector<DTDXML> getComponentsFromJar(IPath jarPath) {		
+		Vector<DTDXML> components = new Vector<DTDXML>();
 		
 		try {
 			JarFile jar = new JarFile(jarPath.toOSString());
 			
-			Enumeration entries = jar.entries();
+			Enumeration<JarEntry> entries = jar.entries();
 			while (entries.hasMoreElements()) {
 				JarEntry entry = (JarEntry) entries.nextElement();
 				
@@ -515,8 +530,8 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return
 	 */
 	
-	private Vector getComponentsFromProjects() {		
-		Vector components = new Vector();
+	private Vector<DTDXML> getComponentsFromProjects() {		
+		Vector<DTDXML> components = new Vector<DTDXML>();
 		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject projects[] = root.getProjects();
@@ -534,8 +549,8 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return
 	 */
 	
-	private Vector getComponentsFromJars() {
-		Vector components = new Vector();
+	private Vector<DTDXML> getComponentsFromJars() {
+		Vector<DTDXML> components = new Vector<DTDXML>();
 		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject projects[] = root.getProjects();
@@ -554,8 +569,8 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return
 	 */
 	
-	private Vector getComponentsFromJars(IContainer container) {
-		Vector components = new Vector();	
+	private Vector<DTDXML> getComponentsFromJars(IContainer container) {
+		Vector<DTDXML> components = new Vector<DTDXML>();	
 		IResource children[] = null;
 		try {
 			children = container.members();
@@ -599,8 +614,8 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return a vector of jar files
 	 */
 	
-	private Vector getComponentsFromJars(IContainer container, IProgressMonitor monitor, int worked, int level, int componentType) {
-		Vector components = new Vector();	
+	private Vector<DTDXML> getComponentsFromJars(IContainer container, IProgressMonitor monitor, int worked, int level, int componentType) {
+		Vector<DTDXML> components = new Vector<DTDXML>();	
 		IResource children[] = null;
 		try {
 			children = container.members();
@@ -638,7 +653,7 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	}
 	
 	/**@OSP Is the logic which defines when a jar has to be open or not*/
-	private void extractValidJarFile(IResource child, int type, Vector components ){
+	private void extractValidJarFile(IResource child, int type, Vector<DTDXML> components ){
 		switch (type) {
 		case BaseFinder.SBB_JAR:
 			if (child.getLocation().toOSString().endsWith(BaseFinder.SBB_STR))
@@ -680,8 +695,8 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return a vector of jar files
 	 */
 	
-	private Vector getComponentsFromJars(IContainer container, int componentType) {
-		Vector components = new Vector();	
+	private Vector<DTDXML> getComponentsFromJars(IContainer container, int componentType) {
+		Vector<DTDXML> components = new Vector<DTDXML>();	
 		IResource children[] = null;
 		try {
 			children = container.members();
@@ -723,8 +738,8 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return a vector of jar files
 	 */
 	
-	private Vector getComponentsFromJars(IContainer container, IProgressMonitor monitor, int worked, int level) {
-		Vector components = new Vector();	
+	private Vector<DTDXML> getComponentsFromJars(IContainer container, IProgressMonitor monitor, int worked, int level) {
+		Vector<DTDXML> components = new Vector<DTDXML>();	
 		IResource children[] = null;
 		try {
 			children = container.members();
@@ -761,14 +776,14 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 		
 	}
 	
-	private Vector getComponentsFromJar(IPath jarPath, IProgressMonitor monitor) {
+	private Vector<DTDXML> getComponentsFromJar(IPath jarPath, IProgressMonitor monitor) {
 		
-		Vector components = new Vector();
+		Vector<DTDXML> components = new Vector<DTDXML>();
 		
 		try {
 			JarFile jar = new JarFile(jarPath.toOSString()); 
 			
-			Enumeration entries = jar.entries();
+			Enumeration<JarEntry> entries = jar.entries();
 			while (entries.hasMoreElements()) {
 				JarEntry entry = (JarEntry) entries.nextElement();
 				if (entry.getName().endsWith(".xml")) {					
@@ -798,9 +813,9 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 * @return
 	 */
 	
-	private Vector getComponentsFromContainer(IContainer container) {
+	private Vector<DTDXML> getComponentsFromContainer(IContainer container) {
 		
-		Vector components = new Vector();	
+		Vector<DTDXML> components = new Vector<DTDXML>();	
 		IResource children[] = null;
 		try {
 			children = container.members();
@@ -838,10 +853,49 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 		return components;
 	}
 
-	public BaseFinder() {
-		super();
-		// TODO Auto-generated constructor stub
-	}	
+  String EVENTS_JAR_10 = "/standard-components/standard-events.jar";
+  String EVENTS_JAR_11 = "/standard-components/standard-events11.jar";
+  String PROFILES_JAR_10 = "/standard-components/standard-profiles.jar";
+  String PROFILES_JAR_11 = "/standard-components/standard-profiles11.jar";
 
+  private Vector<DTDXML> getComponentsFromPlugin(int componentType) {
+    Vector<DTDXML> components = new Vector<DTDXML>();
+    switch(componentType) {
+    case EVENT_JAR:
+      try {
+        File root = FileLocator.getBundleFile(ServiceCreationPlugin.getDefault().getBundle());
+        JarFile events10Jar = new JarFile(new File(root, EVENTS_JAR_10));
+        JarFile events11Jar = new JarFile(new File(root, EVENTS_JAR_11));
+        components.add(new EventJarXML(events10Jar, events10Jar.getJarEntry("META-INF/event-jar.xml"), new File(root, EVENTS_JAR_10).getAbsolutePath()));
+        components.add(new EventJarXML(events11Jar, events11Jar.getJarEntry("META-INF/event-jar.xml"), new File(root, EVENTS_JAR_11).getAbsolutePath()));
+      }
+      catch (Exception e) {
+        // too bad, didn't worked
+      }
+      break;
+
+    case PROFILE_JAR:
+      try {
+        File root = FileLocator.getBundleFile(ServiceCreationPlugin.getDefault().getBundle());
+        JarFile profiles10Jar = new JarFile(new File(root, PROFILES_JAR_10));
+        JarFile profiles11Jar = new JarFile(new File(root, PROFILES_JAR_11));
+        components.add(new ProfileSpecJarXML(profiles10Jar, profiles11Jar.getJarEntry("META-INF/profile-spec-jar.xml"), new File(root, PROFILES_JAR_10).getAbsolutePath()));
+        components.add(new ProfileSpecJarXML(profiles11Jar, profiles11Jar.getJarEntry("META-INF/profile-spec-jar.xml"), new File(root, PROFILES_JAR_11).getAbsolutePath()));
+      }
+      catch (Exception e) {
+        // too bad, didn't worked
+      }
+      break;
+
+      default:
+        break;
+    }
+
+    return components;
+  }
+
+  public BaseFinder() {
+		super();
+	}	
 	
 }
