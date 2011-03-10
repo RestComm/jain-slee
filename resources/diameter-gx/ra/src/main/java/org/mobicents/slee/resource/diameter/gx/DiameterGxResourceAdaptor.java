@@ -212,6 +212,7 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
 
         this.sleeEndpoint = context.getSleeEndpoint();
         this.eventLookup = context.getEventLookupFacility();
+        this.raProvider = new GxProviderImpl(this);
     }
 
     /**
@@ -291,9 +292,7 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
 
             if (object instanceof DiameterStackMultiplexerMBean) {
                 this.diameterMux = (DiameterStackMultiplexerMBean) object;
-            }
-
-            this.raProvider = new GxProviderImpl(this);
+            }          
 
             // Initialize the protocol stack
             initStack();
