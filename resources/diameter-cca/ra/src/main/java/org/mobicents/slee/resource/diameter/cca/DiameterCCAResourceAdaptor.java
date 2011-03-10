@@ -238,6 +238,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
 
     this.sleeEndpoint = context.getSleeEndpoint();
     this.eventLookup = context.getEventLookupFacility();
+    this.raProvider = new CreditControlProviderImpl(this);
   }
 
   public void unsetResourceAdaptorContext() {
@@ -305,8 +306,6 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
       if(object instanceof DiameterStackMultiplexerMBean) {
         this.diameterMux = (DiameterStackMultiplexerMBean) object;
       }
-
-      this.raProvider = new CreditControlProviderImpl(this);
 
       // Initialize stack
       initStack();

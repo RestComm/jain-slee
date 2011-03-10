@@ -246,6 +246,8 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     this.sleeEndpoint = context.getSleeEndpoint();
     this.eventLookup = context.getEventLookupFacility();
+    this.raProvider = new CxDxProviderImpl(this);
+
   }
 
   public void unsetResourceAdaptorContext() {
@@ -317,8 +319,6 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
       if(object instanceof DiameterStackMultiplexerMBean) {
         this.diameterMux = (DiameterStackMultiplexerMBean) object;
       }
-
-      this.raProvider = new CxDxProviderImpl(this);
 
       //this.activities = new ConcurrentHashMap<ActivityHandle, DiameterActivity>();
 
