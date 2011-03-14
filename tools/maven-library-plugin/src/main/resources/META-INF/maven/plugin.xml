@@ -4,7 +4,7 @@
   <description>Mobicents Maven2 plugin to build JAIN SLEE 1.1 Library descriptors.</description>
   <groupId>org.mobicents.tools</groupId>
   <artifactId>maven-library-plugin</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0.CR2</version>
   <goalPrefix>library</goalPrefix>
   <isolatedRealm>false</isolatedRealm>
   <inheritedByDefault>true</inheritedByDefault>
