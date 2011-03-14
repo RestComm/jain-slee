@@ -57,7 +57,8 @@ public class SbbWizard extends BaseWizard {
 	
 	public static final String SBB_TEMPLATE = "/templates/SBB.template";
 	public static final String SBB_USAGE_TEMPLATE = "/templates/SBBUsage.template";
-	public static final String SBB_LOCAL_TEMPLATE = "/templates/SBBLocal.template";
+  public static final String SBB_LOCAL_TEMPLATE = "/templates/SBBLocal.template";
+  public static final String SBB_BUSINESS_TEMPLATE = "/templates/SBBBusiness.template";
 	public static final String SBB_ACI_TEMPLATE = "/templates/SBBACI.template";
 	
 	public static final String SBB_USAGE_COMMENT = "\t/**\n\t * Method to retrieve a named SBB Usage Parameter set.\n\t * @param name the SBB Usage Parameter set to retrieve\n\t * @return the SBB Usage Parameter set\n\t * @throws javax.slee.usage.UnrecognizedUsageParameterSetNameException if the named parameter set does not exist\n\t */\n";
@@ -141,6 +142,7 @@ public class SbbWizard extends BaseWizard {
 			String usageFilename = sbbBaseName + "SbbUsage.java";
 			String xmlFilename = /*sbbBaseName + "-*/"sbb-jar.xml";
 			String localFilename = sbbBaseName + "SbbLocalObject.java";
+      String businessFilename = sbbBaseName + ".java";
 			String aciFilename = sbbBaseName + "SbbActivityContextInterface.java";
 			
 			String abstractClassName = Utils.getSafePackagePrefix(getPackageName()) + sbbBaseName + "Sbb";
@@ -206,8 +208,10 @@ public class SbbWizard extends BaseWizard {
 			if (createUsageIface)
 				sbb.setUsageInterfaceName(usageClassName);
 			
-			if (createLocalIface)
+			if (createLocalIface) {
 				sbb.setLocalInterfaceName(localClassName);
+				subs.put("__BUSINESS_IFACE_NAME__", ", " + sbbBaseName);
+			}
 			
 			if (createACI)
 				sbb.setActivityContextInterfaceName(aciClassName);
@@ -383,7 +387,8 @@ public class SbbWizard extends BaseWizard {
 			}
 						
 			final IFile abstractFile;
-			final IFile localFile;
+      final IFile businessFile;
+      final IFile localFile;
 			final IFile aciFile;
 			final IFile usageFile; 
 			
@@ -393,10 +398,14 @@ public class SbbWizard extends BaseWizard {
 			
 			// Create the SBB local interface file.
 			if (createLocalIface) {
-				localFile = FileUtil.createFromTemplate(folder, new Path(localFilename), new Path(SBB_LOCAL_TEMPLATE), subs, monitor);
+			  localFile = FileUtil.createFromTemplate(folder, new Path(localFilename), new Path(SBB_LOCAL_TEMPLATE), subs, monitor);
+        businessFile = FileUtil.createFromTemplate(folder, new Path(businessFilename), new Path(SBB_BUSINESS_TEMPLATE), subs, monitor);
 				monitor.worked(1);
-			} else
-				localFile = null;
+			}
+			else {
+        localFile = null;
+        businessFile = null;
+			}
 			
 			// Create the SBB ACI.
 			if (createACI) {
@@ -507,8 +516,10 @@ public class SbbWizard extends BaseWizard {
 						IDE.openEditor(page, abstractFile, true);
 						if (createACI)
 							IDE.openEditor(page, aciFile, true);
-						if (createLocalIface)
-							IDE.openEditor(page, localFile, true);
+						if (createLocalIface) {
+              //IDE.openEditor(page, localFile, true);
+              IDE.openEditor(page, businessFile, true);
+						}
 						if (createUsageIface)
 							IDE.openEditor(page, usageFile, true);
 					} catch (PartInitException e) {
