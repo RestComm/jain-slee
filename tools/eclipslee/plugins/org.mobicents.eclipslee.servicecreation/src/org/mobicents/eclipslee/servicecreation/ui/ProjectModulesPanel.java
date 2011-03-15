@@ -7,6 +7,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
+/**
+ * 
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ */
 public class ProjectModulesPanel extends Composite {
 
   // Constants -----------------------------------------------------------
@@ -14,7 +18,7 @@ public class ProjectModulesPanel extends Composite {
   private static final String EVENTS_MODULE_TEXT = "&Events";
   private static final String SBB_MODULE_TEXT = "&SBB (Service Building Block)";
   private static final String PROFILE_SPEC_MODULE_TEXT = "&Profile Specification";
-  private static final String SERVICE_MODULE_TEXT = "Ser&vice";
+  //private static final String SERVICE_MODULE_TEXT = "Ser&vice";
   private static final String RA_TYPE_MODULE_TEXT = "Resource Adaptor &Type";
   private static final String RA_MODULE_TEXT = "&Resource Adaptor";
   private static final String LIBRARY_MODULE_TEXT = "&Library";
@@ -25,7 +29,8 @@ public class ProjectModulesPanel extends Composite {
   private Button eventsCheckbox;
   private Button sbbCheckbox;
   private Button profileSpecCheckbox;
-  private Button serviceCheckbox;
+  // service is not a module but rather a component for the DU module
+  //private Button serviceCheckbox;
   private Button raTypeCheckbox;
   private Button raCheckbox;
   private Button libraryCheckbox;
@@ -50,9 +55,9 @@ public class ProjectModulesPanel extends Composite {
     profileSpecCheckbox.setText(PROFILE_SPEC_MODULE_TEXT);
     profileSpecCheckbox.setSelection(false);
 
-    serviceCheckbox = new Button(this, SWT.CHECK);
-    serviceCheckbox.setText(SERVICE_MODULE_TEXT);
-    serviceCheckbox.setSelection(false);
+    // serviceCheckbox = new Button(this, SWT.CHECK);
+    // serviceCheckbox.setText(SERVICE_MODULE_TEXT);
+    // serviceCheckbox.setSelection(false);
 
     raTypeCheckbox = new Button(this, SWT.CHECK);
     raTypeCheckbox.setText(RA_TYPE_MODULE_TEXT);
@@ -87,9 +92,9 @@ public class ProjectModulesPanel extends Composite {
       modules.add("profile-spec");
     }
 
-    if(serviceCheckbox.getSelection()) {
-      modules.add("service");
-    }
+    //if(serviceCheckbox.getSelection()) {
+    //  modules.add("service");
+    //}
 
     if(raTypeCheckbox.getSelection()) {
       modules.add("ratype");
