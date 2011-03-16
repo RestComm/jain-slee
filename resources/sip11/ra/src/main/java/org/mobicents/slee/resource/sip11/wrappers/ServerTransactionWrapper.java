@@ -1,8 +1,7 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import gov.nist.javax.sip.stack.SIPServerTransaction;
+
 import java.text.ParseException;
 
 import javax.sip.Dialog;
@@ -49,7 +48,7 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	 * @param ra
 	 */
 	public ServerTransactionWrapper(ACKDummyTransaction wrappedTransaction, SipResourceAdaptor ra) {
-		this(wrappedTransaction,ra,true);
+		this(wrappedTransaction.getTxId(),wrappedTransaction,ra,true);
 	}
 	
 	/**
@@ -57,8 +56,8 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	 * @param wrappedTransaction
 	 * @param ra
 	 */
-	public ServerTransactionWrapper(ServerTransaction wrappedTransaction, SipResourceAdaptor ra) {
-		this(wrappedTransaction,ra,wrappedTransaction.getRequest().getMethod().equals(Request.ACK));
+	public ServerTransactionWrapper(SIPServerTransaction wrappedTransaction, SipResourceAdaptor ra) {
+		this(wrappedTransaction.getTransactionId(),wrappedTransaction,ra,wrappedTransaction.getRequest().getMethod().equals(Request.ACK));
 	}
 
 	/**
@@ -67,11 +66,11 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	 * @param ra
 	 * @param ackTransaction
 	 */
-	private ServerTransactionWrapper(ServerTransaction wrappedTransaction, SipResourceAdaptor ra, boolean ackTransaction) {
-		super(new ServerTransactionActivityHandle(wrappedTransaction.getBranchId(),wrappedTransaction.getRequest().getMethod()),ra);
+	private ServerTransactionWrapper(String txId, ServerTransaction wrappedTransaction, SipResourceAdaptor ra, boolean ackTransaction) {
+		super(new ServerTransactionActivityHandle(txId),ra);
 		this.ackTransaction = ackTransaction;
 		this.wrappedTransaction = wrappedTransaction;
-		this.wrappedTransaction.setApplicationData(this);
+		this.wrappedTransaction.setApplicationData(new ServerTransactionWrapperAppData(this));		
 		if (tracer == null) {
 			tracer = ra.getTracer(ServerTransactionWrapper.class.getSimpleName());
 		}
@@ -152,7 +151,7 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 		
 		final Dialog d = wrappedTransaction.getDialog();
 		if (d != null) {
-			final DialogWrapper dw = (DialogWrapper) d.getApplicationData();
+			final DialogWrapper dw = ra.getDialogWrapper(d);
 			if (dw != null) {
 				final int statusCode = arg0.getStatusCode();
 				if (this.getRequest().getMethod().equals(Request.CANCEL) && (statusCode < 300 && statusCode > 199) && dw.getState() == null ) {
@@ -181,23 +180,10 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 		return new StringBuilder("ServerTransaction[").append(id).append(']').toString();		
 	}
 
-	// SERIALIZATION
-
-	private void writeObject(ObjectOutputStream stream) throws IOException {
-		throw new IOException("serialization forbidden");
-	}
-	
-	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
-		stream.defaultReadObject();
-		throw new IOException("serialization forbidden");	
-	}
 	
 	@Override
 	public void terminated() {
-		final DialogWrapper dw = getDialogWrapper();
-		if (dw != null) {
-			dw.removeOngoingTransaction(this);
-		}
+		
 	}
 	
 	/* (non-Javadoc)
@@ -208,8 +194,8 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 		super.clear();
 		if (wrappedTransaction != null) {
 			wrappedTransaction.setApplicationData(null);
-			wrappedTransaction = null;
 		}
-		eventFiringAddress = null;
+		wrappedTransaction = null;
 	}
+	
 }

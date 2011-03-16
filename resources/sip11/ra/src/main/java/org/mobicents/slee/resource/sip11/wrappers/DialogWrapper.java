@@ -6,6 +6,7 @@ import gov.nist.javax.sip.header.RouteList;
 import gov.nist.javax.sip.header.Via;
 import gov.nist.javax.sip.header.ViaList;
 import gov.nist.javax.sip.message.SIPRequest;
+import gov.nist.javax.sip.stack.SIPServerTransaction;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -44,6 +45,7 @@ import javax.slee.facilities.Tracer;
 
 import net.java.slee.resource.sip.DialogActivity;
 
+import org.mobicents.slee.resource.sip11.ServerTransactionActivityHandle;
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 import org.mobicents.slee.resource.sip11.SleeSipProviderImpl;
@@ -66,12 +68,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * 
 	 */
 	protected ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper> ongoingClientTransactions = new ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper>(1);
-	
-	/**
-	 * 
-	 */
-	protected ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper> ongoingServerTransactions = new ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper>(1);
-	
+		
 	/**
 	 * the wrapped dialog
 	 */
@@ -105,13 +102,16 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	/**
 	 * 
 	 */
-	public DialogWrapper(SipActivityHandle sipActivityHandle, String localTag,SipResourceAdaptor ra) {
-		super(sipActivityHandle,ra);
+	public DialogWrapper(SipActivityHandle sipActivityHandle, SipResourceAdaptor ra) {
+		super(sipActivityHandle,ra);		
 		if (tracer == null) {
 			tracer = ra.getTracer(DialogWrapper.class.getSimpleName());
 		}
+	}
+	
+	public void setLocalTag(String localTag) {
 		this.localTag = localTag;
-	}		
+	}
 	
 	// Wrapper Methods
 
@@ -126,11 +126,6 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	@Override
 	public boolean isAckTransaction() {
 		return false;
-	}
-	
-	@Override
-	public boolean isActivity() {
-		return true;
 	}
 	
 	@Override
@@ -157,8 +152,9 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		final DialogWrapper stDialog = (DialogWrapper) st.getDialog();
 		if (stDialog == null) {
 			throw new IllegalArgumentException("the specified server transaction has no dialog.");
-		}					
-		ctw.associateServerTransaction(stw, stDialog.getActivityHandle());
+		}
+		
+		ctw.setAssociatedServerTransaction(((ServerTransactionActivityHandle) stw.getActivityHandle()).getTxId(),true);
 	}
 
 	/*
@@ -172,15 +168,10 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		}
 		
 		final ClientTransactionWrapper ctw = (ClientTransactionWrapper) ct;
-		final ClientTransactionAssociation cta = ctw.getClientTransactionAssociation();
-		if (cta != null) {
-			final DialogWrapper associatedDialog = (DialogWrapper) ra.getActivity(cta.getDialogActivityHandle());
-			if (associatedDialog != null) {
-				return associatedDialog.getServerTransaction(cta.getAssociatedServerTransaction());
-			}
-			else {
-				return null;
-			}
+		final String associatedServerTransactionId = ctw.getAssociatedServerTransaction();
+		if (associatedServerTransactionId != null) {
+			SIPServerTransaction st = (SIPServerTransaction) ra.getProviderWrapper().getClusteredSipStack().findTransaction(associatedServerTransactionId, true);
+			return (ServerTransaction) ra.getTransactionWrapper(st);
 		}
 		else {
 			return null;
@@ -319,10 +310,11 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * @throws SipException
 	 */
 	protected void ensureCorrectDialogLocalTag(Request request) throws SipException {
-		if (localTag != null) {
-			// ensure we are using the right tag
+		// ensure we are using the right tag
+		final String tag = getLocalTag();
+		if (tag != null) {
 			try {
-				((FromHeader)request.getHeader(FromHeader.NAME)).setTag(localTag);
+				((FromHeader)request.getHeader(FromHeader.NAME)).setTag(tag);
 			} catch (ParseException e) {
 				throw new SipException(e.getMessage(),e);
 			}
@@ -659,7 +651,6 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		return new StringBuilder("DialogWrapper[ handle = ").append(getActivityHandle())
 		.append(", state = ").append(getState())
 		.append(", clientTXs = ").append(ongoingClientTransactions == null ? "" :  ongoingClientTransactions.keySet())
-		.append(", serverTXs = ").append(ongoingServerTransactions == null ? "" :  ongoingServerTransactions.keySet())
 		.append(" ]").toString();
 	}
 
@@ -672,24 +663,6 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 */
 	public ClientTransaction getClientTransaction(SipActivityHandle transaction) {
 		return this.ongoingClientTransactions.get(transaction);
-	}
-
-	/**
-	 * 
-	 * @param transaction
-	 * @return
-	 */
-	public ServerTransaction getServerTransaction(SipActivityHandle transaction) {
-		return this.ongoingServerTransactions.get(transaction);
-	}
-	
-	/**
-	 * 
-	 * @param stw
-	 */
-	public boolean addOngoingTransaction(ServerTransactionWrapper stw) {
-		final boolean alreadyMapped = ongoingServerTransactions.put(stw.getActivityHandle(), stw) == null;
-		return alreadyMapped;
 	}
 	
 	/**
@@ -713,19 +686,6 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 			}
 		}
 	}
-
-	/**
-	 * 
-	 * @param stw
-	 */
-	public void removeOngoingTransaction(ServerTransactionWrapper stw) {
-		if (ongoingServerTransactions != null) {
-			if (ongoingServerTransactions.remove(stw.getActivityHandle()) != null) {
-				// not needed till we have some sort of tx replication
-				// updateReplicatedState();
-			}
-		}
-	}
 	
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.resource.sip11.wrappers.Wrapper#clear()
@@ -738,7 +698,6 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 			wrappedDialog = null;
 		}
 		ongoingClientTransactions = null;
-		ongoingServerTransactions = null;
 		localTag = null;
 		lastCancelableTransactionId = null;
 		eventFiringAddress = null;
@@ -767,7 +726,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	public void setWrappedDialog(Dialog wrappedDialog) {
 		this.wrappedDialog = wrappedDialog;
 		if (wrappedDialog != null) {
-			wrappedDialog.setApplicationData(this);
+			wrappedDialog.setApplicationData(new DialogWithIdWrapperAppData(this));
 		}
 	}
 	

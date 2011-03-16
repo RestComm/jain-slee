@@ -15,8 +15,8 @@ public class ClientTransactionActivityHandle extends TransactionActivityHandle {
 	 * @param branchId
 	 * @param method
 	 */
-	public ClientTransactionActivityHandle(String branchId, String method) {
-		super(branchId, method);
+	public ClientTransactionActivityHandle(String txId) {
+		super(txId);
 	}
 
 	/**

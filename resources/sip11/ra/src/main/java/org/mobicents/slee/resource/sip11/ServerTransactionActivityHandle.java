@@ -17,11 +17,11 @@ public class ServerTransactionActivityHandle extends TransactionActivityHandle {
 	public static final Class<?> TYPE = ServerTransactionActivityHandle.class;
 	
 	/**
-	 * @param branchId
-	 * @param method
+	 * 
+	 * @param txId
 	 */
-	public ServerTransactionActivityHandle(String branchId, String method) {
-		super(branchId, method);
+	public ServerTransactionActivityHandle(String txId) {
+		super(txId);
 	}
 
 	@Override

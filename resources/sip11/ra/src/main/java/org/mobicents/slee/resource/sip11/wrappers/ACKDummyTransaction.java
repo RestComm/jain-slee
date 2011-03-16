@@ -30,7 +30,7 @@ public class ACKDummyTransaction implements ServerTransaction {
 	/**
 	 * 
 	 */
-	private final String branchId;
+	private final String txId;
 
 	/**
 	 * 
@@ -43,7 +43,7 @@ public class ACKDummyTransaction implements ServerTransaction {
 	 */
 	public ACKDummyTransaction(Request ackRequest) {
 		this.ackRequest = ackRequest;
-		this.branchId = new UID().toString();
+		this.txId = new UID().toString();
 	}
 
 	/*
@@ -69,9 +69,13 @@ public class ACKDummyTransaction implements ServerTransaction {
 	 * @see javax.sip.Transaction#getBranchId()
 	 */
 	public String getBranchId() {
-		return branchId;
+		return txId;
 	}
 
+	public String getTxId() {
+		return txId;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

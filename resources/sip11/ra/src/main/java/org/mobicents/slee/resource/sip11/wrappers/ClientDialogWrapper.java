@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sip.ClientTransaction;
+import javax.sip.Dialog;
 import javax.sip.DialogDoesNotExistException;
 import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
@@ -34,7 +35,6 @@ import javax.sip.message.Response;
 import javax.slee.facilities.Tracer;
 
 import org.mobicents.slee.resource.sip11.DialogWithoutIdActivityHandle;
-import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 import org.mobicents.slee.resource.sip11.SleeSipProviderImpl;
 import org.mobicents.slee.resource.sip11.Utils;
@@ -51,41 +51,35 @@ public class ClientDialogWrapper extends DialogWrapper {
 	private Address fromAddress, toAddress;
 	private CallIdHeader customCallId;
 	private AtomicLong localSequenceNumber = new AtomicLong(0L);
-	private AtomicBoolean forkingPossible = new AtomicBoolean(true);
-	private boolean confirmed = false; 
 	
-	/**
-	 * Constructs an instance of a UAC dialog.
-	 * 
-	 * @param from
-	 * @param localTag
-	 * @param to
-	 * @param callIdHeader
-	 * @param provider
-	 * @param ra
-	 */
-	public ClientDialogWrapper(Address from, String localTag, Address to,
-			CallIdHeader callIdHeader, SipResourceAdaptor ra) {
-		this(new DialogWithoutIdActivityHandle(callIdHeader.getCallId(),
-				localTag), localTag, ra);
-		toAddress = to;
-		fromAddress = from;
-		customCallId = callIdHeader;
-	}
-
+	private AtomicBoolean forkingPossible = new AtomicBoolean(true);
+	private boolean forkingWinner = false; 
+	
 	/**
 	 * 
 	 * @param handle
 	 * @param wrappedDialog
 	 * @param ra
 	 */
-	public ClientDialogWrapper(SipActivityHandle handle, String localTag, SipResourceAdaptor ra) {
-		super(handle,localTag,ra);
+	public ClientDialogWrapper(DialogWithoutIdActivityHandle handle, SipResourceAdaptor ra) {
+		super(handle,ra);
 		if (tracer == null) {
 			tracer = ra.getTracer(ClientDialogWrapper.class.getSimpleName());
 		}
 	}
 
+	public void setCustomCallId(CallIdHeader customCallId) {
+		this.customCallId = customCallId;
+	}
+	
+	public void setFromAddress(Address fromAddress) {
+		this.fromAddress = fromAddress;
+	}
+	
+	public void setToAddress(Address toAddress) {
+		this.toAddress = toAddress;
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -98,16 +92,16 @@ public class ClientDialogWrapper extends DialogWrapper {
 	 * 
 	 * @return
 	 */
-	public boolean stopForking() {
-		return forkingPossible.compareAndSet(true, false);		
+	public boolean stopForking(boolean iAmTheMasterDialog) {
+		boolean stoppedForking = forkingPossible.compareAndSet(true, false);
+		if (stoppedForking) {
+			forkingWinner = iAmTheMasterDialog;			
+		}
+		return stoppedForking;
 	}
 	
-	public void confirmed() {
-		this.confirmed = true;
-	}
-	
-	public boolean isConfirmed() {
-		return confirmed;
+	public boolean isForkingWinner() {
+		return forkingWinner;
 	}
 	
 	@Override
@@ -310,7 +304,6 @@ public class ClientDialogWrapper extends DialogWrapper {
 		return new StringBuilder("ClientDialogWrapper[ handle = ").append(getActivityHandle())
 			.append(", state = ").append(getState())
 			.append(", clientTXs = ").append(ongoingClientTransactions == null ? "" :  ongoingClientTransactions.keySet())
-			.append(", serverTXs = ").append(ongoingServerTransactions == null ? "" :  ongoingServerTransactions.keySet())
 			.append(" ]").toString();
 	}
 
@@ -442,13 +435,12 @@ public class ClientDialogWrapper extends DialogWrapper {
 		
 		final boolean createDialog = wrappedDialog == null;
 		if (createDialog) {
-			this.wrappedDialog = provider.getRealProvider().getNewDialog(
-					ctw.getWrappedTransaction());
+			setWrappedDialog(provider.getRealProvider().getNewDialog(
+					ctw.getWrappedTransaction()));
 			if(ra.disableSequenceNumberValidation())
 			{
 				((DialogExt)this.wrappedDialog).disableSequenceNumberValidation();
 			}
-			this.wrappedDialog.setApplicationData(this);
 			// dialog in null state does not allows to send request
 			ctw.getWrappedClientTransaction().sendRequest();
 		} else {
@@ -485,9 +477,8 @@ public class ClientDialogWrapper extends DialogWrapper {
 			}
 			if (request.getMethod().equals(Request.INVITE))
 				lastCancelableTransactionId = ctw.getActivityHandle();
-			this.wrappedDialog = provider.getRealProvider().getNewDialog(
-					ctw.getWrappedTransaction());
-			this.wrappedDialog.setApplicationData(this);
+			setWrappedDialog(provider.getRealProvider().getNewDialog(
+					ctw.getWrappedTransaction()));
 			this.addOngoingTransaction(ctw);
 			// dialog in null state does not allows to send request
 			ctw.getWrappedClientTransaction().sendRequest();			
@@ -516,6 +507,14 @@ public class ClientDialogWrapper extends DialogWrapper {
 	@Override
 	public boolean isClientDialog() {
 		return true;
+	}
+	
+	@Override
+	public void setWrappedDialog(Dialog wrappedDialog) {
+		this.wrappedDialog = wrappedDialog;
+		if (wrappedDialog != null) {
+			wrappedDialog.setApplicationData(new DialogWithoutIdWrapperData(this));
+		}
 	}
 	
 	// serialization

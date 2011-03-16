@@ -18,48 +18,29 @@ public abstract class TransactionActivityHandle extends SipActivityHandle implem
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * the transaction's branch
+	 * the transaction's id
 	 */
-	private final String branchId;
-	
-	private final String method;
+	private final String txId;
 	
 	/**
 	 * 
 	 * @param branchId
 	 * @param method
 	 */
-	public TransactionActivityHandle(String branchId,String method) {
-		if (branchId == null) {
-			throw new NullPointerException("null branch id");
+	public TransactionActivityHandle(String txId) {
+		if (txId == null) {
+			throw new NullPointerException("null tx id");
 		}
-		if (method == null) {
-			throw new NullPointerException("null method");
-		}
-		this.branchId = branchId;
-		this.method = method;
+		this.txId = txId;		
 	}
 
-	/**
-	 * Retrieves the transaction's branch id
-	 * 
-	 * @return
-	 */
-	public String getBranchId() {
-		return branchId;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public String getMethod() {
-		return method;
+	public String getTxId() {
+		return txId;
 	}
 
 	@Override
 	public int hashCode() {
-		return branchId.hashCode()*31+method.hashCode();
+		return txId.hashCode();
 	}
 
 	@Override
@@ -71,16 +52,14 @@ public abstract class TransactionActivityHandle extends SipActivityHandle implem
 		if (getClass() != obj.getClass())
 			return false;
 		final TransactionActivityHandle other = (TransactionActivityHandle) obj;
-		if (!branchId.equals(other.branchId))
-			return false;
-		if (!method.equals(other.method))
+		if (!txId.equals(other.txId))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return new StringBuilder(branchId).append(':').append(method).toString();
+		return txId;
 	}
 
 }

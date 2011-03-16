@@ -94,15 +94,14 @@ public class Utils {
 	 * @return
 	 * @throws ParseException 
 	 */
-	@SuppressWarnings("unchecked")
 	public static List<RouteHeader> getRouteList(Response response, HeaderFactory headerFactory) throws ParseException {
 		// we have record route set, as we are client, this is reversed
 		final ArrayList<RouteHeader> routeList = new ArrayList<RouteHeader>();
-		final ListIterator rrLit = response.getHeaders(RecordRouteHeader.NAME);
+		final ListIterator<?> rrLit = response.getHeaders(RecordRouteHeader.NAME);
 		while (rrLit.hasNext()) {
 			final RecordRouteHeader rrh = (RecordRouteHeader) rrLit.next();
 			final RouteHeader rh = headerFactory.createRouteHeader(rrh.getAddress());
-			final Iterator pIt = rrh.getParameterNames();
+			final Iterator<?> pIt = rrh.getParameterNames();
 			while (pIt.hasNext()) {
 				final String pName = (String) pIt.next();
 				rh.setParameter(pName, rrh.getParameter(pName));

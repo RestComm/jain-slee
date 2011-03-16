@@ -24,12 +24,6 @@ public abstract class Wrapper {
 	}
 	
 	/**
-	 * Indicates if the wrapper is an activity.
-	 * @return
-	 */
-	public abstract boolean isActivity();
-	
-	/**
 	 * Indicates if the wrapper is a {@link Dialog}
 	 * @return
 	 */

@@ -1,11 +1,12 @@
 package org.mobicents.slee.resource.sip11;
 
-import gov.nist.javax.sip.ClientTransactionExt;
 import gov.nist.javax.sip.ResponseEventExt;
 import gov.nist.javax.sip.Utils;
 import gov.nist.javax.sip.message.SIPRequest;
 import gov.nist.javax.sip.message.SIPResponse;
+import gov.nist.javax.sip.stack.SIPClientTransaction;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
+import gov.nist.javax.sip.stack.SIPTransaction;
 
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -56,6 +57,7 @@ import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ActivityIsEndingException;
 import javax.slee.resource.ConfigProperties;
+import javax.slee.resource.ConfigProperties.Property;
 import javax.slee.resource.EventFlags;
 import javax.slee.resource.FailureReason;
 import javax.slee.resource.FireEventException;
@@ -66,7 +68,6 @@ import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.UnrecognizedActivityHandleException;
-import javax.slee.resource.ConfigProperties.Property;
 
 import net.java.slee.resource.sip.CancelRequestEvent;
 import net.java.slee.resource.sip.DialogForkedEvent;
@@ -81,11 +82,14 @@ import org.mobicents.slee.resource.sip11.wrappers.ACKDummyTransaction;
 import org.mobicents.slee.resource.sip11.wrappers.ClientDialogWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
+import org.mobicents.slee.resource.sip11.wrappers.DialogWrapperAppData;
 import org.mobicents.slee.resource.sip11.wrappers.RequestEventWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ResponseEventWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ServerTransactionWrapper;
+import org.mobicents.slee.resource.sip11.wrappers.ServerTransactionWrapperAppData;
 import org.mobicents.slee.resource.sip11.wrappers.TimeoutEventWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.TransactionWrapper;
+import org.mobicents.slee.resource.sip11.wrappers.TransactionWrapperAppData;
 import org.mobicents.slee.resource.sip11.wrappers.Wrapper;
 
 public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdaptor<SipActivityHandle, String> {
@@ -219,10 +223,20 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			tracer.info("Received Request:\n"+req.getRequest());
 		}
 		
+		// get dialog wrapper
+		final Dialog d = req.getDialog();
+		final DialogWrapper dw = getDialogWrapper(d);
+		if (dw != null && req.getServerTransaction() == null) {
+			if (tracer.isInfoEnabled()) {
+				tracer.info("No server tx found, for in dialog request, assuming it as retransmission and dropping...");
+			}
+			return;
+		}
+		
 		if (req.getRequest().getMethod().equals(Request.CANCEL)) {
-			processCancelRequest(req);
+			processCancelRequest(req,dw);
 		} else {
-			processNotCancelRequest(req);
+			processNotCancelRequest(req,dw);
 		}
 	}
 
@@ -230,25 +244,37 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	 * 
 	 * @param req
 	 */
-	private void processCancelRequest(RequestEvent req) {
+	private void processCancelRequest(RequestEvent req, DialogWrapper dw) {
 		
-		// get server tx wrapper		
-		final ServerTransactionWrapper cancelSTW = getServerTransactionWrapper(req);
-		if (cancelSTW == null) {
-			return;
-		}
-		// get canceled invite stw
-		final ServerTransaction inviteST = ((SIPServerTransaction)cancelSTW.getWrappedServerTransaction()).getCanceledInviteTransaction();
-		final ServerTransactionWrapper inviteSTW = inviteST != null ? (ServerTransactionWrapper) inviteST.getApplicationData() : null;
-		// get dialog
-		final Dialog d = cancelSTW.getWrappedServerTransaction().getDialog();
-		DialogWrapper dw = getDialogWrapper(d);
-		Wrapper activity = dw;
-		if (activity != null) {
-			// add tx
-			dw.addOngoingTransaction(cancelSTW);
+		// get server tx wrapper
+		ServerTransactionWrapper cancelSTW = null;
+		SIPServerTransaction cancelST = (SIPServerTransaction) req.getServerTransaction(); 
+		if (cancelST == null) {
+			// server tx not found
+			try {
+				cancelST = (SIPServerTransaction)provider.getNewServerTransaction(req.getRequest());
+				cancelSTW = new ServerTransactionWrapper(cancelST,this);
+			} catch (Throwable e) {
+				tracer.severe("Failed to create server tx in provider",e);
+			}
 		}
 		else {
+			// server tx found
+			final ServerTransactionWrapperAppData appData = (ServerTransactionWrapperAppData) cancelST.getApplicationData();
+			if (appData != null) {
+				cancelSTW = (ServerTransactionWrapper) appData.getTransactionWrapper(cancelST,this);
+			}
+			else {
+				cancelSTW = new ServerTransactionWrapper(cancelST, this);
+			}
+		}
+		
+		// get canceled invite stw
+		final SIPServerTransaction inviteST = ((SIPServerTransaction)cancelSTW.getWrappedServerTransaction()).getCanceledInviteTransaction();
+		final ServerTransactionWrapper inviteSTW = (ServerTransactionWrapper) getTransactionWrapper(inviteST);
+		// get dialog
+		Wrapper activity = dw;
+		if (activity == null) {
 			if (inviteSTW != null) {
 				activity = inviteSTW;
 			}
@@ -323,43 +349,51 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	 * @param d
 	 * @return
 	 */
-    protected DialogWrapper getDialogWrapper(Dialog d) {
+    public DialogWrapper getDialogWrapper(Dialog d) {
     	if (d == null) {
     		return null;
     	}
-    	DialogWrapper dw =  (DialogWrapper) d.getApplicationData();
-		if (dw == null && !inLocalMode()) {
+    	DialogWrapper dw = null;
+    	DialogWrapperAppData dwad = (DialogWrapperAppData) d.getApplicationData();
+    	if (dwad != null) {
+    		dw = dwad.getDialogWrapper(d, this);
+    	}
+    	if (dw == null && !inLocalMode()) {
 			// may be a replicated dialog that locally has no wrapper yet
-			if (d.isServer()) {
-				DialogWithIdActivityHandle handle = new DialogWithIdActivityHandle(d.getDialogId());
+    		DialogWithIdActivityHandle dialogWithIdActivityHandle = new DialogWithIdActivityHandle(d.getDialogId());
+			if (sleeEndpoint.replicatedActivityExists(dialogWithIdActivityHandle)) {
 				// if exists recreate wrapper
-				if (sleeEndpoint.replicatedActivityExists(handle)) {
-					dw = new DialogWrapper(handle,d.getLocalTag(),this);
-				}
-			}
-			else {
-				ClientDialogWrapper cdw = null;
-				// lets try first the full dialog id data
-				SipActivityHandle handle = new DialogWithIdActivityHandle(d.getDialogId());
-				if (!sleeEndpoint.replicatedActivityExists(handle)) {
-					// does not exists try without remote tag, may be the master client dialog, which handle has no remote tag
-					handle = new DialogWithoutIdActivityHandle(d.getCallId().getCallId(), d.getLocalTag());
-					if (!sleeEndpoint.replicatedActivityExists(handle)) {
-						return null;
-					}					
-				}
-				// exists
-				cdw = new ClientDialogWrapper(handle, d.getLocalTag(), this);
-				cdw.confirmed();
-				dw = cdw;
-			}		
-			if (dw != null) {
+				dw = new DialogWrapper(dialogWithIdActivityHandle,this);
 				dw.setWrappedDialog(d);
 			}
+			else {
+				// does not exists try without remote tag, may be the master client dialog, which handle has no remote tag
+				DialogWithoutIdActivityHandle dialogWithoutIdActivityHandle = new DialogWithoutIdActivityHandle(d.getCallId().getCallId(), d.getLocalTag());
+				if (!sleeEndpoint.replicatedActivityExists(dialogWithoutIdActivityHandle)) {
+					return null;
+				}									
+				// exists
+				ClientDialogWrapper cdw = new ClientDialogWrapper(dialogWithoutIdActivityHandle, this);
+				cdw.setWrappedDialog(d);				
+				dw = cdw;
+			}					
 		}
 		return dw;
 	}
 
+    /**
+	 * Retrieves the wrapper associated with a tx, recreating if needed in a cluster env.
+	 * @param t
+	 * @return
+	 */
+    public TransactionWrapper getTransactionWrapper(Transaction t) {
+    	if (t == null) {
+    		return null;
+    	}
+    	final TransactionWrapperAppData twad = (TransactionWrapperAppData) t.getApplicationData();
+    	return twad != null ? twad.getTransactionWrapper(t, this) : null;
+	}
+    
 	private void processCancelNotHandled(ServerTransactionWrapper cancelSTW, Request request) {
         try {
             Response response = providerWrapper.getMessageFactory().createResponse(Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST, request);
@@ -382,65 +416,41 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	
 	/**
 	 * 
-	 * @param requestEvent
-	 * @param fineTrace
-	 * @return
+	 * @param req
+	 * @param infoTrace
 	 */
-	private ServerTransactionWrapper getServerTransactionWrapper(RequestEvent requestEvent) {
+	private void processNotCancelRequest(RequestEvent req, DialogWrapper dw) {	
+				
+		// get server tx wrapper
 		ServerTransactionWrapper stw = null;
-		final ServerTransaction st = requestEvent.getServerTransaction();
-		if (st != null) {
-			stw = (ServerTransactionWrapper) st.getApplicationData();
-			if (stw == null) {
-				// new server tx which needs to be wrapped
-				stw = new ServerTransactionWrapper(st,this);
-				if (tracer.isFineEnabled()) {
-					tracer.fine("New server transaction "+stw);
-				}
-			}
-		}
-		else {
-			if (requestEvent.getDialog() != null && inLocalMode()) {
-				if (tracer.isFineEnabled()) {
-					tracer.fine("Got in-dialog request with null server transaction, in local mode must be a retransmission, thus dropping. Request: "+requestEvent.getRequest());
-				}
-				return null;
-			}
-			if (!requestEvent.getRequest().getMethod().equals(Request.ACK)) {
+		if (req.getServerTransaction() == null) {
+			// server tx not found
+			if (!req.getRequest().getMethod().equals(Request.ACK)) {
 				try {
-					stw = new ServerTransactionWrapper(provider.getNewServerTransaction(requestEvent.getRequest()),this);
+					stw = new ServerTransactionWrapper((SIPServerTransaction)provider.getNewServerTransaction(req.getRequest()),this);
 				} catch (Throwable e) {
-					if (tracer.isFineEnabled()) {
-						tracer.fine(e.getMessage(),e);
-					}
+					tracer.severe("Failed to create server tx in provider",e);
+					return;
 				}
 			}
 			else {
 				// create fake ack server transaction
-				stw = new ServerTransactionWrapper(new ACKDummyTransaction(requestEvent.getRequest()),this);
+				stw = new ServerTransactionWrapper(new ACKDummyTransaction(req.getRequest()),this);
 				if (tracer.isFineEnabled()) {
 					tracer.fine("New ACK server transaction "+stw);
 				}
 			}
 		}
-		return stw;
-	}
-	
-	/**
-	 * 
-	 * @param req
-	 * @param infoTrace
-	 */
-	private void processNotCancelRequest(RequestEvent req) {
-				
-		// get dialog wrapper
-		final Dialog d = req.getDialog();
-		final DialogWrapper dw = getDialogWrapper(d);
-				
-		// get server tx wrapper
-		final ServerTransactionWrapper stw = getServerTransactionWrapper(req);
-		if (stw == null) {
-			return;
+		else {
+			// server tx found
+			final SIPServerTransaction st = (SIPServerTransaction) req.getServerTransaction(); 
+			final ServerTransactionWrapperAppData appData = (ServerTransactionWrapperAppData) st.getApplicationData();
+			if (appData != null) {
+				stw = (ServerTransactionWrapper) appData.getTransactionWrapper(st, this);
+			}
+			else {
+				stw = new ServerTransactionWrapper(st, this);
+			}
 		}
 		
 		Wrapper activity = dw;
@@ -454,14 +464,10 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 				return;
 			}
 		}
-		else {
-			// add tx to dialog
-			dw.addOngoingTransaction(stw);
-		}
 		
 		int eventFlags = DEFAULT_EVENT_FLAGS;
 		if (stw.isAckTransaction()) {
-			// ack txs are not terminated by stack, so we need to rely on the event release callback
+			// dummy ack txs are not terminated by stack, so we need to rely on the event release callback
 			eventFlags = UNREFERENCED_EVENT_FLAGS;
 		}				
 		
@@ -536,28 +542,43 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		ClientTransactionWrapper ctw = null;
 		final Dialog d = responseEventExt.getDialog();
 		DialogWrapper dw = getDialogWrapper(d);
-		if (dw != null && dw.isClientDialog()) {
-			final ClientDialogWrapper cdw = (ClientDialogWrapper) dw;
-			if (!cdw.isConfirmed() && cdw.getState() == DialogState.CONFIRMED) {				
-				// now confirmed
-				if (!cdw.stopForking()) {
-					if (tracer.isInfoEnabled()) {
-						tracer.info("Confirmed original dialog "+dw.getDialogId()+", but another related fork dialog already confirmed, sending ack and bye.");
+		if (dw != null && dw.isClientDialog()) {			
+			final ClientDialogWrapper cdw = (ClientDialogWrapper) dw;			
+			if (cdw.getState() == DialogState.EARLY) {
+				if (!inLocalMode()) {					
+					// ensure the the relation handle -> remote tag is replicated, otherwise it's impossible to get the dialog from stack in another node
+					if (((ClusteredSipActivityManagement)activityManagement).replicateRemoteTag(dw.getActivityHandle(), d.getRemoteTag())) {
+						if (tracer.isInfoEnabled()) {
+							tracer.info("Replicating mapping of outgoing dialog handle "+dw.getActivityHandle()+" to remote tag "+d.getRemoteTag());
+						}
 					}
-					processLateDialogFork2xxResponse(response,d);
-					return;
+				}
+			}
+			else if (cdw.getState() == DialogState.CONFIRMED) {
+				if (!cdw.stopForking(true)) {
+					if (!cdw.isForkingWinner()) {
+						if (tracer.isInfoEnabled()) {
+							tracer.info("Confirmed original dialog "+dw.getDialogId()+", but another related fork dialog already confirmed, sending ack and bye.");
+						}
+						processLateDialogFork2xxResponse(response,d);
+						return;
+					}
+					// else do nothing, the master dialog previously confirmed
 				}
 				else {
 					if (tracer.isInfoEnabled()) {
 						tracer.info("Original dialog "+dw.getDialogId()+" confirmed.");
 					}
-					cdw.confirmed();
-					if (!inLocalMode()) {
-						// in cluster mode we need to replicate the relation handle -> remote tag, otherwise it's impossible to get the dialog from stack in another node
-						((ClusteredSipActivityManagement)activityManagement).replicateRemoteTag(dw.getActivityHandle(), d.getRemoteTag());
+					if (!inLocalMode()) {					
+						// ensure the the relation handle -> remote tag is replicated, otherwise it's impossible to get the dialog from stack in another node
+						if (((ClusteredSipActivityManagement)activityManagement).replicateRemoteTag(dw.getActivityHandle(), d.getRemoteTag())) {
+							if (tracer.isInfoEnabled()) {
+								tracer.info("Replicating mapping of outgoing dialog handle "+dw.getActivityHandle()+" to remote tag "+d.getRemoteTag());
+							}
+						}
 					}
-				}				
-			}		
+				}																
+			}
 		}
 		
 		SipActivityHandle handle = null;
@@ -624,25 +645,23 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			else {
 				// no cluster
 				if (dw != null) {
-					// ack and bye if it's dialog confirmation
-					if (dw.getState() == DialogState.CONFIRMED) {
-						if (tracer.isInfoEnabled()) {
-							tracer.info("Received response not forked, without tx, but with confirmed dialog, sending ack and bye.");
-						}
-						processLateDialogFork2xxResponse(response,d);
-					}	
+					// the dialog exists, thus confirmed, ignore the fact that there is no client tx
+					event = new ResponseEventWrapper(this.providerWrapper, null, dw, response);
+					eventType = eventIdCache.getEventId(eventLookupFacility, response);
+					handle = dw.getActivityHandle();
+					address = dw.getEventFiringAddress();
 				}
 				else {
 					if (tracer.isInfoEnabled()) {
 						tracer.info("Received response not forked, without tx, without dialog, can't proceed, dropping...");
 					}
+					return;
 				}					
-				return;
 			}
 		}
 		else {
 			// ct found 
-			ctw = (ClientTransactionWrapper) ct.getApplicationData();
+			ctw = (ClientTransactionWrapper) getTransactionWrapper(ct);
 			if (ctw == null) {
 				if (tracer.isInfoEnabled()) {
 					tracer.info("Dropping response without app data in client tx, probably due to late dialog fork confirmation ack and bye.");
@@ -722,29 +741,30 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		Object event = null;
 		
 		final Dialog forkedDialog = responseEventExt.getDialog();
-		ClientDialogWrapper forkedDialogWrapper = (ClientDialogWrapper) forkedDialog.getApplicationData();  
+		DialogWrapper forkedDialogWrapper = getDialogWrapper(forkedDialog);
 		final DialogState forkedDialogState = forkedDialog.getState();
 		
-		final ClientTransactionExt originalClientTransaction = responseEventExt.getOriginalTransaction();
+		final SIPClientTransaction originalClientTransaction = (SIPClientTransaction) responseEventExt.getOriginalTransaction();
 		final Dialog originalDialog = originalClientTransaction.getDefaultDialog();
-		final ClientDialogWrapper originalDialogWrapper = (ClientDialogWrapper) originalDialog.getApplicationData();
+		final ClientDialogWrapper originalDialogWrapper = (ClientDialogWrapper) getDialogWrapper(originalDialog);
 		
 		if (forkedDialogWrapper == null) {
 			// new fork
 			if (forkedDialogState == DialogState.CONFIRMED) {
 				// confirmed right away
-				if (originalDialogWrapper.stopForking()) {
+				if (originalDialogWrapper.stopForking(false)) {
 					// and this dialog was the first one participating in this forking that was confirmed
 					if (tracer.isInfoEnabled()) {
 						tracer.info("New confirmed dialog fork "+forkedDialog.getDialogId());
 					}
 					// add new dialog activity
-					forkedDialogWrapper = new ClientDialogWrapper(new DialogWithIdActivityHandle(forkedDialog.getDialogId()),forkedDialog.getLocalTag(), this);
+					final DialogWithIdActivityHandle forkedDialogHandle = new DialogWithIdActivityHandle(forkedDialog.getDialogId());
+					forkedDialogWrapper = new DialogWrapper(forkedDialogHandle, this);
 					forkedDialogWrapper.setWrappedDialog(forkedDialog);
 					addActivity(forkedDialogWrapper, false);
 					// fire dialog fork event in original dialog activity
 					handle = originalDialogWrapper.getActivityHandle();
-					event = new DialogForkedEvent(responseEventExt.getSource(), (ClientTransactionWrapper) originalClientTransaction.getApplicationData(), originalDialogWrapper, forkedDialogWrapper, responseEventExt.getResponse());			
+					event = new DialogForkedEvent(responseEventExt.getSource(), (ClientTransaction) getTransactionWrapper(originalClientTransaction), originalDialogWrapper, forkedDialogWrapper, responseEventExt.getResponse());			
 					eventType = eventIdCache.getDialogForkEventId(eventLookupFacility);
 				}
 				else {
@@ -763,12 +783,13 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 						tracer.info("New unconfirmed dialog fork "+forkedDialog.getDialogId());
 					}
 					// add new dialog activity
-					forkedDialogWrapper = new ClientDialogWrapper(new DialogWithIdActivityHandle(forkedDialog.getDialogId()),forkedDialog.getLocalTag(), this);
+					final DialogWithIdActivityHandle forkedDialogHandle = new DialogWithIdActivityHandle(forkedDialog.getDialogId());
+					forkedDialogWrapper = new DialogWrapper(forkedDialogHandle, this);
 					forkedDialogWrapper.setWrappedDialog(forkedDialog);
 					addActivity(forkedDialogWrapper, false);
 					// fire dialog fork event in original dialog activity
 					handle = originalDialogWrapper.getActivityHandle();
-					event = new DialogForkedEvent(responseEventExt.getSource(), (ClientTransactionWrapper) originalClientTransaction.getApplicationData(), originalDialogWrapper, forkedDialogWrapper, responseEventExt.getResponse());			
+					event = new DialogForkedEvent(responseEventExt.getSource(), (ClientTransaction) getTransactionWrapper(originalClientTransaction), originalDialogWrapper, forkedDialogWrapper, responseEventExt.getResponse());			
 					eventType = eventIdCache.getDialogForkEventId(eventLookupFacility);
 				}
 				else {
@@ -791,14 +812,14 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		else {
 			// existent fork
 			if (forkedDialogState == DialogState.CONFIRMED) {
-				if (originalDialogWrapper.stopForking()) {
+				if (originalDialogWrapper.stopForking(false)) {
 					// and this dialog was the first one participating in this forking that was confirmed
 					if (tracer.isInfoEnabled()) {
 						tracer.info("Dialog fork "+forkedDialog.getDialogId()+" confirmed.");
 					}
 					// fire normal event on forked dialog activity
 					handle = forkedDialogWrapper.getActivityHandle();
-					event = new ResponseEventWrapper(responseEventExt.getSource(),(ClientTransactionWrapper) originalClientTransaction.getApplicationData(),forkedDialogWrapper, responseEventExt.getResponse());			
+					event = new ResponseEventWrapper(responseEventExt.getSource(),(ClientTransaction) getTransactionWrapper(originalClientTransaction),forkedDialogWrapper, responseEventExt.getResponse());			
 					eventType = eventIdCache.getEventId(eventLookupFacility, responseEventExt.getResponse());
 				}
 				else {
@@ -814,7 +835,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			else {
 				// not yet confirmed, fire normal event on forked dialog activity
 				handle = forkedDialogWrapper.getActivityHandle();
-				event = new ResponseEventWrapper(responseEventExt.getSource(),(ClientTransactionWrapper) originalClientTransaction.getApplicationData(),forkedDialogWrapper, responseEventExt.getResponse());			
+				event = new ResponseEventWrapper(responseEventExt.getSource(),(ClientTransaction) getTransactionWrapper(originalClientTransaction),forkedDialogWrapper, responseEventExt.getResponse());			
 				eventType = eventIdCache.getEventId(eventLookupFacility, responseEventExt.getResponse());
 			}
 		}
@@ -939,36 +960,38 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	 * (non-Javadoc)
 	 * @see javax.sip.SipListener#processTimeout(javax.sip.TimeoutEvent)
 	 */
-	public void processTimeout(TimeoutEvent arg0) {
-
-		if (tracer.isInfoEnabled()) {
-			if (arg0.isServerTransaction()) {
-				tracer.info("Server transaction "
-						+ arg0.getServerTransaction().getBranchId()
-						+ " timer expired");
-			} else {
-				tracer.info("Client transaction "
-						+ arg0.getClientTransaction().getBranchId()
-						+ " timer expired");
-			}
-		}
-
-		final Transaction t = arg0.isServerTransaction() ? arg0.getServerTransaction() : arg0.getClientTransaction();
-		final TransactionWrapper tw = (TransactionWrapper) t.getApplicationData();
-		if (tw == null) {
-			tracer.severe("FAILURE on processTimeout. Unexpected app data["
-						+ t.getApplicationData() + "] branch["+t.getBranchId()+"]");			
-			return;
-		} 
+	public void processTimeout(TimeoutEvent timeoutEvent) {
 		
-		TimeoutEventWrapper tew = null;
-		if (arg0.isServerTransaction()) {
-			tew = new TimeoutEventWrapper(providerWrapper,(ServerTransaction)tw, arg0.getTimeout());
+		SIPTransaction t = null; 
+		if (timeoutEvent.isServerTransaction()) {
+			t = (SIPTransaction) timeoutEvent.getServerTransaction();
 		}
 		else {
-			tew = new TimeoutEventWrapper(providerWrapper,(ClientTransaction) tw, arg0.getTimeout());
+			t = (SIPTransaction) timeoutEvent.getClientTransaction();
 		}
 		
+		if (tracer.isInfoEnabled()) {
+			tracer.info("Transaction "
+						+ t.getTransactionId()
+						+ " timer expired");			
+		}
+		
+		TransactionWrapper tw = getTransactionWrapper(t);
+		if (tw == null) {
+			if (tracer.isInfoEnabled()) {
+				tracer.info("Received timeout event for tx "+t.getTransactionId()+" with null app data, dropping...");
+			}
+			return;
+		}
+		
+		TimeoutEventWrapper tew = null;
+		if (timeoutEvent.isServerTransaction()) {
+			tew = new TimeoutEventWrapper(providerWrapper,(ServerTransaction)tw, timeoutEvent.getTimeout());
+		}
+		else {
+			tew = new TimeoutEventWrapper(providerWrapper,(ClientTransaction)tw, timeoutEvent.getTimeout());
+		}
+			
 		final Dialog d = tw.getWrappedTransaction().getDialog();
 		final DialogWrapper dw = getDialogWrapper(d);
 		final FireableEventType eventType = eventIdCache.getTransactionTimeoutEventId(
@@ -995,25 +1018,26 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	public void processTransactionTerminated(
 			TransactionTerminatedEvent txTerminatedEvent) {
 		
-		Transaction t = null;
+		Transaction t = null; 
 		if (txTerminatedEvent.isServerTransaction()) {
 			t = txTerminatedEvent.getServerTransaction();
-		} else {
-			t = txTerminatedEvent.getClientTransaction();			
+		}
+		else {
+			t = txTerminatedEvent.getClientTransaction();
 		}
 		
-		final TransactionWrapper tw = (TransactionWrapper) t.getApplicationData();		
+		final TransactionWrapper tw = getTransactionWrapper(t);
 		if (tw != null) {
 			if (tracer.isInfoEnabled()) {
 				tracer.info("SIP Transaction "+tw.getActivityHandle()+" terminated");
 			}
-			processTransactionTerminated(tw);
+			processTransactionTerminated(tw);			
 		}
-		else {
+		else {			
 			if (tracer.isInfoEnabled()) {
-				tracer.info("SIP Transaction "+t.getBranchId()+':'+t.getRequest().getMethod()+" terminated");
+				tracer.info("SIP Transaction "+((SIPTransaction)t).getTransactionId()+" terminated");				
 			}
-		}	
+		}		
 	}
 
 	private void processTransactionTerminated(TransactionWrapper tw) {
@@ -1205,8 +1229,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			HeaderFactory headerFactory = sipFactory.createHeaderFactory();
 			MessageFactory messageFactory = sipFactory.createMessageFactory();
 
-			this.providerWrapper = new SleeSipProviderImpl(addressFactory,
-					headerFactory, messageFactory, sipStack, this, provider);
+			this.providerWrapper.raActive(addressFactory, headerFactory, messageFactory, sipStack, provider);
 
 		} catch (Throwable ex) {
 			String msg = "error in initializing resource adaptor";
@@ -1251,6 +1274,8 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			}
 		}
 
+		this.providerWrapper.raInactive();
+		
 		if (tracer.isFineEnabled()) {
 			tracer.fine("Sip Resource Adaptor entity inactive.");
 		}		
@@ -1514,9 +1539,10 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	 */
 	public void setResourceAdaptorContext(ResourceAdaptorContext raContext) {
 		this.raContext = raContext;		
-		this.tracer = raContext.getTracer("SipResourceAdaptor");
+		this.tracer = raContext.getTracer(getClass().getSimpleName());
 		this.sleeEndpoint = (SleeEndpoint) raContext.getSleeEndpoint();
 		this.eventLookupFacility = raContext.getEventLookupFacility();
+		this.providerWrapper = new SleeSipProviderImpl(this);
 	}
 	
 	/*
@@ -1527,6 +1553,8 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		this.raContext = null;
 		this.sleeEndpoint = null;
 		this.eventLookupFacility = null;
+		this.tracer = null;
+		this.tracer = null;
 	}
 
 	/**

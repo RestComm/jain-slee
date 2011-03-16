@@ -1,8 +1,6 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import gov.nist.javax.sip.stack.SIPClientTransaction;
 
 import javax.sip.ClientTransaction;
 import javax.sip.SipException;
@@ -14,7 +12,6 @@ import javax.slee.AddressPlan;
 import javax.slee.facilities.Tracer;
 
 import org.mobicents.slee.resource.sip11.ClientTransactionActivityHandle;
-import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 
 /**
@@ -29,33 +26,32 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 	private static Tracer tracer;
 	
 	/**
-	 * the server tx associated
+	 * the wrapped client tx
 	 */
-	private transient ClientTransactionAssociation association;
+	private ClientTransaction wrappedTransaction;
 	
 	/**
 	 * the slee address where events on this tx are fired
 	 */
 	private transient Address eventFiringAddress;
-
+	
 	/**
-	 * the wrapped client tx
+	 * the associated stx
 	 */
-	private transient ClientTransaction wrappedTransaction;
+	private String associatedServerTransactionId;
 	
 	/**
 	 * 
 	 * @param wrappedTransaction
 	 * @param ra
 	 */
-	public ClientTransactionWrapper(ClientTransaction wrappedTransaction, SipResourceAdaptor ra) {
-		super(new ClientTransactionActivityHandle(wrappedTransaction
-				.getBranchId(),wrappedTransaction.getRequest().getMethod()),ra);
+	public ClientTransactionWrapper(SIPClientTransaction wrappedTransaction, SipResourceAdaptor ra) {
+		super(new ClientTransactionActivityHandle(wrappedTransaction.getTransactionId()),ra);
+		this.wrappedTransaction = wrappedTransaction;
+		this.wrappedTransaction.setApplicationData(new ClientTransactionWrapperAppData(this));
 		if (tracer == null) {
 			tracer = ra.getTracer(ClientTransactionWrapper.class.getSimpleName());
 		}
-		this.wrappedTransaction = wrappedTransaction;
-		this.wrappedTransaction.setApplicationData(this);		
 	}
 
 	protected ClientTransactionWrapper(ClientTransactionActivityHandle handle, SipResourceAdaptor ra) {
@@ -78,25 +74,9 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 		return wrappedTransaction;
 	}
 	
-	/**
-	 * For future use on sip transaction fail over.
-	 * @param wrappedTransaction
-	 */
-	public void setWrappedClientTransaction(ClientTransaction wrappedTransaction) {
-		this.wrappedTransaction = wrappedTransaction;
-	}
-	
 	@Override
 	public boolean isAckTransaction() {		
 		return false;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.resource.sip11.wrappers.TransactionWrapper#isClientTransaction()
-	 */
-	@Override
-	public boolean isClientTransaction() {
-		return true;
 	}
 	
 	@Override
@@ -168,28 +148,24 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 
 	/**
 	 * 
-	 * @param serverTransaction
-	 * @param dialogHandle
-	 */
-	public void associateServerTransaction(ServerTransactionWrapper serverTransaction,
-			SipActivityHandle dialogHandle) {
-
-		if (this.association != null) {
-			throw new IllegalStateException(
-					"Transaction already associated to ["
-							+ this.association.getAssociatedServerTransaction() + "] ["
-							+ this.association.getDialogActivityHandle() + "]");
-
-		}
-		this.association = new ClientTransactionAssociation(dialogHandle,serverTransaction.getActivityHandle());
-	}
-
-	/**
-	 * 
 	 * @return
 	 */
-	public ClientTransactionAssociation getClientTransactionAssociation() {
-		return association;
+	public String getAssociatedServerTransaction() {
+		return associatedServerTransactionId;
+	}
+	
+	/**
+	 * 
+	 * @param associatedServerTransactionId
+	 */
+	public void setAssociatedServerTransaction(
+			String associatedServerTransactionId, boolean failIfAlreadyAssociated) {
+		if (failIfAlreadyAssociated && this.associatedServerTransactionId != null) {
+			throw new IllegalStateException(
+					"Transaction already associated to ["
+							+ associatedServerTransactionId + "]");
+		}
+		this.associatedServerTransactionId = associatedServerTransactionId;		
 	}
 	
 	@Override
@@ -199,23 +175,11 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 			.append(']').toString();
 	}
 	
-	// SERIALIZATION
-	
-	private void writeObject(ObjectOutputStream stream) throws IOException {
-		throw new IOException("serialization forbidden");
-	}
-	
-	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
-		throw new IOException("serialization forbidden");
-	}
-	
 	@Override
 	public void terminated() {
-		if (isActivity()) {
-			final DialogWrapper dw = getDialogWrapper();
-			if (dw != null) {
-				dw.removeOngoingTransaction(this);
-			}
+		final DialogWrapper dw = getDialogWrapper();
+		if (dw != null) {
+			dw.removeOngoingTransaction(this);			
 		}
 	}
 	
@@ -227,9 +191,13 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 		super.clear();
 		if (wrappedTransaction != null) {
 			wrappedTransaction.setApplicationData(null);
-			wrappedTransaction = null;
-		}		
-		eventFiringAddress = null;
-		association = null;
+		}
+		wrappedTransaction = null;		
 	}
+
+	@Override
+	public boolean isClientTransaction() {
+		return true;
+	}
+	
 }

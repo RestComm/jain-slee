@@ -1,19 +1,23 @@
 package org.mobicents.slee.resource.sip11;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import javax.sip.Dialog;
 
 import net.java.slee.resource.sip.DialogActivity;
 
 /**
- * The {@link SipActivityHandle} for {@link DialogActivity}
- * related with a {@link Dialog} that does not exist yet.
+ * The {@link SipActivityHandle} for {@link DialogActivity} related with a
+ * {@link Dialog} that does not exist yet.
  * 
  * @author martins
  * 
  */
-public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle implements Serializable {
+public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle
+		implements Externalizable {
 
 	/**
 	 * 
@@ -29,7 +33,11 @@ public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle im
 	 * the dialog's local tag
 	 */
 	private String localTag;
-	
+
+	public DialogWithoutIdActivityHandle() {
+
+	}
+
 	/**
 	 * 
 	 * @param callID
@@ -58,18 +66,20 @@ public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle im
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.sip11.MarshableSipActivityHandle#getEstimatedHandleSize()
+	 * 
+	 * @see org.mobicents.slee.resource.sip11.MarshableSipActivityHandle#
+	 * getEstimatedHandleSize()
 	 */
 	@Override
 	public int getEstimatedHandleSize() {
 		return callId.length() + localTag.length() + 7;
 	}
-	
+
 	@Override
 	public boolean isReplicated() {
 		return true;
 	}
-	
+
 	/**
 	 * Retrieves the dialog's local tag
 	 * 
@@ -81,7 +91,7 @@ public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle im
 
 	@Override
 	public int hashCode() {
-		return callId.hashCode()*31 + localTag.hashCode();
+		return callId.hashCode() * 31 + localTag.hashCode();
 	}
 
 	@Override
@@ -106,10 +116,24 @@ public class DialogWithoutIdActivityHandle extends MarshableSipActivityHandle im
 	private static final String REMOTE_TAG = ":null";
 
 	public static final Class<? extends SipActivityHandle> TYPE = DialogWithoutIdActivityHandle.class;
-	
+
 	@Override
 	public String toString() {
-		return new StringBuilder(callId).append(DIALOG_ID_SEPARATOR).append(localTag).append(REMOTE_TAG).toString();
+		return new StringBuilder(callId).append(DIALOG_ID_SEPARATOR)
+				.append(localTag).append(REMOTE_TAG).toString();
 	}
-	
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeUTF(callId);
+		out.writeUTF(localTag);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		callId = in.readUTF();
+		localTag = in.readUTF();
+	}
+
 }

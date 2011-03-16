@@ -1,5 +1,8 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 import javax.sip.Dialog;
 import javax.sip.ObjectInUseException;
 import javax.sip.Transaction;
@@ -67,7 +70,7 @@ public abstract class TransactionWrapper extends Wrapper implements Transaction 
 	 */
 	public DialogWrapper getDialogWrapper() {
 		final Dialog dialog = getAndValidateWrappedTransaction().getDialog();
-		return dialog != null ? (DialogWrapper) dialog.getApplicationData() : null;
+		return dialog != null ? ra.getDialogWrapper(dialog) : null;
 	}
 	
 	/**
@@ -152,4 +155,9 @@ public abstract class TransactionWrapper extends Wrapper implements Transaction 
 	public void terminate() throws ObjectInUseException {
 		getAndValidateWrappedTransaction().terminate();
 	}
+	
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		throw new IOException("serialization forbidden");
+	}
+	
 }

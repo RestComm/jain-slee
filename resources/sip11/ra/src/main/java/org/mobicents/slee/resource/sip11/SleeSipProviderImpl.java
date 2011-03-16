@@ -5,6 +5,8 @@ import gov.nist.javax.sip.ListeningPointImpl;
 import gov.nist.javax.sip.Utils;
 import gov.nist.javax.sip.address.SipUri;
 import gov.nist.javax.sip.message.SIPRequest;
+import gov.nist.javax.sip.stack.SIPClientTransaction;
+import gov.nist.javax.sip.stack.SIPServerTransaction;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -67,29 +69,38 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	protected SipResourceAdaptor ra = null;
 	protected SipProvider provider = null;
 	protected final Tracer tracer;
+	private boolean active;
 	
-	/**
-	 * 
-	 * @param addressFactory
-	 * @param headerFactory
-	 * @param messageFactory
-	 * @param stack
-	 * @param ra
-	 * @param provider
-	 */
-	public SleeSipProviderImpl(AddressFactory addressFactory,
+	public SleeSipProviderImpl(SipResourceAdaptor ra) {
+		this.ra = ra;
+		this.tracer = ra.getTracer(SleeSipProviderImpl.class.getSimpleName());
+	}
+	
+	public void raActive(AddressFactory addressFactory,
 			HeaderFactory headerFactory, MessageFactory messageFactory,
-			ClusteredSipStack stack, SipResourceAdaptor ra, SipProvider provider) {
-		super();
+			ClusteredSipStack stack,SipProvider provider) {		
 		this.addressFactory = addressFactory;
 		this.headerFactory = headerFactory;
 		this.messageFactory = messageFactory;
 		this.stack = stack;
-		this.ra = ra;
-		this.tracer = ra.getTracer(SleeSipProviderImpl.class.getSimpleName());
-		this.provider = provider;		
+		this.provider = provider;	
+		this.active = true;
 	}
 	
+	public void raInactive() {
+		this.addressFactory = null;
+		this.headerFactory = null;
+		this.messageFactory = null;
+		this.stack = null;
+		this.provider = null;
+		this.active = false;
+	}
+	
+	private void checkState() throws IllegalStateException {
+		if (!active) {
+			throw new IllegalStateException("ra not active");
+		}
+	}
 	/**
 	 * 
 	 * @return
@@ -104,6 +115,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see net.java.slee.resource.sip.SleeSipProvider#getAddressFactory()
 	 */
 	public AddressFactory getAddressFactory() {
+		checkState();
 		return this.addressFactory;
 	}
 
@@ -113,6 +125,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see net.java.slee.resource.sip.SleeSipProvider#getHeaderFactory()
 	 */
 	public HeaderFactory getHeaderFactory() {
+		checkState();
 		return this.headerFactory;
 	}
 	
@@ -126,6 +139,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * )
 	 */
 	public SipURI getLocalSipURI(String transport) {
+		checkState();
 		SipUri sipURI = localSipURIs.get(localSipURIs);
 		if (sipURI == null) {
 			ListeningPoint lp = getListeningPoint(transport);
@@ -152,6 +166,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * java.lang.String)
 	 */
 	public ViaHeader getLocalVia(String transport, String branch) {
+		checkState();
 		final ListeningPoint lp = provider.getListeningPoint(transport);
 		if (lp != null) {
 			try {
@@ -174,6 +189,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 */
 	public ViaHeader getLocalVia() throws ParseException,
 			InvalidArgumentException {
+		checkState();
 		final ListeningPointImpl lp = (ListeningPointImpl) provider.getListeningPoints()[0];
 		return lp != null ? lp.createViaHeader() : null;
 	}
@@ -184,6 +200,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see net.java.slee.resource.sip.SleeSipProvider#getMessageFactory()
 	 */
 	public MessageFactory getMessageFactory() {
+		checkState();
 		return this.messageFactory;
 	}
 
@@ -195,7 +212,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * String)
 	 */
 	public boolean isLocalHostname(String host) {
-
+		checkState();
 		try {
 			InetAddress[] addresses = InetAddress.getAllByName(host);
 
@@ -229,7 +246,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * .SipURI)
 	 */
 	public boolean isLocalSipURI(SipURI uri) {
-
+		checkState();
 		// XXX: InetAddress api is
 		// crude.....!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		ListeningPoint lp = this.provider.getListeningPoint(uri
@@ -270,6 +287,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 */
 	@SuppressWarnings("deprecation")
 	public ListeningPoint getListeningPoint() {
+		checkState();
 		return this.provider.getListeningPoint();
 	}
 
@@ -279,6 +297,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see javax.sip.SipProvider#getListeningPoint(java.lang.String)
 	 */
 	public ListeningPoint getListeningPoint(String arg0) {
+		checkState();
 		return this.provider.getListeningPoint(arg0);
 	}
 
@@ -288,6 +307,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see javax.sip.SipProvider#getListeningPoints()
 	 */
 	public ListeningPoint[] getListeningPoints() {
+		checkState();
 		return this.provider.getListeningPoints();
 	}
 
@@ -297,6 +317,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see javax.sip.SipProvider#getNewCallId()
 	 */
 	public CallIdHeader getNewCallId() {
+		checkState();
 		return this.provider.getNewCallId();
 	}
 
@@ -334,6 +355,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see javax.sip.SipProvider#sendRequest(javax.sip.message.Request)
 	 */
 	public void sendRequest(Request arg0) throws SipException {
+		checkState();
 		this.provider.sendRequest(arg0);
 	}
 
@@ -343,6 +365,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see javax.sip.SipProvider#sendResponse(javax.sip.message.Response)
 	 */
 	public void sendResponse(Response arg0) throws SipException {
+		checkState();
 		this.provider.sendResponse(arg0);
 	}
 
@@ -352,6 +375,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see javax.sip.SipProvider#setAutomaticDialogSupportEnabled(boolean)
 	 */
 	public void setAutomaticDialogSupportEnabled(boolean arg0) {
+		checkState();
 		this.provider.setAutomaticDialogSupportEnabled(arg0);
 	}
 
@@ -373,7 +397,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 */
 	public ClientTransaction getNewClientTransaction(Request request)
 			throws TransactionUnavailableException {
-
+		
+		checkState();
 		// add load balancer to route if it is configured
 		try {
 			addLoadBalancerToRoute(request);
@@ -381,7 +406,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			throw new TransactionUnavailableException("Failed to add load balancer to route",e);
 		}
 		
-		final ClientTransaction ct = provider.getNewClientTransaction(request);
+		final SIPClientTransaction ct = (SIPClientTransaction) provider.getNewClientTransaction(request);
 		final ClientTransactionWrapper ctw = new ClientTransactionWrapper(ct,
 				ra);
 		ctw.setActivity(true);
@@ -411,7 +436,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	public ClientTransactionWrapper getNewDialogActivityClientTransaction(
 			DialogWrapper dialogWrapper, Request request)
 			throws TransactionUnavailableException {
-		final ClientTransaction ct = provider.getNewClientTransaction(request);
+		final SIPClientTransaction ct = (SIPClientTransaction) provider.getNewClientTransaction(request);
 		final ClientTransactionWrapper ctw = new ClientTransactionWrapper(ct,
 				ra);
 		dialogWrapper.addOngoingTransaction(ctw);
@@ -428,15 +453,13 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			throws TransactionAlreadyExistsException,
 			TransactionUnavailableException {
 
+		checkState();
 		// TODO: add checks for wrapper
 
-		final ServerTransaction st = provider.getNewServerTransaction(request);
+		final SIPServerTransaction st = (SIPServerTransaction) provider.getNewServerTransaction(request);
 		ServerTransactionWrapper stw = new ServerTransactionWrapper(st, ra);
 
-		final DialogWrapper dw = stw.getDialogWrapper();
-		if (dw != null) {
-			dw.addOngoingTransaction(stw);
-		} else {
+		if (stw.getDialogWrapper() == null) {
 			// SLEE 1.1 specs: D.4
 			// ServerTransaction Activity objects are created automatically when
 			// the resource adaptor receives an
@@ -458,6 +481,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @see javax.sip.SipProvider#getNewDialog(javax.sip.Transaction)
 	 */
 	public Dialog getNewDialog(Transaction transaction) throws SipException {
+		checkState();
 		if (transaction.getClass() == ServerTransactionWrapper.class) {
 			return getNewDialog((ServerTransactionWrapper) transaction);
 			
@@ -485,9 +509,10 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			dialogId = ((SIPRequest) st.getRequest()).getDialogId(
 				true, localTag);
 		}
-		final DialogWrapper dw = new DialogWrapper(new DialogWithIdActivityHandle(dialogId), localTag,ra);
+		final DialogWithIdActivityHandle h = new DialogWithIdActivityHandle(dialogId);
+		final DialogWrapper dw = new DialogWrapper(h,ra);
+		dw.setLocalTag(localTag);
 		dw.setWrappedDialog(d);
-		dw.addOngoingTransaction(stw);
 		ra.addSuspendedActivity(dw);
 		return dw;
 	}
@@ -516,7 +541,6 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 				localTag,
 				((ToHeader) r.getHeader(ToHeader.NAME)).getAddress(), d.getCallId());
 		dw.setWrappedDialog(d);
-		d.setApplicationData(dw);
 		dw.addOngoingTransaction(ctw);
 		return dw;
 	}
@@ -530,6 +554,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 */
 	public DialogActivity getNewDialog(Address from, Address to)
 			throws SipException {
+		checkState();
 		if (from == null) {
 			throw new IllegalArgumentException("From address cant be null");
 		}
@@ -549,7 +574,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 */
 	public DialogActivity getNewDialog(DialogActivity incomingDialog,
 			boolean useSameCallId) throws SipException {
-
+		checkState();
 		if (incomingDialog == null || !incomingDialog.isServer()) {
 			throw new IllegalArgumentException(
 					"Incoming dialog is either null or is UAC dialog!!");
@@ -573,10 +598,14 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	private DialogWrapper _getNewDialog(Address from, String localTag,
 			Address to, CallIdHeader callIdHeader) throws SipException {
 
-		final DialogWrapper dw = new ClientDialogWrapper(from, localTag,
-				to, (callIdHeader == null ? provider.getNewCallId()
-						: callIdHeader), ra);
-
+		final DialogWithoutIdActivityHandle h = new DialogWithoutIdActivityHandle(callIdHeader.getCallId(),
+				localTag);
+		final ClientDialogWrapper dw = new ClientDialogWrapper(h,ra);
+		dw.setLocalTag(localTag);
+		dw.setFromAddress(from);
+		dw.setToAddress(to);
+		dw.setCustomCallId(callIdHeader == null ? provider.getNewCallId()
+						: callIdHeader);
 		if (!ra.addSuspendedActivity(dw)) {
 			throw new SipException("Failed to create activity.");
 		}
@@ -592,7 +621,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * .resource.sip.CancelRequestEvent, boolean)
 	 */
 	public boolean acceptCancel(CancelRequestEvent cancelEvent, boolean isProxy) {
-
+		checkState();
 		if (cancelEvent.getMatchingTransaction() != null) {
 			try {
 
@@ -663,6 +692,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * @param r
 	 * @throws SipException
 	 */
+	@SuppressWarnings("deprecation")
 	public void addLoadBalancerToRoute(Request r) throws SipException {
 		LoadBalancerElector loadBalancerElector = stack.getLoadBalancerElector();
 		if (loadBalancerElector != null) {

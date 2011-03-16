@@ -7,6 +7,7 @@ import javax.transaction.Transaction;
 
 import org.mobicents.ha.javax.sip.ClusteredSipStack;
 import org.mobicents.slee.resource.cluster.ReplicatedData;
+import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.Wrapper;
 
 /**
@@ -65,7 +66,8 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 			return nonReplicatedActivityManagement.get(handle);
 		}
 		else if (handleType == DialogWithoutIdActivityHandle.TYPE) {
-			Wrapper activity = nonReplicatedActivityManagement.get(handle);
+			DialogWrapper activity = (DialogWrapper) nonReplicatedActivityManagement.get(handle);
+			String dialogId = null;
 			if (activity == null) {
 				final DialogWithoutIdActivityHandle dialogWithoutIdActivityHandle = (DialogWithoutIdActivityHandle) handle;
 				// the handle doesn't have a remote tag but dialog may actually be confirmed and 
@@ -73,21 +75,27 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 				// RA's replicated data
 				final String remoteTag = replicatedData.get(handle);
 				if (remoteTag != null) {
-					final String dialogId = 
+					dialogId = 
 						new StringBuilder(dialogWithoutIdActivityHandle.getCallId())
 					.append(DialogWithoutIdActivityHandle.DIALOG_ID_SEPARATOR).append(dialogWithoutIdActivityHandle.getLocalTag())
 					.append(DialogWithoutIdActivityHandle.DIALOG_ID_SEPARATOR).append(remoteTag)
 					.toString()
-					.toLowerCase();
-					Dialog d = sipStack.getDialog(dialogId);
-					if (d != null) {
-						// cool, found it in jsip ha stack, lets relink wrapper and store it in
-						// non replicated data
-						activity = ra.getDialogWrapper(d);
-						nonReplicatedActivityManagement.put(handle,
-								activity);
-					}
+					.toLowerCase();					
 				}				
+			}
+			else {
+				dialogId = activity.getDialogId();
+			}
+			if (dialogId != null) {
+				// update from stack
+				Dialog d = sipStack.getDialog(dialogId);
+				if (d != null) {
+					// cool, found it in jsip ha stack, lets relink wrapper and store it in
+					// non replicated data
+					activity = ra.getDialogWrapper(d);
+					nonReplicatedActivityManagement.put(handle,
+							activity);
+				}
 			}
 			return activity;
 		}
@@ -97,8 +105,8 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 				return ra.getDialogWrapper(d);				
 			}
 			else {
-				// maybe it is still in the handle
-				return handle.getActivity();
+				// maybe it is still in local storage
+				return nonReplicatedActivityManagement.get(handle);
 			}
 		}
 		else {
@@ -111,10 +119,7 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 	 * @see org.mobicents.slee.resource.sip11.SipActivityManagement#put(org.mobicents.slee.resource.sip11.SipActivityHandle, org.mobicents.slee.resource.sip11.wrappers.WrapperSuperInterface)
 	 */
 	public void put(SipActivityHandle handle, Wrapper activity) {
-		if (handle.getClass() != DialogWithIdActivityHandle.TYPE) {
-			nonReplicatedActivityManagement.put(handle,activity);
-		}
-		// else nothing to do, replication is done by stack
+		nonReplicatedActivityManagement.put(handle,activity);		
 	}
 
 	/*
@@ -122,12 +127,8 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 	 * @see org.mobicents.slee.resource.sip11.SipActivityManagement#remove(org.mobicents.slee.resource.sip11.SipActivityHandle)
 	 */
 	public Wrapper remove(SipActivityHandle handle) {
-		final Class<?> handleType = handle.getClass();
-		if (handleType == ServerTransactionActivityHandle.TYPE || handleType == ClientTransactionActivityHandle.TYPE) {
-			return nonReplicatedActivityManagement.remove(handle);
-		}
-		else if (handleType == DialogWithoutIdActivityHandle.TYPE) {
-			Wrapper activity = nonReplicatedActivityManagement.remove(handle);
+		Wrapper activity = nonReplicatedActivityManagement.remove(handle);
+		if (handle.getClass() == DialogWithoutIdActivityHandle.TYPE) {			
 			// remove remote tag from Ra's replicated data
 			Transaction tx = null;
 			try {
@@ -145,28 +146,19 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 				} catch (Throwable e) {
 					// ignore
 				}
-			}
-			return activity;
+			}			
 		}
-		else if (handleType == DialogWithIdActivityHandle.TYPE) { 
-			// not stored here, so if it is not in handle it is not recoverable
-			return handle.getActivity();
+		return activity;
+	}
+	
+	public boolean replicateRemoteTag(SipActivityHandle handle, String tag) {
+		if (!replicatedData.contains(handle)) {
+			replicatedData.put(handle,tag);
+			return true;
 		}
 		else {
-			throw new IllegalArgumentException("unknown type of sip activity handle -> "+handle.getClass());
+			return false;
 		}
-	}
-	
-	public void replicateRemoteTag(SipActivityHandle handle, String tag) {
-		replicatedData.put(handle,tag);
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "ClusteredSipActivityManagement[ non replicated activities = "+nonReplicatedActivityManagement.handleSet()+" ]";
 	}
 	
 }
