@@ -20,7 +20,7 @@
 		<library-ref>
 			<library-name>jcc-provider-library</library-name>
 			<library-vendor>org.mobicents.resources.jcc</library-vendor>
-			<library-version>${pom.version}</library-version>
+			<library-version>1.0</library-version>
 		</library-ref>
 		
 		<resource-adaptor-classes>
