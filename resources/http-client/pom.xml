@@ -84,7 +84,7 @@
 						<exclude>org.jboss.jbossas:jboss-as-system-jmx:5.0.0.CR2</exclude>																		
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-ra-httpclient</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-ra-http-client</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		
