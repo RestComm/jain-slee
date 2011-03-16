@@ -38,7 +38,14 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<goals>
+							<goal>copy-dependencies</goal>
+							<goal>generate-descriptor</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<library-name>sip-services-library</library-name>
 					<library-vendor>org.mobicents</library-vendor>
@@ -47,17 +54,9 @@
 						<library-name>jain-sip</library-name>
 						<library-vendor>javax.sip</library-vendor>
 						<library-version>1.2</library-version>
-					</library-ref>
+					</library-ref>				
 				</configuration>
-				<executions>
-					<execution>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+			</plugin>					
 		</plugins>
 	</build>
 	
