@@ -15,7 +15,7 @@
         <library-ref>
             <library-name>msc-library</library-name>
             <library-vendor>org.mobicents.resources</library-vendor>
-            <library-version>${pom.version}</library-version>
+            <library-version>1.0</library-version>
         </library-ref>
         <resource-adaptor-classes>
             <resource-adaptor-class>
