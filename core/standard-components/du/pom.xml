@@ -10,7 +10,6 @@
 	<artifactId>standard-components-du</artifactId>
 			
 	<dependencies>
-		<!-- components -->
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>standard-events-jar</artifactId>
@@ -38,16 +37,14 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-du-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration />
 				<executions>
 					<execution>
-						<phase>generate-resources</phase>
 						<goals>
-							<goal>create</goal>
+							<goal>copy-dependencies</goal>
+							<goal>generate-descriptor</goal>
 						</goals>
 					</execution>
-				</executions>
+				</executions>				
 			</plugin>
 		</plugins>
 	</build>
