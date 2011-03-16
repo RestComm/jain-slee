@@ -41,21 +41,20 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<extensions>true</extensions>
 				<executions>
 					<execution>
-						<phase>generate-resources</phase>
 						<goals>
-							<goal>create</goal>
+							<goal>copy-dependencies</goal>
+							<goal>generate-descriptor</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
 					<library-name>msc-library</library-name>
 					<library-vendor>org.mobicents.resources</library-vendor>
-					<library-version>${pom.version}</library-version>
+					<library-version>1.0</library-version>				
 				</configuration>
-			</plugin>
+			</plugin>				
 		</plugins>
 	</build>
 
