@@ -35,8 +35,14 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<version>${mobicents.tools.mavenplugin.library.version}</version>
-				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<goals>
+							<goal>copy-dependencies</goal>
+							<goal>generate-descriptor</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<library-name>diameter.cca.common</library-name>
 					<library-vendor>java.net</library-vendor>
@@ -47,14 +53,6 @@
 						<library-version>1.0</library-version>
 					</library-ref>
 				</configuration>
-				<executions>
-					<execution>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
