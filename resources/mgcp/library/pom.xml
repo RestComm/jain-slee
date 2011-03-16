@@ -27,21 +27,20 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<extensions>true</extensions>
 				<executions>
 					<execution>
-						<phase>generate-resources</phase>
 						<goals>
-							<goal>create</goal>
+							<goal>copy-dependencies</goal>
+							<goal>generate-descriptor</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
 					<library-name>library-mgcp</library-name>
 					<library-vendor>library-mgcp</library-vendor>
-					<library-version>2.0</library-version>
+					<library-version>2.0</library-version>				
 				</configuration>
-			</plugin>
+			</plugin>					
 		</plugins>
 	</build>
 	
