@@ -50,19 +50,16 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin;
 import org.mobicents.eclipslee.servicecreation.ui.TextButton;
 import org.mobicents.eclipslee.servicecreation.ui.TextButtonListener;
-import org.mobicents.eclipslee.servicecreation.util.SleeProjectWizardBuilder;
 import org.mobicents.eclipslee.servicecreation.wizards.deployable.DeployableUnitWizard;
+import org.mobicents.eclipslee.servicecreation.wizards.ratype.RaTypeWizard;
 import org.mobicents.eclipslee.servicecreation.wizards.sbb.SbbWizard;
 import org.mobicents.eclipslee.servicecreation.wizards.service.ServiceWizard;
 
@@ -312,6 +309,8 @@ public class FilenamePage extends WizardPage {
 		IWizard wizard = this.getWizard();
 		if (wizard instanceof SbbWizard)
 			((SbbWizard) wizard).pageChanged(this);
+    if (wizard instanceof RaTypeWizard)
+      ((RaTypeWizard) wizard).pageChanged(this);
 		if (wizard instanceof ServiceWizard)
 			((ServiceWizard) wizard).pageChanged(this);
 		if (wizard instanceof DeployableUnitWizard)

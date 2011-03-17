@@ -90,9 +90,9 @@ public class ResourceAdaptorTypeXML extends DTDXML {
 	
 	public ResourceAdaptorEventXML addEvent(String name, String vendor, String version) {
 		Element child = addElement(root, "event-type-ref");
-		setChildText(child, "event-type-name", name);
-		setChildText(child, "event-type-vendor",vendor);
-		setChildText(child, "event-type-version",version);
+		setChildText(child, "event-type-name", name.trim());
+		setChildText(child, "event-type-vendor",vendor.trim());
+		setChildText(child, "event-type-version",version.trim());
 		return new ResourceAdaptorEventXML(document, child, dtd);		
 	}
 	
