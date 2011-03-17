@@ -4,7 +4,7 @@
   <description>Maven plugin to build JAIN SLEE deployable units.</description>
   <groupId>org.mobicents.tools</groupId>
   <artifactId>maven-du-plugin</artifactId>
-  <version>2.0.0.CR2</version>
+  <version>2.0.0.CR3</version>
   <goalPrefix>du</goalPrefix>
   <isolatedRealm>false</isolatedRealm>
   <inheritedByDefault>true</inheritedByDefault>
@@ -381,7 +381,7 @@ specific directory.</description>
       <aggregator>false</aggregator>
       <requiresOnline>false</requiresOnline>
       <inheritedByDefault>true</inheritedByDefault>
-      <phase>generate-resources</phase>
+      <phase>compile</phase>
       <implementation>org.mobicents.slee.tools.maven.plugins.du.DeployableUnitDescriptorMojo</implementation>
       <language>java</language>
       <instantiationStrategy>per-lookup</instantiationStrategy>

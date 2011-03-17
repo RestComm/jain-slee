@@ -269,7 +269,7 @@ public class AntManagementScriptMojo extends AbstractMojo {
 		// now the services descriptors
 		for (String fileName : services) {
 
-			File serviceDescriptorFile = new File(outputDirectory, fileName);
+			File serviceDescriptorFile = new File(serviceInputDirectory, fileName);
 
 			try {
 				// http://code.google.com/p/mobicents/issues/detail?id=104
