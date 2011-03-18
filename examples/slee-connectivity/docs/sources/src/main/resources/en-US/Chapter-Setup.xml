@@ -14,7 +14,7 @@
 		</section>
 		<section id="software_prerequisites">
 			<title>Software Prerequisites</title>
-			<para>The Example requires &THIS.PLATFORM; JAIN SLEE properly set. No other requirements need to be met.</para>
+			<para>The Example requires &THIS.PLATFORM; JAIN SLEE properly set. In case of using separated JVMs to host the JAva EE and JAIN SLEE applications, the &THIS.PLATFORM; JAIN SLEE Remote SLEE Connection Tool must be deployed in the Java EE server, and properly configured, to be able to interact with the remote JAIN SLEE container.</para>
 		</section>
 	</section>	
 	
@@ -43,7 +43,7 @@
 				    [usr]$ cd slee-example-&THIS.EXAMPLE.DIRNAME;-&THIS.VERSION;
 				    [usr]$ mvn install
 				    </programlisting>
-				    <para>Once the process finishes you should have the <literal>deployable-unit</literal> jars file in the <filename>target</filename> directory, if &THIS.PLATFORM; JAIN SLEE is installed and environment variable JBOSS_HOME is pointing to its underlying &JEE.PLATFORM; directory, then the deployable unit jar will also be deployed in the container.</para>
+				    <para>Once the process finishes you should have the JAIN SLEE <literal>deployable-unit</literal> jar file in the <filename>slee/du/target</filename> directory, and JMX Client in the javaee/beans/target directory.</para>
   				</step>
 			</procedure>      
 		</section>	
@@ -57,35 +57,17 @@
 	
 	<section id="install">
 		<title>Installing &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
-		<para>To install the Example simply execute provided ant script <filename>build.xml</filename> default target:</para>
-		<programlisting>
-		[usr]$ ant
-		</programlisting>
-		<para>The script will copy the Example's deployable unit jars to the <literal>default</literal> &THIS.PLATFORM; JAIN SLEE server profile deploy directory, to deploy to another server profile use the argument <literal>-Dnode=</literal>.</para>
+		<para>To install just copy the JMX Client -bean directory to the deploy directory of the JBoss AS5, and the JAIN SLEE deployable unit to the deploy directory of the JAIN SLEE container.</para>
 	</section>
 	
 	<section id="uninstall">
 		<title>Uninstalling &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
-		<para>To uninstall the Example simply execute provided ant script <filename>build.xml</filename> <literal>undeploy</literal> target:</para>
-		<programlisting>
-		[usr]$ ant undeploy
-		</programlisting>
-		<para>The script will delete the Example's deployable unit jars from the <literal>default</literal> &THIS.PLATFORM; JAIN SLEE server profile deploy directory, to undeploy from another server profile use the argument <literal>-Dnode=</literal>.</para>
-	</section>			
-	<section id="deployment">
-		<title>Deployment &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
-		<para>By default &THIS.EXAMPLE; Example is deployed in single <acronym>JVM</acronym>. However it is possible to deploy example in two different <acronym>JVM</acronym>s. This allows to observe how message exchange works in noncolocated deployment. 
-		To achieve this perform following:</para>
-		<note>
-			<para>Please refer to <link linkend="http://community.jboss.org/wiki/jbossas5clusteringguide"><literal>JBOSS</literal> Clustering Guide </link> for information on how to run more than one server instance( JVM )
-			 </para>
-		</note>
-		<procedure>
-			<step><para>Copy &THIS.EXAMPLE.JMX.DIR; and &THIS.JCA.RA.DIR; to desired deploy directory (<acronym>J2EE</acronym> container)</para></step>
-			<step><para>Edit &THIS.JCA.RA.DIR; configuration file: <filename>slee-ds.xml</filename>, change <literal>://${jboss.bind.address}:1099</literal> to desired ip and port pair(refer to clustering guide)</para></step>
-			<step><para>Edit &THIS.EXAMPLE.JMX.DIR; configuretaion file: <filename>jboss-beans.xml</filename>, change bind address and port to match above values </para></step>
-			<step><para>Follow instruction found in <xref linkend="running"/>, however respect different <literal>IP</literal> and <literal>port</literal> used by running container</para></step>
-		</procedure>
+		<para>To uninstall simply delete the JMX Client -bean directory and JAIN SLEE deployable unit jar copied in the install procedures.</para>
+	</section>	
+			
+	<section id="remote-javaee-configuration">
+		<title>Configuring the Java EE server to interact with a remote JAIN SLEE</title>
+		<para>In this setup the &THIS.PLATFORM; JAIN SLEE Remote SLEE Connection Tool must be deployed and properly configured, in the Java EE server, please refer to its User Guide for instructions on how to install and configure it.</para> 		
 	</section>
 </chapter>
 

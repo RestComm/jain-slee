@@ -5,8 +5,8 @@
 
 	<title>Running the Example</title>
 	
-	<para>To run example, start <literal>JBOSS</literal> container and access <literal>jmx-console</literal>. Open <literal>http://${jboss.bind.address}:port/jmx-console</literal> in browser.</para>
+	<para>To run example, start <literal>JBOSS AS</literal> container and access its <literal>jmx-console</literal>. Open <literal>http://${jboss.bind.address}:port/jmx-console</literal> in browser.</para>
 	<note><para><literal>jboss.bind.address</literal> and <literal>port</literal> depends on how container is started, by default its equal to: <literal>http://127.0.0.1:8080/jmx-console</literal> </para> </note> 
-	<para>Lookup bean with name equal to: <literal>JMXAccessTest</literal> and invoke operations. Pass distinct argument to operation. If operation is successful, passed value should be shown in &THIS.PLATFORM; JSLEE Console.s</para>
+	<para>Lookup bean with name equal to: <literal>org.mobicents.slee:name=SleeConnectivityExample</literal> and invoke operations. Pass distinct argument to operation. If operation is successful, passed value should be shown in &THIS.PLATFORM; JAIN SLEE Console</para>
 </chapter>
 

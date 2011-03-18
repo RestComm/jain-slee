@@ -7,23 +7,21 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.5</version>
+		<version>2.17</version>
 	</parent>
 
-	<artifactId>slee-connectivity-example-parent</artifactId>
+	<artifactId>mobicents-slee-connectivity-example</artifactId>
 	<groupId>org.mobicents.examples</groupId>
 	<version>2.1.0-SNAPSHOT</version>
-	<name>Mobicents Servers Examples :: SleeConnectivity :: ${pom.artifactId}</name>
 
 	<modules>
 		<module>events-jar</module>
-		<module>jmx</module>
+		<module>javaee</module>
 		<module>slee</module>
 	</modules>
 
 	<properties>
-		<mobicents.servers.jainslee.version>3.0.0-SNAPSHOT</mobicents.servers.jainslee.version>
-		
+		<mobicents.servers.jainslee.version>2.3.0.FINAL</mobicents.servers.jainslee.version>
 		<!-- Docs properties -->
 		<docs.example.name>SleeConnectivity</docs.example.name>
 		<docs.example.dirname>slee-connectivity</docs.example.dirname>
@@ -32,11 +30,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>javax.slee</groupId>
-				<artifactId>jain-slee</artifactId>
-				<version>1.1</version>
-			</dependency>
 			<dependency>
 				<groupId>org.mobicents.servers.jainslee.core</groupId>
 				<version>${mobicents.servers.jainslee.version}</version>
@@ -59,24 +52,60 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>slee-connectivity-example</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-example-slee-connectivity</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+	
 	<profiles>
+		<profile>
+			<id>release</id>
+			<modules>
+				<module>docs</module>
+				<module>release</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>docs</module>
+				<module>release</module>
+			</modules>
+			<build>
+				<plugins>
+					<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/slee-connectivity</tagBase>
+						<branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/examples/slee-connectivity</branchBase>
+						<preparationGoals>clean install</preparationGoals>
+					</configuration>
+					</plugin>
+				</plugins>
+			</build>		
+		</profile>
 	</profiles>
+
+	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
 
 	<repositories>
 		<repository>
-			<id>repository.jboss.org</id>
-			<url>http://repository.jboss.org/maven2</url>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
 		</repository>
 	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>repository.jboss.org</id>
-			<url>http://repository.jboss.org/maven2</url>
-		</pluginRepository>
-	</pluginRepositories>
+	
 </project>

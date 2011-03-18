@@ -4,13 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>slee-connectivity-example-slee-parent</artifactId>
+		<artifactId>mobicents-slee-connectivity-example-slee</artifactId>
 		<groupId>org.mobicents.examples</groupId>
 		<version>2.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>slee-connectivity-sbb</artifactId>
-	<name>Mobicents Servers Examples :: SleeConnectivity :: ${pom.artifactId}</name>
+	<artifactId>mobicents-slee-connectivity-example-slee-sbb</artifactId>
 
 	<dependencies>
 		<dependency>
@@ -18,7 +17,7 @@
 			<artifactId>jain-slee</artifactId>
 		</dependency>
 		<dependency>
-			<artifactId>event-pojo</artifactId>
+			<artifactId>mobicents-slee-connectivity-example-slee-events</artifactId>
 			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>

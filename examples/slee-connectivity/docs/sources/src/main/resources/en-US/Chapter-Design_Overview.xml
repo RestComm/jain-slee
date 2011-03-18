@@ -6,65 +6,34 @@
 	<title>Design Overview</title>
 
 	<para>The &THIS.EXAMPLE;
-		Example is JAIN SLEE 1.1 Application which handles events fired by non
-		<acronym>JSLEE</acronym>
-		means.
+		Example is composed by two parts: a JMX Bean to be deployed in a JBoss AS5 instance, the Java EE application which will be used to fire JAIN SLEE event to the JAIN SLEE container; and a JAIN SLEE application, to be deployed in the JAIN SLEE container, which will handle the events fired, printing information about it in the container's console.
 	</para>
+	
 	<section id="design_overview_sbb">
 		<title>Design Overview: SLEE Service</title>
 		<para>
-			<acronym>JLSEE</acronym>
-			service is simplest of all. It performs very basic actions:
+			<acronym>JAIN SLEE</acronym>
+			service is simplest of all. It performs very basic actions when handling each received event:
 		</para>
 		<itemizedlist>
 			<listitem>
-				<para>detach from activity</para>
+				<para>detach from activity where the event was fired, this will allow the container to end it implicitly, since it becomes unreferenced.</para>
 			</listitem>
 			<listitem>
-				<para>print message passed by message sender</para>
+				<para>log the message contained in the event, which can be seen in the container's console.</para>
 			</listitem>
 		</itemizedlist>
 	</section>
 	<section id="design_overview_jmx">
-		<title>Design Overview: JMX Client</title>
+		<title>Design Overview: JMX Bean</title>
 		<para>
 			<acronym>JMX</acronym>
 			Client fires events into
-			<acronym>JSLEE</acronym>
-			container by available means. That is
-			<acronym>JCA RA</acronym>
-			and custom
-			<acronym>API</acronym>.
+			<acronym>JAIN SLEE</acronym>
+			container, using the standard SLEEConnection API.
 		</para>
-		<para>Events are fired with respect to different context condition,
-			that is:</para>
-		<itemizedlist>
-			<listitem>
-				<para>
-					Without	<acronym>JTA</acronym> transaction.
-				</para>
-			</listitem>
-			<listitem>
-				<para>
-					Within <acronym>JTA</acronym> transaction.
-				</para>
-			</listitem>
-			<listitem>
-				<para>
-					Within <acronym>JTA</acronym> transaction - after transaction has been commited, but before it
-					completes.
-				</para>
-			</listitem>
-			<listitem>
-				<para>
-					Within <acronym>JTA</acronym> transaction - after transaction has been commited and it completes.
-				</para>
-			</listitem>
-		</itemizedlist>
 		<para>
-			Note that this example is different than any other. It requires that
-			<acronym>JMX</acronym> Client and <acronym>JSLEE</acronym>
-			share event class definition. There are two possible scenarios of
+			There are two possible scenarios of
 			client and server deployment:
 		</para>
 		<variablelist>
@@ -72,19 +41,8 @@
 				<term>colocated</term>
 				<listitem>
 					<para>
-						<acronym>JMX</acronym> Client and	<acronym>JSLEE</acronym> run in the same
-						<acronym>JVM</acronym>. In this case there MUST be one jar file deployed(to avoid class conflict), with event
-						class definition. Reason for this is that <acronym>JSLEE</acronym>
-						does not export deployed classes. For instance event classes deployed by
-						<acronym>JSLEE</acronym> are not visible to non <acronym>JSLEE</acronym> elements. 
-						 
-					</para>
-					<para>Since
-						by default &THIS.PLATFORM; <acronym>J2EE</acronym>
-						container makes classes in deployed element available to other deployed
-						elements, <acronym>JMX</acronym> Client contains jar with event class. 
-						<acronym>JSLEE</acronym> container processes ONLY <acronym>XML</acronym> event definition,
-						 class definition is imported from <acronym>J2EE</acronym> container.
+						<acronym>JMX</acronym> Bean and	<acronym>JAIN SLEE</acronym> run in the same
+						<acronym>JVM</acronym>. In this case both parts are deployed in same JBoss AS, and no additional tools are needed. 						 
 					</para>
 					<mediaobject>
 						<imageobject>
@@ -104,10 +62,9 @@
 			<varlistentry>
 				<term>separate</term>
 				<listitem>
-					<para>In this case <acronym>JMX</acronym> Client and <acronym>JSLEE</acronym> container run in different <acronym>JVM</acronym>s. In both <acronym>JVM</acronym> jar with 
-					event class must be deployed.
+					<para>
+						In this case <acronym>JMX</acronym> Client and <acronym>JSLEE</acronym> container run in different <acronym>JVM</acronym>s. The &THIS.PLATFORM; JAIN SLEE Remote SLEE Connection Tool, which uses JCA, must be deployed in the Java EE container.
 					</para>
-					<para>This deployment requires some changes in example and configuration, please refer to  <xref linkend="setup"/>. </para>
 				</listitem>
 			</varlistentry>
 		</variablelist>

@@ -62,26 +62,13 @@
 <deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="urn:jboss:bean-deployer:2.0">
 
-	<bean name="SleeConnectionJMXLocal"
+	<bean name="SleeConnectionTest"
 		class="org.mobicents.example.slee.connection.SleeConnectionTest">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(
-			name="jboss.mobicents:name=JMXAccessTest",exposedInterface=
+			name="org.mobicents.slee:name=SleeConnectivityExample",exposedInterface=
 			org.mobicents.example.slee.connection.SleeConnectionTestMBean.class
 				,registerDirectly=true)
-		</annotation>
-		<!-- 
-			<property name="bindAddress">${jboss.bind.address}</property>
-			<property name="jnpPort">1099</property>
-		 -->
-		<property name="bindAddress">${address}</property>
-		<property name="jnpPort">${port}</property>
-		<property name="transactionManager">
-			<inject bean="RealTransactionManager" />
-		</property>
-		
-		<demand>javax.slee.management:name=SleeManagement</demand>
-		<demand>RealTransactionManager</demand>
-		
+		</annotation>		
 	</bean>
 
 </deployment>
@@ -116,176 +103,57 @@
 			</variablelist>
 			
 			<para>Client contract is defined by implemented interface class, that is <literal>org.mobicents.example.slee.connection.SleeConnectionTestMBean</literal> </para>
-			<para>Interface declares two types of methods, parameter accessors and bussines methods.</para>
-			<para>Parameter accessors are declared as follows: </para>
 			<variablelist>
 				<varlistentry>
-					<term><literal>public String getBindAddress();</literal></term>
+					<term>public void fireEvent(String message);</term>
 					<listitem>
-						<para>Returns address used for remote calls.</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term><literal>public void setBindAddress(String bindAddress);</literal></term>
-					<listitem>
-						<para>Sets address used for remote calls, by default it is equal to local container bind address </para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term><literal>public int getJnpPort();</literal></term>
-					<listitem>
-						<para>Returns port used for remote <acronym>JNP</acronym> calls.</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term><literal>public void setJnpPort(int jnpPort);</literal></term>
-					<listitem>
-						<para>Set port used for remote <acronym>JNP</acronym> calls. Default value is <literal>1099</literal>.</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term><literal>public void setTransactionManager(TransactionManager jta);</literal></term>
-					<listitem>
-						<para>Sets transaction manager.</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term><literal>public TransactionManager getTransactionManager();</literal></term>
-					<listitem>
-						<para>Returns transaction manager.</para>
-					</listitem>
-				</varlistentry>
-				
-			</variablelist>
-			<para>Bussines methods are declared as follows: </para>
-			<note>
-				<para>For explanation on <acronym>JTA</acronym> hooks please refer to <acronym>JTA</acronym> <acronym>API</acronym> javadoc contracts. </para>
-			</note>
-			<variablelist>
-				<varlistentry>
-					<term>public void fireEventWithRA(String messagePassed);</term>
-					<listitem>
-						<para>Fires event using localy deployed <acronym>JCA RA</acronym>.  <acronym>RA</acronym> should properly configured to contact remote peer.</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>public void fireEventWithRA_JTA(String messagePassed) throws SystemException, NotSupportedException, IllegalStateException,
-			RollbackException, SecurityException, HeuristicMixedException, HeuristicRollbackException;</term>
-					<listitem>
-						<para>Fires event using localy deployed <acronym>JCA RA</acronym>.  <acronym>RA</acronym> should properly configured to contact remote peer. Event is fired in active <acronym>JTA</acronym> transaction</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>public void fireEventWithRA_JTA_BeforeCompletion(final String messagePassed) throws SystemException, NotSupportedException,
-			IllegalStateException, RollbackException, SecurityException, HeuristicMixedException, HeuristicRollbackException;</term>
-					<listitem>
-						<para>Fires event using localy deployed <acronym>JCA RA</acronym>.  <acronym>RA</acronym> should properly configured to contact remote peer.
-						Event is fired using <acronym>JTA</acronym> transaction hook. Event is dispatched on transaction commit, before commit ends.</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>public void fireEventWithRA_JTA_AfterCompletion(final String messagePassed) throws SystemException, NotSupportedException,
-			IllegalStateException, RollbackException, SecurityException, HeuristicMixedException, HeuristicRollbackException;</term>
-					<listitem>
-						<para>As above. Difference is that this method dispatches event on <acronym>JTA</acronym> transaction commit ends.</para>
-					</listitem>
-				</varlistentry>
-				
-				<varlistentry>
-					<term>public void fireEventWithRemoteSleeService(String messagePassed);</term>
-					<listitem>
-						<para>Fires event using remote call to <literal>RemoteSleeService</literal>. Remote host for this call is configured with <acronym>JMX</acronym> properties described in this section.</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>public void fireEventWithRemoteSleeService_JTA(String messagePassed) throws SystemException, NotSupportedException, IllegalStateException,
-			RollbackException, SecurityException, HeuristicMixedException, HeuristicRollbackException;</term>
-					<listitem>
-						<para>Fires event using remote call to <literal>RemoteSleeService</literal>. Remote host for this call is configured with <acronym>JMX</acronym> properties described in this section. Event is fired in active <acronym>JTA</acronym> transaction</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>public void fireEventWithRemoteSleeService_JTA_BeforeCompletion(final String messagePassed) throws SystemException, NotSupportedException,
-			IllegalStateException, RollbackException, SecurityException, HeuristicMixedException, HeuristicRollbackException;</term>
-					<listitem>
-						<para>Fires event using remote call to <literal>RemoteSleeService</literal>. Remote host for this call is configured with <acronym>JMX</acronym> properties described in this section.
-						Event is fired using <acronym>JTA</acronym> transaction hook. Event is dispatched on transaction commit, before commit ends.</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>public void fireEventWithRemoteSleeService_JTA_AfterCompletion(final String messagePassed) throws SystemException, NotSupportedException,
-			IllegalStateException, RollbackException, SecurityException, HeuristicMixedException, HeuristicRollbackException;</term>
-					<listitem>
-						<para>As above. Difference is that this method dispatches event on <acronym>JTA</acronym> transaction commit ends.</para>
+						<para>Fires event using to JAIN SLEE container. The event will contain the specified message parameter.</para>
 					</listitem>
 				</varlistentry>
 			</variablelist>
 			
-			<para>Concrete implementation of described methods can be found in <literal>org.mobicents.example.slee.connection.SleeConnectionTest</literal> class.
-			Bussines methods source code is alike, with difference to event fire context. </para>
-			<para>&THIS.PLATFORM; <acronym>JCA RA</acronym> can be accessed as follows: </para>
+			<para>Concrete implementation can be found in <literal>org.mobicents.example.slee.connection.SleeConnectionTest</literal> class.</para>
 			<programlisting role="JAVA" language="Java">
 			
-		String eventName = "org.mobicents.slee.service.connectivity.Event_1";
-		String eventVendor = "org.mobicents";
-		String eventVersion = "1.0";
-			
-		InitialContext ic = new InitialContext();
-		// get reference to JCA RA, it is bound in JNDI, by name: "MobicentsConnectionFactory"
-		SleeConnectionFactory factory = (SleeConnectionFactory) ic.lookup("java:/MobicentsConnectionFactory");
-		
-		SleeConnection conn1 = null;
-		//create JCA connection
-		conn1 = factory.getConnection();
-		
-		//create external activity handle to identify activity
-		ExternalActivityHandle handle = conn1.createActivityHandle();
-		
-		//determine eventId
-		EventTypeID requestType = conn1.getEventTypeID(eventName, eventVendor, eventVersion);
-		//create event instance
-		CustomEvent customEvent = new CustomEvent();
-		//set message for JSLEE
-		customEvent.setMessage(messagePassed);
+		public void fireEvent(String messagePassed) {
 
-		//fire event into JSLEE
-		conn1.fireEvent(customEvent, requestType, handle, null);
-		//close JCA connection, once it wont be used anymore.
-		conn1.close();
+		// depending on deployment it does following:
+		// 1. lookup RA and make RMI calls through it
+		// 2. lookup local Bean, which makes direct calls to container!
+		logger.info("Attempting call to SleeConnectionFactory.");
+		try {
+
+			InitialContext ic = new InitialContext();
+			// this is call to local JNDI space, private, it cant be accessed
+			// from other JVM
+			SleeConnectionFactory factory = (SleeConnectionFactory) ic
+					.lookup("java:/MobicentsConnectionFactory");
+
+			SleeConnection conn1 = null;
+			try {
+				conn1 = factory.getConnection();
+
+				ExternalActivityHandle handle = conn1.createActivityHandle();
+
+				EventTypeID requestType = conn1.getEventTypeID(eventName,
+						eventVendor, eventVersion);
+				CustomEvent customEvent = new CustomEvent();
+				customEvent.setMessage(messagePassed);
+				logger.info("The event type is: " + requestType);
+
+				conn1.fireEvent(customEvent, requestType, handle, null);
+			} finally {
+				if (conn1 != null)
+					conn1.close();
+			}
+
+		} catch (Exception e) {
+			logger.error("Exception caught in event fire method!", e);
+
+		}
+	}
 			</programlisting>
 			
-		<para>&THIS.PLATFORM; custom <acronym>API</acronym> call is alike <acronym>JCA RA</acronym>, it looks as follows: </para>
-			<programlisting role="JAVA" language="Java">
-			
-		String eventName = "org.mobicents.slee.service.connectivity.Event_1";
-		String eventVendor = "org.mobicents";
-		String eventVersion = "1.0";
-		private String bindAddress = "127.0.0.1";
-		private int jnpPort = 1099;
-		
-		
-		//create properties for JNP calls
-		Properties props = new Properties();
-		props.put(Context.INITIAL_CONTEXT_FACTORY, "org.jnp.interfaces.NamingContextFactory");
-		props.put(Context.PROVIDER_URL, "jnp://" + bindAddress + ":" + jnpPort);
-		props.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
-		props.put("jnp.disableDiscovery", "true");
-			
-		InitialContext ic = new InitialContext(props);
-		
-		//fetch remote slee service, it can be found in public JNDI space.
-		RemoteSleeService remoteSleeService = (RemoteSleeService) ic.lookup("/SleeService");
-		//create activity handle
-		ExternalActivityHandle handle = remoteSleeService.createActivityHandle();
-		//determine message ID - unique ID withing SLEE
-		EventTypeID requestType = remoteSleeService.getEventTypeID(eventName, eventVendor, eventVersion);
-		//create event instance
-		CustomEvent customEvent = new CustomEvent();
-		customEvent.setMessage(messagePassed);
-		//fire event
-		remoteSleeService.fireEvent(customEvent, requestType, handle, null);
-		//no need to free any resources.
-			</programlisting>
 	</section>
 
 </chapter>

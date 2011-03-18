@@ -7,5 +7,9 @@
 		<surname>Baranowski</surname>
 		<email>&AUTHOR_EMAIL_BARTOSZ;</email>
 	</author>
-
+	<author>
+		<firstname>Eduardo</firstname>
+		<surname>Martins</surname>
+		<email>&AUTHOR_EMAIL_EDUARDO;</email>
+	</author>
 </authorgroup>
