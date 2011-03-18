@@ -26,7 +26,7 @@ public class SubscriptionException extends Exception {
 	/**
 	 * 
 	 */
-	SubscriptionException() {
+	public SubscriptionException() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -35,7 +35,7 @@ public class SubscriptionException extends Exception {
 	 * @param message
 	 * @param cause
 	 */
-	SubscriptionException(String message, Throwable cause) {
+	public SubscriptionException(String message, Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}
@@ -43,7 +43,7 @@ public class SubscriptionException extends Exception {
 	/**
 	 * @param message
 	 */
-	SubscriptionException(String message) {
+	public SubscriptionException(String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
@@ -51,7 +51,7 @@ public class SubscriptionException extends Exception {
 	/**
 	 * @param cause
 	 */
-	SubscriptionException(Throwable cause) {
+	public SubscriptionException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}

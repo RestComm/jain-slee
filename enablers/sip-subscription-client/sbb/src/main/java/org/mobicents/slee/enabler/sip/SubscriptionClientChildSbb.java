@@ -1,6 +1,8 @@
 package org.mobicents.slee.enabler.sip;
 
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -94,9 +96,10 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		return getNotifierCMP();
 	}
 
+
 	@Override
-	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, String eventPackage, int expires,
-			String contentType, String contentSubType) throws SubscriptionException {
+	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, int expires, String eventPackage, Map<String, String> eventOpts,
+			String acceptedContentType, String acceptedContentSubtype, String contentType, String contentSubType, String content) throws SubscriptionException {
 		if (getSubscriber() != null) {
 			throw new IllegalStateException("Active subscription found for: " + getSubscriber() + ", events: " + getEventPackage());
 		}
@@ -122,21 +125,36 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		}
 
 		// content MAY be null? contentType and contentSubType MUST not
-		if (contentType == null) {
-			throw new IllegalArgumentException("contentType argument must not be null!");
+		if (acceptedContentType == null) {
+			throw new IllegalArgumentException("acceptedContentType argument must not be null!");
 		}
-		if (contentSubType == null) {
-			throw new IllegalArgumentException("contentSubType argument must not be null!");
+		if (acceptedContentSubtype == null) {
+			throw new IllegalArgumentException("acceptedContentSubtype argument must not be null!");
 		}
 
+		if(content!=null)
+		{	
+			if (contentType == null) {
+				throw new IllegalArgumentException("contentType argument must not be null!");
+			}
+			if (contentSubType == null) {
+				throw new IllegalArgumentException("contentSubType argument must not be null!");
+			}
+		}
+		
 		// store all data.
 		this.setSubscriberCMP(subscriber);
 		this.setNotifierCMP(notifier);
 
+		this.setAcceptedContentTypeCMP(acceptedContentType);
+		this.setAcceptedContentSubTypeCMP(acceptedContentSubtype);
+		this.setEventPackageCMP(eventPackage);
+		this.setEventParametersCMP( new HashMap<String,String>( eventOpts));
+		
+		//also store content if present, this is used for proper forging  refresh requests
 		this.setContentTypeCMP(contentType);
 		this.setContentSubTypeCMP(contentSubType);
-		this.setEventPackageCMP(eventPackage);
-
+		this.setContentCMP(content);
 		// lets get started
 		ActivityContextInterface aci = null;
 		try {
@@ -145,7 +163,8 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			Address to = addressFactory.createAddress(notifier);
 			DialogActivity dialogActivity = sleeSipProvider.getNewDialog(from,to);
 			
-			Request subscribeRequest = createInitialSubscribe(dialogActivity, eventPackage, expires, contentType, contentSubType);
+			Request subscribeRequest = createInitialSubscribe(dialogActivity, expires,  eventPackage,eventOpts ,acceptedContentType, acceptedContentSubtype, contentType,  contentSubType,  content);
+			
 			// DA
 			aci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(dialogActivity);
 			setSubscribeRequestTypeCMP(SubscribeRequestType.NEW);
@@ -172,6 +191,13 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			}
 			throw new SubscriptionException("Failed to create dialog or send SUBSRIBE", e);
 		}
+		
+	}
+
+	@Override
+	public void subscribe(String subscriber, String subscriberdisplayName, String notifier,  int expires,String eventPackage, Map<String, String> eventOpts,
+			String acceptedContentType, String acceptedSubType) throws SubscriptionException {
+		this.subscribe(subscriber, subscriberdisplayName, notifier, expires, eventPackage, eventOpts, acceptedContentType, acceptedSubType, null, null, null);		
 	}
 
 	@Override
@@ -216,7 +242,11 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	public abstract String getSubscriberCMP();
 
 	public abstract void setSubscriberCMP(String s);
-
+	
+	public abstract void setEventParametersCMP(HashMap<String,String> opts); //note cant be generic Map interface, cause its not serializable.
+	
+	public abstract HashMap<String,String> getEventParametersCMP();
+	
 	public abstract String getNotifierCMP();
 
 	public abstract void setNotifierCMP(String s);
@@ -225,6 +255,14 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 
 	public abstract void setExpiresCMP(int s);
 
+	public abstract String getAcceptedContentTypeCMP();
+
+	public abstract void setAcceptedContentTypeCMP(String s);
+
+	public abstract String getAcceptedContentSubTypeCMP();
+
+	public abstract void setAcceptedContentSubTypeCMP(String s);
+	
 	public abstract String getContentTypeCMP();
 
 	public abstract void setContentTypeCMP(String s);
@@ -232,6 +270,10 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	public abstract String getContentSubTypeCMP();
 
 	public abstract void setContentSubTypeCMP(String s);
+	
+	public abstract String getContentCMP();
+
+	public abstract void setContentCMP(String s);
 
 	public abstract SubscribeRequestType getSubscribeRequestTypeCMP();
 
@@ -372,7 +414,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		notify.setContentSubType(contentType.getContentSubType());
 		notify.setContent(new String(request.getRawContent()));
 		notify.setNotifier(getNotifierCMP());
-		notify.setSubscriber(getSubscriberCMP());
+		notify.setSubscriber(getSubscriberCMP());	
 		// check, whats in header.
 
 		SubscriptionStateHeader subscriptionStateHeader = (SubscriptionStateHeader) request.getHeader(SubscriptionStateHeader.NAME);
@@ -588,6 +630,9 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	}
 
 	/**
+	 * @param content 
+	 * @param contentSubType 
+	 * @param contentType 
 	 * @param subscriber
 	 * @param subscriberdisplayName
 	 * @param notifier
@@ -597,8 +642,8 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	 * @throws InvalidArgumentException
 	 * @throws SipException 
 	 */
-	protected Request createInitialSubscribe(DialogActivity da, String eventPackage, int expires,
-			String contentType, String contentSubType) throws ParseException, InvalidArgumentException, SipException {
+	protected Request createInitialSubscribe(DialogActivity da, int expires,String eventPackage, Map<String, String> eventsOptions,
+			String acceptedContentType, String acceptedCubType, String contentType, String contentSubType, String content) throws ParseException, InvalidArgumentException, SipException {
 		
 		final Request request = da.createRequest(Request.SUBSCRIBE);
 		
@@ -608,9 +653,16 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		request.setHeader(contactHeader);
 		
 		EventHeader eventHeader = this.headerFactory.createEventHeader(eventPackage);
+		if(eventsOptions!=null)
+		{
+			for(Map.Entry<String, String> e: eventsOptions.entrySet())
+			{
+				eventHeader.setParameter(e.getKey(), e.getValue());
+			}
+		}
 		request.addHeader(eventHeader);
 
-		AcceptHeader acceptHeader = this.headerFactory.createAcceptHeader(contentType, contentSubType);
+		AcceptHeader acceptHeader = this.headerFactory.createAcceptHeader(acceptedContentType, acceptedCubType);
 		request.addHeader(acceptHeader);
 
 		ExpiresHeader expiresHeader = this.headerFactory.createExpiresHeader(expires);
@@ -622,6 +674,13 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			request.addHeader(routeHeader);
 		}
 
+		//now add content if present
+		if(content!=null)
+		{
+			ContentTypeHeader cth = this.headerFactory.createContentTypeHeader(contentType, contentSubType);
+			request.setContent(content.getBytes(), cth); //this will set Content Length Header
+		}
+		
 		return request;
 	}
 
@@ -648,12 +707,21 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		ExpiresHeader expiresHeader = this.headerFactory.createExpiresHeader(expires);
 		request.addHeader(expiresHeader);
 
+		//TODO: store event header in cmp?
 		EventHeader eventHeader = (EventHeader) request.getHeader(EventHeader.NAME);
 		if (eventHeader == null) {
 			eventHeader = this.headerFactory.createEventHeader(getEventPackageCMP());
+			if(getEventParametersCMP()!=null)
+			{
+				for(Map.Entry<String, String> e: getEventParametersCMP().entrySet())
+				{
+					eventHeader.setParameter(e.getKey(), e.getValue());
+				}
+			}
 			request.addHeader(eventHeader);
+			
 		}
-		AcceptHeader acceptHeader = this.headerFactory.createAcceptHeader(getContentTypeCMP(), getContentSubTypeCMP());
+		AcceptHeader acceptHeader = this.headerFactory.createAcceptHeader(getAcceptedContentTypeCMP(), getAcceptedContentSubTypeCMP());
 		request.addHeader(acceptHeader);
 
 		return request;

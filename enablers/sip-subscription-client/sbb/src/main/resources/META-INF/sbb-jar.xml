@@ -38,6 +38,14 @@
 				</cmp-field>
 				<cmp-field>
 					<description></description>
+					<cmp-field-name>acceptedContentTypeCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
+					<cmp-field-name>acceptedContentSubTypeCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
 					<cmp-field-name>contentTypeCMP</cmp-field-name>
 				</cmp-field>
 				<cmp-field>
@@ -46,7 +54,15 @@
 				</cmp-field>
 				<cmp-field>
 					<description></description>
+					<cmp-field-name>contentCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
 					<cmp-field-name>subscribeRequestTypeCMP</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description></description>
+					<cmp-field-name>eventParametersCMP</cmp-field-name>
 				</cmp-field>
 			</sbb-abstract-class>
 			<sbb-local-interface>

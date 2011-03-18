@@ -17,6 +17,8 @@
  */
 package org.mobicents.slee.enabler.sip;
 
+import java.util.Map;
+
 /**
  * 
  * Interface for SIP-Subscruption-Client.
@@ -39,21 +41,34 @@ public interface SubscriptionClientChild {
 
 	public String getNotifier();
 
-	// TODO: should there be eventTemplate also ?
 	/**
 	 * creates an internal subscription
 	 * 
-	 * @param subscriber
-	 * @param notifier
-	 * @param eventPackage
-	 * @param subscriptionId
-	 * @param expires
-	 * @param contentType
-	 * @param contentSubtype
+	 * @param subscriber - usually an URI, for instance sip:joe.doe@mobicents.org. It identifies entity on behalf which enabler wants to subscribe
+	 * @param notifier - usually an URI identifying notifier.
+	 * @param expires - timeout value, measured in seconds, it indicates time gap between resubscribes/termination of subscription
+	 * @param eventPackage - event package to which subscirber wants to subscribe, ie. <b>presence</b>, <b>presence.oma</b>,<b>xcap-diff</b> .. etc.
+	 * @param eventsParameters - parameters which should be passed with event, ie. <b>diff-processing</b>
+	 * @param acceptedContentType - main MIME type of expected event content
+	 * @param acceptedContentSubtype - sub MIME type of expected event content
 	 * @throws SubscriptionException
 	 */
-	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, String eventPackage, int expires, 
-			String contentType, String contentSubtype) throws SubscriptionException;
+	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, int expires, String eventPackage, Map<String, String> eventsParameters,
+			String acceptedContentType, String acceptedContentSubtype) throws SubscriptionException;
+
+	/**
+	 * Similar to
+	 * {@link #subscribe(String, String, String, int, String, Map, String, String)}
+	 * , however this method allows to send content within subscribe. It is
+	 * useful in case like XCAP Diff subscription for instance.
+	 * 
+	 * @param contentType - main MIME type of content
+	 * @param contentSubType - sub MIME type of content
+	 * @param content - content, ie. xml resource list.
+	 * @throws SubscriptionException
+	 */
+	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, int expires, String eventPackage, Map<String, String> eventParameters,
+			String acceptedContentType, String acceptedContentSubtype, String contentType, String contentSubType, String content) throws SubscriptionException;
 
 	/**
 	 * Requests the termination of an internal subscription.

@@ -98,7 +98,7 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 		try {
 			child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().create();
 			child.setParentSbb((SubscriptionClientParentSbbLocalObject) this.sbbContext.getSbbLocalObject());
-			child.subscribe("sip:14313471@127.0.0.1:5090", "secret_name", "sip:14313471@127.0.0.1:5090", "presence", 61, "application", "pidf+xml"); // null
+			child.subscribe("sip:14313471@127.0.0.1:5090", "secret_name", "sip:14313471@127.0.0.1:5090", 61, "presence",null, "application", "pidf+xml"); // null
 		} catch (TransactionRequiredLocalException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
