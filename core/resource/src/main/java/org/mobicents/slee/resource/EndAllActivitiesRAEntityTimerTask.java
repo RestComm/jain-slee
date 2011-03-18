@@ -113,6 +113,9 @@ public class EndAllActivitiesRAEntityTimerTask implements Runnable {
 				}
 			}
 			if (noActivitiesFound) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Found no activities for the ra entity but the entity didn't stop, forcing...");
+				}
 				// concurrent ending of activities may fail to notify the ra entity
 				raEntity.allActivitiesEnded();
 			}

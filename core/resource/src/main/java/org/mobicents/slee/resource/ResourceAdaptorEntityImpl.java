@@ -656,14 +656,16 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 			object.activityEnded(ah);
 		}
 		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
-			// the ra object is stopping, check if the timer task is still
-			// needed
-			if (!hasActivities(handle)) {
-				if (timerTask != null) {
-					timerTask.cancel();
+			synchronized (this) {
+				// the ra object is stopping, check if the timer task is still
+				// needed
+				if (!hasActivities(handle)) {
+					if (timerTask != null) {
+						timerTask.cancel();
+					}
+					allActivitiesEnded();				
 				}
-				allActivitiesEnded();				
-			}
+			}			
 		}
 	}
 	
