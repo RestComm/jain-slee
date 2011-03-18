@@ -62,6 +62,7 @@
 		<example.mgcp-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/mgcp-demo/2.3.0.FINAL</example.mgcp-demo.connectionURL>
 		<example.call-controller2.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/call-controller2/2.3.0.FINAL</example.call-controller2.connectionURL>
 		<example.converged-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/converged-demo/2.3.0.FINAL</example.converged-demo.connectionURL>
+		<example.slee-connectivity.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/slee-connectivity/2.3.0.FINAL</example.slee-connectivity.connectionURL>
 		-->
 		<eclipslee.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/eclipslee/2.0.0.BETA1</eclipslee.connectionURL> 		
 		<!-- 
@@ -118,6 +119,8 @@
 		<example.mgcp-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/mgcp-demo</example.mgcp-demo.connectionURL>
 		<example.call-controller2.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/call-controller2</example.call-controller2.connectionURL>
 		<example.converged-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/converged-demo</example.converged-demo.connectionURL>
+		<example.slee-connectivity.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/slee-connectivity</example.slee-connectivity.connectionURL>
+		
 		<!-- 
 		<eclipslee.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/eclipslee</eclipslee.connectionURL>			
 		-->
@@ -845,6 +848,26 @@
 							</checkoutDirectory>
 							<connectionUrl>
 								${example.converged-demo.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>example-slee-connectivity-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/examples/slee-connectivity
+							</checkoutDirectory>
+							<connectionUrl>
+								${example.slee-connectivity.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
