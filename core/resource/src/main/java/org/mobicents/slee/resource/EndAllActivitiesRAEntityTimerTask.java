@@ -83,12 +83,14 @@ public class EndAllActivitiesRAEntityTimerTask implements Runnable {
 			} catch (InterruptedException e) {
 				logger.error(e.getMessage(),e);
 			}
+			noActivitiesFound = true; 
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
 					.getAllActivityContextsHandles()) {
 				if (handle.getActivityType() == ActivityType.RA) {
 					final ResourceAdaptorActivityContextHandle raHandle = (ResourceAdaptorActivityContextHandle) handle;
 					if (raHandle.getResourceAdaptorEntity().equals(raEntity)) {
+						noActivitiesFound = false;
 						try {
 							if (logger.isDebugEnabled()) {
 								logger.debug("Forcing the end of activity " + handle+" Pt.2");
@@ -109,6 +111,10 @@ public class EndAllActivitiesRAEntityTimerTask implements Runnable {
 						}
 					}
 				}
+			}
+			if (noActivitiesFound) {
+				// concurrent ending of activities may fail to notify the ra entity
+				raEntity.allActivitiesEnded();
 			}
 		}
 	}
