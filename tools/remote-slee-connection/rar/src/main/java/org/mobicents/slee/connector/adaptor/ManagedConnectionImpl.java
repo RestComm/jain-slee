@@ -8,6 +8,7 @@ import org.mobicents.slee.connector.remote.EventInvocation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,25 +32,25 @@ import javax.transaction.xa.XAResource;
  * contract
  * 
  * @author Tim
+ * @author baranowb
  */
 public class ManagedConnectionImpl implements ManagedConnection,
 		LocalTransaction {
 
 	private static Logger log = Logger.getLogger(ManagedConnectionImpl.class);
 	private static ConnectionMetaDataImpl metaData = new ConnectionMetaDataImpl();
-	private RemoteSleeConnectionService rmiStub;
 	private LinkedList<ConnectionEventListener> listeners = new LinkedList<ConnectionEventListener>();
 	private LinkedList<SleeConnectionImpl> connectionHandles = new LinkedList<SleeConnectionImpl>();
 	private ArrayList<EventInvocation> eventQueue = new ArrayList<EventInvocation>();
 	private boolean destroyed;
 	private PrintWriter printWriter;
 	private boolean inTransaction;
-
-	ManagedConnectionImpl(RemoteSleeConnectionService rmiStub) {
+	private ManagedConnectionFactoryImpl parent;
+	ManagedConnectionImpl(ManagedConnectionFactoryImpl managedConnectionFactoryImpl) {
 		if (log.isDebugEnabled()) {
 			log.debug("Creating ManagedConnectionImpl");
 		}
-		this.rmiStub = rmiStub;
+		this.parent = managedConnectionFactoryImpl;
 	}
 
 	/*
@@ -320,7 +321,7 @@ public class ManagedConnectionImpl implements ManagedConnection,
 		}
 		if (destroyed)
 			throw new IllegalStateException(
-					"Attempt to signal a conection error on a destroyed connection!");
+					"Attempt to signal a connection error on a destroyed connection!");
 		ConnectionEvent event = new ConnectionEvent(this,
 				ConnectionEvent.CONNECTION_ERROR_OCCURRED);
 		event.setConnectionHandle(handle);
@@ -329,40 +330,12 @@ public class ManagedConnectionImpl implements ManagedConnection,
 
 	/* This method is non-transactional */
 	ExternalActivityHandle createActivityHandle() throws ResourceException {
-		if (log.isDebugEnabled()) {
-			log.debug("createActivityHandle() called");
-		}
-		if (destroyed)
-			throw new IllegalStateException("Connection is destroyed!");
-		try {
-			return rmiStub.createActivityHandle();
-		} catch (RemoteException e) {
-			String s = "Failed to invoke createActivityHandle";
-			log.error(s, e);
-			ResourceException ex = new ResourceException(s);
-			ex.setLinkedException(e);
-			throw ex;
-		}
+		return this.createActivityHandle(true);
 	}
-
-	/* This method is non-transactional */
-	EventTypeID getEventTypeID(String name, String vendor, String version)
-			throws ResourceException, UnrecognizedEventException {
-		if (log.isDebugEnabled()) {
-			log.debug("getEventTypeID called:" + name + "," + vendor + ","
-					+ version);
-		}
-		if (destroyed)
-			throw new IllegalStateException("Connection is destroyed!");
-		try {
-			return rmiStub.getEventTypeID(name, vendor, version);
-		} catch (RemoteException e) {
-			String s = "Failed to invoke getEventTypeID";
-			log.error(s, e);
-			ResourceException ex = new ResourceException(s);
-			ex.setLinkedException(e);
-			throw ex;
-		}
+	
+	//this method is invoked outside.
+	EventTypeID getEventTypeID(String name, String vendor, String version) throws ResourceException, UnrecognizedEventException {
+		return this.getEventTypeID(name, vendor, version, true);
 	}
 
 	/*
@@ -385,14 +358,77 @@ public class ManagedConnectionImpl implements ManagedConnection,
 		if (destroyed)
 			throw new IllegalStateException("Connection is destroyed!");
 		if (!this.inTransaction) {
-			fireEventNow(event, eventType, activityHandle, address);
+			fireEventNow(event, eventType, activityHandle, address,true);
 		} else {
 			fireEventLater(event, eventType, activityHandle, address);
 		}
 	}
 
+	
+
+	
+	
+	/**
+	 * @param b
+	 * @return
+	 */
+	private ExternalActivityHandle createActivityHandle(boolean mayRefresh) throws ResourceException{
+		if (log.isDebugEnabled()) {
+			log.debug("createActivityHandle() called");
+		}
+		if (destroyed)
+			throw new IllegalStateException("Connection is destroyed!");
+		try {
+			return this.parent.getRemoteSleeConnectionService().createActivityHandle();
+		} catch (ConnectException ce) {
+			if (mayRefresh && this.parent.refreshRemoteSleeConnectionService()) {
+				return this.createActivityHandle(false);
+			} else {
+				String s = "Failed to invoke createActivityHandle";
+				log.error(s, ce);
+				ResourceException ex = new ResourceException(s);
+				ex.initCause(ce);
+				throw ex;			}
+		}catch (RemoteException e) {
+			String s = "Failed to invoke createActivityHandle";
+			log.error(s, e);
+			ResourceException ex = new ResourceException(s);
+			ex.initCause(e);
+			throw ex;
+		}
+	}
+
+	/* This method is non-transactional */
+	private EventTypeID getEventTypeID(String name, String vendor, String version, boolean mayRefresh) throws ResourceException, UnrecognizedEventException {
+		if (log.isDebugEnabled()) {
+			log.debug("getEventTypeID called:" + name + "," + vendor + "," + version);
+		}
+		if (destroyed)
+			throw new IllegalStateException("Connection is destroyed!");
+		try {
+
+			return this.parent.getRemoteSleeConnectionService().getEventTypeID(name, vendor, version);
+		} catch (ConnectException ce) {
+			if (mayRefresh && this.parent.refreshRemoteSleeConnectionService()) {
+				return this.getEventTypeID(name, vendor, version, false);
+			} else {
+				String s = "Failed to invoke getEventTypeID";
+				log.error(s, ce);
+				ResourceException ex = new ResourceException(s);
+				ex.initCause(ce);
+				throw ex;
+			}
+		} catch (RemoteException e) {
+			String s = "Failed to invoke getEventTypeID";
+			log.error(s, e);
+			ResourceException ex = new ResourceException(s);
+			ex.initCause(e);
+			throw ex;
+		}
+	}
+	
 	private void fireEventNow(Object event, EventTypeID eventType,
-			ExternalActivityHandle activityHandle, Address address)
+			ExternalActivityHandle activityHandle, Address address, boolean mayRefresh)
 			throws ResourceException, NullPointerException,
 			UnrecognizedEventException {
 		if (log.isDebugEnabled()) {
@@ -400,18 +436,28 @@ public class ManagedConnectionImpl implements ManagedConnection,
 		}
 		try {
 			RemoteEventWrapper rew = new RemoteEventWrapper((Serializable) event);
-			this.rmiStub.fireEvent(rew, eventType, activityHandle, address);
-		} catch (RemoteException e) {
+			this.parent.getRemoteSleeConnectionService().fireEvent(rew, eventType, activityHandle, address);
+		} catch (ConnectException ce) {
+			if (mayRefresh && this.parent.refreshRemoteSleeConnectionService()) {
+				this.fireEventNow(event,eventType,activityHandle,address,false);
+			} else {
+				String s = "Failed to invoke fireEvent";
+				log.error(s, ce);
+				ResourceException ex = new ResourceException(s);
+				ex.initCause(ce);
+				throw ex;
+			}
+		}catch (RemoteException e) {
 			String s = "Failed to invoke fireEvent";
 			log.error(s, e);
 			ResourceException ex = new ResourceException(s);
-			ex.setLinkedException(e);
+			ex.initCause(e);
 			throw ex;
 		} catch (IOException e) {
 			String s = "Failed to invoke serielize event";
 			log.error(s, e);
 			ResourceException ex = new ResourceException(s);
-			ex.setLinkedException(e);
+			ex.initCause(e);
 			throw ex;
 		}
 	}
@@ -439,7 +485,7 @@ public class ManagedConnectionImpl implements ManagedConnection,
 		try {
 			for (EventInvocation ei : eventQueue) {
 				fireEventNow(ei.event, ei.eventTypeId,
-						ei.externalActivityHandle, ei.address);
+						ei.externalActivityHandle, ei.address,true);
 			}
 		} catch (NullPointerException e) {
 			throw new ResourceException(e.getMessage(), e);

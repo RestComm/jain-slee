@@ -22,6 +22,7 @@
           <connection-definition>javax.slee.connection.SleeConnectionFactory</connection-definition>
 
           <config-property name="SleeJndiName" type="java.lang.String">jnp://${jboss.bind.address}:1099/slee-rmi-connector</config-property>
+          <config-property name="RefreshOnDisconnect" type="java.lang.Boolean">true</config-property>
           
       </tx-connection-factory>
       

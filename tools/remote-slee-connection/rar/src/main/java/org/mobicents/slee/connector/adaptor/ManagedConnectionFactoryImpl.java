@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.connector.remote.RemoteSleeConnectionService;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.rmi.Remote;
 import java.util.Set;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -33,20 +34,22 @@ import javax.security.auth.Subject;
  * connection contract.
  * 
  * @author Tim Fox
+ * @author baranowb
  */
 public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
         Serializable {
     private static Logger log = Logger
             .getLogger(ManagedConnectionFactoryImpl.class);
     private String sleeJndiName;
-    private RemoteSleeConnectionService rmiStub;
+    private boolean refreshOnDisconnect = true;
+    private RemoteSleeConnectionService rmiStub; //NOTE: does it make sense to cache single stub?
     private PrintWriter printWriter;
 
     /* Getters and setters for properties */
     public String getSleeJndiName() {
     	 if(log.isDebugEnabled())
          {
-    		 log.debug("mcf.getSleeJndiName() called");
+    		 log.debug("mcf.getSleeJndiName() called.");
          }
         return sleeJndiName;
     }
@@ -59,16 +62,33 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
         sleeJndiName = name;
     }
 
-    public ManagedConnectionFactoryImpl() {
+    public boolean isRefreshOnDisconnect() {
+    	 if(log.isDebugEnabled())
+         {
+    		 log.debug("mcf.isRefreshOnDisconnect() called.");
+         }
+		return refreshOnDisconnect;
+	}
+
+	public void setRefreshOnDisconnect(boolean refreshOnDisconnect) {
+		 if(log.isDebugEnabled())
+         {
+    		 log.debug("mcf.setRefreshOnDisconnect() called with " + refreshOnDisconnect);
+         }
+		this.refreshOnDisconnect = refreshOnDisconnect;
+	}
+
+	public ManagedConnectionFactoryImpl() {
     	 if(log.isDebugEnabled())
          {
     		 log.debug("Creating ManagedConnectionFactoryImpl instance");
          }
     }
     
-    private synchronized void lookupRMIStub() {
-        if (rmiStub == null ) {
+    private synchronized boolean lookupRMIStub(boolean refresh) throws ResourceException{
+        if (rmiStub == null || refresh) {
 	        try {
+	        	
 	            InitialContext ctx = new InitialContext();
 	            if(log.isDebugEnabled())
 	            {
@@ -81,12 +101,36 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
 	            {
 	            	log.debug("Success on RMI stub of RemoteSleeService lookup");
 	            }
-	        } catch (NamingException e) {
-	            log.error("Failed to lookup Slee service in JNDI ", e);
+	            return true;
+	        } catch (Exception e) {
+	            log.error("Failed to lookup Slee service in JNDI ");
+	            throw new ResourceException("Failed to lookup Slee service in JNDI ",e);
 	        }
+	       
         }
+        return false;
     }
-
+    RemoteSleeConnectionService getRemoteSleeConnectionService() throws ResourceException
+    {
+    	if(this.rmiStub == null)
+    	{
+    		this.lookupRMIStub(false);
+    	}
+    	return this.rmiStub;
+    }
+    
+    boolean refreshRemoteSleeConnectionService() throws ResourceException
+    {
+    	if(this.refreshOnDisconnect)
+    	{
+    		return this.lookupRMIStub(true);
+    	}else
+    	{
+    		return false;
+    	}
+    	
+    }
+    
     /*
      * Create a connection factory. This would normally be called in a 
      * non-managed environment i.e. not in a J2EE app server.
@@ -135,9 +179,9 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
     		 log.debug("createManagedConnection() called");
          }
                         
-        lookupRMIStub();
+        lookupRMIStub(false);
         
-        return new ManagedConnectionImpl(rmiStub);
+        return new ManagedConnectionImpl(this);
     }
 
     /*
