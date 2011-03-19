@@ -124,23 +124,32 @@ public class SbbDescriptorImpl extends AbstractComponentWithLibraryRefsDescripto
 			if (addressProfileSpecAliasRef != null) {
 				if (this.profileSpecRefs != null) {
 					for (ProfileSpecRefDescriptor mProfileSpecRef : this.profileSpecRefs) {
-						if (mProfileSpecRef.getProfileSpecAlias().equals(
-								addressProfileSpecAliasRef)) {
-							this.addressProfileSpecRef = mProfileSpecRef
-									.getComponentID();
+						String profileSpecAlias = mProfileSpecRef
+								.getProfileSpecAlias();
+						if (profileSpecAlias == null) {
+							throw new DeploymentException(
+									"profile spec ref "
+											+ mProfileSpecRef.getComponentID()
+											+ ", in sbb descriptor, is missing the alias");
+						} else {
+							if (profileSpecAlias
+									.equals(addressProfileSpecAliasRef)) {
+								this.addressProfileSpecRef = mProfileSpecRef
+										.getComponentID();
+							}
 						}
 					}
 				} else {
 					throw new DeploymentException(
 							"the address profile spec alias in sbb descriptor is defined but there are no profile specs references");
 				}
-			}
-			else {
+			} else {
 				if (isSlee11) {
-					this.addressProfileSpecRef = new ProfileSpecificationID("AddressProfileSpec","javax.slee","1.1");
-				}
-				else {
-					this.addressProfileSpecRef = new ProfileSpecificationID("AddressProfileSpec","javax.slee","1.0");
+					this.addressProfileSpecRef = new ProfileSpecificationID(
+							"AddressProfileSpec", "javax.slee", "1.1");
+				} else {
+					this.addressProfileSpecRef = new ProfileSpecificationID(
+							"AddressProfileSpec", "javax.slee", "1.0");
 				}
 			}
 
