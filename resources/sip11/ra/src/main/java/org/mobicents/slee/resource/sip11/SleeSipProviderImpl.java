@@ -597,7 +597,9 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 */
 	private DialogWrapper _getNewDialog(Address from, String localTag,
 			Address to, CallIdHeader callIdHeader) throws SipException {
-
+		if (callIdHeader == null) {
+			callIdHeader = provider.getNewCallId();
+		}
 		final DialogWithoutIdActivityHandle h = new DialogWithoutIdActivityHandle(callIdHeader.getCallId(),
 				localTag);
 		final ClientDialogWrapper dw = new ClientDialogWrapper(h,ra);
