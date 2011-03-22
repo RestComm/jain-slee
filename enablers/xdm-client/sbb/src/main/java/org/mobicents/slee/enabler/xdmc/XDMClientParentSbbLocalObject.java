@@ -10,4 +10,5 @@ import javax.slee.SbbLocalObject;
  */
 public interface XDMClientParentSbbLocalObject extends SbbLocalObject, XDMClientParent {
 
+	
 }

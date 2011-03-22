@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rls-services xmlns="urn:ietf:params:xml:ns:rls-services"
+	xmlns:rl="urn:ietf:params:xml:ns:resource-lists">
+	<service uri="sip:clara@127.0.0.1">
+		<resource-list>http://127.0.0.1/resource-lists/users/sip:clara@127.0.0.1/index/~~/resource-lists/list%5b@name=%22l1%22%5d</resource-list>
+		<packages>
+			<package>xcap-diff</package>
+			<package>presence</package>
+			<package>presence.oma</package>
+			<package>presence.custom</package>
+		</packages>
+	</service>
+	<service uri="sip:list@127.0.0.1">
+		<list name="list">
+			<rl:entry uri="sip:joe@127.0.0.1" />
+			<rl:entry uri="sip:sudhir@127.0.0.1" />
+		</list>
+		<packages>
+			<package>presence</package>
+		</packages>
+	</service>
+</rls-services>

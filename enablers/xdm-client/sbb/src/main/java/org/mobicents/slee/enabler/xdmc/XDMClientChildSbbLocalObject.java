@@ -1,6 +1,6 @@
 package org.mobicents.slee.enabler.xdmc;
 
-import javax.slee.SbbLocalObject;
+import org.mobicents.slee.enabler.sip.SubscriptionClientParentSbbLocalObject;
 
 /**
  * Client interface to interact with an XDM Server. IF used by an sbb in a child
@@ -10,6 +10,6 @@ import javax.slee.SbbLocalObject;
  * @author martins
  * 
  */
-public interface XDMClientChildSbbLocalObject extends SbbLocalObject, XDMClientChild {
+public interface XDMClientChildSbbLocalObject extends SubscriptionClientParentSbbLocalObject, XDMClientChild {
 
 }

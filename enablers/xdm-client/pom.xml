@@ -14,18 +14,30 @@
 	<version>1.0.0-SNAPSHOT</version>
 		
 	<modules>
+		<module>library</module>
 		<module>sbb</module>
 		<module>du</module>
 	</modules>
 	
+	<properties>
+		<version.xcap.ratype>2.2.2.FINAL</version.xcap.ratype>
+		<version.sip.subscription.enabler>1.0.0-SNAPSHOT</version.sip.subscription.enabler>
+		<version.xdm>1.0.0.BETA6</version.xdm>
+	</properties>
+
 	<dependencyManagement>
 	  <dependencies>
-	    <dependency>
-	      <groupId>org.mobicents.resources</groupId>
-	      <artifactId>mobicents-slee-ra-xcap-client-ratype</artifactId>
-	      <version>2.2.2.FINAL</version>
-	    </dependency>
-	  </dependencies>
+			<dependency>
+				<groupId>org.mobicents.resources</groupId>
+				<artifactId>mobicents-slee-ra-xcap-client-ratype</artifactId>
+				<version>${version.xcap.ratype}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.servers.jainslee.enablers</groupId>
+				<artifactId>sip-subscription-client-sbb</artifactId>
+				<version>${version.sip.subscription.enabler}</version>
+			</dependency>
+		</dependencies>
 	</dependencyManagement>
 
 	<profiles>
@@ -39,6 +51,7 @@
 		<profile>
 			<id>maven-release</id>
 			<modules>
+				<module>example</module>
 				<module>docs</module>
 				<module>release</module>
 			</modules>

@@ -5,6 +5,11 @@ package org.mobicents.slee.enabler.xdmc;
 
 import java.net.URI;
 
+import org.mobicents.slee.enabler.xdmc.jaxb.xcapdiff.AttributeType;
+import org.mobicents.slee.enabler.xdmc.jaxb.xcapdiff.DocumentType;
+import org.mobicents.slee.enabler.xdmc.jaxb.xcapdiff.ElementType;
+import org.mobicents.slee.enabler.xdmc.jaxb.xcapdiff.XcapDiff;
+
 /**
  * @author martins
  * 
@@ -45,27 +50,64 @@ public interface XDMClientParent {
 	public void deleteResponse(URI uri, int responseCode,
 			String responseContent, String eTag);
 
+	
+	// DIFF part
+	
+	//FIXME: or subscribeSucceed(only for initial), subscribeTerminated(for all fail reason + notify with subscribe-state = terminated) is enough?
 	/**
-	 * Callback that indicates a document subscribed in the XDM client was
-	 * updated
+	 * Callback method indicating failure of communication, enabler must be
+	 * discarded.
+	 * 
+	 * @param sbbLocalObject
 	 */
-	// public void documentUpdated(DocumentSelector documentSelector,
-	// String oldETag, String newETag, String documentAsString);
+	public void subscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
 
 	/**
-	 * Callback that indicates a element in a subscribed document was updated
+	 * Callback method indicating failure of communication, enabler must be
+	 * discarded.
+	 * 
+	 * @param sbbLocalObject
 	 */
-	// public void elementUpdated(DocumentSelector documentSelector,
-	// NodeSelector nodeSelector, Map<String, String> namespaces,
-	// String oldETag, String newETag, String documentAsString,
-	// String elementAsString);
+	public void resubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
 
 	/**
-	 * Callback that indicates a attribute in a subscribed document was updated
+	 * Callback method indicating failure of communication, enabler must be
+	 * discarded.
+	 * 
+	 * @param sbbLocalObject
 	 */
-	// public void attributeUpdated(DocumentSelector documentSelector,
-	// NodeSelector nodeSelector, AttributeSelector attributeSelector,
-	// Map<String, String> namespaces, String oldETag, String newETag,
-	// String documentAsString, String attributeValue);
+	void unsubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+	
+	/**
+	 * Callback method indicating outcome of initial subscribe. 
+	 * 
+	 * @param responseCode
+	 * @param enabler
+	 * 
+	 */
+	public void subscribeSucceed(int responseCode,  XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
 
+	/**
+	 * Callback method indicating outcome of unsubscribe. 
+	 * 
+	 * @param responseCode
+	 *            response code to remove request
+	 * @param enabler
+	 */
+	public void unsubscribeSucceed(int responseCode,  XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+	
+	/**
+	 * Callback method indicating termination of subscription.
+	 * @param sbbLocalObject
+	 * @param uri
+	 */
+	public void subscriptionTerminated(XDMClientChildSbbLocalObject sbbLocalObject, URI notifier); //FIXME: add resourceList to callback?
+	
+	/**
+	 * Notifies an update in XDMS resources subscribed by the enabler.
+	 * This callback is used also to notify on resubscription.
+	 * @param xcapDiff - the xcap diff notified
+	 */
+	public void subscriptionNotification(XcapDiff xcapDiff);
+	
 }
