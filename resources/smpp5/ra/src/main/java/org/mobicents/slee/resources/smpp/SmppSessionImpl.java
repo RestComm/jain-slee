@@ -1,10 +1,31 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright ${year}, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */ 
 package org.mobicents.slee.resources.smpp;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.slee.facilities.Tracer;
 
@@ -36,22 +57,27 @@ import org.mobicents.slee.resources.smpp.util.RelativeSMPPDateImpl;
  */
 public class SmppSessionImpl implements SmppSession {
 
-	private Tracer tracer;
-
-	protected ConcurrentMap<Long, SmppTransactionImpl> transactions = new ConcurrentHashMap<Long, SmppTransactionImpl>();
+	private static Tracer tracer;
 
 	private String sessionId;
 	private SmppResourceAdaptor smppResourceAdaptor = null;
 	private boolean isAlive = false;
 
-	protected Timer timer = new Timer();
+	protected ScheduledExecutorService timer = Executors.newScheduledThreadPool(4);
 
 	public SmppSessionImpl(SmppResourceAdaptor smppResourceAdaptor) {
 		this.smppResourceAdaptor = smppResourceAdaptor;
-		this.tracer = this.smppResourceAdaptor.getRAContext().getTracer(SmppSessionImpl.class.getSimpleName());
-		StringBuffer sb = new StringBuffer();
-		sb.append("SmppSession[SMSHost=").append(this.smppResourceAdaptor.getHost()).append(", SMSCPort=").append(
-				this.smppResourceAdaptor.getPort()).append(", SystemId").append(this.smppResourceAdaptor.getSystemId());
+		if (tracer == null) {
+			tracer = this.smppResourceAdaptor.getRAContext().getTracer(
+					SmppSessionImpl.class.getSimpleName());
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("SmppSession[SMSHost=")
+				.append(this.smppResourceAdaptor.getHost())
+				.append(", SMSCPort=")
+				.append(this.smppResourceAdaptor.getPort())
+				.append(", SystemId")
+				.append(this.smppResourceAdaptor.getSystemId());
 
 		this.sessionId = sb.toString();
 
@@ -64,32 +90,41 @@ public class SmppSessionImpl implements SmppSession {
 	public SmppRequest createSmppRequest(int commandId) {
 		SmppRequest request = null;
 		if (commandId == SmppRequest.ALERT_NOTIFICATION) {
-			request = new AlertNotificationImpl(this.smppResourceAdaptor.seq.nextNumber());
+			request = new AlertNotificationImpl(
+					this.smppResourceAdaptor.seq.nextNumber());
 		} else if (commandId == SmppRequest.CANCEL_SM) {
-			request = new CancelSMImpl(this.smppResourceAdaptor.seq.nextNumber());
+			request = new CancelSMImpl(
+					this.smppResourceAdaptor.seq.nextNumber());
 		} else if (commandId == SmppRequest.DATA_SM) {
 			request = new DataSMImpl(this.smppResourceAdaptor.seq.nextNumber());
 		} else if (commandId == SmppRequest.DELIVER_SM) {
-			request = new DeliverSMImpl(this.smppResourceAdaptor.seq.nextNumber());
+			request = new DeliverSMImpl(
+					this.smppResourceAdaptor.seq.nextNumber());
 		} else if (commandId == SmppRequest.QUERY_SM) {
 			request = new QuerySMImpl(this.smppResourceAdaptor.seq.nextNumber());
 		} else if (commandId == SmppRequest.REPLACE_SM) {
-			request = new ReplaceSMImpl(this.smppResourceAdaptor.seq.nextNumber());
+			request = new ReplaceSMImpl(
+					this.smppResourceAdaptor.seq.nextNumber());
 		} else if (commandId == SmppRequest.SUBMIT_MULTI) {
-			request = new SubmitMultiImpl(this.smppResourceAdaptor.seq.nextNumber());
+			request = new SubmitMultiImpl(
+					this.smppResourceAdaptor.seq.nextNumber());
 		} else if (commandId == SmppRequest.SUBMIT_SM) {
-			request = new SubmitSMImpl(this.smppResourceAdaptor.seq.nextNumber());
+			request = new SubmitSMImpl(
+					this.smppResourceAdaptor.seq.nextNumber());
 		}
 
 		return request;
 	}
 
-	public AbsoluteSMPPDate createAbsoluteSMPPDate(Calendar calendar, boolean hasTz) {
+	public AbsoluteSMPPDate createAbsoluteSMPPDate(Calendar calendar,
+			boolean hasTz) {
 		return new AbsoluteSMPPDateImpl(calendar, hasTz);
 	}
 
-	public RelativeSMPPDate createRelativeSMPPDate(int years, int months, int days, int hours, int minutes, int seconds) {
-		return new RelativeSMPPDateImpl(years, months, days, hours, minutes, seconds);
+	public RelativeSMPPDate createRelativeSMPPDate(int years, int months,
+			int days, int hours, int minutes, int seconds) {
+		return new RelativeSMPPDateImpl(years, months, days, hours, minutes,
+				seconds);
 	}
 
 	public String getSMSCHost() {
@@ -108,8 +143,13 @@ public class SmppSessionImpl implements SmppSession {
 		return this.isAlive;
 	}
 
-	public SmppTransaction sendRequest(SmppRequest request) throws IllegalStateException, NullPointerException,
-			IOException {
+	public SmppTransaction createTransaction(SmppRequest request) {
+		return getSmppTransactionImpl(request, true,
+				SmppTransactionType.OUTGOING);
+	}
+
+	public void sendRequest(SmppRequest request) throws IllegalStateException,
+			NullPointerException, IOException {
 
 		if (!this.isAlive()) {
 			throw new IllegalStateException("The ESME is not connected to SMSC");
@@ -119,15 +159,15 @@ public class SmppSessionImpl implements SmppSession {
 			throw new NullPointerException("SMPP Request cannot be null");
 		}
 
-		SmppTransactionImpl smppTxImpl = this.getSmppTransactionImpl(request, true, SmppTransactionType.OUTGOING);
+		SmppTransactionImpl smppTxImpl = this.getSmppTransactionImpl(request,
+				false, SmppTransactionType.OUTGOING);
 		if (smppTxImpl != null) {
 			this.smppResourceAdaptor.sendRequest((ExtSmppRequest) request);
 		}
-		return smppTxImpl;
 	}
 
-	public void sendResponse(SmppTransaction txn, SmppResponse response) throws IllegalStateException,
-			NullPointerException, IOException {
+	public void sendResponse(SmppTransaction txn, SmppResponse response)
+			throws IllegalStateException, NullPointerException, IOException {
 
 		if (!this.isAlive()) {
 			throw new IllegalStateException("The ESME is not connected to SMSC");
@@ -137,7 +177,8 @@ public class SmppSessionImpl implements SmppSession {
 			throw new NullPointerException("SMPP Response cannot be null");
 		}
 
-		SmppTransactionImpl smppTxImpl = this.getSmppTransactionImpl(response, false, null);
+		SmppTransactionImpl smppTxImpl = this.getSmppTransactionImpl(response,
+				false, SmppTransactionType.INCOMING);
 
 		smppTxImpl.cancelResponseNotSentTimeout();
 
@@ -150,8 +191,9 @@ public class SmppSessionImpl implements SmppSession {
 	}
 
 	/**
-	 * This method will return the existing SmppTransaction (Activity) if already exist else create new if
-	 * creayeActivity is true. If already exist we remove it from transactions Map as this Tx life is only till response
+	 * This method will return the existing SmppTransaction (Activity) if
+	 * already exist else create new if creayeActivity is true. If already exist
+	 * we remove it from transactions Map as this Tx life is only till response
 	 * is received back
 	 * 
 	 * @param pdu
@@ -159,46 +201,66 @@ public class SmppSessionImpl implements SmppSession {
 	 * @param requestReceived
 	 * @return
 	 */
-	protected SmppTransactionImpl getSmppTransactionImpl(PDU pdu, boolean createActivity, SmppTransactionType txType) {
-		SmppTransactionImpl txImpl = this.transactions.remove(pdu.getSequenceNum());
-		if (txImpl != null) {
-			if (this.tracer.isFineEnabled()) {
-				this.tracer.fine("Got the SmppTransaction " + txImpl);
+	protected SmppTransactionImpl getSmppTransactionImpl(PDU pdu,
+			boolean createActivity, SmppTransactionType txType) {
+		
+		final SmppTransactionHandle handle = new SmppTransactionHandle(pdu.getSequenceNum(),txType);
+		final ConcurrentHashMap<SmppTransactionHandle, SmppTransactionImpl> txMap = smppResourceAdaptor.getHandleVsActivityMap();
+		
+		SmppTransactionImpl txImpl = null;
+		if (!createActivity) {
+			txImpl = txMap.get(handle);
+			if (txImpl != null) {
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Got the SmppTransaction " + txImpl);
+				}
+				return txImpl;
 			}
-			return txImpl;
 		}
-
-		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Didnt get the SmppTransaction and createActivity = " + createActivity
-					+ " and SmppTransactionType = " + txType + " For PDU " + pdu + " Seq No = " + pdu.getSequenceNum());
+		if (tracer.isFineEnabled()) {
+			tracer
+					.fine("Didnt get the SmppTransaction and createActivity = "
+							+ createActivity + " and SmppTransactionType = "
+							+ txType + " For PDU " + pdu + " Seq No = "
+							+ pdu.getSequenceNum());
 		}
-		// New Activity only created when either new SMPP Request arrives or Service sending new SMPP Request
+		// New Activity only created when either new SMPP Request arrives or
+		// Service sending new SMPP Request
 		if (createActivity) {
-			txImpl = new SmppTransactionImpl((SmppRequest) pdu, this.smppResourceAdaptor, this);
-
+			
+			txImpl = new SmppTransactionImpl(handle,(SmppRequest) pdu,
+					this.smppResourceAdaptor, this);
+			boolean activityStarted = false;
 			try {
-				this.transactions.put(txImpl.getId(), txImpl);
+				txMap.put(handle, txImpl);
 
 				switch (txType) {
 				case INCOMING:
 					// Try to start the Activity
-					this.smppResourceAdaptor.startNewSmppTransactionActivity(txImpl);
+					this.smppResourceAdaptor
+							.startNewSmppTransactionActivity(txImpl);
+					activityStarted = true;
 					txImpl.setResponseNotSentTimeout();
 					break;
 				case OUTGOING:
 					// Try to start the Activity in Suspended Mode
-					this.smppResourceAdaptor.startNewSmppTransactionSuspendedActivity(txImpl);
+					this.smppResourceAdaptor
+							.startNewSmppTransactionSuspendedActivity(txImpl);
+					activityStarted = true;
 					txImpl.setResponseNotReceivedTimeout();
 					break;
 				}
 
 				return txImpl;
 			} catch (Exception e) {
-				this.tracer.severe("Failed to start the Activity. SmppTransaction " + txImpl, e);
+				tracer.severe(
+						"Failed to start the Activity. SmppTransaction "
+								+ txImpl, e);
 
 				try {
-					this.transactions.remove(txImpl.getId());
-
+					if (!activityStarted) {
+						txMap.remove(handle);
+					}
 					switch (txType) {
 					case INCOMING:
 						txImpl.cancelResponseNotSentTimeout();
@@ -206,20 +268,22 @@ public class SmppSessionImpl implements SmppSession {
 						return null;
 					case OUTGOING:
 						txImpl.cancelResponseNotReceivedTimeout();
-						throw new IllegalStateException("Error while trying to create Activity");
+						throw new IllegalStateException(
+								"Error while trying to create Activity");
 					}
 				} finally {
-					// Last part clean Activity if it exist
-					this.smppResourceAdaptor.endActivity(txImpl);
+					if (activityStarted) {
+						this.smppResourceAdaptor.endActivity(txImpl);
+					}					
 				}
 			}
 		} // if (createActivity)
 
-		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Now we will throw exception. But before that lets just iterate");
-			for (Long e : this.transactions.keySet()) {
-
-				this.tracer.fine("Seq = " + e);
+		if (tracer.isFineEnabled()) {
+			tracer
+					.fine("Now we will throw exception. But before that lets just iterate");
+			for (SmppTransactionHandle e : txMap.keySet()) {
+				tracer.fine("Seq = " + e);
 			}
 		}
 		throw new IllegalStateException("No Activity found for PDU " + pdu);
@@ -229,7 +293,8 @@ public class SmppSessionImpl implements SmppSession {
 	public int hashCode() {
 		final int prime = 19;
 		int result = 1;
-		result = prime * result + ((sessionId == null) ? 0 : sessionId.hashCode());
+		result = prime * result
+				+ ((sessionId == null) ? 0 : sessionId.hashCode());
 		return result;
 	}
 

@@ -1,7 +1,28 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright ${year}, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */ 
 package org.mobicents.slee.resources.smpp;
 
 import java.io.IOException;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import javax.slee.facilities.Tracer;
 
@@ -20,7 +41,7 @@ import org.mobicents.slee.resources.smpp.pdu.SmppErrorImpl;
  */
 public class SmppTransactionImpl implements SmppTransaction {
 
-	private Tracer tracer;
+	private static Tracer tracer;
 
 	private SmppResourceAdaptor smppRA;
 	private SmppSessionImpl smppSess;
@@ -31,14 +52,23 @@ public class SmppTransactionImpl implements SmppTransaction {
 	private ResponseNotSent responseNotSent;
 	private ResponseNotReceived responseNotReceived;
 
-	protected SmppTransactionImpl(SmppRequest requestPDU, SmppResourceAdaptor smppRA, SmppSessionImpl smppSess) {
+	private final SmppTransactionHandle handle;
+	
+	protected SmppTransactionImpl(SmppTransactionHandle handle,SmppRequest requestPDU, SmppResourceAdaptor smppRA, SmppSessionImpl smppSess) {
 		this.requestPDU = requestPDU;
 		this.smppRA = smppRA;
-		this.tracer = this.smppRA.getRAContext().getTracer(SmppTransactionImpl.class.getSimpleName());
+		if (tracer == null) {
+			tracer = this.smppRA.getRAContext().getTracer(SmppTransactionImpl.class.getSimpleName());
+		}
 		this.smppSess = smppSess;
 		this.sequenceNumber = this.requestPDU.getSequenceNum();
+		this.handle = handle;
 	}
 
+	public SmppTransactionHandle getHandle() {
+		return handle;
+	}
+	
 	public long getId() {
 		return this.sequenceNumber;
 	}
@@ -55,13 +85,13 @@ public class SmppTransactionImpl implements SmppTransaction {
 	 * Reset the Timers
 	 */
 	protected void setResponseNotSentTimeout() {
-		responseNotSent = new ResponseNotSent();
-		this.smppSess.timer.schedule(responseNotSent, this.smppRA.getSmppResponseSentTimeout());
+		responseNotSent = new ResponseNotSent(this);
+		this.smppSess.timer.schedule(responseNotSent, this.smppRA.getSmppResponseSentTimeout(), TimeUnit.MILLISECONDS);
 	}
 
 	protected void setResponseNotReceivedTimeout() {
-		responseNotReceived = new ResponseNotReceived();
-		this.smppSess.timer.schedule(responseNotReceived, this.smppRA.getSmppResponseReceivedTimeout());
+		responseNotReceived = new ResponseNotReceived(this);
+		this.smppSess.timer.schedule(responseNotReceived, this.smppRA.getSmppResponseReceivedTimeout(), TimeUnit.MILLISECONDS);
 	}
 
 	/**
@@ -85,54 +115,72 @@ public class SmppTransactionImpl implements SmppTransaction {
 		try {
 			this.smppRA.sendResponse(genericNak);
 		} catch (IOException e) {
-			this.tracer.severe("IOException while sending GenericNack SMPP Response", e);
+			tracer.severe("IOException while sending GenericNack SMPP Response", e);
 		}
 	}
 
-	private void fireSmppTORespNotSent() {
+	private static class ResponseNotSent implements Runnable {
+
+		private final SmppTransactionImpl tx;
+
+		private boolean cancelled = false;
+
+		public ResponseNotSent(SmppTransactionImpl tx) {
+			this.tx = tx;
+		}
+		
+		public void run() {
+			if(cancelled) {
+				return;
+			}
+			tx.responseNotSent();
+		}
+
+		public void cancel() {
+			cancelled = true;
+		}
+	}
+
+	private void responseNotSent() {
+		// Send GENERIC_NACK to back SMSC
+		sendGenericNack();
+		// Fire SMPP_TIMEOUT_RESPONSE_SENT back to application
 		SmppErrorImpl error = new SmppErrorImpl(SmppError.SMPP_TIMEOUT_RESPONSE_SENT, this.requestPDU);
 		this.smppRA.fireEvent(Utils.SMPP_TIMEOUT_RESPONSE_SENT, this, error);
 		this.smppRA.endActivity(this);
+	}
+	
+	private static class ResponseNotReceived implements Runnable {
 
+		private final SmppTransactionImpl tx;
+		private boolean cancelled = false;
+		
+		public ResponseNotReceived(SmppTransactionImpl tx) {
+			this.tx = tx;
+		}
+		
+		public void run() {
+			if(cancelled) {
+				return;
+			}
+			tx.responseNotReceived();
+		}
+
+		public void cancel() {
+			cancelled = true;			
+		}
 	}
 
-	private void fireSmppRespNotReceived() {
+	private void responseNotReceived() {
+			// Fire SMPP_TIMEOUT_RESPONSE_RECEIVED back to application
 		SmppErrorImpl error = new SmppErrorImpl(SmppError.SMPP_TIMEOUT_RESPONSE_RECEIVED, this.requestPDU);
 		this.smppRA.fireEvent(Utils.SMPP_TIMEOUT_RESPONSE_RECEIVED, this, error);
 		this.smppRA.endActivity(this);
 	}
-
-	private class ResponseNotSent extends TimerTask {
-
-		public void run() {
-			// Clean the transactions MAP
-			smppSess.transactions.remove(this);
-
-			// Send GENERIC_NACK to back SMSC
-			sendGenericNack();
-
-			// Fire SMPP_TIMEOUT_RESPONSE_SENT back to application
-			fireSmppTORespNotSent();
-		}
-	}
-
-	private class ResponseNotReceived extends TimerTask {
-
-		public void run() {
-			// Clean the transactions MAP
-			smppSess.transactions.remove(this);
-
-			// Fire SMPP_TIMEOUT_RESPONSE_RECEIVED back to application
-			fireSmppRespNotReceived();
-		}
-	}
-
+	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((requestPDU == null) ? 0 : requestPDU.hashCode());
-		return result;
+		return handle.hashCode();		
 	}
 
 	@Override
@@ -144,12 +192,7 @@ public class SmppTransactionImpl implements SmppTransaction {
 		if (getClass() != obj.getClass())
 			return false;
 		final SmppTransactionImpl other = (SmppTransactionImpl) obj;
-		if (requestPDU == null) {
-			if (other.requestPDU != null)
-				return false;
-		} else if (!requestPDU.equals(other.requestPDU))
-			return false;
-		return true;
+		return handle.equals(other.handle);
 	}
 
 	@Override

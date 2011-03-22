@@ -1,9 +1,29 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright ${year}, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */ 
 package org.mobicents.slee.resources.smpp;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -72,6 +92,7 @@ import org.mobicents.slee.resources.smpp.pdu.SubmitSMRespImpl;
  * @author amit bhayani
  * 
  */
+@SuppressWarnings("rawtypes")
 public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		org.mobicents.protocols.smpp.event.SessionObserver {
 
@@ -293,14 +314,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	}
 
 	public ActivityHandle getActivityHandle(Object obj) {
-		for (Enumeration<SmppTransactionHandle> e = this.handleVsActivityMap.keys(); e.hasMoreElements();) {
-			SmppTransactionHandle txHandle = e.nextElement();
-			SmppTransactionImpl txImpl = this.handleVsActivityMap.get(txHandle);
-			if (txImpl.equals(obj)) {
-				return txHandle;
-			}
-		}
-		return null;
+		return ((SmppTransactionImpl) obj).getHandle();
 	}
 
 	public Marshaler getMarshaler() {
@@ -313,9 +327,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	}
 
 	public void queryLiveness(ActivityHandle activityHandle) {
-		SmppTransactionImpl txImpl = this.smppSession.transactions.get(((SmppTransactionHandle) activityHandle)
-				.getSeqNumber());
-		if (txImpl == null) {
+		if (getActivity(activityHandle) == null) {
 			this.tracer.warning("The queryLiveness failed for activity " + activityHandle + " Ending this activity");
 			this.sleeEndpoint.endActivity(activityHandle);
 		}
@@ -408,6 +420,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		BindType binidType = null;
 		try {
 
+			// emmartins: something missing Amit?
 			Integer npi = (Integer) properties.getProperty("addressNpi").getValue();
 			Integer ton = (Integer) properties.getProperty("addressTon").getValue();
 			Integer enquireTimeOut = (Integer) properties.getProperty("enquireLinkTimeout").getValue();
@@ -566,7 +579,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			DeliverSMRespImpl deliverSMRespImpl = new DeliverSMRespImpl(
 					(org.mobicents.protocols.smpp.message.DeliverSMResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(deliverSMRespImpl, false, null);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(deliverSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.DELIVER_SM_RESP, txImpl, deliverSMRespImpl);
 				this.endActivity(txImpl);
@@ -588,7 +601,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		case CommandId.DATA_SM_RESP: {
 			DataSMRespImpl dataSMRespImpl = new DataSMRespImpl((org.mobicents.protocols.smpp.message.DataSMResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(dataSMRespImpl, false, null);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(dataSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.DATA_SM_RESP, txImpl, dataSMRespImpl);
 				this.endActivity(txImpl);
@@ -613,7 +626,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			SubmitSMRespImpl submitSMRespImpl = new SubmitSMRespImpl(
 					(org.mobicents.protocols.smpp.message.SubmitSMResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitSMRespImpl, false, null);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.SUBMIT_SM_RESP, txImpl, submitSMRespImpl);
 				this.endActivity(txImpl);
@@ -639,7 +652,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			SubmitMultiRespImpl submitMultiRespImpl = new SubmitMultiRespImpl(
 					(org.mobicents.protocols.smpp.message.SubmitMultiResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitMultiRespImpl, false, null);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitMultiRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.SUBMIT_MULTI_RESP, txImpl, submitMultiRespImpl);
 				this.endActivity(txImpl);
@@ -664,7 +677,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			QuerySMRespImpl querySMRespImpl = new QuerySMRespImpl(
 					(org.mobicents.protocols.smpp.message.QuerySMResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(querySMRespImpl, false, null);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(querySMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.QUERY_SM_RESP, txImpl, querySMRespImpl);
 				this.endActivity(txImpl);
@@ -689,7 +702,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			ReplaceSMRespImpl replaceSMRespImpl = new ReplaceSMRespImpl(
 					(org.mobicents.protocols.smpp.message.ReplaceSMResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(replaceSMRespImpl, false, null);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(replaceSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.REPLACE_SM_RESP, txImpl, replaceSMRespImpl);
 				this.endActivity(txImpl);
@@ -714,7 +727,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			CancelSMRespImpl cancelSMRespImpl = new CancelSMRespImpl(
 					(org.mobicents.protocols.smpp.message.CancelSMResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelSMRespImpl, false, null);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.CANCEL_SM_RESP, txImpl, cancelSMRespImpl);
 				this.endActivity(txImpl);
@@ -740,7 +753,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			BroadcastSMRespImpl broadcastSMRespImpl = new BroadcastSMRespImpl(
 					(org.mobicents.protocols.smpp.message.BroadcastSMResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(broadcastSMRespImpl, false, null);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(broadcastSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.BROADCAST_SM_RESP, txImpl, broadcastSMRespImpl);
 				this.endActivity(txImpl);
@@ -767,7 +780,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 					(org.mobicents.protocols.smpp.message.CancelBroadcastSMResp) packet);
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelBroadcastSMRespImpl, false,
-						null);
+						SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.CANCEL_BROADCAST_SM_RESP, txImpl, cancelBroadcastSMRespImpl);
 				this.endActivity(txImpl);
@@ -794,7 +807,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 					(org.mobicents.protocols.smpp.message.QueryBroadcastSMResp) packet);
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(queryBroadcastSMRespImpl, false,
-						null);
+						SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.QUERY_BROADCAST_SM_RESP, txImpl, queryBroadcastSMRespImpl);
 				this.endActivity(txImpl);
@@ -815,7 +828,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 				// This is Error Response to one of the Request sent
 
 				try {
-					SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(genericNackImpl, false, null);
+					SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(genericNackImpl, false, SmppTransactionType.OUTGOING);
 					txImpl.cancelResponseNotReceivedTimeout();
 					fireEvent(Utils.GENERIC_NACK, txImpl, genericNackImpl);
 					this.endActivity(txImpl);
@@ -1020,19 +1033,15 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	 */
 	protected void startNewSmppTransactionActivity(SmppTransactionImpl txImpl) throws ActivityAlreadyExistsException,
 			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
-		SmppTransactionHandle handle = new SmppTransactionHandle(txImpl.getId(), txImpl.hashCode());
-
-		sleeEndpoint.startActivity(handle, txImpl, ActivityFlags.REQUEST_ENDED_CALLBACK);
-		this.handleVsActivityMap.put(handle, txImpl);
+		sleeEndpoint.startActivity(txImpl.getHandle(), txImpl, ActivityFlags.REQUEST_ENDED_CALLBACK);
+		this.handleVsActivityMap.put(txImpl.getHandle(), txImpl);
 	}
 
 	protected void startNewSmppTransactionSuspendedActivity(SmppTransactionImpl txImpl)
 			throws ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException,
 			StartActivityException {
-		SmppTransactionHandle handle = new SmppTransactionHandle(txImpl.getId(), txImpl.hashCode());
-
-		sleeEndpoint.startActivitySuspended(handle, txImpl, ActivityFlags.REQUEST_ENDED_CALLBACK);
-		this.handleVsActivityMap.put(handle, txImpl);
+		sleeEndpoint.startActivitySuspended(txImpl.getHandle(), txImpl, ActivityFlags.REQUEST_ENDED_CALLBACK);
+		this.handleVsActivityMap.put(txImpl.getHandle(), txImpl);
 	}
 
 	protected void sendResponse(ExtSmppResponse response) throws IOException {
@@ -1073,12 +1082,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 	protected void endActivity(SmppTransactionImpl activity) {
 		try {
-			ActivityHandle actHandle = this.getActivityHandle(activity);
-			if (actHandle != null) {
-				this.sleeEndpoint.endActivity(actHandle);
-			} else {
-				this.tracer.warning("No ActivityHanlde forund for Activity " + activity);
-			}
+			this.sleeEndpoint.endActivity(activity.getHandle());			
 		} catch (Exception e) {
 			this.tracer.severe("Error while Ending Activity " + activity, e);
 		}
@@ -1138,4 +1142,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		return this.raContext;
 	}
 
+	public ConcurrentHashMap<SmppTransactionHandle, SmppTransactionImpl> getHandleVsActivityMap() {
+		return handleVsActivityMap;
+	}
 }
