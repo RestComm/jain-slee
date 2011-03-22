@@ -409,10 +409,12 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		notify.setSubscriber(getSubscriberCMP());
 
 		ContentTypeHeader contentType = (ContentTypeHeader) request.getHeader(ContentTypeHeader.NAME);
-		// use CT Header?
-		notify.setContentType(contentType.getContentType());
-		notify.setContentSubType(contentType.getContentSubType());
-		notify.setContent(new String(request.getRawContent()));
+		if (contentType != null) {
+			// use CT Header?
+			notify.setContentType(contentType.getContentType());
+			notify.setContentSubType(contentType.getContentSubType());
+			notify.setContent(new String(request.getRawContent()));
+		}
 		notify.setNotifier(getNotifierCMP());
 		notify.setSubscriber(getSubscriberCMP());	
 		// check, whats in header.
@@ -449,26 +451,24 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			String reasonString = subscriptionStateHeader.getReasonCode();
 			TerminationReason reason = TerminationReason.fromString(reasonString);
 			notify.setTerminationReason(reason);
-			if (reason == TerminationReason.extension) {
-				notify.setTerminationReasonExtension(reasonString);
-			}
+			if (reason != null) {
+				switch (reason) {
+				case rejected:
+				case noresource:
+				case deactivated:
+				case timeout:
+					break;
+				case probation:
+				case giveup:
+					if (subscriptionStateHeader.getRetryAfter() != Notify.NO_TIMEOUT) {
+						notify.setRetryAfter(subscriptionStateHeader.getRetryAfter());
+					}
+					break;
 
-			// check reson.
-			switch (reason) {
-			case rejected:
-			case noresource:
-			case deactivated:
-			case timeout:
-				break;
-			case probation:
-			case giveup:
-				if (subscriptionStateHeader.getRetryAfter() != Notify.NO_TIMEOUT) {
-					notify.setRetryAfter(subscriptionStateHeader.getRetryAfter());
+				case extension:
+					notify.setTerminationReasonExtension(reasonString);
+					break;
 				}
-				break;
-
-			case extension:
-				break;
 			}
 			break;
 
