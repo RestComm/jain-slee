@@ -69,6 +69,7 @@ public class ResourceAdaptorTypeXML extends DTDXML {
 	}
 	
 	public ResourceAdaptorTypeClassesXML[] getResourceAdaptorTypeClasses() {
+	  // ammendonca FIXME: should only return one instance instead of array
 		Element nodes[] = getNodes("resource-adaptor-type/resource-adaptor-type-classes");
 		ResourceAdaptorTypeClassesXML xml[] = new ResourceAdaptorTypeClassesXML[nodes.length];
 		for (int i = 0; i < nodes.length; i++)

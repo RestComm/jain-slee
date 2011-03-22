@@ -93,6 +93,13 @@
             id="org.mobicents.eclipslee.servicecreation.wizards.ratype.RaTypeWizard">
       </wizard>
       <wizard
+            name="JAIN SLEE Resource Adaptor"
+            icon="icons/Event-icon.gif"
+            category="org.mobicents.eclipslee.servicecreation"
+            class="org.mobicents.eclipslee.servicecreation.wizards.ra.ResourceAdaptorWizard"
+            id="org.mobicents.eclipslee.servicecreation.wizards.ra.ResourceAdaptorWizard">
+      </wizard>
+      <wizard
             name="JAIN SLEE Deployable Unit"
             icon="icons/DU-icon.gif"
             category="org.mobicents.eclipslee.servicecreation"

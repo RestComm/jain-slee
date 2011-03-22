@@ -1,0 +1,7 @@
+__PACKAGE__
+
+__PROVIDER_IMPORTS__
+
+public class __PROVIDER_NAME__Impl implements __PROVIDER_NAME__ {
+__PROVIDER_METHODS__
+}

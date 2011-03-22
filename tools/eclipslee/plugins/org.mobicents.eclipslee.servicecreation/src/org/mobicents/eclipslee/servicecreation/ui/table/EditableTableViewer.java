@@ -115,7 +115,7 @@ public class EditableTableViewer extends TableViewer implements SelectionListene
 					for (int j = 0; j < editorValues[i].length; j++)
 						vals[j] = (String) editorValues[i][j];
 					
-					editors[i] = new ComboBoxCellEditor(table, vals);
+					editors[i] = new ComboBoxCellEditor(table, vals, SWT.READ_ONLY);
 					break;
 												
 				case EDITOR_BUTTON:
