@@ -1028,8 +1028,11 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		if (handleReferenceFactory != null) {
 			handleReferenceFactory.init();
 		}	
+		final Thread currentThread = Thread.currentThread();
+		final ClassLoader currentThreadClassLoader = currentThread.getContextClassLoader();
 		for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
 			try {
+				currentThread.setContextClassLoader(raEntity.getComponent().getClassLoader());
 				raEntity.sleeRunning();
 			} catch (Exception e) {
 				if (logger.isDebugEnabled()) {
@@ -1037,6 +1040,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				}
 			}
 		}
+		currentThread.setContextClassLoader(currentThreadClassLoader);
 	}
 	
 	@Override
@@ -1044,25 +1048,19 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		
 		logger.info("Stopping all active resource adaptors ...");
 		
-		try {
-				
-			// inform all ra entities that we are stopping the container
-			for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
-				try {
-					raEntity.sleeStopping();
-				} catch (Exception e) {
-					logger.error(e.getMessage(),e);
-				}
-			}
-								
-		} catch (Exception e) {
-			logger
-					.error(
-							"Exception while stopping resource adaptors",
-							e);
-
+		// inform all ra entities that we are stopping the container
+		final Thread currentThread = Thread.currentThread();
+		final ClassLoader currentThreadClassLoader = currentThread.getContextClassLoader();
+		for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
+			try {
+				currentThread.setContextClassLoader(raEntity.getComponent().getClassLoader());
+				raEntity.sleeStopping();
+			} catch (Exception e) {
+				logger.error(e.getMessage(),e);
+			}			
 		}
-
+		currentThread.setContextClassLoader(currentThreadClassLoader);
+		
 		// wait till all ra entity objects are stopped
 		boolean loop;
 		do {
