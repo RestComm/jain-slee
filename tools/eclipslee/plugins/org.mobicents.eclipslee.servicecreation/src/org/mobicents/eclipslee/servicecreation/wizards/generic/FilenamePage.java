@@ -270,8 +270,12 @@ public class FilenamePage extends WizardPage {
 			return;
 		}
 				
-		// Zero-length package is the default package: don't check the default name.
-		if (pack.length() > 0) {
+    // Zero-length package is the default package: don't check the default name.
+    if (pack.length() == 0) {
+      updateStatus("A package name must be specified, default package is not allowed in JAIN SLEE 1.1 components.");
+      return;
+    }
+    else {
 			if (pack.charAt(0) == '.' || pack.charAt(pack.length() - 1) == '.') {
 				updateStatus("The package name is invalid.  Package names may not start or end with a dot.");
 				return;
