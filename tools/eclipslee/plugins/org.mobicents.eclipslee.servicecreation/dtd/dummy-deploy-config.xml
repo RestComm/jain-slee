@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <!DOCTYPE deployable-unit PUBLIC
+        "-//Red Hat, Inc.//DTD JAIN SLEE Deploy Config 1.1//EN"
+        "http://www.mobicents.org/slee/dtd/deploy-config_1_1.dtd">
+
+<deploy-config>
+</deploy-config>

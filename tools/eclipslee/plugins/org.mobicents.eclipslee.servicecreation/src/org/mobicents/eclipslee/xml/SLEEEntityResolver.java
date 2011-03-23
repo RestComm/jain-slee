@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin;
-import org.mobicents.eclipslee.servicecreation.util.FileUtil;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
@@ -59,7 +58,10 @@ public class SLEEEntityResolver implements EntityResolver {
         { "-//Sun Microsystems, Inc.//DTD JAIN SLEE Library 1.1//EN", "http://java.sun.com/dtd/slee-library-jar_1_1.dtd", "slee-library-jar_1_1.dtd", "dummy-library-jar_1_1.xml" },
 
         // Alcatel enhancements
-        { "-//Alcatel OSP//DTD JAIN SLEE Resource Adaptor Instance 1.0//EN", "http://www.etb.bel.alcatel.be/dtd/resource-adaptor-instances-jar_1_0.dtd", "resource-adaptor-instances-jar_1_0.dtd", "dummy-resource-adaptor-instances.xml"}
+        { "-//Alcatel OSP//DTD JAIN SLEE Resource Adaptor Instance 1.0//EN", "http://www.etb.bel.alcatel.be/dtd/resource-adaptor-instances-jar_1_0.dtd", "resource-adaptor-instances-jar_1_0.dtd", "dummy-resource-adaptor-instances.xml"},
+
+        // Mobicents enhancements
+        { "-//Red Hat, Inc.//DTD JAIN SLEE Deploy Config 1.1//EN", "http://www.mobicents.org/slee/dtd/deploy-config_1_1.dtd", "deploy-config_1_1.dtd", "dummy-deploy-config.xml"}
         };
 
     public InputSource resolveEntity(String publicID, String systemID) {

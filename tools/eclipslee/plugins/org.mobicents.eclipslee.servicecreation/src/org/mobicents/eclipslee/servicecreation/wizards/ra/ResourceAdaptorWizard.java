@@ -40,6 +40,7 @@ import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorClassXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorClassesXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorXML;
+import org.mobicents.eclipslee.xml.DeployConfigXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorJarXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 
@@ -102,6 +103,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
 
       String resourceAdaptorBaseName = getFileName().substring(0, getFileName().indexOf(ENDS));
       String xmlFilename = /*resourceAdaptorBaseName + "-*/"resource-adaptor-jar.xml";
+      String deployConfigXmlFilename = /*resourceAdaptorBaseName + "-*/"deploy-config.xml";
       String resourceAdaptorFilename = getFileName();
       String resourceAdaptorMarshalerFilename = resourceAdaptorBaseName + "Marshaler.java";
       
@@ -216,7 +218,8 @@ public class ResourceAdaptorWizard extends BaseWizard {
         String raTypeRaInterfaceImplFilename = clazz + "Impl.java";
         
         subs.put("__PROVIDER_NAME__", clazz);
-        subs.put("__PROVIDER_IMPORTS__", "import " + pakkage + ";");
+        
+        subs.put("__PROVIDER_IMPORTS__", "import " + raTypeResourceAdaptorInterface + ";");
         subs.put("__PROVIDER_METHODS__", "  // TODO: Fill with proper methods...");
         IFile raTypeRaInterfaceImplFile = FileUtil.createFromTemplate(folder, new Path(raTypeRaInterfaceImplFilename), new Path(RESOURCE_ADAPTOR_PROVIDER_IMPL_TEMPLATE), subs, monitor);
         raTypeRaInterfaceImplFiles.add(raTypeRaInterfaceImplFile);
@@ -235,6 +238,22 @@ public class ResourceAdaptorWizard extends BaseWizard {
 
       // Done with XML. worked++
       FileUtil.createFromInputStream(resourceFolder, new Path(xmlFilename), resourceAdaptorJarXML.getInputStreamFromXML(), monitor);
+      monitor.worked(1);
+
+      IFolder duFolder = getSourceContainer().getProject().getFolder(new Path("du/src/main/resources/META-INF"));
+      if(!duFolder.exists()) {
+        duFolder.create(true, true, monitor);
+      }
+
+      // Reuse existing XML descriptor file if present or create new one
+      IFile deployConfigFile = duFolder.getFile(deployConfigXmlFilename);
+
+      // Generate Deploy Config XML ..
+      DeployConfigXML deployConfigXML = deployConfigFile.exists() ? new DeployConfigXML(deployConfigFile) : new DeployConfigXML();
+      deployConfigXML.addResourceAdaptorEntity(getComponentName(), getComponentVendor(), getComponentVersion(), resourceAdaptorBaseName + "RA");
+
+      // Create deploy-config.xml..
+      FileUtil.createFromInputStream(duFolder, new Path(deployConfigXmlFilename), deployConfigXML.getInputStreamFromXML(), monitor);
       monitor.worked(1);
 
       // Open files for editing

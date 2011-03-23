@@ -1,0 +1,19 @@
+<?xml encoding="UTF-8"?>
+
+<!ELEMENT deploy-config (ra-entity)+>
+
+<!ELEMENT ra-entity (properties?,ra-link?)>
+<!ATTLIST ra-entity
+  entity-name CDATA #REQUIRED
+  resource-adaptor-id CDATA #REQUIRED>
+
+<!ELEMENT properties (property)+>
+<!ELEMENT ra-link EMPTY>
+<!ATTLIST ra-link
+  name CDATA #REQUIRED>
+
+<!ELEMENT property EMPTY>
+<!ATTLIST property
+  name CDATA #REQUIRED
+  type CDATA #REQUIRED
+  value CDATA #REQUIRED>
