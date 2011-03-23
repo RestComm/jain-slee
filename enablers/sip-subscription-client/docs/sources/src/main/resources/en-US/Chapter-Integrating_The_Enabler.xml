@@ -159,7 +159,7 @@ public interface SubscriptionClientParent {
 	<section id="parent_sbb_abstract_class">
 		<title>The Parent's Sbb Abstract Class</title>
 		<para>
-			The Parent Sbb Abstract Class must implement the callbacks on it's
+			The Parent Sbb Abstract Class must implement the callbacks in it's
 			SbbLocalObject, that is, must implement the
 			<literal>org.mobicents.slee.enabler.sip.SubscriptionClientParent</literal>
 			interface discussed in last section.

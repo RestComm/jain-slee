@@ -34,7 +34,7 @@ public interface SubscriptionClientChild {
 	 * @param parent
 	 */
 	public void setParentSbb(SubscriptionClientParentSbbLocalObject parent);
-
+	
 	public String getSubscriber();
 
 	public String getEventPackage();
@@ -72,12 +72,6 @@ public interface SubscriptionClientChild {
 
 	/**
 	 * Requests the termination of an internal subscription.
-	 * 
-	 * @param subscriber
-	 * @param notifier
-	 * @param eventPackage
-	 * @param subscriptionId
-	 * @return
 	 * @throws SubscriptionException
 	 */
 	public void unsubscribe() throws SubscriptionException;
