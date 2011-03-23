@@ -38,7 +38,8 @@ public class XmppResourceAdaptor implements ResourceAdaptor {
     private XmppResourceAdaptorSbbInterfaceImpl sbbInterface;
     private ResourceAdaptorContext resourceAdaptorContext;
     private Tracer log;
-    private FireableEventTypeFilter eventTypeFilter;
+    private FireableEventTypeFilter eventTypeFilter = new FireableEventTypeFilter();
+
     private FireableEventTypeCache eventTypeCache;
     
     // lifecycle methods 
@@ -66,7 +67,6 @@ public class XmppResourceAdaptor implements ResourceAdaptor {
     public void raActive() {
     	this.sbbInterface.setActive(true);
     	this.activities = new ConcurrentHashMap<XmppActivityHandle, XmppConnection>();
-    	this.eventTypeFilter = new FireableEventTypeFilter();
     }
     
     /* (non-Javadoc)
@@ -87,7 +87,6 @@ public class XmppResourceAdaptor implements ResourceAdaptor {
     public void raInactive() {
     	this.sbbInterface.setActive(false);
     	this.activities = null;
-    	this.eventTypeFilter = null;
     }
     
     /* (non-Javadoc)
