@@ -381,11 +381,11 @@ public class MavenProjectUtils {
     Plugin duPlugin = new Plugin();
     duPlugin.setGroupId(DU_PLUGIN_GROUP_ID);
     duPlugin.setArtifactId(DU_PLUGIN_ARTIFACT_ID);
-    duPlugin.setExtensions(true);
 
     PluginExecution duPluginExecution = new PluginExecution();
-    duPluginExecution.setPhase("install");
-    duPluginExecution.addGoal("create");
+    duPluginExecution.addGoal("copy-dependencies");
+    duPluginExecution.addGoal("generate-descriptor");
+    duPluginExecution.addGoal("generate-ant-management-script");
 
     ArrayList<PluginExecution> duPluginExecutions = new ArrayList<PluginExecution>();
     duPluginExecutions.add(duPluginExecution);
