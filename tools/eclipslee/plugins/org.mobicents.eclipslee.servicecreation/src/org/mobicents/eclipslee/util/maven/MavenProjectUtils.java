@@ -89,12 +89,12 @@ public class MavenProjectUtils {
     model.setModelVersion("4.0.0");
     model.setPackaging("pom");
 
-    // Set the parent to org.mobicents:mobicents-parent:2.10
+    // Set the parent to org.mobicents:mobicents-parent:2.17
     // TODO: Get parent version from SVN ? ...
     Parent parent = new Parent();
     parent.setGroupId("org.mobicents");
     parent.setArtifactId("mobicents-parent");
-    parent.setVersion("2.10");
+    parent.setVersion("2.17");
     model.setParent(parent);
 
     // TODO: Ask for these values in wizard?
@@ -104,6 +104,12 @@ public class MavenProjectUtils {
 
     model.setName("Mobicents :: ${pom.artifactId} v${pom.version}");
 
+    // Add JAIN SLEE Dependency
+    Dependency jainSleeDep = new Dependency();
+    jainSleeDep.setGroupId("javax.slee");
+    jainSleeDep.setArtifactId("jain-slee");
+    model.addDependency(jainSleeDep);
+    
     // Set child modules
     for(String module : projectModules.getModules()) {
       model.addModule(module);
