@@ -28,7 +28,7 @@ package org.mobicents.slee.enabler.xdmc;
  */
 public enum XDMDiffType {
 
-	Aggregate("aggreate"), NoPatching("no-patching"), XCAPPatching("xcap-patching");
+	Aggregate("aggregate"), NoPatching("no-patching"), XCAPPatching("xcap-patching");
 
 	private XDMDiffType(String t) {
 		this.type = t;

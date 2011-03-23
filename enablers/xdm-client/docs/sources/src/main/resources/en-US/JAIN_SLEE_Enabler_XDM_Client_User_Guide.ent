@@ -15,6 +15,7 @@ If this final separator is missing, then the documentation will be wrong. -->
 <!ENTITY HOLDER "Red Hat Inc">
 <!ENTITY AUTHOR.EMAIL.EDUARDO "${author.email.eduardo}">
 <!ENTITY THIS.ENABLER "${docs.enabler.name}">
+<!ENTITY THIS.ENABLER.SUB "${docs.enabler.sub.name}">
 <!ENTITY THIS.ENABLER.DIRNAME "${docs.enabler.dirname}"> 
 <!ENTITY THIS.ISSUE_TRACKER_URL "${THIS.ISSUE_TRACKER_URL}">
 <!ENTITY THIS.RELEASE_SOURCE_CODE_URL "${THIS.RELEASE_SOURCE_CODE_URL}">

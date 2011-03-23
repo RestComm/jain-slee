@@ -76,7 +76,7 @@ public interface XDMClientParent {
 	 * 
 	 * @param sbbLocalObject
 	 */
-	void unsubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+	public void unsubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
 	
 	/**
 	 * Callback method indicating outcome of initial subscribe. 

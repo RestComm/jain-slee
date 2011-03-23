@@ -551,10 +551,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 	}
 
 	
-	// SUBSCRUBE callbacks
-	
-	
-	
+	// SUBSCRIBE callbacks
 	public void onNotify(Notify ntfy, SubscriptionClientChildSbbLocalObject subscriptionChild) {
 		//compile diff
 		if(ntfy.getStatus().equals(SubscriptionStatus.terminated)) {		

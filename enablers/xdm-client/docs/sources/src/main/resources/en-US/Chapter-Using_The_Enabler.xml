@@ -66,6 +66,10 @@ public interface XDMClientChild {
 	public void deleteIfNoneMatch(URI uri, String eTag, String assertedUserId)
 			throws IOException;
 
+	public void subscribe(URI subscriber, URI notifier, int expires, String[] 
+		resourceURIs) throws SubscriptionException;
+	
+	public void unsubscribe(URI subscriber, URI notifier);
 }
 		]]>
 		</programlisting>
@@ -181,6 +185,21 @@ public interface XDMClientChild {
 				<term>The <literal>deleteIfNoneMatch(URI,String,String)</literal> method:</term>
 				<listitem>
 					<para>Deletes the document in the XDM Server, asserting the user id, if the ETag does not matches the document in the server. Response is provided through parent's callback deleteResponse(...).</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>public void subscribe(URI subscriber, URI notifier, int expires, String[] 
+		resourceURIs) throws SubscriptionException</literal> method:</term>
+				<listitem>
+					<para>Requests Enabler to subscribe <literal>XCAP Diff</literal> events. Enabler subscribes to resources from passed list.</para>
+				</listitem>
+			</varlistentry>
+			
+			<varlistentry>
+				<term>The <literal>public void unsubscribe(URI subscriber, URI notifier)</literal> method:</term>
+				<listitem>
+					<para>Reqeusts enabler to unsubscribe from resources.</para>
 				</listitem>
 			</varlistentry>
 			
