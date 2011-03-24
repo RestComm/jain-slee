@@ -7,7 +7,7 @@
   <title>Clustering</title>
   <section id="ra_clustering_failover">
     <title>Failover</title>
-    <para>The SIP Stack used by the RA supports <literal>ESTABLISHED SIP DIALOG</literal> failover. This means that an application must be in charge of properly adapting its state machine to recover a SIP transaction or early dialog failure, once message retransmissions are received.</para>
+    <para>The SIP Stack used by the RA supports <literal>ESTABLISHED</literal> and <literal>EARLY</literal> dialog failover. This means that an application must be in charge of properly adapting its state machine to recover dialog state in case original transaction had not send or receive answer with code greater than <literal>100</literal>. </para>
   </section>
   <section id="ra_clustering_load_balancing">
     <title>Load Balancing</title>
