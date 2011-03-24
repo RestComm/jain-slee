@@ -56,6 +56,13 @@ public class MavenProjectUtils {
   private static final String DU_PLUGIN_GROUP_ID = "org.mobicents.tools";
   private static final String DU_PLUGIN_ARTIFACT_ID = "maven-du-plugin";
 
+  private static final Dependency JAIN_SLEE_DEPENDENCY = new Dependency();
+
+  static {
+    JAIN_SLEE_DEPENDENCY.setGroupId("javax.slee");
+    JAIN_SLEE_DEPENDENCY.setArtifactId("jain-slee");
+  }
+
   public static void generateMavenPomFiles(IProject project, ProjectModules projectModules) {
     // Parent pom is always needed
     generateParentPomFile(project, projectModules);
@@ -104,12 +111,6 @@ public class MavenProjectUtils {
 
     model.setName("Mobicents :: ${pom.artifactId} v${pom.version}");
 
-    // Add JAIN SLEE Dependency
-    Dependency jainSleeDep = new Dependency();
-    jainSleeDep.setGroupId("javax.slee");
-    jainSleeDep.setArtifactId("jain-slee");
-    model.addDependency(jainSleeDep);
-    
     // Set child modules
     for(String module : projectModules.getModules()) {
       model.addModule(module);
@@ -133,6 +134,9 @@ public class MavenProjectUtils {
     model.setArtifactId(EVENTS_MODULE_ARTIFACT_ID_PREFIX + parent.getArtifactId() + (customName != null ? ("-" + customName) : "") + EVENTS_MODULE_ARTIFACT_ID_SUFFIX);
 
     model.setName("Mobicents :: ${pom.artifactId} v${pom.version}");
+
+    // Add JAIN SLEE Dependency
+    addDependency(model, JAIN_SLEE_DEPENDENCY);
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -164,6 +168,9 @@ public class MavenProjectUtils {
     model.setArtifactId(SBB_MODULE_ARTIFACT_ID_PREFIX + parent.getArtifactId() + (customName != null ? ("-" + customName) : "") + SBB_MODULE_ARTIFACT_ID_SUFFIX);
 
     model.setName("Mobicents :: ${pom.artifactId} v${pom.version}");
+
+    // Add JAIN SLEE Dependency
+    addDependency(model, JAIN_SLEE_DEPENDENCY);
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -211,6 +218,9 @@ public class MavenProjectUtils {
 
     model.setName("Mobicents :: ${pom.artifactId} v${pom.version}");
 
+    // Add JAIN SLEE Dependency
+    addDependency(model, JAIN_SLEE_DEPENDENCY);
+
     // Add inner dependencies
     if(projectModules != null) {
       if(projectModules.hasLibrary()) {
@@ -224,10 +234,6 @@ public class MavenProjectUtils {
 
     // Write the pom file
     writePomFile(model, project.getLocation().append((customName != null ? customName + "-" : "") + "profile-spec/pom.xml").toString());
-  }
-
-  public static void generateServiceModulePomFile(IProject project, ProjectModules projectModules, String customName) {
-    // NOP
   }
 
   public static void generateRATypeModulePomFile(IProject project, ProjectModules projectModules, String customName) {
@@ -245,6 +251,9 @@ public class MavenProjectUtils {
     model.setArtifactId(RA_TYPE_MODULE_ARTIFACT_ID_PREFIX + parent.getArtifactId() + (customName != null ? ("-" + customName) : "") + RA_TYPE_MODULE_ARTIFACT_ID_SUFFIX);
 
     model.setName("Mobicents :: ${pom.artifactId} v${pom.version}");
+
+    // Add JAIN SLEE Dependency
+    addDependency(model, JAIN_SLEE_DEPENDENCY);
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -283,6 +292,9 @@ public class MavenProjectUtils {
     model.setArtifactId(RA_MODULE_ARTIFACT_ID_PREFIX + parent.getArtifactId() + (customName != null ? ("-" + customName) : "") + RA_MODULE_ARTIFACT_ID_SUFFIX);
 
     model.setName("Mobicents :: ${pom.artifactId} v${pom.version}");
+
+    // Add JAIN SLEE Dependency
+    addDependency(model, JAIN_SLEE_DEPENDENCY);
 
     // Add inner dependencies
     if(projectModules != null) {
