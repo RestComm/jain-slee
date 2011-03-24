@@ -149,7 +149,9 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		this.setAcceptedContentTypeCMP(acceptedContentType);
 		this.setAcceptedContentSubTypeCMP(acceptedContentSubtype);
 		this.setEventPackageCMP(eventPackage);
-		this.setEventParametersCMP( new HashMap<String,String>( eventOpts));
+		if (eventOpts != null) {
+			this.setEventParametersCMP( new HashMap<String,String>( eventOpts));
+		}
 		
 		//also store content if present, this is used for proper forging  refresh requests
 		this.setContentTypeCMP(contentType);
