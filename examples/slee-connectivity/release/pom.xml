@@ -37,6 +37,13 @@
 											<fileset
 												dir="${basedir}/../javaee/beans/target/mobicents-slee-connectivity-example-javaee-beans-beans" />
 										</copy>
+										<copy overwrite="true" file="${basedir}/../slee/du/target/build.xml" tofile="${basedir}/../../../release/${release.name}/examples/slee-connectivity/du-management.xml" />
+										<copy overwrite="true" file="${basedir}/build.xml" todir="${basedir}/../../../release/${release.name}/examples/slee-connectivity">
+    									<filterset>
+    										<filter token="JBOSS.PATH" value="${jboss.path}" />
+                      						<filter token="JBOSS.CONFIG" value="${node}" />
+    									</filterset>
+    								</copy>
 									</tasks>
 								</configuration>
 							</execution>

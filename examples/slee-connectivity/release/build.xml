@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Release_build" default="deploy">
+
+	<property name="home" value="${ant.file.Release_build}/../" />
+
+	<property name="jboss.home" value="${home}/@JBOSS.PATH@/" />
+	<property name="jboss.config" value="@JBOSS.CONFIG@" />
+	<property name="jnpHost" value="127.0.0.1" />
+	<property name="jnpPort" value="1099" />
+	<property name="jboss.deploy" value="${jboss.home}/server/${jboss.config}/deploy" />
+	<property name="jmx-breans-dir" value="mobicents-slee-connectivity-example-javaee-beans" />
+	<target name="deploy-jmx">
+		<ant antfile="${home}../../examples/slee-connectivity/du-management.xml" target="deploy-jmx" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+			<property name="jnpHost" value="${jnpHost}" />
+			<property name="jnpPort" value="${jnpPort}" />
+		</ant>
+		<copy overwrite="true" todir="${jboss.deploy}">
+			<fileset dir="${home}../../examples/slee-connectivity" includes="${jmx-breans-dir}/**" />
+		</copy>
+	</target>
+
+	<target name="undeploy-jmx">
+		<ant antfile="${home}../../examples/slee-connectivity/du-management.xml" target="undeploy-jmx" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+			<property name="jnpHost" value="${jnpHost}" />
+			<property name="jnpPort" value="${jnpPort}" />
+		</ant>
+		<delete dir="${jboss.deploy}/${jmx-breans-dir}" />
+	</target>
+
+	<target name="deploy">
+		<ant antfile="${home}../../examples/slee-connectivity/du-management.xml" target="deploy" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+		</ant>
+		<copy overwrite="true" todir="${jboss.deploy}">
+			<fileset dir="${home}../../examples/slee-connectivity" includes="${jmx-breans-dir}/**" />
+		</copy>
+	</target>
+
+	<target name="undeploy">
+		<ant antfile="${home}../../examples/slee-connectivity/du-management.xml" target="undeploy" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+		</ant>
+		<delete dir="${jboss.deploy}/${jmx-breans-dir}" />
+	</target>
+
+</project>
