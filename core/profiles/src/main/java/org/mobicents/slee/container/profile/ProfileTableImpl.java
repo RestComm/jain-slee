@@ -13,6 +13,7 @@ import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.ProfileTableNotification;
+import javax.slee.management.SleeState;
 import javax.slee.profile.AttributeNotIndexedException;
 import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileAlreadyExistsException;
@@ -677,7 +678,9 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		sleeContainer.getTransactionManager().getTransactionContext().getAfterCommitActions().add(commitAction);
 		
 
-		endActivity();
+		if (sleeContainer.getSleeState() == SleeState.RUNNING) {
+			endActivity();
+		}
 
 		// unregister mbean
 		unregisterUsageMBean();

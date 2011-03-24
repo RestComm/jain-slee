@@ -5,6 +5,7 @@ import java.security.PrivilegedAction;
 
 import javax.slee.CreateException;
 import javax.slee.SLEEException;
+import javax.slee.management.SleeState;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedProfileNameException;
@@ -527,7 +528,7 @@ public class ProfileObjectImpl implements ProfileObject {
 			}
 		}
 		
-		if (profileTable.doesFireEvents() && profileEntity.getProfileName() != null && profileEntitySnapshot != null) {
+		if (profileTable.doesFireEvents() && profileEntity.getProfileName() != null && profileEntitySnapshot != null && profileTable.getSleeContainer().getSleeState() == SleeState.RUNNING) {
 			// fire event
 			AbstractProfileEvent event = new ProfileRemovedEventImpl(profileEntity,profileTable.getProfileManagement());
 			if (logger.isTraceEnabled()) {
@@ -748,7 +749,7 @@ public class ProfileObjectImpl implements ProfileObject {
 		if (state == ProfileObjectState.READY) {
 			if (profileEntity.isDirty()) {
 				// check the table fires events and the object is not assigned to a default profile
-				if (profileTable.doesFireEvents() && profileEntity.getProfileName() != null) {
+				if (profileTable.doesFireEvents() && profileEntity.getProfileName() != null && profileTable.getSleeContainer().getSleeState() == SleeState.RUNNING) {
 					// Fire a Profile Added or Updated Event
 					ActivityContext ac = profileTable.getActivityContext();
 					AbstractProfileEvent event = null;
