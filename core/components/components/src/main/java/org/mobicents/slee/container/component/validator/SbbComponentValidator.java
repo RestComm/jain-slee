@@ -1391,7 +1391,7 @@ public class SbbComponentValidator implements Validator {
 
 			if (m.getExceptionTypes().length > 0) {
 				passed = false;
-				errorBuffer = appendToBuffer("Failed to validate fire event method" + " Method has throws clause, method: " + m.getName(), "8.6.4",
+				errorBuffer = appendToBuffer("Failed to validate initial event selector method" + " Method has throws clause, method: " + m.getName(), "8.6.4",
 						errorBuffer);
 
 			}
@@ -1444,7 +1444,7 @@ public class SbbComponentValidator implements Validator {
 		// FIXME: only runtime exceptions?
 		if (m.getExceptionTypes().length > 0) {
 			passed = false;
-			errorBuffer = appendToBuffer("Failed to validate fire event method" + " Fire method is has throws clause, method: " + m.getName(),
+			errorBuffer = appendToBuffer("Failed to validate receive event method" + " Fire method is has throws clause, method: " + m.getName(),
 					section, errorBuffer);
 
 		}
