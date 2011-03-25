@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.mobicents.eclipslee_2.0.0.BETA1.jar" id="org.mobicents.eclipslee" version="2.0.0.BETA1">
+      <category name="JAIN SLEE"/>
+   </feature>
+   <category-def name="JAIN SLEE" label="JAIN SLEE">
+      <description>
+         Mobicents JAIN SLEE Eclipse Plugins
+      </description>
+   </category-def>
+</site>
