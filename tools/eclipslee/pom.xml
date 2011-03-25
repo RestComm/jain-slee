@@ -13,6 +13,10 @@
 
 	<packaging>pom</packaging>
 
+        <properties>
+                <tychoVersion>0.10.0</tychoVersion>
+        </properties>
+
 	<modules>
 		<module>plugins</module>
 		<module>features</module>
@@ -43,6 +47,104 @@
 					<eclipseProjectName>mobicents-slee-tools-eclipslee</eclipseProjectName>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tychoVersion}</version>
+				<extensions>true</extensions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tychoVersion}</version>
+				<configuration>
+					<resolver>p2</resolver>
+					<ignoreTychoRepositories>true</ignoreTychoRepositories>
+					<environments>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>carbon</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>maven-osgi-packaging-plugin</artifactId>
+				<version>${tychoVersion}</version>
+				<configuration>
+					<format>'v'yyyyMMdd-HHmm'-${BUILD_ALIAS}'</format>
+					<archiveSite>true</archiveSite>
+					<environments>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>carbon</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>maven-osgi-compiler-plugin</artifactId>
+				<version>${tychoVersion}</version>
+				<!-- not strictly needed but this suppresses warnings when compiling 
+					that the default value (1.5) is being overwritten by the value in the MANIFEST.MF. 
+					You can use this in your plugins or their aggregator pom.xml files to set 
+					this for your plugins -->
+				<configuration>
+					<!-- <source>1.6</source> -->
+					<!-- <target>1.6</target> -->
+				</configuration>
+			</plugin>
+
+
+
 		</plugins>
 	</build>
 			
