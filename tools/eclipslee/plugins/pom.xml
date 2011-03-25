@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.mobicents.servers.jainslee.tools</groupId>
-  <artifactId>plugins</artifactId>
+  <artifactId>eclipslee-plugins</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>

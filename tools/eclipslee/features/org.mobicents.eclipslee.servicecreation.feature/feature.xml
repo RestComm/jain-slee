@@ -2,7 +2,7 @@
 <feature
       id="org.mobicents.eclipslee"
       label="EclipSLEE"
-      version="2.0.0.BETA1"
+      version="2.0.0.BETA2"
       provider-name="Mobicents">
 
    <description url="http://www.example.com/description">
@@ -34,6 +34,6 @@
          id="org.mobicents.eclipslee.servicecreation"
          download-size="0"
          install-size="0"
-         version="2.0.0.BETA1"/>
+         version="2.0.0.BETA2"/>
 
 </feature>
