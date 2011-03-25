@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="creating_a_jainslee_ratype">
+	<title>Creating a JAIN SLEE Resource Adaptor Type</title>
+	<para>
+		To create a component it may be easier (but not mandatory) to first create a package to contain it. This package should be created as a child of the &lt;ratype-module&gt;/src/main/java folder. To do this right-click on the src folder and select <menuchoice><guimenu>New</guimenu><guisubmenu>Package</guisubmenu></menuchoice>. Give the new package a name using the popup dialog (shown below).
+		<figure>
+			<title>Creating a new Package in Eclipse</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_package.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new Package in Eclipse</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		In case a new package is not created at this point, it can still be created in the Component wizard, but no validation is performed at that time, regarding the package naming conventions.
+	</para>
+	<para>
+		To create a new JAIN SLEE RA Type, right-click on the created package (or the module entry if the package is not yet created) and choose <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> as shown below.
+		<figure>
+			<title>Creating a new JAIN SLEE Component in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_component.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new JAIN SLEE Component in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		A dialog should appear. Expand the <guilabel>JAIN SLEE</guilabel> item and choose <guilabel>JAIN SLEE Resource Adaptor Type</guilabel>. The dialog should now look like the following:
+		<figure>
+			<title>Creating a new JAIN SLEE RA Type in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_ratype.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Creating a new JAIN SLEE RA Type in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		Click <guibutton>Next</guibutton> to get the following dialog:
+		<figure>
+			<title>Selecting the package and name for a new JAIN SLEE RA Type in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_ratype_name.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Selecting the package and name for a new JAIN SLEE RA Type in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		The source folder and package dialogs will be completed if <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> has been selected from right-clicking on a package. Otherwise it may need to be chosen by selecting <guibutton>Browse...</guibutton> and selecting the desired locations or typing it's name in the appropriate field and it will be created in the end.
+	</para>
+	<para>
+		Name the RA Type; the name must end with "<filename>ActivityContextInterfaceFactory.java</filename>". Then click <guibutton>Next</guibutton> to go to the component identity dialog, pictured below:
+		<figure>
+			<title>JAIN SLEE Component Identity dialog in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_ratype_identity.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Component Identity dialog in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		The Name, Vendor and Version fields are mandatory and are used by the SLEE to identify the RA Type. The description field is optional, but strongly recommended to be completed to allow easy identification of the RA Type in future.
+	</para>
+	<para>
+		After completing these fields click <guibutton>Next</guibutton> to specify the Events supported by this RA Type.
+	</para>
+	<para>
+		<figure>
+			<title>JAIN SLEE RA Type events selection in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_ratype_events.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE RA Type events selection in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		This dialog allows you to specify which events can be fired by the Resource Adaptor Type implementation, select them from the top list (Available Events) by clicking <guibutton>Select Event</guibutton>. To remove them, select them from the bottom list (Selected Events) and click <guibutton>Deselect Event</guibutton>. When done, click <guibutton>Next</guibutton> to edit the RA Type's Activity Objects.
+	</para>
+	<para>
+		<figure>
+			<title>JAIN SLEE RA Type Activity Objects definition in EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_ratype_activities.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE RA Type Activity Objects definition in EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		Here, the RA Type's Activity objects type can be set. Add an Activity object by clicking on <guibutton>Add</guibutton> and writing it's Java Type in the <guilabel>Activity Type</guilabel> column and selecting <guilabel>Create</guilabel> to have EclipSLEE creating the interface or not. An Activity type can be removed by selecting it in the table and clicking <guibutton>Remove</guibutton>. To modify any of the fields, click on it and it should be possible to edit/change the value.
+	</para>
+	<para>
+		In this same wizard page, it is possible to define whether to create or not a Resource Adaptor SBB Interface (Provider) by checking or leaving unchecked the <guibutton>Create Resource Adaptor Interface</guibutton> checkbox.
+	</para>
+	<para>
+		Once finished, click <guibutton>Finish</guibutton> to create the Resource Adaptor Type.
+	</para>
+	<note>
+		<title>Skipping optional steps</title>
+		<para><guibutton>Finish</guibutton> can be clicked at any point after setting the Resource Adaptor Type's identity if a skeleton Resource Adaptor Type is required. It is not necessary to complete each wizard page first.</para>
+	</note>
+	
+	<para>
+		The Resource Adaptor Type Java file, <filename>MobicentsDemoActivityContextInterfaceFactory.java</filename> (plus the remaining interfaces and classes which were selected at the wizard) is created in the specified package and opened for editing in the workspace. The <filename>ratype-jar.xml</filename> deployment descriptor is updated to reflect the new ratype or created if not already present. The resulting workspace can be seen below.
+		<figure>
+			<title>JAIN SLEE Resource Adaptor Type created in workspace using EclipSLEE</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_ratype_workspace.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>JAIN SLEE Resource Adaptor Type created in workspace using EclipSLEE</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+</chapter>
+
