@@ -80,6 +80,18 @@
 
 	<repositories>
 		<repository>
+			<id>jboss-requirements-composite-mirror</id>
+			<url>http://download.jboss.org/jbosstools/updates/indigo/</url>
+			<layout>p2</layout>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+
+		<repository>
 			<id>jboss-public-repository-group</id>
 			<name>JBoss Public Maven Repository Group</name>
 			<url>https://repository.jboss.org/nexus/content/groups/public</url>
@@ -93,6 +105,7 @@
 				<updatePolicy>never</updatePolicy>
 			</snapshots>
 		</repository>
+
 	</repositories>
 	
 </project>

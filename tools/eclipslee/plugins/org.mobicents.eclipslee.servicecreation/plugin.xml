@@ -87,14 +87,14 @@
       </wizard>
       <wizard
             name="JAIN SLEE Resource Adaptor Type"
-            icon="icons/Event-icon.gif"
+            icon="icons/RAType-icon.gif"
             category="org.mobicents.eclipslee.servicecreation"
             class="org.mobicents.eclipslee.servicecreation.wizards.ratype.RaTypeWizard"
             id="org.mobicents.eclipslee.servicecreation.wizards.ratype.RaTypeWizard">
       </wizard>
       <wizard
             name="JAIN SLEE Resource Adaptor"
-            icon="icons/Event-icon.gif"
+            icon="icons/RA-icon.gif"
             category="org.mobicents.eclipslee.servicecreation"
             class="org.mobicents.eclipslee.servicecreation.wizards.ra.ResourceAdaptorWizard"
             id="org.mobicents.eclipslee.servicecreation.wizards.ra.ResourceAdaptorWizard">
