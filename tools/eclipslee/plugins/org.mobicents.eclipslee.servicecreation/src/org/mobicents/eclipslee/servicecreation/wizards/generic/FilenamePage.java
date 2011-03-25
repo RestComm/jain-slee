@@ -77,6 +77,8 @@ public class FilenamePage extends WizardPage {
 	private static final String PAGE_DESCRIPTION =
 		"Choose the Container (package) that this component should be created in, then choose a name for its main Java file.";
 
+	boolean isServiceWizard;
+	
   /**
    * Constructor for SampleNewWizardPage.
    * @param pageName
@@ -112,7 +114,9 @@ public class FilenamePage extends WizardPage {
 	 */
 	public void createControl(Composite parent) {
 
-		refreshJars();
+    isServiceWizard = getWizard() instanceof ServiceWizard;
+
+    refreshJars();
 		
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
@@ -133,15 +137,17 @@ public class FilenamePage extends WizardPage {
 		label.setText("&Source Folder:");		
 		projectWidget = new TextButton(container, SWT.NULL);
 		projectWidget.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL|GridData.FILL_HORIZONTAL));
-		
-		label = new Label(container, SWT.NULL);
-		label.setText("&Package:");
-		packageWidget = new TextButton(container, SWT.NULL, true);
-		packageWidget.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL|GridData.FILL_HORIZONTAL));
-		
-		PackageWidgetListener packageListener = new PackageWidgetListener();
-		packageWidget.addTextListener(packageListener);
-		packageWidget.addButtonListener(packageListener);
+
+		if(!isServiceWizard) { // avoid package dealing in service wizard
+  		label = new Label(container, SWT.NULL);
+  		label.setText("&Package:");
+  		packageWidget = new TextButton(container, SWT.NULL, true);
+  		packageWidget.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL|GridData.FILL_HORIZONTAL));
+
+  		PackageWidgetListener packageListener = new PackageWidgetListener();
+  		packageWidget.addTextListener(packageListener);
+  		packageWidget.addButtonListener(packageListener);
+    }
 		
 		ProjectWidgetListener projectListener = new ProjectWidgetListener();
 		projectWidget.addTextListener(projectListener);
@@ -261,7 +267,6 @@ public class FilenamePage extends WizardPage {
 	private void dialogChanged() {
 	
 		String project = projectWidget.getText();
-		String pack = packageWidget.getText();
 		String fileName = getFileName();
 		
 				
@@ -269,27 +274,32 @@ public class FilenamePage extends WizardPage {
 			updateStatus("The Source Folder must be specified.");
 			return;
 		}
-				
-    // Zero-length package is the default package: don't check the default name.
-    if (pack.length() == 0) {
-      updateStatus("A package name must be specified, default package is not allowed in JAIN SLEE 1.1 components.");
-      return;
-    }
-    else {
-			if (pack.charAt(0) == '.' || pack.charAt(pack.length() - 1) == '.') {
-				updateStatus("The package name is invalid.  Package names may not start or end with a dot.");
-				return;
-			}
+		
+		if(!isServiceWizard) { // avoid package dealing in service wizard
 
-			if (pack.indexOf("..") != -1) {
-				updateStatus("The package name is invalid.  Package names may not contain two or more consecutive dots.");
-				return;
-			}
+		  String pack = packageWidget.getText();
 
-			if (pack.indexOf(' ') >= 0) {
-				updateStatus("The package name is invalid.  Package names may not contain spaces.");
-				return;
-			}
+		  // Zero-length package is the default package: don't check the default name.
+		  if (pack.length() == 0) {
+		    updateStatus("A package name must be specified, default package is not allowed in JAIN SLEE 1.1 components.");
+		    return;
+		  }
+		  else {
+		    if (pack.charAt(0) == '.' || pack.charAt(pack.length() - 1) == '.') {
+		      updateStatus("The package name is invalid.  Package names may not start or end with a dot.");
+		      return;
+		    }
+
+		    if (pack.indexOf("..") != -1) {
+		      updateStatus("The package name is invalid.  Package names may not contain two or more consecutive dots.");
+		      return;
+		    }
+
+		    if (pack.indexOf(' ') >= 0) {
+		      updateStatus("The package name is invalid.  Package names may not contain spaces.");
+		      return;
+		    }
+		  }
 		}
 		
 		if (fileName.length() == 0) {
@@ -340,6 +350,9 @@ public class FilenamePage extends WizardPage {
    */
   
   public String getPackageName() {
+    if(isServiceWizard) {
+      return "";
+    }
     return packageWidget.getText();
   }
   
@@ -518,14 +531,15 @@ public class FilenamePage extends WizardPage {
 	}
 	
 	public void setPackage(IPackageFragment pack) {
-		
-		this.pack = pack;
-		
-		// Update the packageWidget
-		if (pack == null)
-			packageWidget.setText("");
-		else
-			packageWidget.setText(pack.getElementName());
+	  if(!isServiceWizard) { // avoid package dealing in service wizard
+  		this.pack = pack;
+  		
+  		// Update the packageWidget
+  		if (pack == null)
+  			packageWidget.setText("");
+  		else
+  			packageWidget.setText(pack.getElementName());
+	  }
 	}
 	
 	public void setSourceContainer(IFolder folder) {		
