@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.enablers</groupId>
 		<artifactId>xdm-client-docs</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0.BETA2</version>
 	</parent>
 
 	<artifactId>xdm-client-docs-sources-jbcp</artifactId>
