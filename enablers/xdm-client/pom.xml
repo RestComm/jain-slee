@@ -20,9 +20,8 @@
 	</modules>
 	
 	<properties>
-		<version.xcap.ratype>2.2.2.FINAL</version.xcap.ratype>
-		<version.sip.subscription.enabler>1.0.0-SNAPSHOT</version.sip.subscription.enabler>
-		<version.xdm>1.0.0.BETA6</version.xdm>
+		<version.xcap.ratype>2.4.0.CR1</version.xcap.ratype>
+		<version.sip.subscription.enabler>1.0.0.BETA2</version.sip.subscription.enabler>
 	</properties>
 
 	<dependencyManagement>
