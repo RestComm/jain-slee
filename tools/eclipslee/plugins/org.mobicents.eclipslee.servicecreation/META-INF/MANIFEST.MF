@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JAIN SLEE Service Creation Plug-In
 Bundle-SymbolicName: org.mobicents.eclipslee.servicecreation; singleton:=true
-Bundle-Version: 2.0.0.BETA2
+Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: servicecreation.jar,
  lib/slee.jar,
  lib/xerces.jar,

@@ -7,19 +7,21 @@
 		<version>2.15</version>
 	</parent>
 
-	<artifactId>eclipslee</artifactId>
 	<groupId>org.mobicents.servers.jainslee.tools</groupId>
-	<version>2.0.0-SNAPSHOT</version>
+	<artifactId>eclipslee</artifactId>
+	<version>0.0.2-SNAPSHOT</version>
+
+	<name>Mobicents :: JAIN SLEE Tools :: EclipSLEE</name>
 
 	<packaging>pom</packaging>
 
-        <properties>
-                <tychoVersion>0.10.0</tychoVersion>
-        </properties>
+	<properties>
+		<tychoVersion>0.10.0</tychoVersion>
+	</properties>
 
 	<modules>
-		<module>plugins</module>
 		<module>features</module>
+		<module>plugins</module>
 		<module>site</module>
 		<!--module>docs</module-->
 	</modules>
@@ -34,14 +36,14 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
-   				<groupId>org.mobicents.tools</groupId>
+				<groupId>org.mobicents.tools</groupId>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
 					<excludePoms />
 					<classpathExcludes>
 						<exclude>xml-apis:xml-apis</exclude>
-						<exclude>jtidy:jtidy</exclude>																		
+						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
 					<eclipseProjectName>mobicents-slee-tools-eclipslee</eclipseProjectName>
@@ -55,7 +57,7 @@
 				<extensions>true</extensions>
 			</plugin>
 
-			<plugin>
+			<!--plugin>
 				<groupId>org.sonatype.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tychoVersion}</version>
@@ -90,14 +92,15 @@
 						</environment>
 					</environments>
 				</configuration>
-			</plugin>
+			</plugin-->
 
 			<plugin>
 				<groupId>org.sonatype.tycho</groupId>
 				<artifactId>maven-osgi-packaging-plugin</artifactId>
 				<version>${tychoVersion}</version>
 				<configuration>
-					<format>'v'yyyyMMdd-HHmm'-${BUILD_ALIAS}'</format>
+					<!--format>'v'yyyyMMdd-HHmm'-${BUILD_ALIAS}'</format-->
+					<format>'v'yyyyMMdd-HHmm</format>
 					<archiveSite>true</archiveSite>
 					<environments>
 						<environment>
