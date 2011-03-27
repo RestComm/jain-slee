@@ -20,8 +20,8 @@
     </modules>
     
 	<properties>
-		<mobicents.resources.sip11.version>2.2.0.FINAL</mobicents.resources.sip11.version>
-		<mobicents.resources.mgcp.version>2.2.0.FINAL</mobicents.resources.mgcp.version>
+		<mobicents.resources.sip11.version>2.4.0.CR1</mobicents.resources.sip11.version>
+		<mobicents.resources.mgcp.version>2.4.0.CR1</mobicents.resources.mgcp.version>
 	</properties>
 	
 	<dependencyManagement>
