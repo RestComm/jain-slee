@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.enablers</groupId>
 		<artifactId>ims-user-profile-docs</artifactId>
-		<version>1.0.0.BETA2</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>ims-user-profile-docs-sources-mobicents</artifactId>	
