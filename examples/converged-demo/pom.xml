@@ -50,9 +50,9 @@
 	</modules>
 
 	<properties>
-		<mobicents.resources.sip11.version>2.1.0.GA</mobicents.resources.sip11.version>
-		<mobicents.resources.mgcp.version>2.1.0.GA</mobicents.resources.mgcp.version>
-		<mobicents.core.version>2.1.0.GA</mobicents.core.version>
+		<mobicents.resources.sip11.version>2.4.0.CR1</mobicents.resources.sip11.version>
+		<mobicents.resources.mgcp.version>2.4.0.CR1</mobicents.resources.mgcp.version>
+		<mobicents.core.version>2.4.0.CR1</mobicents.core.version>
 	</properties>
 
 	<build>
