@@ -10,7 +10,8 @@
 	</parent>
 
 	<artifactId>org.mobicents.eclipslee</artifactId>
-	
+	<version>2.0.0-SNAPSHOT</version>
+
 	<name>Mobicents :: JAIN SLEE Tools :: EclipSLEE Features / org.mobicents.eclipslee</name>
 
 	<packaging>eclipse-feature</packaging>
