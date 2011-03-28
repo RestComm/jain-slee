@@ -64,7 +64,7 @@
 		<example.converged-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/converged-demo/${tag.version}</example.converged-demo.connectionURL>
 		<example.slee-connectivity.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/slee-connectivity/${tag.version}</example.slee-connectivity.connectionURL>
 		
-		<eclipslee.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/eclipslee/2.0.0.BETA1</eclipslee.connectionURL> 		
+		<eclipslee.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/eclipslee/2.0.0.BETA2</eclipslee.connectionURL> 		
 		<remote-slee-connection.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/remote-slee-connection/${tag.version}</remote-slee-connection.connectionURL>		
 		<twiddle.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/twiddle/1.0.0.BETA3</twiddle.connectionURL>
 		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/jopr-plugin/${tag.version}</jopr-plugin.connectionURL>
