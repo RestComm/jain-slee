@@ -34,7 +34,7 @@ Quick start
 
 (*) Deploy and undeploy Resource Adaptors
 
-Make sure that you have Apache Ant 1.7 installed and configured.
+Make sure that you have Apache Ant 1.7 or later installed and configured.
 
 If you want to deploy with the mobicents DU deployer in the Application Server run this:
 ant -f resources/<radir>/build.xml deploy (or undeploy)
@@ -52,4 +52,4 @@ Simply copy the jar into the plugins dir inside Eclipse IDE and restart it.
 
 Documentation
 -------------
-Complete server documentation can be found in docs directory, other components documentation are in the component's directory.
+Complete server documentation can be found in docs directory.
