@@ -6,16 +6,35 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools</groupId>
 		<artifactId>eclipslee</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>2.0.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
 	<groupId>org.mobicents.servers.jainslee.tools</groupId>
 	<artifactId>org.mobicents.eclipslee.servicecreation</artifactId>
-	<version>2.0.0-SNAPSHOT</version>
 
 	<name>Mobicents :: JAIN SLEE Tools :: EclipSLEE Plugins / org.mobicents.eclipslee.servicecreation</name>
 
 	<packaging>eclipse-plugin</packaging>
-
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<groupId>org.mobicents.tools</groupId>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms />
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+					</classpathExcludes>
+					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<eclipseProjectName>mobicents-slee-tools-eclipslee-plugins</eclipseProjectName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
 </project>

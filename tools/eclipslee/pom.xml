@@ -9,7 +9,7 @@
 
 	<groupId>org.mobicents.servers.jainslee.tools</groupId>
 	<artifactId>eclipslee</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 
 	<name>Mobicents :: JAIN SLEE Tools :: EclipSLEE</name>
 
@@ -20,8 +20,8 @@
 	</properties>
 
 	<modules>
-		<module>features</module>
-		<module>plugins</module>
+		<module>features/org.mobicents.eclipslee.servicecreation.feature</module>
+		<module>plugins/org.mobicents.eclipslee.servicecreation</module>
 		<module>site</module>
 		<!--module>docs</module-->
 	</modules>
@@ -32,25 +32,39 @@
 		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/eclipslee</url>
 	</scm>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<groupId>org.mobicents.tools</groupId>
-				<inherited>false</inherited>
-				<executions />
-				<configuration>
-					<excludePoms />
-					<classpathExcludes>
-						<exclude>xml-apis:xml-apis</exclude>
-						<exclude>jtidy:jtidy</exclude>
-					</classpathExcludes>
-					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-tools-eclipslee</eclipseProjectName>
-				</configuration>
-			</plugin>
-
-			<plugin>
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>docs</module>	
+				<!-- <module>release</module> -->
+			</modules>
+			<build>
+				<plugins>
+					<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/eclipslee</tagBase>
+						<preparationGoals>clean install</preparationGoals>
+					</configuration>
+					</plugin>
+				</plugins>
+			</build>		
+		</profile>
+		<profile>
+			<id>release</id>
+			<modules>
+				<module>docs</module>
+				<!-- <module>release</module> -->
+			</modules>
+		</profile>
+		<profile>
+			<id>build-plugin</id>
+			<build>
+				<plugins>
+					<plugin>
 				<groupId>org.sonatype.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tychoVersion}</version>
@@ -145,42 +159,10 @@
 					<!-- <target>1.6</target> -->
 				</configuration>
 			</plugin>
-		</plugins>
-	</build>
 			
-	<profiles>
-		<profile>
-			<id>maven-release</id>
-			<modules>
-				<module>docs</module>	
-				<!-- <module>release</module> -->
-			</modules>
-			<build>
-				<plugins>
-					<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<configuration>
-						<autoVersionSubmodules>true</autoVersionSubmodules>
-						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/eclipslee</tagBase>
-						<preparationGoals>clean install</preparationGoals>
-					</configuration>
-					</plugin>
 				</plugins>
-			</build>		
-		</profile>
-		<profile>
-			<id>release</id>
-			<modules>
-				<module>docs</module>
-				<!-- <module>release</module> -->
-			</modules>
-		</profile>		
-	</profiles>
-	
-	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
-
-	<repositories>
+			</build>
+			<repositories>
 		<repository>
 			<id>jboss-requirements-composite-mirror</id>
 			<url>http://download.jboss.org/jbosstools/updates/indigo/</url>
@@ -193,6 +175,13 @@
 			</releases>
 		</repository>
 
+	</repositories>
+		</profile>	
+	</profiles>
+	
+	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
+
+	<repositories>
 		<repository>
 			<id>jboss-public-repository-group</id>
 			<name>JBoss Public Maven Repository Group</name>
