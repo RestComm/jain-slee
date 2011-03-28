@@ -15,15 +15,8 @@
 
 	<packaging>pom</packaging>
 
-	<properties>
-		<tychoVersion>0.10.0</tychoVersion>
-	</properties>
-
 	<modules>
-		<module>features/org.mobicents.eclipslee.servicecreation.feature</module>
-		<module>plugins/org.mobicents.eclipslee.servicecreation</module>
-		<module>site</module>
-		<!--module>docs</module-->
+		<!--module>plugin</module-->
 	</modules>
 
 	<scm>
@@ -59,123 +52,6 @@
 				<module>docs</module>
 				<!-- <module>release</module> -->
 			</modules>
-		</profile>
-		<profile>
-			<id>build-plugin</id>
-			<build>
-				<plugins>
-					<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tychoVersion}</version>
-				<extensions>true</extensions>
-			</plugin>
-
-			<!--plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tychoVersion}</version>
-				<configuration>
-					<resolver>p2</resolver>
-					<ignoreTychoRepositories>true</ignoreTychoRepositories>
-					<environments>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>carbon</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-					</environments>
-				</configuration>
-			</plugin-->
-
-			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>maven-osgi-packaging-plugin</artifactId>
-				<version>${tychoVersion}</version>
-				<configuration>
-					<!--format>'v'yyyyMMdd-HHmm'-${BUILD_ALIAS}'</format-->
-					<format>'v'yyyyMMdd-HHmm</format>
-					<archiveSite>true</archiveSite>
-					<environments>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>carbon</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-					</environments>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>maven-osgi-compiler-plugin</artifactId>
-				<version>${tychoVersion}</version>
-				<!-- not strictly needed but this suppresses warnings when compiling 
-					that the default value (1.5) is being overwritten by the value in the MANIFEST.MF. 
-					You can use this in your plugins or their aggregator pom.xml files to set 
-					this for your plugins -->
-				<configuration>
-					<!-- <source>1.6</source> -->
-					<!-- <target>1.6</target> -->
-				</configuration>
-			</plugin>
-			
-				</plugins>
-			</build>
-			<repositories>
-		<repository>
-			<id>jboss-requirements-composite-mirror</id>
-			<url>http://download.jboss.org/jbosstools/updates/indigo/</url>
-			<layout>p2</layout>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
-
-	</repositories>
 		</profile>	
 	</profiles>
 	
