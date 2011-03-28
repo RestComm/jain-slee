@@ -21,7 +21,7 @@
 	</modules>
 
 	<properties>
-		<mobicents.servers.jainslee.version>2.3.0.FINAL</mobicents.servers.jainslee.version>
+		<mobicents.servers.jainslee.version>2.4.0.CR1</mobicents.servers.jainslee.version>
 		<!-- Docs properties -->
 		<docs.example.name>SleeConnectivity</docs.example.name>
 		<docs.example.dirname>slee-connectivity</docs.example.dirname>
