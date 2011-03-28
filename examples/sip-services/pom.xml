@@ -11,7 +11,7 @@
 
 	<artifactId>mobicents-slee-example-sip-services</artifactId>
 	<groupId>org.mobicents.examples</groupId>
-	<version>3.0.0-SNAPSHOT</version>
+	<version>2.4.0.CR1</version>
 
 	<modules>
   	    <module>common</module>
@@ -24,8 +24,8 @@
 	</modules>
 
 	<properties>
-		<mobicents.core.jar.version>2.0.0.GA</mobicents.core.jar.version>
-		<mobicents.resources.sip11.version>2.2.0.FINAL</mobicents.resources.sip11.version>
+		<mobicents.core.jar.version>2.4.0.CR1</mobicents.core.jar.version>
+		<mobicents.resources.sip11.version>2.4.0.CR1</mobicents.resources.sip11.version>
 		<!-- define which location service to use -->
 		<!-- location.service.className>org.mobicents.slee.services.sip.location.jpa.JPALocationService</location.service.className-->
 		<location.service.className>org.mobicents.slee.services.sip.location.nonha.NonHALocationService</location.service.className>
@@ -68,9 +68,9 @@
 	</profiles>
 
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/2.4.0.CR1</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/2.4.0.CR1</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/2.4.0.CR1</url>
 	</scm>
 
 <build>
