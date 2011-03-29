@@ -66,7 +66,7 @@
 			<procedure>
 				<step>Open Eclipse</step>
 				<step>Go to <menuchoice><guimenu>Help</guimenu><guisubmenu>Install New Software...</guisubmenu></menuchoice></step>
-				<step>Click <guibutton>Add...</guibutton> and enter name EclipSLEE and URL http://mobicents.googlecode.com/svn/downloads/sip-servlets-eclipse-update-site</step>
+				<step>Click <guibutton>Add...</guibutton> and enter name EclipSLEE and URL http://mobicents.googlecode.com/svn/downloads/eclipse-update-site/</step>
 				<step>Select the appropriate EclipSLEE version, click <guibutton>Next</guibutton> and follow the instructions in the Eclipse Wizard</step>
 				<step>Allow Eclipse to restart</step>
 			</procedure>
@@ -75,7 +75,7 @@
 		<section id="manually">
 			<title>Manually</title>
 			<procedure>
-				<step>Download the latest EclipSLEE JAR file from <ulink url="http://mobicents.googlecode.com/svn/downloads/sip-servlets-eclipse-update-site/plugins/">here</ulink></step>
+				<step>Download the latest EclipSLEE JAR file from <ulink url="http://mobicents.googlecode.com/svn/downloads/eclipse-update-site/plugins/">here</ulink></step>
 				<step>Copy the JAR file to ECLIPSE_HOME/plugins</step>
 				<step>(Re)Start Eclipse</step>
 			</procedure>
