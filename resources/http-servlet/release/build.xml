@@ -10,7 +10,7 @@
 	<property name="deploy.dir" value="${jboss.home}/server/${jboss.config}/deploy/" />
 
 	<target name="deploy-jmx">
-		<copy overwrite="true" todir="${deploy.dir}" file="${home}/_mobicents-slee-ra-http-servlet-common.jar" />
+		<copy overwrite="true" todir="${deploy.dir}" file="${home}/mobicents-slee-ra-http-servlet-common.jar" />
 		<copy overwrite="true" todir="${deploy.dir}" file="${home}/mobicents.war" />
 		<sleep seconds="2"/>
 		<ant antfile="${home}/du-management.xml" target="deploy-jmx" inheritAll="false">
@@ -29,11 +29,11 @@
 			<property name="jnpPort" value="${jnpPort}" />
 		</ant>		
 		<delete file="${deploy.dir}/mobicents.war" />
-		<delete file="${deploy.dir}/_mobicents-slee-ra-http-servlet-common.jar" />		
+		<delete file="${deploy.dir}/mobicents-slee-ra-http-servlet-common.jar" />		
 	</target>
 
 	<target name="deploy">
-		<copy overwrite="true" todir="${deploy.dir}" file="${home}/_mobicents-slee-ra-http-servlet-common.jar" />
+		<copy overwrite="true" todir="${deploy.dir}" file="${home}/mobicents-slee-ra-http-servlet-common.jar" />
 		<copy overwrite="true" todir="${deploy.dir}" file="${home}/mobicents.war" />
 		<ant antfile="${home}/du-management.xml" target="deploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
@@ -47,7 +47,7 @@
 			<property name="node" value="${jboss.config}" />
 		</ant>		
 		<delete file="${deploy.dir}/mobicents.war" />
-		<delete file="${deploy.dir}/_mobicents-slee-ra-http-servlet-common.jar" />
+		<delete file="${deploy.dir}/mobicents-slee-ra-http-servlet-common.jar" />
 	</target>
 
 </project>

@@ -8,6 +8,7 @@
 	</parent>
 	
 	<artifactId>http-servlet-common</artifactId>
+	
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 		
 	<dependencies>
@@ -24,7 +25,7 @@
 	</dependencies>
 	
 	<build>
-		<finalName>_mobicents-slee-ra-http-servlet-common</finalName>
+		<finalName>mobicents-slee-ra-http-servlet-common</finalName>		
 		<plugins>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
