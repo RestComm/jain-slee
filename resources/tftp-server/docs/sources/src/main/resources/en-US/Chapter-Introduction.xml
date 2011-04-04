@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>This Resource Adaptor enables an application -developed using a Service Building Block hosted in a SLEE container- to intercept TFTP requests and send or receive data using same TFTP protocol. Likewise, it enables that application to receive or send complete files. Thus, the application can combine serving static content through file transfer with serving dynamic content by relaying data from back-end systems.</para>
+	
+</chapter>

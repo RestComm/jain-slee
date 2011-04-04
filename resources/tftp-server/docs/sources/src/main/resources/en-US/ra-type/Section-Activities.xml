@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para>The Resource Adaptor Type defines one activity object, <literal>net.java.slee.resource.tftp.TransferActivity</literal>.</para>
+	
+	<para>The <literal>TransferActivity</literal> represents a TFTP transfer. It is created on reception of a TFTP requests, and ends on end-of-file, closure of the datastream, or by an SBB invoking <literal>sendError()</literal> on the <literal>TransferActivity</literal> Object. The activity object interface is defined as follows:</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package net.java.slee.resource.tftp;
+
+public interface TransferActivity {
+
+	public String getTransferId();
+
+    public InputStream getInputStream() throws IOException;
+    public OutputStream getOutputStream() throws IOException;
+
+	public void receiveFile(String filename) throws FileNotFoundException, IOException;
+	public void receiveFile(File file) throws FileNotFoundException, IOException;
+
+	public void sendFile(String filename) throws FileNotFoundException, IOException;
+	public void sendFile(File file) throws FileNotFoundException, IOException;
+
+	public void sendError(int errorCode, String reason);
+}]]>
+     </programlisting>
+     
+     <variablelist>
+     	<varlistentry>
+			<term>The <literal>getTransferId()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the ID of the transfer.</para>
+			</listitem>
+		</varlistentry>
+     	<varlistentry>
+			<term>The <literal>getInutStream()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the data stream of the TFTP write request.</para>
+			</listitem>
+		</varlistentry>
+     	<varlistentry>
+			<term>The <literal>getOutputStream()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the data stream of the TFTP read request.</para>
+			</listitem>
+		</varlistentry>
+     	<varlistentry>
+			<term>The <literal>receiveFile()</literal> method:</term>
+			<listitem>
+				<para>Stores the data of the TFTP write request in the given file.</para>
+			</listitem>
+		</varlistentry>
+     	<varlistentry>
+			<term>The <literal>sendFile()</literal> method:</term>
+			<listitem>
+				<para>Sends the content of the given file to the TFTP client that initiated the TFTP read request.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+</section>

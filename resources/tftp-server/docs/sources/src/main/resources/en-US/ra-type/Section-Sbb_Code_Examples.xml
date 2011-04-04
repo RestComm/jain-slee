@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="ratype_sbb_code_examples">
+
+	<title>Sbb Code Examples</title>
+
+	<para>The following code shows how to use the Resource Adaptor Type for common functionalities</para>
+
+	<section id="ratype_sbb_code_examples_get_request">
+
+		<title>WRITE Request Event Handling</title>
+
+		<para>The following code handles a TFTP WRITE request:</para>
+		
+		<programlisting language="Java" role="JAVA">
+			<![CDATA[
+    import net.java.slee.resource.tftp.TransferActivity;
+    import net.java.slee.resource.tftp.events.RequestEvent;
+
+    import org.apache.commons.net.tftp.TFTPWriteRequestPacket;
+    import org.apache.commons.net.tftp.TFTPRequestPacket;
+
+	public void onWrite(RequestEvent event, ActivityContextInterface aci) {
+
+		TFTPWriteRequestPacket req = (TFTPWriteRequestPacket) event.getRequest();
+
+        if (isSpecialRequest(req) {
+            doSpecialThings(req);
+        } else {
+            // just receive data and create the requested file
+            TransferActivity activity = (TransferActivity) aci.getActivity();
+
+            try {
+                activity.receiveFile(req.getFilename());
+            } catch (FileNotFoundException e) {
+                activity.sendError(TFTPErrorPacket.FILE_NOT_FOUND, e.getMessage());
+                return;
+            } catch (Exception e) {
+                activity.sendError(TFTPErrorPacket.UNDEFINED, e.getMessage());
+                return;
+            }
+        }
+    }
+
+    private boolean isSpecialRequest(TFTPRequestPacket packet) {
+        // inspect packet and decide whether it needs special treatment
+        return false;
+    }
+
+    private void doSpecialThings(TFTPRequestPacket packet) {
+        // actually do the special things that need to be done.
+        ...;
+	}]]>
+		</programlisting>
+	</section>
+
+	<section id="ratype_sbb_code_examples_put_request">
+
+		<title>READ Request Event Handling with event suspending</title>
+
+		<para>The following code handles a TFTP READ request:</para>
+		
+		<programlisting language="Java" role="JAVA">
+			<![CDATA[
+    import net.java.slee.resource.tftp.TransferActivity;
+    import net.java.slee.resource.tftp.events.RequestEvent;
+
+    import org.apache.commons.net.tftp.TFTPReadRequestPacket;
+    import org.apache.commons.net.tftp.TFTPRequestPacket;
+
+    // CMP fields
+	public abstract void setSuspendedEventCmp(EventContext ctxt);
+	public abstract EventContext getSuspendedEventCmp();
+
+	public void onRead(RequestEvent event, ActivityContextInterface aci,
+                        EventContext ctxt) {
+
+		TFTPReadRequestPacket req = (TFTPReadRequestPacket) event.getRequest();
+
+        if (isSpecialRequest(req) {
+            doSpecialThings(req);
+        } else {
+            // just send the requested file
+            TransferActivity activity = (TransferActivity) aci.getActivity();
+
+            try {
+                activity.sendFile(req.getFilename());
+            } catch (FileNotFoundException e) {
+                activity.sendError(TFTPErrorPacket.FILE_NOT_FOUND, e.getMessage());
+                return;
+            } catch (Exception e) {
+                activity.sendError(TFTPErrorPacket.UNDEFINED, e.getMessage());
+                return;
+            }
+        }
+    }
+
+    private boolean isSpecialRequest(TFTPRequestPacket packet) {
+        // inspect packet and decide whether it needs special treatment
+        return false;
+    }
+
+    private void doSpecialThings(TFTPRequestPacket packet, EventContext ctxt) {
+        // actually do the special things that need to be done & suspend.
+        ...;
+		setSuspendedEventCmp(ctxt);
+		ctxt.suspendDelivery();
+    }
+
+	public void onSomeOtherRelatedEvent(RelatedEvent event, ActivityContextInterface aci) {
+		try {
+			OutputStream os = getRequestActivity().getOutputStream();
+			os.write("whatever data needs to be written".getBytes());
+            os.flush(); os.close();
+			getSuspendedEventCmp().resumeDelivery();
+		} catch (Exception e) {
+			
+		}
+    }
+
+	private TransferActivity getRequestActivity() {
+		for (ActivityContextInterface aci : sbbContext.getActivities())
+			if (aci.getActivity() instanceof TransferActivity)
+				return (TransferActivity) aci.getActivity();
+		return null;
+    }]]>
+		</programlisting>
+	</section>
+	
+</section>

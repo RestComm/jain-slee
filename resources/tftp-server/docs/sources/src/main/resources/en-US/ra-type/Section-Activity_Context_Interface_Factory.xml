@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_aci_factory">
+
+	<title>Activity Context Interface Factory</title>
+
+	<para>The Resource Adaptor's Activity Context Interface Factory is of type <literal>net.java.slee.resource.tftp.TftpServerActivityContextInterfaceFactory</literal>, it allows the SBB to retrieve the <literal>ActivityContextInterface</literal> related with an existing Resource Adaptor activity object. The interface is defined as follows:</para>
+
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package net.java.slee.resource.tftp;
+
+import javax.slee.ActivityContextInterface;
+import javax.slee.FactoryException;
+import javax.slee.UnrecognizedActivityException;
+
+public interface TftpServerActivityContextInterfaceFactory {
+
+	public ActivityContextInterface getActivityContextInterface(
+			TransferActivity activity) throws NullPointerException,
+			UnrecognizedActivityException, FactoryException;
+}]]>
+     </programlisting>
+
+</section>
