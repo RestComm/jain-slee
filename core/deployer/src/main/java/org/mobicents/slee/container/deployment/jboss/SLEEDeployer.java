@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.vfs.spi.deployer.AbstractSimpleVFSRealDeployer;
 import org.jboss.deployers.vfs.spi.structure.VFSDeploymentUnit;
-import org.jboss.system.ServiceController;
 import org.jboss.virtual.VFSUtils;
 import org.mobicents.slee.container.deployment.InternalDeployer;
 import org.mobicents.slee.container.deployment.ExternalDeployer;
@@ -41,14 +40,11 @@ public class SLEEDeployer extends
 	private Map<URL, DeploymentUnitRecord> records = new HashMap<URL, DeploymentUnitRecord>();
 
 	private InternalDeployer internalDeployer;
-
-	/**
-	 * Create a new SleeDeploymentMetaData.
-	 */
-	public SLEEDeployer(ServiceController serviceController) {
+		
+	public SLEEDeployer() {
 		super(SLEEDeploymentMetaData.class);
 		setOutput(SLEEDeploymentMetaData.class);
-		logger.info("Mobicents SLEE External Deployer initialized.");
+		logger.info("Mobicents SLEE External Deployer initialized.");	
 	}
 	
 	@Override
@@ -107,7 +103,7 @@ public class SLEEDeployer extends
 	}
 
 	@Override
-	public void undeploy(VFSDeploymentUnit vfsDU, SLEEDeploymentMetaData sdmd) {
+	public void undeploy(VFSDeploymentUnit vfsDU, SLEEDeploymentMetaData sdmd) {		
 		synchronized (this) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("SLEEParserDeployer 'undeploy' called:");

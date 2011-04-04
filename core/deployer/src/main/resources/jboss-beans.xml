@@ -3,8 +3,6 @@
 
   <bean name="Mobicents.JAINSLEE.ParserDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEEParserDeployer" />
 
-  <bean name="Mobicents.JAINSLEE.ExternalDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEEDeployer">
-    <constructor><parameter><inject bean="JMXKernel" property="serviceController"/></parameter></constructor>
-  </bean>
+  <bean name="Mobicents.JAINSLEE.ExternalDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEEDeployer" />
   
 </deployment>

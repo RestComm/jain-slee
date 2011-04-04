@@ -121,13 +121,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		} catch (InvalidStateException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ManagementException(ex.getMessage());
-		}
-		try {
-			
-		
-		} catch (Throwable ex) {
-			throw new ManagementException(ex.getMessage(), ex);
+			throw new ManagementException(ex.getMessage(),ex);
 		}
 	}
 

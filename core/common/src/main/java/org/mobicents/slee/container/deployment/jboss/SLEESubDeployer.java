@@ -2,26 +2,19 @@ package org.mobicents.slee.container.deployment.jboss;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.management.MBeanServer;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
 import javax.slee.InvalidStateException;
+import javax.slee.management.DependencyException;
 
+import org.apache.log4j.Logger;
 import org.jboss.deployment.DeploymentException;
 import org.jboss.deployment.SubDeployerSupport;
-import org.jboss.logging.Logger;
-import org.jboss.mx.util.MBeanServerLocator;
 import org.mobicents.slee.container.component.du.DeployableUnitDescriptor;
 import org.mobicents.slee.container.component.du.DeployableUnitDescriptorFactory;
-import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 
 /**
  * This is the Deployer main class where the AS will invoke the lifecycle
@@ -33,14 +26,12 @@ import org.mobicents.slee.container.management.jmx.MobicentsManagement;
  */
 @SuppressWarnings("deprecation")
 public class SLEESubDeployer extends SubDeployerSupport implements
-		SLEESubDeployerMBean, NotificationListener {
+		SLEESubDeployerMBean {
 	
 	// Constants -----------------------------------------------------
 
 	// The Logger.
 	private static Logger logger = Logger.getLogger(SLEESubDeployer.class);
-
-	private static Timer timer = new Timer();
 
 	// Attributes ----------------------------------------------------
 
@@ -49,10 +40,6 @@ public class SLEESubDeployer extends SubDeployerSupport implements
 
 	// Deployable Units present.
 	private ConcurrentHashMap<String, DeployableUnit> deployableUnits = new ConcurrentHashMap<String, DeployableUnit>();
-
-	private boolean isNotificationEnabled = false;
-
-	private boolean isServerShuttingDown = false;
 
 	private CopyOnWriteArrayList<String> undeploys = new CopyOnWriteArrayList<String>();
 
@@ -135,19 +122,6 @@ public class SLEESubDeployer extends SubDeployerSupport implements
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Method init called for " + deployableUnitURL);
-		}
-
-		if (!isNotificationEnabled) {
-			try {
-				// find mbean server
-				final MBeanServer server = MBeanServerLocator.locateJBoss();
-				// register for notifications on jboss
-				server.addNotificationListener(new ObjectName(
-						"jboss.system:type=Server"), this, null, "");
-				isNotificationEnabled = true;
-			} catch (Exception e) {
-				logger.error("Failed to register notification listener.", e);
-			}
 		}
 
 		// Get the full path and filename for this du
@@ -293,6 +267,11 @@ public class SLEESubDeployer extends SubDeployerSupport implements
 	 * Fun has ended. Time to undeploy.
 	 */
 	public void stop(URL deployableUnitURL) throws DeploymentException {
+		
+		if (logger.isTraceEnabled()) {
+			logger.trace("stop( deployableUnitURL = : " + deployableUnitURL+" )");
+		}
+		
 		DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL);
 
 		DeployableUnit realDU = null;
@@ -308,52 +287,28 @@ public class SLEESubDeployer extends SubDeployerSupport implements
 				addToUndeployList(fileName);
 			}
 
-			if (isServerShuttingDown) {
-				doStop(fileName);
-			} else {
-				// Schedule removal in a recurring task
-				timer.scheduleAtFixedRate(new UndeploymentTask(fileName), 0,
-						getWaitTimeBetweenOperations());
-			}
-		}
-	}
-
-	private boolean doStop(String filename) {
-		if (logger.isTraceEnabled()) {
-			logger.trace("Method stop called for " + filename);
-		}
-
-		DeployableUnit du = null;
-
-		try {
-			// Get and remove deployable unit object
-			if ((du = deployableUnits.get(filename)) != null) {
+			try {
 				// Uninstall it
-				sleeContainerDeployer.getDeploymentManager().uninstallDeployableUnit(du);
-
+				sleeContainerDeployer.getDeploymentManager().uninstallDeployableUnit(realDU);
 				// Remove it from list if successful
-				deployableUnits.remove(filename);
-
-				// Make it null. clean.
-				du = null;
-
-				removeFromUndeployList(filename);
-			}
-		} catch (Exception e) {
-			Throwable cause = e.getCause();
-
-			if (cause instanceof InvalidStateException) {
-				logger.warn(cause.getLocalizedMessage() + "... WAITING ...");
-			} else if (e instanceof DeploymentException) {
-				throw new IllegalStateException(e.getLocalizedMessage(), e);
-			} else {
-				logger.error(e.getMessage(), e);
-			}
-			return false;
+				deployableUnits.remove(fileName);
+				removeFromUndeployList(fileName);				
+			} catch (DependencyException e) {
+				// ignore, will be tried again once there is another undeployment
+			} catch (Exception e) {
+				Throwable cause = e.getCause();
+				if (cause instanceof InvalidStateException) {
+					logger.warn(cause.getLocalizedMessage() + "... WAITING ...");
+				} else if (e instanceof DeploymentException) {
+					throw new IllegalStateException(e.getLocalizedMessage(), e);
+				} else {
+					logger.error(e.getMessage(), e);
+				}				
+			}						
 		}
-
-		return true;
 	}
+
+	
 
 	// MBean Operations
 	// ---------------------------------------------------------
@@ -410,44 +365,6 @@ public class SLEESubDeployer extends SubDeployerSupport implements
 
 	// Aux Functions
 	// ------------------------------------------------------------
-
-	private class UndeploymentTask extends TimerTask {
-		String filename;
-		long startTime;
-
-		public UndeploymentTask(String filename) {
-			this.filename = filename;
-			this.startTime = System.currentTimeMillis();
-		}
-
-		public void run() {
-			try {
-				long elapsedTime = System.currentTimeMillis() - this.startTime;
-
-				if (doStop(filename)
-						|| elapsedTime > 60 * 60 * 1000 + MobicentsManagement.entitiesRemovalDelay) {
-					this.cancel();
-				}
-			} catch (IllegalStateException ise) {
-				// This only happens when there are dependents. Let's cancel,
-				// it'll return.
-				this.cancel();
-			} catch (Exception ignore) {
-				// do nothing...
-			}
-		}
-
-	}
-
-	public void handleNotification(Notification notification, Object o) {
-		if (notification.getType().equals("org.jboss.system.server.stopped")) {
-			isServerShuttingDown = true;
-		}
-	}
-
-	public boolean isServerShuttingDown() {
-		return isServerShuttingDown;
-	}
 
 	private boolean addToUndeployList(String du) {
 		if (logger.isTraceEnabled()) {

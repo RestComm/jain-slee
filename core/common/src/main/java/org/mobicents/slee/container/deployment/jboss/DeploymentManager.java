@@ -3,15 +3,15 @@ package org.mobicents.slee.container.deployment.jboss;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.slee.ComponentID;
 import javax.slee.InvalidStateException;
 import javax.slee.UnrecognizedServiceException;
+import javax.slee.management.DependencyException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
 import javax.slee.management.ResourceAdaptorEntityState;
@@ -19,7 +19,6 @@ import javax.slee.management.ServiceState;
 import javax.slee.management.UnrecognizedLinkNameException;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 
-import org.jboss.deployment.DeploymentException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.deployment.jboss.action.ActivateResourceAdaptorEntityAction;
@@ -38,9 +37,9 @@ import org.mobicents.slee.container.management.jmx.MobicentsManagement;
  * and for controlling dependencies and monitoring new deployments using the deployer.
  * 
  * @author Alexandre Mendonça
+ * @author martins
  * @version 1.0
  */
-@SuppressWarnings("deprecation")
 public class DeploymentManager {
 
   // The Logger.
@@ -53,7 +52,7 @@ public class DeploymentManager {
   private Collection<DeployableUnit> waitingForUninstallDUs = new ConcurrentLinkedQueue<DeployableUnit>();
 
   // The DUs waiting for being uninstalled.
-  private Collection<DeployableUnit> deployedDUs = new ConcurrentLinkedQueue<DeployableUnit>();
+  private LinkedBlockingDeque<DeployableUnit> deployedDUs = new LinkedBlockingDeque<DeployableUnit>();
 
   // The components already deployed to SLEE
   private Collection<String> deployedComponents = new ConcurrentLinkedQueue<String>();
@@ -228,12 +227,9 @@ public class DeploymentManager {
       if (!waitingForUninstallDUs.contains(du)) {
         // Add it to the waiting list.
         waitingForUninstallDUs.add(du);
-
-        logger.warn("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
+        logger.warn("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");        
       }
-
-      // But we have to throw this so task knows that it needs to retry
-      throw new DeploymentException("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
+      throw new DependencyException("Unable to undeploy "+du.getDeploymentInfoShortName());
     }
   }
 
@@ -409,23 +405,17 @@ public class DeploymentManager {
    * Callback for {@link SleeStateJMXMonitor}, to learn when SLEE is stopping.
    */
   public void sleeShutdown() {
-    if (logger.isTraceEnabled()) {
-		logger.trace("Got notified that SLEE is now stopping");
-    }
-    // process all DUs that are on hold
-    Set<DeployableUnit> duSet = new HashSet<DeployableUnit>(deployedDUs);
-    deployedDUs.clear();
-    for (DeployableUnit du : duSet) {
-    	try {
-    		uninstallDeployableUnit(du);            
-    	}
-    	catch (DeploymentException de) {
-    		// ignore, this has been dealt before
-    	}
-    	catch (Exception e) {
-    		logger.error("Failed to uninstall DU on hold, while SLEE is stopping",e);
-    	}
-    }
+	  logger.info("Undeploying all Deployable Units due to SLEE shutdown");    
+	  // undeploy each DU in reverse order 
+	  while(!deployedDUs.isEmpty()) {
+		  DeployableUnit du = deployedDUs.removeLast();
+		  try {
+			  uninstallDeployableUnit(du);            
+		  }
+		  catch (Exception e) {
+			  logger.error("Failed to uninstall DU, in SLEE shutdown",e);
+		  }
+	  }
   }
 
   private boolean waitForServiceDeactivation(DeactivateServiceAction action) throws InterruptedException, NullPointerException, UnrecognizedServiceException, ManagementException {

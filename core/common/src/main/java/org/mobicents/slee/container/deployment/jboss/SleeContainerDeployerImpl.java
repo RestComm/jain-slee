@@ -46,6 +46,8 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	// underlying framework/app server
 	private ExternalDeployer externalDeployer;
 
+	private boolean shutdown; 
+	
 	/**
 	 * 
 	 * @return
@@ -188,8 +190,11 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 */
 	@Override
 	public void sleeShutdown() {
-		// let the deployment manager know about that, it will undeploy DUs
-		deploymentManager.sleeShutdown();
+		synchronized (this) {
+			shutdown = true;
+			// let the deployment manager know about that, it will undeploy DUs
+			deploymentManager.sleeShutdown();
+		}		
 	}
 
 	/*
@@ -212,8 +217,12 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * .URL)
 	 */
 	@Override
-	public void init(URL componentURL) throws DeploymentException {
-		sleeSubDeployer.init(componentURL);
+	public void init(URL deployableUnitURL) throws DeploymentException {
+		synchronized (this) {
+			if (!shutdown) {
+				sleeSubDeployer.init(deployableUnitURL);
+			}
+		}
 	}
 
 	/*
@@ -224,8 +233,16 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * .URL)
 	 */
 	@Override
-	public void start(URL componentURL) throws DeploymentException {
-		sleeSubDeployer.start(componentURL);
+	public void start(URL deployableUnitURL) throws DeploymentException {
+		synchronized (this) {
+			if (!shutdown) {
+				sleeSubDeployer.start(deployableUnitURL);
+			}
+			else {
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("Ignoring deploy invoked from external deployer, SLEE in shutdown");
+			}
+		}
 	}
 
 	/*
@@ -237,6 +254,14 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 */
 	@Override
 	public void stop(URL deployableUnitURL) throws DeploymentException {
-		sleeSubDeployer.stop(deployableUnitURL);
+		synchronized (this) {
+			if (!shutdown) {
+				sleeSubDeployer.stop(deployableUnitURL);
+			}
+			else {
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("Ignoring undeploy invoked from external deployer, SLEE in shutdown");
+			}
+		}			
 	}
 }

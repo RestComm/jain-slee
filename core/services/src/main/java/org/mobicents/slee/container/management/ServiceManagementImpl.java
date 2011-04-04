@@ -1,8 +1,11 @@
 package org.mobicents.slee.container.management;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
@@ -27,7 +30,6 @@ import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.event.EventTypeComponent;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
@@ -63,7 +65,33 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 
 	private ServiceActivityFactory serviceActivityFactory;
 	private ServiceActivityContextInterfaceFactoryImpl serviceActivityContextInterfaceFactory;
-
+	
+	private ServiceComponent[] getActiveServicesOrderedByInstallDate(final boolean newFirst) {
+		
+		final Comparator<ServiceComponent> comparator = new Comparator<ServiceComponent>() {
+			@Override
+			public int compare(ServiceComponent o1, ServiceComponent o2) {
+				if (o2.getCreationTime() > o1.getCreationTime()) {
+					return newFirst ? -1 : 1;
+				}
+				else {
+					return newFirst ? 1 : -1;
+				}
+			}			
+		};
+		
+		final SortedSet<ServiceComponent> orderedSet = new TreeSet<ServiceComponent>(comparator);
+		for (ServiceID serviceID: componentRepositoryImpl.getServiceIDs()) {
+			ServiceComponent serviceComponent = componentRepositoryImpl.getComponentByID(serviceID);
+			if (serviceComponent != null && serviceComponent.getServiceState() == ServiceState.ACTIVE) {				
+				orderedSet.add(serviceComponent);
+			}			
+		}
+		
+		return orderedSet.toArray(new ServiceComponent[orderedSet.size()]);
+		
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -250,9 +278,8 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 					&& sleeContainer.getCluster().isHeadMember()) {
 				startActivity(serviceComponent);
 			}
-
-			// notifying the resource adaptors about service state change if the
-			// tx commits
+			
+			// notifying the resource adaptors about service state change
 			final ResourceManagement resourceManagement = sleeContainer
 					.getResourceManagement();
 			for (String raEntityName : resourceManagement
@@ -265,7 +292,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		}
 	}
 
-	private void startActivity(ServiceComponent serviceComponent) {
+	private void startActivity(final ServiceComponent serviceComponent) {
 
 		// create ac for the activity
 		ActivityContextHandle ach = new ServiceActivityContextHandle(
@@ -743,17 +770,6 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 
 	}
 
-	public void endActiveServicesActivities() throws NullPointerException,
-			ManagementException, UnrecognizedServiceException {
-		for (ServiceID serviceID : getServices(ServiceState.ACTIVE)) {
-			ServiceComponent serviceComponent = componentRepositoryImpl
-					.getComponentByID(serviceID);
-			if (serviceComponent != null) {
-				endServiceActivity(serviceComponent);
-			}
-		}
-	}
-
 	@Override
 	public void sleeStarting() {
 		if (sleeContainer.getCluster().isHeadMember()) {
@@ -761,8 +777,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				startActiveServicesActivities();
 			} catch (Throwable e) {
 				throw new SLEEException(e.getMessage(), e);
-			}
-			;
+			}			
 		}
 	}
 
@@ -776,30 +791,13 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 	private void stopAllServiceActivities() {
 
 		logger.info("Ending all service activities...");
-		try {
-
-			for (ActivityContextHandle handle : sleeContainer
-					.getActivityContextFactory()
-					.getAllActivityContextsHandles()) {
-				if (handle.getActivityType() == ActivityType.SERVICE) {
-					try {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Ending activity " + handle);
-						}
-						ActivityContext ac = sleeContainer
-								.getActivityContextFactory()
-								.getActivityContext(handle);
-						if (ac != null) {
-							ac.endActivity();
-						}
-					} catch (Exception e) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Failed to end activity " + handle, e);
-						}
-					}
-				}
-			}
-
+		
+		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
+		
+		try {			
+			for (ServiceComponent serviceComponent : getActiveServicesOrderedByInstallDate(true)) {
+				endServiceActivity(serviceComponent);
+			}					
 		} catch (Exception e) {
 			logger.error("Exception while ending all service activities", e);
 
@@ -810,18 +808,17 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		boolean loop;
 		do {
 			loop = false;
-
 			try {
-				for (ActivityContextHandle handle : sleeContainer
-						.getActivityContextFactory()
-						.getAllActivityContextsHandles()) {
-					if (handle.getActivityType() == ActivityType.SERVICE) {
-						logger.info("Waiting for activity " + handle
-								+ " to end...");
+				for (ServiceComponent serviceComponent : getActiveServicesOrderedByInstallDate(true)) {
+					ActivityContext ac = acf
+					.getActivityContext(new ServiceActivityContextHandle(
+							new ServiceActivityHandleImpl(serviceComponent.getServiceID())));
+					if (ac != null) {
+						logger.info("Waiting for "+serviceComponent.getServiceID()+" to stop...");
 						loop = true;
 						break;
 					}
-				}
+				}			
 			} catch (Exception e) {
 				if (logger.isDebugEnabled()) {
 					logger.debug(e.getMessage(), e);
@@ -842,16 +839,12 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 	public void startActiveServicesActivities() throws NullPointerException,
 			ManagementException, UnrecognizedServiceException, SystemException {
 		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
-		for (ServiceID serviceID : getServices(ServiceState.ACTIVE)) {
-			ServiceComponent serviceComponent = componentRepositoryImpl
-					.getComponentByID(serviceID);
-			if (serviceComponent != null) {
-				ActivityContext ac = acf
-						.getActivityContext(new ServiceActivityContextHandle(
-								new ServiceActivityHandleImpl(serviceID)));
-				if (ac == null) {
-					startActivity(serviceComponent);
-				}
+		for (ServiceComponent serviceComponent : getActiveServicesOrderedByInstallDate(false)) {
+			ActivityContext ac = acf
+			.getActivityContext(new ServiceActivityContextHandle(
+					new ServiceActivityHandleImpl(serviceComponent.getServiceID())));
+			if (ac == null) {
+				startActivity(serviceComponent);
 			}
 		}
 	}
@@ -912,8 +905,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			}
 			if (serviceComponent.getServiceState().isStopping()) {
 				serviceComponent.setServiceState(ServiceState.INACTIVE);
-				// notifying the resource adaptors about service state change if
-				// the tx commits
+				// notifying the resource adaptors about service state change
 				final ResourceManagement resourceManagement = sleeContainer
 						.getResourceManagement();
 				for (String raEntityName : resourceManagement

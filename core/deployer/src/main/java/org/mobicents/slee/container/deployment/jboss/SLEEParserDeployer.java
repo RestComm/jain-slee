@@ -24,10 +24,7 @@ public class SLEEParserDeployer extends AbstractVFSParsingDeployer<SLEEDeploymen
     super(SLEEDeploymentMetaData.class);
     setSuffix(".jar");
     setStage(DeploymentStages.PRE_DESCRIBE);
-    if(logger.isInfoEnabled())
-    {
-    	logger.info("Mobicents SLEE Parser Deployer initialized.");
-    }
+    logger.debug("Mobicents SLEE Parser Deployer initialized.");    
   }
 
   protected SLEEDeploymentMetaData parse(VFSDeploymentUnit vfsDU, VirtualFile virtualFile, SLEEDeploymentMetaData sdmd) throws Exception {    
