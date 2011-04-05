@@ -25,6 +25,7 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
+import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -37,6 +38,7 @@ import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
 import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandle;
 import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
+import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContextImpl;
 
@@ -657,6 +659,16 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		}
 		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
 			synchronized (this) {
+				SleeTransactionManager txManager = sleeContainer.getTransactionManager();
+				Transaction tx = null;
+				try {
+					tx = txManager.getTransaction();
+					if (tx != null) {
+						txManager.suspend();
+					}
+				} catch (Throwable e) {
+					logger.error(e.getMessage(),e);
+				}
 				// the ra object is stopping, check if the timer task is still
 				// needed
 				if (!hasActivities(handle)) {
@@ -664,6 +676,13 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 						timerTask.cancel();
 					}
 					allActivitiesEnded();				
+				}
+				try {
+					if (tx != null) {
+						txManager.resume(tx);
+					}
+				} catch (Throwable e) {
+					logger.error(e.getMessage(),e);
 				}
 			}			
 		}

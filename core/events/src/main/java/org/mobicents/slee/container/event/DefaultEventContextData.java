@@ -221,7 +221,7 @@ public class DefaultEventContextData implements EventContextData {
 	public String toString() {
 		return new StringBuilder("event type id = ").append(
 				eventTypeId).append(" , event = ").append(eventObject).append(
-				" , local ac = ").append(localActivityContext).append(" , address = ").append(
+				" , local ac = ").append(localActivityContext.getActivityContextHandle()).append(" , address = ").append(
 				address).append(" , serviceID = ").append(serviceID).toString();
 	}
 }

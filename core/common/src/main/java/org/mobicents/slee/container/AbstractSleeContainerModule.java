@@ -58,6 +58,14 @@ public abstract class AbstractSleeContainerModule implements
 
 	/*
 	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.SleeContainerModule#sleeRunning()
+	 */
+	@Override
+	public void sleeRunning() {
+	}
+	
+	/*
+	 * (non-Javadoc)
 	 * 
 	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStopping()
 	 */
@@ -65,6 +73,14 @@ public abstract class AbstractSleeContainerModule implements
 	public void sleeStopping() {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.SleeContainerModule#sleeStopped()
+	 */
+	@Override
+	public void sleeStopped() {		
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -505,7 +505,17 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 	}
 	
 	@Override
+	public void sleeRunning() {
+		
+	}
+	
+	@Override
 	public void sleeStopping() {
+		
+	}
+	
+	@Override
+	public void sleeStopped() {
 		
 	}
 	

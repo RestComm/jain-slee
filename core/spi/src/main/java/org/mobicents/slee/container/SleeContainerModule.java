@@ -29,11 +29,21 @@ public interface SleeContainerModule {
 	 * 
 	 */
 	void sleeStarting();
-		
+	
+	/**
+	 * 
+	 */
+	void sleeRunning();
+	
 	/**
 	 * 
 	 */
 	void sleeStopping();
+	
+	/**
+	 * 
+	 */
+	void sleeStopped();
 	
 	/**
 	 * 

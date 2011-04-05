@@ -398,7 +398,7 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 	}
 
 	@Override
-	public void sleeStarting() {
+	public void sleeRunning() {
 		if (sleeContainer.getCluster().isHeadMember()) {
 			startAllProfileTableActivities();
 		}

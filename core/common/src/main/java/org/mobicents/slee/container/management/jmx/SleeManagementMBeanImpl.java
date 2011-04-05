@@ -138,9 +138,9 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 		try {
 
-			changeSleeState(SleeState.STOPPING);
-
 			logger.info(generateMessageWithLogo("stopping"));
+
+			changeSleeState(SleeState.STOPPING);
 
 			// tck requires the stopping process to run in a diff thread
 			final ExecutorService exec = Executors.newSingleThreadExecutor();

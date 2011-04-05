@@ -555,41 +555,54 @@ public class SleeContainer {
 
 		validateStateTransition(sleeState, newState);
 
-		if (sleeState == null) {
-			if (newState == SleeState.STOPPED) {
-				beforeModulesInitialization();
-				for (Iterator<SleeContainerModule> i = modules.iterator(); i
-						.hasNext();) {
-					i.next().sleeInitialization();
-				}
-				afterModulesInitialization();
+		// change state 
+		SleeState oldState = this.sleeState;
+		this.sleeState = newState;
+		
+		// notify modules
+		if (oldState == null) {
+			// slee init
+			beforeModulesInitialization();
+			for (Iterator<SleeContainerModule> i = modules.iterator(); i
+					.hasNext();) {
+				i.next().sleeInitialization();
 			}
-		} else if (sleeState == SleeState.STARTING) {
-			if (newState == SleeState.RUNNING) {
-				for (Iterator<SleeContainerModule> i = modules.iterator(); i
-						.hasNext();) {
-					i.next().sleeStarting();
-				}
-			}
-		} else if (sleeState == SleeState.STOPPED) {
-			if (newState == null) {
-				beforeModulesShutdown();
-				for (Iterator<SleeContainerModule> i = modules
-						.descendingIterator(); i.hasNext();) {
-					i.next().sleeShutdown();
-				}
-				afterModulesShutdown();
-			}
-		} else if (sleeState == SleeState.STOPPING) {
-			if (newState == SleeState.STOPPED) {
-				for (Iterator<SleeContainerModule> i = modules
-						.descendingIterator(); i.hasNext();) {
-					i.next().sleeStopping();
-				}
+			afterModulesInitialization();						
+		}
+		
+		if (newState == SleeState.STOPPED) {
+			Iterator<SleeContainerModule> iterator = oldState == null ? modules.iterator() : modules.descendingIterator();
+			for (Iterator<SleeContainerModule> i=iterator; i
+				.hasNext();) {
+				i.next().sleeStopped();
 			}
 		}
-
-		this.sleeState = newState;
+		else if (newState == SleeState.STARTING) {
+			for (Iterator<SleeContainerModule> i = modules
+					.iterator(); i.hasNext();) {
+				i.next().sleeStarting();
+			}
+		}
+		else if (newState == SleeState.RUNNING) {
+			for (Iterator<SleeContainerModule> i = modules.iterator(); i
+			.hasNext();) {
+				i.next().sleeRunning();
+			}
+		}
+		else if (newState == SleeState.STOPPING) {
+			for (Iterator<SleeContainerModule> i = modules.descendingIterator(); i.hasNext();) {
+				i.next().sleeStopping();
+			}
+		}
+		else if (newState == null) {
+			// slee shutdown
+			beforeModulesShutdown();
+			for (Iterator<SleeContainerModule> i = modules
+					.descendingIterator(); i.hasNext();) {
+				i.next().sleeShutdown();
+			}
+			afterModulesShutdown();
+		}
 
 	}
 

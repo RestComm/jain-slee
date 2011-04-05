@@ -1024,7 +1024,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	}
 	
 	@Override
-	public void sleeStarting() {
+	public void sleeRunning() {
 		if (handleReferenceFactory != null) {
 			handleReferenceFactory.init();
 		}	

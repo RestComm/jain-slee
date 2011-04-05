@@ -574,7 +574,17 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 	}
 	
 	@Override
+	public void sleeRunning() {
+		
+	}
+	
+	@Override
 	public void sleeStopping() {
+		
+	}
+	
+	@Override
+	public void sleeStopped() {
 		
 	}
 	

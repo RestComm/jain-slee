@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
@@ -428,7 +429,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 
 	public void endServiceActivity(ServiceComponent serviceComponent) {
 
-		ActivityContextHandle ach = new ServiceActivityContextHandle(
+		final ActivityContextHandle ach = new ServiceActivityContextHandle(
 				new ServiceActivityHandleImpl(serviceComponent.getServiceID()));
 		if (logger.isDebugEnabled()) {
 			logger.debug("Ending " + serviceComponent.getServiceID()
@@ -436,11 +437,35 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		}
 		ActivityContext ac = sleeContainer.getActivityContextFactory()
 				.getActivityContext(ach);
-		if (ac != null && !ac.isEnding()) {
-			ac.endActivity();
-		} else {
-			logger.error("unable to find and end ac " + ach);
+		if (ac == null) {
+			logger.warn("unable to find and end ac " + ach);
+			return;
 		}
+		// end it
+		if (!ac.isEnding()) {
+			ac.endActivity();
+		}
+		// set a task to force its ending after 30 secs
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (sleeContainer.getSleeState() != null) {
+						final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
+						if (ac != null) {
+							if (logger.isDebugEnabled()) {
+								logger.debug("Forcing the end of " + ach);
+							}
+							ac.activityEnded();
+						}
+					}				
+				}
+				catch (Exception e) {
+					logger.error(e.getMessage(),e);
+				}
+			}
+		};
+		sleeContainer.getNonClusteredScheduler().schedule(r,30L,TimeUnit.SECONDS);
 	}
 
 	/*
@@ -771,7 +796,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 	}
 
 	@Override
-	public void sleeStarting() {
+	public void sleeRunning() {
 		if (sleeContainer.getCluster().isHeadMember()) {
 			try {
 				startActiveServicesActivities();
@@ -803,11 +828,10 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 
 		}
 
-		// wait all activities end
-
-		boolean loop;
-		do {
-			loop = false;
+		// give 35 secs for all activities to end
+		for (int i=0;i<35;i++) {
+			// check if there is still any service activity
+			boolean noActivities = true;
 			try {
 				for (ServiceComponent serviceComponent : getActiveServicesOrderedByInstallDate(true)) {
 					ActivityContext ac = acf
@@ -815,17 +839,19 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 							new ServiceActivityHandleImpl(serviceComponent.getServiceID())));
 					if (ac != null) {
 						logger.info("Waiting for "+serviceComponent.getServiceID()+" to stop...");
-						loop = true;
+						noActivities = false;
 						break;
 					}
-				}			
+				}				
 			} catch (Exception e) {
 				if (logger.isDebugEnabled()) {
 					logger.debug(e.getMessage(), e);
 				}
 			}
-
-			if (loop) {
+			if (!noActivities) {
+				break;
+			}
+			else {
 				try {
 					// wait a sec
 					Thread.sleep(1000);
@@ -833,7 +859,10 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 					logger.error(e.getMessage(), e);
 				}
 			}
-		} while (loop);
+		}
+		
+		
+		logger.info("All service activities ended.");
 	}
 
 	public void startActiveServicesActivities() throws NullPointerException,
@@ -843,9 +872,15 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			ActivityContext ac = acf
 			.getActivityContext(new ServiceActivityContextHandle(
 					new ServiceActivityHandleImpl(serviceComponent.getServiceID())));
-			if (ac == null) {
-				startActivity(serviceComponent);
-			}
+			if (ac != null) {
+				ac.activityEnded();
+			}			
+			startActivity(serviceComponent);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				logger.error(e.getMessage(),e);
+			}			
 		}
 	}
 
