@@ -269,7 +269,7 @@ public class ServiceComponentImpl extends AbstractSleeComponent implements Servi
 	@Override
 	public void setServiceState(ServiceState state) {
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Changing "+getServiceID()+" state to "+serviceState);
+			LOGGER.debug("Changing "+getServiceID()+" state to "+state);
 		}
 		this.serviceState = state;
 	}

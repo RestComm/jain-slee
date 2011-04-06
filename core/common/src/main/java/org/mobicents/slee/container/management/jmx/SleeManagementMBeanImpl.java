@@ -1,9 +1,5 @@
 package org.mobicents.slee.container.management.jmx;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanServer;
@@ -25,6 +21,7 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.Version;
+import org.mobicents.slee.container.management.SleeStateChangeRequest;
 
 /**
  * Implementation of the Slee Management MBean for SLEE 1.1 specs
@@ -86,7 +83,8 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * 
 	 * @throws Exception
 	 */
-	public SleeManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
+	public SleeManagementMBeanImpl(SleeContainer sleeContainer)
+			throws NotCompliantMBeanException {
 		super(SleeManagementMBeanImplMBean.class);
 		this.sleeContainer = sleeContainer;
 	}
@@ -105,7 +103,6 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * @see javax.slee.management.SleeManagementMBean#getState()
 	 */
 	public SleeState getState() throws ManagementException {
-
 		return this.sleeContainer.getSleeState();
 	}
 
@@ -115,14 +112,88 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * @see javax.slee.management.SleeManagementMBean#start()
 	 */
 	public void start() throws InvalidStateException, ManagementException {
+
 		try {
-			changeSleeState(SleeState.STARTING);
-			changeSleeState(SleeState.RUNNING);
+			// request to change to STARTING
+			final SleeStateChangeRequest startingRequest = new SleeStateChangeRequest() {
+
+				@Override
+				public void stateChanged(SleeState oldState) {
+					logger.info(generateMessageWithLogo("starting"));
+					notifyStateChange(oldState, getNewState());
+				}
+
+				@Override
+				public void requestCompleted() {
+					// inner request, executed when the parent completes, to change to RUNNING
+					final SleeStateChangeRequest runningRequest = new SleeStateChangeRequest() {
+
+						private SleeState oldState;
+
+						@Override
+						public void stateChanged(SleeState oldState) {
+							logger.info(generateMessageWithLogo("started"));
+							this.oldState = oldState;
+						}
+
+						@Override
+						public void requestCompleted() {
+							notifyStateChange(oldState, getNewState());
+						}
+
+						@Override
+						public boolean isBlockingRequest() {
+							return true;
+						}
+
+						@Override
+						public SleeState getNewState() {
+							return SleeState.RUNNING;
+						}
+					};
+					try {
+						sleeContainer.setSleeState(runningRequest);
+					} catch (Throwable e) {
+						logger.error(
+								"Failed to set container in RUNNING state", e);
+						try {
+							stop(false);
+						} catch (Throwable f) {
+							logger.error(
+									"Failed to set container in STOPPED state, after failure to set in RUNNING state",
+									e);
+						}
+					}
+				}
+
+				@Override
+				public boolean isBlockingRequest() {
+					// should be false, but the tck doesn't like it
+					return true;
+				}
+
+				@Override
+				public SleeState getNewState() {
+					return SleeState.STARTING;
+				}
+			};
+			sleeContainer.setSleeState(startingRequest);
+
 		} catch (InvalidStateException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ManagementException(ex.getMessage(),ex);
+			throw new ManagementException(ex.getMessage(), ex);
 		}
+	}
+
+	private void notifyStateChange(SleeState oldState, SleeState newState) {
+		if (logger.isTraceEnabled()) {
+			logger.trace("notifyStateChange( old = " + oldState + " , new = "		
+				+ newState + " )");
+		}
+		notificationBroadcaster
+				.sendNotification(new SleeStateChangeNotification(this,
+						newState, oldState, sleeStateChangeSequenceNumber++));
 	}
 
 	/**
@@ -134,41 +205,72 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		stop(false);
 	}
 
-	private void stop(boolean blockTillStopped) throws InvalidStateException, ManagementException {
-
+	private void stop(final boolean block) throws InvalidStateException,
+			ManagementException {
 		try {
 
-			logger.info(generateMessageWithLogo("stopping"));
+			// request to change to STOPPING
+			final SleeStateChangeRequest stoppingRequest = new SleeStateChangeRequest() {
 
-			changeSleeState(SleeState.STOPPING);
+				@Override
+				public void stateChanged(SleeState oldState) {
+					logger.info(generateMessageWithLogo("stopping"));
+					notifyStateChange(oldState, getNewState());
+				}
 
-			// tck requires the stopping process to run in a diff thread
-			final ExecutorService exec = Executors.newSingleThreadExecutor();
-			Runnable r = new Runnable() {
-				public void run() {
-					synchronized (sleeContainer.getManagementMonitor()) {
-						try {
-							changeSleeState(SleeState.STOPPED);
-						} catch (InvalidStateException e) {
-							logger.error(e.getMessage(),e);
+				@Override
+				public void requestCompleted() {
+					// inner request, executed when the parent completes, to change to STOPPED
+					final SleeStateChangeRequest stopRequest = new SleeStateChangeRequest() {
+
+						private SleeState oldState;
+
+						@Override
+						public void stateChanged(SleeState oldState) {
+							logger.info(generateMessageWithLogo("stopped"));
+							this.oldState = oldState;
 						}
-					}						
-					exec.shutdown();
+
+						@Override
+						public void requestCompleted() {
+							notifyStateChange(oldState, getNewState());
+						}
+
+						@Override
+						public boolean isBlockingRequest() {
+							return true;
+						}
+
+						@Override
+						public SleeState getNewState() {
+							return SleeState.STOPPED;
+						}
+					};
+					try {
+						sleeContainer.setSleeState(stopRequest);
+					} catch (Throwable e) {
+						logger.error(
+								"Failed to set container in STOPPED state", e);
+					}
+				}
+
+				@Override
+				public boolean isBlockingRequest() {
+					return block;
+				}
+
+				@Override
+				public SleeState getNewState() {
+					return SleeState.STOPPING;
 				}
 			};
-			Future<?> future = exec.submit(r);
-			if (blockTillStopped) {
-				future.get();					
-			}
-			
+			sleeContainer.setSleeState(stoppingRequest);
+
+		} catch (InvalidStateException ex) {
+			throw ex;
 		} catch (Exception ex) {
-			logger.error(ex.getMessage(),ex);
-			if (ex instanceof InvalidStateException)
-				throw (InvalidStateException) ex;
-			else
-				throw new ManagementException("Failed stopping SLEE container",
-						ex);
-		}	
+			throw new ManagementException(ex.getMessage(), ex);
+		}
 	}
 
 	/**
@@ -180,8 +282,9 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * @see javax.slee.management.SleeManagementMBean#shutdown()
 	 */
 	public void shutdown() throws InvalidStateException, ManagementException {
+		logger.info(generateMessageWithLogo("shutdown"));
 		try {
-			sleeContainer.setSleeState(null);
+			sleeContainer.shutdownSlee();
 		} catch (InvalidStateException ex) {
 			throw ex;
 		} catch (Exception ex) {
@@ -285,7 +388,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	public ObjectName getAlarmMBean() {
 		return sleeContainer.getAlarmManagement().getAlarmMBeanObjectName();
 	}
-	
+
 	public ObjectName preRegister(MBeanServer mbs, ObjectName oname)
 			throws Exception {
 		this.objectName = oname;
@@ -375,27 +478,6 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	}
 
-	/**
-	 * Changes the SLEE container state and emits JMX notifications
-	 * 
-	 * @param newState
-	 */
-	protected void changeSleeState(SleeState newState) throws InvalidStateException {
-		SleeState oldState = sleeContainer.getSleeState();
-		sleeContainer.setSleeState(newState);
-		notificationBroadcaster
-				.sendNotification(new SleeStateChangeNotification(this,
-						newState, oldState, sleeStateChangeSequenceNumber++));
-		if (newState == SleeState.RUNNING) {
-			logger.info(generateMessageWithLogo("started"));
-		} 
-		else {
-			if (newState == SleeState.STOPPED) {
-				logger.info(generateMessageWithLogo("stopped"));				
-			}			
-		}		
-	}
-
 	public ObjectName getActivityManagementMBean() {
 		return activityManagementMBean;
 	}
@@ -419,21 +501,21 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	public void setRmiServerInterfaceMBean(ObjectName rmiServerInterfaceMBean) {
 		this.rmiServerInterfaceMBean = rmiServerInterfaceMBean;
 	}
-	
+
 	// ah ah
 
 	private static final String rLogo = " >< >< >< >< >< >< >< ";
 	private static final String lLogo = rLogo;
 
 	private String generateMessageWithLogo(String message) {
-		return lLogo + getSleeName() + " " + getSleeVersion() + " \"" + getSleeCodeName() + "\" " + message
-				+ rLogo;
+		return lLogo + getSleeName() + " " + getSleeVersion() + " \""
+				+ getSleeCodeName() + "\" " + message + rLogo;
 	}
 
 	public String getSleeCodeName() {
 		return Version.instance.getProperty("codename");
 	}
-	
+
 	public String getSleeName() {
 		String name = Version.instance.getProperty("name");
 		if (name != null) {
@@ -536,22 +618,22 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	}
 
 	public void startSlee() {
+		logger.info(generateMessageWithLogo("init"));
 		try {
-			logger.info(generateMessageWithLogo("starting"));
-			sleeContainer.setSleeState(SleeState.STOPPED);
+			sleeContainer.initSlee();
 			start();
 		} catch (Exception e) {
 			logger.error("Failure in SLEE startup", e);
 		}
 	}
-	
+
 	public void stopSlee() {
 		try {
 			stop(true);
 			shutdown();
 		} catch (Exception e) {
-			logger.error("Failed to stop slee",e);
-		}		
+			logger.error("Failed in SLEE stop", e);
+		}
 	}
-	
+
 }

@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.management.InstanceNotFoundException;
@@ -31,6 +33,7 @@ import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.event.EventTypeComponent;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
@@ -67,31 +70,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 	private ServiceActivityFactory serviceActivityFactory;
 	private ServiceActivityContextInterfaceFactoryImpl serviceActivityContextInterfaceFactory;
 	
-	private ServiceComponent[] getActiveServicesOrderedByInstallDate(final boolean newFirst) {
-		
-		final Comparator<ServiceComponent> comparator = new Comparator<ServiceComponent>() {
-			@Override
-			public int compare(ServiceComponent o1, ServiceComponent o2) {
-				if (o2.getCreationTime() > o1.getCreationTime()) {
-					return newFirst ? -1 : 1;
-				}
-				else {
-					return newFirst ? 1 : -1;
-				}
-			}			
-		};
-		
-		final SortedSet<ServiceComponent> orderedSet = new TreeSet<ServiceComponent>(comparator);
-		for (ServiceID serviceID: componentRepositoryImpl.getServiceIDs()) {
-			ServiceComponent serviceComponent = componentRepositoryImpl.getComponentByID(serviceID);
-			if (serviceComponent != null && serviceComponent.getServiceState() == ServiceState.ACTIVE) {				
-				orderedSet.add(serviceComponent);
-			}			
-		}
-		
-		return orderedSet.toArray(new ServiceComponent[orderedSet.size()]);
-		
-	}
+	private ConcurrentHashMap<ServiceID, ScheduledFuture<?>> activityEndingTasks = new ConcurrentHashMap<ServiceID, ScheduledFuture<?>>();
 	
 	/*
 	 * (non-Javadoc)
@@ -377,7 +356,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				logger.debug(serviceID.toString() + " state = "
 						+ serviceComponent.getServiceState());
 
-			final boolean sleeRunning = sleeContainer.getSleeState() == SleeState.RUNNING;
+			final SleeState sleeState = sleeContainer.getSleeState();
 
 			if (serviceComponent.getServiceState() == ServiceState.STOPPING)
 				throw new InvalidStateException("Service is STOPPING");
@@ -400,8 +379,8 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			// only end activity if slee was running and is single node in
 			// cluster, otherwise not needed (cluster) or
 			// slee already did it
-			if (sleeRunning && sleeContainer.getCluster().isSingleMember()) {
-				endServiceActivity(serviceComponent);
+			if (sleeContainer.getCluster().isSingleMember() && sleeState == SleeState.RUNNING) {
+				endServiceActivity(serviceID);				
 			} else {
 				serviceComponent.setServiceState(ServiceState.INACTIVE);
 				// warn ra entities about state change
@@ -427,12 +406,12 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		}
 	}
 
-	public void endServiceActivity(ServiceComponent serviceComponent) {
+	public void endServiceActivity(final ServiceID serviceID) {
 
 		final ActivityContextHandle ach = new ServiceActivityContextHandle(
-				new ServiceActivityHandleImpl(serviceComponent.getServiceID()));
+				new ServiceActivityHandleImpl(serviceID));
 		if (logger.isDebugEnabled()) {
-			logger.debug("Ending " + serviceComponent.getServiceID()
+			logger.debug("Ending " + serviceID
 					+ " activity.");
 		}
 		ActivityContext ac = sleeContainer.getActivityContextFactory()
@@ -441,31 +420,35 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			logger.warn("unable to find and end ac " + ach);
 			return;
 		}
-		// end it
+		if (!activityEndingTasks.contains(serviceID)) {
+			// set a task to force the ending after 30 secs
+			Runnable r = new Runnable() {
+				@Override
+				public void run() {
+					try {
+						activityEndingTasks.remove(serviceID);
+						if (sleeContainer.getSleeState() != null) {
+							final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
+							if (ac != null) {
+								//if (logger.isDebugEnabled()) {
+								logger.info("Forcing the end of " + ach);
+								//}
+								ac.activityEnded();
+							}
+						}				
+					}
+					catch (Exception e) {
+						logger.error(e.getMessage(),e);
+					}
+				}
+			};
+			ScheduledFuture<?> scheduledFuture = sleeContainer.getNonClusteredScheduler().schedule(r,30L,TimeUnit.SECONDS);
+			activityEndingTasks.put(serviceID, scheduledFuture);
+		}
+		// end the activity
 		if (!ac.isEnding()) {
 			ac.endActivity();
 		}
-		// set a task to force its ending after 30 secs
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (sleeContainer.getSleeState() != null) {
-						final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
-						if (ac != null) {
-							if (logger.isDebugEnabled()) {
-								logger.debug("Forcing the end of " + ach);
-							}
-							ac.activityEnded();
-						}
-					}				
-				}
-				catch (Exception e) {
-					logger.error(e.getMessage(),e);
-				}
-			}
-		};
-		sleeContainer.getNonClusteredScheduler().schedule(r,30L,TimeUnit.SECONDS);
 	}
 
 	/*
@@ -709,6 +692,21 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 					+ serviceComponent.getServiceID());
 		}
 
+		if (serviceComponent.getServiceState().isStopping()) {
+			// let's be friendly and give it a few secs
+			for(int i=0;i<15;i++) {
+				try {
+					Thread.sleep(1000);
+					logger.info("Waiting for "+serviceComponent.getServiceID()+" to stop, current state is "+serviceComponent.getServiceState());
+					if (serviceComponent.getServiceState().isInactive()) {
+						break;
+					}
+				}
+				catch (Throwable e) {
+					logger.error(e.getMessage(),e);
+				}
+			}
+		}
 		if (!serviceComponent.getServiceState().isInactive()) {
 			throw new InvalidStateException(serviceComponent.toString()
 					+ " is not inactive");
@@ -820,12 +818,13 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
 		
 		try {			
-			for (ServiceComponent serviceComponent : getActiveServicesOrderedByInstallDate(true)) {
-				endServiceActivity(serviceComponent);
-			}					
+			for (ActivityContextHandle ach : acf.getAllActivityContextsHandles()) {
+				if (ach.getActivityType() == ActivityType.SERVICE) {
+					endServiceActivity(((ServiceActivityContextHandle) ach).getActivityHandle().getServiceID());
+				}
+			}				
 		} catch (Exception e) {
 			logger.error("Exception while ending all service activities", e);
-
 		}
 
 		// give 35 secs for all activities to end
@@ -833,22 +832,19 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			// check if there is still any service activity
 			boolean noActivities = true;
 			try {
-				for (ServiceComponent serviceComponent : getActiveServicesOrderedByInstallDate(true)) {
-					ActivityContext ac = acf
-					.getActivityContext(new ServiceActivityContextHandle(
-							new ServiceActivityHandleImpl(serviceComponent.getServiceID())));
-					if (ac != null) {
-						logger.info("Waiting for "+serviceComponent.getServiceID()+" to stop...");
+				for (ActivityContextHandle ach : acf.getAllActivityContextsHandles()) {
+					if (ach.getActivityType() == ActivityType.SERVICE) {
+						logger.info("Waiting for "+ach.getActivityHandle()+" to stop...");
 						noActivities = false;
 						break;
 					}
-				}				
+				}					
 			} catch (Exception e) {
 				if (logger.isDebugEnabled()) {
 					logger.debug(e.getMessage(), e);
 				}
 			}
-			if (!noActivities) {
+			if (noActivities) {
 				break;
 			}
 			else {
@@ -861,14 +857,37 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			}
 		}
 		
-		
 		logger.info("All service activities ended.");
 	}
 
 	public void startActiveServicesActivities() throws NullPointerException,
 			ManagementException, UnrecognizedServiceException, SystemException {
+		
+		// create a set of services to activated, ordered by creation date
+		// such order for activation is not mandatory but may overcome not ideal multi service
+		// design
+		final Comparator<ServiceComponent> comparator = new Comparator<ServiceComponent>() {
+			@Override
+			public int compare(ServiceComponent o1, ServiceComponent o2) {
+				if (o2.getCreationTime() > o1.getCreationTime()) {
+					return 1;
+				}
+				else {
+					return -1;
+				}
+			}			
+		};
+		
+		final SortedSet<ServiceComponent> orderedSet = new TreeSet<ServiceComponent>(comparator);
+		for (ServiceID serviceID: componentRepositoryImpl.getServiceIDs()) {
+			ServiceComponent serviceComponent = componentRepositoryImpl.getComponentByID(serviceID);
+			if (serviceComponent != null && serviceComponent.getServiceState() == ServiceState.ACTIVE) {				
+				orderedSet.add(serviceComponent);
+			}			
+		}
+		
 		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
-		for (ServiceComponent serviceComponent : getActiveServicesOrderedByInstallDate(false)) {
+		for (ServiceComponent serviceComponent : orderedSet) {
 			ActivityContext ac = acf
 			.getActivityContext(new ServiceActivityContextHandle(
 					new ServiceActivityHandleImpl(serviceComponent.getServiceID())));
@@ -930,10 +949,16 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		if (logger.isDebugEnabled()) {
 			logger.debug("Activity end for " + serviceID);
 		}
-		try {
-			// change service state to inactive if it is stopping
-			ServiceComponent serviceComponent = componentRepositoryImpl
-					.getComponentByID(serviceID);
+		
+		// remove and cancel the timer task to force activity ending
+		ScheduledFuture<?> scheduledFuture = activityEndingTasks.remove(serviceID);
+		if (scheduledFuture != null) {
+			scheduledFuture.cancel(true);
+		}
+		// change service state to inactive if it is stopping
+		final ServiceComponent serviceComponent = componentRepositoryImpl
+		.getComponentByID(serviceID);
+		if (serviceComponent != null) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Service is in "
 						+ serviceComponent.getServiceState() + " state.");
@@ -942,19 +967,22 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				serviceComponent.setServiceState(ServiceState.INACTIVE);
 				// notifying the resource adaptors about service state change
 				final ResourceManagement resourceManagement = sleeContainer
-						.getResourceManagement();
+				.getResourceManagement();
 				for (String raEntityName : resourceManagement
 						.getResourceAdaptorEntities()) {
 					resourceManagement.getResourceAdaptorEntity(raEntityName)
-							.serviceInactive(serviceID);
+					.serviceInactive(serviceID);
 				}
 				// schedule task to remove outstanding root sbb entities of the
 				// service
 				new RootSbbEntitiesRemovalTask(serviceID);
 				logger.info("Deactivated " + serviceID);
 			}
-		} catch (Exception e) {
-			logger.error("Unable to find " + serviceID + " to deactivate", e);
+			else {
+				if (logger.isDebugEnabled()) {
+					logger.debug(serviceID.toString()+ " activity ended, but component not found, removed concurrently?");
+				}
+			}
 		}
 	}
 }

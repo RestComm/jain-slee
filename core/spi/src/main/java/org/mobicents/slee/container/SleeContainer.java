@@ -3,6 +3,8 @@ package org.mobicents.slee.container;
 import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.ConsoleHandler;
@@ -40,6 +42,7 @@ import org.mobicents.slee.container.management.ProfileManagement;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.SbbManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
+import org.mobicents.slee.container.management.SleeStateChangeRequest;
 import org.mobicents.slee.container.management.TraceManagement;
 import org.mobicents.slee.container.management.UsageParametersManagement;
 import org.mobicents.slee.container.management.jmx.editors.SleePropertyEditorRegistrator;
@@ -544,68 +547,106 @@ public class SleeContainer {
 	}
 
 	/**
+	 * Initiates the SLEE container
+	 */
+	public void initSlee() throws InvalidStateException {
+		if (sleeState != null) {
+			throw new InvalidStateException("slee in "+sleeState+" state");
+		}
+		// slee init
+		beforeModulesInitialization();
+		for (Iterator<SleeContainerModule> i = modules.iterator(); i
+			.hasNext();) {
+			i.next().sleeInitialization();
+		}
+		afterModulesInitialization();
+		sleeState = SleeState.STOPPED;		
+	}
+	
+	/**
+	 * Shutdown of the SLEE container
+	 * @throws InvalidStateException
+	 */
+	public void shutdownSlee() throws InvalidStateException {
+		if (sleeState != SleeState.STOPPED) {
+			throw new InvalidStateException("slee in "+sleeState+" state");
+		}
+		// slee shutdown
+		beforeModulesShutdown();
+		for (Iterator<SleeContainerModule> i = modules
+				.descendingIterator(); i.hasNext();) {
+			i.next().sleeShutdown();
+		}
+		afterModulesShutdown();
+		sleeState = null;
+	}
+
+	/**
 	 * 
 	 * @param newState
 	 */
-	public void setSleeState(final SleeState newState) throws InvalidStateException {
+	public void setSleeState(final SleeStateChangeRequest request) throws InvalidStateException {
 
+		final SleeState newState = request.getNewState();
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Changing state: " + sleeState + " -> " + newState);
 		}
 
 		validateStateTransition(sleeState, newState);
 
-		// change state 
+		// change state
 		SleeState oldState = this.sleeState;
 		this.sleeState = newState;
+		request.stateChanged(oldState);
 		
-		// notify modules
-		if (oldState == null) {
-			// slee init
-			beforeModulesInitialization();
-			for (Iterator<SleeContainerModule> i = modules.iterator(); i
-					.hasNext();) {
-				i.next().sleeInitialization();
-			}
-			afterModulesInitialization();						
+		// notify modules and complete request
+		final Runnable task = new Runnable() {			
+			@Override
+			public void run() {
+				try {
+					if (newState == SleeState.STARTING) {
+						for (Iterator<SleeContainerModule> i = modules.iterator(); i.hasNext();) {
+							i.next().sleeStarting();
+						}						
+					}
+					else if (newState == SleeState.RUNNING) {
+						for (Iterator<SleeContainerModule> i = modules.iterator(); i.hasNext();) {
+							i.next().sleeRunning();
+						}
+					}
+					else if (newState == SleeState.STOPPING) {
+						for (Iterator<SleeContainerModule> i = modules.descendingIterator(); i.hasNext();) {
+							i.next().sleeStopping();
+						}
+					}
+					else if (newState == SleeState.STOPPED) {
+						for (Iterator<SleeContainerModule> i=modules.descendingIterator(); i.hasNext();) {
+							i.next().sleeStopped();
+						}			
+					}	
+				}
+				catch (Throwable e) {
+					logger.error(e.getMessage(),e);
+				}
+				request.requestCompleted();
+			}							
+		};
+		if (request.isBlockingRequest()) {
+			task.run();
 		}
-		
-		if (newState == SleeState.STOPPED) {
-			Iterator<SleeContainerModule> iterator = oldState == null ? modules.iterator() : modules.descendingIterator();
-			for (Iterator<SleeContainerModule> i=iterator; i
-				.hasNext();) {
-				i.next().sleeStopped();
+		else {
+			final ExecutorService executorService = Executors.newSingleThreadExecutor();
+			try {
+				executorService.submit(task);				
 			}
-		}
-		else if (newState == SleeState.STARTING) {
-			for (Iterator<SleeContainerModule> i = modules
-					.iterator(); i.hasNext();) {
-				i.next().sleeStarting();
+			catch (Throwable e) {
+				logger.error(e.getMessage(),e);
 			}
-		}
-		else if (newState == SleeState.RUNNING) {
-			for (Iterator<SleeContainerModule> i = modules.iterator(); i
-			.hasNext();) {
-				i.next().sleeRunning();
-			}
-		}
-		else if (newState == SleeState.STOPPING) {
-			for (Iterator<SleeContainerModule> i = modules.descendingIterator(); i.hasNext();) {
-				i.next().sleeStopping();
-			}
-		}
-		else if (newState == null) {
-			// slee shutdown
-			beforeModulesShutdown();
-			for (Iterator<SleeContainerModule> i = modules
-					.descendingIterator(); i.hasNext();) {
-				i.next().sleeShutdown();
-			}
-			afterModulesShutdown();
-		}
-
+			executorService.shutdown();
+		}		
 	}
-
+	
 	/**
 	 * Ensures the standard SLEE lifecycle.
 	 * 
@@ -615,37 +656,24 @@ public class SleeContainer {
 	 */
 	private void validateStateTransition(SleeState oldState, SleeState newState)
 			throws InvalidStateException {
-		if (oldState == null) {
-			if (newState != SleeState.STOPPED) {
-				throw new InvalidStateException(
-						"illegal slee state transition: " + oldState + " -> "
-								+ newState);
-			}
-		} else if (oldState == SleeState.STOPPED) {
-			if (newState != null && newState != SleeState.STARTING) {
-				throw new InvalidStateException(
-						"illegal slee state transition: " + oldState + " -> "
-								+ newState);
-			}
+		if (oldState == SleeState.STOPPED) {
+			if (newState == SleeState.STARTING) {
+				return;
+			}		
 		} else if (oldState == SleeState.STARTING) {
-			if (newState != SleeState.STOPPING && newState != SleeState.RUNNING) {
-				throw new InvalidStateException(
-						"illegal slee state transition: " + oldState + " -> "
-								+ newState);
+			if (newState == SleeState.RUNNING || newState == SleeState.STOPPING) {
+				return;
 			}
 		} else if (oldState == SleeState.RUNNING) {
-			if (newState != SleeState.STOPPING) {
-				throw new InvalidStateException(
-						"illegal slee state transition: " + oldState + " -> "
-								+ newState);
+			if (newState == SleeState.STOPPING) {
+				return;
 			}
 		} else if (oldState == SleeState.STOPPING) {
-			if (newState != SleeState.STOPPED) {
-				throw new InvalidStateException(
-						"illegal slee state transition: " + oldState + " -> "
-								+ newState);
+			if (newState == SleeState.STOPPED) {
+				return;
 			}
 		}
+		throw new InvalidStateException("illegal slee state transition: " + oldState + " -> "+ newState);
 	}
 	
 	public void beforeModulesInitialization() {
