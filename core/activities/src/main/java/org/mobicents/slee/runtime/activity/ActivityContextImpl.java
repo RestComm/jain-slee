@@ -498,44 +498,30 @@ public class ActivityContextImpl implements ActivityContext {
 	}
 	
 	public void activityEnded() {
-		
+
 		// remove references to this AC in timer and ac naming facility
 		removeNamingBindings();
 		removeFromTimers(); // Spec 7.3.4.1 Step 10
-		
-		TransactionContext txContext = null;
-		// check activity type
-		switch (activityContextHandle.getActivityType()) {
-		
-		case RA:
-			// external activity, notify RA that the activity has ended
-			final int activityFlags = getActivityFlags();
-			((ResourceAdaptorActivityContextHandle)activityContextHandle).getResourceAdaptorEntity().activityEnded(activityContextHandle.getActivityHandle(),activityFlags);
-			break;
-		
-		case NULL:
-			// do nothing
-			break;
-			
-		case PTABLE:
-			// do nothing
-			break;
-			
-		case SERVICE:
-			sleeContainer.getServiceManagement().activityEnded((ServiceActivityHandle)this.getActivityContextHandle().getActivityHandle());
-			
-			break;
+		final int activityFlags = activityContextHandle.getActivityType() == ActivityType.RA ? getActivityFlags()
+				: -1;
 
-		default:
-			throw new SLEEException("Unknown activity type " + activityContextHandle.getActivityType());
-		}
-		
-		if (txContext == null) {
-			txContext = sleeContainer.getTransactionManager().getTransactionContext();
-		}
+		TransactionContext txContext = sleeContainer.getTransactionManager()
+				.getTransactionContext();
 		removeFromCache(txContext);
-		
 		factory.removeActivityContext(this);
+
+		if (activityContextHandle.getActivityType() == ActivityType.RA) {
+			// external activity, notify RA that the activity has ended
+			((ResourceAdaptorActivityContextHandle) activityContextHandle)
+					.getResourceAdaptorEntity().activityEnded(
+							activityContextHandle.getActivityHandle(),
+							activityFlags);
+		} else if (activityContextHandle.getActivityType() == ActivityType.SERVICE) {
+			sleeContainer.getServiceManagement().activityEnded(
+					(ServiceActivityHandle) activityContextHandle
+							.getActivityHandle());
+		}
+
 	}
 	
 	private void fireEvent(EventContext event,TransactionContext txContext) {

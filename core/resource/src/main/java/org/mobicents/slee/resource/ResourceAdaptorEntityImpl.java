@@ -25,7 +25,6 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
-import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -38,7 +37,6 @@ import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
 import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandle;
 import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
-import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContextImpl;
 
@@ -403,7 +401,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		// schedule the end of all activities if the node is the single member of the cluster
 		boolean skipActivityEnding = !sleeContainer.getCluster().isSingleMember();
 		
-		if (!skipActivityEnding && hasActivities(null)) {
+		if (!skipActivityEnding && hasActivities()) {
 			logger.info("RA entity "+name+" activities end scheduled.");
 			timerTask = new EndAllActivitiesRAEntityTimerTask(this,sleeContainer);
 		}
@@ -417,15 +415,19 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * @param exceptHandle
 	 * @return
 	 */
-	private boolean hasActivities(ActivityHandle exceptHandle) {
+	private boolean hasActivities() {
 		try {	
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
 					.getAllActivityContextsHandles()) {
-				if (handle.getActivityType() == ActivityType.RA && !handle.getActivityHandle().equals(exceptHandle)) {
+				if (handle.getActivityType() == ActivityType.RA) {
 					ResourceAdaptorActivityContextHandle raHandle = (ResourceAdaptorActivityContextHandle) handle;
-					if (raHandle.getResourceAdaptorEntity().equals(this))
-						return true;					
+					if (raHandle.getResourceAdaptorEntity().equals(this)) {
+						if (logger.isDebugEnabled()) {
+							logger.debug("RA entity "+name+" has (at least) activity "+handle.getActivityHandle());
+						}
+						return true;											
+					}
 				}
 			}			
 		} catch (Throwable e) {
@@ -659,30 +661,13 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		}
 		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
 			synchronized (this) {
-				SleeTransactionManager txManager = sleeContainer.getTransactionManager();
-				Transaction tx = null;
-				try {
-					tx = txManager.getTransaction();
-					if (tx != null) {
-						txManager.suspend();
-					}
-				} catch (Throwable e) {
-					logger.error(e.getMessage(),e);
-				}
 				// the ra object is stopping, check if the timer task is still
 				// needed
-				if (!hasActivities(handle)) {
+				if (!hasActivities()) {
 					if (timerTask != null) {
 						timerTask.cancel();
 					}
 					allActivitiesEnded();				
-				}
-				try {
-					if (tx != null) {
-						txManager.resume(tx);
-					}
-				} catch (Throwable e) {
-					logger.error(e.getMessage(),e);
 				}
 			}			
 		}
