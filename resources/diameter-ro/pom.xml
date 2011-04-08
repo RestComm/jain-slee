@@ -26,7 +26,7 @@
 
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.resources.cca-common.version>2.4.0.CR1</mobicents.diameter.resources.cca-common.version>
+    <mobicents.diameter.resources.cca-common.version>2.4.0-SNAPSHOT</mobicents.diameter.resources.cca-common.version>
 	<!-- Documentation Related Properties -->
     <docs.profile>mobicents</docs.profile>
     <docs.ra.name>Diameter Ro</docs.ra.name>
