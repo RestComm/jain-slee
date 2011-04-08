@@ -43,6 +43,12 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	}
 	
 	@Override
+	public void sleeStarting() {
+		// init cache data
+		new SbbEntityFactoryCacheData(sleeContainer.getCluster()).create();
+	}
+	
+	@Override
 	public SbbEntity createNonRootSbbEntity(SbbEntityID parentSbbEntityID,String parentChildRelation) {
 
 		// warning: if this childID becomes something else then a uuid then the

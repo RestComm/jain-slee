@@ -1024,10 +1024,14 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	}
 	
 	@Override
-	public void sleeRunning() {
+	public void sleeStarting() {
 		if (handleReferenceFactory != null) {
 			handleReferenceFactory.init();
-		}	
+		}			
+	}
+	
+	@Override
+	public void sleeRunning() {
 		final Thread currentThread = Thread.currentThread();
 		final ClassLoader currentThreadClassLoader = currentThread.getContextClassLoader();
 		for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {

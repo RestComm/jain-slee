@@ -896,7 +896,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			}			
 			startActivity(serviceComponent);
 			try {
-				Thread.sleep(500);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				logger.error(e.getMessage(),e);
 			}			
