@@ -87,6 +87,11 @@ public class RootSbbEntityID implements SbbEntityID {
 		return convergenceName;
 	}
 
+	@Override
+	public String getName() {
+		return convergenceName;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

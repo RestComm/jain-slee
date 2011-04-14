@@ -47,6 +47,12 @@ public interface SbbEntityID extends Externalizable {
 	 */
 	public SbbEntityID getRootSBBEntityID();
 	
+	/**
+	 * Retrieves the sbb entity name.
+	 * @return
+	 */
+	public String getName();
+	
 	@Override
 	public int hashCode();
 	

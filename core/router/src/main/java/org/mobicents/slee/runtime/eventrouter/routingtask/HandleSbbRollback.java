@@ -86,7 +86,7 @@ public class HandleSbbRollback {
 						sbbEntityReloaded = sleeContainer.getSbbEntityFactory().createRootSbbEntity(sbbEntityID.getServiceID(), sbbEntityID.getServiceConvergenceName());						
 					}
 					else {
-						sbbEntityReloaded = sleeContainer.getSbbEntityFactory().createNonRootSbbEntity(sbbEntityID.getParentSBBEntityID(),sbbEntityID.getParentChildRelation());						
+						sbbEntityReloaded = sleeContainer.getSbbEntityFactory().createNonRootSbbEntity(sbbEntityID.getParentSBBEntityID(),sbbEntityID.getParentChildRelation(),sbbEntityID.getName());						
 					}
 					sbbEntityReloaded.setPriority(sbbEntity.getPriority());
 					sbbEntity = sbbEntityReloaded;

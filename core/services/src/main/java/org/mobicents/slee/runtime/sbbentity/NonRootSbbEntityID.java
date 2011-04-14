@@ -37,6 +37,11 @@ public class NonRootSbbEntityID implements SbbEntityID {
 	}
 	
 	@Override
+	public String getName() {
+		return childID;
+	}
+	
+	@Override
 	public SbbEntityID getParentSBBEntityID() {
 		return parentSbbEntityID;
 	}

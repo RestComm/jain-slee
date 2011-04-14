@@ -8,7 +8,6 @@ import javax.slee.InvalidArgumentException;
 import javax.slee.NotAttachedException;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
-import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
@@ -30,11 +29,13 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.SbbContextExt;
+import org.mobicents.slee.SbbLocalObjectExt;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.management.ResourceManagement;
+import org.mobicents.slee.container.sbb.SbbLocalObject;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectState;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
@@ -43,11 +44,11 @@ import org.mobicents.slee.container.transaction.SleeTransactionManager;
  * SBB Context Implementation.
  * 
  * The SLEE provides each SBB object with an SbbContext object. The SbbContext
- * object gives the SBB object access to the SBB object’s context maintained by
+ * object gives the SBB object access to the SBB objectï¿½s context maintained by
  * the SLEE, allows the SBB object to invoke functions provided by the SLEE, and
  * obtain information about the SBB entity assigned to the SBB object. The
  * SbbContext object implements the SbbContext interface. The SbbContext
- * interface declares the following methods: · Methods to access information
+ * interface declares the following methods: ï¿½ Methods to access information
  * determined at runtime. o A getSbbLocalObject method to get an SBB local
  * object that represents the SBB entity assigned to the SBB object of the
  * SbbContext object. o A getService method to get a ServiceID object that
@@ -55,19 +56,19 @@ import org.mobicents.slee.container.transaction.SleeTransactionManager;
  * descendent of, i.e. the SBB entity is in an SBB entity tree whose root SBB
  * entity is instantiated by the SLEE for the child relation (from SLEE as
  * parent to the root SBB) specified by the Service. o A getSbb method to get an
- * SbbID object that encapsulates the component identity of the SBB. · Activity
+ * SbbID object that encapsulates the component identity of the SBB. ï¿½ Activity
  * Context methods. These methods are discussed in greater detail in Section
  * 7.7.1. o A getActivities method. This method returns all the Activity
  * Contexts that the SBB entity assigned to the SBB object of the SbbContext
  * object is attached to. More precisely, it returns an Activity Context
  * Interface object for each Activity Context attached to the SBB entity
- * assigned to the SBB object of the SbbContext object. · Event mask methods.
+ * assigned to the SBB object of the SbbContext object. ï¿½ Event mask methods.
  * These methods are described in Section 8.4.3. o A maskEvent method. This
  * method masks event types that the SBB entity assigned to the SBB object of
  * the SbbContext object no longer wishes to receive from an Activity Context. o
  * A getEventMask method. This returns the set of masked event types for an
  * Activity Context that SBB entity assigned to the SBB object of the SbbContext
- * object is attached to. · Transaction methods. These methods are described in
+ * object is attached to. ï¿½ Transaction methods. These methods are described in
  * Section 6.10. o A setRollbackOnly method. The SBB Developer uses this method
  * to mark the transaction of the current method invocation for rollback. o A
  * getRollbackOnly method. The SBB Developer uses this method to determine if

@@ -17,6 +17,12 @@
 	<xi:include href="Section-Extension_SbbContext.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
 			
+	<xi:include href="Section-Extension_ChildRelation.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
+			
+	<xi:include href="Section-Extension_SbbLocalObject.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />				
+			
 	<xi:include href="Section-Extension_ProfileContext.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
 	

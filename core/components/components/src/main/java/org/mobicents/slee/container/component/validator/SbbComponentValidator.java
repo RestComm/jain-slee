@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
+import javax.slee.SbbLocalObject;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.UnrecognizedProfileNameException;
@@ -30,6 +31,7 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.mobicents.slee.SbbLocalObjectExt;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.SbbComponentImpl;
 import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
@@ -190,14 +192,14 @@ public class SbbComponentValidator implements Validator {
 	}
 
 	/**
-	 * Sbb abstract class(general rule – methods cannot start neither with “ejb”
-	 * nor “sbb”)
+	 * Sbb abstract class(general rule ï¿½ methods cannot start neither with ï¿½ejbï¿½
+	 * nor ï¿½sbbï¿½)
 	 * <ul>
 	 * <li>(1.1 ?) must have package declaration
 	 * <li>must implement in some way javax.slee.Sbb(only methods from interface
-	 * can have “sbb” prefix)
+	 * can have ï¿½sbbï¿½ prefix)
 	 * <ul>
-	 * <li>each method defined must be implemented as public – not abstract,
+	 * <li>each method defined must be implemented as public ï¿½ not abstract,
 	 * final or static
 	 * </ul>
 	 * <li>must be public and abstract
@@ -792,7 +794,7 @@ public class SbbComponentValidator implements Validator {
 				return passed;
 			}
 
-			Class genericSbbLocalInterface = ClassUtils.checkInterfaces(sbbLocalInterfaceClass, "javax.slee.SbbLocalObject");
+			Class genericSbbLocalInterface = ClassUtils.checkInterfaces(sbbLocalInterfaceClass, SbbLocalObject.class.getName());
 
 			if (genericSbbLocalInterface == null) {
 				passed = false;
@@ -816,8 +818,9 @@ public class SbbComponentValidator implements Validator {
 			}
 
 			Set<String> ignore = new HashSet<String>();
-			ignore.add("javax.slee.SbbLocalObject");
-			ignore.add("java.lang.Object");
+			ignore.add(SbbLocalObjectExt.class.getName());
+			ignore.add(SbbLocalObject.class.getName());
+			ignore.add(Object.class.getName());
 			Map<String, Method> interfaceMethods = ClassUtils.getAllInterfacesMethods(sbbLocalInterfaceClass, ignore);
 
 			// here we have all defined methods in interface, we have to checkif

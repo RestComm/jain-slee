@@ -1,0 +1,52 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="slee_1_1_extensions_sbblo">
+	
+	<title>SbbLocalObject Extension</title>
+	
+	<para>This extension to JAIN SLEE 1.1 introduces <filename>org.mobicents.slee.SbbLocalObjectExt</filename> interface, which extends <filename>javax.slee.SbbLocalObject</filename> with methods to retreive the parent Sbb Entity, if any, and to retreive also information such as the child name, and the parent child relation name too.</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee;
+
+public interface SbbLocalObjectExt extends SbbLocalObject {
+
+	public String getChildRelation() throws TransactionRequiredLocalException,
+			SLEEException;
+
+	public String getName() throws NoSuchObjectLocalException,
+			TransactionRequiredLocalException, SLEEException;
+
+	public SbbLocalObjectExt getParent() throws NoSuchObjectLocalException,
+			TransactionRequiredLocalException, SLEEException;
+}]]>
+    </programlisting>
+    
+    <variablelist>
+    	<varlistentry>
+			<term>The <literal>getChildRelation()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the name of the child relation used to create this object. This method is a mandatory transactional method.</para>
+			</listitem>
+		</varlistentry>
+	
+		<varlistentry>
+			<term>The <literal>getName()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the name of this object. This method is a mandatory transactional method.</para>
+			</listitem>
+		</varlistentry>
+		
+		<varlistentry>
+			<term>The <literal>getParent()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the parent Sbb object. This method is a mandatory transactional method.</para>
+			</listitem>
+		</varlistentry>
+		
+	</variablelist>
+		
+</section>
+	

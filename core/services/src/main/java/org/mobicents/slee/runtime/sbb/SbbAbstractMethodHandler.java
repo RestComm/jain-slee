@@ -2,7 +2,6 @@ package org.mobicents.slee.runtime.sbb;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
-import javax.slee.ChildRelation;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.SbbLocalObject;
@@ -26,6 +25,7 @@ import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.profile.ProfileLocalObject;
 import org.mobicents.slee.container.profile.ProfileTable;
 import org.mobicents.slee.container.sbb.SbbObjectState;
+import org.mobicents.slee.container.sbbentity.ChildRelation;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;

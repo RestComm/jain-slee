@@ -8,6 +8,7 @@ import javax.slee.TransactionRolledbackLocalException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.SbbLocalObjectExt;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.interceptors.SbbLocalObjectInterceptor;
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
@@ -31,7 +32,7 @@ import org.mobicents.slee.runtime.sbbentity.SbbEntityImpl;
  * have an SBB local interface. If the SBB Developer does not provide an SBB
  * local interface for an SBB, then the SBB local interface of the SBB is the
  * generic SbbLocalObject interface. The names of the SBB specific local
- * interface methods must not begin with “sbb” or “ejb”. The SLEE provides the
+ * interface methods must not begin with ï¿½sbbï¿½ or ï¿½ejbï¿½. The SLEE provides the
  * implementation of the methods defined in the SBB local interface. More
  * precisely, the SLEE provides a concrete class that implements each SBB local
  * interface. An SBB local object is an instance of this class. The SLEE
@@ -363,4 +364,42 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
     public String toString() {
     	return new StringBuilder("SbbLocalObjectImpl[").append(sbbEntity != null ? sbbEntity.getSbbEntityId() : "null").append("]").toString();
     }
+    
+    // extension methods
+    
+    @Override
+    public String getChildRelation() throws TransactionRequiredLocalException,
+    		SLEEException {
+    	
+    	validateInvocation();    	
+    	
+    	return getSbbEntityId().getParentChildRelation();
+    }
+    
+    @Override
+    public String getName() throws NoSuchObjectLocalException,
+    		TransactionRequiredLocalException, SLEEException {
+    	
+    	validateInvocation();    	
+    	
+    	return getSbbEntityId().getName();
+    }
+    
+    @Override
+    public SbbLocalObjectExt getParent() throws NoSuchObjectLocalException,
+    		TransactionRequiredLocalException, SLEEException {
+    	
+    	validateInvocation();    	
+    	
+    	SbbLocalObjectExt parent = null;
+    	final SbbEntityID parentSbbEntityID = getSbbEntityId().getParentSBBEntityID();
+    	if (parentSbbEntityID != null) {
+    		SbbEntity parentSbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(parentSbbEntityID, false);
+    		if (parentSbbEntity != null) {
+    			parent = parentSbbEntity.getSbbLocalObject();
+    		}
+    	}
+    	return parent;
+    }
+        
 }

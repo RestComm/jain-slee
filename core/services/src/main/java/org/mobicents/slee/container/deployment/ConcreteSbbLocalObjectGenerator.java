@@ -11,6 +11,7 @@ import javassist.CtNewMethod;
 import javassist.NotFoundException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.SbbLocalObjectExt;
 import org.mobicents.slee.container.component.ClassPool;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
@@ -120,7 +121,7 @@ public class ConcreteSbbLocalObjectGenerator {
             Map interfaceMethods = ClassUtils
                     .getInterfaceMethodsFromInterface(sbbLocalObjectInterface);
 
-            generateConcreteMethods(interfaceMethods, sbbAbstractClassName);           
+            generateConcreteMethods(interfaceMethods, sbbAbstractClassName, SbbLocalObjectExt.class.isAssignableFrom(sbbLocalObjectInterface.getClass()));           
 
             try {
             	concreteSbbLocalObject.writeFile(deployPath);
@@ -166,7 +167,7 @@ public class ConcreteSbbLocalObjectGenerator {
      * @param sbbAbstractClassName
      */
     private void generateConcreteMethods(Map interfaceMethods,
-            String sbbAbstractClassName) {
+            String sbbAbstractClassName, boolean filterExtMethods) {
         if (interfaceMethods == null)
             return;
 
@@ -186,6 +187,11 @@ public class ConcreteSbbLocalObjectGenerator {
                     || interfaceMethod.getName().equals("setSbbPriority"))
                 continue;
 
+            if (filterExtMethods && interfaceMethod.getName().equals("getName")
+            		|| interfaceMethod.getName().equals("getChildRelation")
+            		|| interfaceMethod.getName().equals("getParent"))            		
+                continue;
+            
             String methodToAdd = "public ";
             //Add the return type
             boolean hasReturn = false;

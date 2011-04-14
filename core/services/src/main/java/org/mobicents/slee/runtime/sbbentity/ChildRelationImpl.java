@@ -21,6 +21,7 @@ import javax.slee.TransactionRequiredLocalException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.SbbLocalObjectExt;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
 import org.mobicents.slee.container.sbbentity.ChildRelation;
@@ -127,71 +128,8 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * @see javax.slee.ChildRelation#create()
      */
     public SbbLocalObject create() throws CreateException,
-            TransactionRequiredLocalException, SLEEException {
-        
-    	SleeTransactionManager sleeTransactionManager = SleeContainer.lookupFromJndi().getTransactionManager();
-    	
-    	sleeTransactionManager.mandateTransaction();
-
-		SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory()
-				.createNonRootSbbEntity(
-						sbbEntity.getSbbEntityId(),
-						getChildRelationMethod.getChildRelationMethodName());
-
-        if (logger.isDebugEnabled())
-            logger.debug("ChildRelation.create() : Created Sbb Entity: " + childSbbEntity.getSbbEntityId());
-
-        childSbbEntity.setPriority(getChildRelationMethod.getDefaultPriority());
-        
-        /*
-         * Exception handling here must follow Sec. 9.12.1 of spec
-         * This is a non-slee originated method invocation
-         * 
-         * If a non-SLEE originated method invocation returns by throwing a checked exception, then the following
-		 *	occurs:
-		 *	· The state of the transaction is unaffected
-		 *	· The checked exception is propagated to the caller.
-		 *	It is expected that the caller will have the appropriate logic to handle the exception.
-		 *	If a non-SLEE originated method invocation returns by throwing a RuntimeException, then:
-		 *	· The transaction is marked for rollback.
-		 *	· The SBB object that was invoked is discarded, i.e. is moved to the Does Not Exist state.
-		 *	· A javax.slee.TransactionRolledBackLocalException is propagated to the caller.
-		 *	The transaction will eventually be rolled back when the highest level SLEE originated invocation re-turns
-		 *	as described in Section 9.12.2.
-		 *	The sbbRolledBack method is not invoked for an SBB originated method transaction because the
-		 *	transa ction is only marked for rollback and will only be rolled back when the highest level SLEE
-		 *	originated invocation returns. The sbbRolledBack method is only invoked on the SBB entity in-voked
-		 *	by the highest level SLEE originated invocation.
-		 *	If the RuntimeException propagates to the highest level (i.e. the SLEE originated method invocation
-		 *	returns by throwing a RuntimeException) the SLEE originated method invocation exception handling
-		 *	mechanism is init iated.		
-		*/
-        
-        try {            
-        	//All checked exceptions (i.e. CreateException) are propagated to the caller
-           childSbbEntity.assignSbbObject();
-           
-        } catch ( CreateException e) {
-            //          All RuntimeExceptions are dealt with here
-            if ( logger.isDebugEnabled())
-                logger.error("Caught CreateException in creating child entity", e);
-            
-            childSbbEntity.trashObject();
-            // Propagate exception to caller.
-            throw e;
-        } catch ( Exception e) {
-        	//All RuntimeExceptions are dealt with here
-            logger.error("Caught RuntimeException in creating child entity", e);
-            try {
-            	sleeTransactionManager.setRollbackOnly();
-            } catch (SystemException e1) {
-            	logger.error("Failed to set rollbackonly", e);
-            }
-            childSbbEntity.trashObject();
-        } 
-        
-        sbbEntity.addChildWithSbbObject(childSbbEntity);
-        return childSbbEntity.getSbbLocalObject();
+            TransactionRequiredLocalException, SLEEException {        
+    	return create(sleeContainer.getUuidGenerator().createUUID());
     }
 
     /*
@@ -451,5 +389,90 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
             }            
         }
 
+    }
+    
+    // extension methods
+    
+    @Override
+    public SbbLocalObjectExt create(String childName) throws CreateException,
+    		TransactionRequiredLocalException, SLEEException {
+    	
+    	SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+    	
+    	sleeTransactionManager.mandateTransaction();
+
+		SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory()
+				.createNonRootSbbEntity(
+						sbbEntity.getSbbEntityId(),
+						getChildRelationMethod.getChildRelationMethodName(),childName);
+
+        if (logger.isDebugEnabled())
+            logger.debug("ChildRelation.create() : Created Sbb Entity: " + childSbbEntity.getSbbEntityId());
+
+        childSbbEntity.setPriority(getChildRelationMethod.getDefaultPriority());
+        
+        /*
+         * Exception handling here must follow Sec. 9.12.1 of spec
+         * This is a non-slee originated method invocation
+         * 
+         * If a non-SLEE originated method invocation returns by throwing a checked exception, then the following
+		 *	occurs:
+		 *	ï¿½ The state of the transaction is unaffected
+		 *	ï¿½ The checked exception is propagated to the caller.
+		 *	It is expected that the caller will have the appropriate logic to handle the exception.
+		 *	If a non-SLEE originated method invocation returns by throwing a RuntimeException, then:
+		 *	ï¿½ The transaction is marked for rollback.
+		 *	ï¿½ The SBB object that was invoked is discarded, i.e. is moved to the Does Not Exist state.
+		 *	ï¿½ A javax.slee.TransactionRolledBackLocalException is propagated to the caller.
+		 *	The transaction will eventually be rolled back when the highest level SLEE originated invocation re-turns
+		 *	as described in Section 9.12.2.
+		 *	The sbbRolledBack method is not invoked for an SBB originated method transaction because the
+		 *	transa ction is only marked for rollback and will only be rolled back when the highest level SLEE
+		 *	originated invocation returns. The sbbRolledBack method is only invoked on the SBB entity in-voked
+		 *	by the highest level SLEE originated invocation.
+		 *	If the RuntimeException propagates to the highest level (i.e. the SLEE originated method invocation
+		 *	returns by throwing a RuntimeException) the SLEE originated method invocation exception handling
+		 *	mechanism is init iated.		
+		*/
+        
+        try {            
+        	//All checked exceptions (i.e. CreateException) are propagated to the caller
+           childSbbEntity.assignSbbObject();
+           
+        } catch ( CreateException e) {
+            //          All RuntimeExceptions are dealt with here
+            if ( logger.isDebugEnabled())
+                logger.error("Caught CreateException in creating child entity", e);
+            
+            childSbbEntity.trashObject();
+            // Propagate exception to caller.
+            throw e;
+        } catch ( Exception e) {
+        	//All RuntimeExceptions are dealt with here
+            logger.error("Caught RuntimeException in creating child entity", e);
+            try {
+            	sleeTransactionManager.setRollbackOnly();
+            } catch (SystemException e1) {
+            	logger.error("Failed to set rollbackonly", e);
+            }
+            childSbbEntity.trashObject();
+        } 
+        
+        sbbEntity.addChildWithSbbObject(childSbbEntity);
+        return childSbbEntity.getSbbLocalObject();
+    }
+    
+    @Override
+    public SbbLocalObjectExt get(String childName)
+    		throws TransactionRequiredLocalException, SLEEException {
+    	
+    	SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+    	
+    	sleeTransactionManager.mandateTransaction();
+
+		SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(new NonRootSbbEntityID(sbbEntity.getSbbEntityId(),
+						getChildRelationMethod.getChildRelationMethodName(),childName), false);
+				
+		return childSbbEntity == null ? null : childSbbEntity.getSbbLocalObject();
     }
 }

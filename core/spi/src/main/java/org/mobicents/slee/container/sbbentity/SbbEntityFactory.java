@@ -5,6 +5,7 @@ package org.mobicents.slee.container.sbbentity;
 
 import java.util.Set;
 
+import javax.slee.CreateException;
 import javax.slee.ServiceID;
 
 import org.mobicents.slee.container.SleeContainerModule;
@@ -30,10 +31,12 @@ public interface SbbEntityFactory extends SleeContainerModule {
 	 * 
 	 * @param parentSbbEntityID
 	 * @param parentChildRelation
+	 * @param childName
 	 * @return
+	 * @throws CreateException 
 	 */
 	public SbbEntity createNonRootSbbEntity(SbbEntityID parentSbbEntityID,
-			String parentChildRelation);
+			String parentChildRelation, String childName) throws CreateException;
 
 	/**
 	 * Retrieves the sbb entity with the specified id.

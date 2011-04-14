@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.slee.CreateException;
 import javax.slee.SLEEException;
 import javax.slee.ServiceID;
 
@@ -49,11 +50,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	}
 	
 	@Override
-	public SbbEntity createNonRootSbbEntity(SbbEntityID parentSbbEntityID,String parentChildRelation) {
-
-		// warning: if this childID becomes something else then a uuid then the
-		// equals and hashcode of NonRootSbbEntityID must be changed
-		final String childID = sleeContainer.getUuidGenerator().createUUID();
+	public SbbEntity createNonRootSbbEntity(SbbEntityID parentSbbEntityID,String parentChildRelation, String childName) throws CreateException {
 
 		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 
@@ -63,8 +60,11 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		// we hold the lock now
 				
 		// create sbb entity
-		final NonRootSbbEntityID sbbeId = new NonRootSbbEntityID(parentSbbEntityID, parentChildRelation, childID);
+		final NonRootSbbEntityID sbbeId = new NonRootSbbEntityID(parentSbbEntityID, parentChildRelation, childName);
 		final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
+		if (cacheData.exists()) {
+			throw new CreateException("sbb entity with name "+childName+" already exists");
+		}
 		cacheData.create();
 		
 		final SbbEntityImpl sbbEntity = new SbbEntityImpl(sbbeId, cacheData, true, this);

@@ -1,0 +1,42 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="slee_1_1_extensions_cr">
+	
+	<title>ChildRelation Extension</title>
+	
+	<para>This extension to JAIN SLEE 1.1 introduces <filename>org.mobicents.slee.ChildRelationExt</filename> interface, which extends <filename>javax.slee.ChildRelation</filename> with methods to create and retrieve Sbb entities, by a name.</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee;
+
+public interface ChildRelationExt extends ChildRelation {
+
+	public SbbLocalObjectExt create(String name) throws CreateException,
+			TransactionRequiredLocalException, SLEEException;
+
+	public SbbLocalObjectExt get(String name)
+			throws TransactionRequiredLocalException, SLEEException;
+
+}]]>
+    </programlisting>
+    
+    <variablelist>
+    	<varlistentry>
+			<term>The <literal>create(String)</literal> method:</term>
+			<listitem>
+				<para>Create a new SBB entity of the SBB type associated with the relation, with the specified name. The new SBB entity is automatically added to the relationship collection. The returned object may be cast to the required local interface type using the normal Java typecast mechanism. This method is a mandatory transactional method.</para>
+			</listitem>
+		</varlistentry>
+	
+		<varlistentry>
+			<term>The <literal>get(String)</literal> method:</term>
+			<listitem>
+				<para>Retrieves the sbb entity associated with the child relation, with the specified name. This method is a mandatory transactional method.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+		
+</section>
+	

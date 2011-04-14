@@ -47,6 +47,10 @@ public interface SbbContextExt extends SbbContext {
 			String raEntityLink) throws NullPointerException,
 			IllegalArgumentException;
 
+	public SbbLocalObjectExt getSbbLocalObject()
+			throws TransactionRequiredLocalException, IllegalStateException,
+			SLEEException;
+			
 	public ServiceActivityContextInterfaceFactory getServiceActivityContextInterfaceFactory();
 
 	public ServiceActivityFactory getServiceActivityFactory();
@@ -103,6 +107,12 @@ public interface SbbContextExt extends SbbContext {
 			<term>The <literal>getResourceAdaptorInterface(ResourceAdaptorTypeID,String)</literal> method:</term>
 			<listitem>
 				<para>Retrieves the interface to interact with a specific Resource Adaptor entity, identified by both the entity link name and the Resource Adaptor Type ID.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>getSbbLocalObject()</literal> method:</term>
+			<listitem>
+				<para>Exposes the sbb local object with extension interface, to avoid unneeded casts.</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>
