@@ -16,6 +16,8 @@ public interface SbbLocalObjectExt extends SbbLocalObject {
 
 	/**
 	 * Retrieves the name of the child relation used to create this object.
+	 * <p>
+	 * This method is a mandatory transactional method.
 	 * 
 	 * @return null if this object is related with a root Sbb entity.
 	 * @throws TransactionRequiredLocalException
@@ -33,6 +35,8 @@ public interface SbbLocalObjectExt extends SbbLocalObject {
 
 	/**
 	 * Retrieves the name of this object.
+	 * <p>
+	 * This method is a mandatory transactional method.
 	 * 
 	 * @return
 	 * @throws TransactionRequiredLocalException
@@ -50,6 +54,8 @@ public interface SbbLocalObjectExt extends SbbLocalObject {
 
 	/**
 	 * Retrieves the parent Sbb object.
+	 * <p>
+	 * This method is a mandatory transactional method.
 	 * 
 	 * @return null if this object is related with a root Sbb entity.
 	 * @throws TransactionRequiredLocalException
