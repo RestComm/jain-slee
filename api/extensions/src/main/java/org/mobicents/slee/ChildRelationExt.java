@@ -42,7 +42,7 @@ public interface ChildRelationExt extends ChildRelation {
 			TransactionRequiredLocalException, SLEEException;
 
 	/**
-	 * Retrieve the sbb entity associated with the child relation, with the
+	 * Retrieves the sbb entity associated with the child relation, with the
 	 * specified name.
 	 * <p>
 	 * This method is a mandatory transactional method.
