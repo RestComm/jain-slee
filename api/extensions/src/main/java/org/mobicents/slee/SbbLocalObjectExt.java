@@ -3,12 +3,11 @@ package org.mobicents.slee;
 import javax.slee.NoSuchObjectLocalException;
 import javax.slee.SLEEException;
 import javax.slee.SbbLocalObject;
-import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 
 /**
  * Extension for {@link SbbLocalObject}. Exposes more information about the
- * object.
+ * object and underlying Sbb entity.
  * 
  * @author martins
  * 
@@ -64,22 +63,5 @@ public interface SbbLocalObjectExt extends SbbLocalObject {
 	 *             system-level failure.
 	 */
 	public SbbLocalObjectExt getParent() throws NoSuchObjectLocalException,
-			TransactionRequiredLocalException, SLEEException;
-
-	/**
-	 * Retrieves the ID of the service related with this object.
-	 * 
-	 * @return
-	 * @throws TransactionRequiredLocalException
-	 *             if this method is invoked without a valid transaction
-	 *             context.
-	 * @throws NoSuchObjectLocalException
-	 *             if the SBB entity referenced by this
-	 *             <code>SbbLocalObject</code> is no longer valid.
-	 * @throws SLEEException
-	 *             if the SBB's service ID could not be obtained due to a
-	 *             system-level failure.
-	 */
-	public ServiceID getServiceID() throws NoSuchObjectLocalException,
 			TransactionRequiredLocalException, SLEEException;
 }
