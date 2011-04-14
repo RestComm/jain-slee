@@ -1,8 +1,10 @@
 package org.mobicents.slee;
 
 import javax.slee.ActivityContextInterface;
+import javax.slee.SLEEException;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
+import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.ActivityContextNamingFacility;
 import javax.slee.facilities.AlarmFacility;
 import javax.slee.facilities.TimerFacility;
@@ -120,4 +122,12 @@ public interface SbbContextExt extends SbbContext {
 	 * @return
 	 */
 	public TimerFacility getTimerFacility();
+	
+	/**
+	 * Exposes the sbb local object with extension interface, to avoid unneeded casts.
+	 */
+	@Override
+	public SbbLocalObjectExt getSbbLocalObject()
+			throws TransactionRequiredLocalException, IllegalStateException,
+			SLEEException;
 }
