@@ -1,4 +1,4 @@
  ==============================================
-= Mobicents JAIN SLEE IMS User Profile Enabler =
+= Mobicents JAIN SLEE HSS Client Enabler =
  ==============================================
 

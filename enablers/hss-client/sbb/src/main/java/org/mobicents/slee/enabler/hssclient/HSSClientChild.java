@@ -20,7 +20,7 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.enabler.ims.userprofile;
+package org.mobicents.slee.enabler.hssclient;
 
 import java.io.IOException;
 
@@ -28,7 +28,7 @@ import java.io.IOException;
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
  */
-public interface IMSUserProfileChild {
+public interface HSSClientChild {
 
   // Sh-Pull Operations -------------------------------------------------------
 

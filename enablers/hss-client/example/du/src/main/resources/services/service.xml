@@ -4,12 +4,12 @@
 <service-xml>
     <service>
         <description/>
-        <service-name>IMSUserProfileExampleService</service-name>
+        <service-name>HSSClientExampleService</service-name>
         <service-vendor>org.mobicents</service-vendor>
         <service-version>0.1</service-version>
         <root-sbb>
             <description/>
-            <sbb-name>IMSUserProfileParentSbb</sbb-name>
+            <sbb-name>HSSClientParentSbb</sbb-name>
 			<sbb-vendor>org.mobicents</sbb-vendor>
 			<sbb-version>1.0</sbb-version>
         </root-sbb>

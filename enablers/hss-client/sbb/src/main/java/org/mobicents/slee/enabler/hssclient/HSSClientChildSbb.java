@@ -20,7 +20,7 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.enabler.ims.userprofile;
+package org.mobicents.slee.enabler.hssclient;
 
 import java.io.IOException;
 
@@ -63,7 +63,7 @@ import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
  */
-public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild {
+public abstract class HSSClientChildSbb implements Sbb, HSSClientChild {
 
   private static Tracer tracer;
 
@@ -549,19 +549,19 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     case DataReferenceType._REPOSITORY_DATA:
       byte[][] serviceIndications = snrData.getServiceIndications();
 
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeRepositoryDataResponse(snrData.getPublicIdentity(), serviceIndications, subsReqType.getValue(), resultCode);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeRepositoryDataResponse(snrData.getPublicIdentity(), serviceIndications, subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._IMS_USER_STATE:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeIMSUserStateResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeIMSUserStateResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._S_CSCFNAME:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeSCSCFNameResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeSCSCFNameResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._INITIAL_FILTER_CRITERIA:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeInitialFilterCriteriaResponse(snrData.getPublicIdentity(), snrData.getServerName(), subsReqType.getValue(), resultCode);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeInitialFilterCriteriaResponse(snrData.getPublicIdentity(), snrData.getServerName(), subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._PSI_ACTIVATION:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribePSIActivationResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribePSIActivationResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
       break;
     default:
       //
@@ -578,10 +578,10 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
 
     switch(dataRef.getValue()) {
     case DataReferenceType._REPOSITORY_DATA:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).updateRepositoryDataResponse(purData.getPublicIdentity(), resultCode);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).updateRepositoryDataResponse(purData.getPublicIdentity(), resultCode);
       break;
     case DataReferenceType._PSI_ACTIVATION:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).updatePSIActivationResponse(purData.getPublicIdentity(), resultCode);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).updatePSIActivationResponse(purData.getPublicIdentity(), resultCode);
       break;
       default:
         //
@@ -604,7 +604,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     String data = event.getUserData();
 
     // Deliver to parent
-    ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).receivedProfileUpdate(userIdentityValues[0], userIdentityValues[1].getBytes(), data, event.getOriginRealm().toString(), event.getOriginHost().toString());
+    ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).receivedProfileUpdate(userIdentityValues[0], userIdentityValues[1].getBytes(), data, event.getOriginRealm().toString(), event.getOriginHost().toString());
   }
 
   public void onUserDataAnswer(UserDataAnswer event, RequestMappingACI aci) {
@@ -617,37 +617,37 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
     DataReferenceType dataRef = udrData.getDataReferences()[0];
     switch(dataRef.getValue()) {
     case DataReferenceType._REPOSITORY_DATA:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverRepositoryData(udrData.getPublicIdentity(), udrData.getServiceIndications(), resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverRepositoryData(udrData.getPublicIdentity(), udrData.getServiceIndications(), resultCode, data);
       break;
     case DataReferenceType._IMS_PUBLIC_IDENTITY:
       IdentitySetType identitySet = udrData.getIdentitySet();
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverIMSPublicIdentity(udrData.getPublicIdentity(), udrData.getMsisdn(), identitySet != null ? identitySet.getValue() : null, resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverIMSPublicIdentity(udrData.getPublicIdentity(), udrData.getMsisdn(), identitySet != null ? identitySet.getValue() : null, resultCode, data);
       break;
     case DataReferenceType._IMS_USER_STATE:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverIMSUserState(udrData.getPublicIdentity(), resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverIMSUserState(udrData.getPublicIdentity(), resultCode, data);
       break;
     case DataReferenceType._S_CSCFNAME:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverSCSCFName(udrData.getPublicIdentity(), resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverSCSCFName(udrData.getPublicIdentity(), resultCode, data);
       break;
     case DataReferenceType._INITIAL_FILTER_CRITERIA:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverInitialFilterCriteria(udrData.getPublicIdentity(), udrData.getServerName(), resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverInitialFilterCriteria(udrData.getPublicIdentity(), udrData.getServerName(), resultCode, data);
       break;
     case DataReferenceType._LOCATION_INFORMATION:
       RequestedDomainType requestedDomain = udrData.getRequestedDomain();
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverLocationInformation(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverLocationInformation(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
       break;
     case DataReferenceType._USER_STATE:
       requestedDomain = udrData.getRequestedDomain();
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverUserState(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverUserState(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
       break;
     case DataReferenceType._CHARGING_INFORMATION:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverChargingInformation(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverChargingInformation(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
       break;
     case DataReferenceType._MSISDN:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverMSISDN(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverMSISDN(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
       break;
     case DataReferenceType._PSI_ACTIVATION:
-      ((IMSUserProfileParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverPSIActivation(udrData.getPublicIdentity(), resultCode, data);
+      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverPSIActivation(udrData.getPublicIdentity(), resultCode, data);
       break;
     default:
       //
@@ -738,7 +738,7 @@ public abstract class IMSUserProfileChildSbb implements Sbb, IMSUserProfileChild
   public void setSbbContext(SbbContext sbbContext) {
     this.sbbContext = (SbbContextExt) sbbContext;
     if (tracer == null) {
-      tracer = sbbContext.getTracer(IMSUserProfileChildSbb.class.getSimpleName());
+      tracer = sbbContext.getTracer(HSSClientChildSbb.class.getSimpleName());
     }
     try {
       Context context = (Context) new InitialContext().lookup("java:comp/env");

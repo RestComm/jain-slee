@@ -7,20 +7,20 @@
 
 		<description />
 
-		<sbb-name>IMSUserProfileChildSbb</sbb-name>
+		<sbb-name>HSSClientChildSbb</sbb-name>
 		<sbb-vendor>org.mobicents</sbb-vendor>
 		<sbb-version>1.0</sbb-version>
 
 		<sbb-classes>
 			<sbb-abstract-class reentrant="True">
-				<sbb-abstract-class-name>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChildSbb</sbb-abstract-class-name>				
+				<sbb-abstract-class-name>org.mobicents.slee.enabler.hssclient.HSSClientChildSbb</sbb-abstract-class-name>				
 			</sbb-abstract-class>
 			<sbb-local-interface>
-				<sbb-local-interface-name>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChildSbbLocalObject</sbb-local-interface-name>
+				<sbb-local-interface-name>org.mobicents.slee.enabler.hssclient.HSSClientChildSbbLocalObject</sbb-local-interface-name>
 			</sbb-local-interface>
             <sbb-activity-context-interface>
                 <sbb-activity-context-interface-name>
-                    org.mobicents.slee.enabler.ims.userprofile.RequestMappingACI
+                    org.mobicents.slee.enabler.hssclient.RequestMappingACI
                 </sbb-activity-context-interface-name>
              </sbb-activity-context-interface>
 		</sbb-classes>

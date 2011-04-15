@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_IMS_User_Profile_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_HSS_Client_User_Guide.ent">%BOOK_ENTITIES;]>
 
 <chapter id="integrating">
 
@@ -17,12 +17,12 @@
 		
 		<para>The &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler Sbb provides asynchronous callbacks to the Parent's Sbb, and that can only be achieved if the Parent's SbbLocalObject extends a specific Java interface, deployed also by the Enabler,. The Enabler uses the Parent's SbbLocalObject when a callback to the Parent's Sbb is needed.</para>
 		
-		<para>The SbbLocalObject which must be used or extended by the Parent's Sbb is named <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParentSbbLocalObject</literal>, which extends the <literal>org.mobicents.slee.SbbLocalObjectExt</literal> and <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParent</literal> interfaces, the latter declares the callbacks which must be implemented in the Parent's Sbb Abstract Class:</para>
+		<para>The SbbLocalObject which must be used or extended by the Parent's Sbb is named <literal>org.mobicents.slee.enabler.hssclient.HSSClientParentSbbLocalObject</literal>, which extends the <literal>org.mobicents.slee.SbbLocalObjectExt</literal> and <literal>org.mobicents.slee.enabler.hssclient.HSSClientParent</literal> interfaces, the latter declares the callbacks which must be implemented in the Parent's Sbb Abstract Class:</para>
 		
 		<programlisting language="Java" role="JAVA"><![CDATA[
-package org.mobicents.slee.enabler.ims.userprofile;
+package org.mobicents.slee.enabler.hssclient;
 
-public interface IMSUserProfileParent {
+public interface HSSClientParent {
 
   // Sh-Pull Operations Callbacks ---------------------------------------------
 
@@ -214,10 +214,10 @@ public interface IMSUserProfileParent {
 	
 	<section id="parent_sbb_abstract_class">
 		<title>The Parent's Sbb Abstract Class</title>
-		<para>The Parent Sbb Abstract Class must implement the callbacks on it's SbbLocalObject, that is, must implement the <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParent</literal> interface discussed in last section.</para>
+		<para>The Parent Sbb Abstract Class must implement the callbacks on it's SbbLocalObject, that is, must implement the <literal>org.mobicents.slee.enabler.hssclient.HSSClientParent</literal> interface discussed in last section.</para>
 		<para>The Enabler's Sbb is a Child Sbb, and JAIN SLEE 1.1 Child Relations requires an abstract method in the Sbb Abstract Class, to retrieve the <literal>javax.slee.ChildRelation</literal> object, which is used to create or access specific Child Sbbs. This method should be:</para>
 		<programlisting language="Java" role="JAVA"><![CDATA[
-	public abstract ChildRelationExt getIMSUserProfileChildRelation();
+	public abstract ChildRelationExt getHSSClientChildRelation();
 		]]>
 		</programlisting>
 	</section>
@@ -228,18 +228,18 @@ public interface IMSUserProfileParent {
 		<para>A reference to the Enabler's Child Sbb is defined right after the Parent's Sbb Vendor ID element, using the following XML element:</para>
 		<programlisting language="XML" role="XML"><![CDATA[
 		<sbb-ref>
-    		<sbb-name>IMSUserProfileChildSbb</sbb-name>
+    		<sbb-name>HSSClientChildSbb</sbb-name>
 			<sbb-vendor>org.mobicents</sbb-vendor>
 			<sbb-version>1.0</sbb-version>
-    		<sbb-alias>imsUserProfileChildSbb</sbb-alias>
+    		<sbb-alias>hssClientChildSbb</sbb-alias>
     	</sbb-ref>
 		]]>
 		</programlisting>
 		<para>The method name to get the Enabler's ChildRelation object must be defined after the CMP Fields (if any), this XML element links the sbb-alias previously defined with the abstract method declared in the Parent's Sbb Abstract Class:</para>
 		<programlisting language="XML" role="XML"><![CDATA[
 		<get-child-relation-method>                	
-        	<sbb-alias-ref>imsUserProfileChildSbb</sbb-alias-ref>
-            <get-child-relation-method-name>getIMSUserProfileChildRelation</get-child-relation-method-name>
+        	<sbb-alias-ref>hssClientChildSbb</sbb-alias-ref>
+            <get-child-relation-method-name>getHSSClientChildRelation</get-child-relation-method-name>
             <default-priority>0</default-priority>
         </get-child-relation-method>
 		]]>

@@ -20,13 +20,13 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.enabler.ims.userprofile;
+package org.mobicents.slee.enabler.hssclient;
 
 /**
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
  */
-public interface IMSUserProfileParent {
+public interface HSSClientParent {
 
   // Sh-Pull Operations Callbacks ---------------------------------------------
 

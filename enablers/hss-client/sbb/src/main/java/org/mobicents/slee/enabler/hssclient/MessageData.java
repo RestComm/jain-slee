@@ -20,7 +20,7 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.enabler.ims.userprofile;
+package org.mobicents.slee.enabler.hssclient;
 
 import java.io.Serializable;
 

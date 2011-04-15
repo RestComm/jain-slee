@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_IMS_User_Profile_User_Guide.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_HSS_Client_User_Guide.ent">
 %BOOK_ENTITIES;
 ]>
 
@@ -14,11 +14,11 @@
 		<important>
        		<para>Spaces where introduced in log4j category name to properly render page. Please remove them when using copy/paste.</para>
 		</important>
-		<para>The JAIN SLEE &THIS.ENABLER; Enabler uses a single JAIN SLEE 1.1 Tracer, named <literal>IMSUserProfileChildSbb</literal>. 
+		<para>The JAIN SLEE &THIS.ENABLER; Enabler uses a single JAIN SLEE 1.1 Tracer, named <literal>HSSClientChildSbb</literal>. 
 		The related log4j category is 
 		<literal>javax.slee.SbbNotification[service=ServiceID[name=</literal>
 		<literal>ServiceX,vendor=VendorY,version=VersionZ],</literal>
-		<literal>sbb=SbbID[name=IMSUserProfileChildSbb,vendor=org.mobicents,version=1.0]]</literal>.
+		<literal>sbb=SbbID[name=HSSClientChildSbb,vendor=org.mobicents,version=1.0]]</literal>.
 		Where <literal>ServiceX</literal>, <literal>VendorY</literal> and <literal>VersionZ</literal> need to be replaced by the identifiers of the Service using the Enabler.
 		</para>
 	</section>	

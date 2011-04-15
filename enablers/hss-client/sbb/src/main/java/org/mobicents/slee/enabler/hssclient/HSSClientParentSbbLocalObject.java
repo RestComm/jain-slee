@@ -20,18 +20,16 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.enabler.ims.userprofile;
+package org.mobicents.slee.enabler.hssclient;
 
-import javax.slee.ActivityContextInterface;
+import org.mobicents.slee.SbbLocalObjectExt;
 
 /**
+ * Interface used by {@link HSSClientChildSbbLocalObject} as callback to the
+ * sbb that declares it as a child sbb.
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
  */
-public interface RequestMappingACI extends ActivityContextInterface {
-
-  public MessageData getRequestData();
-
-  void setRequestData(MessageData data);
+public interface HSSClientParentSbbLocalObject extends SbbLocalObjectExt, HSSClientParent {
 
 }

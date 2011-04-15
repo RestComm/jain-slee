@@ -20,7 +20,7 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.enabler.ims.userprofile.example;
+package org.mobicents.slee.enabler.hssclient.example;
 
 import java.io.IOException;
 
@@ -33,14 +33,14 @@ import javax.slee.facilities.Tracer;
 import javax.slee.serviceactivity.ServiceActivity;
 
 import org.mobicents.slee.ChildRelationExt;
-import org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChildSbbLocalObject;
-import org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParent;
+import org.mobicents.slee.enabler.hssclient.HSSClientChildSbbLocalObject;
+import org.mobicents.slee.enabler.hssclient.HSSClientParent;
 
 /**
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
  */
-public abstract class IMSUserProfileParentSbb implements Sbb, IMSUserProfileParent {
+public abstract class HSSClientParentSbb implements Sbb, HSSClientParent {
 
   private static Tracer tracer;
 
@@ -84,7 +84,7 @@ public abstract class IMSUserProfileParentSbb implements Sbb, IMSUserProfilePare
   public void setSbbContext(SbbContext sbbContext) {
     this.sbbContext = sbbContext;
     if (tracer == null) {
-      tracer = sbbContext.getTracer(IMSUserProfileParentSbb.class.getSimpleName());
+      tracer = sbbContext.getTracer(HSSClientParentSbb.class.getSimpleName());
     }
   }
 
@@ -96,13 +96,13 @@ public abstract class IMSUserProfileParentSbb implements Sbb, IMSUserProfilePare
 
   public abstract int getNotifyCount();
 
-  public abstract ChildRelationExt getIMSUserProfileChildSbbChildRelation();
+  public abstract ChildRelationExt getHSSClientChildSbbChildRelation();
 
   public void onStartServiceEvent(javax.slee.serviceactivity.ServiceStartedEvent event, ActivityContextInterface aci) {
-    IMSUserProfileChildSbbLocalObject child;
+	  HSSClientChildSbbLocalObject child;
 
     try {
-      child = (IMSUserProfileChildSbbLocalObject) this.getIMSUserProfileChildSbbChildRelation().create("default");
+      child = (HSSClientChildSbbLocalObject) this.getHSSClientChildSbbChildRelation().create("default");
       
       try {
         // Request alice PSI Activation
@@ -254,7 +254,7 @@ public abstract class IMSUserProfileParentSbb implements Sbb, IMSUserProfilePare
     }
 
     // Now we try to update PSI-Activation data
-    IMSUserProfileChildSbbLocalObject child = (IMSUserProfileChildSbbLocalObject) this.getIMSUserProfileChildSbbChildRelation().get("default");
+    HSSClientChildSbbLocalObject child = (HSSClientChildSbbLocalObject) this.getHSSClientChildSbbChildRelation().get("default");
     try {
     	if (data.contains("<PSIActivation>0</PSIActivation>")) {
     		if (tracer.isInfoEnabled()) {
@@ -299,7 +299,7 @@ public abstract class IMSUserProfileParentSbb implements Sbb, IMSUserProfilePare
     }
 
     // Now we try to subscribe to alice's IMS User State
-    IMSUserProfileChildSbbLocalObject child = (IMSUserProfileChildSbbLocalObject) this.getIMSUserProfileChildSbbChildRelation().get("default");
+    HSSClientChildSbbLocalObject child = (HSSClientChildSbbLocalObject) this.getHSSClientChildSbbChildRelation().get("default");
     try {
     	if (tracer.isInfoEnabled()) {
     		tracer.info("###### STEP 6 # Subscribing to IMS User State for '" + PUBLIC_IDENTITY_IMS_USER_STATE + "'");

@@ -5,11 +5,11 @@
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.enablers</groupId>
-		<artifactId>ims-user-profile</artifactId>
+		<artifactId>hss-client</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>ims-user-profile-release</artifactId>
+	<artifactId>hss-client-release</artifactId>
 
 	<profiles>
 		<profile>
@@ -27,15 +27,15 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy overwrite="true" todir="${basedir}/../../../release/${release.name}/enablers/ims-user-profile">
+										<copy overwrite="true" todir="${basedir}/../../../release/${release.name}/enablers/hss-client">
 											<fileset dir="${basedir}/../du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
 												<include name="*.properties" />
 											</fileset>
 										</copy>
-										<copy overwrite="true" file="${basedir}/../du/target/build.xml" tofile="${basedir}/../../../release/${release.name}/enablers/ims-user-profile/du-management.xml" />
-										<copy overwrite="true" file="${basedir}/build.xml" todir="${basedir}/../../../release/${release.name}/enablers/ims-user-profile">
+										<copy overwrite="true" file="${basedir}/../du/target/build.xml" tofile="${basedir}/../../../release/${release.name}/enablers/hss-client/du-management.xml" />
+										<copy overwrite="true" file="${basedir}/build.xml" todir="${basedir}/../../../release/${release.name}/enablers/hss-client">
 											<filterset>
 												<filter token="JBOSS.PATH" value="${jboss.path}" />
 												<filter token="JBOSS.CONFIG" value="${node}" />

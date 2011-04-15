@@ -20,14 +20,18 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.enabler.ims.userprofile;
+package org.mobicents.slee.enabler.hssclient;
 
-import org.mobicents.slee.SbbLocalObjectExt;
+import javax.slee.ActivityContextInterface;
 
 /**
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
  */
-public interface IMSUserProfileChildSbbLocalObject extends SbbLocalObjectExt, IMSUserProfileChild {
+public interface RequestMappingACI extends ActivityContextInterface {
+
+  public MessageData getRequestData();
+
+  void setRequestData(MessageData data);
 
 }

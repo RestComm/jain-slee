@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_IMS_User_Profile_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_HSS_Client_User_Guide.ent">%BOOK_ENTITIES;]>
 
 <chapter id="using_the_enabler">
 
@@ -11,14 +11,14 @@
 		
 		<title>The Child's SbbLocalObject Interface</title>
 		
-		<para>The &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler Sbb, the Child Sbb, implements the <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChildSbbLocalObject</literal>, which extends the <literal>org.mobicents.slee.SbbLocalObjectExt</literal> and <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild</literal> interfaces, the latter declares the methods which can be used to interact with the HSS:</para>
+		<para>The &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler Sbb, the Child Sbb, implements the <literal>org.mobicents.slee.enabler.hssclient.HSSClientChildSbbLocalObject</literal>, which extends the <literal>org.mobicents.slee.SbbLocalObjectExt</literal> and <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild</literal> interfaces, the latter declares the methods which can be used to interact with the HSS:</para>
 		
 		<programlisting language="Java" role="JAVA"><![CDATA[
-package org.mobicents.slee.enabler.ims.userprofile;
+package org.mobicents.slee.enabler.hssclient;
 
 import java.io.IOException;
 
-public interface IMSUserProfileChild {
+public interface HSSClientChild {
 
   // Sh-Pull Operations -------------------------------------------------------
 
@@ -107,98 +107,98 @@ public interface IMSUserProfileChild {
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.getSCSCFName(String, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.getSCSCFName(String, String, String)</literal> method:</term>
                 <listitem>
                     <para>Retrieves the "S-CSCF Name" data type from the HSS, for the specified Public Identity. Response is provided through parent's callback deliverSCSCFName(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.getInitialFilterCriteria(String, String, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.getInitialFilterCriteria(String, String, String, String)</literal> method:</term>
                 <listitem>
                     <para>Retrieves the "Initial Filter Criteria" data type from the HSS, for the specified Public Identity and Server Name. Response is provided through parent's callback deliverInitialFilterCriteria(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.getLocationInformation(byte[], int, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.getLocationInformation(byte[], int, String, String)</literal> method:</term>
                 <listitem>
                     <para>Retrieves the "Location Information" data type from the HSS, for the specified MSISDN and Requested Domain. Response is provided through parent's callback deliverLocationInformation(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.getUserState(byte[], int, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.getUserState(byte[], int, String, String)</literal> method:</term>
                 <listitem>
                     <para>Retrieves the "User State" data type from the HSS, for the specified MSISDN and Requested Domain. Response is provided through parent's callback deliverUserState(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.getChargingInformation(String, byte[], String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.getChargingInformation(String, byte[], String, String)</literal> method:</term>
                 <listitem>
                     <para>Retrieves the "Charging Information" data type from the HSS, for the specified Public Identity or MSISDN. Response is provided through parent's callback deliverChargingInformation(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.getMSISDN(String, byte[], String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.getMSISDN(String, byte[], String, String)</literal> method:</term>
                 <listitem>
                     <para>Retrieves the "MSISDN" data type from the HSS, for the specified Public Identity or MSISDN. Response is provided through parent's callback deliverMSISDN(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.getPSIActivation(String, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.getPSIActivation(String, String, String)</literal> method:</term>
                 <listitem>
                     <para>Retrieves the "PSI Activation" data type from the HSS, for the specified Public Identity. Response is provided through parent's callback deliverPSIActivation(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.updateRepositoryData(String, String, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.updateRepositoryData(String, String, String, String)</literal> method:</term>
                 <listitem>
                     <para>Updates the "Repository Data" data type from the HSS, for the specified Public Identity. Response is provided through parent's callback updateRepositoryDataResponse(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.updatePSIActivation(String, String, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.updatePSIActivation(String, String, String, String)</literal> method:</term>
                 <listitem>
                     <para>Updates the "PSI Activation" data type from the HSS, for the specified Public Identity. Response is provided through parent's callback updatePSIActivationResponse(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.subscribeRepositoryData(String, byte[][], int, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.subscribeRepositoryData(String, byte[][], int, String, String)</literal> method:</term>
                 <listitem>
                     <para>Subscribes/Unsubcribes (depending on Subscription-Request-Type value) to the "Repository Data" data type from the HSS, for the specified Public Identity and Service Indication(s). Response is provided through parent's callback subscribeRepositoryDataResponse(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.subscribeIMSUserState(String, int, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.subscribeIMSUserState(String, int, String, String)</literal> method:</term>
                 <listitem>
                     <para>Subscribes/Unsubcribes (depending on Subscription-Request-Type value) to the "IMS User State" data type from the HSS, for the specified Public Identity. Response is provided through parent's callback subscribeIMSUserStateResponse(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.subscribeSCSCFName(String, int, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.subscribeSCSCFName(String, int, String, String)</literal> method:</term>
                 <listitem>
                     <para>Subscribes/Unsubcribes (depending on Subscription-Request-Type value) to the "S-CSCF Name" data type from the HSS, for the specified Public Identity. Response is provided through parent's callback subscribeSCSCFNameResponse(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.subscribeInitialFilterCriteria(String, String, int, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.subscribeInitialFilterCriteria(String, String, int, String, String)</literal> method:</term>
                 <listitem>
                     <para>Subscribes/Unsubcribes (depending on Subscription-Request-Type value) to the "Initial Filter Criteria" data type from the HSS, for the specified Public Identity and Server Name. Response is provided through parent's callback subscribeInitialFilterCriteriaResponse(...).</para>
                 </listitem>
             </varlistentry>
 
             <varlistentry>
-                <term>The <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChild.subsribePSIActivation(String, int, String, String)</literal> method:</term>
+                <term>The <literal>org.mobicents.slee.enabler.hssclient.HSSClientChild.subsribePSIActivation(String, int, String, String)</literal> method:</term>
                 <listitem>
                     <para>Subscribes/Unsubcribes (depending on Subscription-Request-Type value) to the "PSIActivation" data type from the HSS, for the specified Public Identity and Service Indication(s). Response is provided through parent's callback subsribePSIActivationResponse(...).</para>
                 </listitem>
@@ -212,17 +212,17 @@ public interface IMSUserProfileChild {
 		<title>Creating And Retrieving The Child Sbb</title>
 		<para>The Child Relation in the Parent Sbb Abstract Class is used to create and retrieve a Child Sbb:</para>
 		<programlisting language="Java" role="JAVA"><![CDATA[
-    IMSUserProfileChildSbbLocalObject sbb = null;
+    HSSClientChildSbbLocalObject sbb = null;
     // creation
     try {
-        sbb = (IMSUserProfileChildSbbLocalObject) getIMSUserProfileChildRelation().create(childName);                
+        sbb = (HSSClientChildSbbLocalObject) getHSSClientChildRelation().create(childName);                
     }
     catch (Exception e) {
       tracer.severe("Failed to create child sbb", e);      
     }
     // retrieval
     try {
-        sbb = (IMSUserProfileChildSbbLocalObject) getIMSUserProfileChildRelation().get(childName);                
+        sbb = (HSSClientChildSbbLocalObject) getHSSClientChildRelation().get(childName);                
     }
     catch (Exception e) {
       tracer.severe("Failed to retrieve child sbb", e);      

@@ -3,21 +3,22 @@
 	
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.enablers</groupId>
-		<artifactId>ims-user-profile</artifactId>
+		<artifactId>hss-client</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>ims-user-profile-DU</artifactId>
+	<artifactId>hss-client-DU</artifactId>
 
 	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-			<artifactId>ims-user-profile-sbb</artifactId>
+			<artifactId>hss-client-sbb</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>
 	
 	<build>
+		<finalName>mobicents-slee-enabler-hss-client-DU-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
