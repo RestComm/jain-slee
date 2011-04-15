@@ -19,7 +19,6 @@ package org.mobicents.slee.enabler.sip.example;
 
 
 import javax.slee.ActivityContextInterface;
-import javax.slee.ChildRelation;
 import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
@@ -27,15 +26,16 @@ import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
 import javax.slee.serviceactivity.ServiceActivity;
 
+import org.mobicents.slee.ChildRelationExt;
 import org.mobicents.slee.enabler.sip.PublicationClientChildSbbLocalObject;
 import org.mobicents.slee.enabler.sip.PublicationClientParent;
-import org.mobicents.slee.enabler.sip.PublicationClientParentSbbLocalObject;
 
 /**
  * @author baranowb
  *
  */
 public abstract class PublicationClientParentSbb implements Sbb, PublicationClientParent {
+	
 	private static Tracer tracer;
 
 	protected SbbContext sbbContext;
@@ -97,15 +97,14 @@ public abstract class PublicationClientParentSbb implements Sbb, PublicationClie
 	public abstract void setUpdateCMP(boolean b);
 	public abstract boolean getUpdateCMP();
 	
-	public abstract ChildRelation getPublicationClientChildSbbChildRelation();
+	public abstract ChildRelationExt getPublicationClientChildSbbChildRelation();
 	
 	public void onStartServiceEvent(
 			javax.slee.serviceactivity.ServiceStartedEvent event,
 			ActivityContextInterface aci) {
 		PublicationClientChildSbbLocalObject child;
 		try {
-			child = (PublicationClientChildSbbLocalObject)this.getPublicationClientChildSbbChildRelation().create();
-			child.setParentSbb((PublicationClientParentSbbLocalObject) this.sbbContext.getSbbLocalObject());
+			child = (PublicationClientChildSbbLocalObject)this.getPublicationClientChildSbbChildRelation().create("default");
 			child.newPublication("sip:alan@127.0.0.1:5090", "presence", fancyXML, "application", "pidf+xml", 61);
 		} catch (Throwable e) {
 			tracer.severe("failure",e);
@@ -116,7 +115,7 @@ public abstract class PublicationClientParentSbb implements Sbb, PublicationClie
 		if (tracer.isFineEnabled())
 			tracer.fine("Received Activtiy End: "+aci.getActivity());
 		if(aci.getActivity() instanceof ServiceActivity) {
-			PublicationClientChildSbbLocalObject child = (PublicationClientChildSbbLocalObject)this.getPublicationClientChildSbbChildRelation().iterator().next();
+			PublicationClientChildSbbLocalObject child = (PublicationClientChildSbbLocalObject)this.getPublicationClientChildSbbChildRelation().get("default");
 			try {
 				child.removePublication();
 			} catch (Throwable e) {

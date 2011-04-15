@@ -17,12 +17,12 @@
  */
 package org.mobicents.slee.enabler.sip;
 
-import javax.slee.SbbLocalObject;
+import org.mobicents.slee.SbbLocalObjectExt;
 
 /**
  * @author baranowb
  *
  */
-public interface PublicationClientChildSbbLocalObject extends PublicationClientChild,SbbLocalObject {
+public interface PublicationClientChildSbbLocalObject extends PublicationClientChild,SbbLocalObjectExt {
 
 }

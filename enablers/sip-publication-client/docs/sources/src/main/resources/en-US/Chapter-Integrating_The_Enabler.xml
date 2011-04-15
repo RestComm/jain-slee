@@ -53,7 +53,7 @@
 			<literal>org.mobicents.slee.enabler.sip.PublicationClientParentSbbLocalObject
 			</literal>
 			, which extends the
-			<literal>javax.slee.SbbLocalObject</literal>
+			<literal>org.mobicents.slee.SbbLocalObjectExt</literal>
 			and
 			<literal>org.mobicents.slee.enabler.sip.PublicationClientParent
 			</literal>
@@ -181,12 +181,12 @@ public interface PublicationClientParent {
 			access Enabler. SLEE specification mandates parent to
 			declare an
 			abstract method to retrieve the
-			<literal>javax.slee.ChildRelation</literal>
+			<literal>org.mobicents.slee.ChildRelationExt</literal>
 			object, which is used to create or access specific Child Sbbs. This
 			method may be declared as follows:
 		</para>
 		<programlisting language="Java" role="JAVA"><![CDATA[
-	public abstract ChildRelation getSipPublicationClientChildRelation();
+	public abstract ChildRelationExt getSipPublicationClientChildRelation();
 		]]>
 		</programlisting>
 	</section>

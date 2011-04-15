@@ -83,11 +83,6 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	// //////////////////
 
 	@Override
-	public void setParentSbb(PublicationClientParentSbbLocalObject parent) {
-		setParentSbbCMP(parent);
-	}
-
-	@Override
 	public String getEntity() {
 		return this.getEntityCMP();
 	}
@@ -119,7 +114,8 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			if(tracer.isSevereEnabled()) {
 				tracer.severe("Failed to create publication", e);
 			}
-			getParentSbbCMP().newPublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
+			
+			((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).newPublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
 		}
 	}
 
@@ -147,7 +143,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			if(tracer.isSevereEnabled()) {
 				tracer.severe("Failed to modify publication", e);
 			}
-			getParentSbbCMP().modifyPublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
+			((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).modifyPublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
 		}
 	}
 
@@ -175,15 +171,13 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			if(tracer.isSevereEnabled()) {
 				tracer.severe("Failed to remove publication", e);
 			}
-			getParentSbbCMP().removePublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
+			((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).removePublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
 		}
 	}
 	
 	/////////////////
 	// CMP Methods //
 	/////////////////
-	public abstract void setParentSbbCMP(PublicationClientParentSbbLocalObject parent);
-	public abstract PublicationClientParentSbbLocalObject getParentSbbCMP();
 	public abstract void setEntityCMP(String d);
 	public abstract String getEntityCMP();
 	public abstract void  setEventPackageCMP(String eventPackage);
@@ -235,17 +229,17 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			switch (type) {
 			case NEW:
 				postponedRequest = getPostponedRequestCMP();
-				this.getParentSbbCMP().newPublicationSucceed((PublicationClientChildSbbLocalObject) sbbLocalObject);
+				((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).newPublicationSucceed((PublicationClientChildSbbLocalObject) sbbLocalObject);
 				break;
 			case REFRESH:
 				postponedRequest = getPostponedRequestCMP();
 				break;
 			case UPDATE:
 				postponedRequest = getPostponedRequestCMP();
-				this.getParentSbbCMP().modifyPublicationSucceed((PublicationClientChildSbbLocalObject) sbbLocalObject);
+				((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).modifyPublicationSucceed((PublicationClientChildSbbLocalObject) sbbLocalObject);
 				break;
 			case REMOVE:
-				this.getParentSbbCMP().removePublicationSucceed((PublicationClientChildSbbLocalObject) sbbLocalObject);
+				((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).removePublicationSucceed((PublicationClientChildSbbLocalObject) sbbLocalObject);
 				break;
 			}
 		}
@@ -308,7 +302,7 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 					tracer.severe("Received 423 on REMOVE request!");
 				}
 				try{
-					this.getParentSbbCMP().removePublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+					((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).removePublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 				}
 				catch(Exception e) {
 					if(tracer.isSevereEnabled()) {
@@ -595,23 +589,21 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		try{
 			switch (type) {
 			case NEW:
-				this.getParentSbbCMP().newPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+				((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).newPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 				break;
 			case REFRESH:
-				this.getParentSbbCMP().refreshPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+				((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).refreshPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 				break;
 			case UPDATE:
-				this.getParentSbbCMP().modifyPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+				((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).modifyPublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 				break;
 			case REMOVE:
-				this.getParentSbbCMP().removePublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+				((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).removePublicationFailed(statusCode, (PublicationClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 				break;
 			}
 		}
 		catch(Exception e) {
-			if(tracer.isSevereEnabled()) {
-				tracer.severe("Exception in publication parent!", e);
-			}
+			tracer.severe("Exception in publication parent!", e);			
 		}
 	}
 		
@@ -622,7 +614,6 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 		//issue request.
 		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
 		try {
-
 			final Request r = createRefreshPublishRequest();			
 			final ClientTransaction ctx = this.sleeSipProvider.getNewClientTransaction(r);
 			ActivityContextInterface ctxAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(ctx);
@@ -630,10 +621,8 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 			ctx.sendRequest();
 			setPublishRequestTypeCMP(PublishRequestType.REFRESH);			
 		} catch (Throwable e) {
-			if(tracer.isSevereEnabled()) {
-				tracer.severe("Failed to refresh publication", e);
-			}
-			getParentSbbCMP().refreshPublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
+			tracer.severe("Failed to refresh publication", e);
+			((PublicationClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).refreshPublicationFailed(Response.SERVER_INTERNAL_ERROR, (PublicationClientChildSbbLocalObject) sbbLocalObject);
 		}
 	}
 

@@ -92,11 +92,4 @@ public interface PublicationClientChild {
 	 */
 	public String getETag();
 
-	/**
-	 * Set parent which will be notified about call results.
-	 * 
-	 * @param parent
-	 */
-	public void setParentSbb(PublicationClientParentSbbLocalObject parent);
-
 }
