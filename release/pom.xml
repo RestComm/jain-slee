@@ -52,7 +52,7 @@
 		
 		<enabler.sip-publication-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/sip-publication-client/1.0.0.BETA2</enabler.sip-publication-client.connectionURL>
 		<enabler.sip-subscription-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/sip-subscription-client/1.0.0.BETA2</enabler.sip-subscription-client.connectionURL>		
-		<enabler.ims-user-profile.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/ims-user-profile/1.0.0.BETA2</enabler.ims-user-profile.connectionURL>				 
+		<enabler.hss-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/hss-client/1.0.0.BETA2</enabler.hss-client.connectionURL>				 
 		
 		<example.google-talk-bot.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/google-talk-bot/${tag.version}</example.google-talk-bot.connectionURL>		 
 		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/${tag.version}</example.sipservices.connectionURL> 
@@ -111,7 +111,7 @@
 		
 		<enabler.sip-publication-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/sip-publication-client</enabler.sip-publication-client.connectionURL>
 		<enabler.sip-subscription-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/sip-subscription-client</enabler.sip-subscription-client.connectionURL>
-		<enabler.ims-user-profile.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/ims-user-profile</enabler.ims-user-profile.connectionURL>
+		<enabler.hss-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/hss-client</enabler.hss-client.connectionURL>
 		 		
 		<example.google-talk-bot.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/google-talk-bot</example.google-talk-bot.connectionURL>
 		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</example.sipservices.connectionURL>
@@ -658,7 +658,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>enabler-ims-user-profile-checkout</id>
+						<id>enabler-hss-client-checkout</id>
 						<goals>
 							<goal>checkout</goal>
 						</goals>
@@ -668,10 +668,10 @@
 							<scmVersionType>revision</scmVersionType>
 							<skipCheckoutIfExists>true</skipCheckoutIfExists>
 							<checkoutDirectory>
-								${checkout.basedir}/enablers/ims-user-profile
+								${checkout.basedir}/enablers/hss-client
 							</checkoutDirectory>
 							<connectionUrl>
-								${enabler.ims-user-profile.connectionURL}
+								${enabler.hss-client.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
