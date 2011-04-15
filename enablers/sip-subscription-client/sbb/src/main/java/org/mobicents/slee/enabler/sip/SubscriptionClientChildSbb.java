@@ -552,11 +552,12 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 			cancelExpiresTimer(ac);
 			dialogActivity.delete();			
 		}
+		final SubscriptionClientChildSbbLocalObject sbbLocalObject = (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject();
 		switch (type) {
 		case NEW:
 
 			try {
-				((SubscriptionClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				((SubscriptionClientParentSbbLocalObject)sbbLocalObject.getParent()).subscribeFailed(errorCode, sbbLocalObject);
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -567,7 +568,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		case REFRESH:
 			// failed to refresh, we should get notify when it times out.
 			try {
-				((SubscriptionClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).resubscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				((SubscriptionClientParentSbbLocalObject)sbbLocalObject.getParent()).resubscribeFailed(errorCode, sbbLocalObject);
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -578,7 +579,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		case REMOVE:
 			// failed to remove, we will receive notify.
 			try {
-				((SubscriptionClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).unsubscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				((SubscriptionClientParentSbbLocalObject)sbbLocalObject.getParent()).unsubscribeFailed(errorCode, sbbLocalObject);
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
