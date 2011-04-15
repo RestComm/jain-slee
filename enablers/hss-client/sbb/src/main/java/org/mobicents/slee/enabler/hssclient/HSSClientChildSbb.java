@@ -77,6 +77,10 @@ public abstract class HSSClientChildSbb implements Sbb, HSSClientChild {
 
   public abstract RequestMappingACI asSbbActivityContextInterface(ActivityContextInterface aci);
 
+  protected HSSClientParentSbbLocalObject getParent() {
+	  return (HSSClientParentSbbLocalObject) sbbContext.getSbbLocalObject().getParent();
+  }
+  
   // -- SBB LOCAL OBJECT METHODS ----------------------------------------------
   
   public String getRepositoryData(String publicIdentity, byte[][] serviceIndications, String destinationRealm, String destinationHost) throws IOException {
@@ -549,19 +553,19 @@ public abstract class HSSClientChildSbb implements Sbb, HSSClientChild {
     case DataReferenceType._REPOSITORY_DATA:
       byte[][] serviceIndications = snrData.getServiceIndications();
 
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeRepositoryDataResponse(snrData.getPublicIdentity(), serviceIndications, subsReqType.getValue(), resultCode);
+      getParent().subscribeRepositoryDataResponse(snrData.getPublicIdentity(), serviceIndications, subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._IMS_USER_STATE:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeIMSUserStateResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
+      getParent().subscribeIMSUserStateResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._S_CSCFNAME:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeSCSCFNameResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
+      getParent().subscribeSCSCFNameResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._INITIAL_FILTER_CRITERIA:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeInitialFilterCriteriaResponse(snrData.getPublicIdentity(), snrData.getServerName(), subsReqType.getValue(), resultCode);
+      getParent().subscribeInitialFilterCriteriaResponse(snrData.getPublicIdentity(), snrData.getServerName(), subsReqType.getValue(), resultCode);
       break;
     case DataReferenceType._PSI_ACTIVATION:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribePSIActivationResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
+      getParent().subscribePSIActivationResponse(snrData.getPublicIdentity(), subsReqType.getValue(), resultCode);
       break;
     default:
       //
@@ -578,10 +582,10 @@ public abstract class HSSClientChildSbb implements Sbb, HSSClientChild {
 
     switch(dataRef.getValue()) {
     case DataReferenceType._REPOSITORY_DATA:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).updateRepositoryDataResponse(purData.getPublicIdentity(), resultCode);
+      getParent().updateRepositoryDataResponse(purData.getPublicIdentity(), resultCode);
       break;
     case DataReferenceType._PSI_ACTIVATION:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).updatePSIActivationResponse(purData.getPublicIdentity(), resultCode);
+      getParent().updatePSIActivationResponse(purData.getPublicIdentity(), resultCode);
       break;
       default:
         //
@@ -604,7 +608,7 @@ public abstract class HSSClientChildSbb implements Sbb, HSSClientChild {
     String data = event.getUserData();
 
     // Deliver to parent
-    ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).receivedProfileUpdate(userIdentityValues[0], userIdentityValues[1].getBytes(), data, event.getOriginRealm().toString(), event.getOriginHost().toString());
+    getParent().receivedProfileUpdate(userIdentityValues[0], userIdentityValues[1].getBytes(), data, event.getOriginRealm().toString(), event.getOriginHost().toString());
   }
 
   public void onUserDataAnswer(UserDataAnswer event, RequestMappingACI aci) {
@@ -617,37 +621,37 @@ public abstract class HSSClientChildSbb implements Sbb, HSSClientChild {
     DataReferenceType dataRef = udrData.getDataReferences()[0];
     switch(dataRef.getValue()) {
     case DataReferenceType._REPOSITORY_DATA:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverRepositoryData(udrData.getPublicIdentity(), udrData.getServiceIndications(), resultCode, data);
+      getParent().deliverRepositoryData(udrData.getPublicIdentity(), udrData.getServiceIndications(), resultCode, data);
       break;
     case DataReferenceType._IMS_PUBLIC_IDENTITY:
       IdentitySetType identitySet = udrData.getIdentitySet();
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverIMSPublicIdentity(udrData.getPublicIdentity(), udrData.getMsisdn(), identitySet != null ? identitySet.getValue() : null, resultCode, data);
+      getParent().deliverIMSPublicIdentity(udrData.getPublicIdentity(), udrData.getMsisdn(), identitySet != null ? identitySet.getValue() : null, resultCode, data);
       break;
     case DataReferenceType._IMS_USER_STATE:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverIMSUserState(udrData.getPublicIdentity(), resultCode, data);
+      getParent().deliverIMSUserState(udrData.getPublicIdentity(), resultCode, data);
       break;
     case DataReferenceType._S_CSCFNAME:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverSCSCFName(udrData.getPublicIdentity(), resultCode, data);
+      getParent().deliverSCSCFName(udrData.getPublicIdentity(), resultCode, data);
       break;
     case DataReferenceType._INITIAL_FILTER_CRITERIA:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverInitialFilterCriteria(udrData.getPublicIdentity(), udrData.getServerName(), resultCode, data);
+      getParent().deliverInitialFilterCriteria(udrData.getPublicIdentity(), udrData.getServerName(), resultCode, data);
       break;
     case DataReferenceType._LOCATION_INFORMATION:
       RequestedDomainType requestedDomain = udrData.getRequestedDomain();
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverLocationInformation(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
+      getParent().deliverLocationInformation(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
       break;
     case DataReferenceType._USER_STATE:
       requestedDomain = udrData.getRequestedDomain();
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverUserState(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
+      getParent().deliverUserState(udrData.getMsisdn(), requestedDomain != null ? requestedDomain.getValue() : null, resultCode, data);
       break;
     case DataReferenceType._CHARGING_INFORMATION:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverChargingInformation(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
+      getParent().deliverChargingInformation(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
       break;
     case DataReferenceType._MSISDN:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverMSISDN(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
+      getParent().deliverMSISDN(udrData.getPublicIdentity(), udrData.getMsisdn(), resultCode, data);
       break;
     case DataReferenceType._PSI_ACTIVATION:
-      ((HSSClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).deliverPSIActivation(udrData.getPublicIdentity(), resultCode, data);
+      getParent().deliverPSIActivation(udrData.getPublicIdentity(), resultCode, data);
       break;
     default:
       //
