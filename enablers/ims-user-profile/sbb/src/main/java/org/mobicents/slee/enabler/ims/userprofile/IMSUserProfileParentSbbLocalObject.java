@@ -22,7 +22,7 @@
  */
 package org.mobicents.slee.enabler.ims.userprofile;
 
-import javax.slee.SbbLocalObject;
+import org.mobicents.slee.SbbLocalObjectExt;
 
 /**
  * Interface used by {@link IMSUserProfileChildSbbLocalObject} as callback to the
@@ -30,6 +30,6 @@ import javax.slee.SbbLocalObject;
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
  */
-public interface IMSUserProfileParentSbbLocalObject extends SbbLocalObject, IMSUserProfileParent {
+public interface IMSUserProfileParentSbbLocalObject extends SbbLocalObjectExt, IMSUserProfileParent {
 
 }

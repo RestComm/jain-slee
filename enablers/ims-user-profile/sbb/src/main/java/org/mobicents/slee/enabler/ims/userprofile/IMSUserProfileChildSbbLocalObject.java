@@ -22,12 +22,12 @@
  */
 package org.mobicents.slee.enabler.ims.userprofile;
 
-import javax.slee.SbbLocalObject;
+import org.mobicents.slee.SbbLocalObjectExt;
 
 /**
  * 
  * @author <a href=mailto:brainslog@gmail.com> Alexandre Mendonca </a>
  */
-public interface IMSUserProfileChildSbbLocalObject extends SbbLocalObject, IMSUserProfileChild {
+public interface IMSUserProfileChildSbbLocalObject extends SbbLocalObjectExt, IMSUserProfileChild {
 
 }

@@ -25,7 +25,6 @@ package org.mobicents.slee.enabler.ims.userprofile.example;
 import java.io.IOException;
 
 import javax.slee.ActivityContextInterface;
-import javax.slee.ChildRelation;
 import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
@@ -33,9 +32,9 @@ import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
 import javax.slee.serviceactivity.ServiceActivity;
 
+import org.mobicents.slee.ChildRelationExt;
 import org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChildSbbLocalObject;
 import org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParent;
-import org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParentSbbLocalObject;
 
 /**
  * 
@@ -97,15 +96,14 @@ public abstract class IMSUserProfileParentSbb implements Sbb, IMSUserProfilePare
 
   public abstract int getNotifyCount();
 
-  public abstract ChildRelation getIMSUserProfileChildSbbChildRelation();
+  public abstract ChildRelationExt getIMSUserProfileChildSbbChildRelation();
 
   public void onStartServiceEvent(javax.slee.serviceactivity.ServiceStartedEvent event, ActivityContextInterface aci) {
     IMSUserProfileChildSbbLocalObject child;
 
     try {
-      child = (IMSUserProfileChildSbbLocalObject) this.getIMSUserProfileChildSbbChildRelation().create();
-      child.setParentSbbCMP((IMSUserProfileParentSbbLocalObject) this.sbbContext.getSbbLocalObject());
-
+      child = (IMSUserProfileChildSbbLocalObject) this.getIMSUserProfileChildSbbChildRelation().create("default");
+      
       try {
         // Request alice PSI Activation
         child.getPSIActivation(PUBLIC_IDENTITY_PSI, DESTINATION_REALM, DESTINATION_HOST);
@@ -256,35 +254,29 @@ public abstract class IMSUserProfileParentSbb implements Sbb, IMSUserProfilePare
     }
 
     // Now we try to update PSI-Activation data
+    IMSUserProfileChildSbbLocalObject child = (IMSUserProfileChildSbbLocalObject) this.getIMSUserProfileChildSbbChildRelation().get("default");
     try {
-      IMSUserProfileChildSbbLocalObject child = (IMSUserProfileChildSbbLocalObject) this.getIMSUserProfileChildSbbChildRelation().create();
-      child.setParentSbbCMP((IMSUserProfileParentSbbLocalObject) this.sbbContext.getSbbLocalObject());
+    	if (data.contains("<PSIActivation>0</PSIActivation>")) {
+    		if (tracer.isInfoEnabled()) {
+    			tracer.info("###### STEP 3 # Setting PSI Activation from INACTIVE to ACTIVE in User-Data ...");
+    		}
+    		data = data.replaceAll("<PSIActivation>0</PSIActivation>", "<PSIActivation>1</PSIActivation>");
+    	}
+    	else {
+    		if (tracer.isInfoEnabled()) {
+    			tracer.info("###### STEP 3 # Setting PSI Activation from ACTIVE to INACTIVE in User-Data ...");
+    		}
+    		data = data.replaceAll("<PSIActivation>1</PSIActivation>", "<PSIActivation>0</PSIActivation>");
+    	}
+    	child.updatePSIActivation(PUBLIC_IDENTITY_PSI, data, DESTINATION_REALM, DESTINATION_HOST);
+    	if (tracer.isInfoEnabled()) {
+    		tracer.info("###### STEP 4 # Sent Profile-Update-Request to HSS for '" + PUBLIC_IDENTITY_PSI + "'");
+    	}
+    }
+    catch (IOException ioe) {
+    	tracer.severe("Unable to send PUR.", ioe);             
+    }
 
-      try {
-        if (data.contains("<PSIActivation>0</PSIActivation>")) {
-          if (tracer.isInfoEnabled()) {
-            tracer.info("###### STEP 3 # Setting PSI Activation from INACTIVE to ACTIVE in User-Data ...");
-          }
-          data = data.replaceAll("<PSIActivation>0</PSIActivation>", "<PSIActivation>1</PSIActivation>");
-        }
-        else {
-          if (tracer.isInfoEnabled()) {
-            tracer.info("###### STEP 3 # Setting PSI Activation from ACTIVE to INACTIVE in User-Data ...");
-          }
-          data = data.replaceAll("<PSIActivation>1</PSIActivation>", "<PSIActivation>0</PSIActivation>");
-        }
-        child.updatePSIActivation(PUBLIC_IDENTITY_PSI, data, DESTINATION_REALM, DESTINATION_HOST);
-        if (tracer.isInfoEnabled()) {
-          tracer.info("###### STEP 4 # Sent Profile-Update-Request to HSS for '" + PUBLIC_IDENTITY_PSI + "'");
-        }
-      }
-      catch (IOException ioe) {
-        tracer.severe("Unable to send PUR.", ioe);             
-      }
-    }
-    catch (CreateException ce) {
-      tracer.severe("Failed to create Child Relation.", ce);
-    }
   }
 
   @Override
@@ -307,23 +299,17 @@ public abstract class IMSUserProfileParentSbb implements Sbb, IMSUserProfilePare
     }
 
     // Now we try to subscribe to alice's IMS User State
+    IMSUserProfileChildSbbLocalObject child = (IMSUserProfileChildSbbLocalObject) this.getIMSUserProfileChildSbbChildRelation().get("default");
     try {
-      IMSUserProfileChildSbbLocalObject child = (IMSUserProfileChildSbbLocalObject) this.getIMSUserProfileChildSbbChildRelation().create();
-      child.setParentSbbCMP((IMSUserProfileParentSbbLocalObject) this.sbbContext.getSbbLocalObject());
+    	if (tracer.isInfoEnabled()) {
+    		tracer.info("###### STEP 6 # Subscribing to IMS User State for '" + PUBLIC_IDENTITY_IMS_USER_STATE + "'");
+    	}
+    	child.subscribeIMSUserState(PUBLIC_IDENTITY_IMS_USER_STATE, 0, DESTINATION_REALM, DESTINATION_HOST);
+    }
+    catch (IOException ioe) {
+    	tracer.severe("Unable to send SNR.", ioe);             
+    }
 
-      try {
-        if (tracer.isInfoEnabled()) {
-          tracer.info("###### STEP 6 # Subscribing to IMS User State for '" + PUBLIC_IDENTITY_IMS_USER_STATE + "'");
-        }
-        child.subscribeIMSUserState(PUBLIC_IDENTITY_IMS_USER_STATE, 0, DESTINATION_REALM, DESTINATION_HOST);
-      }
-      catch (IOException ioe) {
-        tracer.severe("Unable to send SNR.", ioe);             
-      }
-    }
-    catch (CreateException ce) {
-      tracer.severe("Failed to create Child Relation.", ce);
-    }
   }
 
   @Override

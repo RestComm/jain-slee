@@ -13,10 +13,7 @@
 
 		<sbb-classes>
 			<sbb-abstract-class reentrant="True">
-				<sbb-abstract-class-name>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChildSbb</sbb-abstract-class-name>
-				<cmp-field>
-					<cmp-field-name>parentSbbCMP</cmp-field-name>
-				</cmp-field>
+				<sbb-abstract-class-name>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChildSbb</sbb-abstract-class-name>				
 			</sbb-abstract-class>
 			<sbb-local-interface>
 				<sbb-local-interface-name>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileChildSbbLocalObject</sbb-local-interface-name>

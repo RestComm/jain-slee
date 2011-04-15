@@ -30,13 +30,6 @@ import java.io.IOException;
  */
 public interface IMSUserProfileChild {
 
-  /**
-   * Sets the parent, which will be used by the client to provide async results.
-   * 
-   * @param parent
-   */
-  public void setParentSbbCMP(IMSUserProfileParentSbbLocalObject parentSbb);
-
   // Sh-Pull Operations -------------------------------------------------------
 
   /**

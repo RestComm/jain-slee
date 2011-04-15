@@ -15,9 +15,9 @@
 		
 		<title>The Parent's SbbLocalObject Interface</title>
 		
-		<para>The &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler Sbb provides asynchronous callbacks to the Parent's Sbb, and that can only be achieved if the Parent's SbbLocalObject extends a specific Java interface, deployed also by the Enabler, and provides it's SbbLocalObject to the Enabler's Sbb, through a specific method exposed by the latter interface. The Enabler stores the Parent's SbbLocalObject and uses it when a callback to the Parent's Sbb is needed.</para>
+		<para>The &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler Sbb provides asynchronous callbacks to the Parent's Sbb, and that can only be achieved if the Parent's SbbLocalObject extends a specific Java interface, deployed also by the Enabler,. The Enabler uses the Parent's SbbLocalObject when a callback to the Parent's Sbb is needed.</para>
 		
-		<para>The SbbLocalObject which must be used or extended by the Parent's Sbb is named <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParentSbbLocalObject</literal>, which extends the <literal>javax.slee.SbbLocalObject</literal> and <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParent</literal> interfaces, the latter declares the callbacks which must be implemented in the Parent's Sbb Abstract Class:</para>
+		<para>The SbbLocalObject which must be used or extended by the Parent's Sbb is named <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParentSbbLocalObject</literal>, which extends the <literal>org.mobicents.slee.SbbLocalObjectExt</literal> and <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParent</literal> interfaces, the latter declares the callbacks which must be implemented in the Parent's Sbb Abstract Class:</para>
 		
 		<programlisting language="Java" role="JAVA"><![CDATA[
 package org.mobicents.slee.enabler.ims.userprofile;
@@ -217,7 +217,7 @@ public interface IMSUserProfileParent {
 		<para>The Parent Sbb Abstract Class must implement the callbacks on it's SbbLocalObject, that is, must implement the <literal>org.mobicents.slee.enabler.ims.userprofile.IMSUserProfileParent</literal> interface discussed in last section.</para>
 		<para>The Enabler's Sbb is a Child Sbb, and JAIN SLEE 1.1 Child Relations requires an abstract method in the Sbb Abstract Class, to retrieve the <literal>javax.slee.ChildRelation</literal> object, which is used to create or access specific Child Sbbs. This method should be:</para>
 		<programlisting language="Java" role="JAVA"><![CDATA[
-	public abstract ChildRelation getIMSUserProfileChildRelation();
+	public abstract ChildRelationExt getIMSUserProfileChildRelation();
 		]]>
 		</programlisting>
 	</section>
