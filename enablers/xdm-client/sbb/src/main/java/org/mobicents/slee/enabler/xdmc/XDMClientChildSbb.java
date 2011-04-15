@@ -374,7 +374,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 
 	// EVENT HANDLERS FOR XCAP REQUESTS
 
-	private XDMClientParentSbbLocalObject getParent() {
+	protected XDMClientParentSbbLocalObject getParent() {
 		return (XDMClientParentSbbLocalObject) sbbContext.getSbbLocalObject().getParent();
 	}
 	
