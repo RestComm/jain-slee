@@ -28,10 +28,10 @@ import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.Tracer;
 import javax.slee.serviceactivity.ServiceActivity;
 
+import org.mobicents.slee.ChildRelationExt;
 import org.mobicents.slee.enabler.sip.Notify;
 import org.mobicents.slee.enabler.sip.SubscriptionClientChildSbbLocalObject;
 import org.mobicents.slee.enabler.sip.SubscriptionClientParent;
-import org.mobicents.slee.enabler.sip.SubscriptionClientParentSbbLocalObject;
 import org.mobicents.slee.enabler.sip.SubscriptionException;
 import org.mobicents.slee.enabler.sip.SubscriptionStatus;
 
@@ -91,13 +91,12 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 
 	public abstract int getNotifyCount();
 
-	public abstract ChildRelation getSubscriptionClientChildSbbChildRelation();
+	public abstract ChildRelationExt getSubscriptionClientChildSbbChildRelation();
 
 	public void onStartServiceEvent(javax.slee.serviceactivity.ServiceStartedEvent event, ActivityContextInterface aci) {
 		SubscriptionClientChildSbbLocalObject child;
 		try {
 			child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().create();
-			child.setParentSbb((SubscriptionClientParentSbbLocalObject) this.sbbContext.getSbbLocalObject());
 			child.subscribe("sip:14313471@127.0.0.1:5090", "secret_name", "sip:14313471@127.0.0.1:5090", 61, "presence",null, "application", "pidf+xml"); // null
 		} catch (TransactionRequiredLocalException e) {
 			// TODO Auto-generated catch block
@@ -127,18 +126,6 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 
 			}
 		}
-	}
-
-	@Override
-	public void subscribeSucceed(int responseCode,
-			SubscriptionClientChildSbbLocalObject enabler) {
-		tracer.info("subscribeSucceed: " + responseCode);
-	}
-
-	@Override
-	public void unsubscribeSucceed(int responseCode,
-			SubscriptionClientChildSbbLocalObject enabler) {
-		tracer.info("unsubscribeSucceed: " + responseCode);		
 	}
 
 	@Override

@@ -15,12 +15,6 @@
 			<sbb-abstract-class reentrant="True">
 				<sbb-abstract-class-name>org.mobicents.slee.enabler.sip.SubscriptionClientChildSbb</sbb-abstract-class-name>
 				<cmp-field>
-					<description>Stores reference to publication client parent, this
-						parent will be notified about publication events.</description>
-					<cmp-field-name>parentSbbCMP</cmp-field-name>
-				</cmp-field>
-
-				<cmp-field>
 					<description></description>
 					<cmp-field-name>eventPackageCMP</cmp-field-name>
 				</cmp-field>

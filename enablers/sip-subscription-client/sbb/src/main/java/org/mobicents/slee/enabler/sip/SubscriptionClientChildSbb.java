@@ -77,11 +77,6 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	// //////////////////
 
 	@Override
-	public void setParentSbb(SubscriptionClientParentSbbLocalObject parent) {
-		setParentSbbCMP(parent);
-	}
-
-	@Override
 	public String getSubscriber() {
 		return getSubscriberCMP();
 	}
@@ -233,10 +228,6 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	// CMP Methods //
 	// ///////////////
 
-	public abstract void setParentSbbCMP(SubscriptionClientParentSbbLocalObject parent);
-
-	public abstract SubscriptionClientParentSbbLocalObject getParentSbbCMP();
-
 	public abstract String getEventPackageCMP();
 
 	public abstract void setEventPackageCMP(String s);
@@ -288,39 +279,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	public void onSuccessRespEvent(ResponseEvent event, ActivityContextInterface ac) {
 		if (tracer.isFineEnabled())
 			tracer.fine("Received 2xx (SUCCESS) response:\n" + event.getResponse());
-
-		SubscribeRequestType type = getSubscribeRequestTypeCMP();
 		setSubscribeRequestTypeCMP(null);
-		Response response = event.getResponse();
-		// we've got OK.
-		switch (type) {
-		case NEW:
-			if (getExpiresCMP() == 0) {
-				// check expire, otherwise, NOTIFY got here first and it carried
-				// proper value
-				ExpiresHeader expiresHeader = response.getExpires();
-				setExpiresCMP(expiresHeader.getExpires());
-				startExpiresTimer(getDialogAci());
-			}
-
-			try {
-				getParentSbbCMP().subscribeSucceed(response.getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
-			} catch (Exception e) {
-				if (tracer.isSevereEnabled()) {
-					tracer.severe("Received exception from parent on subscribe callback", e);
-				}
-			}
-			break;
-		case REMOVE:
-			try {
-				getParentSbbCMP().unsubscribeSucceed(event.getResponse().getStatusCode(), (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
-			} catch (Exception e) {
-				if (tracer.isSevereEnabled()) {
-					tracer.severe("Received exception from parent on subscribe callback", e);
-				}
-			}
-			break;
-		}
 	}
 
 	// all answers except 2xx indicate something bad ... ech
@@ -483,7 +442,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 				aci.detach(sbbContext.getSbbLocalObject());
 				((DialogActivity)aci.getActivity()).delete();
 			}
-			getParentSbbCMP().onNotify(notify, (SubscriptionClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+			((SubscriptionClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).onNotify(notify, (SubscriptionClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 		} catch (Exception e) {
 			if (tracer.isSevereEnabled()) {
 				tracer.severe("Received exception from parent on notify callback", e);
@@ -597,7 +556,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		case NEW:
 
 			try {
-				getParentSbbCMP().subscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				((SubscriptionClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).subscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -608,7 +567,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		case REFRESH:
 			// failed to refresh, we should get notify when it times out.
 			try {
-				getParentSbbCMP().resubscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				((SubscriptionClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).resubscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);
@@ -619,7 +578,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 		case REMOVE:
 			// failed to remove, we will receive notify.
 			try {
-				getParentSbbCMP().unsubscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
+				((SubscriptionClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).unsubscribeFailed(errorCode, (SubscriptionClientChildSbbLocalObject) sbbContext.getSbbLocalObject());
 			} catch (Exception e) {
 				if (tracer.isSevereEnabled()) {
 					tracer.severe("Received exception from parent on subscribe callback", e);

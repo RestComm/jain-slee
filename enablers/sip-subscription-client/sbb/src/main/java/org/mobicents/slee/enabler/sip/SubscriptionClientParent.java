@@ -22,26 +22,7 @@ package org.mobicents.slee.enabler.sip;
  * @author emmartins
  */
 public interface SubscriptionClientParent {
-	/**
-	 * Callback method indicating outcome of initial subscribe. If this
-	 * indicates error, enabler must be discarded.
-	 * 
-	 * @param responseCode
-	 * @param enabler
-	 * 
-	 */
-	public void subscribeSucceed(int responseCode, SubscriptionClientChildSbbLocalObject enabler);
-
-	/**
-	 * Callback method indicating outcome of unsubscribe. If this indicates
-	 * error, enabler must be discarded.
-	 * 
-	 * @param responseCode
-	 *            response code to remove request
-	 * @param enabler
-	 */
-	public void unsubscribeSucceed(int responseCode, SubscriptionClientChildSbbLocalObject enabler);
-
+	
 	/**
 	 * Callback method which passes information about notification. If
 	 * subscription is terminated, enabler must be discarded

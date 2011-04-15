@@ -40,10 +40,8 @@
 			JAIN SLEE &THIS.ENABLER;
 			Enabler Sbb provides synchronous callbacks to the Parent's Sbb, and
 			that can only be achieved if the Parent's SbbLocalObject extends a
-			specific Java interface, deployed also by the Enabler, and provides
-			it's SbbLocalObject to the Enabler's Sbb, through a specific method
-			exposed by the latter interface. The Enabler stores the Parent's
-			SbbLocalObject and uses it when a callback to the Parent's Sbb is
+			specific Java interface, deployed also by the Enabler. The Enabler uses 
+			the Parent's SbbLocalObject when a callback to the Parent's Sbb is
 			needed.
 		</para>
 
@@ -53,7 +51,7 @@
 			<literal>org.mobicents.slee.enabler.sip.SubscriptionClientParentSbbLocalObject
 			</literal>
 			, which extends the
-			<literal>javax.slee.SbbLocalObject</literal>
+			<literal>org.mobicents.slee.SbbLocalObjectExt</literal>
 			and
 			<literal>org.mobicents.slee.enabler.sip.SubscriptionClientParent
 			</literal>
@@ -65,12 +63,6 @@
 package org.mobicents.slee.enabler.sip;
 
 public interface SubscriptionClientParent {
-
-	public void subscribeSucceed(int responseCode, 
-		SubscriptionClientChildLocalObject enabler);
-
-	public void unsubscribeSucceed(int responseCode, 
-		SubscriptionClientChildLocalObject enabler);
 
 	public void onNotify(Notify notify, 
 		SubscriptionClientChildLocalObject enabler);
@@ -90,26 +82,6 @@ public interface SubscriptionClientParent {
 
 		<variablelist>
 
-			<varlistentry>
-				<term>
-					The
-					<literal>subscribeSucceed(int responseCode, SubscriptionClientChildLocalObject enabler);</literal>
-					method:
-				</term>
-				<listitem>
-					<para>Callback from the Enabler providing details about initial subscription. If it indicates error, enabler instance should be discarded.</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>
-					The
-					<literal>unsubscribeSucceed(int responseCode, SubscriptionClientChildLocalObject enabler);</literal>
-					method:
-				</term>
-				<listitem>
-					<para>Callback from the Enabler providing details about remove subscription. If it indicates error, enabler instance should be discarded.</para>
-				</listitem>
-			</varlistentry>
 			<varlistentry>
 				<term>
 					The
@@ -170,12 +142,12 @@ public interface SubscriptionClientParent {
 			access Enabler. SLEE specification mandates parent to
 			declare an
 			abstract method to retrieve the
-			<literal>javax.slee.ChildRelation</literal>
+			<literal>org.mobicents.slee.ChildRelationExt</literal>
 			object, which is used to create or access specific Child Sbbs. This
 			method may be declared as follows:
 		</para>
 		<programlisting language="Java" role="JAVA"><![CDATA[
-	public abstract ChildRelation getSipSubscriptionClientChildRelation();
+	public abstract ChildRelationExt getSipSubscriptionClientChildRelation();
 		]]>
 		</programlisting>
 	</section>

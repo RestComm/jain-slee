@@ -28,13 +28,6 @@ import java.util.Map;
  */
 public interface SubscriptionClientChild {
 
-	/**
-	 * Set parent which will be notified about call results.
-	 * 
-	 * @param parent
-	 */
-	public void setParentSbb(SubscriptionClientParentSbbLocalObject parent);
-	
 	public String getSubscriber();
 
 	public String getEventPackage();

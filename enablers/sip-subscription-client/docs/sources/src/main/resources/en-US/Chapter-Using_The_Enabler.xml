@@ -54,7 +54,7 @@
 			<literal>org.mobicents.slee.enabler.sip.SubscriptionClientChildSbbLocalObject
 			</literal>
 			, which extends the
-			<literal>javax.slee.SbbLocalObject</literal>
+			<literal>org.mobicents.slee.SbbLocalObjectExt</literal>
 			and
 			<literal>org.mobicents.slee.enabler.sip.SubscriptionClientChild
 			</literal>
@@ -64,8 +64,6 @@
 
 		<programlisting language="Java" role="JAVA"><![CDATA[
 package org.mobicents.slee.enabler.sip;
-
-	public void setParentSbb(SubscriptionClientParentSbbLocalObject parent);
 
 	public String getSubscriber();
 
@@ -88,20 +86,6 @@ package org.mobicents.slee.enabler.sip;
 
 		<variablelist>
 
-			<varlistentry>
-				<term>
-					The
-					<literal>setParentSbb(SubscriptionClientParentLocalObject parent);
-					</literal>
-					method:
-				</term>
-				<listitem>
-					<para>Passes the Parent's SbbLocalObject, which will be used by the
-						Child Sbb to provide async results. If not invoked after the child
-						creation the Enabler won't be able to callback the Parent Sbb.
-					</para>
-				</listitem>
-			</varlistentry>
 			<varlistentry>
 				<term>
 					The
@@ -202,36 +186,24 @@ String contentSubType, String content) throws SubscriptionException;</literal>
 	<section id="creating_and_retrieving_the_child_sbb">
 		<title>Creating And Retrieving The Child Sbb</title>
 		<para>The Child Relation in the Parent Sbb Abstract Class is used to
-			create and retrieve the Child Sbb, it is important to not forget to
-			pass the Parent's SbbLocalObject to the Child after creation:</para>
+			create and retrieve the Child Sbb:</para>
 		<programlisting language="Java" role="JAVA"><![CDATA[
-public SubscriptionClientChildLocalObject getPublicationClientChildSbb() {
-	final ChildRelation childRelation = getSipPublicationClientChildRelation();
-	if (childRelation.isEmpty()) {
-		try {
-			// creates new instance
-			SubscriptionClientChildLocalObject sbb = 
-				(SubscriptionClientChildLocalObject) childRelation.create();
-			// passes the parent sbb local object to the child
-			sbb.setParentSbb((SubscriptionClientParentLocalObject) 
-				sbbContext.getSbbLocalObject());
-			return sbb;
-		} catch (Exception e) {
-			tracer.severe("Failed to create child sbb", e);
-			return null;
-		}
-	}
-	else {
-		return (SubscriptionClientChildLocalObject) 
-			childRelation.iterator().next();
-	}
-}
-		]]>
-		</programlisting>
-		<para>The SbbLocalObject of the Child could also be stored in a CMP
-			Field for the simplest retrieval, but unless you are going to reuse
-			each instance several times it's better to have less state, specially
-			in clustered environments.</para>
+	SubscriptionClientChildLocalObject sbb = null;
+    // creation
+    try {
+        sbb = (SubscriptionClientChildLocalObject) getSipSubscriptionClientChildRelation().create(childName);                
+    }
+    catch (Exception e) {
+      tracer.severe("Failed to create child sbb", e);      
+    }
+    // retrieval
+    try {
+        sbb = (SubscriptionClientChildLocalObject) getSipSubscriptionClientChildRelation().get(childName);                
+    }
+    catch (Exception e) {
+      tracer.severe("Failed to retrieve child sbb", e);      
+    }]]>
+		</programlisting>		
 	</section>
 	<section id="configuring_child_sbb">
 		<title>Enabler configuration</title>
