@@ -6,7 +6,6 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +13,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.slee.ActivityContextInterface;
-import javax.slee.ChildRelation;
 import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
@@ -23,11 +21,12 @@ import javax.slee.facilities.Tracer;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
+import org.mobicents.slee.ChildRelationExt;
+import org.mobicents.slee.SbbContextExt;
 import org.mobicents.slee.enabler.sip.Notify;
 import org.mobicents.slee.enabler.sip.SubscriptionClientChild;
 import org.mobicents.slee.enabler.sip.SubscriptionClientChildSbbLocalObject;
 import org.mobicents.slee.enabler.sip.SubscriptionClientParent;
-import org.mobicents.slee.enabler.sip.SubscriptionClientParentSbbLocalObject;
 import org.mobicents.slee.enabler.sip.SubscriptionException;
 import org.mobicents.slee.enabler.sip.SubscriptionStatus;
 import org.mobicents.slee.enabler.xdmc.jaxb.resourcelists.EntryType;
@@ -57,7 +56,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 	
 	private static Tracer tracer;
 
-	protected SbbContext sbbContext;
+	protected SbbContextExt sbbContext;
 
 	protected XCAPClientResourceAdaptorSbbInterface xcapClientSbbInterface = null;
 	protected XCAPClientActivityContextInterfaceFactory xcapClientACIF = null;
@@ -373,20 +372,12 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 				getAssertedUserIdHeaders(assertedUserId), credentials);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.enabler.xdmc.XDMClientControl#setParentSbb(org.mobicents
-	 * .slee.enabler.xdmc.XDMClientControlParentSbbLocalObject)
-	 */
-	
-	public void setParentSbb(XDMClientParentSbbLocalObject parentSbb) {
-		setParentSbbCMP(parentSbb);
-	}
-
 	// EVENT HANDLERS FOR XCAP REQUESTS
 
+	private XDMClientParentSbbLocalObject getParent() {
+		return (XDMClientParentSbbLocalObject) sbbContext.getSbbLocalObject().getParent();
+	}
+	
 	/**
 	 * Handles XCAP DELETE response events.
 	 * 
@@ -399,7 +390,8 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 			if (tracer.isInfoEnabled()) {
 				tracer.info("Failed to delete " + event.getURI(),event.getException());
 			}
-			getParentSbbCMP().deleteResponse(event.getURI(), 500, null, null);
+			
+			getParent().deleteResponse(event.getURI(), 500, null, null);
 		} else {
 			final XcapResponse response = event.getResponse();
 			if (tracer.isInfoEnabled()) {
@@ -411,7 +403,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 							+ ". Response: " + response);
 				}
 			}
-			getParentSbbCMP().deleteResponse(event.getURI(),
+			getParent().deleteResponse(event.getURI(),
 					response.getCode(),
 					response.getEntity().getContentAsString(),
 					response.getETag());
@@ -430,7 +422,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 			if (tracer.isInfoEnabled()) {
 				tracer.info("Failed to retrieve " + event.getURI(),event.getException());
 			}
-			getParentSbbCMP()
+			getParent()
 					.getResponse(event.getURI(), 500, null, null, null);
 		} else {
 			final XcapResponse response = event.getResponse();
@@ -442,7 +434,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 							+ ". Response: " + response);
 				}
 			}
-			getParentSbbCMP().getResponse(event.getURI(), response.getCode(),
+			getParent().getResponse(event.getURI(), response.getCode(),
 					response.getMimetype(),
 					response.getEntity().getContentAsString(),
 					response.getETag());
@@ -461,7 +453,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 			if (tracer.isInfoEnabled()) {
 				tracer.info("Failed to put " + event.getURI(),event.getException());
 			}
-			getParentSbbCMP().putResponse(event.getURI(), 500, null, null);
+			getParent().putResponse(event.getURI(), 500, null, null);
 		} else {
 			final XcapResponse response = event.getResponse();
 			if (tracer.isInfoEnabled()) {
@@ -472,7 +464,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 							+ ". Response: " + response);
 				}
 			}
-			getParentSbbCMP().putResponse(event.getURI(), response.getCode(),
+			getParent().putResponse(event.getURI(), response.getCode(),
 					response.getEntity().getContentAsString(),
 					response.getETag());
 		}
@@ -558,42 +550,33 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 			try {
 				final URI notifier = new URI(subscriptionChild.getNotifier());
 				subscriptionChild.remove();
-				getParentSbbCMP().subscriptionTerminated((XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(), notifier);
+				getParent().subscriptionTerminated((XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(), notifier, ntfy.getTerminationReason());
 			} catch (Exception e) {
 				tracer.severe("Unexpected exception on callback!", e);				
 			}			
 		}
-		else if(ntfy.getContentType().equals(MAIN_MIME_ACCEPT) && ntfy.getContentSubType().equals(SUB_MIME_ACCEPT) && ntfy.getContent()!=null) {			
+		else {			
 			//cast is safe, cause we expect diff and check MIME
-			try {
-				XcapDiff diff = (XcapDiff) xcapDiffJaxbContext.createUnmarshaller().unmarshal(new StringReader(ntfy.getContent()));
-				getParentSbbCMP().subscriptionNotification(diff);
-			} catch (Exception e) {
-				tracer.severe("Failed to parse diff!", e);
+			XcapDiff diff = null;
+			if (ntfy != null) {
+				try {
+					diff = (XcapDiff) xcapDiffJaxbContext.createUnmarshaller().unmarshal(new StringReader(ntfy.getContent()));				
+				} catch (Exception e) {
+					tracer.severe("Failed to parse diff!", e);
+				}
 			}
+			getParent().subscriptionNotification(diff, ntfy.getStatus());
 		}
 		
 		
 	}
-
-	
-	public void subscribeSucceed(int responseCode, SubscriptionClientChildSbbLocalObject subscriptionChild) {
-		try {
-			getParentSbbCMP().subscribeSucceed(responseCode,(XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(),
-					new URI(subscriptionChild.getNotifier()));
-		} catch (Exception e) {
-			tracer.severe("Unexpected exception on callback!", e);			
-		}
-	}
-
-	
 	
 	public void resubscribeFailed(int responseCode, SubscriptionClientChildSbbLocalObject subscriptionChild) {
 		
 		try {
 			final URI notifier = new URI(subscriptionChild.getNotifier());
 			subscriptionChild.remove();
-			getParentSbbCMP().resubscribeFailed(responseCode,(XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(),
+			getParent().resubscribeFailed(responseCode,(XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(),
 					notifier);
 		} catch (Exception e) {
 			tracer.severe("Unexpected exception on callback!", e);			
@@ -607,7 +590,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 			final URI notifier = new URI(subscriptionChild.getNotifier());
 			subscriptionChild.remove();
 
-			getParentSbbCMP().subscribeFailed(responseCode,(XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(),
+			getParent().subscribeFailed(responseCode,(XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(),
 					notifier);
 		} catch (Exception e) {
 			tracer.severe("Unexpected exception on callback!", e);			
@@ -615,20 +598,11 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 	}
 	//two easy cases.
 	
-	public void unsubscribeSucceed(int responseCode, SubscriptionClientChildSbbLocalObject subscriptionChild) {
-		try {
-			final URI notifier = new URI(subscriptionChild.getNotifier());
-			getParentSbbCMP().unsubscribeSucceed(responseCode,(XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(),notifier);
-		} catch (Exception e) {
-			tracer.severe("Unexpected exception on callback!", e);			
-		}
-	}
-	
 	public void unsubscribeFailed(int arg0, SubscriptionClientChildSbbLocalObject subscriptionChild) {
 		try {
 			final URI notifier = new URI(subscriptionChild.getNotifier());
 			subscriptionChild.remove();
-			getParentSbbCMP().unsubscribeFailed(arg0,(XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(),
+			getParent().unsubscribeFailed(arg0,(XDMClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject(),
 					notifier);
 		} catch (Exception e) {
 			tracer.severe("Unexpected exception on callback!", e);			
@@ -638,60 +612,23 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 
 	public static final String DISPLAY_NAME= "XDMDiffClient";
 
+	private String getSIPSubscriptionClientChildName(String subscriber,
+			String notifier) {
+		return new StringBuilder(subscriber).append('@').append(notifier).toString();
+	}
+	
 	private SubscriptionClientChild createSubscriptionChild(String subscriber,
-			String notifier) throws SubscriptionException {
-		SubscriptionClientChild child = null;
-
-		ChildRelation cr = getSubscriptionClientChildSbbChildRelation();
-		// checking, just to
-		Iterator<?> childrenIteration = cr.iterator();
-		while (childrenIteration.hasNext()) {
-			SubscriptionClientChild searchChild = (SubscriptionClientChild) childrenIteration
-					.next();
-			if (searchChild.getNotifier().equals(notifier)
-					&& searchChild.getSubscriber().equals(subscriber)) {
-				// NOTE: no need to match event package
-				child = searchChild;
-				break;
-			}
+			String notifier) throws SubscriptionException {		
+		try {
+			return (SubscriptionClientChild) getSubscriptionClientChildSbbChildRelation().create(getSIPSubscriptionClientChildName(subscriber, notifier));
+		} catch (Exception e) {
+			throw new SubscriptionException(e);
 		}
-
-		if (child == null) {
-			try {
-				child = (SubscriptionClientChild) cr.create();
-				child.setParentSbb((SubscriptionClientParentSbbLocalObject) this.sbbContext
-						.getSbbLocalObject());
-			} catch (Exception e) {
-				throw new SubscriptionException(e);
-			}
-
-		} else {
-			throw new SubscriptionException(
-					"Subscription chld already exists, can not subscribe again to the same resource!");
-		}
-
-		return child;
 	}
 
 	private SubscriptionClientChild getSubscriptionChild(String subscriber,
-			String notifier) {
-		SubscriptionClientChild child = null;
-
-		ChildRelation cr = getSubscriptionClientChildSbbChildRelation();
-		// checking, just to
-		Iterator<?> childrenIteration = cr.iterator();
-		while (childrenIteration.hasNext()) {
-			SubscriptionClientChild searchChild = (SubscriptionClientChild) childrenIteration
-					.next();
-			if (searchChild.getNotifier().equals(notifier)
-					&& searchChild.getSubscriber().equals(subscriber)) {
-				// NOTE: no need to match event package
-				child = searchChild;
-				break;
-			}
-		}
-
-		return child;
+			String notifier) {	
+		return (SubscriptionClientChild) getSubscriptionClientChildSbbChildRelation().get(getSIPSubscriptionClientChildName(subscriber, notifier));			
 	}
 
 	protected Map<String, String> getEventParameters() {
@@ -700,26 +637,8 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 
 	// child relation methods
 	
-	public abstract ChildRelation getSubscriptionClientChildSbbChildRelation();
+	public abstract ChildRelationExt getSubscriptionClientChildSbbChildRelation();
 	
-	// CMP FIELDs
-
-	/**
-	 * Setter for parentSbbCMP cmp field.
-	 * 
-	 * @param parentSbb
-	 */
-	public abstract void setParentSbbCMP(
-			XDMClientParentSbbLocalObject parentSbb);
-
-
-	/**
-	 * Getter for parentSbbCMP cmp field.
-	 * 
-	 * @return
-	 */
-	public abstract XDMClientParentSbbLocalObject getParentSbbCMP();
-
 	// SBB OBJECT LIFECYCLE METHODS
 
 	/*
@@ -817,7 +736,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild, Subscrip
 	 */
 	
 	public void setSbbContext(SbbContext sbbContext) {
-		this.sbbContext = sbbContext;
+		this.sbbContext = (SbbContextExt) sbbContext;
 		if (tracer == null) {
 			tracer = sbbContext.getTracer(XDMClientChildSbb.class
 					.getSimpleName());

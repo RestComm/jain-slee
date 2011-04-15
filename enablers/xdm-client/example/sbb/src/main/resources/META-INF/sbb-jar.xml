@@ -24,7 +24,7 @@
 				reentrant="True">
 				<sbb-abstract-class-name>org.mobicents.slee.enabler.xdm.example.XDMClientParentSbb</sbb-abstract-class-name>
 				<cmp-field>
-					<cmp-field-name>sentUpdate</cmp-field-name>
+					<cmp-field-name>stateMachine</cmp-field-name>
 				</cmp-field>
 				<get-child-relation-method>
 					<sbb-alias-ref>XDMChildSbb</sbb-alias-ref>

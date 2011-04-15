@@ -5,9 +5,8 @@ package org.mobicents.slee.enabler.xdmc;
 
 import java.net.URI;
 
-import org.mobicents.slee.enabler.xdmc.jaxb.xcapdiff.AttributeType;
-import org.mobicents.slee.enabler.xdmc.jaxb.xcapdiff.DocumentType;
-import org.mobicents.slee.enabler.xdmc.jaxb.xcapdiff.ElementType;
+import org.mobicents.slee.enabler.sip.SubscriptionStatus;
+import org.mobicents.slee.enabler.sip.TerminationReason;
 import org.mobicents.slee.enabler.xdmc.jaxb.xcapdiff.XcapDiff;
 
 /**
@@ -79,35 +78,18 @@ public interface XDMClientParent {
 	public void unsubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
 	
 	/**
-	 * Callback method indicating outcome of initial subscribe. 
-	 * 
-	 * @param responseCode
-	 * @param enabler
-	 * 
-	 */
-	public void subscribeSucceed(int responseCode,  XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
-
-	/**
-	 * Callback method indicating outcome of unsubscribe. 
-	 * 
-	 * @param responseCode
-	 *            response code to remove request
-	 * @param enabler
-	 */
-	public void unsubscribeSucceed(int responseCode,  XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
-	
-	/**
 	 * Callback method indicating termination of subscription.
 	 * @param sbbLocalObject
 	 * @param uri
 	 */
-	public void subscriptionTerminated(XDMClientChildSbbLocalObject sbbLocalObject, URI notifier); //FIXME: add resourceList to callback?
+	public void subscriptionTerminated(XDMClientChildSbbLocalObject sbbLocalObject, URI notifier, TerminationReason reason); //FIXME: add resourceList to callback?
 	
 	/**
 	 * Notifies an update in XDMS resources subscribed by the enabler.
 	 * This callback is used also to notify on resubscription.
 	 * @param xcapDiff - the xcap diff notified
+	 * @param status - the subscription status
 	 */
-	public void subscriptionNotification(XcapDiff xcapDiff);
+	public void subscriptionNotification(XcapDiff xcapDiff, SubscriptionStatus status);
 	
 }

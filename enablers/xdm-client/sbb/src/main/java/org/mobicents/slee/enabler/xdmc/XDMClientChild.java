@@ -22,13 +22,6 @@ public interface XDMClientChild {
 	 */
 	public CredentialsFactory getCredentialsFactory();
 	
-	/**
-	 * Sets the parent, which will be used by the client to provide async results.
-	 * 
-	 * @param parent
-	 */
-	public void setParentSbb(XDMClientParentSbbLocalObject parentSbb);
-
 	// --- get/put/delete interface methods
 
 	/**

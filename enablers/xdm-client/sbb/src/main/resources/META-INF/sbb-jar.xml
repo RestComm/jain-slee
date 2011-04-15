@@ -27,10 +27,7 @@
 
 		<sbb-classes>
 			<sbb-abstract-class reentrant="True">
-				<sbb-abstract-class-name>org.mobicents.slee.enabler.xdmc.XDMClientChildSbb</sbb-abstract-class-name>
-				<cmp-field>
-					<cmp-field-name>parentSbbCMP</cmp-field-name>
-				</cmp-field>
+				<sbb-abstract-class-name>org.mobicents.slee.enabler.xdmc.XDMClientChildSbb</sbb-abstract-class-name>				
 				<get-child-relation-method>
 					<sbb-alias-ref>SubscriptionChildSbb</sbb-alias-ref>
 					<get-child-relation-method-name>

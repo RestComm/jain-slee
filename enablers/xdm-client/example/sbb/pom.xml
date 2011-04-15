@@ -15,6 +15,10 @@
 			<artifactId>xdm-client-sbb</artifactId>
 			<groupId>org.mobicents.servers.jainslee.enablers</groupId>
 		</dependency>
+		<dependency>
+			<groupId>org.mobicents.servers.jainslee.api</groupId>
+			<artifactId>jain-slee-11-ext</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>
