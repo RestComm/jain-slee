@@ -72,6 +72,10 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 	protected int expiresDrift = DEFAULT_EXPIRES_DRIFT;
 	protected Address ecsAddress;
 
+	protected SubscriptionClientParentSbbLocalObject getParent() {
+		return (SubscriptionClientParentSbbLocalObject) sbbContext.getSbbLocalObject().getParent();
+	}
+	
 	// //////////////////
 	// SBB LO methods //
 	// //////////////////
