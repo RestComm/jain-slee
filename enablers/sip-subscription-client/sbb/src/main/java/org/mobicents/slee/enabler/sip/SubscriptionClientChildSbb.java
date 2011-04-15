@@ -446,7 +446,7 @@ public abstract class SubscriptionClientChildSbb implements Sbb, SubscriptionCli
 				aci.detach(sbbContext.getSbbLocalObject());
 				((DialogActivity)aci.getActivity()).delete();
 			}
-			((SubscriptionClientParentSbbLocalObject)sbbContext.getSbbLocalObject().getParent()).onNotify(notify, (SubscriptionClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
+			getParent().onNotify(notify, (SubscriptionClientChildSbbLocalObject) this.sbbContext.getSbbLocalObject());
 		} catch (Exception e) {
 			if (tracer.isSevereEnabled()) {
 				tracer.severe("Received exception from parent on notify callback", e);
