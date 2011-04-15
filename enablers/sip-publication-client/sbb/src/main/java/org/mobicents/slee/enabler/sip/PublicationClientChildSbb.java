@@ -78,6 +78,10 @@ public abstract class PublicationClientChildSbb implements Sbb, PublicationClien
 	protected Address ecsAddress;
 	protected int expiresDrift = DEFAULT_EXPIRES_DRIFT;
 	
+	protected PublicationClientParentSbbLocalObject getParent() {
+		return (PublicationClientParentSbbLocalObject) sbbContext.getSbbLocalObject().getParent();
+	}
+	
 	// //////////////////
 	// SBB LO methods //
 	// //////////////////
