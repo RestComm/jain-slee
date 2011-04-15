@@ -161,9 +161,10 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 								"SLEE DUs not deployed, due to missing dependencies:");
 						for (DeployableUnit du : dUsWaitingforDeps) {
 							sb.append("\n").append(du.getURL());
-							sb.append("\n\tDependencies:");
-							for (String dependency : du
-									.getExternalDependencies()) {
+							sb.append("\n\tMissing Dependencies:");
+							Collection<String> deps = du.getExternalDependencies();
+							deps.removeAll(deploymentManager.getDeployedComponents());
+							for (String dependency : deps) {
 								sb.append("\n\t\t").append(dependency);
 							}
 						}
