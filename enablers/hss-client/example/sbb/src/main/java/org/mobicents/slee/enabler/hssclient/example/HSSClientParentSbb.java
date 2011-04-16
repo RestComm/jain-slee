@@ -102,7 +102,7 @@ public abstract class HSSClientParentSbb implements Sbb, HSSClientParent {
 	  HSSClientChildSbbLocalObject child;
 
     try {
-      child = (HSSClientChildSbbLocalObject) this.getHSSClientChildSbbChildRelation().create("default");
+      child = (HSSClientChildSbbLocalObject) this.getHSSClientChildSbbChildRelation().create(ChildRelationExt.DEFAULT_CHILD_NAME);
       
       try {
         // Request alice PSI Activation
@@ -254,7 +254,7 @@ public abstract class HSSClientParentSbb implements Sbb, HSSClientParent {
     }
 
     // Now we try to update PSI-Activation data
-    HSSClientChildSbbLocalObject child = (HSSClientChildSbbLocalObject) this.getHSSClientChildSbbChildRelation().get("default");
+    HSSClientChildSbbLocalObject child = (HSSClientChildSbbLocalObject) this.getHSSClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
     try {
     	if (data.contains("<PSIActivation>0</PSIActivation>")) {
     		if (tracer.isInfoEnabled()) {
@@ -299,7 +299,7 @@ public abstract class HSSClientParentSbb implements Sbb, HSSClientParent {
     }
 
     // Now we try to subscribe to alice's IMS User State
-    HSSClientChildSbbLocalObject child = (HSSClientChildSbbLocalObject) this.getHSSClientChildSbbChildRelation().get("default");
+    HSSClientChildSbbLocalObject child = (HSSClientChildSbbLocalObject) this.getHSSClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
     try {
     	if (tracer.isInfoEnabled()) {
     		tracer.info("###### STEP 6 # Subscribing to IMS User State for '" + PUBLIC_IDENTITY_IMS_USER_STATE + "'");
