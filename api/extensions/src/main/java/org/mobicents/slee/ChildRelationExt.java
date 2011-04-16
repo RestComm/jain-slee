@@ -37,6 +37,10 @@ public interface ChildRelationExt extends ChildRelation {
 	 *             have propagated from the SBB object's {@link Sbb#sbbCreate}
 	 *             or {@link Sbb#sbbPostCreate}, or may have been thrown by the
 	 *             SLEE.
+	 * @throws IllegalArgumentException
+	 *             if the specified name is the empty string.
+	 * @throws NullPointerException
+	 *             if the specified name is null.
 	 * @throws TransactionRequiredLocalException
 	 *             if this method is invoked without a valid transaction
 	 *             context.
@@ -45,6 +49,7 @@ public interface ChildRelationExt extends ChildRelation {
 	 *             failure.
 	 */
 	public SbbLocalObjectExt create(String name) throws CreateException,
+			IllegalArgumentException, NullPointerException,
 			TransactionRequiredLocalException, SLEEException;
 
 	/**
@@ -56,6 +61,10 @@ public interface ChildRelationExt extends ChildRelation {
 	 * @param name
 	 *            the name of the object's sbb entity to retrieve.
 	 * @return null if there is no such sbb entity.
+	 * @throws IllegalArgumentException
+	 *             if the specified name is the empty string.
+	 * @throws NullPointerException
+	 *             if the specified name is null.
 	 * @throws TransactionRequiredLocalException
 	 *             if this method is invoked without a valid transaction
 	 *             context.
@@ -63,7 +72,8 @@ public interface ChildRelationExt extends ChildRelation {
 	 *             if the child SBB could not be retrieved due to a system-level
 	 *             failure.
 	 */
-	public SbbLocalObjectExt get(String name)
-			throws TransactionRequiredLocalException, SLEEException;
+	public SbbLocalObjectExt get(String name) throws IllegalArgumentException,
+			NullPointerException, TransactionRequiredLocalException,
+			SLEEException;
 
 }
