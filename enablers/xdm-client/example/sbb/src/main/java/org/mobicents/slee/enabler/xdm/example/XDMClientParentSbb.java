@@ -154,7 +154,7 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 
 		try {
 			XDMClientChildSbbLocalObject child = (XDMClientChildSbbLocalObject) this
-					.getXDMClientChildSbbChildRelation().create("default");
+					.getXDMClientChildSbbChildRelation().create(ChildRelationExt.DEFAULT_CHILD_NAME);
 			String[] resourceURIS = new String[] { getDocumentSelector() };
 			// String aserted = null;
 			// subscribe to changes - before doc is created.
@@ -170,7 +170,7 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 			ActivityContextInterface aci) {
 		try {
 			((XDMClientChildSbbLocalObject) getXDMClientChildSbbChildRelation()
-					.get("default")).unsubscribe(new URI(user), new URI(user));
+					.get(ChildRelationExt.DEFAULT_CHILD_NAME)).unsubscribe(new URI(user), new URI(user));
 		} catch (URISyntaxException e) {
 			tracer.severe("failed to unsubscribe changes to doc", e);
 		}
@@ -310,7 +310,7 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 
 	private void putDocument(boolean update) {
 		XDMClientChildSbbLocalObject child = (XDMClientChildSbbLocalObject) this
-				.getXDMClientChildSbbChildRelation().get("default");
+				.getXDMClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
 		String assertedIdentity = null;
 		try {
 			InputStream is = this.getClass().getResourceAsStream("example.xml");
@@ -340,7 +340,7 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 
 	private void deleteDocument() {
 		XDMClientChildSbbLocalObject child = (XDMClientChildSbbLocalObject) this
-				.getXDMClientChildSbbChildRelation().get("default");
+				.getXDMClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
 		URI xdmPutURI = createURI();
 		String assertedIdentity = null;
 		try {
