@@ -8,7 +8,6 @@
  */
 package org.mobicents.slee.runtime.sbbentity;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,7 +40,7 @@ import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
  * 
  *  
  */
-public class ChildRelationImpl implements ChildRelation, Serializable {
+public class ChildRelationImpl implements ChildRelation {
 
     /**
 	 * 
@@ -82,7 +81,8 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         this.getChildRelationMethod = getChildRelationMethod;        
     }
 
-    public Iterator iterator() {
+    @SuppressWarnings("rawtypes")
+	public Iterator iterator() {
         return new ChildRelationIterator();
     }
 
@@ -146,7 +146,8 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * 
      * @see java.util.Collection#clear()
      */
-    public void clear() {
+    @SuppressWarnings("rawtypes")
+	public void clear() {
     	sleeContainer.getTransactionManager().mandateTransaction();
     	for (Iterator it = iterator();it.hasNext();) {
     		it.next();
@@ -244,7 +245,8 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * SLEE to automatically add an SBB local object that represents the newly
      * created SBB entity to the collection.
      */
-    public boolean addAll(Collection c) {
+    @SuppressWarnings("rawtypes")
+	public boolean addAll(Collection c) {
         if (c == null)
             throw new NullPointerException("Null arg!");
         else
@@ -259,6 +261,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * object whose underlying SBB entity is not a member of this child
      * relation, then this method returns false.
      */
+    @SuppressWarnings("rawtypes")
     public boolean containsAll(Collection c) {
         
     	if (c == null)
@@ -283,6 +286,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * entity.
      *  
      */
+    @SuppressWarnings("rawtypes")
     public boolean removeAll(Collection c) {
         boolean flag = true;
         if (c == null)
@@ -299,6 +303,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * 
      * @see java.util.Collection#retainAll(java.util.Collection)
      */
+    @SuppressWarnings("rawtypes")
     public boolean retainAll(Collection c) {
         boolean flag = false;
         if (c == null)
@@ -318,6 +323,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * 
      * @see java.util.Collection#toArray(java.lang.Object[])
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object[] toArray(Object[] a) {
         if (a == null)
             throw new NullPointerException("null arg!");
@@ -352,6 +358,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * underlying child relation is modified while the iteration is in progress
      * in any way other than by calling this remove method.
      */
+    @SuppressWarnings("rawtypes")
     class ChildRelationIterator implements Iterator {
 
         private Iterator<SbbEntityID> myIterator;
@@ -393,86 +400,113 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
     
     // extension methods
     
-    @Override
-    public SbbLocalObjectExt create(String childName) throws CreateException,
-    		TransactionRequiredLocalException, SLEEException {
-    	
-    	SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-    	
-    	sleeTransactionManager.mandateTransaction();
-
-		SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory()
-				.createNonRootSbbEntity(
-						sbbEntity.getSbbEntityId(),
-						getChildRelationMethod.getChildRelationMethodName(),childName);
-
-        if (logger.isDebugEnabled())
-            logger.debug("ChildRelation.create() : Created Sbb Entity: " + childSbbEntity.getSbbEntityId());
-
-        childSbbEntity.setPriority(getChildRelationMethod.getDefaultPriority());
-        
-        /*
-         * Exception handling here must follow Sec. 9.12.1 of spec
-         * This is a non-slee originated method invocation
-         * 
-         * If a non-SLEE originated method invocation returns by throwing a checked exception, then the following
-		 *	occurs:
-		 *	� The state of the transaction is unaffected
-		 *	� The checked exception is propagated to the caller.
-		 *	It is expected that the caller will have the appropriate logic to handle the exception.
-		 *	If a non-SLEE originated method invocation returns by throwing a RuntimeException, then:
-		 *	� The transaction is marked for rollback.
-		 *	� The SBB object that was invoked is discarded, i.e. is moved to the Does Not Exist state.
-		 *	� A javax.slee.TransactionRolledBackLocalException is propagated to the caller.
-		 *	The transaction will eventually be rolled back when the highest level SLEE originated invocation re-turns
-		 *	as described in Section 9.12.2.
-		 *	The sbbRolledBack method is not invoked for an SBB originated method transaction because the
-		 *	transa ction is only marked for rollback and will only be rolled back when the highest level SLEE
-		 *	originated invocation returns. The sbbRolledBack method is only invoked on the SBB entity in-voked
-		 *	by the highest level SLEE originated invocation.
-		 *	If the RuntimeException propagates to the highest level (i.e. the SLEE originated method invocation
-		 *	returns by throwing a RuntimeException) the SLEE originated method invocation exception handling
-		 *	mechanism is init iated.		
-		*/
-        
-        try {            
-        	//All checked exceptions (i.e. CreateException) are propagated to the caller
-           childSbbEntity.assignSbbObject();
-           
-        } catch ( CreateException e) {
-            //          All RuntimeExceptions are dealt with here
-            if ( logger.isDebugEnabled())
-                logger.error("Caught CreateException in creating child entity", e);
-            
-            childSbbEntity.trashObject();
-            // Propagate exception to caller.
-            throw e;
-        } catch ( Exception e) {
-        	//All RuntimeExceptions are dealt with here
-            logger.error("Caught RuntimeException in creating child entity", e);
-            try {
-            	sleeTransactionManager.setRollbackOnly();
-            } catch (SystemException e1) {
-            	logger.error("Failed to set rollbackonly", e);
-            }
-            childSbbEntity.trashObject();
-        } 
-        
-        sbbEntity.addChildWithSbbObject(childSbbEntity);
-        return childSbbEntity.getSbbLocalObject();
+    private void validateChildName(String childName) throws IllegalArgumentException, NullPointerException {
+    	if (childName == null) {
+    		throw new NullPointerException("null child name"); 
+    	}
+    	if (childName.isEmpty()) {
+    		throw new IllegalArgumentException("empty child name");
+    	}
     }
     
-    @Override
-    public SbbLocalObjectExt get(String childName)
-    		throws TransactionRequiredLocalException, SLEEException {
-    	
-    	SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-    	
-    	sleeTransactionManager.mandateTransaction();
+	@Override
+	public SbbLocalObjectExt create(String childName) throws CreateException,
+			IllegalArgumentException, NullPointerException,
+			TransactionRequiredLocalException, SLEEException {
 
-		SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory().getSbbEntity(new NonRootSbbEntityID(sbbEntity.getSbbEntityId(),
-						getChildRelationMethod.getChildRelationMethodName(),childName), false);
-				
-		return childSbbEntity == null ? null : childSbbEntity.getSbbLocalObject();
-    }
+		validateChildName(childName);
+
+		SleeTransactionManager sleeTransactionManager = sleeContainer
+				.getTransactionManager();
+
+		sleeTransactionManager.mandateTransaction();
+
+		SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory()
+				.createNonRootSbbEntity(sbbEntity.getSbbEntityId(),
+						getChildRelationMethod.getChildRelationMethodName(),
+						childName);
+
+		if (logger.isDebugEnabled())
+			logger.debug("ChildRelation.create() : Created Sbb Entity: "
+					+ childSbbEntity.getSbbEntityId());
+
+		childSbbEntity.setPriority(getChildRelationMethod.getDefaultPriority());
+
+		/*
+		 * Exception handling here must follow Sec. 9.12.1 of spec This is a
+		 * non-slee originated method invocation
+		 * 
+		 * If a non-SLEE originated method invocation returns by throwing a
+		 * checked exception, then the following occurs: � The state of the
+		 * transaction is unaffected � The checked exception is propagated to
+		 * the caller. It is expected that the caller will have the appropriate
+		 * logic to handle the exception. If a non-SLEE originated method
+		 * invocation returns by throwing a RuntimeException, then: � The
+		 * transaction is marked for rollback. � The SBB object that was invoked
+		 * is discarded, i.e. is moved to the Does Not Exist state. � A
+		 * javax.slee.TransactionRolledBackLocalException is propagated to the
+		 * caller. The transaction will eventually be rolled back when the
+		 * highest level SLEE originated invocation re-turns as described in
+		 * Section 9.12.2. The sbbRolledBack method is not invoked for an SBB
+		 * originated method transaction because the transa ction is only marked
+		 * for rollback and will only be rolled back when the highest level SLEE
+		 * originated invocation returns. The sbbRolledBack method is only
+		 * invoked on the SBB entity in-voked by the highest level SLEE
+		 * originated invocation. If the RuntimeException propagates to the
+		 * highest level (i.e. the SLEE originated method invocation returns by
+		 * throwing a RuntimeException) the SLEE originated method invocation
+		 * exception handling mechanism is init iated.
+		 */
+
+		try {
+			// All checked exceptions (i.e. CreateException) are propagated to
+			// the caller
+			childSbbEntity.assignSbbObject();
+
+		} catch (CreateException e) {
+			// All RuntimeExceptions are dealt with here
+			if (logger.isDebugEnabled())
+				logger.error("Caught CreateException in creating child entity",
+						e);
+
+			childSbbEntity.trashObject();
+			// Propagate exception to caller.
+			throw e;
+		} catch (Exception e) {
+			// All RuntimeExceptions are dealt with here
+			logger.error("Caught RuntimeException in creating child entity", e);
+			try {
+				sleeTransactionManager.setRollbackOnly();
+			} catch (SystemException e1) {
+				logger.error("Failed to set rollbackonly", e);
+			}
+			childSbbEntity.trashObject();
+		}
+
+		sbbEntity.addChildWithSbbObject(childSbbEntity);
+		return childSbbEntity.getSbbLocalObject();
+	}
+
+	@Override
+	public SbbLocalObjectExt get(String childName)
+			throws IllegalArgumentException, NullPointerException,
+			TransactionRequiredLocalException, SLEEException {
+
+		validateChildName(childName);
+
+		SleeTransactionManager sleeTransactionManager = sleeContainer
+				.getTransactionManager();
+
+		sleeTransactionManager.mandateTransaction();
+
+		SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory()
+				.getSbbEntity(
+						new NonRootSbbEntityID(sbbEntity.getSbbEntityId(),
+								getChildRelationMethod
+										.getChildRelationMethodName(),
+								childName), false);
+
+		return childSbbEntity == null ? null : childSbbEntity
+				.getSbbLocalObject();
+	}
 }
