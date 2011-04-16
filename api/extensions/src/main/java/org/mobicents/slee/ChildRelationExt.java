@@ -19,7 +19,7 @@ public interface ChildRelationExt extends ChildRelation {
 	 * the proposed default name for a child sbb, useful when using this
 	 * extension to handle a single child.
 	 */
-	public static final String DEFAULT_NAME = "0";
+	public static final String DEFAULT_CHILD_NAME = "0";
 
 	/**
 	 * Create a new SBB entity of the SBB type associated with the relation,
