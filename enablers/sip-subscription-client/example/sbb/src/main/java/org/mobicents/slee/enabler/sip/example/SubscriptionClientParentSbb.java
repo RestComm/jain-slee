@@ -18,17 +18,15 @@
 package org.mobicents.slee.enabler.sip.example;
 
 import javax.slee.ActivityContextInterface;
-import javax.slee.ChildRelation;
 import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
-import javax.slee.SLEEException;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
-import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.Tracer;
 import javax.slee.serviceactivity.ServiceActivity;
 
 import org.mobicents.slee.ChildRelationExt;
+import org.mobicents.slee.SbbLocalObjectExt;
 import org.mobicents.slee.enabler.sip.Notify;
 import org.mobicents.slee.enabler.sip.SubscriptionClientChildSbbLocalObject;
 import org.mobicents.slee.enabler.sip.SubscriptionClientParent;
@@ -96,20 +94,10 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 	public void onStartServiceEvent(javax.slee.serviceactivity.ServiceStartedEvent event, ActivityContextInterface aci) {
 		SubscriptionClientChildSbbLocalObject child;
 		try {
-			child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().create();
+			child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().create(ChildRelationExt.DEFAULT_CHILD_NAME);
 			child.subscribe("sip:14313471@127.0.0.1:5090", "secret_name", "sip:14313471@127.0.0.1:5090", 61, "presence",null, "application", "pidf+xml"); // null
-		} catch (TransactionRequiredLocalException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SLEEException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (CreateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SubscriptionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Throwable e) {
+			tracer.severe("Failed to subscribe",e);
 		}
 
 	}
@@ -133,7 +121,6 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 		tracer.info("onNotify: " + notify);
 
 		// check num of notifs
-		
 		int nots = getNotifyCount() + 1;
 		setNotifyCount(nots);
 		if (nots == 3) {
@@ -142,81 +129,57 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 		}
 		
 		//subscription is terminated ONLY, when there is Notify with termination status
-		if(notify.getStatus() == SubscriptionStatus.terminated)
-		{
+		if(notify.getStatus() == SubscriptionStatus.terminated) {
 			//kill child
-			ChildRelation childRelation = this.getSubscriptionClientChildSbbChildRelation();
-			if (childRelation.size() > 0) {
-				SubscriptionClientChildSbbLocalObject child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().iterator().next();
-				child.remove();
-				
-			} else {
-				// do nothing, we did unsub before
-			}
+			SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+			if (child != null) {
+				child.remove();				
+			} 
 		}
-		
-
 	}
 
 	@Override
 	public void subscribeFailed(int responseCode,
 			SubscriptionClientChildSbbLocalObject sbbLocalObject) {
 		tracer.info("subscribeFailed");
-		ChildRelation childRelation = this.getSubscriptionClientChildSbbChildRelation();
-		if (childRelation.size() > 0) {
-			SubscriptionClientChildSbbLocalObject child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().iterator().next();
-			child.remove();
-			
-		} else {
-			// do nothing, we did unsub before
-		}
+		SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+		if (child != null) {
+			child.remove();				
+		} 
 	}
 
 	@Override
 	public void resubscribeFailed(int responseCode,
 			SubscriptionClientChildSbbLocalObject sbbLocalObject) {
 		tracer.info("refreshFailed");
-		ChildRelation childRelation = this.getSubscriptionClientChildSbbChildRelation();
-		if (childRelation.size() > 0) {
-			SubscriptionClientChildSbbLocalObject child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().iterator().next();
-			child.remove();
-			
-		} else {
-			// do nothing, we did unsub before
-		}
+		SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+		if (child != null) {
+			child.remove();				
+		} 
 	}
 
 	@Override
 	public void unsubscribeFailed(int responseCode,
 			SubscriptionClientChildSbbLocalObject sbbLocalObject) {
 		tracer.info("removeFailed");
-		ChildRelation childRelation = this.getSubscriptionClientChildSbbChildRelation();
-		if (childRelation.size() > 0) {
-			SubscriptionClientChildSbbLocalObject child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().iterator().next();
-			child.remove();
-			
-		} else {
-			// do nothing, we did unsub before
-		}
+		SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+		if (child != null) {
+			child.remove();				
+		} 
 	}
 
 	/**
 	 * 
 	 */
 	private void sendUnsubscribe() {
-		ChildRelation childRelation = this.getSubscriptionClientChildSbbChildRelation();
-		if (childRelation.size() > 0) {
-			SubscriptionClientChildSbbLocalObject child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().iterator().next();
+		SubscriptionClientChildSbbLocalObject child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+		if (child != null) {
 			try {
 				child.unsubscribe();
 			} catch (SubscriptionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		} else {
-			// do nothing, we did unsub before
-		}
+				tracer.severe("Failed to unsubscribe",e);
+			}				
+		} 
 	}
 
 }
