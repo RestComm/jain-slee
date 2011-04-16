@@ -115,7 +115,7 @@ public abstract class PublicationClientParentSbb implements Sbb, PublicationClie
 		if (tracer.isFineEnabled())
 			tracer.fine("Received Activtiy End: "+aci.getActivity());
 		if(aci.getActivity() instanceof ServiceActivity) {
-			PublicationClientChildSbbLocalObject child = (PublicationClientChildSbbLocalObject)this.getPublicationClientChildSbbChildRelation().get("default");
+			PublicationClientChildSbbLocalObject child = (PublicationClientChildSbbLocalObject)this.getPublicationClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
 			try {
 				child.removePublication();
 			} catch (Throwable e) {
