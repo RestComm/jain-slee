@@ -414,6 +414,9 @@ public class ChildRelationImpl implements ChildRelation {
 			IllegalArgumentException, NullPointerException,
 			TransactionRequiredLocalException, SLEEException {
 
+		if (logger.isDebugEnabled())
+			logger.debug("Creating child "+childName+" from relation "+getChildRelationMethod.getChildRelationMethodName()+" of entity "+sbbEntity.getSbbEntityId());
+		
 		validateChildName(childName);
 
 		SleeTransactionManager sleeTransactionManager = sleeContainer
@@ -427,7 +430,7 @@ public class ChildRelationImpl implements ChildRelation {
 						childName);
 
 		if (logger.isDebugEnabled())
-			logger.debug("ChildRelation.create() : Created Sbb Entity: "
+			logger.debug("Created child Sbb Entity: "
 					+ childSbbEntity.getSbbEntityId());
 
 		childSbbEntity.setPriority(getChildRelationMethod.getDefaultPriority());
@@ -492,6 +495,9 @@ public class ChildRelationImpl implements ChildRelation {
 			throws IllegalArgumentException, NullPointerException,
 			TransactionRequiredLocalException, SLEEException {
 
+		if (logger.isTraceEnabled())
+			logger.trace("Retreiving child "+childName+" from relation "+getChildRelationMethod.getChildRelationMethodName()+" of entity "+sbbEntity.getSbbEntityId());
+				
 		validateChildName(childName);
 
 		SleeTransactionManager sleeTransactionManager = sleeContainer
@@ -506,6 +512,10 @@ public class ChildRelationImpl implements ChildRelation {
 										.getChildRelationMethodName(),
 								childName), false);
 
+		if (logger.isDebugEnabled())
+			logger.debug("Retrieved child "+childName+" from relation "+getChildRelationMethod.getChildRelationMethodName()+" of entity "+sbbEntity.getSbbEntityId()+" -> "+childSbbEntity);
+		
+		
 		return childSbbEntity == null ? null : childSbbEntity
 				.getSbbLocalObject();
 	}

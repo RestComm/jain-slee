@@ -74,8 +74,8 @@ public class NonRootSbbEntityID implements SbbEntityID {
 	@Override
 	public int hashCode() {		
 		int result = childID.hashCode();
-		//result = result*31 + parentChildRelation.hashCode();
-		//result = result*31 + parentSbbEntityID.hashCode();
+		result = result*31 + parentChildRelation.hashCode();
+		result = result*31 + parentSbbEntityID.hashCode();
 		return result;
 	}
 
@@ -88,12 +88,12 @@ public class NonRootSbbEntityID implements SbbEntityID {
 		if (getClass() != obj.getClass())
 			return false;
 		final NonRootSbbEntityID other = (NonRootSbbEntityID) obj;
+		if (!parentSbbEntityID.equals(other.parentSbbEntityID))
+			return false;
+		if (!parentChildRelation.equals(other.parentChildRelation))
+			return false;
 		if (!childID.equals(other.childID))
 			return false;
-		/*if (!parentChildRelation.equals(other.parentChildRelation))
-			return false;
-		if (!parentSbbEntityID.equals(other.parentSbbEntityID))
-			return false;*/
 		return true;
 	}
 

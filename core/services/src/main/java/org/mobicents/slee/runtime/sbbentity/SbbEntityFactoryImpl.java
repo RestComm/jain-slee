@@ -51,14 +51,9 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	
 	@Override
 	public SbbEntity createNonRootSbbEntity(SbbEntityID parentSbbEntityID,String parentChildRelation, String childName) throws CreateException {
-
-		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
-
-		// get lock
-		final ReentrantLock lock = lockFacility.get(parentSbbEntityID.getRootSBBEntityID());
-		lockOrFail(lock,parentSbbEntityID.getRootSBBEntityID());
-		// we hold the lock now
-				
+		
+		// it is assumed that parent root sbb entity is loaded, thus no lock needed
+		
 		// create sbb entity
 		final NonRootSbbEntityID sbbeId = new NonRootSbbEntityID(parentSbbEntityID, parentChildRelation, childName);
 		final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
@@ -71,17 +66,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 
 		// store it in the tx, we need to do it due to sbb local object and
 		// current storing in sbb entity per tx
-		storeSbbEntityInTx(sbbEntity, txContext);
-
-		// add tx actions to unlock root when the tx ends
-		final TransactionalAction txAction = new TransactionalAction() {			
-			@Override
-			public void execute() {
-				lock.unlock();				
-			}
-		};
-		txContext.getAfterRollbackActions().add(txAction);
-		txContext.getAfterCommitActions().add(txAction);
+		storeSbbEntityInTx(sbbEntity, sleeContainer.getTransactionManager().getTransactionContext());
 
 		return sbbEntity;
 
@@ -192,9 +177,11 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 						
 			// get sbb entity data from cache
 			final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
-			if (!cacheData.exists() && lock != null) {
-				lockFacility.remove(lockedSbbEntityID);
-				lock.unlock();
+			if (!cacheData.exists()) {
+				if(lock != null) {
+					lockFacility.remove(lockedSbbEntityID);
+					lock.unlock();
+				}
 				return null;
 			}
 			
