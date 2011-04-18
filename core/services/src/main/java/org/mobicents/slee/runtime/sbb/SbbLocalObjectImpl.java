@@ -123,24 +123,16 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
      * @param sbbEntity --
      *            sbb entity for which this is a local object.
      */
-
     public SbbLocalObjectImpl(SbbEntityImpl sbbEntity) {
-        
         this.sbbEntity = sbbEntity;
-        
-        // TODO emmartins: check this
         if (sbbEntity.getSbbObject() == null){
             try {
-                // Check if the object is in the cache or not is not 
-                // enough to determine if sbbCreate should be called
                 sbbEntity.assignSbbObject();
             } catch (Exception e) {
                logger.error(e.getMessage(),e);
             }
-        }
-        
-        trace = logger.isTraceEnabled();
-        
+        }        
+        trace = logger.isTraceEnabled();        
         if(trace)
             logger.trace("SbbLocalObjectImpl(sbbEntity = "+sbbEntity.getSbbEntityId()+" )");
     }

@@ -121,7 +121,7 @@ public class ConcreteSbbLocalObjectGenerator {
             Map interfaceMethods = ClassUtils
                     .getInterfaceMethodsFromInterface(sbbLocalObjectInterface);
 
-            generateConcreteMethods(interfaceMethods, sbbAbstractClassName, SbbLocalObjectExt.class.isAssignableFrom(sbbLocalObjectInterface.getClass()));           
+            generateConcreteMethods(interfaceMethods, sbbAbstractClassName);           
 
             try {
             	concreteSbbLocalObject.writeFile(deployPath);
@@ -167,7 +167,7 @@ public class ConcreteSbbLocalObjectGenerator {
      * @param sbbAbstractClassName
      */
     private void generateConcreteMethods(Map interfaceMethods,
-            String sbbAbstractClassName, boolean filterExtMethods) {
+            String sbbAbstractClassName) {
         if (interfaceMethods == null)
             return;
 
@@ -184,12 +184,10 @@ public class ConcreteSbbLocalObjectGenerator {
             		|| interfaceMethod.getName().equals("hashCode")
             		|| interfaceMethod.getName().equals("getSbbPriority")
                     || interfaceMethod.getName().equals("remove")
-                    || interfaceMethod.getName().equals("setSbbPriority"))
-                continue;
-
-            if (filterExtMethods && interfaceMethod.getName().equals("getName")
+                    || interfaceMethod.getName().equals("setSbbPriority")
+                	|| interfaceMethod.getName().equals("getName")
             		|| interfaceMethod.getName().equals("getChildRelation")
-            		|| interfaceMethod.getName().equals("getParent"))            		
+            		|| interfaceMethod.getName().equals("getParent"))         		
                 continue;
             
             String methodToAdd = "public ";
