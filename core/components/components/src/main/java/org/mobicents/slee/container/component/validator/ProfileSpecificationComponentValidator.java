@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
 /**
  * Start time:10:45:52 2009-02-09<br>
  * Project: mobicents-jainslee-server-core<br>
@@ -1031,17 +1053,17 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 						continue;
 					}
-					// The method name must not begin with “profile” or “ejb”. A SLEE implementation can use method 
-					// names that begin with “profile” when needed without being concerned with possible method name 
+					// The method name must not begin with ï¿½profileï¿½ or ï¿½ejbï¿½. A SLEE implementation can use method 
+					// names that begin with ï¿½profileï¿½ when needed without being concerned with possible method name 
 					// conflicts with Profile Specification Developer declared method names. 
 					// This restriction does not apply when the Profile Specification Developer implements a 
-					// “profile<XXX>” method declared by the SLEE, such as the life cycle methods declared in the  
+					// ï¿½profile<XXX>ï¿½ method declared by the SLEE, such as the life cycle methods declared in the  
 					// javax.profile.Profile interface.
 					// FIXME: Alexandre: do we need to verify this exception at this point?
           else if (key.startsWith("ejb") || key.startsWith("profile")) {
             passed = false;
             errorBuffer = appendToBuffer(
-                "Profile specification profile local interface method name must not begin with “profile” or “ejb”. Offending method: "
+                "Profile specification profile local interface method name must not begin with ï¿½profileï¿½ or ï¿½ejbï¿½. Offending method: "
                     + entry.getKey(), "10.18", errorBuffer);
 
             continue;
@@ -2095,8 +2117,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 					if (returnType.compareTo("boolean") == 0
 							|| returnType.compareTo("Boolean") == 0) {
-						// only op that can be used are: “equals”, or
-						// “not-equals”
+						// only op that can be used are: ï¿½equalsï¿½, or
+						// ï¿½not-equalsï¿½
 						if (op.compareTo("equals") == 0
 								|| op.compareTo("not-equals") == 0) {
 							// its ok, those are allowed
@@ -2193,7 +2215,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					String returnType = m.getReturnType().getName();
 
 					if (returnType.compareTo("java.lang.String") != 0) {
-						// only op that can be used are: “equals”, or
+						// only op that can be used are: ï¿½equalsï¿½, or
 
 						passed = false;
 						errorBuffer = appendToBuffer(
@@ -2272,7 +2294,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					String returnType = m.getReturnType().getName();
 
 					if (returnType.compareTo("java.lang.String") != 0) {
-						// only op that can be used are: “equals”, or
+						// only op that can be used are: ï¿½equalsï¿½, or
 
 						passed = false;
 						errorBuffer = appendToBuffer(
