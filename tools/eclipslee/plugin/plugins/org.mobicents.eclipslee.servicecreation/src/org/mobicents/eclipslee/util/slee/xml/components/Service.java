@@ -136,6 +136,6 @@ public class Service extends DTDXML {
 	}
 	
 	public String toString() {
-		return getName() + "," + getVersion() + "," + getVendor();
+		return getName() + ", " + getVersion() + ", " + getVendor();
 	}
 }

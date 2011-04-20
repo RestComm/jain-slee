@@ -67,7 +67,7 @@ public class RaTypeActivityTypesPage extends WizardPage {
   
   public HashMap[] getActivityTypes() {
     RaTypeActivityTypesPanel panel = (RaTypeActivityTypesPanel) getControl();
-    return panel.getTableRows();
+    return panel.getActivityTypes();
   }
 
   public boolean getCreateAbstractClass() {

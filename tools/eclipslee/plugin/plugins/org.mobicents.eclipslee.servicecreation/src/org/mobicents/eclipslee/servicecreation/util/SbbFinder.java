@@ -16,6 +16,7 @@
 
 package org.mobicents.eclipslee.servicecreation.util;
 
+import java.io.File;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -37,6 +38,7 @@ import org.mobicents.eclipslee.xml.SbbJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbFinder extends BaseFinder {
 
@@ -108,6 +110,11 @@ public class SbbFinder extends BaseFinder {
 			IResource children[] = folder.members(IResource.FILE);
 			
 			for (int i = 0; i < children.length; i++) {
+        // For some reason directories come in also...
+        if(!(children[i] instanceof IFile)) {
+          continue;
+        }
+
 				IFile file = (IFile) children[i];
 				
 				if (file.getName().endsWith("sbb-jar.xml")) {
@@ -155,6 +162,8 @@ public class SbbFinder extends BaseFinder {
 			String className = sbb.getAbstractClassName();
 			IPath path = new Path(className.replaceAll("\\.", "/") + ".java");
 			IFolder folder = getSourceFolder(xmlFile);
+			// ammendonca: we are at xxx/src/main/resources. move to xxx/src/main/java
+			folder = folder.getFolder(".." + File.separator + "java");
 			IFile file = folder.getFile(path);
 			if (file.exists()) return file;
 			return null;
@@ -185,7 +194,9 @@ public class SbbFinder extends BaseFinder {
 			SbbXML sbb = sbbJarXML.getSbb(name, vendor, version);
 			String className = sbb.getLocalInterfaceName();
 			IPath path = new Path(className.replaceAll("\\.", "/") + ".java");
-			IFolder folder = getSourceFolder(xmlFile);
+      IFolder folder = getSourceFolder(xmlFile);
+      // ammendonca: we are at xxx/src/main/resources. move to xxx/src/main/java
+      folder = folder.getFolder(".." + File.separator + "java");
 			IFile file = folder.getFile(path);
 			if (file.exists()) return file;
 			return null;
@@ -216,7 +227,9 @@ public class SbbFinder extends BaseFinder {
 			SbbXML sbb = sbbJarXML.getSbb(name, vendor, version);
 			String className = sbb.getUsageInterfaceName();
 			IPath path = new Path(className.replaceAll("\\.", "/") + ".java");
-			IFolder folder = getSourceFolder(xmlFile);
+      IFolder folder = getSourceFolder(xmlFile);
+      // ammendonca: we are at xxx/src/main/resources. move to xxx/src/main/java
+      folder = folder.getFolder(".." + File.separator + "java");
 			IFile file = folder.getFile(path);
 			if (file.exists()) return file;
 			return null;
@@ -247,7 +260,9 @@ public class SbbFinder extends BaseFinder {
 			SbbXML sbb = sbbJarXML.getSbb(name, vendor, version);
 			String className = sbb.getActivityContextInterfaceName();
 			IPath path = new Path(className.replaceAll("\\.", "/") + ".java");
-			IFolder folder = getSourceFolder(xmlFile);
+      IFolder folder = getSourceFolder(xmlFile);
+      // ammendonca: we are at xxx/src/main/resources. move to xxx/src/main/java
+      folder = folder.getFolder(".." + File.separator + "java");
 			IFile file = folder.getFile(path);
 			if (file.exists()) return file;
 			return null;

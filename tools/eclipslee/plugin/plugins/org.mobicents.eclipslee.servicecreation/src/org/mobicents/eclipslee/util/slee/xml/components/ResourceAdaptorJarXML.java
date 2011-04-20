@@ -78,6 +78,21 @@ public class ResourceAdaptorJarXML extends DTDXML {
     return ras;		
   }
 
+  public ResourceAdaptorXML getResourceAdaptor(String className) throws ComponentNotFoundException {
+    ResourceAdaptorXML[] resourceAdaptors = getResourceAdaptors();
+    for (ResourceAdaptorXML resourceAdaptor : resourceAdaptors) {
+      ResourceAdaptorClassesXML raClasses = resourceAdaptor.getResourceAdaptorClasses();
+      for(ResourceAdaptorClassXML raClass : raClasses.getResourceAdaptorClasses()) {
+        if (className.equals(raClass.getResourceAdaptorClassName())) {
+          return resourceAdaptor;
+        }
+        // TODO: Check also for ProviderImpl ?
+      }
+    }
+
+    throw new ComponentNotFoundException("Unable to find specified Resource Adaptor.");
+  }
+
   public ResourceAdaptorXML getResourceAdaptor(String name, String vendor, String version) throws ComponentNotFoundException {
     ResourceAdaptorXML ras[] = getResourceAdaptors();
     for (int i = 0; i < ras.length; i++) {

@@ -185,7 +185,7 @@ public class ProfileSpecXML extends DTDXML {
 	}
 
 	public String toString() {
-		return "Profile: " + getName() + "," + getVersion() + "," + getVendor();
+		return "Profile: " + getName() + ", " + getVersion() + ", " + getVendor();
 	}
 
 }

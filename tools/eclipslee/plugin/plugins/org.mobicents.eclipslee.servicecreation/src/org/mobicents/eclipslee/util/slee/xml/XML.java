@@ -86,7 +86,7 @@ public class XML {
 	public String getTextData(Node element) {		
 		Text text = (Text) element.getFirstChild();
 		if (text == null) return null;
-		return text.getData();				
+		return text.getData().trim();				
 	}
 	
 	public void setTextData(Node element, String newText) {
@@ -241,9 +241,13 @@ public class XML {
 		}		
 	}
 	
-	public void setAttribute( String name, String value){
-		getRoot().setAttribute(name, value);
-	}
+  public void setAttribute( String name, String value){
+    getRoot().setAttribute(name, value);
+  }
+
+  public String getAttribute(String name){
+    return getRoot().getAttribute(name);
+  }
 
 	protected Document document;
 	protected Element root;

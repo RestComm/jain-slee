@@ -34,6 +34,7 @@ import org.mobicents.eclipslee.xml.EventJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class EventFinder extends BaseFinder {
 	
@@ -53,7 +54,11 @@ public class EventFinder extends BaseFinder {
 			IResource children [] = folder.members(IResource.FILE);
 			
 			for (int i = 0; i < children.length; i++) {
-				
+        // For some reason directories come in also...
+        if(!(children[i] instanceof IFile)) {
+          continue;
+        }
+
 				IFile file = (IFile) children[i];
 				EventJarXML xml = getEventJarXML(file);
 				if (xml == null)

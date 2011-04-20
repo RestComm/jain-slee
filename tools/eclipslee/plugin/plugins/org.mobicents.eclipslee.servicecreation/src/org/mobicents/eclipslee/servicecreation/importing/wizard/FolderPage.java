@@ -5,57 +5,20 @@ package org.mobicents.eclipslee.servicecreation.importing.wizard;
  *******************************************************************************/
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
+
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.FileSystemElement;
-import org.eclipse.ui.dialogs.WizardResourceImportPage;
-import org.eclipse.ui.internal.ide.dialogs.IElementFilter;
-import org.eclipse.ui.internal.progress.ProgressMonitorJobsDialog;
-import org.eclipse.ui.internal.wizards.datatransfer.DataTransferMessages;
-import org.eclipse.ui.internal.wizards.datatransfer.IDataTransferHelpContextIds;
+//import org.eclipse.ui.internal.wizards.datatransfer.DataTransferMessages;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.wizards.datatransfer.FileSystemStructureProvider;
-import org.eclipse.ui.wizards.datatransfer.IImportStructureProvider;
 import org.eclipse.ui.wizards.datatransfer.ImportOperation;
 
 /**
@@ -97,18 +60,21 @@ public class FolderPage extends SLEEImportPage {
         // overwrite... checkbox
         overwriteExistingResourcesCheckbox = new Button(optionsGroup, SWT.CHECK);
         overwriteExistingResourcesCheckbox.setFont(optionsGroup.getFont());
-        overwriteExistingResourcesCheckbox.setText(DataTransferMessages.FileImport_overwriteExisting);
+        //overwriteExistingResourcesCheckbox.setText(DataTransferMessages.FileImport_overwriteExisting);
+        overwriteExistingResourcesCheckbox.setText("DataTransferMessages.FileImport_overwriteExisting");
 
         // create containers radio
         createContainerStructureButton = new Button(optionsGroup, SWT.RADIO);
         createContainerStructureButton.setFont(optionsGroup.getFont());
-        createContainerStructureButton.setText(DataTransferMessages.FileImport_createComplete);
+        //createContainerStructureButton.setText(DataTransferMessages.FileImport_createComplete);
+        createContainerStructureButton.setText("DataTransferMessages.FileImport_createComplete");
         createContainerStructureButton.setSelection(false);
 
         // create selection only radio
         createOnlySelectedButton = new Button(optionsGroup, SWT.RADIO);
         createOnlySelectedButton.setFont(optionsGroup.getFont());
-        createOnlySelectedButton.setText(DataTransferMessages.FileImport_createSelectedFolders);
+        //createOnlySelectedButton.setText(DataTransferMessages.FileImport_createSelectedFolders);
+        createOnlySelectedButton.setText("DataTransferMessages.FileImport_createSelectedFolders");
         createOnlySelectedButton.setSelection(true);
 
     }
@@ -220,7 +186,8 @@ public class FolderPage extends SLEEImportPage {
      *	Answer the string to display as the label for the source specification field
      */
     protected String getSourceLabel() {
-        return DataTransferMessages.FileImport_fromDirectory;
+        //return DataTransferMessages.FileImport_fromDirectory;
+        return "DataTransferMessages.FileImport_fromDirectory";
     }
     
     /**

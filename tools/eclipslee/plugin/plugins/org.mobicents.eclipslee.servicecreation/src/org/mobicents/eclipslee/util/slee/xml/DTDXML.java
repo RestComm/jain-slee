@@ -33,10 +33,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * @author cath
- *
  * Basic XML file reading class.  It's likely that you'll want to use
  * the component-specific version of this class.
+ * 
+ * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class DTDXML extends XML {
 
@@ -49,6 +50,7 @@ public class DTDXML extends XML {
 	public DTDXML(String qualifiedName, String publicID, String systemID, EntityResolver resolver) throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setValidating(true);
+		factory.setIgnoringElementContentWhitespace(true);
 		
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		builder.setEntityResolver(resolver);
@@ -69,6 +71,7 @@ public class DTDXML extends XML {
 	public DTDXML(InputStream stream, EntityResolver resolver) throws ParserConfigurationException, IOException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setValidating(true);
+    factory.setIgnoringElementContentWhitespace(true);
 		
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		builder.setEntityResolver(resolver);

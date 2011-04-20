@@ -59,9 +59,7 @@ public class ResourceAdaptorConfigPropertyXML extends DTDXML {
   }
 
   public String getName() {
-    Element raConfigProperty = getChild(getRoot(), "config-property");
-    if (raConfigProperty == null) return null;
-    return getChildText(raConfigProperty, "config-property-name");
+    return getChildText(root, "config-property-name");
   }
 
   public void setType(String vendor) {
@@ -73,9 +71,7 @@ public class ResourceAdaptorConfigPropertyXML extends DTDXML {
   }
 
   public String getType() {
-    Element raConfigProperty = getChild(getRoot(), "config-property");
-    if (raConfigProperty == null) return null;
-    return getChildText(raConfigProperty, "config-property-type");
+    return getChildText(root, "config-property-type");
   }
 
   public void setValue(String version) {
@@ -87,8 +83,6 @@ public class ResourceAdaptorConfigPropertyXML extends DTDXML {
   }
 
   public String getValue() {
-    Element raConfigProperty = getChild(getRoot(), "config-property");
-    if (raConfigProperty == null) return null;
-    return getChildText(raConfigProperty, "config-property-value");
+    return getChildText(root, "config-property-value");
   }	
 }

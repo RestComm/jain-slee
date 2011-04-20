@@ -98,7 +98,7 @@ public class RaTypeWizard extends BaseWizard {
       }
 
       String raTypeBaseName = getFileName().substring(0, getFileName().indexOf(ENDS));
-      String xmlFilename = /*raTypeBaseName + "-*/"ratype-jar.xml";
+      String xmlFilename = /*raTypeBaseName + "-*/"resource-adaptor-type-jar.xml";
       String raTypeAcifFilename = getFileName();
       String raInterfaceFilename = raTypeBaseName + "Provider.java";
       
@@ -120,7 +120,7 @@ public class RaTypeWizard extends BaseWizard {
       // ...
       subs.put("__ACI_GETTERS__", getAciGetters(raActivityTypes));
       
-      // Get (or create if not present already) META-INF folder for storing ratype-jar.xml
+      // Get (or create if not present already) META-INF folder for storing resource-adaptor-type-jar.xml
       IFolder resourceFolder = getSourceContainer().getFolder(new Path("../resources/META-INF"));
       if (!resourceFolder.exists()) {
         resourceFolder.create(true, true, monitor);
@@ -139,7 +139,7 @@ public class RaTypeWizard extends BaseWizard {
       raType.setDescription(getComponentDescription());
       
       ResourceAdaptorTypeClassesXML raTypeClassesXML = raType.addResourceAdaptorTypeClasses();
-      raTypeClassesXML.setResourceAdaptorInterface(raTypeAcifClassName);
+      raTypeClassesXML.setActivityContextInterfaceFactoryInterface(raTypeAcifClassName);
 
       for (HashMap activityType : raActivityTypes) {
         raTypeClassesXML.addActivityType((String) activityType.get("Activity Type"));

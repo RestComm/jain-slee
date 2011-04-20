@@ -30,44 +30,33 @@ import org.w3c.dom.Element;
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ResourceAdaptorClassXML extends DTDXML {
+public class ResourceAdaptorTypeEventXML extends DTDXML {
 
-  protected ResourceAdaptorClassXML(Document document, Element root, DTDHandler dtd) {
-    super(document, root, dtd);
-  }
-
-  public void setDescription(String desc) {
-    setChildText(root, "description", desc);
-  }
-
-  public String getDescription() {
-    return getChildText(root, "description");
-  }
-
-  public void setSupportsActiveReconfiguration(Boolean supports) {
-    setAttribute("supports-active-reconfiguration", supports ? "True" : "False");
-  }
-
-  public Boolean getSupportsActiveReconfiguration() {
-    return Boolean.valueOf(getAttribute("supports-active-reconfiguration"));
-  }
-
-  public void setResourceAdaptorClassName(String name) {
-    Element child = getChild(root, "resource-adaptor-class-name");
-    if (name == null) {
-      if (child != null)
-        child.getParentNode().removeChild(child);
-      return;     
-    }
-
-    if (child == null)
-      child = addElement(root, "resource-adaptor-class-name");
-
-    setChildText(root, "resource-adaptor-class-name", name);
-  }
-
-  public String getResourceAdaptorClassName() {   
-    return getChildText(root, "resource-adaptor-class-name");
-  }
-
+	protected ResourceAdaptorTypeEventXML(Document document, Element root, DTDHandler dtd) {
+		super(document, root, dtd);
+	}
+	
+	public void setName(String name) {
+		setChildText(getRoot(), "event-type-name", name);		
+	}
+	
+	public String getName() {
+		return getChildText(getRoot(), "event-type-name");
+	}
+	
+	public void setVendor(String name) {
+		setChildText(getRoot(), "event-type-vendor", name);		
+	}
+	
+	public String getVendor() {
+		return getChildText(getRoot(), "event-type-vendor");
+	}
+	
+	public void setVersion(String name) {
+		setChildText(getRoot(), "event-type-version", name);		
+	}
+	
+	public String getVersion() {
+		return getChildText(getRoot(), "event-type-version");
+	}	
 }

@@ -34,6 +34,7 @@ import org.mobicents.eclipslee.xml.ProfileSpecJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ProfileSpecFinder extends BaseFinder {
 
@@ -268,6 +269,11 @@ public class ProfileSpecFinder extends BaseFinder {
 			IResource children[] = folder.members(IResource.FILE);
 			
 			for (int i = 0; i < children.length; i++) {
+        // For some reason directories come in also...
+        if(!(children[i] instanceof IFile)) {
+          continue;
+        }
+
 				IFile file = (IFile) children[i];
 				
 				ProfileSpecJarXML xml = getProfileSpecJarXML(file);

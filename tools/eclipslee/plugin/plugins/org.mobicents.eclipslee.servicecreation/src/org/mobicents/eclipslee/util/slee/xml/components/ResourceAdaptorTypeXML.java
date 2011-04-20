@@ -68,57 +68,52 @@ public class ResourceAdaptorTypeXML extends DTDXML {
 		return new ResourceAdaptorTypeClassesXML(document, child, dtd);		
 	}
 	
-	public ResourceAdaptorTypeClassesXML[] getResourceAdaptorTypeClasses() {
-	  // ammendonca FIXME: should only return one instance instead of array
+	public ResourceAdaptorTypeClassesXML getResourceAdaptorTypeClasses() {
 		Element nodes[] = getNodes("resource-adaptor-type/resource-adaptor-type-classes");
-		ResourceAdaptorTypeClassesXML xml[] = new ResourceAdaptorTypeClassesXML[nodes.length];
-		for (int i = 0; i < nodes.length; i++)
-			xml[i] = new ResourceAdaptorTypeClassesXML(document, nodes[i], dtd);
-		return xml;
+		return new ResourceAdaptorTypeClassesXML(document, nodes[0], dtd);
 	}
 	
 	public void removeResourceAdaptorTypeClasses(ResourceAdaptorTypeClassesXML xml) {
 		xml.getRoot().getParentNode().removeChild(xml.getRoot());
 	}
 		
-	public ResourceAdaptorEventXML addEvent(EventXML event) {
+	public ResourceAdaptorTypeEventXML addEvent(EventXML event) {
 		Element child = addElement(root, "event-type-ref");
 		setChildText(child, "event-type-name", event.getName());
 		setChildText(child, "event-type-vendor", event.getVendor());
 		setChildText(child, "event-type-version", event.getVersion());
-		return new ResourceAdaptorEventXML(document, child, dtd);		
+		return new ResourceAdaptorTypeEventXML(document, child, dtd);		
 	}
 	
-	public ResourceAdaptorEventXML addEvent(String name, String vendor, String version) {
+	public ResourceAdaptorTypeEventXML addEvent(String name, String vendor, String version) {
 		Element child = addElement(root, "event-type-ref");
 		setChildText(child, "event-type-name", name.trim());
 		setChildText(child, "event-type-vendor",vendor.trim());
 		setChildText(child, "event-type-version",version.trim());
-		return new ResourceAdaptorEventXML(document, child, dtd);		
+		return new ResourceAdaptorTypeEventXML(document, child, dtd);		
 	}
 	
-	public ResourceAdaptorEventXML[] getEvents() {
+	public ResourceAdaptorTypeEventXML[] getEvents() {
 		Element nodes[] = getNodes("resource-adaptor-type/event-type-ref");
-		ResourceAdaptorEventXML xml[] = new ResourceAdaptorEventXML[nodes.length];
+		ResourceAdaptorTypeEventXML xml[] = new ResourceAdaptorTypeEventXML[nodes.length];
 		for (int i = 0; i < nodes.length; i++)
-			xml[i] = new ResourceAdaptorEventXML(document, nodes[i], dtd);		
+			xml[i] = new ResourceAdaptorTypeEventXML(document, nodes[i], dtd);		
 		return xml;
 	}
 	
-	public void removeEvent(ResourceAdaptorEventXML xml) {
+	public void removeEvent(ResourceAdaptorTypeEventXML xml) {
 		xml.getRoot().getParentNode().removeChild(xml.getRoot());
 	}
 
-	public ResourceAdaptorEventXML getEvents(String name, String vendor, String version) {
-		Element nodes[] = getNodes("resource-adaptor-type/event-type-ref");
-		ResourceAdaptorEventXML xml[] = new ResourceAdaptorEventXML[nodes.length];
-		for (int i = 0; i < nodes.length; i++){	
-			xml[i] = new ResourceAdaptorEventXML(document, nodes[i], dtd);		
-			if(xml[i].getName().equals(name) && xml[i].getVendor().equals(vendor) && xml[i].getVersion().equals(version)){
-				return xml[i];
-			}
-		}
-		return null;
+	public ResourceAdaptorTypeEventXML getEvent(String name, String vendor, String version) {
+	  ResourceAdaptorTypeEventXML events[] = getEvents();
+
+	  for (int i = 0; i < events.length; i++) {
+	    if (name.equals(events[i].getName()) && vendor.equals(events[i].getVendor()) && version.equals(events[i].getVersion())) {
+	      return events[i];
+	    }
+	  }
+
+	  return null;
 	}
-	
 }

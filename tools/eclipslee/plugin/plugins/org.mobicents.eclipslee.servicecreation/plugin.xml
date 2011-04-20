@@ -599,6 +599,117 @@
             />               
       </objectContribution>
  
+     <!-- Resource Adaptor Type -->
+     <objectContribution
+            objectClass="org.eclipse.core.resources.IFile"
+            id="org.mobicents.eclipslee.servicecreation.RAType"
+            nameFilter="*ActivityContextInterfaceFactory.java"
+            adaptable="true"
+            >
+         <menu
+          id="org.mobicents.eclipslee.servicecreation.RAType.Menu"
+          path="additions"
+          label="Modify Resource Adaptor Type">
+          <separator name="FirstGroup"/>
+          <separator name="SecondGroup"/>
+         </menu>
+         <action
+            id="org.mobicents.eclipslee.servicecreation.RAType.Menu.Delete"
+            label="Delete"
+            menubarPath="org.mobicents.eclipslee.servicecreation.RAType.Menu/SecondGroup"
+            class="org.mobicents.eclipslee.servicecreation.popup.actions.DeleteRaTypeAction"
+            />
+         <action
+          id="org.mobicents.eclipslee.servicecreation.RAType.Menu.EditActivityTypes"
+          label="Activity Types..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.RAType.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditRaTypeActivityTypesAction"
+          />    
+         <action
+          id="org.mobicents.eclipslee.servicecreation.RAType.Menu.EditEvents"
+          label="Events..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.RAType.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditRaTypeEventsAction"
+          />    
+         <action
+          id="org.mobicents.eclipslee.servicecreation.RAType.Menu.EditIdentity"
+          label="Identity..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.RAType.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditRaTypeIdentityAction"
+          />               
+      </objectContribution>
+       <!-- Custom dynamic menu for Resource Adaptor Type XML -->
+      <objectContribution
+            objectClass="org.eclipse.core.resources.IFile"
+            id="org.mobicents.eclipslee.servicecreation.RATypeXML"
+            nameFilter="*resource-adaptor-type-jar.xml"
+            >
+         <action         
+          id="org.mobicents.eclipslee.servicecreation.RATypeXML.Menu.RATypes"
+          style="pulldown"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.RaTypeXMLSubmenu"
+          menubarPath="additions"
+      enablesFor="1"
+          label="Modify Resource Adaptor Type"
+          />               
+      </objectContribution>
+
+     <!-- Resource Adaptor -->
+     <objectContribution
+            objectClass="org.eclipse.core.resources.IFile"
+            id="org.mobicents.eclipslee.servicecreation.ResourceAdaptor"
+            nameFilter="*ResourceAdaptor.java"
+            adaptable="true"
+            >
+         <menu
+          id="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu"
+          path="additions"
+          label="Modify Resource Adaptor">
+          <separator name="FirstGroup"/>
+          <separator name="SecondGroup"/>
+         </menu>
+         <action
+            id="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu.Delete"
+            label="Delete"
+            menubarPath="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu/SecondGroup"
+            class="org.mobicents.eclipslee.servicecreation.popup.actions.DeleteResourceAdaptorAction"
+            />
+         <action
+          id="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu.EditConfigPropertiesTypes"
+          label="Config Properties..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditResourceAdaptorConfigPropertiesAction"
+          />    
+         <action
+          id="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu.EditRaTypes"
+          label="Resource Adaptor Types..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditResourceAdaptorRaTypesAction"
+          />    
+         <action
+          id="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu.EditIdentity"
+          label="Identity..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditResourceAdaptorIdentityAction"
+          />               
+      </objectContribution>
+       <!-- Custom dynamic menu for Resource Adaptor XML -->
+      <objectContribution
+            objectClass="org.eclipse.core.resources.IFile"
+            id="org.mobicents.eclipslee.servicecreation.ResourceAdaptorXML"
+            nameFilter="*resource-adaptor-jar.xml"
+            >
+         <action         
+          id="org.mobicents.eclipslee.servicecreation.ResourceAdaptorXML.Menu.ResourceAdaptors"
+          style="pulldown"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.ResourceAdaptorXMLSubmenu"
+          menubarPath="additions"
+      enablesFor="1"
+          label="Modify Resource Adaptor"
+          />               
+      </objectContribution>
+
+      <!-- POM.XML -->
       <objectContribution
             objectClass="org.eclipse.core.resources.IFile"
             id="org.mobicents.eclipslee.servicecreation.PomXML"

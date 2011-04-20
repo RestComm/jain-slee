@@ -607,7 +607,7 @@ public class SbbXML extends DTDXML {
 	}
 	
 	public String toString() {
-		return "SBB: " + getName() + "," + getVersion() + "," + getVendor();
+		return "SBB: " + getName() + ", " + getVersion() + ", " + getVendor();
 	}
 
 	public SbbResourceAdaptorTypeBindingXML addResourceAdaptorTypeBinding() {

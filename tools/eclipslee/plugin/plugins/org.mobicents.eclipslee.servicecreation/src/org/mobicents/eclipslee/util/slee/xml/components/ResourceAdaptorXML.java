@@ -73,12 +73,9 @@ public class ResourceAdaptorXML extends DTDXML {
     return new ResourceAdaptorClassesXML(document, child, dtd);		
   }
 
-  public ResourceAdaptorClassesXML[] getResourceAdaptorClasses() {
+  public ResourceAdaptorClassesXML getResourceAdaptorClasses() {
     Element nodes[] = getNodes("resource-adaptor/resource-adaptor-classes");
-    ResourceAdaptorClassesXML xml[] = new ResourceAdaptorClassesXML[nodes.length];
-    for (int i = 0; i < nodes.length; i++)
-      xml[i] = new ResourceAdaptorClassesXML(document, nodes[i], dtd);
-    return xml;
+    return new ResourceAdaptorClassesXML(document, nodes[0], dtd);
   }
 
   public void removeResourceAdaptorClasses(ResourceAdaptorClassesXML xml) {

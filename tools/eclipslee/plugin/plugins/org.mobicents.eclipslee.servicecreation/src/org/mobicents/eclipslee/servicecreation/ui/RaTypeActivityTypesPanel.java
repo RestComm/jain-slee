@@ -86,18 +86,18 @@ public class RaTypeActivityTypesPanel extends Composite {
     raInterfaceButton.setLayoutData(data);	
   }
 
-  public void addRow(String name, boolean generate) {		
+  public void addActivityType(String name, boolean generate) {		
     HashMap<String, Object> data = new HashMap<String, Object>();
     data.put("Activity Type", name);
-    data.put("Generate Class", new Boolean(generate));
+    data.put("Create", new Boolean(generate));
     tablePanel.addRow(data);
   }
 
-  public void addRow(HashMap map) {
+  public void addActivityType(HashMap map) {
     tablePanel.addRow(map);
   }
 
-  public HashMap[] getTableRows() {
+  public HashMap[] getActivityTypes() {
     return tablePanel.getTableRows();
   }
 

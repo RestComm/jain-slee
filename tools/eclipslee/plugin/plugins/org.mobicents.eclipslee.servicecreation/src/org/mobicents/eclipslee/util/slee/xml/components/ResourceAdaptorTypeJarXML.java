@@ -33,79 +33,99 @@ import org.xml.sax.SAXException;
  */
 public class ResourceAdaptorTypeJarXML extends DTDXML {
 
-	public static final String QUALIFIED_NAME = "resource-adaptor-type-jar";
-	public static final String PUBLIC_ID_1_0 = "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.0//EN";
-	public static final String SYSTEM_ID_1_0 = "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_0.dtd";
+  public static final String QUALIFIED_NAME = "resource-adaptor-type-jar";
+  public static final String PUBLIC_ID_1_0 = "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.0//EN";
+  public static final String SYSTEM_ID_1_0 = "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_0.dtd";
 
-    public static final String PUBLIC_ID_1_1 = "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.1//EN";
-    public static final String SYSTEM_ID_1_1 = "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_1.dtd";
+  public static final String PUBLIC_ID_1_1 = "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.1//EN";
+  public static final String SYSTEM_ID_1_1 = "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_1.dtd";
 
-    public static final String PUBLIC_ID = PUBLIC_ID_1_1;
-    public static final String SYSTEM_ID = SYSTEM_ID_1_1;
+  public static final String PUBLIC_ID = PUBLIC_ID_1_1;
+  public static final String SYSTEM_ID = SYSTEM_ID_1_1;
 
-    public ResourceAdaptorTypeJarXML(EntityResolver resolver, InputSource dummyXML) throws ParserConfigurationException {
-		super(QUALIFIED_NAME, PUBLIC_ID, SYSTEM_ID, resolver);
-		readDTDVia(resolver, dummyXML);
-	}
-	
-	/**
-	 * Parse the provided InputStream as though it contains JAIN SLEE Profile Specification XML Data.
-	 * @param stream
-	 */
-	
-	public ResourceAdaptorTypeJarXML(InputStream stream, EntityResolver resolver, InputSource dummyXML) throws SAXException, IOException, ParserConfigurationException {
-		super(stream, resolver);			
+  public ResourceAdaptorTypeJarXML(EntityResolver resolver, InputSource dummyXML) throws ParserConfigurationException {
+    super(QUALIFIED_NAME, PUBLIC_ID, SYSTEM_ID, resolver);
+    readDTDVia(resolver, dummyXML);
+  }
 
-		// Verify that this is really an ratype-jar XML file.
-		if (!getRoot().getNodeName().equals(QUALIFIED_NAME))
-			throw new SAXException("This was not a resource adaptor type jar XML file.");
+  /**
+   * Parse the provided InputStream as though it contains JAIN SLEE Profile Specification XML Data.
+   * @param stream
+   */
 
-		readDTDVia(resolver, dummyXML);
-	}
+  public ResourceAdaptorTypeJarXML(InputStream stream, EntityResolver resolver, InputSource dummyXML) throws SAXException, IOException, ParserConfigurationException {
+    super(stream, resolver);			
 
-	
-	public ResourceAdaptorTypeXML[] getResourceAdaptorTypes() {
-		Element elements[] = getNodes("resource-adaptor-type-jar/resource-adaptor-type");
-		ResourceAdaptorTypeXML ratypes[] = new ResourceAdaptorTypeXML[elements.length];
-		for (int i = 0; i < elements.length; i++)
-			ratypes[i] = new ResourceAdaptorTypeXML(document, elements[i], dtd);
-		
-		return ratypes;		
-	}
-	
-	public ResourceAdaptorTypeXML getResourceAdaptorType(String name, String vendor, String version) throws ComponentNotFoundException {
-		ResourceAdaptorTypeXML ratypes[] = getResourceAdaptorTypes();
-		for (int i = 0; i < ratypes.length; i++) {
-			ResourceAdaptorTypeXML ratype = ratypes[i];
-			
-			if (name.equals(ratype.getName())
-					&& vendor.equals(ratype.getVendor())
-					&& version.equals(ratype.getVersion()))
-					return ratype;
-		}
+    // Verify that this is really an ratype-jar XML file.
+    if (!getRoot().getNodeName().equals(QUALIFIED_NAME))
+      throw new SAXException("This was not a resource adaptor type jar XML file.");
 
-		throw new ComponentNotFoundException("Unable to find specified RA Type.");
+    readDTDVia(resolver, dummyXML);
+  }
 
-	}
-	
-	public ResourceAdaptorTypeXML addResourceAdaptorType() {	
-		Element child = addElement(getRoot(), "resource-adaptor-type");
-		return new ResourceAdaptorTypeXML(document, child, dtd);
-	}
-	
-	public void removeResourceAdaptorType(ResourceAdaptorTypeXML ratype) {
-		ratype.getRoot().getParentNode().removeChild(ratype.getRoot());
-	}
-	
-	public String toString() {
-		String output = "";
-		ResourceAdaptorTypeXML ratypes[] = getResourceAdaptorTypes();
-		for (int i = 0; i < ratypes.length; i++) {
-			if (i > 0)
-				output += ", ";
-			output += "[" + ratypes[i].toString() + "]";
-		}
-		return output;
-	}
+
+  public ResourceAdaptorTypeXML[] getResourceAdaptorTypes() {
+    Element elements[] = getNodes("resource-adaptor-type-jar/resource-adaptor-type");
+    ResourceAdaptorTypeXML ratypes[] = new ResourceAdaptorTypeXML[elements.length];
+    for (int i = 0; i < elements.length; i++)
+      ratypes[i] = new ResourceAdaptorTypeXML(document, elements[i], dtd);
+
+    return ratypes;		
+  }
+
+  public ResourceAdaptorTypeXML getResourceAdaptorType(String className) throws ComponentNotFoundException {
+    ResourceAdaptorTypeXML[] raTypes = getResourceAdaptorTypes();
+    for (ResourceAdaptorTypeXML raType : raTypes) {
+      ResourceAdaptorTypeClassesXML raTypeClasses = raType.getResourceAdaptorTypeClasses();
+      if (className.equals(raTypeClasses.getActivityContextInterfaceFactoryInterface())) {
+        return raType;
+      }
+      if (className.equals(raTypeClasses.getResourceAdaptorInterface())) {
+        return raType;
+      }
+      for(String raTypeActivities : raTypeClasses.getActivityTypes()) {
+        if (className.equals(raTypeActivities)) {
+          return raType;
+        }
+      }
+    }
+
+    throw new ComponentNotFoundException("Unable to find specified Resource Adaptor Type.");
+  }
+
+  public ResourceAdaptorTypeXML getResourceAdaptorType(String name, String vendor, String version) throws ComponentNotFoundException {
+    ResourceAdaptorTypeXML ratypes[] = getResourceAdaptorTypes();
+    for (int i = 0; i < ratypes.length; i++) {
+      ResourceAdaptorTypeXML ratype = ratypes[i];
+
+      if (name.equals(ratype.getName())
+          && vendor.equals(ratype.getVendor())
+          && version.equals(ratype.getVersion()))
+        return ratype;
+    }
+
+    throw new ComponentNotFoundException("Unable to find specified RA Type.");
+
+  }
+
+  public ResourceAdaptorTypeXML addResourceAdaptorType() {	
+    Element child = addElement(getRoot(), "resource-adaptor-type");
+    return new ResourceAdaptorTypeXML(document, child, dtd);
+  }
+
+  public void removeResourceAdaptorType(ResourceAdaptorTypeXML ratype) {
+    ratype.getRoot().getParentNode().removeChild(ratype.getRoot());
+  }
+
+  public String toString() {
+    String output = "";
+    ResourceAdaptorTypeXML ratypes[] = getResourceAdaptorTypes();
+    for (int i = 0; i < ratypes.length; i++) {
+      if (i > 0)
+        output += ", ";
+      output += "[" + ratypes[i].toString() + "]";
+    }
+    return output;
+  }
 
 }

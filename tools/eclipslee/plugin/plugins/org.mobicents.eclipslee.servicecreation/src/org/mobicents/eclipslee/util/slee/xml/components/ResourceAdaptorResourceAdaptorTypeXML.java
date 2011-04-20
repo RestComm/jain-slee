@@ -45,36 +45,22 @@ public class ResourceAdaptorResourceAdaptorTypeXML extends DTDXML {
   }
 
   public String getName() {
-    Element raTypeRef = getChild(getRoot(), "resource-adaptor-type-ref");
-    if (raTypeRef == null) return null;
-    return getChildText(raTypeRef, "resource-adaptor-type-name");
+    return getChildText(getRoot(), "resource-adaptor-type-name");
   }
 
   public void setVendor(String vendor) {
-    Element raTypeRef = getChild(getRoot(), "resource-adaptor-type-ref");
-    if (raTypeRef == null)
-      raTypeRef = addElement(getRoot(), "resource-adaptor-type-ref");
-
-    setChildText(raTypeRef, "resource-adaptor-type-vendor", vendor);		
+    setChildText(getRoot(), "resource-adaptor-type-vendor", vendor);		
   }
 
   public String getVendor() {
-    Element raTypeRef = getChild(getRoot(), "resource-adaptor-type-ref");
-    if (raTypeRef == null) return null;
-    return getChildText(raTypeRef, "resource-adaptor-type-vendor");
+    return getChildText(getRoot(), "resource-adaptor-type-vendor");
   }
 
   public void setVersion(String version) {
-    Element raTypeRef = getChild(getRoot(), "resource-adaptor-type-ref");
-    if (raTypeRef == null)
-      raTypeRef = addElement(getRoot(), "resource-adaptor-type-ref");
-
-    setChildText(raTypeRef, "resource-adaptor-type-version", version);		
+    setChildText(getRoot(), "resource-adaptor-type-version", version);		
   }
 
   public String getVersion() {
-    Element raTypeRef = getChild(getRoot(), "resource-adaptor-type-ref");
-    if (raTypeRef == null) return null;
-    return getChildText(raTypeRef, "resource-adaptor-type-version");
+    return getChildText(getRoot(), "resource-adaptor-type-version");
   }	
 }

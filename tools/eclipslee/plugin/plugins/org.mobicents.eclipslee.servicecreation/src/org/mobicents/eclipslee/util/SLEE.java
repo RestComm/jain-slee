@@ -51,19 +51,19 @@ public class SLEE {
 	}
 	
 	public static String getName(String profileID) {
-		StringTokenizer tok = new StringTokenizer(profileID, ",");
+		StringTokenizer tok = new StringTokenizer(profileID.replaceAll(", ", ",").replaceAll(" ,", ","), ",");
 		return tok.nextToken(); // name, version, vendor
 	}
 	
 	public static String getVendor(String profileID) {
-		StringTokenizer tok = new StringTokenizer(profileID, ",");
+    StringTokenizer tok = new StringTokenizer(profileID.replaceAll(", ", ",").replaceAll(" ,", ","), ",");
 		tok.nextToken();
 		tok.nextToken();
 		return tok.nextToken(); // name, version, vendor
 	}
 	
 	public static String getVersion(String profileID) {
-		StringTokenizer tok = new StringTokenizer(profileID, ",");
+    StringTokenizer tok = new StringTokenizer(profileID.replaceAll(", ", ",").replaceAll(" ,", ","), ",");
 		tok.nextToken();
 		return tok.nextToken(); // name, version, vendor
 	}

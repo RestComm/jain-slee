@@ -95,6 +95,16 @@ public class ResourceAdaptorConfigPropertiesPanel extends Composite {
   }
 
   public void addRow(HashMap map) {
+    String typeName = (String) map.get("Type");
+    // we need to convert from type to the corresponding int
+    String[] items = ((ComboBoxCellEditor)tablePanel.getTableViewer().getCellEditors()[1]).getItems();
+    for(int i = 0; i < items.length; i++) {
+      if(items[i].equals(typeName)) {
+        map.remove("Type");
+        map.put("Type", i);
+      }
+    }
+
     tablePanel.addRow(map);
   }
 

@@ -24,6 +24,7 @@ import org.w3c.dom.Element;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ResourceAdaptorTypeClassesXML extends DTDXML {
 
@@ -45,7 +46,7 @@ public class ResourceAdaptorTypeClassesXML extends DTDXML {
 	}
 	
 	public String[] getActivityTypes() {
-		Element nodes[] = getNodes("resource-adaptor-type/activity-type");
+		Element nodes[] = getNodes("resource-adaptor-type-classes/activity-type");
 		String types[] = new String[nodes.length];
 		for (int i = 0; i < nodes.length; i++)
 			types[i] = getChildText(nodes[i], "activity-type-name");
@@ -53,7 +54,7 @@ public class ResourceAdaptorTypeClassesXML extends DTDXML {
 	}
 	
 	public void removeActivityType(String name) {
-		Element nodes[] = getNodes("resource-adaptor-type/activity-type");
+		Element nodes[] = getNodes("resource-adaptor-type-classes/activity-type");
 		for (int i = 0; i < nodes.length; i++) {
 			if (getChildText(nodes[i], "activity-type-name").equals(name)) {
 				nodes[i].getParentNode().removeChild(nodes[i]);

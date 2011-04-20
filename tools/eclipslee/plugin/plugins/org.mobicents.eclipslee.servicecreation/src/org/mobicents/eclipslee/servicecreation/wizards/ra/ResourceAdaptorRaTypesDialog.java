@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.eclipslee.servicecreation.wizards.ratype;
+package org.mobicents.eclipslee.servicecreation.wizards.ra;
 
 import java.util.HashMap;
 
@@ -28,26 +28,26 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.mobicents.eclipslee.servicecreation.ui.RaTypeEventsPanel;
+import org.mobicents.eclipslee.servicecreation.ui.ResourceAdaptorRaTypesPanel;
 import org.mobicents.eclipslee.servicecreation.util.BaseFinder;
-import org.mobicents.eclipslee.servicecreation.util.EventFinder;
+import org.mobicents.eclipslee.servicecreation.util.ResourceAdaptorTypeFinder;
 import org.mobicents.eclipslee.util.slee.xml.DTDXML;
-import org.mobicents.eclipslee.util.slee.xml.components.EventXML;
-import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeEventXML;
-import org.mobicents.eclipslee.xml.EventJarXML;
+import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorResourceAdaptorTypeXML;
+import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeXML;
+import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 
 /**
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class RaTypeEventsDialog extends Dialog {
+public class ResourceAdaptorRaTypesDialog extends Dialog {
 
-  private static final String DIALOG_TITLE = "Select Events fired by Resource Adaptor Type";
+  private static final String DIALOG_TITLE = "Select the Resource Adaptor Types that this Resource implements";
 
-  public RaTypeEventsDialog(Shell parent, ResourceAdaptorTypeEventXML[] selectedEvents, String projectName) {
+  public ResourceAdaptorRaTypesDialog(Shell parent, ResourceAdaptorResourceAdaptorTypeXML[] selectedRaTypes, String projectName) {
     super(parent);
     setBlockOnOpen(true);
-    setEvents(selectedEvents);
+    setRaTypes(selectedRaTypes);
     this.projectName = projectName;
     parent.setSize(640, 480);
   }
@@ -55,21 +55,21 @@ public class RaTypeEventsDialog extends Dialog {
   protected Control createDialogArea(Composite parent) {
     Composite composite = (Composite) super.createDialogArea(parent);
 
-    panel = new RaTypeEventsPanel(composite, 0, null);
+    panel = new ResourceAdaptorRaTypesPanel(composite, 0, null);
 
-    // Find all available events.
-    DTDXML xml[] = EventFinder.getDefault().getComponents(BaseFinder.ALL/* BINARY */, projectName);
+    // Find all available ratypes.
+    DTDXML xml[] = ResourceAdaptorTypeFinder.getDefault().getComponents(BaseFinder.ALL/* BINARY */, projectName);
     for (int i = 0; i < xml.length; i++) {
-      EventJarXML ev = (EventJarXML) xml[i];
-      EventXML[] events = ev.getEvents();
-      for (int j = 0; j < events.length; j++) {
-        panel.addEvent(ev, events[j]);
+      ResourceAdaptorTypeJarXML raTypeJar = (ResourceAdaptorTypeJarXML) xml[i];
+      ResourceAdaptorTypeXML[] raTypes = raTypeJar.getResourceAdaptorTypes();
+      for (int j = 0; j < raTypes.length; j++) {
+        panel.addResourceAdaptorType(raTypeJar, raTypes[j]);
       }
     }
 
-    // Foreach selected event, select it (and remove from available)
-    for (int i = 0; i < selectedEvents.length; i++) {
-      panel.select((HashMap) selectedEvents[i]);
+    // Foreach selected ra type, select it (and remove from available)
+    for (int i = 0; i < selectedRaTypes.length; i++) {
+      panel.select((HashMap) selectedRaTypes[i]);
     }
 
     panel.repack();
@@ -88,26 +88,26 @@ public class RaTypeEventsDialog extends Dialog {
   }
 
   public void okPressed() {
-    selectedEvents = panel.getSelectedEvents();
+    selectedRaTypes = panel.getSelectedRaTypes();
     super.okPressed();
   }
 
-  public HashMap[] getSelectedEvents() {
-    return selectedEvents;
+  public HashMap[] getSelectedRaTypes() {
+    return selectedRaTypes;
   }
 
-  private void setEvents(ResourceAdaptorTypeEventXML[] events) {
-    selectedEvents = new HashMap[events.length];
+  private void setRaTypes(ResourceAdaptorResourceAdaptorTypeXML[] raTypes) {
+    selectedRaTypes = new HashMap[raTypes.length];
 
-    for (int i = 0; i < events.length; i++) {
-      selectedEvents[i] = new HashMap<String, String>();
-      selectedEvents[i].put("Name", events[i].getName());
-      selectedEvents[i].put("Vendor", events[i].getVendor());
-      selectedEvents[i].put("Version", events[i].getVersion());
+    for (int i = 0; i < raTypes.length; i++) {
+      selectedRaTypes[i] = new HashMap<String, String>();
+      selectedRaTypes[i].put("Name", raTypes[i].getName());
+      selectedRaTypes[i].put("Vendor", raTypes[i].getVendor());
+      selectedRaTypes[i].put("Version", raTypes[i].getVersion());
     }
   }
 
-  private RaTypeEventsPanel panel;
-  private HashMap<String, String>[] selectedEvents;
+  private ResourceAdaptorRaTypesPanel panel;
+  private HashMap<String, String>[] selectedRaTypes;
   private String projectName;
 }

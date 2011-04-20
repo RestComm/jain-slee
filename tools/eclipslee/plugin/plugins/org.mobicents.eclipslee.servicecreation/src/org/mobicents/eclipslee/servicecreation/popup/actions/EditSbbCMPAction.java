@@ -68,17 +68,21 @@ public class EditSbbCMPAction implements IObjectActionDelegate {
 			return;
 		}
 		
+		// To allow renaming, we need to keep a copy previous to any changes
+		HashMap[] originalCMPFields = new HashMap[initialCMPFields.length];
+		for(int i = 0; i < initialCMPFields.length; i++) {
+	    originalCMPFields[i] = (HashMap) initialCMPFields[i].clone();
+		}
+		
 		if (dialog.open() == Window.OK) {
-			
 			try {
-				
 				IProgressMonitor monitor = null;
 				
 				HashMap cmpFields[] = dialog.getCMPFields();
 				
 				// Remove all initial set/get methods from the SBB abstract class.
-				for (int i = 0; i < initialCMPFields.length; i++) {
-					HashMap cmpField = initialCMPFields[i];
+				for (int i = 0; i < originalCMPFields.length; i++) {
+					HashMap cmpField = originalCMPFields[i];
 					
 					String methodName = "get" + Utils.capitalize((String) cmpField.get("Name"));
 					ClassUtil.removeMethodFromClass(abstractFile, methodName);

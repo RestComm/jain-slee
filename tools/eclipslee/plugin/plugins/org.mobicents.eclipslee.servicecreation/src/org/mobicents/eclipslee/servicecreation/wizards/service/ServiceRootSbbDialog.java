@@ -38,10 +38,11 @@ import org.mobicents.eclipslee.xml.SbbJarXML;
 
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ServiceRootSbbDialog extends Dialog implements Listener {
 
-	private static final String DIALOG_TITLE = "Modify SBB Events";
+	private static final String DIALOG_TITLE = "Modify Service Root SBB";
 	
 	public ServiceRootSbbDialog(Shell parent, Service service, String projectName) {	
 		super(parent);			
@@ -59,7 +60,7 @@ public class ServiceRootSbbDialog extends Dialog implements Listener {
 			public void run() {
 				
 				// Get all available SBBs, then add only the possible root SBBs
-				DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.JARS, projectName);
+				DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.ALL/*BaseFinder.JARS*/, projectName);
 				for (int i = 0; i < xml.length; i++) {
 					SbbJarXML jarXML = (SbbJarXML) xml[i];			
 					SbbXML sbbs[] = jarXML.getSbbs();

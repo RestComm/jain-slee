@@ -71,7 +71,7 @@ public class EventXML extends DTDXML {
 	}
 	
 	public String toString() {
-		return "Event: " + getName() + "," + getVersion() + "," + getVendor();
+		return "Event: " + getName() + ", " + getVersion() + ", " + getVendor();
 	}
 	
 }

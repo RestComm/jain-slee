@@ -60,7 +60,7 @@ public class EditSbbIdentityAction implements IObjectActionDelegate {
 		initialize();
 		
 		if (dialog == null) {
-			MessageDialog.openError(new Shell(), "Error Modifying Profile Specification", getLastError());
+			MessageDialog.openError(new Shell(), "Error Modifying Service Building Block", getLastError());
 			return;
 		}
 		
@@ -86,10 +86,9 @@ public class EditSbbIdentityAction implements IObjectActionDelegate {
 	}
 	
 	/**
-	 * Get the EventXML data object for the current selection.
+	 * Get the SbbXML data object for the current selection.
 	 *
 	 */
-	
 	private void initialize() {
 		
 		dialog = null;
@@ -97,18 +96,18 @@ public class EditSbbIdentityAction implements IObjectActionDelegate {
 		sbbXML = null;
 		
 		if (selection == null && selection.isEmpty()) {
-			setLastError("Please select an Event's Java or XML file first.");
+			setLastError("Please select a Service Building Block's Java or XML file first.");
 			return;
 		}
 		
 		if (!(selection instanceof IStructuredSelection)) {
-			setLastError("Please select an Event's Java or XML file first.");
+			setLastError("Please select a Service Building Block's Java or XML file first.");
 			return;			
 		}
 		
 		IStructuredSelection ssel = (IStructuredSelection) selection;
 		if (ssel.size() > 1) {
-			setLastError("This plugin only supports editing of one profile specification at a time.");
+			setLastError("This plugin only supports editing of one service building block at a time.");
 			return;
 		}
 		
@@ -146,7 +145,7 @@ public class EditSbbIdentityAction implements IObjectActionDelegate {
 					return;
 				}
 				
-				// Set 'file' to the ProfileSpecJar XML file, not the Java file.			
+				// Set 'file' to the SbbJar XML file, not the Java file.			
 				xmlFile = SbbFinder.getSbbJarXMLFile(unit);
 			} else { // XML file
 				
@@ -174,7 +173,7 @@ public class EditSbbIdentityAction implements IObjectActionDelegate {
 			return;
 		}		
 		
-		// Open a dialog allowing the user to edit the Event's identity.
+		// Open a dialog allowing the user to edit the SBB's identity.
 		dialog = new IdentityDialog(new Shell(), 
 				sbb.getName(),
 				sbb.getVendor(),

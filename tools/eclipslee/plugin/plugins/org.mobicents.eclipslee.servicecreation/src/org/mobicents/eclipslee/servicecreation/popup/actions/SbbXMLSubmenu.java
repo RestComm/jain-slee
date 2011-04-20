@@ -125,7 +125,7 @@ public class SbbXMLSubmenu implements IObjectActionDelegate, IMenuCreator {
 					
 					Menu child = new Menu(parent);
 					MenuItem item = new MenuItem(parent, SWT.CASCADE);
-					item.setText(sbbs[i].getName() + "," + sbbs[i].getVersion() + "," + sbbs[i].getVendor());
+					item.setText(sbbs[i].getName() + ", " + sbbs[i].getVersion() + ", " + sbbs[i].getVendor());
 					item.setMenu(child);
 					
 					item = new MenuItem(child, SWT.NONE);

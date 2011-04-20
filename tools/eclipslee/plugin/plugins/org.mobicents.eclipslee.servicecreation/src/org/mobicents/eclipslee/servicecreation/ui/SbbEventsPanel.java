@@ -38,6 +38,7 @@ import org.mobicents.eclipslee.xml.EventJarXML;
 
 /**
  * @author allenc
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbEventsPanel extends Composite implements SelectionListener {
 
@@ -160,16 +161,18 @@ public class SbbEventsPanel extends Composite implements SelectionListener {
 	
 	}
 	
-	public void setBlockingError(String error)
-	{
-		wizardPage.setErrorMessage(error);
-		wizardPage.setPageComplete(false);
+	public void setBlockingError(String error) {
+	  if(wizardPage != null) {
+	    wizardPage.setErrorMessage(error);
+	    wizardPage.setPageComplete(false);
+	  }
 	}
-	
-	public void unsetBlockingError()
-	{
-		wizardPage.setErrorMessage(null);
-		wizardPage.setPageComplete(true);
+
+	public void unsetBlockingError() {
+	  if(wizardPage != null) {
+	    wizardPage.setErrorMessage(null);
+	    wizardPage.setPageComplete(true);
+	  }
 	}
 	
 	private void validateSelectedEvents()
@@ -309,11 +312,10 @@ public class SbbEventsPanel extends Composite implements SelectionListener {
 	public void update() {
 		super.update();
 		
-		if (wizardPage != null)
+		if (wizardPage != null) {
 			wizardPage.dialogChanged();
-		
+		}
 	}
-	
 	
 	private EditableTableViewer availableEvents;
 	private EditableTableViewer selectedEvents;

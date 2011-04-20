@@ -152,7 +152,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
         
         ResourceAdaptorTypeJarXML raTypeJarXML = (ResourceAdaptorTypeJarXML) raType.get("XML");
         ResourceAdaptorTypeXML raTypeXML = raTypeJarXML.getResourceAdaptorType(raTypeName, raTypeVendor, raTypeVersion);
-        raTypeResourceAdaptorInterfaces.add(raTypeXML.getResourceAdaptorTypeClasses()[0].getResourceAdaptorInterface());
+        raTypeResourceAdaptorInterfaces.add(raTypeXML.getResourceAdaptorTypeClasses().getResourceAdaptorInterface());
       }
       
       String subConfigProperties = "";
@@ -183,7 +183,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
         else if (configPropertyType.equals("java.lang.Boolean")) {
           value = configPropertyDefaultValue.toLowerCase();
         }
-        else if (configPropertyType.equals("java.lang.Boolean")) {
+        else {
           value = configPropertyDefaultValue;
         }
         String simpleType = configPropertyType.replaceAll("java\\.lang\\.", "");
@@ -212,21 +212,23 @@ public class ResourceAdaptorWizard extends BaseWizard {
       // Create Provider Impls
       String subGetResourceAdaptorInterfaceImpl = "";
       for(String raTypeResourceAdaptorInterface : raTypeResourceAdaptorInterfaces) {
-        String pakkage = raTypeResourceAdaptorInterface.substring(0, raTypeResourceAdaptorInterface.lastIndexOf('.'));
-        String clazz = raTypeResourceAdaptorInterface.replace(pakkage + ".", "");
-        
-        String raTypeRaInterfaceImplFilename = clazz + "Impl.java";
-        
-        subs.put("__PROVIDER_NAME__", clazz);
-        
-        subs.put("__PROVIDER_IMPORTS__", "import " + raTypeResourceAdaptorInterface + ";");
-        subs.put("__PROVIDER_METHODS__", "  // TODO: Fill with proper methods...");
-        IFile raTypeRaInterfaceImplFile = FileUtil.createFromTemplate(folder, new Path(raTypeRaInterfaceImplFilename), new Path(RESOURCE_ADAPTOR_PROVIDER_IMPL_TEMPLATE), subs, monitor);
-        raTypeRaInterfaceImplFiles.add(raTypeRaInterfaceImplFile);
+        if(raTypeResourceAdaptorInterface != null) {
+          String pakkage = raTypeResourceAdaptorInterface.substring(0, raTypeResourceAdaptorInterface.lastIndexOf('.'));
+          String clazz = raTypeResourceAdaptorInterface.replace(pakkage + ".", "");
 
-        subGetResourceAdaptorInterfaceImpl += ("if(\"" + raTypeResourceAdaptorInterface + "\".equals(className)) {\n" +
-            "\t\t\treturn new " + clazz + "Impl();\n" +
-            "\t\t}\n");
+          String raTypeRaInterfaceImplFilename = clazz + "Impl.java";
+
+          subs.put("__PROVIDER_NAME__", clazz);
+
+          subs.put("__PROVIDER_IMPORTS__", "import " + raTypeResourceAdaptorInterface + ";");
+          subs.put("__PROVIDER_METHODS__", "  // TODO: Fill with proper methods...");
+          IFile raTypeRaInterfaceImplFile = FileUtil.createFromTemplate(folder, new Path(raTypeRaInterfaceImplFilename), new Path(RESOURCE_ADAPTOR_PROVIDER_IMPL_TEMPLATE), subs, monitor);
+          raTypeRaInterfaceImplFiles.add(raTypeRaInterfaceImplFile);
+
+          subGetResourceAdaptorInterfaceImpl += ("if(\"" + raTypeResourceAdaptorInterface + "\".equals(className)) {\n" +
+              "\t\t\treturn new " + clazz + "Impl();\n" +
+          "\t\t}\n");
+        }
       }
       
       subGetResourceAdaptorInterfaceImpl += "\n\t\treturn null;";
