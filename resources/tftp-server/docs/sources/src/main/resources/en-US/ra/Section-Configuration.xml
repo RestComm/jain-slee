@@ -37,8 +37,4 @@
 	 	</tgroup>
 	</table>		
 
-	<important>
-		<para>JAIN SLEE 1.1 Specification requires values set for properties without a default value, which means the configuration for those properties are mandatory, otherwise the Resource Adaptor Entity creation will fail!</para>
-	</important>
-
 </section>

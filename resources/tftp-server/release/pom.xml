@@ -3,12 +3,12 @@
 	<packaging>pom</packaging>
 
 	<parent>
-		<artifactId>tftp-server</artifactId>
+		<artifactId>mobicents-slee-ra-tftp-server</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>1.0.0.FINAL</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>tftp-server-ra-release</artifactId>
+	<artifactId>mobicents-slee-ra-tftp-server-ra-release</artifactId>
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 
 	<profiles>

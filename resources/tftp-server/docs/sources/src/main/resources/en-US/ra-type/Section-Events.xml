@@ -30,38 +30,38 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>net.java.slee.resource.tftp.events.incoming.request.READ</entry>
+					<entry>net.java.slee. resource.tftp.events. incoming.request.READ</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.tftp.events.RequestEvent</entry>					
+					<entry>net.java.slee. resource.tftp.events. RequestEvent</entry>					
 					<entry>An incoming <literal>READ</literal> TFTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.tftp.events.incoming.request.WRITE</entry>
+					<entry>net.java.slee. resource.tftp.events. incoming.request.WRITE</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.tftp.events.RequestEvent</entry>					
+					<entry>net.java.slee. resource.tftp.events. RequestEvent</entry>					
 					<entry>An incoming <literal>WRITE</literal> TFTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.tftp.events.incoming.request.DATA</entry>
+					<entry>net.java.slee. resource.tftp.events. incoming.request.DATA</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.tftp.events.RequestEvent</entry>					
+					<entry>net.java.slee. resource.tftp.events. RequestEvent</entry>					
 					<entry>An incoming TFTP <literal>DATA</literal> block.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.tftp.events.incoming.request.ACK</entry>
+					<entry>net.java.slee. resource.tftp.events. incoming.request.ACK</entry>
 					<entry>net.java. slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.tftp.events.RequestEvent</entry>					
+					<entry>net.java.slee. resource.tftp.events. RequestEvent</entry>					
 					<entry>An incoming TFTP <literal>ACK</literal>.</entry>
 				</row>
 	 			<row>
-					<entry>net.java.slee.resource.tftp.events.incoming.request.ERROR</entry>
+					<entry>net.java.slee. resource.tftp.events. incoming.request.ERROR</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.tftp.events.RequestEvent</entry>					
+					<entry>net.java.slee. resource.tftp.events. RequestEvent</entry>					
 					<entry>An incoming TFTP <literal>ERROR</literal> block.</entry>
 				</row>
 			</tbody>

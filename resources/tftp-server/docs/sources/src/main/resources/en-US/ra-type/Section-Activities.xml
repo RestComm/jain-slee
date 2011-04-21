@@ -42,7 +42,7 @@ public interface TransferActivity {
 			</listitem>
 		</varlistentry>
      	<varlistentry>
-			<term>The <literal>getInutStream()</literal> method:</term>
+			<term>The <literal>getInputStream()</literal> method:</term>
 			<listitem>
 				<para>Retrieves the data stream of the TFTP write request.</para>
 			</listitem>
@@ -54,15 +54,21 @@ public interface TransferActivity {
 			</listitem>
 		</varlistentry>
      	<varlistentry>
-			<term>The <literal>receiveFile()</literal> method:</term>
+			<term>The <literal>receiveFile(...)</literal> methods:</term>
 			<listitem>
 				<para>Stores the data of the TFTP write request in the given file.</para>
 			</listitem>
 		</varlistentry>
      	<varlistentry>
-			<term>The <literal>sendFile()</literal> method:</term>
+			<term>The <literal>sendFile(...)</literal> methods:</term>
 			<listitem>
 				<para>Sends the content of the given file to the TFTP client that initiated the TFTP read request.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>sendError(int, String)</literal> methods:</term>
+			<listitem>
+				<para>Sends an error to the TFTP client that initiated the TFTP read request.</para>
 			</listitem>
 		</varlistentry>
 	</variablelist>

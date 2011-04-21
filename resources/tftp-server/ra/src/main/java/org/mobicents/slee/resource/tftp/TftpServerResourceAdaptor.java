@@ -15,7 +15,6 @@ import javax.slee.resource.FailureReason;
 import javax.slee.resource.FireEventException;
 import javax.slee.resource.FireableEventType;
 import javax.slee.resource.IllegalEventException;
-import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
@@ -23,7 +22,6 @@ import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
 import javax.slee.resource.StartActivityException;
 import javax.slee.resource.UnrecognizedActivityHandleException;
-
 
 import net.java.slee.resource.tftp.TransferActivity;
 import net.java.slee.resource.tftp.events.RequestEvent;
@@ -144,13 +142,13 @@ public class TftpServerResourceAdaptor implements ResourceAdaptor, Runnable {
 		}
 	}
 
-	public void raStopping() { ; }
+	public void raStopping() { }
 
 	public void raInactive() {
 		shutdown();
 	}
 
-	public void raUnconfigure() { ; }
+	public void raUnconfigure() { }
 
 	public void unsetResourceAdaptorContext() {
 		raContext = null;
@@ -163,20 +161,8 @@ public class TftpServerResourceAdaptor implements ResourceAdaptor, Runnable {
 
 	// config management methods
 	public void raVerifyConfiguration(ConfigProperties properties)
-			throws javax.slee.resource.InvalidConfigurationException {
-		ConfigProperties.Property property = properties.getProperty(PORT_CONFIG_PROPERTY);
-		if (property != null) {
-			if (!property.getType().equals(Integer.class.getName())) {
-				throw new InvalidConfigurationException(
-						"port must be of type java.lang.Integer");
-			}
-			if (property.getValue() == null) {
-				// don't think this can happen, but just to be sure
-				throw new InvalidConfigurationException(
-						"port must not have a null value");
-			}
-		}
-	};
+			throws javax.slee.resource.InvalidConfigurationException {		
+	}
 
 	public void raConfigurationUpdate(ConfigProperties properties) {
 		throw new UnsupportedOperationException();

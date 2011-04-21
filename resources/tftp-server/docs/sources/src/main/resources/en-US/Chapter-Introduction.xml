@@ -6,6 +6,6 @@
 
 	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
 
-	<para>This Resource Adaptor enables an application -developed using a Service Building Block hosted in a SLEE container- to intercept TFTP requests and send or receive data using same TFTP protocol. Likewise, it enables that application to receive or send complete files. Thus, the application can combine serving static content through file transfer with serving dynamic content by relaying data from back-end systems.</para>
+	<para>This Resource Adaptor enables an application - developed using a Service Building Block hosted in a SLEE container - to intercept TFTP requests and send or receive data using same TFTP protocol. Likewise, it enables that application to receive or send complete files. Thus, the application can combine serving static content through file transfer with serving dynamic content by relaying data from back-end systems.</para>
 	
 </chapter>

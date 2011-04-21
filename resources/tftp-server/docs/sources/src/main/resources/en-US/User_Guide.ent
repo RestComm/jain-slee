@@ -18,3 +18,5 @@ If this final separator is missing, then the documentation will be wrong. -->
 <!ENTITY THIS.ISSUE_TRACKER_URL "${THIS.ISSUE_TRACKER_URL}">
 <!ENTITY THIS.RELEASE_SOURCE_CODE_URL "${THIS.RELEASE_SOURCE_CODE_URL}">
 <!ENTITY THIS.TRUNK_SOURCE_CODE_URL "${THIS.TRUNK_SOURCE_CODE_URL}">
+<!ENTITY AUTHOR.EMAIL.TOM "${author.email.tom}">
+<!ENTITY AUTHOR.EMAIL.EDUARDO "${author.email.eduardo}">
