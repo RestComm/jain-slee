@@ -15,25 +15,5 @@
 	<name>Mobicents :: JAIN SLEE Tools :: EclipSLEE Plugins / org.mobicents.eclipslee.servicecreation</name>
 
 	<packaging>eclipse-plugin</packaging>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<groupId>org.mobicents.tools</groupId>
-				<inherited>false</inherited>
-				<executions />
-				<configuration>
-					<excludePoms />
-					<classpathExcludes>
-						<exclude>xml-apis:xml-apis</exclude>
-						<exclude>jtidy:jtidy</exclude>
-					</classpathExcludes>
-					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-tools-eclipslee-plugins</eclipseProjectName>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	
+
 </project>
