@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_ra_interface">
+
+	<title>Resource Adaptor Interface</title>
+
+	<para>The &THIS.RA; Resource Adaptor interface, of type <literal>org.mobicents.slee.resource.jdbc.JdbcResourceAdaptorSbbInterface</literal>, may be used by applications to create RA activities, and retrieve JDBC Connections, its interface is defined as follows:</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee.resource.jdbc;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.slee.resource.ResourceAdaptorTypeID;
+
+public interface JdbcResourceAdaptorSbbInterface {
+
+	public static final ResourceAdaptorTypeID RATYPE_ID;
+	
+	public JdbcActivity createActivity();
+
+	Connection getConnection() throws SQLException;
+
+	Connection getConnection(String username, String password)
+			throws SQLException;
+
+}]]>
+    </programlisting>
+    
+    <variablelist> 
+    <varlistentry>
+		<term>The <literal>createActivity()</literal> method:</term>
+		<listitem>
+			<para>Creates a new <literal>JdbcActivity</literal> instance.</para>
+		</listitem>
+	</varlistentry>
+	<varlistentry>
+		<term>The <literal>getConnection()</literal> method:</term>
+		<listitem>
+			<para>Retrieves a JDBC Connection, which may then be used to create statements (prepared or not). Note that the connection is closed automatically after each statement execution done through a JDBC activity, thus applications must not do it (unless the connection is retrieved but not used).</para>
+		</listitem>
+	</varlistentry>
+	<varlistentry>
+		<term>The <literal>getConnection(String, String)</literal> method:</term>
+		<listitem>
+			<para>Retrieves a JDBC Connection using username and password authentication, which may then be used to create statements (prepared or not). Note that the connection is closed automatically after each statement execution done through a JDBC activity, thus applications must not do it (unless the connection is retrieved but not used).</para>
+		</listitem>
+	</varlistentry>
+	</variablelist>
+	
+	<para>The &THIS.RA; Resource Adaptor interface also exposes a static RATYPE_ID field, containing the <literal>ResourceAdaptorTypeID</literal> of the Resource Adaptor Type it belongs, which may be used to retrieve the factory instance using the <literal>SbbContextExt</literal> JAIN SLEE 1.1 extension.</para>     
+	
+</section>

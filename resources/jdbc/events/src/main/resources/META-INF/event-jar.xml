@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN" "http://java.sun.com/dtd/slee-event-jar_1_1.dtd">
+
+<event-jar>
+
+	<!-- PREPARED STATEMENT EVENTS -->
+
+	<event-definition>
+		<event-type-name>PreparedStatementResultSetEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.slee.resource.jdbc.event.PreparedStatementResultSetEvent
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>PreparedStatementUpdateCountEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.slee.resource.jdbc.event.PreparedStatementUpdateCountEvent
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>PreparedStatementSQLExceptionEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.slee.resource.jdbc.event.PreparedStatementSQLExceptionEvent
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>PreparedStatementUnknownResultEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.slee.resource.jdbc.event.PreparedStatementUnknownResultEvent
+		</event-class-name>
+	</event-definition>
+
+
+	<!-- STATEMENT EVENTS -->
+
+	<event-definition>
+		<event-type-name>StatementResultSetEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.slee.resource.jdbc.event.StatementResultSetEvent
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>StatementUpdateCountEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.slee.resource.jdbc.event.StatementUpdateCountEvent
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>StatementSQLExceptionEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.slee.resource.jdbc.event.StatementSQLExceptionEvent
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>StatementUnknownResultEvent</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			org.mobicents.slee.resource.jdbc.event.StatementUnknownResultEvent
+		</event-class-name>
+	</event-definition>
+
+</event-jar>
+
+

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_aci_factory">
+
+	<title>Activity Context Interface Factory</title>
+
+	<para>The Resource Adaptor's Activity Context Interface Factory is of type <literal>org.mobicents.slee.resource.jdbc.JdbcActivityContextInterfaceFactory</literal>, it allows the SBB to retrieve the <literal>ActivityContextInterface</literal> related with a specific <literal>JdbcActivity</literal> instance. The interface is defined as follows:</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee.resource.jdbc;
+
+import javax.slee.ActivityContextInterface;
+import javax.slee.FactoryException;
+import javax.slee.UnrecognizedActivityException;
+import javax.slee.resource.ResourceAdaptorTypeID;
+
+public interface JdbcActivityContextInterfaceFactory {
+
+	public static final ResourceAdaptorTypeID RATYPE_ID;
+	
+	public ActivityContextInterface getActivityContextInterface(
+			JdbcActivity activity) throws UnrecognizedActivityException,
+			FactoryException;
+
+}
+]]>
+     </programlisting>
+     
+     <para>The Resource Adaptor's Activity Context Interface Factory exposes a static RATYPE_ID field, containing the <literal>ResourceAdaptorTypeID</literal> of the Resource Adaptor Type it belongs, which may be used to retrieve the factory instance using the <literal>SbbContextExt</literal> JAIN SLEE 1.1 extension.</para>     
+	
+</section>
