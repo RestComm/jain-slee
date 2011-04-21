@@ -16,6 +16,7 @@
 
 package org.mobicents.eclipslee.servicecreation.util;
 
+import java.io.File;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -51,6 +52,11 @@ public class EventFinder extends BaseFinder {
 		
 		try {
 			IContainer folder = unit.getCorrespondingResource().getParent();
+      // ammendonca: for maven we have XML at .../src/main/resources/META-INF, we are at .../src/main/java/<package>/...
+      while(!folder.getName().equals("main")) {
+        folder = folder.getParent();
+      }
+      folder = folder.getFolder(new Path("resources/META-INF"));
 			IResource children [] = folder.members(IResource.FILE);
 			
 			for (int i = 0; i < children.length; i++) {
@@ -89,6 +95,8 @@ public class EventFinder extends BaseFinder {
 			if (fname == null) return null;
 			IPath path = new Path(fname.replaceAll("\\.", "/") + ".java");
 			IFolder folder = getSourceFolder(xmlFile);
+      // ammendonca: we are at xxx/src/main/resources. move to xxx/src/main/java
+      folder = folder.getFolder(".." + File.separator + "java");
 			IFile file = folder.getFile(path);
 			if (file.exists()) return file;
 			return null;			
@@ -141,8 +149,13 @@ public class EventFinder extends BaseFinder {
 		try {
 			String clazzName = EclipseUtil.getClassName(unit);
 			
-			IContainer container = unit.getCorrespondingResource().getParent();
-			IResource children[] = container.members(IResource.FILE);
+			IContainer folder = unit.getCorrespondingResource().getParent();
+      // ammendonca: for maven we have XML at .../src/main/resources/META-INF, we are at .../src/main/java/<package>/...
+      while(!folder.getName().equals("main")) {
+        folder = folder.getParent();
+      }
+      folder = folder.getFolder(new Path("resources/META-INF"));
+			IResource children[] = folder.members(IResource.FILE);
 			
 			for (int i = 0; i < children.length; i++) {
 				IFile file = (IFile) children[i];
