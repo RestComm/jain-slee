@@ -21,48 +21,22 @@
  */
 package org.mobicents.slee.resource.cluster;
 
-import java.io.Serializable;
-
-import javax.slee.resource.ResourceAdaptor;
-
 /**
- * 
- * Abstract class for a fault tolerant JAIN SLEE 1.1 RA
+ * A factory which includes the logic that (re)creates
+ * {@link FaultTolerantTimerTask} instances, from its data. The factory is
+ * essential for the failover process of a task.
  * 
  * @author martins
  * 
  */
-public interface FaultTolerantResourceAdaptor<K extends Serializable, V extends Serializable>
-		extends ResourceAdaptor {
+public interface FaultTolerantTimerTaskFactory {
 
 	/**
-	 * Callback from SLEE when the local RA was selected to recover the state
-	 * for a replicated data key, which was owned by a cluster member that
-	 * failed
+	 * (Re)Creates a task, from its data.
 	 * 
-	 * @param key
+	 * @param data
+	 * @return
 	 */
-	public void failOver(K key);
+	public FaultTolerantTimerTask getTask(FaultTolerantTimerTaskData data);
 
-	/**
-	 * Optional callback from SLEE when the replicated data key was removed from
-	 * the cluster, this may be helpful when the local RA maintains local state.
-	 * 
-	 * @param key
-	 */
-	public void dataRemoved(K key);
-
-	/**
-	 * Invoked by SLEE to provide the fault tolerant context.
-	 * 
-	 * @param context
-	 */
-	public void setFaultTolerantResourceAdaptorContext(
-			FaultTolerantResourceAdaptorContext<K, V> context);
-
-	/**
-	 * Invoked by SLEE to indicate that any references to the fault tolerant
-	 * context should be removed.
-	 */
-	public void unsetFaultTolerantResourceAdaptorContext();
 }

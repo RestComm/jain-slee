@@ -21,48 +21,41 @@
  */
 package org.mobicents.slee.resource.cluster;
 
-import java.io.Serializable;
-
-import javax.slee.resource.ResourceAdaptor;
+import org.mobicents.timers.TimerTask;
 
 /**
- * 
- * Abstract class for a fault tolerant JAIN SLEE 1.1 RA
+ * Wrapps the FT RA timer task into the task used by Mobicents Cluster
+ * framework.
  * 
  * @author martins
  * 
  */
-public interface FaultTolerantResourceAdaptor<K extends Serializable, V extends Serializable>
-		extends ResourceAdaptor {
+public class FaultTolerantTimerTaskWrapper extends TimerTask {
 
 	/**
-	 * Callback from SLEE when the local RA was selected to recover the state
-	 * for a replicated data key, which was owned by a cluster member that
-	 * failed
 	 * 
-	 * @param key
 	 */
-	public void failOver(K key);
+	private final FaultTolerantTimerTask wrappedTask;
 
 	/**
-	 * Optional callback from SLEE when the replicated data key was removed from
-	 * the cluster, this may be helpful when the local RA maintains local state.
 	 * 
-	 * @param key
+	 * @param wrappedTask
+	 * @param data
 	 */
-	public void dataRemoved(K key);
+	public FaultTolerantTimerTaskWrapper(FaultTolerantTimerTask wrappedTask,
+			FaultTolerantTimerTaskDataWrapper data) {
+		super(data);
+		this.wrappedTask = wrappedTask;
+	}
 
-	/**
-	 * Invoked by SLEE to provide the fault tolerant context.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param context
+	 * @see org.mobicents.timers.TimerTask#runTask()
 	 */
-	public void setFaultTolerantResourceAdaptorContext(
-			FaultTolerantResourceAdaptorContext<K, V> context);
+	@Override
+	public void runTask() {
+		wrappedTask.run();
+	}
 
-	/**
-	 * Invoked by SLEE to indicate that any references to the fault tolerant
-	 * context should be removed.
-	 */
-	public void unsetFaultTolerantResourceAdaptorContext();
 }

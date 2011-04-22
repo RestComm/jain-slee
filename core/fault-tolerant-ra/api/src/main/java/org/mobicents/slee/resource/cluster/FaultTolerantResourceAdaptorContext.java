@@ -19,10 +19,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-/**
- * 
- */
 package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
@@ -37,29 +33,34 @@ import java.io.Serializable;
 public interface FaultTolerantResourceAdaptorContext<K extends Serializable, V extends Serializable> {
 
 	/**
-	 * Retrieves the address of the local node or null if not running in cluster mode. 
+	 * Retrieves the address of the local node or null if not running in cluster
+	 * mode.
+	 * 
 	 * @return
 	 */
 	public MemberAddress getLocalAddress();
-	
+
 	/**
 	 * Retrieves the members of the cluster.
+	 * 
 	 * @return
 	 */
 	public MemberAddress[] getMembers();
-	
+
 	/**
 	 * Indicates if it is the head member of the cluster.
+	 * 
 	 * @return true if isLocal() or the node is the first member of the cluster.
 	 */
-	public boolean isHeadMember(); 
-	
+	public boolean isHeadMember();
+
 	/**
 	 * Indicates if the node is the single member of the cluster.
+	 * 
 	 * @return true if isLocal() or the cluster has a single member.
 	 */
 	public boolean isSingleMember();
-	
+
 	/**
 	 * Indicates if the resource adaptor object is running in a local or cluster
 	 * config.
@@ -67,7 +68,7 @@ public interface FaultTolerantResourceAdaptorContext<K extends Serializable, V e
 	 * @return
 	 */
 	public boolean isLocal();
-	
+
 	/**
 	 * Retrieves the {@link ReplicatedData} for the
 	 * {@link FaultTolerantResourceAdaptor}
@@ -75,7 +76,8 @@ public interface FaultTolerantResourceAdaptorContext<K extends Serializable, V e
 	 * @param activateDataRemovedCallback
 	 * @return
 	 */
-	public ReplicatedData<K, V> getReplicateData(boolean activateDataRemovedCallback);
+	public ReplicatedData<K, V> getReplicateData(
+			boolean activateDataRemovedCallback);
 
 	/**
 	 * Retrieves the {@link ReplicatedDataWithFailover} for the
@@ -84,6 +86,17 @@ public interface FaultTolerantResourceAdaptorContext<K extends Serializable, V e
 	 * @param activateDataRemovedCallback
 	 * @return
 	 */
-	public ReplicatedDataWithFailover<K, V> getReplicatedDataWithFailover(boolean activateDataRemovedCallback);
+	public ReplicatedDataWithFailover<K, V> getReplicatedDataWithFailover(
+			boolean activateDataRemovedCallback);
+
+	/**
+	 * Retrieves the RA Entity fault tolerant timer, which may be used to
+	 * schedule the execution of fault tolerant timer tasks.
+	 * <p>
+	 * Each RA Entity has a single fault tolerant timer.
+	 * 
+	 * @return
+	 */
+	public FaultTolerantTimer getFaultTolerantTimer();
 
 }

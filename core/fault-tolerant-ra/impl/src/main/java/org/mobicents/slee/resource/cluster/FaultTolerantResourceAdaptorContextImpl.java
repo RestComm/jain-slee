@@ -19,16 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-/**
- * 
- */
 package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
 import org.jgroups.Address;
-import org.mobicents.cluster.MobicentsCluster;
+import org.mobicents.slee.container.SleeContainer;
 
 /**
  * Implementation of the fault tolerant ra context.
@@ -46,93 +42,122 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 	private ReplicatedDataImpl<K, V> replicatedData = null;
 
 	private final String raEntity;
-	private final MobicentsCluster cluster;
+	private final SleeContainer sleeContainer;
 	private final FaultTolerantResourceAdaptor<K, V> ra;
+
+	private FaultTolerantTimerImpl timer;
 
 	/**
 	 * @param raEntity
-	 * @param cluster
+	 * @param sleeContainer
 	 * @param ra
 	 */
 	public FaultTolerantResourceAdaptorContextImpl(String raEntity,
-			MobicentsCluster cluster, FaultTolerantResourceAdaptor<K, V> ra) {
+			SleeContainer sleeContainer, FaultTolerantResourceAdaptor<K, V> ra) {
 		this.raEntity = raEntity;
-		this.cluster = cluster;
+		this.sleeContainer = sleeContainer;
 		this.ra = ra;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getReplicatedDataWithFailover(boolean)
+	 * 
+	 * @see
+	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
+	 * #getReplicatedDataWithFailover(boolean)
 	 */
 	public ReplicatedDataWithFailover<K, V> getReplicatedDataWithFailover(
 			boolean activateDataRemovedCallback) {
 		if (replicatedDataWithFailover == null) {
 			replicatedDataWithFailover = new ReplicatedDataWithFailoverImpl<K, V>(
-					REPLICATED_DATA_WITH_FAILOVER_NAME, raEntity, cluster, ra, activateDataRemovedCallback);
+					REPLICATED_DATA_WITH_FAILOVER_NAME, raEntity,
+					sleeContainer.getCluster(), ra, activateDataRemovedCallback);
 		}
 		return replicatedDataWithFailover;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getReplicateData(boolean)
+	 * 
+	 * @see
+	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
+	 * #getReplicateData(boolean)
 	 */
 	public ReplicatedData<K, V> getReplicateData(
 			boolean activateDataRemovedCallback) {
 		if (replicatedData == null) {
 			replicatedData = new ReplicatedDataImpl<K, V>(REPLICATED_DATA_NAME,
-					raEntity, cluster, ra, activateDataRemovedCallback);
+					raEntity, sleeContainer.getCluster(), ra,
+					activateDataRemovedCallback);
 		}
 		return replicatedData;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#isLocal()
+	 * 
+	 * @see
+	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
+	 * #isLocal()
 	 */
 	public boolean isLocal() {
-		return cluster.getMobicentsCache().isLocalMode();
+		return sleeContainer.getCluster().getMobicentsCache().isLocalMode();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#isHeadMember()
+	 * 
+	 * @see
+	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
+	 * #isHeadMember()
 	 */
 	public boolean isHeadMember() {
-		return cluster.isHeadMember();
+		return sleeContainer.getCluster().isHeadMember();
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#isSingleMember()
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
+	 * #isSingleMember()
 	 */
 	public boolean isSingleMember() {
-		return cluster.isSingleMember();
+		return sleeContainer.getCluster().isSingleMember();
 	}
-	
+
 	private static final Address[] EMPTY_ADDRESS_ARRAY = {};
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getMembers()
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
+	 * #getMembers()
 	 */
 	public MemberAddress[] getMembers() {
-		final Address[] addresses = cluster.getClusterMembers().toArray(EMPTY_ADDRESS_ARRAY);
+		final Address[] addresses = sleeContainer.getCluster()
+				.getClusterMembers().toArray(EMPTY_ADDRESS_ARRAY);
 		final MemberAddressImpl[] members = new MemberAddressImpl[addresses.length];
-		for (int i = 0;i<members.length;i++) {
+		for (int i = 0; i < members.length; i++) {
 			members[i] = new MemberAddressImpl(addresses[i]);
 		}
 		return members;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getLocalAddress()
+	 * 
+	 * @see
+	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
+	 * #getLocalAddress()
 	 */
 	public MemberAddress getLocalAddress() {
-		Address localAddress = cluster.getLocalAddress();
-		return localAddress != null ? new MemberAddressImpl(localAddress) : null;
+		Address localAddress = sleeContainer.getCluster().getLocalAddress();
+		return localAddress != null ? new MemberAddressImpl(localAddress)
+				: null;
 	}
-	
+
 	/**
 	 * Removes all replicated data
 	 */
@@ -144,6 +169,20 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 		if (replicatedData != null) {
 			replicatedData.remove();
 			replicatedData = null;
+		}
+	}
+
+	@Override
+	public FaultTolerantTimer getFaultTolerantTimer() {
+		if (timer == null) {
+			timer = new FaultTolerantTimerImpl(sleeContainer, raEntity);
+		}
+		return timer;
+	}
+
+	public void shutdown() {
+		if (timer != null) {
+			timer.shutdown();
 		}
 	}
 }

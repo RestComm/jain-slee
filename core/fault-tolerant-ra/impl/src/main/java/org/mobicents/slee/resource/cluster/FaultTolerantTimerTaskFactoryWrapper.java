@@ -21,48 +21,46 @@
  */
 package org.mobicents.slee.resource.cluster;
 
-import java.io.Serializable;
-
-import javax.slee.resource.ResourceAdaptor;
+import org.mobicents.timers.TimerTask;
+import org.mobicents.timers.TimerTaskData;
+import org.mobicents.timers.TimerTaskFactory;
 
 /**
- * 
- * Abstract class for a fault tolerant JAIN SLEE 1.1 RA
+ * Wrapps the FT RA Timer task factory into the factory used by Mobicents
+ * Cluster framework.
  * 
  * @author martins
  * 
  */
-public interface FaultTolerantResourceAdaptor<K extends Serializable, V extends Serializable>
-		extends ResourceAdaptor {
+public class FaultTolerantTimerTaskFactoryWrapper implements TimerTaskFactory {
 
 	/**
-	 * Callback from SLEE when the local RA was selected to recover the state
-	 * for a replicated data key, which was owned by a cluster member that
-	 * failed
 	 * 
-	 * @param key
 	 */
-	public void failOver(K key);
+	private final FaultTolerantTimerTaskFactory taskFactory;
 
 	/**
-	 * Optional callback from SLEE when the replicated data key was removed from
-	 * the cluster, this may be helpful when the local RA maintains local state.
 	 * 
-	 * @param key
+	 * @param taskFactory
 	 */
-	public void dataRemoved(K key);
+	public FaultTolerantTimerTaskFactoryWrapper(
+			FaultTolerantTimerTaskFactory taskFactory) {
+		this.taskFactory = taskFactory;
+	}
 
-	/**
-	 * Invoked by SLEE to provide the fault tolerant context.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param context
+	 * @see
+	 * org.mobicents.timers.TimerTaskFactory#newTimerTask(org.mobicents.timers
+	 * .TimerTaskData)
 	 */
-	public void setFaultTolerantResourceAdaptorContext(
-			FaultTolerantResourceAdaptorContext<K, V> context);
+	@Override
+	public TimerTask newTimerTask(TimerTaskData data) {
+		FaultTolerantTimerTaskDataWrapper dataWrapper = (FaultTolerantTimerTaskDataWrapper) data;
+		FaultTolerantTimerTask task = taskFactory.getTask(dataWrapper
+				.getWrappedData());
+		return new FaultTolerantTimerTaskWrapper(task, dataWrapper);
+	}
 
-	/**
-	 * Invoked by SLEE to indicate that any references to the fault tolerant
-	 * context should be removed.
-	 */
-	public void unsetFaultTolerantResourceAdaptorContext();
 }

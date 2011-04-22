@@ -1,14 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>fault-tolerant-ra-parent</artifactId>
 		<version>2.4.0-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>fault-tolerant-ra-impl</artifactId>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
@@ -16,8 +17,13 @@
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>spi</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.mobicents.cluster</groupId>
-           	<artifactId>core</artifactId>
-		</dependency>	
+			<artifactId>timers</artifactId>
+		</dependency>
 	</dependencies>
 </project>

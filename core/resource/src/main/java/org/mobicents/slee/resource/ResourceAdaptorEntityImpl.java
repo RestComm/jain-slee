@@ -19,7 +19,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
 package org.mobicents.slee.resource;
 
 import java.util.HashSet;
@@ -130,6 +129,9 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	
 	private boolean setFTContext = true;
 	
+	@SuppressWarnings("rawtypes")
+	private FaultTolerantResourceAdaptorContextImpl ftResourceAdaptorContext;
+	
 	/**
 	 * Creates a new entity with the specified name, for the specified ra
 	 * component and with the provided entity config properties. The entity
@@ -143,7 +145,6 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * @throws InvalidConfigurationException
 	 * @throws InvalidArgumentException
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ResourceAdaptorEntityImpl(String name,
 			ResourceAdaptorComponent component,
 			ConfigProperties entityProperties, ResourceManagementImpl resourceManagement,
@@ -275,6 +276,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	/**
 	 * Signals that the container is in RUNNING state
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void sleeRunning() throws InvalidStateException {		
 		// if entity is active then activate the ra object
 		if (this.state.isActive()) {
@@ -283,7 +285,8 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 				if (object.isFaultTolerant()) {
 					// set fault tolerant context, it is a ft ra
 					try {
-						object.setFaultTolerantResourceAdaptorContext(new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer.getCluster(),(FaultTolerantResourceAdaptor) object.getResourceAdaptorObject()));
+						this.ftResourceAdaptorContext = new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer,(FaultTolerantResourceAdaptor) object.getResourceAdaptorObject());
+						object.setFaultTolerantResourceAdaptorContext(ftResourceAdaptorContext);						
 					}
 					catch (Throwable t) {
 						logger.error("Got exception invoking setFaultTolerantResourceAdaptorContext(...) for entity "+name, t);
@@ -343,6 +346,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * @throws InvalidStateException
 	 *             if the entity is not in INACTIVE state
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void activate() throws InvalidStateException {
 		if (!this.state.isInactive()) {
 			throw new InvalidStateException("entity " + name + " is in state: "
@@ -355,8 +359,9 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 				setFTContext = false;
 				if (object.isFaultTolerant()) {
 					// set fault tolerant context, it is a ft ra
-					try {
-						object.setFaultTolerantResourceAdaptorContext(new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer.getCluster(),(FaultTolerantResourceAdaptor) object.getResourceAdaptorObject()));
+					try {						
+						this.ftResourceAdaptorContext = new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer,(FaultTolerantResourceAdaptor) object.getResourceAdaptorObject());
+						object.setFaultTolerantResourceAdaptorContext(ftResourceAdaptorContext);
 					}
 					catch (Throwable t) {
 						logger.error("Got exception invoking setFaultTolerantResourceAdaptorContext(...) for entity "+name, t);
@@ -475,6 +480,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		object.raUnconfigure();
 		if (object.isFaultTolerant()) {
 			object.unsetFaultTolerantResourceAdaptorContext();
+			ftResourceAdaptorContext.shutdown();
 		}
 		object.unsetResourceAdaptorContext();
 		this.sleeContainer.getTraceManagement()
