@@ -234,7 +234,7 @@ public class EditModuleAction implements IObjectActionDelegate {
       super(pageName);
       setTitle("Edit '" + moduleName + "' Module");
       setDescription("Please edit on which modules this module will depend on (dependency)\n" +
-          "and which ones will depend on this new module (dependants)");
+          "and which ones will depend on this module (dependants)");
       initialize();
     }
 
@@ -322,6 +322,7 @@ public class EditModuleAction implements IObjectActionDelegate {
       }
       catch (Exception e) {
         // Just don't show...
+        e.printStackTrace();
       }
     }
   }

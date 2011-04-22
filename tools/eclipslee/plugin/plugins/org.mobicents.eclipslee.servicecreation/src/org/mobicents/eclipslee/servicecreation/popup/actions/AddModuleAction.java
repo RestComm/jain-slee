@@ -201,11 +201,15 @@ public class AddModuleAction implements IObjectActionDelegate {
             if(button.getSelection()) {
               IFile dependantPom = project.getFolder((String) button.getData()).getFile("pom.xml");
               Model dependantModel = reader.read(new InputStreamReader(dependantPom.getContents()));
+
+              // Create dependency
               Dependency dep = new Dependency();
               dep.setGroupId(parentModel.getGroupId());
               dep.setArtifactId(parentModel.getArtifactId() + "-" + fullModuleName);
               dep.setVersion(parentModel.getVersion());
-              dependantModel.addDependency(dep);
+
+              // Adds dependency with checks for duplicates
+              MavenProjectUtils.addDependency(dependantModel, dep);
               MavenProjectUtils.writePomFile(dependantModel, dependantPom.getLocation().toOSString());
             }
           }
@@ -218,11 +222,15 @@ public class AddModuleAction implements IObjectActionDelegate {
               Model ownModel = reader.read(new InputStreamReader(ownPom.getContents()));
               IFile dependencyPom = project.getFolder((String) button.getData()).getFile("pom.xml");
               Model dependencyModel = reader.read(new InputStreamReader(dependencyPom.getContents()));
+
+              // Create dependency -- use utils to get self or parent group/version
               Dependency dep = new Dependency();
-              dep.setGroupId(dependencyModel.getGroupId());
-              dep.setArtifactId(dependencyModel.getArtifactId());
-              dep.setVersion(dependencyModel.getVersion());
-              ownModel.addDependency(dep);
+              dep.setGroupId(MavenProjectUtils.getGroupId(dependencyModel));
+              dep.setArtifactId(MavenProjectUtils.getArtifactId(dependencyModel));
+              dep.setVersion(MavenProjectUtils.getVersion(dependencyModel));
+
+              // Adds dependency with checks for duplicates
+              MavenProjectUtils.addDependency(ownModel, dep);
               MavenProjectUtils.writePomFile(ownModel, ownPom.getLocation().toOSString());
             }
           }
