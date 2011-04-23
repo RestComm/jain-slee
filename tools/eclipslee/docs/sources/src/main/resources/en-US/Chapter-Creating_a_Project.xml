@@ -89,7 +89,7 @@
 	<section id="managing_project_modules">
 		<title>Managing Project Modules</title>
 		<para>
-			It is possible to manage (ie, add and remove) modules once the project is created.
+			It is possible to manage (ie, add, modify and remove) modules once the project is created.
 		</para>
 		<section id="adding_new_modules">
 			<title>Adding New Modules</title>
@@ -129,6 +129,43 @@
 					</mediaobject>
 				</figure>
 				Click on <guibutton>Finish</guibutton> and the new module will be created and dependencies in other modules will be updated to include it.
+			</para>
+		</section>
+
+		<section id="editing_existing_modules">
+			<title>Editing Existing Modules</title>
+			<para>
+				Editing a new module can be done from the workbench by right-clicking the Project element and selecting <menuchoice><guimenu>Edit Module</guimenu><guisubmenu>&lt;desired module type&gt;</guisubmenu></menuchoice> as illustrated in the following figure, for a Resource Adaptor Type.
+				<figure>
+					<title>Selecting "Edit Module" in EclipSLEE</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_module.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Selecting "Edit Module" in EclipSLEE</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+			</para>
+			<para>
+				This will present a dialog similar to the <guilabel>New Module</guilabel> dialog. From this dialog it's possible to modify from which other existing modules this one will depend on (<guilabel>Dependency</guilabel>) and which ones will depend on this one (<guilabel>Dependant</guilabel>).
+				<important>
+					<title>Deployable Unit as Dependant</title>
+					<para>The deployable unit (du) module must always be selected as dependant if the new module should be included in the maven generated Deployable Unit.</para>
+				</important>
+				<figure>
+					<title>Editing a JAIN SLEE Module</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_module_dialog.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>Editing a JAIN SLEE Module</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+				When done with the desired changes, click on <guibutton>Finish</guibutton> and the affected modules will be updated.
 			</para>
 		</section>
 

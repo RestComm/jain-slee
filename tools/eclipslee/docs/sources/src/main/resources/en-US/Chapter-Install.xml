@@ -80,6 +80,18 @@
 				<step>(Re)Start Eclipse</step>
 			</procedure>
 		</section>
+
+		<section id="snapshots_update_site">
+			<title>Nightly Builds Update Site</title>
+			<para>We provide nightly builds for the early adopters. Set up the Update Site following these steps:</para>
+			<procedure>
+				<step>Open Eclipse</step>
+				<step>Go to <menuchoice><guimenu>Help</guimenu><guisubmenu>Install New Software...</guisubmenu></menuchoice></step>
+				<step>Click <guibutton>Add...</guibutton> and enter name EclipSLEE and URL http://hudson.jboss.org/hudson/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/</step>
+				<step>Select the appropriate EclipSLEE version, click <guibutton>Next</guibutton> and follow the instructions in the Eclipse Wizard</step>
+				<step>Allow Eclipse to restart</step>
+			</procedure>
+		</section>
 	</section>
 
 	<section id="uninstall">

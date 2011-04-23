@@ -4,388 +4,620 @@
 <!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
 %BOOK_ENTITIES;
 ]>
-<chapter id="creating_a_jainslee_sbb">
-	<title>Creating a JAIN SLEE Service Building Block (SBB)</title>
-	<para>
-		To create a component it may be easier (but not mandatory) to first create a package to contain it. This package should be created as a child of the &lt;sbb-module&gt;/src/main/java folder. To do this right-click on the src folder and select <menuchoice><guimenu>New</guimenu><guisubmenu>Package</guisubmenu></menuchoice>. Give the new package a name using the popup dialog (shown below).
-		<figure>
-			<title>Creating a new Package in Eclipse</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_package.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>Creating a new Package in Eclipse</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		In case a new package is not created at this point, it can still be created in the Component wizard, but no validation is performed at that time, regarding the package naming conventions.
-	</para>
-	<para>
-		To create a new JAIN SLEE SBB, right-click on the created package (or the module entry if the package is not yet created) and choose <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> as shown below.
-		<figure>
-			<title>Creating a new JAIN SLEE Component in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_component.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>Creating a new JAIN SLEE Component in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		A dialog should appear. Expand the <guilabel>JAIN SLEE</guilabel> item and choose <guilabel>JAIN SLEE Service Building Block (SBB)</guilabel>. The dialog should now look like the following:
-		<figure>
-			<title>Creating a new JAIN SLEE SBB in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>Creating a new JAIN SLEE SBB in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		Click <guibutton>Next</guibutton> to get the following dialog:
-		<figure>
-			<title>Selecting the package and name for a new JAIN SLEE SBB in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_name.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>Selecting the package and name for a new JAIN SLEE SBB in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		The source folder and package dialogs will be completed if <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> has been selected from right-clicking on a package. Otherwise it may need to be chosen by selecting <guibutton>Browse...</guibutton> and selecting the desired locations or typing it's name in the appropriate field and it will be created in the end.
-	</para>
-	<para>
-		Name the SBB; the name must end with "<filename>Sbb.java</filename>". Then click <guibutton>Next</guibutton> to go to the component identity dialog, pictured below:
-		<figure>
-			<title>JAIN SLEE Component Identity dialog in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_identity.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE Component Identity dialog in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		The Name, Vendor and Version fields are mandatory and are used by the SLEE to identify the SBB. The description field is optional, but strongly recommended to be completed to allow easy identification of the SBB in future.
-	</para>
-	<para>
-		After completing these fields click <guibutton>Next</guibutton> to specify the SBB's class files.
-	</para>
-	<para>
-		<figure>
-			<title>JAIN SLEE SBB companion interfaces selection in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_companion_interfaces.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB companion interfaces selection in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		This dialog allows you to specify that a custom SBB Local Object and/or Activity Context Interface is required for this SBB. Select the required interfaces, then click <guibutton>Next</guibutton> to edit the SBB's CMP fields.
-	</para>
-	<para>
-		<figure>
-			<title>JAIN SLEE SBB CMP Fields definition in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_cmp_fields.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB CMP Fields definition in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		Here, the SBB's CMP fields can be set. Add a CMP field by clicking on <guibutton>Add</guibutton>. A field can be removed by selecting it in the table and clicking <guibutton>Remove</guibutton>. To modify a CMP field, click on the <guibutton>Modify</guibutton> button next to it in the table.
-	</para>
-	<para>
-		<figure>
-			<title>JAIN SLEE SBB CMP Field configuration in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="300px" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_cmp_field_configuration.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB CMP Field configuration in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		Name the CMP field in the <guilabel>Name</guilabel> text field. A CMP field can either be a standard Java object, primitive or an <classname>SbbLocalObject</classname>. Select the statement that represents the data type to be stored in the field.
-	</para>
-	<para>
-		A standard Java object or primitive type requires the fully qualified type name to be entered into the <guilabel>Type</guilabel> text field. For example, <classname>java.lang.String</classname>.
-	</para>
-	<para>
-		A CMP field that stores an <classname>SbbLocalObject</classname> may only store SBBs of a specific identity. The drop down <guilabel>SBB</guilabel> box will contain all the SBBs that the EclipSLEE plugin was able to find. Choose the one that should be stored in the CMP field, and give it a <guilabel>Scoped Name</guilabel>. This is a variable name and should be a valid Java variable name, and should begin with a lowercase letter.
-	</para>
-	<para>
-		If an SBB needs to store an SBB of its own type in a CMP field, then the SBB must be created without that CMP field, and the CMP field added later.
-	</para>
-	<para>
-		Once the CMP field is correct click <guibutton>OK</guibutton> and the wizard CMP page will be updated with the new data.
-	</para>
-	<para>
-		Repeat until all CMP fields are created, then click <guibutton>Next</guibutton> to edit the SBB's usage parameters:
-	</para>
-	<para>
-		<figure>
-			<title>JAIN SLEE SBB Usage Parameters definition in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_usage_params.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB Usage Parameters definition in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		Check <guilabel>Create SBB usage interface</guilabel> if you require the SBB usage interface. Then add usage parameters by clicking <guibutton>Add</guibutton> and modifying the values in the table. Two types of parameter are available: <option>increment</option> and <option>sample</option>.
-	</para>
-	<para>
-		Click <guibutton>Next</guibutton> to move to the event selection dialog, shown below:
-		<figure>
-			<title>JAIN SLEE SBB Events selection in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_events.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB Events selection in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		The event selection dialog contains a list of all the events the plugin could find in your project. This includes any events that were installed as external components.
-	</para>
-	<para>
-		For each event that you would like your SBB to fire or receive:
-		<orderedlist>
-			<listitem>
-				<para>Select the event in the available events table.</para>
-			</listitem>
-			<listitem>
-				<para>Click <guibutton>Select Event</guibutton>; the event will move to the selected events table.</para>
-			</listitem>
-			<listitem>
-				<para>Click <guibutton>Modify...</guibutton> for that event in the selected events table. This will create the following dialog.</para>
-				<figure>
-					<title>JAIN SLEE SBB Event configuration in EclipSLEE</title>
-					<mediaobject>
-						<imageobject>
-							<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_events_modify.png" format="PNG"/>
-						</imageobject>
-						<textobject>
-							<para>JAIN SLEE SBB Event configuration in EclipSLEE</para>
-						</textobject>
-					</mediaobject>
-				</figure>
-			</listitem>
-			<listitem>
-				<para>Review the <guilabel>Scoped Name</guilabel> and change it if desired.</para>
-			</listitem>
-			<listitem>
-				<para>Set the event direction.</para>
-			</listitem>
-			<listitem>
-				<para>If the event direction is <guilabel>Receive</guilabel> or <guilabel>FireAndReceive</guilabel> check <guilabel>This is an initial event</guilabel> if it should be an initial event for a service.</para>
-			</listitem>
-			<listitem>
-				<para>If this is an initial event, choose one or more initial event selectors.</para>
-			</listitem>
-			<listitem>
-				<para>Click <guibutton>OK</guibutton></para>
-			</listitem>
-		</orderedlist>
-	</para>
-	<para>
-		When all events have been configured the dialog may look something like this:
-		<figure>
-			<title>JAIN SLEE SBB Events configured in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_events_configured.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB Events configured in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		Click <guibutton>Next</guibutton> to define the SBB's profile specifications.
-	</para>
-
-	<para>
-		<figure>
-			<title>JAIN SLEE SBB Profile Specifications selection in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_profile-spec.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB Profile Specifications selection in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		The profile selection dialog contains a list of all the profiles the plugin could find in your project. This includes any profiles that were installed as external components. If your custom profiles are not listed, verify that they have been compiled and the "jars" folder refreshed.
-	</para>
-	<para>
-		For each profile specification the SBB should reference:
-		<orderedlist>
-			<listitem>
-				<para>Highlight the profile specification in the available profiles table.</para>
-			</listitem>
-			<listitem>
-				<para>Click <guibutton>Select Profile</guibutton></para>
-			</listitem>
-			<listitem>
-				<para>Review the <guilabel>Scoped Name</guilabel> and change if required.</para>
-			</listitem>
-			<listitem>
-				<para>If your SBB should contain an Address Profile Specification select it from the drop down list.</para>
-			</listitem>
-		</orderedlist>
-	</para>
-	<para>
-		Click <guibutton>Next</guibutton> to proceed to the child SBB's dialog.
-	</para>
-
-
-	<para>
-		<figure>
-			<title>JAIN SLEE SBB Child SBBs selection in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_child_sbbs.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB Child SBBs selection in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		The child selection dialog contains a list of all the SBBs the plugin could find in your project. This includes any SBBs that were installed as external components. If your custom SBBs are not listed, verify that they have been compiled and the "jars" folder refreshed.
-	</para>
-	<para>
-		For each child SBB the SBB should reference:
-		<orderedlist>
-			<listitem>
-				<para>Highlight the child SBB in the available SBBs table.</para>
-			</listitem>
-			<listitem>
-				<para>Click <guibutton>Select SBB</guibutton></para>
-			</listitem>
-			<listitem>
-				<para>Review the <guibutton>Scoped Name</guibutton> and change if required.</para>
-			</listitem>
-			<listitem>
-				<para>Set the default priority of the child SBB.</para>
-			</listitem>
-		</orderedlist>
-	</para>
-	<para>
-		Click <guibutton>Next</guibutton> to proceed to the resource adaptor types dialog.
-	</para>
-
-	<warning>
-		<title>Resource Adaptor Type Creation and Binding not supported in current version!</title>
-		<para>Since Resource Adaptor Type Creation and Binding is not supported in the current EclipSLEE version, you should skip these steps and move to next dialog, "Environment Entries"</para>
-	</warning>
-
-	<!-- NOT YET SUPPORTED
-	<para>
-		The Resource Adaptor Type Bindings dialog contains a list of all the resource adaptor types the plugin could find in your project. This includes any resource adaptor types that were installed as external components.
-	</para>
-	<para>
-		For each resource adaptor type the SBB should reference:
-		<orderedlist>
-			<listitem>
-				<para>Highlight the resource adaptor type in the available resource adaptor types table.</para>
-			</listitem>
-			<listitem>
-				<para>Click <guibutton>Select RA Type</guibutton></para>
-			</listitem>
-			<listitem>
-				<para>Optionally, specify the Activity Context Interface Factory Name.</para>
-			</listitem>
-			<listitem>
-				<para>
-					If the RA Type should have resource adaptor entity bindings, click <guibutton>Edit Bindings...</guibutton>.
+<chapter id="building_jainslee_sbbs">
+	<title>Building JAIN SLEE Service Building Block (SBBs)</title>
+	<para>EclipSLEE provides means to create, edit and delete JAIN SLEE Service Building Blocks.</para>
+	<section id="creating_a_jainslee_sbb">
+		<title>Creating a JAIN SLEE Service Building Block (SBB)</title>
+		<para>
+			To create a component it may be easier (but not mandatory) to first create a package to contain it. This package should be created as a child of the &lt;sbb-module&gt;/src/main/java folder. To do this right-click on the src folder and select <menuchoice><guimenu>New</guimenu><guisubmenu>Package</guisubmenu></menuchoice>. Give the new package a name using the popup dialog (shown below).
+			<figure>
+				<title>Creating a new Package in Eclipse</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_package.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Creating a new Package in Eclipse</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			In case a new package is not created at this point, it can still be created in the Component wizard, but no validation is performed at that time, regarding the package naming conventions.
+		</para>
+		<para>
+			To create a new JAIN SLEE SBB, right-click on the created package (or the module entry if the package is not yet created) and choose <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> as shown below.
+			<figure>
+				<title>Creating a new JAIN SLEE Component in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_component.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Creating a new JAIN SLEE Component in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			A dialog should appear. Expand the <guilabel>JAIN SLEE</guilabel> item and choose <guilabel>JAIN SLEE Service Building Block (SBB)</guilabel>. The dialog should now look like the following:
+			<figure>
+				<title>Creating a new JAIN SLEE SBB in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Creating a new JAIN SLEE SBB in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			Click <guibutton>Next</guibutton> to get the following dialog:
+			<figure>
+				<title>Selecting the package and name for a new JAIN SLEE SBB in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_name.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Selecting the package and name for a new JAIN SLEE SBB in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			The source folder and package dialogs will be completed if <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> has been selected from right-clicking on a package. Otherwise it may need to be chosen by selecting <guibutton>Browse...</guibutton> and selecting the desired locations or typing it's name in the appropriate field and it will be created in the end.
+		</para>
+		<para>
+			Name the SBB; the name must end with "<filename>Sbb.java</filename>". Then click <guibutton>Next</guibutton> to go to the component identity dialog, pictured below:
+			<figure>
+				<title>JAIN SLEE Component Identity dialog in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_identity.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE Component Identity dialog in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			The Name, Vendor and Version fields are mandatory and are used by the SLEE to identify the SBB. The description field is optional, but strongly recommended to be completed to allow easy identification of the SBB in future.
+		</para>
+		<para>
+			After completing these fields click <guibutton>Next</guibutton> to specify the SBB's class files.
+		</para>
+		<para>
+			<figure>
+				<title>JAIN SLEE SBB companion interfaces selection in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_companion_interfaces.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB companion interfaces selection in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			This dialog allows you to specify that a custom SBB Local Object and/or Activity Context Interface is required for this SBB. Select the required interfaces, then click <guibutton>Next</guibutton> to edit the SBB's CMP fields.
+		</para>
+		<para>
+			<figure>
+				<title>JAIN SLEE SBB CMP Fields definition in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_cmp_fields.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB CMP Fields definition in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			Here, the SBB's CMP fields can be set. Add a CMP field by clicking on <guibutton>Add</guibutton>. A field can be removed by selecting it in the table and clicking <guibutton>Remove</guibutton>. To modify a CMP field, click on the <guibutton>Modify</guibutton> button next to it in the table.
+		</para>
+		<para>
+			<figure>
+				<title>JAIN SLEE SBB CMP Field configuration in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="300px" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_cmp_field_configuration.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB CMP Field configuration in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			Name the CMP field in the <guilabel>Name</guilabel> text field. A CMP field can either be a standard Java object, primitive or an <classname>SbbLocalObject</classname>. Select the statement that represents the data type to be stored in the field.
+		</para>
+		<para>
+			A standard Java object or primitive type requires the fully qualified type name to be entered into the <guilabel>Type</guilabel> text field. For example, <classname>java.lang.String</classname>.
+		</para>
+		<para>
+			A CMP field that stores an <classname>SbbLocalObject</classname> may only store SBBs of a specific identity. The drop down <guilabel>SBB</guilabel> box will contain all the SBBs that the EclipSLEE plugin was able to find. Choose the one that should be stored in the CMP field, and give it a <guilabel>Scoped Name</guilabel>. This is a variable name and should be a valid Java variable name, and should begin with a lowercase letter.
+		</para>
+		<para>
+			If an SBB needs to store an SBB of its own type in a CMP field, then the SBB must be created without that CMP field, and the CMP field added later.
+		</para>
+		<para>
+			Once the CMP field is correct click <guibutton>OK</guibutton> and the wizard CMP page will be updated with the new data.
+		</para>
+		<para>
+			Repeat until all CMP fields are created, then click <guibutton>Next</guibutton> to edit the SBB's usage parameters:
+		</para>
+		<para>
+			<figure>
+				<title>JAIN SLEE SBB Usage Parameters definition in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_usage_params.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB Usage Parameters definition in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			Check <guilabel>Create SBB usage interface</guilabel> if you require the SBB usage interface. Then add usage parameters by clicking <guibutton>Add</guibutton> and modifying the values in the table. Two types of parameter are available: <option>increment</option> and <option>sample</option>.
+		</para>
+		<para>
+			Click <guibutton>Next</guibutton> to move to the event selection dialog, shown below:
+			<figure>
+				<title>JAIN SLEE SBB Events selection in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_events.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB Events selection in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			The event selection dialog contains a list of all the events the plugin could find in your project. This includes any events that were installed as external components.
+		</para>
+		<para>
+			For each event that you would like your SBB to fire or receive:
+			<orderedlist>
+				<listitem>
+					<para>Select the event in the available events table.</para>
+				</listitem>
+				<listitem>
+					<para>Click <guibutton>Select Event</guibutton>; the event will move to the selected events table.</para>
+				</listitem>
+				<listitem>
+					<para>Click <guibutton>Modify...</guibutton> for that event in the selected events table. This will create the following dialog.</para>
 					<figure>
-						<title>JAIN SLEE SBB Resource Adaptor Type Bindings edit in EclipSLEE</title>
+						<title>JAIN SLEE SBB Event configuration in EclipSLEE</title>
 						<mediaobject>
 							<imageobject>
-								<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_ratype_bindings_modify.png" format="PNG"/>
+								<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_events_modify.png" format="PNG"/>
 							</imageobject>
 							<textobject>
-								<para>JAIN SLEE SBB Resource Adaptor Type Bindings edit in EclipSLEE</para>
+								<para>JAIN SLEE SBB Event configuration in EclipSLEE</para>
 							</textobject>
 						</mediaobject>
 					</figure>
-				</para>
-			</listitem>
-			<listitem>
-				<para>
-					For each binding:
-					<orderedlist>
-						<listitem>
-							<para>Click <guibutton>Add</guibutton> to create a new binding.</para>
-						</listitem>
-						<listitem>
-							<para>Specify the bindings JNDI object name.</para>
-						</listitem>
-						<listitem>
-							<para>Optionally, specify the resource adaptor entity link name.</para>
-						</listitem>
-					</orderedlist>
-				</para>
-			</listitem>
-			<listitem>
-				<para>Click <guibutton>OK</guibutton> to apply these bindings to the resource adaptor type.</para>
-			</listitem>
-		</orderedlist>
-	</para>
-	NOT YET SUPPORTED -->
-	<para>
-		Click <guibutton>Next</guibutton> to edit the SBB's environment entries.
-		<figure>
-			<title>JAIN SLEE SBB Environment Entries definition in EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_env_entries.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB Environment Entries definition in EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		Add an environment entry with the "Add" button. Set its name, type, value, and optionally, description in the table. Do this for each environment entry.
-	</para>
-	<para>
-		Then click <guibutton>Finish</guibutton> to create the SBB.
-	</para>
-	<note>
-		<title>Skipping optional steps</title>
-		<para><guibutton>Finish</guibutton> can be clicked at any point after setting the SBB's identity if a skeleton SBB is required. It is not necessary to complete each wizard page first.</para>
-	</note>
+				</listitem>
+				<listitem>
+					<para>Review the <guilabel>Scoped Name</guilabel> and change it if desired.</para>
+				</listitem>
+				<listitem>
+					<para>Set the event direction.</para>
+				</listitem>
+				<listitem>
+					<para>If the event direction is <guilabel>Receive</guilabel> or <guilabel>FireAndReceive</guilabel> check <guilabel>This is an initial event</guilabel> if it should be an initial event for a service.</para>
+				</listitem>
+				<listitem>
+					<para>If this is an initial event, choose one or more initial event selectors.</para>
+				</listitem>
+				<listitem>
+					<para>Click <guibutton>OK</guibutton></para>
+				</listitem>
+			</orderedlist>
+		</para>
+		<para>
+			When all events have been configured the dialog may look something like this:
+			<figure>
+				<title>JAIN SLEE SBB Events configured in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_events_configured.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB Events configured in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			Click <guibutton>Next</guibutton> to define the SBB's profile specifications.
+		</para>
 	
-	<para>
-		The SBB Java file, <filename>MobicentsDemoSbb.java</filename> (plus the remaining interfaces and classes which were selected at the wizard) is created in the specified package and opened for editing in the workspace. The <filename>sbb-jar.xml</filename> deployment descriptor is updated to reflect the new sbb or created if not already present. The resulting workspace can be seen below.
-		<figure>
-			<title>JAIN SLEE SBB created in workspace using EclipSLEE</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_workspace.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>JAIN SLEE SBB created in workspace using EclipSLEE</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-	</para>
-</chapter>
+		<para>
+			<figure>
+				<title>JAIN SLEE SBB Profile Specifications selection in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_profile-spec.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB Profile Specifications selection in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			The profile selection dialog contains a list of all the profiles the plugin could find in your project. This includes any profiles that were installed as external components. If your custom profiles are not listed, verify that they have been compiled and the "jars" folder refreshed.
+		</para>
+		<para>
+			For each profile specification the SBB should reference:
+			<orderedlist>
+				<listitem>
+					<para>Highlight the profile specification in the available profiles table.</para>
+				</listitem>
+				<listitem>
+					<para>Click <guibutton>Select Profile</guibutton></para>
+				</listitem>
+				<listitem>
+					<para>Review the <guilabel>Scoped Name</guilabel> and change if required.</para>
+				</listitem>
+				<listitem>
+					<para>If your SBB should contain an Address Profile Specification select it from the drop down list.</para>
+				</listitem>
+			</orderedlist>
+		</para>
+		<para>
+			Click <guibutton>Next</guibutton> to proceed to the child SBB's dialog.
+		</para>
+	
+	
+		<para>
+			<figure>
+				<title>JAIN SLEE SBB Child SBBs selection in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_child_sbbs.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB Child SBBs selection in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			The child selection dialog contains a list of all the SBBs the plugin could find in your project. This includes any SBBs that were installed as external components. If your custom SBBs are not listed, verify that they have been compiled and the "jars" folder refreshed.
+		</para>
+		<para>
+			For each child SBB the SBB should reference:
+			<orderedlist>
+				<listitem>
+					<para>Highlight the child SBB in the available SBBs table.</para>
+				</listitem>
+				<listitem>
+					<para>Click <guibutton>Select SBB</guibutton></para>
+				</listitem>
+				<listitem>
+					<para>Review the <guibutton>Scoped Name</guibutton> and change if required.</para>
+				</listitem>
+				<listitem>
+					<para>Set the default priority of the child SBB.</para>
+				</listitem>
+			</orderedlist>
+		</para>
+		<para>
+			Click <guibutton>Next</guibutton> to proceed to the resource adaptor types dialog.
+		</para>
+	
+		<para>
+			<figure>
+				<title>JAIN SLEE SBB Child SBBs selection in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_ratypes.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB Child SBBs selection in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			The Resource Adaptor Type Bindings dialog contains a list of all the resource adaptor types the plugin could find in your project. This includes any resource adaptor types that were installed as external components.
+		</para>
+		<para>
+			For each resource adaptor type the SBB should reference:
+			<orderedlist>
+				<listitem>
+					<para>Highlight the resource adaptor type in the available resource adaptor types table.</para>
+				</listitem>
+				<listitem>
+					<para>Click <guibutton>Select RA Type</guibutton></para>
+				</listitem>
+				<listitem>
+					<para>Optionally, specify the Activity Context Interface Factory Name.</para>
+				</listitem>
+				<listitem>
+					<para>
+						If the RA Type should have resource adaptor entity bindings, click <guibutton>Edit Bindings...</guibutton>.
+						<figure>
+							<title>JAIN SLEE SBB Resource Adaptor Type Bindings edit in EclipSLEE</title>
+							<mediaobject>
+								<imageobject>
+									<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_ratype_bindings_modify.png" format="PNG"/>
+								</imageobject>
+								<textobject>
+									<para>JAIN SLEE SBB Resource Adaptor Type Bindings edit in EclipSLEE</para>
+								</textobject>
+							</mediaobject>
+						</figure>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						For each binding:
+						<orderedlist>
+							<listitem>
+								<para>Click <guibutton>Add</guibutton> to create a new binding.</para>
+							</listitem>
+							<listitem>
+								<para>Specify the bindings JNDI object name.</para>
+							</listitem>
+							<listitem>
+								<para>Optionally, specify the resource adaptor entity link name.</para>
+							</listitem>
+						</orderedlist>
+					</para>
+				</listitem>
+				<listitem>
+					<para>Click <guibutton>OK</guibutton> to apply these bindings to the resource adaptor type.</para>
+				</listitem>
+			</orderedlist>
+		</para>
 
+		<para>
+			Click <guibutton>Next</guibutton> to edit the SBB's environment entries.
+			<figure>
+				<title>JAIN SLEE SBB Environment Entries definition in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_env_entries.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB Environment Entries definition in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			Add an environment entry with the "Add" button. Set its name, type, value, and optionally, description in the table. Do this for each environment entry.
+		</para>
+		<para>
+			Then click <guibutton>Finish</guibutton> to create the SBB.
+		</para>
+		<note>
+			<title>Skipping optional steps</title>
+			<para><guibutton>Finish</guibutton> can be clicked at any point after setting the SBB's identity if a skeleton SBB is required. It is not necessary to complete each wizard page first.</para>
+		</note>
+		
+		<para>
+			The SBB Java file, <filename>MobicentsDemoSbb.java</filename> (plus the remaining interfaces and classes which were selected at the wizard) is created in the specified package and opened for editing in the workspace. The <filename>sbb-jar.xml</filename> deployment descriptor is updated to reflect the new sbb or created if not already present. The resulting workspace can be seen below.
+			<figure>
+				<title>JAIN SLEE SBB created in workspace using EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_workspace.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE SBB created in workspace using EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+	</section>
+	
+	<section id="editing_a_jainslee_sbb">
+		<title>Editing a JAIN SLEE Service Building Block (SBB)</title>
+		<para>
+			It is possible with EclipSLEE to edit existing components. When right-clicking in one of the JAIN SLEE Service Building Block classes a similar menu should be shown:
+			<figure>
+				<title>Editing a JAIN SLEE Service Building Block through class file</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_class.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing a JAIN SLEE Service Building Block through class file</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			It is also possible to edit by right-clicking on the sbb-jar.xml descriptor. In that case a sub-menu allowing to pick which Service Building Block to edit is shown:
+			<figure>
+				<title>Editing JAIN SLEE Service Building Blocks through XML descriptor</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_xml.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Blocks through XML descriptor</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			After selecting the desired Service Building Block, the menu shown should be similar to the one presented when using the class file to edit.
+		</para>
+		<para>
+			The following actions are available for a JAIN SLEE Service Building Block:
+		</para>
+		<section id="editing_a_jainslee_sbb-identity">
+			<title>Edit SBB Identity</title>
+			<para>
+				This operation can be accessed by selecting <guilabel>Identity...</guilabel> and allows to change the JAIN SLEE Service Building Block identity (name, vendor, version) and it's description. The following dialog is presented:
+			</para>
+			<figure>
+				<title>Editing JAIN SLEE Service Building Block Identity</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_identity_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Block Identity</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			<important>
+				<title>Other components are not updated!</title>
+				<para>EclipSLEE does not automatically update other component descriptors in order to reflect such identity change, so it should be made manually.</para>
+			</important>
+		</section>
+		<section id="editing_a_jainslee_sbb-classes">
+			<title>Edit SBB Classes</title>
+			<para>
+				This operation can be accessed by selecting <guilabel>Classes...</guilabel> and allows to change which companion classes for the SBB should exist. The following dialog is presented:
+			</para>
+			<figure>
+				<title>Editing JAIN SLEE Service Building Block Classes</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_classes_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Block Classes</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			<important>
+				<title>Impossible to undo delete operations!</title>
+				<para>Unchecking an option will delete the corresponding class, an irreversible operation, so it should be used carefully.</para>
+			</important>
+		</section>
+		<section id="editing_a_jainslee_sbb-cmp_fields">
+			<title>Edit SBB CMP Fields</title>
+			<para>
+				This operation can be accessed by selecting <guilabel>CMP Fields...</guilabel> and allows to Add, Remove or Modify the existing SBB CMP fields. The following dialog is presented:
+			</para>
+			<figure>
+				<title>Editing JAIN SLEE Service Building Block CMP Fields</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_cmp_fields_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Block CMP Fields</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</section>
+		<section id="editing_a_jainslee_sbb-usage_params">
+			<title>Edit SBB Usage Parameters</title>
+			<para>
+				This operation can be accessed by selecting <guilabel>Usage Parameters...</guilabel> and allows to change whether an Usage interface should be created and to Add or Remove SBB Usage Parameters. The following dialog is presented:
+			</para>
+			<figure>
+				<title>Editing JAIN SLEE Service Building Block Usage Parameters</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_usage_params_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Block Usage Parameters</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			<important>
+				<title>Impossible to undo delete operations!</title>
+				<para>Unchecking an option will delete the corresponding class, an irreversible operation, so it should be used carefully.</para>
+			</important>
+		</section>
+		<section id="editing_a_jainslee_sbb-events">
+			<title>Edit SBB Events</title>
+			<para>
+				This operation can be accessed by selecting <guilabel>Events...</guilabel> and allows to change the events fired by the SBB. Either changing or removing the already selected ones as well as adding new ones. The following dialog is presented:
+			</para>
+			<figure>
+				<title>Editing JAIN SLEE Service Building Block Events</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_events_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Block Events</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</section>
+		<section id="editing_a_jainslee_sbb-profiles">
+			<title>Edit SBB Profile Specifications</title>
+			<para>
+				This operation can be accessed by selecting <guilabel>Profiles...</guilabel> and allows to change the profile specifications the SBB will use. Either changing or removing the already selected ones as well as adding new ones. The following dialog is presented:
+			</para>
+			<figure>
+				<title>Editing JAIN SLEE Service Building Block Profile Specifications</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_profiles_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Block Profile Specifications</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</section>
+		<section id="editing_a_jainslee_sbb-children">
+			<title>Edit SBB Child Relations</title>
+			<para>
+				This operation can be accessed by selecting <guilabel>Children...</guilabel> and allows to change the Child Relations for the SBB, by either changing or removing the existing ones as well as adding new ones. The following dialog is presented:
+			</para>
+			<figure>
+				<title>Editing JAIN SLEE Service Building Block Child Relations</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_childs_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Block Child Relations</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</section>
+		<section id="editing_a_jainslee_sbb-ratypes">
+			<title>Edit SBB Resource Adaptor Type Bindings</title>
+			<para>
+				This operation can be accessed by selecting <guilabel>Resource Adaptor Bindings...</guilabel>. It allows to modify or remove the existing Resource Adaptor Type bindings for this SBB and to add new ones. The following dialog is presented:
+			</para>
+			<figure>
+				<title>Editing JAIN SLEE Service Building Block Resource Adaptor Type Bindings</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_ratypes_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Block Resource Adaptor Type Bindings</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</section>
+		<section id="editing_a_jainslee_sbb-env_entries">
+			<title>Edit SBB Environment Entries</title>
+			<para>
+				This operation can be accessed by selecting <guilabel>Environment Entries...</guilabel>. It allows to add, modify or remove this SBB Environment Entries. The following dialog is presented:
+			</para>
+			<figure>
+				<title>Editing JAIN SLEE Service Building Block Environment Entries</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_edit_sbb_env_entries_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Editing JAIN SLEE Service Building Block Environment Entries</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</section>
+	</section>
+
+	<section id="deleting_a_jainslee_sbb">
+		<title>Deleting a JAIN SLEE Service Building Block (SBB)</title>
+		<para>
+			It is possible with EclipSLEE to delete existing components. Right-clicking in one of the JAIN SLEE Service Building Block classes or XML descriptor file (see <xref linkend="editing_a_jainslee_sbb" />) and selecting the <guilabel>Delete</guilabel> option.
+		</para>
+		<para>
+			A confirmation dialog similar to the following should be presented:
+			<figure>
+				<title>Deleting a JAIN SLEE Service Building Block confirmation dialog</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_delete_sbb_confirmation_dialog.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Deleting a JAIN SLEE Service Building Block confirmation dialog</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+		<important>
+			<title>Impossible to undo this operation!</title>
+			<para>Deleting a component is an irreversible operation, so it should be used carefully.</para>
+		</important>
+	</section>
+</chapter>

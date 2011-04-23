@@ -9,13 +9,19 @@
 	<para>The JAIN SLEE Eclipse Plug-in, <application>EclipSLEE</application>, is designed to help in the creation of the following JAIN SLEE components:</para>
 		<itemizedlist>
 			<listitem>
-				<para>Profile Specifications</para>
-			</listitem>
-			<listitem>
 				<para>Events</para>
 			</listitem>
 			<listitem>
 				<para>Service Building Blocks (SBBs)</para>
+			</listitem>
+			<listitem>
+				<para>Profile Specifications</para>
+			</listitem>
+			<listitem>
+				<para>Resource Adaptor Types</para>
+			</listitem>
+			<listitem>
+				<para>Resource Adaptors</para>
 			</listitem>
 			<listitem>
 				<para>Service XML Descriptors</para>
