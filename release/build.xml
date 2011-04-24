@@ -33,7 +33,7 @@
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
 
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0-SNAPSHOT.jar"/>
-	<property name="eclipslee.download.url" value ="http://hudson.jboss.org/hudson/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/org.mobicents.eclipslee.servicecreation_2.0.0.v20110421-1947.jar"/>
+	<property name="eclipslee.download.url" value ="http://hudson.jboss.org/hudson/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/org.mobicents.eclipslee.servicecreation_2.0.0-SNAPSHOT.jar"/>
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
