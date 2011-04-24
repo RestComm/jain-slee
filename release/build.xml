@@ -86,12 +86,15 @@
 
 	<target name="build-core" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
-			<arg line="install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
+			<arg line="install javadoc:aggregate -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
 		</exec>
 		<antcall target="build-docs">
 			<param name="docs.source.dir" value="${ant.file.mobicents.release}/../checkout/core/docs" />
 			<param name="docs.dest.dir" value="${release.dir}/docs/container/user-guide" />
 		</antcall>
+		<copy failonerror="true" toDir="${release.dir}/docs/container/javadoc" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/core/target/site/apidocs" />
+		</copy>
 	</target>
 
 	<target name="build-docs" description="">
