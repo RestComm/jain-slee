@@ -4,7 +4,7 @@
   <description>Mobicents Maven2 plugin to build JAIN SLEE 1.1 Library descriptors.</description>
   <groupId>org.mobicents.tools</groupId>
   <artifactId>maven-library-plugin</artifactId>
-  <version>1.0.0.CR2</version>
+  <version>1.0.0.FINAL</version>
   <goalPrefix>library</goalPrefix>
   <isolatedRealm>false</isolatedRealm>
   <inheritedByDefault>true</inheritedByDefault>
@@ -323,7 +323,7 @@ Example: java-source,jar,war</description>
       <instantiationStrategy>per-lookup</instantiationStrategy>
       <executionStrategy>once-per-session</executionStrategy>
       <threadSafe>false</threadSafe>
-      <parameters>
+      <parameters>        
         <parameter>
           <name>jarDirectory</name>
           <type>java.lang.String</type>
