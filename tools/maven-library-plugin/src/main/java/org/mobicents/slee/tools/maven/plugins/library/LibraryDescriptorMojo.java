@@ -56,6 +56,7 @@ public class LibraryDescriptorMojo extends AbstractMojo {
 	private String profileSpecRefs = null;
 	private String raTypeRefs = null;
 	private String sbbRefs = null;
+	private String securityPermissions = null;
 
 	private MavenProject project;
 
@@ -107,6 +108,9 @@ public class LibraryDescriptorMojo extends AbstractMojo {
 		this.sbbRefs = getRefs(project, "sbb");
 		getLog().info("SBB Refs:\n" + sbbRefs);
 
+		this.securityPermissions = getSecurityPermission(project);
+		getLog().info("Security Permissions:\n" + securityPermissions);
+		
 		if (this.libraryId == null) {
 			throw new MojoExecutionException(
 					"Unable to get Library ID from pom, please verify.");
@@ -215,7 +219,12 @@ public class LibraryDescriptorMojo extends AbstractMojo {
 			xml += "</jar-name>\r\n" + "\t\t</jar>\r\n";
 		}
 
-		xml += "\t</library>\r\n</library-jar>\r\n";
+		xml += "\t</library>\r\n";
+		
+		if (securityPermissions != null) {
+			xml += securityPermissions;
+		}
+		xml += "</library-jar>\r\n";
 
 		getLog().info(
 				"Generated Library descriptor: " + libraryDD.getAbsolutePath()
@@ -354,6 +363,37 @@ public class LibraryDescriptorMojo extends AbstractMojo {
 		return null;
 	}
 
+	private String getSecurityPermission(MavenProject mavenProject) {
+		for (Object pObject : mavenProject.getBuildPlugins()) {
+			Plugin plugin = (Plugin) pObject;
+			if (!plugin.getArtifactId().equals("maven-library-plugin")) {
+				continue;
+			}
+			Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
+			if (configuration == null) {
+				getLog().info("Configuration missing in plugin!");
+				return null;
+			}			
+			String result = null;
+			Xpp3Dom child = configuration.getChild("security-permissions");
+			if (child != null) {
+				result = "\t<security-permissions>\r\n";
+				Xpp3Dom description = child.getChild("description");
+				if (description != null && description.getValue() != null) {
+					result += "\t\t<description>\r\n\t\t\t"+description.getValue()+"\r\n\t\t</description>\r\n"; 
+				}
+				Xpp3Dom securityPermissionSpec = child.getChild("security-permission-spec");
+				if (securityPermissionSpec != null && securityPermissionSpec.getValue() != null) {
+					result += "\t\t<security-permission-spec>\r\n\t\t\t"+securityPermissionSpec.getValue()+"\r\n\t\t</security-permission-spec>\r\n"; 
+				}
+				result += "\t</security-permissions>\r\n";
+			}
+			return result;
+		}
+
+		return null;
+	}
+	
 	private Set<String> collectFiles(File inputDirectory, String suffix) {
 
 		if (getLog().isDebugEnabled()) {
