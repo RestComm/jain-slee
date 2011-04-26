@@ -14,11 +14,11 @@
 	<table frame="all" pgwide="1">
 		<title>Events which provide results of <literal>Statement</literal> execution</title>
 		<tgroup colsep="1" cols="5" align="left">
-			<colspec colnum="1" colname="c0" />
-			<colspec colnum="2" colname="c1" />
-			<colspec colnum="3" colname="c2" />
-			<colspec colnum="4" colname="c3" />
-			<colspec colnum="5" colname="c4" />
+			<colspec colnum="1" colname="c0" colwidth="2*"/>
+			<colspec colnum="2" colname="c1" colwidth="2*"/>
+			<colspec colnum="3" colname="c2" colwidth="1*"/>
+			<colspec colnum="4" colname="c3" colwidth="2*"/>
+			<colspec colnum="5" colname="c4" colwidth="3*"/>
 			<thead>
 				<row>
 					<entry>Name</entry>
@@ -33,28 +33,28 @@
 					<entry>Statement ResultSet Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Statement ResultSetEvent</entry>					
+					<entry>org.mobicents. slee.resource. jdbc.event. Statement ResultSet Event</entry>					
 					<entry>Provides the result set from a successful execution of a statement, requested through the activity method <literal>executeQuery(Statement statement, String sql)</literal>.</entry>
 				</row>
 				<row>
 					<entry>Statement UpdateCount Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Statement UpdateCountEvent</entry>					
+					<entry>org.mobicents. slee.resource. jdbc.event. Statement UpdateCount Event</entry>					
 					<entry>Provides the update count from a successful execution of a statement, requested through the activity methods <literal>executeUpdate(Statement statement, ...)</literal>.</entry>
 				</row>
 				<row>
 					<entry>Statement UnknownResult Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Statement UnknownResultEvent</entry>					
+					<entry>org.mobicents. slee.resource. jdbc.event. Statement UnknownResult Event</entry>					
 					<entry>Provides the unknown type result from a successful execution of a statement, requested through the activity methods <literal>execute(Statement statement, ...)</literal>.</entry>
 				</row>
 				<row>
 					<entry>Statement SQLException Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Statement SQLExceptionEvent</entry>					
+					<entry>org.mobicents. slee.resource. jdbc.event. Statement SQLException Event</entry>					
 					<entry>Provides the exception thrown from a unsuccessful execution of a statement.</entry>
 				</row>
 			</tbody>
@@ -67,11 +67,11 @@
 	<table frame="all" pgwide="1">
 		<title>Events which provide results of <literal>PreparedStatement</literal> execution</title>
 		<tgroup colsep="1" cols="5" align="left">
-			<colspec colnum="1" colname="c0" />
-			<colspec colnum="2" colname="c1" />
-			<colspec colnum="3" colname="c2" />
-			<colspec colnum="4" colname="c3" />
-			<colspec colnum="5" colname="c4" />
+			<colspec colnum="1" colname="c0" colwidth="2*"/>
+			<colspec colnum="2" colname="c1" colwidth="2*"/>
+			<colspec colnum="3" colname="c2" colwidth="1*"/>
+			<colspec colnum="4" colname="c3" colwidth="2*"/>
+			<colspec colnum="5" colname="c4" colwidth="3*"/>
 			<thead>
 				<row>
 					<entry>Name</entry>
@@ -86,28 +86,28 @@
 					<entry>PreparedStatement ResultSet Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. PreparedStatement ResultSetEvent</entry>					
-					<entry>Provides the result set from a successful execution of a prepared statement, requested through the activity method <literal>executeQuery(PreparedStatement preparedStatement)</literal>.</entry>
+					<entry>org.mobicents. slee.resource. jdbc.event. Prepared Statement ResultSet Event</entry>					
+					<entry>Provides the result set from a successful execution of a prepared statement, requested through the activity method <literal>executeQuery( Prepared Statement preparedStatement)</literal>.</entry>
 				</row>
 				<row>
 					<entry>PreparedStatement UpdateCount Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. PreparedStatement UpdateCountEvent</entry>					
-					<entry>Provides the update count from a successful execution of a prepared statement, requested through the activity method <literal>executeUpdate(PreparedStatement)</literal>.</entry>
+					<entry>org.mobicents. slee.resource. jdbc.event. Prepared Statement UpdateCount Event</entry>					
+					<entry>Provides the update count from a successful execution of a prepared statement, requested through the activity method <literal>executeUpdate( Prepared Statement preparedStatement )</literal>.</entry>
 				</row>
 				<row>
 					<entry>PreparedStatement UnknownResult Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. PreparedStatement UnknownResultEvent</entry>					
-					<entry>Provides the unknown type result from a successful execution of a prepared statement, requested through the activity method <literal>execute(PreparedStatement)</literal>.</entry>
+					<entry>org.mobicents. slee.resource. jdbc.event. Prepared Statement UnknownResult Event</entry>					
+					<entry>Provides the unknown type result from a successful execution of a prepared statement, requested through the activity method <literal>execute( Prepared Statement preparedStatement )</literal>.</entry>
 				</row>
 				<row>
 					<entry>PreparedStatement SQLException Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. PreparedStatement SQLExceptionEvent</entry>					
+					<entry>org.mobicents. slee.resource. jdbc.event. Prepared Statement SQLException Event</entry>					
 					<entry>Provides the exception thrown from a unsuccessful execution of a prepared statement.</entry>
 				</row>
 			</tbody>
