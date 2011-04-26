@@ -109,9 +109,7 @@ public abstract class CallBlockingSbb extends SubscriptionProfileSbb implements
 			//again, we will be attached only to our SA.
 			//cleanup.
 			log.info("Processing deactivation of: "+getSbbContext().getService()+", in "+getSbbContext().getSbb());
-			//no need to remove profiles, if we redeploy, they will be gone.
-			
-			
+			ProfileCreator.removeProfiles();
 		}
 	}
 	/**
