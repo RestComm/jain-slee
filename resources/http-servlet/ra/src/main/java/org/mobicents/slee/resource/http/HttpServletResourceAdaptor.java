@@ -388,12 +388,11 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 		// end any idle activity, it should be a leak, this is true assuming
 		// that jboss web session timeout is smaller than the container timeout
 		// to invoke this method
-		boolean infoTrace = logger.isInfoEnabled();
-		if (infoTrace) {
+		if (logger.isInfoEnabled()) {
 			logger.info("Activity " + activityHandle
 					+ " is idle in the container, terminating.");
 		}
-		endActivity((AbstractHttpServletActivity) activityHandle, infoTrace);
+		endActivity((AbstractHttpServletActivity) activityHandle);
 	}
 
 	// interface accessors
@@ -431,8 +430,6 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 	public void onRequest(HttpServletRequest request,
 			HttpServletResponse response) {
 
-		final boolean infoTrace = logger.isInfoEnabled();
-
 		AbstractHttpServletActivity activity = null;
 		
 		final HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(
@@ -445,7 +442,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 		final FireableEventType eventType = eventIdCache.getEventType(
 				eventLookup, event, session);
 		if (eventIDFilter.filterEvent(eventType)) {
-			if (infoTrace) {
+			if (logger.isInfoEnabled()) {
 				logger.info("Event filtered: " + event);
 			}
 			// dude, get out of here
@@ -497,7 +494,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 				// the event was unreferenced or 15s timeout, if the activity is
 				// the request then end it
 				if (session == null) {
-					endActivity(activity, infoTrace);
+					endActivity(activity);
 				}
 			} catch (Throwable e) {
 				logger.severe("Failure while firing event " + event
@@ -506,10 +503,9 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 		}
 	}
 
-	private void endActivity(AbstractHttpServletActivity activity,
-			boolean infoTrace) {
-		if (infoTrace) {
-			logger.info("Ending activity " + activity);
+	private void endActivity(AbstractHttpServletActivity activity) {
+		if (logger.isInfoEnabled()) {
+			logger.fine("Ending activity " + activity);
 		}
 		try {
 			sleeEndpoint.endActivity(activity);
@@ -525,8 +521,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 	 * onSessionTerminated(java.lang.String)
 	 */
 	public void onSessionTerminated(String sessionId) {
-		endActivity(new HttpSessionActivityImpl(sessionId), logger
-				.isInfoEnabled());
+		endActivity(new HttpSessionActivityImpl(sessionId));
 	}
 
 }
