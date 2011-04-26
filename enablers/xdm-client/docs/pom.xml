@@ -19,6 +19,7 @@
 
 	<properties>
 		<docs.enabler.name>XDM Client</docs.enabler.name>
+		<docs.enabler.sub.name>SIP Subscription Enabler</docs.enabler.sub.name>
 		<docs.enabler.dirname>xdm-client</docs.enabler.dirname>
 		<docs.bookid>XDMClient</docs.bookid>
 	</properties>

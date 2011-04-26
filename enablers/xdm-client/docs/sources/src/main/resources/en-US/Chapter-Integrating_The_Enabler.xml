@@ -33,13 +33,17 @@ public interface XDMClientParent {
 	public void deleteResponse(URI uri, int responseCode,
 			String responseContent, String eTag);
 
-	public void subscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+	public void subscribeFailed(int responseCode, 
+		XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
 
-	public void resubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+	public void resubscribeFailed(int responseCode, 
+		XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
 
-	public void unsubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+	public void unsubscribeFailed(int responseCode, 
+		XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
 
-	public void subscriptionTerminated(XDMClientChildSbbLocalObject sbbLocalObject, URI notifier, TerminationReason reason);
+	public void subscriptionTerminated(XDMClientChildSbbLocalObject sbbLocalObject,
+	    URI notifier, TerminationReason reason);
 	
 	public void subscriptionNotification(XcapDiff xcapDiff, SubscriptionStatus status);
 	
