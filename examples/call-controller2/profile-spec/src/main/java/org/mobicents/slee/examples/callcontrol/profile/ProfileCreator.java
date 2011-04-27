@@ -11,14 +11,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.management.Attribute;
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
+import javax.slee.management.ProfileProvisioningMBean;
 
 import org.apache.log4j.Logger;
 import org.jboss.jmx.adaptor.rmi.RMIAdaptor;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
@@ -51,6 +54,8 @@ public class ProfileCreator {
 
 	public static void removeProfiles() {
 
+		log.info("Removing profiles for CallControl2 example");
+
 		try {
 			executor.submit(new Callable<Object>() {
 
@@ -82,36 +87,15 @@ public class ProfileCreator {
 	}
 	
 	private static void _removeProfiles() {
-		//This cannot be done in Sbb, so we have to cleanup by hand.
+		// profile table removal can't be done by sbb
 		try {
-			String user=null;
-			String password = null;
-			Properties props = new Properties();
-			props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(CONF));
-			Iterator<Object> credentialsKeys = props.keySet().iterator();
-			if(credentialsKeys.hasNext())
-			{
-				user = (String) credentialsKeys.next();
-				password = props.getProperty(user);
-				
-			}
-			
-			String jbossBindAddress = System.getProperty("jboss.bind.address");
-			
-			Hashtable env = new Hashtable();
-			env.put("java.naming.factory.initial","org.jnp.interfaces.NamingContextFactory");
-			env.put("java.naming.provider.url", "jnp://"+jbossBindAddress);
-			env.put("java.naming.factory.url.pkgs","org.jboss.naming:org.jnp.interfaces");
-			env.put(Context.SECURITY_CREDENTIALS   , password);
-			env.put(Context.SECURITY_PRINCIPAL     , user);
-			RMIAdaptor adaptor = (RMIAdaptor) new InitialContext(env).lookup("jmx/rmi/RMIAdaptor");
-			//init SCI, pass credentials
-			//SleeCommandInterface sci = new SleeCommandInterface("jnp://"+ System.getProperty("jboss.bind.address") + ":1099", user, password);
-			SleeCommandInterface sci = new SleeCommandInterface(adaptor,user,password);
-		
-			sci.invokeOperation(SleeCommandInterface.REMOVE_PROFILE_TABLE_OPERATION, CC2_ProfileSpecID, CC2_TABLE, null);
+			ObjectName name = new ObjectName(ProfileProvisioningMBean.OBJECT_NAME); 
+			MBeanServer mBeanServer = SleeContainer.lookupFromJndi().getMBeanServer();
+			Object[] params = { CC2_TABLE };
+			String[] signature = { "java.lang.String" };
+			mBeanServer.invoke(name, "removeProfileTable", params, signature);			
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 
