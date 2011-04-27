@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
 package net.java.slee.resource.diameter.cxdx.events;
 
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
@@ -13,7 +35,7 @@ import net.java.slee.resource.diameter.cxdx.events.avp.SupportedFeaturesAvp;
  * <pre>
  * <b>6.1.11 Push-Profile-Request (PPR) Command</b>
  * The Push-Profile-Request (PPR) command, indicated by the Command-Code field set to 305 and the
- * ‘R’ bit set in the Command Flags field, is sent by a Diameter Multimedia server to a Diameter 
+ * ï¿½Rï¿½ bit set in the Command Flags field, is sent by a Diameter Multimedia server to a Diameter 
  * Multimedia client in order to update the subscription data and for SIP Digest authentication 
  * the authentication data of a multimedia user in the Diameter Multimedia client whenever a 
  * modification has occurred in the subscription data or digest password that constitutes the data 
