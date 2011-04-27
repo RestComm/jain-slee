@@ -57,10 +57,14 @@ public class MavenProjectUtils {
   private static final String DU_PLUGIN_ARTIFACT_ID = "maven-du-plugin";
 
   private static final Dependency JAIN_SLEE_DEPENDENCY = new Dependency();
+  private static final Dependency JAIN_SLEE_EXT_DEPENDENCY = new Dependency();
 
   static {
     JAIN_SLEE_DEPENDENCY.setGroupId("javax.slee");
     JAIN_SLEE_DEPENDENCY.setArtifactId("jain-slee");
+    
+    JAIN_SLEE_EXT_DEPENDENCY.setGroupId("org.mobicents.servers.jainslee.api");
+    JAIN_SLEE_EXT_DEPENDENCY.setArtifactId("jain-slee-11-ext");
   }
 
   public static void generateMavenPomFiles(IProject project, ProjectModules projectModules) {
@@ -137,6 +141,7 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
+    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -171,6 +176,7 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
+    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -220,6 +226,7 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
+    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -254,6 +261,7 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
+    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -295,6 +303,7 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
+    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
 
     // Add inner dependencies
     if(projectModules != null) {
