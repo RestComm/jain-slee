@@ -56,10 +56,16 @@ public class MavenProjectUtils {
   private static final String DU_PLUGIN_GROUP_ID = "org.mobicents.tools";
   private static final String DU_PLUGIN_ARTIFACT_ID = "maven-du-plugin";
 
+  private static final Parent MOBICENTS_PARENT = new Parent();
+
   private static final Dependency JAIN_SLEE_DEPENDENCY = new Dependency();
   private static final Dependency JAIN_SLEE_EXT_DEPENDENCY = new Dependency();
 
   static {
+    MOBICENTS_PARENT.setGroupId("org.mobicents");
+    MOBICENTS_PARENT.setArtifactId("mobicents-parent");
+    MOBICENTS_PARENT.setVersion("2.18");
+
     JAIN_SLEE_DEPENDENCY.setGroupId("javax.slee");
     JAIN_SLEE_DEPENDENCY.setArtifactId("jain-slee");
     
@@ -100,13 +106,7 @@ public class MavenProjectUtils {
     model.setModelVersion("4.0.0");
     model.setPackaging("pom");
 
-    // Set the parent to org.mobicents:mobicents-parent:2.17
-    // TODO: Get parent version from SVN ? ...
-    Parent parent = new Parent();
-    parent.setGroupId("org.mobicents");
-    parent.setArtifactId("mobicents-parent");
-    parent.setVersion("2.17");
-    model.setParent(parent);
+    model.setParent(MOBICENTS_PARENT);
 
     // TODO: Ask for these values in wizard?
     model.setGroupId(DEFAULT_GROUP_ID);
