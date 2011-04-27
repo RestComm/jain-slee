@@ -53,10 +53,6 @@
 		</para>
 		<para>
 			Choose the desired project modules to be created, from the list, as shown below. The correct Maven 2 modules will be created according to the selection, as well as the Deployable Unit descriptor.
-			<warning>
-				<title>Service Module</title>
-				<para>Do not select the "Service" Module as there's currently a problem with it and it will be automatically created even when unselected.</para>
-			</warning>
 			<figure>
 				<title>Choosing Name and Location of the JAIN SLEE Project</title>
 				<mediaobject>
@@ -232,7 +228,7 @@
 				This will create a <guilabel>New Maven Dependency</guilabel> dialog as shown below. From this dialog it's possible to define the dependency Group ID, Artifact ID and Version, as well as the scope with which the dependency should be added (defaulting to "compile"). The <guilabel>Add to classpath?</guilabel> option adds the new maven dependency to the project classpath, considering "M2_REPO" variable is set.
 				<important>
 					<title>Defining M2_REPO variable in Eclipse</title>
-					<para>...</para>
+					<para>Under Eclipse preferences, go to <menuchoice><guimenu>Java</guimenu><guisubmenu>Build Path</guisubmenu><guimenuitem></guimenuitem>Classpath Variables</menuchoice>. Click on <guibutton>New...</guibutton> and fill the values: <guilabel>Name</guilabel> as <literal>M2_REPO</literal> and <guilabel>Path</guilabel> indicating the path to your Maven local repository (usually located under &lt;user-home&gt;/.m2/repository). Click OK to save and close the dialog, and OK again to close the preferences window.</para>
 				</important>
 				<figure>
 					<title>Defining a new Maven dependency in EclipSLEE</title>
