@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
 package net.java.slee.resource.sip;
 
 import javax.sip.ServerTransaction;
@@ -102,8 +124,8 @@ public interface SleeSipProvider extends SipProvider {
 	 * SIP stack.
 	 * 
 	 * @param transport -
-	 *            a case in-sensitive transport name, such as “udp”, “tcp”, or
-	 *            “tls”. This value is used as the result of the getTransport
+	 *            a case in-sensitive transport name, such as ï¿½udpï¿½, ï¿½tcpï¿½, or
+	 *            ï¿½tlsï¿½. This value is used as the result of the getTransport
 	 *            method on javax.sip.header.ViaHeader.
 	 * @param branch
 	 *            -the branch for the via header, if null the RA will
@@ -154,22 +176,22 @@ public interface SleeSipProvider extends SipProvider {
 	 * </tr>
 	 * <tr>
 	 * <td><b>CANCEL matched INVITE</b></td>
-	 * <td>Send “200 OK” response to CANCEL. Send “487 Request Terminated”
+	 * <td>Send ï¿½200 OKï¿½ response to CANCEL. Send ï¿½487 Request Terminatedï¿½
 	 * response to INVITE.</td>
-	 * <td>Send “200 OK” response to CANCEL. The Proxy application must cancel
-	 * outstanding branches and wait for responses (RFC3261 §16.10).</td>
+	 * <td>Send ï¿½200 OKï¿½ response to CANCEL. The Proxy application must cancel
+	 * outstanding branches and wait for responses (RFC3261 ï¿½16.10).</td>
 	 * </tr>
 	 * <tr>
 	 * <td><b>CANCEL did not match INVITE</b></td>
-	 * <td>Send “481 Call or Transaction Does Not Exist” response to CANCEL.</td>
+	 * <td>Send ï¿½481 Call or Transaction Does Not Existï¿½ response to CANCEL.</td>
 	 * <td>Do nothing. Proxy application must statelessly forward the CANCEL
-	 * downstream (RFC3261 §16.10).</td>
+	 * downstream (RFC3261 ï¿½16.10).</td>
 	 * </tr>
 	 * </table>
 	 * 
 	 * The resource adaptor is expected to check if the CANCEL request was
 	 * processed by any SBBs. If the CANCEL request was not processed by an SBB,
-	 * the RA is expected to send a “481 Call or Transaction Does Not Exist”.
+	 * the RA is expected to send a ï¿½481 Call or Transaction Does Not Existï¿½.
 	 * 
 	 * @param cancelEvent
 	 * @param isProxy

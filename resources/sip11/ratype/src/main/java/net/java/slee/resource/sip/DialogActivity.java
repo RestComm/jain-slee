@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
 package net.java.slee.resource.sip;
 
 import javax.sip.ClientTransaction;
@@ -57,7 +79,7 @@ public interface DialogActivity extends Dialog {
 	 * one Dialog and wishes to forward the response on another Dialog. The
 	 * method returns a new Response to be sent on this Dialog. The method
 	 * copies the headers and body present in the response argument to the
-	 * return result, and copies the transactions’ identifier to the return
+	 * return result, and copies the transactionsï¿½ identifier to the return
 	 * result. This method is intended to be used in conjunction with the
 	 * associateServerTransaction and getAssociatedServerTransaction methods.
 	 * 
@@ -87,7 +109,7 @@ public interface DialogActivity extends Dialog {
 	 * @param ct -
 	 *            This argument represents a Client Transaction for this Dialog.
 	 * @param st
-	 *            – This argument represents a Server Transaction for another
+	 *            ï¿½ This argument represents a Server Transaction for another
 	 *            Dialog.
 	 */
 	public void associateServerTransaction(ClientTransaction ct,
@@ -101,7 +123,7 @@ public interface DialogActivity extends Dialog {
 	 * createResponse( ServerTransaction, Response) methods.
 	 * 
 	 * @param ct
-	 *            – This argument represents a Client Transaction for this
+	 *            ï¿½ This argument represents a Client Transaction for this
 	 *            Dialog.
 	 * @return
 	 */
