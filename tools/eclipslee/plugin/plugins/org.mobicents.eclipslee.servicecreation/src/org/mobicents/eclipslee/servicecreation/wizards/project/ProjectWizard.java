@@ -13,7 +13,6 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-
 package org.mobicents.eclipslee.servicecreation.wizards.project;
 
 import java.io.IOException;
@@ -56,30 +55,29 @@ import org.mobicents.eclipslee.servicecreation.util.FileUtil;
 import org.mobicents.eclipslee.servicecreation.util.ProjectModules;
 import org.mobicents.eclipslee.servicecreation.wizards.WizardChangeListener;
 import org.mobicents.eclipslee.util.maven.MavenProjectUtils;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntBuildTargetXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntInitTargetXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntPathXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntProjectXML;
-import org.mobicents.eclipslee.util.slee.xml.ant.AntTaskdefXML;
 import org.mobicents.eclipslee.xml.SLEEEntityResolver;
 
-
 /**
+ * 
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ProjectWizard extends Wizard implements INewWizard {
 	
 	private static final String WIZARD_TITLE_1_0 = "JAIN SLEE 1.0 Project Wizard";
-    private static final String WIZARD_TITLE_1_1 = "JAIN SLEE 1.1 Project Wizard";
-    private static final String WIZARD_TITLE = WIZARD_TITLE_1_1;
+	private static final String WIZARD_TITLE_1_1 = "JAIN SLEE 1.1 Project Wizard";
+	private static final String WIZARD_TITLE = WIZARD_TITLE_1_1;
 
 	final String BUILDER_ID = "org.mobicents.eclipslee.servicecreation.jainsleebuilder";
 
-  private static final IPath SLEE_JAR_1_0 = new Path("lib/" + APIDialog.SLEE_JAR_1_0);
-  private static final IPath SLEE_JAR_1_1 = new Path("M2_REPO/javax/slee/jain-slee/1.1/" + APIDialog.SLEE_JAR_1_1);
-  private static final IPath SLEE_JAR = SLEE_JAR_1_1;
+  private static final IPath SLEE_1_0_JAR = new Path("lib/" + APIDialog.SLEE_JAR_1_0);
+  private static final IPath SLEE_1_1_JAR = new Path("M2_REPO/javax/slee/jain-slee/1.1/" + APIDialog.SLEE_JAR_1_1);
+  private static final IPath SLEE_JAR = SLEE_1_1_JAR;
 
-	private static final IPath SLEE_TASKS_JAR = new Path("lib/slee-tasks.jar");
+  private static final String SLEE_EXT_1_1_VERSION = "1.0.0.BETA2";
+  private static final IPath SLEE_EXT_1_1_JAR = new Path("M2_REPO/org/mobicents/servers/jainslee/api/jain-slee-11-ext/" + SLEE_EXT_1_1_VERSION + "/jain-slee-11-ext-" + SLEE_EXT_1_1_VERSION + ".jar");
+
+  private static final IPath SLEE_TASKS_JAR = new Path("lib/slee-tasks.jar");
 	private	static final IPath SLEE_API_ZIP = new Path("lib/" + APIDialog.SLEE_API_ZIP);
 	
 	private static final IPath[] LIBS = {
@@ -288,7 +286,7 @@ public class ProjectWizard extends Wizard implements INewWizard {
 		entries[0] = JavaCore.newSourceEntry(path);
 		*/
 		int n = 0;
-    IClasspathEntry[] entries = new IClasspathEntry[projectModules.getModuleCount() * 2 + 1];
+    IClasspathEntry[] entries = new IClasspathEntry[projectModules.getModuleCount() * 2 + 2];
 		for(String module : projectModules.getModules()) {
 		  if(!module.equals("du")) {
         path = project.getFullPath().append(module + "/src/main/java");
@@ -305,6 +303,7 @@ public class ProjectWizard extends Wizard implements INewWizard {
 		//IPath docPath = project.getFullPath().append("/" + SLEE_API_ZIP.toOSString());
 		//entries[2] = JavaCore.newLibraryEntry(path, docPath /* No available source */, null /* hell knows */);
     entries[n++] = JavaCore.newVariableEntry(new Path(SLEE_JAR.toOSString()), null /* No available source */, null /* hell knows */);
+    entries[n++] = JavaCore.newVariableEntry(new Path(SLEE_EXT_1_1_JAR.toOSString()), null /* No available source */, null /* hell knows */);
 
 		javaProject.setRawClasspath(entries, null);
 	}

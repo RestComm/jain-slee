@@ -11,6 +11,8 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
+import org.apache.maven.model.Repository;
+import org.apache.maven.model.RepositoryPolicy;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -120,6 +122,27 @@ public class MavenProjectUtils {
       model.addModule(module);
     }
 
+    // Add JBoss Repository so Mobicents Parent can be fetched...
+    Repository jbossRepo = new Repository();
+    jbossRepo.setId("jboss-public-repository-group");
+    jbossRepo.setName("JBoss Public Maven Repository Group");
+    jbossRepo.setUrl("https://repository.jboss.org/nexus/content/groups/public");
+    jbossRepo.setLayout("default");
+
+    RepositoryPolicy jbossRepoRel = new RepositoryPolicy();
+    jbossRepoRel.setEnabled(true);
+    jbossRepoRel.setUpdatePolicy("never");
+
+    jbossRepo.setReleases(jbossRepoRel);
+
+    RepositoryPolicy jbossRepoSnp = new RepositoryPolicy();
+    jbossRepoSnp.setEnabled(true);
+    jbossRepoSnp.setUpdatePolicy("never");
+
+    jbossRepo.setSnapshots(jbossRepoSnp);
+
+    model.addRepository(jbossRepo);
+    
     writePomFile(model, project.getLocation().append("pom.xml").toString());
   }
 
