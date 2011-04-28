@@ -6,8 +6,7 @@
 	<parent>
 		<artifactId>mobicents-parent</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>2.2</version>
-		<relativePath>../../pom.xml</relativePath>
+		<version>2.19-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>jcc-ss7-test-parent</artifactId>
