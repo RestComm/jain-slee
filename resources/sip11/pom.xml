@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.18-SNAPSHOT</version>
+		<version>2.18</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-ra-sip11</artifactId>
@@ -24,8 +24,8 @@
 	</modules>
 	
 	<properties>
-		<mobicents.slee.version>2.2.0.FINAL</mobicents.slee.version>
-		<jsip.ha.version>1.1.0.FINAL</jsip.ha.version>
+		<mobicents.slee.version>2.4.0.FINAL</mobicents.slee.version>
+		<jsip.ha.version>1.2.0.FINAL</jsip.ha.version>
 		<jsip.sip.ext.version>1.0.BETA1</jsip.sip.ext.version>
 		<loadbalancer.version>1.2.FINAL</loadbalancer.version>
 		<docs.profile>mobicents</docs.profile>
