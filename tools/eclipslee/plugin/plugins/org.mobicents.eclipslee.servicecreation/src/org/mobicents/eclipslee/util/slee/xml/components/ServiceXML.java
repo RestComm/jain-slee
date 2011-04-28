@@ -35,10 +35,10 @@ public class ServiceXML extends DTDXML {
 	
 	public static final String QUALIFIED_NAME = "service-xml";
 	public static final String PUBLIC_ID_1_0 = "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.0//EN";
-	public static final String SYSTEM_ID_1_0 = "http://java.sun.com/dtd/slee-service_1_0.dtd";
+	public static final String SYSTEM_ID_1_0 = "http://java.sun.com/dtd/slee-service-xml_1_0.dtd";
 	
     public static final String PUBLIC_ID_1_1 = "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.1//EN";
-    public static final String SYSTEM_ID_1_1 = "http://java.sun.com/dtd/slee-service_1_1.dtd";
+    public static final String SYSTEM_ID_1_1 = "http://java.sun.com/dtd/slee-service-xml_1_1.dtd";
 
     public static final String PUBLIC_ID = PUBLIC_ID_1_1;
     public static final String SYSTEM_ID = SYSTEM_ID_1_1;

@@ -54,7 +54,7 @@ public class SLEEEntityResolver implements EntityResolver {
         { "-//Sun Microsystems, Inc.//DTD JAIN SLEE Deployable Unit 1.1//EN", "http://java.sun.com/dtd/slee-deployable-unit_1_1.dtd", "slee-deployable-unit_1_1.dtd", "dummy-deployable-unit_1_1.xml" },
         { "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.1//EN", "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_1.dtd", "slee-resource-adaptor-type-jar_1_1.dtd", "dummy-resource-adaptor-type-jar_1_1.xml" },
         { "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.1//EN", "http://java.sun.com/dtd/slee-resource-adaptor-jar_1_1.dtd", "slee-resource-adaptor-jar_1_1.dtd","dummy-resource-adaptor-jar_1_1.xml"},
-        { "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.1//EN", "http://java.sun.com/dtd/slee-service_1_1.dtd", "slee-service-xml_1_1.dtd", "dummy-service-xml_1_1.xml" },
+        { "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.1//EN", "http://java.sun.com/dtd/slee-service-xml_1_1.dtd", "slee-service-xml_1_1.dtd", "dummy-service-xml_1_1.xml" },
         { "-//Sun Microsystems, Inc.//DTD JAIN SLEE Library 1.1//EN", "http://java.sun.com/dtd/slee-library-jar_1_1.dtd", "slee-library-jar_1_1.dtd", "dummy-library-jar_1_1.xml" },
 
         // Alcatel enhancements
