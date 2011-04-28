@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>mobicents-slee-ra-map-docs</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0.BETA8</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-ra-map-docs-sources-mobicents</artifactId>	
