@@ -1,25 +1,25 @@
 __PACKAGE__
 
 import javax.slee.*;
-
+__IMPORT_MOBICENTS_EXTENSIONS__
 public abstract class __NAME__Sbb implements Sbb__BUSINESS_IFACE_NAME__ {
 
 __EVENT_HANDLERS__
 	
 	// TODO: Perform further operations if required in these methods.
-	public void setSbbContext(SbbContext context) { this.sbbContext = context; }
-    public void unsetSbbContext() { this.sbbContext = null; }
-    
-    // TODO: Implement the lifecycle methods if required
-    public void sbbCreate() throws javax.slee.CreateException {}
-    public void sbbPostCreate() throws javax.slee.CreateException {}
-    public void sbbActivate() {}
-    public void sbbPassivate() {}
-    public void sbbRemove() {}
-    public void sbbLoad() {}
-    public void sbbStore() {}
-    public void sbbExceptionThrown(Exception exception, Object event, ActivityContextInterface activity) {}
-    public void sbbRolledBack(RolledBackContext context) {}
+	public void setSbbContext(SbbContext context) { this.sbbContext = __SBB_CONTEXT_EXT_CAST__context; }
+	public void unsetSbbContext() { this.sbbContext = null; }
+
+	// TODO: Implement the lifecycle methods if required
+	public void sbbCreate() throws javax.slee.CreateException {}
+	public void sbbPostCreate() throws javax.slee.CreateException {}
+	public void sbbActivate() {}
+	public void sbbPassivate() {}
+	public void sbbRemove() {}
+	public void sbbLoad() {}
+	public void sbbStore() {}
+	public void sbbExceptionThrown(Exception exception, Object event, ActivityContextInterface activity) {}
+	public void sbbRolledBack(RolledBackContext context) {}
 	
 __INITIAL_EVENT_SELECTOR____FIRE_EVENTS____CMP_FIELDS____CHILD_RELATION____PROFILE_CMP____ACI_METHOD____USAGE_METHOD__
 	
@@ -32,10 +32,10 @@ __INITIAL_EVENT_SELECTOR____FIRE_EVENTS____CMP_FIELDS____CHILD_RELATION____PROFI
 	 * @return this SBB's SbbContext object
 	 */
 	
-	protected SbbContext getSbbContext() {
+	protected SbbContext__EXT_SUFFIX__ getSbbContext() {
 		return sbbContext;
 	}
 
-	private SbbContext sbbContext; // This SBB's SbbContext
+	private SbbContext__EXT_SUFFIX__ sbbContext; // This SBB's SbbContext
 
 }

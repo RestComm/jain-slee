@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors by the
+ * @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.mobicents.eclipslee.servicecreation.wizards.project;
 
 import java.util.ArrayList;
@@ -7,12 +28,16 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.mobicents.eclipslee.servicecreation.ui.ProjectModulesPanel;
 
+/**
+ * 
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ */
 public class ProjectModulesPage extends WizardPage {
 
   protected ProjectModulesPage(String pageName) {
     super(pageName);
-    setTitle("JAIN SLEE Modules");
-    setDescription("Please select the desired JAIN SLEE modules for your project");
+    setTitle("JAIN SLEE Modules and Extensions");
+    setDescription("Please select the desired JAIN SLEE modules for your project and whether to use or not Mobicents JAIN SLEE 1.1. Extensions.");
   }
 
   public void createControl(Composite parent) {
@@ -38,5 +63,10 @@ public class ProjectModulesPage extends WizardPage {
   public ArrayList<String> getModules() {
     ProjectModulesPanel panel = (ProjectModulesPanel) getControl();
     return panel.getModules();
+  }
+  
+  public boolean getUseExtensions() {
+    ProjectModulesPanel panel = (ProjectModulesPanel) getControl();
+    return panel.getUseExtensions();
   }
 }

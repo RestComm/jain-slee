@@ -18,6 +18,9 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin;
 import org.mobicents.eclipslee.servicecreation.util.ProjectModules;
 
@@ -167,7 +170,10 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
-    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    // Not needed so far ...
+    // if(useExtensions(project)) {
+    //   addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    // }
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -202,7 +208,9 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
-    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    if(useExtensions(project)) {
+      addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    }
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -252,7 +260,9 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
-    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    if(useExtensions(project)) {
+      addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    }
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -287,7 +297,10 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
-    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    // Not needed so far ...
+    // if(useExtensions(project)) {
+    //   addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    // }
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -329,7 +342,10 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
-    addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    // Not needed so far ...
+    // if(useExtensions(project)) {
+    //   addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
+    // }
 
     // Add inner dependencies
     if(projectModules != null) {
@@ -551,4 +567,17 @@ public class MavenProjectUtils {
     return false;
   }
 
+  public static boolean useExtensions(IProject project) {
+    try {
+      IJavaProject javaProject = JavaCore.create(project);
+      for(IClasspathEntry cp : javaProject.getRawClasspath()) {
+        if(cp.getPath().toOSString().endsWith(".jar") && cp.getPath().toOSString().contains("jain-slee-11-ext"))
+          return true;
+      }
+    }
+    catch (Exception e) {
+    }
+
+    return false;
+  }
 }

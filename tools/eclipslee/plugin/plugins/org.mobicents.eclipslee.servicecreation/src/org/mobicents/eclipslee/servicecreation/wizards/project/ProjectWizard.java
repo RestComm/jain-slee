@@ -286,7 +286,7 @@ public class ProjectWizard extends Wizard implements INewWizard {
 		entries[0] = JavaCore.newSourceEntry(path);
 		*/
 		int n = 0;
-    IClasspathEntry[] entries = new IClasspathEntry[projectModules.getModuleCount() * 2 + 2];
+    IClasspathEntry[] entries = new IClasspathEntry[projectModules.getModuleCount() * 2 + 1 + (projectUseExtensions ? 1 : 0)];
 		for(String module : projectModules.getModules()) {
 		  if(!module.equals("du")) {
         path = project.getFullPath().append(module + "/src/main/java");
@@ -303,7 +303,9 @@ public class ProjectWizard extends Wizard implements INewWizard {
 		//IPath docPath = project.getFullPath().append("/" + SLEE_API_ZIP.toOSString());
 		//entries[2] = JavaCore.newLibraryEntry(path, docPath /* No available source */, null /* hell knows */);
     entries[n++] = JavaCore.newVariableEntry(new Path(SLEE_JAR.toOSString()), null /* No available source */, null /* hell knows */);
-    entries[n++] = JavaCore.newVariableEntry(new Path(SLEE_EXT_1_1_JAR.toOSString()), null /* No available source */, null /* hell knows */);
+    if (projectUseExtensions) {
+      entries[n++] = JavaCore.newVariableEntry(new Path(SLEE_EXT_1_1_JAR.toOSString()), null /* No available source */, null /* hell knows */);
+    }
 
 		javaProject.setRawClasspath(entries, null);
 	}
@@ -407,6 +409,7 @@ public class ProjectWizard extends Wizard implements INewWizard {
 		projectLocationPath = page.getLocationPath();
 		
 		projectModules = new ProjectModules(modulesPage.getModules());
+		projectUseExtensions =  modulesPage.getUseExtensions();
 		
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
@@ -473,4 +476,5 @@ public class ProjectWizard extends Wizard implements INewWizard {
 	private IPath projectLocationPath;
 	
 	private ProjectModules projectModules;
+  private boolean projectUseExtensions;
 }

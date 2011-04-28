@@ -1,8 +1,8 @@
 __PACKAGE__
 
 import javax.slee.SbbLocalObject;
-
-public interface __NAME__SbbLocalObject extends SbbLocalObject, __NAME__ {
+__IMPORT_MOBICENTS_EXTENSIONS__
+public interface __NAME__SbbLocalObject extends SbbLocalObject__EXT_SUFFIX__, __NAME__ {
 
 	// NOTE: For better consistency, use __NAME__ to define the SBB LocalObject business methods
 

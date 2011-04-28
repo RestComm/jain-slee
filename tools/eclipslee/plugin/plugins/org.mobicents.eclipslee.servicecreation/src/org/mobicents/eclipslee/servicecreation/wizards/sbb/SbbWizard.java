@@ -31,6 +31,7 @@ import org.mobicents.eclipslee.servicecreation.util.CMPUtil;
 import org.mobicents.eclipslee.servicecreation.util.FileUtil;
 import org.mobicents.eclipslee.servicecreation.wizards.generic.BaseWizard;
 import org.mobicents.eclipslee.util.Utils;
+import org.mobicents.eclipslee.util.maven.MavenProjectUtils;
 import org.mobicents.eclipslee.util.slee.xml.components.EventXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ProfileSpecXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeXML;
@@ -157,10 +158,24 @@ public class SbbWizard extends BaseWizard {
 			if (createACI) stages++;
 			monitor.beginTask("Creating SBB: " + sbbBaseName, stages);
 
+			// Are we using Mobicents JAIN SLEE 1.1 Extensions ?
+			boolean useExt = MavenProjectUtils.useExtensions(getSourceContainer().getProject());
+			
 			// Substitution map
 			HashMap<String, String> subs = new HashMap<String, String>();
 			subs.put("__NAME__", sbbBaseName);
 			subs.put("__PACKAGE__", Utils.getPackageTemplateValue(getPackageName()));
+			
+			if(useExt) {
+  			subs.put("__IMPORT_MOBICENTS_EXTENSIONS__", "import org.mobicents.slee.*;\n");
+        subs.put("__EXT_SUFFIX__", "Ext");
+        subs.put("__SBB_CONTEXT_EXT_CAST__", "(SbbContextExt) ");
+			}
+			else {
+        subs.put("__IMPORT_MOBICENTS_EXTENSIONS__", "");
+        subs.put("__EXT_SUFFIX__", "");
+        subs.put("__SBB_CONTEXT_EXT_CAST__", "");
+			}
 			
 			// SBB Usage stuff.
 			subs.put("__USAGE_METHODS__", getUsageMethods(usageParams));			
@@ -349,7 +364,7 @@ public class SbbWizard extends BaseWizard {
 				rel.setChildRelationMethodName("get" + Utils.capitalize(scopedName));
 				rel.setDefaultPriority(Integer.parseInt((String) child.get("Default Priority")));
 				
-				String methodName = "\tpublic abstract ChildRelation get" + Utils.capitalize(scopedName) + "();\n";
+				String methodName = "\tpublic abstract ChildRelation" + (useExt ? "Ext" : "") +" get" + Utils.capitalize(scopedName) + "();\n";
 				childRelation += methodName;				
 			}
 			
