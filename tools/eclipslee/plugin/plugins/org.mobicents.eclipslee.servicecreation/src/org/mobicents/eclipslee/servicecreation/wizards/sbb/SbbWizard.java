@@ -167,12 +167,14 @@ public class SbbWizard extends BaseWizard {
 			subs.put("__PACKAGE__", Utils.getPackageTemplateValue(getPackageName()));
 			
 			if(useExt) {
-  			subs.put("__IMPORT_MOBICENTS_EXTENSIONS__", "import org.mobicents.slee.*;\n");
+        subs.put("__IMPORT_MOBICENTS_EXTENSIONS__", "import org.mobicents.slee.*;\n");
+        subs.put("__SBB_LOCAL_OBJECT_IMPORTS__", "import org.mobicents.slee.*;");
         subs.put("__EXT_SUFFIX__", "Ext");
         subs.put("__SBB_CONTEXT_EXT_CAST__", "(SbbContextExt) ");
 			}
 			else {
         subs.put("__IMPORT_MOBICENTS_EXTENSIONS__", "");
+        subs.put("__SBB_LOCAL_OBJECT_IMPORTS__", "import javax.slee.SbbLocalObject;");
         subs.put("__EXT_SUFFIX__", "");
         subs.put("__SBB_CONTEXT_EXT_CAST__", "");
 			}

@@ -36,6 +36,7 @@ import org.mobicents.eclipslee.servicecreation.util.SbbFinder;
 import org.mobicents.eclipslee.servicecreation.wizards.sbb.SbbChildDialog;
 import org.mobicents.eclipslee.util.SLEE;
 import org.mobicents.eclipslee.util.Utils;
+import org.mobicents.eclipslee.util.maven.MavenProjectUtils;
 import org.mobicents.eclipslee.util.slee.xml.components.ComponentNotFoundException;
 import org.mobicents.eclipslee.util.slee.xml.components.SbbChildRelationXML;
 import org.mobicents.eclipslee.util.slee.xml.components.SbbRefXML;
@@ -71,7 +72,10 @@ public class EditSbbChildAction  implements IActionDelegate {
 			
 			try {
 				
-				IProgressMonitor monitor = null;
+	      // Are we using Mobicents JAIN SLEE 1.1 Extensions ?
+	      boolean useExt = MavenProjectUtils.useExtensions(abstractFile.getProject());
+
+	      IProgressMonitor monitor = null;
 				
 				// Remove all child-relation methods and the corresponding sbb-ref elements
 				// BUT NOT ALL sbb-ref elements as some may refer to the current SBB.
@@ -110,7 +114,7 @@ public class EditSbbChildAction  implements IActionDelegate {
 					String methodName = "get" + Utils.capitalize((String) children[i].get("Scoped Name"));
 					rel.setChildRelationMethodName(methodName);
 					rel.setDefaultPriority(Integer.parseInt((String) children[i].get("Default Priority")));
-					String methodText = "\tpublic abstract ChildRelation " + methodName + "();\n";
+					String methodText = "\tpublic abstract ChildRelation" + (useExt ? "Ext " : " ") + methodName + "();\n";
 					ClassUtil.addMethodToClass(abstractFile, methodText);					
 				}				
 				
