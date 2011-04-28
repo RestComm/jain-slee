@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents.resources</groupId>
 		<artifactId>mobicents-slee-ra-xcap-client</artifactId>
-		<version>2.4.0.FINAL</version>
+		<version>2.4.1-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-ra-xcap-client-docs</artifactId>
