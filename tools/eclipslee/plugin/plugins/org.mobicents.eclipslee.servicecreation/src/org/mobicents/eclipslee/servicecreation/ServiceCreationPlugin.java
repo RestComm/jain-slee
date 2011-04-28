@@ -23,8 +23,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -63,7 +65,15 @@ public class ServiceCreationPlugin extends AbstractUIPlugin implements ICommunic
 	public static final String NATURE_ID = "org.mobicents.eclipslee.servicecreation.sleenature";
 	public static final String OSP_NATURE_ID = "org.alcatel.jsce.servicecreation.jospnature";
 
-	/**
+  private static final String EVENTS_JAR_1_0 = "/standard-components/standard-events.jar";
+  private static final String EVENTS_JAR_1_1 = "/standard-components/standard-events11.jar";
+  private static final String PROFILES_JAR_1_0 = "/standard-components/standard-profiles.jar";
+  private static final String PROFILES_JAR_1_1 = "/standard-components/standard-profiles11.jar";
+
+  private static final String[] PROFILES_JARS = {PROFILES_JAR_1_0, PROFILES_JAR_1_1};
+  private static final String[] EVENTS_JARS = {EVENTS_JAR_1_0, EVENTS_JAR_1_1};
+
+  /**
 	 * The constructor.
 	 */
 	public ServiceCreationPlugin() {
@@ -186,12 +196,36 @@ public class ServiceCreationPlugin extends AbstractUIPlugin implements ICommunic
 	}
 
 	public static ZipFile getSleeAPI_1_1ZipFile() throws IOException {
-        URL url = FileLocator.find(ServiceCreationPlugin.getDefault().getBundle(), new Path("lib/" + APIDialog.SLEE_API_ZIP_1_1), null);
-        URL furl = FileLocator.toFileURL(url);
-        ZipFile zipFile = new ZipFile(furl.getPath());
-        return zipFile;
+	  URL url = FileLocator.find(ServiceCreationPlugin.getDefault().getBundle(), new Path("lib/" + APIDialog.SLEE_API_ZIP_1_1), null);
+	  URL furl = FileLocator.toFileURL(url);
+	  ZipFile zipFile = new ZipFile(furl.getPath());
+	  return zipFile;
 	}
-		
+
+	public static JarFile[] getSLEEStandardEvents() throws IOException {
+	  ArrayList<JarFile> jarFiles = new ArrayList<JarFile>();
+	  for(String eventJar : EVENTS_JARS) {
+	    URL url = FileLocator.find(ServiceCreationPlugin.getDefault().getBundle(), new Path(eventJar), null);
+	    URL furl = FileLocator.toFileURL(url);
+	    JarFile jarFile = new JarFile(furl.getPath());
+	    jarFiles.add(jarFile);
+	  }
+
+	  return jarFiles.toArray(new JarFile[jarFiles.size()]);
+	}
+
+	public static JarFile[] getSLEEStandardProfiles() throws IOException {
+	  ArrayList<JarFile> jarFiles = new ArrayList<JarFile>();
+	  for(String profileJar : PROFILES_JARS) {
+	    URL url = FileLocator.find(ServiceCreationPlugin.getDefault().getBundle(), new Path(profileJar), null);
+	    URL furl = FileLocator.toFileURL(url);
+	    JarFile jarFile = new JarFile(furl.getPath());
+	    jarFiles.add(jarFile);
+	  }
+
+	  return jarFiles.toArray(new JarFile[jarFiles.size()]);
+	}
+
 	public InputStream getSleeJar() {
 		try {
 			// Was the SLEE jar packaged with the plug-in?
@@ -227,17 +261,21 @@ public class ServiceCreationPlugin extends AbstractUIPlugin implements ICommunic
 			// Was the SLEE API jar packaged with the plug-in?
 			//InputStream is = ServiceCreationPlugin.getDefault().openStream(new Path("lib/" + APIDialog.SLEE_API_ZIP));
 			InputStream is = FileLocator.openStream(ServiceCreationPlugin.getDefault().getBundle(), new Path("lib/" + APIDialog.SLEE_API_ZIP), false);
-			if (is != null)
-				return is;
-		} catch (IOException e) {
+			if (is != null) {
+			  return is;
+			}
+		}
+		catch (IOException e) {
 		}
 		
 		try {			
 			// Was it added by the user afterwards by the dialog?
 			File file = this.getStateLocation().append(APIDialog.SLEE_API_ZIP).toFile();		
-			if (file.exists())
-				return new FileInputStream(file);
-		} catch (IOException e) {
+			if (file.exists()) {
+			  return new FileInputStream(file);
+			}
+		}
+		catch (IOException e) {
 		}
 		return null;	
 	}
@@ -380,7 +418,6 @@ public class ServiceCreationPlugin extends AbstractUIPlugin implements ICommunic
 	 */
 	public void sendMessageInfo(String msg) {
 		MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "SCE-SE message", msg);
-		
 	}
 
 	/**
@@ -388,13 +425,12 @@ public class ServiceCreationPlugin extends AbstractUIPlugin implements ICommunic
 	 */
 	public void sendMessageError(String msg) {
 		MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "SCE-SE message", msg);
-		
 	}
 
 	public void loadPadding(Insets padding) {
-		//		1. Update the keystore manager
+		// 1. Update the keystore manager
 		getMainControl().setPaddingAttribute(padding.top,padding.bottom, padding.left, padding.left);
-		//2. Update the store manager of Eclipse
+		// 2. Update the store manager of Eclipse
 		getStoreManager().storeValue(PreferenceStoreManager.PADDING_BOTTOM, padding.bottom);
 		getStoreManager().storeValue(PreferenceStoreManager.PADDING_TOP , padding.top);
 		getStoreManager().storeValue(PreferenceStoreManager.PADDING_RIGHT, padding.right);

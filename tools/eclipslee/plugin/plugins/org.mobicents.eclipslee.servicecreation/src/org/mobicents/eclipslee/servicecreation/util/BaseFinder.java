@@ -31,7 +31,6 @@
 
 package org.mobicents.eclipslee.servicecreation.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -47,7 +46,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -853,21 +851,14 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 		return components;
 	}
 
-  String EVENTS_JAR_10 = "/standard-components/standard-events.jar";
-  String EVENTS_JAR_11 = "/standard-components/standard-events11.jar";
-  String PROFILES_JAR_10 = "/standard-components/standard-profiles.jar";
-  String PROFILES_JAR_11 = "/standard-components/standard-profiles11.jar";
-
   private Vector<DTDXML> getComponentsFromPlugin(int componentType) {
     Vector<DTDXML> components = new Vector<DTDXML>();
     switch(componentType) {
     case EVENT_JAR:
       try {
-        File root = FileLocator.getBundleFile(ServiceCreationPlugin.getDefault().getBundle());
-        JarFile events10Jar = new JarFile(new File(root, EVENTS_JAR_10));
-        JarFile events11Jar = new JarFile(new File(root, EVENTS_JAR_11));
-        components.add(new EventJarXML(events10Jar, events10Jar.getJarEntry("META-INF/event-jar.xml"), new File(root, EVENTS_JAR_10).getAbsolutePath()));
-        components.add(new EventJarXML(events11Jar, events11Jar.getJarEntry("META-INF/event-jar.xml"), new File(root, EVENTS_JAR_11).getAbsolutePath()));
+        for(JarFile eventsJar : ServiceCreationPlugin.getSLEEStandardEvents()) {
+          components.add(new EventJarXML(eventsJar, eventsJar.getJarEntry("META-INF/event-jar.xml"), null));
+        }
       }
       catch (Exception e) {
         // too bad, didn't worked
@@ -876,11 +867,9 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 
     case PROFILE_JAR:
       try {
-        File root = FileLocator.getBundleFile(ServiceCreationPlugin.getDefault().getBundle());
-        JarFile profiles10Jar = new JarFile(new File(root, PROFILES_JAR_10));
-        JarFile profiles11Jar = new JarFile(new File(root, PROFILES_JAR_11));
-        components.add(new ProfileSpecJarXML(profiles10Jar, profiles11Jar.getJarEntry("META-INF/profile-spec-jar.xml"), new File(root, PROFILES_JAR_10).getAbsolutePath()));
-        components.add(new ProfileSpecJarXML(profiles11Jar, profiles11Jar.getJarEntry("META-INF/profile-spec-jar.xml"), new File(root, PROFILES_JAR_11).getAbsolutePath()));
+        for(JarFile profilesJar : ServiceCreationPlugin.getSLEEStandardProfiles()) {
+          components.add(new ProfileSpecJarXML(profilesJar, profilesJar.getJarEntry("META-INF/profile-spec-jar.xml"), null));
+        }
       }
       catch (Exception e) {
         // too bad, didn't worked

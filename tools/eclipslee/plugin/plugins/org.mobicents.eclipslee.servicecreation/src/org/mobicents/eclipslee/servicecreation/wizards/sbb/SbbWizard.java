@@ -212,6 +212,9 @@ public class SbbWizard extends BaseWizard {
 				sbb.setLocalInterfaceName(localClassName);
 				subs.put("__BUSINESS_IFACE_NAME__", ", " + sbbBaseName);
 			}
+			else {
+        subs.put("__BUSINESS_IFACE_NAME__", "");
+			}
 			
 			if (createACI)
 				sbb.setActivityContextInterfaceName(aciClassName);

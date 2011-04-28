@@ -18,6 +18,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin;
 import org.mobicents.eclipslee.servicecreation.util.ProjectModules;
 
 public class MavenProjectUtils {
@@ -107,6 +108,8 @@ public class MavenProjectUtils {
 
     model.setModelVersion("4.0.0");
     model.setPackaging("pom");
+    
+    model.setDescription("JAIN SLEE Project created with Mobicents EclipSLEE v" + ServiceCreationPlugin.getDefault().getBundle().getHeaders().get(org.osgi.framework.Constants.BUNDLE_VERSION));
 
     model.setParent(MOBICENTS_PARENT);
 
