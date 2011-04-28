@@ -272,7 +272,9 @@ public class SbbWizard extends BaseWizard {
 				
 				EventXML event = xml.getEvent(name, vendor, version);
 				SbbEventXML sbbEvent = sbb.addEvent(event);
-				sbbEvent.setScopedName((String) events[i].get("Scoped Name"));
+				String scopedName = (String) events[i].get("Scoped Name");
+				scopedName = scopedName.substring(0, 1).toUpperCase() + scopedName.substring(1);
+				sbbEvent.setScopedName(scopedName);
 				int evDir = 0;
 				
 				if (direction.indexOf("Receive") != -1) {					
