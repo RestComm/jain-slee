@@ -18,6 +18,7 @@ package org.mobicents.eclipslee.servicecreation.popup.actions;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -38,6 +39,8 @@ import org.mobicents.eclipslee.servicecreation.util.SbbFinder;
 import org.mobicents.eclipslee.servicecreation.wizards.sbb.SbbClassesDialog;
 import org.mobicents.eclipslee.servicecreation.wizards.sbb.SbbWizard;
 import org.mobicents.eclipslee.util.SLEE;
+import org.mobicents.eclipslee.util.Utils;
+import org.mobicents.eclipslee.util.maven.MavenProjectUtils;
 import org.mobicents.eclipslee.util.slee.xml.components.ComponentNotFoundException;
 import org.mobicents.eclipslee.util.slee.xml.components.SbbXML;
 import org.mobicents.eclipslee.xml.SbbJarXML;
@@ -79,16 +82,27 @@ public class EditSbbClassesAction implements IObjectActionDelegate {
 				String aciClass = sbbAbstractClassName + "ActivityContextInterface";
 				
 				String localInterfacePath = localInterfaceClass.replaceAll("\\.", "/") + ".java";
+        String businessInterfacePath = localInterfacePath.replaceFirst("SbbLocalObject", "");
 				String aciPath = aciClass.replaceAll("\\.", "/") + ".java";
 				String baseName = sbbAbstractClassName.substring(sbbAbstractClassName.lastIndexOf(".") + 1);
 				baseName = baseName.substring(0, baseName.indexOf("Sbb"));
-				
-				HashMap subs = new HashMap();		
-				subs.put("__PACKAGE__", packageName);
+
+        // Are we using Mobicents JAIN SLEE 1.1 Extensions ?
+        boolean useExt = MavenProjectUtils.useExtensions(abstractFile.getProject());
+
+        HashMap subs = new HashMap();		
+				subs.put("__PACKAGE__", Utils.getPackageTemplateValue(packageName));
 				subs.put("__NAME__", baseName);
-				
-				
-				boolean createLocalInterface = dialog.createSbbLocalObject();
+				subs.put("__EXT_SUFFIX__", useExt ? "Ext" : "");
+        subs.put("__SBB_LOCAL_OBJECT_IMPORTS__", useExt ? "import org.mobicents.slee.*;" : "import javax.slee.SbbLocalObject;");
+
+				// get to sources root
+        IPath srcFolder = abstractFile.getParent().getProjectRelativePath();
+        while(!srcFolder.toString().endsWith("src/main/java")) {
+          srcFolder = srcFolder.removeLastSegments(1);
+        }
+
+        boolean createLocalInterface = dialog.createSbbLocalObject();
 				boolean createACI = dialog.createActivityContextInterface();
 				
 				boolean hadLocalInterface = sbb.getLocalInterfaceName() == null ? false : true;
@@ -97,7 +111,8 @@ public class EditSbbClassesAction implements IObjectActionDelegate {
 				if (createLocalInterface != hadLocalInterface) {
 					if (createLocalInterface) {					
 						// Create a new local interface file
-						FileUtil.createFromTemplate(xmlFile.getProject(), new Path("src/" + localInterfacePath), new Path(SbbWizard.SBB_LOCAL_TEMPLATE), subs, monitor);
+						FileUtil.createFromTemplate(xmlFile.getProject(), srcFolder.append(localInterfacePath), new Path(SbbWizard.SBB_LOCAL_TEMPLATE), subs, monitor);
+		        FileUtil.createFromTemplate(xmlFile.getProject(), srcFolder.append(businessInterfacePath), new Path(SbbWizard.SBB_BUSINESS_TEMPLATE), subs, monitor);
 						// add to the xml
 						sbb.setLocalInterfaceName(localInterfaceClass);
 					} else {					
@@ -111,7 +126,7 @@ public class EditSbbClassesAction implements IObjectActionDelegate {
 				if (createACI != hadACI) {
 					if (createACI) {
 						// Create a new ACI file
-						FileUtil.createFromTemplate(xmlFile.getProject(), new Path("src/" + aciPath), new Path(SbbWizard.SBB_ACI_TEMPLATE), subs, monitor);
+						FileUtil.createFromTemplate(xmlFile.getProject(), srcFolder.append(aciPath), new Path(SbbWizard.SBB_ACI_TEMPLATE), subs, monitor);
 						// Add ACI narrow method to SBB abstract class
 						String method = "\tpublic abstract " + aciClass + " asSbbActivityContextInterface();";
 						ClassUtil.addMethodToClass(abstractFile, method);

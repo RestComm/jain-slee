@@ -18,6 +18,7 @@ package org.mobicents.eclipslee.servicecreation.popup.actions;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -39,6 +40,7 @@ import org.mobicents.eclipslee.servicecreation.util.UsageUtil;
 import org.mobicents.eclipslee.servicecreation.wizards.sbb.SbbUsageDialog;
 import org.mobicents.eclipslee.servicecreation.wizards.sbb.SbbWizard;
 import org.mobicents.eclipslee.util.SLEE;
+import org.mobicents.eclipslee.util.Utils;
 import org.mobicents.eclipslee.util.slee.xml.components.ComponentNotFoundException;
 import org.mobicents.eclipslee.util.slee.xml.components.SbbXML;
 import org.mobicents.eclipslee.xml.SbbJarXML;
@@ -82,7 +84,7 @@ public class EditSbbUsageAction implements IObjectActionDelegate {
 			
 			HashMap subs = new HashMap();		
 			subs.put("__USAGE_METHODS__", SbbWizard.getUsageMethods(dialog.getUsageParameters()));			
-			subs.put("__PACKAGE__", packageName);
+			subs.put("__PACKAGE__", Utils.getPackageTemplateValue(packageName));
 			subs.put("__NAME__", baseName);
 			
 			try {
@@ -98,8 +100,15 @@ public class EditSbbUsageAction implements IObjectActionDelegate {
 						ClassUtil.removeMethodFromClass(abstractFile, "getDefaultSbbUsageParameterSet");
 					}				
 				} else { // createUsageInterface == true
+				  
+				  // Get to sources root.. but we could just replace the abstract filename with the usage filename
+				  IPath srcFolder = abstractFile.getParent().getProjectRelativePath();
+		      while(!srcFolder.toString().endsWith("src/main/java")) {
+		        srcFolder = srcFolder.removeLastSegments(1);
+		      }
+				  
 					// Create/rewrite the contents of the usage file.
-					usageFile = FileUtil.createFromTemplate(xmlFile.getProject(), new Path("src/" + sbbUsageInterfacePath), new Path(SbbWizard.SBB_USAGE_TEMPLATE), subs, monitor);
+					usageFile = FileUtil.createFromTemplate(xmlFile.getProject(), srcFolder.append(sbbUsageInterfacePath), new Path(SbbWizard.SBB_USAGE_TEMPLATE), subs, monitor);
 					
 					if (!hasUsageInterface) {					
 						// Add sbb-usage-interface to the XML.
