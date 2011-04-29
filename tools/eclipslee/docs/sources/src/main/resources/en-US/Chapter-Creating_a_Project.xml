@@ -52,7 +52,7 @@
 			</figure>
 		</para>
 		<para>
-			Choose the desired project modules to be created, from the list, as shown below. The correct Maven 2 modules will be created according to the selection, as well as the Deployable Unit descriptor.
+			Choose the desired project modules to be created, from the list, as shown below. The correct Maven modules will be created according to the selection, as well as the Deployable Unit descriptor. You can also opt for using the Mobicents JAIN SLEE 1.1 specific extensions. You can find more information about these extensions on the Mobicents JAIN SLEE User Guide.
 			<figure>
 				<title>Choosing Name and Location of the JAIN SLEE Project</title>
 				<mediaobject>
