@@ -113,6 +113,10 @@ public class EditSbbEventsAction implements IActionDelegate {
 					if (sbbEventXML == null) {
 												
 						sbbEventXML = sbb.addEvent(eventXML);
+						if(scopedName == null) {
+							scopedName = ((String) event.get("Name"));
+							scopedName = scopedName.substring(scopedName.lastIndexOf('.') + 1);       
+						}
 						scopedName = scopedName.substring(0, 1).toUpperCase() + scopedName.substring(1);
 						sbbEventXML.setScopedName(scopedName);
 						sbbEventXML.setEventDirection(direction);
