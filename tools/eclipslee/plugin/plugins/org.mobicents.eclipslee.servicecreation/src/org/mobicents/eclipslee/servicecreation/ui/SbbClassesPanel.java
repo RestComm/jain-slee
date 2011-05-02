@@ -13,8 +13,6 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-
-
 package org.mobicents.eclipslee.servicecreation.ui;
 
 import org.eclipse.swt.SWT;
@@ -23,46 +21,50 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
-
-
 /**
  * @author cath
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbClassesPanel extends Composite {
 
-	public SbbClassesPanel(Composite parent, int style) {
-		super(parent, style);
-			
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		setLayout(layout);
+  public SbbClassesPanel(Composite parent, int style) {
+    super(parent, style);
 
-		abstractButton = new Button(this, SWT.CHECK);
-		abstractButton.setText("&Create custom Activity Context Interface");
-		abstractButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		
-		localButton = new Button(this, SWT.CHECK);
-		localButton.setText("&Create custom SBB Local Object interface");
-		localButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-	}
+    GridLayout layout = new GridLayout();
+    layout.numColumns = 1;
+    setLayout(layout);
 
-	public boolean createActivityContextInterface() {
-		return abstractButton.getSelection();
-	}
-	
-	public boolean createSbbLocalObject() {
-		return localButton.getSelection();
-	}
-		
-	public void createActivityContextInterface(boolean create) {
-		abstractButton.setSelection(create);
-	}
-	
-	public void createSbbLocalObject(boolean create) {
-		localButton.setSelection(create);
-	}
-	
-	private Button abstractButton;
-	private Button localButton;
-	
+    abstractButton = new Button(this, SWT.CHECK);
+    abstractButton.setText("&Create custom Activity Context Interface");
+    abstractButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
+
+    localButton = new Button(this, SWT.CHECK);
+    localButton.setText("&Create custom SBB Local Object interface");
+    localButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
+
+  }
+
+  public boolean createActivityContextInterface() {
+    return abstractButton.getSelection();
+  }
+
+  public boolean createSbbLocalObject() {
+    return localButton.getSelection();
+  }
+
+  public void createActivityContextInterface(boolean create) {
+    abstractButton.setSelection(create);
+  }
+
+  public void createSbbLocalObject(boolean create) {
+    localButton.setSelection(create);
+  }
+
+  public void disableSbbLocalObject(boolean disable) {
+    localButton.setEnabled(!disable);
+  }
+
+  private Button abstractButton;
+  private Button localButton;
+
 }
