@@ -72,6 +72,9 @@ public class ResourceAdaptorRaTypesPanel extends Composite implements SelectionL
     setLayout(layout);
 
     GridData data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
+    // Makes it look good on the edit...
+    data.widthHint = 640;
+    data.heightHint = 480;
     setLayoutData(data);
 
     Label label = new Label(this, SWT.NONE);

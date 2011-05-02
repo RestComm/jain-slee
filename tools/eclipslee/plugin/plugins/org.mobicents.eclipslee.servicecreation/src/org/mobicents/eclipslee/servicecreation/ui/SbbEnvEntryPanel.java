@@ -56,7 +56,11 @@ public class SbbEnvEntryPanel extends Composite {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		setLayout(layout);
+
 		GridData data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
+    // Makes it look good on the edit...
+    data.widthHint = 420;
+    data.heightHint = 160;
 		setLayoutData(data);
 		
 		/*

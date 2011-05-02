@@ -66,6 +66,9 @@ public class ServiceRootSbbPanel extends Composite implements ISelectionChangedL
 		setLayout(layout);
 		
 		GridData data = new GridData(GridData.FILL_BOTH);
+    // Makes it look good on the edit...
+    data.widthHint = 420;
+    data.heightHint = 160;
 		setLayoutData(data);
 		
 		sbbViewer = new EditableTableViewer(this, SWT.NONE, COLUMNS, EDITORS, VALUES);

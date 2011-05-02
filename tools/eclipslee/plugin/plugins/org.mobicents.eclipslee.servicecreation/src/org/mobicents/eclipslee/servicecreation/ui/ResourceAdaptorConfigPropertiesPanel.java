@@ -77,6 +77,9 @@ public class ResourceAdaptorConfigPropertiesPanel extends Composite {
 
     tablePanel = new EditableTablePanel(this, SWT.BORDER, COLUMNS, EDITORS, VALUES);
     GridData data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
+    // Makes it look good on the edit...
+    data.widthHint = 420;
+    data.heightHint = 160;
     tablePanel.setLayoutData(data);
 
     // Support active reconfig check button

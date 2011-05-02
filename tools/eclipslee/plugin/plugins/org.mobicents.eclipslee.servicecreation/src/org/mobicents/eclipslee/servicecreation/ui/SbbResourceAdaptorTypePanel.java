@@ -70,6 +70,9 @@ public class SbbResourceAdaptorTypePanel extends Composite implements SelectionL
 
 			GridData data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
 			setLayoutData(data);
+	    // Makes it look good on the edit...
+	    data.widthHint = 640;
+	    data.heightHint = 480;
 					
 			Label label = new Label(this, SWT.NONE);
 			label.setText("Available resource adaptor types:");
