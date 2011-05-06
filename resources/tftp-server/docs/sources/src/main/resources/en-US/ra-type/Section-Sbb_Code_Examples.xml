@@ -103,18 +103,17 @@
     }
 
     private void doSpecialThings(TFTPRequestPacket packet, EventContext ctxt) {
-        // actually do the special things that need to be done & suspend.
+        // actually do the special thing that needs to be done, starting some
+        // other activity or whatever.
         ...;
-		setSuspendedEventCmp(ctxt);
-		ctxt.suspendDelivery();
     }
 
+    // the other -triggering- event that'll continue the read-transfer.
 	public void onSomeOtherRelatedEvent(RelatedEvent event, ActivityContextInterface aci) {
 		try {
 			OutputStream os = getRequestActivity().getOutputStream();
 			os.write("whatever data needs to be written".getBytes());
             os.flush(); os.close();
-			getSuspendedEventCmp().resumeDelivery();
 		} catch (Exception e) {
 			
 		}
