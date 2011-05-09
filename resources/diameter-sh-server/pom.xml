@@ -26,7 +26,7 @@
 
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.resources.sh-common.version>2.4.0.FINAL</mobicents.diameter.resources.sh-common.version>
+    <mobicents.diameter.resources.sh-common.version>2.4.1-SNAPSHOT</mobicents.diameter.resources.sh-common.version>
 	<!-- Documentation Related Properties -->
     <docs.profile>mobicents</docs.profile>
     <docs.ra.name>Diameter Sh-Server</docs.ra.name>

@@ -110,7 +110,7 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl imple
     try {
       //super.sendMessage(answer);
       DiameterMessageImpl msg = (DiameterMessageImpl) answer;
-      this.clientSession.sendReAuthAnswer(new ReAuthAnswerImpl(msg.getGenericData()));
+      this.clientSession.sendReAuthAnswer(new ReAuthAnswerImpl((Answer)msg.getGenericData()));
     }
     catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());

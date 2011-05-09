@@ -954,7 +954,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     //This method should be called only for CCR
     protected DiameterActivity createActivity(Request request) throws CreateActivityException {
       try {
-        Set<ApplicationId> appIds = request.getApplicationIdAvps();
+        List<ApplicationId> appIds = request.getApplicationIdAvps();
         if(appIds == null || appIds.size() == 0) {
           throw new CreateActivityException("No App ids present in message");
         }
