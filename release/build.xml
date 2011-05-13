@@ -86,7 +86,7 @@
 
 	<target name="build-core" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
-			<arg line="install javadoc:aggregate -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision,validate-source-headers" />
+			<arg line="install javadoc:aggregate -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
 		</exec>
 		<antcall target="build-docs">
 			<param name="docs.source.dir" value="${ant.file.mobicents.release}/../checkout/core/docs" />
@@ -110,9 +110,15 @@
 		<for delimiter="," param="dir.name" list="${ra.dirs}">
 			<sequential>
 				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../checkout/resources/@{dir.name}]</echo>
-				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../resources/@{dir.name}">
-					<arg line="clean install -P validate-source-headers -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
+					<arg line="install javadoc:aggregate -P release,${docs.profile},set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
+				<move toDir="${release.dir}/docs/resources/@{dir.name}/user-guide" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/resources/@{dir.name}/docs" />
+				</move>
+				<copy failonerror="true" toDir="${release.dir}/docs/resources/@{dir.name}/javadoc" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}/target/site/apidocs" />
+				</copy>
 			</sequential>
 		</for>
 		<delete dir="${release.dir}/tmp" />
@@ -127,24 +133,40 @@
 			<sequential>
 				<echo>Packaging Enabler for release from DIR[${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}]</echo>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}">
-					<arg line="clean install -P format-source-headers -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+					<arg line="install javadoc:aggregate -P release,${docs.profile},set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
+				<move toDir="${release.dir}/docs/enablers/@{dir.name}/user-guide" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/enablers/@{dir.name}/docs" />
+				</move>
+				<copy failonerror="true" toDir="${release.dir}/docs/enablers/@{dir.name}/javadoc" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/enablers/@{dir.name}/target/site/apidocs" />
+				</copy>
 			</sequential>
 		</for>
+		<delete dir="${release.dir}/tmp" />
+		<copy failonerror="true" toDir="${release.dir}/enablers" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/enablers" />
+		</copy>
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/enablers" />
 	</target>
 
 	<target name="build-examples" description="Examples.">
 		<for delimiter="," param="dir.name" list="${example.dirs}">
 			<sequential>
 				<echo>Packaging Example for release from DIR[${ant.file.mobicents.release}/../checkout/examples/@{dir.name}]</echo>
-				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
-					<arg line="verify -P remove-source-headers -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
+					<arg line="install -P release,${docs.profile},set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
-				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
-					<arg line="clean verify -P format-source-headers -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
-				</exec>
+				<move toDir="${release.dir}/docs/examples/@{dir.name}/user-guide" overwrite="true">
+					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/examples/@{dir.name}/docs" />
+				</move>
 			</sequential>
 		</for>
+		<delete dir="${release.dir}/tmp" />
+		<copy failonerror="true" toDir="${release.dir}/examples" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/examples" />
+		</copy>
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/examples" />
 	</target>
 
 	<target name="build-tools">
@@ -168,7 +190,7 @@
 
 	<target name="build-sip-balancer" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer">
-			<arg line="clean install -P set-svn-revision,validate-source-headers,maven-release -Dmaven.test.skip=true" />
+			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
 		</exec>
 		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
 			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/jar/target">
