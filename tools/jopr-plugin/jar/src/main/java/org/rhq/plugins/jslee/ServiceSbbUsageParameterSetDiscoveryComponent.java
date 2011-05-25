@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
 package org.rhq.plugins.jslee;
 
 import java.util.HashSet;
@@ -37,9 +59,9 @@ public class ServiceSbbUsageParameterSetDiscoveryComponent implements ResourceDi
 
       ServiceID serviceId = context.getParentResourceComponent().getServiceID();
 
-      // As an example, if a particular service has the name ÒFooServiceÓ, vendor ÒFooCompanyÓ, and version Ò1.0Ó,
+      // As an example, if a particular service has the name ï¿½FooServiceï¿½, vendor ï¿½FooCompanyï¿½, and version ï¿½1.0ï¿½,
       // then the Object Name of a ServiceUsageMBean for that service would be:
-      // Òjavax.slee.management.usage:type=ServiceUsage,serviceName="FooService", serviceVendor="FooCompany",serviceVersion="1.0"Ó
+      // ï¿½javax.slee.management.usage:type=ServiceUsage,serviceName="FooService", serviceVendor="FooCompany",serviceVersion="1.0"ï¿½
       ObjectName serviceUsageON = new ObjectName(ServiceUsageMBean.BASE_OBJECT_NAME + ','
           + ServiceUsageMBean.SERVICE_NAME_KEY + '='
           + ObjectName.quote(serviceId.getName()) + ','
@@ -55,7 +77,7 @@ public class ServiceSbbUsageParameterSetDiscoveryComponent implements ResourceDi
       String[] usageParameterSets = serviceUsageMBean.getUsageParameterSets(sbbId);
 
       // This is default one
-      String defaultDescription = "Usage Parameter Set : " + "<default>" + " for " + sbbId + " @Ê" + serviceId;
+      String defaultDescription = "Usage Parameter Set : " + "<default>" + " for " + sbbId + " @ï¿½" + serviceId;
       String defaultKey = "<default>" + "@" + sbbId + "@" + serviceId;
 
       DiscoveredResourceDetails defaultDiscoveredEntity = new DiscoveredResourceDetails(context.getResourceType(),
@@ -67,7 +89,7 @@ public class ServiceSbbUsageParameterSetDiscoveryComponent implements ResourceDi
       discoveredUsageParameterSets.add(defaultDiscoveredEntity);
 
       for (String usageParameterSet : usageParameterSets) {
-        String description = "Usage Parameter Set : " + usageParameterSet + " for " + sbbId + " @Ê" + serviceId;
+        String description = "Usage Parameter Set : " + usageParameterSet + " for " + sbbId + " @ï¿½" + serviceId;
         String key = usageParameterSet + "@" + sbbId + "@" + serviceId;
 
         DiscoveredResourceDetails discoveredEntity = new DiscoveredResourceDetails(context.getResourceType(),
@@ -80,7 +102,7 @@ public class ServiceSbbUsageParameterSetDiscoveryComponent implements ResourceDi
       }
 
       if(log.isInfoEnabled()) {
-        log.info("Discovered " + discoveredUsageParameterSets.size() + " JAIN SLEE Usage Parameter Sets for " + sbbId + " @Ê" + serviceId + ".");
+        log.info("Discovered " + discoveredUsageParameterSets.size() + " JAIN SLEE Usage Parameter Sets for " + sbbId + " @ï¿½" + serviceId + ".");
       }
       return discoveredUsageParameterSets;
     }
