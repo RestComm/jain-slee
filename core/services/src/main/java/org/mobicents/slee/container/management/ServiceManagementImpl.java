@@ -67,6 +67,7 @@ import org.mobicents.slee.container.service.ServiceActivityFactory;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.container.service.ServiceActivityHandleImpl;
+import org.mobicents.slee.container.service.ServiceCacheData;
 import org.mobicents.slee.container.service.ServiceStartedEventImpl;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
@@ -307,6 +308,8 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 					+ " activity.");
 		}
 
+		// ensure the service cache data exists
+		new ServiceCacheData(serviceComponent.getServiceID(), sleeContainer.getCluster().getMobicentsCache()).create();
 		// fire slee 1.0 and 1.1 service started events
 		ServiceStartedEventImpl event = new ServiceStartedEventImpl(
 				serviceComponent.getServiceID());
