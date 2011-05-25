@@ -47,7 +47,9 @@ public class ElementSelectorBuilder {
 	 * @return
 	 */
 	public ElementSelectorBuilder appendStepByName(String name) {
-		elementSelectorSteps.append(SEPARATOR);
+		if (elementSelectorSteps.length() != 0) {
+			elementSelectorSteps.append(SEPARATOR);
+		}
 		elementSelectorSteps.append(name);
 		return this;
 	}
@@ -61,7 +63,9 @@ public class ElementSelectorBuilder {
 	 */
 	public ElementSelectorBuilder appendStepByAttr(String name,
 			String attrName, String attrValue) {
-		elementSelectorSteps.append(SEPARATOR);
+		if (elementSelectorSteps.length() != 0) {
+			elementSelectorSteps.append(SEPARATOR);
+		}
 		elementSelectorSteps.append(name).append("[@").append(attrName).append(
 				"=\"").append(attrValue).append("\"]");
 		return this;
@@ -74,7 +78,9 @@ public class ElementSelectorBuilder {
 	 * @return
 	 */
 	public ElementSelectorBuilder appendStepByPos(String name, int pos) {
-		elementSelectorSteps.append(SEPARATOR);
+		if (elementSelectorSteps.length() != 0) {
+			elementSelectorSteps.append(SEPARATOR);
+		}
 		elementSelectorSteps.append(name).append('[').append(pos).append(']');
 		return this;
 	}
@@ -89,7 +95,9 @@ public class ElementSelectorBuilder {
 	 */
 	public ElementSelectorBuilder appendStepByPosAttr(String name, int pos,
 			String attrName, String attrValue) {
-		elementSelectorSteps.append(SEPARATOR);
+		if (elementSelectorSteps.length() != 0) {
+			elementSelectorSteps.append(SEPARATOR);
+		}
 		elementSelectorSteps.append(name).append('[').append(pos).append("][@")
 				.append(attrName).append("=\"").append(attrValue).append("\"]");
 		return this;

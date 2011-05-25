@@ -45,7 +45,9 @@ public class DocumentSelectorBuilder {
 	 * @return
 	 */
 	public DocumentSelectorBuilder appendPathSegment(String pathSegment) {
-		documentSelector.append(PATH_SEPARATOR);
+		if (documentSelector.length() != 0) {
+			documentSelector.append(PATH_SEPARATOR);
+		}
 		documentSelector.append(pathSegment);
 		return this;
 	}

@@ -33,7 +33,7 @@ import org.mobicents.xcap.client.uri.encoding.UriComponentEncoder;
  */
 public class AttributeSelectorBuilder {
 
-	private static final String PREFIX = "/@";
+	private static final String PREFIX = "@";
 	private final String name;
 	
 	/**

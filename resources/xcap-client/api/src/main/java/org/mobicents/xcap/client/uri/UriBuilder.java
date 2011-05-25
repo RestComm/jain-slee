@@ -62,9 +62,15 @@ public class UriBuilder {
 		return xcapRoot;
 	}
 	/**
-	 * @param xcapRoot the xcapRoot to set
+	 * 
+	 * @param xcapRoot the xcapRoot to set, must end with /
+	 * @return
+	 * @throws IllegalArgumentException if xcap root ends with /
 	 */
-	public UriBuilder setXcapRoot(String xcapRoot) {
+	public UriBuilder setXcapRoot(String xcapRoot) throws IllegalArgumentException {
+		if (xcapRoot.charAt(xcapRoot.length()-1) != '/') {
+			throw new IllegalArgumentException("xcap root must end with /"); 
+		}
 		this.xcapRoot = xcapRoot;
 		return this;
 	}
@@ -75,9 +81,15 @@ public class UriBuilder {
 		return documentSelector;
 	}
 	/**
-	 * @param documentSelector the documentSelector to set
+	 * 
+	 * @param documentSelector the documentSelector to set, must not start with /	  
+	 * @return
+	 * @throws IllegalArgumentException if documentSelector starts with /
 	 */
-	public UriBuilder setDocumentSelector(String documentSelector) {
+	public UriBuilder setDocumentSelector(String documentSelector) throws IllegalArgumentException {
+		if (documentSelector.charAt(0) == '/') {
+			throw new IllegalArgumentException("document selector must not start with /"); 
+		}
 		this.documentSelector = documentSelector;
 		return this;
 	}
@@ -90,9 +102,14 @@ public class UriBuilder {
 	}
 	
 	/**
-	 * @param elementSelector the elementSelector to set
+	 * @param elementSelector the elementSelector to set, must not start with /
+	 * @return
+	 * @throws IllegalArgumentException if elementSelector starts with /
 	 */
-	public UriBuilder setElementSelector(String elementSelector) {
+	public UriBuilder setElementSelector(String elementSelector) throws IllegalArgumentException {
+		if (elementSelector.charAt(0) == '/') {
+			throw new IllegalArgumentException("element selector must not start with /"); 
+		}
 		this.elementSelector = elementSelector;
 		return this;
 	}
@@ -106,8 +123,13 @@ public class UriBuilder {
 	
 	/**
 	 * @param terminalSelector the terminalSelector to set
+	 * @return
+	 * @throws IllegalArgumentException if terminalSelector starts with /
 	 */
-	public UriBuilder setTerminalSelector(String terminalSelector) {
+	public UriBuilder setTerminalSelector(String terminalSelector) throws IllegalArgumentException {
+		if (terminalSelector.charAt(0) == '/') {
+			throw new IllegalArgumentException("terminal selector must not start with /"); 
+		}
 		this.terminalSelector = terminalSelector;
 		return this;
 	}
@@ -120,14 +142,19 @@ public class UriBuilder {
 		return namespaceBindings;
 	}
 	/**
-	 * @param namespaceBindings the namespaceBindings to set
+	 * @param namespaceBindings the namespaceBindings to set, must not start with ?
+	 * @return
+	 * @throws IllegalArgumentException if namespaceBindings starts with ?
 	 */
-	public UriBuilder setNamespaceBindings(String namespaceBindings) {
+	public UriBuilder setNamespaceBindings(String namespaceBindings) throws IllegalArgumentException {
+		if (namespaceBindings.charAt(0) == '?') {
+			throw new IllegalArgumentException("namespace bindings must not start with ?"); 
+		}
 		this.namespaceBindings = namespaceBindings;
 		return this;
 	}
 	
-	private static final String RESOURCE_SELECTOR_SEPARATOR = "/~~";
+	private static final String RESOURCE_SELECTOR_SEPARATOR = "/~~/";
 	
 	public URI toURI() throws URISyntaxException {
 		final StringBuilder sb = new StringBuilder(schemeAndAuthority);
@@ -138,7 +165,7 @@ public class UriBuilder {
 		if (elementSelector != null) {
 			sb.append(RESOURCE_SELECTOR_SEPARATOR).append(elementSelector);
 			if (terminalSelector != null) {
-				sb.append(terminalSelector);
+				sb.append('/').append(terminalSelector);
 			}	
 			if (namespaceBindings != null) {
 				sb.append('?').append(namespaceBindings);

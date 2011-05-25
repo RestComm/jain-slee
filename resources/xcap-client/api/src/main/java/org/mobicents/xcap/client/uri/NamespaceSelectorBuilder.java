@@ -31,8 +31,8 @@ package org.mobicents.xcap.client.uri;
  */
 public class NamespaceSelectorBuilder {
 	
-	private static final String NAMESPACE_SELECTOR = "/namespace::*";
-	private static final String NAMESPACE_SELECTOR_ENCODED = "/namespace%3A%3A%2A";
+	private static final String NAMESPACE_SELECTOR = "namespace::*";
+	private static final String NAMESPACE_SELECTOR_ENCODED = "namespace%3A%3A%2A";
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
