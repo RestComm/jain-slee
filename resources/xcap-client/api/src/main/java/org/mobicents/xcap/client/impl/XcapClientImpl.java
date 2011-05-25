@@ -45,7 +45,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.params.SyncBasicHttpParams;
@@ -86,14 +85,14 @@ public class XcapClientImpl implements XcapClient {
 		HttpParams params = new SyncBasicHttpParams();
         params.setParameter(HttpProtocolParams.PROTOCOL_VERSION,
                 HttpVersion.HTTP_1_1);
-        params.setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE,
-                false);
-        params.setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK,
-                false);
-        params.setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE,
-                8 * 1024);
-        params.setIntParameter(HttpConnectionParams.SO_TIMEOUT,
-                15000);
+        //params.setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE,
+        //        false);
+        //params.setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK,
+        //        false);
+        //params.setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE,
+        //        8 * 1024);
+        //params.setIntParameter(HttpConnectionParams.SO_TIMEOUT,
+        //        15000);
         params.setParameter(CoreProtocolPNames.HTTP_CONTENT_CHARSET, "UTF-8");
         SchemeRegistry schemeRegistry = new SchemeRegistry();
         schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
