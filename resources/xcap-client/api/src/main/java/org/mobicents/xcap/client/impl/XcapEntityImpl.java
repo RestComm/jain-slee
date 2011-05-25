@@ -49,6 +49,7 @@ public class XcapEntityImpl implements XcapEntity {
 	 * @param httpEntity
 	 * @throws IOException
 	 */
+	@SuppressWarnings("deprecation")
 	public XcapEntityImpl(HttpEntity httpEntity) throws IOException {
 		this.httpEntity = httpEntity;
 		rawContent = EntityUtils.toByteArray(httpEntity);
