@@ -44,7 +44,7 @@ import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 public class SbbEntityFactoryCacheData extends CacheData {
 
-	protected static final String SBB_ENTITY_FACTORY_FQN_NAME = "sbbe";
+	public static final String SBB_ENTITY_FACTORY_FQN_NAME = "sbbe";
 	
 	/**
 	 * the fqn of the node that holds all activity context cache child nodes
