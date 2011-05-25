@@ -61,7 +61,7 @@ public class UriBuilderTest {
 
 		URI built = new UriBuilder()
 			.setSchemeAndAuthority("http://host")
-			.setXcapRoot("/xcapRoot")
+			.setXcapRoot("/xcapRoot/")
 			.setDocumentSelector(documentSelector)
 			.setElementSelector(elementSelector)
 			.setTerminalSelector(attributeSelector)
