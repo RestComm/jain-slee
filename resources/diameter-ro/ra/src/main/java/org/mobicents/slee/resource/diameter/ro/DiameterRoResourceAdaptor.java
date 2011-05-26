@@ -398,7 +398,7 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
     if(appIdsStr != null) {
       appIdsStr = appIdsStr.replaceAll(" ", "");
 
-      String[] appIdsStrings  = appIdsStr.split(", ");
+      String[] appIdsStrings  = appIdsStr.split(",");
 
       authApplicationIds = new ArrayList<ApplicationId>(appIdsStrings.length);
 
@@ -513,14 +513,14 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
   // Optional callback methods -------------------------------------------
 
   public void eventProcessingFailed(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags, FailureReason reason) {
-    if(tracer.isInfoEnabled()) {
-      tracer.info("Diameter Ro RA :: eventProcessingFailed :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "], reason[" + reason + "].");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("Diameter Ro RA :: eventProcessingFailed :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "], reason[" + reason + "].");
     }
   }
 
   public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
-    if(tracer.isInfoEnabled()) {
-      tracer.info("Diameter Ro RA :: eventProcessingSuccessful :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "].");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("Diameter Ro RA :: eventProcessingSuccessful :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "].");
     }
 
     DiameterActivity activity = activities.get((DiameterActivityHandle)handle);
@@ -541,7 +541,9 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
   }
 
   public void activityEnded(ActivityHandle handle) {
-    tracer.info("Diameter Ro RA :: activityEnded :: handle[" + handle + ".");
+    if(tracer.isInfoEnabled()) {
+      tracer.info("Diameter Ro RA :: activityEnded :: handle[" + handle + "].");
+    }
 
     if(this.activities != null) {
       synchronized (this.activities) {
