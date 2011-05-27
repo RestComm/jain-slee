@@ -22,13 +22,15 @@
 
 package net.java.slee.resource.diameter.ro;
 
+import net.java.slee.resource.diameter.base.DiameterActivity;
+
 /**
  * RoSessionActivity.java
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public interface RoSessionActivity {
+public interface RoSessionActivity extends DiameterActivity {
 
   /**
    * Provides session state information. CC session must conform to CC FSM as
