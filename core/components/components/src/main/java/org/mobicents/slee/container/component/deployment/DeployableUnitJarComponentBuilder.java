@@ -45,6 +45,7 @@ import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.component.AbstractSleeComponent;
 import org.mobicents.slee.container.component.ComponentManagementImpl;
 import org.mobicents.slee.container.component.EventTypeComponentImpl;
 import org.mobicents.slee.container.component.LibraryComponentImpl;
@@ -52,8 +53,6 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponentImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorComponentImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponentImpl;
 import org.mobicents.slee.container.component.SbbComponentImpl;
-import org.mobicents.slee.container.component.AbstractSleeComponent;
-import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
 import org.mobicents.slee.container.component.deployment.classloading.URLClassLoaderDomainImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
@@ -107,8 +106,6 @@ public class DeployableUnitJarComponentBuilder {
 			String componentJarFileName, JarFile deployableUnitJar,
 			File deploymentDir)
 			throws DeploymentException {
-
-		final boolean loadClassesFirstFromAS = componentManagement.getClassLoaderFactory().getConfiguration().isLoadClassesFirstFromAS();
 		
 		// extract the component jar from the DU jar, to the temp du dir
 		File extractedFile = extractFile(componentJarFileName,
@@ -156,10 +153,11 @@ public class DeployableUnitJarComponentBuilder {
 			if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/sbb-jar.xml")) != null) {
 				// create class loader domain shared by all components
-				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomainImpl(
-						new URL[] { componentJarDeploymentDir.toURL() }, Thread
-								.currentThread().getContextClassLoader(),
-						loadClassesFirstFromAS);
+				URLClassLoaderDomainImpl classLoaderDomain = componentManagement
+				.getClassLoaderFactory()
+				.newClassLoaderDomain(
+						new URL[] { componentJarDeploymentDir.toURL() },
+						Thread.currentThread().getContextClassLoader());
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 						.getInputStream(componentDescriptor);
@@ -179,10 +177,11 @@ public class DeployableUnitJarComponentBuilder {
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/profile-spec-jar.xml")) != null) {
 				// create class loader domain shared by all components
-				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomainImpl(
-						new URL[] { componentJarDeploymentDir.toURL() }, Thread
-								.currentThread().getContextClassLoader(),
-						loadClassesFirstFromAS);
+				URLClassLoaderDomainImpl classLoaderDomain = componentManagement
+				.getClassLoaderFactory()
+				.newClassLoaderDomain(
+						new URL[] { componentJarDeploymentDir.toURL() },
+						Thread.currentThread().getContextClassLoader());
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 						.getInputStream(componentDescriptor);
@@ -229,11 +228,12 @@ public class DeployableUnitJarComponentBuilder {
 					libraryComponents.add(component);
 				}
 				// create shared url domain
-				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomainImpl(
+				URLClassLoaderDomainImpl classLoaderDomain = componentManagement
+				.getClassLoaderFactory()
+				.newClassLoaderDomain(
 						classLoaderDomainURLs
-								.toArray(new URL[classLoaderDomainURLs.size()]),
-						Thread.currentThread().getContextClassLoader(),
-						loadClassesFirstFromAS);
+						.toArray(new URL[classLoaderDomainURLs.size()]),
+						Thread.currentThread().getContextClassLoader());
 				// add it to each component
 				for (LibraryComponentImpl component : libraryComponents) {
 					component.setClassLoaderDomain(classLoaderDomain);
@@ -241,10 +241,11 @@ public class DeployableUnitJarComponentBuilder {
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/event-jar.xml")) != null) {
 				// create class loader domain shared by all components
-				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomainImpl(
-						new URL[] { componentJarDeploymentDir.toURL() }, Thread
-								.currentThread().getContextClassLoader(),
-						loadClassesFirstFromAS);
+				URLClassLoaderDomainImpl classLoaderDomain = componentManagement
+				.getClassLoaderFactory()
+				.newClassLoaderDomain(
+						new URL[] { componentJarDeploymentDir.toURL() },
+						Thread.currentThread().getContextClassLoader());				
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 						.getInputStream(componentDescriptor);
@@ -264,10 +265,8 @@ public class DeployableUnitJarComponentBuilder {
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/resource-adaptor-type-jar.xml")) != null) {
 				// create class loader domain shared by all components
-				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomainImpl(
-						new URL[] { componentJarDeploymentDir.toURL() }, Thread
-								.currentThread().getContextClassLoader(),
-						loadClassesFirstFromAS);
+				URLClassLoaderDomainImpl classLoaderDomain = componentManagement.getClassLoaderFactory().newClassLoaderDomain(new URL[] { componentJarDeploymentDir.toURL() }, Thread
+						.currentThread().getContextClassLoader());
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 						.getInputStream(componentDescriptor);
@@ -287,10 +286,11 @@ public class DeployableUnitJarComponentBuilder {
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/resource-adaptor-jar.xml")) != null) {
 				// create class loader domain shared by all components
-				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomainImpl(
-						new URL[] { componentJarDeploymentDir.toURL() }, Thread
-								.currentThread().getContextClassLoader(),
-						loadClassesFirstFromAS);
+				URLClassLoaderDomainImpl classLoaderDomain = componentManagement
+						.getClassLoaderFactory()
+						.newClassLoaderDomain(
+								new URL[] { componentJarDeploymentDir.toURL() },
+								Thread.currentThread().getContextClassLoader());				
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 						.getInputStream(componentDescriptor);

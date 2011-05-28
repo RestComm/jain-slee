@@ -22,16 +22,20 @@
 
 package org.mobicents.slee.container.component.deployment.classloading;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
+
 import javax.slee.ComponentID;
 
 import org.mobicents.slee.container.component.classloading.ComponentClassLoader;
-import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
 
 /**
  * The SLEE component class loader implementation.
  * 
  * A component needs to have it's own class loader due to unique JNDI context
- * but in reality it just delegates to the related component jar class loader.
+ * but in reality it just delegates to the related domain class loader, which
+ * manages the jar where the component was deployed from.
  * 
  * @author martins
  * 
@@ -39,39 +43,65 @@ import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
 public class ComponentClassLoaderImpl extends ComponentClassLoader {
 
 	/**
+	 * system wide monitor, used to sync class loading, ensure no dead locks
+	 */
+	private static final Object MONITOR = new Object();
+
+	/**
 	 * the component id, used to make this class loader unique
 	 */
 	private final ComponentID componentID;
-	
+
 	/**
 	 * the class loader pointing to component jar url related with the component
 	 */
-	private final URLClassLoaderDomain parent;
-	
+	private final URLClassLoaderDomainImpl domain;
+
 	/**
 	 * 
 	 * @param componentID
 	 * @param parent
 	 */
-	public ComponentClassLoaderImpl(ComponentID componentID, URLClassLoaderDomain parent) {
-		super(parent);
-		this.parent = parent;		
+	public ComponentClassLoaderImpl(ComponentID componentID,
+			URLClassLoaderDomainImpl parent) {
+		super();
+		this.domain = parent;
 		this.componentID = componentID;
 	}
 
+	@Override
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		synchronized (MONITOR) {
+			return domain.loadClass(name);
+		}
+	}
+
 	/**
-	 * Loads a class locally, i.e., from managed URLs or URLs managed by dependencies.
+	 * Loads a class locally, i.e., from the component domain managed URLs.
+	 * 
 	 * @param name
 	 * @return
 	 * @throws ClassNotFoundException
 	 */
 	public Class<?> loadClassLocally(String name) throws ClassNotFoundException {
-		return parent.loadClassLocally(name);
+		synchronized (MONITOR) {
+			return domain.findClassLocally(name);
+		}
 	}
-		
+
+	@Override
+	protected URL findResource(String name) {
+		return domain.getResource(name);
+	}
+
+	@Override
+	protected Enumeration<URL> findResources(String name) throws IOException {
+		return domain.getResources(name);
+	}
+
 	@Override
 	public String toString() {
-		return "ComponentClassLoader[ componentID = " + componentID	+ " ]";
+		return "ComponentClassLoader[ componentID = " + componentID + " ]";
 	}
 
 }

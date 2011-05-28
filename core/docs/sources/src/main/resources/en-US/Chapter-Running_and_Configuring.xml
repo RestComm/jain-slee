@@ -186,11 +186,6 @@ Halting VM]]></screen>
 					        <entry>int</entry>
 					        <entry>The number of threads used by the timer facility.</entry>
 					      </row>
-					      <row>
-					        <entry>loadClassesFirstFromAS</entry>
-					        <entry>boolean</entry>
-					        <entry>If true, a classloader always looks for classes first in the container's own classloader, which shares and imports classes from &JEE.PLATFORM;.</entry>
-				    	  </row>
 			    	</tbody>
 			  	</tgroup>
 			</table>

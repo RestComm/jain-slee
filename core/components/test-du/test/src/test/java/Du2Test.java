@@ -32,7 +32,6 @@ import org.jboss.classloader.spi.ClassLoaderSystem;
 import org.jboss.test.kernel.junit.MicrocontainerTest;
 import org.mobicents.slee.container.component.ComponentManagementImpl;
 import org.mobicents.slee.container.component.deployment.DeployableUnitBuilderImpl;
-import org.mobicents.slee.container.component.deployment.classloading.ClassLoadingConfiguration;
 
 public class Du2Test extends MicrocontainerTest {
 
@@ -44,7 +43,7 @@ public class Du2Test extends MicrocontainerTest {
 	public void test() throws MalformedURLException, DeploymentException, URISyntaxException {	
 		ClassLoaderDomain defaultDomain = ClassLoaderSystem.getInstance().getDefaultDomain();
 		getLog().debug(defaultDomain.toLongString());
-		ComponentManagementImpl componentManagement = new ComponentManagementImpl(new ClassLoadingConfiguration());
+		ComponentManagementImpl componentManagement = new ComponentManagementImpl();
 		URL url = Thread.currentThread().getContextClassLoader().getResource("Du2Test.class");
 		File root = new File(url.toURI()).getParentFile();
 		DeployableUnitBuilderImpl builder = componentManagement.getDeployableUnitManagement().getDeployableUnitBuilder();

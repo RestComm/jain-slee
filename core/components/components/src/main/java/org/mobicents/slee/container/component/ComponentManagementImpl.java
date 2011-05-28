@@ -27,7 +27,6 @@ package org.mobicents.slee.container.component;
 
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.component.deployment.classloading.ClassLoaderFactoryImpl;
-import org.mobicents.slee.container.component.deployment.classloading.ClassLoadingConfiguration;
 import org.mobicents.slee.container.component.management.DeployableUnitManagementImpl;
 import org.mobicents.slee.container.management.ComponentManagement;
 
@@ -45,8 +44,8 @@ public class ComponentManagementImpl extends AbstractSleeContainerModule impleme
 	/**
 	 * 
 	 */
-	public ComponentManagementImpl(ClassLoadingConfiguration configuration) {
-		classLoaderFactory = new ClassLoaderFactoryImpl(configuration);
+	public ComponentManagementImpl() {
+		classLoaderFactory = new ClassLoaderFactoryImpl();
 		componentDescriptorFactory = new ComponentDescriptorFactoryImpl();
 		componentRepository = new ComponentRepositoryImpl();
 		deployableUnitManagement = new DeployableUnitManagementImpl(this);

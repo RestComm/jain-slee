@@ -29,6 +29,10 @@ package org.mobicents.slee.container.component.classloading;
  */
 public abstract class ReplicationClassLoader extends ClassLoader {
 
+	public ReplicationClassLoader(ClassLoader parent) {
+		super(parent);
+	}
+	
 	/**
 	 * 
 	 * @param domain

@@ -32,21 +32,5 @@ package org.mobicents.slee.container.component.classloading;
  * 
  */
 public abstract class ComponentClassLoader extends ClassLoader {
-
-	/**
-	 * 
-	 * @param parent
-	 */
-	protected ComponentClassLoader(ClassLoader parent) {
-		super(parent);
-	}
 	
-	/**
-	 * Loads a class locally, i.e., from managed URLs or URLs managed by dependencies.
-	 * @param name
-	 * @return
-	 * @throws ClassNotFoundException
-	 */
-	public abstract Class<?> loadClassLocally(String name) throws ClassNotFoundException;
-		
 }

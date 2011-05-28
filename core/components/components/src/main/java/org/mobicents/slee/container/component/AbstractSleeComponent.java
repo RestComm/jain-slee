@@ -36,10 +36,9 @@ import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 
-import org.mobicents.slee.container.component.SleeComponent;
-import org.mobicents.slee.container.component.classloading.ComponentClassLoader;
-import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
 import org.mobicents.slee.container.component.deployment.ClassPool;
+import org.mobicents.slee.container.component.deployment.classloading.ComponentClassLoaderImpl;
+import org.mobicents.slee.container.component.deployment.classloading.URLClassLoaderDomainImpl;
 import org.mobicents.slee.container.component.du.DeployableUnit;
 import org.mobicents.slee.container.component.security.PermissionHolder;
 
@@ -55,13 +54,13 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 	/**
 	 * the component class loader
 	 */
-	private ComponentClassLoader classLoader;
+	private ComponentClassLoaderImpl classLoader;
 
 	/**
 	 * the class loader domain for the component jar this component belongs,
 	 * components that depend on this component must add this in its domain
 	 */
-	private URLClassLoaderDomain classLoaderDomain;
+	private URLClassLoaderDomainImpl classLoaderDomain;
 
 	/**
 	 * the javassist class pool
@@ -91,7 +90,7 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.core.component.SleeComponent#getClassLoader()
 	 */
-	public ComponentClassLoader getClassLoader() {
+	public ComponentClassLoaderImpl getClassLoader() {
 		return classLoader;
 	}
 
@@ -100,15 +99,15 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 	 * 
 	 * @param classLoader
 	 */
-	public void setClassLoader(ComponentClassLoader classLoader) {
+	public void setClassLoader(ComponentClassLoaderImpl classLoader) {
 		this.classLoader = classLoader;		
 	}
 
-	private void addDomainLoadersToJavassistPool(Set<URLClassLoaderDomain> visitedDomains, URLClassLoaderDomain domain) {
+	private void addDomainLoadersToJavassistPool(Set<URLClassLoaderDomainImpl> visitedDomains, URLClassLoaderDomainImpl domain) {
 		if (visitedDomains.add(domain)) {
 			classPool.appendClassPath(new LoaderClassPath(domain));
 			// add dependency loaders class paths to the component's javassist classpool
-			for (URLClassLoaderDomain dependencyDomain : domain.getDependencies()) {
+			for (URLClassLoaderDomainImpl dependencyDomain : domain.getDependencies()) {
 				addDomainLoadersToJavassistPool(visitedDomains, dependencyDomain);
 			}
 		}
@@ -118,7 +117,7 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.core.component.SleeComponent#getClassLoaderDomain()
 	 */
-	public URLClassLoaderDomain getClassLoaderDomain() {
+	public URLClassLoaderDomainImpl getClassLoaderDomain() {
 		return classLoaderDomain;
 	}
 
@@ -127,7 +126,7 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 	 * 
 	 * @param classLoaderDomain
 	 */
-	public void setClassLoaderDomain(URLClassLoaderDomain classLoaderDomain) {
+	public void setClassLoaderDomain(URLClassLoaderDomainImpl classLoaderDomain) {
 		this.classLoaderDomain = classLoaderDomain;
 	}
 
@@ -143,9 +142,9 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 			}
 			classPool = new ClassPool();
 			// add class path for domain and dependencies
-			addDomainLoadersToJavassistPool(new HashSet<URLClassLoaderDomain>(),classLoaderDomain);
+			addDomainLoadersToJavassistPool(new HashSet<URLClassLoaderDomainImpl>(),classLoaderDomain);
 			// add class path also for slee 
-			classPool.appendClassPath(new LoaderClassPath(classLoaderDomain.getSleeClassLoader()));
+			classPool.appendClassPath(new LoaderClassPath(classLoaderDomain.getParent()));
 		}		
 		return classPool;
 	}
@@ -310,7 +309,7 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 		classLoader = null;
 		
 		if (classLoaderDomain != null) {				
-			classLoaderDomain.clean();
+			classLoaderDomain.getDependencies().clear();
 			classLoaderDomain = null;				
 		}
 		

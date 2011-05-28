@@ -22,10 +22,11 @@
 
 package org.mobicents.slee.container.component.deployment.classloading;
 
-import java.util.HashSet;
-import java.util.Map;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Vector;
 
 import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
 import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
@@ -41,32 +42,13 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 	/**
 	 * the domains that are involved in replication
 	 */
-	private ConcurrentHashMap<URLClassLoaderDomain, ConcurrentHashSet<String>> domains = new ConcurrentHashMap<URLClassLoaderDomain, ConcurrentHashSet<String>>();
-
-	/**
-	 * local cache of classes, avoids always searching domain
-	 */
-	private ConcurrentHashMap<String, Class<?>> cache = new ConcurrentHashMap<String, Class<?>>();
-
-	/**
-	 * the slee class loader
-	 */
-	private final ClassLoader sleeClassLoader;
-
-	/**
-	 * 
-	 */
-	private final boolean firstLoadFromSlee;
+	private Set<URLClassLoaderDomainImpl> domains = new ConcurrentHashSet<URLClassLoaderDomainImpl>();
 
 	/**
 	 * @param sleeClassLoader
-	 * @param firstLoadFromSlee
 	 */
-	public ReplicationClassLoaderImpl(ClassLoader sleeClassLoader,
-			boolean firstLoadFromSlee) {
-		super();
-		this.sleeClassLoader = sleeClassLoader;
-		this.firstLoadFromSlee = firstLoadFromSlee;
+	public ReplicationClassLoaderImpl(ClassLoader sleeClassLoader) {
+		super(sleeClassLoader);
 	}
 
 	/*
@@ -78,7 +60,7 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 	 */
 	@Override
 	public void addDomain(URLClassLoaderDomain domain) {
-		domains.put(domain, new ConcurrentHashSet<String>());
+		domains.add((URLClassLoaderDomainImpl) domain);
 	}
 
 	/*
@@ -90,66 +72,54 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 	 */
 	@Override
 	public void removeDomain(URLClassLoaderDomain domain) {
-		Set<String> classes = domains.remove(domain);
-		if (classes != null) {
-			for (String name : classes) {
-				cache.remove(name);
-			}
-		}
+		domains.remove(domain);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.ClassLoader#loadClass(java.lang.String, boolean)
-	 */
 	@Override
-	protected Class<?> loadClass(String name, boolean resolve)
-			throws ClassNotFoundException {
-		// try in cache
-		Class<?> result = cache.get(name);
-
-		if (result == null) {
-
-			if (firstLoadFromSlee) {
-				try {
-					result = sleeClassLoader.loadClass(name);
-				} catch (Throwable e) {
-					// ignore
-				}
-			}
-
-			if (result == null) {
-				Set<URLClassLoaderDomain> visited = new HashSet<URLClassLoaderDomain>();
-				for (Map.Entry<URLClassLoaderDomain, ConcurrentHashSet<String>> entry : domains
-						.entrySet()) {
-					final URLClassLoaderDomain domain = entry.getKey();
-					try {
-						result = domain
-								.loadClass(name, resolve, visited, false);
-						entry.getValue().add(name);
-						break;
-					} catch (Throwable e) {
-						// ignore
-					}
-				}
-			}
-
-			if (result == null && !firstLoadFromSlee) {
-				try {
-					result = sleeClassLoader.loadClass(name);
-				} catch (Throwable e) {
-					// ignore
-				}
-			}
-
-			if (result == null) {
-				throw new ClassNotFoundException(name);
-			} else {
-				cache.put(name, result);
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		for (URLClassLoaderDomainImpl domain : domains) {
+			try {
+				return domain.findClassLocally(name);
+			} catch (Throwable e) {
+				// ignore
 			}
 		}
-
-		return result;
+		throw new ClassNotFoundException(name);
 	}
+
+	@Override
+	protected URL findResource(String name) {
+		URL result = null;
+		for (URLClassLoaderDomainImpl domain : domains) {
+			try {
+				result = domain.findResourceLocally(name);
+				if (result != null) {
+					return result;
+				}
+			} catch (Throwable e) {
+				// ignore
+			}
+		}
+		return null;
+	}
+
+	@Override
+	protected Enumeration<URL> findResources(String name) throws IOException {
+		Vector<URL> vector = new Vector<URL>();
+		// add resources from domains
+		Enumeration<URL> enumeration = null;
+		for (URLClassLoaderDomainImpl domain : domains) {
+			enumeration = domain.findResourcesLocally(name);
+			while (enumeration.hasMoreElements()) {
+				vector.add(enumeration.nextElement());
+			}
+		}
+		// now the local ones
+		enumeration = super.findResources(name);
+		while (enumeration.hasMoreElements()) {
+			vector.add(enumeration.nextElement());
+		}
+		return vector.elements();
+	}
+
 }

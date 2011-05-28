@@ -25,17 +25,18 @@ package org.mobicents.slee.container.component.deployment.classloading;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Vector;
 
 import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
-
-//import org.apache.log4j.Logger;
-
-import sun.misc.CompoundEnumeration;
 
 /**
  * An extension of {@link URLClassLoader} to support multiple parents.
@@ -45,252 +46,253 @@ import sun.misc.CompoundEnumeration;
  */
 public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 
-	//private static final Logger logger = Logger.getLogger(URLClassLoaderDomain.class);
-	
 	/**
 	 * the set of dependencies for the domain
 	 */
-	private Set<URLClassLoaderDomain> dependencies = new HashSet<URLClassLoaderDomain>();
+	private Set<URLClassLoaderDomainImpl> dependencies = new HashSet<URLClassLoaderDomainImpl>();
 
-	/**
-	 * local cache of classes, avoids expensive search in dependencies
-	 */
-	private ConcurrentHashMap<String, Class<?>> cache = new ConcurrentHashMap<String, Class<?>>();
-
-	/**
-	 * the slee class loader
-	 */
-	private final ClassLoader sleeClassLoader;
-	
-	private final boolean firstLoadFromSlee;
-	
 	/**
 	 * 
 	 * @param urls
 	 * @param sleeClassLoader
 	 */
-	public URLClassLoaderDomainImpl(URL[] urls, ClassLoader sleeClassLoader, boolean firstLoadFromSlee) {
-		super(urls);
-		this.sleeClassLoader = sleeClassLoader;
-		this.firstLoadFromSlee = firstLoadFromSlee;
+	public URLClassLoaderDomainImpl(URL[] urls, ClassLoader sleeClassLoader) {
+		super(urls, sleeClassLoader);
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.core.classloading.URLClassLoaderDomain#loadClassLocally(java.lang.String)
-	 */
-	public Class<?> loadClassLocally(String name) throws ClassNotFoundException {
-		return loadClass(name, false, new HashSet<URLClassLoaderDomain>(),false);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.ClassLoader#loadClass(java.lang.String, boolean)
-	 */
-	@Override
-	protected Class<?> loadClass(String name, boolean resolve)
-			throws ClassNotFoundException {
-		return loadClass(name, resolve, new HashSet<URLClassLoaderDomain>(),true);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.core.classloading.URLClassLoaderDomain#loadClass(java.lang.String, boolean, java.util.Set, boolean)
-	 */
-	public Class<?> loadClass(String name, boolean resolve,
-			Set<URLClassLoaderDomain> visited, boolean loadFromSlee) throws ClassNotFoundException {
-		
-		// try in cache
-		Class<?> result = cache.get(name);
 
-		if (result == null) {
-			
-			if (!visited.add(this)) {
-				// cycle
-				throw new ClassNotFoundException(name);
-			}
-			
-			//logger.info(toString()+" loading class "+name);
-
-			if (loadFromSlee && firstLoadFromSlee) {
-				// for this lookup go to slee classloader and we must do it first
-				try {
-					result = sleeClassLoader.loadClass(name);
-					//logger.info(toString()+" loaded class "+name+" from SLEE");
-				} catch (Throwable e) {
-					// ignore
-				}
-			}
-			
-			if (result == null) {				
-				// not found or not tried, try in dependencies
-				for (URLClassLoaderDomain dependency : dependencies) {
-					try {
-						result = dependency.loadClass(name, resolve, visited,false);
-					} catch (Throwable e) {
-						// ignore
-					}					
-					if (result != null) {
-						break;
-					}
-				}
-				
-				if (result == null) {
-					// not found
-					if (firstLoadFromSlee || !loadFromSlee) {
-						// lookup is done first in slee or not done at all, so this is final try,
-						// and either it is found or exception will be thrown
-						result = super.loadClass(name, resolve);
-						//logger.info(toString()+" loaded class "+name+" locally");			
-					}
-					else {
-						// if it fails slee is last place to lookup, no exception allowed here
-						try {
-							result = super.loadClass(name, resolve);
-						} catch (Throwable e) {
-							// ignore, we will lookup in the parent next
-						}	
-					}
-				}	
-			}
-			
-			if (result == null) {
-				// if not found yet the only way to be here is in mode where
-				// slee is not searched first and slee should be searched
-				result = sleeClassLoader.loadClass(name);
-			}
-			
-			cache.put(name, result);						
-		}
-		/*else {
-			logger.info(toString()+" loaded class "+name+" from cache");			
-		}*/
-		
-		if (resolve) {
-			resolveClass(result);
-		}
-		
-		return result;
-
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.core.classloading.URLClassLoaderDomain#getDependencies()
+	/**
+	 * Retrieves the non thread safe set of dependencies for the domain.
+	 * 
+	 * @return
 	 */
-	public Set<URLClassLoaderDomain> getDependencies() {
+	public Set<URLClassLoaderDomainImpl> getDependencies() {
 		return dependencies;
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.core.classloading.URLClassLoaderDomain#getSleeClassLoader()
-	 */
-	public ClassLoader getSleeClassLoader() {
-		return sleeClassLoader;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.core.classloading.URLClassLoaderDomain#clean()
-	 */
-	public void clean() {
-		cache.clear();
-		dependencies.clear();
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.net.URLClassLoader#findResource(java.lang.String)
-	 */
+
 	@Override
-	public URL findResource(String name) {		
-		
-		URL result = null;
-		
-		if (firstLoadFromSlee) {
-			
-			result = sleeClassLoader.getResource(name);
-			if (result == null) {
-				result = findResource(name, new HashSet<URLClassLoaderDomain>());
-			}
+	protected Class<?> loadClass(final String name, final boolean resolve)
+			throws ClassNotFoundException {
+		// use thread locals to check if this domain was already used in this loading process
+		Map<String, Set<URLClassLoaderDomainImpl>> visitedDomainsMap = URLClassLoaderDomainThreadLocals
+				.getClassLoadingVisitedDomainsMap();
+		if (visitedDomainsMap == null) {
+			visitedDomainsMap = new HashMap<String, Set<URLClassLoaderDomainImpl>>();
 		}
-		else {
-			result = findResource(name, new HashSet<URLClassLoaderDomain>());
-			if (result == null) {
-				result = sleeClassLoader.getResource(name);
-			}
+		Set<URLClassLoaderDomainImpl> visitedDomains = visitedDomainsMap
+				.get(name);
+		if (visitedDomains == null) {
+			visitedDomains = new HashSet<URLClassLoaderDomainImpl>();
+			visitedDomainsMap.put(name, visitedDomains);
 		}
-		
-		return result;
+		if (!visitedDomains.add(this)) {
+			throw new ClassNotFoundException(name);
+		}
+		// not visited yet, proceed with loading
+		URLClassLoaderDomainThreadLocals
+				.setClassLoadingVisitedDomainsMap(visitedDomainsMap);
+		try {
+			if (System.getSecurityManager() != null) {
+				try {
+					return AccessController
+							.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+								public Class<?> run()
+										throws ClassNotFoundException {
+									return URLClassLoaderDomainImpl.super
+											.loadClass(name, resolve);
+								}
+							});
+				} catch (PrivilegedActionException e) {
+					throw (ClassNotFoundException) e.getException();
+				}
+			} else {
+				return super.loadClass(name, resolve);
+			}
+		} finally {
+			// cleanup thread local state previously set
+			visitedDomainsMap = URLClassLoaderDomainThreadLocals
+					.getClassLoadingVisitedDomainsMap();
+			visitedDomains = visitedDomainsMap.get(name);
+			visitedDomains.remove(this);
+			if (visitedDomains.isEmpty()) {
+				visitedDomainsMap.remove(name);
+			}
+			if (visitedDomainsMap.isEmpty()) {
+				visitedDomainsMap = null;
+			}
+			URLClassLoaderDomainThreadLocals
+					.setClassLoadingVisitedDomainsMap(visitedDomainsMap);
+		}
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.component.classloading.URLClassLoaderDomain#findResource(java.lang.String, java.util.Set)
+
+	@Override
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		// try 1st in dependencies
+		for (URLClassLoaderDomainImpl dependency : dependencies) {
+			try {
+				return dependency.loadClass(name);
+			} catch (Throwable e) {
+				// ignore
+			}
+		}
+		// now locally
+		return findClassLocally(name);
+	}
+
+	/**
+	 * Finds a class locally, i.e., in the URLs managed by the extended
+	 * URLClassLoader.
+	 * 
+	 * @param name
+	 * @return
+	 * @throws ClassNotFoundException
 	 */
-	public URL findResource(String name, Set<URLClassLoaderDomain> visited) {
-		
-		if (!visited.add(this)) {
-			// cycle
+	protected Class<?> findClassLocally(String name)
+			throws ClassNotFoundException {
+		return super.findClass(name);
+	}
+
+	@Override
+	public URL getResource(String name) {
+		// use thread locals to check if this domain was already visited
+		Map<String, Set<URLClassLoaderDomainImpl>> visitedDomainsMap = URLClassLoaderDomainThreadLocals
+				.getResourceRetrievalVisitedDomainsMap();
+		if (visitedDomainsMap == null) {
+			visitedDomainsMap = new HashMap<String, Set<URLClassLoaderDomainImpl>>();
+		}
+		Set<URLClassLoaderDomainImpl> visitedDomains = visitedDomainsMap
+				.get(name);
+		if (visitedDomains == null) {
+			visitedDomains = new HashSet<URLClassLoaderDomainImpl>();
+			visitedDomainsMap.put(name, visitedDomains);
+		}
+		if (!visitedDomains.add(this)) {
 			return null;
 		}
-		
-		// try in dependencies
+		// not visited yet, proceed with retrieval
+		URLClassLoaderDomainThreadLocals
+				.setResourceRetrievalVisitedDomainsMap(visitedDomainsMap);
+		try {
+			return super.getResource(name);
+		} finally {
+			// cleanup thread local state previously set
+			visitedDomainsMap = URLClassLoaderDomainThreadLocals
+					.getResourceRetrievalVisitedDomainsMap();
+			visitedDomains = visitedDomainsMap.get(name);
+			visitedDomains.remove(this);
+			if (visitedDomains.isEmpty()) {
+				visitedDomainsMap.remove(name);
+			}
+			if (visitedDomainsMap.isEmpty()) {
+				visitedDomainsMap = null;
+			}
+			URLClassLoaderDomainThreadLocals
+					.setResourceRetrievalVisitedDomainsMap(visitedDomainsMap);
+		}
+	}
+
+	@Override
+	public URL findResource(String name) {
+		// try 1st in dependencies
 		URL result = null;
-		for (URLClassLoaderDomain dependency : dependencies) {
-			result = dependency.findResource(name,visited);					
+		for (URLClassLoaderDomainImpl dependency : dependencies) {
+			result = dependency.getResource(name);
 			if (result != null) {
 				return result;
 			}
 		}
-			
-		// look locally
-		return super.findResource(name);						
-				
+		// now locally
+		return findResourceLocally(name);
 	}
-	
-	/* (non-Javadoc)
-	 * @see java.net.URLClassLoader#findResources(java.lang.String)
+
+	/**
+	 * Finds a resource locally, i.e., in the URLs managed by the extended
+	 * URLClassLoader.
+	 * 
+	 * @param name
+	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	protected URL findResourceLocally(String name) {
+		return super.findResource(name);
+	}
+
+	private static final Enumeration<URL> EMPTY_ENUMERATION = new Vector<URL>()
+			.elements();
+
+	@Override
+	public Enumeration<URL> getResources(String name) throws IOException {
+		// use thread locals to check if this domain was already visited
+		Map<String, Set<URLClassLoaderDomainImpl>> visitedDomainsMap = URLClassLoaderDomainThreadLocals
+				.getResourcesRetrievalVisitedDomainsMap();
+		if (visitedDomainsMap == null) {
+			visitedDomainsMap = new HashMap<String, Set<URLClassLoaderDomainImpl>>();
+		}
+		Set<URLClassLoaderDomainImpl> visitedDomains = visitedDomainsMap
+				.get(name);
+		if (visitedDomains == null) {
+			visitedDomains = new HashSet<URLClassLoaderDomainImpl>();
+			visitedDomainsMap.put(name, visitedDomains);
+		}
+		if (!visitedDomains.add(this)) {
+			return EMPTY_ENUMERATION;
+		}
+		// not visited yet, proceed with retrieval
+		URLClassLoaderDomainThreadLocals
+				.setResourcesRetrievalVisitedDomainsMap(visitedDomainsMap);
+		try {
+			return super.getResources(name);
+		} finally {
+			// cleanup thread local state previously set
+			visitedDomainsMap = URLClassLoaderDomainThreadLocals
+					.getResourcesRetrievalVisitedDomainsMap();
+			visitedDomains = visitedDomainsMap.get(name);
+			visitedDomains.remove(this);
+			if (visitedDomains.isEmpty()) {
+				visitedDomainsMap.remove(name);
+			}
+			if (visitedDomainsMap.isEmpty()) {
+				visitedDomainsMap = null;
+			}
+			URLClassLoaderDomainThreadLocals
+					.setResourcesRetrievalVisitedDomainsMap(visitedDomainsMap);
+		}
+	}
+
 	@Override
 	public Enumeration<URL> findResources(String name) throws IOException {
-		Set<Enumeration<URL>> set = new HashSet<Enumeration<URL>>();
-		if (firstLoadFromSlee) {
-			set.add(sleeClassLoader.getResources(name));
-			findResources(name, new HashSet<URLClassLoaderDomain>(), set);
+		Vector<URL> vector = new Vector<URL>();
+		// add resources from dependencies
+		Enumeration<URL> enumeration = null;
+		for (URLClassLoaderDomainImpl dependency : dependencies) {
+			enumeration = dependency.getResources(name);
+			while (enumeration.hasMoreElements()) {
+				vector.add(enumeration.nextElement());
+			}
 		}
-		else {
-			findResources(name, new HashSet<URLClassLoaderDomain>(), set);
-			set.add(sleeClassLoader.getResources(name));
+		// now the local ones
+		enumeration = findResourcesLocally(name);
+		while (enumeration.hasMoreElements()) {
+			vector.add(enumeration.nextElement());
 		}
-		final Enumeration[] array = new Enumeration[set.size()];
-		set.toArray(array);
-		return new CompoundEnumeration(array);
+		return vector.elements();
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.component.classloading.URLClassLoaderDomain#findResources(java.lang.String, java.util.Set, java.util.Set)
+
+	/**
+	 * Finds resources locally, i.e., in the URLs managed by the extended
+	 * URLClassLoader.
+	 * 
+	 * @param name
+	 * @return
+	 * @throws IOException
 	 */
-	public void findResources(String name, Set<URLClassLoaderDomain> visited, Set<Enumeration<URL>> result) throws IOException {
-		
-		if (!visited.add(this)) {
-			// cycle
-			return;
-		}
-		
-		// find in dependencies
-		for (URLClassLoaderDomain dependency : dependencies) {
-			dependency.findResources(name,visited,result);					
-		}
-			
-		// look locally
-		result.add(super.findResources(name));
+	protected Enumeration<URL> findResourcesLocally(String name)
+			throws IOException {
+		return super.findResources(name);
 	}
-	
+
 	@Override
 	public String toString() {
-		return "URLClassLoaderDomain( urls= "+Arrays.asList(getURLs()) + " )\n";
+		return "URLClassLoaderDomain( urls= " + Arrays.asList(getURLs())
+				+ " )\n";
 	}
+
 }

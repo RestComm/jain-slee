@@ -61,9 +61,8 @@ import org.mobicents.slee.container.component.SbbComponentImpl;
 import org.mobicents.slee.container.component.ServiceComponentImpl;
 import org.mobicents.slee.container.component.SleeComponent;
 import org.mobicents.slee.container.component.UsageParametersInterfaceDescriptor;
-import org.mobicents.slee.container.component.classloading.ComponentClassLoader;
-import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
 import org.mobicents.slee.container.component.deployment.classloading.ComponentClassLoaderImpl;
+import org.mobicents.slee.container.component.deployment.classloading.URLClassLoaderDomainImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
@@ -311,7 +310,7 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 
 	public static void createClassLoader(AbstractSleeComponent component) {
 
-		URLClassLoaderDomain classLoaderDomain = component.getClassLoaderDomain();
+		URLClassLoaderDomainImpl classLoaderDomain = component.getClassLoaderDomain();
 		if (classLoaderDomain != null) {
 			// add all dependency domains to the component domain
 			for (ComponentID componentID : component.getDependenciesSet()) {
@@ -373,7 +372,7 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		try {
-			ComponentClassLoader componentClassLoader = sleeComponent
+			ComponentClassLoaderImpl componentClassLoader = sleeComponent
 					.getClassLoader();
 			if (componentClassLoader != null) {
 				// change class loader
