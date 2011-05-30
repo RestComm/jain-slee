@@ -1,7 +1,5 @@
 package org.mobicents.slee.enabler.xdmc;
 
-import javax.slee.SbbLocalObject;
-
 import org.mobicents.slee.SbbLocalObjectExt;
 /**
  * Interface used by {@link XDMClientChildSbbLocalObject} as callback to the

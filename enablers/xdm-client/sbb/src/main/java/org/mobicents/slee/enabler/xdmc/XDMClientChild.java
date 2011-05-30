@@ -244,7 +244,7 @@ public interface XDMClientChild {
 	// --- subscribe/unsubscribe interface methods
 
 	/**
-	 * Method which triggers subscription to changes in XDMS resources. Depending on implementation of enabler it can use no-patching, xcap-diff or aggregated mode.
+	 * Method which triggers subscription to changes in XDMS resources. XCAP DIFF mode used is agreggated.
 	 * @param subscriber - address that identifies local entity
 	 * @param notifier - address that  identifies remote entity(ie. XCAP Diff entity), ie. sip:tests@xcap.example.com
 	 * @param expires - duration of subscription, in seconds.
