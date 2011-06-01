@@ -22,7 +22,7 @@
   
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.resources.base.version>3.0.0-SNAPSHOT</mobicents.diameter.resources.base.version>
+    <mobicents.diameter.resources.base.version>2.4.1-SNAPSHOT</mobicents.diameter.resources.base.version>
     
     <!-- Other Mobicents Components Versions -->
     <mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
@@ -99,7 +99,6 @@
       <plugin>
         <artifactId>maven-eclipse-plugin</artifactId>
         <groupId>org.mobicents.tools</groupId>
-        <version>${mobicents.tools.mavenplugin.eclipse.version}</version>
         <inherited>false</inherited>
         <executions />
         <configuration>

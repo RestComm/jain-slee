@@ -20,24 +20,21 @@
 			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
-	  <finalName>diameter-${pom.artifactId}-${pom.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-du-plugin</artifactId>
-				<version>${mobicents.tools.mavenplugin.du.version}</version>
-				<extensions>true</extensions>
-				<configuration />
 				<executions>
 					<execution>
-						<phase>install</phase>
 						<goals>
-							<goal>create</goal>
+							<goal>copy-dependencies</goal>
+							<goal>generate-descriptor</goal>
+							<goal>generate-ant-management-script</goal>
 						</goals>
 					</execution>
-				</executions>
+				</executions>				
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -70,5 +67,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 </project>
