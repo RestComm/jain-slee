@@ -99,13 +99,19 @@ public abstract class DiameterBaseExampleSbb implements javax.slee.Sbb {
       
       acif = (DiameterActivityContextInterfaceFactory) myEnv.lookup("slee/resources/diameter-base-ra/acif");
       
-      tracer.info("Got Provider:" + provider);
+      if(tracer.isFineEnabled()) {
+        tracer.fine("Got Provider:" + provider);
+      }
 
       messageFactory = provider.getDiameterMessageFactory();
-      tracer.info("Got Message Factory:" + provider);
+      if(tracer.isFineEnabled()) {
+        tracer.fine("Got Message Factory:" + provider);
+      }
 
       avpFactory = provider.getDiameterAvpFactory();
-      tracer.info("Got AVP Factory:" + provider);
+      if(tracer.isFineEnabled()) {
+        tracer.fine("Got AVP Factory:" + provider);
+      }
 
       // Get the timer facility
       timerFacility = (TimerFacility) myEnv.lookup("slee/facilities/timer");
@@ -116,59 +122,71 @@ public abstract class DiameterBaseExampleSbb implements javax.slee.Sbb {
   }
 
   public void unsetSbbContext() {
-    tracer.info("unsetSbbContext invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("unsetSbbContext invoked.");
+    }
 
     this.sbbContext = null;
   }
 
   public void sbbCreate() throws javax.slee.CreateException {
-    if (tracer.isInfoEnabled())
-      tracer.info("sbbCreate invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("sbbCreate invoked.");
+    }
   }
 
   public void sbbPostCreate() throws javax.slee.CreateException {
-    if (tracer.isInfoEnabled())
-      tracer.info("sbbPostCreate invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("sbbPostCreate invoked.");
+    }
   }
 
   public void sbbActivate() {
-    if (tracer.isInfoEnabled())
-      tracer.info("sbbActivate invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("sbbActivate invoked.");
+    }
   }
 
   public void sbbPassivate() {
-    if (tracer.isInfoEnabled())
-      tracer.info("sbbPassivate invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("sbbPassivate invoked.");
+    }
   }
 
   public void sbbRemove() {
-    if (tracer.isInfoEnabled())
-      tracer.info("sbbRemove invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("sbbRemove invoked.");
+    }
   }
 
   public void sbbLoad() {
-    if (tracer.isInfoEnabled())
-      tracer.info("sbbLoad invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("sbbLoad invoked.");
+    }
   }
 
   public void sbbStore() {
-    if (tracer.isInfoEnabled())
-      tracer.info("sbbStore invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("sbbStore invoked.");
+    }
   }
 
   public void sbbExceptionThrown(Exception exception, Object event, ActivityContextInterface activity) {
-    if (tracer.isInfoEnabled())
-      tracer.info("sbbRolledBack invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("sbbExceptionThrown invoked.");
+    }
   }
 
   public void sbbRolledBack(RolledBackContext context) {
-    if (tracer.isInfoEnabled())
-      tracer.info("sbbRolledBack invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("sbbRolledBack invoked.");
+    }
   }
 
   protected SbbContext getSbbContext() {
-    if (tracer.isInfoEnabled())
-      tracer.info("getSbbContext invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("getSbbContext invoked.");
+    }
 
     return sbbContext;
   }
@@ -178,7 +196,9 @@ public abstract class DiameterBaseExampleSbb implements javax.slee.Sbb {
   // ##########################################################################
 
   public void onServiceStartedEvent(javax.slee.serviceactivity.ServiceStartedEvent event, ActivityContextInterface aci) {
-    tracer.info("onServiceStartedEvent invoked.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("onServiceStartedEvent invoked.");
+    }
 
     try {
       // check if it's my service that is starting
@@ -240,8 +260,9 @@ public abstract class DiameterBaseExampleSbb implements javax.slee.Sbb {
 
   public void onAccountingRequest(AccountingRequest acr, ActivityContextInterface aci) {
     long start = System.currentTimeMillis();
-    if (tracer.isInfoEnabled())
+    if (tracer.isInfoEnabled()) {
       tracer.info("Accounting-Request received. [" + acr + "]");
+    }
 
     boolean actAsProxy = false;
 
@@ -277,27 +298,28 @@ public abstract class DiameterBaseExampleSbb implements javax.slee.Sbb {
           }
         }
 
-        if (!hasDestinationHost)
+        if (!hasDestinationHost) {
           avps.add(avpFactory.createAvp(DiameterAvpCodes.DESTINATION_HOST, "127.0.0.1".getBytes()));
+        }
 
-        if (!hasDestinationRealm)
+        if (!hasDestinationRealm) {
           avps.add(avpFactory.createAvp(DiameterAvpCodes.DESTINATION_REALM, "mobicents.org".getBytes()));
-        if (tracer.isInfoEnabled())
-          tracer.info("AVPs ==> " + avps);
+        }
 
         DiameterAvp[] avpArray = new DiameterAvp[avps.size()];
         avpArray = avps.toArray(avpArray);
-        if (tracer.isInfoEnabled())
-          tracer.info("Creating Custom Message...");
-        DiameterMessage ms = messageFactory.createAccountingRequest(avpArray);
         if (tracer.isInfoEnabled()) {
-          tracer.info("Created Custom Message[" + ms + "]");
+          tracer.info("Creating Custom Message...");
+        }
+        DiameterMessage proxiedACR = messageFactory.createAccountingRequest(avpArray);
+        if (tracer.isInfoEnabled()) {
+          tracer.info("Created Custom Message[" + proxiedACR + "]");
 
           tracer.info("Sending Custom Message...");
         }
-        provider.createActivity().sendMessage(ms);
+        provider.createActivity().sendMessage(proxiedACR);
         if (tracer.isInfoEnabled()) {
-          tracer.info("Sent Custom Message[" + ms + "]");
+          tracer.info("Sent Custom Message[" + proxiedACR + "]");
         }
       }
       else {
@@ -338,8 +360,9 @@ public abstract class DiameterBaseExampleSbb implements javax.slee.Sbb {
   }
 
   public void onErrorAnswer(ErrorAnswer era, ActivityContextInterface aci) {
-    if (tracer.isInfoEnabled())
+    if (tracer.isInfoEnabled()) {
       tracer.info("Error-Answer received.");
+    }
   }
 
   // ##########################################################################
@@ -396,14 +419,15 @@ public abstract class DiameterBaseExampleSbb implements javax.slee.Sbb {
       DiameterAvp[] avpArray = new DiameterAvp[avps.size()];
       avpArray = avps.toArray(avpArray);
 
-      if (tracer.isInfoEnabled())
-        tracer.info("Creating Custom Message...");
+      if (tracer.isInfoEnabled()) {
+        tracer.info("Creating Accounting-Request...");
+      }
 
       AccountingRequest acr = messageFactory.createAccountingRequest(avpArray);
 
-      if (tracer.isFineEnabled()) {
-        tracer.fine("Created Custom Message[" + acr + "]");
-        tracer.fine("Sending Custom Message...");
+      if (tracer.isInfoEnabled()) {
+        tracer.info("Created Accounting-Request [" + acr + "]");
+        tracer.info("Sending Accounting-Request...");
       }
       
       ActivityContextInterface aci = acif.getActivityContextInterface(activity);
@@ -413,7 +437,7 @@ public abstract class DiameterBaseExampleSbb implements javax.slee.Sbb {
       aci.attach(sbbContext.getSbbLocalObject());
       
       if (tracer.isInfoEnabled()) {
-        tracer.info("Sent Custom Message[" + acr + "]");
+        tracer.info("Sent Accounting-Request");
       }
     }
     catch (Exception e) {
