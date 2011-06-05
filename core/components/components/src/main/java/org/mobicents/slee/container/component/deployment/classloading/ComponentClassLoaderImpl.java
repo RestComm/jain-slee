@@ -42,10 +42,7 @@ import org.mobicents.slee.container.component.classloading.ComponentClassLoader;
  */
 public class ComponentClassLoaderImpl extends ComponentClassLoader {
 
-	/**
-	 * system wide monitor, used to sync class loading, ensure no dead locks
-	 */
-	private static final Object MONITOR = new Object();
+	
 
 	/**
 	 * the component id, used to make this class loader unique
@@ -71,7 +68,7 @@ public class ComponentClassLoaderImpl extends ComponentClassLoader {
 
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
-		synchronized (MONITOR) {
+		synchronized (ClassLoaderFactoryImpl.MONITOR) {
 			return domain.loadClass(name);
 		}
 	}
@@ -84,7 +81,7 @@ public class ComponentClassLoaderImpl extends ComponentClassLoader {
 	 * @throws ClassNotFoundException
 	 */
 	public Class<?> loadClassLocally(String name) throws ClassNotFoundException {
-		synchronized (MONITOR) {
+		synchronized (ClassLoaderFactoryImpl.MONITOR) {
 			return domain.findClassLocally(name);
 		}
 	}

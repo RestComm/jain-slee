@@ -77,11 +77,13 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
-		for (URLClassLoaderDomainImpl domain : domains) {
-			try {
-				return domain.findClassLocally(name);
-			} catch (Throwable e) {
-				// ignore
+		synchronized (ClassLoaderFactoryImpl.MONITOR) {
+			for (URLClassLoaderDomainImpl domain : domains) {
+				try {
+					return domain.loadClass(name);
+				} catch (Throwable e) {
+					// ignore
+				}
 			}
 		}
 		throw new ClassNotFoundException(name);
@@ -92,7 +94,7 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 		URL result = null;
 		for (URLClassLoaderDomainImpl domain : domains) {
 			try {
-				result = domain.findResourceLocally(name);
+				result = domain.getResource(name);
 				if (result != null) {
 					return result;
 				}
@@ -109,7 +111,7 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 		// add resources from domains
 		Enumeration<URL> enumeration = null;
 		for (URLClassLoaderDomainImpl domain : domains) {
-			enumeration = domain.findResourcesLocally(name);
+			enumeration = domain.getResources(name);
 			while (enumeration.hasMoreElements()) {
 				vector.add(enumeration.nextElement());
 			}
