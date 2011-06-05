@@ -22,17 +22,6 @@
           <parameter class="org.jboss.cache.config.Configuration"><inject bean="Mobicents.JAINSLEE.CacheConfig"/></parameter> 
      	</constructor>		
 	</bean>
-
-	<bean name="Mobicents.JAINSLEE.JBossCacheJmxWrapper" class="org.jboss.cache.jmx.CacheJmxWrapper">
-      <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss.cache:service=MobicentsSleeCache",exposedInterface=org.jboss.cache.jmx.CacheJmxWrapperMBean.class,registerDirectly=true)</annotation>
-      <constructor>
-          <parameter><value-factory bean="Mobicents.JAINSLEE.Cache" method="getJBossCache"/></parameter>
-      </constructor>
-      <start method="start" ignored="true"/>
-      <stop method="stop" ignored="true"/>
-      <destroy method="destroy" ignored="true"/>
-      <demand>Mobicents.JAINSLEE.SleeManagement</demand>      
-   </bean>
    	
 	<bean name="Mobicents.JAINSLEE.Cluster" class="org.mobicents.cluster.DefaultMobicentsCluster">
 		<constructor>
