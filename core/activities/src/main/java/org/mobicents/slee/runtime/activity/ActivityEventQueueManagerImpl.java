@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.activity.ActivityEventQueueManager;
 import org.mobicents.slee.container.activity.LocalActivityContext;
 import org.mobicents.slee.container.event.EventContext;
+import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
 import org.mobicents.slee.container.util.concurrent.ConcurrentHashSet;
 
 /**
@@ -133,9 +134,16 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 	 * @param event
 	 */
 	public void fireNotTransacted(EventContext event) {
-		// manage event references
-		event.getReferencesHandler().add(localAC.getActivityContextHandle());
-		commit(event,false);
+		if (activityEndEvent == null) {
+			// activity end event not set
+			// manage event references
+			event.getReferencesHandler().add(localAC.getActivityContextHandle());
+			// commit event
+			commit(event,false);
+		} else {
+			// processing of the event failed
+			event.eventProcessingFailed(FailureReason.OTHER_REASON);			
+		}
 	}
 	
 	private void commit(EventContext event, boolean isPendingEvent) {
@@ -187,10 +195,17 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 				}
 			}
 		} else {
-			// route the event
-			localAC.getExecutorService().routeEvent(event);
-			// perhaps we need to route a frozen activity end event too
-			routeActivityEndEventIfNeeded();
+			final EventRouterExecutor executor = localAC.getExecutorService();
+			if (executor != null) {
+				// route the event
+				executor.routeEvent(event);
+				// perhaps we need to route a frozen activity end event too
+				routeActivityEndEventIfNeeded();
+			}
+			else {
+				// processing of the event failed
+				event.eventProcessingFailed(FailureReason.OTHER_REASON);
+			}
 		}
 	}
 	
