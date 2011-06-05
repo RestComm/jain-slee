@@ -324,7 +324,8 @@ public class SleeContainer {
 				+ nullActivityFactory + "\n" 
 				+ getEventRouter() + "\n"
 				+ getEventContextFactory() + "\n"
-				+ getTransactionManager();
+				+ getTransactionManager() + "\n"
+				+ cluster.getMobicentsCache().getCacheContent();
 	}
 
 	public ActivityContextFactory getActivityContextFactory() {
@@ -727,12 +728,12 @@ public class SleeContainer {
 	}
 	
 	public void afterModulesInitialization() {
-		// start cluster
-		cluster.startCluster();
 		if (!cluster.getMobicentsCache().isLocalMode()) {
 			cluster.getMobicentsCache().setReplicationClassLoader(
 				this.replicationClassLoader);
 		}
+		// start cluster
+		cluster.startCluster();
 	}
 	
 	public void beforeModulesShutdown() {
