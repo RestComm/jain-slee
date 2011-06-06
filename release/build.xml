@@ -357,7 +357,7 @@
 	<available file="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" property="got.jboss" />
 	<target name="get-jboss" unless="got.jboss">
 		<echo>Downloading JBoss AS</echo>
-		<get dest="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" src="http://downloads.sourceforge.net/jboss/jboss-${jboss.version}.zip"/>
+		<get dest="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" src="http://downloads.sourceforge.net/jboss/jboss-${jboss.version}-jdk6.zip"/>
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${mms.distro.zip.path}" property="got.mms" />
