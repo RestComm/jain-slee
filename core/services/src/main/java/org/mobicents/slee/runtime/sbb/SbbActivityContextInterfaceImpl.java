@@ -68,9 +68,11 @@ public class SbbActivityContextInterfaceImpl implements
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj != null && obj instanceof SbbActivityContextInterfaceImpl) {
-			return ((SbbActivityContextInterfaceImpl) obj).aciImpl
-					.equals(this.aciImpl);
+		// even if there may be different java interfaces for an AC, equality
+		// should be defined only by the AC
+		if (obj != null && obj instanceof ActivityContextInterface) {
+			return ((ActivityContextInterface) obj).getActivityContext()
+					.equals(this.aciImpl.getActivityContext());
 		} else {
 			return false;
 		}
