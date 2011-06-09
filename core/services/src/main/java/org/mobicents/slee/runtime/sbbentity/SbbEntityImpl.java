@@ -58,7 +58,6 @@ import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionDataImpl;
-import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 
 /**
@@ -443,38 +442,20 @@ public class SbbEntityImpl implements SbbEntity {
 		final EventHandlerMethod eventHandlerMethod = sbbComponent
 				.getEventHandlerMethods().get(sleeEvent.getEventTypeId());
 		// build aci
-		ActivityContextInterface aci = ac.getActivityContextInterface();
-		ActivityContextInterface activityContextInterface = null;
-		if (eventHandlerMethod.getHasCustomACIParam()) {
-			try {
-				activityContextInterface = (ActivityContextInterface) this
-						.getSbbComponent()
-						.getActivityContextInterfaceConcreteClass()
-						.getConstructor(
-								new Class[] { org.mobicents.slee.container.activity.ActivityContextInterface.class,
-										SbbComponent.class }).newInstance(
-								new Object[] { aci, sbbComponent });
-			} catch (Exception e) {
-				String s = "Could not create Custom ACI!";
-				// log.error(s, e);
-				throw new SLEEException(s, e);
-			}
-		} else {
-			activityContextInterface = aci;
-		}
+		ActivityContextInterface aci = asSbbActivityContextInterface(ac.getActivityContextInterface());
 		// now build the param array
 		final Object[] parameters ;
 		if (eventHandlerMethod.getHasEventContextParam()) {
 			parameters = new Object[] { sleeEvent.getEvent(),
-					activityContextInterface, eventContextImpl };
+					aci, eventContextImpl };
 		} else {
 			parameters = new Object[] { sleeEvent.getEvent(),
-					activityContextInterface };
+					aci };
 		}
 
 		// store some info about the invocation in the tx context
 		final EventRoutingTransactionData data = new EventRoutingTransactionDataImpl(
-				sleeEvent, activityContextInterface);
+				sleeEvent, aci);
 		if (!isReentrant()) {
 			data.getInvokedNonReentrantSbbEntities().add(sbbeId);
 		}
@@ -540,6 +521,28 @@ public class SbbEntityImpl implements SbbEntity {
 		// remove data from tx context
 		txContext.setEventRoutingTransactionData(null);
 		
+	}
+
+	public ActivityContextInterface asSbbActivityContextInterface(
+			ActivityContextInterface aci) {
+		final SbbComponent sbbComponent = getSbbComponent();
+		final Class<?> aciClass = sbbComponent.getActivityContextInterfaceConcreteClass();
+		if (aciClass == null) {
+			return aci;
+		}
+		else {
+			try {
+				return (ActivityContextInterface) aciClass
+				.getConstructor(
+						new Class[] { org.mobicents.slee.container.activity.ActivityContextInterface.class,
+								SbbComponent.class }).newInstance(
+										new Object[] { aci, sbbComponent });
+			} catch (Exception e) {
+				String s = "Could not create Custom ACI!";
+				// log.error(s, e);
+				throw new SLEEException(s, e);
+			}
+		}
 	}
 
 	/*
@@ -626,27 +629,7 @@ public class SbbEntityImpl implements SbbEntity {
 				.getGetChildRelationMethodsMap().get(accessorName), this);		
 	}
 
-	public void asSbbActivityContextInterface(ActivityContextInterface aci) {
-		try {
-			Class<?> aciclass = this.getSbbComponent()
-					.getActivityContextInterfaceConcreteClass();
-			if (aciclass != null) {
-
-				Class<?>[] argTypes = new Class[] { aci.getClass(),
-						SbbComponent.class };
-				Constructor<?> cons = aciclass.getConstructor(argTypes);
-				Object retval = cons.newInstance(new Object[] { aci,
-						this.getSbbComponent() });
-				SbbConcrete sbbConcrete = (SbbConcrete) this.getSbbObject()
-						.getSbbConcrete();
-				sbbConcrete.sbbSetActivityContextInterface(retval);
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-
-		}
-	}
-
+	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
 			return ((SbbEntityImpl) obj).sbbeId.equals(this.sbbeId);

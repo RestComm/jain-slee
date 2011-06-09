@@ -427,9 +427,6 @@ public class SbbComponentImpl extends AbstractSleeComponentWithUsageParametersIn
 						if (method.getParameterTypes().length == 3) {
 							eventHandlerMethod.setHasEventContextParam(true);
 						}
-						if (descriptor.getSbbActivityContextInterface() != null) {
-							eventHandlerMethod.setHasCustomACIParam(true);
-						}
 						eventHandlerMethods.put(eventEntry.getEventReference(), eventHandlerMethod);
 						break;
 					}

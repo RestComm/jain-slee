@@ -182,7 +182,6 @@ public interface SbbComponent extends SleeComponentWithUsageParametersInterface 
 	public static class EventHandlerMethod {
 
 		private final Method eventHandlerMethod;
-		private boolean hasCustomACIParam;
 		private boolean hasEventContextParam;
 
 		public EventHandlerMethod(Method eventHandlerMethod) {
@@ -191,14 +190,6 @@ public interface SbbComponent extends SleeComponentWithUsageParametersInterface 
 
 		public Method getEventHandlerMethod() {
 			return eventHandlerMethod;
-		}
-
-		public boolean getHasCustomACIParam() {
-			return hasCustomACIParam;
-		}
-
-		public void setHasCustomACIParam(boolean hasCustomACIParam) {
-			this.hasCustomACIParam = hasCustomACIParam;
 		}
 
 		public boolean getHasEventContextParam() {

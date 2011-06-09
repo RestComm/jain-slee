@@ -355,7 +355,7 @@ public class SbbAbstractMethodHandler {
 		else {
 			final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext((ActivityContextHandle) cmpFieldValue);
 			if (ac != null) {
-				return ac.getActivityContextInterface();
+				return sbbEntity.asSbbActivityContextInterface(ac.getActivityContextInterface());
 			} else {
 				return null;
 			}

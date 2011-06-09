@@ -231,4 +231,12 @@ public interface SbbEntity {
 	 * @return
 	 */
 	public boolean isReentrant();
+	
+	/**
+	 * 
+	 * @param aci
+	 * @return
+	 */
+	public ActivityContextInterface asSbbActivityContextInterface(
+			ActivityContextInterface aci);
 }
