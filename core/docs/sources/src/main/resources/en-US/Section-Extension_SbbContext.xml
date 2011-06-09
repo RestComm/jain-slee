@@ -112,7 +112,7 @@ public interface SbbContextExt extends SbbContext {
 		<varlistentry>
 			<term>The <literal>getSbbLocalObject()</literal> method:</term>
 			<listitem>
-				<para>Exposes the sbb local object with extension interface, to avoid unneeded casts.</para>
+				<para>Exposes the SBB local object with the extension interface to avoid unneeded casts.</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>

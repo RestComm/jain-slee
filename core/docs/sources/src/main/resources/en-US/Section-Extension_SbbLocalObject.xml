@@ -5,7 +5,7 @@
 	
 	<title>SbbLocalObject Extension</title>
 	
-	<para>This extension to JAIN SLEE 1.1 introduces <filename>org.mobicents.slee.SbbLocalObjectExt</filename> interface, which extends <filename>javax.slee.SbbLocalObject</filename> with methods to retreive the parent Sbb Entity, if any, and to retreive also information such as the child name, and the parent child relation name too.</para>
+	<para>This extension to JAIN SLEE 1.1 introduces the <methodname>org.mobicents.slee.SbbLocalObjectExt</methodname> interface, which extends <classname>javax.slee.SbbLocalObject</classname> with methods to retrieve the parent SBB Entity, if any, and to also retrieve information such as the child name, and the parent child relation name.</para>
 	
 	<programlisting language="Java" role="JAVA">
 		<![CDATA[
@@ -35,14 +35,14 @@ public interface SbbLocalObjectExt extends SbbLocalObject {
 		<varlistentry>
 			<term>The <literal>getName()</literal> method:</term>
 			<listitem>
-				<para>Retrieves the name of this object. This method is a mandatory transactional method.</para>
+				<para>Retrieves the name of the object. This method is a mandatory transactional method.</para>
 			</listitem>
 		</varlistentry>
 		
 		<varlistentry>
 			<term>The <literal>getParent()</literal> method:</term>
 			<listitem>
-				<para>Retrieves the parent Sbb object. This method is a mandatory transactional method.</para>
+				<para>Retrieves the parent SBB object. This method is a mandatory transactional method.</para>
 			</listitem>
 		</varlistentry>
 		

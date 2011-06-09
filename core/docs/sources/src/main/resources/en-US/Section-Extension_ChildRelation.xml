@@ -5,7 +5,7 @@
 	
 	<title>ChildRelation Extension</title>
 	
-	<para>This extension to JAIN SLEE 1.1 introduces <filename>org.mobicents.slee.ChildRelationExt</filename> interface, which extends <filename>javax.slee.ChildRelation</filename> with methods to create and retrieve Sbb entities, by a name.</para>
+	<para>This extension to JAIN SLEE 1.1 introduces the <methodname>org.mobicents.slee.ChildRelationExt</methodname> interface, which extends <classname>javax.slee.ChildRelation</classname> with methods to create and retrieve SBB entities by name.</para>
 	
 	<programlisting language="Java" role="JAVA">
 		<![CDATA[
@@ -26,14 +26,14 @@ public interface ChildRelationExt extends ChildRelation {
     	<varlistentry>
 			<term>The <literal>create(String)</literal> method:</term>
 			<listitem>
-				<para>Create a new SBB entity of the SBB type associated with the relation, with the specified name. The new SBB entity is automatically added to the relationship collection. The returned object may be cast to the required local interface type using the normal Java typecast mechanism. This method is a mandatory transactional method.</para>
+				<para>Creates a new SBB entity of the SBB type associated with the relation, with the specified name. The new SBB entity is automatically added to the relationship collection. The returned object may be cast to the required local interface type using the normal Java typecast mechanism. This method is a mandatory transactional method.</para>
 			</listitem>
 		</varlistentry>
 	
 		<varlistentry>
 			<term>The <literal>get(String)</literal> method:</term>
 			<listitem>
-				<para>Retrieves the sbb entity associated with the child relation, with the specified name. This method is a mandatory transactional method.</para>
+				<para>Retrieves the SBB entity associated with the child relation with the specified name. This method is a mandatory transactional method.</para>
 			</listitem>
 		</varlistentry>
 	</variablelist>
