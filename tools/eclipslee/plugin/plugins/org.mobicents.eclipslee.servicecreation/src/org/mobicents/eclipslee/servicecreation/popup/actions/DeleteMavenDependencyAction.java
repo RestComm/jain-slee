@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
 package org.mobicents.eclipslee.servicecreation.popup.actions;
 
 import java.io.InputStreamReader;
@@ -24,7 +46,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.mobicents.eclipslee.util.maven.MavenProjectUtils;
 
 /**
- * @author ammendonca
+ * 
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class DeleteMavenDependencyAction implements IObjectActionDelegate {
 
@@ -34,7 +57,7 @@ public class DeleteMavenDependencyAction implements IObjectActionDelegate {
 
   public DeleteMavenDependencyAction(String dependencyId) {
     super();
-    this.dependencyId = dependencyId.replaceAll("\\(", "").replaceAll("\\)", "");
+    this.dependencyId = dependencyId.replaceAll("// scope", "");
   }
 
   public void setActivePart(IAction action, IWorkbenchPart targetPart) {
@@ -54,7 +77,7 @@ public class DeleteMavenDependencyAction implements IObjectActionDelegate {
     String groupId = identifiers[0];
     String artifactId = identifiers[1];
     String version = identifiers[2];
-    String scope = identifiers[3];
+    String scope = identifiers.length > 3 ? identifiers[3] : "<default>";
     
     String message = "You have chosen to delete the following Maven dependency:\n";
     message += "\tGroup Id:\t" + groupId + "\n";
@@ -76,10 +99,13 @@ public class DeleteMavenDependencyAction implements IObjectActionDelegate {
         Iterator<Dependency> it = model.getDependencies().iterator();
         while(it.hasNext()) {
           Dependency dep = it.next();
-          if(dep.getArtifactId().equals(artifactId) && dep.getGroupId().equals(groupId) && dep.getVersion().equals(version) && dep.getScope().equals(scope)) {
-            it.remove();
-            // Removing one time is enough
-            break;
+          if(dep.getArtifactId().equals(artifactId) && dep.getGroupId().equals(groupId) && (dep.getVersion() == null || dep.getVersion().equals(version))) {
+            // check scope
+            if( (dep.getScope() != null && dep.getScope().equals(scope)) || (dep.getScope() == null & scope.equals("<default>")) ) {
+              it.remove();
+              // Removing one time is enough
+              break;
+            }
           }
         }
         
