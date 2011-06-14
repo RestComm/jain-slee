@@ -128,6 +128,41 @@ public class MavenProjectUtils {
       model.addModule(module);
     }
 
+    // Add mobicents:eclipse plugin
+    Build build = new Build();
+
+    Plugin mobicentsEclipsePlugin = new Plugin();
+    mobicentsEclipsePlugin.setArtifactId("maven-eclipse-plugin");
+    mobicentsEclipsePlugin.setGroupId("org.mobicents.tools");
+    mobicentsEclipsePlugin.setInherited("false");
+
+    mobicentsEclipsePlugin.setExecutions(new ArrayList<PluginExecution>());
+
+    Xpp3Dom mePluginConfig = new Xpp3Dom("configuration");
+    mePluginConfig.addChild(new Xpp3Dom("excludePoms"));
+
+    Xpp3Dom classpathExcludes = new Xpp3Dom("classpathExcludes");
+    Xpp3Dom excludeXmlApis = new Xpp3Dom("exclude");
+    excludeXmlApis.setValue("xml-apis:xml-apis");
+    classpathExcludes.addChild(excludeXmlApis);
+    Xpp3Dom excludeJTidy = new Xpp3Dom("exclude");
+    excludeJTidy.setValue("jtidy:jtidy");
+    classpathExcludes.addChild(excludeJTidy);
+    mePluginConfig.addChild(classpathExcludes);
+
+    Xpp3Dom resolveTransitiveDependencies = new Xpp3Dom("resolveTransitiveDependencies");
+    resolveTransitiveDependencies.setValue("true");
+    mePluginConfig.addChild(resolveTransitiveDependencies);
+
+    Xpp3Dom eclipseProjectName = new Xpp3Dom("eclipseProjectName");
+    eclipseProjectName.setValue(project.getName());
+    mePluginConfig.addChild(eclipseProjectName);
+
+    mobicentsEclipsePlugin.setConfiguration(mePluginConfig);
+    build.addPlugin(mobicentsEclipsePlugin);
+
+    model.setBuild(build);
+
     // Add JBoss Repository so Mobicents Parent can be fetched...
     Repository jbossRepo = new Repository();
     jbossRepo.setId("jboss-public-repository-group");
