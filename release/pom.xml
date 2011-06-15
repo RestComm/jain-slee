@@ -32,28 +32,29 @@
 		<ra.diameter-sh-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-server/${tag.version}</ra.diameter-sh-server.connectionURL>
 		<ra.diameter-rf.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-rf/${tag.version}</ra.diameter-rf.connectionURL>
 		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-ro/${tag.version}</ra.diameter-ro.connectionURL>
-		<!--
+		
 		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-client/${tag.version}</ra.httpclient.connectionURL>
 		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-servlet/${tag.version}</ra.http-servlet.connectionURL>
 		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mgcp/${tag.version}</ra.mgcp.connectionURL>
-	-->	
 		<!-- 
 		<ra.mscontrol.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mscontrol/1.0.0.BETA1</ra.mscontrol.connectionURL>
 		 -->
-		 <!--
+		 
 		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/${tag.version}</ra.sip11.connectionURL>
 		
 		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp5/1.1.0.FINAL</ra.smpp.connectionURL>
-		 
+		 <!--
 		<ra.xcap-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xcap-client/${tag.version}</ra.xcap-client.connectionURL>
+		-->
 		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xmpp/${tag.version}</ra.xmpp.connectionURL>
 		<ra.map.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/map/1.0.0.BETA8</ra.map.connectionURL>
 		<ra.jcc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jcc/${tag.version}</ra.jcc.connectionURL>
 		<ra.jdbc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jdbc/1.0.0.BETA1</ra.jdbc.connectionURL>
-		<ra.tftp-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/tftp-server/1.0.0.BETA1</ra.tftp-server.connectionURL>
-		-->
-		<enabler.xdm-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/xdm-client/1.0.0.CR1</enabler.xdm-client.connectionURL>
 		<!-- 
+		<ra.tftp-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/tftp-server/1.0.0.BETA1</ra.tftp-server.connectionURL>
+		
+		<enabler.xdm-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/xdm-client/1.0.0.CR1</enabler.xdm-client.connectionURL>
+		--> 
 		<enabler.sip-publication-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/sip-publication-client/1.0.0.CR1</enabler.sip-publication-client.connectionURL>
 		<enabler.sip-subscription-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/sip-subscription-client/1.0.0.CR1</enabler.sip-subscription-client.connectionURL>		
 		<enabler.hss-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/hss-client/1.0.0.CR1</enabler.hss-client.connectionURL>				 
@@ -63,20 +64,22 @@
 		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-wake-up/${tag.version}</example.sipwakeup.connectionURL>
 		<example.sip-b2bua.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-b2bua/${tag.version}</example.sip-b2bua.connectionURL>
 		<example.sip-uas.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-uas/${tag.version}</example.sip-uas.connectionURL>
-		-->
+		
 		<!-- 
 		<example.mscontrol-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/mscontrol-demo/1.0.0.BETA1</example.mscontrol-demo.connectionURL>
 		-->
-		<!--
+		
 		<example.mgcp-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/mgcp-demo/${tag.version}</example.mgcp-demo.connectionURL>
 		<example.call-controller2.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/call-controller2/${tag.version}</example.call-controller2.connectionURL>
 		<example.converged-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/converged-demo/${tag.version}</example.converged-demo.connectionURL>
 		<example.slee-connectivity.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/slee-connectivity/${tag.version}</example.slee-connectivity.connectionURL>
+		<!--
 		<eclipslee.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/eclipslee/2.0.0.BETA3</eclipslee.connectionURL>
+		-->
 		<remote-slee-connection.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/remote-slee-connection/${tag.version}</remote-slee-connection.connectionURL>		
 		<twiddle.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/twiddle/1.0.0.BETA4</twiddle.connectionURL>
 		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/jopr-plugin/${tag.version}</jopr-plugin.connectionURL>
- 				
+ 		<!--		
 		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/cluster/1.9</cluster.connectionURL>
 		-->
 		<jain-sip-ext.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-sip-ext/1.0.BETA1</jain-sip-ext.connectionURL>
@@ -96,7 +99,7 @@
 		<ra.diameter-sh-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-sh-server</ra.diameter-sh-server.connectionURL>
 		<ra.diameter-rf.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-rf</ra.diameter-rf.connectionURL>
 		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-ro</ra.diameter-ro.connectionURL>
-		 -->		
+		 		
 		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-client</ra.httpclient.connectionURL>		
 		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-servlet</ra.http-servlet.connectionURL>
 		<ra.jdbc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jdbc</ra.jdbc.connectionURL>
@@ -104,19 +107,23 @@
 		<ra.jcc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jcc</ra.jcc.connectionURL>
 		<ra.map.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/map</ra.map.connectionURL>
 		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mgcp</ra.mgcp.connectionURL>
-		 
+		 -->
 		<!-- 
 		<ra.mscontrol.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mscontrol</ra.mscontrol.connectionURL>
 		-->
-		 
+		
+		<!--  
 		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
 		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/smpp5</ra.smpp.connectionURL>	
-		<ra.tftp-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/tftp-server</ra.tftp-server.connectionURL>		
-		<ra.xcap-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/xcap-client</ra.xcap-client.connectionURL>
-		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/xmpp</ra.xmpp.connectionURL>
-		 <!--  
-		<enabler.xdm-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/xdm-client</enabler.xdm-client.connectionURL>		
 		-->
+		<ra.tftp-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/tftp-server</ra.tftp-server.connectionURL>		
+		
+		<ra.xcap-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/xcap-client</ra.xcap-client.connectionURL>
+		<!-- 
+		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/xmpp</ra.xmpp.connectionURL>
+		 -->  
+		<enabler.xdm-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/xdm-client</enabler.xdm-client.connectionURL>		
+		 <!-- 
 		<enabler.sip-publication-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/sip-publication-client</enabler.sip-publication-client.connectionURL>
 		<enabler.sip-subscription-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/sip-subscription-client</enabler.sip-subscription-client.connectionURL>
 		<enabler.hss-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/hss-client</enabler.hss-client.connectionURL>
@@ -126,21 +133,23 @@
 		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</example.sipwakeup.connectionURL>
 		<example.sip-b2bua.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-b2bua</example.sip-b2bua.connectionURL>
 		<example.sip-uas.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-uas</example.sip-uas.connectionURL>
-		
+		 -->
 		<!--
 		<example.mscontrol-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/mscontrol-demo</example.mscontrol-demo.connectionURL>
 		-->
-		  
+		 <!--  
 		<example.mgcp-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/mgcp-demo</example.mgcp-demo.connectionURL>
 		<example.call-controller2.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/call-controller2</example.call-controller2.connectionURL>
 		<example.converged-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/converged-demo</example.converged-demo.connectionURL>
 		<example.slee-connectivity.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/slee-connectivity</example.slee-connectivity.connectionURL>
+		 -->
 		<eclipslee.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/eclipslee</eclipslee.connectionURL>			
+		<!-- 
 		<remote-slee-connection.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/remote-slee-connection</remote-slee-connection.connectionURL>
 		
 		<twiddle.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/twiddle</twiddle.connectionURL>
 		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/jopr-plugin</jopr-plugin.connectionURL>
-	
+	 -->
 		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/cluster</cluster.connectionURL>
 	 <!--
 		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-sip-ha</jain-sip-ha.connectionURL>
