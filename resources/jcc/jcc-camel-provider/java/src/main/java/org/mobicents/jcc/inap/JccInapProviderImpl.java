@@ -134,12 +134,14 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
         }
         
         //construct SCCP address
-        SccpAddressDesc desc = new SccpAddressDesc();
-        SccpAddress address = desc.load(properties);
+//        SccpAddressDesc desc = new SccpAddressDesc();
+//        SccpAddress address = desc.load(properties);
         
-        logger.info("Local SCCP address: " + address);
+        int ssn = Integer.parseInt(properties.getProperty("sccp.ssn"));
+        
+        logger.info("Local SSN: " + ssn);
         try {
-            this.tcapStack = new TCAPStackImpl(sccpProvider, address);
+            this.tcapStack = new TCAPStackImpl(sccpProvider, ssn);
             this.tcapProvider = this.tcapStack.getProvider();
             this.tcapProvider.addTCListener(this);
             this.tcapStack.start();
