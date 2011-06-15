@@ -66,12 +66,13 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	private ConfigProperties configProperties;
 
 	private final ResourceAdaptorEntityImpl raEntity;
-	
+
 	private MarshallerWrapper marshaler;
-	
-	private final static Logger logger = Logger.getLogger(ResourceAdaptorObjectImpl.class);
+
+	private final static Logger logger = Logger
+			.getLogger(ResourceAdaptorObjectImpl.class);
 	private static boolean doTraceLogs = logger.isTraceEnabled();
-	
+
 	/**
 	 * Creates a new instance, for the specified ra object and with the
 	 * specified configuration properties.
@@ -80,8 +81,8 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param object
 	 * @param configProperties
 	 */
-	public ResourceAdaptorObjectImpl(ResourceAdaptorEntityImpl raEntity, ResourceAdaptor object,
-			ConfigProperties configProperties) {
+	public ResourceAdaptorObjectImpl(ResourceAdaptorEntityImpl raEntity,
+			ResourceAdaptor object, ConfigProperties configProperties) {
 		this.raEntity = raEntity;
 		this.object = object;
 		this.configProperties = configProperties;
@@ -109,15 +110,18 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#setResourceAdaptorContext(javax.slee.resource.ResourceAdaptorContext)
+	 * 
+	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#
+	 * setResourceAdaptorContext(javax.slee.resource.ResourceAdaptorContext)
 	 */
 	public void setResourceAdaptorContext(ResourceAdaptorContext context)
 			throws InvalidStateException {
-		
+
 		if (doTraceLogs) {
-			logger.trace("setResourceAdaptorContext( context = "+context+" )");
+			logger.trace("setResourceAdaptorContext( context = " + context
+					+ " )");
 		}
-		
+
 		if (state == null) {
 			state = ResourceAdaptorObjectState.UNCONFIGURED;
 			object.setResourceAdaptorContext(context);
@@ -125,39 +129,48 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#setFaultTolerantResourceAdaptorContext(org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext)
+	 * 
+	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#
+	 * setFaultTolerantResourceAdaptorContext
+	 * (org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext)
 	 */
 	@SuppressWarnings("unchecked")
-	public void setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext<Serializable, Serializable> context)
+	public void setFaultTolerantResourceAdaptorContext(
+			FaultTolerantResourceAdaptorContext<Serializable, Serializable> context)
 			throws IllegalArgumentException {
-		
+
 		if (doTraceLogs) {
-			logger.trace("setFaultTolerantResourceAdaptorContext( context = "+context+" )");
+			logger.trace("setFaultTolerantResourceAdaptorContext( context = "
+					+ context + " )");
 		}
-		
-		if(isFaultTolerant()) {
-			((FaultTolerantResourceAdaptor<Serializable, Serializable>)this.object).setFaultTolerantResourceAdaptorContext(context);
+
+		if (isFaultTolerant()) {
+			((FaultTolerantResourceAdaptor<Serializable, Serializable>) this.object)
+					.setFaultTolerantResourceAdaptorContext(context);
+		} else {
+			throw new IllegalArgumentException(
+					"RA Object is not fault tolerant!");
 		}
-		else {
-			throw new IllegalArgumentException("RA Object is not fault tolerant!");
-		}
-		
+
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#raConfigure(javax.slee.resource.ConfigProperties)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.resource.ResourceAdaptorObject#raConfigure
+	 * (javax.slee.resource.ConfigProperties)
 	 */
 	public void raConfigure(ConfigProperties properties)
 			throws InvalidConfigurationException {
-		
+
 		if (doTraceLogs) {
-			logger.trace("raConfigure( properties = "+properties+" )");
+			logger.trace("raConfigure( properties = " + properties + " )");
 		}
-		
+
 		verifyConfigProperties(properties);
 		object.raConfigure(configProperties);
 		if (state == ResourceAdaptorObjectState.UNCONFIGURED) {
@@ -176,11 +189,12 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 */
 	public void raConfigurationUpdate(ConfigProperties properties)
 			throws InvalidConfigurationException {
-		
+
 		if (doTraceLogs) {
-			logger.trace("raConfigurationUpdate( properties = "+properties+" )");
+			logger.trace("raConfigurationUpdate( properties = " + properties
+					+ " )");
 		}
-		
+
 		verifyConfigProperties(properties);
 		object.raConfigurationUpdate(configProperties);
 	}
@@ -197,26 +211,25 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 */
 	private void verifyConfigProperties(ConfigProperties newProperties)
 			throws InvalidConfigurationException {
-		
+
 		if (doTraceLogs) {
-			logger.trace("verifyConfigProperties( newProperties = "+newProperties+" )");
+			logger.trace("verifyConfigProperties( newProperties = "
+					+ newProperties + " )");
 		}
-		
+
 		// merge properties
 		for (ConfigProperties.Property configProperty : configProperties
 				.getProperties()) {
 			if (newProperties.getProperty(configProperty.getName()) == null) {
-				newProperties.addProperty(configProperty);				
+				newProperties.addProperty(configProperty);
 			}
 		}
 		// validate result
 		for (ConfigProperties.Property entityProperty : newProperties
 				.getProperties()) {
 			if (entityProperty.getValue() == null) {
-				throw new InvalidConfigurationException(
-						"the property "
-								+ entityProperty.getName()
-								+ " has null value");
+				throw new InvalidConfigurationException("the property "
+						+ entityProperty.getName() + " has null value");
 			}
 		}
 		// validate in ra object
@@ -227,20 +240,19 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.resource.ResourceAdaptorObject#raActive()
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.resource.ResourceAdaptorObject#raActive()
 	 */
 	public void raActive() throws InvalidStateException {
-		
+
 		if (doTraceLogs) {
 			logger.trace("raActive()");
 		}
-		
-		Marshaler realMarshaler = object.getMarshaler();
-		this.marshaler = realMarshaler == null ? null : new MarshallerWrapper(realMarshaler, raEntity);
-		
+
 		if (state == ResourceAdaptorObjectState.INACTIVE) {
 			state = ResourceAdaptorObjectState.ACTIVE;
-			object.raActive();			
+			object.raActive();
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
@@ -254,14 +266,14 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in ACTIVE state
 	 */
 	public void raStopping() throws InvalidStateException {
-		
+
 		if (doTraceLogs) {
 			logger.trace("raStopping()");
 		}
-		
+
 		if (state == ResourceAdaptorObjectState.ACTIVE) {
 			state = ResourceAdaptorObjectState.STOPPING;
-			object.raStopping();			
+			object.raStopping();
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
@@ -275,14 +287,14 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in STOPPING state
 	 */
 	public void raInactive() throws InvalidStateException {
-		
+
 		if (doTraceLogs) {
 			logger.trace("raInactive()");
 		}
-		
+
 		if (state == ResourceAdaptorObjectState.STOPPING) {
 			state = ResourceAdaptorObjectState.INACTIVE;
-			object.raInactive();			
+			object.raInactive();
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
@@ -295,14 +307,14 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in INACTIVE state
 	 */
 	public void raUnconfigure() throws InvalidStateException {
-		
+
 		if (doTraceLogs) {
 			logger.trace("raUnconfigure()");
 		}
-		
+
 		if (state == ResourceAdaptorObjectState.INACTIVE) {
 			state = ResourceAdaptorObjectState.UNCONFIGURED;
-			object.raUnconfigure();			
+			object.raUnconfigure();
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
@@ -315,11 +327,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in UNCONFIGURED state
 	 */
 	public void unsetResourceAdaptorContext() throws InvalidStateException {
-		
+
 		if (doTraceLogs) {
 			logger.trace("unsetResourceAdaptorContext()");
 		}
-		
+
 		if (state == ResourceAdaptorObjectState.UNCONFIGURED) {
 			object.unsetResourceAdaptorContext();
 			state = null;
@@ -327,6 +339,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
 	}
+
 	/**
 	 * Unsets the ft context of the ra object.
 	 * 
@@ -334,28 +347,32 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in fault tolerant
 	 */
 	@SuppressWarnings("unchecked")
-	public void unsetFaultTolerantResourceAdaptorContext() throws IllegalArgumentException {
-		
+	public void unsetFaultTolerantResourceAdaptorContext()
+			throws IllegalArgumentException {
+
 		if (doTraceLogs) {
 			logger.trace("unsetFaultTolerantResourceAdaptorContext()");
 		}
-		
-		if(isFaultTolerant()) {
-			((FaultTolerantResourceAdaptor<Serializable, Serializable>)this.object).unsetFaultTolerantResourceAdaptorContext();
-		}
-		else {
-			throw new IllegalArgumentException("RA Object is not fault tolerant!");
+
+		if (isFaultTolerant()) {
+			((FaultTolerantResourceAdaptor<Serializable, Serializable>) this.object)
+					.unsetFaultTolerantResourceAdaptorContext();
+		} else {
+			throw new IllegalArgumentException(
+					"RA Object is not fault tolerant!");
 		}
 	}
+
 	/**
 	 * @see ResourceAdaptor#getResourceAdaptorInterface(ResourceAdaptorTypeID)
 	 */
 	public Object getResourceAdaptorInterface(String className) {
-		
+
 		if (doTraceLogs) {
-			logger.trace("getResourceAdaptorInterface( className = "+className+" )");
+			logger.trace("getResourceAdaptorInterface( className = "
+					+ className + " )");
 		}
-		
+
 		return object.getResourceAdaptorInterface(className);
 	}
 
@@ -363,11 +380,17 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @see ResourceAdaptor#getMarshaller()
 	 */
 	public Marshaler getMarshaler() {
-		
+
 		if (doTraceLogs) {
 			logger.trace("getMarshaler()");
 		}
-		
+
+		if (marshaler == null) {
+			Marshaler realMarshaler = object.getMarshaler();
+			marshaler = realMarshaler == null ? null : new MarshallerWrapper(
+					realMarshaler, raEntity);
+		}
+
 		return marshaler;
 	}
 
@@ -376,11 +399,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param serviceInfo
 	 */
 	public void serviceActive(ReceivableService serviceInfo) {
-		
+
 		if (doTraceLogs) {
-			logger.trace("serviceActive( serviceInfo = "+serviceInfo+" )");
+			logger.trace("serviceActive( serviceInfo = " + serviceInfo + " )");
 		}
-		
+
 		object.serviceActive(serviceInfo);
 	}
 
@@ -389,11 +412,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param serviceInfo
 	 */
 	public void serviceStopping(ReceivableService serviceInfo) {
-		
+
 		if (doTraceLogs) {
-			logger.trace("serviceStopping( serviceInfo = "+serviceInfo+" )");
+			logger.trace("serviceStopping( serviceInfo = " + serviceInfo + " )");
 		}
-		
+
 		object.serviceStopping(serviceInfo);
 	}
 
@@ -402,11 +425,11 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param serviceInfo
 	 */
 	public void serviceInactive(ReceivableService serviceInfo) {
-		
+
 		if (doTraceLogs) {
-			logger.trace("serviceInactive( serviceInfo = "+serviceInfo+" )");
+			logger.trace("serviceInactive( serviceInfo = " + serviceInfo + " )");
 		}
-		
+
 		object.serviceInactive(serviceInfo);
 	}
 
@@ -416,45 +439,48 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @return null if the activity does not belongs to this ra object
 	 */
 	public ActivityHandle getActivityHandle(Object activity) {
-		
+
 		if (doTraceLogs) {
-			logger.trace("getActivityHandle( activity = "+activity+" )");
+			logger.trace("getActivityHandle( activity = " + activity + " )");
 		}
-		
+
 		ActivityHandle activityHandle = object.getActivityHandle(activity);
-		if (raEntity.getHandleReferenceFactory() != null && activityHandle != null) {
-			ActivityHandle reference = raEntity.getHandleReferenceFactory().getReferenceTransacted(activityHandle);
+		if (raEntity.getHandleReferenceFactory() != null
+				&& activityHandle != null) {
+			ActivityHandle reference = raEntity.getHandleReferenceFactory()
+					.getReferenceTransacted(activityHandle);
 			if (reference != null) {
 				activityHandle = reference;
 			}
 		}
 		return activityHandle;
 	}
-	
+
 	/**
 	 * @see ResourceAdaptor#getActivity(ActivityHandle)
 	 * @param handle
 	 */
 	public Object getActivity(ActivityHandle handle) {
-		
+
 		if (doTraceLogs) {
-			logger.trace("getActivity( handle = "+handle+" )");
+			logger.trace("getActivity( handle = " + handle + " )");
 		}
-		
-		final ActivityHandle origHandle = raEntity.derreferActivityHandle(handle);
+
+		final ActivityHandle origHandle = raEntity
+				.derreferActivityHandle(handle);
 		return origHandle != null ? object.getActivity(origHandle) : null;
 	}
-	
+
 	/**
 	 * @see ResourceAdaptor#activityEnded(ActivityHandle)
 	 * @param handle
 	 */
 	public void activityEnded(ActivityHandle handle) {
-		
+
 		if (doTraceLogs) {
-			logger.trace("activityEnded( handle = "+handle+" )");
+			logger.trace("activityEnded( handle = " + handle + " )");
 		}
-		
+
 		object.activityEnded(handle);
 	}
 
@@ -462,43 +488,45 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @see ResourceAdaptor#administrativeRemove(ActivityHandle)
 	 * @param handle
 	 */
-    public void administrativeRemove(ActivityHandle handle) {
-    	
-    	if (doTraceLogs) {
-			logger.trace("administrativeRemove( handle = "+handle+" )");
-		}
-    	
-    	object.administrativeRemove(raEntity.derreferActivityHandle(handle));
-    }
-    
-    /**
-     * @see ResourceAdaptor#activityUnreferenced(ActivityHandle)
-     * @param handle
-     */
-	public void activityUnreferenced(ActivityHandle handle) {
-		
+	public void administrativeRemove(ActivityHandle handle) {
+
 		if (doTraceLogs) {
-			logger.trace("activityUnreferenced( handle = "+handle+" )");
+			logger.trace("administrativeRemove( handle = " + handle + " )");
 		}
-		
+
+		object.administrativeRemove(raEntity.derreferActivityHandle(handle));
+	}
+
+	/**
+	 * @see ResourceAdaptor#activityUnreferenced(ActivityHandle)
+	 * @param handle
+	 */
+	public void activityUnreferenced(ActivityHandle handle) {
+
+		if (doTraceLogs) {
+			logger.trace("activityUnreferenced( handle = " + handle + " )");
+		}
+
 		object.activityUnreferenced(raEntity.derreferActivityHandle(handle));
 	}
-	
+
 	/**
 	 * @see ResourceAdaptor#queryLiveness(ActivityHandle)
 	 * @param handle
 	 */
 	public void queryLiveness(ActivityHandle handle) {
-		
+
 		if (doTraceLogs) {
-			logger.trace("queryLiveness( handle = "+handle+" )");
+			logger.trace("queryLiveness( handle = " + handle + " )");
 		}
-		
-		object.queryLiveness(raEntity.derreferActivityHandle(handle));		
+
+		object.queryLiveness(raEntity.derreferActivityHandle(handle));
 	}
-	
+
 	/**
-	 * @see ResourceAdaptor#eventProcessingFailed(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int, FailureReason)
+	 * @see ResourceAdaptor#eventProcessingFailed(ActivityHandle,
+	 *      FireableEventType, Object, Address, ReceivableService, int,
+	 *      FailureReason)
 	 * @param handle
 	 * @param eventType
 	 * @param event
@@ -507,61 +535,82 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * @param flags
 	 * @param reason
 	 */
-    public void eventProcessingFailed(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags, FailureReason reason) {
-		
-    	if (doTraceLogs) {
-			logger.trace("eventProcessingFailed( handle = "+handle+" , eventType = "+eventType+" , event = "+event+" , address = "+address+" , service = "+service+" , flags = "+flags+" , reason = "+reason+" )");
+	public void eventProcessingFailed(ActivityHandle handle,
+			FireableEventType eventType, Object event, Address address,
+			ReceivableService service, int flags, FailureReason reason) {
+
+		if (doTraceLogs) {
+			logger.trace("eventProcessingFailed( handle = " + handle
+					+ " , eventType = " + eventType + " , event = " + event
+					+ " , address = " + address + " , service = " + service
+					+ " , flags = " + flags + " , reason = " + reason + " )");
 		}
-    	
-    	object.eventProcessingFailed(handle, eventType, event, address, service, flags, reason);
+
+		object.eventProcessingFailed(handle, eventType, event, address,
+				service, flags, reason);
 	}
-    
-    /**
-     * @see ResourceAdaptor#eventProcessingSuccessful(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int)
-     * @param handle
-     * @param eventType
-     * @param event
-     * @param address
-     * @param service
-     * @param flags
-     */
-    public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
-    	
-    	if (doTraceLogs) {
-			logger.trace("eventProcessingSuccessful( handle = "+handle+" , eventType = "+eventType+" , event = "+event+" , address = "+address+" , service = "+service+" , flags = "+flags+" )");
-		}
-    	
-    	if (this.state == ResourceAdaptorObjectState.ACTIVE || this.state == ResourceAdaptorObjectState.STOPPING) {
-    		object.eventProcessingSuccessful(handle, eventType, event, address, service, flags);
-    	}
-    }
 
-    /**
-     * @see ResourceAdaptor#eventUnreferenced(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int)
-     * @param handle
-     * @param eventType
-     * @param event
-     * @param address
-     * @param service
-     * @param flags
-     */
-    public void eventUnreferenced(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
-    	
-    	if (doTraceLogs) {
-			logger.trace("eventUnreferenced( handle = "+handle+" , eventType = "+eventType+" , event = "+event+" , address = "+address+" , service = "+service+" , flags = "+flags+" )");
-		}
-    	
-    	if (this.state == ResourceAdaptorObjectState.ACTIVE || this.state == ResourceAdaptorObjectState.STOPPING) {
-    		object.eventUnreferenced(handle, eventType, event, address, service, flags);
-    	}
-    }
+	/**
+	 * @see ResourceAdaptor#eventProcessingSuccessful(ActivityHandle,
+	 *      FireableEventType, Object, Address, ReceivableService, int)
+	 * @param handle
+	 * @param eventType
+	 * @param event
+	 * @param address
+	 * @param service
+	 * @param flags
+	 */
+	public void eventProcessingSuccessful(ActivityHandle handle,
+			FireableEventType eventType, Object event, Address address,
+			ReceivableService service, int flags) {
 
-    @SuppressWarnings("unchecked")
+		if (doTraceLogs) {
+			logger.trace("eventProcessingSuccessful( handle = " + handle
+					+ " , eventType = " + eventType + " , event = " + event
+					+ " , address = " + address + " , service = " + service
+					+ " , flags = " + flags + " )");
+		}
+
+		if (this.state == ResourceAdaptorObjectState.ACTIVE
+				|| this.state == ResourceAdaptorObjectState.STOPPING) {
+			object.eventProcessingSuccessful(handle, eventType, event, address,
+					service, flags);
+		}
+	}
+
+	/**
+	 * @see ResourceAdaptor#eventUnreferenced(ActivityHandle, FireableEventType,
+	 *      Object, Address, ReceivableService, int)
+	 * @param handle
+	 * @param eventType
+	 * @param event
+	 * @param address
+	 * @param service
+	 * @param flags
+	 */
+	public void eventUnreferenced(ActivityHandle handle,
+			FireableEventType eventType, Object event, Address address,
+			ReceivableService service, int flags) {
+
+		if (doTraceLogs) {
+			logger.trace("eventUnreferenced( handle = " + handle
+					+ " , eventType = " + eventType + " , event = " + event
+					+ " , address = " + address + " , service = " + service
+					+ " , flags = " + flags + " )");
+		}
+
+		if (this.state == ResourceAdaptorObjectState.ACTIVE
+				|| this.state == ResourceAdaptorObjectState.STOPPING) {
+			object.eventUnreferenced(handle, eventType, event, address,
+					service, flags);
+		}
+	}
+
 	public boolean isFaultTolerant() {
-    	return (this.object instanceof FaultTolerantResourceAdaptor);
-    }
-    
-    public ResourceAdaptor getResourceAdaptorObject() {
-    	return object;
-    }
+		return (this.object instanceof FaultTolerantResourceAdaptor);
+	}
+
+	public ResourceAdaptor getResourceAdaptorObject() {
+		return object;
+	}
 }

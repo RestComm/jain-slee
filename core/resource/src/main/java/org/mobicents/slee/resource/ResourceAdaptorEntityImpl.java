@@ -654,7 +654,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	}
 
 	/**
-	 * if it is a handle reference it gets the refered handle
+	 * if it is a handle reference it gets the referred handle
 	 * @param handle
 	 * @return
 	 */

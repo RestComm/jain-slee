@@ -179,7 +179,7 @@ public class ActivityHandleReferenceFactory {
 		}
 		
 		ActivityHandle ah = reference.getReference();
-		if (ah == null) {
+		if (ah == null && localCacheData != null) {
 			ah = localCacheData.getActivityHandle(reference);
 		}
 		return ah;
@@ -196,7 +196,10 @@ public class ActivityHandleReferenceFactory {
 			logger.trace("getReferenceTransacted( handle = "+handle+" )");
 		}
 		
-		ActivityHandle ah = localCacheData.getReference(handle);
+		ActivityHandle ah = null;
+		if (localCacheData != null) {
+			ah = localCacheData.getReference(handle);
+		}
 		if (ah == null) {
 			ah = handle;
 		}
@@ -225,7 +228,10 @@ public class ActivityHandleReferenceFactory {
 			throw new SLEEException(e.getMessage(),e);
 		}
 		
-		ActivityHandle ah = localCacheData.getReference(handle);
+		ActivityHandle ah = null;
+		if (localCacheData != null) {
+			ah = localCacheData.getReference(handle);
+		}
 		
 		if (tx != null) {
 			try {
@@ -252,7 +258,7 @@ public class ActivityHandleReferenceFactory {
 		}
 		
 		final ActivityHandle handle = getActivityHandle(reference);
-		if (handle != null) {
+		if (handle != null && localCacheData != null) {
 			localCacheData.unlink(handle, reference);
 		}
 		return handle;
