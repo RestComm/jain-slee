@@ -22,7 +22,6 @@
 
 package org.mobicents.slee.resource.map;
 
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.InitialContext;
@@ -53,7 +52,6 @@ import org.mobicents.protocols.ss7.map.MAPStackImpl;
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
 import org.mobicents.protocols.ss7.map.api.MAPServiceListener;
-import org.mobicents.protocols.ss7.map.api.MAPStack;
 import org.mobicents.protocols.ss7.map.api.dialog.MAPAcceptInfo;
 import org.mobicents.protocols.ss7.map.api.dialog.MAPCloseInfo;
 import org.mobicents.protocols.ss7.map.api.dialog.MAPOpenInfo;
@@ -63,7 +61,6 @@ import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortInfo;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
-import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
 /**
  * 
@@ -73,33 +70,34 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
  */
 public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceListener {
 	/**
-	 * for all events we are interested in knowing when the event failed to be processed
+	 * for all events we are interested in knowing when the event failed to be
+	 * processed
 	 */
 	public static final int DEFAULT_EVENT_FLAGS = EventFlags.REQUEST_PROCESSING_FAILED_CALLBACK;
 
 	private static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;// .NO_FLAGS;
-	private static final String _CONFIG_OPT_NAME_CONF = "configName";
 
 	private MAPStackImpl mapStack = null;
 	/**
 	 * This is local proxy of provider.
 	 */
 	protected MAPProviderWrapper mapProviderWrapper = new MAPProviderWrapper(this);
-	
+
 	private Tracer tracer;
 	private transient SleeEndpoint sleeEndpoint = null;
 
 	private ConcurrentHashMap<Long, MAPDialogActivityHandle> handlers = new ConcurrentHashMap<Long, MAPDialogActivityHandle>();
 	private ConcurrentHashMap<MAPDialogActivityHandle, MAPDialog> activities = new ConcurrentHashMap<MAPDialogActivityHandle, MAPDialog>();
-	
 
 	private ResourceAdaptorContext resourceAdaptorContext;
 
 	private EventIDCache eventIdCache = null;
 
-	//name of config file
-	private String configName;
-        private SccpProvider sccpProvider;
+	// name of config file
+	private SccpProvider sccpProvider;
+
+	private int ssn;
+	private String SccpJndi = null;
 
 	private transient static final Address address = new Address(AddressPlan.IP, "localhost");
 
@@ -175,7 +173,12 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	public void raActive() {
 
 		try {
-			
+			InitialContext ic = new InitialContext();
+			sccpProvider = (SccpProvider) ic.lookup(this.SccpJndi);
+			tracer.info("Sucssefully connected to SCCP service[" + this.SccpJndi + "]");
+
+			this.mapStack = new MAPStackImpl(sccpProvider, this.ssn);
+
 			this.mapStack.start();
 			org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = this.mapStack.getMAPProvider();
 
@@ -190,40 +193,21 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		}
 	}
 
-	public void raConfigurationUpdate(ConfigProperties arg0) {
-		// TODO Auto-generated method stub
-
+	public void raConfigurationUpdate(ConfigProperties properties) {
+		raConfigure(properties);
 	}
 
-	public void raConfigure(ConfigProperties arg0) {
+	public void raConfigure(ConfigProperties properties) {
 		try {
 			if (tracer.isInfoEnabled()) {
 				tracer.info("Configuring MAPRA: " + this.resourceAdaptorContext.getEntityName());
 			}
-			Properties properties = new Properties();
-			properties.load(getClass().getResourceAsStream("/" + configName));
-			tracer.info("Loaded properties: " + properties);
 
+			this.ssn = (Integer) properties.getProperty("ssn").getValue();
+			this.SccpJndi = (String) properties.getProperty("sccpJndi").getValue();
 
-        //obtain sccp service reference
-        tracer.info("Accesing SCCP service...");
-        String jndiName = properties.getProperty("sccp.service");
-            InitialContext ic = new InitialContext();
-            sccpProvider = (SccpProvider) ic.lookup(jndiName);
-            tracer.info("Sucssefully connected to SCCP service[" + jndiName + "]");
-        
-        //construct SCCP address
-        SccpAddressDesc desc = new SccpAddressDesc();
-        SccpAddress localAddress = desc.load(properties);
-			
-			this.mapStack = new MAPStackImpl(sccpProvider, localAddress);
-			
-			
-		} catch (UnsatisfiedLinkError ex) {
-			tracer.warning("JCC Resource adaptor is not attached to baord driver", ex);
 		} catch (Exception e) {
-			tracer.severe("Can not start Jcc Provider: ", e);
-
+			tracer.severe("Configuring of MAP RA failed ", e);
 		}
 	}
 
@@ -240,24 +224,25 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	}
 
 	public void raUnconfigure() {
-		// TODO Auto-generated method stub
-
+		this.ssn = 0;
+		this.SccpJndi = null;
 	}
 
-	public void raVerifyConfiguration(ConfigProperties cps) throws InvalidConfigurationException {
+	public void raVerifyConfiguration(ConfigProperties properties) throws InvalidConfigurationException {
 		try {
 
 			if (tracer.isInfoEnabled()) {
 				tracer.info("Verifyin configuring MAPRA: " + this.resourceAdaptorContext.getEntityName());
 			}
-			this.configName = (String) cps.getProperty(_CONFIG_OPT_NAME_CONF).getValue();
+			this.ssn = (Integer) properties.getProperty("ssn").getValue();
 
-			if (this.configName == null) {
-				throw new InvalidConfigurationException("No name set for configuration file.");
+			if (this.ssn < 0 || this.ssn == 0) {
+				throw new InvalidConfigurationException("Subsystem Number should be greater than 0");
 			}
 
-			if (null == getClass().getResource("/" + configName)) {
-				throw new InvalidConfigurationException("Configuration file: " + configName + ", can not be located.");
+			this.SccpJndi = (String) properties.getProperty("sccpJndi").getValue();
+			if (this.SccpJndi == null) {
+				throw new InvalidConfigurationException("SCCP JNDI lookup name cannot be null");
 			}
 
 		} catch (InvalidConfigurationException e) {

@@ -31,13 +31,22 @@
 			</resource-adaptor-class>
 		</resource-adaptor-classes>
 		<config-property>
-			<config-property-name>configName</config-property-name>
+			<config-property-name>ssn</config-property-name>
+			<config-property-type>
+				java.lang.Integer
+			</config-property-type>
+			<config-property-value>
+				180
+			</config-property-value>
+		</config-property>
+		<config-property>
+			<config-property-name>sccpJndi</config-property-name>
 			<config-property-type>
 				java.lang.String
 			</config-property-type>
 			<config-property-value>
-				map-default-ra.properties
+				java:/mobicents/ss7/sccp
 			</config-property-value>
-		</config-property>
+		</config-property>		
 	</resource-adaptor>
 </resource-adaptor-jar>
