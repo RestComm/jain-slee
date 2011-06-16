@@ -28,6 +28,7 @@ import javax.sip.TimeoutEvent;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.EventTypeID;
+import javax.slee.UnrecognizedEventException;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.resource.FireableEventType;
 
@@ -166,7 +167,9 @@ public class EventIDCache {
 		FireableEventType eventType = eventIds.get(eventName);
 		if (eventType == null) {
 			try {
-				eventType = eventLookupFacility.getFireableEventType(new EventTypeID(eventName,VENDOR,VERSION));				
+				eventType = eventLookupFacility.getFireableEventType(new EventTypeID(eventName,VENDOR,VERSION));
+			} catch (UnrecognizedEventException uee) {
+				// simply not found, so return null.
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}						
