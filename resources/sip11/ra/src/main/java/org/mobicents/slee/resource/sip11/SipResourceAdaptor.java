@@ -512,7 +512,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			}
 		} else {
 			try {
-				fireEvent(activity.getActivityHandle(), eventType, rew, activity.getEventFiringAddress(), eventFlags);
+				fireEvent(activity.getActivityHandle(), eventType, rew, activity.getEventFiringAddress(), eventFlags);			
 			} catch (Throwable e) {
 				tracer.severe("Failed to fire event",e);
 				// event not fired due to error
@@ -729,6 +729,9 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		} else {
 			try {
 				fireEvent(handle, eventType, event, address,eventFlags);
+			}
+			catch (UnrecognizedActivityHandleException e) {
+				tracer.warning("Failed to fire event "+eventType+", the activity "+handle+" does not exists in the SLEE");			
 			} catch (Throwable e) {
 				tracer.severe("Failed to fire event",e);
 				// event not fired due to error
@@ -871,8 +874,12 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			}
 		} else {
 			try {
-				fireEvent(handle, eventType, event, address, DEFAULT_EVENT_FLAGS);
-			} catch (Throwable e) {
+				fireEvent(handle, eventType, event, address, DEFAULT_EVENT_FLAGS);			
+			} 
+			catch (UnrecognizedActivityHandleException e) {
+				tracer.warning("Failed to fire event "+eventType+", the activity "+handle+" does not exists in the SLEE");			
+			} 
+			catch (Throwable e) {
 				tracer.severe("Failed to fire event",e);
 			}
 		}
@@ -1022,7 +1029,11 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			Wrapper activity = tw.isActivity() ? tw : dw;			
 			try {
 				fireEvent(activity.getActivityHandle(), eventType, tew, activity.getEventFiringAddress(),DEFAULT_EVENT_FLAGS);
-			} catch (Throwable e) {
+			}
+			catch (UnrecognizedActivityHandleException e) {
+				tracer.warning("Failed to fire event "+eventType+", the activity "+activity+" does not exists in the SLEE");			
+			}
+			catch (Throwable e) {
 				tracer.severe("Failed to fire event",e);
 			}
 		}
