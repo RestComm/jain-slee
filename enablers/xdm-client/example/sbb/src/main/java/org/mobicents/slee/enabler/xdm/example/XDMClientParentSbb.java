@@ -368,9 +368,10 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 			// FIXME use configuration to set scheme and authority and xcap root
 			UriBuilder uriBuilder = new UriBuilder()
 					.setSchemeAndAuthority("http://127.0.0.1:8080")
-					.setXcapRoot("/mobicents")
+					.setXcapRoot("/mobicents/")
 					.setDocumentSelector(documentSelector);
 			URI documentURI = uriBuilder.toURI();
+			
 			return documentURI;
 		} catch (URISyntaxException e) {
 			tracer.severe("failed to create uri", e);
