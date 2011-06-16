@@ -26,10 +26,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -37,6 +40,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
@@ -61,6 +66,25 @@ public class DeleteMavenDependencyAction implements IObjectActionDelegate {
   }
 
   public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+  }
+
+  MavenExecutionResult mavenResult = null;
+
+  public void runMobicentsEclipsePlugin() {
+    try {
+      ProgressMonitorDialog dialog = new ProgressMonitorDialog(new Shell()); 
+      dialog.run(false, false, new IRunnableWithProgress(){ 
+        public void run(IProgressMonitor monitor) { 
+          monitor.beginTask("Updating classpath. This may take a few seconds ...", 100);
+          mavenResult = null; // clear
+          mavenResult = MavenProjectUtils.runMavenTask(pomFile.getProject().getFile("pom.xml"), new String[]{"mobicents:eclipse"}, monitor);
+          monitor.done(); 
+        } 
+      });
+    }
+    catch (Exception e) {
+      // ignore
+    }
   }
 
   public void run(IAction action) {
@@ -120,11 +144,26 @@ public class DeleteMavenDependencyAction implements IObjectActionDelegate {
             cpList.add(cpEntry);
           }
         }
-        javaProject.setRawClasspath(cpList.toArray(new IClasspathEntry[]{}), monitor);
+
+        // let's try with mobicents:eclipse
+        runMobicentsEclipsePlugin();
+
+        // Fallback to manually created since mobicents:eclipse failed
+        if(mavenResult == null || mavenResult.hasExceptions()) {
+          javaProject.setRawClasspath(cpList.toArray(new IClasspathEntry[cpList.size()]), monitor);
+        }
       }
       catch (Exception e) {
         MessageDialog.openError(new Shell(), "Error Deleting Module", "An error occurred while deleting the event.  It must be deleted manually." + e.getMessage());
         return;
+      }
+      finally {
+        try {
+          pomFile.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+        }
+        catch (CoreException e) {
+          // ignore
+        }
       }
     }
   }

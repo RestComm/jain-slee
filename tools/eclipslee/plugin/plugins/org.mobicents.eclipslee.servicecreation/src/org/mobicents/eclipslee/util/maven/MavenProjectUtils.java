@@ -4,7 +4,10 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -18,9 +21,16 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.maven.ide.eclipse.MavenPlugin;
+import org.maven.ide.eclipse.embedder.IMaven;
+import org.maven.ide.eclipse.project.IMavenProjectFacade;
+import org.maven.ide.eclipse.project.MavenProjectManager;
+import org.maven.ide.eclipse.project.ResolverConfiguration;
 import org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin;
 import org.mobicents.eclipslee.servicecreation.util.ProjectModules;
 
@@ -614,5 +624,23 @@ public class MavenProjectUtils {
     }
 
     return false;
+  }
+  
+  public static MavenExecutionResult runMavenTask(IFile pom, String[] goals, IProgressMonitor monitor) {
+    try {
+      MavenPlugin plugin = MavenPlugin.getDefault();
+      MavenProjectManager projectManager = plugin.getMavenProjectManager();
+      IMaven maven = plugin.getMaven();
+      IMavenProjectFacade projectFacade = projectManager.create(pom, true, monitor);
+      ResolverConfiguration resolverConfiguration = projectFacade.getResolverConfiguration();
+      MavenExecutionRequest req = projectManager.createExecutionRequest(pom, resolverConfiguration, monitor);
+      //req.getUserProperties().putAll(map);
+      req.setGoals(Arrays.asList(goals));
+      req.setCacheTransferError(false); // enables to fetch remotely ?
+      return maven.execute(req, monitor);
+    }
+    catch (CoreException e) {
+      return null;
+    }
   }
 }

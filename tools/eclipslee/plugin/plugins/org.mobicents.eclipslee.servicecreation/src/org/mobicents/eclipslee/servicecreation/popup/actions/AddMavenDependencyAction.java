@@ -24,18 +24,23 @@ package org.mobicents.eclipslee.servicecreation.popup.actions;
 
 import java.io.InputStreamReader;
 
+import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -165,6 +170,25 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
       addPage(moduleNamePage);
     }
 
+    MavenExecutionResult mavenResult = null;
+
+    public void runMobicentsEclipsePlugin() {
+      try {
+        ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell()); 
+        dialog.run(false, false, new IRunnableWithProgress(){ 
+          public void run(IProgressMonitor monitor) { 
+            monitor.beginTask("Updating classpath. This may take a few seconds ...", 100);
+            mavenResult = null; // clear
+            mavenResult = MavenProjectUtils.runMavenTask(project.getFile("pom.xml"), new String[]{"mobicents:eclipse"}, monitor);
+            monitor.done(); 
+          } 
+        });
+      }
+      catch (Exception e) {
+        // ignore
+      }
+    }
+
     public boolean performFinish() {
       try {
         String depArtifactId = moduleNamePage.getArtifactId();
@@ -185,25 +209,31 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
             dependency.setScope(depScope);
           }
 
-          MavenProjectUtils.addDependency(model, dependency);
+          boolean added = MavenProjectUtils.addDependency(model, dependency);
 
-          MavenProjectUtils.writePomFile(model, pomFile.getLocation().toOSString());
+          if(added) {
+            MavenProjectUtils.writePomFile(model, pomFile.getLocation().toOSString());
 
-          // Add to Classpath
-          if(moduleNamePage.getAddToClasspath()) {
-            IJavaProject javaProject = JavaCore.create(pomFile.getProject());
-            IClasspathEntry[] classpath = javaProject.getRawClasspath();
-            IClasspathEntry[] extendedCP = new IClasspathEntry[classpath.length+1];
-            String path = "M2_REPO/" + depGroupId.replaceAll("\\.", "/") + "/" + depArtifactId + "/" + depVersion + "/" + depArtifactId + "-" + depVersion + ".jar";
-            extendedCP[extendedCP.length-1] = JavaCore.newVariableEntry(new Path(path), null, null);
+            // Add to Classpath
+            if(moduleNamePage.getAddToClasspath()) {
+              // Creating a manual classpath before trying mobicent:eclise
+              IJavaProject javaProject = JavaCore.create(pomFile.getProject());
+              IClasspathEntry[] classpath = javaProject.getRawClasspath();
+              IClasspathEntry[] extendedCP = new IClasspathEntry[classpath.length+1];
+              String path = "M2_REPO/" + depGroupId.replaceAll("\\.", "/") + "/" + depArtifactId + "/" + depVersion + "/" + depArtifactId + "-" + depVersion + ".jar";
+              extendedCP[extendedCP.length-1] = JavaCore.newVariableEntry(new Path(path), null, null);
+              // Copy contents from the first array to the extended array
+              System.arraycopy(classpath, 0, extendedCP, 0, classpath.length);
 
-            // Copy contents from the first array to the extended array
-            System.arraycopy(classpath, 0, extendedCP, 0, classpath.length);
+              // let's try with mobicents:eclipse
+              runMobicentsEclipsePlugin();
 
-            javaProject.setRawClasspath(extendedCP, null);
+              // Fallback to manually created since mobicents:eclipse failed
+              if(mavenResult == null || mavenResult.hasExceptions()) {
+                javaProject.setRawClasspath(extendedCP, null);
+              }
+            }
           }
-
-          project.refreshLocal(IResource.DEPTH_INFINITE, null);
         }
         else {
           MessageDialog.openError(new Shell(), "Error Adding Dependency", "The dependency Artifact ID must be specified.");
@@ -212,6 +242,14 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
       }
       catch (Exception e) {
         MessageDialog.openError(new Shell(), "Error Adding Dependency", "Failure trying to add the new dependency, please refresh the project and try again.");
+      }
+      finally {
+        try {
+          project.refreshLocal(IResource.DEPTH_INFINITE, null);
+        }
+        catch (CoreException e) {
+          // ignore
+        }
       }
       return true;
     }
@@ -294,9 +332,11 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
         depScope.add("test");
         depScope.add("system");
         depScope.add("import");
+        depScope.select(0);
 
         new Label(composite, SWT.NONE).setText("Add to classpath?");
         depToClasspath = new Button(composite, SWT.CHECK | SWT.BORDER);
+        depToClasspath.setSelection(true);
         depToClasspath.setText("");
     }
   }
