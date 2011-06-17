@@ -5,16 +5,22 @@
       version="2.0.0.qualifier"
       provider-name="Mobicents">
 
-   <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+   <description>
+	EclipSLEE is a Mobicents sub-project, which provides a set of Eclipse plug-ins that increase the development productivity when writing SLEE applications.
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+   <copyright>
+	Copyright (c) 2010-2011 Red Hat, Inc.
    </copyright>
 
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
+   <license>
+	Red Hat, Inc. licenses these features and plugins to you under
+	certain open source licenses (or aggregations of such licenses),
+	which in a particular case may include the Eclipse Public License,
+	the GNU Lesser General Public License, and/or certain other open
+	source licenses. For precise licensing details, consult the corresponding
+	source code, or contact Red Hat Legal Affairs, 1801 Varsity Drive,
+	Raleigh NC 27606 USA. 
    </license>
 
    <requires>
