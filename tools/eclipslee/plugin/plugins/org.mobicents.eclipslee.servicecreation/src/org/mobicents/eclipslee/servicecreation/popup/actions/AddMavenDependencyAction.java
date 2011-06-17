@@ -28,11 +28,14 @@ import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -60,6 +63,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+import org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin;
 import org.mobicents.eclipslee.util.maven.MavenProjectUtils;
 
 /**
@@ -246,6 +250,8 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
       finally {
         try {
           project.refreshLocal(IResource.DEPTH_INFINITE, null);
+          fixProjectNature(project);
+          project.refreshLocal(IResource.DEPTH_INFINITE, null);
         }
         catch (CoreException e) {
           // ignore
@@ -254,6 +260,49 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
       return true;
     }
 
+  }
+
+  private void fixProjectNature(IProject project) {
+    try {
+      IProgressMonitor monitor = new NullProgressMonitor();
+      if (!project.hasNature(ServiceCreationPlugin.NATURE_ID)) {
+        IProjectDescription desc = project.getDescription();
+        String originalIds[] = desc.getNatureIds();
+        String newIds[] = new String[originalIds.length + 1];
+        System.arraycopy(originalIds, 0, newIds, 0, originalIds.length);
+        newIds[originalIds.length] = ServiceCreationPlugin.NATURE_ID;
+        desc.setNatureIds(newIds);
+
+        ICommand[] commands = desc.getBuildSpec();
+        ICommand command = desc.newCommand();
+        command.setBuilderName("org.mobicents.eclipslee.servicecreation.jainsleebuilder");
+        ICommand[] newCommands = new ICommand[commands.length + 1];
+
+        // Add it before other builders.
+        System.arraycopy(commands, 0, newCommands, 1, commands.length);
+
+        newCommands[0] = command;
+        desc.setBuildSpec(newCommands);
+        
+        project.setDescription(desc, monitor);
+      }
+
+      // Add the Java Nature to the project.
+      if (!project.hasNature(JavaCore.NATURE_ID)) {
+        IProjectDescription desc = project.getDescription();
+        String originalIds[] = desc.getNatureIds();
+        String newIds[] = new String[originalIds.length + 1];
+        System.arraycopy(originalIds, 0, newIds, 0, originalIds.length);
+        newIds[originalIds.length] = JavaCore.NATURE_ID;
+        desc.setNatureIds(newIds);
+
+        project.setDescription(desc, monitor);
+      }
+    }
+    catch (CoreException e) {
+      e.printStackTrace();
+      // hopefully we are good...
+    }
   }
 
   private class ModuleNamePage extends WizardPage {
