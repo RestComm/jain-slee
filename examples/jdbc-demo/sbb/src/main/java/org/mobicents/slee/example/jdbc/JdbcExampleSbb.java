@@ -15,6 +15,7 @@ import org.mobicents.slee.SbbContextExt;
 import org.mobicents.slee.resource.jdbc.JdbcActivity;
 import org.mobicents.slee.resource.jdbc.JdbcActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.jdbc.JdbcResourceAdaptorSbbInterface;
+import org.mobicents.slee.resource.jdbc.event.PreparedStatementResultSetEvent;
 import org.mobicents.slee.resource.jdbc.event.PreparedStatementUpdateCountEvent;
 import org.mobicents.slee.resource.jdbc.event.StatementResultSetEvent;
 import org.mobicents.slee.resource.jdbc.event.StatementSQLExceptionEvent;
@@ -92,9 +93,35 @@ public abstract class JdbcExampleSbb implements Sbb {
 			((JdbcActivity) aci.getActivity()).executeUpdate(preparedStatement);
 		} catch (Throwable e) {
 			tracer.severe("failed to create statement", e);
-		}
+		}				
 	}
 
+	/**
+	 * Event handler for {@link StatementResultSetEvent}.
+	 * 
+	 * @param event
+	 * @param aci
+	 */
+	public void onPreparedStatementResultSetEvent(PreparedStatementResultSetEvent event,
+			ActivityContextInterface aci) {
+		tracer.info("Received a PreparedStatementResultSetEvent");
+		try {
+			event.getResultSet().next();
+			tracer.info("Result: " + event.getResultSet().getString(1));
+		} catch (Exception e) {
+			e.printStackTrace();			
+		}
+		try {
+			Statement anotherStatement = jdbcRA.getConnection()
+					.createStatement();
+			tracer.info("Created statement, executing update...");
+			((JdbcActivity) aci.getActivity()).executeUpdate(anotherStatement,
+					"DROP TABLE TestTable;");
+		} catch (Throwable e) {
+			tracer.severe("failed to create statement", e);
+		}		
+	}
+	
 	/**
 	 * Event handler for {@link StatementUpdateCountEvent}.
 	 * 
@@ -107,13 +134,12 @@ public abstract class JdbcExampleSbb implements Sbb {
 		tracer.info("Received a PreparedStatementUpdateCountEvent.");
 		tracer.info("Update Count: " + event.getUpdateCount());
 		try {
-			Statement anotherStatement = jdbcRA.getConnection()
-					.createStatement();
-			tracer.info("Created statement, executing query...");
-			((JdbcActivity) aci.getActivity()).executeUpdate(anotherStatement,
-					"DROP TABLE TestTable;");
+			PreparedStatement preparedStatement = jdbcRA.getConnection()
+			.prepareStatement("SELECT ? From TestTable;");
+			preparedStatement.setString(1, "Name");
+			((JdbcActivity) aci.getActivity()).executeQuery(preparedStatement);
 		} catch (Throwable e) {
-			tracer.severe("failed to create statement", e);
+			tracer.severe("failed to create prepared statement", e);
 		}
 	}
 
