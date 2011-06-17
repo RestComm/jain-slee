@@ -128,7 +128,7 @@ public interface JdbcActivity {
 	<varlistentry>
 		<term>The <literal>executeQuery(PreparedStatement)</literal> method:</term>
 		<listitem>
-			<para>Asynchronous execution of a prepared statement with <literal>result set</literal> result type, which is provided in an event, fired in the activity. PreparedStatements are an effective way to improve performance, since the JDBC driver may cache and pool the SQL. This method should be used when the application knows that the SQL to execute is a read query. Details about parameters can be seen in the javadoc for <literal>java.sql.PreparedStatement</literal> method with same signature. This method should only be used when the application has no idea of what is the SQL to be executed. If the execution throws an exception, it will be provided as an event too.</para>
+			<para>Asynchronous execution of a prepared statement with <literal>result set</literal> result type, which is provided in an event, fired in the activity. PreparedStatements are an effective way to improve performance, since the JDBC driver may cache and pool the SQL. This method should be used when the application knows that the SQL to execute is a read query. Details about parameters can be seen in the javadoc for <literal>java.sql.PreparedStatement</literal> method with same signature. If the execution throws an exception, it will be provided as an event too.</para>
 		</listitem>
 	</varlistentry>
 	

@@ -48,6 +48,7 @@ import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.sql.DataSource;
 
+import org.mobicents.slee.resource.jdbc.event.PreparedStatementEvent;
 import org.mobicents.slee.resource.jdbc.event.PreparedStatementResultSetEvent;
 import org.mobicents.slee.resource.jdbc.event.PreparedStatementResultSetEventImpl;
 import org.mobicents.slee.resource.jdbc.event.PreparedStatementSQLExceptionEvent;
@@ -56,6 +57,7 @@ import org.mobicents.slee.resource.jdbc.event.PreparedStatementUnknownResultEven
 import org.mobicents.slee.resource.jdbc.event.PreparedStatementUnknownResultEventImpl;
 import org.mobicents.slee.resource.jdbc.event.PreparedStatementUpdateCountEvent;
 import org.mobicents.slee.resource.jdbc.event.PreparedStatementUpdateCountEventImpl;
+import org.mobicents.slee.resource.jdbc.event.StatementEvent;
 import org.mobicents.slee.resource.jdbc.event.StatementResultSetEvent;
 import org.mobicents.slee.resource.jdbc.event.StatementResultSetEventImpl;
 import org.mobicents.slee.resource.jdbc.event.StatementSQLExceptionEvent;
@@ -175,15 +177,11 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 			ReceivableService service, int eventFlags) {
 		// close the jdbc connection if needed
 		Statement statement = null;
-		if (eventType == preparedStatementUnknownResultEventType) {
-			statement = ((PreparedStatementUnknownResultEventImpl)eventObject).getPreparedStatement();
-		}
-		else if (eventType == statementUnknownResultEventType) {
-			statement = ((StatementUnknownResultEventImpl)eventObject).getStatement();
+		if (eventObject instanceof PreparedStatementEvent) {
+			statement = ((PreparedStatementEvent)eventObject).getPreparedStatement();
 		}
 		else {
-			tracer.warning("got event unreferenced callback for unexpected event type, ignoring");
-			return;
+			statement = ((StatementEvent)eventObject).getStatement();
 		}
 		closeConnectionIfNeeded(statement);
 	}
@@ -363,12 +361,10 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 				try {
 					// execute
 					ResultSet resultSet = preparedStatement.executeQuery();
-					// close connection
-					preparedStatement.getConnection().close();
 					// build event
 					Object event = new PreparedStatementResultSetEventImpl(preparedStatement, resultSet);
 					// fire event
-					fireEvent(preparedStatementResultSetEventType, event, activity);
+					fireEvent(preparedStatementResultSetEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -378,7 +374,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new PreparedStatementSQLExceptionEventImpl(preparedStatement, e);
 					// fire event
-					fireEvent(preparedStatementSQLExceptionEventType, event, activity);
+					fireEvent(preparedStatementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -386,14 +382,9 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 		executorService.submit(task);
 	}
 	
-	private void fireEvent(FireableEventType eventType, Object event, ActivityHandle activity) {
+	private void fireEvent(FireableEventType eventType, Object event, ActivityHandle activity, int eventFlags) {
 		if(tracer.isFineEnabled()) {
-			tracer.fine("firing event: eventType = "+eventType+" , event = "+event+" , activity = "+activity);
-		}
-		int eventFlags = EventFlags.NO_FLAGS;
-		if (eventType == statementUnknownResultEventType || eventType == preparedStatementUnknownResultEventType) {
-			// if the event is of unknown result only close connection after event is handled, thus event unreferenced callback is needed
-			eventFlags = EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK; 
+			tracer.fine("firing event: eventType = "+eventType+" , event = "+event+" , activity = "+activity+", eventFlags = "+eventFlags);
 		}
 		try {
 			context.getSleeEndpoint().fireEvent(activity, eventType, event, null, null,eventFlags);
@@ -429,12 +420,10 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 				try {
 					// execute
 					int updateCount = preparedStatement.executeUpdate();
-					// close connection
-					preparedStatement.getConnection().close();
 					// build event
 					Object event = new PreparedStatementUpdateCountEventImpl(preparedStatement, updateCount);
 					// fire event
-					fireEvent(preparedStatementUpdateCountEventType, event, activity);
+					fireEvent(preparedStatementUpdateCountEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -444,7 +433,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new PreparedStatementSQLExceptionEventImpl(preparedStatement, e);
 					// fire event
-					fireEvent(preparedStatementSQLExceptionEventType, event, activity);
+					fireEvent(preparedStatementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -471,7 +460,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// build event
 					Object event = new PreparedStatementUnknownResultEventImpl(preparedStatement, executionResult);
 					// fire event
-					fireEvent(preparedStatementUnknownResultEventType, event, activity);
+					fireEvent(preparedStatementUnknownResultEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -481,7 +470,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new PreparedStatementSQLExceptionEventImpl(preparedStatement, e);
 					// fire event
-					fireEvent(preparedStatementSQLExceptionEventType, event, activity);
+					fireEvent(preparedStatementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -509,7 +498,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// build event
 					Object event = new StatementUnknownResultEventImpl(null, null, null, sql, statement, executionResult);
 					// fire event
-					fireEvent(statementUnknownResultEventType, event, activity);
+					fireEvent(statementUnknownResultEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -519,7 +508,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new StatementSQLExceptionEventImpl(null, null, null, sql, statement, e);
 					// fire event
-					fireEvent(statementSQLExceptionEventType, event, activity);
+					fireEvent(statementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -548,7 +537,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// build event
 					Object event = new StatementUnknownResultEventImpl(autoGeneratedKeys, null, null, sql, statement, executionResult);
 					// fire event
-					fireEvent(statementUnknownResultEventType, event, activity);
+					fireEvent(statementUnknownResultEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -558,7 +547,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new StatementSQLExceptionEventImpl(autoGeneratedKeys, null, null, sql, statement, e);
 					// fire event
-					fireEvent(statementSQLExceptionEventType, event, activity);
+					fireEvent(statementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -587,7 +576,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// build event
 					Object event = new StatementUnknownResultEventImpl(null, columnIndexes, null, sql, statement, executionResult);
 					// fire event
-					fireEvent(statementUnknownResultEventType, event, activity);
+					fireEvent(statementUnknownResultEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -597,7 +586,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new StatementSQLExceptionEventImpl(null, columnIndexes, null, sql, statement, e);
 					// fire event
-					fireEvent(statementSQLExceptionEventType, event, activity);
+					fireEvent(statementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -626,7 +615,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// build event
 					Object event = new StatementUnknownResultEventImpl(null, null, columnNames, sql, statement, executionResult);
 					// fire event
-					fireEvent(statementUnknownResultEventType, event, activity);
+					fireEvent(statementUnknownResultEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -636,7 +625,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new StatementSQLExceptionEventImpl(null, null, columnNames, sql, statement, e);
 					// fire event
-					fireEvent(statementSQLExceptionEventType, event, activity);
+					fireEvent(statementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -661,12 +650,10 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 				try {
 					// execute
 					ResultSet resultSet = statement.executeQuery(sql);
-					// close connection
-					statement.getConnection().close();
 					// build event
 					Object event = new StatementResultSetEventImpl(sql, statement, resultSet);
 					// fire event
-					fireEvent(statementResultSetEventType, event, activity);
+					fireEvent(statementResultSetEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -676,7 +663,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new StatementSQLExceptionEventImpl(null, null, null, sql, statement, e);
 					// fire event
-					fireEvent(statementSQLExceptionEventType, event, activity);
+					fireEvent(statementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -701,12 +688,10 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 				try {
 					// execute
 					int updateCount = statement.executeUpdate(sql);
-					// close connection
-					statement.getConnection().close();
 					// build event
 					Object event = new StatementUpdateCountEventImpl(null, null, null, sql, statement, updateCount);
 					// fire event
-					fireEvent(statementUpdateCountEventType, event, activity);
+					fireEvent(statementUpdateCountEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -716,7 +701,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new StatementSQLExceptionEventImpl(null, null, null, sql, statement, e);
 					// fire event
-					fireEvent(statementSQLExceptionEventType, event, activity);
+					fireEvent(statementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -743,12 +728,10 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 				try {
 					// execute
 					int updateCount = statement.executeUpdate(sql);
-					// close connection
-					statement.getConnection().close();
 					// build event
 					Object event = new StatementUpdateCountEventImpl(autoGeneratedKeys, null, null, sql, statement, updateCount);
 					// fire event
-					fireEvent(statementUpdateCountEventType, event, activity);
+					fireEvent(statementUpdateCountEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -758,7 +741,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new StatementSQLExceptionEventImpl(autoGeneratedKeys, null, null, sql, statement, e);
 					// fire event
-					fireEvent(statementSQLExceptionEventType, event, activity);
+					fireEvent(statementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -785,12 +768,10 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 				try {
 					// execute
 					int updateCount = statement.executeUpdate(sql);
-					// close connection
-					statement.getConnection().close();
 					// build event
 					Object event = new StatementUpdateCountEventImpl(null, columnIndexes, null, sql, statement, updateCount);
 					// fire event
-					fireEvent(statementUpdateCountEventType, event, activity);
+					fireEvent(statementUpdateCountEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -800,7 +781,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new StatementSQLExceptionEventImpl(null, columnIndexes, null, sql, statement, e);
 					// fire event
-					fireEvent(statementSQLExceptionEventType, event, activity);
+					fireEvent(statementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
@@ -827,12 +808,10 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 				try {
 					// execute
 					int updateCount = statement.executeUpdate(sql);
-					// close connection
-					statement.getConnection().close();
 					// build event
 					Object event = new StatementUpdateCountEventImpl(null, null, columnNames, sql, statement, updateCount);
 					// fire event
-					fireEvent(statementUpdateCountEventType, event, activity);
+					fireEvent(statementUpdateCountEventType, event, activity, EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK);
 				}
 				catch (SQLException e) {
 					if (tracer.isFineEnabled()) {
@@ -842,7 +821,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					// exception, build event
 					Object event = new StatementSQLExceptionEventImpl(null, null, columnNames, sql, statement, e);
 					// fire event
-					fireEvent(statementSQLExceptionEventType, event, activity);
+					fireEvent(statementSQLExceptionEventType, event, activity, EventFlags.NO_FLAGS);
 				}
 			}
 		};
