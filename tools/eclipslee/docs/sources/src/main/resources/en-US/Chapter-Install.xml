@@ -39,6 +39,13 @@
 						<para>For instructions on how to install Eclipse, refer to <ulink url="http://wiki.eclipse.org/FAQ_Where_do_I_get_and_install_Eclipse%3F">Where do I get and install Eclipse?</ulink>.</para>
 					</listitem>
 				</varlistentry>
+				<varlistentry>
+					<term>M2Eclipse Plugin</term>
+					<listitem>
+						<para>For performing maven actions, an installation of the Eclipse Maven plugin M2Eclipse version 0.12.1 or higher is required by the &THIS.PLATFORM; EclipSLEE plugin.</para>
+						<para>For instructions on how to install M2Eclipse, refer to <ulink url="http://m2eclipse.sonatype.org/installing-m2eclipse.html">Installing m2eclipse</ulink>.</para>
+					</listitem>
+				</varlistentry>
 			</variablelist>
 		</section>
 	</section>
