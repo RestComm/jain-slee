@@ -83,7 +83,11 @@ public class ProfileSpecXML extends DTDXML {
 		
 		Element classes = getChild(getRoot(), "profile-classes");
 		if (classes == null) return null;
-		
+
+		if(getRoot().getOwnerDocument().getDoctype().getSystemId().equals(ProfileSpecJarXML.SYSTEM_ID_1_1)) {
+		  classes = getChild(classes, "profile-cmp-interface");
+		}
+
 		return getChildText(classes, "profile-cmp-interface-name");		
 	}
 	
