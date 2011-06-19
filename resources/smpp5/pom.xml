@@ -9,7 +9,7 @@
 
 	<artifactId>smpp5-parent</artifactId>
 	<groupId>org.mobicents.resources</groupId>
-	<version>1.1.1.FINAL</version>
+	<version>1.1.2-SNAPSHOT</version>
 
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 	<packaging>pom</packaging>
@@ -68,13 +68,13 @@
 
 	<scm>
 		<connection>
-			scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp5/1.1.1.FINAL
+			scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/smpp5
 		</connection>
 		<developerConnection>
-			scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp5/1.1.1.FINAL
+			scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/smpp5
 		</developerConnection>
 		<url>
-			http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp5/1.1.1.FINAL
+			http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/smpp5
 		</url>
 	</scm>
 
