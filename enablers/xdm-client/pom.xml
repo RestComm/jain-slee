@@ -20,7 +20,7 @@
 	</modules>
 	
 	<properties>
-		<version.xcap.ratype>2.4.0.FINAL</version.xcap.ratype>
+		<version.xcap.ratype>2.4.1.FINAL</version.xcap.ratype>
 		<version.sip.subscription.enabler>1.0.0.CR1</version.sip.subscription.enabler>
 	</properties>
 
