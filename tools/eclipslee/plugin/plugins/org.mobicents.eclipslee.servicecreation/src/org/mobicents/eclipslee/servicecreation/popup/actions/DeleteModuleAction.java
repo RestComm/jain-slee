@@ -85,7 +85,7 @@ public class DeleteModuleAction implements IObjectActionDelegate {
         }
 
         // Finally remove the module folder
-        moduleFolder.delete(true, false, monitor);
+        moduleFolder.delete(true, true, monitor);
 
         // And update the classpath
         IJavaProject javaProject = JavaCore.create(parentPom.getProject());
