@@ -1,5 +1,6 @@
 package org.mobicents.eclipslee.servicecreation.popup.actions;
 
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -84,13 +85,14 @@ public class DeleteModuleAction implements IObjectActionDelegate {
         }
 
         // Finally remove the module folder
-        moduleFolder.delete(true, true, monitor);
+        moduleFolder.delete(true, false, monitor);
 
         // And update the classpath
         IJavaProject javaProject = JavaCore.create(parentPom.getProject());
         ArrayList <IClasspathEntry> cpList = new ArrayList<IClasspathEntry>();
+        String modulePath = File.separator + parentPom.getProject().getName() + File.separator + moduleName + File.separator;
         for (IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
-          if (!cpEntry.getPath().toOSString().startsWith("/" + parentPom.getProject().getName() + "/" + moduleName + "/")) {
+          if (!cpEntry.getPath().toOSString().startsWith(modulePath)) {
             cpList.add(cpEntry);
           }
         }
