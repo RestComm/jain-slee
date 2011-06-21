@@ -23,6 +23,8 @@ package org.mobicents.eclipslee.servicecreation.wizards.ratype;
 
 import java.util.HashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -42,83 +44,94 @@ import org.mobicents.eclipslee.xml.EventJarXML;
  */
 public class RaTypeEventsPage extends WizardPage implements WizardChangeListener {
 
-	private static final String PAGE_DESCRIPTION = "Select the events that this Resource Adaptor Type implementations can fire.";
-	
-	/**
-	 * @param pageName
-	 */
-	public RaTypeEventsPage(String title) {
-		super("wizardPage");
-		setTitle(title);
-		setDescription(PAGE_DESCRIPTION);	
-	}
-	
-	public void createControl(Composite parent) {
-		RaTypeEventsPanel panel = new RaTypeEventsPanel(parent, SWT.NONE, this);
-		setControl(panel);
-		dialogChanged();
-	}
-	
-	public void onWizardPageChanged(WizardPage page) {
-		if (page instanceof FilenamePage) {			
-			if (((FilenamePage) page).getSourceContainer() == null) {
-			  return;
-			}
-			
-			String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
+  private static final String PAGE_DESCRIPTION = "Select the events that this Resource Adaptor Type implementations can fire.";
 
-			if (projectName == null || projectName.equals(project)) {
-				return;
-			}
+  /**
+   * @param pageName
+   */
+  public RaTypeEventsPage(String title) {
+    super("wizardPage");
+    setTitle(title);
+    setDescription(PAGE_DESCRIPTION);	
+  }
 
-			this.project = projectName;
-			initialize();
-		}
-	}
-	
-	private void initialize() {
-		if (project == null) {
-		  return;
-		}
-		
-		getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				RaTypeEventsPanel panel = (RaTypeEventsPanel) getControl();
-				panel.clearEvents();
-				
-				// Find all available events.
-				DTDXML xml[] = EventFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
-				for (int i = 0; i < xml.length; i++) {
-					EventJarXML ev = (EventJarXML) xml[i];
-					EventXML[] events = ev.getEvents();
-					for (int j = 0; j < events.length; j++) {
-						panel.addEvent(ev, events[j]);
-					}
-				}
-				panel.repack();
-			}
-		});
-		
-	}
-	
-	public void dialogChanged() {
-		IWizard wizard = getWizard();
-		if (wizard instanceof RaTypeWizard) {
-			((RaTypeWizard) wizard).pageChanged(this);
-		}
-				
-		updateStatus(null);
-	}
-	
-	private void updateStatus(String message) {
-		setErrorMessage(message);
-		setPageComplete(message == null);
-	}
-	
-	public HashMap[] getSelectedEvents() {
-		RaTypeEventsPanel panel = (RaTypeEventsPanel) getControl();
-		return panel.getSelectedEvents();
-	}
+  public void createControl(Composite parent) {
+    RaTypeEventsPanel panel = new RaTypeEventsPanel(parent, SWT.NONE, this);
+    setControl(panel);
+    dialogChanged();
+  }
 
-	private String project;
+  public void onWizardPageChanged(WizardPage page) {
+    if (page instanceof FilenamePage) {			
+      if (((FilenamePage) page).getSourceContainer() == null) {
+        return;
+      }
+
+      String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
+
+      if (projectName == null || projectName.equals(project)) {
+        return;
+      }
+
+      this.project = projectName;
+      try {
+        getContainer().run(true, true, new IRunnableWithProgress() {
+          public void run(IProgressMonitor monitor) {
+            monitor.beginTask("Retrieving available JAIN SLEE Components ...", 100);
+            initialize();
+            monitor.done();
+          }
+        });
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  private void initialize() {
+    if (project == null) {
+      return;
+    }
+
+    getShell().getDisplay().asyncExec(new Runnable() {
+      public void run() {
+        RaTypeEventsPanel panel = (RaTypeEventsPanel) getControl();
+        panel.clearEvents();
+
+        // Find all available events.
+        DTDXML xml[] = EventFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
+        for (int i = 0; i < xml.length; i++) {
+          EventJarXML ev = (EventJarXML) xml[i];
+          EventXML[] events = ev.getEvents();
+          for (int j = 0; j < events.length; j++) {
+            panel.addEvent(ev, events[j]);
+          }
+        }
+        panel.repack();
+      }
+    });
+
+  }
+
+  public void dialogChanged() {
+    IWizard wizard = getWizard();
+    if (wizard instanceof RaTypeWizard) {
+      ((RaTypeWizard) wizard).pageChanged(this);
+    }
+
+    updateStatus(null);
+  }
+
+  private void updateStatus(String message) {
+    setErrorMessage(message);
+    setPageComplete(message == null);
+  }
+
+  public HashMap[] getSelectedEvents() {
+    RaTypeEventsPanel panel = (RaTypeEventsPanel) getControl();
+    return panel.getSelectedEvents();
+  }
+
+  private String project;
 }

@@ -19,6 +19,8 @@ package org.mobicents.eclipslee.servicecreation.wizards.deployable;
 import java.util.HashMap;
 import java.util.Vector;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -38,113 +40,124 @@ import org.mobicents.eclipslee.xml.ServiceXML;
  */
 public class DeployableUnitServicePage extends WizardPage implements WizardChangeListener {
 
-	protected static String COLUMNS[] = { "Selected", "Service XML", "Contents" };
-	protected static int EDITORS[] = { EditableTableViewer.EDITOR_CHECKBOX,
-			EditableTableViewer.EDITOR_NONE, EditableTableViewer.EDITOR_NONE
-	};
-	protected static Object VALUES[][] = {
-			{}, 
-			{}, 
-			{}
-	};
-	
-	private static final String PAGE_DESCRIPTION = "Select this deployable unit's services.";
-	
-	/**
-	 * @param pageName
-	 */
-	public DeployableUnitServicePage(String title) {
-		super("wizardPage");
-		setTitle(title);
-		setDescription(PAGE_DESCRIPTION);	
-	}
-	
-	public void createControl(Composite parent) {
-		
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		
-		Composite comp = new Composite(parent, SWT.NONE);
-		comp.setLayout(layout);	
-		setControl(comp);
-		
-		serviceViewer = new EditableTableViewer(comp, SWT.NONE, COLUMNS, EDITORS, VALUES);
-		GridData data = new GridData(GridData.FILL_BOTH);
-		serviceViewer.getTable().setLayoutData(data);
-		serviceViewer.repack();
-	}
-	
-	public void onWizardPageChanged(WizardPage page) {
+  protected static String COLUMNS[] = { "Selected", "Service XML", "Contents" };
+  protected static int EDITORS[] = { EditableTableViewer.EDITOR_CHECKBOX,
+    EditableTableViewer.EDITOR_NONE, EditableTableViewer.EDITOR_NONE
+  };
+  protected static Object VALUES[][] = {
+    {}, 
+    {}, 
+    {}
+  };
 
-		if (getControl() == null) return;
-		
-		if (page instanceof FilenamePage) {		
-			
-			if (((FilenamePage) page).getSourceContainer() == null)
-				return;
-			
-			String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
-			if (projectName == null)
-				return;
-			
-			if (projectName.equals(project))
-				return;
-			
-			this.project = projectName;
-			initialize();
-			return;			
-		}
-	}
-	
-	private void initialize() {
+  private static final String PAGE_DESCRIPTION = "Select this deployable unit's services.";
 
-		getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				
-				// Clear the contents of the service viewer.
-				serviceViewer.getStore().clear();
+  /**
+   * @param pageName
+   */
+  public DeployableUnitServicePage(String title) {
+    super("wizardPage");
+    setTitle(title);
+    setDescription(PAGE_DESCRIPTION);	
+  }
 
-				// Find all available children.
-				DTDXML xml[] = ServiceFinder.getDefault().getComponents(BaseFinder.SOURCE, project);
-				for (int i = 0; i < xml.length; i++) {
-					
-					ServiceXML serviceXML = (ServiceXML) xml[i];
-					HashMap map = new HashMap();
-					
-					map.put("Selected", Boolean.FALSE);
-					map.put("XML", serviceXML);
-					map.put("Service XML", serviceXML.getOSPath());
-					map.put("Contents", serviceXML.toString());
-					
-					serviceViewer.addRow(map);
-				}
-				serviceViewer.repack();
-			}
-		});
-		
-	}
-	
-	private void updateStatus(String message) {
-		setErrorMessage(message);
-		setPageComplete(message == null);
-	}
+  public void createControl(Composite parent) {
 
-	public HashMap[] getSelectedServices() {
-		
-		Object services[] = serviceViewer.getStore().getElements();
-		Vector selectedServices = new Vector();
-		for (int i = 0; i < services.length; i++) {		
-			HashMap map = (HashMap) services[i];
-			
-			Boolean sel = (Boolean) map.get("Selected");
-			if (sel.equals(Boolean.TRUE)) {
-				selectedServices.add(map);				
-			}
-		}
-		
-		return (HashMap []) selectedServices.toArray(new HashMap[selectedServices.size()]);
-	}
-	
-	private String project;
-	private EditableTableViewer serviceViewer;
+    GridLayout layout = new GridLayout();
+    layout.numColumns = 1;
+
+    Composite comp = new Composite(parent, SWT.NONE);
+    comp.setLayout(layout);	
+    setControl(comp);
+
+    serviceViewer = new EditableTableViewer(comp, SWT.NONE, COLUMNS, EDITORS, VALUES);
+    GridData data = new GridData(GridData.FILL_BOTH);
+    serviceViewer.getTable().setLayoutData(data);
+    serviceViewer.repack();
+  }
+
+  public void onWizardPageChanged(WizardPage page) {
+
+    if (getControl() == null) return;
+
+    if (page instanceof FilenamePage) {		
+
+      if (((FilenamePage) page).getSourceContainer() == null)
+        return;
+
+      String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
+      if (projectName == null)
+        return;
+
+      if (projectName.equals(project))
+        return;
+
+      this.project = projectName;
+      try {
+        getContainer().run(true, true, new IRunnableWithProgress() {
+          public void run(IProgressMonitor monitor) {
+            monitor.beginTask("Retrieving available JAIN SLEE Components ...", 100);
+            initialize();
+            monitor.done();
+          }
+        });
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+      return;			
+    }
+  }
+
+  private void initialize() {
+
+    getShell().getDisplay().asyncExec(new Runnable() {
+      public void run() {
+
+        // Clear the contents of the service viewer.
+        serviceViewer.getStore().clear();
+
+        // Find all available children.
+        DTDXML xml[] = ServiceFinder.getDefault().getComponents(BaseFinder.SOURCE, project);
+        for (int i = 0; i < xml.length; i++) {
+
+          ServiceXML serviceXML = (ServiceXML) xml[i];
+          HashMap map = new HashMap();
+
+          map.put("Selected", Boolean.FALSE);
+          map.put("XML", serviceXML);
+          map.put("Service XML", serviceXML.getOSPath());
+          map.put("Contents", serviceXML.toString());
+
+          serviceViewer.addRow(map);
+        }
+        serviceViewer.repack();
+      }
+    });
+
+  }
+
+  private void updateStatus(String message) {
+    setErrorMessage(message);
+    setPageComplete(message == null);
+  }
+
+  public HashMap[] getSelectedServices() {
+
+    Object services[] = serviceViewer.getStore().getElements();
+    Vector selectedServices = new Vector();
+    for (int i = 0; i < services.length; i++) {		
+      HashMap map = (HashMap) services[i];
+
+      Boolean sel = (Boolean) map.get("Selected");
+      if (sel.equals(Boolean.TRUE)) {
+        selectedServices.add(map);				
+      }
+    }
+
+    return (HashMap []) selectedServices.toArray(new HashMap[selectedServices.size()]);
+  }
+
+  private String project;
+  private EditableTableViewer serviceViewer;
 }

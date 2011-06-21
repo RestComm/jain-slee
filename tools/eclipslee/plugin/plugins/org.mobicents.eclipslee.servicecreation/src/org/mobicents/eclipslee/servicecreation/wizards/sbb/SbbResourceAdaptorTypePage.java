@@ -18,6 +18,8 @@ package org.mobicents.eclipslee.servicecreation.wizards.sbb;
 
 import java.util.HashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -36,79 +38,90 @@ import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbResourceAdaptorTypePage extends WizardPage implements WizardChangeListener {
-	
-	
-	public void onWizardPageChanged(WizardPage page) {
-				
-		if (getControl() == null)
-			return;
 
-		if (page instanceof FilenamePage) {
-			FilenamePage filePage = (FilenamePage) page;
-			String project = filePage.getSourceContainer().getProject().getName();
-			if (project.equals(this.project))
-				return;
 
-			this.project = project;
-			initialize();
-		}
-	}
-	
-	private static final String PAGE_DESCRIPTION = "Specify the SBB's Resource Adaptor Type Bindings.";
-	
-	/**
-	 * @param pageName
-	 */
-	public SbbResourceAdaptorTypePage(String title) {
-		super("wizardPage");
-		setTitle(title);
-		setDescription(PAGE_DESCRIPTION);	
-	}
-	
-	public void createControl(Composite parent) {
-		SbbResourceAdaptorTypePanel panel = new SbbResourceAdaptorTypePanel(parent, SWT.NONE);
-		setControl(panel);
-		dialogChanged();
-	}
-	
-	private void initialize() {
-		// Initialize any sensible default values - in this case none.	
+  public void onWizardPageChanged(WizardPage page) {
 
-		getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				SbbResourceAdaptorTypePanel panel = (SbbResourceAdaptorTypePanel) getControl();
-				panel.clearResourceAdaptorType();
-				
-				// Find all available ResourceAdaptorTypes.
-				DTDXML xml[] = ResourceAdaptorTypeFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
-				
-				for (int i = 0; i < xml.length; i++) {
-					ResourceAdaptorTypeJarXML ev = (ResourceAdaptorTypeJarXML) xml[i];
-					ResourceAdaptorTypeXML[] resourceAdaptorTypes = ev.getResourceAdaptorTypes();
-					for (int j = 0; j < resourceAdaptorTypes.length; j++) {
-						panel.addResourceAdaptorType(ev, resourceAdaptorTypes[j]);
-					}
-				}
-				panel.repack();
-			}
-		});
+    if (getControl() == null)
+      return;
 
-	
-	}
-	
-	private void dialogChanged() {
-		updateStatus(null);
-	}
-	
-	private void updateStatus(String message) {
-		setErrorMessage(message);
-		setPageComplete(message == null);
-	}
-	
-	public HashMap[] getResourceAdaptorTypes() {
-		SbbResourceAdaptorTypePanel panel = (SbbResourceAdaptorTypePanel) getControl();
-		return panel.getSelectedResourceAdaptorTypes();
-	}
-	
-	private String project;
+    if (page instanceof FilenamePage) {
+      FilenamePage filePage = (FilenamePage) page;
+      String project = filePage.getSourceContainer().getProject().getName();
+      if (project.equals(this.project))
+        return;
+
+      this.project = project;
+      try {
+        getContainer().run(true, true, new IRunnableWithProgress() {
+          public void run(IProgressMonitor monitor) {
+            monitor.beginTask("Retrieving available JAIN SLEE Components ...", 100);
+            initialize();
+            monitor.done();
+          }
+        });
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  private static final String PAGE_DESCRIPTION = "Specify the SBB's Resource Adaptor Type Bindings.";
+
+  /**
+   * @param pageName
+   */
+  public SbbResourceAdaptorTypePage(String title) {
+    super("wizardPage");
+    setTitle(title);
+    setDescription(PAGE_DESCRIPTION);	
+  }
+
+  public void createControl(Composite parent) {
+    SbbResourceAdaptorTypePanel panel = new SbbResourceAdaptorTypePanel(parent, SWT.NONE);
+    setControl(panel);
+    dialogChanged();
+  }
+
+  private void initialize() {
+    // Initialize any sensible default values - in this case none.	
+
+    getShell().getDisplay().asyncExec(new Runnable() {
+      public void run() {
+        SbbResourceAdaptorTypePanel panel = (SbbResourceAdaptorTypePanel) getControl();
+        panel.clearResourceAdaptorType();
+
+        // Find all available ResourceAdaptorTypes.
+        DTDXML xml[] = ResourceAdaptorTypeFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
+
+        for (int i = 0; i < xml.length; i++) {
+          ResourceAdaptorTypeJarXML ev = (ResourceAdaptorTypeJarXML) xml[i];
+          ResourceAdaptorTypeXML[] resourceAdaptorTypes = ev.getResourceAdaptorTypes();
+          for (int j = 0; j < resourceAdaptorTypes.length; j++) {
+            panel.addResourceAdaptorType(ev, resourceAdaptorTypes[j]);
+          }
+        }
+        panel.repack();
+      }
+    });
+
+
+  }
+
+  private void dialogChanged() {
+    updateStatus(null);
+  }
+
+  private void updateStatus(String message) {
+    setErrorMessage(message);
+    setPageComplete(message == null);
+  }
+
+  public HashMap[] getResourceAdaptorTypes() {
+    SbbResourceAdaptorTypePanel panel = (SbbResourceAdaptorTypePanel) getControl();
+    return panel.getSelectedResourceAdaptorTypes();
+  }
+
+  private String project;
 }

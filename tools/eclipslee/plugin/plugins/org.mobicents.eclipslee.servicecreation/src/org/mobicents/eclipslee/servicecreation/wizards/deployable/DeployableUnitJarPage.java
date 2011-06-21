@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -36,113 +38,124 @@ import org.mobicents.eclipslee.servicecreation.wizards.generic.FilenamePage;
  */
 public class DeployableUnitJarPage extends WizardPage implements WizardChangeListener {
 
-	protected static String COLUMNS[] = { "Selected", "Jar", "Contents" };
-	protected static int EDITORS[] = { EditableTableViewer.EDITOR_CHECKBOX,
-			EditableTableViewer.EDITOR_NONE, EditableTableViewer.EDITOR_NONE
-	};
-	protected static Object VALUES[][] = {
-			{}, 
-			{}, 
-			{}
-	};
-	
-	private static final String PAGE_DESCRIPTION = "Select this deployable unit's included jar files.";
-	
-	/**
-	 * @param pageName
-	 */
-	public DeployableUnitJarPage(String title) {
-		super("wizardPage");
-		setTitle(title);
-		setDescription(PAGE_DESCRIPTION);	
-	}
-	
-	public void createControl(Composite parent) {
-		
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		
-		Composite comp = new Composite(parent, SWT.NONE);
-		comp.setLayout(layout);	
-		
-		jarViewer = new EditableTableViewer(comp, SWT.NONE, COLUMNS, EDITORS, VALUES);
-		GridData data = new GridData(GridData.FILL_BOTH);
-		jarViewer.getTable().setLayoutData(data);
-		jarViewer.repack();
-		
-		setControl(comp);
-		
-	}
-	
-	public void onWizardPageChanged(WizardPage page) {
+  protected static String COLUMNS[] = { "Selected", "Jar", "Contents" };
+  protected static int EDITORS[] = { EditableTableViewer.EDITOR_CHECKBOX,
+    EditableTableViewer.EDITOR_NONE, EditableTableViewer.EDITOR_NONE
+  };
+  protected static Object VALUES[][] = {
+    {}, 
+    {}, 
+    {}
+  };
 
-		if (getControl() == null) return;
-		
-		if (page instanceof FilenamePage) {		
-			
-			if (((FilenamePage) page).getSourceContainer() == null)
-				return;
-			
-			String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
-			if (projectName == null)
-				return;
-			
-			if (projectName.equals(project))
-				return;
-			
-			this.project = projectName;
-			initialize();
-			return;			
-		}
-	}
-	
-	private void initialize() {
+  private static final String PAGE_DESCRIPTION = "Select this deployable unit's included jar files.";
 
-		getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				
-				// Clear the contents of the jar viewer.
-				jarViewer.getStore().clear();
+  /**
+   * @param pageName
+   */
+  public DeployableUnitJarPage(String title) {
+    super("wizardPage");
+    setTitle(title);
+    setDescription(PAGE_DESCRIPTION);	
+  }
 
-				// Find all available Jar that contain at least one SLEE component
-				IPath files[] = SLEEJarFinder.getDefault().getJars(SLEEJarFinder.SBB | SLEEJarFinder.EVENT | SLEEJarFinder.PROFILE_SPEC, project);
-				for (int i = 0; i < files.length; i++) {
-					
-					HashMap map = new HashMap();
-					
-					map.put("Selected", Boolean.FALSE);
-					map.put("Jar", files[i].toString());
-					map.put("Contents", SLEEJarFinder.getDefault().getContentsString(files[i]));
-					
-					jarViewer.addRow(map);
-				}
-				jarViewer.repack();
-			}
-		});
-		
-	}
-	
-	private void updateStatus(String message) {
-		setErrorMessage(message);
-		setPageComplete(message == null);
-	}
+  public void createControl(Composite parent) {
 
-	public HashMap[] getSelectedJars() {
-		
-		Object jars[] = jarViewer.getStore().getElements();
-		Vector selectedJars = new Vector();
-		for (int i = 0; i < jars.length; i++) {		
-			HashMap map = (HashMap) jars[i];
-			
-			Boolean sel = (Boolean) map.get("Selected");
-			if (sel.equals(Boolean.TRUE)) {
-				selectedJars.add(map);				
-			}
-		}
-		
-		return (HashMap []) selectedJars.toArray(new HashMap[selectedJars.size()]);
-	}
-	
-	private String project;
-	private EditableTableViewer jarViewer;
+    GridLayout layout = new GridLayout();
+    layout.numColumns = 1;
+
+    Composite comp = new Composite(parent, SWT.NONE);
+    comp.setLayout(layout);	
+
+    jarViewer = new EditableTableViewer(comp, SWT.NONE, COLUMNS, EDITORS, VALUES);
+    GridData data = new GridData(GridData.FILL_BOTH);
+    jarViewer.getTable().setLayoutData(data);
+    jarViewer.repack();
+
+    setControl(comp);
+
+  }
+
+  public void onWizardPageChanged(WizardPage page) {
+
+    if (getControl() == null) return;
+
+    if (page instanceof FilenamePage) {		
+
+      if (((FilenamePage) page).getSourceContainer() == null)
+        return;
+
+      String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
+      if (projectName == null)
+        return;
+
+      if (projectName.equals(project))
+        return;
+
+      this.project = projectName;
+      try {
+        getContainer().run(true, true, new IRunnableWithProgress() {
+          public void run(IProgressMonitor monitor) {
+            monitor.beginTask("Retrieving available JAIN SLEE Components ...", 100);
+            initialize();
+            monitor.done();
+          }
+        });
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+      return;			
+    }
+  }
+
+  private void initialize() {
+
+    getShell().getDisplay().asyncExec(new Runnable() {
+      public void run() {
+
+        // Clear the contents of the jar viewer.
+        jarViewer.getStore().clear();
+
+        // Find all available Jar that contain at least one SLEE component
+        IPath files[] = SLEEJarFinder.getDefault().getJars(SLEEJarFinder.SBB | SLEEJarFinder.EVENT | SLEEJarFinder.PROFILE_SPEC, project);
+        for (int i = 0; i < files.length; i++) {
+
+          HashMap map = new HashMap();
+
+          map.put("Selected", Boolean.FALSE);
+          map.put("Jar", files[i].toString());
+          map.put("Contents", SLEEJarFinder.getDefault().getContentsString(files[i]));
+
+          jarViewer.addRow(map);
+        }
+        jarViewer.repack();
+      }
+    });
+
+  }
+
+  private void updateStatus(String message) {
+    setErrorMessage(message);
+    setPageComplete(message == null);
+  }
+
+  public HashMap[] getSelectedJars() {
+
+    Object jars[] = jarViewer.getStore().getElements();
+    Vector selectedJars = new Vector();
+    for (int i = 0; i < jars.length; i++) {		
+      HashMap map = (HashMap) jars[i];
+
+      Boolean sel = (Boolean) map.get("Selected");
+      if (sel.equals(Boolean.TRUE)) {
+        selectedJars.add(map);				
+      }
+    }
+
+    return (HashMap []) selectedJars.toArray(new HashMap[selectedJars.size()]);
+  }
+
+  private String project;
+  private EditableTableViewer jarViewer;
 }

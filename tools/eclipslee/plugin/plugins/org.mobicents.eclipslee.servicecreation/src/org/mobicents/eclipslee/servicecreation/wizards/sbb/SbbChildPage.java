@@ -18,6 +18,8 @@ package org.mobicents.eclipslee.servicecreation.wizards.sbb;
 
 import java.util.HashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -39,87 +41,99 @@ import org.mobicents.eclipslee.xml.SbbJarXML;
 public class SbbChildPage extends WizardPage implements WizardChangeListener {
 
 
-	private static final String PAGE_DESCRIPTION = "Select this SBB's children.";
-	
-	/**
-	 * @param pageName
-	 */
-	public SbbChildPage(String title) {
-		super("wizardPage");
-		setTitle(title);
-		setDescription(PAGE_DESCRIPTION);	
-	}
-	
-	public void createControl(Composite parent) {
-		SbbChildPanel panel = new SbbChildPanel(parent, SWT.NONE);
-		panel.pack();
-		setControl(panel);
-		// Only initialize after the project has been set.
-		//		initialize();
-		dialogChanged();
-	}
-	
-	public void onWizardPageChanged(WizardPage page) {
-		if (page instanceof FilenamePage) {		
-			
-			if (((FilenamePage) page).getSourceContainer() == null)
-				return;
-			
-			String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
-			if (projectName == null)
-				return;
-			
-			if (projectName.equals(project))
-				return;
-			
-			this.project = projectName;
-			initialize();
-			return;			
-		}
-	}
-	
-	private void initialize() {
+  private static final String PAGE_DESCRIPTION = "Select this SBB's children.";
 
-		getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				SbbChildPanel panel = (SbbChildPanel) getControl();
-				panel.clearChildren();
-				
-				// Find all available children.
-				DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
-				for (int i = 0; i < xml.length; i++) {
-					
-					SbbJarXML jarXML = (SbbJarXML) xml[i];
-					SbbXML sbbs[] = jarXML.getSbbs();
-					for (int j = 0; j < sbbs.length; j++) {
-						panel.addAvailableChild(jarXML, sbbs[j]);						
-					}
-				}
-				panel.repack();
-			}
-		});
-		
-	}
-	
-	public void dialogChanged() {
+  /**
+   * @param pageName
+   */
+  public SbbChildPage(String title) {
+    super("wizardPage");
+    setTitle(title);
+    setDescription(PAGE_DESCRIPTION);	
+  }
 
-		IWizard wizard = getWizard();
-		if (wizard instanceof SbbWizard) {
-			((SbbWizard) wizard).pageChanged(this);
-		}
-				
-		updateStatus(null);
-	}
-	
-	private void updateStatus(String message) {
-		setErrorMessage(message);
-		setPageComplete(message == null);
-	}
-	
-	public HashMap[] getSelectedChildren() {
-		SbbChildPanel panel = (SbbChildPanel) getControl();
-		return panel.getSelectedChildren();
-	}
+  public void createControl(Composite parent) {
+    SbbChildPanel panel = new SbbChildPanel(parent, SWT.NONE);
+    panel.pack();
+    setControl(panel);
+    // Only initialize after the project has been set.
+    //		initialize();
+    dialogChanged();
+  }
 
-	private String project;
+  public void onWizardPageChanged(WizardPage page) {
+    if (page instanceof FilenamePage) {		
+
+      if (((FilenamePage) page).getSourceContainer() == null)
+        return;
+
+      String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
+      if (projectName == null)
+        return;
+
+      if (projectName.equals(project))
+        return;
+
+      this.project = projectName;
+      try {
+        getContainer().run(true, true, new IRunnableWithProgress() {
+          public void run(IProgressMonitor monitor) {
+            monitor.beginTask("Retrieving available JAIN SLEE Components ...", 100);
+            initialize();
+            monitor.done();
+          }
+        });
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+
+      return;			
+    }
+  }
+
+  private void initialize() {
+
+    getShell().getDisplay().asyncExec(new Runnable() {
+      public void run() {
+        SbbChildPanel panel = (SbbChildPanel) getControl();
+        panel.clearChildren();
+
+        // Find all available children.
+        DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
+        for (int i = 0; i < xml.length; i++) {
+
+          SbbJarXML jarXML = (SbbJarXML) xml[i];
+          SbbXML sbbs[] = jarXML.getSbbs();
+          for (int j = 0; j < sbbs.length; j++) {
+            panel.addAvailableChild(jarXML, sbbs[j]);						
+          }
+        }
+        panel.repack();
+      }
+    });
+
+  }
+
+  public void dialogChanged() {
+
+    IWizard wizard = getWizard();
+    if (wizard instanceof SbbWizard) {
+      ((SbbWizard) wizard).pageChanged(this);
+    }
+
+    updateStatus(null);
+  }
+
+  private void updateStatus(String message) {
+    setErrorMessage(message);
+    setPageComplete(message == null);
+  }
+
+  public HashMap[] getSelectedChildren() {
+    SbbChildPanel panel = (SbbChildPanel) getControl();
+    return panel.getSelectedChildren();
+  }
+
+  private String project;
 }

@@ -18,6 +18,8 @@ package org.mobicents.eclipslee.servicecreation.wizards.sbb;
 
 import java.util.HashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -38,85 +40,96 @@ import org.mobicents.eclipslee.xml.EventJarXML;
  */
 public class SbbEventsPage extends WizardPage implements WizardChangeListener {
 
-	private static final String PAGE_DESCRIPTION = "Select the events that this SBB can fire and receive.";
-	
-	/**
-	 * @param pageName
-	 */
-	public SbbEventsPage(String title) {
-		super("wizardPage");
-		setTitle(title);
-		setDescription(PAGE_DESCRIPTION);	
-	}
-	
-	public void createControl(Composite parent) {
-		SbbEventsPanel panel = new SbbEventsPanel(parent, SWT.NONE, this);
-		setControl(panel);
-		dialogChanged();
-	}
-	
-	public void onWizardPageChanged(WizardPage page) {
-		if (page instanceof FilenamePage) {			
-			if (((FilenamePage) page).getSourceContainer() == null) return;
-			
-			String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
+  private static final String PAGE_DESCRIPTION = "Select the events that this SBB can fire and receive.";
 
-			if (projectName == null)
-				return;
+  /**
+   * @param pageName
+   */
+  public SbbEventsPage(String title) {
+    super("wizardPage");
+    setTitle(title);
+    setDescription(PAGE_DESCRIPTION);	
+  }
 
-			if (projectName.equals(project))
-				return;
-			
-			this.project = projectName;
-			initialize();
-			return;			
-		}
-	}
-	
-	private void initialize() {
+  public void createControl(Composite parent) {
+    SbbEventsPanel panel = new SbbEventsPanel(parent, SWT.NONE, this);
+    setControl(panel);
+    dialogChanged();
+  }
 
-		if (project == null)
-			return;
-		
-		getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				SbbEventsPanel panel = (SbbEventsPanel) getControl();
-				panel.clearEvents();
-				
-				// Find all available events.
-				DTDXML xml[] = EventFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
-				for (int i = 0; i < xml.length; i++) {
-					EventJarXML ev = (EventJarXML) xml[i];
-					EventXML[] events = ev.getEvents();
-					for (int j = 0; j < events.length; j++) {
-						panel.addEvent(ev, events[j]);
-					}
-				}
-				panel.repack();
-			}
-		});
-		
-	}
-	
-	public void dialogChanged() {
+  public void onWizardPageChanged(WizardPage page) {
+    if (page instanceof FilenamePage) {			
+      if (((FilenamePage) page).getSourceContainer() == null) return;
 
-		IWizard wizard = getWizard();
-		if (wizard instanceof SbbWizard) {
-			((SbbWizard) wizard).pageChanged(this);
-		}
-				
-		updateStatus(null);
-	}
-	
-	private void updateStatus(String message) {
-		setErrorMessage(message);
-		setPageComplete(message == null);
-	}
-	
-	public HashMap[] getSelectedEvents() {
-		SbbEventsPanel panel = (SbbEventsPanel) getControl();
-		return panel.getSelectedEvents();
-	}
+      String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();
 
-	private String project;
+      if (projectName == null)
+        return;
+
+      if (projectName.equals(project))
+        return;
+
+      this.project = projectName;
+      try {
+        getContainer().run(true, true, new IRunnableWithProgress() {
+          public void run(IProgressMonitor monitor) {
+            monitor.beginTask("Retrieving available JAIN SLEE Components ...", 100);
+            initialize();
+            monitor.done();
+          }
+        });
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+      return;			
+    }
+  }
+
+  private void initialize() {
+
+    if (project == null)
+      return;
+
+    getShell().getDisplay().asyncExec(new Runnable() {
+      public void run() {
+        SbbEventsPanel panel = (SbbEventsPanel) getControl();
+        panel.clearEvents();
+
+        // Find all available events.
+        DTDXML xml[] = EventFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, project);
+        for (int i = 0; i < xml.length; i++) {
+          EventJarXML ev = (EventJarXML) xml[i];
+          EventXML[] events = ev.getEvents();
+          for (int j = 0; j < events.length; j++) {
+            panel.addEvent(ev, events[j]);
+          }
+        }
+        panel.repack();
+      }
+    });
+
+  }
+
+  public void dialogChanged() {
+
+    IWizard wizard = getWizard();
+    if (wizard instanceof SbbWizard) {
+      ((SbbWizard) wizard).pageChanged(this);
+    }
+
+    updateStatus(null);
+  }
+
+  private void updateStatus(String message) {
+    setErrorMessage(message);
+    setPageComplete(message == null);
+  }
+
+  public HashMap[] getSelectedEvents() {
+    SbbEventsPanel panel = (SbbEventsPanel) getControl();
+    return panel.getSelectedEvents();
+  }
+
+  private String project;
 }
