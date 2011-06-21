@@ -179,7 +179,7 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
     public void runMobicentsEclipsePlugin() {
       try {
         ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell()); 
-        dialog.run(false, false, new IRunnableWithProgress(){ 
+        dialog.run(true, false, new IRunnableWithProgress(){ 
           public void run(IProgressMonitor monitor) { 
             monitor.beginTask("Updating classpath. This may take a few seconds ...", 100);
             mavenResult = null; // clear

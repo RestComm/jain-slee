@@ -627,6 +627,7 @@ public class MavenProjectUtils {
   }
   
   public static MavenExecutionResult runMavenTask(IFile pom, String[] goals, IProgressMonitor monitor) {
+    MavenExecutionResult result = null;
     try {
       MavenPlugin plugin = MavenPlugin.getDefault();
       MavenProjectManager projectManager = plugin.getMavenProjectManager();
@@ -637,10 +638,12 @@ public class MavenProjectUtils {
       //req.getUserProperties().putAll(map);
       req.setGoals(Arrays.asList(goals));
       req.setCacheTransferError(false); // enables to fetch remotely ?
-      return maven.execute(req, monitor);
+      result = maven.execute(req, monitor);
     }
     catch (CoreException e) {
-      return null;
+      e.printStackTrace();
     }
+
+    return result;
   }
 }

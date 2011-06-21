@@ -78,7 +78,7 @@ public class DeleteMavenDependencyAction implements IObjectActionDelegate {
   public void runMobicentsEclipsePlugin() {
     try {
       ProgressMonitorDialog dialog = new ProgressMonitorDialog(new Shell()); 
-      dialog.run(false, false, new IRunnableWithProgress(){ 
+      dialog.run(true, false, new IRunnableWithProgress(){ 
         public void run(IProgressMonitor monitor) { 
           monitor.beginTask("Updating classpath. This may take a few seconds ...", 100);
           mavenResult = null; // clear
