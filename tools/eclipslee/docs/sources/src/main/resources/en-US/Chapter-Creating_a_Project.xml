@@ -206,7 +206,10 @@
 	<section id="managing_project_dependencies">
 		<title>Managing Project Dependencies</title>
 		<para>
-			Maven dependencies for each module can be added or removed using EclipSLEE, with no need to use third-party maven plugins.
+			Maven dependencies for each module can be added or removed using EclipSLEE. After these dependencies are added, the classpath is updated by running the Maven mobicents:eclipse target.
+		</para>
+		<para>
+			The entries in the classpath are not only used for the usual project classpath but also for allowing the plugin to find available JAIN SLEE Components for the wizards, to be used in the project, such as Events, RA Types and SBBs relative to the platform Resource Adaptors and Enablers.
 		</para>
 		<section id="adding_new_maven_dependency">
 			<title>Adding a New Maven Dependency</title>

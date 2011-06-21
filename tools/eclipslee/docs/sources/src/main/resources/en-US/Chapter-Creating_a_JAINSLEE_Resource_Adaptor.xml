@@ -94,6 +94,10 @@
 				</mediaobject>
 			</figure>
 			This dialog allows you to specify which RA Types this Resource Adaptor will implement. Select them from the top list (Available RA Types) by clicking <guibutton>Select RA Type</guibutton>. To remove them, select them from the bottom list (Selected RA Types) and click <guibutton>Deselect RA Type</guibutton>. When done, click <guibutton>Next</guibutton> to edit the Resource Adaptor Config Properties.
+			<important>
+				<title>Available Components Missing?</title>
+				<para>At the moment, in order for the available components to be listed in the wizard, they need to be part of the classpath. For instance if you want to use the SIP11 Resource Adaptor Type for your project, you will need to add it as a Maven Dependency and be part of classpath first. Refer to <xref linkend="adding_new_maven_dependency" /> on how to do it.</para>
+			</important>
 		</para>
 		<para>
 			<figure>

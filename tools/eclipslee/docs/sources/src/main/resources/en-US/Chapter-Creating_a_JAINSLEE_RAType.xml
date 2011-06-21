@@ -94,6 +94,10 @@
 				</mediaobject>
 			</figure>
 			This dialog allows you to specify which events can be fired by the Resource Adaptor Type implementation, select them from the top list (Available Events) by clicking <guibutton>Select Event</guibutton>. To remove them, select them from the bottom list (Selected Events) and click <guibutton>Deselect Event</guibutton>. When done, click <guibutton>Next</guibutton> to edit the RA Type's Activity Objects.
+			<important>
+				<title>Available Components Missing?</title>
+				<para>At the moment, in order for the available components to be listed in the wizard, they need to be part of the classpath. For instance if you want to use the SIP11 Resource Adaptor Type for your project, you will need to add it as a Maven Dependency and be part of classpath first. Refer to <xref linkend="adding_new_maven_dependency" /> on how to do it.</para>
+			</important>
 		</para>
 		<para>
 			<figure>

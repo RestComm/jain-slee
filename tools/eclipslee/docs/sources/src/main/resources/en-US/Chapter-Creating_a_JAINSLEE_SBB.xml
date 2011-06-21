@@ -166,6 +166,10 @@
 				</mediaobject>
 			</figure>
 			The event selection dialog contains a list of all the events the plugin could find in your project. This includes any events that were installed as external components.
+			<important>
+				<title>Available Components Missing?</title>
+				<para>At the moment, in order for the available components to be listed in the wizard, they need to be part of the classpath. For instance if you want to use SIP11 Events for your project, you will need to add it as a Maven Dependency and be part of classpath first. Refer to <xref linkend="adding_new_maven_dependency" /> on how to do it.</para>
+			</important>
 		</para>
 		<para>
 			For each event that you would like your SBB to fire or receive:
@@ -236,6 +240,10 @@
 				</mediaobject>
 			</figure>
 			The profile selection dialog contains a list of all the profiles the plugin could find in your project. This includes any profiles that were installed as external components. If your custom profiles are not listed, verify that they have been compiled and the "jars" folder refreshed.
+			<important>
+				<title>Available Components Missing?</title>
+				<para>At the moment, in order for the available components to be listed in the wizard, they need to be part of the classpath. For instance if you want to use other component profiles specification in your project, you will need to add it as a Maven Dependency and be part of classpath first. Refer to <xref linkend="adding_new_maven_dependency" /> on how to do it.</para>
+			</important>
 		</para>
 		<para>
 			For each profile specification the SBB should reference:
@@ -272,6 +280,10 @@
 				</mediaobject>
 			</figure>
 			The child selection dialog contains a list of all the SBBs the plugin could find in your project. This includes any SBBs that were installed as external components. If your custom SBBs are not listed, verify that they have been compiled and the "jars" folder refreshed.
+			<important>
+				<title>Available Components Missing?</title>
+				<para>At the moment, in order for the available components to be listed in the wizard, they need to be part of the classpath. For instance if you want to use the HSS Client Enabler in your project, you will need to add it as a Maven Dependency and be part of classpath first. Refer to <xref linkend="adding_new_maven_dependency" /> on how to do it.</para>
+			</important>
 		</para>
 		<para>
 			For each child SBB the SBB should reference:
@@ -296,17 +308,21 @@
 	
 		<para>
 			<figure>
-				<title>JAIN SLEE SBB Child SBBs selection in EclipSLEE</title>
+				<title>JAIN SLEE SBB Resource Adaptor Type Bindings in EclipSLEE</title>
 				<mediaobject>
 					<imageobject>
 						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_sbb_ratypes.png" format="PNG"/>
 					</imageobject>
 					<textobject>
-						<para>JAIN SLEE SBB Child SBBs selection in EclipSLEE</para>
+						<para>JAIN SLEE SBB Resource Adaptor Type Bindings selection in EclipSLEE</para>
 					</textobject>
 				</mediaobject>
 			</figure>
 			The Resource Adaptor Type Bindings dialog contains a list of all the resource adaptor types the plugin could find in your project. This includes any resource adaptor types that were installed as external components.
+			<important>
+				<title>Available Components Missing?</title>
+				<para>At the moment, in order for the available components to be listed in the wizard, they need to be part of the classpath. For instance if you want to use the SIP11 Resource Adaptor Type for your project, you will need to add it as a Maven Dependency and be part of classpath first. Refer to <xref linkend="adding_new_maven_dependency" /> on how to do it.</para>
+			</important>
 		</para>
 		<para>
 			For each resource adaptor type the SBB should reference:

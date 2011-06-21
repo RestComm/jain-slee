@@ -81,6 +81,10 @@
 				</mediaobject>
 			</figure>
 			All available root SBBs are listed in the table. Select the one that should be used for this service.
+			<important>
+				<title>Available Components Missing?</title>
+				<para>At the moment, in order for the available components to be listed in the wizard, they need to be part of the classpath. For instance if you want to use an external root SBB for your project, you will need to add it as a Maven Dependency and be part of classpath first. Refer to <xref linkend="adding_new_maven_dependency" /> on how to do it.</para>
+			</important>
 		</para>
 		<important>
 			<title>My SBB is not listed.. why?</title>
