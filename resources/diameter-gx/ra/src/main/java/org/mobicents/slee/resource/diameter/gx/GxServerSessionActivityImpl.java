@@ -31,6 +31,7 @@ import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.ReAuthRequestType;
 import net.java.slee.resource.diameter.cca.CreditControlMessageFactory;
+import net.java.slee.resource.diameter.gx.GxMessageFactory;
 import net.java.slee.resource.diameter.gx.GxServerSessionActivity;
 import net.java.slee.resource.diameter.gx.GxSessionState;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer;
@@ -113,7 +114,7 @@ public class GxServerSessionActivityImpl extends GxSessionActivityImpl implement
     public void sendReAuthRequest(final ReAuthRequest rar) throws IOException {
         // RFC 4006 5.5
         rar.setReAuthRequestType(ReAuthRequestType.AUTHORIZE_ONLY);
-        rar.setAuthApplicationId(CreditControlMessageFactory._CCA_AUTH_APP_ID);
+        rar.setAuthApplicationId(GxMessageFactory._GX_AUTH_APP_ID);
 
         final DiameterMessageImpl msg = (DiameterMessageImpl) rar;
 

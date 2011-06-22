@@ -38,12 +38,12 @@ import net.java.slee.resource.diameter.base.events.DeviceWatchdogRequest;
 import net.java.slee.resource.diameter.base.events.DisconnectPeerRequest;
 import net.java.slee.resource.diameter.base.events.ReAuthRequest;
 import net.java.slee.resource.diameter.base.events.SessionTerminationRequest;
-import net.java.slee.resource.diameter.cca.events.CreditControlMessage;
+import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
 
 import org.jdiameter.api.Message;
 
 /**
- * Caches event IDs for the Diameter CCA RAs.
+ * Caches event IDs for the Diameter Gx RAs.
  *
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
@@ -58,7 +58,7 @@ public class EventIDCache {
     static {
         final Map<Integer, String> eventsTemp = new HashMap<Integer, String>();
 
-        eventsTemp.put(CreditControlMessage.commandCode, GX_PACKAGE_PREFIX + "GxCreditControl");
+        eventsTemp.put(GxCreditControlRequest.commandCode, GX_PACKAGE_PREFIX + "GxCreditControl");
 
         // We support Base messages too, just in case...
         eventsTemp.put(AbortSessionRequest.commandCode, BASE_PACKAGE_PREFIX + "AbortSession");

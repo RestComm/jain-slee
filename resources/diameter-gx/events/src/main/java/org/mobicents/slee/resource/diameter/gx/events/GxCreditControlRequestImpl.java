@@ -161,12 +161,12 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
 
     @Override
     public String getLongName() {
-        return "GxCredit-Control-Request";
+        return "Credit-Control-Request";
     }
 
     @Override
     public String getShortName() {
-        return "GxCCR";
+        return "CCR";
     }
 
     /**

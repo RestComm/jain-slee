@@ -49,7 +49,7 @@ public interface GxServerSessionActivity extends GxSessionActivity {
     GxCreditControlAnswer createGxCreditControlAnswer();
 
     /**
-     * Sends a CCA message to the client.
+     * Sends a Gx-specific Credit-Control-Answer message to the client.
      *
      * @param cca the CreditControlAnswer to send
      * @throws IOException if an error occurred while sending the request to the peer
