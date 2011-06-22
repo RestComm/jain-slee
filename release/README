@@ -133,7 +133,8 @@ Download URL:
 
 http://downloads.sourceforge.net/project/mobicents/Mobicents%20JAIN%20SLEE%20Server/2.4.1.FINAL/mobicents-jainslee-2.4.1.FINAL-jboss-5.1.0.GA.zip
 
-Note that online docs at mobicents.org now point to the docs from this release.
+Note that online docs at http://www.mobicents.org/slee/docs.html now point 
+to the documentation bundled with this release.
 
 Quick start:
 -------------------------------------------------------------------------------
