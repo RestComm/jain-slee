@@ -187,6 +187,7 @@ import java.util.regex.Matcher;
  * The rule syntax is a modified subset of ipfw(8) from FreeBSD.
  *
  * @author Open Cloud
+ * @author baranowb
  */
 public class IPFilterRule {
 
@@ -195,6 +196,9 @@ public class IPFilterRule {
 
   public static final int DIR_IN = 0;
   public static final int DIR_OUT = 1;
+
+  private static final String[] EMPTY_STRING_ARRAY = new String[0];
+  private static final int[] EMPTY_INT_ARRAY = new int[0];
 
   private int action;
   private int direction;
@@ -205,12 +209,12 @@ public class IPFilterRule {
   private AddressSet destAddressSet;
 
   private boolean fragment = false;
-  private String ipoptions = null;
-  private String tcpoptions = null;
+  private String ipOptions = null;
+  private String tcpOptions = null;
   private boolean established = false;
   private boolean setup = false;
-  private String tcpflags = null;
-  private String icmptypes = null;
+  private String tcpFlags = null;
+  private String icmpTypes = null;
 
   public IPFilterRule(String rule) {
     parseRule(rule);
@@ -233,19 +237,19 @@ public class IPFilterRule {
 
     ruleBuf.append(' ');
     ruleBuf.append(fragment ? "frag ":"");
-    if(ipoptions != null) {
-      ruleBuf.append("ipoptions ").append(ipoptions).append(' ');
+    if(ipOptions != null) {
+      ruleBuf.append("ipoptions ").append(ipOptions).append(' ');
     }
-    if(tcpoptions != null) {
-      ruleBuf.append("tcpoptions ").append(tcpoptions).append(' ');
+    if(tcpOptions != null) {
+      ruleBuf.append("tcpoptions ").append(tcpOptions).append(' ');
     }
     ruleBuf.append(established ? "established ":"");
     ruleBuf.append(setup ? "setup ":"");
-    if(tcpflags != null) {
-      ruleBuf.append("tcpflags ").append(tcpflags).append(' ');;
+    if(tcpFlags != null) {
+      ruleBuf.append("tcpflags ").append(tcpFlags).append(' ');;
     }
-    if(icmptypes != null) {
-      ruleBuf.append("icmptypes ").append(icmptypes);
+    if(icmpTypes != null) {
+      ruleBuf.append("icmptypes ").append(icmpTypes);
     }
     return ruleBuf.toString();
   }
@@ -278,6 +282,10 @@ public class IPFilterRule {
     return sourceAddressSet.assignedIps;
   }
 
+  public boolean isSourceNoMatch() {
+    return sourceAddressSet.notMatch;
+  }
+
   public int[][] getSourcePorts() {
     return sourceAddressSet.ports;
   }
@@ -294,6 +302,10 @@ public class IPFilterRule {
     return destAddressSet.assignedIps;
   }
 
+  public boolean isDestNoMatch() {
+    return destAddressSet.notMatch;
+  }
+
   public int[][] getDestPorts() {
     return destAddressSet.ports;
   }
@@ -303,14 +315,14 @@ public class IPFilterRule {
   }
 
   public String[] getIpOptions() {
-    return ipoptions.split(",");
+    return ipOptions == null ? EMPTY_STRING_ARRAY : ipOptions.split(",");
   }
 
   public String[] getTcpOptions() {
-    return tcpoptions.split(",");
+    return tcpOptions == null ? EMPTY_STRING_ARRAY : tcpOptions.split(",");
   }
 
-  public boolean isEstablised() {
+  public boolean isEstablished() {
     return established;
   }
 
@@ -319,23 +331,24 @@ public class IPFilterRule {
   }
 
   public String[] getTcpFlags() {
-    return tcpflags.split(",");
+    return tcpFlags == null ? EMPTY_STRING_ARRAY : tcpFlags.split(",");
   }
 
   public String[] getIcmpTypes() {
-    return icmptypes.split(",");
+    return icmpTypes == null ? EMPTY_STRING_ARRAY : icmpTypes.split(",");
   }
 
   public int[] getNumericIcmpTypes() {
-    return new int[0];
+    // TODO: Implement Numeric ICMP Types
+    return EMPTY_INT_ARRAY;
   }
 
   private void parseRule(String rule) {
 
-    // TODO: ipoptions, tcpoptions, tcpflags, icmpflags
-    // TODO: ipv6 addresses
-
-    Pattern ruleParser = Pattern.compile("(.+)\\s+(.+)\\s+(.+)\\s+from\\s+(.+)\\s+to\\s+([^a-z]+)\\s+(.+)");
+    //THIS: \\s+(.+?)((frag|tcpoptions|setup|ipoptions|established|setup|tcpflags|icmptypes)(.+))? matches - everything, or everything up to keywords if they are there.
+    //defines group 5 as everything and group 6 as leftover, aka options, which are optional. 6 has two subgroups, one to match keyword, second to swallow everything after keyword.
+    //other way would be to match by word boundary - but would have to check if present word ia a port declaration or options. this seems better idea.
+    Pattern ruleParser = Pattern.compile("(.+)\\s+(.+)\\s+(.+)\\s+from\\s+(.+)\\s+to\\s+(.+?)((frag|tcpoptions|setup|ipoptions|established|setup|tcpflags|icmptypes)(.*))?");
 
     Matcher matcher = ruleParser.matcher(rule.trim());
 
@@ -344,8 +357,8 @@ public class IPFilterRule {
       parseDirection(matcher.group(2), rule); 
       parseProtocol(matcher.group(3), rule);
       parseFrom(matcher.group(4), rule);
-      parseTo(matcher.group(5), rule);
-      parseOptions(matcher.group(6), rule);
+      parseTo(matcher.group(5).trim(), rule); // trim is here to kill leftover white space if any.
+      parseOptions(matcher.group(6), rule); // 6 is to match options if exist
     }
     else { 
       fail(rule);
@@ -396,7 +409,10 @@ public class IPFilterRule {
 
   private AddressSet parseAddressSet(String addressSetString, String rule) {
     AddressSet addressSet = new AddressSet();
-    Pattern ipv4Pattern = Pattern.compile("(!?)(assigned|[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})(/[0-9]{1,3})?( [0-9,-]*)?");
+    // MONSTER KILL: matches keywords, IPv4 and IPv6 address
+    // this is actually a bit bad, allows any/24 for instance...
+    // 1   2                                            22              23 
+    Pattern ipv4Pattern = Pattern.compile("(!?)(any|assigned|"+ipv4Regexp+"|"+ipv6Regexp+")(/[0-9]{1,3})?( [0-9,-]*)?");
     Matcher matcher = ipv4Pattern.matcher(addressSetString);
     if(matcher.matches()) {
       addressSet.notMatch = "!".equals(matcher.group(1));
@@ -405,18 +421,18 @@ public class IPFilterRule {
       }
       else {
         addressSet.ip = matcher.group(2);
-        if(null != matcher.group(3)) {
+        if(null != matcher.group(22)) { //NOTE: 22, since regex for addresses have lots of groups :P
           try {
-            addressSet.bits = Integer.parseInt(matcher.group(3).substring(1));
+            addressSet.bits = Integer.parseInt(matcher.group(22).substring(1));
           }
           catch (NumberFormatException nfe) {
-            fail(rule, matcher.group(3));
+            fail(rule, matcher.group(22));
           }
         }
       }
       // {port | port-port}[,ports[,...]]
-      if(null != matcher.group(4)) {
-        String portsString = matcher.group(4).trim();
+      if(null != matcher.group(23)) { //NOTE: 23- as above note
+        String portsString = matcher.group(23).trim();
         String ports[] = portsString.split(",");
         addressSet.ports = new int[ports.length][2];
         for (int i = 0; i < ports.length; i++) {
@@ -443,18 +459,18 @@ public class IPFilterRule {
   }
 
   private void parseOptions(String options, String rule) {
-    if(options.length() > 0) {
+    if(options != null && options.length() > 0) {
       Pattern optionsSplitter = Pattern.compile("\\s+");
       String[] optionsArray = optionsSplitter.split(options);
       for (int i = 0; i < optionsArray.length; i++) {
         String option = optionsArray[i];
         if("frag".equals(option)) fragment = true;
-        else if("ipoptions".equals(option)) ipoptions = optionsArray[++i];
-        else if("tcpoptions".equals(option)) tcpoptions = optionsArray[++i];
+        else if("ipoptions".equals(option)) ipOptions = optionsArray[++i];
+        else if("tcpoptions".equals(option)) tcpOptions = optionsArray[++i];
         else if("established".equals(option)) established = true;
         else if("setup".equals(option)) setup = true;
-        else if("tcpflags".equals(option)) tcpflags = optionsArray[++i];
-        else if("icmptypes".equals(option)) icmptypes = optionsArray[++i];
+        else if("tcpflags".equals(option)) tcpFlags = optionsArray[++i];
+        else if("icmptypes".equals(option)) icmpTypes = optionsArray[++i];
         else fail(rule, option);
       }
     }
@@ -495,26 +511,8 @@ public class IPFilterRule {
     private boolean notMatch = false;
   }
 
-  // tests
-  public static void main(String[] args) {
-    String rules[] = {
-        "permit in ip from 192.168.0.0/24 10,11,12,20-30 to 192.168.1.1 99 frag established",
-        "permit out 2 from 192.1.0.0/24 to 192.1.1.1/0 frag established setup tcpoptions mrss",
-        "permit out 2 from !192.1.0.0/24 to 192.1.1.1/0 frag established setup tcpoptions mrss",
-        "permit out 2 from assigned 34 to 192.1.1.1/0 6,3 frag established setup tcpoptions mrss ipoptions !rr,!ts",
-        "deny in ip from !assigned to 192.1.1.1/0 6,3 frag established setup tcpoptions mrss",
-        "deny out udp from 192.168.0.0 to 192.168.1.1 established",
-        "permit in 9999 from 192.168.0.0/24 to 192.168.1.1 frag foo"
-    };
-    for (int i = 0; i < rules.length; i++) {
-      String rule = rules[i];
-      try {
-        System.out.println(rule + " -> " + new IPFilterRule(rule).toString());
-      }
-      catch (IllegalArgumentException iae) {
-        System.out.println(iae.getMessage());
-      }
-    }
-  }
+  //some helper statics to make it cleaner
+  private static final String ipv4Regexp = "(25[0-6]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2}).(25[0-6]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2}).(25[0-6]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2}).(25[0-6]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})";
+  private static final String ipv6Regexp = "((?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4})|(((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?))|(((?:[0-9A-Fa-f]{1,4}:){6,6})(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3})|(((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?) ::((?:[0-9A-Fa-f]{1,4}:)*)(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3})";
 
 }
