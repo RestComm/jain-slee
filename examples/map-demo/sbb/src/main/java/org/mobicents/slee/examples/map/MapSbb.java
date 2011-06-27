@@ -9,18 +9,21 @@ import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
 
-import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
 import org.mobicents.protocols.ss7.map.api.MapServiceFactory;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPCloseInfo;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPOpenInfo;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPProviderAbortInfo;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPRefuseInfo;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortInfo;
+import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPDialogSupplementary;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.USSDString;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication;
+import org.mobicents.slee.resource.map.DialogAccept;
+import org.mobicents.slee.resource.map.DialogClose;
+import org.mobicents.slee.resource.map.DialogDelimiter;
+import org.mobicents.slee.resource.map.DialogNotice;
+import org.mobicents.slee.resource.map.DialogProviderAbort;
+import org.mobicents.slee.resource.map.DialogReject;
+import org.mobicents.slee.resource.map.DialogRequest;
+import org.mobicents.slee.resource.map.DialogUserAbort;
 import org.mobicents.slee.resource.map.MAPContextInterfaceFactory;
 
 /**
@@ -45,6 +48,113 @@ public abstract class MapSbb implements Sbb {
 	public MapSbb() {
 	}
 
+	/**
+	 * Dialog Events
+	 */
+
+	public void onDialogDelimiter(DialogDelimiter evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onDialogDelimiter" + evt);
+		}
+	}
+
+	public void onDialogAccept(DialogAccept evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onDialogAccept" + evt);
+		}
+	}
+
+	public void onDialogReject(DialogReject evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onDialogReject" + evt);
+		}
+	}
+
+	public void onDialogUserAbort(DialogUserAbort evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onDialogUserAbort" + evt);
+		}
+	}
+
+	public void onDialogProviderAbort(DialogProviderAbort evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onDialogProviderAbort" + evt);
+		}
+	}
+
+	public void onDialogClose(DialogClose evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onDialogClose" + evt);
+		}
+	}
+
+	public void onDialogNotice(DialogNotice evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onDialogNotice" + evt);
+		}
+	}
+
+	public void onDialogRequest(DialogRequest evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onDialogRequest" + evt);
+		}
+	}
+
+	public void onProcessUnstructuredSSRequest(ProcessUnstructuredSSIndication evt, ActivityContextInterface aci) {
+		USSDString ussdStrObj = evt.getUSSDString();
+		String ussdStr = ussdStrObj.getString();
+		long invokeId = evt.getInvokeId();
+
+		if (this.logger.isInfoEnabled()) {
+			this.logger.info(String.format(
+					"Received PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION event USSDString=%s invokeId=%d", ussdStr,
+					invokeId));
+		}
+
+		this.setInvokeId(invokeId);
+
+		ussdStrObj = this.mapServiceFactory
+				.createUSSDString("USSD String : Hello World <CR> 1. Balance <CR> 2. Texts Remaining");
+		byte ussdDataCodingScheme = (byte) 0x0F;
+		MAPDialogSupplementary dialog = evt.getMAPDialog();
+
+		try {
+			// FIXME: msisdn ?
+			dialog.addUnstructuredSSRequest(ussdDataCodingScheme, ussdStrObj);
+			dialog.send();
+		} catch (MAPException e) {
+			logger.severe("Error while sending UnstructuredSSRequest ", e);
+		}
+
+	}
+
+	public void onUnstructuredSSRequest(UnstructuredSSIndication evt, ActivityContextInterface aci) {
+		USSDString ussdStrObj = evt.getUSSDString();
+		String ussdStr = ussdStrObj.getString();
+		long invokeId = evt.getInvokeId();
+
+		if (this.logger.isInfoEnabled()) {
+			this.logger.info(String.format(
+					"Received UNSTRUCTURED_SS_REQUEST_INDICATION event USSDString=%s invokeId=%d", ussdStr, invokeId));
+		}
+
+		ussdStrObj = this.mapServiceFactory.createUSSDString("Your balance = 350");
+		byte ussdDataCodingScheme = (byte) 0x0F;
+		MAPDialogSupplementary dialog = evt.getMAPDialog();
+
+		try {
+			// FIXME: msisdn ?
+			dialog.addProcessUnstructuredSSResponse(this.getInvokeId(), true, ussdDataCodingScheme, ussdStrObj);
+			dialog.close(false);
+		} catch (MAPException e) {
+			logger.severe("Error while sending UnstructuredSSRequest ", e);
+		}
+
+	}
+	
+	/**
+	 * Life cycle methods
+	 */
 	public void setSbbContext(SbbContext sbbContext) {
 
 		try {
@@ -63,89 +173,7 @@ public abstract class MapSbb implements Sbb {
 			logger.severe("Could not set SBB context:", ne);
 		}
 
-	}
-
-	public void onOpenInfo(MAPOpenInfo evt, ActivityContextInterface aci) {
-		if (logger.isInfoEnabled()) {
-			this.logger.info("New MAP Dialog. Received event MAPOpenInfo " + evt);
-		}
-
-	}
-
-	public void onProcessUnstructuredSSRequest(ProcessUnstructuredSSIndication evt, ActivityContextInterface aci) {
-		USSDString ussdStrObj = evt.getUSSDString();
-		String ussdStr = ussdStrObj.getString();
-
-		if (this.logger.isInfoEnabled()) {
-			this.logger.info("Received PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION event USSDString = " + ussdStr);
-		}
-
-		ussdStrObj = this.mapServiceFactory
-				.createUSSDString("USSD String : Hello World <CR> 1. Balance <CR> 2. Texts Remaining");
-		byte ussdDataCodingScheme = (byte) 0x0F;
-		MAPDialog dialog = evt.getMAPDialog();
-
-		try {
-			// FIXME: msisdn ?
-			dialog.addUnstructuredSSRequest(ussdDataCodingScheme, ussdStrObj);
-			dialog.send();
-		} catch (MAPException e) {
-			logger.severe("Error while sending UnstructuredSSRequest ", e);
-		}
-
-	}
-
-	public void onUnstructuredSSRequest(UnstructuredSSIndication evt, ActivityContextInterface aci) {
-		USSDString ussdStrObj = evt.getUSSDString();
-		String ussdStr = ussdStrObj.getString();
-
-		if (this.logger.isInfoEnabled()) {
-			this.logger.info("Received UNSTRUCTURED_SS_REQUEST_INDICATION event USSDString = " + ussdStr);
-		}
-
-		ussdStrObj = this.mapServiceFactory.createUSSDString("Your balance = 350");
-		byte ussdDataCodingScheme = (byte) 0x0F;
-		MAPDialog dialog = evt.getMAPDialog();
-
-		try {
-			// FIXME: msisdn ?
-			dialog.addUnstructuredSSResponse(evt.getInvokeId(), true, ussdDataCodingScheme, ussdStrObj);
-			dialog.send();
-		} catch (MAPException e) {
-			logger.severe("Error while sending UnstructuredSSRequest ", e);
-		}
-
-	}
-
-	/**
-	 * MAP Dialog Event Handlers
-	 */
-
-	public void onCloseInfo(MAPCloseInfo evt, ActivityContextInterface aci) {
-		if (this.logger.isInfoEnabled()) {
-			this.logger.info("Received MAP CLOSE_INFO event for MAP Dialog Id " + evt.getMAPDialog().getDialogId());
-		}
-	}
-
-	public void onRefuseInfo(MAPRefuseInfo evt, ActivityContextInterface aci) {
-		if (this.logger.isInfoEnabled()) {
-			this.logger.info("Received MAP REFUSE_INFO event for MAP Dialog Id " + evt.getMAPDialog().getDialogId());
-		}
-	}
-
-	public void onUserAbortInfo(MAPUserAbortInfo evt, ActivityContextInterface aci) {
-		if (this.logger.isInfoEnabled()) {
-			this.logger
-					.info("Received MAP USER_ABORT_INFO event for MAP Dialog Id " + evt.getMAPDialog().getDialogId());
-		}
-	}
-
-	public void onProviderAbortInfo(MAPProviderAbortInfo evt, ActivityContextInterface aci) {
-		if (this.logger.isInfoEnabled()) {
-			this.logger.info("Received MAP PROVIDER_ABORT_INFO event for MAP Dialog Id "
-					+ evt.getMAPDialog().getDialogId());
-		}
-	}
+	}	
 
 	public void unsetSbbContext() {
 		this.sbbContext = null;
@@ -179,4 +207,11 @@ public abstract class MapSbb implements Sbb {
 
 	public void sbbRolledBack(RolledBackContext rolledBackContext) {
 	}
+
+	/**
+	 * CMP's 
+	 */
+	public abstract void setInvokeId(long invokeId);
+
+	public abstract long getInvokeId();
 }
