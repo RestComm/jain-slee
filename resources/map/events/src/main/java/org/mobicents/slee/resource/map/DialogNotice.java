@@ -20,22 +20,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
+/**
+ * 
+ */
 package org.mobicents.slee.resource.map;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
-
-import javax.slee.ActivityContextInterface;
-import javax.slee.FactoryException;
-import javax.slee.UnrecognizedActivityException;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPNoticeProblemDiagnostic;
 
 /**
- * 
  * @author amit bhayani
  * 
  */
-public interface MAPContextInterfaceFactory {
+public class DialogNotice extends MAPEvent {
 
-	public ActivityContextInterface getActivityContextInterface(MAPDialog dialog) throws NullPointerException,
-			UnrecognizedActivityException, FactoryException;
+	private final MAPNoticeProblemDiagnostic noticeProblemDiagnostic;
+
+	/**
+	 * @param mAPDialog
+	 */
+	public DialogNotice(MAPDialog mAPDialog, MAPNoticeProblemDiagnostic noticeProblemDiagnostic) {
+		super(mAPDialog);
+		this.noticeProblemDiagnostic = noticeProblemDiagnostic;
+	}
+
+	public MAPNoticeProblemDiagnostic getNoticeProblemDiagnostic() {
+		return noticeProblemDiagnostic;
+	}
 
 }

@@ -20,22 +20,47 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
+/**
+ * 
+ */
 package org.mobicents.slee.resource.map;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
-
-import javax.slee.ActivityContextInterface;
-import javax.slee.FactoryException;
-import javax.slee.UnrecognizedActivityException;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortProviderReason;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortSource;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPExtensionContainer;
 
 /**
- * 
  * @author amit bhayani
  * 
  */
-public interface MAPContextInterfaceFactory {
+public class DialogProviderAbort extends MAPEvent {
 
-	public ActivityContextInterface getActivityContextInterface(MAPDialog dialog) throws NullPointerException,
-			UnrecognizedActivityException, FactoryException;
+	private final MAPAbortProviderReason abortProviderReason;
+	private final MAPAbortSource abortSource;
+	private final MAPExtensionContainer extensionContainer;
+
+	/**
+	 * @param mAPDialog
+	 */
+	public DialogProviderAbort(MAPDialog mAPDialog, MAPAbortProviderReason abortProviderReason,
+			MAPAbortSource abortSource, MAPExtensionContainer extensionContainer) {
+		super(mAPDialog);
+		this.abortProviderReason = abortProviderReason;
+		this.abortSource = abortSource;
+		this.extensionContainer = extensionContainer;
+	}
+
+	public MAPAbortProviderReason getAbortProviderReason() {
+		return abortProviderReason;
+	}
+
+	public MAPAbortSource getAbortSource() {
+		return abortSource;
+	}
+
+	public MAPExtensionContainer getExtensionContainer() {
+		return extensionContainer;
+	}
 
 }

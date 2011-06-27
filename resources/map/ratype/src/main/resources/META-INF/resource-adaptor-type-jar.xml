@@ -41,7 +41,7 @@
 
 		<event-type-ref>
 			<event-type-name>
-				org.mobicents.protocols.ss7.map.OPEN_INFO
+				org.mobicents.protocols.ss7.map.DIALOG_DELIMITER
 			</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
@@ -49,7 +49,7 @@
 
 		<event-type-ref>
 			<event-type-name>
-				org.mobicents.protocols.ss7.map.ACCEPT_INFO
+				org.mobicents.protocols.ss7.map.DIALOG_REQUEST
 			</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
@@ -57,7 +57,7 @@
 
 		<event-type-ref>
 			<event-type-name>
-				org.mobicents.protocols.ss7.map.CLOSE_INFO
+				org.mobicents.protocols.ss7.map.DIALOG_ACCEPT
 			</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
@@ -65,7 +65,7 @@
 
 		<event-type-ref>
 			<event-type-name>
-				org.mobicents.protocols.ss7.map.CLOSE_INFO
+				org.mobicents.protocols.ss7.map.DIALOG_REJECT
 			</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
@@ -73,7 +73,7 @@
 
 		<event-type-ref>
 			<event-type-name>
-				org.mobicents.protocols.ss7.map.REFUSE_INFO
+				org.mobicents.protocols.ss7.map.DIALOG_USERABORT
 			</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
@@ -81,7 +81,7 @@
 
 		<event-type-ref>
 			<event-type-name>
-				org.mobicents.protocols.ss7.map.USER_ABORT_INFO
+				org.mobicents.protocols.ss7.map.DIALOG_PROVIDERABORT
 			</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
@@ -89,7 +89,15 @@
 
 		<event-type-ref>
 			<event-type-name>
-				org.mobicents.protocols.ss7.map.PROVIDER_ABORT_INFO
+				org.mobicents.protocols.ss7.map.DIALOG_CLOSE
+			</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>
+				org.mobicents.protocols.ss7.map.DIALOG_NOTICE
 			</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>

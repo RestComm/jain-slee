@@ -36,7 +36,7 @@
 				java.lang.Integer
 			</config-property-type>
 			<config-property-value>
-				180
+				8
 			</config-property-value>
 		</config-property>
 		<config-property>

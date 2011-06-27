@@ -51,16 +51,20 @@ import javax.slee.resource.UnrecognizedActivityHandleException;
 import org.mobicents.protocols.ss7.map.MAPStackImpl;
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
-import org.mobicents.protocols.ss7.map.api.MAPServiceListener;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPAcceptInfo;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPCloseInfo;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPOpenInfo;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPProviderAbortInfo;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPRefuseInfo;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortInfo;
+import org.mobicents.protocols.ss7.map.api.MAPProvider;
+import org.mobicents.protocols.ss7.map.api.dialog.AddressString;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortProviderReason;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortSource;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPExtensionContainer;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPNoticeProblemDiagnostic;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPProviderError;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPRefuseReason;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortChoice;
+import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementaryListener;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
+import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
 
 /**
  * 
@@ -68,7 +72,7 @@ import org.mobicents.protocols.ss7.sccp.SccpProvider;
  * @author baranowb
  * 
  */
-public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceListener {
+public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceSupplementaryListener {
 	/**
 	 * for all events we are interested in knowing when the event failed to be
 	 * processed
@@ -81,7 +85,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * This is local proxy of provider.
 	 */
-	protected MAPProviderWrapper mapProviderWrapper = new MAPProviderWrapper(this);
+	protected MAPProvider mapProvider = null;
 
 	private Tracer tracer;
 	private transient SleeEndpoint sleeEndpoint = null;
@@ -111,12 +115,10 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 				this.tracer.fine("Activity with handle " + activityHandle + " ended");
 			}
 		}
-		if (activityHandle instanceof MAPDialogActivityHandle) {
-			MAPDialogActivityHandle mdah = (MAPDialogActivityHandle) activityHandle;
+		MAPDialogActivityHandle mdah = (MAPDialogActivityHandle) activityHandle;
 
-			this.handlers.remove(mdah.getMAPDialog().getDialogId());
-			this.activities.remove(activityHandle);
-		}
+		this.handlers.remove(mdah.getMAPDialog().getDialogId());
+		this.activities.remove(activityHandle);
 	}
 
 	public void activityUnreferenced(ActivityHandle arg0) {
@@ -162,7 +164,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	}
 
 	public Object getResourceAdaptorInterface(String arg0) {
-		return this.mapProviderWrapper;
+		return this.mapProvider;
 	}
 
 	public void queryLiveness(ActivityHandle arg0) {
@@ -180,14 +182,14 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.mapStack = new MAPStackImpl(sccpProvider, this.ssn);
 
 			this.mapStack.start();
-			org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = this.mapStack.getMAPProvider();
+			this.mapProvider = this.mapStack.getMAPProvider();
 
-			this.mapProviderWrapper.setMapProvider(mapProvider);
-
-			mapProvider.addMAPDialogListener(this);
-			mapProvider.addMAPServiceListener(this);
+			this.mapProvider.addMAPDialogListener(this);
+			this.mapProvider.getMAPServiceSupplementary().addMAPServiceListener(this);
 
 			this.sleeEndpoint = resourceAdaptorContext.getSleeEndpoint();
+
+			this.mapProvider.getMAPServiceSupplementary().acivate();
 		} catch (Exception e) {
 			this.tracer.severe("Failed to activate MAP RA ", e);
 		}
@@ -212,9 +214,9 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	}
 
 	public void raInactive() {
-		org.mobicents.protocols.ss7.map.api.MAPProvider mapProvider = this.mapStack.getMAPProvider();
-		mapProvider.removeMAPDialogListener(this);
-		mapProvider.removeMAPServiceListener(this);
+		this.mapProvider.getMAPServiceSupplementary().deactivate();
+		this.mapProvider.getMAPServiceSupplementary().removeMAPServiceListener(this);
+		this.mapProvider.removeMAPDialogListener(this);
 		this.mapStack.stop();
 	}
 
@@ -280,167 +282,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	}
 
 	/**
-	 * MAPDialogListener methods
-	 */
-	public void onMAPAcceptInfo(MAPAcceptInfo mapAcceptInfo) {
-		MAPDialog mapDialog = mapAcceptInfo.getMAPDialog();
-
-		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Received MAPAcceptInfo for DialogId " + mapDialog.getDialogId());
-		}
-
-		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
-
-		if (handle == null) {
-			this.tracer.severe("Received MAPAcceptInfo but there is no Handler for this Dialog");
-			return;
-		}
-
-		this.fireEvent("org.mobicents.protocols.ss7.map.ACCEPT_INFO", handle, mapAcceptInfo);
-	}
-
-	public void onMAPCloseInfo(MAPCloseInfo mapCloseInfo) {
-		MAPDialog mapDialog = mapCloseInfo.getMAPDialog();
-
-		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Received MAPCloseInfo for DialogId " + mapDialog.getDialogId());
-		}
-
-		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
-
-		if (handle == null) {
-			this.tracer.severe("Received MAPCloseInfo but there is no Handler for this Dialog");
-			return;
-		}
-
-		this.fireEvent("org.mobicents.protocols.ss7.map.CLOSE_INFO", handle, mapCloseInfo);
-		// close
-		this.sleeEndpoint.endActivity(handle);
-	}
-
-	public void onMAPOpenInfo(MAPOpenInfo mapOpenInfo) {
-		MAPDialog mapDialog = mapOpenInfo.getMAPDialog();
-
-		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Received MAPOpenInfo for DialogId " + mapDialog.getDialogId());
-		}
-
-		try {
-			MAPDialogActivityHandle handle = startActivity(mapDialog);
-			this.fireEvent("org.mobicents.protocols.ss7.map.OPEN_INFO", handle, mapOpenInfo);
-		} catch (ActivityAlreadyExistsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NullPointerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SLEEException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (StartActivityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	private MAPDialogActivityHandle startActivity(MAPDialog mapDialog) throws ActivityAlreadyExistsException,
-			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
-		MAPDialogActivityHandle handle = new MAPDialogActivityHandle(mapDialog);
-		this.sleeEndpoint.startActivity(handle, mapDialog, ACTIVITY_FLAGS);
-		this.handlers.put(mapDialog.getDialogId(), handle);
-		this.activities.put(handle, mapDialog);
-		return handle;
-
-	}
-
-	public void onMAPProviderAbortInfo(MAPProviderAbortInfo mapProviderAbortInfo) {
-		MAPDialog mapDialog = mapProviderAbortInfo.getMAPDialog();
-
-		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Received MAPProviderAbortInfo for DialogId " + mapDialog.getDialogId());
-		}
-
-		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
-
-		if (handle == null) {
-			this.tracer.severe("Received MAPProviderAbortInfo but there is no Handler for this Dialog");
-			return;
-		}
-
-		this.fireEvent("org.mobicents.protocols.ss7.map.PROVIDER_ABORT_INFO", handle, mapProviderAbortInfo);
-
-		// close
-		this.sleeEndpoint.endActivity(handle);
-
-	}
-
-	public void onMAPRefuseInfo(MAPRefuseInfo arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void onMAPUserAbortInfo(MAPUserAbortInfo mapUserAbortInfo) {
-		MAPDialog mapDialog = mapUserAbortInfo.getMAPDialog();
-
-		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Received MAPUserAbortInfo for DialogId " + mapDialog.getDialogId());
-		}
-
-		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
-
-		if (handle == null) {
-			this.tracer.severe("Received MAPUserAbortInfo but there is no Handler for this Dialog");
-			return;
-		}
-
-		this.fireEvent("org.mobicents.protocols.ss7.map.USER_ABORT_INFO", handle, mapUserAbortInfo);
-		// close
-		this.sleeEndpoint.endActivity(handle);
-	}
-
-	/**
-	 * MAPServiceListener methods
-	 */
-	public void onProcessUnstructuredSSIndication(ProcessUnstructuredSSIndication processUnstrSSInd) {
-		MAPDialog mapDialog = processUnstrSSInd.getMAPDialog();
-
-		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Received ProcessUnstructuredSSIndication for DialogId " + mapDialog.getDialogId());
-		}
-
-		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
-
-		if (handle == null) {
-			this.tracer.severe("Received ProcessUnstructuredSSIndication but there is no Handler for this Dialog");
-			return;
-		}
-
-		this.fireEvent("org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION", handle,
-				processUnstrSSInd);
-	}
-
-	public void onUnstructuredSSIndication(UnstructuredSSIndication unstrSSInd) {
-		MAPDialog mapDialog = unstrSSInd.getMAPDialog();
-
-		if (this.tracer.isFineEnabled()) {
-			this.tracer.fine("Received UnstructuredSSIndication for DialogId " + mapDialog.getDialogId());
-		}
-
-		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
-
-		if (handle == null) {
-			this.tracer.severe("Received UnstructuredSSIndication but there is no Handler for this Dialog");
-			return;
-		}
-
-		this.fireEvent("org.mobicents.protocols.ss7.map.UNSTRUCTURED_SS_REQUEST_INDICATION", handle, unstrSSInd);
-	}
-
-	/**
 	 * Private methods
 	 */
 	private void fireEvent(String eventName, ActivityHandle handle, Object event) {
@@ -469,6 +310,16 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		}
 	}
 
+	private MAPDialogActivityHandle startActivity(MAPDialog mapDialog) throws ActivityAlreadyExistsException,
+			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
+		MAPDialogActivityHandle handle = new MAPDialogActivityHandle(mapDialog);
+		this.sleeEndpoint.startActivity(handle, mapDialog, ACTIVITY_FLAGS);
+		this.handlers.put(mapDialog.getDialogId(), handle);
+		this.activities.put(handle, mapDialog);
+		return handle;
+
+	}
+
 	protected void endActivity(MAPDialog mapDialog) {
 		MAPDialogActivityHandle mapDialogActHndl = this.handlers.get(mapDialog.getDialogId());
 		if (mapDialogActHndl == null) {
@@ -478,7 +329,264 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			}
 		} else {
 			this.sleeEndpoint.endActivity(mapDialogActHndl);
+			System.out.println("Ended " + mapDialogActHndl);
 		}
 	}
 
+	protected MAPDialog getMAPDialog(Long dialogId) {
+		MAPDialogActivityHandle handle = this.handlers.get(dialogId);
+		if (handle != null) {
+			handle.getMAPDialog();
+		}
+
+		return null;
+	}
+
+	/**
+	 * MAPDialogListener methods
+	 */
+	@Override
+	public void onDialogAccept(MAPDialog mapDialog, MAPExtensionContainer extension) {
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine(String.format("Rx : onDialogAccept for DialogId=%d", mapDialog.getDialogId()));
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe(String.format("Rx : DialogAccept but there is no Handler for this DialogId=%d",
+					mapDialog.getDialogId()));
+			return;
+		}
+
+		DialogAccept accept = new DialogAccept(handle.getMAPDialog(), extension);
+
+		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_ACCEPT", handle, accept);
+
+	}
+
+	@Override
+	public void onDialogClose(MAPDialog mapDialog) {
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine(String.format("Rx : onDialogClose for DialogId=%d", mapDialog.getDialogId()));
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe(String.format("Rx : DialogClose but there is no Handler for this DialogId=%d",
+					mapDialog.getDialogId()));
+			return;
+		}
+
+		DialogClose close = new DialogClose(handle.getMAPDialog());
+
+		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_CLOSE", handle, close);
+
+		// End Activity
+		this.sleeEndpoint.endActivity(handle);
+	}
+
+	@Override
+	public void onDialogDelimiter(MAPDialog mapDialog) {
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine(String.format("Rx : onDialogDelimiter for DialogId=%d", mapDialog.getDialogId()));
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe(String.format("Rx : DialogDelimiter but there is no Handler for this DialogId=%d",
+					mapDialog.getDialogId()));
+			return;
+		}
+
+		DialogDelimiter delimiter = new DialogDelimiter(handle.getMAPDialog());
+
+		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_DELIMITER", handle, delimiter);
+	}
+
+	@Override
+	public void onDialogNotice(MAPDialog mapDialog, MAPNoticeProblemDiagnostic noticeProblemDiagnostic) {
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine(String.format("Rx : onDialogNotice for DialogId=%d", mapDialog.getDialogId()));
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe(String.format("Rx : DialogNotice but there is no Handler for this DialogId=%d",
+					mapDialog.getDialogId()));
+			return;
+		}
+
+		DialogNotice notice = new DialogNotice(handle.getMAPDialog(), noticeProblemDiagnostic);
+
+		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_NOTICE", handle, notice);
+	}
+
+	@Override
+	public void onDialogProviderAbort(MAPDialog mapDialog, MAPAbortProviderReason abortProviderReason,
+			MAPAbortSource abortSource, MAPExtensionContainer extensionContainer) {
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine(String.format("Rx : onDialogProviderAbort for DialogId=%d", mapDialog.getDialogId()));
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe(String.format("Rx : DialogProviderAbort but there is no Handler for this DialogId=%d",
+					mapDialog.getDialogId()));
+			return;
+		}
+
+		DialogProviderAbort abort = new DialogProviderAbort(handle.getMAPDialog(), abortProviderReason, abortSource,
+				extensionContainer);
+
+		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_PROVIDERABORT", handle, abort);
+
+		// End Activity
+		this.sleeEndpoint.endActivity(handle);
+	}
+
+	@Override
+	public void onDialogReject(MAPDialog mapDialog, MAPRefuseReason refuseReason, MAPProviderError providerError,
+			ApplicationContextName alternativeApplicationContext, MAPExtensionContainer extensionContainer) {
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine(String.format("Rx : onDialogReject for DialogId=%d", mapDialog.getDialogId()));
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe(String.format("Rx : DialogReject but there is no Handler for this DialogId=%d",
+					mapDialog.getDialogId()));
+			return;
+		}
+
+		DialogReject reject = new DialogReject(handle.getMAPDialog(), refuseReason, providerError,
+				alternativeApplicationContext, extensionContainer);
+
+		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_REJECT", handle, reject);
+
+		// End Activity
+		this.sleeEndpoint.endActivity(handle);
+	}
+
+	@Override
+	public void onDialogRequest(MAPDialog mapDialog, AddressString destReference, AddressString origReference,
+			MAPExtensionContainer extensionContainer) {
+
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine(String.format("Received onDialogRequest id=%d ", mapDialog.getDialogId()));
+		}
+
+		switch (mapDialog.getApplicationContext()) {
+		case networkUnstructuredSsContextV2:
+			try {
+				MAPDialogActivityHandle handle = startActivity(mapDialog);
+				DialogRequest event = new DialogRequest(handle.getMAPDialog(), destReference, origReference,
+						extensionContainer);
+				this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_REQUEST", handle, event);
+			} catch (ActivityAlreadyExistsException e) {
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (SLEEException e) {
+				e.printStackTrace();
+			} catch (StartActivityException e) {
+				e.printStackTrace();
+			}
+			break;
+		default:
+			this.tracer.severe(String.format("Received unknown MAP ApplicationContext=%s",
+					mapDialog.getApplicationContext()));
+			// TODO : Abort Dialog?
+			return;
+		}
+
+	}
+
+	@Override
+	public void onDialogUserAbort(MAPDialog mapDialog, MAPUserAbortChoice userReason,
+			MAPExtensionContainer extensionContainer) {
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine(String.format("Rx : onDialogUserAbort for DialogId=%d", mapDialog.getDialogId()));
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe(String.format("Rx : DialogUserAbort but there is no Handler for this DialogId=%d",
+					mapDialog.getDialogId()));
+			return;
+		}
+
+		DialogUserAbort abort = new DialogUserAbort(handle.getMAPDialog(), userReason, extensionContainer);
+
+		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_USERABORT", handle, abort);
+	}
+
+	@Override
+	public void onDialogResease(MAPDialog mapDialog) {
+
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine(String.format("Rx : onDialogResease for DialogId=%d", mapDialog.getDialogId()));
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe(String.format("Rx : DialogResease but there is no Handler for this DialogId=%d",
+					mapDialog.getDialogId()));
+			return;
+		}
+
+		// End Activity
+		this.sleeEndpoint.endActivity(handle);
+
+	}
+
+	/**
+	 * MAPServiceSupplementaryListener Methods
+	 */
+
+	@Override
+	public void onProcessUnstructuredSSIndication(ProcessUnstructuredSSIndication processUnstrSSInd) {
+		MAPDialog mapDialog = processUnstrSSInd.getMAPDialog();
+
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine("Rx : ProcessUnstructuredSSIndication for DialogId " + mapDialog.getDialogId());
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe("Rx : ProcessUnstructuredSSIndication but there is no Handler for this Dialog");
+			return;
+		}
+
+		this.fireEvent("org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION", handle,
+				processUnstrSSInd);
+	}
+
+	@Override
+	public void onUnstructuredSSIndication(UnstructuredSSIndication unstrSSInd) {
+		MAPDialog mapDialog = unstrSSInd.getMAPDialog();
+
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine("Rx : UnstructuredSSIndication for DialogId " + mapDialog.getDialogId());
+		}
+
+		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
+
+		if (handle == null) {
+			this.tracer.severe("Rx : UnstructuredSSIndication but there is no Handler for this Dialog");
+			return;
+		}
+
+		this.fireEvent("org.mobicents.protocols.ss7.map.UNSTRUCTURED_SS_REQUEST_INDICATION", handle, unstrSSInd);
+	}
 }
