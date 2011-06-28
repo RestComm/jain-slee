@@ -36,9 +36,9 @@ import net.java.slee.resource.diameter.base.events.AccountingRequest;
 import net.java.slee.resource.diameter.base.events.CapabilitiesExchangeRequest;
 import net.java.slee.resource.diameter.base.events.DeviceWatchdogRequest;
 import net.java.slee.resource.diameter.base.events.DisconnectPeerRequest;
-import net.java.slee.resource.diameter.base.events.ReAuthRequest;
 import net.java.slee.resource.diameter.base.events.SessionTerminationRequest;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
 
 import org.jdiameter.api.Message;
 
@@ -59,6 +59,7 @@ public class EventIDCache {
         final Map<Integer, String> eventsTemp = new HashMap<Integer, String>();
 
         eventsTemp.put(GxCreditControlRequest.commandCode, GX_PACKAGE_PREFIX + "GxCreditControl");
+        eventsTemp.put(GxReAuthRequest.commandCode, GX_PACKAGE_PREFIX + "GxReAuth");
 
         // We support Base messages too, just in case...
         eventsTemp.put(AbortSessionRequest.commandCode, BASE_PACKAGE_PREFIX + "AbortSession");
@@ -66,7 +67,7 @@ public class EventIDCache {
         eventsTemp.put(CapabilitiesExchangeRequest.commandCode, BASE_PACKAGE_PREFIX + "CapabilitiesExchange");
         eventsTemp.put(DeviceWatchdogRequest.commandCode, BASE_PACKAGE_PREFIX + "DeviceWatchdog");
         eventsTemp.put(DisconnectPeerRequest.commandCode, BASE_PACKAGE_PREFIX + "DisconnectPeer");
-        eventsTemp.put(ReAuthRequest.commandCode, BASE_PACKAGE_PREFIX + "ReAuth");
+        //eventsTemp.put(ReAuthRequest.commandCode, BASE_PACKAGE_PREFIX + "ReAuth");
         eventsTemp.put(SessionTerminationRequest.commandCode, BASE_PACKAGE_PREFIX + "SessionTermination");
 
         eventNames = Collections.unmodifiableMap(eventsTemp);
