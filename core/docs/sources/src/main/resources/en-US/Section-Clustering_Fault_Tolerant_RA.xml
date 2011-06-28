@@ -18,18 +18,18 @@
 		<acronym>RA</acronym>
 		object facilities to interact with SLEE.
 	</para>
-	<para>The JAIN SLEE 1.1 RA API is a major milestone, standardizing RA
-		and JSLEE contract. Unfortunately it is not enough, it misses an API
-		for clustering, and that is critical for a RA working with a clustered
-		JAIN SLEE. Contarct does not define any fault tolerant data source nor
-		callbacks to inform on cluster state.
+	<para>
+	The JAIN SLEE 1.1 RA API is a major milestone, standardizing RA and JSLEE contract. However, it misses an API for clustering, which is
+	critical for a RA deployed in a clustered JAIN SLEE environment. The JAIN SLEE 1.1 contract does not define any fault tolerant data source
+	nor cluster state callbacks.
   </para>
 	<para>
-		The
-		<application>Fault Tolerant RA API</application>
-		extends the JAIN SLEE 1.1 RA API, providing missing features related
-		to clustering, and it does it in a very familiar way, anyone who
-		develops a JAIN SLEE 1.1 RA easily uses our proprietary API.
+	The
+	<application>Fault Tolerant RA API</application>
+	extends the JAIN SLEE 1.1 RA
+	<acronym>API</acronym>
+	, providing missing features related to clustering. An effort has been made keep the API similar to the standard RA contract, so that
+	anyone who has developed a JAIN SLEE 1.1 RA is able to easily use the proprietary API extension.
 	</para>
 	<section id="fault_tolerant_resource_adaptor">
 		<title>The Fault Tolerant Resource Adaptor Object</title>
@@ -106,11 +106,9 @@
 	<section id="fault_tolerant_resource_adaptor_context">
 		<title>The Fault Tolerant Resource Adaptor Context</title>
 		<para>
-			Cluster RA context follows the contract of JAIN SLEE 1.1
-			specification interface
-			<literal>javax.slee.resource.ResourceAdaptorContext</literal>
-			. It gives access to facilities for RA to run in clustered
-			environment.
+	The clustered RA context follows the contract of JAIN SLEE 1.1 specification interface
+	<literal>javax.slee.resource.ResourceAdaptorContext</literal>
+	. It gives access to facilities that the RA may use when run in a clustered environment.
 		</para>
 		<para>
 			The cluster contract is defined in:
@@ -246,7 +244,7 @@
 			<important><para>There is a single Fault Tolerant Timer per RA Entity, and when first retrieved, and before any task can be scheduled, the Fault Tolerant Timer must be configured, through its configure(...) method.</para></important>
 			
 			<section id="fault_tolerant_resource_adaptor_context_timer_task_and_data">
-				<title>The Fault Tolerant Resource Adaptor Timer Task and its Data</title>
+				<title>The Fault Tolerant Resource Adaptor Timer Task</title>
 				<para>As mentioned in previous section, tasks submitted to the Fault Tolerant Timer must follow a specific interface, <literal>FaulTolerantTimerTask</literal>, it is nothing more than a <literal>Runnable</literal>, which provides the replicable <literal>FaultTolerantTimerTaskData</literal>. The task data must be serializable and provide a Serializable task ID, which identifies the task, and may be used to cancel its execution.</para>							
 			</section>
 			

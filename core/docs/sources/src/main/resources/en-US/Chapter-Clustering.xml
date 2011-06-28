@@ -4,45 +4,49 @@
 <chapter
 	id="clustering">
 
-	<title>High Availability and Fault Tolerance</title>
-
-	<para>JAIN SLEE supports clustering, whether it is simple high availability or complete fault tolerance support. This is achieved through the replication of the container state. It also exposes a clustering <acronym>API</acronym> for JAIN SLEE Resource Adaptors components, which live outside the container.</para>
-	
+	<title>&THIS.PLATFORM; JAIN SLEE Clustering</title>
+	<para>JAIN SLEE supports clustering, whether it is simple high availability (<acronym>HA</acronym>) or complete fault tolerance (<acronym>FT</acronym>) support. This is achieved through the replication of the container state. The &THIS.PLATFORM; JAIN SLEE implementation also exposes a clustering extension <acronym>API</acronym> for Resource Adaptors components, which live outside the container.</para>
+ 	
 	<section id="container_clustering">
-		<title>&THIS.PLATFORM; JAIN SLEE Cluster</title>
-		<para>JAIN SLEE clustering is defined by the server profile selected:</para>
-    <variablelist>			
-      <varlistentry>
-        <term>default</term>
-        <listitem>
-          <para>
-          This configuration provides no state replication. It is best used for pure high availability cluster setups.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>all</term>
-        <listitem>				            
-          <para>
-          This configuration provides state replication, and is useful for fault tolerance cluster setups. All activity context and <acronym>SBB</acronym> entity data is replicated across the cluster.
-          </para>
-          <para>
-          Timers are failed over. All timers running in a node that leaves the cluster, or fails, are recreated in another node.
-          </para>
-          <para>
-          Events are not failed over due to performance restraints. This means that an event fired will be lost if its cluster node fails before it is routed.
-          </para>
-        </listitem>
-      </varlistentry>				    
-    </variablelist>
+		<title>High Availability and Fault Tolerance</title>
+		<para>The used JAIN SLEE clustering mode is defined by the selected server profile:</para>
+ 		
+ 		<important>
+ 			<para>JAIN SLEE reuses the &JEE.PLATFORM; clustering framework, and if all nodes of a cluster are in the same network then the underlying &JEE.PLATFORM; clustering will automatically handle the discovery of new cluster nodes and join these to the cluster. For more complicated setups, refer to the &JEE.PLATFORM; clustering documentation.</para>
+ 		</important>
+		<section id="container_clustering_high_availability_profile">
+			<title>High Availability Mode</title>
+			<para>High availability mode provides no clustering functionality per say. The mode is useful when deploying for example single node, non-replicated or hot-cold configurations. In this mode all clustering needs to be explicitly done by the developer where applicable. In this sense, <acronym>HA</acronym> mode is not a clustered mode.</para>
+			<para>The <literal>default</literal> server profile is used to start the server in <acronym>HA</acronym> mode.</para>
+		</section>
+		<section id="container_clustering_fault_tolerant_profile">
+			<title>Fault Tolerant Mode</title>
+			<para>The fault tolerant mode is a fully clustered mode with state replication. An FT cluster can be viewed as one virtual container that extend over all the JAIN SLEE nodes that are active in the cluster. All activity context and Sbb entity data is replicated across the cluster nodes and is hence fully redundant. Events are not failed over, due to performance constraints, which means that an event fired and not yet routed will be lost if its cluster node fails.</para>
+			<para>The <literal>all</literal> server profile is used to start the server in <acronym>FT</acronym> mode.</para>
+		</section>
 		
-		<important>
-			<para>JAIN SLEE reuses the &JEE.PLATFORM; clustering framework, and if all nodes of a cluster are in the same network then the underlying &JEE.PLATFORM; clustering will automatically handle the discovery of new cluster nodes and join these to the cluster. For more complicated setups, refer to the &JEE.PLATFORM; clustering documentation.</para>
-		</important>
-		
+	</section>
+	<section id="container_clustering_fault_tolerant">
+		<title>Component Redundancy in Fault Tolerant Clusters</title>
+		<para>The fault tolerant clustering mode provides clustering for most of the JAIN SLEE components. JAIN SLEE components can be divided into internal and external components. Internal components are logically contained by the JAIN SLEE container, and external components are at least partly outside the container.</para>
+		<para>For a concrete example of how the container behaves in <acronym>FT</acronym> mode, see <xref linkend="fault_tolerant_cluster_example" />.</para>
+		<section id="container_clustering_ft_internal_components">
+			<title>Internal Component Redundancy</title>
+			<para>Internal SLEE components are components that are completely inside the JAIN SLEE container. This group of components include <acronym>SBB</acronym> entities, internal activities, events and timers. With the exception of events, all internal components will be fully redundant in a <acronym>FT</acronym> JAIN SLEE configuration.</para>
+			<para><acronym>SBB</acronym> entities are fully replicated. <acronym>SBB</acronym> entities are always serialized and saved by the container, regardless of the clustering profile. In an <acronym>FT</acronym> environment the container will replicate this serialized state to other nodes in the cluster so that it can be retrieved if the node fails or if the <acronym>SBB</acronym> entity is processed in another node. All <acronym>SBB</acronym> entities will hence be accessible by any node in the cluster at any given time.</para>
+			<para>Timers are fully replicated. Timers created in a given node will be executed in that same node. If the node leaves the cluster, all active timers from that node are recreated and run in another node.</para>
+			<para>Activity context interfaces (<acronym>ACI</acronym>), as well as activity handles are fully replicated. The <acronym>ACI</acronym>s for all activities are replicated within a fault tolerant cluster. However, the activity object is not replicated by default and needs to be handled by the resource adaptor that owns the activity in question if replication is required. The activity objects for all internal activities, e.g. null activities, profile table activities and service activities, are fully replicated.</para>
+			<para>Events are not replicated because of performance constraints. Hence, all events fired in a node is routed only in that node. However, if an event is fired in one node, and an <acronym>SBB</acronym> entity created in another node has attached to that <acronym>ACI</acronym>, the <acronym>SBB</acronym> entity will be retrieved in the node that fired the event and the event will be delivered to it. Hence, even though the event is fired in a single node, the effects will be cluster-wide. Because the events are not replicated, any event currently being routed in a node that fails, will be lost.</para>
+		</section>
+		<section id="container_clustering_ft_external_components">
+			<title>External Component Redundancy</title>
+			<para>External JAIN SLEE components are components that are on the border between the SLEE container and the outside environment. This group of components include resource adaptors and external activities, neither of which are replicated by default.</para>
+			<para>The Resource adaptors may use the Fault Tolerant Resource Adaptor API extension of the JAIN SLEE 1.1 specification in order to be cluster-aware. Refer to the <xref linkend="clustering_fault_tolerant_ra_api" /> and <xref linkend="container_clustering_ra_activity_replication" /> sections for more information on how to achieve resource adaptor and activity object redundancy.</para>
+		</section>
+	</section>
 		<section id="container_clustering_components_management">
 			<title>Managing Components in &THIS.PLATFORM; JAIN SLEE Cluster</title>
-      <para>JAIN SLEE clustering does not require special components management. Components can be deployed and undeployed in all cluster modes, including fault tolerance setups, and the cluster will handle the operation correctly. However, there are certain behaviours in fault tolerance setups to be aware of:
+      <para>JAIN SLEE clustering does not require special components management. Components can be deployed and undeployed in all cluster modes, including fault tolerant setups, and the cluster will handle the operation correctly. However, there are certain behaviours in fault tolerance setups to be aware of:
       </para>
       <variablelist>
         <varlistentry>
@@ -70,8 +74,8 @@
             </listitem>
         </varlistentry>				    
       </variablelist>
-		</section>
 	</section>
+	
 			
 	<xi:include href="Section-Clustering_Fault_Tolerant_RA.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />

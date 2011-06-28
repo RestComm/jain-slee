@@ -18,6 +18,19 @@
 					</simplelist>
 				</revdescription>
 			</revision>
+                        <revision>
+				<revnumber>1.1</revnumber>
+				<date>Fri Mar 25 2011</date>
+				<author>
+					<firstname>Carl-Magnus</firstname>
+					<surname>BjÃ¶rkell</surname>
+				</author>
+				<revdescription>
+					<simplelist>
+						<member>Clarifications to the clustering section. Added a clustering example to the appendix.</member>
+					</simplelist>
+				</revdescription>
+                        </revision>
 		</revhistory>
 	</simpara>
 </appendix>

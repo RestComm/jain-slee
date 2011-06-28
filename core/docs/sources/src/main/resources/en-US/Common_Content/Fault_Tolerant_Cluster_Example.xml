@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<appendix
+	id="fault_tolerant_cluster_example">
+	<title>Fault Tolerant Clustering - A Concrete Example</title>
+	<para>In order to highlight the behavior of the &THIS.PLATFORM; JAIN SLEE server when run in fault tolerant clustering mode, a concrete situation is described below.</para>
+	<section id="ft_example_overview">
+		<title>Example Overview</title>
+		<para>The example below outlines a situation where two &THIS.PLATFORM; JAIN SLEE nodes (<literal>Node-1</literal> and <literal>Node-2</literal>) are configured to run in fault tolerant mode. Both nodes have the same deployable unit containing a custom <acronym>SBB</acronym>. A null activity <acronym>ACI</acronym> is used by the <acronym>SBB</acronym>s to communicate.</para>
+		<para>The service is a simple application that relays information received in <acronym>SIP</acronym> INFO messages to another incoming <acronym>SIP</acronym> dialog. This might for example be a rudimentary chat application. The flow outlines the clustered execution of the base case of this application, e.g. receive one message on one dialog and send it out on another dialog.</para>
+		<para>The example starts with the creation of two <acronym>SBB</acronym> entities. One of the entities is the receiver, and the other one is the sender. The receiver will create an <acronym>ACI</acronym> and register this with the <acronym>ACI</acronym> naming facility. The sender retrieves the <acronym>ACI</acronym> and sends a message to the receiver using an event. The example ends when the receiver sends the acquired message on its <acronym>SIP</acronym> dialog as an INFO message.</para>
+	</section>
+	<section id="ft_example_step1">
+		<title>Creating Sbb entities</title>
+		<para>The base case starts with a <acronym>SIP</acronym> INVITE being received in <literal>Node-1</literal>. The event will be routed inside <literal>Node-1</literal> and trigger the creation of a new <acronym>SBB</acronym> entity (<literal>Sbb-1</literal>). The <acronym>SBB</acronym> entity in turn create and attach to a new null activity <acronym>ACI</acronym> (<literal>ACI-1</literal>). Concurrently another <acronym>SIP</acronym> INVITE is received in <literal>Node-2</literal>, which causes the JAIN SLEE container to create another <acronym>SBB</acronym> entity (<literal>Sbb-2</literal>). Both <acronym>ACI</acronym>s and <acronym>SBB</acronym>s are fully clustered, so even though they are created in different physical nodes, they are logically inside the same container. In the image below, the cloud represents this logical relationship.</para>
+		<note>
+			<para>Note that balancer is not a requirement. It is present in this example to show basic message flow with balancer in front of deployed containers.</para>
+		</note>
+		<figure>
+			<title>Fault tolerant cluster consisting of two nodes that both have one created on SBB entity for chat application. The SIP load balancer is multiplexing the SIP traffic.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="300" align="center" fileref="images/slee-clustering1.png" format="PNG"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+	</section>
+	<section id="ft_example_step2">
+		<title>Relaying the Message</title>
+		<para>After the <acronym>SBB</acronym>s have been set up, a <acronym>SIP</acronym> INFO is received by <literal>Node-2</literal> and relayed to <literal>Sbb-2</literal>. <literal>Sbb-2</literal> then looks up <literal>ACI-1</literal> from the ACI naming facility. <literal>Node-2</literal> retrieves the clustered state of <literal>ACI-1</literal> and de-serializes it for <literal>Sbb-2</literal>. Note that this means that <literal>ACI-1</literal> is currently being handled in <literal>Node-2</literal>.</para>
+		<para>When <literal>ACI-1</literal> has been retrieved from the cluster, <literal>Sbb-2</literal> fires a MessageEvent on <literal>ACI-1</literal>. Since events are not clustered, the event will be routed only on <literal>Node-2</literal>. The event will, however, be delivered to all attached <acronym>SBB</acronym>s. This is achieved by <literal>Node-2</literal> retrieving the <literal>Sbb-1</literal> entity from the cluster and delivering the event to it.</para>
+		<para>The MessageEvent is parsed by <literal>Sbb-1</literal> and an outgoing <acronym>SIP</acronym> INFO message is constructed with the appropriate payload. <literal>Sbb-1</literal> then forwards the INFO message to the SipRA. The incoming <acronym>SIP</acronym> dialog that spawned <literal>Sbb-1</literal> is in <literal>Node-1</literal>, hence the SipRA will retrieve the activity object from the cluster and send the INFO message. The <acronym>SIP</acronym> load balancer will then handle de-multiplexing. Note that retrieving the activity object from the clustered state only works because the SipRA is explicitly handling the replication of the SIP activity objects. Had another <acronym>RA</acronym> than the SipRA been used, a similar kind of clustering would have been needed to be implemented using the <literal>FaultTolerantResourceAdaptor</literal> interfaces.</para>
+		<figure>
+			<title>The situation when relaying the INFO message. Both SBB entities are running in the same node.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="300" align="center" fileref="images/slee-clustering2.png" format="PNG"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+	</section>
+</appendix>
+
+
