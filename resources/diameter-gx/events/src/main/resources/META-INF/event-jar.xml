@@ -9,6 +9,7 @@
 		<library-vendor>java.net</library-vendor>
 		<library-version>1.0</library-version>
 	</library-ref>
+
 	<event-definition>
 		<event-type-name>net.java.slee.resource.diameter.gx.events.GxCreditControlRequest</event-type-name>
 		<event-type-vendor>java.net</event-type-vendor>
@@ -21,6 +22,20 @@
 		<event-type-vendor>java.net</event-type-vendor>
 		<event-type-version>0.8</event-type-version>
 		<event-class-name>net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.gx.events.GxReAuthRequest</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.gx.events.GxReAuthRequest</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.gx.events.GxReAuthAnswer</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.gx.events.GxReAuthAnswer</event-class-name>
 	</event-definition>
 
 </event-jar>

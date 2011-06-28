@@ -42,11 +42,17 @@
 			<event-type-version>0.8</event-type-version>
 		</event-type-ref>
 		<!-- CLIENT SENDS: Answers == BASE -->
-		<event-type-ref>
+<!--		<event-type-ref>
 			<event-type-name>net.java.slee.resource.diameter.base.events.ReAuthAnswer</event-type-name>
 			<event-type-vendor>java.net</event-type-vendor>
 			<event-type-version>0.8</event-type-version>
+		</event-type-ref>-->
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.gx.events.GxReAuthAnswer</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
 		</event-type-ref>
+                
 		<event-type-ref>
 			<event-type-name>net.java.slee.resource.diameter.base.events.AbortSessionAnswer</event-type-name>
 			<event-type-vendor>java.net</event-type-vendor>
@@ -58,8 +64,14 @@
 			<event-type-vendor>java.net</event-type-vendor>
 			<event-type-version>0.8</event-type-version>
 		</event-type-ref>
-		<event-type-ref>
+<!--		<event-type-ref>
 			<event-type-name>net.java.slee.resource.diameter.base.events.ReAuthRequest</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>-->
+                
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.gx.events.GxReAuthRequest</event-type-name>
 			<event-type-vendor>java.net</event-type-vendor>
 			<event-type-version>0.8</event-type-version>
 		</event-type-ref>

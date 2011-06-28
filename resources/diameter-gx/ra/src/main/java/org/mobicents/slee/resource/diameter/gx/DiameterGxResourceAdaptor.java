@@ -52,7 +52,7 @@ import net.java.slee.resource.diameter.base.DiameterException;
 import net.java.slee.resource.diameter.base.events.AbortSessionAnswer;
 import net.java.slee.resource.diameter.base.events.AccountingAnswer;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
-import net.java.slee.resource.diameter.base.events.ReAuthAnswer;
+import net.java.slee.resource.diameter.gx.events.GxReAuthAnswer;
 import net.java.slee.resource.diameter.base.events.SessionTerminationAnswer;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.gx.GxAvpFactory;
@@ -62,6 +62,8 @@ import net.java.slee.resource.diameter.gx.GxProvider;
 import net.java.slee.resource.diameter.gx.GxServerSessionActivity;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
+
 
 import org.jboss.mx.util.MBeanServerLocator;
 import org.jdiameter.api.Answer;
@@ -101,8 +103,8 @@ import org.mobicents.slee.resource.diameter.base.events.AccountingRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.base.events.ErrorAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.ExtensionDiameterMessageImpl;
-import org.mobicents.slee.resource.diameter.base.events.ReAuthAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.ReAuthRequestImpl;
+import org.mobicents.slee.resource.diameter.gx.events.GxReAuthAnswerImpl;
+import org.mobicents.slee.resource.diameter.gx.events.GxReAuthRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.SessionTerminationAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.SessionTerminationRequestImpl;
 import org.mobicents.slee.resource.diameter.base.handlers.DiameterRAInterface;
@@ -660,8 +662,8 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
                 return isRequest ? new AbortSessionRequestImpl(message) : new AbortSessionAnswerImpl(message);
             case SessionTerminationAnswer.commandCode: // STR/STA
                 return isRequest ? new SessionTerminationRequestImpl(message) : new SessionTerminationAnswerImpl(message);
-            case ReAuthAnswer.commandCode: // RAR/RAA
-                return isRequest ? new ReAuthRequestImpl(message) : new ReAuthAnswerImpl(message);
+            case GxReAuthAnswer.commandCode: // RAR/RAA
+                return isRequest ? new GxReAuthRequestImpl(message) : new GxReAuthAnswerImpl(message);
             case AccountingAnswer.commandCode: // ACR/ACA
                 return isRequest ? new AccountingRequestImpl(message) : new AccountingAnswerImpl(message);
             default:
@@ -933,6 +935,24 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
                 }
 
                 return (GxCreditControlAnswer) activity.sendSyncMessage(ccr);
+            } catch (Exception e) {
+                tracer.severe("Failure sending sync request.", e);
+            }
+
+            // FIXME Throw unknown message exception?
+            return null;
+        }
+        
+        
+        public GxReAuthAnswer sendGxReAuthRequest(final GxReAuthRequest rar) throws IOException {
+            try {
+                DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(getActivityHandle(rar.getSessionId()));
+
+                if (activity == null) {
+                    activity = (DiameterActivityImpl) createActivity(((DiameterMessageImpl) rar).getGenericData());
+                }
+
+                return (GxReAuthAnswer) activity.sendSyncMessage(rar);
             } catch (Exception e) {
                 tracer.severe("Failure sending sync request.", e);
             }

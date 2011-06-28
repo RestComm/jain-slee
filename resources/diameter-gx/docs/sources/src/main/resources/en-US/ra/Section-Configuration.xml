@@ -31,7 +31,7 @@
 			   		<entry>authApplicationIds</entry>
 			   	    <entry>List of supported Authorization Application Ids in form of {vendor}:{application-id}, separated by comma ','</entry>
 			   	    <entry>java.lang.String</entry>
-			   	    <entry>10415:16777224</entry>
+			   	    <entry>10415:16777224,10415:16777238</entry>
 			    </row>
 			</tbody>
 	 	</tgroup>

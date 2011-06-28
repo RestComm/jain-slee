@@ -24,7 +24,7 @@ package net.java.slee.resource.diameter.gx;
 
 import java.io.IOException;
 
-import net.java.slee.resource.diameter.base.events.ReAuthRequest;
+import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer;
 
 /**
@@ -61,5 +61,5 @@ public interface GxServerSessionActivity extends GxSessionActivity {
      * @param rar the ReAuthRequest to send.
      * @throws IOException if an error occurred while sending the message to the client.
      */
-    void sendReAuthRequest(ReAuthRequest rar) throws IOException;
+    void sendGxReAuthRequest(GxReAuthRequest rar) throws IOException;
 }

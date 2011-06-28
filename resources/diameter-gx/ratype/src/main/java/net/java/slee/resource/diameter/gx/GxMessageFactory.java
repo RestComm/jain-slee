@@ -24,6 +24,8 @@ package net.java.slee.resource.diameter.gx;
 
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
+
 
 /**
  * Used by applications to create Diameter Gx request messages.
@@ -36,13 +38,16 @@ import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
 public interface GxMessageFactory {
 
     public static final long _GX_TGPP_VENDOR_ID = 10415L;
-    public static final int _GX_AUTH_APP_ID = 16777224;
+    public static final int _GX_AUTH_APP_ID = 16777224; // 16777238;
 
     /**
      * Creates a Credit Control Request message.
      * @return
      */
     public GxCreditControlRequest createGxCreditControlRequest();
+    
+    
+    public GxReAuthRequest createGxReAuthRequest();
 
     /**
      * Creates a Credit Control Request message with the Session-Id AVP populated with the sessionId parameter.
@@ -50,6 +55,8 @@ public interface GxMessageFactory {
      * @return
      */
     public GxCreditControlRequest createGxCreditControlRequest(String sessionId);
+    
+    public GxReAuthRequest createGxReAuthRequest(String sessionId);
 
     /**
      * @return Base Diameter message factory

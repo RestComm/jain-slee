@@ -30,6 +30,9 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
 
+import net.java.slee.resource.diameter.gx.events.GxReAuthAnswer;
+import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
+
 /**
  * The SBB interface for the Diameter Gx Resource Adaptor.
  *
@@ -91,6 +94,8 @@ public interface GxProvider {
      * @throws IOException if an error occurred sending the request to the peer
      */
     GxCreditControlAnswer sendGxCreditControlRequest(GxCreditControlRequest ccr) throws IOException;
+    
+    GxReAuthAnswer sendGxReAuthRequest(GxReAuthRequest rar) throws IOException;
 
     /**
      * Return the number of peers this Diameter resource adaptor is connected to.

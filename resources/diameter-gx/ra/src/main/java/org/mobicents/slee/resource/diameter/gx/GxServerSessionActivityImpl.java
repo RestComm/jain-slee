@@ -26,16 +26,15 @@ import java.io.IOException;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
-import net.java.slee.resource.diameter.base.events.ReAuthRequest;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.ReAuthRequestType;
-import net.java.slee.resource.diameter.cca.CreditControlMessageFactory;
 import net.java.slee.resource.diameter.gx.GxMessageFactory;
 import net.java.slee.resource.diameter.gx.GxServerSessionActivity;
 import net.java.slee.resource.diameter.gx.GxSessionState;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.Answer;
@@ -46,8 +45,8 @@ import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.gx.ServerGxSession;
 import org.jdiameter.common.api.app.gx.ServerGxSessionState;
-import org.jdiameter.common.impl.app.auth.ReAuthRequestImpl;
 import org.jdiameter.common.impl.app.gx.GxCreditControlAnswerImpl;
+import org.jdiameter.common.impl.app.gx.GxReAuthRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 /**
@@ -107,11 +106,27 @@ public class GxServerSessionActivityImpl extends GxSessionActivityImpl implement
         }
     }
 
+    public GxReAuthRequest createGxReAuthRequest() {
+        // Create the request
+        final GxReAuthRequest request = super.getGxMessageFactory().createGxReAuthRequest(super.getSessionId()/*,type*/);
+        
+        // If there's a Destination-Host, add the AVP
+        if (destinationHost != null) {
+            request.setDestinationHost(destinationHost);
+        }
+
+        if (destinationRealm != null) {
+            request.setDestinationRealm(destinationRealm);
+        }
+
+        return request;
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public void sendReAuthRequest(final ReAuthRequest rar) throws IOException {
+    public void sendGxReAuthRequest(final GxReAuthRequest rar) throws IOException {
         // RFC 4006 5.5
         rar.setReAuthRequestType(ReAuthRequestType.AUTHORIZE_ONLY);
         rar.setAuthApplicationId(GxMessageFactory._GX_AUTH_APP_ID);
@@ -119,7 +134,7 @@ public class GxServerSessionActivityImpl extends GxSessionActivityImpl implement
         final DiameterMessageImpl msg = (DiameterMessageImpl) rar;
 
         try {
-            session.sendReAuthRequest(new ReAuthRequestImpl((Request) msg.getGenericData()));
+            session.sendGxReAuthRequest(new GxReAuthRequestImpl((Request) msg.getGenericData()));
         } catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
             final AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
             throw anae;

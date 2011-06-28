@@ -24,9 +24,10 @@ package net.java.slee.resource.diameter.gx;
 
 import java.io.IOException;
 
-import net.java.slee.resource.diameter.base.events.ReAuthAnswer;
+import net.java.slee.resource.diameter.gx.events.GxReAuthAnswer;
 import net.java.slee.resource.diameter.cca.events.avp.CcRequestType;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
 
 /**
  * A GxClientSessionActivity represents a charging control session for Credit
@@ -81,7 +82,10 @@ public interface GxClientSessionActivity extends GxSessionActivity {
      * @param raa ReAuthAnswer
      * @throws IOException
      */
-    public abstract void sendReAuthAnswer(ReAuthAnswer raa) throws IOException;
+    
+    public GxReAuthAnswer createGxReAuthAnswer(GxReAuthRequest aar);
+    
+    public abstract void sendGxReAuthAnswer(GxReAuthAnswer raa) throws IOException;
 
     /**
      * Creates a GxCreditControlRequest.

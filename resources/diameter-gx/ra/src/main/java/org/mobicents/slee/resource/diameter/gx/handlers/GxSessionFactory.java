@@ -27,8 +27,8 @@ import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.app.AppAnswerEvent;
 import org.jdiameter.api.app.AppRequestEvent;
 import org.jdiameter.api.app.AppSession;
-import org.jdiameter.api.auth.events.ReAuthAnswer;
-import org.jdiameter.api.auth.events.ReAuthRequest;
+import org.jdiameter.api.gx.events.GxReAuthAnswer;
+import org.jdiameter.api.gx.events.GxReAuthRequest;
 import org.jdiameter.api.gx.ClientGxSession;
 import org.jdiameter.api.gx.ServerGxSession;
 import org.jdiameter.api.gx.events.GxCreditControlAnswer;
@@ -80,12 +80,12 @@ public class GxSessionFactory extends GxSessionFactoryImpl {
     }
 
     @Override
-    public void doReAuthAnswer(ServerGxSession session, ReAuthRequest request, ReAuthAnswer answer) throws InternalException {
+    public void doGxReAuthAnswer(ServerGxSession session, GxReAuthRequest request, GxReAuthAnswer answer) throws InternalException {
         ra.fireEvent(session.getSessionId(), answer.getMessage());
     }
 
     @Override
-    public void doReAuthRequest(ClientGxSession session, ReAuthRequest request) throws InternalException {
+    public void doGxReAuthRequest(ClientGxSession session, GxReAuthRequest request) throws InternalException {
         ra.fireEvent(session.getSessionId(), request.getMessage());
     }
 }

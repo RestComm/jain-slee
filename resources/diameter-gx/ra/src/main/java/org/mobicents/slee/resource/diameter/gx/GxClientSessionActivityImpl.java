@@ -27,7 +27,7 @@ import java.io.IOException;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterException;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
-import net.java.slee.resource.diameter.base.events.ReAuthAnswer;
+import net.java.slee.resource.diameter.gx.events.GxReAuthAnswer;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.cca.events.avp.CcRequestType;
@@ -35,6 +35,7 @@ import net.java.slee.resource.diameter.gx.GxClientSessionActivity;
 import net.java.slee.resource.diameter.gx.GxMessageFactory;
 import net.java.slee.resource.diameter.gx.GxSessionState;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
 
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
@@ -44,7 +45,7 @@ import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.gx.ClientGxSession;
 import org.jdiameter.common.api.app.gx.ClientGxSessionState;
-import org.jdiameter.common.impl.app.auth.ReAuthAnswerImpl;
+import org.jdiameter.common.impl.app.gx.GxReAuthAnswerImpl;
 import org.jdiameter.common.impl.app.gx.GxCreditControlRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
@@ -187,15 +188,25 @@ public class GxClientSessionActivityImpl extends GxSessionActivityImpl implement
         }
     }
 
+    @Override
+    public GxReAuthAnswer createGxReAuthAnswer(GxReAuthRequest aar) {
+        
+        final GxReAuthAnswer answer = ((GxMessageFactoryImpl) getGxMessageFactory()).createGxReAuthAnswer(aar);
+        return answer;
+    }
+    
+    
+    
+    
     /*
      * (non-Javadoc)
      * @see net.java.slee.resource.diametergx.GxClientSessionActivity#sendReAuthAnswer(net.java.slee.resource.diameter.base.events.ReAuthAnswer)
      */
-    public void sendReAuthAnswer(final ReAuthAnswer rar) throws IOException {
+    public void sendGxReAuthAnswer(final GxReAuthAnswer rar) throws IOException {
         final DiameterMessageImpl msg = (DiameterMessageImpl) rar;
 
         try {
-            session.sendReAuthAnswer(new ReAuthAnswerImpl((Answer) msg.getGenericData()));
+            session.sendGxReAuthAnswer(new GxReAuthAnswerImpl((Answer) msg.getGenericData()));
         } catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
             throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
         } catch (Exception e) {
