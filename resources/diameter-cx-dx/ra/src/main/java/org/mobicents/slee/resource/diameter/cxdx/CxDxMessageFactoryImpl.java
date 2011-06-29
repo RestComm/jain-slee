@@ -257,7 +257,7 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
 
     if (!creatingRequest) {
       Message raw = createMessage(diameterHeader, avps, 0, appId);
-      raw.setProxiable(true);
+      raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
       msg = raw;
     }
@@ -268,13 +268,8 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
       msg = raw;
     }
 
-    if(msg == null) {
-      throw new InternalException("Failed to create message!");
-    }
-
     if (msg.getAvps().getAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID) == null) {
-
-      try{
+      try {
         DiameterAvp avpVendorId = this.baseAvpFactory.createAvp(Avp.VENDOR_ID, _CXDX_VENDOR);
         DiameterAvp avpAcctApplicationId = this.baseAvpFactory.createAvp(Avp.AUTH_APPLICATION_ID, _CXFX_AUTH_APP_ID);
         DiameterAvp vendorSpecific = this.baseAvpFactory.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAcctApplicationId });

@@ -297,7 +297,7 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
     Message msg = null;
     if (!isRequest) {
       Message raw = createMessage(diameterHeader, avps);
-      raw.setProxiable(true);
+      raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
       msg = raw;
     }

@@ -59,14 +59,12 @@ import org.mobicents.slee.resource.diameter.sh.events.ProfileUpdateRequestImpl;
 import org.mobicents.slee.resource.diameter.sh.events.PushNotificationAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.events.SubscribeNotificationsRequestImpl;
 import org.mobicents.slee.resource.diameter.sh.events.UserDataRequestImpl;
+
 /**
+ * Test class for JAIN SLEE Diameter Sh (Client) RA Message and AVP Factories
  * 
- * Start time:16:43:52 2009-05-23<br>
- * Project: diameter-parent<br>
- * Implementation of sh client message factory.
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- * @see ShClientMessageFactory
  */
 public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
 
@@ -224,7 +222,7 @@ public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
 
     if (!isRequest) {
       Message raw = createMessage(diameterHeader, avps,0);
-      raw.setProxiable(true);
+      raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
       msg = raw;
     }

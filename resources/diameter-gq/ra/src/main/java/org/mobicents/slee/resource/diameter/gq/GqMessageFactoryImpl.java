@@ -108,6 +108,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   @Override
   public GqAAAnswer createGqAAAnswer(GqAARequest aar) {
     Message raw = createMessage(aar.getHeader(), new DiameterAvp[] {});
+    raw.setRequest(false); // this should be different ...
     GqAAAnswerImpl aaa = new GqAAAnswerImpl(raw);
     aaa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     aaa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -148,6 +149,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   @Override
   public GqAbortSessionAnswer createGqAbortSessionAnswer(GqAbortSessionRequest asr) {
     Message raw = createMessage(asr.getHeader(), new DiameterAvp[] {});
+    raw.setRequest(false); // this should be different ...
     GqAbortSessionAnswerImpl asa = new GqAbortSessionAnswerImpl(raw);
     asa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     asa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -191,6 +193,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   @Override
   public GqReAuthAnswer createGqReAuthAnswer(GqReAuthRequest rar) {
     Message raw = createMessage(rar.getHeader(), new DiameterAvp[] {});
+    raw.setRequest(false); // this should be different ...
     GqReAuthAnswerImpl raa = new GqReAuthAnswerImpl(raw);
     raa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     raa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -234,6 +237,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   @Override
   public GqSessionTerminationAnswer createGqSessionTerminationAnswer(GqSessionTerminationRequest str) {
     Message raw = createMessage(str.getHeader(), new DiameterAvp[] {});
+    raw.setRequest(false); // this should be different ...
     GqSessionTerminationAnswerImpl sta = new GqSessionTerminationAnswerImpl(raw);
     sta.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     sta.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -290,13 +294,31 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     long endToEndId = 0;
     long hopByHopId = 0;
 
+    boolean isRequest = true;
+    boolean isProxiable = true;
+    boolean isError = false;
+    boolean isPotentiallyRetransmitted = false;
+
     ApplicationId aid = ApplicationId.createByAuthAppId(_GQ_TGPP_VENDOR_ID, _GQ_AUTH_APP_ID);
     commandCode = header.getCommandCode();
     endToEndId = header.getEndToEndId();
     hopByHopId = header.getHopByHopId();
 
+    isRequest = header.isRequest();
+    isProxiable = header.isProxiable();
+    isError = header.isError();
+    isPotentiallyRetransmitted = header.isPotentiallyRetransmitted();
+
+    Message msg = null;
+
     try {
-      return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+      msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+
+      // Set the message flags from header (or default)
+      msg.setRequest(isRequest);
+      msg.setProxiable(isProxiable);
+      msg.setError(isError);
+      msg.setReTransmitted(isPotentiallyRetransmitted);
     }
     catch (IllegalDiameterStateException e) {
       logger.error("Failed to get session factory for message creation.", e);
@@ -305,7 +327,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
       logger.error("Failed to create new raw session for message creation.", e);
     }
 
-    return null;
+    return msg;
   }
 
   protected Message createRawMessage(int commandCode) {

@@ -189,15 +189,11 @@ public class GxClientSessionActivityImpl extends GxSessionActivityImpl implement
     }
 
     @Override
-    public GxReAuthAnswer createGxReAuthAnswer(GxReAuthRequest aar) {
-        
-        final GxReAuthAnswer answer = ((GxMessageFactoryImpl) getGxMessageFactory()).createGxReAuthAnswer(aar);
+    public GxReAuthAnswer createGxReAuthAnswer(GxReAuthRequest rar) {
+        final GxReAuthAnswer answer = ((GxMessageFactoryImpl) getGxMessageFactory()).createGxReAuthAnswer(rar);
         return answer;
     }
-    
-    
-    
-    
+
     /*
      * (non-Javadoc)
      * @see net.java.slee.resource.diametergx.GxClientSessionActivity#sendReAuthAnswer(net.java.slee.resource.diameter.base.events.ReAuthAnswer)

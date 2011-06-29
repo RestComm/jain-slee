@@ -149,6 +149,9 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
     // }
     RoCreditControlAnswerImpl msg = new RoCreditControlAnswerImpl(createMessage(ccr.getHeader(), new DiameterAvp[] {}));
 
+    // FIXME: ammendonca: go through proper methods...
+    msg.getGenericData().setRequest(false);
+    
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_HOST);
@@ -218,24 +221,35 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
     long endToEndId = 0;
     long hopByHopId = 0;
 
+    boolean isRequest = true;
+    boolean isProxiable = true;
+    boolean isError = false;
+    boolean isPotentiallyRetransmitted = false;
+
     ApplicationId aid = ApplicationId.createByAuthAppId(0, _RO_AUTH_APP_ID);
     if (header != null) {
       // Answer
       commandCode = header.getCommandCode();
       endToEndId = header.getEndToEndId();
       hopByHopId = header.getHopByHopId();
+
+      isRequest = header.isRequest();
+      isProxiable = header.isProxiable();
+      isError = header.isError();
+      isPotentiallyRetransmitted = header.isPotentiallyRetransmitted();
+
       // aid = ApplicationId.createByAuthAppId(header.getApplicationId());
     } else {
       commandCode = RoCreditControlRequest.commandCode;
       // endToEndId = (long) (Math.random()*1000000);
       // hopByHopId = (long) (Math.random()*1000000)+1;
     }
-
+    Message msg = null;
     try {
       if (header != null) {
-        return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+        msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
       } else {
-        return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
+        msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
       }
     } catch (IllegalDiameterStateException e) {
       logger.error("Failed to get session factory for message creation.", e);
@@ -243,7 +257,13 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
       logger.error("Failed to create new raw session for message creation.", e);
     }
 
-    return null;
+    // Set the message flags from header (or default)
+    msg.setRequest(isRequest);
+    msg.setProxiable(isProxiable);
+    msg.setError(isError);
+    msg.setReTransmitted(isPotentiallyRetransmitted);
+
+    return msg;
   }
 
   protected void addAvp(DiameterAvp avp, AvpSet set) {

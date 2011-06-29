@@ -401,13 +401,14 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
 
     if (!creatingRequest) {
       Message raw = createMessage(diameterHeader, avps, 0, appId);
-      raw.setProxiable(true);
+      //raw.setProxiable(true);
       raw.setRequest(false);
       msg = raw;
     }
     else {
       Message raw = createMessage(diameterHeader, avps, _commandCode, appId);
-      raw.setProxiable(true);
+      boolean isPeerManagementMessage = _commandCode == CapabilitiesExchangeRequest.commandCode || _commandCode == DeviceWatchdogRequest.commandCode || _commandCode == DisconnectPeerRequest.commandCode; 
+      raw.setProxiable(!isPeerManagementMessage);
       raw.setRequest(true);
       msg = raw;
     }
@@ -476,11 +477,22 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
     int commandCode = 0;
     long endToEndId = 0;
     long hopByHopId = 0;
+    
+    boolean isRequest = true;
+    boolean isProxiable = true;
+    boolean isError = false;
+    boolean isPotentiallyRetransmitted = false;
+
     ApplicationId aid = null;
     if (header != null) {
       commandCode = header.getCommandCode();
       endToEndId = header.getEndToEndId();
       hopByHopId = header.getHopByHopId();
+
+      isRequest = header.isRequest();
+      isProxiable = header.isProxiable();
+      isError = header.isError();
+      isPotentiallyRetransmitted = header.isPotentiallyRetransmitted();
 
       aid = (commandCode == AccountingRequest.commandCode) ? 
           ApplicationId.createByAccAppId(header.getApplicationId()) : ApplicationId.createByAuthAppId(header.getApplicationId());
@@ -491,6 +503,13 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
     }
     try {
       Message msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+
+      // Set the message flags from header (or default)
+      msg.setRequest(isRequest);
+      msg.setProxiable(isProxiable);
+      msg.setError(isError);
+      msg.setReTransmitted(isPotentiallyRetransmitted);
+      
       return msg;
     }
     catch (Exception e) {

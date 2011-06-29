@@ -137,7 +137,7 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
 
         //final GxCreditControlAnswerImpl msg = new GxCreditControlAnswerImpl(createMessage(ccr.getHeader(), new DiameterAvp[]{}));
         final Message raw = createMessage(ccr.getHeader(), new DiameterAvp[]{});
-        raw.setProxiable(true);
+        raw.setProxiable(ccr.getHeader().isProxiable());
         raw.setRequest(false);
         final GxCreditControlAnswerImpl msg = new GxCreditControlAnswerImpl(raw);
         
@@ -172,7 +172,7 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
         //final GxReAuthAnswerImpl msg = new GxReAuthAnswerImpl(createMessage(rar.getHeader(), new DiameterAvp[]{}));
         
         final Message raw = this.createReAuthMessage(rar.getHeader(), new DiameterAvp[]{});
-        raw.setProxiable(true);
+        raw.setProxiable(rar.getHeader().isProxiable());
         raw.setRequest(false);
         final GxReAuthAnswerImpl msg = new GxReAuthAnswerImpl(raw);
         

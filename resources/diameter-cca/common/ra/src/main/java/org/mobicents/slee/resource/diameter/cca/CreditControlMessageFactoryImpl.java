@@ -148,7 +148,7 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
     //catch (NoSuchAvpException e1) {
     //  logger.error("Session-Id AVP not found in message", e1);
     //}
-    CreditControlAnswerImpl msg = (CreditControlAnswerImpl) createCreditControlMessage(ccr.getHeader(), new DiameterAvp[] {  });
+    CreditControlAnswerImpl msg = (CreditControlAnswerImpl) createCreditControlMessage(ccr.getHeader(), new DiameterAvp[0]);
 
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -245,7 +245,7 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
     CreditControlMessage msg = null;
     if(!isRequest) {
       Message raw = createMessage(diameterHeader, avps);
-      raw.setProxiable(true);
+      raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
       msg = new CreditControlAnswerImpl(raw);
     }
