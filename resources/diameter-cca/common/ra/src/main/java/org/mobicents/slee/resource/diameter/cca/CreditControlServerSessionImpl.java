@@ -128,8 +128,12 @@ public class CreditControlServerSessionImpl extends CreditControlSessionImpl imp
    */
   public void sendReAuthRequest(ReAuthRequest rar) throws IOException {
     //RFC 4006 5.5
-    rar.setReAuthRequestType(ReAuthRequestType.AUTHORIZE_ONLY);
-    rar.setAuthApplicationId(CreditControlMessageFactory._CCA_AUTH_APP_ID);
+    if(!rar.hasReAuthRequestType()) {
+      rar.setReAuthRequestType(ReAuthRequestType.AUTHORIZE_ONLY);
+    }
+    if(!rar.hasAuthApplicationId()) {
+      rar.setAuthApplicationId(CreditControlMessageFactory._CCA_AUTH_APP_ID);
+    }
 
     DiameterMessageImpl msg = (DiameterMessageImpl) rar;
 
