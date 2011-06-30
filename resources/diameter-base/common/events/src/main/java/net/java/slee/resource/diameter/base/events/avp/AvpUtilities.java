@@ -1408,7 +1408,7 @@ public class AvpUtilities {
     AvpSet grouped = set.addGroupedAvp(avpCode, vendorId, isMandatory, isProtected);
 
     for (DiameterAvp child : childs) {
-      grouped.addAvp(child.getCode(), child.byteArrayValue(), child.getVendorId(), child.getMandatoryRule() == 1, child.getProtectedRule() == 1);
+      grouped.addAvp(child.getCode(), child.byteArrayValue(), child.getVendorId(), child.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, child.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
     }
 
     return grouped;
@@ -2023,14 +2023,14 @@ public class AvpUtilities {
     if (avp.getType() == DiameterAvpType.GROUPED) {
       GroupedAvp gAvp = (GroupedAvp) avp;
 
-      AvpSet groupedAvp = set.addGroupedAvp(gAvp.getCode(), gAvp.getVendorId(), gAvp.getMandatoryRule() != 2, gAvp.getProtectedRule() == 0);
+      AvpSet groupedAvp = set.addGroupedAvp(gAvp.getCode(), gAvp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
 
       for (DiameterAvp subAvp : gAvp.getExtensionAvps()) {
         addAvpInternal(subAvp, groupedAvp);
       }
     }
     else {
-      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != 2, avp.getProtectedRule() == 0);
+      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
     }
   }
 

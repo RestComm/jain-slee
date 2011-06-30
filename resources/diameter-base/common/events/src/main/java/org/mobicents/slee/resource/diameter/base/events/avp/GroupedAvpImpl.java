@@ -143,7 +143,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
 
   private void addAvp(DiameterAvp avp, AvpSet set) {
     if(avp instanceof GroupedAvp) {
-      AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+        AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
 
       DiameterAvp[] groupedAVPs = ((GroupedAvp)avp).getExtensionAvps();
       for(DiameterAvp avpFromGroup : groupedAVPs) {
@@ -151,7 +151,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
       }
     }
     else if(avp != null) {
-      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+        set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
     }
   }
 
@@ -162,8 +162,8 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
       // FIXME: alexandre: This is how I can check if it's a Grouped AVP... 
       // should use dictionary (again). a.getGrouped() get's into deadlock.
       if(a.getRaw().length == 0) {
-        GroupedAvpImpl gAVP = new GroupedAvpImpl(a.getCode(), a.getVendorId(), 
-            a.isMandatory() ? 1 : 0, a.isEncrypted() ? 1: 0, a.getRaw());
+        GroupedAvpImpl gAVP = new GroupedAvpImpl(a.getCode(), a.getVendorId(),
+            a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw());
 
         gAVP.setExtensionAvps(getExtensionAvpsInternal(a.getGrouped()));
 
@@ -171,7 +171,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
         acc.add(gAVP);
       }
       else {
-        acc.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a.isMandatory() ? 1 : 0, a.isEncrypted() ? 1 : 0, a.getRaw(), null));
+        acc.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw(), null));
       }
     }
 
