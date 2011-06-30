@@ -78,7 +78,7 @@ public class SubscribeNotificationsRequestImpl extends DiameterShMessageImpl imp
    */
   public void setDataReferences(DataReferenceType[] dataReferences)
   {
-    super.message.getAvps().removeAvp(DiameterShAvpCodes.DATA_REFERENCE);
+    super.message.getAvps().removeAvp(DiameterShAvpCodes.DATA_REFERENCE,DiameterShAvpCodes.SH_VENDOR_ID);
 
     for (DataReferenceType drt : dataReferences)
     {

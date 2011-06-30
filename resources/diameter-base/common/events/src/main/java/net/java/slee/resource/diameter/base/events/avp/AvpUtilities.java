@@ -117,7 +117,7 @@ public class AvpUtilities {
         throw new IllegalStateException("AVP is already present in message and cannot be overwritten.");
       }
       else {
-        set.removeAvp(avpCode);
+        set.removeAvp(avpCode,vendorId);
       }
     }
     else {
@@ -137,7 +137,7 @@ public class AvpUtilities {
         return;
       }
       else if (isAvpRemoveAllowed()) {
-        AvpSet removed = set.removeAvp(avpCode);
+        AvpSet removed = set.removeAvp(avpCode,vendorId);
         removed.removeAvpByIndex(removed.size() - 1);
         set.addAvp(removed);
         return;
@@ -1926,6 +1926,17 @@ public class AvpUtilities {
     set.removeAvp(avpCode);
   }
 
+  /**
+   * Method for removing AVP with given code.
+   * 
+   * @param avpCode the code of the AVP to be removed
+   * @param vendorId the vendor id of the AVP to be removed
+   * @param set the AvpSet to remove the AVP from
+   */
+  public static void removeAvp(int avpCode, long vendorId, AvpSet set) {
+    set.removeAvp(avpCode,vendorId);
+  }
+  
   /**
    * Method for obtaining AVP with given code and any Vendor-Id.
    * 

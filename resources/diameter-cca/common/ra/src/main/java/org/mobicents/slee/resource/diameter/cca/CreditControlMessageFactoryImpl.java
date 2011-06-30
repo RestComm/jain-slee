@@ -222,16 +222,17 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
 
   public  void addAvpToInnerList(DiameterAvp avp) {
     // Remove existing occurences...
-    removeAvpFromInnerList( avp.getCode() );
+    removeAvpFromInnerList( avp.getCode(),avp.getVendorId() );
 
     this.avpList.add(avp);
   }
 
-  public  void removeAvpFromInnerList(int code) {
+  public  void removeAvpFromInnerList(int code, long vendorId) {
     Iterator<DiameterAvp> it = this.avpList.iterator();
 
     while(it.hasNext()) {
-      if(it.next().getCode() == code) {
+    	DiameterAvp a = it.next();
+      if(a.getCode() == code && a.getVendorId() == vendorId) {
         it.remove();
       }
     }
