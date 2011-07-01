@@ -24,15 +24,22 @@ package org.mobicents.slee.resource.diameter.gx;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
+import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.gx.GxMessageFactory;
 import net.java.slee.resource.diameter.gx.GxSessionActivity;
+import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
 
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
+import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
+import org.mobicents.slee.resource.diameter.base.events.ErrorAnswerImpl;
+import org.mobicents.slee.resource.diameter.gx.events.GxCreditControlRequestImpl;
+import org.mobicents.slee.resource.diameter.gx.events.GxReAuthRequestImpl;
 
 /**
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
@@ -73,5 +80,41 @@ public abstract class GxSessionActivityImpl extends DiameterActivityImpl impleme
 
     public void setDestinationRealm(DiameterIdentity destinationRealm) {
         super.destinationRealm = destinationRealm;
+    }
+
+    @Override
+    public DiameterMessage sendSyncMessage(DiameterMessage message) {
+      DiameterMessage answer = null;
+
+      Message receivedMessage = doSendMessage(message);
+
+      if(receivedMessage != null) {
+        if (!receivedMessage.isRequest()) {
+          if(receivedMessage.isError()) {
+            answer = new ErrorAnswerImpl(receivedMessage);
+          }
+          else {
+            switch (receivedMessage.getCommandCode()) {
+              case GxCreditControlRequest.commandCode:
+                answer = new GxCreditControlRequestImpl(receivedMessage);
+                break;
+              case GxReAuthRequest.commandCode:
+                answer = new GxReAuthRequestImpl(receivedMessage);
+                break;
+              default:
+                logger.error("Received an unknown type of Message for Gx Activity: " + receivedMessage);
+                break;
+            }
+          }
+        }
+        else {
+          logger.error("Received a REQUEST message when expecting an ANSWER.");
+        }
+      }
+      else {
+        logger.debug("No answer received. Returning null.");
+      }
+
+      return answer;
     }
 }

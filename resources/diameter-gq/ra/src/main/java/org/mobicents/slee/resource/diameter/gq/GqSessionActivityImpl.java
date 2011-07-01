@@ -24,16 +24,26 @@ package org.mobicents.slee.resource.diameter.gq;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
+import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.gq.GqMessageFactory;
 import net.java.slee.resource.diameter.gq.GqSessionActivity;
+import net.java.slee.resource.diameter.gq.events.GqAARequest;
+import net.java.slee.resource.diameter.gq.events.GqAbortSessionRequest;
+import net.java.slee.resource.diameter.gq.events.GqReAuthRequest;
+import net.java.slee.resource.diameter.gq.events.GqSessionTerminationRequest;
 
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
+import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
-
+import org.mobicents.slee.resource.diameter.base.events.ErrorAnswerImpl;
+import org.mobicents.slee.resource.diameter.gq.events.GqAARequestImpl;
+import org.mobicents.slee.resource.diameter.gq.events.GqAbortSessionRequestImpl;
+import org.mobicents.slee.resource.diameter.gq.events.GqReAuthRequestImpl;
+import org.mobicents.slee.resource.diameter.gq.events.GqSessionTerminationRequestImpl;
 
 /**
  * 
@@ -74,4 +84,47 @@ public abstract class GqSessionActivityImpl extends DiameterActivityImpl impleme
   public void setDestinationRealm(DiameterIdentity destinationRealm) {
     super.destinationRealm = destinationRealm;
   }
+
+  @Override
+  public DiameterMessage sendSyncMessage(DiameterMessage message) {
+    DiameterMessage answer = null;
+
+    Message receivedMessage = doSendMessage(message);
+
+    if(receivedMessage != null) {
+      if (!receivedMessage.isRequest()) {
+        if(receivedMessage.isError()) {
+          answer = new ErrorAnswerImpl(receivedMessage);
+        }
+        else {
+          switch (receivedMessage.getCommandCode()) {
+            case GqAARequest.COMMAND_CODE:
+              answer = new GqAARequestImpl(receivedMessage);
+              break;
+            case GqAbortSessionRequest.COMMAND_CODE:
+              answer = new GqAbortSessionRequestImpl(receivedMessage);
+              break;
+            case GqReAuthRequest.COMMAND_CODE:
+              answer = new GqReAuthRequestImpl(receivedMessage);
+              break;
+            case GqSessionTerminationRequest.COMMAND_CODE:
+              answer = new GqSessionTerminationRequestImpl(receivedMessage);
+              break;
+            default:
+              logger.error("Received an unknown type of Message for Gq' Activity: " + receivedMessage);
+              break;
+          }
+        }
+      }
+      else {
+        logger.error("Received a REQUEST message when expecting an ANSWER.");
+      }
+    }
+    else {
+      logger.debug("No answer received. Returning null.");
+    }
+
+    return answer;
+  }
+
 }

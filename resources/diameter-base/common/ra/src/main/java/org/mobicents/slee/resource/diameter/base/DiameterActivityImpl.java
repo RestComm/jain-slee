@@ -193,21 +193,40 @@ public class DiameterActivityImpl implements DiameterActivity {
     return this.handle;
   }
 
-  public DiameterMessage sendSyncMessage(DiameterMessage message) {
-    DiameterMessage answer = null;
-
+  protected Message doSendMessage(DiameterMessage message) {
+    Message receivedMessage = null;
     try {
       if (message instanceof DiameterMessageImpl) {
         Future<Message> future = this.session.send(((DiameterMessageImpl) message).getGenericData());
+  
+        receivedMessage = future.get(); 
+      }
+      else {
+        throw new OperationNotSupportedException("Trying to send wrong type of message? [" + message.getClass() + "] \n" + message);
+      }
+    }
+    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
+      throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
+    }
+    catch (Exception e) {
+      logger.error("Failure sending sync request.", e);
+    }
 
-        Message receivedMessage = future.get(); 
+    return receivedMessage;
+  }
+  
+  public DiameterMessage sendSyncMessage(DiameterMessage message) {
+    DiameterMessage answer = null;
 
-        if (!receivedMessage.isRequest()) {
-          if(receivedMessage.isError()) {
-            answer = new ErrorAnswerImpl(receivedMessage);
-          }
-          else {
-            switch (receivedMessage.getCommandCode()) {
+    Message receivedMessage = doSendMessage(message);
+
+    if(receivedMessage != null) {
+      if (!receivedMessage.isRequest()) {
+        if(receivedMessage.isError()) {
+          answer = new ErrorAnswerImpl(receivedMessage);
+        }
+        else {
+          switch (receivedMessage.getCommandCode()) {
             case AbortSessionAnswer.commandCode:
               answer = new AbortSessionAnswerImpl(receivedMessage);
               break;
@@ -229,22 +248,18 @@ public class DiameterActivityImpl implements DiameterActivity {
             case SessionTerminationAnswer.commandCode:
               answer = new SessionTerminationAnswerImpl(receivedMessage);
               break;
-            }
+            default:
+              logger.error("Received an unknown type of Message for Base Activity: " + receivedMessage);
+              break;
           }
-        }
-        else {
-          logger.error("Received a REQUEST message when expecting an ANSWER.");
         }
       }
       else {
-        throw new OperationNotSupportedException("Trying to send wrong type of message? [" + message.getClass() + "] \n" + message);
+        logger.error("Received a REQUEST message when expecting an ANSWER.");
       }
     }
-    catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
-      throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
-    }
-    catch (Exception e) {
-      logger.error("Failure sending sync request.", e);
+    else {
+      logger.debug("No answer received. Returning null.");
     }
 
     return answer;

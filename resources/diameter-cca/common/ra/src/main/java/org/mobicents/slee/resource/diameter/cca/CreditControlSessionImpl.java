@@ -22,18 +22,23 @@
 
 package org.mobicents.slee.resource.diameter.cca;
 
+import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.cca.CreditControlAVPFactory;
 import net.java.slee.resource.diameter.cca.CreditControlMessageFactory;
 import net.java.slee.resource.diameter.cca.CreditControlSession;
+import net.java.slee.resource.diameter.cca.events.CreditControlRequest;
 
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
+import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
+import org.mobicents.slee.resource.diameter.base.events.ErrorAnswerImpl;
+import org.mobicents.slee.resource.diameter.cca.events.CreditControlAnswerImpl;
 
 /**
  * Implementation of {@link CreditControlSession}
@@ -78,4 +83,38 @@ public abstract class CreditControlSessionImpl extends DiameterActivityImpl impl
   public void setDestinationRealm(DiameterIdentity destinationRealm) {
     super.destinationRealm = destinationRealm;
   }
+
+  @Override
+  public DiameterMessage sendSyncMessage(DiameterMessage message) {
+    DiameterMessage answer = null;
+
+    Message receivedMessage = doSendMessage(message);
+
+    if(receivedMessage != null) {
+      if (!receivedMessage.isRequest()) {
+        if(receivedMessage.isError()) {
+          answer = new ErrorAnswerImpl(receivedMessage);
+        }
+        else {
+          switch (receivedMessage.getCommandCode()) {
+            case CreditControlRequest.commandCode:
+              answer = new CreditControlAnswerImpl(receivedMessage);
+              break;
+            default:
+              logger.error("Received an unknown type of Message for Credit-Control Activity: " + receivedMessage);
+              break;
+          }
+        }
+      }
+      else {
+        logger.error("Received a REQUEST message when expecting an ANSWER.");
+      }
+    }
+    else {
+      logger.debug("No answer received. Returning null.");
+    }
+
+    return answer;
+  }
+
 }

@@ -24,15 +24,20 @@ package org.mobicents.slee.resource.diameter.ro;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
+import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.ro.RoMessageFactory;
 import net.java.slee.resource.diameter.ro.RoSessionActivity;
+import net.java.slee.resource.diameter.ro.events.RoCreditControlRequest;
 
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.EventListener;
+import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
+import org.mobicents.slee.resource.diameter.base.events.ErrorAnswerImpl;
+import org.mobicents.slee.resource.diameter.ro.events.RoCreditControlAnswerImpl;
 
 /**
  * 
@@ -74,4 +79,38 @@ public abstract class RoSessionActivityImpl extends DiameterActivityImpl impleme
   public void setDestinationRealm(DiameterIdentity destinationRealm) {
     super.destinationRealm = destinationRealm;
   }
+
+  @Override
+  public DiameterMessage sendSyncMessage(DiameterMessage message) {
+    DiameterMessage answer = null;
+
+    Message receivedMessage = doSendMessage(message);
+
+    if(receivedMessage != null) {
+      if (!receivedMessage.isRequest()) {
+        if(receivedMessage.isError()) {
+          answer = new ErrorAnswerImpl(receivedMessage);
+        }
+        else {
+          switch (receivedMessage.getCommandCode()) {
+            case RoCreditControlRequest.commandCode:
+              answer = new RoCreditControlAnswerImpl(receivedMessage);
+              break;
+            default:
+              logger.error("Received an unknown type of Message for Ro Activity: " + receivedMessage);
+              break;
+          }
+        }
+      }
+      else {
+        logger.error("Received a REQUEST message when expecting an ANSWER.");
+      }
+    }
+    else {
+      logger.debug("No answer received. Returning null.");
+    }
+
+    return answer;
+  }
+
 }
