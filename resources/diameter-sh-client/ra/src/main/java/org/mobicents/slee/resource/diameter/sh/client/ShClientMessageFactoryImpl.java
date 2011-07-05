@@ -247,8 +247,8 @@ public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
 
       if (msg.getAvps().getAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID) == null) {
         DiameterAvp avpVendorId = this.baseAvpFactory.createAvp(Avp.VENDOR_ID, MessageFactory._SH_VENDOR_ID);
-        DiameterAvp avpAcctApplicationId = this.baseAvpFactory.createAvp(Avp.ACCT_APPLICATION_ID, MessageFactory._SH_APP_ID);
-        DiameterAvp vendorSpecific = this.baseAvpFactory.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAcctApplicationId });
+        DiameterAvp avpAuthApplicationId = this.baseAvpFactory.createAvp(Avp.AUTH_APPLICATION_ID, MessageFactory._SH_APP_ID);
+        DiameterAvp vendorSpecific = this.baseAvpFactory.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAuthApplicationId });
         msg.getAvps().addAvp(vendorSpecific.getCode(), vendorSpecific.byteArrayValue());
       }
 
