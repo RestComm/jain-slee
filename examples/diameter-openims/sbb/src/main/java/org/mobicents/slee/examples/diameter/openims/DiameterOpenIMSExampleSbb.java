@@ -64,7 +64,7 @@ import javax.slee.serviceactivity.ServiceActivityFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.java.slee.resource.diameter.base.AuthSessionState;
+import net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
 import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
@@ -512,7 +512,7 @@ public abstract class DiameterOpenIMSExampleSbb implements javax.slee.Sbb {
       avps.add(avp);
       //        [ Identity-Set ]
       //        [ Expiry-Time ]
-      avps.add(shAvpFactory.getBaseFactory().createAvp(DiameterAvpCodes.AUTH_SESSION_STATE, AuthSessionState.Open.ordinal()));        
+      avps.add(shAvpFactory.getBaseFactory().createAvp(DiameterAvpCodes.AUTH_SESSION_STATE, AuthSessionStateType._NO_STATE_MAINTAINED));        
 
       //We can user setters, but this is faster :)
       snr.setExtensionAvps(avps.toArray(avps.toArray(new DiameterAvp[avps.size()])));
