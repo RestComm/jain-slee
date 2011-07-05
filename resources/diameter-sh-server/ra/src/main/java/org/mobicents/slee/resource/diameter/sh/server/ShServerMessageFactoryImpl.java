@@ -325,8 +325,8 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
 
       if (msg.getAvps().getAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID) == null) {
         DiameterAvp avpVendorId = this.localFactory.getBaseFactory().createAvp(Avp.VENDOR_ID, MessageFactory._SH_VENDOR_ID);
-        DiameterAvp avpAcctApplicationId = this.localFactory.getBaseFactory().createAvp(Avp.ACCT_APPLICATION_ID, MessageFactory._SH_APP_ID);
-        DiameterAvp vendorSpecific = this.localFactory.getBaseFactory().createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAcctApplicationId });
+        DiameterAvp avpAuthApplicationId = this.localFactory.getBaseFactory().createAvp(Avp.AUTH_APPLICATION_ID, MessageFactory._SH_APP_ID);
+        DiameterAvp vendorSpecific = this.localFactory.getBaseFactory().createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAuthApplicationId });
         msg.getAvps().addAvp(vendorSpecific.getCode(), vendorSpecific.byteArrayValue());
       }
       return msg;
