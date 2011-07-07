@@ -48,5 +48,13 @@
 				java:/mobicents/ss7/sccp
 			</config-property-value>
 		</config-property>		
+		<config-property>
+			<description>Controls how many times dialog can timeout. '-1' - indicates that dialog will never be released after timeout, othen non
+				negative values indicates how many timeouts may occur before dialog is released.</description>
+			<config-property-name>timeout</config-property-name>
+			<config-property-type>java.lang.Integer</config-property-type>
+			<config-property-value>-1</config-property-value>
+		</config-property>
+		
 	</resource-adaptor>
 </resource-adaptor-jar>

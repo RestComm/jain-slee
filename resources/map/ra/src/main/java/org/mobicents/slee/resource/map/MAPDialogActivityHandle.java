@@ -36,7 +36,8 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
 public class MAPDialogActivityHandle implements Serializable, ActivityHandle {
 
 	private MAPDialog mapDialog;
-
+	private int timeoutCount;
+	
 	public MAPDialogActivityHandle(MAPDialog mapDialog) {
 		this.mapDialog = mapDialog;
 	}
@@ -64,4 +65,18 @@ public class MAPDialogActivityHandle implements Serializable, ActivityHandle {
 		return this.mapDialog;
 	}
 
+	public void increateTimeoutCount()
+	{
+		this.timeoutCount++;
+	}
+	
+	public int getTimeoutCount()
+	{
+		return this.timeoutCount;
+	}
+	
+	public void resetTimeoutCount()
+	{
+		this.timeoutCount = 0;
+	}
 }

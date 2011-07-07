@@ -68,7 +68,14 @@
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>org.mobicents.slee.resource.map.DialogNotice</event-class-name>
 	</event-definition>
-
+	
+	<event-definition>
+		<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_TIMEOUT</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.slee.resource.map.DialogTimeout</event-class-name>
+	</event-definition>
+	
 	<event-definition>
 		<event-type-name>org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION</event-type-name>
 		<event-type-vendor>org.mobicents</event-type-vendor>
@@ -83,6 +90,36 @@
 		<event-class-name>org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication</event-class-name>
 	</event-definition>
 
+
+	<!-- Component events -->
+	
+	<event-definition>
+		<event-type-name>org.mobicents.protocols.ss7.map.INVOKE_TIMEOUT</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.slee.resource.map.InvokeTimeout</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>org.mobicents.protocols.ss7.map.ERROR_COMPONENT</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.slee.resource.map.ErrorComponent</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>org.mobicents.protocols.ss7.map.PROVIDER_ERROR_COMPONENT</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.slee.resource.map.ProviderErrorComponent</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>org.mobicents.protocols.ss7.map.REJECT_COMPONENT</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.slee.resource.map.RejectComponent</event-class-name>
+	</event-definition>
 </event-jar>
 
 
