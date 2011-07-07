@@ -31,6 +31,7 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * Property Editor for ComponentID. 
@@ -81,5 +82,6 @@ public class ComponentIDPropertyEditor extends TextPropertyEditorSupport {
             throw new IllegalArgumentException(ex.getMessage(),ex);
         }
     }
+
 
 }

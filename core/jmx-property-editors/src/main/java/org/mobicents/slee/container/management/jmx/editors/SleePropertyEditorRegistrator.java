@@ -41,6 +41,8 @@ import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
+
 /**
  * Handles registration of jmx property editors.
  * 
@@ -113,5 +115,10 @@ public class SleePropertyEditorRegistrator {
 		PropertyEditorManager.registerEditor(Address.class,
 				AddressPropertyEditor.class);
 		
+		
+		PropertyEditorManager.registerEditor(SbbEntityID.class,
+				SBBEntityIDPropertyEditor.class);
+		PropertyEditorManager.registerEditor(SbbEntityID[].class,
+				SBBEntityIDArrayPropertyEditor.class);
 	}
 }
