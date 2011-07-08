@@ -3,7 +3,7 @@
   <ra-entity resource-adaptor-id="ResourceAdaptorID[name=TftpServerResourceAdaptor,vendor=org.mobicents,version=1.0]" entity-name="TftpServerRA">
     <properties>
    		<!-- uncomment and set with custom server name 
-   		<property name="port" type="java.lang.Integer" value="${tftp-port}" />
+   		<property name="slee.resource.tftp.port" type="java.lang.Integer" value="${tftp-port}" />
    		-->
     </properties>
     <ra-link name="TftpServerRA" />
