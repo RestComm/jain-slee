@@ -12,19 +12,16 @@
 
     <dependencies>
         <dependency>
-            <artifactId>tftp-server-ratype</artifactId>
+            <artifactId>mobicents-slee-ra-tftp-server-ratype</artifactId>
             <groupId>org.mobicents.resources</groupId>
-            <version>1.0.0.BETA</version>
         </dependency>
         <dependency>
-            <artifactId>tftp-server-events</artifactId>
+            <artifactId>mobicents-slee-ra-tftp-server-events</artifactId>
             <groupId>org.mobicents.resources</groupId>
-            <version>1.0.0.BETA</version>
         </dependency>
         <dependency>
             <artifactId>spi</artifactId>
             <groupId>org.mobicents.servers.jainslee.core</groupId>
-            <version>${mobicents.servers.jainslee.version}</version>
         </dependency>
     </dependencies>
 

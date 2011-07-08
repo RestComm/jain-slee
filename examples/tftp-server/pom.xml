@@ -6,7 +6,7 @@
     <parent>
         <artifactId>mobicents-parent</artifactId>
         <groupId>org.mobicents</groupId>
-        <version>2.15</version>
+        <version>2.19-SNAPSHOT</version>
     </parent>
 
     <artifactId>tftp-server-parent</artifactId>
@@ -21,12 +21,32 @@
     </modules>
 
 	<properties>
-		<mobicents.servers.jainslee.version>2.2.1.FINAL</mobicents.servers.jainslee.version>
+		<mobicents.servers.jainslee.version>2.4.2-SNAPSHOT</mobicents.servers.jainslee.version>
 
-		<mobicents.resources.tftp.server.version>1.0.0.BETA</mobicents.resources.tftp.server.version>
+		<mobicents.resources.tftp.server.version>1.0.0-SNAPSHOT</mobicents.resources.tftp.server.version>
 		<docs.profile>mobicents</docs.profile>
 	</properties>
-
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+	            <artifactId>mobicents-slee-ra-tftp-server-ratype</artifactId>
+	            <groupId>org.mobicents.resources</groupId>
+	            <version>${mobicents.resources.tftp.server.version}</version>
+	        </dependency>
+	        <dependency>
+	            <artifactId>mobicents-slee-ra-tftp-server-events</artifactId>
+	            <groupId>org.mobicents.resources</groupId>
+	            <version>${mobicents.resources.tftp.server.version}</version>
+	        </dependency>
+	        <dependency>
+	            <artifactId>spi</artifactId>
+	            <groupId>org.mobicents.servers.jainslee.core</groupId>
+	            <version>${mobicents.servers.jainslee.version}</version>
+	        </dependency>
+		</dependencies>
+	</dependencyManagement>
+	
 	<profiles>
 		<profile>
 			<id>maven-release</id>

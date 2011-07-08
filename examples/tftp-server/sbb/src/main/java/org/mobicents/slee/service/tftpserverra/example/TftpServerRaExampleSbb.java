@@ -42,7 +42,7 @@ import org.jboss.system.server.ServerConfigLocator;
  * alternative IOStream interface to read and check the data (in case of a write)
  * or send a special helloworld-string in case of a read request.
  * <P>
- * The read also demoes the ability to suspend the activty, do some other stuff
+ * The read also demoes the ability to suspend the activity, do some other stuff
  * (like querying a database on what data to send) and resume it when the other
  * activity fires (like when a query completes). 
  * 
@@ -82,8 +82,12 @@ public abstract class TftpServerRaExampleSbb implements Sbb {
 		TFTPWriteRequestPacket req = (TFTPWriteRequestPacket) event.getRequest();
 
 		if (isSpecialRequest(req))
+		{
+			trc.info(" --- Special Write ---");
 			doSpecialWrite(req, aci);
+		}
 		else {
+			trc.info(" --- Regular Write ---");
 			TransferActivity activity = (TransferActivity) aci.getActivity();
 	        try {
 	        	activity.receiveFile(new File(rootDir, req.getFilename()));
@@ -118,9 +122,13 @@ public abstract class TftpServerRaExampleSbb implements Sbb {
 
 	        InputStream is = activity.getInputStream();
 			int bytesRead = is.read(buffer);
-			if (!new String(buffer, 0, bytesRead).equals(SPECIAL_CONTENT)) {
-				trc.severe("Special write: wrong content");
+			String content = new String(buffer, 0, bytesRead); 
+			if (!content.equals(SPECIAL_CONTENT)) {
+				trc.severe("--- Special write: wrong content '"+content+"' ---");
 				activity.sendError(TFTPErrorPacket.UNDEFINED, "wrong content");
+			}else
+			{
+				trc.info("--- Special write: content approved ---");
 			}
 			is.close();
 		} catch (IOException e) {
@@ -138,8 +146,12 @@ public abstract class TftpServerRaExampleSbb implements Sbb {
 		TFTPReadRequestPacket req = (TFTPReadRequestPacket) event.getRequest();
 
 		if (isSpecialRequest(req))
-			goDoOtherStuff();
+		{
+			trc.info(" --- Special Read ---");
+			doSpecialRead();
+		}
 		else {
+			trc.info(" --- Regular Read ---");
 			TransferActivity activity = (TransferActivity) aci.getActivity();
 	        try {
 	    		activity.sendFile(new File(rootDir, req.getFilename()));
@@ -158,8 +170,7 @@ public abstract class TftpServerRaExampleSbb implements Sbb {
 	 * 
 	 * @param ctxt
 	 */
-	private void goDoOtherStuff() {
-
+	private void doSpecialRead() {
 		startSomeRelatedActivity();
 	}
 
@@ -191,6 +202,7 @@ public abstract class TftpServerRaExampleSbb implements Sbb {
 	public void onSomeOtherRelatedEvent(TimerEvent event, ActivityContextInterface aci) {
 
 		try {
+			trc.info(" --- Special Read: delayed action ---");
 			OutputStream os = getRequestActivity().getOutputStream();
 			os.write(SPECIAL_CONTENT.getBytes());
             os.flush(); os.close();
