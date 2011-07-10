@@ -23,7 +23,9 @@ import org.mobicents.slee.resource.map.DialogNotice;
 import org.mobicents.slee.resource.map.DialogProviderAbort;
 import org.mobicents.slee.resource.map.DialogReject;
 import org.mobicents.slee.resource.map.DialogRequest;
+import org.mobicents.slee.resource.map.DialogTimeout;
 import org.mobicents.slee.resource.map.DialogUserAbort;
+import org.mobicents.slee.resource.map.InvokeTimeout;
 import org.mobicents.slee.resource.map.MAPContextInterfaceFactory;
 
 /**
@@ -91,6 +93,18 @@ public abstract class MapSbb implements Sbb {
 	public void onDialogNotice(DialogNotice evt, ActivityContextInterface aci) {
 		if (logger.isInfoEnabled()) {
 			this.logger.info("Rx :  onDialogNotice" + evt);
+		}
+	}
+	
+	public void onDialogTimeout(DialogTimeout evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onDialogTimeout" + evt);
+		}
+	}
+	
+	public void onInvokeTimeout(InvokeTimeout evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onInvokeTimeout" + evt);
 		}
 	}
 
