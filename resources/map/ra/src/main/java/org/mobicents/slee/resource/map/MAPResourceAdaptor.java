@@ -50,6 +50,7 @@ import javax.slee.resource.StartActivityException;
 import javax.slee.resource.UnrecognizedActivityHandleException;
 
 import org.mobicents.protocols.ss7.map.MAPStackImpl;
+import org.mobicents.protocols.ss7.map.api.MAPApplicationContextVersion;
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
@@ -506,28 +507,32 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.tracer.fine(String.format("Received onDialogRequest id=%d ", mapDialog.getDialogId()));
 		}
 
-		switch (mapDialog.getApplicationContext()) {
-		case networkUnstructuredSsContextV2:
-			try {
-				MAPDialogActivityHandle handle = startActivity(mapDialog);
-				DialogRequest event = new DialogRequest(handle.getMAPDialog(), destReference, origReference,
-						extensionContainer);
-				this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_REQUEST", handle, event);
-			} catch (ActivityAlreadyExistsException e) {
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-				e.printStackTrace();
-			} catch (IllegalStateException e) {
-				e.printStackTrace();
-			} catch (SLEEException e) {
-				e.printStackTrace();
-			} catch (StartActivityException e) {
-				e.printStackTrace();
+		switch (mapDialog.getApplicationContext().getApplicationContextName()) {
+		case networkUnstructuredSsContext:
+
+			if (mapDialog.getApplicationContext().getApplicationContextVersion() == MAPApplicationContextVersion.version2) {
+				try {
+					MAPDialogActivityHandle handle = startActivity(mapDialog);
+					DialogRequest event = new DialogRequest(handle.getMAPDialog(), destReference, origReference, extensionContainer);
+					this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_REQUEST", handle, event);
+				} catch (ActivityAlreadyExistsException e) {
+					e.printStackTrace();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+				} catch (SLEEException e) {
+					e.printStackTrace();
+				} catch (StartActivityException e) {
+					e.printStackTrace();
+				}
+			} else {
+				this.tracer.severe(String.format("Received unknown MAP ApplicationContext networkUnstructuredSsContext version=%s", mapDialog.getApplicationContext().getApplicationContextVersion()));
+				// TODO : Abort Dialog?
 			}
 			break;
 		default:
-			this.tracer.severe(String.format("Received unknown MAP ApplicationContext=%s",
-					mapDialog.getApplicationContext()));
+			this.tracer.severe(String.format("Received unknown MAP ApplicationContext=%s", mapDialog.getApplicationContext()));
 			// TODO : Abort Dialog?
 			return;
 		}
