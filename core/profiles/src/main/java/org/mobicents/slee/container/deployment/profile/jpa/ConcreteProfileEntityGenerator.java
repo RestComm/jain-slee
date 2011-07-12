@@ -201,8 +201,14 @@ public class ConcreteProfileEntityGenerator {
 	    		  if (profileAttribute.isUnique()) {
 	    			  // just collect uniqueConstraints attributtes
 	    			  uniqueConstraints.add(Introspector.decapitalize(pojoCmpAccessorSufix));	    			  
-        		  }
-    			  ClassGeneratorUtils.addAnnotation(Column.class.getName(), new LinkedHashMap<String, Object>(), ctMethod);    			  
+        		  }	    		  	    		  
+	    			
+	    		  //String , primitive types , Array , Date will not be modified , only serialized data
+	    		  LinkedHashMap<String,Object> map = new LinkedHashMap<String, Object>();	    		  
+	    		  if (!returnType.isPrimitive() && ! returnType.getName().equals("java.lang.String"))
+    				  map.put("length", 512);
+    			  
+    			  ClassGeneratorUtils.addAnnotation(Column.class.getName(), map, ctMethod);    			  
     		  }
     		// add usual setter
     		  ctMethod = CtNewMethod.setter( "set" + pojoCmpAccessorSufix, genField );
@@ -311,6 +317,7 @@ public class ConcreteProfileEntityGenerator {
 		  CtMethod getSerializableMethod = CtNewMethod.make(getSerializableMethodSrc, concreteArrayValueClass);
 		  LinkedHashMap<String,Object> map = new LinkedHashMap<String, Object>();
 		  map.put("name", "serializable");
+		  map.put("length", 512);
 		  //if (unique)map.put("unique", true);
 		  ClassGeneratorUtils.addAnnotation(Column.class.getName(), map, getSerializableMethod);
 		  concreteArrayValueClass.addMethod(getSerializableMethod);

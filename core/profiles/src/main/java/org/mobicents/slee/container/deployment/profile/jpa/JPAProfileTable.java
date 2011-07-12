@@ -26,6 +26,7 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Column;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -63,6 +64,7 @@ public class JPAProfileTable implements Serializable {
   
   @Id
   private String profileTableName;
+  @Column(length=512)
   private ProfileSpecificationID profileSpecId;
 
   private JPAProfileTable() {
