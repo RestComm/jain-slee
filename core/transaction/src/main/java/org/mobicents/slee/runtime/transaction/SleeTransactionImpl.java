@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.slee.transaction.CommitListener;
 import javax.slee.transaction.RollbackListener;
-import javax.slee.transaction.SleeTransaction;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
@@ -35,6 +34,7 @@ import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
 
+import org.mobicents.slee.container.transaction.SleeTransaction;
 import org.mobicents.slee.container.transaction.TransactionContext;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;

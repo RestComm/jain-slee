@@ -25,8 +25,6 @@
  */
 package org.mobicents.slee.container.facilities;
 
-import javax.slee.TransactionRequiredLocalException;
-import javax.slee.facilities.FacilityException;
 import javax.slee.facilities.NameNotBoundException;
 
 import org.mobicents.slee.container.SleeContainerModule;
@@ -41,13 +39,8 @@ public interface ActivityContextNamingFacility extends SleeContainerModule,
 	/**
 	 * 
 	 * @param aciName
-	 * @throws NullPointerException
-	 * @throws TransactionRequiredLocalException
 	 * @throws NameNotBoundException
-	 * @throws FacilityException
 	 */
-	public void removeName(String aciName) throws NullPointerException,
-			TransactionRequiredLocalException, NameNotBoundException,
-			FacilityException;
-
+	public void removeName(String aciName) throws NameNotBoundException;
+	
 }

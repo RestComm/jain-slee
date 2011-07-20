@@ -29,7 +29,6 @@ import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.transaction.CommitListener;
 import javax.slee.transaction.RollbackListener;
-import javax.slee.transaction.SleeTransaction;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -42,6 +41,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.transaction.SleeTransaction;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 
@@ -253,11 +253,8 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 		return getAsSleeTransaction(transactionManager.getTransaction(),true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see javax.transaction.TransactionManager#getTransaction()
-	 */
-	public Transaction getTransaction() throws SystemException {
+	
+	public SleeTransaction getTransaction() throws SystemException {
 		return getAsSleeTransaction(transactionManager.getTransaction(),false);
 	}
 	

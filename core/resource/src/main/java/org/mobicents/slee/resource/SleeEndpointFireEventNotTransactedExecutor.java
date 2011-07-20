@@ -30,9 +30,9 @@ import javax.slee.resource.FireEventException;
 import javax.slee.resource.FireableEventType;
 import javax.slee.resource.ReceivableService;
 import javax.slee.resource.UnrecognizedActivityHandleException;
-import javax.transaction.Transaction;
 
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.transaction.SleeTransaction;
 
 /**
  * 
@@ -74,13 +74,10 @@ public class SleeEndpointFireEventNotTransactedExecutor extends
 			FireEventException, SLEEException,
 			UnrecognizedActivityHandleException {
 		
-		// suspend the tx and activity if there is a tx
-		// suspend also the activity to block the event
-		// till the tx ends (may have pending changes to the activity context)
-		final Transaction tx = super.suspendTransactionAndActivity(refHandle);
+		final SleeTransaction tx = super.suspendTransaction();
 		try {
 			sleeEndpoint._fireEvent(realHandle, refHandle, eventType, event, address,
-					receivableService, eventFlags);
+					receivableService, eventFlags,tx);
 		} finally {
 			if (tx != null) {
 				super.resumeTransaction(tx);

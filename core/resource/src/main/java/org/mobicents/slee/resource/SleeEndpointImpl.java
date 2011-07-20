@@ -37,7 +37,6 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.StartActivityException;
 import javax.slee.resource.UnrecognizedActivityHandleException;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -52,6 +51,7 @@ import org.mobicents.slee.container.event.EventProcessingSucceedCallback;
 import org.mobicents.slee.container.event.EventUnreferencedCallback;
 import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
 import org.mobicents.slee.container.resource.SleeEndpoint;
+import org.mobicents.slee.container.transaction.SleeTransaction;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
@@ -173,7 +173,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		}
 
 		checkStartActivityParameters(handle, activity);
-		startActivityNotTransactedExecutor.execute(handle, activityFlags);
+		startActivityNotTransactedExecutor.execute(handle, activityFlags,false);
 	}
 
 	/*
@@ -210,9 +210,9 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		}
 
 		// need to check tx before doing out of tx scope activity start
-		txManager.mandateTransaction();
-		startActivity(handle, activity, activityFlags);
-		suspendActivity(handle);
+		txManager.mandateTransaction();	
+		checkStartActivityParameters(handle, activity);
+		startActivityNotTransactedExecutor.execute(handle, activityFlags,true);		
 	}
 
 	/*
@@ -249,11 +249,9 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		}
 
 		checkStartActivityParameters(handle, activity);
-
 		// check tx state
 		txManager.mandateTransaction();
-
-		_startActivity(handle, activityFlags);
+		_startActivity(handle, activityFlags,null);
 	}
 
 	/**
@@ -283,13 +281,15 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
 	/**
 	 * Start activity logic, independent of transaction management.
-	 * 
 	 * @param handle
 	 * @param activityFlags
+	 * @param barrierTx
+	 * @return
 	 */
 	ActivityContextHandle _startActivity(ActivityHandle handle,
-			int activityFlags) {
+			int activityFlags, final SleeTransaction barrierTx) {
 
+		ActivityContext ac = null;
 		if (raEntity.getHandleReferenceFactory() != null
 				&& !ActivityFlags.hasSleeMayMarshal(activityFlags)) {
 			final ActivityHandleReference reference = raEntity
@@ -297,10 +297,9 @@ public class SleeEndpointImpl implements SleeEndpoint {
 							handle);
 			try {
 				// create activity context with ref instead
-				final ActivityContext ac = acFactory.createActivityContext(
+				ac = acFactory.createActivityContext(
 						new ResourceAdaptorActivityContextHandleImpl(raEntity,
-								reference), activityFlags);
-				return ac.getActivityContextHandle();
+								reference), activityFlags);				
 			} catch (ActivityAlreadyExistsException e) {
 				throw e;
 			} catch (RuntimeException e) {
@@ -310,11 +309,24 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			}
 		} else {
 			// create activity context
-			final ActivityContext ac = acFactory.createActivityContext(
+			ac = acFactory.createActivityContext(
 					new ResourceAdaptorActivityContextHandleImpl(raEntity,
-							handle), activityFlags);
-			return ac.getActivityContextHandle();
+							handle), activityFlags);			
 		}
+		// suspend activity if needed
+		if (barrierTx != null && ac != null) {
+			final ActivityEventQueueManager aeqm = ac.getLocalActivityContext().getEventQueueManager();
+			aeqm.createBarrier(barrierTx);
+			TransactionalAction action = new TransactionalAction() {
+				public void execute() {
+					aeqm.removeBarrier(barrierTx);					
+				}
+			};
+			final TransactionContext tc = barrierTx.getTransactionContext();
+			tc.getAfterCommitActions().add(action);
+			tc.getAfterRollbackActions().add(action);
+		}
+		return ac.getActivityContextHandle();
 	}
 
 	// --- ACTIVITY END
@@ -409,21 +421,35 @@ public class SleeEndpointImpl implements SleeEndpoint {
 				.getHandleReferenceFactory().getReferenceTransacted(handle)
 				: handle;
 
-		_endActivity(ah);
+		_endActivity(ah,null);
 	}
 
 	/**
 	 * End activity logic independent of transaction management.
-	 * 
 	 * @param handle
+	 * @param barrierTx
+	 * @throws UnrecognizedActivityHandleException
 	 */
-	void _endActivity(ActivityHandle handle)
+	void _endActivity(ActivityHandle handle, final SleeTransaction barrierTx)
 			throws UnrecognizedActivityHandleException {
 		final ActivityContextHandle ach = new ResourceAdaptorActivityContextHandleImpl(
 				raEntity, handle);
 		// get ac
 		final ActivityContext ac = acFactory.getActivityContext(ach);
 		if (ac != null) {
+			// suspend activity if needed
+			if (barrierTx != null) {
+				final ActivityEventQueueManager aeqm = ac.getLocalActivityContext().getEventQueueManager();
+				aeqm.createBarrier(barrierTx);
+				TransactionalAction action = new TransactionalAction() {
+					public void execute() {
+						aeqm.removeBarrier(barrierTx);					
+					}
+				};
+				final TransactionContext tc = barrierTx.getTransactionContext();
+				tc.getAfterCommitActions().add(action);
+				tc.getAfterRollbackActions().add(action);
+			}
 			// end the activity
 			ac.endActivity();
 		} else {
@@ -633,7 +659,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 				: handle;
 
 		_fireEvent(handle, refHandle, eventType, event, address,
-				receivableService, eventFlags);
+				receivableService, eventFlags,null);
 	}
 
 	/**
@@ -691,16 +717,20 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	/**
 	 * Event firing logic independent of transaction management.
 	 * 
-	 * @param handle
+	 * @param realHandle
+	 * @param refHandle
 	 * @param eventType
 	 * @param event
 	 * @param address
 	 * @param receivableService
 	 * @param eventFlags
+	 * @param barrierTx
+	 * @throws ActivityIsEndingException
+	 * @throws SLEEException
 	 */
 	void _fireEvent(ActivityHandle realHandle, ActivityHandle refHandle,
 			FireableEventType eventType, Object event, Address address,
-			ReceivableService receivableService, int eventFlags)
+			ReceivableService receivableService, int eventFlags, final SleeTransaction barrierTx)
 			throws ActivityIsEndingException, SLEEException {
 		final ActivityContextHandle ach = new ResourceAdaptorActivityContextHandleImpl(
 				raEntity, refHandle);
@@ -712,6 +742,19 @@ public class SleeEndpointImpl implements SleeEndpoint {
 					+ realHandle
 					+ " , the handle is not mapped to an activity context");
 		} else {
+			// suspend activity if needed
+			if (barrierTx != null) {
+				final ActivityEventQueueManager aeqm = ac.getLocalActivityContext().getEventQueueManager();
+				aeqm.createBarrier(barrierTx);
+				TransactionalAction action = new TransactionalAction() {
+					public void execute() {
+						aeqm.removeBarrier(barrierTx);					
+					}
+				};
+				final TransactionContext tc = barrierTx.getTransactionContext();
+				tc.getAfterCommitActions().add(action);
+				tc.getAfterRollbackActions().add(action);
+			}
 			final EventProcessingCallbacks callbacks = new EventProcessingCallbacks(
 					realHandle, eventType, event, address, receivableService,
 					eventFlags, raEntity);
@@ -789,16 +832,16 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		if (ac != null) {
 			try {
 				// suspend activity
-				final Transaction transaction = txManager.getTransaction();
+				final SleeTransaction tx = txManager.getTransaction();
 				final ActivityEventQueueManager eventQueue = ac
 						.getLocalActivityContext().getEventQueueManager();
-				eventQueue.createBarrier(transaction);
+				eventQueue.createBarrier(tx);
 				TransactionalAction action = new TransactionalAction() {
 					public void execute() {
-						eventQueue.removeBarrier(transaction);
+						eventQueue.removeBarrier(tx);
 					}
 				};
-				final TransactionContext tc = txManager.getTransactionContext();
+				final TransactionContext tc = tx.getTransactionContext();
 				tc.getAfterCommitActions().add(action);
 				tc.getAfterRollbackActions().add(action);
 			} catch (SystemException e) {

@@ -369,7 +369,8 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 
 									// TIME TO INVOKE THE EVENT HANDLER METHOD
 									sbbObject.setSbbInvocationState(SbbInvocationState.INVOKING_EVENT_HANDLER);
-
+									ac.beforeDeliveringEvent(eventContext);
+									
 									if (debugLogging) {
 										logger
 										.debug("---> Invoking event handler: ac="+eventContext.getActivityContextHandle()+" , sbbEntity="+sbbEntity.getSbbEntityId()+" , sbbObject="+sbbObject);

@@ -43,7 +43,7 @@ import org.mobicents.slee.container.sbbentity.SbbEntityID;
  * @author martins
  * 
  */
-
+@SuppressWarnings("rawtypes")
 public class ActivityContextCacheData extends CacheData {
 
 	/**
@@ -63,9 +63,6 @@ public class ActivityContextCacheData extends CacheData {
 
 	private static final String IS_ENDING_NODE_NAME = "is-ending";
 
-	private static final String IS_CHECKING_REFS_NODE_NAME = "is-checking-refs";
-
-
 	private static final Fqn ATTACHED_SBBs_FQN = Fqn
 			.fromElements(ATTACHED_SBBs_NODE_NAME);
 
@@ -80,9 +77,6 @@ public class ActivityContextCacheData extends CacheData {
 	private static final Fqn IS_ENDING_FQN = Fqn
 	.fromElements(IS_ENDING_NODE_NAME);
 
-	private static final Fqn IS_CHECKING_REFS_FQN = Fqn
-	.fromElements(IS_CHECKING_REFS_NODE_NAME);
-	
 	private static final Boolean CMP_ATTRIBUTES_NODE_MAP_KEY = Boolean.TRUE;
 
 	private Node _attachedSbbsNode;
@@ -154,6 +148,7 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param value
 	 * @return the old object for the specified key, null if key was not mapped
 	 */
+	@SuppressWarnings("unchecked")
 	public Object putObject(Object key, Object value) {
 		return getNode().put(key, value);
 	}
@@ -164,6 +159,7 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param key
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public Object getObject(Object key) {
 		return getNode().get(key);
 	}
@@ -174,6 +170,7 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param key
 	 * @return the object removed, null if the key was not mapped
 	 */
+	@SuppressWarnings("unchecked")
 	public Object removeObject(Object key) {
 		return getNode().remove(key);
 	}
@@ -196,33 +193,6 @@ public class ActivityContextCacheData extends CacheData {
 		else {
 			if (isEnding()) {
 				getNode().removeChild(IS_ENDING_NODE_NAME);
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-	}
-	
-	public boolean isCheckingReferences() {
-		return getNode().hasChild(IS_CHECKING_REFS_NODE_NAME);
-	}
-	
-	public boolean setCheckingReferences(boolean value) {
-		if (value) {
-			Node node = getNode();
-			if (!node.hasChild(IS_CHECKING_REFS_NODE_NAME)) {
-				node.addChild(IS_CHECKING_REFS_FQN);
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		else {
-			Node node = getNode();
-			if (node.hasChild(IS_CHECKING_REFS_NODE_NAME)) {
-				node.removeChild(IS_CHECKING_REFS_NODE_NAME);
 				return true;
 			}
 			else {
@@ -372,6 +342,7 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param attrName
 	 * @param attrValue
 	 */
+	@SuppressWarnings("unchecked")
 	public void setCmpAttribute(String attrName, Object attrValue) {
 		final Node node = getCmpAttributesNode(true);
 		Node cmpNode = node.getChild(attrName);
@@ -387,6 +358,7 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param attrName
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public Object getCmpAttribute(String attrName) {
 		final Node node = getCmpAttributesNode(false);
 		if(node == null) {
@@ -408,6 +380,7 @@ public class ActivityContextCacheData extends CacheData {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public Map getCmpAttributesCopy() {
 		final Node node = getCmpAttributesNode(false);
 		if(node == null) {

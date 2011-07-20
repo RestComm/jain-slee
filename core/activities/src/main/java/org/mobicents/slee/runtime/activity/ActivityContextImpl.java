@@ -52,7 +52,6 @@ import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandl
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.container.transaction.TransactionContext;
-import org.mobicents.slee.container.transaction.TransactionalAction;
 import org.mobicents.slee.runtime.event.ActivityEndEventUnreferencedCallback;
 import org.mobicents.slee.runtime.event.CommitEventContextAction;
 import org.mobicents.slee.runtime.event.RollbackEventContextAction;
@@ -72,58 +71,81 @@ import org.mobicents.slee.runtime.event.RollbackEventContextAction;
 
 public class ActivityContextImpl implements ActivityContext {
 
-	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-	
-	private static final Logger logger = Logger.getLogger(ActivityContext.class);
+	static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+
+	private static final Logger logger = Logger
+			.getLogger(ActivityContext.class);
 
 	// --- map keys for attributes cached
-	private static final String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags"; 
+	private static final String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags";
 
-	private static final String NODE_MAP_KEY_LAST_ACCESS = "time"; 
+	private static final String NODE_MAP_KEY_LAST_ACCESS = "time";
 
 	/**
 	 * the handle for this ac
 	 */
 	private final ActivityContextHandle activityContextHandle;
-	
+
 	/**
 	 * the data stored in cache for this ac
 	 */
 	protected final ActivityContextCacheData cacheData;
-	
-	private static final SbbEntityComparator sbbEntityComparator = new SbbEntityComparator(sleeContainer.getSbbEntityFactory());
+
+	private static final SbbEntityComparator sbbEntityComparator = new SbbEntityComparator(
+			sleeContainer.getSbbEntityFactory());
 
 	private final ActivityContextFactoryImpl factory;
-		
-	public ActivityContextImpl(final ActivityContextHandle activityContextHandle, ActivityContextCacheData cacheData, boolean updateAccessTime, Integer activityFlags,ActivityContextFactoryImpl factory) {
-		this(activityContextHandle,cacheData,false,factory);
-		// ac creation, create cache data and set activity flags
-		this.cacheData.create();
-		this.cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
-		if (updateAccessTime) {
-			updateLastAccessTime(true);
-		}
-		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
-		if (txContext != null) {
-			if (ActivityFlags.hasRequestSleeActivityGCCallback(activityFlags) || activityContextHandle.getActivityType() == ActivityType.NULL) {
-				// we need to schedule check for an unreferenced activity
-				scheduleCheckForUnreferencedActivity(txContext);
-			}
-		}
-	}
-	
-	public ActivityContextImpl(ActivityContextHandle activityContextHandle, ActivityContextCacheData cacheData, boolean updateAccessTime, ActivityContextFactoryImpl factory) {
+
+	private Integer flags;
+
+	private final ActivityContextReferencesHandler acReferencesHandler;
+
+	public ActivityContextImpl(
+			final ActivityContextHandle activityContextHandle,
+			ActivityContextCacheData cacheData, boolean updateAccessTime,
+			Integer activityFlags, ActivityContextFactoryImpl factory) {
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
 		this.cacheData = cacheData;
-		// update last acess time if needed	
+		// ac creation, create cache data and set activity flags
+		this.cacheData.create();
+		this.cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
+		this.flags = activityFlags;
+		// set access time if needed
+		if (updateAccessTime) {
+			updateLastAccessTime(true);
+		}
+		// setup references handler if needed
+		if (ActivityFlags.hasRequestSleeActivityGCCallback(activityFlags)
+				&& !isEnding()) {
+			acReferencesHandler = new ActivityContextReferencesHandler(this);
+		} else {
+			acReferencesHandler = null;
+		}
+	}
+
+	public ActivityContextImpl(ActivityContextHandle activityContextHandle,
+			ActivityContextCacheData cacheData, boolean updateAccessTime,
+			ActivityContextFactoryImpl factory) {
+		this.activityContextHandle = activityContextHandle;
+		this.factory = factory;
+		this.cacheData = cacheData;
+		// set access time if needed
 		if (cacheData.exists() && updateAccessTime) {
 			updateLastAccessTime(false);
+		}
+		// setup references handler if needed
+		if (ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())
+				&& !isEnding()) {
+			acReferencesHandler = new ActivityContextReferencesHandler(this);
+		} else {
+			acReferencesHandler = null;
 		}
 	}
 
 	/**
 	 * Retrieves the handle of this ac
+	 * 
 	 * @return
 	 */
 	public ActivityContextHandle getActivityContextHandle() {
@@ -132,25 +154,30 @@ public class ActivityContextImpl implements ActivityContext {
 
 	/**
 	 * Retrieve the {@link ActivityFlags} for this activity context
+	 * 
 	 * @return
 	 */
 	public int getActivityFlags() {
-		Integer flags = (Integer) cacheData.getObject(NODE_MAP_KEY_ACTIVITY_FLAGS);
-		if (flags != null) {
-			return flags.intValue();
+		if (flags == null) {
+			// instance has no flags stored, check local ac
+			if (localActivityContext != null) {
+				flags = localActivityContext.getActivityFlags();
+			} else {
+				// local ac does not exists, get from cache
+				flags = (Integer) cacheData
+						.getObject(NODE_MAP_KEY_ACTIVITY_FLAGS);
+			}
 		}
-		else {
-			return ActivityFlags.NO_FLAGS;
-		}
+		return flags;
 	}
-	
+
 	/**
 	 * @return the factory
 	 */
 	public ActivityContextFactoryImpl getFactory() {
 		return factory;
 	}
-	
+
 	/**
 	 * test if the activity context is ending.
 	 * 
@@ -159,36 +186,37 @@ public class ActivityContextImpl implements ActivityContext {
 	public boolean isEnding() {
 		return cacheData.isEnding();
 	}
-	
+
 	/**
 	 * Set a shared data item for the ACI
 	 * 
-	 * @param key --
-	 *            name of the shared data item.
-	 * @param newValue --
-	 *            value of the shared data item.
+	 * @param key
+	 *            -- name of the shared data item.
+	 * @param newValue
+	 *            -- value of the shared data item.
 	 */
 	public void setDataAttribute(String key, Object newValue) {
-		cacheData.setCmpAttribute(key,newValue);
+		cacheData.setCmpAttribute(key, newValue);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Activity context with handle "+getActivityContextHandle()+" set cmp attribute named " + key
-					+ " to value " + newValue);
+			logger.debug("Activity context with handle "
+					+ getActivityContextHandle() + " set cmp attribute named "
+					+ key + " to value " + newValue);
 		}
 	}
 
 	/**
 	 * Get the shared data for the ACI.
 	 * 
-	 * @param name --
-	 *            name we want to look up
+	 * @param name
+	 *            -- name we want to look up
 	 * @return the shared data for the ACI
 	 * 
 	 */
 	public Object getDataAttribute(String key) {
 		return cacheData.getCmpAttribute(key);
 	}
-	
-	@SuppressWarnings("unchecked")
+
+	@SuppressWarnings("rawtypes")
 	public Map getDataAttributes() {
 		return cacheData.getCmpAttributesCopy();
 	}
@@ -196,36 +224,36 @@ public class ActivityContextImpl implements ActivityContext {
 	/**
 	 * add a naming binding to this activity context.
 	 * 
-	 * @param aciName -
-	 *            new name binding to be added.
+	 * @param aciName
+	 *            - new name binding to be added.
 	 * 
 	 */
 	public void addNameBinding(String aciName) {
 		cacheData.nameBound(aciName);
-		// cancel a possible check for unreferenced activity, no need to
-		// waste time in checkingif the flags requested such process 
-		cacheData.setCheckingReferences(false);
+		if (acReferencesHandler != null) {
+			acReferencesHandler.nameReferenceCreated();
+		}
 	}
 
 	/**
-	 * This is called to release all the name bindings after
-	 * the activity end event is delivered to the sbb.
+	 * This is called to release all the name bindings after the activity end
+	 * event is delivered to the sbb.
 	 * 
 	 */
 	private void removeNamingBindings() {
 		ActivityContextNamingFacility acf = sleeContainer
 				.getActivityContextNamingFacility();
-		for (Object obj : cacheData.getNamesBoundCopy()) {	
+		for (Object obj : cacheData.getNamesBoundCopy()) {
 			String aciName = (String) obj;
 			try {
 				acf.removeName(aciName);
 			} catch (Exception e) {
-				logger.warn("failed to unbind name: " + aciName
-						+ " from ac:" + getActivityContextHandle(), e);
-			}	
-		}		
+				logger.warn("failed to unbind name: " + aciName + " from ac:"
+						+ getActivityContextHandle(), e);
+			}
+		}
 	}
-	
+
 	/**
 	 * Fetches set of names given to this ac
 	 * 
@@ -235,20 +263,21 @@ public class ActivityContextImpl implements ActivityContext {
 	public Set<String> getNamingBindings() {
 		return cacheData.getNamesBoundCopy();
 	}
-	
+
 	/**
 	 * Add the given name to the set of activity context names that we are bound
 	 * to. The AC Naming facility implicitly ends the activity after all names
 	 * are unbound.
 	 * 
-	 * @param aciName -- name to which we are bound.
+	 * @param aciName
+	 *            -- name to which we are bound.
 	 * @return true if name bind was removed; false otherwise
 	 * 
 	 */
 	public boolean removeNameBinding(String aciName) {
 		boolean removed = cacheData.nameUnbound(aciName);
-		if (removed && ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
-			scheduleCheckForUnreferencedActivity(sleeContainer.getTransactionManager().getTransactionContext());			
+		if (removed && acReferencesHandler != null) {
+			acReferencesHandler.nameReferenceRemoved();
 		}
 		return removed;
 	}
@@ -256,18 +285,17 @@ public class ActivityContextImpl implements ActivityContext {
 	/**
 	 * attach the given timer to the current activity context.
 	 * 
-	 * @param timerID --
-	 *            timer id to attach.
+	 * @param timerID
+	 *            -- timer id to attach.
 	 * 
 	 */
 	public boolean attachTimer(TimerID timerID) {
-		if (cacheData.attachTimer(timerID)) {		
-			// cancel a possible check for unreferenced activity, no need to
-			// waste time in checkingif the flags requested such process 
-			cacheData.setCheckingReferences(false);
+		if (cacheData.attachTimer(timerID)) {
+			if (acReferencesHandler != null) {
+				acReferencesHandler.timerReferenceCreated();
+			}
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
@@ -280,12 +308,12 @@ public class ActivityContextImpl implements ActivityContext {
 	 */
 	public boolean detachTimer(TimerID timerID) {
 		boolean detached = cacheData.detachTimer(timerID);
-		if (detached && ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
-			scheduleCheckForUnreferencedActivity(sleeContainer.getTransactionManager().getTransactionContext());			
+		if (detached && acReferencesHandler != null) {
+			acReferencesHandler.timerReferenceRemoved();
 		}
 		return detached;
 	}
-	
+
 	/**
 	 * Fetches set of attached timers.
 	 * 
@@ -296,7 +324,7 @@ public class ActivityContextImpl implements ActivityContext {
 	public Set<TimerID> getAttachedTimers() {
 		return cacheData.getAttachedTimers();
 	}
-	
+
 	// Spec Sec 7.3.4.1 Step 10. "The SLEE notifies the SLEE Facilities that
 	// have references to the Activity Context that the Activ-ity
 	// End Event has been delivered on the Activity Context.
@@ -305,24 +333,24 @@ public class ActivityContextImpl implements ActivityContext {
 		// Iterate through the attached timers, telling the timer facility to
 		// remove them
 		for (Object obj : cacheData.getAttachedTimers()) {
-			timerFacility.cancelTimer((TimerID)obj,false);
+			timerFacility.cancelTimer((TimerID) obj, false);
 		}
 	}
-	
+
 	/**
 	 * Mark this AC for garbage collection. It can no longer be used past this
 	 * point.
 	 * 
 	 */
 	private void removeFromCache(TransactionContext txContext) {
-		cacheData.remove();		
+		cacheData.remove();
 	}
 
 	/**
 	 * attach an sbb entity to this AC.
 	 * 
-	 * @param sbbEntity --
-	 *            sbb entity to attach.
+	 * @param sbbEntity
+	 *            -- sbb entity to attach.
 	 * @return true if the SBB Entity is attached successfully, otherwise when
 	 *         the SBB Entitiy has already been attached before, return false
 	 */
@@ -331,13 +359,14 @@ public class ActivityContextImpl implements ActivityContext {
 
 		boolean attached = cacheData.attachSbbEntity(sbbEntityId);
 		if (attached) {
-			// cancel a possible check for unreferenced activity, no need to
-			// waste time in checking if the flags requested such process 
-			cacheData.setCheckingReferences(false);
+			if (acReferencesHandler != null) {
+				acReferencesHandler.sbbeReferenceCreated(false);
+			}
 		}
 		if (logger.isTraceEnabled()) {
-			logger
-					.trace("Attachement from sbb entity "+sbbEntityId+" to AC "+getActivityContextHandle()+" result: "+attached);
+			logger.trace("Attachement from sbb entity " + sbbEntityId
+					+ " to AC " + getActivityContextHandle() + " result: "
+					+ attached);
 		}
 		return attached;
 	}
@@ -347,19 +376,18 @@ public class ActivityContextImpl implements ActivityContext {
 	 * 
 	 * @param sbbEntityId
 	 */
-	public void detachSbbEntity(SbbEntityID sbbEntityId) throws javax.slee.TransactionRequiredLocalException {
+	public void detachSbbEntity(SbbEntityID sbbEntityId)
+			throws javax.slee.TransactionRequiredLocalException {
 
 		boolean detached = cacheData.detachSbbEntity(sbbEntityId);
-		
-		if (detached) {
-			if (ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
-				scheduleCheckForUnreferencedActivity(sleeContainer.getTransactionManager().getTransactionContext());				
-			}
+
+		if (detached && acReferencesHandler != null && !isEnding()) {
+			acReferencesHandler.sbbeReferenceRemoved();
 			if (logger.isTraceEnabled()) {
-				logger
-				.trace("Detached sbb entity "+sbbEntityId+" from AC with handle "+getActivityContextHandle());
+				logger.trace("Detached sbb entity " + sbbEntityId
+						+ " from AC with handle " + getActivityContextHandle());
 			}
-		}	
+		}
 	}
 
 	/**
@@ -369,9 +397,11 @@ public class ActivityContextImpl implements ActivityContext {
 	 * @return list of SbbEIDs
 	 * 
 	 */
-	@SuppressWarnings("unchecked")
-	public Set<SbbEntityID> getSortedSbbAttachmentSet(Set<SbbEntityID> excludeSet) {
-		final Set<SbbEntityID> sbbAttachementSet = cacheData.getSbbEntitiesAttached();
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Set<SbbEntityID> getSortedSbbAttachmentSet(
+			Set<SbbEntityID> excludeSet) {
+		final Set<SbbEntityID> sbbAttachementSet = cacheData
+				.getSbbEntitiesAttached();
 		final SortedSet orderSbbSet = new TreeSet(sbbEntityComparator);
 		for (SbbEntityID sbbEntityId : sbbAttachementSet) {
 			if (!excludeSet.contains(sbbEntityId)) {
@@ -379,66 +409,69 @@ public class ActivityContextImpl implements ActivityContext {
 			}
 		}
 		return orderSbbSet;
-	}	
-	
-	@SuppressWarnings("unchecked")
-	public Set<SbbEntityID> getSbbAttachmentSet() {
-		return cacheData.getSbbEntitiesAttached();	
 	}
-	
+
+	public Set<SbbEntityID> getSbbAttachmentSet() {
+		return cacheData.getSbbEntitiesAttached();
+	}
+
 	/**
 	 * 
 	 * @return
 	 */
 	public long getLastAccessTime() {
 		final Long time = (Long) cacheData.getObject(NODE_MAP_KEY_LAST_ACCESS);
-		return time == null ? System.currentTimeMillis() : time.longValue(); 
+		return time == null ? System.currentTimeMillis() : time.longValue();
 	}
-	
+
 	// --- private helpers
 
 	private void updateLastAccessTime(boolean creation) {
 		if (factory.getConfiguration().getTimeBetweenLivenessQueries() > 0) {
 			if (creation) {
-				cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(System.currentTimeMillis()));			
-			}
-			else {
-				ActivityManagementConfiguration configuration = factory.getConfiguration();
-				Long lastUpdate = (Long) cacheData.getObject(NODE_MAP_KEY_LAST_ACCESS);
+				cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS,
+						Long.valueOf(System.currentTimeMillis()));
+			} else {
+				ActivityManagementConfiguration configuration = factory
+						.getConfiguration();
+				Long lastUpdate = (Long) cacheData
+						.getObject(NODE_MAP_KEY_LAST_ACCESS);
 				if (lastUpdate != null) {
 					final long now = System.currentTimeMillis();
-					if ((now - configuration.getMinTimeBetweenUpdatesInMs()) > lastUpdate.longValue()) {
+					if ((now - configuration.getMinTimeBetweenUpdatesInMs()) > lastUpdate
+							.longValue()) {
 						// last update
 						if (logger.isTraceEnabled()) {
-							logger.trace("Updating access time for AC with handle "+getActivityContextHandle());
+							logger.trace("Updating access time for AC with handle "
+									+ getActivityContextHandle());
 						}
-						cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(now));
-					}
-					else {
+						cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS,
+								Long.valueOf(now));
+					} else {
 						if (logger.isDebugEnabled()) {
-							logger.debug("Skipping update of access time for AC with handle "+getActivityContextHandle());
+							logger.debug("Skipping update of access time for AC with handle "
+									+ getActivityContextHandle());
 						}
 					}
-				}
-				else {
-					cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(System.currentTimeMillis()));
+				} else {
+					cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS,
+							Long.valueOf(System.currentTimeMillis()));
 					if (logger.isTraceEnabled()) {
-						logger.trace("Updating access time for AC with handle "+getActivityContextHandle());
+						logger.trace("Updating access time for AC with handle "
+								+ getActivityContextHandle());
 					}
 				}
 			}
 		}
 	}
-	
-	private static final Object MAP_VALUE = new Object();
-	
 
 	public String toString() {
-		return new StringBuilder("ActivityContext{ handle = ").append(activityContextHandle).append(" }").toString();
+		return new StringBuilder("ActivityContext{ handle = ")
+				.append(activityContextHandle).append(" }").toString();
 	}
-	
+
 	// emmartins: added to split null activity end related logic
-	
+
 	public boolean isSbbAttachmentSetEmpty() {
 		return cacheData.noSbbEntitiesAttached();
 	}
@@ -446,79 +479,109 @@ public class ActivityContextImpl implements ActivityContext {
 	public boolean isAttachedTimersEmpty() {
 		return cacheData.noTimersAttached();
 	}
-	
-	public boolean isNamingBindingEmpty() {		 
+
+	public boolean isNamingBindingEmpty() {
 		return cacheData.noNamesBound();
 	}
-	
+
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((ActivityContextImpl)obj).activityContextHandle.equals(this.activityContextHandle);
-		}
-		else {
+			return ((ActivityContextImpl) obj).activityContextHandle
+					.equals(this.activityContextHandle);
+		} else {
 			return false;
 		}
 	}
-	
+
 	public int hashCode() {
 		return activityContextHandle.hashCode();
 	}
 
-	// FIXME add logic to remove refs in facilities when activity is explicitely
-	// ended. See example 7.3.4.1 in specs.
-	
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.activity.ActivityContext#fireEvent(javax.slee.EventTypeID, java.lang.Object, javax.slee.Address, javax.slee.ServiceID, org.mobicents.slee.container.event.EventProcessingSucceedCallback, org.mobicents.slee.container.event.EventProcessingFailedCallback, org.mobicents.slee.container.event.EventUnreferencedCallback)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.activity.ActivityContext#fireEvent(javax
+	 * .slee.EventTypeID, java.lang.Object, javax.slee.Address,
+	 * javax.slee.ServiceID,
+	 * org.mobicents.slee.container.event.EventProcessingSucceedCallback,
+	 * org.mobicents.slee.container.event.EventProcessingFailedCallback,
+	 * org.mobicents.slee.container.event.EventUnreferencedCallback)
 	 */
 	public void fireEvent(EventTypeID eventTypeId, Object event,
-			Address address, ServiceID serviceID, EventProcessingSucceedCallback succeedCallback, EventProcessingFailedCallback failedCallback, EventUnreferencedCallback unreferencedCallback) throws ActivityIsEndingException,
-			SLEEException {
-		
+			Address address, ServiceID serviceID,
+			EventProcessingSucceedCallback succeedCallback,
+			EventProcessingFailedCallback failedCallback,
+			EventUnreferencedCallback unreferencedCallback)
+			throws ActivityIsEndingException, SLEEException {
+
 		if (isEnding()) {
-			throw new ActivityIsEndingException(getActivityContextHandle().toString());
+			throw new ActivityIsEndingException(getActivityContextHandle()
+					.toString());
 		}
-		
-		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
-		if (cacheData.setCheckingReferences(false) && txContext != null) {
-			scheduleCheckForUnreferencedActivity(txContext);					
+
+		if (acReferencesHandler != null) {
+			acReferencesHandler.eventReferenceCreated();
 		}
-		
-		fireEvent(sleeContainer.getEventContextFactory().createEventContext(eventTypeId,event,this,address,serviceID,succeedCallback,failedCallback,unreferencedCallback),txContext);
+
+		fireEvent(
+				sleeContainer.getEventContextFactory().createEventContext(
+						eventTypeId, event, this, address, serviceID,
+						succeedCallback, failedCallback, unreferencedCallback),
+				sleeContainer.getTransactionManager().getTransactionContext());
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.activity.ActivityContext#fireEvent(javax.slee.EventTypeID, java.lang.Object, javax.slee.Address, javax.slee.ServiceID, org.mobicents.slee.container.event.ReferencesHandler)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.activity.ActivityContext#fireEvent(javax
+	 * .slee.EventTypeID, java.lang.Object, javax.slee.Address,
+	 * javax.slee.ServiceID,
+	 * org.mobicents.slee.container.event.ReferencesHandler)
 	 */
 	public void fireEvent(EventTypeID eventTypeId, Object event,
-			Address address, ServiceID serviceID, ReferencesHandler referencesHandler) throws ActivityIsEndingException,
-			SLEEException {
-		
+			Address address, ServiceID serviceID,
+			ReferencesHandler referencesHandler)
+			throws ActivityIsEndingException, SLEEException {
+
 		if (isEnding()) {
-			throw new ActivityIsEndingException(getActivityContextHandle().toString());
+			throw new ActivityIsEndingException(getActivityContextHandle()
+					.toString());
 		}
-		
-		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
-		if (cacheData.setCheckingReferences(false) && txContext != null) {
-			scheduleCheckForUnreferencedActivity(txContext);					
+
+		if (acReferencesHandler != null) {
+			acReferencesHandler.eventReferenceCreated();
 		}
-		
-		fireEvent(sleeContainer.getEventContextFactory().createEventContext(eventTypeId,event,this,address,serviceID,referencesHandler),txContext);
+
+		fireEvent(
+				sleeContainer.getEventContextFactory().createEventContext(
+						eventTypeId, event, this, address, serviceID,
+						referencesHandler), sleeContainer
+						.getTransactionManager().getTransactionContext());
 	}
-	
+
 	/**
 	 * Ends the activity context.
 	 */
 	public void endActivity() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Ending activity context with handle "+getActivityContextHandle());
+			logger.debug("Ending activity context with handle "
+					+ getActivityContextHandle());
 		}
 		if (cacheData.setEnding(true)) {
-			fireEvent(sleeContainer.getEventContextFactory().createActivityEndEventContext(this, new ActivityEndEventUnreferencedCallback(getActivityContextHandle(),factory)),sleeContainer.getTransactionManager().getTransactionContext());	
-		}	
+			fireEvent(
+					sleeContainer
+							.getEventContextFactory()
+							.createActivityEndEventContext(
+									this,
+									new ActivityEndEventUnreferencedCallback(
+											getActivityContextHandle(), factory)),
+					sleeContainer.getTransactionManager()
+							.getTransactionContext());
+		}
 	}
-	
+
 	public void activityEnded() {
 
 		// remove references to this AC in timer and ac naming facility
@@ -545,172 +608,105 @@ public class ActivityContextImpl implements ActivityContext {
 		}
 
 	}
-	
-	private void fireEvent(EventContext event,TransactionContext txContext) {
-		
+
+	private void fireEvent(EventContext event, TransactionContext txContext) {
+
 		if (logger.isDebugEnabled()) {
-			logger.debug("Firing "+event);
+			logger.debug("Firing " + event);
 		}
-		
-		final ActivityEventQueueManager aeqm = event.getLocalActivityContext().getEventQueueManager();
+
+		final ActivityEventQueueManager aeqm = event.getLocalActivityContext()
+				.getEventQueueManager();
 		if (aeqm != null) {
 			if (txContext != null) {
 				// put event as pending in ac event queue manager
 				aeqm.pending(event);
 				// add tx actions to commit or rollback
-				txContext.getAfterCommitPriorityActions().add(new CommitEventContextAction(event, aeqm));
+				txContext.getAfterCommitPriorityActions().add(
+						new CommitEventContextAction(event, aeqm));
 				txContext.getAfterRollbackActions().add(
-						new RollbackEventContextAction(event,aeqm));
-			}
-			else {
+						new RollbackEventContextAction(event, aeqm));
+			} else {
 				// commit event, there is no tx
 				aeqm.fireNotTransacted(event);
 			}
 		} else {
 			throw new SLEEException("unable to find ACs event queue manager");
-		}		
+		}
 	}
-	
+
 	private LocalActivityContextImpl localActivityContext;
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.activity.ActivityContext#getLocalActivityContext()
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.runtime.activity.ActivityContext#getLocalActivityContext
+	 * ()
 	 */
 	public LocalActivityContextImpl getLocalActivityContext() {
 		if (localActivityContext == null) {
-			localActivityContext = factory.getLocalActivityContext(activityContextHandle, true);
+			localActivityContext = factory.getLocalActivityContext(this);
 		}
 		return localActivityContext;
 	}
-	
-	// UNREF CHECK PROCESS
-	
-	/*
-	 * There are 3 &quot;rounds&quot; to check if an activity is unreferenced:
-	 * 
-	 * 1st) in event handling if there is a sbb detach, cancel timer or name
-	 * unbound and the activity flags require callback to activityUnreferenced then we add a tx action to check if the rules (except outstanding
-	 * events) for an activity being unreferenced are satisfied.
-	 * 
-	 * 2nd) When the action is executed and if the rules are satisfied a
-	 * runnable task to do another rules check is enqueued in the activity event
-	 * executor service, thus serialized with events
-	 * 
-	 * 3rd a) If an event handling for this activity fires an event on it, attaches an sbb, sets a
-	 * timer or binds a name then the whole process is canceled
-	 * 
-	 * 3rd b) When the runnable is executed, if the process was not
-	 * canceled then the activity unreferenced callback is invoked
-	 */
-	
-	// keys related with the procedure to check of the ac is unreferenced
-	private static final String NODE_MAP_KEY_ActivityUnreferenced1stCheck = "unref-check-1";
-	
-	private String activityUnreferenced1stCheckKey = null;
-	
+
+	public void activityUnreferenced() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Activity Context with handle "
+					+ activityContextHandle + " is now unreferenced");
+		}
+		switch (activityContextHandle.getActivityType()) {
+		case RA:
+			// external activity, notify RA that the activity is unreferenced
+			((ResourceAdaptorActivityContextHandle) activityContextHandle)
+					.getResourceAdaptorEntity()
+					.getResourceAdaptorObject()
+					.activityUnreferenced(
+							activityContextHandle.getActivityHandle());
+			break;
+		case NULL:
+			// null activity unreferenced, end it
+			ActivityContext ac = sleeContainer.getActivityContextFactory()
+					.getActivityContext(activityContextHandle);
+			if (ac != null)
+				ac.endActivity();
+			break;
+		default:
+			// do nothing
+			break;
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.activity.ActivityContext#scheduleCheckForUnreferencedActivity()
-	 */
-	public void scheduleCheckForUnreferencedActivity() {
-		TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
-		if (txContext != null) {
-			scheduleCheckForUnreferencedActivity(txContext);
-		}
-	}
-		
-	@SuppressWarnings({ "unchecked" })
-	private void scheduleCheckForUnreferencedActivity(final TransactionContext txContext) {
-		
-		boolean doTraceLog = logger.isTraceEnabled();
-		
-		if (doTraceLog) {
-			logger.trace("scheduleCheckForUnreferencedActivity() ac = "+this.getActivityContextHandle());
-		}
-		if (!isEnding()) {
-			
-			if (activityUnreferenced1stCheckKey == null) {
-				activityUnreferenced1stCheckKey = new StringBuilder(String.valueOf(activityContextHandle)).append(NODE_MAP_KEY_ActivityUnreferenced1stCheck).toString();
-			}
-			final Map txLocalData = txContext.getData();
-			// schedule check only once at time
-			if (txLocalData.containsKey(activityUnreferenced1stCheckKey)) {
-				return;
-			}
-			else {
-				// raise the 1st check flag to ensure that the check is not scheduled more than once
-				txLocalData.put(activityUnreferenced1stCheckKey, MAP_VALUE);		
-			}
-			
-			if (doTraceLog) {
-				logger.trace("Schedule checking for unreferenced activity on ac "+this.getActivityContextHandle());
-			}
-			
-			TransactionalAction implicitEndCheck = new TransactionalAction() {
-				public void execute() {
-					unreferencedActivity1stCheck(txContext);
-				}
-			};
-			
-			txContext.getBeforeCommitActions().add(implicitEndCheck);
-		}	
-	}
-	
-	private void unreferencedActivity1stCheck(TransactionContext txContext) {
-		if (logger.isTraceEnabled()) {
-			logger.trace("1st check for unreferenced activity on ac "+this.getActivityContextHandle());
-		}
-		
-		if (!isEnding()) {
-			if (this.isSbbAttachmentSetEmpty()
-					&& this.isAttachedTimersEmpty()
-					&& this.isNamingBindingEmpty()) {
-
-				// raise the 2nd check flag
-				cacheData.setCheckingReferences(true);
-				
-				// lets submit final check task to activity event executor after commit
-				TransactionalAction action = new TransactionalAction() {
-					public void execute() {
-						getLocalActivityContext().getExecutorService()
-						.execute(new UnreferencedActivity2ndCheckTask(ActivityContextImpl.this));
-					}
-				};
-				txContext.getAfterCommitActions().add(action);				
-			}
-		}
-	}
-	
-	public void unreferencedActivity2ndCheck() {
-		// final verification
-		if (cacheData.isCheckingReferences()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Activity Context with handle "+getActivityContextHandle() + " is now unreferenced");
-			}
-			switch (activityContextHandle.getActivityType()) {
-			case RA:
-				// external activity, notify RA that the activity is
-				// unreferenced
-				((ResourceAdaptorActivityContextHandle) activityContextHandle).getResourceAdaptorEntity()
-						.getResourceAdaptorObject().activityUnreferenced(
-								activityContextHandle.getActivityHandle());
-				break;
-			case NULL:
-				// null activity unreferenced, end it
-				endActivity();
-				break;
-			default:
-				// do nothing
-				break;
-			}
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.activity.ActivityContext#getActivityContextInterface()
+	 * 
+	 * @see org.mobicents.slee.runtime.activity.ActivityContext#
+	 * getActivityContextInterface()
 	 */
 	public ActivityContextInterfaceImpl getActivityContextInterface() {
 		return new ActivityContextInterfaceImpl(this);
 	}
-	
+
+	public ActivityContextReferencesHandler getAcReferencesHandler() {
+		return acReferencesHandler;
+	}
+
+	@Override
+	public void beforeDeliveringEvent(EventContext ec) {
+		if (acReferencesHandler != null) {
+			// this means the ac is attached, thus we can indicate there a sbb
+			// ref
+			// to the refs handler, which means that more detachs must exist
+			// than
+			// attachs, for a unref state must be possible
+			// BUT only if there is no sbb refs yet, cause otherwise it means
+			// there was an
+			// attachment before delivering the event, yep the sbb entity
+			// receiving the event
+			// the flag is to signal if this is special sbb reference due to
+			// event delivery
+			acReferencesHandler.sbbeReferenceCreated(true);
+		}
+	}
 }

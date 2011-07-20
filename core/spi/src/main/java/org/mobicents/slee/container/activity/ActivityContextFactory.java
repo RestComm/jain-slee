@@ -61,19 +61,6 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	public Set<ActivityContextHandle> getAllActivityContextsHandles();
 
 	/**
-	 * Retrieves the local activity context view for the {@link ActivityContext}
-	 * with the specified handle
-	 * 
-	 * @param ach
-	 * @param create
-	 *            indicates if the local ac should be created, when it is not
-	 *            found
-	 * @return
-	 */
-	public LocalActivityContext getLocalActivityContext(
-			ActivityContextHandle ach, boolean create);
-
-	/**
 	 * @return
 	 */
 	public int getActivityContextCount();

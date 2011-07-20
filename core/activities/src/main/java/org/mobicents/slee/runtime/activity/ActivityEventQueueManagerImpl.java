@@ -22,32 +22,33 @@
 
 package org.mobicents.slee.runtime.activity;
 
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 import javax.slee.resource.FailureReason;
 import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.activity.ActivityEventQueueManager;
-import org.mobicents.slee.container.activity.LocalActivityContext;
 import org.mobicents.slee.container.event.EventContext;
-import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
-import org.mobicents.slee.container.util.concurrent.ConcurrentHashSet;
 
 /**
  * 
- * Manages the queuing of events for a specific activity.
+ * Manages the queuing of events for a specific activity. Note that this impl of
+ * {@link ActivityEventQueueManager} is only thread safe if the local AC
+ * executive service is single thread.
  * 
  * @author Eduardo Martins
  * 
  */
-
 public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager {
 
 	private static final Logger logger = Logger
 			.getLogger(ActivityEventQueueManagerImpl.class);
+
+	private boolean doTraceLogs = logger.isTraceEnabled();
 
 	/**
 	 * stores the activity end event when set
@@ -55,121 +56,133 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 	private EventContext activityEndEvent;
 
 	/**
-	 * atomic flag to define if the activity end event was queued
-	 */
-	private AtomicBoolean activityEndEventQueued = new AtomicBoolean(false);
-
-	/**
 	 * the set of pending events, i.e., events not committed yet, for this
 	 * activity
 	 */
-	private ConcurrentHashSet<EventContext> pendingEvents = new ConcurrentHashSet<EventContext>();
+	private Set<EventContext> pendingEvents;
 
 	/**
 	 * the events hold due to barriers set
 	 */
-	private ConcurrentLinkedQueue<EventContext> eventsBarriered = new ConcurrentLinkedQueue<EventContext>();
-	
+	private Deque<EventContext> eventsBarriered;
+
 	/**
 	 * the transactions that hold barriers to the activity event queue
 	 */
-	private ConcurrentHashSet<Transaction> eventBarriers = new ConcurrentHashSet<Transaction>();
-	
+	private Set<Transaction> eventBarriers;
+
 	/**
 	 * the local view of the related activity context
 	 */
-	private final LocalActivityContext localAC;
+	private final LocalActivityContextImpl localAC;
 
-	private boolean doTraceLogs = logger.isTraceEnabled();
-	
-	public ActivityEventQueueManagerImpl(
-			LocalActivityContext localAC) {
+	/**
+	 * 
+	 * @param localAC
+	 */
+	public ActivityEventQueueManagerImpl(LocalActivityContextImpl localAC) {
 		this.localAC = localAC;
 	}
 
-	/**
-	 * Indicates if there are pending events to be routed for the related
-	 * activity.
-	 * 
-	 * @return
-	 */
-	public boolean noPendingEvents() {
-		return pendingEvents.isEmpty();
+	@Override
+	public void pending(final EventContext event) {
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				if (doTraceLogs) {
+					logger.trace("Pending event of type "
+							+ event.getEventTypeId() + " in AC with handle "
+							+ event.getActivityContextHandle());
+				}
+
+				// manage event references
+				event.getReferencesHandler().add(
+						localAC.getActivityContextHandle());
+				// add event to pending set
+				if (pendingEvents == null) {
+					pendingEvents = new HashSet<EventContext>(4);
+				}
+				pendingEvents.add(event);
+			}
+		};
+		localAC.getExecutorService().execute(r);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.activity.ActivityEventQueueManager#pending(org.mobicents.slee.core.event.SleeEvent)
-	 */
-	public void pending(EventContext event) {
-
-		if (doTraceLogs) {
-			logger.trace("Pending event of type " + event.getEventTypeId()
-					+ " in AC with handle "
-					+ event.getActivityContextHandle());
-		}
-
-		if (activityEndEvent == null) {
-			// activity end event not set, we accept pending events
-			pendingEvents.add(event);
-			// manage event references
-			event.getReferencesHandler().add(localAC.getActivityContextHandle());			
-		} else {
-			// processing of the event failed
-			event.eventProcessingFailed(FailureReason.OTHER_REASON);			
-		}
+	@Override
+	public void commit(final EventContext event) {
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				if (activityEndEvent == null) {
+					commit(event, true);
+				} else {
+					// processing of the event failed
+					if (doTraceLogs) {
+						logger.trace("Unable to commit event of type "
+								+ event.getEventTypeId()
+								+ " in AC with handle "
+								+ event.getActivityContextHandle()
+								+ ", the activity end event is already committed");
+					}
+					event.eventProcessingFailed(FailureReason.OTHER_REASON);
+				}
+			}
+		};
+		localAC.getExecutorService().execute(r);
 	}
 
-	/**
-	 * Signals the manager that the event was committed, and thus can be routed.
-	 * 
-	 * @param event
-	 */
-	public void commit(EventContext event) {
-		commit(event,true);
+	@Override
+	public void fireNotTransacted(final EventContext event) {
+		// manage event references
+		event.getReferencesHandler().add(localAC.getActivityContextHandle());
+		// commit event
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				if (activityEndEvent == null) {
+					// activity end event not set
+					// commit event
+					commit(event, false);
+				} else {
+					// processing of the event failed
+					if (doTraceLogs) {
+						logger.trace("Unable to commit event of type "
+								+ event.getEventTypeId()
+								+ " in AC with handle "
+								+ event.getActivityContextHandle()
+								+ ", the activity end event is already committed");
+					}
+					event.eventProcessingFailed(FailureReason.OTHER_REASON);
+				}
+			}
+		};
+		localAC.getExecutorService().execute(r);
 	}
-	
-	/**
-	 * Similar as doing pending() and commit() of an event in a single step.
-	 * @param event
-	 */
-	public void fireNotTransacted(EventContext event) {
-		if (activityEndEvent == null) {
-			// activity end event not set
-			// manage event references
-			event.getReferencesHandler().add(localAC.getActivityContextHandle());
-			// commit event
-			commit(event,false);
-		} else {
-			// processing of the event failed
-			event.eventProcessingFailed(FailureReason.OTHER_REASON);			
-		}
-	}
-	
+
 	private void commit(EventContext event, boolean isPendingEvent) {
 		if (isPendingEvent) {
-			if (!pendingEvents.remove(event)) {
+			if (pendingEvents == null || !pendingEvents.remove(event)) {
 				// processing of the event failed
-				event.eventProcessingFailed(FailureReason.OTHER_REASON);			
+				if (doTraceLogs) {
+					logger.trace("Unable to commit event of type "
+							+ event.getEventTypeId()
+							+ " in AC with handle "
+							+ event.getActivityContextHandle()
+							+ ", the event was not found in the pending events set.");
+				}
+				event.eventProcessingFailed(FailureReason.OTHER_REASON);
 				return;
 			}
-		}	
-		if (eventBarriers.isEmpty()) {
+		}
+		if (eventBarriers == null || eventBarriers.isEmpty()) {
 			// barriers are not set, proceed with commit of event
 			commitAndNotSuspended(event);
-		}
-		else {
-			// barriers are set
-			synchronized (eventBarriers) {
-				if (!eventBarriers.isEmpty()) {
-					// barriers are still set, add the event to the frozen queue
-					eventsBarriered.add(event);
-				}
-				else {
-					// barriers were removed, proceed with commit of event
-					commitAndNotSuspended(event);
-				}
+		} else {
+			// barriers are set add the event to the frozen queue
+			if (eventsBarriered == null) {
+				eventsBarriered = new LinkedList<EventContext>();
 			}
+			eventsBarriered.add(event);
 		}
 	}
 
@@ -177,113 +190,102 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 
 		if (doTraceLogs) {
 			logger.trace("Commiting event of type " + event.getEventTypeId()
-					+ " in AC with handle "
-					+ event.getActivityContextHandle());
+					+ " in AC with handle " + event.getActivityContextHandle());
 		}
 
 		if (event.isActivityEndEvent()) {
 			// store it
 			activityEndEvent = event;
 			// check we can route it
-			if (pendingEvents.isEmpty()) {
-				// no pending events
-				if (activityEndEventQueued.compareAndSet(false, true)) {
-					// between element removal and check if it's empty there
-					// is no sync so we need to ensure only one thread
-					// routes the activity end event
-					localAC.getExecutorService().routeEvent(event);
-				}
-			}
+			routeActivityEndEventIfNeeded();
 		} else {
-			final EventRouterExecutor executor = localAC.getExecutorService();
-			if (executor != null) {
-				// route the event
-				executor.routeEvent(event);
-				// perhaps we need to route a frozen activity end event too
-				routeActivityEndEventIfNeeded();
-			}
-			else {
-				// processing of the event failed
-				event.eventProcessingFailed(FailureReason.OTHER_REASON);
-			}
+			// cancel any check for references possibly queued after commiting
+			// the event
+			localAC.setActivityReferencesCheck(null);
+			// route the event
+			localAC.getExecutorService().routeEvent(event);
+			// perhaps we need to route a frozen activity end event too
+			routeActivityEndEventIfNeeded();
 		}
 	}
-	
+
 	private void routeActivityEndEventIfNeeded() {
-		if (pendingEvents.isEmpty()) {
+		if (pendingEvents == null || pendingEvents.isEmpty()) {
 			// no pending events
 			// now check if we have a frozen activity end event
 			if (activityEndEvent != null) {
 				// route the frozen activity end event too
-				if (activityEndEventQueued.compareAndSet(false, true)) {
-					// between pending events map element removal and check if
-					// it's empty there is no sync so we need to ensure only one
-					// thread routes the activity end event
-					localAC.getExecutorService().routeEvent(activityEndEvent);
-				}
+				localAC.getExecutorService().routeEvent(activityEndEvent);
 			}
 		}
 	}
 
-	/**
-	 * Signals that the java transaction who fired the specified event did not
-	 * commit, and thus the event should be not routed.
-	 * 
-	 * @param event
-	 */
-	public void rollback(EventContext event) {
+	@Override
+	public void rollback(final EventContext event) {
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				if (doTraceLogs) {
+					logger.trace("Rolled back event of type "
+							+ event.getEventTypeId() + " in AC with handle "
+							+ event.getActivityContextHandle());
+				}
 
-		if (doTraceLogs) {
-			logger.trace("Rolled back event of type " + event.getEventTypeId()
-					+ " in AC with handle "
-					+ event.getActivityContextHandle());
-		}
-
-		if (pendingEvents.remove(event)) {
-			// confirmed the event was pending
-			routeActivityEndEventIfNeeded();
-			// manage event references
-			event.getReferencesHandler().remove(localAC.getActivityContextHandle());			
-		}
+				if (pendingEvents != null && pendingEvents.remove(event)) {
+					// confirmed the event was pending
+					routeActivityEndEventIfNeeded();
+				}
+			}
+		};
+		localAC.getExecutorService().execute(r);
 	}
 
-	/**
-	 * create a barrier for the specified transaction for this activity event
-	 * queue, events committed are frozen till all barriers are removed
-	 */
-	public void createBarrier(Transaction transaction) {
-		// raise barrier
-		eventBarriers.add(transaction);
+	@Override
+	public void createBarrier(final Transaction transaction) {
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				// raise barrier
+				if (eventBarriers == null) {
+					eventBarriers = new HashSet<Transaction>(2);
+				}
+				eventBarriers.add(transaction);
+			}
+		};
+		localAC.getExecutorService().execute(r);
 	}
-	
-	/**
-	 * remove a barrier for the specified transaction for this activity event
-	 * queue, if there are no more barriers then delivering of events frozen proceed
-	 */
-	public void removeBarrier(Transaction transaction) {
-		synchronized (eventBarriers) {
-			if(eventBarriers.remove(transaction)) {
-				if (eventBarriers.isEmpty()) {
-					// no barriers, proceed with commit of all events stored
-					EventContext activityEndEvent = null;
-					for (Iterator<EventContext> it = eventsBarriered.iterator();it.hasNext();) {
-						EventContext e = it.next();
-						it.remove();
-						if (!e.isActivityEndEvent()) {
-							commitAndNotSuspended(e);
+
+	@Override
+	public void removeBarrier(final Transaction transaction) {
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				if (eventBarriers != null && eventBarriers.remove(transaction)) {
+					if (eventBarriers.isEmpty()) {
+						// no barriers, proceed with commit of all events stored
+						if (eventsBarriered != null) {
+							EventContext e = null;
+							while (true) {
+								e = eventsBarriered.pollFirst();
+								if (e == null) {
+									break;
+								} else {
+									if (!e.isActivityEndEvent()) {
+										commitAndNotSuspended(e);
+									} else {
+										activityEndEvent = e;
+									}
+								}
+							}
 						}
-						else {
-							activityEndEvent = e;
-						}
-					}
-					if (activityEndEvent != null) {
-						commitAndNotSuspended(activityEndEvent);
+						routeActivityEndEventIfNeeded();
 					}
 				}
 			}
-		}
+		};
+		localAC.getExecutorService().execute(r);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {

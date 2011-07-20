@@ -22,7 +22,6 @@
 
 package org.mobicents.slee.runtime.activity;
 
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.LocalActivityContext;
 import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
@@ -49,10 +48,27 @@ public class LocalActivityContextImpl implements LocalActivityContext {
 	 * 
 	 */
 	private EventRoutingTask routingTask;
-		
-	public LocalActivityContextImpl(ActivityContextHandle ach, SleeContainer sleeContainer) {
+	
+	/**
+	 * 
+	 */
+	private final int activityFlags;
+	
+	/**
+	 * 
+	 */
+	private final ActivityContextFactoryImpl acFactory;
+
+	/**
+	 * 
+	 */
+	private Runnable activityReferencesCheck;
+
+	public LocalActivityContextImpl(ActivityContextHandle ach, int activityFlags, ActivityContextFactoryImpl acFactory) {
 		this.ach = ach;
 		this.eventQueueManager = new ActivityEventQueueManagerImpl(this);
+		this.activityFlags = activityFlags;
+		this.acFactory = acFactory;
 	}
 	
 	public ActivityEventQueueManagerImpl getEventQueueManager() {
@@ -83,6 +99,26 @@ public class LocalActivityContextImpl implements LocalActivityContext {
 	 */
 	public void setCurrentEventRoutingTask(EventRoutingTask eventRoutingTask) {
 		this.routingTask = eventRoutingTask;
+	}
+	
+	public int getActivityFlags() {
+		return activityFlags;
+	}
+	
+	public ActivityContextFactoryImpl getAcFactory() {
+		return acFactory;
+	}
+	
+	public ActivityContextImpl getActivityContext() {
+		return acFactory.getActivityContext(ach);
+	}
+	
+	public Runnable getActivityReferencesCheck() {
+		return activityReferencesCheck;
+	}
+	
+	public void setActivityReferencesCheck(Runnable activityReferencesCheck) {
+		this.activityReferencesCheck = activityReferencesCheck;
 	}
 	
 	@Override

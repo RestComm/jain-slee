@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -16,31 +17,31 @@
 			<artifactId>spi</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>common</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>congestion</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>usage</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>events</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>remote</artifactId>
@@ -52,43 +53,43 @@
 			<artifactId>router</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>resource</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>slee-timers</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>profiles</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>activities</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>services</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>transaction</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>components</artifactId>
@@ -112,7 +113,7 @@
 			<artifactId>fault-tolerant-ra-api</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>fault-tolerant-ra-impl</artifactId>
@@ -137,17 +138,17 @@
 			<groupId>org.mobicents.cluster</groupId>
 			<artifactId>core</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.jboss.cache</groupId>
 			<artifactId>jbosscache-core</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>jgroups</groupId>
 			<artifactId>jgroups</artifactId>
 		</dependency>
-		
+
 		<!-- jslee -->
 		<dependency>
 			<groupId>javax.slee</groupId>
@@ -190,14 +191,16 @@
 									<outputDirectory>src/main/resources</outputDirectory>
 									<destFileName>standard-components-du.jar</destFileName>
 								</artifactItem>
-							</artifactItems>							
+							</artifactItems>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
 				<configuration>
 					<descriptors>
 						<descriptor>
@@ -211,7 +214,6 @@
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
-							<goal>directory-single</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -226,7 +228,7 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<tasks>															
+							<tasks>
 								<copy todir="${jboss.home}/server/default/deploy">
 									<fileset dir="${project.build.directory}/${build.finalName}-beans">
 										<include name="${build.finalName}/**" />
@@ -249,7 +251,8 @@
 									</fileset>
 								</delete>
 								<delete failonerror="false" includeemptydirs="true">
-									<fileset dir="${jboss.home}/server/default/deploy/${build.finalName}" />
+									<fileset
+										dir="${jboss.home}/server/default/deploy/${build.finalName}" />
 								</delete>
 							</tasks>
 						</configuration>

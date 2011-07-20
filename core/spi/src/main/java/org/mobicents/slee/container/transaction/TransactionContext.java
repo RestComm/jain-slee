@@ -81,8 +81,9 @@ public interface TransactionContext {
 
 	/**
 	 * 
+	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Map getData();
 
 	/**

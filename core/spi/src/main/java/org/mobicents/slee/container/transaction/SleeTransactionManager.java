@@ -93,4 +93,7 @@ public interface SleeTransactionManager extends SleeContainerModule, javax.slee.
      */
     public TransactionManager getRealTransactionManager();
     
+    @Override
+    public SleeTransaction getTransaction() throws SystemException;
+    
 }

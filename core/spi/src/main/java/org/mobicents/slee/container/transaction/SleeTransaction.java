@@ -20,48 +20,19 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.resource;
-
-import javax.slee.resource.ActivityHandle;
-import javax.slee.resource.UnrecognizedActivityHandleException;
-
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.transaction.SleeTransaction;
+package org.mobicents.slee.container.transaction;
 
 /**
  * 
  * @author martins
- * 
+ *
  */
-public class SleeEndpointEndActivityNotTransactedExecutor extends
-		SleeEndpointOperationNotTransactedExecutor {
+public interface SleeTransaction extends javax.slee.transaction.SleeTransaction {
 
 	/**
 	 * 
-	 * @param sleeContainer
-	 * @param sleeEndpoint
+	 * @return
 	 */
-	public SleeEndpointEndActivityNotTransactedExecutor(
-			SleeContainer sleeContainer, SleeEndpointImpl sleeEndpoint) {
-		super(sleeContainer, sleeEndpoint);
-	}
-
-	/**
-	 * Executes a non transacted End Activity operation.
-	 *  
-	 * @param handle
-	 * @throws UnrecognizedActivityHandleException
-	 */
-	void execute(final ActivityHandle handle)
-			throws UnrecognizedActivityHandleException {
-
-		final SleeTransaction tx = super.suspendTransaction();
-		try {
-			sleeEndpoint._endActivity(handle,tx);
-		} finally {
-			if (tx != null) {
-				super.resumeTransaction(tx);
-			}
-		}
-	}
+	public TransactionContext getTransactionContext();
+	
 }

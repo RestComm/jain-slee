@@ -35,6 +35,7 @@ import javax.slee.ServiceID;
 import javax.slee.facilities.TimerID;
 import javax.slee.resource.ActivityIsEndingException;
 
+import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.event.EventProcessingFailedCallback;
 import org.mobicents.slee.container.event.EventProcessingSucceedCallback;
 import org.mobicents.slee.container.event.ReferencesHandler;
@@ -211,12 +212,6 @@ public interface ActivityContext {
 	public boolean removeNameBinding(String aciName);
 
 	/**
-	 * Requests that on the end of the transaction the activity should be
-	 * checked regarding its references.
-	 */
-	public void scheduleCheckForUnreferencedActivity();
-
-	/**
 	 * Set a shared data item for the ACI
 	 * 
 	 * @param key
@@ -225,5 +220,11 @@ public interface ActivityContext {
 	 *            -- value of the shared data item.
 	 */
 	public void setDataAttribute(String key, Object newValue);
+
+	/**
+	 * @param eventContext 
+	 * 
+	 */
+	public void beforeDeliveringEvent(EventContext eventContext);
 
 }

@@ -97,14 +97,11 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		return sleeContainer;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.activity.ActivityContextFactory#getLocalActivityContext(org.mobicents.slee.runtime.activity.ActivityContextHandle, boolean)
-	 */
-	public LocalActivityContextImpl getLocalActivityContext(
-			ActivityContextHandle ach, boolean create) {
+	LocalActivityContextImpl getLocalActivityContext(ActivityContextImpl ac) {
+		final ActivityContextHandle ach = ac.getActivityContextHandle();
 		LocalActivityContextImpl localActivityContext = localActivityContexts.get(ach);
-		if (localActivityContext == null && create) {
-			final LocalActivityContextImpl newLocalActivityContext = new LocalActivityContextImpl(ach,sleeContainer);
+		if (localActivityContext == null) {
+			final LocalActivityContextImpl newLocalActivityContext = new LocalActivityContextImpl(ach,ac.getActivityFlags(),this);
 			localActivityContext = localActivityContexts.putIfAbsent(ach,newLocalActivityContext);
 			if (localActivityContext == null) {
 				localActivityContext = newLocalActivityContext;
@@ -175,7 +172,6 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		final LocalActivityContextImpl localActivityContext = localActivityContexts.remove(ac.getActivityContextHandle());
 		if (localActivityContext != null) {
 			localActivityContext.getExecutorService().activityUnmapped(ac.getActivityContextHandle());
-			localActivityContext.setExecutorService(null);
 		}
 				
 		if (logger.isDebugEnabled()) {
@@ -208,7 +204,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	private class DataRemovaClusterListener implements DataRemovalListener {
 		
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings("rawtypes")
 		public void dataRemoved(Fqn arg0) {
 			final ActivityContextHandle ach = (ActivityContextHandle) arg0.getLastElement();
 			final LocalActivityContextImpl localActivityContext = localActivityContexts.remove(ach);
@@ -224,7 +220,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 			}
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings("rawtypes")
 		public Fqn getBaseFqn() {
 			return ActivityContextFactoryCacheData.NODE_FQN;
 		}

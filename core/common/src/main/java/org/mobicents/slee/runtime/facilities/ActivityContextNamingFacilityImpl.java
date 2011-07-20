@@ -147,18 +147,11 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
 	      
     }
         
-    public void removeName(String aciName) throws NullPointerException,
-		    TransactionRequiredLocalException, NameNotBoundException, FacilityException {
-		//Check if we are in the context of a transaction.
-		
-    	sleeContainer.getTransactionManager().mandateTransaction();
-    	
-		if (log.isDebugEnabled()) {
-	        log.debug("Removing name from facility: aci " + aciName);
-		}
-		
-		cacheData.unbindName(aciName);
-  
+    public void removeName(String aciName) throws NameNotBoundException {		
+    	if (log.isDebugEnabled()) {
+    		log.debug("Removing name from facility: aci " + aciName);
+    	}
+    	cacheData.unbindName(aciName);
     }
 
     /*
@@ -200,7 +193,7 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
         
     }
     
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Map getBindings() {
     	
     	try {

@@ -36,14 +36,6 @@ import org.mobicents.slee.container.event.EventContext;
 public interface ActivityEventQueueManager {
 
 	/**
-	 * Indicates if there are pending events to be routed for the related
-	 * activity.
-	 * 
-	 * @return
-	 */
-	public boolean noPendingEvents();
-
-	/**
 	 * Defines that the specified event is now pending
 	 * 
 	 * @param ef
