@@ -1,0 +1,143 @@
+<eclipslee-maven-dependencies>
+  <sbb>
+    <enablers description="Enablers">
+      <dependency>
+        <groupId>org.mobicents.servers.jainslee.enablers</groupId>
+        <artifactId>hss-client-sbb</artifactId>
+        <version>1.0.0.CR1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mobicents.servers.jainslee.enablers</groupId>
+        <artifactId>sip-publication-client-sbb</artifactId>
+        <version>1.0.0.CR1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mobicents.servers.jainslee.enablers</groupId>
+        <artifactId>sip-subscription-client-sbb</artifactId>
+        <version>1.0.0.CR1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mobicents.servers.jainslee.enablers</groupId>
+        <artifactId>xdm-client</artifactId>
+        <version>1.0.0.CR2</version>
+      </dependency>
+    </enablers>
+    <resource-adaptor-types description="Resource Adaptor Types">
+      <dependency>
+        <description>Mobicents Diameter Base RA Type</description>
+        <groupId>org.mobicents.servers.diameter.resources</groupId>
+        <artifactId>base-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents Diameter Credit-Control Application RA Type</description>
+        <groupId>org.mobicents.servers.diameter.resources</groupId>
+        <artifactId>cca-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents Diameter Cx/Dx Interface RA Type</description>
+        <groupId>org.mobicents.servers.diameter.resources</groupId>
+        <artifactId>cxdx-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents Diameter Gx Interface RA Type</description>
+        <groupId>org.mobicents.servers.diameter.resources</groupId>
+        <artifactId>gx-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents Diameter Rf Interface RA Type</description>
+        <groupId>org.mobicents.servers.diameter.resources</groupId>
+        <artifactId>rf-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents Diameter Ro Interface RA Type</description>
+        <groupId>org.mobicents.servers.diameter.resources</groupId>
+        <artifactId>ro-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents Diameter Sh Client Interface RA Type</description>
+        <groupId>org.mobicents.servers.diameter.resources</groupId>
+        <artifactId>sh-client-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents Diameter Sh Server Interface RA Type</description>
+        <groupId>org.mobicents.servers.diameter.resources</groupId>
+        <artifactId>sh-server-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents HTTP Client RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>http-client-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents HTTP Servlet RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>http-servlet-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents JCC RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>jcc-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents JDBC RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>jdbc-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents MAP RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>map-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents MGCP RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>mgcp-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents SIP11 RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>sip11-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents SMPP5 RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>smpp5-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents TFTP Server RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>tftp-server-ratype</artifactId>
+        <version>1.0.0.CR1</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents XCAP Client RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>xcap-client-ratype</artifactId>
+        <version>2.4.1.FINAL</version>
+      </dependency>
+      <dependency>
+        <description>Mobicents XMPP RA Type</description>
+        <groupId>org.mobicents.resources</groupId>
+        <artifactId>xmpp-ratype</artifactId>
+        <version>2.4.0.FINAL</version>
+      </dependency>
+    </resource-adaptor-types>
+    <libraries description="JAIN SLEE Libraries"/>
+  </sbb>
+</eclipslee-maven-dependencies>

@@ -5,10 +5,10 @@ Bundle-SymbolicName: org.mobicents.eclipslee.servicecreation; singleton:=true
 Bundle-Version: 2.0.0.qualifier
 Bundle-ClassPath: servicecreation.jar,
  lib/slee.jar,
- lib/xerces.jar,
  lib/jbossall-client.jarlib/maven-model-2.2.1.jar,
  lib/maven-model-2.2.1.jar,
- lib/plexus-utils-1.4.9.jar
+ lib/plexus-utils-1.4.9.jar,
+ lib/xerces.jar
 Bundle-Activator: org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin
 Bundle-Vendor: Mobicents
 Bundle-Localization: plugin

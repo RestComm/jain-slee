@@ -23,6 +23,11 @@
 package org.mobicents.eclipslee.servicecreation.popup.actions;
 
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.HashMap;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.model.Dependency;
@@ -34,6 +39,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -50,6 +56,8 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -65,6 +73,9 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin;
 import org.mobicents.eclipslee.util.maven.MavenProjectUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * 
@@ -283,7 +294,7 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
 
         newCommands[0] = command;
         desc.setBuildSpec(newCommands);
-        
+
         project.setDescription(desc, monitor);
       }
 
@@ -360,6 +371,11 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
             event.doit = false;
         }};
 
+        parseDependenciesFile(composite);
+
+        new Label(composite, SWT.NONE);
+        new Label(composite, SWT.NONE);
+
         new Label(composite, SWT.NONE).setText("Dependency Group Id");
         depGroupId = new Text(composite, SWT.BORDER | SWT.SINGLE);
         depGroupId.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL|GridData.FILL_HORIZONTAL));
@@ -387,6 +403,76 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
         depToClasspath = new Button(composite, SWT.CHECK | SWT.BORDER);
         depToClasspath.setSelection(true);
         depToClasspath.setText("");
+    }
+
+    private void parseDependenciesFile(Composite composite) {
+      try {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        URL url = FileLocator.find(ServiceCreationPlugin.getDefault().getBundle(), new Path("/eclipslee-maven-dependencies.xml"), null);
+        URL furl = FileLocator.toFileURL(url);
+        Document doc = db.parse(furl.openStream());
+        // TODO: Get component
+        NodeList compNodeList = doc.getDocumentElement().getElementsByTagName("sbb");
+        if(compNodeList.getLength() != 1) {
+          // fail
+        }
+        else {
+          NodeList elemChilds = compNodeList.item(0).getChildNodes();
+
+          new Label(composite, SWT.NONE).setText("Components");
+          final Combo componentTemplatesCombo = new Combo(composite, SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
+          componentTemplatesCombo.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL|GridData.FILL_HORIZONTAL));
+
+          final HashMap<String, String[]> descToIds = new HashMap<String, String[]>();
+
+          // Component types
+          for(int i = 0; i < elemChilds.getLength(); i++) {
+            if(elemChilds.item(i) instanceof Element) {
+              Element e = (Element) elemChilds.item(i);
+
+              componentTemplatesCombo.add("-------- " + (e.hasAttribute("description") ? e.getAttribute("description") : e.getNodeName()));
+
+              // Add Listener to selection change
+              componentTemplatesCombo.addModifyListener(new ModifyListener() {
+                @Override
+                public void modifyText(ModifyEvent event) {
+                  String selected = componentTemplatesCombo.getItem(componentTemplatesCombo.getSelectionIndex());
+                  if(selected.startsWith("-------- ")) {
+                    componentTemplatesCombo.pack();
+                  }
+                  else {
+                    String[] values = descToIds.get(componentTemplatesCombo.getItem(componentTemplatesCombo.getSelectionIndex()));
+                    depGroupId.setText(values[0]);
+                    depArtifactId.setText(values[1]);
+                    depVersion.setText(values[2]);
+                  }
+                }
+              });
+
+              // Now we get to dependencies
+              NodeList dependencies = e.getChildNodes();
+
+              for(int j = 0; j < dependencies.getLength(); j++) {
+                if(dependencies.item(j) instanceof Element) {
+                  Element depElem = (Element) dependencies.item(j);
+
+                  String depGroupId = depElem.getElementsByTagName("groupId").item(0).getTextContent();
+                  String depArtifactId = depElem.getElementsByTagName("artifactId").item(0).getTextContent();
+                  String depVersion = depElem.getElementsByTagName("version").item(0).getTextContent();
+
+                  String depDesc = depElem.getElementsByTagName("description").getLength() >= 1 ? depElem.getElementsByTagName("description").item(0).getTextContent() : depGroupId + " : " + depArtifactId + " : " + depVersion;
+                  componentTemplatesCombo.add(depDesc);
+                  descToIds.put(depDesc, new String[]{depGroupId, depArtifactId, depVersion});
+                }
+              }
+            }
+          }
+        }
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
     }
   }
 

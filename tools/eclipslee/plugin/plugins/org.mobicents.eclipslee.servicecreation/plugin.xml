@@ -835,5 +835,18 @@
              natureId="org.mobicents.eclipslee.servicecreation.sleenature">
        </image>
     </extension>
+    <extension
+          point="org.eclipse.ui.preferencePages">
+      <page id="org.mobicents.eclipslee.preferences.EclipsleePreferencePage"
+            name="Mobicents EclipSLEE"
+            class="org.mobicents.eclipslee.servicecreation.preferences.MainPreferencePage">
+      </page>
+    
+      <page id="org.mobicents.eclipslee.preferences.EclipsleeComponentTemplatesPreferencePage"
+            name="Component Templates"
+            class="org.mobicents.eclipslee.servicecreation.preferences.ComponentTemplatesPreferencePage"
+            category="org.mobicents.eclipslee.preferences.EclipsleePreferencePage">
+      </page>
+    </extension>
     
 </plugin>
