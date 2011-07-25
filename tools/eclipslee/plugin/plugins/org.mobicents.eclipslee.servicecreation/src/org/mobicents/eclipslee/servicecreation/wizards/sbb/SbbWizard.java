@@ -230,7 +230,8 @@ public class SbbWizard extends BaseWizard {
 				subs.put("__BUSINESS_IFACE_NAME__", ", " + sbbBaseName);
 			}
 			else {
-        subs.put("__BUSINESS_IFACE_NAME__", "");
+			  // Workaround for http://code.google.com/p/mobicents/issues/detail?id=2548, always implement this
+        subs.put("__BUSINESS_IFACE_NAME__", ", " + sbbBaseName);
 			}
 			
 			if (createACI)
@@ -418,30 +419,35 @@ public class SbbWizard extends BaseWizard {
 			abstractFile = FileUtil.createFromTemplate(folder, new Path(getFileName()), new Path(SBB_TEMPLATE), subs, monitor);
 			monitor.worked(1);
 			
-			// Create the SBB local interface file.
+			// Always create business interface (see http://code.google.com/p/mobicents/issues/detail?id=2548)
+      businessFile = FileUtil.createFromTemplate(folder, new Path(businessFilename), new Path(SBB_BUSINESS_TEMPLATE), subs, monitor);
+
+      // Create the SBB local interface file.
 			if (createLocalIface) {
 			  localFile = FileUtil.createFromTemplate(folder, new Path(localFilename), new Path(SBB_LOCAL_TEMPLATE), subs, monitor);
-        businessFile = FileUtil.createFromTemplate(folder, new Path(businessFilename), new Path(SBB_BUSINESS_TEMPLATE), subs, monitor);
 				monitor.worked(1);
 			}
 			else {
         localFile = null;
-        businessFile = null;
 			}
 			
 			// Create the SBB ACI.
 			if (createACI) {
 				aciFile = FileUtil.createFromTemplate(folder, new Path(aciFilename), new Path(SBB_ACI_TEMPLATE), subs, monitor);
 				monitor.worked(1);
-			} else
-				aciFile = null;
+			}
+			else {
+			  aciFile = null;
+			}
 			
 			// Create the SBB usage interface file.
 			if (createUsageIface) {			
 				usageFile = FileUtil.createFromTemplate(folder, new Path(usageFilename), new Path(SBB_USAGE_TEMPLATE), subs, monitor);
 				monitor.worked(1);			
-			} else
-				usageFile = null;
+			}
+			else {
+			  usageFile = null;
+			}
 			
 			FileUtil.createFromInputStream(resourceFolder, new Path(xmlFilename), sbbJarXML.getInputStreamFromXML(), monitor);
 			monitor.worked(1);

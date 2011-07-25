@@ -112,7 +112,8 @@ public class EditSbbClassesAction implements IObjectActionDelegate {
 					if (createLocalInterface) {					
 						// Create a new local interface file
 						FileUtil.createFromTemplate(xmlFile.getProject(), srcFolder.append(localInterfacePath), new Path(SbbWizard.SBB_LOCAL_TEMPLATE), subs, monitor);
-		        FileUtil.createFromTemplate(xmlFile.getProject(), srcFolder.append(businessInterfacePath), new Path(SbbWizard.SBB_BUSINESS_TEMPLATE), subs, monitor);
+						// Workaround for http://code.google.com/p/mobicents/issues/detail?id=2548, it's already present...
+		        // FileUtil.createFromTemplate(xmlFile.getProject(), srcFolder.append(businessInterfacePath), new Path(SbbWizard.SBB_BUSINESS_TEMPLATE), subs, monitor);
 						// add to the xml
 						sbb.setLocalInterfaceName(localInterfaceClass);
 					} else {					
