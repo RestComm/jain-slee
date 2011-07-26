@@ -79,13 +79,14 @@ public class Address {
 
     // encode the address bytes
     System.arraycopy(address, 0, encodedAddress, 2, address.length);
-
     return encodedAddress;
   }
 
   @Override
   public String toString() {
-    return addressType + "=" + new String(address);
+	 //issue: http://code.google.com/p/mobicents/issues/detail?id=2758 
+     //return addressType + "=" + new String(address);
+	 return new String(encode());
   }
 
   @Override

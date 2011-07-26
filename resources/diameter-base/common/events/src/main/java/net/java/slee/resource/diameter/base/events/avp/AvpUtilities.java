@@ -1800,7 +1800,7 @@ public class AvpUtilities {
     }
     catch (Exception e) {
       if(logger.isDebugEnabled()) { 
-        logger.debug("Failed to obtain AVP with code " + avpCode + " as type DiameterURI.", e);
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type Address.", e);
       }
       return null;
     }
@@ -1826,7 +1826,7 @@ public class AvpUtilities {
     }
     catch (Exception e) {
       if(logger.isDebugEnabled()) { 
-        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type DiameterURI.", e);
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type Address.", e);
       }
       return null;
     }
