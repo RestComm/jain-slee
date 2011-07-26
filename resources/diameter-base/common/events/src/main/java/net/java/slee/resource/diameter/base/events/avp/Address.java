@@ -84,9 +84,7 @@ public class Address {
 
   @Override
   public String toString() {
-	 //issue: http://code.google.com/p/mobicents/issues/detail?id=2758 
-     //return addressType + "=" + new String(address);
-	 return new String(encode());
+     return addressType + "=" + new String(address);
   }
 
   @Override

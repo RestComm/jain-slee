@@ -1651,7 +1651,14 @@ public class AvpUtilities {
         case DiameterAvpType._IP_FILTER_RULE:
         case DiameterAvpType._OCTET_STRING:
         case DiameterAvpType._QOS_FILTER_RULE:
-          setAvpAsOctetString(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, avp.toString());
+        	if(avp instanceof Address)
+        	{
+        		 //issue: http://code.google.com/p/mobicents/issues/detail?id=2758 
+            	setAvpAsRaw(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp,((Address)avp).encode());
+        	}else
+        	{
+        		setAvpAsOctetString(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, avp.toString());
+        	}
           break;
         case DiameterAvpType._ENUMERATED:
         case DiameterAvpType._INTEGER_32:

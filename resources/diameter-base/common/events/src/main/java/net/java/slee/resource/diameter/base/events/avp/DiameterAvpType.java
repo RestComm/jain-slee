@@ -80,6 +80,7 @@ public class DiameterAvpType implements Serializable {
     case _FLOAT_64: return FLOAT_64;
     case _GROUPED: return GROUPED;
     case _ADDRESS: return ADDRESS;
+    case _IP_ADDRESS: return IP_ADDRESS;
     case _TIME: return TIME;
     case _UTF8_STRING: return UTF8_STRING;
     case _DIAMETER_IDENTITY: return DIAMETER_IDENTITY;
@@ -107,7 +108,7 @@ public class DiameterAvpType implements Serializable {
   public static final int _ENUMERATED = 13;
   public static final int _IP_FILTER_RULE = 14;
   public static final int _QOS_FILTER_RULE = 15;
-
+  public static final int _IP_ADDRESS = 16;
   private static final String[] names = {
     "OctetString",
     "Integer32",
@@ -124,7 +125,8 @@ public class DiameterAvpType implements Serializable {
     "DiameterURI",
     "Enumerated",
     "IPFilterRule",
-    "QoSFilterRule"
+    "QoSFilterRule",
+    "IPAddress"
   };
 
   /**
@@ -533,6 +535,7 @@ public class DiameterAvpType implements Serializable {
    */
   public static final DiameterAvpType QOS_FILTER_RULE = new DiameterAvpType(_QOS_FILTER_RULE);
 
+  public static final DiameterAvpType IP_ADDRESS = new DiameterAvpType(_IP_ADDRESS);
   private Object readResolve() throws StreamCorruptedException {
     try {
       return fromInt(type);
