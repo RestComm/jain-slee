@@ -68,6 +68,11 @@ public class SbbProfilePage extends WizardPage implements WizardChangeListener {
   }
 
   private void setProject(String projectName) {
+    // Not yet ready for showtime... come back later.
+    if (getControl() == null) {
+      return;
+    }
+
     if (projectName == null || projectName.equals(this.projectName))
       return;
 

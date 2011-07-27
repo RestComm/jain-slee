@@ -77,8 +77,10 @@ public class DeployableUnitJarPage extends WizardPage implements WizardChangeLis
   }
 
   public void onWizardPageChanged(WizardPage page) {
-
-    if (getControl() == null) return;
+    // Not yet ready for showtime... come back later.
+    if (getControl() == null) {
+      return;
+    }
 
     if (page instanceof FilenamePage) {		
 

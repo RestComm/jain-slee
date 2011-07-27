@@ -58,8 +58,10 @@ public class ServiceRootSbbPage extends WizardPage implements Listener, WizardCh
   }
 
   public void onWizardPageChanged(WizardPage page) {		
-    if (getControl() == null)
+    // Not yet ready for showtime... come back later.
+    if (getControl() == null) {
       return;
+    }
 
     if (page instanceof FilenamePage) {
       String projectName = ((FilenamePage) page).getSourceContainer().getProject().getName();

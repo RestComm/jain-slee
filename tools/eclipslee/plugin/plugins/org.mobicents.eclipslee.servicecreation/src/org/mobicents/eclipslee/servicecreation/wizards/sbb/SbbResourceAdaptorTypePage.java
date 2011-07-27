@@ -41,9 +41,10 @@ public class SbbResourceAdaptorTypePage extends WizardPage implements WizardChan
 
 
   public void onWizardPageChanged(WizardPage page) {
-
-    if (getControl() == null)
+    // Not yet ready for showtime... come back later.
+    if (getControl() == null) {
       return;
+    }
 
     if (page instanceof FilenamePage) {
       FilenamePage filePage = (FilenamePage) page;

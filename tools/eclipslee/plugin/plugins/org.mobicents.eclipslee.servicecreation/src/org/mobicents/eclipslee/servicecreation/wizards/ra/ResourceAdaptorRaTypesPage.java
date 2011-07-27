@@ -62,6 +62,11 @@ public class ResourceAdaptorRaTypesPage extends WizardPage implements WizardChan
   }
 
   public void onWizardPageChanged(WizardPage page) {
+    // Not yet ready for showtime... come back later.
+    if (getControl() == null) {
+      return;
+    }
+
     if (page instanceof FilenamePage) {			
       if (((FilenamePage) page).getSourceContainer() == null) {
         return;
