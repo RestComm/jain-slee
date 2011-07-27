@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.eclipslee.servicecreation.wizards.sbb;
+package org.mobicents.eclipslee.servicecreation.wizards.event;
 
 import java.util.HashMap;
 
@@ -42,14 +42,14 @@ import org.mobicents.eclipslee.xml.LibraryJarXML;
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SbbLibraryPage extends WizardPage implements WizardChangeListener {
+public class EventLibraryPage extends WizardPage implements WizardChangeListener {
 
-  private static final String PAGE_DESCRIPTION = "Specify the SBB's Libraries.";
+  private static final String PAGE_DESCRIPTION = "Specify the Event's Libraries.";
 
   /**
    * @param pageName
    */
-  public SbbLibraryPage(String title) {
+  public EventLibraryPage(String title) {
     super("wizardPage");
     setTitle(title);
     setDescription(PAGE_DESCRIPTION);	

@@ -37,28 +37,28 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.mobicents.eclipslee.servicecreation.util.EclipseUtil;
-import org.mobicents.eclipslee.servicecreation.util.SbbFinder;
-import org.mobicents.eclipslee.servicecreation.wizards.sbb.SbbLibraryDialog;
+import org.mobicents.eclipslee.servicecreation.util.EventFinder;
+import org.mobicents.eclipslee.servicecreation.wizards.event.EventLibraryDialog;
 import org.mobicents.eclipslee.util.SLEE;
 import org.mobicents.eclipslee.util.slee.xml.components.ComponentNotFoundException;
+import org.mobicents.eclipslee.util.slee.xml.components.EventXML;
 import org.mobicents.eclipslee.util.slee.xml.components.LibraryRefXML;
 import org.mobicents.eclipslee.util.slee.xml.components.LibraryXML;
-import org.mobicents.eclipslee.util.slee.xml.components.SbbXML;
+import org.mobicents.eclipslee.xml.EventJarXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
-import org.mobicents.eclipslee.xml.SbbJarXML;
 
 /**
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class EditSbbLibrariesAction implements IActionDelegate {
+public class EditEventLibrariesAction implements IActionDelegate {
 
-  public EditSbbLibrariesAction() {
+  public EditEventLibrariesAction() {
 
   }
 
-  public EditSbbLibrariesAction(String sbbID) {
-    this.sbbID = sbbID;
+  public EditEventLibrariesAction(String eventID) {
+    this.eventID = eventID;
   }
 
   public void setActivePart(IAction action, IWorkbenchPart targetPart) {}
@@ -67,7 +67,7 @@ public class EditSbbLibrariesAction implements IActionDelegate {
 
     initialize();
     if (dialog == null) {
-      MessageDialog.openError(new Shell(), "Error Modifying Service Building Block", getLastError());
+      MessageDialog.openError(new Shell(), "Error Modifying Event", getLastError());
       return;
     }
 
@@ -78,9 +78,9 @@ public class EditSbbLibrariesAction implements IActionDelegate {
         IProgressMonitor monitor = null;
 
         // Nuke all existing libraries
-        LibraryRefXML[] xml = sbb.getLibraryRefs();
+        LibraryRefXML[] xml = eventXML.getLibraryRefs();
         for (int i = 0; i < xml.length; i++)
-          sbb.removeLibraryRef(xml[i]);
+          eventXML.removeLibraryRef(xml[i]);
 
         // Add the new libraries
         HashMap[] libraries = dialog.getSelectedLibraries();
@@ -93,14 +93,14 @@ public class EditSbbLibrariesAction implements IActionDelegate {
           LibraryJarXML libraryJarXML = (LibraryJarXML) map.get("XML");
           LibraryXML libraryXML = libraryJarXML.getLibrary(name, vendor, version);
 
-          LibraryRefXML libraryRefXML = sbb.addLibraryRef(libraryXML);
+          LibraryRefXML libraryRefXML = eventXML.addLibraryRef(libraryXML);
         }
 
         // Save the XML
-        xmlFile.setContents(sbbJarXML.getInputStreamFromXML(), true, true, monitor);
+        file.setContents(eventXML.getInputStreamFromXML(), true, true, null);
       }
       catch (Exception e) {
-        MessageDialog.openError(new Shell(), "Error Modifying SBB", "An error occurred while modifying the service building block. It must be modified manually.");
+        MessageDialog.openError(new Shell(), "Error Modifying Event", "An error occurred while modifying the event. It must be modified manually.");
         e.printStackTrace();
         System.err.println(e.toString() + ": " + e.getMessage());
         return;
@@ -110,30 +110,30 @@ public class EditSbbLibrariesAction implements IActionDelegate {
   }
 
   /**
-   * Get the SBBXML data object for the current selection.
+   * Get the EventXML data object for the current selection.
    *
    */
-
   private void initialize() {
 
     String projectName = null;
 
-    sbb = null;
-    sbbJarXML = null;
+    dialog = null;
+    event = null;
+    eventXML = null;
 
     if (selection == null && selection.isEmpty()) {
-      setLastError("Please select an SBB's Java or XML file first.");
+      setLastError("Please select an Event's Java or XML file first.");
       return;
     }
 
     if (!(selection instanceof IStructuredSelection)) {
-      setLastError("Please select an SBB's Java or XML file first.");
-      return;			
+      setLastError("Please select an Event's Java or XML file first.");
+      return;     
     }
 
     IStructuredSelection ssel = (IStructuredSelection) selection;
     if (ssel.size() > 1) {
-      setLastError("This plugin only supports editing of one service building block at a time.");
+      setLastError("This plugin only supports editing of one event at a time.");
       return;
     }
 
@@ -147,81 +147,60 @@ public class EditSbbLibrariesAction implements IActionDelegate {
         unit = JavaCore.createCompilationUnitFrom((IFile) obj);
       }
       catch (Exception e) {
-        // Suppress Exception.  The next check checks for null unit.			
+        // Suppress Exception.  The next check checks for null unit.      
       }
 
-      if (unit != null) { // .java file
-        sbbJarXML = SbbFinder.getSbbJarXML(unit);
-        if (sbbJarXML == null) {
-          setLastError("Unable to find the corresponding sbb-jar.xml for this SBB.");
+      if (unit != null) { // .java file 
+        eventXML = EventFinder.getEventJarXML(unit);
+        if (eventXML == null) {
+          setLastError("Unable to find the corresponding event-jar.xml for this event.");
           return;
         }
 
         try {
-          sbb = sbbJarXML.getSbb(EclipseUtil.getClassName(unit));
+          event = eventXML.getEvent(EclipseUtil.getClassName(unit));
         }
         catch (org.mobicents.eclipslee.util.slee.xml.components.ComponentNotFoundException e) {
-          setLastError("Unable to find the corresponding sbb-jar.xml for this SBB.");
+          setLastError("Unable to find the corresponding event-jar.xml for this event.");
           return;
         }
 
-        // Set 'file' to the SBB XML file, not the Java file.
-        xmlFile = SbbFinder.getSbbJarXMLFile(unit);
-        abstractFile = SbbFinder.getSbbAbstractClassFile(unit);
-
-        if (xmlFile == null) {
-          setLastError("Unable to find SBB XML.");
-          return;
-        }
-
-        if (abstractFile == null) {
-          setLastError("Unable to find SBB abstract class file.");
-          return;
-        }
+        // Set 'file' to the Event XML file, not the Java file.
+        file = EventFinder.getEventJarXMLFile(unit);
 
         projectName = unit.getJavaProject().getProject().getName();
       }
-      else {	
-        IFile file = (IFile) obj;
+      else {
+        file = (IFile) obj;
 
-        String name = SLEE.getName(sbbID);
-        String vendor = SLEE.getVendor(sbbID);
-        String version = SLEE.getVersion(sbbID);
+        String name = SLEE.getName(eventID);
+        String vendor = SLEE.getVendor(eventID);
+        String version = SLEE.getVersion(eventID);
 
-        try {
-          sbbJarXML = new SbbJarXML(file);
-        }
-        catch (Exception e) {
-          setLastError("Unable to find the corresponding sbb-jar.xml for this SBB.");
+        eventXML = EventFinder.getEventJarXML(file);
+
+        if (eventXML == null) {
+          setLastError("Unable to find the corresponding event-jar.xml for this event.");
           return;
         }
         try {
-          sbb = sbbJarXML.getSbb(name, vendor, version);
+          event = eventXML.getEvent(name, vendor, version);
         }
         catch (ComponentNotFoundException e) {
-          setLastError("This SBB is not defined in this XML file.");
+          setLastError("This event is not defined in this Event XML file.");
           return;
         }
 
-        xmlFile = file;
-        abstractFile = SbbFinder.getSbbAbstractClassFile(xmlFile, name, vendor, version);
-
-        if (abstractFile == null) {
-          setLastError("Unable to find SBB abstract class file.");
-          return;
-        }
-
-        unit = (ICompilationUnit) JavaCore.create(abstractFile);
-        projectName = unit.getJavaProject().getProject().getName();
+        projectName = file.getProject().getName();
       }
     }
     else {
       setLastError("Unsupported object type: " + obj.getClass().toString());
       return;
-    }
+    } 
 
-    LibraryRefXML[] libraries = sbb.getLibraryRefs();
-    dialog = new SbbLibraryDialog(new Shell(), libraries, projectName);
+    LibraryRefXML[] libraries = eventXML.getLibraryRefs();
+    dialog = new EventLibraryDialog(new Shell(), libraries, projectName);
 
     return;
   }
@@ -243,14 +222,12 @@ public class EditSbbLibrariesAction implements IActionDelegate {
     return error;
   }
 
-  private String sbbID;
-  private SbbJarXML sbbJarXML;
-  private SbbXML sbb;
-  private String lastError;
   private ISelection selection;
-  private SbbLibraryDialog dialog;
-
-  private IFile xmlFile;
-  private IFile abstractFile;
+  private EventLibraryDialog dialog;
+  private EventJarXML eventXML;
+  private EventXML event;
+  private IFile file;
+  private String lastError;
+  private String eventID;
 
 }

@@ -20,58 +20,59 @@ import org.mobicents.eclipslee.util.slee.xml.DTDXML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
+ * 
  * @author allenc
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class EventXML extends DTDXML {
 
-	protected EventXML(Document document, Element root, DTDHandler dtd) {
-		super(document, root, dtd);		
-	}
-	
-	public String getName() {
-		return getChildText(getRoot(), "event-type-name");		
-	}
-	
-	public void setName(String name) {
-		setChildText(getRoot(), "event-type-name", name);
-	}
-	
-	public String getVendor() {
-		return getChildText(getRoot(), "event-type-vendor");
-	}
-	
-	public void setVendor(String vendor) {
-		setChildText(getRoot(), "event-type-vendor", vendor);
-	}
-	
-	public String getVersion() {
-		return getChildText(getRoot(), "event-type-version");
-	}
-	
-	public void setVersion(String version) {
-		setChildText(getRoot(), "event-type-version", version);
-	}
-	
-	public String getDescription() {
-		return getChildText(getRoot(), "description");
-	}
-	
-	public void setDescription(String description) {
-		setChildText(getRoot(), "description", description);
-	}	
-	
-	public void setEventClassName(String name) {
-		setChildText(getRoot(), "event-class-name", name);
-	}
-	
-	public String getEventClassName() {
-		return getChildText(getRoot(), "event-class-name");		
-	}
-	
-	public String toString() {
-		return "Event: " + getName() + ", " + getVersion() + ", " + getVendor();
-	}
-	
+  protected EventXML(Document document, Element root, DTDHandler dtd) {
+    super(document, root, dtd);		
+  }
+
+  public String getName() {
+    return getChildText(getRoot(), "event-type-name");		
+  }
+
+  public void setName(String name) {
+    setChildText(getRoot(), "event-type-name", name);
+  }
+
+  public String getVendor() {
+    return getChildText(getRoot(), "event-type-vendor");
+  }
+
+  public void setVendor(String vendor) {
+    setChildText(getRoot(), "event-type-vendor", vendor);
+  }
+
+  public String getVersion() {
+    return getChildText(getRoot(), "event-type-version");
+  }
+
+  public void setVersion(String version) {
+    setChildText(getRoot(), "event-type-version", version);
+  }
+
+  public String getDescription() {
+    return getChildText(getRoot(), "description");
+  }
+
+  public void setDescription(String description) {
+    setChildText(getRoot(), "description", description);
+  }	
+
+  public void setEventClassName(String name) {
+    setChildText(getRoot(), "event-class-name", name);
+  }
+
+  public String getEventClassName() {
+    return getChildText(getRoot(), "event-class-name");		
+  }
+
+  public String toString() {
+    return "Event: " + getName() + ", " + getVersion() + ", " + getVendor();
+  }
+
 }

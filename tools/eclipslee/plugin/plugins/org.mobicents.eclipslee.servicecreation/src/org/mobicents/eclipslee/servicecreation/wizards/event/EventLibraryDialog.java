@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.eclipslee.servicecreation.wizards.sbb;
+package org.mobicents.eclipslee.servicecreation.wizards.event;
 
 import java.util.HashMap;
 
@@ -41,11 +41,11 @@ import org.mobicents.eclipslee.xml.LibraryJarXML;
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SbbLibraryDialog extends Dialog {
+public class EventLibraryDialog extends Dialog {
 
-  private static final String DIALOG_TITLE = "Modify SBB Libraries";
+  private static final String DIALOG_TITLE = "Modify Event's Libraries";
 
-  public SbbLibraryDialog(Shell parent, LibraryRefXML[] selectedLibraries, String projectName) {	
+  public EventLibraryDialog(Shell parent, LibraryRefXML[] selectedLibraries, String projectName) {	
     super(parent);			
     setBlockOnOpen(true);
     setLibraries(selectedLibraries);

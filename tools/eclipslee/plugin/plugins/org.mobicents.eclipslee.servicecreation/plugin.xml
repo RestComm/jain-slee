@@ -132,6 +132,12 @@
             class="org.mobicents.eclipslee.servicecreation.popup.actions.DeleteEventAction"
             />
          <action
+          id="org.mobicents.eclipslee.servicecreation.Event.Menu.EditLibraries"
+          label="Libraries..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.Event.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditEventLibrariesAction"
+          />               
+         <action
          	id="org.mobicents.eclipslee.servicecreation.Event.Menu.EditIdentity"
          	label="Identity..."
          	menubarPath="org.mobicents.eclipslee.servicecreation.Event.Menu/FirstGroup"
