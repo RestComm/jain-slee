@@ -136,8 +136,12 @@ public class ResourceAdaptorXMLSubmenu implements IObjectActionDelegate, IMenuCr
           item.addSelectionListener(new IdentitySelectionListener());
 
           item = new MenuItem(child, SWT.NONE);
+          item.setText("Libraries...");
+          item.addSelectionListener(new LibrariesSelectionListener());
+
+          item = new MenuItem(child, SWT.NONE);
           item.setText("Resource Adaptor Types...");
-          item.addSelectionListener(new EventsSelectionListener());
+          item.addSelectionListener(new RaTypesSelectionListener());
 
           item = new MenuItem(child, SWT.NONE);
           item.setText("Configuration Properties...");
@@ -156,14 +160,25 @@ public class ResourceAdaptorXMLSubmenu implements IObjectActionDelegate, IMenuCr
     }
   }
 
-  private class EventsSelectionListener extends SelectionAdapter {
+  private class RaTypesSelectionListener extends SelectionAdapter {
     public void widgetSelected(SelectionEvent e) {
       MenuItem item = (MenuItem) e.getSource();
       Menu parent = item.getParent();
-      MenuItem parentItem = parent.getParentItem();			
+      MenuItem parentItem = parent.getParentItem();     
       EditResourceAdaptorRaTypesAction action = new EditResourceAdaptorRaTypesAction(parentItem.getText());
       action.selectionChanged(null, selection);
-      action.run(null);			
+      action.run(null);     
+    }
+  }
+
+  private class LibrariesSelectionListener extends SelectionAdapter {
+    public void widgetSelected(SelectionEvent e) {
+      MenuItem item = (MenuItem) e.getSource();
+      Menu parent = item.getParent();
+      MenuItem parentItem = parent.getParentItem();     
+      EditResourceAdaptorLibrariesAction action = new EditResourceAdaptorLibrariesAction(parentItem.getText());
+      action.selectionChanged(null, selection);
+      action.run(null);     
     }
   }
 

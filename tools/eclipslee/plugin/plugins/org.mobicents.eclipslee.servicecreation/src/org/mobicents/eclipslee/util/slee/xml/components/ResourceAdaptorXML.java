@@ -122,6 +122,29 @@ public class ResourceAdaptorXML extends DTDXML {
     return null;
   }
 
+  public LibraryRefXML[] getLibraryRefs() {
+    Element nodes[] = getNodes("resource-adaptor/library-ref");
+    LibraryRefXML xml[] = new LibraryRefXML[nodes.length];
+    for (int i = 0; i < nodes.length; i++)
+      xml[i] = new LibraryRefXML(document, nodes[i], dtd);
+    return xml;
+  }
+
+  public LibraryRefXML addLibraryRef(LibraryXML library) {
+    Element ele = addElement(getRoot(), "library-ref");
+    LibraryRefXML xml = new LibraryRefXML(document, ele, dtd);
+
+    xml.setName(library.getName());
+    xml.setVendor(library.getVendor());
+    xml.setVersion(library.getVersion());
+
+    return xml;
+  }
+
+  public void removeLibraryRef(LibraryRefXML libraryRef) {
+    libraryRef.getRoot().getParentNode().removeChild(libraryRef.getRoot());
+  }
+
   public ResourceAdaptorConfigPropertyXML addConfigProperty(String name, String type, String value) {
     Element child = addElement(root, "config-property");
     setChildText(child, "config-property-name", name.trim());

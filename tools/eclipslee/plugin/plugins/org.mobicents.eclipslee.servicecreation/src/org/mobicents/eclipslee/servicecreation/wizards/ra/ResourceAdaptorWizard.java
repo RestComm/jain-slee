@@ -42,6 +42,7 @@ import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorClassesXM
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorXML;
 import org.mobicents.eclipslee.xml.DeployConfigXML;
+import org.mobicents.eclipslee.xml.LibraryJarXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorJarXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 
@@ -57,8 +58,10 @@ public class ResourceAdaptorWizard extends BaseWizard {
 
   private ResourceAdaptorRaTypesPage resourceAdaptorRaTypesPage;
   private ResourceAdaptorConfigPropertiesPage resourceAdaptorConfigPropertiesPage;
+  private ResourceAdaptorLibraryPage resourceAdaptorLibrariesPage;
 
   private HashMap[] resourceAdaptorRaTypes;
+  private HashMap[] resourceAdaptorLibraries;
   private HashMap[] resourceAdaptorConfigProperties;
   private boolean resourceAdaptorSupportActiveReconfig;
 
@@ -70,6 +73,9 @@ public class ResourceAdaptorWizard extends BaseWizard {
 
   public void addPages() {
     super.addPages(); // adds filename and name, vendor, version pages
+    // Libraries
+    resourceAdaptorLibrariesPage = new ResourceAdaptorLibraryPage(WIZARD_TITLE);
+    addPage(resourceAdaptorLibrariesPage);
     // RA Types Def
     resourceAdaptorRaTypesPage = new ResourceAdaptorRaTypesPage(WIZARD_TITLE);
     addPage(resourceAdaptorRaTypesPage);
@@ -83,6 +89,8 @@ public class ResourceAdaptorWizard extends BaseWizard {
 
     resourceAdaptorRaTypes = resourceAdaptorRaTypesPage.getSelectedRaTypes();
 
+    resourceAdaptorLibraries = resourceAdaptorLibrariesPage.getSelectedLibraries();
+
     resourceAdaptorConfigProperties = resourceAdaptorConfigPropertiesPage.getConfigProperties();
 
     resourceAdaptorSupportActiveReconfig = resourceAdaptorConfigPropertiesPage.getActiveReconfiguration(); 
@@ -93,7 +101,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
   public void doFinish(IProgressMonitor monitor) throws CoreException {
     try {
       IFolder folder = getSourceContainer().getFolder(new Path(""));//.getFolder(new Path(this.getPackageName().replaceAll("\\.", "/")));
-      
+
       // This allows implicit package creation
       for(String path : this.getPackageName().split("\\.")) {
         folder = folder.getFolder(path);
@@ -107,13 +115,13 @@ public class ResourceAdaptorWizard extends BaseWizard {
       String deployConfigXmlFilename = /*resourceAdaptorBaseName + "-*/"deploy-config.xml";
       String resourceAdaptorFilename = getFileName();
       String resourceAdaptorMarshalerFilename = resourceAdaptorBaseName + "Marshaler.java";
-      
+
       String resourceAdaptorClassName = Utils.getSafePackagePrefix(getPackageName()) + resourceAdaptorBaseName + "ResourceAdaptor";
       String resourceAdaptorMarshalerName = Utils.getSafePackagePrefix(getPackageName()) + resourceAdaptorBaseName + "Marshaler";
 
       // Calculate the number of stages
       int stages = 3; // RA Class + Marshaler + XML
-      
+
       monitor.beginTask("Creating Resource Adaptor: " + resourceAdaptorBaseName, stages);
 
       // Substitution map
@@ -131,31 +139,40 @@ public class ResourceAdaptorWizard extends BaseWizard {
       IFile resourceAdaptorJarFile = resourceFolder.getFile(xmlFilename);
       // We must create the Resource Adaptor XML ..
       ResourceAdaptorJarXML resourceAdaptorJarXML = resourceAdaptorJarFile.exists() ? new ResourceAdaptorJarXML(resourceAdaptorJarFile) : new ResourceAdaptorJarXML();
-      ResourceAdaptorXML resourceAdaptor = resourceAdaptorJarXML.addResourceAdaptor();
-      
+      ResourceAdaptorXML resourceAdaptorXML = resourceAdaptorJarXML.addResourceAdaptor();
+
       // Create the Resource Adaptor XML.
-      resourceAdaptor.setName(getComponentName());
-      resourceAdaptor.setVendor(getComponentVendor());
-      resourceAdaptor.setVersion(getComponentVersion());
-      resourceAdaptor.setDescription(getComponentDescription());
-      
-      ResourceAdaptorClassesXML resourceAdaptorClassesXML = resourceAdaptor.addResourceAdaptorClasses();
+      resourceAdaptorXML.setName(getComponentName());
+      resourceAdaptorXML.setVendor(getComponentVendor());
+      resourceAdaptorXML.setVersion(getComponentVersion());
+      resourceAdaptorXML.setDescription(getComponentDescription());
+
+      ResourceAdaptorClassesXML resourceAdaptorClassesXML = resourceAdaptorXML.addResourceAdaptorClasses();
       ResourceAdaptorClassXML resourceAdaptorClassXML = resourceAdaptorClassesXML.addResourceAdaptorClass(resourceAdaptorSupportActiveReconfig);
       resourceAdaptorClassXML.setResourceAdaptorClassName(resourceAdaptorClassName);
 
       ArrayList<String> raTypeResourceAdaptorInterfaces = new ArrayList<String>();
-      
+
       for (HashMap raType : resourceAdaptorRaTypes) {
         String raTypeName = (String) raType.get("Name");
         String raTypeVendor = (String) raType.get("Vendor");
         String raTypeVersion = (String) raType.get("Version");
-        resourceAdaptor.addResourceAdaptorType(raTypeName, raTypeVendor, raTypeVersion);
-        
+        resourceAdaptorXML.addResourceAdaptorType(raTypeName, raTypeVendor, raTypeVersion);
+
         ResourceAdaptorTypeJarXML raTypeJarXML = (ResourceAdaptorTypeJarXML) raType.get("XML");
         ResourceAdaptorTypeXML raTypeXML = raTypeJarXML.getResourceAdaptorType(raTypeName, raTypeVendor, raTypeVersion);
         raTypeResourceAdaptorInterfaces.add(raTypeXML.getResourceAdaptorTypeClasses().getResourceAdaptorInterface());
       }
-      
+
+      // Libraries
+      for (HashMap resourceAdaptorLibrary : resourceAdaptorLibraries) {
+        LibraryJarXML xml = (LibraryJarXML) resourceAdaptorLibrary.get("XML");
+        String name = (String) resourceAdaptorLibrary.get("Name");
+        String vendor = (String) resourceAdaptorLibrary.get("Vendor");
+        String version = (String) resourceAdaptorLibrary.get("Version");
+        resourceAdaptorXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+      }
+
       String subConfigProperties = "";
       String subRaConfigureMethod = "";
 
@@ -163,7 +180,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
         String configPropertyName = (String) configProperty.get("Name");
         String configPropertyType = (String) configProperty.get("Type");
         String configPropertyDefaultValue = (String) configProperty.get("Default Value");
-        resourceAdaptor.addConfigProperty(configPropertyName, configPropertyType, configPropertyDefaultValue);
+        resourceAdaptorXML.addConfigProperty(configPropertyName, configPropertyType, configPropertyDefaultValue);
         // FIXME: Make this a method in ConfigPropertiesUtil...
         /*
         String value = "null";
@@ -188,7 +205,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
         else {
           value = configPropertyDefaultValue;
         }
-        */
+         */
         String simpleType = configPropertyType.replaceAll("java\\.lang\\.", "");
 
         subConfigProperties += "\tprivate " + simpleType + " " + configPropertyName /* + " = " + value  */ + ";\n";
@@ -202,7 +219,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
 
       subs.put("__CONFIG_PROPERTIES__", subConfigProperties);
       subs.put("__RA_CONFIGURE_IMPL__", subRaConfigureMethod);
-      
+
       final IFile resourceAdaptorFile;
       final IFile resourceAdaptorMarshalerFile;
       final ArrayList<IFile> raTypeRaInterfaceImplFiles = new ArrayList<IFile>();
@@ -211,7 +228,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
       // Create Marshaler
       resourceAdaptorMarshalerFile = FileUtil.createFromTemplate(folder, new Path(resourceAdaptorMarshalerFilename), new Path(RESOURCE_ADAPTOR_MARSHALER_TEMPLATE), subs, monitor);
       monitor.worked(1); // done with Resource Adaptor Marshaler file. worked++
-      
+
       // Create Provider Impls
       String subGetResourceAdaptorInterfaceImpl = "";
       for(String raTypeResourceAdaptorInterface : raTypeResourceAdaptorInterfaces) {
@@ -233,7 +250,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
           "\t\t}\n");
         }
       }
-      
+
       subGetResourceAdaptorInterfaceImpl += "\n\t\treturn null;";
       subs.put("__GET_RESOURCE_ADAPTOR_INTERFACE_IMPL__", subGetResourceAdaptorInterfaceImpl);
 

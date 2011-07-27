@@ -723,6 +723,12 @@
           class="org.mobicents.eclipslee.servicecreation.popup.actions.EditResourceAdaptorRaTypesAction"
           />    
          <action
+          id="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu.EditLibraries"
+          label="Libraries..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditResourceAdaptorLibrariesAction"
+          />    
+         <action
           id="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu.EditIdentity"
           label="Identity..."
           menubarPath="org.mobicents.eclipslee.servicecreation.ResourceAdaptor.Menu/FirstGroup"

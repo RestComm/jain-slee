@@ -95,7 +95,7 @@ public class RaTypeWizard extends BaseWizard {
   public void doFinish(IProgressMonitor monitor) throws CoreException {
     try {
       IFolder folder = getSourceContainer().getFolder(new Path(""));//.getFolder(new Path(this.getPackageName().replaceAll("\\.", "/")));
-      
+
       // This allows implicit package creation
       for(String path : this.getPackageName().split("\\.")) {
         folder = folder.getFolder(path);
@@ -108,7 +108,7 @@ public class RaTypeWizard extends BaseWizard {
       String xmlFilename = /*raTypeBaseName + "-*/"resource-adaptor-type-jar.xml";
       String raTypeAcifFilename = getFileName();
       String raInterfaceFilename = raTypeBaseName + "Provider.java";
-      
+
       String raTypeAcifClassName = Utils.getSafePackagePrefix(getPackageName()) + raTypeBaseName + "ActivityContextInterfaceFactory";
       String raInterfaceClassName = Utils.getSafePackagePrefix(getPackageName()) + raTypeBaseName + "Provider";
 
@@ -116,7 +116,7 @@ public class RaTypeWizard extends BaseWizard {
       int stages = 2; // ACIF + XML
       if (raTypeEvents.length > 0) stages++;
       if (createRaInterface) stages++;
-      
+
       monitor.beginTask("Creating Resource Adaptor Type: " + raTypeBaseName, stages);
 
       // Substitution map
@@ -126,7 +126,7 @@ public class RaTypeWizard extends BaseWizard {
 
       // ...
       subs.put("__ACI_GETTERS__", getAciGetters(raActivityTypes));
-      
+
       // Get (or create if not present already) META-INF folder for storing resource-adaptor-type-jar.xml
       IFolder resourceFolder = getSourceContainer().getFolder(new Path("../resources/META-INF"));
       if (!resourceFolder.exists()) {
@@ -137,15 +137,15 @@ public class RaTypeWizard extends BaseWizard {
       IFile raTypeJarFile = resourceFolder.getFile(xmlFilename);
       // We must create the RaType XML before trying to add events.
       ResourceAdaptorTypeJarXML raTypeJarXML = raTypeJarFile.exists() ? new ResourceAdaptorTypeJarXML(raTypeJarFile) : new ResourceAdaptorTypeJarXML();
-      ResourceAdaptorTypeXML raType = raTypeJarXML.addResourceAdaptorType();
-      
+      ResourceAdaptorTypeXML raTypeXML = raTypeJarXML.addResourceAdaptorType();
+
       // Create the RA Type XML.
-      raType.setName(getComponentName());
-      raType.setVendor(getComponentVendor());
-      raType.setVersion(getComponentVersion());
-      raType.setDescription(getComponentDescription());
-      
-      ResourceAdaptorTypeClassesXML raTypeClassesXML = raType.addResourceAdaptorTypeClasses();
+      raTypeXML.setName(getComponentName());
+      raTypeXML.setVendor(getComponentVendor());
+      raTypeXML.setVersion(getComponentVersion());
+      raTypeXML.setDescription(getComponentDescription());
+
+      ResourceAdaptorTypeClassesXML raTypeClassesXML = raTypeXML.addResourceAdaptorTypeClasses();
       raTypeClassesXML.setActivityContextInterfaceFactoryInterface(raTypeAcifClassName);
 
       for (HashMap activityType : raActivityTypes) {
@@ -162,7 +162,7 @@ public class RaTypeWizard extends BaseWizard {
         String name = (String) raTypeLibrary.get("Name");
         String vendor = (String) raTypeLibrary.get("Vendor");
         String version = (String) raTypeLibrary.get("Version");
-        raType.addLibraryRef(xml.getLibrary(name, vendor, version));
+        raTypeXML.addLibraryRef(xml.getLibrary(name, vendor, version));
       }
 
       // Events
@@ -170,7 +170,7 @@ public class RaTypeWizard extends BaseWizard {
         String eventName = (String) raTypeEvent.get("Name");
         String eventVendor = (String) raTypeEvent.get("Vendor");
         String eventVersion = (String) raTypeEvent.get("Version");
-        raType.addEvent(eventName, eventVendor, eventVersion);
+        raTypeXML.addEvent(eventName, eventVendor, eventVersion);
       }
 
       final IFile raTypeAcifFile;
@@ -189,7 +189,7 @@ public class RaTypeWizard extends BaseWizard {
           String clazz = type.replace(pakkage+ ".", "");
 
           IFolder actFolder = getSourceContainer().getFolder(new Path(""));
-          
+
           // This allows implicit package creation
           for(String path : pakkage.split("\\.")) {
             actFolder = actFolder.getFolder(path);
@@ -205,7 +205,7 @@ public class RaTypeWizard extends BaseWizard {
           subs.remove("__ACTIVITY_NAME__");
         }
       }
-      
+
       // Create the RA Interface file.
       if(createRaInterface) {
         raInterfaceFile = FileUtil.createFromTemplate(folder, new Path(raInterfaceFilename), new Path(RATYPE_PROVIDER_TEMPLATE), subs, monitor);
@@ -247,12 +247,12 @@ public class RaTypeWizard extends BaseWizard {
 
   public static String getAciGetters(HashMap[] types) {
     String methods = "";
-    
+
     for (int i = 0; i < types.length; i++) {
       HashMap map = types[i];
-      
+
       String activityType = (String) map.get("Activity Type");
-      
+
       methods += "\n\tpublic ActivityContextInterface getActivityContextInterface(\n" +
       "\t\t" + activityType + " activity) throws NullPointerException,\n" +
       "\t\tUnrecognizedActivityException, FactoryException;\n";
