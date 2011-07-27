@@ -71,7 +71,7 @@ public class SbbLibraryDialog extends Dialog {
           }
         }
 
-        // Foreach selected event, select it (and remove from available)
+        // Foreach selected library, select it (and remove from available)
         for (int i = 0; i < selectedLibraries.length; i++) {
           panel.select((HashMap) selectedLibraries[i]);				
         }

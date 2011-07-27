@@ -110,9 +110,9 @@ public class SbbLibraryPage extends WizardPage implements WizardChangeListener {
         DTDXML xml[] = LibraryFinder.getDefault().getComponents(BaseFinder.ALL/*BINARY*/, projectName);
         for (int i = 0; i < xml.length; i++) {
           LibraryJarXML ev = (LibraryJarXML) xml[i];
-          LibraryXML[] events = ev.getLibraries();
-          for (int j = 0; j < events.length; j++) {
-            panel.addAvailableLibrary(ev, events[j]);
+          LibraryXML[] libraries = ev.getLibraries();
+          for (int j = 0; j < libraries.length; j++) {
+            panel.addAvailableLibrary(ev, libraries[j]);
           }
         }
         panel.repack();
