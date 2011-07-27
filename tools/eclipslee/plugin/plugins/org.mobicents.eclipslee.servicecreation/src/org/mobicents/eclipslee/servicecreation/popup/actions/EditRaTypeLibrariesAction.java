@@ -1,7 +1,7 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
+ * Copyright 2011, Red Hat, Inc. and individual contributors by the
+ * @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
 package org.mobicents.eclipslee.servicecreation.popup.actions;
 
 import java.util.HashMap;
@@ -37,28 +36,28 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.mobicents.eclipslee.servicecreation.util.EclipseUtil;
-import org.mobicents.eclipslee.servicecreation.util.EventFinder;
-import org.mobicents.eclipslee.servicecreation.wizards.event.EventLibraryDialog;
+import org.mobicents.eclipslee.servicecreation.util.ResourceAdaptorTypeFinder;
+import org.mobicents.eclipslee.servicecreation.wizards.ratype.RaTypeLibraryDialog;
 import org.mobicents.eclipslee.util.SLEE;
 import org.mobicents.eclipslee.util.slee.xml.components.ComponentNotFoundException;
-import org.mobicents.eclipslee.util.slee.xml.components.EventXML;
 import org.mobicents.eclipslee.util.slee.xml.components.LibraryRefXML;
 import org.mobicents.eclipslee.util.slee.xml.components.LibraryXML;
-import org.mobicents.eclipslee.xml.EventJarXML;
+import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
+import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 
 /**
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class EditEventLibrariesAction implements IActionDelegate {
+public class EditRaTypeLibrariesAction implements IActionDelegate {
 
-  public EditEventLibrariesAction() {
+  public EditRaTypeLibrariesAction() {
 
   }
 
-  public EditEventLibrariesAction(String eventID) {
-    this.eventID = eventID;
+  public EditRaTypeLibrariesAction(String raTypeID) {
+    this.raTypeID = raTypeID;
   }
 
   public void setActivePart(IAction action, IWorkbenchPart targetPart) {}
@@ -67,19 +66,18 @@ public class EditEventLibrariesAction implements IActionDelegate {
 
     initialize();
     if (dialog == null) {
-      MessageDialog.openError(new Shell(), "Error Modifying Event", getLastError());
+      MessageDialog.openError(new Shell(), "Error Modifying Resource Adaptor Type", getLastError());
       return;
     }
 
     if (dialog.open() == Window.OK) {
-
       try {
         IProgressMonitor monitor = null;
 
         // Nuke all existing libraries
-        LibraryRefXML[] xml = eventXML.getLibraryRefs();
+        LibraryRefXML[] xml = raTypeXML.getLibraryRefs();
         for (int i = 0; i < xml.length; i++)
-          eventXML.removeLibraryRef(xml[i]);
+          raTypeXML.removeLibraryRef(xml[i]);
 
         // Add the new libraries
         HashMap[] libraries = dialog.getSelectedLibraries();
@@ -92,47 +90,45 @@ public class EditEventLibrariesAction implements IActionDelegate {
           LibraryJarXML libraryJarXML = (LibraryJarXML) map.get("XML");
           LibraryXML libraryXML = libraryJarXML.getLibrary(name, vendor, version);
 
-          LibraryRefXML libraryRefXML = eventXML.addLibraryRef(libraryXML);
+          LibraryRefXML libraryRefXML = raTypeXML.addLibraryRef(libraryXML);
         }
 
         // Save the XML
-        file.setContents(eventXML.getInputStreamFromXML(), true, true, null);
+        xmlFile.setContents(raTypeJarXML.getInputStreamFromXML(), true, true, null);
       }
       catch (Exception e) {
-        MessageDialog.openError(new Shell(), "Error Modifying Event", "An error occurred while modifying the event. It must be modified manually.");
+        MessageDialog.openError(new Shell(), "Error Modifying Resource Adaptor Type", "An error occurred while modifying the resource adaptor type.  It must be modified manually.");
         e.printStackTrace();
         System.err.println(e.toString() + ": " + e.getMessage());
         return;
       }
-
     }
   }
 
   /**
-   * Get the EventXML data object for the current selection.
+   * Get the RaTypeXML data object for the current selection.
    *
    */
   private void initialize() {
 
     String projectName = null;
 
-    dialog = null;
-    event = null;
-    eventXML = null;
+    raTypeXML = null;
+    raTypeJarXML = null;
 
     if (selection == null && selection.isEmpty()) {
-      setLastError("Please select an Event's Java or XML file first.");
+      setLastError("Please select a Resource Adaptor Type's Java or XML file first.");
       return;
     }
 
     if (!(selection instanceof IStructuredSelection)) {
-      setLastError("Please select an Event's Java or XML file first.");
-      return;     
+      setLastError("Please select a Resource Adaptor Type's Java or XML file first.");
+      return;			
     }
 
     IStructuredSelection ssel = (IStructuredSelection) selection;
     if (ssel.size() > 1) {
-      setLastError("This plugin only supports editing of one event at a time.");
+      setLastError("This plugin only supports editing of one resource adaptor type at a time.");
       return;
     }
 
@@ -146,60 +142,81 @@ public class EditEventLibrariesAction implements IActionDelegate {
         unit = JavaCore.createCompilationUnitFrom((IFile) obj);
       }
       catch (Exception e) {
-        // Suppress Exception.  The next check checks for null unit.      
+        // Suppress Exception.  The next check checks for null unit.			
       }
 
-      if (unit != null) { // .java file 
-        eventXML = EventFinder.getEventJarXML(unit);
-        if (eventXML == null) {
-          setLastError("Unable to find the corresponding event-jar.xml for this event.");
+      if (unit != null) { // .java file
+        raTypeJarXML = ResourceAdaptorTypeFinder.getResourceAdaptorTypeJarXML(unit);
+        if (raTypeJarXML == null) {
+          setLastError("Unable to find the corresponding resource-adaptor-type-jar.xml for this Resource Adaptor Type.");
           return;
         }
 
         try {
-          event = eventXML.getEvent(EclipseUtil.getClassName(unit));
+          raTypeXML = raTypeJarXML.getResourceAdaptorType(EclipseUtil.getClassName(unit));
         }
         catch (org.mobicents.eclipslee.util.slee.xml.components.ComponentNotFoundException e) {
-          setLastError("Unable to find the corresponding event-jar.xml for this event.");
+          setLastError("Unable to find the corresponding resource-adaptor-type-jar.xml for this Resource Adaptor Type.");
           return;
         }
 
-        // Set 'file' to the Event XML file, not the Java file.
-        file = EventFinder.getEventJarXMLFile(unit);
+        // Set 'file' to the Resource Adaptor Type XML file, not the Java file.
+        xmlFile = ResourceAdaptorTypeFinder.getResourceAdaptorTypeJarXMLFile(unit);
+        acifFile = ResourceAdaptorTypeFinder.getResourceAdaptorTypeActivityContextInterfaceFactoryFile(unit);
+
+        if (xmlFile == null) {
+          setLastError("Unable to find Resource Adaptor Type XML.");
+          return;
+        }
+
+        if (acifFile == null) {
+          setLastError("Unable to find Resource Adaptor Type ACIF class file.");
+          return;
+        }
 
         projectName = unit.getJavaProject().getProject().getName();
       }
-      else {
-        file = (IFile) obj;
+      else {	
+        IFile file = (IFile) obj;
 
-        String name = SLEE.getName(eventID);
-        String vendor = SLEE.getVendor(eventID);
-        String version = SLEE.getVersion(eventID);
+        String name = SLEE.getName(raTypeID);
+        String vendor = SLEE.getVendor(raTypeID);
+        String version = SLEE.getVersion(raTypeID);
 
-        eventXML = EventFinder.getEventJarXML(file);
-
-        if (eventXML == null) {
-          setLastError("Unable to find the corresponding event-jar.xml for this event.");
+        try {
+          raTypeJarXML = new ResourceAdaptorTypeJarXML(file);
+        }
+        catch (Exception e) {
+          setLastError("Unable to find the corresponding resource-adaptor-type-jar.xml for this Resource Adaptor Type.");
           return;
         }
         try {
-          event = eventXML.getEvent(name, vendor, version);
+          raTypeXML = raTypeJarXML.getResourceAdaptorType(name, vendor, version);
         }
         catch (ComponentNotFoundException e) {
-          setLastError("This event is not defined in this Event XML file.");
+          setLastError("This Resource Adaptor Type is not defined in this XML file.");
           return;
         }
 
-        projectName = file.getProject().getName();
+        xmlFile = file;
+        acifFile = ResourceAdaptorTypeFinder.getResourceAdaptorTypeActivityContextInterfaceFactoryFile(xmlFile, name, vendor, version);
+
+        if (acifFile == null) {
+          setLastError("Unable to find Resource Adaptor Type ACIF class file.");
+          return;
+        }
+
+        unit = (ICompilationUnit) JavaCore.create(acifFile);
+        projectName = unit.getJavaProject().getProject().getName();
       }
     }
     else {
       setLastError("Unsupported object type: " + obj.getClass().toString());
       return;
-    } 
+    }		
 
-    LibraryRefXML[] libraries = eventXML.getLibraryRefs();
-    dialog = new EventLibraryDialog(new Shell(), libraries, projectName);
+    LibraryRefXML[] events = raTypeXML.getLibraryRefs();
+    dialog = new RaTypeLibraryDialog(new Shell(), events, projectName);
 
     return;
   }
@@ -212,7 +229,7 @@ public class EditEventLibrariesAction implements IActionDelegate {
   }
 
   private void setLastError(String error) {
-    lastError = error == null ? "Success" : error;
+    lastError = (error == null) ? "Success" : error;
   }
 
   private String getLastError() {
@@ -221,12 +238,14 @@ public class EditEventLibrariesAction implements IActionDelegate {
     return error;
   }
 
-  private ISelection selection;
-  private EventLibraryDialog dialog;
-  private EventJarXML eventXML;
-  private EventXML event;
-  private IFile file;
+  private String raTypeID;
+  private ResourceAdaptorTypeJarXML raTypeJarXML;
+  private ResourceAdaptorTypeXML raTypeXML;
   private String lastError;
-  private String eventID;
+  private ISelection selection;
+  private RaTypeLibraryDialog dialog;
+
+  private IFile xmlFile;
+  private IFile acifFile;
 
 }

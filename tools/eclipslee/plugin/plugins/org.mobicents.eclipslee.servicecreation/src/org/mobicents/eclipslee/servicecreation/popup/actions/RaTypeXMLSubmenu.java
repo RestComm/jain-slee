@@ -136,6 +136,10 @@ public class RaTypeXMLSubmenu implements IObjectActionDelegate, IMenuCreator {
           item.addSelectionListener(new IdentitySelectionListener());
 
           item = new MenuItem(child, SWT.NONE);
+          item.setText("Libraries...");
+          item.addSelectionListener(new LibrariesSelectionListener());
+
+          item = new MenuItem(child, SWT.NONE);
           item.setText("Events...");
           item.addSelectionListener(new EventsSelectionListener());
 
@@ -175,6 +179,17 @@ public class RaTypeXMLSubmenu implements IObjectActionDelegate, IMenuCreator {
       EditRaTypeActivityTypesAction action = new EditRaTypeActivityTypesAction(parentItem.getText());
       action.selectionChanged(null, selection);
       action.run(null);			
+    }
+  }
+
+  private class LibrariesSelectionListener extends SelectionAdapter {
+    public void widgetSelected(SelectionEvent e) {
+      MenuItem item = (MenuItem) e.getSource();
+      Menu parent = item.getParent();
+      MenuItem parentItem = parent.getParentItem();
+      EditRaTypeLibrariesAction action = new EditRaTypeLibrariesAction(parentItem.getText());
+      action.selectionChanged(null, selection);
+      action.run(null);     
     }
   }
 

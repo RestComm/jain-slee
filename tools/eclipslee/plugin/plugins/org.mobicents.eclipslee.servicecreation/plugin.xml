@@ -662,6 +662,12 @@
           class="org.mobicents.eclipslee.servicecreation.popup.actions.EditRaTypeEventsAction"
           />    
          <action
+          id="org.mobicents.eclipslee.servicecreation.RAType.Menu.EditLibraries"
+          label="Libraries..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.RAType.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditRaTypeLibrariesAction"
+          />    
+         <action
           id="org.mobicents.eclipslee.servicecreation.RAType.Menu.EditIdentity"
           label="Identity..."
           menubarPath="org.mobicents.eclipslee.servicecreation.RAType.Menu/FirstGroup"

@@ -38,6 +38,7 @@ import org.mobicents.eclipslee.servicecreation.wizards.generic.BaseWizard;
 import org.mobicents.eclipslee.util.Utils;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeClassesXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeXML;
+import org.mobicents.eclipslee.xml.LibraryJarXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 
 /**
@@ -52,8 +53,10 @@ public class RaTypeWizard extends BaseWizard {
 
   private RaTypeEventsPage raTypeEventsPage;
   private RaTypeActivityTypesPage raTypeActivityTypesPage;
+  private RaTypeLibraryPage raTypeLibrariesPage;
 
   private HashMap[] raTypeEvents;
+  private HashMap[] raTypeLibraries;
   private HashMap[] raActivityTypes;
   private boolean createRaInterface;
 
@@ -66,6 +69,9 @@ public class RaTypeWizard extends BaseWizard {
   public void addPages() {
     super.addPages(); // adds filename and name, vendor, version pages
     // Event Types Def
+    raTypeLibrariesPage = new RaTypeLibraryPage(WIZARD_TITLE);
+    addPage(raTypeLibrariesPage);
+    // Event Types Def
     raTypeEventsPage = new RaTypeEventsPage(WIZARD_TITLE);
     addPage(raTypeEventsPage);
     // Activity Types
@@ -75,6 +81,7 @@ public class RaTypeWizard extends BaseWizard {
 
   public boolean performFinish() {
     // Extract the data from the various pages.
+    raTypeLibraries = raTypeLibrariesPage.getSelectedLibraries();
 
     raTypeEvents = raTypeEventsPage.getSelectedEvents();
 
@@ -148,7 +155,17 @@ public class RaTypeWizard extends BaseWizard {
       if(createRaInterface) {
         raTypeClassesXML.setResourceAdaptorInterface(raInterfaceClassName);
       }
-      
+
+      // Libraries
+      for (HashMap raTypeLibrary : raTypeLibraries) {
+        LibraryJarXML xml = (LibraryJarXML) raTypeLibrary.get("XML");
+        String name = (String) raTypeLibrary.get("Name");
+        String vendor = (String) raTypeLibrary.get("Vendor");
+        String version = (String) raTypeLibrary.get("Version");
+        raType.addLibraryRef(xml.getLibrary(name, vendor, version));
+      }
+
+      // Events
       for (HashMap raTypeEvent : raTypeEvents) {
         String eventName = (String) raTypeEvent.get("Name");
         String eventVendor = (String) raTypeEvent.get("Vendor");
