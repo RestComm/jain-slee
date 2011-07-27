@@ -277,22 +277,35 @@ public class SbbXML extends DTDXML {
 		ref.getRoot().getParentNode().removeChild(ref.getRoot());
 	}
 
-	public SbbProfileSpecRefXML addProfileSpecRef() {
-		Element ref = addElement(getRoot(), "profile-spec-ref");
-		SbbProfileSpecRefXML xml = new SbbProfileSpecRefXML(document, ref, dtd);
-		xml.setAlias(getUniqueProfileSpecRefAlias());
-		return xml;
-	}
+  public SbbProfileSpecRefXML addProfileSpecRef() {
+    Element ref = addElement(getRoot(), "profile-spec-ref");
+    SbbProfileSpecRefXML xml = new SbbProfileSpecRefXML(document, ref, dtd);
+    xml.setAlias(getUniqueProfileSpecRefAlias());
+    return xml;
+  }
 
-	/* TODO: Remove
-	private SbbProfileSpecRefXML addProfileSpecRef(String name, String vendor,
-			String version) {
-		SbbProfileSpecRefXML xml = addProfileSpecRef();
-		xml.setName(name);
-		xml.setVendor(vendor);
-		xml.setVersion(version);
-		return xml;
-	}*/
+  public LibraryRefXML[] getLibraryRefs() {
+    Element nodes[] = getNodes("sbb/library-ref");
+    LibraryRefXML xml[] = new LibraryRefXML[nodes.length];
+    for (int i = 0; i < nodes.length; i++)
+      xml[i] = new LibraryRefXML(document, nodes[i], dtd);
+    return xml;
+  }
+
+  public LibraryRefXML addLibraryRef(LibraryXML library) {
+    Element ele = addElement(getRoot(), "library-ref");
+    LibraryRefXML xml = new LibraryRefXML(document, ele, dtd);
+
+    xml.setName(library.getName());
+    xml.setVendor(library.getVendor());
+    xml.setVersion(library.getVersion());
+
+    return xml;
+  }
+
+  public void removeLibraryRef(LibraryRefXML libraryRef) {
+    libraryRef.getRoot().getParentNode().removeChild(libraryRef.getRoot());
+  }
 
 	private String getUniqueProfileSpecRefAlias() {
 		String template = "profile_spec_";

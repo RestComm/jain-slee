@@ -46,6 +46,7 @@ import org.mobicents.eclipslee.util.slee.xml.components.SbbResourceAdaptorEntity
 import org.mobicents.eclipslee.util.slee.xml.components.SbbResourceAdaptorTypeBindingXML;
 import org.mobicents.eclipslee.util.slee.xml.components.SbbXML;
 import org.mobicents.eclipslee.xml.EventJarXML;
+import org.mobicents.eclipslee.xml.LibraryJarXML;
 import org.mobicents.eclipslee.xml.ProfileSpecJarXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 import org.mobicents.eclipslee.xml.SbbJarXML;
@@ -63,7 +64,7 @@ public class SbbWizard extends BaseWizard {
 	public static final String SBB_ACI_TEMPLATE = "/templates/SBBACI.template";
 	
 	public static final String SBB_USAGE_COMMENT = "\t/**\n\t * Method to retrieve a named SBB Usage Parameter set.\n\t * @param name the SBB Usage Parameter set to retrieve\n\t * @return the SBB Usage Parameter set\n\t * @throws javax.slee.usage.UnrecognizedUsageParameterSetNameException if the named parameter set does not exist\n\t */\n";
-	public static final String SBB_DEFAULT_USAGE_COMMENT = "\t/**\n\t * Method to retrieve the default SBB usage parameter set.\n\t * @return the default SBB usage parameter set\n\t */\n";	
+	public static final String SBB_DEFAULT_USAGE_COMMENT = "\t/**\n\t * Method to retrieve the default SBB usage parameter set.\n\t * @return the default SBB usage parameter set\n\t */\n";
 	
 	public SbbWizard() {
 		super();
@@ -83,9 +84,12 @@ public class SbbWizard extends BaseWizard {
 		sbbUsagePage = new SbbUsagePage(WIZARD_TITLE);
 		addPage(sbbUsagePage);
 
-		sbbEventsPage = new SbbEventsPage(WIZARD_TITLE);
-		addPage(sbbEventsPage);
-		
+    sbbLibraryPage = new SbbLibraryPage(WIZARD_TITLE);
+    addPage(sbbLibraryPage);
+    
+    sbbEventsPage = new SbbEventsPage(WIZARD_TITLE);
+    addPage(sbbEventsPage);
+    
 		sbbProfilePage = new SbbProfilePage(WIZARD_TITLE);
 		addPage(sbbProfilePage);
 		
@@ -110,6 +114,8 @@ public class SbbWizard extends BaseWizard {
 		
 		createACI = sbbClassesPage.createActivityContextInterface();
 		createLocalIface = sbbClassesPage.createSbbLocalObject();
+		
+		libraries = sbbLibraryPage.getSelectedLibraries();
 		
 		events = sbbEventsPage.getSelectedEvents();
 		profiles = sbbProfilePage.getSelectedProfiles();
@@ -258,7 +264,16 @@ public class SbbWizard extends BaseWizard {
 				}					
 			}
 
-			// Events			
+			// Libraries
+      for (int i = 0; i < libraries.length; i++) {
+        LibraryJarXML xml = (LibraryJarXML) libraries[i].get("XML");
+        String name = (String) libraries[i].get("Name");
+        String vendor = (String) libraries[i].get("Vendor");
+        String version = (String) libraries[i].get("Version");
+        sbb.addLibraryRef(xml.getLibrary(name, vendor, version));
+      }
+
+      // Events			
 			String eventHandlers = "";
 			String eventFirers = "";
 			String iesMethods = "";
@@ -591,19 +606,22 @@ public class SbbWizard extends BaseWizard {
 	private SbbUsagePage sbbUsagePage;
 	private SbbCMPPage sbbCMPPage;
 	private SbbClassesPage sbbClassesPage;
-	private SbbEventsPage sbbEventsPage;
+  private SbbEventsPage sbbEventsPage;
+  private SbbLibraryPage sbbLibraryPage;
 	private SbbProfilePage sbbProfilePage;
 	private SbbChildPage sbbChildPage;
 	private SbbEnvEntryPage sbbEnvEntryPage;
 	private SbbResourceAdaptorTypePage sbbResourceAdaptorTypePage;
 	
-	private HashMap cmpFields[];
-	private HashMap usageParams[];
-	private HashMap events[];
-	private HashMap profiles[];
-	private HashMap children[];
-	private HashMap envEntries[];
-	private HashMap raTypes[];
+	private HashMap[] cmpFields;
+	private HashMap[] usageParams;
+  private HashMap[] libraries; 
+	private HashMap[] events;
+
+	private HashMap[] profiles;
+	private HashMap[] children;
+	private HashMap[] envEntries;
+	private HashMap[] raTypes;
 	
 	private String addressProfile;
 	private boolean createUsageIface;

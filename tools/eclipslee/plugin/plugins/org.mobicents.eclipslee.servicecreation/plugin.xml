@@ -315,11 +315,17 @@
          	class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbProfileAction"
          	/>    
          <action
-         	id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditEvents"
-         	label="Events..."
-         	menubarPath="org.mobicents.eclipslee.servicecreation.SBB.Menu/FirstGroup"
-         	class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbEventsAction"
-         	/>    
+          id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditEvents"
+          label="Events..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.SBB.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbEventsAction"
+          />    
+         <action
+          id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditLibraries"
+          label="Libraries..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.SBB.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbLibrariesAction"
+          />    
          <action
          	id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditUsage"
          	label="Usage Parameters..."
@@ -395,6 +401,12 @@
          	class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbEventsAction"
          	/>    
          <action
+          id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditLibraries"
+          label="Libraries..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.SBB.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbLibrariesAction"
+          />    
+         <action
          	id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditUsage"
          	label="Usage Parameters..."
          	menubarPath="org.mobicents.eclipslee.servicecreation.SBB.Menu/FirstGroup"
@@ -469,6 +481,12 @@
          	class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbEventsAction"
          	/>    
          <action
+          id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditLibraries"
+          label="Libraries..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.SBB.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbLibrariesAction"
+          />    
+         <action
          	id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditUsage"
          	label="Usage Parameters..."
          	menubarPath="org.mobicents.eclipslee.servicecreation.SBB.Menu/FirstGroup"
@@ -542,6 +560,12 @@
          	menubarPath="org.mobicents.eclipslee.servicecreation.SBB.Menu/FirstGroup"
          	class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbEventsAction"
          	/>               
+         <action
+          id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditLibraries"
+          label="Libraries..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.SBB.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.EditSbbLibrariesAction"
+          />    
          <action
          	id="org.mobicents.eclipslee.servicecreation.SBB.Menu.EditUsage"
          	label="Usage Parameters..."
