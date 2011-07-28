@@ -68,7 +68,7 @@ public class RaTypeWizard extends BaseWizard {
 
   public void addPages() {
     super.addPages(); // adds filename and name, vendor, version pages
-    // Event Types Def
+    // Libraries
     raTypeLibrariesPage = new RaTypeLibraryPage(WIZARD_TITLE);
     addPage(raTypeLibrariesPage);
     // Event Types Def

@@ -43,8 +43,8 @@ public class ProfileSpecJarXML extends DTDXML {
     public static final String PUBLIC_ID_1_1 = "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN";
     public static final String SYSTEM_ID_1_1 = "http://java.sun.com/dtd/slee-profile-spec-jar_1_1.dtd";
 
-    public static final String PUBLIC_ID = PUBLIC_ID_1_0;
-    public static final String SYSTEM_ID = SYSTEM_ID_1_0;
+    public static final String PUBLIC_ID = PUBLIC_ID_1_1;
+    public static final String SYSTEM_ID = SYSTEM_ID_1_1;
 
     /**
 	 * Create a new ProfileSpecJar with the specified EntityResolver.

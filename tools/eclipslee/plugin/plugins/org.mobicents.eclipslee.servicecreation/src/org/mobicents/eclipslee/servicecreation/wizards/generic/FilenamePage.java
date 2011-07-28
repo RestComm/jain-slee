@@ -60,6 +60,7 @@ import org.mobicents.eclipslee.servicecreation.ui.TextButton;
 import org.mobicents.eclipslee.servicecreation.ui.TextButtonListener;
 import org.mobicents.eclipslee.servicecreation.wizards.deployable.DeployableUnitWizard;
 import org.mobicents.eclipslee.servicecreation.wizards.event.EventWizard;
+import org.mobicents.eclipslee.servicecreation.wizards.profile.ProfileWizard;
 import org.mobicents.eclipslee.servicecreation.wizards.ra.ResourceAdaptorWizard;
 import org.mobicents.eclipslee.servicecreation.wizards.ratype.RaTypeWizard;
 import org.mobicents.eclipslee.servicecreation.wizards.sbb.SbbWizard;
@@ -326,6 +327,8 @@ public class FilenamePage extends WizardPage {
     IWizard wizard = this.getWizard();
     if (wizard instanceof EventWizard)
       ((EventWizard) wizard).pageChanged(this);
+    if (wizard instanceof ProfileWizard)
+      ((ProfileWizard) wizard).pageChanged(this);
     if (wizard instanceof SbbWizard)
       ((SbbWizard) wizard).pageChanged(this);
     if (wizard instanceof RaTypeWizard)

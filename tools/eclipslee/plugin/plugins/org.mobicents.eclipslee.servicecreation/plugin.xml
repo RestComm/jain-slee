@@ -163,6 +163,7 @@
  
       
       <!-- Profile Spec Jar Stuff -->
+      <!-- ammendonca: disabled since classes are not present anyway ...
       <objectContribution
             objectClass="org.eclipse.core.resources.IFile"
             id="org.mobicents.eclipslee.servicecreation.Profile"
@@ -259,8 +260,10 @@
          	class="org.mobicents.eclipslee.servicecreation.popup.actions.EditProfileIdentityAction"
          	/>               
       </objectContribution>
-      
+      -->
+
       <!-- Custom dynamic menu for Profile Specification XML -->
+      <!-- ammendonca: disabled since classes are not present anyway ...
       <objectContribution
             objectClass="org.eclipse.core.resources.IFile"
             id="org.mobicents.eclipslee.servicecreation.ProfileXML"
@@ -275,8 +278,9 @@
          	label="Modify Profile Specification"
          	/>               
       </objectContribution>
-
-	<!-- SBB -->
+      -->
+      
+     <!-- SBB -->
      <objectContribution
             objectClass="org.eclipse.core.resources.IFile"
             id="org.mobicents.eclipslee.servicecreation.SBB"

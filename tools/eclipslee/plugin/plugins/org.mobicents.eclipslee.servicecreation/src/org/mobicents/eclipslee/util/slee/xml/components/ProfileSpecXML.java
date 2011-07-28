@@ -73,10 +73,19 @@ public class ProfileSpecXML extends DTDXML {
 	public void setCMPInterfaceName(String name) {
 		
 		Element classes = getChild(getRoot(), "profile-classes");
-		if (classes == null)
-			classes = addElement(getRoot(), "profile-classes");
+		if (classes == null) {
+      classes = addElement(getRoot(), "profile-classes");
+		}
 
-		setChildText(classes, "profile-cmp-interface-name", name);
+    if(getRoot().getOwnerDocument().getDoctype().getSystemId().equals(ProfileSpecJarXML.SYSTEM_ID_1_1)) {
+      Element cmpInterface = getChild(classes, "profile-cmp-interface");
+      if(cmpInterface == null) {
+        cmpInterface = addElement(classes, "profile-cmp-interface");        
+      }
+      classes = cmpInterface;
+    }
+
+    setChildText(classes, "profile-cmp-interface-name", name);
 	}
 	
 	public String getCMPInterfaceName() {
@@ -149,6 +158,29 @@ public class ProfileSpecXML extends DTDXML {
 		return getChildText(classes, "profile-management-abstract-class-name");		
 	}
 	
+  public LibraryRefXML[] getLibraryRefs() {
+    Element nodes[] = getNodes("profile-spec/library-ref");
+    LibraryRefXML xml[] = new LibraryRefXML[nodes.length];
+    for (int i = 0; i < nodes.length; i++)
+      xml[i] = new LibraryRefXML(document, nodes[i], dtd);
+    return xml;
+  }
+
+  public LibraryRefXML addLibraryRef(LibraryXML library) {
+    Element ele = addElement(getRoot(), "library-ref");
+    LibraryRefXML xml = new LibraryRefXML(document, ele, dtd);
+
+    xml.setName(library.getName());
+    xml.setVendor(library.getVendor());
+    xml.setVersion(library.getVersion());
+
+    return xml;
+  }
+
+  public void removeLibraryRef(LibraryRefXML libraryRef) {
+    libraryRef.getRoot().getParentNode().removeChild(libraryRef.getRoot());
+  }
+
 	public Element[] getIndexedAttributes() {
 		return getNodes(getRoot(), "profile-spec/profile-index");
 	}
