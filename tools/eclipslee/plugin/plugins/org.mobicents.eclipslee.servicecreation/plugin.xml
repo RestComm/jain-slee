@@ -99,6 +99,7 @@
             class="org.mobicents.eclipslee.servicecreation.wizards.ra.ResourceAdaptorWizard"
             id="org.mobicents.eclipslee.servicecreation.wizards.ra.ResourceAdaptorWizard">
       </wizard>
+      <!-- ammendonca: disable, not used anymore, maven handles it (http://code.google.com/p/mobicents/issues/detail?id=2763)
       <wizard
             name="JAIN SLEE Deployable Unit"
             icon="icons/DU-icon.gif"
@@ -106,12 +107,13 @@
             class="org.mobicents.eclipslee.servicecreation.wizards.deployable.DeployableUnitWizard"
             id="org.mobicents.eclipslee.servicecreation.wizards.deployable.DeployableUnitWizard">
       </wizard>
+      -->
     </extension>
 
    <extension
          point="org.eclipse.ui.popupMenus">
 
-	  <!-- Event popup menus -->
+   	  <!-- Event popup menus -->
       <objectContribution
             objectClass="org.eclipse.core.resources.IFile"
             id="org.mobicents.eclipslee.servicecreation.Event"
@@ -782,6 +784,7 @@
       </objectContribution>
  
       <!-- Custom dynamic menu for Deployable Unit XML -->
+      <!-- ammendonca: disable, not used anymore, maven handles it (http://code.google.com/p/mobicents/issues/detail?id=2763)
       <objectContribution
             objectClass="org.eclipse.core.resources.IFile"
             id="org.mobicents.eclipslee.servicecreation.DeployableUnitXML"
@@ -796,6 +799,8 @@
          	label="Modify Deployable Unit..."
          	/>               
       </objectContribution>
+      -->
+
       <objectContribution
             adaptable="true"
             id="org.mobicents.eclipslee.servicecreation.Deploy"
@@ -843,6 +848,69 @@
          -->
       </objectContribution>
       
+      <!-- New Components Menu -->
+      <objectContribution
+            adaptable="true"
+            id="org.mobicents.eclipslee.servicecreation.NewWizardsShortcuts"
+            objectClass="org.eclipse.core.resources.IResource">
+         <menu
+          id="org.mobicents.eclipslee.servicecreation.Wizards.Menu"
+          icon="icons/mobicents/mobicents_icon_16x16.png"
+          path="additions"
+          label="EclipSLEE">
+          <separator name="FirstGroup"/>
+          <separator name="SecondGroup"/>
+         </menu>
+         <action
+          id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewResourceAdaptor"
+          icon="icons/RA-icon.gif"
+          label="New JAIN SLEE Resource Adaptor ..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/SecondGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
+          />
+         <action
+          id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewRaType"
+          icon="icons/RAType-icon.gif"
+          label="New JAIN SLEE Resource Adaptor Type ..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/SecondGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
+          />
+         <action
+          id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewSbb"
+          icon="icons/SBB-icon.gif"
+          label="New JAIN SLEE Service Building Block (SBB) ..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/SecondGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
+          />
+         <action
+          id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewLibrary"
+          icon="icons/Library-icon.gif"
+          label="New JAIN SLEE Library ..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/SecondGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
+          />
+         <action
+          id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewProfileSpec"
+          icon="icons/ProfileSpec-icon.gif"
+          label="New JAIN SLEE Profile Specification ..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/SecondGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
+          />
+         <action
+          id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewEvent"
+          icon="icons/Event-icon.gif"
+          label="New JAIN SLEE Event ..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/SecondGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
+          />
+         <action
+          id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewProject"
+          icon="icons/Project.gif"
+          label="New JAIN SLEE Project ..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/FirstGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
+          />
+      </objectContribution>
     </extension>
     
 	<extension point="org.eclipse.ui.importWizards">
