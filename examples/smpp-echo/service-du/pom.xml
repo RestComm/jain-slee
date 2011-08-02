@@ -14,8 +14,6 @@
 
 	<name>SMPP Demo :: Deployable Unit</name>
 
-	<packaging>pom</packaging>
-
 	<dependencies>
 		<dependency>
 			<artifactId>sms-sbb</artifactId>
@@ -29,16 +27,14 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-du-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration />
 				<executions>
 					<execution>
-						<phase>install</phase>
 						<goals>
-							<goal>create</goal>
+							<goal>copy-dependencies</goal>
+							<goal>generate-descriptor</goal>
 						</goals>
 					</execution>
-				</executions>
+				</executions>				
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>

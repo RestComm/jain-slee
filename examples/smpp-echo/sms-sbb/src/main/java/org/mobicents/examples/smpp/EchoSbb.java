@@ -77,11 +77,13 @@ public abstract class EchoSbb implements Sbb {
 
 		SmppTransaction submitTxn;
 		try {
-			submitTxn = this.smppProvider.sendRequest(submitSM);
-
+			// create activity
+			submitTxn = this.smppProvider.createTransaction(submitSM);
 			// attach to the new activity so we get the response
 			ActivityContextInterface newaci = smppAcif.getActivityContextInterface(submitTxn);
 			newaci.attach(this.sbbContext.getSbbLocalObject());
+			// send msg
+			smppProvider.sendRequest(submitSM);
 		} catch (IllegalStateException e) {
 			this.logger.severe("Error while sending SUBMIT_SM", e);
 		} catch (NullPointerException e) {
