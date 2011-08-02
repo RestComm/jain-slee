@@ -31,143 +31,259 @@ import javax.slee.resource.StartActivityException;
 import net.java.client.slee.resource.http.HttpClientActivity;
 import net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface;
 import net.java.client.slee.resource.http.HttpMethodName;
-import net.java.client.slee.resource.http.event.Response;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
-import org.apache.commons.httpclient.methods.OptionsMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.TraceMethod;
-import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpTrace;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
-public class HttpClientResourceAdaptorSbbInterfaceImpl implements
-		HttpClientResourceAdaptorSbbInterface {
-	
+/**
+ * 
+ * @author amit bhayani
+ * 
+ */
+public class HttpClientResourceAdaptorSbbInterfaceImpl implements HttpClientResourceAdaptorSbbInterface {
+
 	private static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;
-	
-	private final Tracer tracer;
 
-	private final HttpClient httpClient;
+	private final Tracer tracer;
 
 	private final HttpClientResourceAdaptor ra;
 
-	public HttpClientResourceAdaptorSbbInterfaceImpl(
-			HttpClientResourceAdaptor ra) {
+	public HttpClientResourceAdaptorSbbInterfaceImpl(HttpClientResourceAdaptor ra) {
 		this.ra = ra;
 		this.tracer = ra.getResourceAdaptorContext().getTracer(HttpClientResourceAdaptorSbbInterfaceImpl.class.getName());
-		this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
 	}
 
-	public HttpClientActivity createHttpClientActivity(
-			boolean endOnReceivingResponse) throws StartActivityException {
-		
-		HttpClientActivity activity = new HttpClientActivityImpl(this.ra,
-				this.httpClient, endOnReceivingResponse);
+	public HttpClientActivity createHttpClientActivity(boolean endOnReceivingResponse) throws StartActivityException {
+		return createHttpClientActivity(endOnReceivingResponse, null);
 
-		HttpClientActivityHandle handle = new HttpClientActivityHandle(activity
-				.getSessionId());
-		
-			// this happens with a tx context
-		this.ra.getResourceAdaptorContext().getSleeEndpoint().startActivityTransacted(handle, activity,ACTIVITY_FLAGS);
-		
+	}
+
+	public HttpClientActivity createHttpClientActivity() throws StartActivityException {
+		return createHttpClientActivity(false, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface
+	 * #createHttpClientActivity(org.apache.http.protocol.HttpContext)
+	 */
+	@Override
+	public HttpClientActivity createHttpClientActivity(HttpContext context) throws StartActivityException {
+		return createHttpClientActivity(false, context);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface
+	 * #createHttpClientActivity(boolean, org.apache.http.protocol.HttpContext)
+	 */
+	@Override
+	public HttpClientActivity createHttpClientActivity(boolean endOnReceivingResponse, HttpContext context) throws StartActivityException {
+
+		// Maintain HttpSession on server side
+		if (context == null) {
+			context = new BasicHttpContext();
+
+		}
+		if (context.getAttribute(ClientContext.COOKIE_STORE) == null) {
+			BasicCookieStore cookieStore = new BasicCookieStore();
+			context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+		}
+
+		HttpClientActivity activity = new HttpClientActivityImpl(this.ra, endOnReceivingResponse, context);
+
+		HttpClientActivityHandle handle = new HttpClientActivityHandle(activity.getSessionId());
+
+		// this happens with a tx context
+		this.ra.getResourceAdaptorContext().getSleeEndpoint().startActivityTransacted(handle, activity, ACTIVITY_FLAGS);
+
 		this.ra.addActivity(handle, activity);
 
 		return activity;
 	}
 
-	public HttpClientActivity createHttpClientActivity() throws StartActivityException {
-		return createHttpClientActivity(false);
-	}
-	
-	public HttpMethod createHttpMethod(HttpMethodName methodName, String uri) {
-		HttpMethod httpMethod = null;
-		
+	public HttpRequest createHttpRequest(HttpMethodName methodName, String uri) {
+		HttpRequest httpMethod = null;
+
 		if (methodName == null) {
 			throw new NullPointerException("method cannot be null");
 		} else {
 			switch (methodName) {
 			case GET:
-				httpMethod = new GetMethod(uri);
+				httpMethod = new HttpGet(uri);
 				break;
 			case POST:
-				httpMethod = new PostMethod(uri);
+				httpMethod = new HttpPost(uri);
 				break;
 
 			case PUT:
-				httpMethod = new PutMethod(uri);
+				httpMethod = new HttpPut(uri);
 				break;
 			case DELETE:
-				httpMethod = new DeleteMethod(uri);
+				httpMethod = new HttpDelete(uri);
 				break;
 			case HEAD:
-				httpMethod = new HeadMethod(uri);
+				httpMethod = new HttpHead(uri);
 				break;
 			case OPTIONS:
-				httpMethod = new OptionsMethod(uri);
+				httpMethod = new HttpOptions(uri);
 				break;
 			case TRACE:
-				httpMethod = new TraceMethod(uri);
+				httpMethod = new HttpTrace(uri);
 				break;
 			default:
 				throw new UnsupportedOperationException(
-						"method name passed has to be one of the GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE. Passed method is = "
-								+ methodName);
+						"method name passed has to be one of the GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE. Passed method is = " + methodName);
 			}
 		}
-			
+
 		return httpMethod;
 	}
 
-	public Response executeMethod(HttpMethod method) throws IOException {
-		int statusCode = 0;
-		byte[] responseBody = null;
-		String responseBodyAsString = null;
-		Header[] headers = null;
-		Response response = null;
-		
-		try {
-			statusCode = httpClient.executeMethod(method);
-			responseBody = method.getResponseBody();
-			responseBodyAsString = method.getResponseBodyAsString();
-			headers = method.getResponseHeaders();
-			response = new ResponseImpl(responseBody, responseBodyAsString,
-					headers, statusCode);
-		} catch (HttpException e) {
-			tracer.severe("executeMethod failed ", e);
-			throw e;
-		} catch (IOException e) {
-			tracer.severe("executeMethod failed ", e);
-			throw e;
-		} finally {
-			method.releaseConnection();
+	public HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException {
+		if (!this.ra.isActive) {
+			throw new IOException(String.format("The HttpClientResourceAdaptor=%s is not Active", this.ra.resourceAdaptorContext.getEntityName()));
 		}
-		return response;
-	}
-
-	public HttpClientParams getParams() {
-		return httpClient.getParams();
-	}
-
-	public HttpState getState() {
-		return httpClient.getState();
-	}
-
-	public void setParams(HttpClientParams params) {
-		httpClient.setParams(params);
+		return this.ra.httpclient.execute(request);
 
 	}
 
-	public void setState(HttpState state) {
-		httpClient.setState(state);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface
+	 * #execute(org.apache.http.client.methods.HttpUriRequest,
+	 * org.apache.http.protocol.HttpContext)
+	 */
+	@Override
+	public HttpResponse execute(HttpUriRequest request, HttpContext context) throws IOException, ClientProtocolException {
+		if (!this.ra.isActive) {
+			throw new IOException(String.format("The HttpClientResourceAdaptor=%s is not Active", this.ra.resourceAdaptorContext.getEntityName()));
+		}
+		return this.ra.httpclient.execute(request, context);
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface
+	 * #execute(org.apache.http.HttpHost, org.apache.http.HttpRequest)
+	 */
+	@Override
+	public HttpResponse execute(HttpHost target, HttpRequest request) throws IOException, ClientProtocolException {
+		if (!this.ra.isActive) {
+			throw new IOException(String.format("The HttpClientResourceAdaptor=%s is not Active", this.ra.resourceAdaptorContext.getEntityName()));
+		}
+		return this.ra.httpclient.execute(target, request);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface
+	 * #execute(org.apache.http.HttpHost, org.apache.http.HttpRequest,
+	 * org.apache.http.protocol.HttpContext)
+	 */
+	@Override
+	public HttpResponse execute(HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException {
+		if (!this.ra.isActive) {
+			throw new IOException(String.format("The HttpClientResourceAdaptor=%s is not Active", this.ra.resourceAdaptorContext.getEntityName()));
+		}
+		return this.ra.httpclient.execute(target, request, context);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface
+	 * #execute(org.apache.http.client.methods.HttpUriRequest,
+	 * org.apache.http.client.ResponseHandler)
+	 */
+	@Override
+	public <T> T execute(HttpUriRequest request, ResponseHandler<? extends T> responseHandler) throws IOException, ClientProtocolException {
+		if (!this.ra.isActive) {
+			throw new IOException(String.format("The HttpClientResourceAdaptor=%s is not Active", this.ra.resourceAdaptorContext.getEntityName()));
+		}
+		return this.ra.httpclient.execute(request, responseHandler);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface
+	 * #execute(org.apache.http.client.methods.HttpUriRequest,
+	 * org.apache.http.client.ResponseHandler,
+	 * org.apache.http.protocol.HttpContext)
+	 */
+	@Override
+	public <T> T execute(HttpUriRequest request, ResponseHandler<? extends T> responseHandler, HttpContext context) throws IOException, ClientProtocolException {
+		if (!this.ra.isActive) {
+			throw new IOException(String.format("The HttpClientResourceAdaptor=%s is not Active", this.ra.resourceAdaptorContext.getEntityName()));
+		}
+		return this.ra.httpclient.execute(request, responseHandler, context);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface
+	 * #execute(org.apache.http.HttpHost, org.apache.http.HttpRequest,
+	 * org.apache.http.client.ResponseHandler)
+	 */
+	@Override
+	public <T> T execute(HttpHost target, HttpRequest request, ResponseHandler<? extends T> responseHandler) throws IOException, ClientProtocolException {
+		if (!this.ra.isActive) {
+			throw new IOException(String.format("The HttpClientResourceAdaptor=%s is not Active", this.ra.resourceAdaptorContext.getEntityName()));
+		}
+		return this.ra.httpclient.execute(target, request, responseHandler);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientResourceAdaptorSbbInterface
+	 * #execute(org.apache.http.HttpHost, org.apache.http.HttpRequest,
+	 * org.apache.http.client.ResponseHandler,
+	 * org.apache.http.protocol.HttpContext)
+	 */
+	@Override
+	public <T> T execute(HttpHost target, HttpRequest request, ResponseHandler<? extends T> responseHandler, HttpContext context) throws IOException,
+			ClientProtocolException {
+		if (!this.ra.isActive) {
+			throw new IOException(String.format("The HttpClientResourceAdaptor=%s is not Active", this.ra.resourceAdaptorContext.getEntityName()));
+		}
+		return this.ra.httpclient.execute(target, request, responseHandler, context);
+	}
+
+	public HttpParams getParams() {
+		return this.ra.httpclient.getParams();
 	}
 
 }

@@ -26,10 +26,15 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
 import javax.slee.UnrecognizedActivityException;
 
+/**
+ * 
+ * @author amit bhayani
+ * 
+ */
 public interface HttpClientActivityContextInterfaceFactory {
-	
+
 	public ActivityContextInterface getActivityContextInterface(
 			HttpClientActivity acivity) throws NullPointerException,
-			UnrecognizedActivityException, FactoryException;	
+			UnrecognizedActivityException, FactoryException;
 
 }

@@ -25,7 +25,7 @@ package org.mobicents.client.slee.resource.http;
 import javax.slee.resource.ActivityHandle;
 
 /**
- * @author amit
+ * @author amit bhayani
  * @author martins
  *
  */

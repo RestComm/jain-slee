@@ -26,43 +26,29 @@ import java.util.UUID;
 
 import net.java.client.slee.resource.http.HttpClientActivity;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.protocol.HttpContext;
 
 /**
- * @author amit
+ * @author amit bhayani
  * @author martins
- *
+ * 
  */
 public class HttpClientActivityImpl implements HttpClientActivity {
 
 	private final String sessionId;
-	private final HttpClient httpClient;
 	private final HttpClientResourceAdaptor ra;
 	private final boolean endOnReceivingResponse;
+	private final HttpContext context;
 
-	/**
-	 * 
-	 * @param ra
-	 * @param httpClient
-	 */
-	public HttpClientActivityImpl(HttpClientResourceAdaptor ra,
-			HttpClient httpClient) {
-		this(ra, httpClient, false);
-	}
-
-	/**
-	 * 
-	 * @param ra
-	 * @param httpClient
-	 * @param endOnReceivingResponse
-	 */
-	public HttpClientActivityImpl(HttpClientResourceAdaptor ra,
-			HttpClient httpClient, boolean endOnReceivingResponse) {
+	public HttpClientActivityImpl(HttpClientResourceAdaptor ra, boolean endOnReceivingResponse, HttpContext context) {
 		this.ra = ra;
 		this.sessionId = UUID.randomUUID().toString();
-		this.httpClient = httpClient;
 		this.endOnReceivingResponse = endOnReceivingResponse;
+		this.context = context;
+
 	}
 
 	/**
@@ -70,8 +56,7 @@ public class HttpClientActivityImpl implements HttpClientActivity {
 	 */
 	public void endActivity() {
 		if (this.endOnReceivingResponse) {
-			throw new IllegalStateException(
-					"Activity will end automatically as soon as Response is received");
+			throw new IllegalStateException("Activity will end automatically as soon as Response is received");
 		}
 		this.ra.endActivity(this);
 	}
@@ -79,11 +64,51 @@ public class HttpClientActivityImpl implements HttpClientActivity {
 	/**
 	 * 
 	 */
-	public void executeMethod(HttpMethod httpMethod) {
-		this.ra.getExecutorService().execute(
-				this.ra.new AsyncExecuteMethodHandler(httpMethod,
-						this.httpClient, this));
+	public void execute(HttpUriRequest httpMethod) {
+		this.ra.getExecutorService().execute(this.ra.new AsyncExecuteMethodHandler(httpMethod, this, this.context));
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientActivity#execute(org.apache
+	 * .http.client.methods.HttpUriRequest,
+	 * org.apache.http.protocol.HttpContext)
+	 */
+	// @Override
+	// public void execute(HttpUriRequest request, HttpContext context) {
+	// this.ra.getExecutorService().execute(this.ra.new
+	// AsyncExecuteMethodHandler(request, context, this));
+	//
+	// }
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientActivity#execute(org.apache
+	 * .http.HttpHost, org.apache.http.HttpRequest)
+	 */
+	@Override
+	public void execute(HttpHost target, HttpRequest request) {
+		this.ra.getExecutorService().execute(this.ra.new AsyncExecuteMethodHandler(target, request, this.context, this));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.client.slee.resource.http.HttpClientActivity#execute(org.apache
+	 * .http.HttpHost, org.apache.http.HttpRequest,
+	 * org.apache.http.protocol.HttpContext)
+	 */
+	// @Override
+	// public void execute(HttpHost target, HttpRequest request, HttpContext
+	// context) {
+	// this.ra.getExecutorService().execute(this.ra.new
+	// AsyncExecuteMethodHandler(target, request, context, this));
+	// }
 
 	/**
 	 * 
@@ -99,24 +124,28 @@ public class HttpClientActivityImpl implements HttpClientActivity {
 		return sessionId;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
 		return sessionId.hashCode();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((HttpClientActivityImpl)obj).sessionId.equals(this.sessionId);
-		}
-		else {
+			return ((HttpClientActivityImpl) obj).sessionId.equals(this.sessionId);
+		} else {
 			return false;
 		}
 	}
+
 }

@@ -22,7 +22,9 @@
 
 package net.java.client.slee.resource.http;
 
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.methods.HttpUriRequest;
 
 /**
  * HttpClientActivity is created by service by calling
@@ -30,7 +32,7 @@ import org.apache.commons.httpclient.HttpMethod;
  * Service that wants to send the Request asynchronously uses and attaches
  * itself to HttpClientActivity to receive the ResponseEvent latter. <br/>
  * 
- * @author amit.bhayani
+ * @author amit bhayani
  * 
  */
 public interface HttpClientActivity {
@@ -43,12 +45,12 @@ public interface HttpClientActivity {
 	/**
 	 * HttpClientActivity can be created by calling createHttpClientActivity(
 	 * boolean endOnReceivingResponse) method of
-	 * HttpClientResourceAdaptorSbbInterface. <br/>If endOnReceivingResponse is
-	 * set to true this Activity will end as soon as the ResponseEvent is sent
-	 * by the ResourceAdaptor and calling this method explicitly will throw
-	 * IllegalStateException <br/> If endOnReceivingResponse is set to false,
-	 * service using this activity has to explicitly call endActivity() method
-	 * to end the Activity.
+	 * HttpClientResourceAdaptorSbbInterface. <br/>
+	 * If endOnReceivingResponse is set to true this Activity will end as soon
+	 * as the ResponseEvent is sent by the ResourceAdaptor and calling this
+	 * method explicitly will throw IllegalStateException <br/>
+	 * If endOnReceivingResponse is set to false, service using this activity
+	 * has to explicitly call endActivity() method to end the Activity.
 	 */
 	public void endActivity();
 
@@ -59,14 +61,56 @@ public interface HttpClientActivity {
 	public boolean getEndOnReceivingResponse();
 
 	/**
-	 * The service that wants to send the Request asynchronously has to first
-	 * create instance of HttpMethod by calling createHttpMethod() of
-	 * HttpClientResourceAdaptorSbbInterface, the service also creates Activity
-	 * and attaches itself to this Activity and then calls executeMethod passing
-	 * the instance of HttpMethod
+	 * Executes a request asynchronously using the default context.
 	 * 
-	 * @param httpMethod
+	 * @param request
+	 *            the request to execute
+	 * 
+	 * 
 	 */
-	public void executeMethod(HttpMethod httpMethod);
+	void execute(HttpUriRequest request);
+
+	/**
+	 * Executes a request asynchronously using the given context. The route to
+	 * the target will be determined by the HTTP client.
+	 * 
+	 * @param request
+	 *            the request to execute
+	 * @param context
+	 *            the context to use for the execution, or <code>null</code> to
+	 *            use the default context
+	 * 
+	 */
+	//void execute(HttpUriRequest request, HttpContext context);
+
+	/**
+	 * Executes a request asynchronously to the target using the default
+	 * context.
+	 * 
+	 * @param target
+	 *            the target host for the request. Implementations may accept
+	 *            <code>null</code> if they can still determine a route, for
+	 *            example to a default target or by inspecting the request.
+	 * @param request
+	 *            the request to execute
+	 * 
+	 */
+	void execute(HttpHost target, HttpRequest request);
+
+	/**
+	 * Executes a request asynchronously to the target using the given context.
+	 * 
+	 * @param target
+	 *            the target host for the request. Implementations may accept
+	 *            <code>null</code> if they can still determine a route, for
+	 *            example to a default target or by inspecting the request.
+	 * @param request
+	 *            the request to execute
+	 * @param context
+	 *            the context to use for the execution, or <code>null</code> to
+	 *            use the default context
+	 * 
+	 */
+	//void execute(HttpHost target, HttpRequest request, HttpContext context);
 
 }
