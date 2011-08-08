@@ -178,12 +178,15 @@ public class SmppSessionImpl implements SmppSession {
 			throw new NullPointerException("SMPP Response cannot be null");
 		}
 
-		SmppTransactionImpl smppTxImpl = this.getSmppTransactionImpl(response,
-				false, SmppTransactionType.INCOMING);
-
-		smppTxImpl.cancelResponseNotSentTimeout();
-
-		this.smppResourceAdaptor.sendResponse((ExtSmppResponse) response);
+		SmppTransactionImpl smppTxImpl = this.getSmppTransactionImpl(response, false, SmppTransactionType.INCOMING);
+		try{
+			smppTxImpl.cancelResponseNotSentTimeout();
+	
+			this.smppResourceAdaptor.sendResponse((ExtSmppResponse) response);
+		} finally {
+			//Kill Activity
+			this.smppResourceAdaptor.endActivity(smppTxImpl);
+		}
 
 	}
 
