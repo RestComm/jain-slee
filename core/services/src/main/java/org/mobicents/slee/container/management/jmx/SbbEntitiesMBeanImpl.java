@@ -22,8 +22,8 @@
 
 package org.mobicents.slee.container.management.jmx;
 
+import java.beans.PropertyEditorManager;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -38,10 +38,13 @@ import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
+import org.mobicents.slee.container.management.jmx.editors.SbbEntityIDArrayPropertyEditor;
+import org.mobicents.slee.container.management.jmx.editors.SbbEntityIDPropertyEditor;
 import org.mobicents.slee.container.sbbentity.ChildRelation;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
+import org.mobicents.slee.container.transaction.SleeTransactionManager;
 
 public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implements
 		SbbEntitiesMBeanImplMBean {
@@ -51,19 +54,33 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 	public SbbEntitiesMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
 		super(sleeContainer,SbbEntitiesMBeanImplMBean.class);
 		this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();
+		PropertyEditorManager.registerEditor(SbbEntityID[].class,
+				SbbEntityIDArrayPropertyEditor.class);
+		PropertyEditorManager.registerEditor(SbbEntityID.class,
+				SbbEntityIDPropertyEditor.class);
 	}
-
+	
 	@Override
 	public Object[] retrieveSbbEntitiesBySbbId(SbbID sbbId) throws ManagementException {
 		ArrayList result = new ArrayList();
+		final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
+		boolean started = false;
 		try {
+			if(txMgr.getTransaction() == null)
+			{
+				txMgr.begin();
+				started = true;
+			}
+
 
 			Iterator<SbbEntityID> sbbes = retrieveAllSbbEntitiesIds().iterator();
 			while (sbbes.hasNext()) {
 				try {
 					SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbes.next(),false);
 					if (sbbe != null && sbbe.getSbbId().equals(sbbId)) {
-						result.add(sbbEntityToArray(sbbe));
+						Object res = sbbEntityToArray(sbbe); 
+						if(res!=null)
+							result.add(res);
 					}
 				} catch (Exception e) {
 					// ignore
@@ -73,13 +90,31 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 		} catch (Exception e) {
 			throw new ManagementException(
 					"Failed to build set of existent sbb entities", e);
+		} finally
+		{
+			if(started)
+			{
+				try{
+					txMgr.commit();
+				}catch(Exception e)
+				{}
+			}
 		}
+		
 	}
 
 	@Override
 	public Object[] retrieveAllSbbEntities() throws ManagementException {
 		ArrayList result = new ArrayList();
+		final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
+		boolean started = false;
 		try {
+			if(txMgr.getTransaction() == null)
+			{
+				txMgr.begin();
+				started = true;
+			}
+
 
 			Iterator<SbbEntityID> sbbes = retrieveAllSbbEntitiesIds().iterator();
 			while (sbbes.hasNext()) {
@@ -96,16 +131,23 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 		} catch (Exception e) {
 			throw new ManagementException(
 					"Failed to build set of existent sbb entities", e);
+		} finally
+		{
+			if(started)
+			{
+				try
+				{
+					txMgr.commit();
+				}catch(Exception e)
+				{}
+			}
 		}
 	}
 
 	private Set<SbbEntityID> retrieveAllSbbEntitiesIds() throws SystemException, NullPointerException, ManagementException, NotSupportedException {
 		Set<SbbEntityID> result = new HashSet<SbbEntityID>();
 
-		final SleeContainer sleeContainer = getSleeContainer();
 
-		try {
-			sleeContainer.getTransactionManager().begin();
 
 			for (ServiceID serviceID : sleeContainer.getServiceManagement().getServices(ServiceState.ACTIVE)) {
 				try {
@@ -116,13 +158,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 					// ignore
 				}
 			}
-		} finally {
-			try {
-				sleeContainer.getTransactionManager().rollback();
-			} catch (SystemException e) {
-				// ignore
-			}
-		}
+		
 
 		return result;
 	}
@@ -150,10 +186,9 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 	}
 
 	private Object[] sbbEntityToArray(SbbEntity entity) {
-		Object[] info = new Object[10];
+		Object[] info = new Object[8];
 		try {
-			SleeContainer sleeContainer = getSleeContainer();
-			sleeContainer.getTransactionManager().begin();
+
 			if (entity == null)
 				return null;
 			info[0] = entity.getSbbEntityId().toString();
@@ -162,18 +197,14 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 			info[3] = entity.getSbbId().toString();
 			info[4] = Byte.toString(entity.getPriority());
 			info[5] = entity.getSbbEntityId().getServiceConvergenceName();
-			// FIXME to remove in mmc
-			info[6] = null;
-			info[7] = String.valueOf(entity.getSbbEntityId().getServiceID());
-			// FIXME to remove in mmc
-			info[8] = null;
+			info[6] = String.valueOf(entity.getSbbEntityId().getServiceID());
 			Set acsSet = entity.getActivityContexts();
 			if (acsSet != null && acsSet.size() > 0) {
 				Object[] acsArray = acsSet.toArray();
 				String[] acs = new String[acsArray.length];
-				info[9] = acs;
+				info[7] = acs;
 			}
-			sleeContainer.getTransactionManager().commit();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -190,19 +221,47 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 
 	}
 
-	public Object[] retrieveSbbEntityInfo(SbbEntityID sbbeId) {
+	public Object[] retrieveSbbEntityInfo(SbbEntityID sbbeId) throws ManagementException {
+		final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
+		boolean started = false;
+		try {
+			if(txMgr.getTransaction() == null)
+			{
+				txMgr.begin();
+				started = true;
+			}
+
 		SbbEntity entity = getSbbEntityById(sbbeId);
+		
 		return sbbEntityToArray(entity);
+		}catch(Exception e)
+		{
+			
+			throw new ManagementException(
+					"Failed to build set of existent sbb entities", e);
+		}finally
+		{
+			if(started)
+			{
+				try{
+					txMgr.commit();
+				}catch(Exception e)
+				{
+					
+				}
+			}
+		}
 	}
 
-	public void removeSbbEntity(SbbEntityID sbbeId) {
+	public void removeSbbEntity(SbbEntityID sbbeId) throws ManagementException {
 		try {
 			SleeContainer sleeContainer = getSleeContainer();
 			sleeContainer.getTransactionManager().begin();
 			sbbEntityFactory.removeSbbEntity(getSbbEntityById(sbbeId),false);
 			sleeContainer.getTransactionManager().commit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ManagementException(
+					"Failed to remove existent sbb entity", e);
 		}
 	}
 

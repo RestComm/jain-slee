@@ -40,8 +40,9 @@ public interface SbbEntitiesMBeanImplMBean
     * 
     * @param sbbeId
     * @return
+ * @throws ManagementException 
     */
-   //public Object[] retrieveSbbEntityInfo(SbbEntityID sbbeId);
+   public Object[] retrieveSbbEntityInfo(SbbEntityID sbbeId) throws ManagementException;
    
    /**
 	 * Array of the details about all SBB Entities. Retreives the current sbb
@@ -54,11 +55,11 @@ public interface SbbEntitiesMBeanImplMBean
 	public Object[] retrieveAllSbbEntities() throws ManagementException;
 
 	/**
-	 * Remove SBB Entitiy
+	 * Administrative remove of SBB Entity.
 	 * 
 	 * @param sbbeId
 	 */
-	//public void removeSbbEntity(SbbEntityID sbbeId);
+	public void removeSbbEntity(SbbEntityID sbbeId) throws ManagementException;
 
 	/**
 	 * SBB Entities associated with SBB.
