@@ -24,37 +24,6 @@
 		</constructor>				
 	</bean>
 	
-	<!-- local cache -->
-	
-	<bean name="Mobicents.JAINSLEE.LocalCacheConfig" class="org.jboss.cache.config.Configuration">  
-      <property name="runtimeConfig">
-         <bean name="MobicentsJAINSLEEJBossLocalCacheRuntimeConfig" class="org.jboss.cache.config.RuntimeConfig">
-            <property name="transactionManager">
-               <inject bean="RealTransactionManager"/>
-            </property>
-         </bean>
-      </property>
-      <property name="isolationLevel">REPEATABLE_READ</property>
-      <property name="cacheMode">LOCAL</property>
-      <property name="lockParentForChildInsertRemove">false</property>
-      <property name="lockAcquisitionTimeout">15000</property>
-      <property name="useLockStriping">false</property>
-      <property name="exposeManagementStatistics">false</property>          
-   </bean>
-   
-	<bean name="Mobicents.JAINSLEE.LocalCache" class="org.mobicents.cache.MobicentsCache">
-		<constructor>
-          <parameter class="org.jboss.cache.config.Configuration"><inject bean="Mobicents.JAINSLEE.LocalCacheConfig"/></parameter> 
-     	</constructor>		
-	</bean>
-
-	<bean name="Mobicents.JAINSLEE.JBossLocalCacheJmxWrapper" class="org.jboss.cache.jmx.CacheJmxWrapper">
-      <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss.cache:service=MobicentsSleeLocalCache",exposedInterface=org.jboss.cache.jmx.CacheJmxWrapperMBean.class,registerDirectly=true)</annotation>
-      <constructor>
-          <parameter><value-factory bean="Mobicents.JAINSLEE.LocalCache" method="getJBossCache"/></parameter>
-      </constructor>
-   </bean>
-   
 	<!-- jain slee core -->
 	
 	<bean name="Mobicents.JAINSLEE.TransactionManagerMBean"
@@ -300,7 +269,6 @@
 			<parameter><inject bean="Mobicents.JAINSLEE.RmiServerInterface" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.TransactionManagerMBean" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.Cluster" /></parameter>
-			<parameter><inject bean="Mobicents.JAINSLEE.LocalCache" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.AlarmMBean" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.TraceMBean" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.UsageParametersManagement" /></parameter>

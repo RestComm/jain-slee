@@ -182,8 +182,6 @@ public class SleeContainer {
 
 	private final EventContextFactory eventContextFactory;
 
-	private final MobicentsCache localCache; 
-	
 	private final CongestionControl congestionControl;
 	
 	private final SleeConnectionService sleeConnectionService;
@@ -213,7 +211,7 @@ public class SleeContainer {
 			NullActivityFactory nullActivityFactory,
 			RmiServerInterface rmiServerInterface,
 			SleeTransactionManager sleeTransactionManager,
-			MobicentsCluster cluster, MobicentsCache localCache, AlarmManagement alarmMBeanImpl,
+			MobicentsCluster cluster, AlarmManagement alarmMBeanImpl,
 			TraceManagement traceMBeanImpl,
 			UsageParametersManagement usageParametersManagement,
 			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
@@ -232,7 +230,6 @@ public class SleeContainer {
 						this.getClass().getClassLoader());
 
 		this.cluster = cluster;
-		this.localCache = localCache;
 
 		this.uuidGenerator = new MobicentsUUIDGenerator(cluster
 				.getMobicentsCache().isLocalMode());
@@ -359,14 +356,6 @@ public class SleeContainer {
 	 */
 	public SleeContainerDeployer getDeployer() {
 		return deployer;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public MobicentsCache getLocalCache() {
-		return localCache;
 	}
 	
 	/**
@@ -720,11 +709,7 @@ public class SleeContainer {
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e.getMessage(),e);
-		}
-		// start local cache if needed
-		if(localCache != null) {
-			localCache.startCache();
-		}
+		}		
 	}
 	
 	public void afterModulesInitialization() {
@@ -749,10 +734,6 @@ public class SleeContainer {
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e.getMessage(),e);
-		}
-		// stop local cache if needed
-		if(localCache != null) {
-			localCache.stopCache();
 		}
 	}
 

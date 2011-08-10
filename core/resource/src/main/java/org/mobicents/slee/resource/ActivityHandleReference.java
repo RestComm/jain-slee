@@ -33,7 +33,7 @@ import org.jgroups.Address;
  */
 public class ActivityHandleReference implements ActivityHandle {
 	
-	private final ActivityHandle reference;
+	private ActivityHandle reference;
 	private final String id;
 	private final Address address;
 	
@@ -51,6 +51,10 @@ public class ActivityHandleReference implements ActivityHandle {
 		return reference;
 	}
 
+	public void setReference(ActivityHandle reference) {
+		this.reference = reference;
+	}
+	
 	public String getId() {
 		return id;
 	}

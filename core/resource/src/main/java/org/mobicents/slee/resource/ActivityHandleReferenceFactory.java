@@ -23,19 +23,16 @@
 package org.mobicents.slee.resource;
 
 import java.rmi.dgc.VMID;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityHandle;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.jboss.cache.Fqn;
-import org.jboss.cache.Node;
 import org.jgroups.Address;
-import org.mobicents.cache.MobicentsCache;
 import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.cluster.election.ClientLocalListenerElector;
 import org.mobicents.slee.container.activity.ActivityContext;
@@ -71,14 +68,16 @@ public class ActivityHandleReferenceFactory {
 	/**
 	 * 
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private final Fqn baseFqn;
 	
 	private final static Logger logger = Logger.getLogger(ActivityHandleReferenceFactory.class);
 	private static boolean doTraceLogs = logger.isTraceEnabled();
 	
 	private ClusteredCacheData clusteredCacheData;
-	private CacheData localCacheData;
+	
+	private SleeTransactionManager _txManager;
+	private Address _localAddress;
 	
 	/**
 	 * 
@@ -98,8 +97,6 @@ public class ActivityHandleReferenceFactory {
 		clusteredCacheData = new ClusteredCacheData(baseFqn,cluster);
 		clusteredCacheData.create();
 		cluster.addFailOverListener(failOverListener);
-		localCacheData = new CacheData(baseFqn, resourceManagement.getSleeContainer().getLocalCache());
-		localCacheData.create();
 	}
 	
 	public void remove() {
@@ -109,17 +106,73 @@ public class ActivityHandleReferenceFactory {
 		clusteredCacheData.remove();
 		clusteredCacheData = null;
 		resourceManagement.getSleeContainer().getCluster().removeFailOverListener(failOverListener);
-		localCacheData.remove();
-		localCacheData = null;
 	}
 	
-	private final ConcurrentHashMap<ActivityHandle, String> pendingIds = new ConcurrentHashMap<ActivityHandle, String>();
+	public Address getLocalAddress() {
+		if (_localAddress == null) {
+			_localAddress = resourceManagement.getSleeContainer().getCluster().getLocalAddress();
+		}
+		return _localAddress;
+	}
 	
+	public SleeTransactionManager getTxManager() {
+		if (_txManager == null) {
+			_txManager = resourceManagement.getSleeContainer().getTransactionManager();
+		}
+		return _txManager;
+	}
+	
+	private final ConcurrentHashMap<ActivityHandle, PendingId> pendingIds = new ConcurrentHashMap<ActivityHandle, PendingId>();
+	private final ConcurrentHashMap<ActivityHandle, ActivityHandleReference> handle2ref = new ConcurrentHashMap<ActivityHandle, ActivityHandleReference>();
+	private final ConcurrentHashMap<ActivityHandleReference, ActivityHandle> ref2handle = new ConcurrentHashMap<ActivityHandleReference, ActivityHandle>();
+	
+	private static class PendingId {
+		
+		private final String id;
+		private final AtomicInteger txs = new AtomicInteger(1);
+		
+		public PendingId(String id) {
+			this.id = id;
+		}
+		
+	}
+	
+	private static class Handle2RefTxData {
+		
+		private final ActivityHandle handle;
+		private final ActivityHandleReference ref;
+		
+		public Handle2RefTxData(ActivityHandle handle,
+				ActivityHandleReference ref) {
+			this.handle = handle;
+			this.ref = ref;
+		}
+		
+		@Override
+		public int hashCode() {
+			return handle.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Handle2RefTxData other = (Handle2RefTxData) obj;
+			return handle.equals(other.handle);
+		}		
+		
+	}
+
 	/**
 	 * 
 	 * @param handle
 	 * @return
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ActivityHandleReference createActivityHandleReference(
 			final ActivityHandle handle) {
 		
@@ -127,38 +180,67 @@ public class ActivityHandleReferenceFactory {
 			logger.trace("createActivityHandleReference( handle = "+handle+" )");
 		}
 		
-		ActivityHandleReference reference = localCacheData.getReference(handle);
+		ActivityHandleReference reference = handle2ref.get(handle);
 		if (reference != null) {
 			throw new ActivityAlreadyExistsException(handle.toString());
 		}
 		
-		// a ref to generated ids are kept while tx exists, so concurrent invocations use the same id
-		String id = pendingIds.get(handle);
-		if (id == null) {
-			id = new VMID().toString();
-			final TransactionContext txContext = resourceManagement.getSleeContainer().getTransactionManager().getTransactionContext();
-			if (txContext != null) {
-				final String otherId = pendingIds.putIfAbsent(handle, id);
-				if (otherId != null) {
-					id = otherId;
+		String id = null;
+		final TransactionContext txContext = getTxManager().getTransactionContext();
+		if (txContext != null) {
+			// check 1st in the tx
+			final Map txData = txContext.getData();
+			Handle2RefTxData handle2RefTxData = (Handle2RefTxData) txData.get(handle);
+			if (handle2RefTxData != null) {
+				// already exists in tx
+				throw new ActivityAlreadyExistsException(handle.toString());
+			}
+			else {
+				id = new VMID().toString();
+				// a ref to generated ids are kept while tx exists, so concurrent invocations use the same id
+				final PendingId otherPendingId = pendingIds.putIfAbsent(handle, new PendingId(id));
+				if (otherPendingId != null) {
+					// concurrent tx creating, must allow, it may rollback, reuse id 
+					otherPendingId.txs.incrementAndGet();
+					id = otherPendingId.id;
 				}
-				else {
-					// put suceed, add tx actions to clean pending id mapping
-					final TransactionalAction action = new TransactionalAction() {
-						public void execute() {
+				// create ref and add to tx
+				reference = new ActivityHandleReference(handle, getLocalAddress(), id);
+				final Handle2RefTxData newHandle2RefTxData = new Handle2RefTxData(handle, reference);
+				txData.put(handle, newHandle2RefTxData);
+				txData.put(reference, newHandle2RefTxData);
+				// add tx actions
+				final TransactionalAction rollbackAction = new TransactionalAction() {
+					public void execute() {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Rollback of activity handle reference creation, for activity handle "+handle);
+						}
+						PendingId pendingId = pendingIds.get(handle);
+						if (pendingId.txs.decrementAndGet() < 1) {
 							pendingIds.remove(handle);
 						}
-					};
-					txContext.getAfterCommitActions().add(action);
-					txContext.getAfterRollbackActions().add(action);
-				}				
+					}
+				};
+				final TransactionalAction commitAction = new TransactionalAction() {
+					public void execute() {
+						PendingId pendingId = pendingIds.get(handle);
+						if (pendingId.txs.decrementAndGet() < 1) {
+							pendingIds.remove(handle);
+						}
+						handle2ref.put(handle, newHandle2RefTxData.ref);
+						ref2handle.put(newHandle2RefTxData.ref, handle);
+					}
+				};
+				txContext.getAfterCommitActions().add(commitAction);
+				txContext.getAfterRollbackActions().add(rollbackAction);
 			}
 		}
-		
-		reference = new ActivityHandleReference(handle, resourceManagement.getSleeContainer().getCluster().getLocalAddress(),id);
-
-		localCacheData.link(handle, reference);
-			
+		else {
+			reference = new ActivityHandleReference(handle, getLocalAddress(), new VMID().toString());
+			handle2ref.put(handle, reference);
+			ref2handle.put(reference, handle);
+		}
+				
 		if (logger.isDebugEnabled()) {
 			logger.debug("Created activity handle reference "+reference+" for activity handle "+reference.getReference());
 		}
@@ -172,6 +254,7 @@ public class ActivityHandleReferenceFactory {
 	 * @param reference
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public ActivityHandle getActivityHandle(ActivityHandleReference reference) {
 		
 		if (doTraceLogs) {
@@ -179,8 +262,23 @@ public class ActivityHandleReferenceFactory {
 		}
 		
 		ActivityHandle ah = reference.getReference();
-		if (ah == null && localCacheData != null) {
-			ah = localCacheData.getActivityHandle(reference);
+		if (ah == null) {
+			ah = ref2handle.get(reference);
+			if (ah != null) {
+				reference.setReference(ah);
+			}
+			else {
+				// if in tx context it may be in tx data only, due to creation
+				final TransactionContext txContext = getTxManager().getTransactionContext();
+				if (txContext != null) {
+					final Map txData = txContext.getData();
+					Handle2RefTxData handle2RefTxData = (Handle2RefTxData) txData.get(reference);
+					if (handle2RefTxData != null) {
+						ah = handle2RefTxData.handle;
+						reference.setReference(ah);						
+					}
+				}
+			}
 		}
 		return ah;
 	}
@@ -190,20 +288,30 @@ public class ActivityHandleReferenceFactory {
 	 * @param handle
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public ActivityHandle getReferenceTransacted(ActivityHandle handle) {
 		
 		if (doTraceLogs) {
 			logger.trace("getReferenceTransacted( handle = "+handle+" )");
 		}
 		
-		ActivityHandle ah = null;
-		if (localCacheData != null) {
-			ah = localCacheData.getReference(handle);
+		ActivityHandle reference = handle2ref.get(handle);
+		if (reference == null) {
+			// if in tx context it may be in tx data only, due to creation
+			final TransactionContext txContext = getTxManager().getTransactionContext();
+			if (txContext != null) {
+				final Map txData = txContext.getData();
+				Handle2RefTxData handle2RefTxData = (Handle2RefTxData) txData.get(handle);
+				if (handle2RefTxData != null) {
+					reference = handle2RefTxData.ref;
+				}
+			}
 		}
-		if (ah == null) {
-			ah = handle;
+		
+		if (reference == null) {
+			reference = handle;
 		}
-		return ah;
+		return reference;
 	}
 	
 	/**
@@ -217,49 +325,46 @@ public class ActivityHandleReferenceFactory {
 			logger.trace("getReference( handle = "+handle+" )");
 		}
 		
-		final SleeTransactionManager txManager = resourceManagement.getSleeContainer().getTransactionManager();
-		Transaction tx = null;
-		try {
-			tx = txManager.getTransaction();
-			if (tx != null) {
-				txManager.suspend();
-			}
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
+		ActivityHandle reference = handle2ref.get(handle);
+		if (reference == null) {
+			reference = handle;
 		}
-		
-		ActivityHandle ah = null;
-		if (localCacheData != null) {
-			ah = localCacheData.getReference(handle);
-		}
-		
-		if (tx != null) {
-			try {
-				txManager.resume(tx);
-			} catch (Throwable e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
-		}
-		
-		if (ah == null) {
-			ah = handle;
-		}
-		return ah;
+		return reference;
 	}
 	
 	/**
 	 * 
 	 * @param reference
 	 */
-	public ActivityHandle removeActivityHandleReference(ActivityHandleReference reference) {
+	public ActivityHandle removeActivityHandleReference(final ActivityHandleReference reference) {
 		
 		if (doTraceLogs) {
 			logger.trace("removeActivityHandleReference( reference = "+reference+" )");
 		}
 		
-		final ActivityHandle handle = getActivityHandle(reference);
-		if (handle != null && localCacheData != null) {
-			localCacheData.unlink(handle, reference);
+		ActivityHandle handle = getActivityHandle(reference);
+		if (handle != null) {
+			// if in tx we need to remove only on commit
+			final TransactionContext txContext = getTxManager().getTransactionContext();
+			if (txContext != null) {
+				TransactionalAction action = new TransactionalAction() {
+					@Override
+					public void execute() {
+						final ActivityHandle handle = ref2handle.remove(reference);
+						if (handle != null) {
+							handle2ref.remove(handle);
+						}						
+					}
+				};
+				txContext.getAfterCommitActions().add(action);
+			}
+			else {
+				ref2handle.remove(reference);
+				handle2ref.remove(handle);
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("Removed activity handle reference "+reference);
+			}
 		}
 		return handle;
 	}
@@ -272,47 +377,10 @@ public class ActivityHandleReferenceFactory {
 	private static class ClusteredCacheData extends
 			org.mobicents.cluster.cache.ClusteredCacheData {
 		
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public ClusteredCacheData(Fqn baseFqn,
 				MobicentsCluster cluster) {
 			super(Fqn.fromRelativeElements(baseFqn, cluster.getLocalAddress()), cluster);
-		}
-	}
-
-	/**
-	 * 
-	 * @author martins
-	 * 
-	 */
-	private static class CacheData extends
-			org.mobicents.cache.CacheData {
-
-		public CacheData(Fqn nodeFqn, MobicentsCache localCache) {
-			super(nodeFqn, localCache);
-		}
-
-		private static final String DATA_KEY = "link";
-		
-		public void link(ActivityHandle handle,ActivityHandleReference reference) {
-			Node node = getNode();
-			node.addChild(Fqn.fromElements(handle)).put(DATA_KEY, reference);
-			node.addChild(Fqn.fromElements(reference.getId())).put(DATA_KEY, handle);
-		}
-		
-		public ActivityHandle getActivityHandle(ActivityHandleReference reference) {
-			Node child = getNode().getChild(reference.getId());
-			return child == null ? null : (ActivityHandle) child.get(DATA_KEY);
-		}
-		
-		public ActivityHandleReference getReference(ActivityHandle handle) {
-			Node child = getNode().getChild(handle);
-			return child == null ? null : (ActivityHandleReference) child.get(DATA_KEY);
-		}
-		
-		public void unlink(ActivityHandle handle,ActivityHandleReference reference) {
-			Node node = getNode();
-			node.removeChild(reference.getId());
-			node.removeChild(handle);
 		}
 	}
 	
@@ -358,7 +426,7 @@ public class ActivityHandleReferenceFactory {
 		 * 
 		 * @see org.mobicents.cluster.FailOverListener#getBaseFqn()
 		 */
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings("rawtypes")
 		public Fqn getBaseFqn() {
 			return baseFqn;
 		}
@@ -408,6 +476,6 @@ public class ActivityHandleReferenceFactory {
 	
 	@Override
 	public String toString() {
-		return "ActivityHandleReferenceFactory[pendingIds = "+pendingIds.keySet()+"]";
+		return "ActivityHandleReferenceFactory[ pendingIds = "+pendingIds.keySet()+", handles = "+handle2ref.keySet()+", refs = "+ref2handle.keySet()+" ]";
 	}
 }

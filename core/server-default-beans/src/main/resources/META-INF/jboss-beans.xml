@@ -274,7 +274,6 @@
 			<parameter><inject bean="Mobicents.JAINSLEE.RmiServerInterface" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.TransactionManagerMBean" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.Cluster" /></parameter>
-			<parameter><null/></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.AlarmMBean" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.TraceMBean" /></parameter>
 			<parameter><inject bean="Mobicents.JAINSLEE.UsageParametersManagement" /></parameter>
