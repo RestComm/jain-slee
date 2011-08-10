@@ -35,34 +35,55 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
  */
 public class MAPDialogActivityHandle implements Serializable, ActivityHandle {
 
-	private MAPDialog mapDialog;
-	private int timeoutCount;
+	//private MAPDialog mapDialog;
+	private long dialogId;
+	private int timeoutCount;  //not a best thing, but now its the only way.
 	
 	public MAPDialogActivityHandle(MAPDialog mapDialog) {
-		this.mapDialog = mapDialog;
+		this.dialogId = mapDialog.getDialogId();
 	}
+
+	
+	/**
+	 * @param dialogId
+	 */
+	public MAPDialogActivityHandle(long dialogId) {
+		super();
+		this.dialogId = dialogId;
+	}
+
 
 	@Override
 	public int hashCode() {
-		return this.mapDialog.getDialogId().hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (dialogId ^ (dialogId >>> 32));
+		return result;
 	}
+
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((MAPDialogActivityHandle) obj).mapDialog.getDialogId().equals(this.mapDialog.getDialogId());
-		} else {
+		if (this == obj)
+			return true;
+		if (obj == null)
 			return false;
-		}
+		if (getClass() != obj.getClass())
+			return false;
+		MAPDialogActivityHandle other = (MAPDialogActivityHandle) obj;
+		if (dialogId != other.dialogId)
+			return false;
+		return true;
 	}
+
 
 	@Override
 	public String toString() {
-		return "MAPDialogActivityHandle(id=" + this.mapDialog.getDialogId() + ")";
+		return "MAPDialogActivityHandle(id=" + this.dialogId + ")";
 	}
 
-	public MAPDialog getMAPDialog() {
-		return this.mapDialog;
+	public long getDialogId() {
+		return this.dialogId;
 	}
 
 	public void increateTimeoutCount()

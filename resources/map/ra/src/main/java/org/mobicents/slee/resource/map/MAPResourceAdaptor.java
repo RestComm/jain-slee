@@ -63,12 +63,14 @@ import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortChoice;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
+import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPDialogSupplementary;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementaryListener;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSIndication;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
 import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
+import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
 
 /**
  * 
@@ -89,11 +91,12 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * This is local proxy of provider.
 	 */
-	protected MAPProvider mapProvider = null;
-
+	protected MAPProviderWrapper mapProvider = null;
+	protected MAPProvider realProvider = null; //so we dont have to "get"
 	private Tracer tracer;
 	private transient SleeEndpoint sleeEndpoint = null;
 
+	//require ONLY for one method.... blah
 	private ConcurrentHashMap<Long, MAPDialogActivityHandle> handlers = new ConcurrentHashMap<Long, MAPDialogActivityHandle>();
 	private ConcurrentHashMap<MAPDialogActivityHandle, MAPDialog> activities = new ConcurrentHashMap<MAPDialogActivityHandle, MAPDialog>();
 
@@ -121,6 +124,9 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		// TODO Auto-generated constructor stub
 	}
 
+	//////////////////
+	// RA callbacks //
+	//////////////////
 	public void activityEnded(ActivityHandle activityHandle) {
 		if (this.tracer.isFineEnabled()) {
 			if (this.tracer.isFineEnabled()) {
@@ -129,7 +135,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		}
 		MAPDialogActivityHandle mdah = (MAPDialogActivityHandle) activityHandle;
 
-		this.handlers.remove(mdah.getMAPDialog().getDialogId());
+		this.handlers.remove(mdah.getDialogId());
 		this.activities.remove(activityHandle);
 	}
 
@@ -162,7 +168,13 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	}
 
 	public Object getActivity(ActivityHandle handle) {
-		return ((MAPDialogActivityHandle) handle).getMAPDialog();
+		if(handle instanceof MAPDialogActivityHandle)
+		{
+			return this.activities.get(handle);
+		}else
+		{
+			return null;
+		}
 	}
 
 	public ActivityHandle getActivityHandle(Object arg0) {
@@ -194,14 +206,16 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.mapStack = new MAPStackImpl(sccpProvider, this.ssn);
 
 			this.mapStack.start();
-			this.mapProvider = this.mapStack.getMAPProvider();
+			this.realProvider = this.mapStack.getMAPProvider();
 
-			this.mapProvider.addMAPDialogListener(this);
-			this.mapProvider.getMAPServiceSupplementary().addMAPServiceListener(this);
+			this.realProvider.addMAPDialogListener(this);
+			this.realProvider.getMAPServiceSupplementary().addMAPServiceListener(this);
 
 			this.sleeEndpoint = resourceAdaptorContext.getSleeEndpoint();
 
-			this.mapProvider.getMAPServiceSupplementary().acivate();
+			this.realProvider.getMAPServiceSupplementary().acivate();
+			
+			this.mapProvider = new MAPProviderWrapper(realProvider, this);
 		} catch (Exception e) {
 			this.tracer.severe("Failed to activate MAP RA ", e);
 		}
@@ -227,9 +241,9 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	}
 
 	public void raInactive() {
-		this.mapProvider.getMAPServiceSupplementary().deactivate();
-		this.mapProvider.getMAPServiceSupplementary().removeMAPServiceListener(this);
-		this.mapProvider.removeMAPDialogListener(this);
+		this.realProvider.getMAPServiceSupplementary().deactivate();
+		this.realProvider.getMAPServiceSupplementary().removeMAPServiceListener(this);
+		this.realProvider.removeMAPDialogListener(this);
 		this.mapStack.stop();
 	}
 
@@ -304,6 +318,20 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		this.resourceAdaptorContext = null;
 	}
 
+	////////////////////
+	// Helper methods //
+	////////////////////
+	
+	public MAPDialogActivityHandle createActivity(MAPDialog mapDialog) throws ActivityAlreadyExistsException, NullPointerException, IllegalStateException,
+			SLEEException, StartActivityException {
+		MAPDialogActivityHandle handle = new MAPDialogActivityHandle(mapDialog);
+		this.sleeEndpoint.startActivity(handle, mapDialog, ACTIVITY_FLAGS);
+		this.handlers.put(mapDialog.getDialogId(), handle);
+		this.activities.put(handle, mapDialog);
+		return handle;
+
+	}
+	
 	/**
 	 * Private methods
 	 */
@@ -333,15 +361,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		}
 	}
 
-	private MAPDialogActivityHandle startActivity(MAPDialog mapDialog) throws ActivityAlreadyExistsException,
-			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
-		MAPDialogActivityHandle handle = new MAPDialogActivityHandle(mapDialog);
-		this.sleeEndpoint.startActivity(handle, mapDialog, ACTIVITY_FLAGS);
-		this.handlers.put(mapDialog.getDialogId(), handle);
-		this.activities.put(handle, mapDialog);
-		return handle;
 
-	}
 
 	protected void endActivity(MAPDialog mapDialog) {
 		MAPDialogActivityHandle mapDialogActHndl = this.handlers.get(mapDialog.getDialogId());
@@ -356,14 +376,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		}
 	}
 
-	protected MAPDialog getMAPDialog(Long dialogId) {
-		MAPDialogActivityHandle handle = this.handlers.get(dialogId);
-		if (handle != null) {
-			handle.getMAPDialog();
-		}
-
-		return null;
-	}
 
 	//////////////////////
 	// Dialog callbacks //
@@ -385,7 +397,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			return;
 		}
 		handle.resetTimeoutCount();
-		DialogAccept accept = new DialogAccept(handle.getMAPDialog(), extension);
+		DialogAccept accept = new DialogAccept(mapDialog, extension);
 
 		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_ACCEPT", handle, accept);
 
@@ -405,7 +417,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			return;
 		}
 
-		DialogClose close = new DialogClose(handle.getMAPDialog());
+		DialogClose close = new DialogClose(mapDialog);
 
 		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_CLOSE", handle, close);
 
@@ -427,7 +439,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			return;
 		}
 
-		DialogDelimiter delimiter = new DialogDelimiter(handle.getMAPDialog());
+		DialogDelimiter delimiter = new DialogDelimiter(mapDialog);
 
 		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_DELIMITER", handle, delimiter);
 	}
@@ -446,7 +458,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			return;
 		}
 		handle.resetTimeoutCount();
-		DialogNotice notice = new DialogNotice(handle.getMAPDialog(), noticeProblemDiagnostic);
+		DialogNotice notice = new DialogNotice(mapDialog, noticeProblemDiagnostic);
 
 		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_NOTICE", handle, notice);
 	}
@@ -466,7 +478,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			return;
 		}
 
-		DialogProviderAbort abort = new DialogProviderAbort(handle.getMAPDialog(), abortProviderReason, abortSource,
+		DialogProviderAbort abort = new DialogProviderAbort(mapDialog, abortProviderReason, abortSource,
 				extensionContainer);
 
 		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_PROVIDERABORT", handle, abort);
@@ -490,7 +502,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			return;
 		}
 
-		DialogReject reject = new DialogReject(handle.getMAPDialog(), refuseReason, providerError,
+		DialogReject reject = new DialogReject(mapDialog, refuseReason, providerError,
 				alternativeApplicationContext, extensionContainer);
 
 		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_REJECT", handle, reject);
@@ -512,8 +524,13 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 			if (mapDialog.getApplicationContext().getApplicationContextVersion() == MAPApplicationContextVersion.version2) {
 				try {
-					MAPDialogActivityHandle handle = startActivity(mapDialog);
-					DialogRequest event = new DialogRequest(handle.getMAPDialog(), destReference, origReference, extensionContainer);
+					MAPDialogActivityHandle handle = new MAPDialogActivityHandle(mapDialog);
+					if(!this.activities.containsKey(handle))
+					{
+						handle = createActivity(mapDialog);
+					}
+					
+					DialogRequest event = new DialogRequest(mapDialog, destReference, origReference, extensionContainer);
 					this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_REQUEST", handle, event);
 				} catch (ActivityAlreadyExistsException e) {
 					e.printStackTrace();
@@ -554,7 +571,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			return;
 		}
 
-		DialogUserAbort abort = new DialogUserAbort(handle.getMAPDialog(), userReason, extensionContainer);
+		DialogUserAbort abort = new DialogUserAbort(mapDialog, userReason, extensionContainer);
 
 		this.fireEvent("org.mobicents.protocols.ss7.map.DIALOG_USERABORT", handle, abort);
 	}
@@ -727,4 +744,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		handle.resetTimeoutCount();
 		this.fireEvent("org.mobicents.protocols.ss7.map.UNSTRUCTURED_SS_REQUEST_INDICATION", handle, unstrSSInd);
 	}
+
+	
 }
