@@ -18,89 +18,80 @@
 	<programlisting language="java">
 package org.mobicents.protocols.ss7.map.api;
 
-import org.mobicents.protocols.ss7.map.api.dialog.AddressString;
-import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
-/**
- * 
- * @author amit bhayani
- * 
- */
 public interface MAPProvider {
 
-	public static final int NETWORK_UNSTRUCTURED_SS_CONTEXT_V2 = 1;
+	 public abstract void addMAPDialogListener(MAPDialogListener mapdialoglistener);
 
-	/**
-	 * Creates a new Dialog. This is equivalent to issuing MAP_OPEN Service
-	 * Request to MAP Provider.
-	 * 
-	 * @param applicationCntx
-	 *            This parameter identifies the type of application context
-	 *            being established. If the dialogue is accepted the received
-	 *            application context name shall be echoed. In case of refusal
-	 *            of dialogue this parameter shall indicate the highest version
-	 *            supported.
-	 * 
-	 * @param destAddress
-	 *            A valid SCCP address identifying the destination peer entity.
-	 *            As an implementation option, this parameter may also, in the
-	 *            indication, be implicitly associated with the service access
-	 *            point at which the primitive is issued.
-	 * 
-	 * @param destReference
-	 *            This parameter is a reference which refines the identification
-	 *            of the called process. It may be identical to Destination
-	 *            address but its value is to be carried at MAP level.
-	 * 
-	 * @param origAddress
-	 *            A valid SCCP address identifying the requestor of a MAP
-	 *            dialogue. As an implementation option, this parameter may
-	 *            also, in the request, be implicitly associated with the
-	 *            service access point at which the primitive is issued.
-	 * 
-	 * @param origReference
-	 *            This parameter is a reference which refines the identification
-	 *            of the calling process. It may be identical to the Originating
-	 *            address but its value is to be carried at MAP level.
-	 *            Processing of the Originating-reference shall be performed
-	 *            according to the supplementary service descriptions and other
-	 *            service descriptions, e.g. operator determined barring.
-	 * @return
-	 */
-	public MAPDialog createNewDialog(MAPApplicationContext appCntx,			
-			SccpAddress origAddress, AddressString origReference,
-			SccpAddress destAddress, AddressString destReference ) throws MAPException;
+    public abstract void removeMAPDialogListener(MAPDialogListener mapdialoglistener);
 
-	/**
-	 * 
-	 * @param mapDialogListener
-	 */
-	public void addMAPDialogListener(MAPDialogListener mapDialogListener);
+    public abstract MapServiceFactory getMapServiceFactory();
 
-	/**
-	 * 
-	 * @param mapDialogListener
-	 */
-	public void removeMAPDialogListener(MAPDialogListener mapDialogListener);
+    public abstract MAPErrorMessageFactory getMAPErrorMessageFactory();
 
-	/**
-	 * 
-	 * @param mapServiceListener
-	 */
-	public void addMAPServiceListener(MAPServiceListener mapServiceListener);
+    public abstract MAPDialog getMAPDialog(Long long1);
 
-	/**
-	 * 
-	 * @param mapServiceListener
-	 */
-	public void removeMAPServiceListener(MAPServiceListener mapServiceListener);
+    public abstract MAPServiceSupplementary getMAPServiceSupplementary();
 
-	public MapServiceFactory getMapServiceFactory();
-	
-	public MAPDialog getMAPDialog(Long dialogId);
+    public abstract MAPServiceSms getMAPServiceSms();
+
+    public abstract MAPServiceLsm getMAPServiceLsm();
 
 }
 	
 	</programlisting>
-
+	<variablelist>
+		<varlistentry>
+			<term> public abstract void addMAPDialogListener(MAPDialogListener mapdialoglistener);</term>
+			<listitem>
+				<para>this method is not supported. Call to it causes NotSupportedException to be thrown.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public abstract void removeMAPDialogListener(MAPDialogListener mapdialoglistener);</term>
+			<listitem>
+				<para>this method is not supported. Call to it causes NotSupportedException to be thrown.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public abstract MapServiceFactory getMapServiceFactory();</term>
+			<listitem>
+				<para>retrieves factory for generic MAP components(interface name is missleading, will be changed in CR1)</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public abstract MAPErrorMessageFactory getMAPErrorMessageFactory();</term>
+			<listitem>
+				<para>retrieves implementation of MAP error message factory. Error messages are used to indicate erroneous conditions.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public abstract MAPDialog getMAPDialog(Long dialogId);</term>
+			<listitem>
+				<para>retrieves active dialog by its <literal>ID</literal>. </para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public abstract MAPServiceSupplementary getMAPServiceSupplementary();</term>
+			<listitem>
+				<para>retrieves MAP sumplementary service. It is used to create USSD dialogs.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public abstract MAPServiceSms getMAPServiceSms();</term>
+			<listitem>
+				<para>retrieves MAP SMS service. It is used to create SMS dialogs. In current release it is not supported.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public abstract MAPServiceLsm getMAPServiceLsm();</term>
+			<listitem>
+				<para>retrieves MAP LMS service. It is used to create LMS dialogs. In current release it is not supported.</para>
+			</listitem>
+		</varlistentry>
+		
+	</variablelist>
+	<note>
+		<para>As MAP stack is beeing completed, it will support more services, this list of <literal>getMAPServiceX</literal> will expand to support all implemented services.</para>
+	</note>
 </section>

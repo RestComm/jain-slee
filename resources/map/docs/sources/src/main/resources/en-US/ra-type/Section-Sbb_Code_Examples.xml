@@ -99,45 +99,7 @@ public abstract class SipSbb implements Sbb {
 		}
 	}
 
-	/**
-	 * MAP Dialog Event Handlers
-	 */
-
-	public void onCloseInfo(MAPCloseInfo evt, ActivityContextInterface aci) {
-		if (this.logger.isFineEnabled()) {
-			this.logger.fine("Received MAP CLOSE_INFO event for MAP Dialog Id "
-					+ evt.getMAPDialog().getDialogId());
-		}
-
-	}
-
-	public void onRefuseInfo(MAPRefuseInfo evt, ActivityContextInterface aci) {
-		if (this.logger.isFineEnabled()) {
-			this.logger
-					.fine("Received MAP REFUSE_INFO event for MAP Dialog Id "
-							+ evt.getMAPDialog().getDialogId());
-		}
-		
-		
-	}
-
-	public void onUserAbortInfo(MAPUserAbortInfo evt,
-			ActivityContextInterface aci) {
-		if (this.logger.isFineEnabled()) {
-			this.logger
-					.fine("Received MAP USER_ABORT_INFO event for MAP Dialog Id "
-							+ evt.getMAPDialog().getDialogId());
-		}
-		
-		
-	}
-
-	public void onProviderAbortInfo(MAPProviderAbortInfo evt,
-			ActivityContextInterface aci) {
-		
-		
-	}
-
+	...
 
 
 	public void setSbbContext(SbbContext sbbContext) {

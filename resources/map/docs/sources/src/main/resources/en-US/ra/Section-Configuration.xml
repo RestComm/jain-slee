@@ -9,7 +9,7 @@
 
 	<title>Configuration</title>
 
-	<para>The Resource Adaptor supports configuration only at Resource Adaptor Entity creation time. Two properties files are bundled with MAP RA 1) map-default-ra.properties 2) sccp.properties. The following table expalins the respective properties</para>
+	<para>The Resource Adaptor supports configuration only at Resource Adaptor Entity creation time. It supports following properties:</para>
 	
 	<table frame="all" pgwide="1">
 		<title>Resource Adaptor's Configuration Properties - map-default-ra.properties</title>
@@ -28,45 +28,22 @@
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>sccp.service</entry>
-			   	    <entry>JNDI name of SCCP service.</entry>
+			   		<entry>ssn</entry>
+			   	    <entry>Sub-System Number to be used for transport.</entry>
+			   	    <entry>java.lang.Interge</entry>
+			   	    <entry>8</entry>
+			    </row>
+				<row>
+			   		<entry>sccpJndi</entry>
+			   	    <entry>JNDI name of SCCP service to be used. </entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>java:/mobicents/ss7/sccp</entry>
 			    </row>
-				<row>
-			   		<entry>sccp.noa</entry>
-			   	    <entry>Definition of Nature Of Address, ie. NATIONAL </entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry></entry>
-			    </row>
 		    	<row>
-			   		<entry>sccp.ssn</entry>
-			   	    <entry>Specifies SSN of address</entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry></entry>
-			    </row>
-			    <row>
-			   		<entry>sccp.pointcode</entry>
-			   	    <entry>Specifies point code of address</entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry></entry>
-			    </row>
-			    <row>
-			   		<entry>sccp.np</entry>
-			   	    <entry>Specifies numbering plan of address</entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry></entry>
-			    </row>
-			    <row>
-			   		<entry>sccp.tt</entry>
-			   	    <entry>Specifies translation type of address</entry>
-			   	    <entry>java.lang.String</entry>
-			   	    <entry></entry>
-			    </row>
-			    <row>
-			   		<entry>sccp.gt</entry>
-			   	    <entry>Specifies digits of address</entry>
-			   	    <entry>java.lang.String</entry>
+			   		<entry>timeout</entry>
+			   	    <entry>Controls how many times dialog can timeout. '-1' - indicates that dialog will never be released after timeout, othen non
+				negative values indicates how many timeouts may occur before dialog is released.</entry>
+			   	    <entry>java.lang.Integer</entry>
 			   	    <entry></entry>
 			    </row>
 			    
@@ -78,7 +55,7 @@
 	
 
 
-<important>
+	<important>
 		<para>JAIN SLEE 1.1 Specification requires values set for properties without a default value, which means the configuration for those properties are mandatory, otherwise the Resource Adaptor Entity creation will fail!</para>
 	</important>
 		

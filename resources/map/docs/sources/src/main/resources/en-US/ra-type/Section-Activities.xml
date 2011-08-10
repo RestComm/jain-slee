@@ -11,7 +11,7 @@
 
 	<para>
 		An MAP activity object represents a set of related events in an
-		MAP resource. This Ra Type defines only one Activity
+		MAP resource. This RA Type defines only one activity
 		object:
 	</para>
 	<variablelist>
@@ -30,10 +30,10 @@
 				<para>
 					New
 					<literal>MAPDialog</literal>
-					Activity objects are created by calling
-<literal>MAPProvider.createNewDialog(MAPApplicationContext appCntx,</literal>
-<literal>SccpAddress origAddress, AddressString origReference,SccpAddress destAddress,</literal> 
-<literal>AddressString destReference )</literal>
+					activity objects are created via specific MAP Service interface. Check <xref linkend="ratype_ra_interface"/> section for available services. 
+					</para><para>
+					Depending on service used, activity object provides additional set of methods. For instance <literal>USSD</literal> dialog: <classname>org.mobicents.protocols.ss7.map.api.service.supplementary.MAPDialogSupplementary</classname> exposes 
+					methods specific for exchange of <literal>USSD</literal> messages. 
 				</para>
 			</listitem>
 		</varlistentry>
