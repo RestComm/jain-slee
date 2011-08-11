@@ -435,7 +435,6 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
 
               // Add Listener to selection change
               componentTemplatesCombo.addModifyListener(new ModifyListener() {
-                @Override
                 public void modifyText(ModifyEvent event) {
                   String selected = componentTemplatesCombo.getItem(componentTemplatesCombo.getSelectionIndex());
                   if(selected.startsWith("-------- ")) {

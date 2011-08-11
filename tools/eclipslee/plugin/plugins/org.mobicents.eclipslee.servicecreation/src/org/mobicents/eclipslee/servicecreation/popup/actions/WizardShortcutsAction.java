@@ -82,7 +82,6 @@ public class WizardShortcutsAction implements IActionDelegate {
   /**
    * @see IActionDelegate#selectionChanged(IAction, ISelection)
    */
-  @Override
   public void selectionChanged(IAction action, ISelection selection) {
     this.selection = selection; 
   }
