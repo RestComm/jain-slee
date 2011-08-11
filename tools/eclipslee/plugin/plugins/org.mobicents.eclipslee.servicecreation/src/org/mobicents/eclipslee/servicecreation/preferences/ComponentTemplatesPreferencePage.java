@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
 package org.mobicents.eclipslee.servicecreation.preferences;
 
 import java.io.FileOutputStream;
@@ -41,6 +63,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+/**
+ * EclipSLEE Component Templates Preference Page class
+ * 
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ */
 public class ComponentTemplatesPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
   //final HashMap<String, ComponentEntry> enablersComponents = new HashMap<String, ComponentEntry>();
@@ -59,14 +86,12 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
   Button addButton;
   Combo typeCombo;
 
-  @Override
   public void init(IWorkbench workbench) {
     // Initialize the preference store we wish to use
     setPreferenceStore(ServiceCreationPlugin.getDefault().getPreferenceStore());
     setDescription("In this page the available component templates can be defined.");
   }
 
-  @Override
   protected Control createContents(Composite parent) {
 
     Shell shell = parent.getShell();
@@ -145,12 +170,10 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
 
 
     componentsTable.addSelectionListener(new SelectionListener() {
-      @Override
       public void widgetSelected(SelectionEvent arg0) {
         removeButton.setEnabled(true);
       }
 
-      @Override
       public void widgetDefaultSelected(SelectionEvent arg0) {
       }
     });
@@ -206,7 +229,6 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
     addButton.setEnabled(false);
 
     typeCombo.addSelectionListener(new SelectionListener() {
-      @Override
       public void widgetSelected(SelectionEvent arg0) {
         setErrorMessage(null);
         if(!checkComponentAlreadyExists()) {
@@ -218,14 +240,12 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
         }
       }
 
-      @Override
       public void widgetDefaultSelected(SelectionEvent arg0) {
         // TODO Auto-generated method stub
       }
     });
 
     ModifyListener textListener = new ModifyListener() {
-      @Override
       public void modifyText(ModifyEvent arg0) {
         setErrorMessage(null);
         if(!checkComponentAlreadyExists()) {
@@ -244,7 +264,6 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
 
     addButton.addSelectionListener(new SelectionListener() {
 
-      @Override
       public void widgetSelected(SelectionEvent arg0) {
         ComponentEntry ce = getCurrentNewComponentEntry();
         TableItem item = new TableItem(componentsTable, SWT.NONE);
@@ -277,7 +296,6 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
         }
       }
 
-      @Override
       public void widgetDefaultSelected(SelectionEvent arg0) {
         // TODO Auto-generated method stub
       }
@@ -320,7 +338,6 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
     }
   }
 
-  @Override
   public boolean performOk() {
     writeDependenciesFile();
     return true;
@@ -350,7 +367,6 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
 
             //            // Add Listener to selection change
             //            componentTemplatesCombo.addModifyListener(new ModifyListener() {
-            //              @Override
             //              public void modifyText(ModifyEvent event) {
             //                String selected = componentTemplatesCombo.getItem(componentTemplatesCombo.getSelectionIndex());
             //                if(selected.startsWith("-------- ")) {
