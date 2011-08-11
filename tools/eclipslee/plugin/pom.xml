@@ -126,7 +126,19 @@
 			</build>
 	
 	<repositories>
-		
+
+		<repository>
+			<id>m2eclipse</id>
+			<url>http://m2eclipse.sonatype.org/sites/m2e/</url>
+			<layout>p2</layout>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+
 		<repository>
 			<id>jboss-requirements-composite-mirror</id>
 			<url>http://download.jboss.org/jbosstools/updates/indigo/</url>
