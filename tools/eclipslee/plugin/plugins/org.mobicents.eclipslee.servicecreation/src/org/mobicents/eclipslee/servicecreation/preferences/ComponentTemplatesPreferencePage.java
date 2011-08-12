@@ -38,8 +38,13 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -133,7 +138,9 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
     } 
     componentsTable.pack();
 
-    new Label(composite, SWT.NONE);
+    Label noteLabel = new Label(composite, SWT.NONE);
+    noteLabel.setText("Note: Double-click an item to edit it's version.");
+
     final Button removeButton = new Button(composite, SWT.NONE);
     removeButton.setText("Remove Component");
     removeButton.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true, true));
@@ -168,24 +175,89 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
       }
     });
 
-
-    componentsTable.addSelectionListener(new SelectionListener() {
-      public void widgetSelected(SelectionEvent arg0) {
-        removeButton.setEnabled(true);
+    componentsTable.addMouseListener(new MouseListener() {
+      
+      public void mouseUp(MouseEvent me) {
+        // NOP
       }
+      
+      public void mouseDown(MouseEvent me) {
+        // NOP
+      }
+      
+      public void mouseDoubleClick(MouseEvent me) {
+        Table table = ((Table)me.getSource());
+        TableItem item = table.getSelection()[0];
 
-      public void widgetDefaultSelected(SelectionEvent arg0) {
+        final TableEditor editor = new TableEditor(table);
+        // The editor must have the same size as the cell and must
+        // not be any smaller than 50 pixels.
+        editor.horizontalAlignment = SWT.LEFT;
+        editor.grabHorizontal = true;
+        editor.minimumWidth = 50;
+        // editing the second column
+        final int EDITABLECOLUMN = 3;
+        final String oldValue = item.getText(EDITABLECOLUMN);
+
+        // The control that will be the editor must be a child of the
+        // Table
+        Text newEditor = new Text(table, SWT.NONE);
+        newEditor.setText(item.getText(EDITABLECOLUMN));
+        newEditor.addModifyListener(new ModifyListener() {
+          public void modifyText(ModifyEvent me) {
+            Text text = (Text) editor.getEditor();
+            editor.getItem().setText(EDITABLECOLUMN, text.getText());
+          }
+        });
+        newEditor.selectAll();
+        newEditor.setFocus();
+        editor.setEditor(newEditor, item, EDITABLECOLUMN);
+        
+        newEditor.addFocusListener(new FocusListener() {
+          
+          public void focusLost(FocusEvent fe) {
+            Text text = (Text) fe.getSource();
+            text.dispose();
+            
+            TableItem item = editor.getItem();
+
+            ComponentEntry.ComponentType type = ComponentEntry.ComponentType.valueOf(item.getText(0));
+            String groupId = item.getText(1);
+            String artifactId = item.getText(2);
+            String version = item.getText(3);
+            String description = item.getText(4);
+
+            ComponentEntry old = new ComponentEntry(type, groupId, artifactId, oldValue, description);
+            ComponentEntry neew = new ComponentEntry(type, groupId, artifactId, version, description);
+            
+            switch(old.getType()) {
+              case ENABLER:
+                enablersComponents.set(enablersComponents.indexOf(old), neew);
+                break;
+              case RATYPE:
+                ratypesComponents.set(ratypesComponents.indexOf(old), neew);
+                break;
+              case LIBRARY:
+                librariesComponents.set(librariesComponents.indexOf(old), neew);
+                break;
+            }            
+          }
+          
+          public void focusGained(FocusEvent fe) {
+            // NOP
+          }
+        });
       }
     });
 
-    //    shell.open();
-    //    while(!shell.isDisposed()) {
-    //      if(!shell.getDisplay().readAndDispatch()) shell.getDisplay().sleep();
-    //    }
-    //    shell.getDisplay().dispose();
+    componentsTable.addSelectionListener(new SelectionListener() {
+      public void widgetSelected(SelectionEvent se) {
+        removeButton.setEnabled(true);
+      }
 
-    //    Group enablersGroup = new Group(composite, SWT.SHADOW_ETCHED_IN | SWT.FULL_SELECTION);
-    //    enablersGroup.setText("Add Component");
+      public void widgetDefaultSelected(SelectionEvent se) {
+      }
+    });
 
     // empty line
     new Label(composite, SWT.NONE);
@@ -229,7 +301,7 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
     addButton.setEnabled(false);
 
     typeCombo.addSelectionListener(new SelectionListener() {
-      public void widgetSelected(SelectionEvent arg0) {
+      public void widgetSelected(SelectionEvent se) {
         setErrorMessage(null);
         if(!checkComponentAlreadyExists()) {
           checkEnableAddButton();
@@ -240,13 +312,13 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
         }
       }
 
-      public void widgetDefaultSelected(SelectionEvent arg0) {
+      public void widgetDefaultSelected(SelectionEvent se) {
         // TODO Auto-generated method stub
       }
     });
 
     ModifyListener textListener = new ModifyListener() {
-      public void modifyText(ModifyEvent arg0) {
+      public void modifyText(ModifyEvent me) {
         setErrorMessage(null);
         if(!checkComponentAlreadyExists()) {
           checkEnableAddButton();
@@ -264,7 +336,7 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
 
     addButton.addSelectionListener(new SelectionListener() {
 
-      public void widgetSelected(SelectionEvent arg0) {
+      public void widgetSelected(SelectionEvent se) {
         ComponentEntry ce = getCurrentNewComponentEntry();
         TableItem item = new TableItem(componentsTable, SWT.NONE);
         item.setText(0, ce.getType().toString());
@@ -296,8 +368,8 @@ public class ComponentTemplatesPreferencePage extends PreferencePage implements 
         }
       }
 
-      public void widgetDefaultSelected(SelectionEvent arg0) {
-        // TODO Auto-generated method stub
+      public void widgetDefaultSelected(SelectionEvent se) {
+        // NOP
       }
     });
 

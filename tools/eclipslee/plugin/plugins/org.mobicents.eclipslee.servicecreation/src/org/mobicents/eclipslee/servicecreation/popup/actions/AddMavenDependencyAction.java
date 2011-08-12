@@ -177,6 +177,8 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
 
   private boolean initialized = false;
 
+  private final String TEMPLATES_SEPARATOR_STRING = "<><><><> ";
+
   private class CaptureMavenDependencyIdWizard extends Wizard {
     ModuleNamePage moduleNamePage;
 
@@ -431,13 +433,13 @@ public class AddMavenDependencyAction implements IObjectActionDelegate {
             if(elemChilds.item(i) instanceof Element) {
               Element e = (Element) elemChilds.item(i);
 
-              componentTemplatesCombo.add("-------- " + (e.hasAttribute("description") ? e.getAttribute("description") : e.getNodeName()));
+              componentTemplatesCombo.add(TEMPLATES_SEPARATOR_STRING + (e.hasAttribute("description") ? e.getAttribute("description") : e.getNodeName()) + TEMPLATES_SEPARATOR_STRING);
 
               // Add Listener to selection change
               componentTemplatesCombo.addModifyListener(new ModifyListener() {
                 public void modifyText(ModifyEvent event) {
                   String selected = componentTemplatesCombo.getItem(componentTemplatesCombo.getSelectionIndex());
-                  if(selected.startsWith("-------- ")) {
+                  if(selected.startsWith(TEMPLATES_SEPARATOR_STRING)) {
                     componentTemplatesCombo.pack();
                   }
                   else {
