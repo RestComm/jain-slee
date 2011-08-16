@@ -231,7 +231,7 @@
 				This will create a <guilabel>New Maven Dependency</guilabel> dialog as shown below. From this dialog it's possible to define the dependency Group ID, Artifact ID and Version, as well as the scope with which the dependency should be added (defaulting to "compile"). The <guilabel>Add to classpath?</guilabel> option adds the new maven dependency to the project classpath, considering "M2_REPO" variable is set.
 				<important>
 					<title>Defining M2_REPO variable in Eclipse</title>
-					<para>Under Eclipse preferences, go to <menuchoice><guimenu>Java</guimenu><guisubmenu>Build Path</guisubmenu><guimenuitem></guimenuitem>Classpath Variables</menuchoice>. Click on <guibutton>New...</guibutton> and fill the values: <guilabel>Name</guilabel> as <literal>M2_REPO</literal> and <guilabel>Path</guilabel> indicating the path to your Maven local repository (usually located under &lt;user-home&gt;/.m2/repository). Click OK to save and close the dialog, and OK again to close the preferences window.</para>
+					<para>Under Eclipse preferences, go to <menuchoice><guimenu>Java</guimenu><guisubmenu>Build Path</guisubmenu><guimenuitem>Classpath Variables</guimenuitem></menuchoice>. Click on <guibutton>New...</guibutton> and fill the values: <guilabel>Name</guilabel> as <literal>M2_REPO</literal> and <guilabel>Path</guilabel> indicating the path to your Maven local repository (usually located under &lt;user-home&gt;/.m2/repository). Click OK to save and close the dialog, and OK again to close the preferences window.</para>
 				</important>
 				<figure>
 					<title>Defining a new Maven dependency in EclipSLEE</title>
@@ -244,6 +244,9 @@
 						</textobject>
 					</mediaobject>
 				</figure>
+				You can also use the <guilabel>Component</guilabel> drop-down menu to pick the component Group Id, Artifact and Version from the provided templates. By default it contains the components shipped with the latest Mobicents JAIN SLEE release but it can be customized in the Plugin preferences. See <xref linkend="component_template_configuration" /> for more information.
+			</para>
+			<para>
 				Click on <guibutton>Finish</guibutton> and the new dependency will be added to the module's pom file and, if selected, the classpath updated with the new entry.
 			</para>
 		</section>

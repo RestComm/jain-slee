@@ -15,6 +15,7 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Chapter-Creating_a_JAINSLEE_RAType.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Chapter-Creating_a_JAINSLEE_Resource_Adaptor.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Chapter-Creating_a_JAINSLEE_Deployable_Unit.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Chapter-Configuration.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Common_Content/Java_Development_Kit-Installing_Configuring_and_Running.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Common_Content/Setting_the_JBOSS_HOME_Environment_Variable.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Revision_History.xml"/>
