@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ra_configuration">
+
+	<title>Configuration</title>
+
+	<para>The Resource Adaptor supports configuration only at Resource Adaptor Entity creation time, the following table enumerates the configuration properties:</para>
+	
+	<table frame="all" pgwide="1">
+		<title>Resource Adaptor's Configuration Properties</title>
+		<tgroup colsep="1" cols="4">
+		   	<colspec colnum="1" colname="c0"/>
+		    <colspec colnum="2" colname="c1"/>
+		    <colspec colnum="3" colname="c2"/>
+		    <colspec colnum="4" colname="c3"/>
+		    <thead>
+				<row>
+		    	    <entry>Property Name</entry>
+		   	    	<entry>Description</entry>
+		   	    	<entry>Property Type</entry>
+		   	    	<entry>Default Value</entry>
+		    	</row>
+			</thead>
+			<tbody>
+				<row>
+			   		<entry>authApplicationIds</entry>
+			   	    <entry>List of supported Authorization Application Ids in form of {vendor}:{application-id}, separated by comma ','</entry>
+			   	    <entry>java.lang.String</entry>
+			   	    <entry>10415:16777222</entry>
+			    </row>
+			</tbody>
+	 	</tgroup>
+	</table>		
+	
+	<important>
+		<para>JAIN SLEE 1.1 Specification requires values set for properties without a default value, which means the configuration for those properties are mandatory, otherwise the Resource Adaptor Entity creation will fail!</para>
+	</important>
+	
+</section>

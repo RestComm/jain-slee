@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para>&THIS.RA; Type &THIS.VERSION;	defines the following Activities:</para>
+	
+	<variablelist>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.gq.GqClientSessionActivity</term>
+			<listitem>
+				<para>This type of activity represents client side of Gq' session. Abort-Session-Request (ASR) and Re-Auth-Request (RAR) messages are received in this Activity and respective Answers are sent from it. AA-Request (AAR) and Session-Termination-Request (STR) messages can be created and sent in this Activity, receiving the respective Answer (or timeout) later on this Activity.</para>
+				<para>This activity type can be created with call to the proper <methodname>createGqClientSessionActivity</methodname> method of <classname>net.java.slee.resource.diameter.gq.GqProvider</classname>. It ends once underlying Gq' session ends.</para>
+				<para>State machine for client Authorization sessions can be found at <ulink url="http://tools.ietf.org/html/rfc3588#section-8.1">Section 8.1</ulink> of Diameter Base Protocol RFC.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.gq.GqServerSessionActivity</term>
+			<listitem>
+				<para>This type of activity represents server side of Gq' session. AA-Request (AAR) and Session-Termination-Request (STR) messages are received in this Activity and respective Answers are sent from it. Abort-Session-Request (ASR) and Re-Auth-Request (RAR) messages can be created and sent in this Activity, receiving the respective Answer (or timeout) later on this Activity.</para>
+				<para>This activity type is implicitly created by the Resource Adaptor upon reception of the AA-Request message. It ends once underlying Gq' session ends.</para>
+				<para>State machine for server Authorization sessions can be found at <ulink url="http://tools.ietf.org/html/rfc3588#section-8.1">Section 8.1</ulink> of Diameter Base Protocol RFC.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	
+	<para>
+		All activities define methods required to properly function and	expose necessary information to	<acronym>JAIN SLEE</acronym> services.
+		Gq' Server Activity is defined as follows:
+	</para>
+	
+	<programlisting role="JAVA" language="Java">
+	public GqAAAnswer createGqAAAnswer(GqAARequest aar);
+
+	public void sendGqAAAnswer(GqAAAnswer aaa) throws IOException;
+
+	public GqSessionTerminationAnswer createGqSessionTerminationAnswer(
+		GqSessionTerminationRequest str);
+
+	public void sendGqSessionTerminationAnswer(GqSessionTerminationAnswer sta)
+		throws IOException;
+
+	public void sendReAuthRequest(GqReAuthRequest rar) throws IOException;
+
+	public void sendAbortSessionRequest(GqAbortSessionRequest asr) throws IOException;
+	</programlisting>
+
+	<variablelist>
+		<varlistentry>
+			<term>public GqAAAnswer createGqAAAnswer(GqAARequest aar);</term>
+			<listitem>
+				<para>This method creates a Gq'-specific AA-Answer message pre-populated with the AVPs appropriate for this session and/or taken from the provided request.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendGqAAAnswer(GqAAAnswer aaa) throws IOException;</term>
+			<listitem>
+				<para>This method sends a AA-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public GqSessionTerminationAnswer createGqSessionTerminationAnswer(GqSessionTerminationRequest str);</term>
+			<listitem>
+				<para>This method creates a Gq'-specific Session-Termination-Answer message pre-populated with the AVPs appropriate for this session and/or taken from the provided request.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendGqSessionTerminationAnswer(GqSessionTerminationAnswer sta) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Session-Termination-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendReAuthRequest(GqReAuthRequest rar) throws java.io.IOException;</term>
+			<listitem>
+				<para>This method sends a Gq'-specific Re-Auth-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendAbortSessionRequest(GqAbortSessionRequest asr) throws java.io.IOException;</term>
+			<listitem>
+				<para>This method sends a Gq'-specific Abort-Session-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+	</variablelist>
+
+	<para>Gq' Client Activity is defined as follows:</para>
+	
+	<programlisting role="JAVA" language="Java">
+	public void sendGqAARequest(GqAARequest aar) throws IOException;
+
+	public GqReAuthAnswer createGqReAuthAnswer(GqReAuthRequest rar);
+
+	public void sendGqReAuthAnswer(GqReAuthAnswer raa) throws IOException;
+
+	public GqAbortSessionAnswer createGqAbortSessionAnswer(GqAbortSessionRequest asr);
+
+	public void sendGqAbortSessionAnswer(GqAbortSessionAnswer asa) throws IOException;
+
+	public void sendGqSessionTerminationRequest(GqSessionTerminationRequest str) 
+		throws IOException;
+	</programlisting>
+	
+	<variablelist>
+		<varlistentry>
+			<term>public void sendGqAARequest(GqAARequest aar) throws IOException;</term>
+			<listitem>
+				<para>Sends an AA-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public GqReAuthAnswer createGqReAuthAnswer(GqReAuthRequest rar);</term>
+			<listitem>
+				<para>Create a Gq'-specific Re-Auth-Answer message pre-populated with the AVPs appropriate for this session and/or taken from the provided request.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendGqReAuthAnswer(GqReAuthAnswer raa) throws IOException;</term>
+			<listitem>
+				<para>Sends a Re-Auth-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public GqAbortSessionAnswer createGqAbortSessionAnswer(GqAbortSessionRequest asr);</term>
+			<listitem>
+				<para>Create a Gq'-specific Abort-Session-Answer message pre-populated with the AVPs appropriate for this session.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendGqAbortSessionAnswer(GqAbortSessionAnswer asa) throws IOException;</term>
+			<listitem>
+				<para>Sends a Abort-Session-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendGqSessionTerminationRequest(GqSessionTerminationRequest str) throws IOException;</term>
+			<listitem>
+				<para>Sends a Gq'-specific Session-Termination-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+	<note><para>It is safe to type cast all the mentioned Diameter Activities to it's super interface <classname>net.java.slee.resource.diameter.base.DiameterActivity</classname> defined in Diameter Base Activities section.</para></note>
+</section>

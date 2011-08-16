@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_ra_interface">
+
+	<title>Resource Adaptor Interface</title>
+
+	<para>The &THIS.PLATFORM; &THIS.RA; Resource Adaptor SBB Interface provides SBBs with access to the Diameter objects required for creating and sending messages. It is defined as follows: </para>
+
+	<programlisting role="JAVA" langugage="Java">
+	package net.java.slee.resource.diameter.gq;
+
+	import java.io.IOException;
+
+	import net.java.slee.resource.diameter.Validator;
+	import net.java.slee.resource.diameter.base.CreateActivityException;
+	import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+	import net.java.slee.resource.diameter.gq.events.GqAAAnswer;
+	import net.java.slee.resource.diameter.gq.events.GqAARequest;
+	import net.java.slee.resource.diameter.gq.events.GqAbortSessionAnswer;
+	import net.java.slee.resource.diameter.gq.events.GqAbortSessionRequest;
+	import net.java.slee.resource.diameter.gq.events.GqReAuthAnswer;
+	import net.java.slee.resource.diameter.gq.events.GqReAuthRequest;
+
+	public interface GqProvider {
+
+		public GqMessageFactory getGqMessageFactory();
+
+		public GqAvpFactory getGqAvpFactory();
+
+		public GqClientSessionActivity getActivityBySessionID(String sessionID);
+
+		public GqClientSessionActivity createGqClientSessionActivity() throws CreateActivityException;
+
+		public GqClientSessionActivity createGqClientSessionActivity(DiameterIdentity destinationHost, 
+			DiameterIdentity destinationRealm) throws CreateActivityException;
+
+		public GqAAAnswer sendGqAARequest(GqAARequest aar) throws IOException;
+
+		public GqAbortSessionAnswer sendGqAbortSessionRequest(GqAbortSessionRequest asr)
+			throws IOException;
+
+		public GqReAuthAnswer sendGqReAuthRequest(GqReAuthRequest rar) throws IOException;
+
+		DiameterIdentity[] getConnectedPeers();
+
+ 		int getPeerCount();
+
+		Validator getValidator();
+	}
+	</programlisting>
+	
+	<para>
+		<variablelist>
+			<varlistentry>
+				<term>public GqMessageFactory getGqMessageFactory();</term>
+				<listitem><para>This method returns a message factory to be used to create concrete implementations of Gq' messages.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GqAvpFactory getGqAvpFactory();</term>
+				<listitem><para>This method returns an avp factory to be used to create concrete implementations of Gq' credit control AVPs.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GqClientSessionActivity getActivityBySessionID(String sessionID);</term>
+				<listitem><para>This method returns an exisitng Gq' activity by it's Session-Id attribute and null if it doesn't exist.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GqClientSessionActivity createGqClientSessionActivity() throws CreateActivityException;</term>
+				<listitem><para>This method creates a new activity to send and receive Diameter Gq' messages.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GqClientSessionActivity createGqClientSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;</term>
+				<listitem><para>This method creates a new activity to send and receive Diameter Gq' messages for the given host and/or realm.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GqAAAnswer sendGqAARequest(GqAARequest aar) throws IOException;</term>
+				<listitem><para>This method sends an AA-Request message to the appropriate peers, and block until the response is received then return it.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GqAbortSessionAnswer sendGqAbortSessionRequest(GqAbortSessionRequest asr) throws IOException;</term>
+				<listitem><para>This method sends an Abort-Session-Request message to the appropriate peers, and block until the response is received then return it.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public GqReAuthAnswer sendGqReAuthRequest(GqReAuthRequest rar) throws IOException;</term>
+				<listitem><para>This method sends an Re-Auth-Request message to the appropriate peers, and block until the response is received then return it.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public DiameterIdentity[] getConnectedPeers();</term>
+				<listitem><para>This method returns the identities of peers this Diameter resource adaptor is connected to.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public int getPeerCount();</term>
+				<listitem><para>This method returns the number of peers this Diameter resource adaptor is connected to.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public Validator getValidator();</term>
+				<listitem><para>This method returns the Diameter Message and AVP validator instance.</para></listitem>
+			</varlistentry>
+		</variablelist>
+	</para>
+</section>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ra_default_ra_entities">
+
+	<title>Default Resource Adaptor Entities</title>
+
+	<para>There is a single Resource Adaptor Entity created when deploying the Resource Adaptor, named <literal>DiameterGq</literal>. The <literal>DiameterGq</literal> entity uses the default Resource Adaptor configuration, specified in <xref linkend="ra_configuration" />.</para>
+
+	<para>The <literal>DiameterGq</literal> entity is also bound to Resource Adaptor Link Name <literal>DiameterGq</literal>, to use it in an Sbb add the following XML to its descriptor:</para>
+	
+	<programlisting language="XML" role="XML"><![CDATA[
+    <resource-adaptor-type-binding>
+      <resource-adaptor-type-ref>
+        <resource-adaptor-type-name>Diameter Gq</resource-adaptor-type-name>
+        <resource-adaptor-type-vendor>java.net</resource-adaptor-type-vendor>
+        <resource-adaptor-type-version>0.8.1</resource-adaptor-type-version>
+      </resource-adaptor-type-ref>
+
+      <activity-context-interface-factory-name>
+		slee/resources/JDiameterGqResourceAdaptor/java.net/0.8.1/acif
+	  </activity-context-interface-factory-name>
+
+      <resource-adaptor-entity-binding>
+        <resource-adaptor-object-name>
+			slee/resources/diameter-gq-ra-interface
+		</resource-adaptor-object-name>
+        <resource-adaptor-entity-link>DiameterGq</resource-adaptor-entity-link>
+      </resource-adaptor-entity-binding>
+    </resource-adaptor-type-binding>
+	]]>
+	</programlisting>
+</section>

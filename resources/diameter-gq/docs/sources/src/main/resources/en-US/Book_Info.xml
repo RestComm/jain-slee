@@ -1,0 +1,32 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<bookinfo
+	id="&BOOK_ID;">
+	<title>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor User Guide</title>
+	<subtitle></subtitle>
+	<productname>&THIS.PLATFORM; JAIN SLEE &THIS.RA; RA</productname>
+	<productnumber>&THIS.VERSION;</productnumber>
+	<edition>3.0</edition>
+	<pubsnumber>1</pubsnumber>
+
+	<abstract>
+		<para>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor (<acronym>RA</acronym>) is the JAIN SLEE 1.1 RA for the <acronym>IMS</acronym> Gq' Interface. Gq' reference point is used for the service-based policy set-up information exchange between the Service-based Policy Decision Function (<acronym>SPDF</acronym>) and the Application Function (<acronym>AF</acronym>), e.g. the P-CSCF. The Gq' interface may be an intra- or inter-domain interface. One <acronym>SPDF</acronym> instance shall be able to serve more than one <acronym>AF</acronym> instance and one given <acronym>AF</acronym> instance may interact with a number of <acronym>SPDF</acronym> instances, although on an <acronym>AF</acronym> session basis, it shall interact with only a single <acronym>SPDF</acronym> instance. It is described in <ulink url="http://www.3gpp.org/ftp/Specs/html-info/29209.htm">TS29.209</ulink> by <acronym>3GPP</acronym>.</para>
+		<para>This RA implements the Resource Adaptor Type defined by Mobicents development teams.</para>
+	</abstract>
+	
+	<copyright>
+		<year>&YEAR;</year>
+		<holder>Red Hat, Inc.</holder>
+	</copyright>
+	<!-- FIXME this include is throwing compile errors
+	<xi:include
+		href="Common_Content/Legal_Notice.xml"
+		xmlns:xi="http://www.w3.org/2001/XInclude" />
+	-->
+	<xi:include
+		href="Author_Group.xml"
+		xmlns:xi="http://www.w3.org/2001/XInclude" />
+</bookinfo>
+
+
+
