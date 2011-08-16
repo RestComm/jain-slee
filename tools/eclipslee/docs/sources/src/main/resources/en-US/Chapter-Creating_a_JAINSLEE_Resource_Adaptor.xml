@@ -79,7 +79,24 @@
 			The Name, Vendor and Version fields are mandatory and are used by the SLEE to identify the Resource Adaptor. The description field is optional, but strongly recommended to be completed to allow easy identification of the Resource Adaptor in future.
 		</para>
 		<para>
-			After completing these fields click <guibutton>Next</guibutton> to specify the RA Types the Resource Adaptor implements.
+			After completing these fields click <guibutton>Next</guibutton> to specify the Resource Adaptor Libraries.
+		</para>
+		<para>
+			<figure>
+				<title>JAIN SLEE Resource Adaptor Libraries dialog in EclipSLEE</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-eclipslee_new_jainslee_component_libraries.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>JAIN SLEE Resource Adaptor Libraries dialog in EclipSLEE</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			This dialog allows to select which JAIN SLEE Libraries this Resource Adaptor should reference in it's descriptor. Select them from the top list (Available Libraries) by clicking <guibutton>Select Library</guibutton>. To remove them, select them from the bottom list (Selected Libraries) and click <guibutton>Deselect Library</guibutton>.
+		</para>
+		<para>
+			When done, click <guibutton>Next</guibutton> to specify the RA Types the Resource Adaptor implements.
 		</para>
 		<para>
 			<figure>
