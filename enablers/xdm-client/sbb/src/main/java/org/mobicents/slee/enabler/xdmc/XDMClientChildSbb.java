@@ -25,9 +25,6 @@ package org.mobicents.slee.enabler.xdmc;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -43,11 +40,15 @@ import javax.xml.bind.JAXBException;
 
 import org.mobicents.slee.ChildRelationExt;
 import org.mobicents.slee.SbbContextExt;
+import org.mobicents.slee.enabler.sip.ContentType;
+import org.mobicents.slee.enabler.sip.EventPackageParameter;
 import org.mobicents.slee.enabler.sip.Notify;
 import org.mobicents.slee.enabler.sip.SubscriptionClientChild;
 import org.mobicents.slee.enabler.sip.SubscriptionClientChildSbbLocalObject;
 import org.mobicents.slee.enabler.sip.SubscriptionClientParent;
+import org.mobicents.slee.enabler.sip.SubscriptionData;
 import org.mobicents.slee.enabler.sip.SubscriptionException;
+import org.mobicents.slee.enabler.sip.SubscriptionRequestContent;
 import org.mobicents.slee.enabler.sip.SubscriptionStatus;
 import org.mobicents.slee.enabler.xdmc.jaxb.xcapdiff.XcapDiff;
 import org.mobicents.slee.resource.xcapclient.AsyncActivity;
@@ -482,27 +483,17 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild,
 
 	// -------------------- SUBSCRIBE part --------------------
 	// static and helpers and "to override"
-	public static final String MAIN_MIME_CONTENT = "application";
-	public static final String SUB_MIME_CONTENT = "resource-lists+xml";
-	public static final String MAIN_MIME_ACCEPT = "application";
-	public static final String SUB_MIME_ACCEPT = "xcap-diff+xml";
+	public static final ContentType CONTENT_TYPE = new ContentType().setType("application").setSubType("resource-lists+xml");
+	public static final ContentType[] ACCEPTED_CONTENT_TYPES = { new ContentType().setType("application").setSubType("xcap-diff+xml")};
 	public static final String EVENT_PACKAGE = "xcap-diff";
-
-	public static final Map<String, String> defaultEventParameters;
-	static {
-		// default event header parameters, which define xcap diff-processing as
-		// aggregated
-		Map<String, String> opts = new HashMap<String, String>();
-		opts.put("diff-processing", "aggregate");
-		defaultEventParameters = Collections.unmodifiableMap(opts);
-	}
-
+	public static final EventPackageParameter[] EVENT_PARAMETERS = { new EventPackageParameter().setName("diff-processing").setValue("aggregate")};
+	
 	private static final String RESOURCE_LISTS_DOC_PREFIX = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><resource-lists xmlns=\"urn:ietf:params:xml:ns:resource-lists\"><list>"; 
 	private static final String RESOURCE_LISTS_DOC_SUFFIX = "</list></resource-lists>";
 	private static final String RESOURCE_LISTS_ENTRY_PREFIX = "<entry uri=\""; 
 	private static final String RESOURCE_LISTS_ENTRY_SUFFIX = "\"/>";
 	
-	public void subscribe(URI subscriber, URI notifier, int expires,
+	public void subscribe(String subscriber, String notifier, int expires,
 			String[] resourceURIs) throws SubscriptionException {
 
 		if (resourceURIs == null || resourceURIs.length == 0) {
@@ -515,17 +506,15 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild,
 		}
 		content.append(RESOURCE_LISTS_DOC_SUFFIX);
 		SubscriptionClientChild child = createSubscriptionChild(
-				subscriber.toString(), notifier.toString()); // its ok to use
-																// string.
-		child.subscribe(subscriber.toString(), DISPLAY_NAME,
-				notifier.toString(), expires, EVENT_PACKAGE,
-				getEventParameters(), MAIN_MIME_ACCEPT, SUB_MIME_ACCEPT,
-				MAIN_MIME_CONTENT, SUB_MIME_CONTENT, content.toString());
+				subscriber, notifier);
+		SubscriptionRequestContent subscriptionContent = new SubscriptionRequestContent().setContent(content.toString()).setContentType(CONTENT_TYPE);
+		SubscriptionData subscriptionData = new SubscriptionData().setSubscriberURI(subscriber).setNotifierURI(notifier).setEventPackage(EVENT_PACKAGE).setExpires(expires).setAcceptedContentTypes(ACCEPTED_CONTENT_TYPES).setEventParameters(EVENT_PARAMETERS);
+		child.subscribe(subscriptionData, subscriptionContent);
 	}
 
-	public void unsubscribe(URI subscriber, URI notifier) {
+	public void unsubscribe(String subscriber, String notifier) {
 		SubscriptionClientChild child = getSubscriptionChild(
-				subscriber.toString(), notifier.toString());
+				subscriber, notifier);
 		if (child != null) {
 			try {
 				child.unsubscribe();
@@ -552,7 +541,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild,
 		// compile diff
 		if (ntfy.getStatus().equals(SubscriptionStatus.terminated)) {
 			try {
-				final URI notifier = new URI(subscriptionChild.getNotifier());
+				final String notifier = ntfy.getNotifier();
 				subscriptionChild.remove();
 				getParent()
 						.subscriptionTerminated(
@@ -582,7 +571,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild,
 			SubscriptionClientChildSbbLocalObject subscriptionChild) {
 
 		try {
-			final URI notifier = new URI(subscriptionChild.getNotifier());
+			final String notifier = subscriptionChild.getSubscriptionData().getNotifierURI();
 			subscriptionChild.remove();
 			getParent().resubscribeFailed(
 					responseCode,
@@ -597,7 +586,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild,
 			SubscriptionClientChildSbbLocalObject subscriptionChild) {
 
 		try {
-			final URI notifier = new URI(subscriptionChild.getNotifier());
+			final String notifier = subscriptionChild.getSubscriptionData().getNotifierURI();
 			subscriptionChild.remove();
 
 			getParent().subscribeFailed(
@@ -614,7 +603,7 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild,
 	public void unsubscribeFailed(int arg0,
 			SubscriptionClientChildSbbLocalObject subscriptionChild) {
 		try {
-			final URI notifier = new URI(subscriptionChild.getNotifier());
+			final String notifier = subscriptionChild.getSubscriptionData().getNotifierURI();
 			subscriptionChild.remove();
 			getParent().unsubscribeFailed(
 					arg0,
@@ -624,8 +613,6 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild,
 			tracer.severe("Unexpected exception on callback!", e);
 		}
 	}
-
-	public static final String DISPLAY_NAME = "XDMDiffClient";
 
 	private String getSIPSubscriptionClientChildName(String subscriber,
 			String notifier) {
@@ -648,10 +635,6 @@ public abstract class XDMClientChildSbb implements Sbb, XDMClientChild,
 			String notifier) {
 		return (SubscriptionClientChild) getSubscriptionClientChildSbbChildRelation()
 				.get(getSIPSubscriptionClientChildName(subscriber, notifier));
-	}
-
-	protected Map<String, String> getEventParameters() {
-		return new HashMap<String, String>(defaultEventParameters);// clone
 	}
 
 	// child relation methods

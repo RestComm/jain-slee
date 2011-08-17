@@ -68,44 +68,49 @@ public interface XDMClientParent {
 	public void deleteResponse(URI uri, int responseCode,
 			String responseContent, String eTag);
 
-	
-	// DIFF part
-	
-	//FIXME: or subscribeSucceed(only for initial), subscribeTerminated(for all fail reason + notify with subscribe-state = terminated) is enough?
 	/**
 	 * Callback method indicating failure of communication, enabler must be
 	 * discarded.
 	 * 
+	 * @param responseCode
 	 * @param sbbLocalObject
+	 * @param notifier
 	 */
-	public void subscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+	public void subscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, String notifier);
 
 	/**
 	 * Callback method indicating failure of communication, enabler must be
 	 * discarded.
 	 * 
+	 * @param responseCode
 	 * @param sbbLocalObject
+	 * @param notifier
 	 */
-	public void resubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+	public void resubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, String notifier);
 
 	/**
 	 * Callback method indicating failure of communication, enabler must be
 	 * discarded.
 	 * 
+	 * @param responseCode
 	 * @param sbbLocalObject
+	 * @param notifier
 	 */
-	public void unsubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+	public void unsubscribeFailed(int responseCode, XDMClientChildSbbLocalObject sbbLocalObject, String notifier);
 	
 	/**
 	 * Callback method indicating termination of subscription.
+	 * 
 	 * @param sbbLocalObject
-	 * @param uri
+	 * @param notifier
+	 * @param reason
 	 */
-	public void subscriptionTerminated(XDMClientChildSbbLocalObject sbbLocalObject, URI notifier, TerminationReason reason); //FIXME: add resourceList to callback?
+	public void subscriptionTerminated(XDMClientChildSbbLocalObject sbbLocalObject, String notifier, TerminationReason reason); //FIXME: add resourceList to callback?
 	
 	/**
 	 * Notifies an update in XDMS resources subscribed by the enabler.
 	 * This callback is used also to notify on resubscription.
+	 * 
 	 * @param xcapDiff - the xcap diff notified
 	 * @param status - the subscription status
 	 */

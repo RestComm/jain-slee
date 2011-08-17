@@ -165,7 +165,7 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 			// subscribe to changes - before doc is created.
 			// assume we are bound to the same localhost.
 			// from/to must match
-			child.subscribe(new URI(user), new URI(user), 60, resourceURIS);
+			child.subscribe(user, user, 60, resourceURIS);
 		} catch (Exception e) {
 			tracer.severe("failed to subscribe changes to doc", e);
 		}
@@ -173,12 +173,8 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 
 	public void onActivityEndEvent(javax.slee.ActivityEndEvent event,
 			ActivityContextInterface aci) {
-		try {
 			((XDMClientChildSbbLocalObject) getXDMClientChildSbbChildRelation()
-					.get(ChildRelationExt.DEFAULT_CHILD_NAME)).unsubscribe(new URI(user), new URI(user));
-		} catch (URISyntaxException e) {
-			tracer.severe("failed to unsubscribe changes to doc", e);
-		}
+					.get(ChildRelationExt.DEFAULT_CHILD_NAME)).unsubscribe(user, user);		
 	}
 
 	// --------- SBB LO methods ----------
@@ -235,8 +231,9 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 	 */
 	@Override
 	public void subscriptionTerminated(XDMClientChildSbbLocalObject child,
-			URI notifier, TerminationReason reason) {
+			String notifier, TerminationReason reason) {
 		tracer.info("subscription terminated, reason = " + reason);
+		getXDMClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME).remove();
 	}
 
 	/*
@@ -248,7 +245,7 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 	 */
 	@Override
 	public void subscribeFailed(int responseCode,
-			XDMClientChildSbbLocalObject child, URI notifier) {
+			XDMClientChildSbbLocalObject child, String notifier) {
 		tracer.severe("Failed to subscribe, response = " + responseCode);
 	}
 
@@ -262,7 +259,7 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 	 */
 	@Override
 	public void resubscribeFailed(int responseCode,
-			XDMClientChildSbbLocalObject child, URI notifier) {
+			XDMClientChildSbbLocalObject child, String notifier) {
 		tracer.severe("Failed to resubscribe, response = " + responseCode);
 	}
 
@@ -276,7 +273,7 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 	 */
 	@Override
 	public void unsubscribeFailed(int responseCode,
-			XDMClientChildSbbLocalObject child, URI notifier) {
+			XDMClientChildSbbLocalObject child, String notifier) {
 		tracer.severe("Failed to unsubscribe, response = " + responseCode);
 	}
 
@@ -293,21 +290,20 @@ public abstract class XDMClientParentSbb implements Sbb, XDMClientParent {
 			SubscriptionStatus status) {
 		tracer.info("subscriptionNotification( xcap diff = " + xcapDiff
 				+ ", subscrption status = " + status + ")");
-		if (status != SubscriptionStatus.active) {
-			return;
-		}
-		if (getStateMachine() == null) {
-			tracer.info("subscription activated, creating doc");
-			setStateMachine(StateMachine.created);
-			putDocument(false);
-		} else if (getStateMachine() == StateMachine.created) {
-			tracer.info("notified that doc creation succeed, updating doc");
-			setStateMachine(StateMachine.updated);
-			putDocument(true);
-		} else if (getStateMachine() == StateMachine.updated) {
-			tracer.info("notified that doc update succeed, deleting doc");
-			setStateMachine(StateMachine.deleted);
-			deleteDocument();
+		if (status == SubscriptionStatus.active) {
+			if (getStateMachine() == null) {
+				tracer.info("subscription activated, creating doc");
+				setStateMachine(StateMachine.created);
+				putDocument(false);
+			} else if (getStateMachine() == StateMachine.created) {
+				tracer.info("notified that doc creation succeed, updating doc");
+				setStateMachine(StateMachine.updated);
+				putDocument(true);
+			} else if (getStateMachine() == StateMachine.updated) {
+				tracer.info("notified that doc update succeed, deleting doc");
+				setStateMachine(StateMachine.deleted);
+				deleteDocument();
+			}
 		}
 	}
 

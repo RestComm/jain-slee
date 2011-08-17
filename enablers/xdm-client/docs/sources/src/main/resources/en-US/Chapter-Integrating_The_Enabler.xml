@@ -34,16 +34,16 @@ public interface XDMClientParent {
 			String responseContent, String eTag);
 
 	public void subscribeFailed(int responseCode, 
-		XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+		XDMClientChildSbbLocalObject sbbLocalObject, String notifier);
 
 	public void resubscribeFailed(int responseCode, 
-		XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+		XDMClientChildSbbLocalObject sbbLocalObject, String notifier);
 
 	public void unsubscribeFailed(int responseCode, 
-		XDMClientChildSbbLocalObject sbbLocalObject, URI notifier);
+		XDMClientChildSbbLocalObject sbbLocalObject, String notifier);
 
 	public void subscriptionTerminated(XDMClientChildSbbLocalObject sbbLocalObject,
-	    URI notifier, TerminationReason reason);
+	    String notifier, TerminationReason reason);
 	
 	public void subscriptionNotification(XcapDiff xcapDiff, SubscriptionStatus status);
 	

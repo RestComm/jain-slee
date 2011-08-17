@@ -64,10 +64,10 @@ public interface XDMClientChild {
 	public void deleteIfNoneMatch(URI uri, String eTag, String assertedUserId)
 			throws IOException;
 
-	public void subscribe(URI subscriber, URI notifier, int expires, String[] 
+	public void subscribe(String subscriber, String notifier, int expires, String[] 
 		resourceURIs) throws SubscriptionException;
 	
-	public void unsubscribe(URI subscriber, URI notifier);
+	public void unsubscribe(String subscriber, String notifier);
 }
 		]]>
 		</programlisting>
@@ -180,7 +180,7 @@ public interface XDMClientChild {
 			</varlistentry>
 			
 			<varlistentry>
-				<term>The <literal>public void subscribe(URI subscriber, URI notifier, int expires, String[] 
+				<term>The <literal>public void subscribe(String subscriber, String notifier, int expires, String[] 
 		resourceURIs) throws SubscriptionException</literal> method:</term>
 				<listitem>
 					<para>Requests Enabler to subscribe <literal>XCAP Diff</literal> events. Enabler subscribes to resources from passed list.</para>
@@ -188,7 +188,7 @@ public interface XDMClientChild {
 			</varlistentry>
 			
 			<varlistentry>
-				<term>The <literal>public void unsubscribe(URI subscriber, URI notifier)</literal> method:</term>
+				<term>The <literal>public void unsubscribe(String subscriber, String notifier)</literal> method:</term>
 				<listitem>
 					<para>Reqeusts enabler to unsubscribe from resources.</para>
 				</listitem>

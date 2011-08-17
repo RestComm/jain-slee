@@ -265,19 +265,19 @@ public interface XDMClientChild {
 	/**
 	 * Method which triggers subscription to changes in XDMS resources. XCAP DIFF mode used is agreggated.
 	 * @param subscriber - address that identifies local entity
-	 * @param notifier - address that  identifies remote entity(ie. XCAP Diff entity), ie. sip:tests@xcap.example.com
+	 * @param notifier - address that identifies the resource being subscribed (ie. XCAP Diff entity), ie. sip:tests@xcap.example.com
 	 * @param expires - duration of subscription, in seconds.
 	 * @param resourceURIs - array of resource uris to which enabler will subscribe, ie. String{}[resource-lists/users/sip:joe@example.com/index,rls-services/users/sip:joe@example.com/index/~~/*\/service%5b@uri='sip:marketing@example.com'%5d]
 	 * @throws SubscriptionException 
 	 */
-	public void subscribe(URI subscriber, URI notifier, int expires, String[] resourceURIs) throws SubscriptionException;
+	public void subscribe(String subscriber, String notifier, int expires, String[] resourceURIs) throws SubscriptionException;
 	
 	/**
 	 * Terminates a subscription to changes in XDMS resources.
 	 * @param subscriber
 	 * @param notifier
 	 */
-	public void unsubscribe(URI subscriber, URI notifier);
+	public void unsubscribe(String subscriber, String notifier);
 
 	
 }
