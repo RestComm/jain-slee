@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -954,59 +956,100 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.management.ServiceManagement#activityEnded
 	 * (org.mobicents.slee.container.service.ServiceActivityHandle)
 	 */
-	public void activityEnded(ServiceActivityHandle activityHandle) {
-		final ServiceID serviceID = activityHandle.getServiceID();
-		if (logger.isDebugEnabled()) {
-			logger.debug("Activity end for " + serviceID);
-		}		
-		// remove and cancel the timer task to force activity ending
-		ScheduledFuture<?> scheduledFuture = activityEndingTasks.remove(serviceID);
-		if (scheduledFuture != null) {
-			scheduledFuture.cancel(true);
-		}
-		// get stopping service
-		final ServiceComponent serviceComponent = componentRepositoryImpl
-		.getComponentByID(serviceID);
-		if (serviceComponent != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Service is in "
-						+ serviceComponent.getServiceState() + " state.");
-			}
-			if (serviceComponent.getServiceState().isStopping()) {
-				boolean noRootSbbEntities = false;
-				for(int i=0;i<20;i++) {
-					try {
-						if (sleeContainer.getSbbEntityFactory().getRootSbbEntityIDs(serviceID).isEmpty()) {
-							noRootSbbEntities = true;
-							break;
+	public void activityEnded(final ServiceActivityHandle activityHandle) {
+		// do this only on tx commit and in a new thread, to escape the tx context
+		final Runnable r = new Runnable() {			
+			@Override
+			public void run() {
+				final ServiceID serviceID = activityHandle.getServiceID();
+				if (logger.isDebugEnabled()) {
+					logger.debug("Activity end for " + serviceID);
+				}		
+				// remove and cancel the timer task to force activity ending
+				ScheduledFuture<?> scheduledFuture = activityEndingTasks.remove(serviceID);
+				if (scheduledFuture != null) {
+					scheduledFuture.cancel(true);
+				}
+				// get stopping service
+				final ServiceComponent serviceComponent = componentRepositoryImpl
+				.getComponentByID(serviceID);
+				if (serviceComponent != null) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Service is in "
+								+ serviceComponent.getServiceState() + " state.");
+					}
+					if (serviceComponent.getServiceState().isStopping()) {
+						boolean noRootSbbEntities = false;
+						for(int i=0;i<30;i++) {
+							try {
+								if (sleeContainer.getSbbEntityFactory().getRootSbbEntityIDs(serviceID).isEmpty()) {
+									noRootSbbEntities = true;
+									break;
+								}
+								Thread.sleep(1000);
+								if (logger.isDebugEnabled()) {
+									logger.debug("Waiting for service "+serviceComponent+" root sbb entities to end.");
+								}
+							}
+							catch (Exception e) {
+								logger.error("failure waiting for the ending of all sbb entities from "+serviceID,e);
+							}
 						}
-						Thread.sleep(1000);
+						if (!noRootSbbEntities) {
+							// seems 30 secs were not enough, force the removal of all sbb entities
+							new RootSbbEntitiesRemovalTask(serviceComponent).run();
+						}
+						// ensure service cache data is removed
+						ServiceCacheData serviceCacheData = new ServiceCacheData(serviceComponent.getServiceID(), sleeContainer
+								.getCluster().getMobicentsCache());
+						if (serviceCacheData.exists()) {
+							serviceCacheData.remove();
+						}
+						// change state
+						serviceComponent.setServiceState(ServiceState.INACTIVE);
+						// notifying the resource adaptors about service state change
+						final ResourceManagement resourceManagement = sleeContainer
+						.getResourceManagement();
+						for (String raEntityName : resourceManagement
+								.getResourceAdaptorEntities()) {
+							resourceManagement.getResourceAdaptorEntity(raEntityName)
+							.serviceInactive(serviceID);
+						}
+						logger.info("Deactivated " + serviceID);
+					}
+					else {
+						if (logger.isDebugEnabled()) {
+							logger.debug(serviceID.toString()+ " activity ended, but component not found, removed concurrently?");
+						}
+					}
+				}
+			}
+		};
+		final ExecutorService executorService = Executors.newSingleThreadExecutor();
+		TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		if (txContext != null) {
+			TransactionalAction txAction = new TransactionalAction() {
+				@Override
+				public void execute() {
+					try {
+						executorService.execute(r);
 					}
 					catch (Exception e) {
-						logger.error("failure waiting for the ending of all sbb entities from "+serviceID,e);
+						logger.error("failed to execute task to complete service deactivation",e);
 					}
+					executorService.shutdown();
 				}
-				if (!noRootSbbEntities) {
-					// seems 30 secs were not enough, force the removal of all sbb entities
-					new RootSbbEntitiesRemovalTask(serviceComponent).run();
-				}
-				// change state
-				serviceComponent.setServiceState(ServiceState.INACTIVE);
-				// notifying the resource adaptors about service state change
-				final ResourceManagement resourceManagement = sleeContainer
-				.getResourceManagement();
-				for (String raEntityName : resourceManagement
-						.getResourceAdaptorEntities()) {
-					resourceManagement.getResourceAdaptorEntity(raEntityName)
-					.serviceInactive(serviceID);
-				}
-				logger.info("Deactivated " + serviceID);
+			};
+			txContext.getAfterCommitActions().add(txAction);
+		}
+		else {
+			try {
+				executorService.execute(r);
 			}
-			else {
-				if (logger.isDebugEnabled()) {
-					logger.debug(serviceID.toString()+ " activity ended, but component not found, removed concurrently?");
-				}
+			catch (Exception e) {
+				logger.error("failed to execute task to complete service deactivation",e);
 			}
+			executorService.shutdown();
 		}
 	}
 }
