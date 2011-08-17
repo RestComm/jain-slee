@@ -115,7 +115,7 @@ public class HttpClientResourceAdaptorSbbInterfaceImpl implements HttpClientReso
 		HttpClientActivityHandle handle = new HttpClientActivityHandle(activity.getSessionId());
 
 		// this happens with a tx context
-		this.ra.getResourceAdaptorContext().getSleeEndpoint().startActivityTransacted(handle, activity, ACTIVITY_FLAGS);
+		this.ra.getResourceAdaptorContext().getSleeEndpoint().startActivitySuspended(handle, activity, ACTIVITY_FLAGS);
 
 		this.ra.addActivity(handle, activity);
 
