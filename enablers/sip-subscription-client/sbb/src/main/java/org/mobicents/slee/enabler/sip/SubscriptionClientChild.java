@@ -1,70 +1,67 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright XXXX, Red Hat Middleware LLC, and individual contributors as indicated
- * by the @authors tag. All rights reserved.
- * See the copyright.txt in the distribution for a full listing
- * of individual contributors.
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU General Public License, v. 2.0.
- * This program is distributed in the hope that it will be useful, but WITHOUT A
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.slee.enabler.sip;
 
-import java.util.Map;
+package org.mobicents.slee.enabler.sip;
 
 /**
  * 
- * Interface for SIP-Subscruption-Client.
+ * An application enabler, which may be used to integrate SIP Subscription
+ * Client functionality into a SLEE application. The enabler supports
+ * subscribing state with respect to single and list resources.
  * 
  * @author baranowb
  * @author martins
  */
 public interface SubscriptionClientChild {
 
-	public String getSubscriber();
-
-	public String getEventPackage();
-
-	public String getNotifier();
+	/**
+	 * Retrieves the subscription data.
+	 * 
+	 * @return
+	 */
+	public SubscriptionData getSubscriptionData();
 
 	/**
-	 * creates an internal subscription
+	 * Requests the creation of a new SIP subscription.
 	 * 
-	 * @param subscriber - usually an URI, for instance sip:joe.doe@mobicents.org. It identifies entity on behalf which enabler wants to subscribe
-	 * @param notifier - usually an URI identifying notifier.
-	 * @param expires - timeout value, measured in seconds, it indicates time gap between resubscribes/termination of subscription
-	 * @param eventPackage - event package to which subscirber wants to subscribe, ie. <b>presence</b>, <b>presence.oma</b>,<b>xcap-diff</b> .. etc.
-	 * @param eventsParameters - parameters which should be passed with event, ie. <b>diff-processing</b>
-	 * @param acceptedContentType - main MIME type of expected event content
-	 * @param acceptedContentSubtype - sub MIME type of expected event content
+	 * @param subscriptionData the data for the subscription
 	 * @throws SubscriptionException
 	 */
-	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, int expires, String eventPackage, Map<String, String> eventsParameters,
-			String acceptedContentType, String acceptedContentSubtype) throws SubscriptionException;
+	public void subscribe(SubscriptionData subscriptionData)
+			throws SubscriptionException;
 
 	/**
-	 * Similar to
-	 * {@link #subscribe(String, String, String, int, String, Map, String, String)}
-	 * , however this method allows to send content within subscribe. It is
-	 * useful in case like XCAP Diff subscription for instance.
+	 * Requests the creation of a new SIP subscription.
 	 * 
-	 * @param contentType - main MIME type of content
-	 * @param contentSubType - sub MIME type of content
-	 * @param content - content, ie. xml resource list.
+	 * @param subscriptionData the data for the subscription
+	 * @param initialSubscribeContent content to be sent in the initial subscribe.
 	 * @throws SubscriptionException
 	 */
-	public void subscribe(String subscriber, String subscriberdisplayName, String notifier, int expires, String eventPackage, Map<String, String> eventParameters,
-			String acceptedContentType, String acceptedContentSubtype, String contentType, String contentSubType, String content) throws SubscriptionException;
-
+	public void subscribe(SubscriptionData subscriptionData, SubscriptionRequestContent initialSubscribeContent)
+			throws SubscriptionException;
+	
 	/**
 	 * Requests the termination of an internal subscription.
+	 * 
 	 * @throws SubscriptionException
 	 */
 	public void unsubscribe() throws SubscriptionException;

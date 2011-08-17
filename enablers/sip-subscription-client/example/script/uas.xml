@@ -15,7 +15,6 @@
 	 		<todouble assign_to="7" variable="6" />
 	 	</action>
     </recv>
-
   
     <send>
       <![CDATA[
@@ -30,11 +29,8 @@
         Content-Length: 0
   
       ]]>
-    </send>
-  
+    </send> 
     
-  	<pause milliseconds="400"/>
-  	
   	<send>
       <![CDATA[
   
@@ -56,7 +52,30 @@
 
  	<recv response="200" crlf="true" />
  	
+ 	<!--  state change -->
  	
+ 	<pause milliseconds="30000"/>
+  	
+  	<send>
+      <![CDATA[
+  
+        NOTIFY [$3] SIP/2.0
+        Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=z9hG4bK-[branch]
+        From: [$2];tag=[call_number]
+        To: [$1]
+        [last_Call-ID:]
+        CSeq: [cseq] NOTIFY
+       	Subscription-State: active;expires=31
+       	Content-Type: [$4]
+       	Event: [$5]
+        Content-Length: [len]
+        
+        2
+        
+      ]]>
+    </send>
+
+ 	<recv response="200" crlf="true" />
  	
  	<!-- now depending on Expires, we do different things -->
  	<label id="loop_begin" />
@@ -73,7 +92,6 @@
 	 	</action>
     </recv>
 
-  
     <send  crlf="true">
       <![CDATA[
   
@@ -101,8 +119,6 @@
     <nop test="not_empty" next="loop_send_notify_active" />
     
     <label id="loop_send_notify_active" />
-    <!-- one cant pass variable here.... ech -->
-  	<pause milliseconds="30000"/>
   	
   	<send>
       <![CDATA[
@@ -118,22 +134,15 @@
        	Event: [$5]
         Content-Length: [len]
         
-        1
+        2
         
       ]]>
     </send>
 
- 	<recv response="200" crlf="true" />
- 	
- 	
- 	<!-- back to loop start, wait for subs -->
- 	 <nop test="not_empty" next="loop_begin" />
- 	
+ 	<recv response="200" crlf="true" next="loop_begin" />
  	
  	<label id="loop_send_notify_terminated" />
-    
-  	<pause milliseconds="400"/>
-  	
+      	
   	<send>
       <![CDATA[
   
@@ -148,24 +157,14 @@
        	Event: [$5]
         Content-Length: [len]
         
-        1
+        2
         
       ]]>
     </send>
 
  	<recv response="200" crlf="true" />
- 	
  		
-   <!-- Keep the call open for a while in case the 200 is lost to be     -->
-   <!-- able to retransmit it if we receive the BYE again.               -->
-   <pause milliseconds="4000"/>
- 
- 
-   <!-- definition of the response time repartition table (unit is ms)   -->
-   <ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200"/>
- 
-   <!-- definition of the call length repartition table (unit is ms)     -->
-   <CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000"/>
+   <pause milliseconds="30000"/>
  
  </scenario>
  

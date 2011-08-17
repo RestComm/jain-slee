@@ -1,20 +1,25 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright XXXX, Red Hat Middleware LLC, and individual contributors as indicated
- * by the @authors tag. All rights reserved.
- * See the copyright.txt in the distribution for a full listing
- * of individual contributors.
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU General Public License, v. 2.0.
- * This program is distributed in the hope that it will be useful, but WITHOUT A
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.mobicents.slee.enabler.sip.example;
 
 import javax.slee.ActivityContextInterface;
@@ -27,9 +32,11 @@ import javax.slee.serviceactivity.ServiceActivity;
 
 import org.mobicents.slee.ChildRelationExt;
 import org.mobicents.slee.SbbLocalObjectExt;
+import org.mobicents.slee.enabler.sip.ContentType;
 import org.mobicents.slee.enabler.sip.Notify;
 import org.mobicents.slee.enabler.sip.SubscriptionClientChildSbbLocalObject;
 import org.mobicents.slee.enabler.sip.SubscriptionClientParent;
+import org.mobicents.slee.enabler.sip.SubscriptionData;
 import org.mobicents.slee.enabler.sip.SubscriptionException;
 import org.mobicents.slee.enabler.sip.SubscriptionStatus;
 
@@ -37,7 +44,8 @@ import org.mobicents.slee.enabler.sip.SubscriptionStatus;
  * @author baranowb
  * 
  */
-public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionClientParent {
+public abstract class SubscriptionClientParentSbb implements Sbb,
+		SubscriptionClientParent {
 	private static Tracer tracer;
 
 	protected SbbContext sbbContext;
@@ -52,7 +60,8 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 	public void sbbCreate() throws CreateException {
 	}
 
-	public void sbbExceptionThrown(Exception arg0, Object arg1, ActivityContextInterface arg2) {
+	public void sbbExceptionThrown(Exception arg0, Object arg1,
+			ActivityContextInterface arg2) {
 	}
 
 	public void sbbLoad() {
@@ -76,7 +85,8 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 	public void setSbbContext(SbbContext sbbContext) {
 		this.sbbContext = sbbContext;
 		if (tracer == null) {
-			tracer = sbbContext.getTracer(SubscriptionClientParentSbb.class.getSimpleName());
+			tracer = sbbContext.getTracer(SubscriptionClientParentSbb.class
+					.getSimpleName());
 		}
 
 	}
@@ -91,18 +101,31 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 
 	public abstract ChildRelationExt getSubscriptionClientChildSbbChildRelation();
 
-	public void onStartServiceEvent(javax.slee.serviceactivity.ServiceStartedEvent event, ActivityContextInterface aci) {
+	public void onStartServiceEvent(
+			javax.slee.serviceactivity.ServiceStartedEvent event,
+			ActivityContextInterface aci) {
 		SubscriptionClientChildSbbLocalObject child;
 		try {
-			child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().create(ChildRelationExt.DEFAULT_CHILD_NAME);
-			child.subscribe("sip:14313471@127.0.0.1:5090", "secret_name", "sip:14313471@127.0.0.1:5090", 61, "presence",null, "application", "pidf+xml"); // null
+			child = (SubscriptionClientChildSbbLocalObject) this
+					.getSubscriptionClientChildSbbChildRelation().create(
+							ChildRelationExt.DEFAULT_CHILD_NAME);
+			ContentType[] acceptedContentTypes = { new ContentType().setType(
+					"application").setSubType("pidf+xml") };
+			SubscriptionData subscriptionData = new SubscriptionData()
+					.setSubscriberURI("sip:14313471@127.0.0.1:5090")
+					.setNotifierURI("sip:14313471@127.0.0.1:5090")
+					.setExpires(61).setEventPackage("presence")
+					.setAcceptedContentTypes(acceptedContentTypes)
+					.setSupportResourceLists(true);
+			child.subscribe(subscriptionData);
 		} catch (Throwable e) {
-			tracer.severe("Failed to subscribe",e);
+			tracer.severe("Failed to subscribe", e);
 		}
 
 	}
 
-	public void onActivityEndEvent(javax.slee.ActivityEndEvent event, ActivityContextInterface aci) {
+	public void onActivityEndEvent(javax.slee.ActivityEndEvent event,
+			ActivityContextInterface aci) {
 		if (tracer.isFineEnabled())
 			tracer.fine("Received Activtiy End: " + aci.getActivity());
 		if (aci.getActivity() instanceof ServiceActivity) {
@@ -117,7 +140,8 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 	}
 
 	@Override
-	public void onNotify(Notify notify, SubscriptionClientChildSbbLocalObject enabler) {
+	public void onNotify(Notify notify,
+			SubscriptionClientChildSbbLocalObject enabler) {
 		tracer.info("onNotify: " + notify);
 
 		// check num of notifs
@@ -127,14 +151,16 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 			// kill baby
 			sendUnsubscribe();
 		}
-		
-		//subscription is terminated ONLY, when there is Notify with termination status
-		if(notify.getStatus() == SubscriptionStatus.terminated) {
-			//kill child
-			SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+
+		// subscription is terminated ONLY, when there is Notify with
+		// termination status
+		if (notify.getStatus() == SubscriptionStatus.terminated) {
+			// kill child
+			SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation()
+					.get(ChildRelationExt.DEFAULT_CHILD_NAME);
 			if (child != null) {
-				child.remove();				
-			} 
+				child.remove();
+			}
 		}
 	}
 
@@ -142,44 +168,49 @@ public abstract class SubscriptionClientParentSbb implements Sbb, SubscriptionCl
 	public void subscribeFailed(int responseCode,
 			SubscriptionClientChildSbbLocalObject sbbLocalObject) {
 		tracer.info("subscribeFailed");
-		SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+		SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation()
+				.get(ChildRelationExt.DEFAULT_CHILD_NAME);
 		if (child != null) {
-			child.remove();				
-		} 
+			child.remove();
+		}
 	}
 
 	@Override
 	public void resubscribeFailed(int responseCode,
 			SubscriptionClientChildSbbLocalObject sbbLocalObject) {
 		tracer.info("refreshFailed");
-		SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+		SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation()
+				.get(ChildRelationExt.DEFAULT_CHILD_NAME);
 		if (child != null) {
-			child.remove();				
-		} 
+			child.remove();
+		}
 	}
 
 	@Override
 	public void unsubscribeFailed(int responseCode,
 			SubscriptionClientChildSbbLocalObject sbbLocalObject) {
 		tracer.info("removeFailed");
-		SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+		SbbLocalObjectExt child = getSubscriptionClientChildSbbChildRelation()
+				.get(ChildRelationExt.DEFAULT_CHILD_NAME);
 		if (child != null) {
-			child.remove();				
-		} 
+			child.remove();
+		}
 	}
 
 	/**
 	 * 
 	 */
 	private void sendUnsubscribe() {
-		SubscriptionClientChildSbbLocalObject child = (SubscriptionClientChildSbbLocalObject) this.getSubscriptionClientChildSbbChildRelation().get(ChildRelationExt.DEFAULT_CHILD_NAME);
+		SubscriptionClientChildSbbLocalObject child = (SubscriptionClientChildSbbLocalObject) this
+				.getSubscriptionClientChildSbbChildRelation().get(
+						ChildRelationExt.DEFAULT_CHILD_NAME);
 		if (child != null) {
 			try {
 				child.unsubscribe();
 			} catch (SubscriptionException e) {
-				tracer.severe("Failed to unsubscribe",e);
-			}				
-		} 
+				tracer.severe("Failed to unsubscribe", e);
+			}
+		}
 	}
 
 }

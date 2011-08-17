@@ -1,20 +1,25 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright XXXX, Red Hat Middleware LLC, and individual contributors as indicated
- * by the @authors tag. All rights reserved.
- * See the copyright.txt in the distribution for a full listing
- * of individual contributors.
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU General Public License, v. 2.0.
- * This program is distributed in the hope that it will be useful, but WITHOUT A
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.mobicents.slee.enabler.sip;
 
 import java.io.Serializable;
@@ -26,6 +31,11 @@ import java.io.Serializable;
  * 
  */
 public class Notify implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	static final int NO_TIMEOUT = -1;
 	// TODO: add time stamp?
 
@@ -42,14 +52,6 @@ public class Notify implements Serializable {
 	protected String contentSubType;
 	protected String notifier;
 	protected String subscriber;
-
-	/**
-	 * 
-	 */
-	Notify() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
 
 	void setTerminationReason(TerminationReason terminationReason) {
 		this.terminationReason = terminationReason;
@@ -219,79 +221,6 @@ public class Notify implements Serializable {
 				+ ", terminationReasonExtension=" + terminationReasonExtension + ", status=" + status + ", statusExtension=" + statusExtension
 				+ ", retryAfter=" + retryAfter + ", expires=" + expires + ", contentType=" + contentType + ", contentSubType=" + contentSubType
 				+ ",  content=\n" + content + "\n]";
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((content == null) ? 0 : content.hashCode());
-		result = prime * result + ((contentSubType == null) ? 0 : contentSubType.hashCode());
-		result = prime * result + ((contentType == null) ? 0 : contentType.hashCode());
-		result = prime * result + expires;
-		result = prime * result + ((notifier == null) ? 0 : notifier.hashCode());
-		result = prime * result + retryAfter;
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((statusExtension == null) ? 0 : statusExtension.hashCode());
-		result = prime * result + ((subscriber == null) ? 0 : subscriber.hashCode());
-		result = prime * result + ((terminationReason == null) ? 0 : terminationReason.hashCode());
-		result = prime * result + ((terminationReasonExtension == null) ? 0 : terminationReasonExtension.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Notify other = (Notify) obj;
-		if (content == null) {
-			if (other.content != null)
-				return false;
-		} else if (!content.equals(other.content))
-			return false;
-		if (contentSubType == null) {
-			if (other.contentSubType != null)
-				return false;
-		} else if (!contentSubType.equals(other.contentSubType))
-			return false;
-		if (contentType == null) {
-			if (other.contentType != null)
-				return false;
-		} else if (!contentType.equals(other.contentType))
-			return false;
-		if (expires != other.expires)
-			return false;
-		if (notifier == null) {
-			if (other.notifier != null)
-				return false;
-		} else if (!notifier.equals(other.notifier))
-			return false;
-		if (retryAfter != other.retryAfter)
-			return false;
-		if (status != other.status)
-			return false;
-		if (statusExtension == null) {
-			if (other.statusExtension != null)
-				return false;
-		} else if (!statusExtension.equals(other.statusExtension))
-			return false;
-		if (subscriber == null) {
-			if (other.subscriber != null)
-				return false;
-		} else if (!subscriber.equals(other.subscriber))
-			return false;
-		if (terminationReason != other.terminationReason)
-			return false;
-		if (terminationReasonExtension == null) {
-			if (other.terminationReasonExtension != null)
-				return false;
-		} else if (!terminationReasonExtension.equals(other.terminationReasonExtension))
-			return false;
-		return true;
 	}
 
 }
