@@ -22,7 +22,7 @@
 	</modules>
 	<properties>
 
-		<mobicents.resources.map.version>1.0.0-SNAPSHOT</mobicents.resources.map.version>
+		<mobicents.resources.map.version>2.4.2.BETA1</mobicents.resources.map.version>
 	</properties>
 
 	<dependencyManagement>
