@@ -27,6 +27,10 @@
 					<description>Holds active JBPM process instance</description>
 					<cmp-field-name>processInstance</cmp-field-name>
 				</cmp-field>
+				<cmp-field>
+					<description>Holds active JBPM process instance</description>
+					<cmp-field-name>invokeId</cmp-field-name>
+				</cmp-field>
 			</sbb-abstract-class>
 		</sbb-classes>
 

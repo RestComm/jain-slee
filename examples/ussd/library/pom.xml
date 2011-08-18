@@ -4,7 +4,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<packaging>jainslee-library</packaging>
 
 	<parent>
 		<artifactId>ussd-example-parent</artifactId>
@@ -49,9 +48,14 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<version>
-					${mobicents.tools.mavenplugin.library.version}
-				</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>copy-dependencies</goal>
+							<goal>generate-descriptor</goal>
+						</goals>
+					</execution>
+				</executions>
 				<extensions>true</extensions>
 				<configuration>
 					<library-name>library-ussdexample</library-name>

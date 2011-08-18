@@ -158,6 +158,16 @@ public abstract class SipUSSDSbb implements Sbb {
 			daACI.attach(this.sbbContext.getSbbLocalObject());
 			ProcessInstance pi = jbpmContext.newProcessInstance(PROCESS_NAME);
 			this.setProcessInstance(pi);
+			
+			//set original invoke id, so we know how to term
+			USSDRequest extracted = extractUssdRequest(event);
+			if (extracted == null) {
+				// error has been handled
+				return;
+			}
+			
+			this.setInvokeId(extracted.getInvokeId());
+			
 		} catch (SipException e) {
 
 			e.printStackTrace();
@@ -165,12 +175,29 @@ public abstract class SipUSSDSbb implements Sbb {
 			return;
 		}
 
-		processUssd(event);
+		processUssdRequest(event);
+		if (isSessionDead()) {
+			// in this case, send bye over dialog
+
+			sendBye();
+
+		}
 	}
 
 	// intermediate
 	public void onInfoEvent(RequestEvent event, ActivityContextInterface ac) {
-		processUssd(event);
+		//info will contain USSDResponse ;[
+		
+		
+		processUssdRequest(event);
+		
+		if (isSessionDead()) {
+			// in this case, send bye over dialog
+
+			sendBye();
+
+		}
+	
 	}
 
 	// final
@@ -273,26 +300,26 @@ public abstract class SipUSSDSbb implements Sbb {
 
 	}
 
-	private void processUssd(RequestEvent event) {
-		// now lets get USSD
-		USSDRequest extracted = extractUssd(event);
-		if (extracted == null) {
-			// error has been handled
-			return;
-		}
-		String drooled = processUssd(extracted);
-
-		// send ok
-		if (drooled != null) {
-			sendResponse(drooled, event.getServerTransaction());
-			if (isSessionDead()) {
-				// in this case, send bye over dialog
-
-				sendBye();
-
-			}
-		}
-	}
+//	private void processUssd(RequestEvent event) {
+//		// now lets get USSD
+//		USSDRequest extracted = extractUssd(event);
+//		if (extracted == null) {
+//			// error has been handled
+//			return;
+//		}
+//		String drooled = processUssd(extracted);
+//
+//		// send ok
+//		if (drooled != null) {
+//			sendResponse(drooled, event.getServerTransaction());
+//			if (isSessionDead()) {
+//				// in this case, send bye over dialog
+//
+//				sendBye();
+//
+//			}
+//		}
+//	}
 
 	private DialogActivity getDialog() {
 		ActivityContextInterface[] acis = this.sbbContext.getActivities();
@@ -320,7 +347,7 @@ public abstract class SipUSSDSbb implements Sbb {
 	// USSD Stuff //
 	// //////////////
 	// FIXME: once XSD is done, switch to JAXB or something
-	private USSDRequest extractUssd(RequestEvent event) {
+	private USSDRequest extractUssdRequest(RequestEvent event) {
 		Request sipRequest = event.getRequest();
 		ContentTypeHeader cth = (ContentTypeHeader) event.getRequest().getHeader(ContentTypeHeader.NAME);
 		if (cth == null) {
@@ -346,32 +373,127 @@ public abstract class SipUSSDSbb implements Sbb {
 
 		return null;
 	}
-
-	private String processUssd(USSDRequest extracted) {
-		// create dummy response
-		ProcessInstance pi = this.getProcessInstance();
-		pi.getContextInstance().setVariable(USSDDecisionHandler._INPUT_, extracted.getUssdString());
-		pi.signal();
-		String data = (String) pi.getContextInstance().getVariable(USSDPromptHandler._PROMPT_);
-		USSDResponse response = this.objectFactory.createUSSDResponse();
-		response.setInvokeId(extracted.getInvokeId());
-		response.setUssdCoding(extracted.getUssdCoding());
-		response.setUssdString(data);
-		response.setEnd(isSessionDead());
-		response.setLastResult(true);
-		try {
-			Marshaller marshaller = jAXBContext.createMarshaller();
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			JAXBElement<USSDResponse> res = this.objectFactory.createResponse(response);
-			marshaller.marshal(res, bos);
-			return new String(bos.toByteArray());
-		} catch (JAXBException e) {
 	
+	private USSDResponse extractUssdResponse(RequestEvent event) {
+		Request sipRequest = event.getRequest();
+		ContentTypeHeader cth = (ContentTypeHeader) event.getRequest().getHeader(ContentTypeHeader.NAME);
+		if (cth == null) {
+			// FIXME: break
+			return null;
+		} else {
+			if (!cth.getContentType().equals(CONTENT_TYPE) || !cth.getContentSubType().equals(CONTENT_SUB_TYPE)
+					|| sipRequest.getContent() == null) {
+				// FIXME: break,
+				return null;
+			}
+		}
+		try {
+			Unmarshaller uMarshaller = jAXBContext.createUnmarshaller();
+			ByteArrayInputStream bis = new ByteArrayInputStream(sipRequest.getRawContent());
+			JAXBElement<USSDResponse> data = (JAXBElement<USSDResponse>) uMarshaller.unmarshal(bis);
+			return data.getValue();
+		} catch (JAXBException e) {
+			// FIXME: tear down
+
 			e.printStackTrace();
 		}
 
 		return null;
 	}
+
+	private void processUssdRequest(RequestEvent event)
+	{
+		USSDRequest extracted  =extractUssdRequest(event);
+		ProcessInstance pi = this.getProcessInstance();
+		pi.getContextInstance().setVariable(USSDDecisionHandler._INPUT_, extracted.getUssdString());
+		pi.signal();
+		String data = (String) pi.getContextInstance().getVariable(USSDPromptHandler._PROMPT_);
+		if(isSessionDead())
+		{
+		USSDResponse response = this.objectFactory.createUSSDResponse();
+		response.setInvokeId(getInvokeId()); //use invoke id from original one
+		response.setUssdCoding(extracted.getUssdCoding());
+		response.setUssdString(data);
+
+		try {
+			Marshaller marshaller = jAXBContext.createMarshaller();
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			JAXBElement<USSDResponse> res = this.objectFactory.createResponse(response);
+			marshaller.marshal(res, bos);
+			sendResponse(new String(bos.toByteArray()), event.getServerTransaction());
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+	
+		}else
+		{
+			//its damn SS7 logic....
+			USSDRequest response = this.objectFactory.createUSSDRequest(); // yeah, we name it 'response' cause it in fact it is response.... pffff
+			response.setUssdCoding(extracted.getUssdCoding());
+			response.setUssdString(data);
+			response.setInvokeId(extracted.getInvokeId()+1); //not a best way, it's <-127,128> so it flips, but for example this will work. 
+			response.setDialogId(extracted.getDialogId());
+			
+			try {
+				Marshaller marshaller = jAXBContext.createMarshaller();
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				JAXBElement<USSDRequest> res = this.objectFactory.createRequest(response);
+				marshaller.marshal(res, bos);
+				sendResponse(new String(bos.toByteArray()), event.getServerTransaction());
+			} catch (JAXBException e) {
+				e.printStackTrace();
+			}
+			
+		}
+	
+	}
+//	private void processUssdResponse(RequestEvent event)
+//	{
+//		USSDResponse extracted  = extractUssdResponse(event);
+//		ProcessInstance pi = this.getProcessInstance();
+//		pi.getContextInstance().setVariable(USSDDecisionHandler._INPUT_, extracted.getUssdString());
+//		pi.signal();
+//		String data = (String) pi.getContextInstance().getVariable(USSDPromptHandler._PROMPT_);
+//		if(isSessionDead())
+//		{
+//		USSDResponse response = this.objectFactory.createUSSDResponse();
+//		response.setInvokeId(getInvokeId()); //use invoke id from original one
+//		response.setUssdCoding(extracted.getUssdCoding());
+//		response.setUssdString(data);
+//
+//		try {
+//			Marshaller marshaller = jAXBContext.createMarshaller();
+//			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//			JAXBElement<USSDResponse> res = this.objectFactory.createResponse(response);
+//			marshaller.marshal(res, bos);
+//			sendResponse(new String(bos.toByteArray()), event.getServerTransaction());
+//		} catch (JAXBException e) {
+//			e.printStackTrace();
+//		}
+//	
+//		}else
+//		{
+//			//its damn SS7 logic....
+//			USSDRequest response = this.objectFactory.createUSSDRequest(); // yeah, we name it 'response' cause it in fact is response.... pffff
+//			response.setUssdCoding(extracted.getUssdCoding());
+//			response.setUssdString(data);
+//			response.setInvokeId(extracted.getInvokeId()+1); //not a best way, it's <-127,128> so it flips, but for example this will work. 
+//			response.setDialogId(extracted.getDialogId());
+//			
+//			try {
+//				Marshaller marshaller = jAXBContext.createMarshaller();
+//				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//				JAXBElement<USSDRequest> res = this.objectFactory.createRequest(response);
+//				marshaller.marshal(res, bos);
+//				sendResponse(new String(bos.toByteArray()), event.getServerTransaction());
+//			} catch (JAXBException e) {
+//				e.printStackTrace();
+//			}
+//			
+//		}
+//
+//	}
+	
 
 	private boolean isSessionDead() {
 		ProcessInstance pi = this.getProcessInstance();
@@ -401,6 +523,10 @@ public abstract class SipUSSDSbb implements Sbb {
 	public abstract void setProcessInstance(ProcessInstance pi);
 
 	public abstract ProcessInstance getProcessInstance();
+	
+	public abstract void setInvokeId(int pi);
+
+	public abstract int getInvokeId();
 
 	/**
 	 * Generate a custom convergence name so that events with the same call
