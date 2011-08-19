@@ -23,6 +23,8 @@
 package org.mobicents.slee.resource.diameter.base.events;
 
 import net.java.slee.resource.diameter.base.events.SessionTerminationMessage;
+import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
+import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 
 import org.jdiameter.api.Avp;
 import org.jdiameter.api.Message;
@@ -55,9 +57,14 @@ public abstract class SessionTerminationMessageImpl extends DiameterMessageImpl 
   }
 
   public void setClassAvps(String[] classAvps) {
-    for (String classAvp : classAvps) {
-      setClassAvp(classAvp);
+    DiameterAvp[] values = new DiameterAvp[classAvps.length];
+
+    for(int index = 0; index < classAvps.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.CLASS, classAvps[index]);
     }
+
+    this.message.getAvps().removeAvp(Avp.CLASS);
+    this.setExtensionAvps(values);
   }
 
 }

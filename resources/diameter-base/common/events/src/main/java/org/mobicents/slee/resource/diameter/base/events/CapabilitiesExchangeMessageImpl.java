@@ -24,6 +24,8 @@ package org.mobicents.slee.resource.diameter.base.events;
 
 import net.java.slee.resource.diameter.base.events.CapabilitiesExchangeMessage;
 import net.java.slee.resource.diameter.base.events.avp.Address;
+import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
+import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
 
 import org.jdiameter.api.Avp;
@@ -31,7 +33,7 @@ import org.jdiameter.api.Message;
 import org.mobicents.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvpImpl;
 
 /**
- * Super class definnig common methods for CER and CEA. Implmenets methods {@link CapabilitiesExchangeMessage}
+ * Super class defining common methods for CER and CEA. Implements methods {@link CapabilitiesExchangeMessage}
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
@@ -96,15 +98,25 @@ public abstract class CapabilitiesExchangeMessageImpl extends DiameterMessageImp
   }
 
   public void setAcctApplicationIds(long[] acctApplicationIds) {
-    for(long acctApplicationId : acctApplicationIds) {
-      addAvp(Avp.ACCT_APPLICATION_ID, acctApplicationId);
+    DiameterAvp[] values = new DiameterAvp[acctApplicationIds.length];
+
+    for(int index = 0; index < acctApplicationIds.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.ACCT_APPLICATION_ID, acctApplicationIds[index]);
     }
+
+    super.message.getAvps().removeAvp(Avp.ACCT_APPLICATION_ID);
+    super.setExtensionAvps(values);
   }
 
   public void setAuthApplicationIds(long[] authApplicationIds) {
-    for(long authApplicationId : authApplicationIds) {
-      addAvp(Avp.AUTH_APPLICATION_ID, authApplicationId);
+    DiameterAvp[] values = new DiameterAvp[authApplicationIds.length];
+
+    for(int index = 0; index < authApplicationIds.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.AUTH_APPLICATION_ID, authApplicationIds[index]);
     }
+
+    super.message.getAvps().removeAvp(Avp.AUTH_APPLICATION_ID);
+    super.setExtensionAvps(values);
   }
 
   public void setFirmwareRevision(long firmwareRevision) {
@@ -116,9 +128,14 @@ public abstract class CapabilitiesExchangeMessageImpl extends DiameterMessageImp
   }
 
   public void setHostIpAddresses(Address[] hostIpAddresses) {
-    for(Address hostIpAddress : hostIpAddresses) {
-      setHostIpAddress(hostIpAddress);
+    DiameterAvp[] values = new DiameterAvp[hostIpAddresses.length];
+
+    for(int index = 0; index < hostIpAddresses.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.HOST_IP_ADDRESS, hostIpAddresses[index].encode()); //is this correct?
     }
+
+    super.message.getAvps().removeAvp(Avp.HOST_IP_ADDRESS);
+    super.setExtensionAvps(values);
   }
 
   public void setInbandSecurityId(long inbandSecurityId) {
@@ -126,9 +143,14 @@ public abstract class CapabilitiesExchangeMessageImpl extends DiameterMessageImp
   }
 
   public void setInbandSecurityIds(long[] inbandSecurityIds) {
-    for(long inbandSecurityId : inbandSecurityIds) {
-      setInbandSecurityId(inbandSecurityId);
+    DiameterAvp[] values = new DiameterAvp[inbandSecurityIds.length];
+
+    for(int index = 0; index < inbandSecurityIds.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.INBAND_SECURITY_ID, inbandSecurityIds[index]);
     }
+
+    super.message.getAvps().removeAvp(Avp.INBAND_SECURITY_ID);
+    super.setExtensionAvps(values);
   }
 
   public void setProductName(String productName) {
@@ -140,9 +162,14 @@ public abstract class CapabilitiesExchangeMessageImpl extends DiameterMessageImp
   }
 
   public void setSupportedVendorIds(long[] supportedVendorIds) {
-    for(long supportedVendorId : supportedVendorIds) {
-      addAvp(Avp.SUPPORTED_VENDOR_ID, supportedVendorId);
+    DiameterAvp[] values = new DiameterAvp[supportedVendorIds.length];
+
+    for(int index = 0; index < supportedVendorIds.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.SUPPORTED_VENDOR_ID, supportedVendorIds[index]);
     }
+
+    super.message.getAvps().removeAvp(Avp.SUPPORTED_VENDOR_ID);
+    super.setExtensionAvps(values);
   }
 
   public void setVendorId(long vendorId) {
@@ -150,9 +177,14 @@ public abstract class CapabilitiesExchangeMessageImpl extends DiameterMessageImp
   }
 
   public void setVendorSpecificApplicationIds(VendorSpecificApplicationIdAvp[] vendorSpecificApplicationIds) {
-    for(VendorSpecificApplicationIdAvp vendorSpecificApplicationId : vendorSpecificApplicationIds) {
-      setVendorSpecificApplicationId(vendorSpecificApplicationId);
+    DiameterAvp[] values = new DiameterAvp[vendorSpecificApplicationIds.length];
+
+    for(int index = 0; index < vendorSpecificApplicationIds.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, vendorSpecificApplicationIds[index].getExtensionAvps());
     }
+
+    super.message.getAvps().removeAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID);
+    super.setExtensionAvps(values);
   }
 
   public Address getHostIpAddress() {

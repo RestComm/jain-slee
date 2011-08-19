@@ -22,13 +22,15 @@
 
 package org.mobicents.slee.resource.diameter.base.events.avp;
 
+import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
+import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
 
 import org.jdiameter.api.Avp;
 
 /**
  * 
- * Implemntation of {@link VendorSpecificApplicationIdAvp} interface
+ * Implementation of {@link VendorSpecificApplicationIdAvp} interface
  *
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
@@ -72,9 +74,14 @@ public class VendorSpecificApplicationIdAvpImpl extends GroupedAvpImpl implement
    * @see net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp#setVendorIds(long[])
    */
   public void setVendorIdsAvp(long[] vendorIds) {
-    for (long vendorId : vendorIds) {
-      setVendorIdAvp(vendorId);
+    DiameterAvp[] values = new DiameterAvp[vendorIds.length];
+
+    for(int index = 0; index < vendorIds.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.VENDOR_ID, vendorIds[index]);
     }
+
+    avpSet.removeAvp(Avp.VENDOR_ID);
+    this.setExtensionAvps(values);
   }
 
   /*

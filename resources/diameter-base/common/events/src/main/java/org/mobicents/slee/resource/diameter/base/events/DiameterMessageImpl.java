@@ -126,7 +126,6 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 
   public Object clone() {
     try {
-      // TODO: Confirm this works as expected!
       return super.clone();
     }
     catch (CloneNotSupportedException e) {
@@ -293,13 +292,18 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
   }
 
   public void setFailedAvp(FailedAvp failedAvp) {
-    addAvp(Avp.FAILED_AVP, failedAvp.getExtensionAvps());
+    addAvp(Avp.FAILED_AVP, failedAvp.byteArrayValue());
   }
 
   public void setFailedAvps(FailedAvp[] failedAvps) {
-    for (FailedAvp f : failedAvps) {
-      setFailedAvp(f);
+    DiameterAvp[] values = new DiameterAvp[failedAvps.length];
+
+    for(int index = 0; index < failedAvps.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.FAILED_AVP, failedAvps[index].getExtensionAvps());
     }
+
+    this.message.getAvps().removeAvp(Avp.FAILED_AVP);
+    this.setExtensionAvps(values);
   }
 
   public boolean hasUserName() {
@@ -314,8 +318,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
     addAvp(Avp.USER_NAME, userName);
   }
 
-  public void setProxyInfo(ProxyInfoAvp proxyInfo)
-  {
+  public void setProxyInfo(ProxyInfoAvp proxyInfo) {
     addAvp(Avp.PROXY_INFO, proxyInfo.byteArrayValue());
   }
 
@@ -324,9 +327,14 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
   }
 
   public void setProxyInfos(ProxyInfoAvp[] proxyInfos) {
-    for (ProxyInfoAvp p : proxyInfos) {
-      setProxyInfo(p);
+    DiameterAvp[] values = new DiameterAvp[proxyInfos.length];
+
+    for(int index = 0; index < proxyInfos.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.PROXY_INFO, proxyInfos[index].getExtensionAvps());
     }
+
+    this.message.getAvps().removeAvp(Avp.PROXY_INFO);
+    this.setExtensionAvps(values);
   }
 
   public boolean hasRedirectHostUsage() {
@@ -366,9 +374,14 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
   }
 
   public void setRedirectHosts(DiameterURI[] redirectHosts) {
-    for (DiameterURI uri : redirectHosts) {
-      setRedirectHost(uri);
+    DiameterAvp[] values = new DiameterAvp[redirectHosts.length];
+
+    for(int index = 0; index < redirectHosts.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.REDIRECT_HOST, redirectHosts[index].toString());
     }
+
+    this.message.getAvps().removeAvp(Avp.REDIRECT_HOST);
+    this.setExtensionAvps(values);
   }
 
   public DiameterIdentity[] getRouteRecords() {
@@ -380,9 +393,14 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
   }
 
   public void setRouteRecords(DiameterIdentity[] routeRecords) {
-    for (DiameterIdentity routeRecord : routeRecords) {
-      setRouteRecord(routeRecord);
+    DiameterAvp[] values = new DiameterAvp[routeRecords.length];
+
+    for(int index = 0; index < routeRecords.length; index++) {
+      values[index] = AvpUtilities.createAvp(Avp.ROUTE_RECORD, routeRecords[index].toString());
     }
+
+    this.message.getAvps().removeAvp(Avp.ROUTE_RECORD);
+    this.setExtensionAvps(values);
   }
 
   public boolean hasVendorSpecificApplicationId() {
@@ -497,7 +515,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
     }
 
     avpStringSB.append("| ").append(indent).append("AVP: Code[").append(avp.getCode()).append("] VendorID[").append(avp.getVendorId()).append("] Value[").append(avpValue).
-      append("] Flags[M=").append(avp.isMandatory()).append(";E=").append(avp.isEncrypted()).append(";V=").append(avp.isVendorId()).append("]\r\n");
+    append("] Flags[M=").append(avp.isMandatory()).append(";E=").append(avp.isEncrypted()).append(";V=").append(avp.isVendorId()).append("]\r\n");
 
     if (isGrouped) {
       try {
@@ -862,56 +880,56 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 
       switch (avpType)
       {
-      case DiameterAvpType._ADDRESS:
-      case DiameterAvpType._DIAMETER_IDENTITY:
-      case DiameterAvpType._DIAMETER_URI:
-      case DiameterAvpType._IP_FILTER_RULE:
-      case DiameterAvpType._OCTET_STRING:
-      case DiameterAvpType._QOS_FILTER_RULE:
-      {
-        return getAvpAsOctetString(avpCode, vendorId);
-      }
-      case DiameterAvpType._ENUMERATED:
-      case DiameterAvpType._INTEGER_32:
-      {
-        return getAvpAsInteger32(avpCode, vendorId);        
-      }
-      case DiameterAvpType._FLOAT_32:
-      {
-        return getAvpAsFloat32(avpCode, vendorId);        
-      }
-      case DiameterAvpType._FLOAT_64:
-      {
-        return getAvpAsFloat64(avpCode, vendorId);        
-      }
-      case DiameterAvpType._GROUPED:
-      {
-        return getAvpAsGrouped(avpCode, vendorId);
-      }
-      case DiameterAvpType._INTEGER_64:
-      {
-        return getAvpAsInteger64(avpCode, vendorId);
-      }
-      case DiameterAvpType._TIME:
-      {
-        return getAvpAsTime(avpCode, vendorId);
-      }
-      case DiameterAvpType._UNSIGNED_32:
-      {
-        return getAvpAsUnsigned32(avpCode, vendorId);
-      }
-      case DiameterAvpType._UNSIGNED_64:
-      {
-        return getAvpAsUnsigned64(avpCode, vendorId);
-      }
-      case DiameterAvpType._UTF8_STRING:
-      {
-        return getAvpAsUTF8String(avpCode, vendorId);
-      }
-      default:
-      {
-        return getAvpAsRaw(avpCode, vendorId);
-      }
+        case DiameterAvpType._ADDRESS:
+        case DiameterAvpType._DIAMETER_IDENTITY:
+        case DiameterAvpType._DIAMETER_URI:
+        case DiameterAvpType._IP_FILTER_RULE:
+        case DiameterAvpType._OCTET_STRING:
+        case DiameterAvpType._QOS_FILTER_RULE:
+        {
+          return getAvpAsOctetString(avpCode, vendorId);
+        }
+        case DiameterAvpType._ENUMERATED:
+        case DiameterAvpType._INTEGER_32:
+        {
+          return getAvpAsInteger32(avpCode, vendorId);        
+        }
+        case DiameterAvpType._FLOAT_32:
+        {
+          return getAvpAsFloat32(avpCode, vendorId);        
+        }
+        case DiameterAvpType._FLOAT_64:
+        {
+          return getAvpAsFloat64(avpCode, vendorId);        
+        }
+        case DiameterAvpType._GROUPED:
+        {
+          return getAvpAsGrouped(avpCode, vendorId);
+        }
+        case DiameterAvpType._INTEGER_64:
+        {
+          return getAvpAsInteger64(avpCode, vendorId);
+        }
+        case DiameterAvpType._TIME:
+        {
+          return getAvpAsTime(avpCode, vendorId);
+        }
+        case DiameterAvpType._UNSIGNED_32:
+        {
+          return getAvpAsUnsigned32(avpCode, vendorId);
+        }
+        case DiameterAvpType._UNSIGNED_64:
+        {
+          return getAvpAsUnsigned64(avpCode, vendorId);
+        }
+        case DiameterAvpType._UTF8_STRING:
+        {
+          return getAvpAsUTF8String(avpCode, vendorId);
+        }
+        default:
+        {
+          return getAvpAsRaw(avpCode, vendorId);
+        }
       }
     }
 
