@@ -30,6 +30,9 @@
  */
 package org.mobicents.slee.runtime.sbbentity;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -441,12 +444,12 @@ public class ChildRelationImpl implements ChildRelation {
 		
 		validateChildName(childName);
 
-		SleeTransactionManager sleeTransactionManager = sleeContainer
+		final SleeTransactionManager sleeTransactionManager = sleeContainer
 				.getTransactionManager();
 
 		sleeTransactionManager.mandateTransaction();
 
-		SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory()
+		final SbbEntity childSbbEntity = sleeContainer.getSbbEntityFactory()
 				.createNonRootSbbEntity(sbbEntity.getSbbEntityId(),
 						getChildRelationMethod.getChildRelationMethodName(),
 						childName);
@@ -482,8 +485,38 @@ public class ChildRelationImpl implements ChildRelation {
 		 * throwing a RuntimeException) the SLEE originated method invocation
 		 * exception handling mechanism is init iated.
 		 */
+		
+		if (System.getSecurityManager()!=null) {
+            try {
+            	AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                public Object run() throws CreateException {
+                	assignSbbObjectToChild(childSbbEntity,sleeTransactionManager);
+                    return null;
+                }
+            });
+            }
+            catch (PrivilegedActionException e) {
+				final Throwable t = e.getCause();
+				if (t instanceof CreateException) {
+					throw (CreateException) t;
+				}
+				else {
+					throw new SLEEException(t.getMessage(),t);
+				}
+			}
+    	}
+        else {
+        	assignSbbObjectToChild(childSbbEntity,sleeTransactionManager);
+        }
+    	sbbEntity.addChildWithSbbObject(childSbbEntity);
+		return childSbbEntity.getSbbLocalObject();
+	}
 
-		try {
+	private void assignSbbObjectToChild(final SbbEntity childSbbEntity, final SleeTransactionManager sleeTransactionManager) throws CreateException {
+    	final Thread t = Thread.currentThread();
+    	final ClassLoader cl = t.getContextClassLoader();
+    	t.setContextClassLoader(childSbbEntity.getSbbComponent().getClassLoader());
+    	try {
 			// All checked exceptions (i.e. CreateException) are propagated to
 			// the caller
 			childSbbEntity.assignSbbObject();
@@ -507,11 +540,11 @@ public class ChildRelationImpl implements ChildRelation {
 			}
 			childSbbEntity.trashObject();
 		}
-
-		sbbEntity.addChildWithSbbObject(childSbbEntity);
-		return childSbbEntity.getSbbLocalObject();
-	}
-
+        finally {
+        	t.setContextClassLoader(cl);            
+        }
+    }
+	
 	@Override
 	public SbbLocalObjectExt get(String childName)
 			throws IllegalArgumentException, NullPointerException,

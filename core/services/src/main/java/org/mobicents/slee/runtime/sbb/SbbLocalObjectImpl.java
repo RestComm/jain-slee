@@ -22,6 +22,9 @@
 
 package org.mobicents.slee.runtime.sbb;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import javax.slee.ActivityContextInterface;
 import javax.slee.NoSuchObjectLocalException;
 import javax.slee.SLEEException;
@@ -145,20 +148,40 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
      * @param sbbEntity --
      *            sbb entity for which this is a local object.
      */
-    public SbbLocalObjectImpl(SbbEntityImpl sbbEntity) {
+    public SbbLocalObjectImpl(final SbbEntityImpl sbbEntity) {
         this.sbbEntity = sbbEntity;
         if (sbbEntity.getSbbObject() == null){
-            try {
-                sbbEntity.assignSbbObject();
-            } catch (Exception e) {
-               logger.error(e.getMessage(),e);
-            }
-        }        
+        	if (System.getSecurityManager()!=null) {
+                AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                    public Object run() {
+                    	assignSbbObject();
+                        return null;
+                    }
+                });
+        	}
+            else {
+            	assignSbbObject();
+            }        	
+        }
         trace = logger.isTraceEnabled();        
         if(trace)
             logger.trace("SbbLocalObjectImpl(sbbEntity = "+sbbEntity.getSbbEntityId()+" )");
     }
 
+    private void assignSbbObject() {
+    	final Thread t = Thread.currentThread();
+    	final ClassLoader cl = t.getContextClassLoader();
+    	t.setContextClassLoader(sbbEntity.getSbbComponent().getClassLoader());
+    	try {
+            sbbEntity.assignSbbObject();
+        } catch (Exception e) {
+           logger.error(e.getMessage(),e);
+        }
+        finally {
+        	t.setContextClassLoader(cl);            
+        }
+    }
+    
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete#getContextClassLoader()
 	 */

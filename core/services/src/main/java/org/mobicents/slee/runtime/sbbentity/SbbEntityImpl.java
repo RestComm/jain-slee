@@ -560,7 +560,15 @@ public class SbbEntityImpl implements SbbEntity {
 			.hasNext();) {
 				SbbEntity childSbbEntity = i.next();
 				if (childSbbEntity.getSbbObject() != null) {
-					childSbbEntity.passivateAndReleaseSbbObject();
+					Thread t = Thread.currentThread();
+			    	ClassLoader cl = t.getContextClassLoader();
+			        t.setContextClassLoader(childSbbEntity.getSbbComponent().getClassLoader());
+					try {
+						childSbbEntity.passivateAndReleaseSbbObject();
+					}
+					finally {
+						t.setContextClassLoader(cl);
+					}
 				}
 				i.remove();
 			}
@@ -583,7 +591,15 @@ public class SbbEntityImpl implements SbbEntity {
 			.hasNext();) {
 				SbbEntity childSbbEntity = i.next();
 				if (childSbbEntity.getSbbObject() != null) {
-					childSbbEntity.removeAndReleaseSbbObject();
+					Thread t = Thread.currentThread();
+			    	ClassLoader cl = t.getContextClassLoader();
+			        t.setContextClassLoader(childSbbEntity.getSbbComponent().getClassLoader());
+					try {
+						childSbbEntity.removeAndReleaseSbbObject();
+					}
+					finally {
+						t.setContextClassLoader(cl);
+					}	
 				}
 				i.remove();
 			}
