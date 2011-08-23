@@ -18,6 +18,7 @@
 	<properties>
 		<version.sipra>2.4.1-SNAPSHOT</version.sipra>
 		<version.ussdgateway>1.0.0.BETA1-SNAPSHOT</version.ussdgateway>
+		<version.http.servlet>2.4.0.CR1</version.http.servlet>
 		<version.jbpm>3.2.3</version.jbpm>
 	</properties>
 
@@ -49,6 +50,16 @@
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-jpdl</artifactId>
 				<version>${version.jbpm}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.resources</groupId>
+				<artifactId>http-servlet-ratype</artifactId>
+				<version>${version.http.servlet}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.resources</groupId>
+				<artifactId>http-servlet-events</artifactId>
+				<version>${version.http.servlet}</version>
 			</dependency>
 		</dependencies>
 

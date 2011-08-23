@@ -9,11 +9,7 @@
 		<sbb-version>1.0</sbb-version>
 		<sbb-alias>XxX</sbb-alias>
 
-		<!-- library-ref>
-			<library-name>library-ussdgateway</library-name>
-			<library-vendor>org.mobicents</library-vendor>
-			<library-version>2.0</library-version>
-		</library-ref -->
+		
 		<library-ref>
 			<library-name>library-ussdexample</library-name>
 			<library-vendor>org.mobicents</library-vendor>
@@ -56,8 +52,22 @@
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
 		</event>
+		<!-- EVENT HANDLERS: HTTP -->
+		<event initial-event="True" event-direction="Receive">
+			<event-name>Post</event-name>
+			<event-type-ref>
+				<event-type-name>
+					net.java.slee.resource.http.events.incoming.request.POST
+				</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+			<!-- Actiivty context, we stick to session -->
+			<initial-event-select variable="ActivityContext" />
+		</event>
 
 
+		<!-- EVENTS HANDLERS: SIP -->
 		<!-- initial -->
 
 		<event event-direction="Receive" initial-event="True">
@@ -152,5 +162,31 @@
 				</resource-adaptor-entity-link>
 			</resource-adaptor-entity-binding>
 		</resource-adaptor-type-binding>
+		
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					HttpServletResourceAdaptorType
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					org.mobicents
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.0
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/mobicents/httpservlet/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/mobicents/httpservlet/sbbrainterface
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					HttpServletRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+		
 	</sbb>
 </sbb-jar>
