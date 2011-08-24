@@ -54,7 +54,7 @@
 		</event>
 		<!-- EVENT HANDLERS: HTTP -->
 		<event initial-event="True" event-direction="Receive">
-			<event-name>Post</event-name>
+			<event-name>PostRequest</event-name>
 			<event-type-ref>
 				<event-type-name>
 					net.java.slee.resource.http.events.incoming.request.POST
@@ -64,6 +64,16 @@
 			</event-type-ref>
 			<!-- Actiivty context, we stick to session -->
 			<initial-event-select variable="ActivityContext" />
+		</event>
+		<event initial-event="False" event-direction="Receive">
+			<event-name>PostSession</event-name>
+			<event-type-ref>
+				<event-type-name>
+					net.java.slee.resource.http.events.incoming.session.POST
+				</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
 		</event>
 
 

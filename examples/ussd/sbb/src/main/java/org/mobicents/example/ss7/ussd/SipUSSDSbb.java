@@ -25,6 +25,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.sip.ClientTransaction;
 import javax.sip.InvalidArgumentException;
 import javax.sip.RequestEvent;
@@ -237,17 +238,24 @@ public abstract class SipUSSDSbb implements Sbb {
 	// ///////////////////////
 	// HTTP Event handlers //
 	// ///////////////////////
-	public void onPost(HttpServletRequestEvent event,
+	public void onPostRequest(HttpServletRequestEvent event,
 			ActivityContextInterface aci) {
 
 		try {
 
-			if (this.getProcessInstance() == null) {
-				// initial POST :D
 
 				ProcessInstance pi = jbpmContext
 						.newProcessInstance(PROCESS_NAME);
 				this.setProcessInstance(pi);
+				
+				
+				//create activity :)
+				HttpSession httpSession = httpSession = event.getRequest().getSession(true);
+				HttpSessionActivity httpSessionActivity = this.httpServletRaSbbInterface.getHttpSessionActivity(httpSession);
+				ActivityContextInterface httpSessionACIF = this.httpServletRaActivityContextInterfaceFactory.getActivityContextInterface(httpSessionActivity);
+				httpSessionACIF.attach(this.sbbContext.getSbbLocalObject());
+				
+				
 				// set original invoke id, so we know how to term
 				USSDRequest extracted = extractUssdRequest(event);
 				if (extracted == null) {
@@ -256,12 +264,32 @@ public abstract class SipUSSDSbb implements Sbb {
 				}
 				processUssdRequest(event, extracted);
 				this.setInvokeId(extracted.getInvokeId());
-			} else {
-				processUssdRequest(event, null);
-				if (isSessionDead()) {
-					// nothing here.... :P
+		
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			handleError(event, 400, e);
+			return;
+		}
+
+	}
+	
+	
+	public void onPostSession(HttpServletRequestEvent event,
+			ActivityContextInterface aci) {
+
+		try {
+				
+				// set original invoke id, so we know how to term
+				USSDRequest extracted = extractUssdRequest(event);
+				if (extracted == null) {
+					// error
+					return;
 				}
-			}
+				processUssdRequest(event, extracted);
+
+		
 
 		} catch (Exception e) {
 
@@ -315,6 +343,10 @@ public abstract class SipUSSDSbb implements Sbb {
 			response.flushBuffer();
 			this.logger
 					.info("HttpServletRAExampleSbb: POST Request received and OK! response sent. Response content:\n"+ussdResponse);
+			if(isSessionDead())
+			{
+				event.getRequest().getSession().invalidate();
+			}
 		} catch (IOException e) {
 			this.logger.severe("", e);
 		}
