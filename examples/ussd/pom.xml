@@ -75,6 +75,40 @@
 	</modules>
 
 
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<!-- need to include those ones for maven releases -->
+    		<modules>
+    			<module>du</module>
+				<module>docs</module>
+				<module>release</module>
+    		</modules>
+			<build>
+				<plugins>
+					<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/ussd</tagBase>
+						<branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/examples/ussd</branchBase>
+						<preparationGoals>clean install</preparationGoals>
+					</configuration>
+					</plugin>
+				</plugins>
+			</build>		
+		</profile>
+		<profile>
+			<id>release</id>
+			<modules>
+    			<module>du</module>
+				<module>docs</module>
+				<module>release</module>
+			</modules>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
