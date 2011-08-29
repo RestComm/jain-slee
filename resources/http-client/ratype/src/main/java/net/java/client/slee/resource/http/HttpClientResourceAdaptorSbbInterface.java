@@ -22,17 +22,11 @@
 
 package net.java.client.slee.resource.http;
 
-import java.io.IOException;
-
+import javax.slee.resource.ResourceAdaptorTypeID;
 import javax.slee.resource.StartActivityException;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.params.HttpParams;
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -42,242 +36,27 @@ import org.apache.http.protocol.HttpContext;
  * methods of HttpClient
  * 
  * @author amit bhayani
+ * @author martins
  * 
  */
 public interface HttpClientResourceAdaptorSbbInterface {
 
-	/**
-	 * Method to create the HttpMethod that will used by service to send the
-	 * Request
-	 * 
-	 * @param methodName
-	 * 
-	 * @param uri
-	 *            The URI where the request has to be sent
-	 * @return instance of HttpMethod
-	 */
-	public HttpRequest createHttpRequest(HttpMethodName methodName, String uri);
+	public static final ResourceAdaptorTypeID RESOURCE_ADAPTOR_TYPE_ID = HttpClientActivityContextInterfaceFactory.RESOURCE_ADAPTOR_TYPE_ID;
 
 	/**
-	 * Executes a request synchronously using the default context.
+	 * Retrieves the client managed by the RA, allowing execution of synchronous
+	 * requests and access the client parameters. Note that the returned client
+	 * throws {@link SecurityException} if the application tries to access its
+	 * {@link ClientConnectionManager}.
 	 * 
-	 * @param request
-	 *            the request to execute
-	 * 
-	 * @return the response to the request. This is always a final response,
-	 *         never an intermediate response with an 1xx status code. Whether
-	 *         redirects or authentication challenges will be returned or
-	 *         handled automatically depends on the implementation and
-	 *         configuration of this client.
-	 * @throws IOException
-	 *             in case of a problem or the connection was aborted
-	 * @throws ClientProtocolException
-	 *             in case of an http protocol error
-	 */
-	HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException;
-
-	/**
-	 * Executes a request synchronously using the given context. The route to
-	 * the target will be determined by the HTTP client.
-	 * 
-	 * @param request
-	 *            the request to execute
-	 * @param context
-	 *            the context to use for the execution, or <code>null</code> to
-	 *            use the default context
-	 * 
-	 * @return the response to the request. This is always a final response,
-	 *         never an intermediate response with an 1xx status code. Whether
-	 *         redirects or authentication challenges will be returned or
-	 *         handled automatically depends on the implementation and
-	 *         configuration of this client.
-	 * @throws IOException
-	 *             in case of a problem or the connection was aborted
-	 * @throws ClientProtocolException
-	 *             in case of an http protocol error
-	 */
-	HttpResponse execute(HttpUriRequest request, HttpContext context) throws IOException, ClientProtocolException;
-
-	/**
-	 * Executes a request synchronously to the target using the default context.
-	 * 
-	 * @param target
-	 *            the target host for the request. Implementations may accept
-	 *            <code>null</code> if they can still determine a route, for
-	 *            example to a default target or by inspecting the request.
-	 * @param request
-	 *            the request to execute
-	 * 
-	 * @return the response to the request. This is always a final response,
-	 *         never an intermediate response with an 1xx status code. Whether
-	 *         redirects or authentication challenges will be returned or
-	 *         handled automatically depends on the implementation and
-	 *         configuration of this client.
-	 * @throws IOException
-	 *             in case of a problem or the connection was aborted
-	 * @throws ClientProtocolException
-	 *             in case of an http protocol error
-	 */
-	HttpResponse execute(HttpHost target, HttpRequest request) throws IOException, ClientProtocolException;
-
-	/**
-	 * Executes a request synchronously to the target using the given context.
-	 * 
-	 * @param target
-	 *            the target host for the request. Implementations may accept
-	 *            <code>null</code> if they can still determine a route, for
-	 *            example to a default target or by inspecting the request.
-	 * @param request
-	 *            the request to execute
-	 * @param context
-	 *            the context to use for the execution, or <code>null</code> to
-	 *            use the default context
-	 * 
-	 * @return the response to the request. This is always a final response,
-	 *         never an intermediate response with an 1xx status code. Whether
-	 *         redirects or authentication challenges will be returned or
-	 *         handled automatically depends on the implementation and
-	 *         configuration of this client.
-	 * @throws IOException
-	 *             in case of a problem or the connection was aborted
-	 * @throws ClientProtocolException
-	 *             in case of an http protocol error
-	 */
-	HttpResponse execute(HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException;
-
-	/**
-	 * Executes a request synchronously using the default context and processes
-	 * the response using the given response handler.
-	 * 
-	 * @param request
-	 *            the request to execute
-	 * @param responseHandler
-	 *            the response handler
-	 * 
-	 * @return the response object as generated by the response handler.
-	 * @throws IOException
-	 *             in case of a problem or the connection was aborted
-	 * @throws ClientProtocolException
-	 *             in case of an http protocol error
-	 */
-	<T> T execute(HttpUriRequest request, ResponseHandler<? extends T> responseHandler) throws IOException, ClientProtocolException;
-
-	/**
-	 * Executes a request synchronously using the given context and processes
-	 * the response using the given response handler.
-	 * 
-	 * @param request
-	 *            the request to execute
-	 * @param responseHandler
-	 *            the response handler
-	 * 
-	 * @return the response object as generated by the response handler.
-	 * @throws IOException
-	 *             in case of a problem or the connection was aborted
-	 * @throws ClientProtocolException
-	 *             in case of an http protocol error
-	 */
-	<T> T execute(HttpUriRequest request, ResponseHandler<? extends T> responseHandler, HttpContext context) throws IOException, ClientProtocolException;
-
-	/**
-	 * Executes a request synchronously to the target using the default context
-	 * and processes the response using the given response handler.
-	 * 
-	 * @param target
-	 *            the target host for the request. Implementations may accept
-	 *            <code>null</code> if they can still determine a route, for
-	 *            example to a default target or by inspecting the request.
-	 * @param request
-	 *            the request to execute
-	 * @param responseHandler
-	 *            the response handler
-	 * 
-	 * @return the response object as generated by the response handler.
-	 * @throws IOException
-	 *             in case of a problem or the connection was aborted
-	 * @throws ClientProtocolException
-	 *             in case of an http protocol error
-	 */
-	<T> T execute(HttpHost target, HttpRequest request, ResponseHandler<? extends T> responseHandler) throws IOException, ClientProtocolException;
-
-	/**
-	 * Executes a request synchronously to the target using the given context
-	 * and processes the response using the given response handler.
-	 * 
-	 * @param target
-	 *            the target host for the request. Implementations may accept
-	 *            <code>null</code> if they can still determine a route, for
-	 *            example to a default target or by inspecting the request.
-	 * @param request
-	 *            the request to execute
-	 * @param responseHandler
-	 *            the response handler
-	 * @param context
-	 *            the context to use for the execution, or <code>null</code> to
-	 *            use the default context
-	 * 
-	 * @return the response object as generated by the response handler.
-	 * @throws IOException
-	 *             in case of a problem or the connection was aborted
-	 * @throws ClientProtocolException
-	 *             in case of an http protocol error
-	 */
-	<T> T execute(HttpHost target, HttpRequest request, ResponseHandler<? extends T> responseHandler, HttpContext context) throws IOException,
-			ClientProtocolException;
-
-	/**
-	 * @return Returns HTTP protocol parameters associated with this HttpClient.
-	 */
-	public HttpParams getParams();
-
-	/**
-	 * Creates instance of {@link HttpClientActivity} for service that wants to
-	 * send the Request asynchronously. The endOnReceivingResponse value is set
-	 * to false by default and service has to explicitly end this Activity
-	 * 
-	 * @return instance of HttpClientActivity
-	 * @throws StartActivityException
-	 */
-	public HttpClientActivity createHttpClientActivity() throws StartActivityException;
-
-	/**
-	 * <p>
-	 * Creates instance of {@link HttpClientActivity} for service that wants to
-	 * send the Request asynchronously. The endOnReceivingResponse value is set
-	 * to false by default and service has to explicitly end this Activity
-	 * </p>
-	 * <p>
-	 * The {@link HttpContext} remains same for lifetime of this ACtivity
-	 * </p>
-	 * 
-	 * @param context
 	 * @return
-	 * @throws StartActivityException
 	 */
-	public HttpClientActivity createHttpClientActivity(HttpContext context) throws StartActivityException;
-
-	/**
-	 * Creates instance of {@link HttpClientActivity} for service that wants to
-	 * send the Request asynchronously
-	 * 
-	 * @param endOnReceivingResponse
-	 *            if true Activity ends automatically as soon as the
-	 *            ResponseEvent is sent by ResourceAdaptor. If false the service
-	 *            has to explicitly end activity
-	 * @return instance of HttpClientActivity
-	 * @throws StartActivityException
-	 */
-	public HttpClientActivity createHttpClientActivity(boolean endOnReceivingResponse) throws StartActivityException;
+	public HttpClient getHttpClient();
 
 	/**
 	 * <p>
 	 * Creates instance of {@link HttpClientActivity} for service that wants to
-	 * send the Request asynchronously
-	 * </p>
-	 * 
-	 * *
-	 * <p>
-	 * The {@link HttpContext} remains same for lifetime of this ACtivity
+	 * send Requests asynchronously
 	 * </p>
 	 * 
 	 * @param endOnReceivingResponse
@@ -285,9 +64,13 @@ public interface HttpClientResourceAdaptorSbbInterface {
 	 *            ResponseEvent is sent by ResourceAdaptor. If false the service
 	 *            has to explicitly end activity
 	 * @param context
+	 *            an optional http context may be provided. If not provided a
+	 *            basic context will be set.
 	 * @return
 	 * @throws StartActivityException
 	 */
-	public HttpClientActivity createHttpClientActivity(boolean endOnReceivingResponse, HttpContext context) throws StartActivityException;
+	public HttpClientActivity createHttpClientActivity(
+			boolean endOnReceivingResponse, HttpContext context)
+			throws StartActivityException;
 
 }

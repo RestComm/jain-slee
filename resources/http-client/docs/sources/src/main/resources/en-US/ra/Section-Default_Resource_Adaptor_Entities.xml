@@ -23,7 +23,7 @@
                 	org.mobicents
                 </resource-adaptor-type-vendor>
                 <resource-adaptor-type-version>
-                	1.0
+                	4.0
                 </resource-adaptor-type-version>
             </resource-adaptor-type-ref>
             <activity-context-interface-factory-name>

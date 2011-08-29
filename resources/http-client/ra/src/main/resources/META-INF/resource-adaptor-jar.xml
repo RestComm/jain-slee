@@ -7,12 +7,12 @@
 		<description>HTTP Client Resource Adaptor</description>
 		<resource-adaptor-name>HttpClientResourceAdaptor</resource-adaptor-name>
 		<resource-adaptor-vendor>org.mobicents</resource-adaptor-vendor>
-		<resource-adaptor-version>2.0</resource-adaptor-version>
+		<resource-adaptor-version>4.0</resource-adaptor-version>
 
 		<resource-adaptor-type-ref>
 			<resource-adaptor-type-name>HttpClientResourceAdaptorType</resource-adaptor-type-name>
 			<resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
-			<resource-adaptor-type-version>2.0</resource-adaptor-type-version>
+			<resource-adaptor-type-version>4.0</resource-adaptor-type-version>
 		</resource-adaptor-type-ref>
 
 		<!--added oc-resource-adaptor.xml lines here altogether -->
@@ -24,9 +24,20 @@
 			</resource-adaptor-class>
 		</resource-adaptor-classes>
 		<config-property>
-			<config-property-name>httpClientClass</config-property-name>
+			<description>Configures the client to override default limit of max concurrent connections for routes, must be a list of hostname:maxConcurrentConnections elements, separated by commas.</description>
+			<config-property-name>MAX_CONNECTIONS_FOR_ROUTES</config-property-name>
 			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>org.mobicents.client.slee.resource.http.DefaultHttpClientWrapper</config-property-value>
+		</config-property>
+		<config-property>
+			<description>Max total concurrent connections.</description>
+			<config-property-name>MAX_CONNECTIONS_TOTAL</config-property-name>
+			<config-property-type>java.lang.Integer</config-property-type>
+		</config-property>
+		<config-property>
+			<description>May be used to provide a class which is responsible for building the HTTP Client. If used the other properties are irrelevant.</description>
+			<config-property-name>HTTP_CLIENT_FACTORY</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value></config-property-value>
 		</config-property>
 	</resource-adaptor>
 </resource-adaptor-jar>

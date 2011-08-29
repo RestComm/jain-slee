@@ -11,7 +11,7 @@
 
 	<para>The Resource Adaptor Type is the interface which defines the contract between the RA implementations, the SLEE container, and the Applications running in it.</para>
 	
-	<para>The name of the RA Type is <literal>HttpClientResourceAdaptorType</literal>, its vendor is <literal>org.mobicents</literal> and its version is <literal>1.0</literal>.</para>
+	<para>The name of the RA Type is <literal>HttpClientResourceAdaptorType</literal>, its vendor is <literal>org.mobicents</literal> and its version is <literal>4.0</literal>.</para>
 		
 	<xi:include
 		xmlns:xi="http://www.w3.org/2001/XInclude"

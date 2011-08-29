@@ -19,10 +19,9 @@
 		
 		<programlisting language="Java" role="JAVA">
 			<![CDATA[
-HttpMethod httpMethod = raSbbInterface.createHttpMethod(
-			HttpMethodName.GET, syndFeed.getLink());
+HttpGet request = new HttpGet(syndFeed.getLink());
 try {
-	Response response = raSbbInterface.executeMethod(httpMethod);
+	Response response = raSbbInterface.getHttpClient.execute(request);
 } catch (Throwable e) {
 	tracer.severe("Error while sending request",e);
 }]]>
@@ -37,17 +36,37 @@ try {
 		
 		<programlisting language="Java" role="JAVA">
 			<![CDATA[
-HttpMethod httpMethod = raSbbInterface.createHttpMethod(
-			HttpMethodName.GET, syndFeed.getLink());
+HttpGet request = new HttpGet(syndFeed.getLink());
 try {
 	HttpClientActivity clientActivity = raSbbInterface
-			.createHttpClientActivity(true);
+			.createHttpClientActivity(true,null);
 	ActivityContextInterface clientAci = httpClientAci
 			.getActivityContextInterface(clientActivity);
 	clientAci.attach(sbbContext.getSbbLocalObject());
-	clientActivity.executeMethod(httpMethod);
+	clientActivity.execute(request,syndFeed.getLink());
 } catch (Throwable e) {
 	tracer.severe("Error while creating HttpClientActivity",e);
+}]]>
+		</programlisting>
+		
+		<para>And the following code examples the handling of the response event:</para>
+		
+		<programlisting language="Java" role="JAVA">
+			<![CDATA[
+public void onResponseEvent(ResponseEvent event,
+			ActivityContextInterface aci) {
+	HttpResponse response = event.getHttpResponse();
+	tracer.info("********** onResponseEvent **************");
+	tracer.info("URI = " + event.getRequestApplicationData());
+	tracer.info("Status Code = " + 
+		response.getStatusLine().getStatusCode());
+	try {
+		tracer.info("Response Body = "
+				+ EntityUtils.toString(response.getEntity()));
+	} catch (Exception e) {
+		tracer.severe("Failed reading response body", e);
+	}
+	tracer.info("*****************************************");
 }]]>
 		</programlisting>
 		

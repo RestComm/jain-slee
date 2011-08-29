@@ -28,8 +28,15 @@ public interface HttpClientActivity {
 	public void endActivity();
 
 	public boolean getEndOnReceivingResponse();
-
-	public void executeMethod(HttpMethod httpMethod);
+	
+	public HttpContext getHttpContext();
+	
+	public void execute(HttpUriRequest request,
+		Object requestApplicationData);
+	
+	public void execute(HttpHost target, 
+		HttpRequest request, 
+		Object requestApplicationData);
 }]]>
      </programlisting>
 
@@ -53,22 +60,43 @@ public interface HttpClientActivity {
 			</term>
 			<listitem>
 				<para>Returns true if this Activity is set to end as soon as the
-					Response is received</para>
+					Response is received.</para>
+			</listitem>
+		</varlistentry>
+		
+		<varlistentry>
+			<term>
+				The
+				<literal>getHttpContext()</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Retrieves the http context used to send requests.</para>
 			</listitem>
 		</varlistentry>
 
 		<varlistentry>
 			<term>
 				The
-				<literal>executeMethod(HttpMethod)</literal>
+				<literal>execute(HttpUriRequest, Object)</literal>
 				method:
 			</term>
 			<listitem>
 				<para>
-					Executes an
-					<literal>HttpMethod</literal>
-					, i.e., sends an HTTP request, created through the RA SBB
-					Interface.
+					Executes the specified HTTP request asynchronously. The application may optionally provide a data object, to be returned in the HTTP response event, for instance an object which uniquely identifies the request sent.
+				</para>
+			</listitem>
+		</varlistentry>
+		
+		<varlistentry>
+			<term>
+				The
+				<literal>execute(HttpHost, HttpRequest, Object)</literal>
+				method:
+			</term>
+			<listitem>
+				<para>
+					Executes the specified HTTP request asynchronously, targeting the provided HTTP host. The application may optionally provide a data object, to be returned in the HTTP response event, for instance an object which uniquely identifies the request sent.
 				</para>
 			</listitem>
 		</varlistentry>

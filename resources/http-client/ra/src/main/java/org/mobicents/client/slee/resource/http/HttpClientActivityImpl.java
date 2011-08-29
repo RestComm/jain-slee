@@ -43,7 +43,8 @@ public class HttpClientActivityImpl implements HttpClientActivity {
 	private final boolean endOnReceivingResponse;
 	private final HttpContext context;
 
-	public HttpClientActivityImpl(HttpClientResourceAdaptor ra, boolean endOnReceivingResponse, HttpContext context) {
+	public HttpClientActivityImpl(HttpClientResourceAdaptor ra,
+			boolean endOnReceivingResponse, HttpContext context) {
 		this.ra = ra;
 		this.sessionId = UUID.randomUUID().toString();
 		this.endOnReceivingResponse = endOnReceivingResponse;
@@ -51,98 +52,55 @@ public class HttpClientActivityImpl implements HttpClientActivity {
 
 	}
 
-	/**
-	 * 
-	 */
+	@Override
 	public void endActivity() {
 		if (this.endOnReceivingResponse) {
-			throw new IllegalStateException("Activity will end automatically as soon as Response is received");
+			throw new IllegalStateException(
+					"Activity will end automatically as soon as Response is received");
 		}
 		this.ra.endActivity(this);
 	}
 
-	/**
-	 * 
-	 */
-	public void execute(HttpUriRequest httpMethod) {
-		this.ra.getExecutorService().execute(this.ra.new AsyncExecuteMethodHandler(httpMethod, this, this.context));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.java.client.slee.resource.http.HttpClientActivity#execute(org.apache
-	 * .http.client.methods.HttpUriRequest,
-	 * org.apache.http.protocol.HttpContext)
-	 */
-	// @Override
-	// public void execute(HttpUriRequest request, HttpContext context) {
-	// this.ra.getExecutorService().execute(this.ra.new
-	// AsyncExecuteMethodHandler(request, context, this));
-	//
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.java.client.slee.resource.http.HttpClientActivity#execute(org.apache
-	 * .http.HttpHost, org.apache.http.HttpRequest)
-	 */
 	@Override
-	public void execute(HttpHost target, HttpRequest request) {
-		this.ra.getExecutorService().execute(this.ra.new AsyncExecuteMethodHandler(target, request, this.context, this));
+	public void execute(HttpUriRequest httpMethod, Object requestApplicationData) {
+		this.ra.getExecutorService().execute(
+				this.ra.new AsyncExecuteMethodHandler(httpMethod,
+						requestApplicationData, this, this.context));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.java.client.slee.resource.http.HttpClientActivity#execute(org.apache
-	 * .http.HttpHost, org.apache.http.HttpRequest,
-	 * org.apache.http.protocol.HttpContext)
-	 */
-	// @Override
-	// public void execute(HttpHost target, HttpRequest request, HttpContext
-	// context) {
-	// this.ra.getExecutorService().execute(this.ra.new
-	// AsyncExecuteMethodHandler(target, request, context, this));
-	// }
+	@Override
+	public void execute(HttpHost target, HttpRequest request,
+			Object requestApplicationData) {
+		this.ra.getExecutorService().execute(
+				this.ra.new AsyncExecuteMethodHandler(target, request,
+						requestApplicationData, this.context, this));
+	}
 
-	/**
-	 * 
-	 */
+	@Override
 	public boolean getEndOnReceivingResponse() {
 		return endOnReceivingResponse;
 	}
 
-	/**
-	 * 
-	 */
+	@Override
+	public HttpContext getHttpContext() {
+		return context;
+	}
+
+	@Override
 	public String getSessionId() {
 		return sessionId;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		return sessionId.hashCode();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((HttpClientActivityImpl) obj).sessionId.equals(this.sessionId);
+			return ((HttpClientActivityImpl) obj).sessionId
+					.equals(this.sessionId);
 		} else {
 			return false;
 		}

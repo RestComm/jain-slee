@@ -29,11 +29,12 @@ import org.apache.http.HttpResponse;
 /**
  * Service sending Request asynchronously will receive
  * net.java.client.slee.resource.http.event.ResponseEvent as soon as the
- * Resource Adaptor receives the Response and emitts ResponseEvent. </br>
+ * Resource Adaptor receives the Response and emits ResponseEvent. </br>
  * ResponseEvent carries either the Response if everything went fine else
  * Exception if there was any problem
  * 
  * @author amit bhayani
+ * @author martins
  * 
  */
 public class ResponseEvent implements Serializable {
@@ -43,26 +44,45 @@ public class ResponseEvent implements Serializable {
 	 */
 	private static final long serialVersionUID = 8346946507877889058L;
 
+	private Object requestApplicationData;
 	private HttpResponse httpResponse;
 
 	private Exception exception;
 
 	private int id;
 
-	public ResponseEvent(HttpResponse httpResponse) {
+	public ResponseEvent(HttpResponse httpResponse, Object requestApplicationData) {
 		this.httpResponse = httpResponse;
+		this.requestApplicationData = requestApplicationData;
 		id = httpResponse.hashCode() * 31 + "null".hashCode();
 	}
 
-	public ResponseEvent(Exception exception) {
+	public ResponseEvent(Exception exception, Object requestApplicationData) {
+		this.requestApplicationData = requestApplicationData;
 		this.exception = exception;
 		id = "null".hashCode() * 31 + exception.hashCode();
 	}
 
+	/**
+	 * The application data included in the HTTP Request.
+	 * @return
+	 */
+	public Object getRequestApplicationData() {
+		return requestApplicationData;
+	}
+	
+	/**
+	 * The response to the HTTP Request.
+	 * @return
+	 */
 	public HttpResponse getHttpResponse() {
 		return this.httpResponse;
 	}
 
+	/**
+	 * The exception which occurred when sending the HTTP Request, if any.
+	 * @return
+	 */
 	public Exception getException() {
 		return exception;
 	}

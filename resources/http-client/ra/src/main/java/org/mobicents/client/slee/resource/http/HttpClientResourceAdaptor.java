@@ -23,6 +23,9 @@
 package org.mobicents.client.slee.resource.http;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,6 +53,15 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
@@ -62,6 +74,10 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 
 	private static final int EVENT_FLAGS = EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK;
 
+	private static final String CFG_PROPERTY_HTTP_CLIENT_FACTORY = "HTTP_CLIENT_FACTORY";
+	private static final String CFG_PROPERTY_MAX_CONNECTIONS_FOR_ROUTES = "MAX_CONNECTIONS_FOR_ROUTES";
+	private static final String CFG_PROPERTY_MAX_CONNECTIONS_TOTAL = "MAX_CONNECTIONS_TOTAL";
+	
 	protected ResourceAdaptorContext resourceAdaptorContext;
 	private ConcurrentHashMap<HttpClientActivityHandle, HttpClientActivity> activities;
 	private HttpClientResourceAdaptorSbbInterface sbbInterface;
@@ -72,6 +88,11 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 
 	// caching the only event this ra fires
 	private FireableEventType fireableEventType;
+	
+	// configuration
+	private int maxTotal;
+	private Map<HttpRoute, Integer> maxForRoutes;
+	private HttpClientFactory httpClientFactory;
 
 	// LIFECYCLE METHODS
 
@@ -87,7 +108,7 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 		tracer = resourceAdaptorContext.getTracer(HttpClientResourceAdaptor.class.getSimpleName());
 		try {
 			fireableEventType = resourceAdaptorContext.getEventLookupFacility().getFireableEventType(
-					new EventTypeID("net.java.client.slee.resource.http.event.ResponseEvent", "net.java.client.slee", "2.0"));
+					new EventTypeID("net.java.client.slee.resource.http.event.ResponseEvent", "net.java.client.slee", "4.0"));
 		} catch (Throwable e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
@@ -100,19 +121,27 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 	 * @see javax.slee.resource.ResourceAdaptor#raConfigure(javax.slee.resource.
 	 * ConfigProperties)
 	 */
+	@SuppressWarnings("unchecked")
 	public void raConfigure(ConfigProperties properties) {
-		try {
-			if (tracer.isInfoEnabled()) {
-				tracer.info("Configuring HttpClientResourceAdaptor: " + this.resourceAdaptorContext.getEntityName());
+		String httpClientFactoryClassName = (String)properties.getProperty(CFG_PROPERTY_HTTP_CLIENT_FACTORY).getValue();
+		if (httpClientFactoryClassName.isEmpty()) {
+			maxTotal = (Integer)properties.getProperty(CFG_PROPERTY_MAX_CONNECTIONS_TOTAL).getValue();
+			maxForRoutes = new HashMap<HttpRoute, Integer>();
+			String maxForRoutesString = (String)properties.getProperty(CFG_PROPERTY_MAX_CONNECTIONS_FOR_ROUTES).getValue();
+			for(String maxForRoute : maxForRoutesString.split(",")) {
+				if(maxForRoute.isEmpty()) {
+					continue;
+				}
+				String[] maxForRouteParts = maxForRoute.split(":");
+				maxForRoutes.put(new HttpRoute(new HttpHost(maxForRouteParts[0])), Integer.valueOf(maxForRouteParts[1]));
 			}
-
-			String httpClientClass = (String) properties.getProperty("httpClientClass").getValue();
-
-			Class c = Class.forName(httpClientClass);
-			this.httpclient = (HttpClient) c.newInstance();
-
-		} catch (Exception e) {
-			tracer.severe("Configuring of HttpClientResourceAdaptor failed ", e);
+		}
+		else {
+			try {
+				httpClientFactory = ((Class<? extends HttpClientFactory>) Class.forName(httpClientFactoryClassName)).newInstance();
+			} catch (Exception e) {
+				tracer.severe("failed to load http client factory class",e);
+			}
 		}
 	}
 
@@ -124,6 +153,21 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 	public void raActive() {
 		activities = new ConcurrentHashMap<HttpClientActivityHandle, HttpClientActivity>();
 		executorService = Executors.newCachedThreadPool();
+		if (httpClientFactory != null) {
+			httpclient = httpClientFactory.newHttpClient();
+		}
+		else {
+			HttpParams params = new SyncBasicHttpParams();
+			SchemeRegistry schemeRegistry = new SchemeRegistry();
+			schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+			schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
+			ThreadSafeClientConnManager threadSafeClientConnManager = new ThreadSafeClientConnManager(schemeRegistry);
+			threadSafeClientConnManager.setMaxTotal(maxTotal);
+			for (Entry<HttpRoute, Integer> entry : maxForRoutes.entrySet()) {
+				threadSafeClientConnManager.setMaxForRoute(entry.getKey(), entry.getValue());
+			}
+			httpclient = new DefaultHttpClient(threadSafeClientConnManager,params);
+		}
 		isActive = true;
 		if (tracer.isInfoEnabled()) {
 			tracer.info(String.format("HttpClientResourceAdaptor=%s entity activated.", this.resourceAdaptorContext.getEntityName()));
@@ -185,26 +229,53 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 	 * javax.slee.resource.ResourceAdaptor#raVerifyConfiguration(javax.slee.
 	 * resource.ConfigProperties)
 	 */
+	@SuppressWarnings("unchecked")
 	public void raVerifyConfiguration(ConfigProperties properties) throws InvalidConfigurationException {
-		String httpClientClass = (String) properties.getProperty("httpClientClass").getValue();
+		String httpClientFactoryClassName = (String)properties.getProperty(CFG_PROPERTY_HTTP_CLIENT_FACTORY).getValue();
+		if (httpClientFactoryClassName.isEmpty()) {
+			try {
+				Integer i = (Integer) properties.getProperty(CFG_PROPERTY_MAX_CONNECTIONS_TOTAL).getValue();
+				if (i<1) {
+					throw new InvalidConfigurationException(CFG_PROPERTY_MAX_CONNECTIONS_TOTAL+" must be > 0");
+				}
+			} catch (InvalidConfigurationException e) {
+				throw e;		
+			} catch (Exception e) {
+				tracer.severe("failure in config validation", e);
+				throw new InvalidConfigurationException(e.getMessage());
+			}
 
-		if (httpClientClass == null) {
-			throw new InvalidConfigurationException("The httpClientClass cannot be null");
+			try {
+		        String maxForRoutesString = (String)properties.getProperty(CFG_PROPERTY_MAX_CONNECTIONS_FOR_ROUTES).getValue();
+		        for(String maxForRoute : maxForRoutesString.split(",")) {
+		        	if(maxForRoute.isEmpty()) {
+		        		continue;
+		        	}
+		        	String[] maxForRouteParts = maxForRoute.split(":");
+		        	new HttpRoute(new HttpHost(maxForRouteParts[0]));
+		        	Integer max = Integer.valueOf(maxForRouteParts[1]);
+		        	if (max <1) {
+						throw new InvalidConfigurationException(CFG_PROPERTY_MAX_CONNECTIONS_FOR_ROUTES+" entries must have max > 0");
+		        	}
+		        }
+			} catch (InvalidConfigurationException e) {
+				throw e;		
+			} catch (Exception e) {
+				tracer.severe("failure in config validation", e);
+				throw new InvalidConfigurationException(e.getMessage());
+			}
+		}
+		else {
+			try {
+				Class<? extends HttpClientFactory> c = (Class<? extends HttpClientFactory>) Class.forName(httpClientFactoryClassName);
+				c.newInstance();
+			} catch (Exception e) {
+				tracer.severe("failed to load http client factory class",e);
+				throw new InvalidConfigurationException("failed to load http client factory class",e);
+			}
 		}
 
-		try {
-			Class c = Class.forName(httpClientClass);
-			HttpClient client = (HttpClient) c.newInstance();
-		} catch (ClassNotFoundException e) {
-			tracer.severe(String.format("Class=%s not found", httpClientClass), e);
-			throw new InvalidConfigurationException(e.getMessage());
-		} catch (InstantiationException e) {
-			tracer.severe(String.format("Initialization of Class=%s failed", httpClientClass), e);
-			throw new InvalidConfigurationException(e.getMessage());
-		} catch (IllegalAccessException e) {
-			tracer.severe(String.format("Initialization of Class=%s failed", httpClientClass), e);
-			throw new InvalidConfigurationException(e.getMessage());
-		}
+	
 
 	}
 
@@ -216,7 +287,7 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 	 * resource.ConfigProperties)
 	 */
 	public void raConfigurationUpdate(ConfigProperties arg0) {
-		// no config
+		// not supported
 	}
 
 	// EVENT FILTERING
@@ -368,8 +439,8 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 	 * javax.slee.Address, javax.slee.resource.ReceivableService, int)
 	 */
 	public void eventUnreferenced(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5) {
-		if (tracer.isInfoEnabled()) {
-			tracer.info(String.format("Event=%s unreferenced", arg2));
+		if (tracer.isFineEnabled()) {
+			tracer.fine(String.format("Event=%s unreferenced", arg2));
 		}
 
 		if (arg2 instanceof ResponseEvent) {
@@ -460,8 +531,8 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 
 		HttpClientActivityHandle ah = new HttpClientActivityHandle(activity.getSessionId());
 
-		if (tracer.isInfoEnabled())
-			tracer.info("==== FIRING ResponseEvent EVENT TO LOCAL SLEE, Event: " + event + " ====");
+		if (tracer.isFineEnabled())
+			tracer.fine("==== FIRING ResponseEvent EVENT TO LOCAL SLEE, Event: " + event + " ====");
 
 		try {
 			resourceAdaptorContext.getSleeEndpoint().fireEvent(ah, fireableEventType, event, null, null, EVENT_FLAGS);
@@ -476,24 +547,24 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 		private final HttpContext httpContext;
 		private final HttpHost httpHost;
 		private final HttpClientActivity activity;
+		private final Object requestApplicationData;
 
-		protected AsyncExecuteMethodHandler(HttpUriRequest request, HttpClientActivity activity, HttpContext httpContext) {
-			this(null, request, httpContext, activity);
+		protected AsyncExecuteMethodHandler(HttpUriRequest request, Object requestApplicationData, HttpClientActivity activity, HttpContext httpContext) {
+			this(null, request, requestApplicationData, httpContext, activity);
 		}
 
-		protected AsyncExecuteMethodHandler(HttpUriRequest request, HttpContext context, HttpClientActivity activity) {
-			this(null, request, context, activity);
-		}
-
-		protected AsyncExecuteMethodHandler(HttpHost target, HttpRequest request, HttpContext context, HttpClientActivity activity) {
+		protected AsyncExecuteMethodHandler(HttpHost target, HttpRequest request, Object requestApplicationData, HttpContext context, HttpClientActivity activity) {
 			this.httpHost = target;
 			this.httpRequest = request;
 			this.httpContext = context;
 			this.activity = activity;
+			this.requestApplicationData = requestApplicationData;
 		}
 
 		public void run() {
-			tracer.info("Executing Request");
+			if(tracer.isFineEnabled()) {
+				tracer.fine("Executing Request "+httpRequest);
+			}
 
 			ResponseEvent event = null;
 			HttpResponse response = null;
@@ -505,17 +576,19 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 					response = httpclient.execute((HttpUriRequest) this.httpRequest, this.httpContext);
 				}
 
-				tracer.info("Executed Request");
+				if(tracer.isFineEnabled()) {
+					tracer.fine("Executed Request "+httpRequest);
+				}
 
 				// create event with response
-				event = new ResponseEvent(response);
+				event = new ResponseEvent(response,requestApplicationData);
 			} catch (IOException e) {
 				tracer.severe("executeMethod failed in AsyncExecuteHttpMethodHandler with IOException", e);
-				event = new ResponseEvent(e);
+				event = new ResponseEvent(e, requestApplicationData);
 
 			} catch (Exception e) {
 				tracer.severe("executeMethod failed in AsyncExecuteHttpMethodHandler with Exception", e);
-				event = new ResponseEvent(e);
+				event = new ResponseEvent(e, requestApplicationData);
 			}
 
 			// process event

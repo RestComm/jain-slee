@@ -7,7 +7,7 @@
 		<description>HTTP Client Resource Adaptor Type</description>
 		<resource-adaptor-type-name>HttpClientResourceAdaptorType</resource-adaptor-type-name>
 		<resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
-		<resource-adaptor-type-version>2.0</resource-adaptor-type-version>
+		<resource-adaptor-type-version>4.0</resource-adaptor-type-version>
 		<resource-adaptor-type-classes>
 			<activity-type>
 				<activity-type-name>
@@ -29,7 +29,7 @@
 		<event-type-ref>
 			<event-type-name>net.java.client.slee.resource.http.event.ResponseEvent</event-type-name>
 			<event-type-vendor>net.java.client.slee</event-type-vendor>
-			<event-type-version>2.0</event-type-version>
+			<event-type-version>4.0</event-type-version>
 		</event-type-ref>
 
 	</resource-adaptor-type>

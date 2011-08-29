@@ -25,6 +25,7 @@ package net.java.client.slee.resource.http;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * HttpClientActivity is created by service by calling
@@ -61,14 +62,23 @@ public interface HttpClientActivity {
 	public boolean getEndOnReceivingResponse();
 
 	/**
+	 * Retrieves the http context used to send requests.
+	 * 
+	 * @return
+	 */
+	public HttpContext getHttpContext();
+
+	/**
 	 * Executes a request asynchronously using the default context.
 	 * 
 	 * @param request
 	 *            the request to execute
-	 * 
+	 * @param requestApplicationData
+	 *            a data object optionally provided by the application, to be
+	 *            returned in the response event.
 	 * 
 	 */
-	void execute(HttpUriRequest request);
+	public void execute(HttpUriRequest request, Object requestApplicationData);
 
 	/**
 	 * Executes a request asynchronously using the given context. The route to
@@ -81,7 +91,7 @@ public interface HttpClientActivity {
 	 *            use the default context
 	 * 
 	 */
-	//void execute(HttpUriRequest request, HttpContext context);
+	// void execute(HttpUriRequest request, HttpContext context);
 
 	/**
 	 * Executes a request asynchronously to the target using the default
@@ -93,9 +103,12 @@ public interface HttpClientActivity {
 	 *            example to a default target or by inspecting the request.
 	 * @param request
 	 *            the request to execute
-	 * 
+	 * @param requestApplicationData
+	 *            a data object optionally provided by the application, to be
+	 *            returned in the response event.
 	 */
-	void execute(HttpHost target, HttpRequest request);
+	public void execute(HttpHost target, HttpRequest request,
+			Object requestApplicationData);
 
 	/**
 	 * Executes a request asynchronously to the target using the given context.
@@ -111,6 +124,6 @@ public interface HttpClientActivity {
 	 *            use the default context
 	 * 
 	 */
-	//void execute(HttpHost target, HttpRequest request, HttpContext context);
+	// void execute(HttpHost target, HttpRequest request, HttpContext context);
 
 }

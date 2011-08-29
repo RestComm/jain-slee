@@ -18,13 +18,12 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.1.1</version>
+			<version>${httpclient.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
-			<version>4.1</version>
-			<scope>compile</scope>
+			<version>${httpcore.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -44,7 +43,7 @@
 				<configuration>
 					<library-name>httpcomponent-client</library-name>
 					<library-vendor>httpcomponent-client</library-vendor>
-					<library-version>4.1.1</library-version>
+					<library-version>4.0</library-version>
 				</configuration>
 			</plugin>
 		</plugins>

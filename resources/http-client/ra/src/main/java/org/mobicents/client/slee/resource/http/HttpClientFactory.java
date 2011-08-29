@@ -20,17 +20,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
+package org.mobicents.client.slee.resource.http;
+
+import org.apache.http.client.HttpClient;
+
 /**
+ * A factory for HTTP Clients, which may be used for specific usages of the RA
+ * where the default setup of the HTTP Client is not good enough.
+ * 
+ * @author martins
  * 
  */
-package net.java.client.slee.resource.http;
+public interface HttpClientFactory {
 
-/**
- * @author martins
- *
- */
-public enum HttpMethodName {
-
-	GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE
+	/**
+	 * Creates a new instance of a configured HTTP Client.
+	 * 
+	 * @return
+	 */
+	public HttpClient newHttpClient();
 
 }

@@ -32,7 +32,7 @@
 				<row>
 					<entry>net.java. client.slee. resource.http. event. ResponseEvent</entry>
 					<entry>net.java. client.slee</entry>
-					<entry>1.0</entry>
+					<entry>4.0</entry>
 					<entry>net.java. client.slee. resource.http. event. ResponseEvent</entry>					
 					<entry>A response event to an asynchronous HTTP request.</entry>
 				</row>

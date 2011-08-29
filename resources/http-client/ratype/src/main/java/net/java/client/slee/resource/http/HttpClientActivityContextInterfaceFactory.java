@@ -25,6 +25,7 @@ package net.java.client.slee.resource.http;
 import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
 import javax.slee.UnrecognizedActivityException;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 /**
  * 
@@ -32,6 +33,9 @@ import javax.slee.UnrecognizedActivityException;
  * 
  */
 public interface HttpClientActivityContextInterfaceFactory {
+
+	public static final ResourceAdaptorTypeID RESOURCE_ADAPTOR_TYPE_ID = new ResourceAdaptorTypeID(
+			"HttpClientResourceAdaptorType", "org.mobicents", "4.0");
 
 	public ActivityContextInterface getActivityContextInterface(
 			HttpClientActivity acivity) throws NullPointerException,

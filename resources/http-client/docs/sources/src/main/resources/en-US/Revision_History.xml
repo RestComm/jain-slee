@@ -18,6 +18,19 @@
 					</simplelist>
 				</revdescription>
 			</revision>
+			<revision>
+				<revnumber>2.0</revnumber>
+				<date>Tue Aug 23 2011</date>
+				<author>
+					<firstname>Eduardo</firstname>
+					<surname>Martins</surname>
+				</author>
+				<revdescription>
+					<simplelist>
+						<member>Documentation update to reflect the major RA redesign for Apache HTTP Client 4.x.</member>
+					</simplelist>
+				</revdescription>
+			</revision>
 		</revhistory>
 	</simpara>
 </appendix>
