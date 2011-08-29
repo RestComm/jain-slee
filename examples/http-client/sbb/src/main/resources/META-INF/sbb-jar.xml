@@ -18,9 +18,6 @@
             <sbb-abstract-class>
                 <sbb-abstract-class-name>org.mobicents.slee.service.httpclientra.example.HttpClientRAExampleSbb</sbb-abstract-class-name>    
             	<cmp-field>
-            		<cmp-field-name>timerID</cmp-field-name>
-            	</cmp-field>
-            	<cmp-field>
             		<cmp-field-name>feedHashCode</cmp-field-name>
             	</cmp-field>
 	    	</sbb-abstract-class>
@@ -41,11 +38,9 @@
 	<event event-direction="Receive" initial-event="False">
 		<event-name>ResponseEvent</event-name>
 		<event-type-ref>
-			<event-type-name>
-				net.java.client.slee.resource.http.event.ResponseEvent
-			</event-type-name>
+			<event-type-name>net.java.client.slee.resource.http.event.ResponseEvent</event-type-name>
 			<event-type-vendor>net.java.client.slee</event-type-vendor>
-			<event-type-version>1.0</event-type-version>
+			<event-type-version>4.0</event-type-version>
 		</event-type-ref>
 		<initial-event-select variable="ActivityContext" />
 	</event> 
@@ -58,7 +53,7 @@
     			<event-type-version>1.0</event-type-version>
     		</event-type-ref>
     	</event>    	
-    	
+        
     	<env-entry>
     		<description>
     			Maximum time (mili seconds) the Application
@@ -66,7 +61,7 @@
     		</description>
     		<env-entry-name>RefreshTime</env-entry-name>
     		<env-entry-type>java.lang.Long</env-entry-type>
-    		<env-entry-value>5000</env-entry-value>
+    		<env-entry-value>3600000</env-entry-value>
     	</env-entry>  
     	
     	<env-entry>
@@ -80,15 +75,9 @@
       
         <resource-adaptor-type-binding>
             <resource-adaptor-type-ref>
-                <resource-adaptor-type-name>
-                	HttpClientResourceAdaptorType
-                </resource-adaptor-type-name>
-                <resource-adaptor-type-vendor>
-                	org.mobicents
-                </resource-adaptor-type-vendor>
-                <resource-adaptor-type-version>
-                	1.0
-                </resource-adaptor-type-version>
+                <resource-adaptor-type-name>HttpClientResourceAdaptorType</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>4.0</resource-adaptor-type-version>
             </resource-adaptor-type-ref>
             <activity-context-interface-factory-name>
                 slee/resources/http-client/acifactory
