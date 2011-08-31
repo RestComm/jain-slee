@@ -1923,6 +1923,58 @@ public class AvpUtilities {
     return (Object[]) array;
   }
 
+  public static IPFilterRule getAvpAsIPFilterRule(int avpCode, AvpSet set) {
+    try {
+      String value = getAvpAsOctetString(avpCode, set);
+
+      return value != null ? new IPFilterRule(value) : null;
+    }
+    catch (Exception e) {
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type IPFilterRule.", e);
+      }
+      return null;
+    }
+  }
+
+  public static IPFilterRule[] getAvpsAsIPFilterRule(int avpCode, AvpSet set) {
+    List<IPFilterRule> values = new ArrayList<IPFilterRule>();
+
+    for(String value : getAvpsAsOctetString(avpCode, set)) {
+      if(value != null) {
+        values.add(new IPFilterRule(value));
+      }
+    }
+
+    return values.toArray(new IPFilterRule[0]);
+  }
+
+  public static IPFilterRule getAvpAsIPFilterRule(int avpCode, long vendorId, AvpSet set) {
+    try {
+      String value = getAvpAsOctetString(avpCode, vendorId, set);
+
+      return value != null ? new IPFilterRule(value) : null;
+    }
+    catch (Exception e) {
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " and Vendor-Id " + vendorId + " as type IPFilterRule.", e);
+      }
+      return null;
+    }
+  }
+
+  public static IPFilterRule[] getAvpsAsIPFilterRule(int avpCode, long vendorId, AvpSet set) {
+    List<IPFilterRule> values = new ArrayList<IPFilterRule>();
+
+    for(String value : getAvpsAsOctetString(avpCode, set)) {
+      if(value != null) {
+        values.add(new IPFilterRule(value));
+      }
+    }
+
+    return values.toArray(new IPFilterRule[0]);
+  }
+
   /**
    * Method for removing AVP with given code.
    * 

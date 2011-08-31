@@ -37,6 +37,7 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterAvpType;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.DiameterURI;
 import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
+import net.java.slee.resource.diameter.base.events.avp.IPFilterRule;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.Avp;
@@ -478,6 +479,22 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
 
   protected Object[] getAvpsAsEnumerated(int code, long vendorId, Class clazz) {
     return AvpUtilities.getAvpsAsEnumerated(code, vendorId, avpSet, clazz);
+  }
+
+  protected IPFilterRule getAvpAsIPFilterRule(int code) {
+    return AvpUtilities.getAvpAsIPFilterRule(code, avpSet);
+  }
+
+  protected IPFilterRule getAvpAsIPFilterRule(int code, long vendorId) {
+    return AvpUtilities.getAvpAsIPFilterRule(code, vendorId, avpSet);
+  }
+
+  protected IPFilterRule[] getAvpsAsIPFilterRule(int code) {
+    return AvpUtilities.getAvpsAsIPFilterRule(code, avpSet);
+  }
+
+  protected IPFilterRule[] getAvpsAsIPFilterRule(int code, long vendorId) {
+    return AvpUtilities.getAvpsAsIPFilterRule(code, vendorId, avpSet);
   }
 
   protected void addAvp(String avpName, Object avp) {

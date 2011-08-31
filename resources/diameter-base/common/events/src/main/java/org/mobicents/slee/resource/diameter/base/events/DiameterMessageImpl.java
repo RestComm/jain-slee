@@ -37,6 +37,7 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterAvpType;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.DiameterURI;
 import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
+import net.java.slee.resource.diameter.base.events.avp.IPFilterRule;
 import net.java.slee.resource.diameter.base.events.avp.ProxyInfoAvp;
 import net.java.slee.resource.diameter.base.events.avp.RedirectHostUsageType;
 import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
@@ -835,6 +836,22 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 
   protected Object[] getAvpsAsEnumerated(int code, long vendorId, Class clazz) {
     return AvpUtilities.getAvpsAsEnumerated(code, vendorId, message.getAvps(), clazz);
+  }
+
+  protected IPFilterRule getAvpAsIPFilterRule(int code) {
+    return AvpUtilities.getAvpAsIPFilterRule(code, message.getAvps());
+  }
+
+  protected IPFilterRule getAvpAsIPFilterRule(int code, long vendorId) {
+    return AvpUtilities.getAvpAsIPFilterRule(code, vendorId, message.getAvps());
+  }
+
+  protected IPFilterRule[] getAvpsAsIPFilterRule(int code) {
+    return AvpUtilities.getAvpsAsIPFilterRule(code, message.getAvps());
+  }
+
+  protected IPFilterRule[] getAvpsAsIPFilterRule(int code, long vendorId) {
+    return AvpUtilities.getAvpsAsIPFilterRule(code, vendorId, message.getAvps());
   }
 
   protected void addAvp(String avpName, Object avp) {
