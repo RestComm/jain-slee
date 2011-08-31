@@ -70,12 +70,7 @@ public class MediaSubComponentImpl extends GroupedAvpImpl implements MediaSubCom
    * @see MediaSubComponent#getFlowDescriptions()
    */
   public IPFilterRule[] getFlowDescriptions() {
-    String[] filters = getAvpsAsOctetString(DiameterGqAvpCodes.TGPP_FLOW_DESCRIPTION, DiameterGqAvpCodes.TGPP_VENDOR_ID);
-    IPFilterRule[] result = new IPFilterRule[filters.length];
-    for (int i = 0; i < filters.length; i++)
-      result[i] = new IPFilterRule(filters[i]);
-
-    return result;
+    return getAvpsAsIPFilterRule(DiameterGqAvpCodes.TGPP_FLOW_DESCRIPTION, DiameterGqAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
