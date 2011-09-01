@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+        
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN" "http://java.sun.com/dtd/slee-event-jar_1_1.dtd">
+
+<event-jar>
+
+	<library-ref>
+		<library-name>diameter.cca.common</library-name>
+		<library-vendor>java.net</library-vendor>
+		<library-version>1.0</library-version>
+	</library-ref>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.rx.events.AARequest</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.rx.events.AARequest</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.rx.events.AAAnswer</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.rx.events.AAAnswer</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.rx.events.SessionTerminationRequest</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.rx.events.SessionTerminationRequest</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.rx.events.SessionTerminationAnswer</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.rx.events.SessionTerminationAnswer</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.rx.events.ReAuthRequest</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.rx.events.ReAuthRequest</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.rx.events.ReAuthAnswer</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.rx.events.ReAuthAnswer</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.rx.events.AbortSessionRequest</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.rx.events.AbortSessionRequest</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.diameter.rx.events.AbortSessionAnswer</event-type-name>
+		<event-type-vendor>java.net</event-type-vendor>
+		<event-type-version>0.8</event-type-version>
+		<event-class-name>net.java.slee.resource.diameter.rx.events.AbortSessionAnswer</event-class-name>
+	</event-definition>
+
+</event-jar>
