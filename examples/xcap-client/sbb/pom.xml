@@ -35,7 +35,7 @@
     	</dependency>
 		<dependency>
 			<groupId>org.mobicents.slee.enabler.userprofile</groupId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.0.CR1</version>
 			<artifactId>user-profile-jmx</artifactId>
 		</dependency>
 	</dependencies>
