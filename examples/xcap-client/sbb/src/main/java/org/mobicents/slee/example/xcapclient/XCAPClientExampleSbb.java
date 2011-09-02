@@ -111,7 +111,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		log.info("service started...");
 		
 		try {
-			userProfileProvisioning.initRmiAdaptor("jnp://127.0.0.2:1099");
+			userProfileProvisioning.initRmiAdaptor("jnp://127.0.0.1:1099");
 			userProfileProvisioning.createUser(userName, "password");
 			syncTest();
 			asyncTest();
@@ -127,7 +127,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		// create doc uri		
 		String documentSelector = DocumentSelectorBuilder.getUserDocumentSelectorBuilder("resource-lists", userName, documentName).toPercentEncodedString(); 
 		UriBuilder uriBuilder = new UriBuilder()
-			.setSchemeAndAuthority("http://127.0.0.2:8080")
+			.setSchemeAndAuthority("http://127.0.0.1:8080")
 			.setXcapRoot("/mobicents/")
 			.setDocumentSelector(documentSelector);
 		URI documentURI = uriBuilder.toURI();
@@ -222,7 +222,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 			.toPercentEncodedString();
 		String documentSelector = DocumentSelectorBuilder.getUserDocumentSelectorBuilder("resource-lists", userName, documentName).toPercentEncodedString();
 		UriBuilder uriBuilder = new UriBuilder()
-		.setSchemeAndAuthority("http://127.0.0.2:8080")
+		.setSchemeAndAuthority("http://127.0.0.1:8080")
 		.setXcapRoot("/mobicents/")
 		.setDocumentSelector(documentSelector)
 		.setElementSelector(elementSelector);
@@ -310,7 +310,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		
 		String documentSelector = DocumentSelectorBuilder.getUserDocumentSelectorBuilder("resource-lists", userName, documentName).toPercentEncodedString(); 
 		UriBuilder uriBuilder = new UriBuilder()
-			.setSchemeAndAuthority("http://127.0.0.2:8080")
+			.setSchemeAndAuthority("http://127.0.0.1:8080")
 			.setXcapRoot("/mobicents/")
 			.setDocumentSelector(documentSelector);
 				
