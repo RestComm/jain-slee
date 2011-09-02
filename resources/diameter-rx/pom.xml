@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.mobicents</groupId>
         <artifactId>mobicents-parent</artifactId>
-        <version>2.19</version>
+        <version>2.18</version>
     </parent>
 
     <groupId>org.mobicents.servers.diameter.resources</groupId>
@@ -25,18 +25,11 @@
     </modules>
     <developers>
         <developer>
-            <id>calle</id>
-            <name>Carl-Magnus Björkell</name>
-            <email>carl-magnus.bjorkell@emblacom.com</email>
-            <organization>EmblaCom</organization>
-            <organizationUrl>http://www.emblacom.com</organizationUrl>
-        </developer>
-        <developer>
-            <id>karthik</id>
-            <name>Karthikeyan Shanmugam</name>
-            <email>karthikeyan_s@spanservices.com</email>
-            <organization>EmblaCom</organization>
-            <organizationUrl>http://www.emblacom.com</organizationUrl>
+            <id>richard.good</id>
+            <name>Richard Good</name>
+            <email>richard.good@smilecoms.com</email>
+            <organization>Smile Communications</organization>
+            <organizationUrl>http://www.smilecoms.com</organizationUrl>
         </developer>
     </developers>
 
