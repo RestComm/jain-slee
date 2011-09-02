@@ -82,7 +82,7 @@ public class FinalUnitIndicationAvpImpl extends GroupedAvpImpl implements FinalU
    * @see net.java.slee.resource.diameter.cca.events.avp.FinalUnitIndicationAvp#getRestrictionFilterRules()
    */
   public IPFilterRule[] getRestrictionFilterRules() {
-    return (IPFilterRule[]) getAvpsAsEnumerated(CreditControlAVPCodes.Restriction_Filter_Rule, IPFilterRule.class);
+    return (IPFilterRule[]) getAvpsAsIPFilterRule(CreditControlAVPCodes.Restriction_Filter_Rule);
   }
 
   /*
