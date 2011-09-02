@@ -437,7 +437,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
       for(String appId : appIdsStrings) {
         String[] vendorAndAppId = appId.split(":");
-        appIds.add(ApplicationId.createByAccAppId(Long.valueOf(vendorAndAppId[0]), Long.valueOf(vendorAndAppId[1]))); 
+        appIds.add(isAuthorization ? ApplicationId.createByAuthAppId(Long.valueOf(vendorAndAppId[0]), Long.valueOf(vendorAndAppId[1])) : 
+          ApplicationId.createByAccAppId(Long.valueOf(vendorAndAppId[0]), Long.valueOf(vendorAndAppId[1]))); 
       }
 
       if(isAuthorization) {
