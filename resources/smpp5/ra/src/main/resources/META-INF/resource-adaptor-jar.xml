@@ -32,9 +32,11 @@
 			<resource-adaptor-class>
 				<resource-adaptor-class-name>
 					org.mobicents.slee.resources.smpp.SmppResourceAdaptor
-				</resource-adaptor-class-name>
+				</resource-adaptor-class-name>				
 			</resource-adaptor-class>
-
+			<resource-adaptor-usage-parameters-interface>
+				<resource-adaptor-usage-parameters-interface-name>org.mobicents.slee.resources.smpp.SmppResourceAdaptorUsageParameters</resource-adaptor-usage-parameters-interface-name>				
+			</resource-adaptor-usage-parameters-interface>
 		</resource-adaptor-classes>
 		<config-property>
 			<description>
@@ -183,6 +185,18 @@
 				java.lang.Integer
 			</config-property-type>
 			<config-property-value>5000</config-property-value>
+		</config-property>
+		<config-property>
+			<description>
+				Turns on/off the collection of usage stats.
+			</description>
+			<config-property-name>
+				statsOn
+			</config-property-name>
+			<config-property-type>
+				java.lang.Boolean
+			</config-property-type>
+			<config-property-value>true</config-property-value>
 		</config-property>
 	</resource-adaptor>
 </resource-adaptor-jar>

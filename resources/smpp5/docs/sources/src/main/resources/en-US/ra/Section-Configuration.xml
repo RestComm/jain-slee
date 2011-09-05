@@ -129,6 +129,15 @@
 					<entry>java.lang.Integer</entry>
 					<entry>5000</entry>
 				</row>
+				
+				<row>
+					<entry>statsOn</entry>
+					<entry>
+					Turns on/off the stats collection through SLEE Usage Parameters
+					</entry>
+					<entry>java.lang.Boolean</entry>
+					<entry>true</entry>
+				</row>
 			</tbody>
 		</tgroup>
 	</table>

@@ -94,8 +94,7 @@ import org.mobicents.slee.resources.smpp.pdu.SubmitSMRespImpl;
  * 
  */
 @SuppressWarnings("rawtypes")
-public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
-		org.mobicents.protocols.smpp.event.SessionObserver {
+public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor, org.mobicents.protocols.smpp.event.SessionObserver {
 
 	private transient Tracer tracer;
 	private transient ResourceAdaptorContext raContext;
@@ -106,7 +105,8 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	private transient FireableEventTypeFilter eventTypeFilter;
 
 	private transient FaultTolerantResourceAdaptorContext ftRAContext;
-
+	private SmppResourceAdaptorUsageParameters usageParams; 
+	
 	private Utils utils;
 
 	private Thread linkMonitorThread;
@@ -126,7 +126,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	private String addressRange = "50";
 	private int enquireLinkTimeout = 1000 * 30;
 	private String bindType = BindType.TRANSMITTER.toString();
-
+	private boolean statsOn;
 	private int smppResponseReceivedTimeout = 5000;
 	private int smppResponseSentTimeout = 5000;
 
@@ -137,11 +137,13 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	protected org.mobicents.protocols.smpp.util.SequenceNumberScheme seq = null;;
 	private Semaphore semaphore = new Semaphore(0);
 	private int bindStatus;
-	private volatile boolean isBound = false;
 
-	private volatile boolean isClosed = false;
+	private volatile boolean isRAStoped = false;
 
 	private Bind bind = null;
+	
+	private long lastMessagesExchanged = 0l;
+	private long lastStatsUpdatedTime = 0l;
 
 	/**
 	 * ActivityHandle holder
@@ -292,20 +294,18 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 	}
 
-	public void eventProcessingFailed(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3,
-			ReceivableService arg4, int arg5, FailureReason arg6) {
+	public void eventProcessingFailed(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5,
+			FailureReason arg6) {
 		// TODO Auto-generated method stub
 
 	}
 
-	public void eventProcessingSuccessful(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3,
-			ReceivableService arg4, int arg5) {
+	public void eventProcessingSuccessful(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5) {
 		// TODO Auto-generated method stub
 
 	}
 
-	public void eventUnreferenced(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3,
-			ReceivableService arg4, int arg5) {
+	public void eventUnreferenced(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5) {
 		// TODO Auto-generated method stub
 
 	}
@@ -338,13 +338,19 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		if (this.tracer.isInfoEnabled()) {
 			tracer.info("Activation RA " + this.raContext.getEntityName());
 		}
+		
+		this.lastMessagesExchanged = 0;
+		this.lastStatsUpdatedTime = System.currentTimeMillis();
+		
 		try {
 			bindSMSC();
 
 		} catch (IOException e) {
 			this.tracer.severe("Binding to SMSC Failed ", e);
 		}
-
+		
+		this.isRAStoped = false;
+		
 		// Start the ENQUIRE Link Thread in any case
 		linkMonitorThread = new Thread(new LinkMonitor());
 		linkMonitorThread.start();
@@ -371,15 +377,13 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		setBindType((String) properties.getProperty("bindType").getValue());
 		setSmppResponseReceivedTimeout((Integer) properties.getProperty("smppResponseReceivedTimeout").getValue());
 		setSmppResponseSentTimeout((Integer) properties.getProperty("smppResponseSentTimeout").getValue());
-
+		statsOn = (Boolean) properties.getProperty("statsOn").getValue();
 		if (tracer.isFineEnabled()) {
 			StringBuffer sb = new StringBuffer();
-			sb.append("addressNpi = ").append(getAddressNpi()).append("\n").append("addressTon = ").append(
-					getAddressTon()).append("\n").append("addressRange = ").append(getAddressRange()).append("\n")
-					.append("host = ").append(getHost()).append("\n").append("port = ").append(getPort()).append("\n")
-					.append("systemId = ").append(getSystemId()).append("\n").append("systemType = ").append(
-							getSystemType()).append("\n").append("password = ").append(getPassword()).append("\n")
-					.append("bindType = ").append(getBindType()).append("\n");
+			sb.append("addressNpi = ").append(getAddressNpi()).append("\n").append("addressTon = ").append(getAddressTon()).append("\n")
+					.append("addressRange = ").append(getAddressRange()).append("\n").append("host = ").append(getHost()).append("\n").append("port = ")
+					.append(getPort()).append("\n").append("systemId = ").append(getSystemId()).append("\n").append("systemType = ").append(getSystemType())
+					.append("\n").append("password = ").append(getPassword()).append("\n").append("bindType = ").append(getBindType()).append("\n");
 			tracer.fine(sb.toString());
 		}
 
@@ -390,8 +394,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	}
 
 	public void raStopping() {
-		isBound = false;
-		isClosed = true;
+		isRAStoped = true;
 		this.smppSession.setIsAlive(false);
 
 		if (linkMonitorThread != null) {
@@ -420,12 +423,6 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		String systemType = null;
 		BindType binidType = null;
 		try {
-
-			// emmartins: something missing Amit?
-			Integer npi = (Integer) properties.getProperty("addressNpi").getValue();
-			Integer ton = (Integer) properties.getProperty("addressTon").getValue();
-			Integer enquireTimeOut = (Integer) properties.getProperty("enquireLinkTimeout").getValue();
-			Integer port = (Integer) properties.getProperty("port").getValue();
 
 			addressRange = (String) properties.getProperty("addressRange").getValue();
 			host = (String) properties.getProperty("host").getValue();
@@ -468,14 +465,13 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 	public void setResourceAdaptorContext(ResourceAdaptorContext raContext) {
 		this.tracer = raContext.getTracer(getClass().getSimpleName());
-		tracer.info("setResourceAdaptorContext(ResourceAdaptorContext raContext)");
 		this.raContext = raContext;
 		this.sleeEndpoint = raContext.getSleeEndpoint();
 		this.eventLookup = raContext.getEventLookupFacility();
 		this.smppSession = new SmppSessionImpl(this);
 		this.eventTypeCache = new FireableEventTypeCache(tracer);
 		this.eventTypeFilter = new FireableEventTypeFilter();
-
+		this.usageParams = (SmppResourceAdaptorUsageParameters) raContext.getDefaultUsageParameterSet();
 		this.utils = new Utils(this);
 	}
 
@@ -484,6 +480,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		this.sleeEndpoint = null;
 		this.eventTypeCache = null;
 		this.eventTypeFilter = null;
+		this.usageParams = null;
 	}
 
 	/**
@@ -491,22 +488,25 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	 */
 	public void packetReceived(Session source, org.mobicents.protocols.smpp.message.SMPPPacket packet) {
 		String entityName = raContext.getEntityName();
-
+		
+		//Update usage params
+		incrementUsageParams(packet.getCommandId());
+		
 		switch (packet.getCommandId()) {
 		// A connected ESME has requested to bind as an ESME Transceiver
 		// (by issuing a bind_transceiver PDU) and has received a response from
 		// the SMSC authorising its Bind request. An ESME bound as a Transceiver
 		// supports the complete set of operations supported by a Transmitter
 		// ESME and a Receiver ESME. Thus an ESME bound as a transceiver may
-		// send short messages to an SMSC for onward delivery to a Mobile Station
+		// send short messages to an SMSC for onward delivery to a Mobile
+		// Station
 		// or to another ESME. The ESME may also receive short messages from an
 		// SMSC which may be originated by a mobile station, by another ESME or
 		// by the SMSC itself (for example an SMSC delivery receipt).
 		case CommandId.BIND_TRANSCEIVER_RESP:
 			bindStatus = packet.getCommandStatus();
 			if (tracer.isFineEnabled()) {
-				tracer.fine(entityName + " receive bind_transaceiver_resp. Statu = " + bindStatus + " Message = "
-						+ this.utils.statusMessage(bindStatus));
+				tracer.fine(entityName + " receive bind_transaceiver_resp. Statu = " + bindStatus + " Message = " + this.utils.statusMessage(bindStatus));
 			}
 			semaphore.release();
 			break;
@@ -514,8 +514,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		case CommandId.BIND_RECEIVER_RESP:
 			bindStatus = packet.getCommandStatus();
 			if (tracer.isFineEnabled()) {
-				tracer.fine(entityName + " receive bind_receiver_resp. Statu = " + bindStatus + " Message = "
-						+ this.utils.statusMessage(bindStatus));
+				tracer.fine(entityName + " receive bind_receiver_resp. Statu = " + bindStatus + " Message = " + this.utils.statusMessage(bindStatus));
 			}
 			semaphore.release();
 
@@ -524,8 +523,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		case CommandId.BIND_TRANSMITTER_RESP:
 			bindStatus = packet.getCommandStatus();
 			if (tracer.isFineEnabled()) {
-				tracer.fine(entityName + " receive bind_transmitter_resp. Statu = " + bindStatus + " Message = "
-						+ this.utils.statusMessage(bindStatus));
+				tracer.fine(entityName + " receive bind_transmitter_resp. Statu = " + bindStatus + " Message = " + this.utils.statusMessage(bindStatus));
 			}
 			semaphore.release();
 			break;
@@ -540,13 +538,13 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			break;
 		}
 
-			// This message can be sent by either the ESME or SMSC and is used
-			// to provide a confidence-check of the communication path between
-			// an ESME and an SMSC. On receipt of this request the receiving
-			// party should respond with an enquire_link_resp, thus verifying
-			// that the application level connection between the SMSC and the
-			// ESME is functioning. The ESME may also respond by sending any
-			// valid SMPP primitive.
+		// This message can be sent by either the ESME or SMSC and is used
+		// to provide a confidence-check of the communication path between
+		// an ESME and an SMSC. On receipt of this request the receiving
+		// party should respond with an enquire_link_resp, thus verifying
+		// that the application level connection between the SMSC and the
+		// ESME is functioning. The ESME may also respond by sending any
+		// valid SMPP primitive.
 		case CommandId.ENQUIRE_LINK:
 			// TODO reply with enquire_link_resp
 			if (tracer.isFineEnabled()) {
@@ -563,8 +561,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		case CommandId.DELIVER_SM: {
 			DeliverSMImpl deliverSMImpl = new DeliverSMImpl((org.mobicents.protocols.smpp.message.DeliverSM) packet);
 
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(deliverSMImpl, true,
-					SmppTransactionType.INCOMING);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(deliverSMImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				if (isEsmClassUserMessage(deliverSMImpl.getEsmClass())) {
 					fireEvent(Utils.DELIVER_SM, txImpl, deliverSMImpl);
@@ -574,11 +571,10 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			}
 			break;
 		}
-			// The command acknowledges deliver_sm message.
+		// The command acknowledges deliver_sm message.
 		case CommandId.DELIVER_SM_RESP: {
 			// TODO : Take care of Delivery Acknowledgement
-			DeliverSMRespImpl deliverSMRespImpl = new DeliverSMRespImpl(
-					(org.mobicents.protocols.smpp.message.DeliverSMResp) packet);
+			DeliverSMRespImpl deliverSMRespImpl = new DeliverSMRespImpl((org.mobicents.protocols.smpp.message.DeliverSMResp) packet);
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(deliverSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
@@ -592,8 +588,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 		case CommandId.DATA_SM: {
 			DataSMImpl dataSMImpl = new DataSMImpl((org.mobicents.protocols.smpp.message.DataSM) packet);
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(dataSMImpl, true,
-					SmppTransactionType.INCOMING);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(dataSMImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.DATA_SM, txImpl, dataSMImpl);
 			}
@@ -615,8 +610,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 		case CommandId.SUBMIT_SM: {
 			SubmitSMImpl submitSMImpl = new SubmitSMImpl((org.mobicents.protocols.smpp.message.SubmitSM) packet);
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitSMImpl, true,
-					SmppTransactionType.INCOMING);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitSMImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.SUBMIT_SM, txImpl, submitSMImpl);
 			}
@@ -624,8 +618,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.SUBMIT_SM_RESP: {
-			SubmitSMRespImpl submitSMRespImpl = new SubmitSMRespImpl(
-					(org.mobicents.protocols.smpp.message.SubmitSMResp) packet);
+			SubmitSMRespImpl submitSMRespImpl = new SubmitSMRespImpl((org.mobicents.protocols.smpp.message.SubmitSMResp) packet);
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
@@ -639,10 +632,8 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.SUBMIT_MULTI: {
-			SubmitMultiImpl submitMultiImpl = new SubmitMultiImpl(
-					(org.mobicents.protocols.smpp.message.SubmitMulti) packet);
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitMultiImpl, true,
-					SmppTransactionType.INCOMING);
+			SubmitMultiImpl submitMultiImpl = new SubmitMultiImpl((org.mobicents.protocols.smpp.message.SubmitMulti) packet);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitMultiImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.SUBMIT_MULTI, txImpl, submitMultiImpl);
 			}
@@ -650,8 +641,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.SUBMIT_MULTI_RESP: {
-			SubmitMultiRespImpl submitMultiRespImpl = new SubmitMultiRespImpl(
-					(org.mobicents.protocols.smpp.message.SubmitMultiResp) packet);
+			SubmitMultiRespImpl submitMultiRespImpl = new SubmitMultiRespImpl((org.mobicents.protocols.smpp.message.SubmitMultiResp) packet);
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(submitMultiRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
@@ -666,8 +656,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 		case CommandId.QUERY_SM: {
 			QuerySMImpl querySMImpl = new QuerySMImpl((org.mobicents.protocols.smpp.message.QuerySM) packet);
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(querySMImpl, true,
-					SmppTransactionType.INCOMING);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(querySMImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.QUERY_SM, txImpl, querySMImpl);
 			}
@@ -675,8 +664,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.QUERY_SM_RESP: {
-			QuerySMRespImpl querySMRespImpl = new QuerySMRespImpl(
-					(org.mobicents.protocols.smpp.message.QuerySMResp) packet);
+			QuerySMRespImpl querySMRespImpl = new QuerySMRespImpl((org.mobicents.protocols.smpp.message.QuerySMResp) packet);
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(querySMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
@@ -691,8 +679,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 		case CommandId.REPLACE_SM: {
 			ReplaceSMImpl replaceSMImpl = new ReplaceSMImpl((org.mobicents.protocols.smpp.message.ReplaceSM) packet);
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(replaceSMImpl, true,
-					SmppTransactionType.INCOMING);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(replaceSMImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.REPLACE_SM, txImpl, replaceSMImpl);
 			}
@@ -700,8 +687,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.REPLACE_SM_RESP: {
-			ReplaceSMRespImpl replaceSMRespImpl = new ReplaceSMRespImpl(
-					(org.mobicents.protocols.smpp.message.ReplaceSMResp) packet);
+			ReplaceSMRespImpl replaceSMRespImpl = new ReplaceSMRespImpl((org.mobicents.protocols.smpp.message.ReplaceSMResp) packet);
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(replaceSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
@@ -716,8 +702,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 		case CommandId.CANCEL_SM: {
 			CancelSMImpl cancelSMImpl = new CancelSMImpl((org.mobicents.protocols.smpp.message.CancelSM) packet);
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelSMImpl, true,
-					SmppTransactionType.INCOMING);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelSMImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.CANCEL_SM, txImpl, cancelSMImpl);
 			}
@@ -725,8 +710,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.CANCEL_SM_RESP: {
-			CancelSMRespImpl cancelSMRespImpl = new CancelSMRespImpl(
-					(org.mobicents.protocols.smpp.message.CancelSMResp) packet);
+			CancelSMRespImpl cancelSMRespImpl = new CancelSMRespImpl((org.mobicents.protocols.smpp.message.CancelSMResp) packet);
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
@@ -740,10 +724,8 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.BROADCAST_SM: {
-			BroadcastSMImpl broadcastSMImpl = new BroadcastSMImpl(
-					(org.mobicents.protocols.smpp.message.BroadcastSM) packet);
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(broadcastSMImpl, true,
-					SmppTransactionType.INCOMING);
+			BroadcastSMImpl broadcastSMImpl = new BroadcastSMImpl((org.mobicents.protocols.smpp.message.BroadcastSM) packet);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(broadcastSMImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.BROADCAST_SM, txImpl, broadcastSMImpl);
 			}
@@ -751,8 +733,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.BROADCAST_SM_RESP: {
-			BroadcastSMRespImpl broadcastSMRespImpl = new BroadcastSMRespImpl(
-					(org.mobicents.protocols.smpp.message.BroadcastSMResp) packet);
+			BroadcastSMRespImpl broadcastSMRespImpl = new BroadcastSMRespImpl((org.mobicents.protocols.smpp.message.BroadcastSMResp) packet);
 			try {
 				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(broadcastSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
@@ -766,10 +747,8 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.CANCEL_BROADCAST_SM: {
-			CancelBroadcastSMImpl cancelBroadcastSMImpl = new CancelBroadcastSMImpl(
-					(org.mobicents.protocols.smpp.message.CancelBroadcastSM) packet);
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelBroadcastSMImpl, true,
-					SmppTransactionType.INCOMING);
+			CancelBroadcastSMImpl cancelBroadcastSMImpl = new CancelBroadcastSMImpl((org.mobicents.protocols.smpp.message.CancelBroadcastSM) packet);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelBroadcastSMImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.CANCEL_BROADCAST_SM, txImpl, cancelBroadcastSMImpl);
 			}
@@ -780,8 +759,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			CancelBroadcastSMRespImpl cancelBroadcastSMRespImpl = new CancelBroadcastSMRespImpl(
 					(org.mobicents.protocols.smpp.message.CancelBroadcastSMResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelBroadcastSMRespImpl, false,
-						SmppTransactionType.OUTGOING);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(cancelBroadcastSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.CANCEL_BROADCAST_SM_RESP, txImpl, cancelBroadcastSMRespImpl);
 				this.endActivity(txImpl);
@@ -793,10 +771,8 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.QUERY_BROADCAST_SM: {
-			QueryBroadcastSMImpl queryBroadcastSMImpl = new QueryBroadcastSMImpl(
-					(org.mobicents.protocols.smpp.message.QueryBroadcastSM) packet);
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(queryBroadcastSMImpl, true,
-					SmppTransactionType.INCOMING);
+			QueryBroadcastSMImpl queryBroadcastSMImpl = new QueryBroadcastSMImpl((org.mobicents.protocols.smpp.message.QueryBroadcastSM) packet);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(queryBroadcastSMImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.QUERY_BROADCAST_SM, txImpl, queryBroadcastSMImpl);
 			}
@@ -804,11 +780,9 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.QUERY_BROADCAST_SM_RESP: {
-			QueryBroadcastSMRespImpl queryBroadcastSMRespImpl = new QueryBroadcastSMRespImpl(
-					(org.mobicents.protocols.smpp.message.QueryBroadcastSMResp) packet);
+			QueryBroadcastSMRespImpl queryBroadcastSMRespImpl = new QueryBroadcastSMRespImpl((org.mobicents.protocols.smpp.message.QueryBroadcastSMResp) packet);
 			try {
-				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(queryBroadcastSMRespImpl, false,
-						SmppTransactionType.OUTGOING);
+				SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(queryBroadcastSMRespImpl, false, SmppTransactionType.OUTGOING);
 				txImpl.cancelResponseNotReceivedTimeout();
 				fireEvent(Utils.QUERY_BROADCAST_SM_RESP, txImpl, queryBroadcastSMRespImpl);
 				this.endActivity(txImpl);
@@ -819,8 +793,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.GENERIC_NACK: {
-			GenericNackImpl genericNackImpl = new GenericNackImpl(
-					(org.mobicents.protocols.smpp.message.GenericNack) packet);
+			GenericNackImpl genericNackImpl = new GenericNackImpl((org.mobicents.protocols.smpp.message.GenericNack) packet);
 			if (genericNackImpl.getCommandStatus() == SmppTransaction.ESME_ROK) {
 				if (this.tracer.isFineEnabled()) {
 					this.tracer.fine("Receievd GENERIC_NACK acknowledgemet " + genericNackImpl);
@@ -842,11 +815,9 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		}
 
 		case CommandId.ALERT_NOTIFICATION: {
-			AlertNotificationImpl alertNotiImpl = new AlertNotificationImpl(
-					(org.mobicents.protocols.smpp.message.AlertNotification) packet);
+			AlertNotificationImpl alertNotiImpl = new AlertNotificationImpl((org.mobicents.protocols.smpp.message.AlertNotification) packet);
 
-			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(alertNotiImpl, true,
-					SmppTransactionType.INCOMING);
+			SmppTransactionImpl txImpl = this.smppSession.getSmppTransactionImpl(alertNotiImpl, true, SmppTransactionType.INCOMING);
 			if (txImpl != null) {
 				fireEvent(Utils.ALERT_NOTIFICATION, txImpl, alertNotiImpl);
 			}
@@ -867,32 +838,31 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			}
 			break;
 		case org.mobicents.protocols.smpp.event.SMPPEvent.RECEIVER_EXCEPTION:
-			if (this.tracer.isFineEnabled()) {
+			if (this.tracer.isWarningEnabled()) {
 				org.mobicents.protocols.smpp.event.ReceiverExceptionEvent recExcepEvent = (org.mobicents.protocols.smpp.event.ReceiverExceptionEvent) smppEvent;
-				this.tracer.fine("The Receiver Thread for SMPP RA " + this.raContext.getEntityName()
-						+ " throws recovrable Exception ", recExcepEvent.getException());
+				this.tracer.warning("The Receiver Thread for SMPP RA " + this.raContext.getEntityName() + " throws recovrable Exception ",
+						recExcepEvent.getException());
 			}
-			this.reconnect();
+			//This is recovrable error. Don't reconnect!
+			//this.reconnect();
 			break;
 		case org.mobicents.protocols.smpp.event.SMPPEvent.RECEIVER_EXIT:
 			org.mobicents.protocols.smpp.event.ReceiverExitEvent recExitEvent = (org.mobicents.protocols.smpp.event.ReceiverExitEvent) smppEvent;
 
 			switch (recExitEvent.getReason()) {
 			case org.mobicents.protocols.smpp.event.ReceiverExitEvent.EXCEPTION:
-				this.tracer.severe("The Receiver Thread for SMPP RA " + this.raContext.getEntityName()
-						+ " exited with error ", recExitEvent.getException());
+				this.tracer.severe("The Receiver Thread for SMPP RA " + this.raContext.getEntityName() + " exited with error ", recExitEvent.getException());
 				this.reconnect();
 				break;
 			case org.mobicents.protocols.smpp.event.ReceiverExitEvent.BIND_TIMEOUT:
 				if (this.tracer.isFineEnabled()) {
-					this.tracer.fine("The Receiver Thread for SMPP RA " + this.raContext.getEntityName()
-							+ " exited with BIND_TIMEOUT");
+					this.tracer.fine("The Receiver Thread for SMPP RA " + this.raContext.getEntityName() + " exited with BIND_TIMEOUT");
 				}
 				break;
 			case org.mobicents.protocols.smpp.event.ReceiverExitEvent.UNKNOWN:
+				//This is graceful shutdown. No need to reconnect here
 				if (this.tracer.isFineEnabled()) {
-					this.tracer.fine("The Receiver Thread for SMPP RA " + this.raContext.getEntityName()
-							+ " exited normally");
+					this.tracer.fine("The Receiver Thread for SMPP RA " + this.raContext.getEntityName() + " exited normally");
 				}
 				break;
 			}
@@ -905,7 +875,9 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	 * Private Methods
 	 */
 	private void bindSMSC() throws UnknownHostException, IOException {
-
+		
+		this.bindStatus = -1;
+		
 		protoSmppSession = new org.mobicents.protocols.smpp.Session(host, port);
 		seq = protoSmppSession.getSequenceNumberScheme();
 		protoSmppSession.addObserver(this);
@@ -919,17 +891,21 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 		try {
 			this.createBind();
 			protoSmppSession.bind(bind);
+			
+			//Update usage params
+			incrementUsageParams(bind.getCommandId());
+			
 			semaphore.drainPermits();
 			semaphore.tryAcquire(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			this.tracer.severe("Binding to SMS failed", e);
-			bindStatus = -1;
+			this.bindStatus = -1;
 		} catch (IOException e) {
-			bindStatus = -1;
+			this.bindStatus = -1;
 			ioException = e;
 		}
 
-		if (bindStatus != SmppTransaction.ESME_ROK) {
+		if (this.bindStatus != SmppTransaction.ESME_ROK) {
 			AlarmFacility alarmFacility = raContext.getAlarmFacility();
 			smscAlarm = alarmFacility.raiseAlarm(raContext.getEntityName(), "SMSCALARM", AlarmLevel.CRITICAL,
 					"SMSCALARM: bind status " + this.utils.statusMessage(bindStatus));
@@ -940,7 +916,6 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 			}
 		}
 		tracer.info("Successfully bound to SMSC. ");
-		isBound = true;
 		this.smppSession.setIsAlive(true);
 
 		if (smscAlarm != null) {
@@ -974,8 +949,9 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	}
 
 	/**
-	 * reconnect() is called from LinkMonitor when connectivity between RA and SMSC fails. lets set isBound to true so
-	 * while loop of LinkMonitor keeps trying to establish link again
+	 * reconnect() is called from LinkMonitor when connectivity between RA and
+	 * SMSC fails. lets set isBound to true so while loop of LinkMonitor keeps
+	 * trying to establish link again
 	 */
 	private void reconnect() {
 		try {
@@ -995,7 +971,6 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	}
 
 	private void unbindSMSC() {
-		isBound = false;
 		this.smppSession.setIsAlive(false);
 
 		try {
@@ -1015,12 +990,162 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	/**
 	 * Checking if the EsmClass is user message or is at a notification.
 	 * 
-	 * @param esmClassArg -
-	 *            esm_class value
+	 * @param esmClassArg
+	 *            - esm_class value
 	 * @return true if it is a user message, otherwise false
 	 */
 	private static boolean isEsmClassUserMessage(int esmClassArg) {
 		return (esmClassArg & 0X3C) == 0;
+	}
+	
+	private void updateStats(){
+		if(statsOn) {
+			return;
+		}
+		long now = System.currentTimeMillis();
+		long elpasedNumberOfMessagesCounter = usageParams.getMessagesExchanged() - this.lastMessagesExchanged;
+		
+		if(elpasedNumberOfMessagesCounter > 0){
+			double elpasedTimeInSec = (now - this.lastStatsUpdatedTime) / 1000;
+			double avgMessagesExchangedPerSec = elpasedNumberOfMessagesCounter / elpasedTimeInSec;
+			usageParams.sampleMessagesExchangedPerSec((long)avgMessagesExchangedPerSec);
+		}
+		
+		this.lastMessagesExchanged = usageParams.getMessagesExchanged();
+		this.lastStatsUpdatedTime = now;
+	}
+
+	private void incrementUsageParams(int commandId) {
+
+		if(!statsOn) {
+			return;
+		}
+		
+		usageParams.incrementMessagesExchanged(1);
+		
+		switch (commandId) {
+		case CommandId.SUBMIT_SM:
+			usageParams.incrementReqSubmitSm(1);
+			break;
+		case CommandId.SUBMIT_SM_RESP:
+			usageParams.incrementResSubmitSm(1);
+			break;
+		case CommandId.DELIVER_SM:
+			usageParams.incrementReqDeliverSm(1);
+			break;
+		case CommandId.DELIVER_SM_RESP:
+			usageParams.incrementResDeliverSm(1);
+			break;
+		case CommandId.GENERIC_NACK:
+			usageParams.incrementGenericNack(1);
+			break;
+		case CommandId.BIND_RECEIVER:
+			usageParams.incrementReqBindReceiver(1);
+			break;
+		case CommandId.BIND_RECEIVER_RESP:
+			usageParams.incrementResBindReceiver(1);
+			break;
+		case CommandId.BIND_TRANSMITTER:
+			usageParams.incrementReqBindTransmitter(1);
+			break;
+		case CommandId.BIND_TRANSMITTER_RESP:
+			usageParams.incrementResBindTransmitter(1);
+			break;
+		case CommandId.QUERY_SM:
+			usageParams.incrementReqQuerySm(1);
+			break;
+		case CommandId.QUERY_SM_RESP:
+			usageParams.incrementResQuerySm(1);
+			break;
+		case CommandId.UNBIND:
+			usageParams.incrementReqUnbind(1);
+			break;
+		case CommandId.UNBIND_RESP:
+			usageParams.incrementResUnbind(1);
+			break;
+		case CommandId.REPLACE_SM:
+			usageParams.incrementReqReplaceSm(1);
+			break;
+		case CommandId.REPLACE_SM_RESP:
+			usageParams.incrementResReplaceSm(1);
+			break;
+		case CommandId.CANCEL_SM:
+			usageParams.incrementReqCancelSm(1);
+			break;
+		case CommandId.CANCEL_SM_RESP:
+			usageParams.incrementResCancelSm(1);
+			break;
+		case CommandId.BIND_TRANSCEIVER:
+			usageParams.incrementReqBindTransceiver(1);
+			break;
+		case CommandId.BIND_TRANSCEIVER_RESP:
+			usageParams.incrementResBindTransceiver(1);
+			break;
+		case CommandId.OUTBIND:
+			//TODO Supported?
+			break;
+		case CommandId.ENQUIRE_LINK:
+			usageParams.incrementReqEnquireLink(1);
+			break;
+		case CommandId.ENQUIRE_LINK_RESP:
+			usageParams.incrementResEnquireLink(1);
+			break;
+		case CommandId.SUBMIT_MULTI:
+			usageParams.incrementReqSubmitMulti(1);
+			break;
+		case CommandId.SUBMIT_MULTI_RESP:
+			usageParams.incrementResSubmitMulti(1);
+			break;
+		case CommandId.PARAM_RETRIEVE:
+			usageParams.incrementReqParamRetrieve(1);
+			break;
+		case CommandId.PARAM_RETRIEVE_RESP:
+			usageParams.incrementResParamRetrieve(1);
+			break;
+		case CommandId.QUERY_LAST_MSGS:
+			usageParams.incrementReqQueryLastMessages(1);
+			break;
+		case CommandId.QUERY_LAST_MSGS_RESP:
+			usageParams.incrementResQueryLastMessages(1);
+			break;
+		case CommandId.QUERY_MSG_DETAILS:
+			usageParams.incrementReqQueryMessageDetails(1);
+			break;
+		case CommandId.QUERY_MSG_DETAILS_RESP:
+			usageParams.incrementResQueryMessageDetails(1);
+			break;
+		case CommandId.ALERT_NOTIFICATION:
+			usageParams.incrementReqAlertNotification(1);
+			break;
+		case CommandId.DATA_SM:
+			usageParams.incrementReqDataSm(1);
+			break;
+		case CommandId.DATA_SM_RESP:
+			usageParams.incrementResDataSm(1);
+			break;
+		case CommandId.BROADCAST_SM:
+			usageParams.incrementReqBroadcastSm(1);
+			break;
+		case CommandId.BROADCAST_SM_RESP:
+			usageParams.incrementResBroadcastSm(1);
+			break;
+		case CommandId.QUERY_BROADCAST_SM:
+			usageParams.incrementReqQuerySm(1);
+			break;
+		case CommandId.QUERY_BROADCAST_SM_RESP:
+			usageParams.incrementResQuerySm(1);
+			break;
+		case CommandId.CANCEL_BROADCAST_SM:
+			usageParams.incrementReqBroadcastSm(1);
+			break;
+		case CommandId.CANCEL_BROADCAST_SM_RESP:
+			usageParams.incrementResBroadcastSm(1);
+			break;
+		default:
+			//Do nothing?
+			//tracer.warning("Unexpected packet received! Id = 0x" + Integer.toHexString(commandId));
+
+		}
 	}
 
 	/**
@@ -1032,25 +1157,30 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 	 * @throws NullPointerException
 	 * @throws ActivityAlreadyExistsException
 	 */
-	protected void startNewSmppTransactionActivity(SmppTransactionImpl txImpl) throws ActivityAlreadyExistsException,
-			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
+	protected void startNewSmppTransactionActivity(SmppTransactionImpl txImpl) throws ActivityAlreadyExistsException, NullPointerException,
+			IllegalStateException, SLEEException, StartActivityException {
 		sleeEndpoint.startActivity(txImpl.getHandle(), txImpl, ActivityFlags.REQUEST_ENDED_CALLBACK);
 		this.handleVsActivityMap.put(txImpl.getHandle(), txImpl);
 	}
 
-	protected void startNewSmppTransactionSuspendedActivity(SmppTransactionImpl txImpl)
-			throws ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException,
-			StartActivityException {
+	protected void startNewSmppTransactionSuspendedActivity(SmppTransactionImpl txImpl) throws ActivityAlreadyExistsException, NullPointerException,
+			IllegalStateException, SLEEException, StartActivityException {
 		sleeEndpoint.startActivitySuspended(txImpl.getHandle(), txImpl, ActivityFlags.REQUEST_ENDED_CALLBACK);
 		this.handleVsActivityMap.put(txImpl.getHandle(), txImpl);
 	}
 
 	protected void sendResponse(ExtSmppResponse response) throws IOException {
 		this.protoSmppSession.sendPacket(response.getSMPPPacket());
+		
+		//Update usage params
+		incrementUsageParams(response.getCommandId());
 	}
 
 	protected void sendRequest(ExtSmppRequest request) throws IOException {
 		this.protoSmppSession.sendPacket(request.getSMPPPacket());
+		
+		//Update usage params
+		incrementUsageParams(request.getCommandId());
 	}
 
 	protected void fireEvent(String eventName, SmppTransactionImpl activity, Object event) {
@@ -1083,7 +1213,7 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 	protected void endActivity(SmppTransactionImpl activity) {
 		try {
-			this.sleeEndpoint.endActivity(activity.getHandle());			
+			this.sleeEndpoint.endActivity(activity.getHandle());
 		} catch (Exception e) {
 			this.tracer.severe("Error while Ending Activity " + activity, e);
 		}
@@ -1097,43 +1227,49 @@ public class SmppResourceAdaptor implements FaultTolerantResourceAdaptor,
 
 		public void run() {
 			if (tracer.isFineEnabled())
-				tracer.fine("In LinkMonitor, isBound = " + isBound);
-
-			// We keep trying only of we are bound atleast once and we are Head Member
-			while (!isClosed) {
+				tracer.fine("In LinkMonitor, isRAStoped = " + isRAStoped);
+			
+			// We keep trying only of we are bound atleast once and we are Head
+			// Member
+			while (!isRAStoped) {
 				// long currentTime = System.currentTimeMillis();
 
 				try {
-					Thread.currentThread().sleep(enquireLinkTimeout);
+					Thread.sleep(enquireLinkTimeout);
+					
+					updateStats();
+
+					try {
+	
+						EnquireLink sm = new EnquireLink();
+						protoSmppSession.sendPacket(sm);
+						
+						//Update usage params
+						incrementUsageParams(sm.getCommandId());
+						
+						if (tracer.isFineEnabled()) {
+							tracer.fine("Sent enquire link for " + raContext.getEntityName());
+						}
+	
+					} catch (NotBoundException nbe) {
+						if (tracer.isWarningEnabled())
+							tracer.warning("Connection lost! for RA " + raContext.getEntityName() + "Reconnecting...", nbe);
+						reconnect();
+					} catch (IOException ie) {
+						if (tracer.isSevereEnabled())
+							tracer.severe("Connection lost! for RA " + raContext.getEntityName() + " 	Communication failed", ie);
+						reconnect();
+					} catch (BadCommandIDException ex) {
+						tracer.severe("BadCommandIDException. Failed to enquire link ", ex);
+					} catch (VersionException ex) {
+						if (tracer.isSevereEnabled())
+							tracer.severe("Failed to enquire link due to wrong Version ", ex);
+					}
+				
 
 				} catch (InterruptedException e) {
 					if (tracer.isInfoEnabled())
 						tracer.info("Terminate link monitor: " + raContext.getEntityName());
-				}
-
-				try {
-
-					EnquireLink sm = new EnquireLink();
-					protoSmppSession.sendPacket(sm);
-
-					if (tracer.isFineEnabled()) {
-						tracer.fine("Sent enquire link for " + raContext.getEntityName());
-					}
-
-				} catch (NotBoundException nbe) {
-					if (tracer.isWarningEnabled())
-						tracer.warning("Connection lost! for RA " + raContext.getEntityName() + "Reconnecting...");
-					reconnect();
-				} catch (IOException ie) {
-					if (tracer.isSevereEnabled())
-						tracer.severe("Connection lost! for RA " + raContext.getEntityName() + "Communication failed",
-								ie);
-					reconnect();
-				} catch (BadCommandIDException ex) {
-					tracer.severe("BadCommandIDException. Failed to enquire link ", ex);
-				} catch (VersionException ex) {
-					if (tracer.isSevereEnabled())
-						tracer.severe("Failed to enquire link due to wrong Version ", ex);
 				}
 			}// while loop
 		}
