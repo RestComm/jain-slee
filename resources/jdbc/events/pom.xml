@@ -9,10 +9,16 @@
 	
 	<artifactId>mobicents-slee-ra-jdbc-events</artifactId>
 	
-	<dependencies>
+	<dependencies>		
 		<dependency>
-      		<groupId>javax.slee</groupId>
-			<artifactId>jain-slee</artifactId>
+      		<groupId>${project.groupId}</groupId>
+			<artifactId>mobicents-slee-ra-jdbc-library</artifactId>
+			<version>${project.version}</version>
     	</dependency>
+    	<dependency>
+      		<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>						
+    	</dependency>	
 	</dependencies>
+	
 </project>

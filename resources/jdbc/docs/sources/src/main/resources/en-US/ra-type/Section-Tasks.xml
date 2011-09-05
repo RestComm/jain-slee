@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_tasks">
+
+	<title>JDBC Tasks Framework</title>
+
+	<para>The tasks framework enables SLEE applications with means to interact with JDBC data sources in a very efficient and customized manner. It is a simple yet powerful API, allowing execution of JDBC requests to be decoupled from the SLEE event router, and enabling applications to receive as result SLEE events which may be deployed by the application.</para>
+	
+	<para>In the framework core is the JDBC Task concept, which provides the logic needed to interact with a JDBC Connection, and is responsible for building a result SLEE event. The Resource Adaptor is responsible for the actual task execution, and fires the resulting event into the SLEE, in the JDBC Activity used to submit the the task. Tasks implement the following interface:</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee.resource.jdbc.task;
+
+public interface JdbcTask {
+
+	public JdbcTaskResult execute(JdbcTaskContext taskContext);
+
+}]]>
+     </programlisting>
+     
+     <variablelist>
+     	<varlistentry>
+			<term>The <literal>execute(JdbcTaskContext)</literal> method:</term>
+			<listitem>
+				<para>Invoked by the JDBC RA, executes the task logic. The result of the task execution, which if not null, and valid (not null event object and type), will be used by the RA to fire an event into the SLEE </para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	
+	<para>The <literal>org.mobicents.slee.resource.jdbc.task.JdbcTaskContext</literal> parameter, given to the task when executing it, may be used by the task to retrieve the JDBC Connection, which is closed once the task execution ends, and also the SLEE Transaction Manager, which may be used to include Java transactions in the task logic. The context interface is:</para>
+		
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee.resource.jdbc.task;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.slee.transaction.SleeTransactionManager;
+
+public interface JdbcTaskContext {
+
+	public void setConnectionCredentials(String username, String password);
+
+	public Connection getConnection() throws SQLException;
+
+	public SleeTransactionManager getSleeTransactionManager();
+
+}]]>
+     </programlisting>
+     
+     <variablelist>
+     	<varlistentry>
+			<term>The <literal>setConnectionCredentials(String,String)</literal> method:</term>
+			<listitem>
+				<para>Sets the authentication credentials used to retrieve the JDBC Connection.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>getConnection()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the connection to be used by the task. The connection, if open once the task execution ends, will be closed automatically by the RA.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>getSleeTransactionManager()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the SLEE TransactionManager, which a task may use to create and manage Java transactions. Note that the RA will commit any open transaction once the task execution ends.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>	
+	
+	<para>The task execution result <literal>org.mobicents.slee.resource.jdbc.task.JdbcTaskResult</literal> is responsible for providing the result SLEE Event Object and Type, to be fired by the Resource Adaptor: </para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee.resource.jdbc.task;
+
+import javax.slee.EventTypeID;
+import javax.slee.resource.SleeEndpoint;
+
+public interface JdbcTaskResult {
+
+	public Object getEventObject();
+
+	public EventTypeID getEventTypeID();
+
+}]]>
+     </programlisting>
+     
+     <variablelist>
+		<varlistentry>
+			<term>The <literal>getEventObject()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the event object, which may be very specific to the application. This data may not be null.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>The <literal>getEventTypeID()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the event type ID. This data may not be null. Note that the JDBC RA is able to fire any kind of event type.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	
+	<section id="ratype_tasks_simple">
+
+		<title>Simple JDBC Tasks</title>
+
+		<para>Besides the tasks framework interfaces, the Resource Adaptor provides an abstract implementation of it, so applications may take advantage of the framework without the burden to implement custom SLEE Event Types.</para>
+	
+		<para>The abstract task is <literal>org.mobicents.slee.resource.jdbc.task.JdbcTask.SimpleJdbcTask</literal>, and concrete implementations need to implement the <literal>executeSimple(JdbcTaskContext)</literal> method. The Resource Adaptor will fire a specific Event Type as result, which includes the object returned by the simple task execution.</para>
+	
+		<para>An example of usage can be seen in the SBB Code Examples section.</para>
+		
+	</section>
+	
+</section>

@@ -20,39 +20,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.resource.jdbc.event;
+package org.mobicents.slee.resource.jdbc.task;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import javax.slee.EventTypeID;
+import javax.slee.resource.SleeEndpoint;
 
 /**
+ * The result of a JDBC Task execution, provides all data the JDBC RA needs to
+ * fire an event, through its {@link SleeEndpoint}.
  * 
  * @author martins
  * 
  */
-public class PreparedStatementResultSetEventImpl extends
-		AbstractPreparedStatementEvent implements
-		PreparedStatementResultSetEvent {
+public interface JdbcTaskResult {
 
 	/**
+	 * Retrieves the event object. This data may not be null.
 	 * 
+	 * @return
 	 */
-	private final ResultSet resultSet;
+	public Object getEventObject();
 
 	/**
+	 * Retrieves the event type ID. This data may not be null.
 	 * 
-	 * @param preparedStatement
-	 * @param resultSet
+	 * @return
 	 */
-	public PreparedStatementResultSetEventImpl(
-			PreparedStatement preparedStatement, ResultSet resultSet) {
-		super(preparedStatement);
-		this.resultSet = resultSet;
-	}
-
-	@Override
-	public ResultSet getResultSet() {
-		return resultSet;
-	}
+	public EventTypeID getEventTypeID();
 
 }

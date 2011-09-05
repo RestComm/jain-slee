@@ -12,6 +12,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>mobicents-slee-ra-jdbc-library</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>mobicents-slee-ra-jdbc-events</artifactId>
 			<version>${project.version}</version>
 		</dependency>

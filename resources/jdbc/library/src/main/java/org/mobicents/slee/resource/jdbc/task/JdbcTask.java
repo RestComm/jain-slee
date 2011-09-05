@@ -20,37 +20,28 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.resource.jdbc.event;
-
-import java.sql.PreparedStatement;
-
-import javax.slee.EventTypeID;
+package org.mobicents.slee.resource.jdbc.task;
 
 /**
- * An event which provides the results for the execution of unknown sql in a
- * {@link PreparedStatement}. Concrete results should be retrieved from the
- * {@link PreparedStatement} object, through
- * {@link PreparedStatement#getResultSet()},
- * {@link PreparedStatement#getUpdateCount()} and
- * {@link PreparedStatement#getMoreResults()}
+ * A task to be executed asynchronously by the JDBC RA.
  * 
  * @author martins
  * 
  */
-public interface PreparedStatementUnknownResultEvent extends
-		PreparedStatementEvent {
+public interface JdbcTask {
 
-	public static final EventTypeID EVENT_TYPE_ID = new EventTypeID(
-			PreparedStatementUnknownResultEvent.class.getSimpleName(),
-			"org.mobicents", "1.0");
-	
 	/**
-	 * Retrieves the statement sql execution result.
+	 * Invoked by the JDBC RA, requests asynchronously execution of the task
+	 * logic.
 	 * 
-	 * @return <code>true</code> if the first result is a <code>ResultSet</code>
-	 *         object; <code>false</code> if it is an update count or there are
-	 *         no results
+	 * 
+	 * @param taskContext
+	 *            the context provided by the RA to help the task execution.
+	 * 
+	 * @return the result of the task execution, which if not null, and valid
+	 *         (not null event object and type), will be used by the RA to fire
+	 *         an event into the SLEE.
 	 */
-	public boolean getExecutionResult();
+	public JdbcTaskResult execute(JdbcTaskContext taskContext);
 
 }

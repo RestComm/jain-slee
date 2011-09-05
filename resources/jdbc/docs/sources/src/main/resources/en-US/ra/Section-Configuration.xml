@@ -34,6 +34,12 @@
           <entry>java.lang.Integer</entry>
           <entry>4</entry>
         </row>
+        <row>
+          <entry>RA_SBB_ INTERFACE_ CONNECTION_ GETTERS_ON</entry>
+          <entry>if false forbidden access to getConnection() methods of the RA SBB Interface.</entry>
+          <entry>java.lang.Boolean</entry>
+          <entry>true</entry>
+        </row>
       </tbody>
     </tgroup>
   </table>

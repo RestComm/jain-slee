@@ -44,13 +44,13 @@ public interface JdbcResourceAdaptorSbbInterface {
 	<varlistentry>
 		<term>The <literal>getConnection()</literal> method:</term>
 		<listitem>
-			<para>Retrieves a JDBC Connection, which may then be used to create statements (prepared or not). Note that the connection is closed automatically after each statement execution done through a JDBC activity, thus applications must not do it (unless the connection is retrieved but not used).</para>
+			<para>Retrieves a JDBC Connection, which may then be used to execute statements (prepared or not) synchronously. Note that applications must close the connection whenever it is not needed, failure to do so may result in no available JDBC Connections for additional application instances.</para>
 		</listitem>
 	</varlistentry>
 	<varlistentry>
 		<term>The <literal>getConnection(String, String)</literal> method:</term>
 		<listitem>
-			<para>Retrieves a JDBC Connection using username and password authentication, which may then be used to create statements (prepared or not). Note that the connection is closed automatically after each statement execution done through a JDBC activity, thus applications must not do it (unless the connection is retrieved but not used).</para>
+			<para>Retrieves a JDBC Connection using username and password authentication, which may then be used to execute statements (prepared or not) synchronously. Note that applications must close the connection whenever it is not needed, failure to do so may result in no available JDBC Connections for additional application instances.</para>
 		</listitem>
 	</varlistentry>
 	</variablelist>

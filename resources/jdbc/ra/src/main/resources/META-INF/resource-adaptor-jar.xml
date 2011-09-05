@@ -4,7 +4,7 @@
 
 <resource-adaptor-jar>
 
-	<resource-adaptor>
+	<resource-adaptor ignore-ra-type-event-type-check="True">
 
 		<resource-adaptor-name>JdbcResourceAdaptor</resource-adaptor-name>
 		<resource-adaptor-vendor>org.mobicents</resource-adaptor-vendor>
@@ -34,6 +34,12 @@
         	<config-property-name>EXECUTOR_SERVICE_THREADS</config-property-name>
             <config-property-type>java.lang.Integer</config-property-type>
             <config-property-value>4</config-property-value>
+        </config-property>
+        
+        <config-property>
+        	<config-property-name>RA_SBB_INTERFACE_CONNECTION_GETTERS_ON</config-property-name>
+            <config-property-type>java.lang.Boolean</config-property-type>
+            <config-property-value>true</config-property-value>
         </config-property>
         
 	</resource-adaptor>

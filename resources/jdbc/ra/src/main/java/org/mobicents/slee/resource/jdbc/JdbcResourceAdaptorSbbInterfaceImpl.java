@@ -41,6 +41,8 @@ public class JdbcResourceAdaptorSbbInterfaceImpl implements
 	 */
 	private final JdbcResourceAdaptor ra;
 
+	private boolean raSbbInterfaceConnectionGettersOn;
+	
 	/**
 	 * 
 	 * @param ra
@@ -48,7 +50,12 @@ public class JdbcResourceAdaptorSbbInterfaceImpl implements
 	public JdbcResourceAdaptorSbbInterfaceImpl(JdbcResourceAdaptor ra) {
 		this.ra = ra;
 	}
-
+	
+	public void setRaSbbInterfaceConnectionGettersOn(
+			boolean raSbbInterfaceConnectionGettersOn) {
+		this.raSbbInterfaceConnectionGettersOn = raSbbInterfaceConnectionGettersOn;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -57,10 +64,16 @@ public class JdbcResourceAdaptorSbbInterfaceImpl implements
 	 */
 	@Override
 	public JdbcActivity createActivity() {
+		if (ra.getDatasource() == null) {
+			throw new IllegalStateException("RA entity not active");
+		}
 		return ra.createActivity();
 	}
 
 	private DataSource getDataSource() {
+		if(!raSbbInterfaceConnectionGettersOn) {
+			throw new SecurityException("RA configurations does not permits connection retrieval");
+		}
 		final DataSource dataSource = ra.getDatasource();
 		if (dataSource == null) {
 			throw new IllegalStateException("RA entity not active");

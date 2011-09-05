@@ -28,49 +28,13 @@
 		</resource-adaptor-type-classes>
 
 		<event-type-ref>
-			<event-type-name>PreparedStatementResultSetEvent</event-type-name>
-			<event-type-vendor>org.mobicents</event-type-vendor>
-			<event-type-version>1.0</event-type-version>
-		</event-type-ref>
-
-		<event-type-ref>
-			<event-type-name>PreparedStatementUpdateCountEvent</event-type-name>
-			<event-type-vendor>org.mobicents</event-type-vendor>
-			<event-type-version>1.0</event-type-version>
-		</event-type-ref>
-
-		<event-type-ref>
-			<event-type-name>PreparedStatementUnknownResultEvent</event-type-name>
-			<event-type-vendor>org.mobicents</event-type-vendor>
-			<event-type-version>1.0</event-type-version>
-		</event-type-ref>
-
-		<event-type-ref>
-			<event-type-name>PreparedStatementSQLExceptionEvent</event-type-name>
+			<event-type-name>SimpleJdbcTaskResultEvent</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 		
 		<event-type-ref>
-			<event-type-name>StatementResultSetEvent</event-type-name>
-			<event-type-vendor>org.mobicents</event-type-vendor>
-			<event-type-version>1.0</event-type-version>
-		</event-type-ref>
-
-		<event-type-ref>
-			<event-type-name>StatementUpdateCountEvent</event-type-name>
-			<event-type-vendor>org.mobicents</event-type-vendor>
-			<event-type-version>1.0</event-type-version>
-		</event-type-ref>
-
-		<event-type-ref>
-			<event-type-name>StatementUnknownResultEvent</event-type-name>
-			<event-type-vendor>org.mobicents</event-type-vendor>
-			<event-type-version>1.0</event-type-version>
-		</event-type-ref>
-
-		<event-type-ref>
-			<event-type-name>StatementSQLExceptionEvent</event-type-name>
+			<event-type-name>JdbcTaskExecutionExceptionEvent</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>

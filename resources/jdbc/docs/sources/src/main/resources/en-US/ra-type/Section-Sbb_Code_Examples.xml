@@ -9,7 +9,7 @@
 
 	<title>Sbb Code Examples</title>
 
-	<para>The following code examples shows how to use the Resource Adaptor Type for common functionalities</para>
+	<para>The following code examples shows how to use the Resource Adaptor Type for common functionalities.</para>
 	
 	<section id="ratype_sbb_code_examples_retrieving_the_ra_interface_and_factory">
 
@@ -68,19 +68,32 @@
 		
 	</section>
 	
-	<section id="ratype_sbb_code_examples_execute_a_statement">
+	<section id="ratype_sbb_code_examples_execute_a_task">
 
-		<title>Execute a Statement</title>
+		<title>Execute a Task</title>
 
-		<para>The following code examples the creation of a <literal>Statement</literal> and the execution of SQL on a <literal>JdbcActivity</literal>:</para>
+		<para>The following code examples the creation of a concrete<literal>SimpleJdbcTask</literal> implementation and the request for its execution on a <literal>JdbcActivity</literal>:</para>
 		
 		<programlisting language="Java" role="JAVA">
 			<![CDATA[
-		// get connection and create statement
-		Statement statement = jdbcRA.getConnection().createStatement();
-		// execute SQL in the jdbc activity 
-		jdbcActivity.executeQuery(statement,
-				"CREATE TABLE TestTable (Name VARCHAR(30));");]]>
+		// build task
+		SimpleJdbcTask task = new SimpleJdbcTask() {
+			@Override
+			public Object executeSimple(JdbcTaskContext context) {
+				try {
+					Connection connection = context.getConnection();
+					PreparedStatement preparedStatement = connection
+							.prepareStatement("INSERT INTO TestTable VALUES(?)");
+					preparedStatement.setString(1, "Mobicents");
+					return true;
+				} catch (Exception e) {
+					tracer.severe("faile to execute task", e);
+					return false;
+				}
+			}
+		};
+		// execute the task on the jdbc activity 
+		jdbcActivity.execute(task);]]>
 		</programlisting>
 		
 	</section>
@@ -89,95 +102,25 @@
 
 		<title>Handling Events and Ending an Activity </title>
 
-		<para>The following code examples the handling of events, for both <literal>PreparedStatement</literal> and <literal>Statement</literal> execution, following the service logic execution. It also shows the explicit ending of the activity:</para>
+		<para>The following code examples the handling of the simple task result event, following the service logic execution. It also shows the explicit ending of the activity:</para>
 		
 		<programlisting language="Java" role="JAVA">
-			<![CDATA[	
-	/**
-	 * Event handler for {@link StatementResultSetEvent}.
-	 * 
-	 * @param event
-	 * @param aci
-	 */
-	public void onStatementResultSetEvent(StatementResultSetEvent event,
+			<![CDATA[		
+	public void onSimpleJdbcTaskResultEvent(SimpleJdbcTaskResultEvent event,
 			ActivityContextInterface aci) {
-		tracer.info("Received a StatementResultSetEvent, as result of executed SQL "
-				+ event.getSQL());
-		tracer.info("Result: " + event.getResultSet());
-		try {
-			PreparedStatement preparedStatement = jdbcRA.getConnection()
-					.prepareStatement("INSERT INTO TestTable VALUES(?)");
-			preparedStatement.setString(1, "Mobicents");
-			tracer.info("Created prepared statement, executing...");
-			((JdbcActivity) aci.getActivity()).executeUpdate(preparedStatement);
-		} catch (Throwable e) {
-			tracer.severe("failed to create statement", e);
-		}
-	}
-
-	/**
-	 * Event handler for {@link PreparedStatementUpdateCountEvent}.
-	 * 
-	 * @param event
-	 * @param aci
-	 */
-	public void onPreparedStatementUpdateCountEvent(
-			PreparedStatementUpdateCountEvent event,
-			ActivityContextInterface aci) {
-		tracer.info("Received a PreparedStatementUpdateCountEvent.");
-		tracer.info("Update Count: " + event.getUpdateCount());
-		try {
-			Statement anotherStatement = jdbcRA.getConnection()
-					.createStatement();
-			tracer.info("Created statement, executing query...");
-			((JdbcActivity) aci.getActivity()).executeUpdate(anotherStatement,
-					"DROP TABLE TestTable;");
-		} catch (Throwable e) {
-			tracer.severe("failed to create statement", e);
-		}
-	}
-	
-	/**
-	 * Event handler for {@link StatementUpdateCountEvent}.
-	 * 
-	 * @param event
-	 * @param aci
-	 */
-	public void onStatementUpdateCountEvent(StatementUpdateCountEvent event,
-			ActivityContextInterface aci) {
-		tracer.info("Received a StatementUpdateCountEvent, as result of executed SQL "
-				+ event.getSQL());
-		tracer.info("Update Count: " + event.getUpdateCount());
-		tracer.info("Ending JDBC Activity...");
+		tracer.info("Received a SimpleJdbcTaskResultEvent, task = "
+				+ event.getTask() + ", result object = " + event.getResult());
 		((JdbcActivity) aci.getActivity()).endActivity();
 	}]]>
 		</programlisting>
 		
-		<para>The SBB XML descriptor code to declare the handling of such events:</para>
+		<para>The SBB XML descriptor code to declare the handling of such event:</para>
 		
 		<programlisting language="XML" role="XML"><![CDATA[
 		<event event-direction="Receive" initial-event="False">
-			<event-name>StatementResultSetEvent</event-name>
+			<event-name>SimpleJdbcTaskResultEvent</event-name>
 			<event-type-ref>
-				<event-type-name>StatementResultSetEvent</event-type-name>
-				<event-type-vendor>org.mobicents</event-type-vendor>
-				<event-type-version>1.0</event-type-version>
-			</event-type-ref>
-		</event>
-
-		<event event-direction="Receive" initial-event="False">
-			<event-name>PreparedStatementUpdateCountEvent</event-name>
-			<event-type-ref>
-				<event-type-name>PreparedStatementUpdateCountEvent</event-type-name>
-				<event-type-vendor>org.mobicents</event-type-vendor>
-				<event-type-version>1.0</event-type-version>
-			</event-type-ref>
-		</event>
-		
-		<event event-direction="Receive" initial-event="False">
-			<event-name>StatementUpdateCountEvent</event-name>
-			<event-type-ref>
-				<event-type-name>StatementUpdateCountEvent</event-type-name>
+				<event-type-name>SimpleJdbcTaskResultEvent</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>

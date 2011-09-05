@@ -3,83 +3,30 @@
 
 <event-jar>
 
-	<!-- PREPARED STATEMENT EVENTS -->
-
+	<library-ref>
+		<library-name>jdbc-ra-library</library-name>
+		<library-vendor>org.mobicents.resources</library-vendor>
+		<library-version>1.0</library-version>
+	</library-ref>
+	
 	<event-definition>
-		<event-type-name>PreparedStatementResultSetEvent</event-type-name>
+		<event-type-name>SimpleJdbcTaskResultEvent</event-type-name>
 		<event-type-vendor>org.mobicents</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>
-			org.mobicents.slee.resource.jdbc.event.PreparedStatementResultSetEvent
+			org.mobicents.slee.resource.jdbc.task.simple.SimpleJdbcTaskResultEvent
 		</event-class-name>
 	</event-definition>
 
 	<event-definition>
-		<event-type-name>PreparedStatementUpdateCountEvent</event-type-name>
+		<event-type-name>JdbcTaskExecutionExceptionEvent</event-type-name>
 		<event-type-vendor>org.mobicents</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>
-			org.mobicents.slee.resource.jdbc.event.PreparedStatementUpdateCountEvent
+			org.mobicents.slee.resource.jdbc.event.JdbcTaskExecutionExceptionEvent
 		</event-class-name>
 	</event-definition>
-
-	<event-definition>
-		<event-type-name>PreparedStatementSQLExceptionEvent</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>
-			org.mobicents.slee.resource.jdbc.event.PreparedStatementSQLExceptionEvent
-		</event-class-name>
-	</event-definition>
-
-	<event-definition>
-		<event-type-name>PreparedStatementUnknownResultEvent</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>
-			org.mobicents.slee.resource.jdbc.event.PreparedStatementUnknownResultEvent
-		</event-class-name>
-	</event-definition>
-
-
-	<!-- STATEMENT EVENTS -->
-
-	<event-definition>
-		<event-type-name>StatementResultSetEvent</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>
-			org.mobicents.slee.resource.jdbc.event.StatementResultSetEvent
-		</event-class-name>
-	</event-definition>
-
-	<event-definition>
-		<event-type-name>StatementUpdateCountEvent</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>
-			org.mobicents.slee.resource.jdbc.event.StatementUpdateCountEvent
-		</event-class-name>
-	</event-definition>
-
-	<event-definition>
-		<event-type-name>StatementSQLExceptionEvent</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>
-			org.mobicents.slee.resource.jdbc.event.StatementSQLExceptionEvent
-		</event-class-name>
-	</event-definition>
-
-	<event-definition>
-		<event-type-name>StatementUnknownResultEvent</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>
-			org.mobicents.slee.resource.jdbc.event.StatementUnknownResultEvent
-		</event-class-name>
-	</event-definition>
-
+	
 </event-jar>
 
 

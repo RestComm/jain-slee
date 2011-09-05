@@ -9,10 +9,10 @@
 
 	<title>Events</title>
 
-	<para>There are eight event types fired by &THIS.RA; Resource Adaptor, which provides applications the result of each kind of interaction with the <literal>Datasource</literal> - result set, update count, unknown result and exception - from executing a <literal>Statement</literal> or <literal>PreparedStatement</literal>.</para>
+	<para>&THIS.RA; Resource Adaptor may fire any SLEE Event Type, upon request by JDBC Tasks, yet it includes two types on its own.</para>
 
 	<table frame="all" pgwide="1">
-		<title>Events which provide results of <literal>Statement</literal> execution</title>
+		<title>Event Types deployed by &THIS.RA; Resource Adaptor</title>
 		<tgroup colsep="1" cols="5" align="left">
 			<colspec colnum="1" colname="c0" colwidth="2*"/>
 			<colspec colnum="2" colname="c1" colwidth="2*"/>
@@ -30,32 +30,18 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>Statement ResultSet Event</entry>
+					<entry>Jdbc Task Execution Exception Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Statement ResultSet Event</entry>					
-					<entry>Provides the result set from a successful execution of a statement, requested through the activity method <literal>executeQuery(Statement statement, String sql)</literal>.</entry>
+					<entry>org.mobicents. slee.resource. jdbc.event. Jdbc Task Execution Exception Event</entry>					
+					<entry>Provides the exception which was thrown in a unsuccessful task execution.</entry>
 				</row>
 				<row>
-					<entry>Statement UpdateCount Event</entry>
+					<entry>Simple Jdbc Task Result Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Statement UpdateCount Event</entry>					
-					<entry>Provides the update count from a successful execution of a statement, requested through the activity methods <literal>executeUpdate(Statement statement, ...)</literal>.</entry>
-				</row>
-				<row>
-					<entry>Statement UnknownResult Event</entry>
-					<entry>org.mobicents</entry>
-					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Statement UnknownResult Event</entry>					
-					<entry>Provides the unknown type result from a successful execution of a statement, requested through the activity methods <literal>execute(Statement statement, ...)</literal>.</entry>
-				</row>
-				<row>
-					<entry>Statement SQLException Event</entry>
-					<entry>org.mobicents</entry>
-					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Statement SQLException Event</entry>					
-					<entry>Provides the exception thrown from a unsuccessful execution of a statement.</entry>
+					<entry>org.mobicents. slee.resource. jdbc.event. Simple Jdbc Task Result Event</entry>					
+					<entry>Default event type which results from task execution. This event type is used for tasks extending the abstract <literal>SimpleJdbcTask</literal>.</entry>
 				</row>
 			</tbody>
 		</tgroup>
@@ -64,56 +50,4 @@
 		<para>Spaces where introduced in the <literal>Name</literal> and <literal>Event Class</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
 	</important>
 	
-	<table frame="all" pgwide="1">
-		<title>Events which provide results of <literal>PreparedStatement</literal> execution</title>
-		<tgroup colsep="1" cols="5" align="left">
-			<colspec colnum="1" colname="c0" colwidth="2*"/>
-			<colspec colnum="2" colname="c1" colwidth="2*"/>
-			<colspec colnum="3" colname="c2" colwidth="1*"/>
-			<colspec colnum="4" colname="c3" colwidth="2*"/>
-			<colspec colnum="5" colname="c4" colwidth="3*"/>
-			<thead>
-				<row>
-					<entry>Name</entry>
-					<entry>Vendor</entry>
-					<entry>Version</entry>
-					<entry>Event Class</entry>
-					<entry>Description</entry>
-				</row>
-			</thead>
-			<tbody>
-				<row>
-					<entry>PreparedStatement ResultSet Event</entry>
-					<entry>org.mobicents</entry>
-					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Prepared Statement ResultSet Event</entry>					
-					<entry>Provides the result set from a successful execution of a prepared statement, requested through the activity method <literal>executeQuery( Prepared Statement preparedStatement)</literal>.</entry>
-				</row>
-				<row>
-					<entry>PreparedStatement UpdateCount Event</entry>
-					<entry>org.mobicents</entry>
-					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Prepared Statement UpdateCount Event</entry>					
-					<entry>Provides the update count from a successful execution of a prepared statement, requested through the activity method <literal>executeUpdate( Prepared Statement preparedStatement )</literal>.</entry>
-				</row>
-				<row>
-					<entry>PreparedStatement UnknownResult Event</entry>
-					<entry>org.mobicents</entry>
-					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Prepared Statement UnknownResult Event</entry>					
-					<entry>Provides the unknown type result from a successful execution of a prepared statement, requested through the activity method <literal>execute( Prepared Statement preparedStatement )</literal>.</entry>
-				</row>
-				<row>
-					<entry>PreparedStatement SQLException Event</entry>
-					<entry>org.mobicents</entry>
-					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Prepared Statement SQLException Event</entry>					
-					<entry>Provides the exception thrown from a unsuccessful execution of a prepared statement.</entry>
-				</row>
-			</tbody>
-		</tgroup>
-	</table>
-	<important>
-		<para>Spaces where introduced in the <literal>Name</literal> and <literal>Event Class</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
-	</important>
 </section>
