@@ -46,6 +46,7 @@ import net.java.slee.resource.diameter.rx.events.SessionTerminationRequest;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.ApplicationId;
+import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpSet;
 import org.jdiameter.api.Message;
 import org.jdiameter.api.Stack;
@@ -71,8 +72,13 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
   private static final ApplicationId AUTH_APP_ID = ApplicationId.createByAuthAppId(DiameterRxAvpCodes.RX_APPLICATION_ID);
   protected final static Set<Integer> ids;
 
+  private static final DiameterAvp[] EMPTY_AVP_ARRAY = new DiameterAvp[]{};
+  
   static {
     final Set<Integer> _ids = new HashSet<Integer>();
+    _ids.add(Avp.SESSION_ID);
+    _ids.add(Avp.AUTH_APPLICATION_ID);
+    _ids.add(Avp.VENDOR_SPECIFIC_APPLICATION_ID);
 
     ids = Collections.unmodifiableSet(_ids);
   }
@@ -115,15 +121,15 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
 
   public AAAnswer createAAAnswer(final AARequest request) {
     // Create the answer from the request
-    final AAAnswerImpl msg = (AAAnswerImpl) createDiameterMessage(request.getHeader(),request.getAvps(),0,AUTH_APP_ID);
+    final AAAnswerImpl msg = (AAAnswerImpl) createDiameterMessage(request.getHeader(), EMPTY_AVP_ARRAY, 0, AUTH_APP_ID);
 
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_HOST);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_REALM);
     msg.setSessionId(request.getSessionId());
-    // Now copy the needed AVPs
 
+    // Now copy the needed AVPs
     final DiameterAvp[] messageAvps = request.getAvps();
     if (messageAvps != null) {
       for (DiameterAvp a : messageAvps) {
@@ -273,18 +279,17 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     DiameterMessage diamMessage = null;
 
     switch (commandCode) {
+      case AARequest.commandCode:
+        diamMessage = creatingRequest ? new AARequestImpl(msg) : new AAAnswerImpl(msg);
+        break;
       case Message.ABORT_SESSION_REQUEST:
         diamMessage = creatingRequest ? new AbortSessionRequestImpl(msg) : new AbortSessionAnswerImpl(msg);
         break;
-
       case Message.RE_AUTH_REQUEST:
         diamMessage = creatingRequest ? new ReAuthRequestImpl(msg) : new ReAuthAnswerImpl(msg);
         break;
       case Message.SESSION_TERMINATION_REQUEST:
         diamMessage = creatingRequest ? new SessionTerminationRequestImpl(msg) : new SessionTerminationAnswerImpl(msg);
-        break;
-      case AARequest.commandCode:
-        diamMessage = creatingRequest ? new AARequestImpl(msg) : new AAAnswerImpl(msg);
         break;
       default:
         throw new IllegalArgumentException();
