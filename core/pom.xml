@@ -52,7 +52,7 @@
 		<slee.version>${pom.version}</slee.version>
 		<slee.codename>SAKURA</slee.codename>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<mobicents.cluster.version>1.10</mobicents.cluster.version>
+		<mobicents.cluster.version>1.12</mobicents.cluster.version>
 	</properties>
 	
 	<dependencyManagement>
