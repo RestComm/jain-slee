@@ -191,10 +191,24 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 				TraceManagement traceMBeanImpl = sleeContainer.getTraceManagement();
 				ResourceAdaptorEntityNotification notificationSource = new ResourceAdaptorEntityNotification(entityName);
 				traceMBeanImpl.registerNotificationSource(notificationSource);
+				
+				// create resource usage mbean
+				ResourceUsageMBean usageMBean = null;
+				if (component.getUsageParametersInterface() != null) {
+					try {
+						usageMBean = sleeContainer.getUsageParametersManagement().newResourceUsageMBean(entityName, component);
+					} catch (Throwable e) {
+						if (usageMBean != null) {
+							usageMBean.remove();
+						}
+						throw new SLEEException("failed to create and register entity resource usage mbean",e);
+					}
+				}
+				
 				ResourceAdaptorEntityImpl raEntity =null;
 				try { 
 					raEntity = new ResourceAdaptorEntityImpl(
-							entityName, component, properties, this,notificationSource);
+							entityName, component, properties, this,notificationSource, usageMBean);
 				}
 				catch (InvalidConfigurationException e) {
 					traceMBeanImpl.deregisterNotificationSource(notificationSource);
@@ -223,29 +237,6 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 					}
 				}
 				this.resourceAdaptorEntities.put(entityName, raEntity);
-
-				if (component.getUsageParametersInterface() != null) {
-					// create resource usage mbean
-					ResourceUsageMBean resourceUsageMBeanImpl = null;
-					try {
-						resourceUsageMBeanImpl = sleeContainer.getUsageParametersManagement().newResourceUsageMBean(entityName, component);
-						raEntity.setResourceUsageMBean(resourceUsageMBeanImpl);
-					} catch (Throwable e) {
-						if (resourceUsageMBeanImpl != null) {
-							resourceUsageMBeanImpl.remove();
-						}
-						for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
-							entitiesPerType.get(resourceAdaptorTypeID).remove(raEntity);						
-						}
-						this.resourceAdaptorEntities.remove(raEntity);
-						try {
-							raEntity.remove();
-						} catch (InvalidStateException e1) {
-							logger.error(e.getMessage(),e);
-						}
-						throw new SLEEException("failed to create and register entity resource usage mbean",e);
-					}
-				}
 
 				logger.info("Created Resource Adaptor Entity "+entityName+" for " + id+" Config Properties: " + properties);
 			}

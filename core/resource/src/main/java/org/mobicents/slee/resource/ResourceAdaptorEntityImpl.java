@@ -116,7 +116,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	/**
 	 * the resource usage mbean for this ra, may be null
 	 */
-	private ResourceUsageMBean usageMbean;
+	private final ResourceUsageMBean usageMbean;
 
 	/**
 	 * the ra context for this entity
@@ -149,13 +149,14 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	public ResourceAdaptorEntityImpl(String name,
 			ResourceAdaptorComponent component,
 			ConfigProperties entityProperties, ResourceManagementImpl resourceManagement,
-			ResourceAdaptorEntityNotification notificationSource)
+			ResourceAdaptorEntityNotification notificationSource, ResourceUsageMBean usageMbean)
 			throws InvalidConfigurationException, InvalidArgumentException {
 		this.name = name;
 		this.component = component;
 		this.resourceManagement = resourceManagement;
 		this.sleeContainer = resourceManagement.getSleeContainer();
 		this.notificationSource = notificationSource;
+		this.usageMbean = usageMbean;
 		this.alarmFacility = sleeContainer.getAlarmManagement().newAlarmFacility(notificationSource);
 		// create ra object
 		ClassLoader currentClassLoader = Thread.currentThread()
@@ -611,13 +612,6 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 */
 	public ResourceUsageMBean getResourceUsageMBean() {
 		return usageMbean;
-	}
-
-	/**
-	 * Sets the resource usage mbean for this ra, may be null
-	 */
-	public void setResourceUsageMBean(ResourceUsageMBean usageMbean) {
-		this.usageMbean = usageMbean;
 	}
 
 	/**
