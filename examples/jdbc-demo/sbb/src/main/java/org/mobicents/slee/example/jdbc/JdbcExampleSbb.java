@@ -1,6 +1,8 @@
 package org.mobicents.slee.example.jdbc;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 import javax.slee.ActivityContextInterface;
@@ -10,16 +12,16 @@ import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.facilities.Tracer;
 import javax.slee.serviceactivity.ServiceStartedEvent;
+import javax.slee.transaction.SleeTransaction;
 
 import org.mobicents.slee.SbbContextExt;
 import org.mobicents.slee.resource.jdbc.JdbcActivity;
 import org.mobicents.slee.resource.jdbc.JdbcActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.jdbc.JdbcResourceAdaptorSbbInterface;
-import org.mobicents.slee.resource.jdbc.event.PreparedStatementResultSetEvent;
-import org.mobicents.slee.resource.jdbc.event.PreparedStatementUpdateCountEvent;
-import org.mobicents.slee.resource.jdbc.event.StatementResultSetEvent;
-import org.mobicents.slee.resource.jdbc.event.StatementSQLExceptionEvent;
-import org.mobicents.slee.resource.jdbc.event.StatementUpdateCountEvent;
+import org.mobicents.slee.resource.jdbc.event.JdbcTaskExecutionExceptionEvent;
+import org.mobicents.slee.resource.jdbc.task.JdbcTaskContext;
+import org.mobicents.slee.resource.jdbc.task.simple.SimpleJdbcTask;
+import org.mobicents.slee.resource.jdbc.task.simple.SimpleJdbcTaskResultEvent;
 
 /**
  * A SBB that examples usage of the JDBC RA.
@@ -57,104 +59,75 @@ public abstract class JdbcExampleSbb implements Sbb {
 	 */
 	public void onServiceStartedEvent(ServiceStartedEvent event,
 			ActivityContextInterface aci) {
+
 		tracer.info("JDBC Example started.");
+
 		JdbcActivity jdbcActivity = jdbcRA.createActivity();
 		tracer.info("Created JDBC RA activity, using RA's SBB Interface.");
+
 		ActivityContextInterface jdbcACI = jdbcACIF
 				.getActivityContextInterface(jdbcActivity);
 		jdbcACI.attach(contextExt.getSbbLocalObject());
 		tracer.info("Retrieved the ACI related to the JDBC RA activity, and attached the sbb entity.");
-		try {
-			Statement statement = jdbcRA.getConnection().createStatement();
-			tracer.info("Created statement, executing query...");
-			jdbcActivity.executeQuery(statement,
-					"CREATE TABLE TestTable (Name VARCHAR(30));");
-		} catch (Throwable e) {
-			tracer.severe("failed to create statement", e);
-		}
+
+		SimpleJdbcTask task = new SimpleJdbcTask() {
+			@Override
+			public Object executeSimple(JdbcTaskContext context) {
+				SleeTransaction tx = null;
+				try {
+					tx = context.getSleeTransactionManager()
+							.beginSleeTransaction();
+					Connection connection = context.getConnection();
+					Statement statement = connection.createStatement();
+					tracer.info("Created statement to create table, executing query...");
+					statement
+							.execute("CREATE TABLE TestTable (Name VARCHAR(30));");
+					PreparedStatement preparedStatement = connection
+							.prepareStatement("INSERT INTO TestTable VALUES(?)");
+					preparedStatement.setString(1, "Mobicents");
+					tracer.info("Created prepared statement for data insert, executing...");
+					preparedStatement.execute();
+					preparedStatement = connection
+							.prepareStatement("SELECT ? From TestTable;");
+					preparedStatement.setString(1, "Name");
+					tracer.info("Created prepared statement for data query, executing...");
+					preparedStatement.execute();
+					ResultSet resultSet = preparedStatement.getResultSet();
+					resultSet.next();
+					tracer.info("Data query first result: "
+							+ resultSet.getString(1));
+					Statement anotherStatement = connection.createStatement();
+					tracer.info("Created statement to drop table, executing update...");
+					anotherStatement.executeUpdate("DROP TABLE TestTable;");
+					tx.commit();
+					tx = null;
+					return true;
+				} catch (Exception e) {
+					tracer.severe("failed to create table", e);
+					if (tx != null) {
+						try {
+							tx.rollback();
+						} catch (Exception f) {
+							tracer.severe("failed to rollback tx", f);
+						}
+					}
+					return false;
+				}
+			}
+		};
+		jdbcActivity.execute(task);
 	}
 
 	/**
-	 * Event handler for {@link StatementResultSetEvent}.
+	 * Event handler for {@link SimpleJdbcTaskResultEvent}.
 	 * 
 	 * @param event
 	 * @param aci
 	 */
-	public void onStatementResultSetEvent(StatementResultSetEvent event,
+	public void onSimpleJdbcTaskResultEvent(SimpleJdbcTaskResultEvent event,
 			ActivityContextInterface aci) {
-		tracer.info("Received a StatementResultSetEvent, as result of executed SQL "
-				+ event.getSQL());
-		tracer.info("Result: " + event.getResultSet());
-		try {
-			PreparedStatement preparedStatement = jdbcRA.getConnection()
-					.prepareStatement("INSERT INTO TestTable VALUES(?)");
-			preparedStatement.setString(1, "Mobicents");
-			tracer.info("Created prepared statement, executing...");
-			((JdbcActivity) aci.getActivity()).executeUpdate(preparedStatement);
-		} catch (Throwable e) {
-			tracer.severe("failed to create statement", e);
-		}				
-	}
-
-	/**
-	 * Event handler for {@link StatementResultSetEvent}.
-	 * 
-	 * @param event
-	 * @param aci
-	 */
-	public void onPreparedStatementResultSetEvent(PreparedStatementResultSetEvent event,
-			ActivityContextInterface aci) {
-		tracer.info("Received a PreparedStatementResultSetEvent");
-		try {
-			event.getResultSet().next();
-			tracer.info("Result: " + event.getResultSet().getString(1));
-		} catch (Exception e) {
-			e.printStackTrace();			
-		}
-		try {
-			Statement anotherStatement = jdbcRA.getConnection()
-					.createStatement();
-			tracer.info("Created statement, executing update...");
-			((JdbcActivity) aci.getActivity()).executeUpdate(anotherStatement,
-					"DROP TABLE TestTable;");
-		} catch (Throwable e) {
-			tracer.severe("failed to create statement", e);
-		}		
-	}
-	
-	/**
-	 * Event handler for {@link StatementUpdateCountEvent}.
-	 * 
-	 * @param event
-	 * @param aci
-	 */
-	public void onPreparedStatementUpdateCountEvent(
-			PreparedStatementUpdateCountEvent event,
-			ActivityContextInterface aci) {
-		tracer.info("Received a PreparedStatementUpdateCountEvent.");
-		tracer.info("Update Count: " + event.getUpdateCount());
-		try {
-			PreparedStatement preparedStatement = jdbcRA.getConnection()
-			.prepareStatement("SELECT ? From TestTable;");
-			preparedStatement.setString(1, "Name");
-			((JdbcActivity) aci.getActivity()).executeQuery(preparedStatement);
-		} catch (Throwable e) {
-			tracer.severe("failed to create prepared statement", e);
-		}
-	}
-
-	/**
-	 * Event handler for {@link StatementUpdateCountEvent}.
-	 * 
-	 * @param event
-	 * @param aci
-	 */
-	public void onStatementUpdateCountEvent(StatementUpdateCountEvent event,
-			ActivityContextInterface aci) {
-		tracer.info("Received a StatementUpdateCountEvent, as result of executed SQL "
-				+ event.getSQL());
-		tracer.info("Update Count: " + event.getUpdateCount());
-		tracer.info("Ending JDBC Activity...");
+		tracer.info("Received a SimpleJdbcTaskResultEvent, task = "
+				+ event.getTask() + ", result object = " + event.getResult());
 		((JdbcActivity) aci.getActivity()).endActivity();
 	}
 
@@ -164,11 +137,11 @@ public abstract class JdbcExampleSbb implements Sbb {
 	 * @param event
 	 * @param aci
 	 */
-	public void onStatementSQLExceptionEvent(StatementSQLExceptionEvent event,
-			ActivityContextInterface aci) {
+	public void onJdbcTaskExecutionExceptionEvent(
+			JdbcTaskExecutionExceptionEvent event, ActivityContextInterface aci) {
 		tracer.info(
-				"Received a StatementSQLExceptionEvent, as result of executed SQL "
-						+ event.getSQL(), event.getSQLException());
+				"Received a JdbcTaskExecutionExceptionEvent, as result of executed task "
+						+ event.getTask(), event.getException());
 		tracer.info("Ending JDBC Activity...");
 		((JdbcActivity) aci.getActivity()).endActivity();
 	}
