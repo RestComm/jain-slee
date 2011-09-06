@@ -3,7 +3,7 @@
 
 	<property environment="sys"/>
 	
-	<property name="ra.dirs" value="mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-rx,xcap-client"/>
+	<property name="ra.dirs" value="mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
 	<property name="example.dirs" value="mscontrol-demo,slee-connectivity,sip-services,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo,converged-demo"/>
 	<property name="enabler.dirs" value="rest-client,xdm-client,sip-publication-client,sip-subscription-client,hss-client"/>
 	<property name="tool.dirs" value="management-console,eclipslee,remote-slee-connection,twiddle"/>
@@ -212,11 +212,6 @@
 
 	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-core,build-tools,get-eclipslee,build-sip-balancer,build-ras,build-enablers,build-examples,build-sources-for-debug-zip">
 
-		<!-- hack to replace diameter cluster libs -->
-		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/lib/cache-1.10.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.BETA1.sar/lib/cache-1.10.jar"/>
-		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/lib/core-1.10.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.BETA1.sar/lib/core-1.10.jar"/>
-		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/lib/timers-1.10.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.BETA1.sar/lib/timers-1.10.jar"/>
-
 		<!-- copy log4j presets -->
 		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${release.dir}/jboss-${jboss.version}/server/default/conf/jboss-log4j.xml" overwrite="true" />
 		<copy file="${release.dir}/jboss-${jboss.version}/server/all/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${release.dir}/jboss-${jboss.version}/server/all/conf/jboss-log4j.xml" overwrite="true" />
@@ -401,10 +396,6 @@
 	<target name="unzip-diameter">
 		<delete dir="${release.dir}/extra/mobicents-diameter" failonerror="false" />
 		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/extra/mobicents-diameter" />
-		<!-- hack to replace mobicents cluster in diameter -->
-		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.BETA1.sar/lib/cache-1.8.jar" failonerror="true"/>
-		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.BETA1.sar/lib/core-1.8.jar" failonerror="true"/>
-		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.BETA1.sar/lib/timers-1.8.jar" failonerror="true"/>
 	</target>
 
 	<target name="get-eclipslee">
