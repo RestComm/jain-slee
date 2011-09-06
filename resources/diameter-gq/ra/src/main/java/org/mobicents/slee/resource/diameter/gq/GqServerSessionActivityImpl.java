@@ -107,10 +107,14 @@ public class GqServerSessionActivityImpl extends GqSessionActivityImpl implement
         break;
       case IDLE:
         this.state = GqSessionState.IDLE;
-        endActivity();
+        this.setTerminateAfterProcessing(true);
+        super.baseListener.startActivityRemoveTimer(getActivityHandle());
         break;
       case DISCONNECTED:
         this.state = GqSessionState.DISCONNECTED;
+        //TODO: check if this also terminates?
+        this.setTerminateAfterProcessing(true);
+        super.baseListener.startActivityRemoveTimer(getActivityHandle());
         break;
       default:
         logger.error("Unexpected state in Gq Server FSM: " + s);
@@ -199,6 +203,6 @@ public class GqServerSessionActivityImpl extends GqSessionActivityImpl implement
   @Override
   public void endActivity() {
     this.session.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 }
