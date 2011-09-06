@@ -185,7 +185,9 @@ public class CreditControlServerSessionImpl extends CreditControlSessionImpl imp
       // Destroy and release session
       //((CCASessionCreationListener) this.getSessionListener()).sessionDestroyed(sessionId, this);
       //this.session.release();
-      endActivity();
+      //TODO: possibly endActivty(); is ok, since it happens after answer is sent.
+      this.setTerminateAfterProcessing(true);
+      super.baseListener.startActivityRemoveTimer(getActivityHandle());
       break;
 
     default:
@@ -232,7 +234,7 @@ public class CreditControlServerSessionImpl extends CreditControlSessionImpl imp
   @Override
   public void endActivity() {
     this.session.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 
 }

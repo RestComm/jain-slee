@@ -278,16 +278,8 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
       break;
     case IDLE:
       //this.state = CreditControlSessionState.IDLE;
-      ClientCCASessionState old = (ClientCCASessionState) oldState;
-      if (old == ClientCCASessionState.PENDING_EVENT) {
-        super.setTerminateAfterProcessing(true);
-
-      }
-      else {
-        //((CCASessionCreationListener) this.getSessionListener()).sessionDestroyed(sessionId, this);
-        //this.session.release();
-        endActivity();
-      }
+      this.setTerminateAfterProcessing(true);
+      super.baseListener.startActivityRemoveTimer(getActivityHandle());
       break;
 
     default:
@@ -390,6 +382,6 @@ public class CreditControlClientSessionImpl extends CreditControlSessionImpl imp
   @Override
   public void endActivity() {
     this.session.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 }

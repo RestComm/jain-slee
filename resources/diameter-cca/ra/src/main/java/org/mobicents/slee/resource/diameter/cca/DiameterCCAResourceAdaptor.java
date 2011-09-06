@@ -23,9 +23,9 @@
 package org.mobicents.slee.resource.diameter.cca;
 
 import static org.jdiameter.client.impl.helpers.Parameters.MessageTimeOut;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.management.ObjectName;
 import javax.slee.Address;
@@ -34,6 +34,7 @@ import javax.slee.facilities.Tracer;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
+import javax.slee.resource.ConfigProperties.Property;
 import javax.slee.resource.EventFlags;
 import javax.slee.resource.FailureReason;
 import javax.slee.resource.FireableEventType;
@@ -43,7 +44,6 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
-import javax.slee.resource.ConfigProperties.Property;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
@@ -65,7 +65,6 @@ import net.java.slee.resource.diameter.cca.events.CreditControlMessage;
 import net.java.slee.resource.diameter.cca.events.CreditControlRequest;
 
 import org.jboss.mx.util.MBeanServerLocator;
-
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.ApplicationId;
 import org.jdiameter.api.Message;
@@ -173,6 +172,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
   private Stack stack;
   private SessionFactory sessionFactory = null;
   private long messageTimeout = 5000;
+  private long activityRemoveDelay = 30000;
 
   private ObjectName diameterMultiplexerObjectName = null;
   private DiameterStackMultiplexerMBean diameterMux = null;
@@ -521,6 +521,11 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter CCA RA :: eventProcessingFailed :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "], reason[" + reason + "].");
     }
+    if(!(handle instanceof DiameterActivityHandle)) {
+      return;
+    }
+
+    processAfterEventDelivery(handle, eventType, event, address, service, flags);
   }
 
   public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
@@ -532,20 +537,28 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
       return;
     }
 
-    DiameterActivity activity = activities.get((DiameterActivityHandle)handle);
-
-    if(activity instanceof CreditControlClientSessionImpl) {
-      CreditControlClientSessionImpl ccaClientActivity = (CreditControlClientSessionImpl) activity;
-
-      if(ccaClientActivity.isTerminateAfterProcessing()) {
-        ccaClientActivity.endActivity();
-      }
-    }
+    processAfterEventDelivery(handle, eventType, event, address, service, flags);
   }
 
   public void eventUnreferenced(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
     if(tracer.isFineEnabled()) {
       tracer.fine("Diameter CCA RA :: eventUnreferenced :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], service[" + service + "], flags[" + flags + "].");
+    }
+    if(!(handle instanceof DiameterActivityHandle)) {
+      return;
+    }
+
+    processAfterEventDelivery(handle, eventType, event, address, service, flags);
+  }
+
+  private void processAfterEventDelivery(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
+    DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
+    if (activity != null) {
+      synchronized (activity) {
+        if (activity.isTerminateAfterProcessing()) {
+          activity.endActivity();
+        }
+      }
     }
   }
 
@@ -621,14 +634,36 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     this.fireEvent(event, getActivityHandle(sessionId), eventId, null, true, message.isRequest());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void endActivity(DiameterActivityHandle arg0) {
-    sleeEndpoint.endActivity(arg0);
+  public void endActivity(DiameterActivityHandle handle) {
+    sleeEndpoint.endActivity(handle);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void update(DiameterActivityHandle arg0, DiameterActivity arg1) {
-    activities.update(arg0, arg1);
+  public void startActivityRemoveTimer(DiameterActivityHandle handle) {
+    this.activities.startActivityRemoveTimer(handle);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void stopActivityRemoveTimer(DiameterActivityHandle handle) {
+    this.activities.stopActivityRemoveTimer(handle);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void update(DiameterActivityHandle handle, DiameterActivity activity) {
+    activities.update(handle, activity);
   }
 
   @Override
@@ -724,7 +759,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
       if(tracer.isInfoEnabled()) {
         tracer.info(raContext.getEntityName() + " -- running in local mode.");
       }
-      this.activities = new LocalDiameterActivityManagement();
+      this.activities = new LocalDiameterActivityManagement(this.raContext, activityRemoveDelay);
     }
     else {
       if(tracer.isInfoEnabled()) {
@@ -733,8 +768,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
       final org.mobicents.slee.resource.cluster.ReplicatedData<String, DiameterActivity> clusteredData = this.ftRAContext.getReplicateData(true);
 
       // get special one
-      this.activities = new AbstractClusteredDiameterActivityManagement(
-          this.raContext.getTracer(""), stack, this.raContext.getSleeTransactionManager(), clusteredData) {
+      this.activities = new AbstractClusteredDiameterActivityManagement(this.ftRAContext, activityRemoveDelay,this.raContext.getTracer(""), stack, this.raContext.getSleeTransactionManager(), clusteredData) {
 
         @Override
         protected void performBeforeReturn(DiameterActivityImpl activity) {
