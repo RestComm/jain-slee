@@ -196,15 +196,8 @@ public class RxClientSessionActivityImpl extends RxSessionActivityImpl implement
     switch (s) {
       case IDLE:
         //this.state = CreditControlSessionState.IDLE;
-        ClientRxSessionState old = (ClientRxSessionState) oldState;
-        if (old == ClientRxSessionState.PENDING_EVENT) {
-          super.setTerminateAfterProcessing(true);
-        }
-        else {
-          //((CCASessionCreationListener) this.getSessionListener()).sessionDestroyed(sessionId, this);
-          //this.session.release();
-          endActivity();
-        }
+        this.setTerminateAfterProcessing(true);
+        super.baseListener.startActivityRemoveTimer(getActivityHandle());
         break;
 
       default:
@@ -271,7 +264,7 @@ public class RxClientSessionActivityImpl extends RxSessionActivityImpl implement
   @Override
   public void endActivity() {
     this.session.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 
 }

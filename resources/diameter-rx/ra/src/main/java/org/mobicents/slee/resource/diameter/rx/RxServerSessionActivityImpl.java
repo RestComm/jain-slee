@@ -230,7 +230,8 @@ public class RxServerSessionActivityImpl extends RxSessionActivityImpl implement
         break;
 
       case IDLE:
-        endActivity();
+        this.setTerminateAfterProcessing(true);
+        super.baseListener.startActivityRemoveTimer(getActivityHandle());
         break;
 
       default:
@@ -285,6 +286,6 @@ public class RxServerSessionActivityImpl extends RxSessionActivityImpl implement
   @Override
   public void endActivity() {
     this.session.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 }
