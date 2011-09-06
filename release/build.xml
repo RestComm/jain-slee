@@ -2,10 +2,12 @@
 <project name="mobicents.release" default="release" basedir=".">
 
 	<property environment="sys"/>
-	<property name="ra.dirs" value="jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,jcc,map,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
-	<property name="example.dirs" value="slee-connectivity,sip-services,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo,converged-demo"/>
-	<property name="enabler.dirs" value="xdm-client,sip-publication-client,sip-subscription-client,hss-client"/>
+	
+	<property name="ra.dirs" value="mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-rx,xcap-client"/>
+	<property name="example.dirs" value="mscontrol-demo,slee-connectivity,sip-services,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo,converged-demo"/>
+	<property name="enabler.dirs" value="rest-client,xdm-client,sip-publication-client,sip-subscription-client,hss-client"/>
 	<property name="tool.dirs" value="management-console,eclipslee,remote-slee-connection,twiddle"/>
+
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
@@ -16,26 +18,28 @@
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
 
-	<property name="mms.version" value="2.1.0.BETA1" />
-	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
+	<property name="mms.version" value="2.1.0.BETA3" />
+	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-server.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 
-	<property name="ss7.version" value="1.0.0.BETA9" />
-	<property name="ss7.short.version" value="1.0.0.B9" />
-	<property name="ss7.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Protocols%20Suite/${ss7.short.version}/mobicents-ss7-${ss7.version}.zip"/>
+	<property name="ss7.version" value="1.0.0.BETA10" />
+	<property name="ss7.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Protocols%20Suite/1.0.0.B10/mobicents-ss7-${ss7.version}.zip"/>
 	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip"/>
-
-	<property name="diameter.version" value="1.4.0.BETA1" />
+		
 	<!--
-	<property name="diameter.download.url" value ="http://hudson.jboss.org/hudson/view/Mobicents/job/Mobicents-Diameter-1.x-Release/75/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201103152334.sar.zip"/>
-	-->
+	<property name="diameter.version" value="1.4.0.BETA1" />
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
-	
+	-->
+	<property name="diameter.download.url" value ="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Diameter-1.x-Release/lastSuccessfulBuild/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201109050036.sar.zip"/>
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
 
+	<!--
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0.BETA4.jar"/>
 	<property name="eclipslee.download.url" value ="http://mobicents.googlecode.com/svn/downloads/eclipse-update-site/plugins/${eclipslee.jar}"/>
-
+	-->
+	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0-SNAPSHOT.jar"/>
+	<property name="eclipslee.download.url" value ="http://hudson.jboss.org/jenkins/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>
+	
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="${ant.file.mobicents.release}/../ant-contrib-1.0b3.jar" />
