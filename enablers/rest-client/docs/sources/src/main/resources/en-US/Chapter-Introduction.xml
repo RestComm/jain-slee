@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_REST_Client_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.ENABLER; Enabler</title>
+
+	<para>The JAIN SLEE &THIS.ENABLER; Enabler allows JAIN SLEE Applications to interact with REST Web Services, through an easy high level API. The Enabler consists in an SBB which can be used in child relations, to send REST requests, and receive responses asynchronously.</para>
+
+	<para>The JAIN SLEE &THIS.ENABLER; Enabler uses the JAIN SLEE HTTP Client, based on Apache HTTP Client, to send the lower level HTTP requests. The enabler also uses the Signpost API to handle OAuth authentication and authorization procedures.</para>
+	
+</chapter>

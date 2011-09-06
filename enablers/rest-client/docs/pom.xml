@@ -1,0 +1,55 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.enablers</groupId>
+		<artifactId>mobicents-slee-enabler-rest-client</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>mobicents-slee-enabler-rest-client-docs</artifactId>
+		
+	<packaging>pom</packaging>
+	
+	<modules>
+		<module>sources</module>		
+	</modules>
+
+	<properties>
+		<docs.enabler.name>REST Client</docs.enabler.name>
+		<docs.enabler.dirname>rest-client</docs.enabler.dirname>
+		<docs.bookid>RESTClient</docs.bookid>
+	</properties>
+	
+	<profiles>
+		<profile>
+			<id>mobicents</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>			
+			<modules>
+				<module>sources-mobicents</module>
+				<module>jdocbook-mobicents</module>				
+			</modules>
+		</profile>
+		<profile>
+			<id>jbcp</id>
+			<modules>
+				<module>sources-jbcp</module>
+				<module>jdocbook-jbcp</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>sources-mobicents</module>
+				<module>jdocbook-mobicents</module>
+				<module>sources-jbcp</module>
+				<module>jdocbook-jbcp</module>
+			</modules>
+		</profile>
+	</profiles>
+
+</project>

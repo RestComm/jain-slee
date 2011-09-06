@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN"
+                         "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
+<sbb-jar>
+
+	<sbb>
+
+		<description />
+
+		<sbb-name>RESTClientEnablerExample</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.0</sbb-version>
+
+		<!-- Delegate to this child SBB if we need to do registrations -->
+		<sbb-ref>
+			<sbb-name>RESTClientEnabler</sbb-name>
+			<sbb-vendor>org.mobicents</sbb-vendor>
+			<sbb-version>1.0</sbb-version>
+			<sbb-alias>childSbb</sbb-alias>
+		</sbb-ref>
+
+		<sbb-classes>
+			<sbb-abstract-class reentrant="True">
+				<sbb-abstract-class-name>org.mobicents.slee.enabler.rest.client.example.RESTClientEnablerExampleSbb</sbb-abstract-class-name>
+				<get-child-relation-method>
+					<sbb-alias-ref>childSbb</sbb-alias-ref>
+					<get-child-relation-method-name>
+						getChildRelation
+					</get-child-relation-method-name>
+					<default-priority>0</default-priority>
+				</get-child-relation-method>
+			</sbb-abstract-class>
+			<sbb-local-interface>
+				<sbb-local-interface-name>org.mobicents.slee.enabler.rest.client.RESTClientEnablerParentSbbLocalObject</sbb-local-interface-name>
+			</sbb-local-interface>
+
+		</sbb-classes>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>ServiceStartedEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.serviceactivity.ServiceStartedEvent
+			</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+		
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.ActivityEndEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+		
+		<env-entry>
+			<env-entry-name>twitter.consumerKey</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>gZ4Pfzt5cVona0zE1jIaGg</env-entry-value>
+		</env-entry>
+
+		<env-entry>
+			<env-entry-name>twitter.consumerSecret</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>2pFp496SoKuyIMmSwreT5sYXKBtJwlPSq1vY94jPes</env-entry-value>
+		</env-entry>
+
+		<env-entry>
+			<env-entry-name>twitter.accessToken</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>364794059-aDZ64OfCoMrEgGkcMY37mmUtfJ9nBhs28exs76ub</env-entry-value>
+		</env-entry>
+
+		<env-entry>
+			<env-entry-name>twitter.accessTokenKey</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>pKdWKt9Rf9u5pElpvBA5xRaRykTd8jlTrthN5KdnPOI</env-entry-value>
+		</env-entry>
+
+	</sbb>
+
+</sbb-jar>

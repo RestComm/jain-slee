@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Enabler_REST_Client_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="logging_traces_and_alarms">
+
+	<title>Traces and Alarms</title>
+
+	<section id="tracers">
+		<title>Tracers</title>
+		<important>
+       		<para>Spaces where introduced in log4j category name to properly render page. Please remove them when using copy/paste.</para>
+		</important>
+		<para>The JAIN SLEE &THIS.ENABLER; Enabler uses a single JAIN SLEE 1.1 Tracer, named <literal>RESTClientEnabler</literal>. 
+		The related log4j category is 
+		<literal>javax.slee.SbbNotification[service=ServiceID[name=</literal>
+		<literal>ServiceX,vendor=VendorY,version=VersionZ],</literal>
+		<literal>sbb=SbbID[name=RESTClientEnabler,vendor=org.mobicents,version=1.0]]</literal>.
+		Where <literal>ServiceX</literal>, <literal>VendorY</literal> and <literal>VersionZ</literal> need to be replaced by the identifiers of the Service using the Enabler.
+		</para>
+	</section>	
+	
+	<section id="alarms">
+		<title>Alarms</title>
+		<para>The JAIN SLEE &THIS.ENABLER; Enabler does not sets JAIN SLEE Alarms.</para>
+	</section>
+	
+</chapter>
