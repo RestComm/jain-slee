@@ -56,169 +56,174 @@ import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
  */
 public class GxServerSessionActivityImpl extends GxSessionActivityImpl implements GxServerSessionActivity, StateChangeListener<AppSession> {
 
-    private static final long serialVersionUID = 5230054776594429948L;
-    private static Logger logger = Logger.getLogger(GxServerSessionActivityImpl.class);
-    protected transient ServerGxSession session = null;
-    protected transient GxCreditControlRequest lastRequest = null;
+  private static final long serialVersionUID = 5230054776594429948L;
+  private static Logger logger = Logger.getLogger(GxServerSessionActivityImpl.class);
+  protected transient ServerGxSession session = null;
+  protected transient GxCreditControlRequest lastRequest = null;
 
-    public GxServerSessionActivityImpl(final DiameterMessageFactory messageFactory, final DiameterAvpFactory avpFactory, final ServerGxSession session,
-                                       final DiameterIdentity destinationHost, final DiameterIdentity destinationRealm, final Stack stack) {
-        super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
+  public GxServerSessionActivityImpl(final DiameterMessageFactory messageFactory, final DiameterAvpFactory avpFactory, final ServerGxSession session,
+      final DiameterIdentity destinationHost, final DiameterIdentity destinationRealm, final Stack stack) {
+    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
 
-        setSession(session);
-        super.setCurrentWorkingSession(this.session.getSessions().get(0));
-        super.setGxMessageFactory(new GxMessageFactoryImpl(messageFactory, session.getSessionId(), stack));
-    }
+    setSession(session);
+    super.setCurrentWorkingSession(this.session.getSessions().get(0));
+    super.setGxMessageFactory(new GxMessageFactoryImpl(messageFactory, session.getSessionId(), stack));
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public GxCreditControlAnswer createGxCreditControlAnswer() {
-        if (lastRequest == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("No request received, cant create answer.");
-            }
-            return null;
-        }
+  /**
+   * {@inheritDoc}
+   */
+   @Override
+   public GxCreditControlAnswer createGxCreditControlAnswer() {
+     if (lastRequest == null) {
+       if (logger.isInfoEnabled()) {
+         logger.info("No request received, cant create answer.");
+       }
+       return null;
+     }
 
-        final GxCreditControlAnswer answer = ((GxMessageFactoryImpl) getGxMessageFactory()).createGxCreditControlAnswer(lastRequest);
+     final GxCreditControlAnswer answer = ((GxMessageFactoryImpl) getGxMessageFactory()).createGxCreditControlAnswer(lastRequest);
 
-        return answer;
-    }
+     return answer;
+   }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendGxCreditControlAnswer(final GxCreditControlAnswer cca) throws IOException {
-        fetchCurrentState(cca);
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void sendGxCreditControlAnswer(final GxCreditControlAnswer cca) throws IOException {
+     fetchCurrentState(cca);
 
-        final DiameterMessageImpl msg = (DiameterMessageImpl) cca;
+     final DiameterMessageImpl msg = (DiameterMessageImpl) cca;
 
-        try {
-            session.sendCreditControlAnswer(new GxCreditControlAnswerImpl((Answer) msg.getGenericData()));
-        } catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
-            final AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
-            throw anae;
-        } catch (Exception e) {
-            throw new IOException("Failed to send message.", e);
-        }
-    }
+     try {
+       session.sendCreditControlAnswer(new GxCreditControlAnswerImpl((Answer) msg.getGenericData()));
+     }
+     catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
+       final AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
+       throw anae;
+     }
+     catch (Exception e) {
+       throw new IOException("Failed to send message.", e);
+     }
+   }
 
-    public GxReAuthRequest createGxReAuthRequest() {
-        // Create the request
-        final GxReAuthRequest request = super.getGxMessageFactory().createGxReAuthRequest(super.getSessionId()/*,type*/);
-        
-        // If there's a Destination-Host, add the AVP
-        if (destinationHost != null) {
-            request.setDestinationHost(destinationHost);
-        }
+   public GxReAuthRequest createGxReAuthRequest() {
+     // Create the request
+     final GxReAuthRequest request = super.getGxMessageFactory().createGxReAuthRequest(super.getSessionId()/*,type*/);
 
-        if (destinationRealm != null) {
-            request.setDestinationRealm(destinationRealm);
-        }
+     // If there's a Destination-Host, add the AVP
+     if (destinationHost != null) {
+       request.setDestinationHost(destinationHost);
+     }
 
-        return request;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendGxReAuthRequest(final GxReAuthRequest rar) throws IOException {
-        // RFC 4006 5.5
-        if(!rar.hasReAuthRequestType()) {
-            rar.setReAuthRequestType(ReAuthRequestType.AUTHORIZE_ONLY);
-        }
-        if(!rar.hasAuthApplicationId()) {
-            rar.setAuthApplicationId(GxMessageFactory._GX_AUTH_APP_ID);
-        }
+     if (destinationRealm != null) {
+       request.setDestinationRealm(destinationRealm);
+     }
 
-        final DiameterMessageImpl msg = (DiameterMessageImpl) rar;
+     return request;
+   }
 
-        try {
-            session.sendGxReAuthRequest(new GxReAuthRequestImpl((Request) msg.getGenericData()));
-        } catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
-            final AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
-            throw anae;
-        } catch (Exception e) {
-            throw new IOException("Failed to send message.", e);
-        }
-    }
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void sendGxReAuthRequest(final GxReAuthRequest rar) throws IOException {
+     // RFC 4006 5.5
+     if(!rar.hasReAuthRequestType()) {
+       rar.setReAuthRequestType(ReAuthRequestType.AUTHORIZE_ONLY);
+     }
+     if(!rar.hasAuthApplicationId()) {
+       rar.setAuthApplicationId(GxMessageFactory._GX_AUTH_APP_ID);
+     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void stateChanged(final AppSession source, final Enum oldState, final Enum newState) {
-        this.stateChanged(oldState, newState);
-    }
+     final DiameterMessageImpl msg = (DiameterMessageImpl) rar;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void stateChanged(final Enum oldState, final Enum newState) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Credit-Control Server FSM State Changed: " + oldState + " => " + newState);
-        }
+     try {
+       session.sendGxReAuthRequest(new GxReAuthRequestImpl((Request) msg.getGenericData()));
+     }
+     catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
+       final AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
+       throw anae;
+     }
+     catch (Exception e) {
+       throw new IOException("Failed to send message.", e);
+     }
+   }
 
-        final ServerGxSessionState s = (ServerGxSessionState) newState;
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void stateChanged(final AppSession source, final Enum oldState, final Enum newState) {
+     this.stateChanged(oldState, newState);
+   }
 
-        // IDLE(0), OPEN(1);
-        switch (s) {
-            case OPEN:
-                // FIXME: this should not happen?
-                break;
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void stateChanged(final Enum oldState, final Enum newState) {
+     if (logger.isInfoEnabled()) {
+       logger.info("Credit-Control Server FSM State Changed: " + oldState + " => " + newState);
+     }
 
-            case IDLE:
-                endActivity();
-                break;
+     final ServerGxSessionState s = (ServerGxSessionState) newState;
 
-            default:
-                logger.error("Unexpected state in Credit-Control Server FSM: " + s);
-        }
-    }
+     // IDLE(0), OPEN(1);
+     switch (s) {
+       case OPEN:
+         // FIXME: this should not happen?
+         break;
 
-    public void fetchCurrentState(final GxCreditControlRequest ccr) {
-        this.lastRequest = ccr;
-        // TODO: Complete this method.
-    }
+       case IDLE:
+         this.setTerminateAfterProcessing(true);
+         super.baseListener.startActivityRemoveTimer(getActivityHandle());
+         break;
 
-    public void fetchCurrentState(final GxCreditControlAnswer cca) {
-        // TODO: Complete this method.
-    }
+       default:
+         logger.error("Unexpected state in Credit-Control Server FSM: " + s);
+     }
+   }
 
-    public ServerGxSession getSession() {
-        return this.session;
-    }
+   public void fetchCurrentState(final GxCreditControlRequest ccr) {
+     this.lastRequest = ccr;
+     // TODO: Complete this method.
+   }
 
-    public void setSession(final ServerGxSession session2) {
-        this.session = session2;
-        this.session.addStateChangeNotification(this);
-    }
+   public void fetchCurrentState(final GxCreditControlAnswer cca) {
+     // TODO: Complete this method.
+   }
 
-    public GxSessionState getState() {
-        final ServerGxSessionState sessionState = session.getState(ServerGxSessionState.class);
-        switch (sessionState) {
-            case OPEN:
-                return GxSessionState.OPEN;
-            case IDLE:
-                return GxSessionState.IDLE;
-            default:
-                logger.error("Unexpected state in Credit-Control Server FSM: " + sessionState);
-                return null;
-        }
-    }
+   public ServerGxSession getSession() {
+     return this.session;
+   }
 
-    public String toString() {
-        return super.toString() + " -- Event[ " + (lastRequest != null) + " ] Session[ " + session + " ] State[ " + getState() + " ]";
-    }
+   public void setSession(final ServerGxSession session2) {
+     this.session = session2;
+     this.session.addStateChangeNotification(this);
+   }
 
-    @Override
-    public void endActivity() {
-        this.session.release();
-        super.baseListener.endActivity(getActivityHandle());
-    }
-    }
+   public GxSessionState getState() {
+     final ServerGxSessionState sessionState = session.getState(ServerGxSessionState.class);
+     switch (sessionState) {
+       case OPEN:
+         return GxSessionState.OPEN;
+       case IDLE:
+         return GxSessionState.IDLE;
+       default:
+         logger.error("Unexpected state in Credit-Control Server FSM: " + sessionState);
+         return null;
+     }
+   }
+
+   public String toString() {
+     return super.toString() + " -- Event[ " + (lastRequest != null) + " ] Session[ " + session + " ] State[ " + getState() + " ]";
+   }
+
+   @Override
+   public void endActivity() {
+     this.session.release();
+     super.endActivity();
+   }
+}
