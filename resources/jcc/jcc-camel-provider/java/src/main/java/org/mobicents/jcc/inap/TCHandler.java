@@ -174,14 +174,14 @@ public class TCHandler implements Runnable {
                 org.mobicents.protocols.ss7.tcap.asn.comp.OperationCode oc = invoke.getOperationCode();
                 if(invoke.getParameter() == null)
                 {
-                	logger.error("Received invoke component without parameter, op code: "+oc.getCode()+", skipping!");
+                	logger.error("Received invoke component without parameter, op code: "+oc.getLocalOperationCode()+", skipping!");
             		continue;
                 }
                 //get data, regardles of type, we get buffer of passed param.
                 byte[] buff = invoke.getParameter().getData();
                 Operation inapOp = null;
                 //its ok, long is general representation 
-				switch (oc.getCode().intValue()) {
+				switch (oc.getLocalOperationCode().intValue()) {
 				case Operation.INITIAL_DP:
 					try {
 						inapOp = new InitialDP(buff);
@@ -208,7 +208,7 @@ public class TCHandler implements Runnable {
 					break;
 				default:
 					try {
-						inapOp = new UnknownOperation(oc.getCode().intValue(), buff);
+						inapOp = new UnknownOperation(oc.getLocalOperationCode().intValue(), buff);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -327,7 +327,7 @@ public class TCHandler implements Runnable {
                 	}
                     Invoke invoke = (Invoke) c;
                     org.mobicents.protocols.ss7.tcap.asn.comp.OperationCode operation = (OperationCode) invoke.getOperationCode();
-                    switch (operation.getCode().intValue()) {
+                    switch (operation.getLocalOperationCode().intValue()) {
                         case Operation.EVENT_REPORT_BCSM:
 						EventReportBCSM bcsmEvent;
 						try {
@@ -374,7 +374,7 @@ public class TCHandler implements Runnable {
                             break;
                         default:
                             if (logger.isDebugEnabled()) {
-                                logger.debug("Ignoring operation: "+operation.getCode());
+                                logger.debug("Ignoring operation: "+operation.getLocalOperationCode());
                             }
                             break;
                     }

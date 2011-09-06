@@ -497,6 +497,22 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
         }
 
     }
+    
+	/* (non-Javadoc)
+	 * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onDialogReleased(org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog)
+	 */
+	@Override
+	public void onDialogReleased(Dialog dialog) {
+		 logger.info("Received Dialog Release! Dialog ID: " + dialog.getDialogId());		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.protocols.ss7.tcap.api.TCListener#onDialogTimeout(org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog)
+	 */
+	@Override
+	public void onDialogTimeout(Dialog dialog) {
+		 logger.warn("Received Dialog Timeout! Dialog ID: " + dialog.getDialogId());				
+	}
 
     private class Monitor implements Runnable {
 
@@ -513,4 +529,6 @@ public class JccInapProviderImpl implements JccProvider, TCListener {
             }
         }
     }
+
+
 }

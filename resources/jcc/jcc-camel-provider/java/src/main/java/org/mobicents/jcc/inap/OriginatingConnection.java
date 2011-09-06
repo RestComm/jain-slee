@@ -257,7 +257,8 @@ public class OriginatingConnection extends AbstractConnection {
         invoke.setInvokeId(super.tcapDialog.getNewInvokeId());
         
         //components.add(new Invoke(1, applyCharging));
-        OperationCode oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.APPLY_CHARGING));
+        OperationCode oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode( );
+        oc.setLocalOperationCode(new Long(Operation.APPLY_CHARGING));
         invoke.setOperationCode(oc);
         //now set apply charging.
         Parameter parameter = super.tcapProvider.getComponentPrimitiveFactory().createParameter();
@@ -272,7 +273,8 @@ public class OriginatingConnection extends AbstractConnection {
         invoke = super.tcapProvider.getComponentPrimitiveFactory().createTCInvokeRequest();
         invoke.setInvokeId(super.tcapDialog.getNewInvokeId());
         
-        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.REQUEST_REPORT_BCSM_EVENT));
+        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode(new Long(Operation.REQUEST_REPORT_BCSM_EVENT));
         invoke.setOperationCode(oc);
         parameter = super.tcapProvider.getComponentPrimitiveFactory().createParameter();
         parameter.setPrimitive(RequestBCSMState._IS_PRIMITIVE);
@@ -287,7 +289,8 @@ public class OriginatingConnection extends AbstractConnection {
         invoke = super.tcapProvider.getComponentPrimitiveFactory().createTCInvokeRequest();
         invoke.setInvokeId(super.tcapDialog.getNewInvokeId());
         
-        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.CALL_INFORMATION_REQUEST));
+        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode( new Long(Operation.CALL_INFORMATION_REQUEST));
         invoke.setOperationCode(oc);
         parameter = super.tcapProvider.getComponentPrimitiveFactory().createParameter();
         parameter.setPrimitive(CallInformationRequest._IS_PRIMITIVE);
@@ -301,7 +304,8 @@ public class OriginatingConnection extends AbstractConnection {
         //components.add(new Invoke(4, connect));
         invoke = super.tcapProvider.getComponentPrimitiveFactory().createTCInvokeRequest();
         invoke.setInvokeId(super.tcapDialog.getNewInvokeId());
-        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.CONNECT));
+        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode( new Long(Operation.CONNECT));
         invoke.setOperationCode(oc);
         parameter = super.tcapProvider.getComponentPrimitiveFactory().createParameter();
         parameter.setPrimitive(Connect._IS_PRIMITIVE);
@@ -363,7 +367,8 @@ public class OriginatingConnection extends AbstractConnection {
         Invoke invoke = super.tcapProvider.getComponentPrimitiveFactory().createTCInvokeRequest();
         invoke.setInvokeId(super.tcapDialog.getNewInvokeId());
         
-        OperationCode oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.REQUEST_REPORT_BCSM_EVENT));
+        OperationCode oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode(new Long(Operation.REQUEST_REPORT_BCSM_EVENT));
         invoke.setOperationCode(oc);
         Parameter parameter = super.tcapProvider.getComponentPrimitiveFactory().createParameter();
         parameter.setPrimitive(RequestBCSMState._IS_PRIMITIVE);
@@ -377,7 +382,8 @@ public class OriginatingConnection extends AbstractConnection {
         invoke = super.tcapProvider.getComponentPrimitiveFactory().createTCInvokeRequest();
         invoke.setInvokeId(super.tcapDialog.getNewInvokeId());
         
-        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode(false, new Long(Operation.CONTINUE));
+        oc = super.tcapProvider.getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode( new Long(Operation.CONTINUE));
         invoke.setOperationCode(oc);
         tcapDialog.sendComponent(invoke);
         TCContinueRequest message = this.tcapProvider.getDialogPrimitiveFactory().createContinue(this.tcapDialog);
