@@ -22,11 +22,16 @@
 
 package org.mobicents.slee.resource.diameter;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.slee.resource.ResourceAdaptorContext;
 
 import net.java.slee.resource.diameter.base.DiameterActivity;
 
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
+import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 
 /**
  * 
@@ -36,6 +41,17 @@ import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
 public class LocalDiameterActivityManagement implements DiameterActivityManagement{
 
   private ConcurrentHashMap<DiameterActivityHandle,DiameterActivity> activities = new ConcurrentHashMap<DiameterActivityHandle, DiameterActivity>();
+  private Timer timer;
+  private long delay;
+  private ConcurrentHashMap<DiameterActivityHandle,TimerTask> removeMap = new ConcurrentHashMap<DiameterActivityHandle, TimerTask>();
+  /**
+   * 
+   */
+  public LocalDiameterActivityManagement(ResourceAdaptorContext raCtx, long delay) {
+    super();
+    this.timer = raCtx.getTimer();
+    this.delay = delay;
+  }
 
   public DiameterActivity get(DiameterActivityHandle handle) {
     return activities.get(handle);
@@ -58,6 +74,79 @@ public class LocalDiameterActivityManagement implements DiameterActivityManageme
 
   public void update(DiameterActivityHandle handle, DiameterActivity activity) {
     //here we don't do a thing
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.mobicents.slee.resource.diameter.DiameterActivityManagement#
+   * startActivityRemoveTimer
+   * (org.mobicents.slee.resource.diameter.base.DiameterActivityHandle)
+   */
+  public void startActivityRemoveTimer(DiameterActivityHandle handle) {
+    if(this.activities.contains(handle)) {
+      ActivityRemoveTimerTask task = new ActivityRemoveTimerTask(handle);
+      this.removeMap.put(handle, task);
+      this.timer.schedule(new ActivityRemoveTimerTask(handle), delay);
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.mobicents.slee.resource.diameter.DiameterActivityManagement#
+   * stopActivityRemoveTimer
+   * (org.mobicents.slee.resource.diameter.base.DiameterActivityHandle)
+   */
+  public void stopActivityRemoveTimer(DiameterActivityHandle handle) {
+    DiameterActivity da = this.activities.get(handle);
+    if(da != null) {
+      synchronized (da) {
+        TimerTask tt = this.removeMap.remove(handle);
+        if(tt != null) {
+          tt.cancel();
+        }
+      }
+    }
+  }
+
+  private class ActivityRemoveTimerTask extends TimerTask {
+
+    private DiameterActivityHandle handle;
+
+    /**
+     * @param handle
+     */
+    public ActivityRemoveTimerTask(DiameterActivityHandle handle) {
+      super();
+      this.handle = handle;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.util.TimerTask#run()
+     */
+    @Override
+    public void run() {
+      try {
+        DiameterActivityImpl da = (DiameterActivityImpl) get(handle);
+        if (da != null) {
+          synchronized (da) {
+            if(da.isTerminateAfterProcessing()) {
+              da.setTerminateAfterProcessing(false);
+              da.endActivity();
+            }
+          }
+        }
+
+      }
+      catch(Exception e){
+        e.printStackTrace();
+      }
+      finally {
+        removeMap.remove(handle);
+      }
+    }
   }
 
 }

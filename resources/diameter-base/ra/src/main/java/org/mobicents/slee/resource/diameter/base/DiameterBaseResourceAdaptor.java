@@ -205,6 +205,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
   private Stack stack;
   private SessionFactory sessionFactory = null;
   private long messageTimeout = 5000;
+  private long activityRemoveDelay = 30000;
 
   private ObjectName diameterMultiplexerObjectName = null;
   private DiameterStackMultiplexerMBean diameterMux = null;
@@ -593,25 +594,36 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter Base RA :: eventProcessingFailed :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "], reason[" + reason + "].");
     }
+
+    processAfterEventDelivery(handle, eventType, event, address, service, flags);
   }
 
   public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter Base RA :: eventProcessingSuccessful :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "].");
     }
-
-    //    DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
-    //    if(activity.isTerminateAfterProcessing()) {
-    //      this.sleeEndpoint.endActivity(handle);
-    //    }
+    processAfterEventDelivery(handle, eventType, event, address, service, flags);
   }
 
   public void eventUnreferenced(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
     if(tracer.isFineEnabled()) {
       tracer.fine("Diameter Base RA :: eventUnreferenced :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], service[" + service + "], flags[" + flags + "].");
     }
+    processAfterEventDelivery(handle, eventType, event, address, service, flags);
   }
 
+	private void processAfterEventDelivery(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service,
+			int flags) {
+		DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
+		if (activity != null) {
+			synchronized (activity) {
+				if (activity.isTerminateAfterProcessing()) {
+					activity.endActivity();
+				}
+			}
+		}
+	}
+  
   public void activityEnded(ActivityHandle handle) {
     if(tracer.isFineEnabled()) {
       tracer.fine("Diameter Base RA :: activityEnded :: handle[" + handle + ".");
@@ -794,7 +806,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
       if(tracer.isInfoEnabled()) {
         tracer.info(raContext.getEntityName() + " -- running in LOCAL mode.");
       }
-      this.activities = new LocalDiameterActivityManagement();
+      this.activities = new LocalDiameterActivityManagement(this.raContext, activityRemoveDelay);
     }
     else {
       if(tracer.isInfoEnabled()) {
@@ -802,7 +814,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
       }
       final ReplicatedData<String, DiameterActivity> clusteredData = this.ftRAContext.getReplicateData(true);
       // get special one
-      this.activities = new AbstractClusteredDiameterActivityManagement(this.raContext.getTracer(""), stack, this.raContext.getSleeTransactionManager(), clusteredData) {
+      this.activities = new AbstractClusteredDiameterActivityManagement(this.ftRAContext, activityRemoveDelay,this.raContext.getTracer(""), stack, this.raContext.getSleeTransactionManager(), clusteredData) {
 
         @Override
         protected void performBeforeReturn(DiameterActivityImpl activity) {
@@ -1092,6 +1104,14 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
     else {
 
     }
+  }
+
+  public void startActivityRemoveTimer(DiameterActivityHandle handle) {
+    this.activities.startActivityRemoveTimer(handle);
+  }
+
+  public void stopActivityRemoveTimer(DiameterActivityHandle handle) {
+    this.activities.stopActivityRemoveTimer(handle);
   }
 
   public void update(DiameterActivityHandle activityHandle,DiameterActivity da) {

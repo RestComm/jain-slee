@@ -155,6 +155,7 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl imple
     {
     case IDLE:
       //super.state=AuthSessionState.Idle;
+      //FIXME: should this also terminate?
       break;
     case OPEN:
       // super.state=AuthSessionState.Open;
@@ -167,7 +168,8 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl imple
       //String sessionId = this.clientSession.getSessions().get(0).getSessionId();
       //this.clientSession.release();
       //this.baseListener.sessionDestroyed(sessionId, this.clientSession);
-      endActivity();
+      this.setTerminateAfterProcessing(true);
+      super.baseListener.startActivityRemoveTimer(getActivityHandle());
       break;
     }
   }
@@ -203,6 +205,6 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl imple
   @Override
   public void endActivity() {
     this.clientSession.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 }

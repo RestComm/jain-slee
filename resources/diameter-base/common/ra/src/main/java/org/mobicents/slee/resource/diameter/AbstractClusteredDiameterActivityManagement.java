@@ -22,6 +22,9 @@
 
 package org.mobicents.slee.resource.diameter;
 
+import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
+
 import javax.slee.facilities.Tracer;
 import javax.slee.transaction.SleeTransactionManager;
 import javax.transaction.SystemException;
@@ -30,6 +33,10 @@ import javax.transaction.Transaction;
 import net.java.slee.resource.diameter.base.DiameterActivity;
 
 import org.jdiameter.api.Stack;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
+import org.mobicents.slee.resource.cluster.FaultTolerantTimer;
+import org.mobicents.slee.resource.cluster.FaultTolerantTimerTask;
+import org.mobicents.slee.resource.cluster.FaultTolerantTimerTaskData;
 import org.mobicents.slee.resource.cluster.ReplicatedData;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityHandle;
 import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
@@ -43,19 +50,22 @@ import org.mobicents.slee.resource.diameter.base.DiameterActivityImpl;
 public abstract class AbstractClusteredDiameterActivityManagement implements DiameterActivityManagement {
 
   protected Tracer tracer;
-  // protected LocalDiameterActivityManagement localManagement = new
-  // LocalDiameterActivityManagement();
+
   protected Stack diameterStack;
   protected SleeTransactionManager sleeTxManager;
   // use string here to reduce repl overhead.
   protected ReplicatedData<String, DiameterActivity> replicatedData;
+  protected FaultTolerantTimer faultTolerantTimer;
+  protected long delay;
 
-  public AbstractClusteredDiameterActivityManagement(Tracer tracer, Stack diameterStack, SleeTransactionManager sleeTxManager, ReplicatedData<String, DiameterActivity> replicatedData) {
+  public AbstractClusteredDiameterActivityManagement(FaultTolerantResourceAdaptorContext ftRAContext, long delay,Tracer tracer, Stack diameterStack, SleeTransactionManager sleeTxManager, ReplicatedData<String, DiameterActivity> replicatedData) {
     super();
     this.tracer = tracer;
     this.diameterStack = diameterStack;
     this.sleeTxManager = sleeTxManager;
     this.replicatedData = replicatedData;
+    this.faultTolerantTimer = ftRAContext.getFaultTolerantTimer();
+    this.delay = delay;
   }
 
   /*
@@ -70,7 +80,6 @@ public abstract class AbstractClusteredDiameterActivityManagement implements Dia
     //FIXME: add check for RA
     if (activity != null) {
       // now we have to set some resources...
-      // 1. generic task - get session, if no session, cleanup?
       if(activity.getSessionListener() == null) {
         performBeforeReturn(activity);
       }
@@ -130,6 +139,22 @@ public abstract class AbstractClusteredDiameterActivityManagement implements Dia
     return this.replicatedData.contains(activityHandle.getId());
   }
 
+  public void startActivityRemoveTimer(DiameterActivityHandle handle) {
+    DiameterActivity da = this.get(handle);
+    if(da != null) {
+      this.faultTolerantTimer.schedule(new ActivityRemovalFaultTolerantTimerTask(handle), delay, TimeUnit.MILLISECONDS);
+    }
+  }
+
+  public void stopActivityRemoveTimer(DiameterActivityHandle handle) {
+    DiameterActivity da = this.get(handle);
+    if(da != null) {
+      synchronized (da) {
+        this.faultTolerantTimer.cancel(handle.getId());
+      }
+    }
+  }
+
   /**
    * This method should be implemented by each RA.
    * It should perform all management operations before activity is returned.
@@ -137,5 +162,59 @@ public abstract class AbstractClusteredDiameterActivityManagement implements Dia
    * @param activity
    */
   protected abstract void performBeforeReturn(DiameterActivityImpl activity);
+
+  private final class ActivityRemovalFaultTolerantTimerTask implements FaultTolerantTimerTask {
+    private final FaultTolerantTimerTaskData taskData;
+
+    public ActivityRemovalFaultTolerantTimerTask(DiameterActivityHandle handle) {
+      this.taskData = new DiameterTimerTaskData(handle.getId());
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    public void run() {
+      try {
+        DiameterActivityImpl da = (DiameterActivityImpl) get(new DiameterActivityHandle((String)getTaskData().getTaskID()));
+        if (da != null) {
+          synchronized (da) {
+            if(da.isTerminateAfterProcessing()) {
+              da.setTerminateAfterProcessing(false);
+              da.endActivity();
+            }
+          }
+        }
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    /* (non-Javadoc)
+     * @see org.mobicents.slee.resource.cluster.FaultTolerantTimerTask#getTaskData()
+     */
+    public FaultTolerantTimerTaskData getTaskData() {
+      return taskData;
+    }
+  }
+
+  private final class DiameterTimerTaskData implements FaultTolerantTimerTaskData {
+
+    private static final long serialVersionUID = 1L;
+
+    private final String sessionId;
+
+    public DiameterTimerTaskData(String sessionId) {
+      this.sessionId = sessionId;
+    }
+
+    /* (non-Javadoc)
+     * @see org.mobicents.slee.resource.cluster.FaultTolerantTimerTaskData#getTaskID()
+     */
+    @Override
+    public Serializable getTaskID() {
+      return this.sessionId;
+    }
+  }
 
 }

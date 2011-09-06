@@ -59,4 +59,8 @@ public interface DiameterActivityManagement {
   public boolean containsKey(DiameterActivityHandle activityHandle);
 
   public void update(DiameterActivityHandle handle, DiameterActivity activity);
+
+  public void startActivityRemoveTimer(DiameterActivityHandle handle);
+
+  public void stopActivityRemoveTimer(DiameterActivityHandle handle);
 }

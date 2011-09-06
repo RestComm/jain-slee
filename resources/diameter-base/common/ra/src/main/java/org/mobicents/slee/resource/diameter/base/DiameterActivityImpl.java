@@ -141,6 +141,9 @@ public class DiameterActivityImpl implements DiameterActivity {
   }
 
   public void endActivity() {
+	 //TODO: check if this should be synced to ensure calls from SBBs work properly.
+	this.setTerminateAfterProcessing(false);
+    this.baseListener.stopActivityRemoveTimer((DiameterActivityHandle) handle);
     if(session != null) {
       session.release();
     }
@@ -277,19 +280,8 @@ public class DiameterActivityImpl implements DiameterActivity {
     this.baseListener = (DiameterRAInterface) ra;
   }
 
-  protected void clean() {
-    //FIXME: not called anymore?
-    this.session = null;
-    this.handle = null;
-    this.avpFactory = null;
-    this.eventListener = null;
-    this.avpFactory = null;
-    //this.handle = null;
-  }
-
   public void setTerminateAfterProcessing(boolean terminateAfterProcessing) {
     this.terminateAfterProcessing = terminateAfterProcessing;
-    this.baseListener.update(getActivityHandle(), this);
   }
 
   public boolean isTerminateAfterProcessing() {

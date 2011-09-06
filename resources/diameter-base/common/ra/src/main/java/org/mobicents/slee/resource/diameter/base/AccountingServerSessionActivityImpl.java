@@ -57,6 +57,8 @@ import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
  */
 public class AccountingServerSessionActivityImpl extends AccountingSessionActivityImpl implements AccountingServerSessionActivity {
 
+  private static final long serialVersionUID = 1L;
+
   protected transient ServerAccSession serverSession = null;
 
   //FIXME: These are default values, should be overriden by stack.
@@ -167,7 +169,8 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
     if (newState == ServerAccSessionState.IDLE) {
       //super.state = AccountingSessionState.Idle;
       //destroyAfterSending = true;
-      setTerminateAfterProcessing(true);
+      this.setTerminateAfterProcessing(true);
+      super.baseListener.startActivityRemoveTimer(getActivityHandle());
     }
     else {
       //super.state = AccountingSessionState.Open;
@@ -207,7 +210,7 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
   @Override
   public void endActivity() {
     this.serverSession.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 
 }

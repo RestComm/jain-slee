@@ -104,7 +104,9 @@ public class AccountingClientSessionActivityImpl extends AccountingSessionActivi
         //this.state = AccountingSessionState.Idle;
         //this.clientSession.release();
         //this.baseListener.sessionDestroyed(sessionId, this.clientSession);
-        endActivity();
+        //endActivity();
+        this.setTerminateAfterProcessing(true);
+        super.baseListener.startActivityRemoveTimer(getActivityHandle());
       }
       break;
     case OPEN:
@@ -168,7 +170,7 @@ public class AccountingClientSessionActivityImpl extends AccountingSessionActivi
   @Override
   public void endActivity() {
     this.clientSession.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 
 }

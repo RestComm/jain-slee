@@ -59,4 +59,7 @@ public interface DiameterRAInterface {
 
   public void update(DiameterActivityHandle activityHandle,DiameterActivity da);
 
+  public void startActivityRemoveTimer(DiameterActivityHandle handle);
+
+  public void stopActivityRemoveTimer(DiameterActivityHandle handle);
 }
