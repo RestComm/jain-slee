@@ -186,7 +186,8 @@ public class RoServerSessionActivityImpl extends RoSessionActivityImpl implement
       // ((CCASessionCreationListener)
       // this.getSessionListener()).sessionDestroyed(sessionId, this);
       // this.session.release();
-      endActivity();
+      this.setTerminateAfterProcessing(true);
+      super.baseListener.startActivityRemoveTimer(getActivityHandle());
       break;
 
     default:
@@ -232,7 +233,7 @@ public class RoServerSessionActivityImpl extends RoSessionActivityImpl implement
   @Override
   public void endActivity() {
     this.session.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 
 }

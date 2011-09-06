@@ -252,16 +252,8 @@ public class RoClientSessionActivityImpl extends RoSessionActivityImpl implement
       break;
     case IDLE:
       //this.state = CreditControlSessionState.IDLE;
-      ClientRoSessionState old = (ClientRoSessionState) oldState;
-      if (old == ClientRoSessionState.PENDING_EVENT) {
-        super.setTerminateAfterProcessing(true);
-
-      }
-      else {
-        //((CCASessionCreationListener) this.getSessionListener()).sessionDestroyed(sessionId, this);
-        //this.session.release();
-        endActivity();
-      }
+      this.setTerminateAfterProcessing(true);
+      super.baseListener.startActivityRemoveTimer(getActivityHandle());
       break;
 
     default:
@@ -364,7 +356,7 @@ public class RoClientSessionActivityImpl extends RoSessionActivityImpl implement
   @Override
   public void endActivity() {
     this.session.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 
 }
