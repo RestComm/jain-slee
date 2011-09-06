@@ -164,6 +164,6 @@ public class ShClientActivityImpl extends DiameterActivityImpl implements ShClie
   public void endActivity() {
     this.clientSession.release();
     this.clientSession.removeStateChangeNotification(this);
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 }

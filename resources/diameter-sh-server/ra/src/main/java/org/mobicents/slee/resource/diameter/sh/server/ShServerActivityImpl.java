@@ -391,16 +391,8 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
   @Override
   public void endActivity() {
     this.serverSession.release();
-    super.baseListener.endActivity(getActivityHandle());
     this.serverSession.removeStateChangeNotification(this);
-    //this.messageFactory.clean();
-    //this.messageFactory = null;
-    //this.serverSession = null;
-    //super.session =  null;
-    //
-    //this.shAvpFactory = null;
-    //
-    //this.stateMessages.clear();
+    super.endActivity();
   }
 
   // Aux Methods ---------------------------------------------------------

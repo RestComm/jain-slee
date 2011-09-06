@@ -428,15 +428,8 @@ public class ShServerSubscriptionActivityImpl extends DiameterActivityImpl imple
   @Override
   public void endActivity() {
     this.serverSession.release();
-    super.baseListener.endActivity(getActivityHandle());
     this.serverSession.removeStateChangeNotification(this);
-    //this.messageFactory.clean();
-    //this.serverSession = null;
-    //super.session = null;
-    //this.messageFactory = null;
-    //this.shAvpFactory = null;
-    //super.session = null;
-    //super.clean();
+    super.endActivity();
   }
 
   // Setters & Getters ---------------------------------------

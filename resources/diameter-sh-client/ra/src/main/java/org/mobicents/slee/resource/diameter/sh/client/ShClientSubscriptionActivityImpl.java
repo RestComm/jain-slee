@@ -314,7 +314,7 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
   public void endActivity() {
     this.clientSession.release();
     this.clientSession.removeStateChangeNotification(this);
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
   /**
    * 
