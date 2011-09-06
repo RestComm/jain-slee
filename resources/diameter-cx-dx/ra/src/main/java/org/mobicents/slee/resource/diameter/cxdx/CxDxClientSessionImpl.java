@@ -299,7 +299,8 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
     if (!terminated) {
       if (newState == CxDxSessionState.TERMINATED || newState == CxDxSessionState.TIMEDOUT) {
         terminated = true;
-        endActivity();
+        this.setTerminateAfterProcessing(true);
+        super.baseListener.startActivityRemoveTimer(getActivityHandle());
       }
     }
   }
@@ -318,13 +319,7 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
       this.appSession.release();
     }
 
-    try {
-      // endpoint.endActivity(this.getActivityHandle());
-      super.baseListener.endActivity(this.getActivityHandle());
-    }
-    catch (Exception e) {
-      logger.error("Failed to end activity [" + this + "].", e);
-    }
+    super.endActivity();
   }
 
 }

@@ -181,6 +181,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
   private Stack stack;
 
   private long messageTimeout = 5000;
+  private long activityRemoveDelay = 30000;
 
   private ObjectName diameterMultiplexerObjectName = null;
   private DiameterStackMultiplexerMBean diameterMux = null;
@@ -519,17 +520,43 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter Cx/Dx RA :: eventProcessingFailed :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "], reason[" + reason + "].");
     }
+    if(!(handle instanceof DiameterActivityHandle)) {
+      return;
+    }
+
+    processAfterEventDelivery(handle, eventType, event, address, service, flags);
   }
 
   public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter Cx/Dx RA :: eventProcessingSuccessful :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "].");
     }
+    if(!(handle instanceof DiameterActivityHandle)) {
+      return;
+    }
+
+    processAfterEventDelivery(handle, eventType, event, address, service, flags);
   }
 
   public void eventUnreferenced(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
     if(tracer.isFineEnabled()) {
       tracer.fine("Diameter Cx/Dx RA :: eventUnreferenced :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], service[" + service + "], flags[" + flags + "].");
+    }
+    if(!(handle instanceof DiameterActivityHandle)) {
+      return;
+    }
+
+    processAfterEventDelivery(handle, eventType, event, address, service, flags);
+  }
+
+  private void processAfterEventDelivery(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
+    DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
+    if (activity != null) {
+      synchronized (activity) {
+        if (activity.isTerminateAfterProcessing()) {
+          activity.endActivity();
+        }
+      }
     }
   }
 
@@ -543,6 +570,14 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
     }
   }
 
+  public void startActivityRemoveTimer(DiameterActivityHandle handle) {
+    this.activities.startActivityRemoveTimer(handle);
+  }
+
+  public void stopActivityRemoveTimer(DiameterActivityHandle handle) {
+    this.activities.stopActivityRemoveTimer(handle);
+  }
+	
   public void activityUnreferenced(ActivityHandle handle) {
     if(tracer.isFineEnabled()) {
       tracer.fine("Diameter Cx/Dx RA :: activityUnreferenced :: handle[" + handle + "].");
@@ -701,7 +736,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
     }
   }
   private void initActivitiesMgmt() {
-    this.activities = new LocalDiameterActivityManagement();
+    this.activities = new LocalDiameterActivityManagement(this.raContext, this.activityRemoveDelay);
 
     /* Not Used. No HA for Cx/Dx is needed
     if (this.ftRAContext.isLocal()) {
