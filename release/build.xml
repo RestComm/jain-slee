@@ -30,7 +30,7 @@
 	<property name="diameter.version" value="1.4.0.BETA1" />
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
 	-->
-	<property name="diameter.download.url" value ="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Diameter-1.x-Release/lastSuccessfulBuild/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201109050036.sar.zip"/>
+	<property name="diameter.download.url" value ="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Diameter-1.x-Release/lastSuccessfulBuild/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201109060020.sar.zip"/>
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
 
 	<!--
