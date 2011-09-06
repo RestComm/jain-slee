@@ -180,12 +180,11 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
   }
 
   public void stateChanged(Enum oldState, Enum newState) {
-
     if (newState == ServerRfSessionState.IDLE) {
-      // super.state = AccountingSessionState.Idle;
-      // destroyAfterSending = true;
-      setTerminateAfterProcessing(true);
-    } else {
+      this.setTerminateAfterProcessing(true);
+      super.baseListener.startActivityRemoveTimer(getActivityHandle());
+    }
+    else {
       // super.state = AccountingSessionState.Open;
     }
   }
@@ -264,7 +263,7 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
   @Override
   public void endActivity() {
     this.serverSession.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 
   /*

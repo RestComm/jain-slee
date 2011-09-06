@@ -112,7 +112,8 @@ public class RfClientSessionActivityImpl extends RfSessionActivityImpl implement
         // this.clientSession.release();
         // this.baseListener.sessionDestroyed(sessionId,
         // this.clientSession);
-        endActivity();
+        this.setTerminateAfterProcessing(true);
+        super.baseListener.startActivityRemoveTimer(getActivityHandle());
       }
       break;
     case OPEN:
@@ -176,7 +177,7 @@ public class RfClientSessionActivityImpl extends RfSessionActivityImpl implement
   @Override
   public void endActivity() {
     this.clientSession.release();
-    super.baseListener.endActivity(getActivityHandle());
+    super.endActivity();
   }
 
   /*
