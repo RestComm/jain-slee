@@ -451,7 +451,9 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 				try {
 					stw = new ServerTransactionWrapper((SIPServerTransaction)provider.getNewServerTransaction(req.getRequest()),this);
 				} catch (Throwable e) {
-					tracer.severe("Failed to create server tx in provider",e);
+					if(tracer.isFineEnabled()) {
+						tracer.fine("Failed to create server tx in provider",e);
+					}
 					return;
 				}
 			}
