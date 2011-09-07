@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="introduction">
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>This resource adaptor provides a Diameter API for JAIN SLEE applications, according to Rx interface based on Diameter protocol.</para>
+	<para>The Rx reference point is used to exchange application level session information between the Policy and Charging Rules Function (<acronym>PCRF</acronym>) and the Application Function (<acronym>AF</acronym>). This information is part of the input used by the <acronym>PCRF</acronym> for the Policy and Charging Control (<acronym>PCC</acronym>) decisions. The <acronym>PCRF</acronym> exchanges the <acronym>PCC</acronym> rules with the Policy and Charging Enforcement Function (<acronym>PCEF</acronym>) and <acronym>QoS</acronym> rules with the Bearer Binding and Event Reporting Function (<acronym>BBERF</acronym>).</para>
+	<para>Events represent Diameter Rx messages received by the Diameter stack. Different events types are specified for each Diameter request or answer. Events are fired either on client or server activities.</para>
+	<para>The Activities are defined by <acronym>RA</acronym> Type to ease use of <acronym>RA</acronym>. Activities represent Diameter session between two peers. <acronym>SLEE</acronym> applications use activities to create, send and receive messages.</para>
+
+</chapter>
