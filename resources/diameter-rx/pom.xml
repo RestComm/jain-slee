@@ -47,14 +47,14 @@
         <profile>
             <id>release</id>
             <modules>
-                <!-- <module>docs</module> -->
+                <module>docs</module>
                 <module>release</module>
             </modules>
         </profile>
         <profile>
             <id>maven-release</id>
             <modules>
-                <!-- <module>docs</module> -->
+                <module>docs</module>
                 <module>release</module>
             </modules>
             <build>
@@ -75,10 +75,10 @@
         </profile>
     </profiles>
 
-    <scm>							
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-rx</connection>    	
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-rx</developerConnection>
-   		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-rx</url>
+    <scm>
+      <connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-rx</connection>
+      <developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-rx</developerConnection>
+      <url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-rx</url>
     </scm>
 
     <build>
