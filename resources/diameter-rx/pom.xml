@@ -35,7 +35,7 @@
 
     <properties>
         <!-- Mobicents Diameter Components Versions -->
-        <mobicents.diameter.resources.cca-common.version>2.4.2-SNAPSHOT</mobicents.diameter.resources.cca-common.version>       
+        <mobicents.diameter.resources.cca-common.version>2.5.0.FINAL</mobicents.diameter.resources.cca-common.version>       
         <!-- Documentation Related Properties -->
         <docs.profile>mobicents</docs.profile>
         <docs.ra.name>Diameter Rx</docs.ra.name>

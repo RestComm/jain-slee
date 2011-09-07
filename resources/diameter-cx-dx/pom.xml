@@ -26,8 +26,8 @@
 
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.resources.base-common.version>2.4.2-SNAPSHOT</mobicents.diameter.resources.base-common.version>
-	<!-- Documentation Related Properties -->
+    <mobicents.diameter.resources.base-common.version>2.5.0.FINAL</mobicents.diameter.resources.base-common.version>
+    <!-- Documentation Related Properties -->
     <docs.profile>mobicents</docs.profile>
     <docs.ra.name>Diameter Cx/Dx</docs.ra.name>
     <docs.ra.dirname>diameter-cx-dx</docs.ra.dirname>
