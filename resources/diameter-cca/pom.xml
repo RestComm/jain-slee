@@ -10,7 +10,7 @@
 
 	<groupId>org.mobicents.servers.diameter.resources</groupId>
 	<artifactId>cca-parent</artifactId>
-	<version>2.5.0.FINAL</version>
+	<version>2.6.0-SNAPSHOT</version>
 
 	<name>Mobicents :: Diameter Resources :: ${pom.artifactId}</name>
 
@@ -67,9 +67,9 @@
 	</profiles>
 
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/2.5.0.FINAL</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/2.5.0.FINAL</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/2.5.0.FINAL</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</url>
 	</scm>
 
 	<build>
