@@ -23,7 +23,7 @@
  Release Contents
 ------------------
 
-  diameter-gq-ra-DU-1.0.0.BETA2.jar (the JAIN SLEE Deployable Unit to be installed in Mobicents)
+  diameter-gq-ra-DU-@gq_VERSION@.jar (the JAIN SLEE Deployable Unit to be installed in Mobicents)
 
   du-management.xml (the auxiliar build file for managing deployment/undeployment)
 
