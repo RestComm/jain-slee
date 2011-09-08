@@ -32,7 +32,7 @@
 		<ra.diameter-sh-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-server/${tag.version}</ra.diameter-sh-server.connectionURL>
 		<ra.diameter-rf.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-rf/${tag.version}</ra.diameter-rf.connectionURL>
 		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-ro/${tag.version}</ra.diameter-ro.connectionURL>
-		<ra.diameter-gq.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-gx/1.0.0.BETA2</ra.diameter-gq.connectionURL>
+		<ra.diameter-gq.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-gq/1.0.0.BETA2</ra.diameter-gq.connectionURL>
 		<ra.diameter-rx.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-rx/1.0.0.BETA1</ra.diameter-rx.connectionURL> 
 		 <!--
 		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-client/2.4.0.FINAL</ra.httpclient.connectionURL>
