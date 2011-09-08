@@ -3,7 +3,7 @@
 
 	<property environment="sys"/>
 	
-	<property name="ra.dirs" value="mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
+	<property name="ra.dirs" value="diameter-rx,diameter-gq,mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
 	<property name="example.dirs" value="mscontrol-demo,slee-connectivity,sip-services,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo,converged-demo"/>
 	<property name="enabler.dirs" value="rest-client,xdm-client,sip-publication-client,sip-subscription-client,hss-client"/>
 	<property name="tool.dirs" value="management-console,eclipslee,remote-slee-connection,twiddle"/>
@@ -11,7 +11,7 @@
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
-	<property name="release.version" value="2.5.0.CR1-SNAPSHOT"/>
+	<property name="release.version" value="2.5.0-SNAPSHOT"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
 	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
@@ -26,11 +26,12 @@
 	<property name="ss7.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Protocols%20Suite/1.0.0.B10/mobicents-ss7-${ss7.version}.zip"/>
 	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip"/>
 		
-	<!--
-	<property name="diameter.version" value="1.4.0.BETA1" />
+	
+	<property name="diameter.version" value="1.4.0.CR1" />
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
+	<!--
+	<property name="diameter.download.url" value ="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Diameter-1.x-Release/lastSuccessfulBuild/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201109060020.sar.zip"/>	
 	-->
-	<property name="diameter.download.url" value ="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Diameter-1.x-Release/lastSuccessfulBuild/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201109060020.sar.zip"/>
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
 
 	<!--
