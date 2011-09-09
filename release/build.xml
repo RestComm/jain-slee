@@ -3,8 +3,8 @@
 
 	<property environment="sys"/>
 	
-	<property name="ra.dirs" value="jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-gq,diameter-rx,mscontrol,xcap-client"/>
-	<property name="example.dirs" value="mscontrol-demo,slee-connectivity,sip-services,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo,converged-demo"/>
+	<property name="ra.dirs" value="jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-gq,diameter-rx,xcap-client"/>
+	<property name="example.dirs" value="slee-connectivity,sip-services,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo,converged-demo"/>
 	<property name="enabler.dirs" value="rest-client,xdm-client,sip-publication-client,sip-subscription-client,hss-client"/>
 	<property name="tool.dirs" value="management-console,eclipslee,remote-slee-connection,twiddle"/>
 
@@ -18,7 +18,7 @@
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
 
-	<property name="mms.version" value="2.1.0.BETA3" />
+	<property name="mms.version" value="2.1.0.BETA1" />
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-server.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 
