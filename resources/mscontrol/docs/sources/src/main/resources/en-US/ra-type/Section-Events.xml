@@ -99,7 +99,7 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>ANSWER_GENERATED</entry>
+					<entry>ANSWER_ GENERATED</entry>
 					<entry>NetworkConnection</entry>
 					<entry>
 						Generated when media server returns
@@ -111,7 +111,7 @@
 					</entry>
 				</row>
 				<row>
-					<entry>ANSWER_PROCESSED</entry>
+					<entry>ANSWER_ PROCESSED</entry>
 					<entry>NetworkConnection</entry>
 					<entry>
 						Generated when media server is processing
@@ -120,7 +120,7 @@
 					</entry>
 				</row>
 				<row>
-					<entry>NETWORK_STREAM_FAILURE</entry>
+					<entry>NETWORK_ STREAM_FAILURE</entry>
 					<entry>NetworkConnection</entry>
 					<entry>
 						Generated on failure in media server.
@@ -129,7 +129,7 @@
 					</entry>
 				</row>
 				<row>
-					<entry>OFFER_GENERATED</entry>
+					<entry>OFFER_ GENERATED</entry>
 					<entry>NetworkConnection</entry>
 					<entry>
 						Generated when media server returns
@@ -273,7 +273,7 @@
 			<tbody>
 				<!-- Play Events -->
 				<row>
-					<entry>PLAY_COMPLETED</entry>
+					<entry>PLAY_ COMPLETED</entry>
 					<entry>MediaGroup</entry>
 					<entry>Generated when player finishes its task.</entry>
 				</row>
@@ -288,12 +288,12 @@
 					<entry>Generated when player starts playback from moment it paused previously.</entry>
 				</row>
 				<row>
-					<entry>SPEED_CHANGED</entry>
+					<entry>SPEED_ CHANGED</entry>
 					<entry>MediaGroup</entry>
 					<entry>Generated when speed of playback changes.</entry>
 				</row>
 				<row>
-					<entry>VOLUME_CHANGED</entry>
+					<entry>VOLUME _CHANGED</entry>
 					<entry>MediaGroup</entry>
 					<entry>Generated when volume of playback changes.</entry>
 				</row>
@@ -359,7 +359,7 @@
 					<entry>Generated when media server pauses recording.</entry>
 				</row>
 				<row>
-					<entry>RECORD_COMPLETED</entry>
+					<entry>RECORD_ COMPLETED</entry>
 					<entry>MediaGroup</entry>
 					<entry>Generated when media server completes recording, either by request or by internal media server call.</entry>
 				</row>
@@ -431,7 +431,7 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>DISCONNECTION_REQUESTED</entry>
+					<entry>DISCONNECTION _REQUESTED</entry>
 					<entry>VxmlDialog</entry>
 					<entry>
 						Event sent by the
@@ -440,7 +440,7 @@
 					</entry>
 				</row>
 				<row>
-					<entry>ERROR_EVENT</entry>
+					<entry>ERROR _EVENT</entry>
 					<entry>VxmlDialog</entry>
 					<entry>
 						Event indicating error condition in
@@ -458,7 +458,7 @@
 					</entry>
 				</row>
 				<row>
-					<entry>MIDCALL_EVENT_RECEIVED</entry>
+					<entry>MIDCALL_ EVENT_ RECEIVED</entry>
 					<entry>VxmlDialog</entry>
 					<entry>
 						Event sent by
@@ -475,7 +475,7 @@
 						Event sent by the
 						<acronym>VXML</acronym>
 						interpreter to signal the completion of a
-						<literal>VxmlDialog.prepare(...)</literal>
+						<literal>VxmlDialog</literal><literal>.start(...)</literal>
 						request.
 					</entry>
 				</row>
@@ -486,7 +486,7 @@
 						Event sent by the
 						<acronym>VXML</acronym>
 						interpreter to signal the completion of a
-						<literal>VxmlDialog.start(...)</literal>
+						<literal>VxmlDialog</literal><literal>.start(...)</literal>
 						request.
 					</entry>
 				</row>
