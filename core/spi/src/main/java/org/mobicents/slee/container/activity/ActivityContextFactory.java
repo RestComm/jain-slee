@@ -54,6 +54,21 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 * @return null if no such activity context exists
 	 */
 	public ActivityContext getActivityContext(ActivityContextHandle ach);
+	
+	/**
+	 * Retrieves the {@link ActivityContext} for the specified
+	 * {@link ActivityContextHandle}.
+	 * 
+	 * @param ach
+	 * @param updateLastAccessTime
+	 *            indicates if an update of last access time is needed. Note
+	 *            that this doesn't mean an update will be done, it may depend
+	 *            if activity idleness checks are on, the activity type or
+	 *            simply when last update was done.
+	 * @return null if no such activity context exists
+	 */
+	public ActivityContext getActivityContext(ActivityContextHandle ach,
+			boolean updateLastAccessTime);
 
 	/**
 	 * @return Set of all registered SLEE activity context handles
@@ -64,9 +79,10 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 * @return
 	 */
 	public int getActivityContextCount();
-	
+
 	/**
 	 * Indicates if the activity context exists in SLEE.
+	 * 
 	 * @param ach
 	 * @return
 	 */

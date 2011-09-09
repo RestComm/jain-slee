@@ -262,7 +262,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 					try {
 
 						// load ac
-						ac = container.getActivityContextFactory().getActivityContext(eventContext.getActivityContextHandle());
+						ac = container.getActivityContextFactory().getActivityContext(eventContext.getActivityContextHandle(),true);
 						if (ac == null) {
 							logger.error("Unable to route event "+eventContext+". The activity context is gone");
 							try {

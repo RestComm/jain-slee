@@ -129,25 +129,33 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 			throw new ActivityAlreadyExistsException(ach.toString());
 		}
 				
-		ActivityContextImpl ac = new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach),Integer.valueOf(activityFlags),this);
+		ActivityContextImpl ac = new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach,true),Integer.valueOf(activityFlags),this);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Created activity context with handle "+ach);			
 		}
 		return ac;
 	}
 
-	private boolean tracksIdleTime(ActivityContextHandle ach) {
+	private boolean tracksIdleTime(ActivityContextHandle ach, boolean updateLastAccessTime) {
+		if(!updateLastAccessTime) {
+			return false;
+		}
+		if (configuration.getTimeBetweenLivenessQueries() < 1) {
+			return false;
+		}
 		return ach.getActivityType() == ActivityType.RA;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#getActivityContext(org.mobicents.slee.container.activity.ActivityContextHandle)
-	 */
+	@Override
 	public ActivityContextImpl getActivityContext(ActivityContextHandle ach) {
+		return getActivityContext(ach,false);
+	}
+	
+	@Override
+	public ActivityContextImpl getActivityContext(ActivityContextHandle ach, boolean updateLastAccessTime) {
 		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
 		if (activityContextCacheData.exists()) {
-			return new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach),this);
+			return new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach, updateLastAccessTime),this);
 		}
 		else {
 			return null; 
