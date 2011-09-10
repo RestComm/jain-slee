@@ -19,7 +19,7 @@
 	<property name="docs.profile" value="mobicents" />
 
 	<property name="mms.version" value="2.1.0.BETA1" />
-	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-server.zip"/>
+	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 
 	<property name="ss7.version" value="1.0.0.BETA10" />
