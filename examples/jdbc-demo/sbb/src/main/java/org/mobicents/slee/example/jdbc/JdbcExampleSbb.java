@@ -18,7 +18,7 @@ import org.mobicents.slee.SbbContextExt;
 import org.mobicents.slee.resource.jdbc.JdbcActivity;
 import org.mobicents.slee.resource.jdbc.JdbcActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.jdbc.JdbcResourceAdaptorSbbInterface;
-import org.mobicents.slee.resource.jdbc.event.JdbcTaskExecutionExceptionEvent;
+import org.mobicents.slee.resource.jdbc.event.JdbcTaskExecutionThrowableEvent;
 import org.mobicents.slee.resource.jdbc.task.JdbcTaskContext;
 import org.mobicents.slee.resource.jdbc.task.simple.SimpleJdbcTask;
 import org.mobicents.slee.resource.jdbc.task.simple.SimpleJdbcTaskResultEvent;
@@ -132,16 +132,16 @@ public abstract class JdbcExampleSbb implements Sbb {
 	}
 
 	/**
-	 * Event handler for {@link SQLExceptionEvent}.
+	 * Event handler for {@link JdbcTaskExecutionThrowableEvent}.
 	 * 
 	 * @param event
 	 * @param aci
 	 */
-	public void onJdbcTaskExecutionExceptionEvent(
-			JdbcTaskExecutionExceptionEvent event, ActivityContextInterface aci) {
+	public void onJdbcTaskExecutionThrowableEvent(
+			JdbcTaskExecutionThrowableEvent event, ActivityContextInterface aci) {
 		tracer.info(
-				"Received a JdbcTaskExecutionExceptionEvent, as result of executed task "
-						+ event.getTask(), event.getException());
+				"Received a JdbcTaskExecutionThrowableEvent, as result of executed task "
+						+ event.getTask(), event.getThrowable());
 		tracer.info("Ending JDBC Activity...");
 		((JdbcActivity) aci.getActivity()).endActivity();
 	}

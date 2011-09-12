@@ -27,24 +27,24 @@ import javax.slee.EventTypeID;
 import org.mobicents.slee.resource.jdbc.task.JdbcTask;
 
 /**
- * An event which provides the exception which occurred when executing a
+ * An event which provides the {@link Throwable} which occurred when executing a
  * {@link JdbcTask}.
  * 
  * @author martins
  * 
  */
-public interface JdbcTaskExecutionExceptionEvent {
+public interface JdbcTaskExecutionThrowableEvent {
 
 	public static final EventTypeID EVENT_TYPE_ID = new EventTypeID(
-			JdbcTaskExecutionExceptionEvent.class.getSimpleName(),
+			JdbcTaskExecutionThrowableEvent.class.getSimpleName(),
 			"org.mobicents", "1.0");
 
 	/**
-	 * Retrieves the exception thrown when executing.
+	 * Retrieves the {@link Throwable} thrown when executing.
 	 * 
 	 * @return
 	 */
-	public Exception getException();
+	public Throwable getThrowable();
 
 	/**
 	 * Retrieves the task which execution thrown an exception.

@@ -45,8 +45,8 @@ import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.transaction.SleeTransactionManager;
 import javax.sql.DataSource;
 
-import org.mobicents.slee.resource.jdbc.event.JdbcTaskExecutionExceptionEvent;
-import org.mobicents.slee.resource.jdbc.event.JdbcTaskExecutionExceptionEventImpl;
+import org.mobicents.slee.resource.jdbc.event.JdbcTaskExecutionThrowableEvent;
+import org.mobicents.slee.resource.jdbc.event.JdbcTaskExecutionThrowableEventImpl;
 import org.mobicents.slee.resource.jdbc.task.JdbcTask;
 import org.mobicents.slee.resource.jdbc.task.JdbcTaskResult;
 import org.mobicents.slee.resource.jdbc.task.simple.SimpleJdbcTaskResultEvent;
@@ -95,7 +95,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 	private ExecutorService executorService;
 
 	private FireableEventType simpleJdbcTaskResultEventType;
-	private FireableEventType jdbcTaskExecutionExceptionEventType;
+	private FireableEventType jdbcTaskExecutionThrowableEventType;
 
 	private SleeTransactionManager txManager;
 	private EventLookupFacility eventLookupFacility;
@@ -287,8 +287,8 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 		try {
 			this.simpleJdbcTaskResultEventType = eventLookupFacility
 					.getFireableEventType(SimpleJdbcTaskResultEvent.EVENT_TYPE_ID);
-			this.jdbcTaskExecutionExceptionEventType = eventLookupFacility
-					.getFireableEventType(JdbcTaskExecutionExceptionEvent.EVENT_TYPE_ID);
+			this.jdbcTaskExecutionThrowableEventType = eventLookupFacility
+					.getFireableEventType(JdbcTaskExecutionThrowableEvent.EVENT_TYPE_ID);
 		} catch (Throwable e) {
 			tracer.severe("Failed to retrieve fireable event types", e);
 		}
@@ -298,7 +298,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 	public void unsetResourceAdaptorContext() {
 		this.context = null;
 		this.tracer = null;
-		this.jdbcTaskExecutionExceptionEventType = null;
+		this.jdbcTaskExecutionThrowableEventType = null;
 		this.simpleJdbcTaskResultEventType = null;
 	}
 
@@ -389,15 +389,15 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 					}
 					fireEvent(eventType, taskResult.getEventObject(), activity,
 							EventFlags.NO_FLAGS);
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					if (tracer.isFineEnabled()) {
 						tracer.fine("failed to complete task execution", e);
 					}
-					// exception, build event
-					Object event = new JdbcTaskExecutionExceptionEventImpl(e,
+					// build event
+					Object event = new JdbcTaskExecutionThrowableEventImpl(e,
 							jdbcTask);
 					// fire event
-					fireEvent(jdbcTaskExecutionExceptionEventType, event,
+					fireEvent(jdbcTaskExecutionThrowableEventType, event,
 							activity, EventFlags.NO_FLAGS);
 				} finally {
 					if (context.connection != null) {

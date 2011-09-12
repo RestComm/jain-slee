@@ -30,11 +30,11 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>Jdbc Task Execution Exception Event</entry>
+					<entry>Jdbc Task Execution Throwable Event</entry>
 					<entry>org.mobicents</entry>
 					<entry>1.0</entry>
-					<entry>org.mobicents. slee.resource. jdbc.event. Jdbc Task Execution Exception Event</entry>					
-					<entry>Provides the exception which was thrown in a unsuccessful task execution.</entry>
+					<entry>org.mobicents. slee.resource. jdbc.event. Jdbc Task Execution Throwable Event</entry>					
+					<entry>Provides the exception or error which was thrown in a unsuccessful task execution.</entry>
 				</row>
 				<row>
 					<entry>Simple Jdbc Task Result Event</entry>

@@ -29,20 +29,20 @@ import org.mobicents.slee.resource.jdbc.task.JdbcTask;
  * @author martins
  *
  */
-public class JdbcTaskExecutionExceptionEventImpl implements
-		JdbcTaskExecutionExceptionEvent {
+public class JdbcTaskExecutionThrowableEventImpl implements
+		JdbcTaskExecutionThrowableEvent {
 
-	private final Exception exception;
+	private final Throwable exception;
 	private final JdbcTask task;
 
-	public JdbcTaskExecutionExceptionEventImpl(Exception exception,
+	public JdbcTaskExecutionThrowableEventImpl(Throwable exception,
 			JdbcTask task) {
 		this.exception = exception;
 		this.task = task;
 	}
 
 	@Override
-	public Exception getException() {
+	public Throwable getThrowable() {
 		return exception;
 	}
 
