@@ -1,7 +1,30 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
 package org.mobicents.eclipslee.servicecreation.popup.actions;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -38,7 +61,9 @@ import org.eclipse.ui.PlatformUI;
 import org.mobicents.eclipslee.util.maven.MavenProjectUtils;
 
 /**
- * @author ammendonca
+ * Handler for "Add Module" menu
+ * 
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class AddModuleAction implements IObjectActionDelegate {
 
@@ -190,10 +215,12 @@ public class AddModuleAction implements IObjectActionDelegate {
           // Update parent pom
           MavenXpp3Reader reader = new MavenXpp3Reader();
           Model parentModel = reader.read(new InputStreamReader(parentPom.getContents()));
-          // We'll add it in the end.. just to make sure it's last
-          parentModel.removeModule("du");
-          parentModel.addModule(fullModuleName);
-          parentModel.addModule("du");
+
+          // if (library) add at first position; else add before last (which should be du)
+          List<String> modules = parentModel.getModules();
+          modules.add(moduleType.equals("library") ? 0 : modules.size()-1, fullModuleName);
+          parentModel.setModules(modules);
+
           MavenProjectUtils.writePomFile(parentModel, parentPom.getLocation().toOSString());
 
           // Update deps poms
