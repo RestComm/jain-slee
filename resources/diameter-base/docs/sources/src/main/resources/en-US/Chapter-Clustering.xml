@@ -6,9 +6,19 @@
 ]>
 
 <chapter id="ra_clustering">
-
 	<title>Clustering</title>
-
-	<para>Currently &THIS.PLATFORM; &THIS.RA; RA implementation does not support clustering.</para>
-	
+	<section
+		id="ra_clustering_failover">
+		<title>Failover</title>
+		<para>
+			The Diameter stack used by this RA supports application session failover. That is non generic(BaseSession) session state is replicated.
+			This means that failover of application activities is transparent to SLEE applications. Also it implies that SLEE applications must
+			adapt its state machines to recover generic session on node failure. 
+		</para>
+	</section>
+	<section
+		id="ra_clustering_load_balancing">
+		<title>Load Balancing</title>
+		<para>As of now only available balancing mechanism is provided by Diameter stack. It depends on RFC3588 alogrith to select one peer from realm serving certain application.</para>
+	</section>
 </chapter>
