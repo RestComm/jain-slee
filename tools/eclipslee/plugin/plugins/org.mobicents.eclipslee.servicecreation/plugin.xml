@@ -882,13 +882,13 @@
           menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/SecondGroup"
           class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
           />
-         <action
+         <!-- action
           id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewLibrary"
           icon="icons/Library-icon.gif"
           label="New JAIN SLEE Library ..."
           menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/SecondGroup"
           class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
-          />
+          / -->
          <action
           id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewProfileSpec"
           icon="icons/ProfileSpec-icon.gif"

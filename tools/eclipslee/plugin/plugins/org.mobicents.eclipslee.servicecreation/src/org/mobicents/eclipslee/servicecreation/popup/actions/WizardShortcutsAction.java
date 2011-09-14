@@ -61,9 +61,6 @@ public class WizardShortcutsAction implements IActionDelegate {
     else if(actionId.equals("org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewProfileSpec")) {
       newWizard = new ProfileWizard();
     }
-    else if(actionId.equals("org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewLibrary")) {
-      newWizard = new ProfileWizard();
-    }
     else if(actionId.equals("org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewSbb")) {
       newWizard = new SbbWizard();
     }

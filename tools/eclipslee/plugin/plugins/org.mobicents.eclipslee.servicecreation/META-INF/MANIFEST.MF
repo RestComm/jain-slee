@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ant.ui,
  org.apache.ant,
  org.eclipse.gef,
- org.maven.ide.eclipse;bundle-version="0.12.1",
- org.maven.ide.eclipse.launching;bundle-version="0.12.1",
- org.maven.ide.eclipse.maven_embedder;bundle-version="0.12.1"
+ org.maven.ide.eclipse,
+ org.maven.ide.eclipse.launching,
+ org.maven.ide.eclipse.maven_embedder
 Bundle-ActivationPolicy: lazy
