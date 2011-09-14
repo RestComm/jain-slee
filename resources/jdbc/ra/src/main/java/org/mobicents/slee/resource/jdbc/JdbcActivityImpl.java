@@ -22,11 +22,7 @@
 
 package org.mobicents.slee.resource.jdbc;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-
 import javax.slee.resource.ActivityHandle;
-
 import org.mobicents.slee.resource.jdbc.task.JdbcTask;
 
 /**
@@ -56,6 +52,10 @@ public class JdbcActivityImpl implements JdbcActivity, ActivityHandle {
 		this.id = id;
 	}
 
+    public String getRaEntityName() {
+        return ra.getContext().getEntityName();
+    }
+
 	/**
 	 * 
 	 * @return
@@ -78,7 +78,14 @@ public class JdbcActivityImpl implements JdbcActivity, ActivityHandle {
 		if (getClass() != obj.getClass())
 			return false;
 		final JdbcActivityImpl other = (JdbcActivityImpl) obj;
-		return this.id.equals(other.id);
+		
+        if (!this.id.equals(other.id)) {
+            return false;
+	}
+        if (!this.getRaEntityName().equals(other.getRaEntityName())) {
+            return false;
+        }
+        return true;
 	}
 
 	// activity interface

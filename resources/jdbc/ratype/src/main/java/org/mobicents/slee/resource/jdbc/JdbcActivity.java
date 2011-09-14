@@ -46,4 +46,9 @@ public interface JdbcActivity {
 	 */
 	public void endActivity();
 
+    /**
+     * Get the name of the entity that owns this activity.
+     */
+    public String getRaEntityName();
+
 }

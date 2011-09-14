@@ -179,7 +179,16 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 
 	@Override
 	public ActivityHandle getActivityHandle(Object activityObject) {
-		return (JdbcActivityImpl) activityObject;
+		if (activityObject instanceof JdbcActivityImpl) {
+			final JdbcActivityImpl jdbcActivity = (JdbcActivityImpl) activityObject;
+			if (jdbcActivity.getRaEntityName().equals(getContext().getEntityName())) {
+				return jdbcActivity;
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
 	}
 
 	@Override
