@@ -25,7 +25,7 @@ package org.mobicents.slee.resource.map.wrappers;
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
-import org.mobicents.protocols.ss7.map.api.MapServiceFactory;
+import org.mobicents.protocols.ss7.map.api.MapParameterFactory;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessageFactory;
 import org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms;
@@ -85,8 +85,8 @@ public class MAPProviderWrapper implements MAPProvider {
 	 * @see org.mobicents.protocols.ss7.map.api.MAPProvider#getMapServiceFactory()
 	 */
 	@Override
-	public MapServiceFactory getMapServiceFactory() {
-		return this.wrappedProvider.getMapServiceFactory();
+	public MapParameterFactory getMapParameterFactory() {
+		return this.wrappedProvider.getMapParameterFactory();
 	}
 
 	/* (non-Javadoc)

@@ -73,19 +73,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.mobicents.protocols.ss7.map.api.MAPServiceBase#checkInvokeTimeOut
-	 * (org.mobicents.protocols.ss7.map.api.MAPDialog,
-	 * org.mobicents.protocols.ss7.tcap.asn.comp.Invoke)
-	 */
-	@Override
-	public Boolean checkInvokeTimeOut(MAPDialog mapdialog, Invoke invoke) {
-		throw new UnsupportedOperationException();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#deactivate()
 	 */
 	@Override
@@ -110,7 +97,7 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#isActivated()
 	 */
 	@Override
-	public Boolean isActivated() {
+	public boolean isActivated() {
 		return this.wrappedUSSD.isActivated();
 	}
 
@@ -124,23 +111,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	@Override
 	public ServingCheckData isServingService(MAPApplicationContext mapapplicationcontext) {
 		return this.wrappedUSSD.isServingService(mapapplicationcontext);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.protocols.ss7.map.api.MAPServiceBase#processComponent(org
-	 * .mobicents.protocols.ss7.tcap.asn.comp.ComponentType,
-	 * org.mobicents.protocols.ss7.tcap.asn.comp.OperationCode,
-	 * org.mobicents.protocols.ss7.tcap.asn.comp.Parameter,
-	 * org.mobicents.protocols.ss7.map.api.MAPDialog, java.lang.Long,
-	 * java.lang.Long)
-	 */
-	@Override
-	public void processComponent(ComponentType componenttype, OperationCode operationcode, Parameter parameter, MAPDialog mapdialog, Long long1, Long long2)
-			throws MAPParsingComponentException {
-		throw new UnsupportedOperationException();
 	}
 
 	/*
