@@ -50,7 +50,7 @@
 		<slee.name>Mobicents JAIN SLEE</slee.name>
 		<slee.vendor>JBoss, a Red Hat division</slee.vendor>
 		<slee.version>${pom.version}</slee.version>
-		<slee.codename>SAKURA</slee.codename>
+		<slee.codename>HENDRIX</slee.codename>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.cluster.version>1.12</mobicents.cluster.version>
 	</properties>
