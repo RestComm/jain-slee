@@ -1402,13 +1402,21 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	 * @param rew
 	 */
 	private void processResponseEventUnreferenced(ResponseEventWrapper rew) {
-		final ClientTransactionWrapper ctw  = (ClientTransactionWrapper) rew.getClientTransaction();		
+		final ClientTransactionWrapper ctw = (ClientTransactionWrapper) rew
+				.getClientTransaction();
 		if (!ctw.isActivity()) {
 			// a client tx that is not activity must be removed from dialog here
-			ctw.getDialogWrapper().removeOngoingTransaction(ctw);
+			final DialogWrapper dw = ctw.getDialogWrapper();
+			if (dw != null) {
+				dw.removeOngoingTransaction(ctw);
+			} else {
+				if (tracer.isWarningEnabled()) {
+					tracer.warning(ctw
+							+ " not able to remove itself from dialog, dialog reference does not exists");
+				}
+			}
 			ctw.clear();
-		}
-		else {
+		} else {
 			// end the activity
 			endActivity(activityManagement.get(ctw.getActivityHandle()));
 		}
