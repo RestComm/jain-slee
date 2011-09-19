@@ -411,7 +411,7 @@ public class MavenProjectUtils {
     Model model = new Model();
 
     model.setModelVersion("4.0.0");
-    model.setPackaging("jainslee-library");
+    //model.setPackaging("jainslee-library");
 
     // Set the parent
     Parent parent = new Parent();
