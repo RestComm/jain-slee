@@ -22,10 +22,6 @@
 
 package org.mobicents.slee.resource.map.wrappers;
 
-import javax.slee.SLEEException;
-import javax.slee.resource.ActivityAlreadyExistsException;
-import javax.slee.resource.StartActivityException;
-
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPException;
@@ -70,6 +66,11 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 
 	}
 
+	@Override
+	public Boolean checkInvokeTimeOut(MAPDialog arg0, Invoke arg1) {
+		throw new UnsupportedOperationException();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -97,7 +98,7 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#isActivated()
 	 */
 	@Override
-	public boolean isActivated() {
+	public Boolean isActivated() {
 		return this.wrappedUSSD.isActivated();
 	}
 
@@ -154,6 +155,13 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 
 	}
 
+	@Override
+	public void processComponent(ComponentType arg0, OperationCode arg1,
+			Parameter arg2, MAPDialog arg3, Long arg4, Long arg5)
+			throws MAPParsingComponentException {
+		throw new UnsupportedOperationException();		
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
