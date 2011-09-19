@@ -21,7 +21,7 @@
 	
 	<properties>
 		<version.xcap.ratype>2.4.1.FINAL</version.xcap.ratype>
-		<version.sip.subscription.enabler>1.0.0-SNAPSHOT</version.sip.subscription.enabler>
+		<version.sip.subscription.enabler>1.0.0.CR2</version.sip.subscription.enabler>
 	</properties>
 
 	<dependencyManagement>
