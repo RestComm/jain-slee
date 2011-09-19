@@ -23,7 +23,7 @@
 	</modules>
 
 	<properties>
-		<mobicents.resources.http.version>2.4.1-SNAPSHOT</mobicents.resources.http.version>
+		<mobicents.resources.http.version>2.5.0.FINAL</mobicents.resources.http.version>
 		<mobicents.resources.xtension.version>1.0.0.BETA2</mobicents.resources.xtension.version>
 	</properties>
 
