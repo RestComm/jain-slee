@@ -65,7 +65,7 @@ public class LoadEventsComponents extends UIJob {
 				panel.clearEvents();
 				// Find all available events.
 				DTDXML xml[] = EventFinder.getDefault().getComponents(
-						BaseFinder.JAR_DIR | BaseFinder.SLEEDTD_DIR, project, monitor); //BINARY
+						BaseFinder.JAR_DIR /*| BaseFinder.SLEEDTD_DIR*/, project, monitor); //BINARY
 				monitor.worked(100);
 				for (int i = 0; i < xml.length; i++) {
 					EventJarXML ev = (EventJarXML) xml[i];

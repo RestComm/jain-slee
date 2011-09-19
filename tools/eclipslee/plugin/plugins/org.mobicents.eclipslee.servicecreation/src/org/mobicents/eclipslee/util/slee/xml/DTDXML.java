@@ -23,6 +23,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.xerces.parsers.SAXParser;
+import org.mobicents.eclipslee.xml.NullEntityResolver;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -70,7 +71,7 @@ public class DTDXML extends XML {
 	
 	public DTDXML(InputStream stream, EntityResolver resolver) throws ParserConfigurationException, IOException, SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setValidating(true);
+		factory.setValidating(resolver instanceof NullEntityResolver ? false : true);
     factory.setIgnoringElementContentWhitespace(true);
 		
 		DocumentBuilder builder = factory.newDocumentBuilder();

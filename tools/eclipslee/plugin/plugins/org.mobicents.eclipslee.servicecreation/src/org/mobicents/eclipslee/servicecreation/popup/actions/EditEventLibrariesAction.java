@@ -46,6 +46,7 @@ import org.mobicents.eclipslee.util.slee.xml.components.LibraryRefXML;
 import org.mobicents.eclipslee.util.slee.xml.components.LibraryXML;
 import org.mobicents.eclipslee.xml.EventJarXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
+import org.mobicents.eclipslee.xml.LibraryPomXML;
 
 /**
  * 
@@ -89,8 +90,14 @@ public class EditEventLibrariesAction implements IActionDelegate {
           String name = (String) map.get("Name");
           String vendor = (String) map.get("Vendor");
           String version = (String) map.get("Version");
-          LibraryJarXML libraryJarXML = (LibraryJarXML) map.get("XML");
-          LibraryXML libraryXML = libraryJarXML.getLibrary(name, vendor, version);
+          Object entryXML = map.get("XML");
+          LibraryXML libraryXML = null;
+          if(entryXML instanceof LibraryJarXML) {
+            libraryXML = ((LibraryJarXML) entryXML).getLibrary(name, vendor, version);
+          }
+          else if(entryXML instanceof LibraryPomXML) {
+            libraryXML = ((LibraryPomXML) entryXML).getLibrary(name, vendor, version);
+          }
 
           LibraryRefXML libraryRefXML = eventXML.addLibraryRef(libraryXML);
         }

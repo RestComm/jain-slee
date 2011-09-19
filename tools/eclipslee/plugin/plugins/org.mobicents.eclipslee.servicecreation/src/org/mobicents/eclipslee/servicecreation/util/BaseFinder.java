@@ -74,8 +74,8 @@ public abstract class BaseFinder {
 	public static final int SOURCE = 2;
 	public static final int JARS = 4;
 	public static final int JAR_DIR= 8;
-	public static final int SLEEDTD_DIR = 16;
-  public static final int MAVEN_PROJECT = 32;
+  public static final int MAVEN_PROJECT = 16;
+  public static final int MAVEN_POMS = 32;
 	
   public static final int ALL = CLASSPATH | SOURCE | JARS | MAVEN_PROJECT;
   public static final int BINARY = CLASSPATH | JARS;
@@ -212,15 +212,13 @@ public abstract class BaseFinder {
 			IFolder jarFolder = project.getFolder("/jars");
 			components.addAll(getComponentsFromJars(jarFolder));
 		}
-		
-		if ((type & SLEEDTD_DIR) == SLEEDTD_DIR) {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IProject project = root.getProject(projectName);
-			IFolder jarFolder = project.getFolder("/lib");
-			IFolder sleeJar = jarFolder.getFolder("/sleedtd");
-			components.addAll(getComponentsFromJars(sleeJar));
+
+		if ((type & MAVEN_POMS) == MAVEN_POMS) {
+      IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+      IProject project = root.getProject(projectName);
+      components.addAll(getComponentsFromContainer(project, "pom.xml"));
 		}
-		
+
     if((type & MAVEN_PROJECT) == MAVEN_PROJECT) {
       IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
       IProject project = root.getProject(projectName);
@@ -253,9 +251,7 @@ public DTDXML[] getComponents(int type, String projectName, int componentType) {
 			IProject project = root.getProject(projectName);
 			components.addAll(getComponentsFromJars(project));
 		}
-		
 
-		
 		/**@OSP modification*/
 		if ((type & JAR_DIR)== JAR_DIR) {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -263,16 +259,14 @@ public DTDXML[] getComponents(int type, String projectName, int componentType) {
 			IFolder jarFolder = project.getFolder("/jars");
 			components.addAll(getComponentsFromJars(jarFolder, componentType));
 		}
-		
-		if ((type & SLEEDTD_DIR) == SLEEDTD_DIR) {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IProject project = root.getProject(projectName);
-			IFolder jarFolder = project.getFolder("/lib");
-			IFolder sleeJar = jarFolder.getFolder("/sleedtd");
-			components.addAll(getComponentsFromJars(sleeJar));
-		}
-		
-		return components.toArray(new DTDXML[components.size()]);		
+
+		if ((type & MAVEN_POMS) == MAVEN_POMS) {
+      IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+      IProject project = root.getProject(projectName);
+      components.addAll(getComponentsFromContainer(project, "pom.xml"));
+    }
+
+    return components.toArray(new DTDXML[components.size()]);		
 	}
 	
 public DTDXML[] getComponents(int type, String projectName, IProgressMonitor monitor) {
@@ -304,17 +298,14 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 			IFolder jarFolder = project.getFolder("/jars");
 			components.addAll(getComponentsFromJars(jarFolder, monitor,20, 0));
 		}
-		
-		if ((type & SLEEDTD_DIR) == SLEEDTD_DIR) {
-			monitor.subTask("Searching in project Jar dir");
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IProject project = root.getProject(projectName);
-			IFolder jarFolder = project.getFolder("/lib");
-			IFolder sleeJar = jarFolder.getFolder("/sleedtd");
-			components.addAll(getComponentsFromJars(sleeJar, monitor,20, 0));
-		}
-		
-		return components.toArray(new DTDXML[components.size()]);		
+
+		if ((type & MAVEN_POMS) == MAVEN_POMS) {
+      IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+      IProject project = root.getProject(projectName);
+      components.addAll(getComponentsFromContainer(project, "pom.xml"));
+    }
+
+    return components.toArray(new DTDXML[components.size()]);		
 	}
 /**@osp modifcation insert the type of component to look for*/
 public DTDXML[] getComponents(int type, String projectName, IProgressMonitor monitor, int componentType) {
@@ -347,15 +338,12 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 		//Optimized version: now the only jar file opened is the jar file coresponding to the type here
 		components.addAll(getComponentsFromJars(jarFolder, monitor,20, 0, componentType));
 	}
-	
-	if ((type & SLEEDTD_DIR) == SLEEDTD_DIR) {
-		monitor.subTask("Searching in project Jar dir");
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IProject project = root.getProject(projectName);
-		IFolder jarFolder = project.getFolder("/lib");
-		IFolder sleeJar = jarFolder.getFolder("/sleedtd");
-		components.addAll(getComponentsFromJars(sleeJar, monitor,20, 0));
-	}
+
+  if ((type & MAVEN_POMS) == MAVEN_POMS) {
+    IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+    IProject project = root.getProject(projectName);
+    components.addAll(getComponentsFromContainer(project, "pom.xml"));
+  }
 	
 	return components.toArray(new DTDXML[components.size()]);		
 }
@@ -812,44 +800,48 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 */
 	
 	private Vector<DTDXML> getComponentsFromContainer(IContainer container) {
-		
-		Vector<DTDXML> components = new Vector<DTDXML>();	
-		IResource children[] = null;
-		try {
-			children = container.members();
-		} catch (CoreException e) {
-			return components;
-		}
-		
-		for (int i = 0; i < children.length; i++) {
-			IResource child = children[i];
-			
-			if (child instanceof IFile) {
-				try {
-					DTDXML componentXML = loadFile((IFile) child);
-					components.add(componentXML);
-				} catch (Exception e) {
-					//e.printStackTrace();
-					//System.err.println("Above stack trace from loading " + child);
-					
-					// Continue; this file isn't an event XML file.
-					continue;
-				}
-				
-				continue;
-			}			
-			
-			if (child instanceof IContainer) {
-			  // amendonca: Avoid going through /target/... path, skip duplicates
-			  if( !(child.getName().equals("target") && child.getParent().equals(container)) ) {
-				  components.addAll(getComponentsFromContainer((IContainer) child));
-			  }
-				continue;
-			}
-		}
-		
-		return components;
+	  return getComponentsFromContainer(container, null);
 	}
+
+  private Vector<DTDXML> getComponentsFromContainer(IContainer container, String filter) {
+    Vector<DTDXML> components = new Vector<DTDXML>(); 
+    IResource children[] = null;
+    try {
+      children = container.members();
+    } catch (CoreException e) {
+      return components;
+    }
+    
+    for (int i = 0; i < children.length; i++) {
+      IResource child = children[i];
+      boolean filtered = filter != null && child.getName().matches(filter);
+
+      if (filtered && child instanceof IFile) {
+        try {
+          DTDXML componentXML = loadFile((IFile) child);
+          components.add(componentXML);
+        } catch (Exception e) {
+          //e.printStackTrace();
+          //System.err.println("Above stack trace from loading " + child);
+          
+          // Continue; this file isn't an event XML file.
+          continue;
+        }
+        
+        continue;
+      }     
+      
+      if (child instanceof IContainer) {
+        // amendonca: Avoid going through /target/... path, skip duplicates
+        if( !(child.getName().equals("target") && child.getParent().equals(container)) ) {
+          components.addAll(getComponentsFromContainer((IContainer) child, filter));
+        }
+        continue;
+      }
+    }
+    
+    return components;
+  }
 
   private Vector<DTDXML> getComponentsFromPlugin(int componentType) {
     Vector<DTDXML> components = new Vector<DTDXML>();

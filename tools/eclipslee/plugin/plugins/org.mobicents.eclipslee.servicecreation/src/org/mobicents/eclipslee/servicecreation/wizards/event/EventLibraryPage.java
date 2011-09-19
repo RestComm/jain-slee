@@ -32,11 +32,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.mobicents.eclipslee.servicecreation.ui.LibraryPanel;
 import org.mobicents.eclipslee.servicecreation.util.BaseFinder;
 import org.mobicents.eclipslee.servicecreation.util.LibraryFinder;
+import org.mobicents.eclipslee.servicecreation.util.LibraryPomFinder;
 import org.mobicents.eclipslee.servicecreation.wizards.WizardChangeListener;
 import org.mobicents.eclipslee.servicecreation.wizards.generic.FilenamePage;
 import org.mobicents.eclipslee.util.slee.xml.DTDXML;
 import org.mobicents.eclipslee.util.slee.xml.components.LibraryXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
+import org.mobicents.eclipslee.xml.LibraryPomXML;
 
 /**
  * 
@@ -115,6 +117,16 @@ public class EventLibraryPage extends WizardPage implements WizardChangeListener
             panel.addAvailableLibrary(ev, events[j]);
           }
         }
+        // Look in pom files (experimental) ... 
+        DTDXML pomXml[] = LibraryPomFinder.getDefault().getComponents(BaseFinder.MAVEN_POMS/*BINARY*/, projectName);
+        for (int i = 0; i < pomXml.length; i++) {
+          LibraryPomXML ev = (LibraryPomXML) pomXml[i];
+          LibraryXML[] libraries = ev.getLibraries();
+          for (int j = 0; j < libraries.length; j++) {
+            panel.addAvailableLibrary(ev, libraries[j]);
+          }
+        }
+
         panel.repack();
       }
     });

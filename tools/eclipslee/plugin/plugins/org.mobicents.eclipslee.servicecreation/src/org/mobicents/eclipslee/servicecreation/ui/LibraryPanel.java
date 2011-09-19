@@ -38,6 +38,7 @@ import org.mobicents.eclipslee.servicecreation.ui.table.DataStore;
 import org.mobicents.eclipslee.servicecreation.ui.table.EditableTableViewer;
 import org.mobicents.eclipslee.util.slee.xml.components.LibraryXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
+import org.mobicents.eclipslee.xml.LibraryPomXML;
 
 /**
  * 
@@ -189,7 +190,18 @@ public class LibraryPanel extends Composite implements SelectionListener {
     }		
   }
 
-  public void addAvailableLibrary(LibraryJarXML xml, LibraryXML library) {	
+  public void addAvailableLibrary(LibraryJarXML xml, LibraryXML library) {  
+
+    HashMap map = new HashMap();
+    map.put("Name", library.getName());
+    map.put("Vendor", library.getVendor());
+    map.put("Version", library.getVersion());
+    map.put("XML", xml);
+
+    availableLibraries.addRow(map);
+  }
+
+  public void addAvailableLibrary(LibraryPomXML xml, LibraryXML library) {  
 
     HashMap map = new HashMap();
     map.put("Name", library.getName());
