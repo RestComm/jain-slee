@@ -181,7 +181,8 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 	public ActivityHandle getActivityHandle(Object activityObject) {
 		if (activityObject instanceof JdbcActivityImpl) {
 			final JdbcActivityImpl jdbcActivity = (JdbcActivityImpl) activityObject;
-			if (jdbcActivity.getRaEntityName().equals(getContext().getEntityName())) {
+			if (jdbcActivity.getRaEntityName().equals(
+					getContext().getEntityName())) {
 				return jdbcActivity;
 			} else {
 				return null;
@@ -365,10 +366,20 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 			tracer.fine("execute( task = " + jdbcTask + " , activity = "
 					+ activity + " )");
 		}
+
+		// get class loader from execution request context, task may need it for
+		// actual execution
+		final ClassLoader classLoader = Thread.currentThread()
+				.getContextClassLoader();
+
 		// build runnable task
 		Runnable task = new Runnable() {
+
 			@Override
 			public void run() {
+
+				Thread.currentThread().setContextClassLoader(classLoader);
+
 				final JdbcTaskContextImpl context = new JdbcTaskContextImpl(
 						JdbcResourceAdaptor.this);
 				try {
@@ -425,6 +436,7 @@ public class JdbcResourceAdaptor implements ResourceAdaptor {
 				}
 			}
 		};
+
 		// submit to executor
 		executorService.submit(task);
 	}
