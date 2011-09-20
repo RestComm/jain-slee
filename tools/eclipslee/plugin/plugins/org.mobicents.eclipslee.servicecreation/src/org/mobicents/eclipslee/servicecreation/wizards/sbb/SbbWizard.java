@@ -47,6 +47,7 @@ import org.mobicents.eclipslee.util.slee.xml.components.SbbResourceAdaptorTypeBi
 import org.mobicents.eclipslee.util.slee.xml.components.SbbXML;
 import org.mobicents.eclipslee.xml.EventJarXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
+import org.mobicents.eclipslee.xml.LibraryPomXML;
 import org.mobicents.eclipslee.xml.ProfileSpecJarXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 import org.mobicents.eclipslee.xml.SbbJarXML;
@@ -265,12 +266,19 @@ public class SbbWizard extends BaseWizard {
 			}
 
 			// Libraries
-      for (int i = 0; i < libraries.length; i++) {
-        LibraryJarXML xml = (LibraryJarXML) libraries[i].get("XML");
-        String name = (String) libraries[i].get("Name");
-        String vendor = (String) libraries[i].get("Vendor");
-        String version = (String) libraries[i].get("Version");
-        sbb.addLibraryRef(xml.getLibrary(name, vendor, version));
+      for (HashMap sbbLibrary : libraries) {
+        Object entryXML = sbbLibrary.get("XML");
+        String name = (String) sbbLibrary.get("Name");
+        String vendor = (String) sbbLibrary.get("Vendor");
+        String version = (String) sbbLibrary.get("Version");
+        if(entryXML instanceof LibraryJarXML) {
+          LibraryJarXML xml = (LibraryJarXML) entryXML;
+          sbb.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
+        else if(entryXML instanceof LibraryPomXML){
+          LibraryPomXML xml = (LibraryPomXML) entryXML;
+          sbb.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
       }
 
       // Events			

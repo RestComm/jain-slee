@@ -35,6 +35,7 @@ import org.mobicents.eclipslee.util.Utils;
 import org.mobicents.eclipslee.util.slee.xml.components.DuplicateComponentException;
 import org.mobicents.eclipslee.util.slee.xml.components.ProfileSpecXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
+import org.mobicents.eclipslee.xml.LibraryPomXML;
 import org.mobicents.eclipslee.xml.ProfileSpecJarXML;
 
 /**
@@ -169,12 +170,19 @@ public final class ProfileWizard extends BaseWizard {
         profileSpecXML.setManagementInterfaceName(Utils.getSafePackagePrefix(getPackageName()) + profileBaseName + "ProfileManagement");
 
       // Libraries
-      for (HashMap raTypeLibrary : profileLibraries) {
-        LibraryJarXML xml = (LibraryJarXML) raTypeLibrary.get("XML");
-        String name = (String) raTypeLibrary.get("Name");
-        String vendor = (String) raTypeLibrary.get("Vendor");
-        String version = (String) raTypeLibrary.get("Version");
-        profileSpecXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+      for (HashMap profileLibrary : profileLibraries) {
+        Object entryXML = profileLibrary.get("XML");
+        String name = (String) profileLibrary.get("Name");
+        String vendor = (String) profileLibrary.get("Vendor");
+        String version = (String) profileLibrary.get("Version");
+        if(entryXML instanceof LibraryJarXML) {
+          LibraryJarXML xml = (LibraryJarXML) entryXML;
+          profileSpecXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
+        else if(entryXML instanceof LibraryPomXML){
+          LibraryPomXML xml = (LibraryPomXML) entryXML;
+          profileSpecXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
       }
 
       // for each cmp field

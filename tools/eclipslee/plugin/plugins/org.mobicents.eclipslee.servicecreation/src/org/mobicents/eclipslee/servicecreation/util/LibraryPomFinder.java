@@ -58,7 +58,7 @@ public class LibraryPomFinder extends BaseFinder {
     return null;
   }
 
-  public static LibraryPomXML getLibraryJarXML(IFile file) {
+  public static LibraryPomXML getLibraryPomXML(IFile file) {
     try {
       LibraryPomXML xml = new LibraryPomXML(file);
       return xml;

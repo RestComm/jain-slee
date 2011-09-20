@@ -39,6 +39,7 @@ import org.mobicents.eclipslee.util.Utils;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeClassesXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
+import org.mobicents.eclipslee.xml.LibraryPomXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 
 /**
@@ -158,11 +159,18 @@ public class RaTypeWizard extends BaseWizard {
 
       // Libraries
       for (HashMap raTypeLibrary : raTypeLibraries) {
-        LibraryJarXML xml = (LibraryJarXML) raTypeLibrary.get("XML");
+        Object entryXML = raTypeLibrary.get("XML");
         String name = (String) raTypeLibrary.get("Name");
         String vendor = (String) raTypeLibrary.get("Vendor");
         String version = (String) raTypeLibrary.get("Version");
-        raTypeXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        if(entryXML instanceof LibraryJarXML) {
+          LibraryJarXML xml = (LibraryJarXML) entryXML;
+          raTypeXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
+        else if(entryXML instanceof LibraryPomXML){
+          LibraryPomXML xml = (LibraryPomXML) entryXML;
+          raTypeXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
       }
 
       // Events

@@ -34,6 +34,7 @@ import org.mobicents.eclipslee.util.Utils;
 import org.mobicents.eclipslee.util.slee.xml.components.EventXML;
 import org.mobicents.eclipslee.xml.EventJarXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
+import org.mobicents.eclipslee.xml.LibraryPomXML;
 
 /**
  * Wizard for JAIN SLEE Events
@@ -128,12 +129,19 @@ public class EventWizard extends BaseWizard {
       EventXML event = eventXML.addEvent(getComponentName(), getComponentVendor(), getComponentVersion(), getComponentDescription(), eventClassName);
 
       // Libraries
-      for (int i = 0; i < libraries.length; i++) {
-        LibraryJarXML xml = (LibraryJarXML) libraries[i].get("XML");
-        String name = (String) libraries[i].get("Name");
-        String vendor = (String) libraries[i].get("Vendor");
-        String version = (String) libraries[i].get("Version");
-        eventXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+      for (HashMap eventLibrary : libraries) {
+        Object entryXML = eventLibrary.get("XML");
+        String name = (String) eventLibrary.get("Name");
+        String vendor = (String) eventLibrary.get("Vendor");
+        String version = (String) eventLibrary.get("Version");
+        if(entryXML instanceof LibraryJarXML) {
+          LibraryJarXML xml = (LibraryJarXML) entryXML;
+          eventXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
+        else if(entryXML instanceof LibraryPomXML){
+          LibraryPomXML xml = (LibraryPomXML) entryXML;
+          eventXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
       }
 
       FileUtil.createFromInputStream(resourceFolder, new Path(/*baseName + "-*/"event-jar.xml"), eventXML.getInputStreamFromXML(), monitor);

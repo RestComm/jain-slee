@@ -43,6 +43,7 @@ import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorTypeXML;
 import org.mobicents.eclipslee.util.slee.xml.components.ResourceAdaptorXML;
 import org.mobicents.eclipslee.xml.DeployConfigXML;
 import org.mobicents.eclipslee.xml.LibraryJarXML;
+import org.mobicents.eclipslee.xml.LibraryPomXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorJarXML;
 import org.mobicents.eclipslee.xml.ResourceAdaptorTypeJarXML;
 
@@ -166,11 +167,18 @@ public class ResourceAdaptorWizard extends BaseWizard {
 
       // Libraries
       for (HashMap resourceAdaptorLibrary : resourceAdaptorLibraries) {
-        LibraryJarXML xml = (LibraryJarXML) resourceAdaptorLibrary.get("XML");
+        Object entryXML = resourceAdaptorLibrary.get("XML");
         String name = (String) resourceAdaptorLibrary.get("Name");
         String vendor = (String) resourceAdaptorLibrary.get("Vendor");
         String version = (String) resourceAdaptorLibrary.get("Version");
-        resourceAdaptorXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        if(entryXML instanceof LibraryJarXML) {
+          LibraryJarXML xml = (LibraryJarXML) entryXML;
+          resourceAdaptorXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
+        else if(entryXML instanceof LibraryPomXML){
+          LibraryPomXML xml = (LibraryPomXML) entryXML;
+          resourceAdaptorXML.addLibraryRef(xml.getLibrary(name, vendor, version));
+        }
       }
 
       String subConfigProperties = "";
