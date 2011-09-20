@@ -26,11 +26,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.maven.ide.eclipse.MavenPlugin;
-import org.maven.ide.eclipse.embedder.IMaven;
-import org.maven.ide.eclipse.project.IMavenProjectFacade;
-import org.maven.ide.eclipse.project.MavenProjectManager;
-import org.maven.ide.eclipse.project.ResolverConfiguration;
+import org.eclipse.m2e.core.MavenPlugin;
+import org.eclipse.m2e.core.embedder.IMaven;
 import org.mobicents.eclipslee.servicecreation.ServiceCreationPlugin;
 import org.mobicents.eclipslee.servicecreation.util.ProjectModules;
 
@@ -431,7 +428,6 @@ public class MavenProjectUtils {
     Plugin libraryPlugin = new Plugin();
     libraryPlugin.setGroupId(LIBRARY_PLUGIN_GROUP_ID);
     libraryPlugin.setArtifactId(LIBRARY_PLUGIN_ARTIFACT_ID);
-    libraryPlugin.setExtensions(true);
 
     // Build configuration as Xpp3Dom object
     Xpp3Dom libraryPluginConfiguration = new Xpp3Dom("configuration");
@@ -448,6 +444,15 @@ public class MavenProjectUtils {
 
     libraryPlugin.setConfiguration(libraryPluginConfiguration);
 
+    PluginExecution pe = new PluginExecution();
+    pe.addGoal("copy-dependencies");
+    pe.addGoal("generate-descriptor");
+
+    ArrayList<PluginExecution> libraryPluginExecutions = new ArrayList<PluginExecution>();
+    libraryPluginExecutions.add(pe);
+
+    libraryPlugin.setExecutions(libraryPluginExecutions);
+    
     build.addPlugin(libraryPlugin);
     model.setBuild(build);
 
@@ -629,12 +634,9 @@ public class MavenProjectUtils {
   public static MavenExecutionResult runMavenTask(IFile pom, String[] goals, IProgressMonitor monitor) {
     MavenExecutionResult result = null;
     try {
-      MavenPlugin plugin = MavenPlugin.getDefault();
-      MavenProjectManager projectManager = plugin.getMavenProjectManager();
-      IMaven maven = plugin.getMaven();
-      IMavenProjectFacade projectFacade = projectManager.create(pom, true, monitor);
-      ResolverConfiguration resolverConfiguration = projectFacade.getResolverConfiguration();
-      MavenExecutionRequest req = projectManager.createExecutionRequest(pom, resolverConfiguration, monitor);
+      IMaven maven = MavenPlugin.getMaven();
+      MavenExecutionRequest req = maven.createExecutionRequest(monitor);
+      req.setPom(pom.getLocation().toFile());
       //req.getUserProperties().putAll(map);
       req.setGoals(Arrays.asList(goals));
       req.setCacheTransferError(false); // enables to fetch remotely ?
