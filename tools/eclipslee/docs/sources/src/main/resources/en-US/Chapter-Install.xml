@@ -33,17 +33,17 @@
 					</listitem>
 				</varlistentry>
 				<varlistentry>
-					<term>Eclipse 3.x</term>
+					<term>Eclipse 3.7+</term>
 					<listitem>
-						<para>A working installation of the Eclipse platform version 3.0 or higher is required in order to run the &THIS.PLATFORM; EclipSLEE plugin.</para>
+						<para>A working installation of the Eclipse platform version 3.7 (Indigo) or higher is required in order to run the &THIS.PLATFORM; EclipSLEE plugin.</para>
 						<para>For instructions on how to install Eclipse, refer to <ulink url="http://wiki.eclipse.org/FAQ_Where_do_I_get_and_install_Eclipse%3F">Where do I get and install Eclipse?</ulink>.</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
 					<term>M2Eclipse Plugin</term>
 					<listitem>
-						<para>For performing maven actions, an installation of the Eclipse Maven plugin M2Eclipse version 0.12.1 or higher is required by the &THIS.PLATFORM; EclipSLEE plugin.</para>
-						<para>For instructions on how to install M2Eclipse, refer to <ulink url="http://m2eclipse.sonatype.org/installing-m2eclipse.html">Installing m2eclipse</ulink>.</para>
+						<para>For performing maven actions, an installation of the Maven Integration for Eclipse plugin (m2e) version 1.0.0 or higher is required by the &THIS.PLATFORM; EclipSLEE plugin.</para>
+						<para>For instructions on how to install m2e, refer to <ulink url="http://marketplace.eclipse.org/content/maven-integration-eclipse">Installing m2e</ulink>.</para>
 					</listitem>
 				</varlistentry>
 			</variablelist>
