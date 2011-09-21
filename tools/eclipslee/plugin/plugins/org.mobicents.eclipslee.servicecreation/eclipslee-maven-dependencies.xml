@@ -22,13 +22,13 @@
       <dependency>
         <description>Mobicents XDM Client</description>
         <groupId>org.mobicents.servers.jainslee.enablers</groupId>
-        <artifactId>xdm-client</artifactId>
+        <artifactId>xdm-client-sbb</artifactId>
         <version>1.0.0.CR3</version>
       </dependency>
       <dependency>
         <description>Mobicents REST Client</description>
         <groupId>org.mobicents.servers.jainslee.enablers</groupId>
-        <artifactId>rest-client</artifactId>
+        <artifactId>mobicents-slee-enabler-rest-client-sbb</artifactId>
         <version>1.0.0.BETA1</version>
       </dependency>
     </enablers>
@@ -48,7 +48,7 @@
       <dependency>
         <description>Mobicents Diameter Cx/Dx Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
-        <artifactId>cxdx-ratype</artifactId>
+        <artifactId>cx-dx-ratype</artifactId>
         <version>2.5.0.FINAL</version>
       </dependency>
       <dependency>
@@ -114,13 +114,13 @@
       <dependency>
         <description>Mobicents JDBC</description>
         <groupId>org.mobicents.resources</groupId>
-        <artifactId>jdbc-ratype</artifactId>
+        <artifactId>mobicents-slee-ra-jdbc-ratype</artifactId>
         <version>1.0.0.CR1</version>
       </dependency>
       <dependency>
         <description>Mobicents MAP</description>
         <groupId>org.mobicents.resources</groupId>
-        <artifactId>map-ratype</artifactId>
+        <artifactId>mobicents-slee-ra-map-ratype</artifactId>
         <version>1.0.0.BETA10</version>
       </dependency>
       <dependency>
@@ -133,7 +133,7 @@
       <dependency>
         <description>Mobicents MSControl</description>
         <groupId>org.mobicents.resources</groupId>
-        <artifactId>mscontrol-ratype</artifactId>
+        <artifactId>mobicents-slee-ra-mscontrol-ratype</artifactId>
         <version>1.0.0.BETA1</version>
       </dependency>
       -->
@@ -152,19 +152,19 @@
       <dependency>
         <description>Mobicents TFTP Server</description>
         <groupId>org.mobicents.resources</groupId>
-        <artifactId>tftp-server-ratype</artifactId>
+        <artifactId>mobicents-slee-ra-tftp-server-ratype</artifactId>
         <version>1.0.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents XCAP Client</description>
         <groupId>org.mobicents.resources</groupId>
-        <artifactId>xcap-client-ratype</artifactId>
+        <artifactId>mobicents-slee-ra-xcap-client-ratype</artifactId>
         <version>2.4.1.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents XMPP</description>
         <groupId>org.mobicents.resources</groupId>
-        <artifactId>xmpp-ratype</artifactId>
+        <artifactId>mobicents-slee-ra-xmpp-ratype</artifactId>
         <version>2.4.0.FINAL</version>
       </dependency>
     </resource-adaptor-types>
