@@ -11,7 +11,7 @@
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
-	<property name="release.version" value="2.5.0-SNAPSHOT"/>
+	<property name="release.version" value="2.5.0.FINAL"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
 	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
@@ -34,13 +34,12 @@
 	-->
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
 
-	<!--
-	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0.BETA4.jar"/>
+	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0.CR1.jar"/>
 	<property name="eclipslee.download.url" value ="http://mobicents.googlecode.com/svn/downloads/eclipse-update-site/plugins/${eclipslee.jar}"/>
-	-->
+	<!--
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0-SNAPSHOT.jar"/>
 	<property name="eclipslee.download.url" value ="http://hudson.jboss.org/jenkins/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>
-	
+	-->
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="${ant.file.mobicents.release}/../ant-contrib-1.0b3.jar" />
