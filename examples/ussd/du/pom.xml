@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>ussd-example-parent</artifactId>
 		<groupId>org.mobicents.examples.ussd</groupId>
-		<version>1.0.0.BETA1</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>ussd-example-DU</artifactId>

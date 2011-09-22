@@ -11,7 +11,7 @@
 
 	<artifactId>ussd-example-parent</artifactId>
 	<groupId>org.mobicents.examples.ussd</groupId>
-	<version>1.0.0.BETA1</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>Mobicents :: Examples :: ${pom.artifactId}</name>
 
 	<properties>
@@ -145,11 +145,4 @@
 			</snapshots>
 		</repository>
 	</repositories>
-
-
-  <scm>
-    <connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/ussd/1.0.0.BETA1</connection>
-    <developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/ussd/1.0.0.BETA1</developerConnection>
-    <url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/ussd/1.0.0.BETA1</url>
-  </scm>
 </project>
