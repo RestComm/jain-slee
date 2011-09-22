@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.19-SNAPSHOT</version>
+		<version>2.19</version>
 	</parent>
 
 	<artifactId>ussd-example-parent</artifactId>
@@ -16,9 +16,9 @@
 	<name>Mobicents :: Examples :: ${pom.artifactId}</name>
 
 	<properties>
-		<version.sipra>2.4.1-SNAPSHOT</version.sipra>
-		<version.ussdgateway>1.0.0.BETA1-SNAPSHOT</version.ussdgateway>
-		<version.http.servlet>2.4.0.CR1</version.http.servlet>
+		<version.sipra>2.5.0.FINAL</version.sipra>
+		<version.ussdgateway>1.0.0.BETA1</version.ussdgateway>
+		<version.http.servlet>2.4.0.FINAL</version.http.servlet>
 		<version.jbpm>3.2.3</version.jbpm>
 	</properties>
 
@@ -128,5 +128,23 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<!--  define repository so we dont have to checkout parent edit settings.xml -->
+	<repositories>
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
 
 </project>

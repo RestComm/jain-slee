@@ -36,6 +36,12 @@
 											</fileset>
 										</copy>
 										<copy overwrite="true" file="${basedir}/../du/target/build.xml" tofile="${basedir}/../../../release/${release.name}/examples/ussd/du-management.xml" />
+										<copy overwrite="true" file="${basedir}/build.xml" todir="${basedir}/../../../release/${release.name}/examples/ussd">
+											<filterset>
+												<filter token="JBOSS.PATH" value="${jboss.path}" />
+												<filter token="JBOSS.CONFIG" value="${node}" />
+											</filterset>
+										</copy>
 									</tasks>
 								</configuration>
 							</execution>
