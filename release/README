@@ -1,53 +1,57 @@
-We are glad to announce that Mobicents JAIN-SLEE 2.5.0.FINAL "HENDRIX" 
-is now available for download. 
+The Mobicents team is glad to announce that Mobicents JAIN-SLEE 
+2.5.0.FINAL, codenamed HENDRIX, is now available for download. 
 
 Release Notes:
 
 The HENDRIX SLEE Core includes fixes for several issues reported by 
-community, some of critical importance, such as rare cases where an 
-Activity End Events being routed while the activity is suspend, child 
-Sbb JNDI lookup failures, or state deadlock timeouts when using the 
-monitoring for idle activities. Low level parts of the SLEE core had 
-to be reworked, for such fixes, the team is confident that not only 
-these were well covered, but also that the code is more stable and 
-performer. Speaking of performance, significant improvements, should 
-be expected while in cluster mode, due to optimizations introduced.
+community, some of critical importance, such as rare scenarios where 
+an Activity End Event is incorrectly routed while the activity is suspend, 
+child Sbb JNDI lookup failures, or state deadlock timeouts when using 
+the monitoring for idle activities. Low level parts of the SLEE core had to 
+be reworked, for such fixes, the team is confident that not only these 
+were well solved, but also that the code is again more stable and efficient. 
+Speaking of performance, significant improvements should be expected, 
+specially while in cluster mode, due to optimizations introduced.
 
 Regarding SIP, the SIP11 Resource Adaptor now uses JAIN SIP HA 1.3.0 
 stack, and introduces some minor fixes. The Mobicents SIP Balancer 
 bundled was updated too, to 1.4.0 version. 
 
 With respect to Diameter, HENDRIX bundles the recently released 
-Mobicents Diameter 1.0.CR1, and with it introduces a couple of new 
+Mobicents Diameter 1.4.0.CR1, and with it introduces a couple of new 
 Resource Adaptors too: Diameter Gq and Diameter Rx, for a richer IMS 
 endpoint support.
 
 With respect to SS7, the release bundles the latest Mobicents SS7 
-1.0.0.BETA10, and both MAP and JCC Resource Adaptors were updated to 
-ensure compatibility.
+1.0.0.BETA10, and both MAP and JCC Resource Adaptors were updated 
+to ensure compatibility.
 
 This release updates several other Resource Adaptors, most notably it 
 introduces a revamped HTTP Client RA, with new Resource Adaptor Type, 
 working on top of latest Apache HTTP Client 4.x. It also includes the 
 first candidate release of JDBC RA, with a simple, yet very powerful and 
 flexible, all new Resource Adaptor Type, which provide means to develop 
-the most efficient SLEE application interactions with JDBC Data Sources 
-possible. The SMPP5 RA was also updated, now includes SLEE Usage Parameters, 
-which a SLEE administrator may use to monitor its performance, while the 
-TFTP RA has reached FINAL release status.
+the most efficient SLEE application interactions with JDBC Data Sources. 
+The SMPP5 RA was also updated, now includes SLEE Usage Parameters, 
+which a SLEE administrator may use to monitor its performance or status, 
+while the TFTP RA has reached FINAL release status.
 
 Regarding the bundled application Enablers, a new REST Client enabler is 
 introduced, which should enable SLEE applications interactions with REST 
-web services, such as Twitter and Facebook. The SIP Subscription Client 
-now has a simpler to use interface, and now supports resource lists. The 
-XDM Client, since it depends on SIP Subscription Client, was also updated.
+web services. A few lines of SLEE code is all that is needed, for an Sbb to 
+interact with Twitter, Facebook and other popular web services. The SIP 
+Subscription Client now has a simpler to use interface, and supports 
+resource lists. The XDM Client, since it depends on SIP Subscription Client, 
+was also updated.
 
 Finally, in the Tools department, we are proud to introduce the first 
 candidate release of EclipSLEE 2.x, the Mobicents JAIN SLEE Eclipse Plugin. 
-This new release completes the feature set for this generation of the 
-plugin, with an easy way to integrate pre-configured Resource Adaptor Types, 
-Application Enablers and Libraries. The plugin also includes new menu 
-shortcuts to simplify its usage.
+This new release completes the initial feature set for this generation of the 
+plugin, now with an easy way to integrate the Resource Adaptor 
+Types, Application Enablers and Libraries included in Mobicents JAIN SLEE. 
+This feature may be configured to include 3rd party components. Besides the
+ expected bug fixes, the plugin also includes new menu shortcuts to simplify 
+its usage.
  
 About Mobicents JAIN SLEE:
  
@@ -181,6 +185,10 @@ solutions, such as training or consultancy. More at
 http://www.redhat.com/solutions/telco
 
 A final note, thanks to all Mobicents community members who also helped 
-with the making of this release, with reports and/or testing enhancements.  
-
+with the making of this release, with reports and/or testing enhancements.
+There were two standouts this time, Vilius Panevėžys from Elitnet, and 
+Carl-Magnus Björkell from Emblacom, and as recognition for their community 
+work (not only with respect to this release), they now are members of the 
+Mobicents Core team, congratulations to both.
+ 
 Cheers.
