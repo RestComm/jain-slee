@@ -23,36 +23,22 @@
 /**
  * 
  */
-package org.mobicents.slee.resource.map;
+package org.mobicents.slee.resource.map.events;
 
-import org.mobicents.protocols.ss7.map.api.MAPDialog;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortChoice;
-import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 
 /**
  * @author amit bhayani
  * 
  */
-public class DialogUserAbort extends MAPEvent {
+public abstract class MAPEvent<T> {
+	private final T mAPDialog;
 
-	private final MAPUserAbortChoice userReason;
-	private final MAPExtensionContainer extensionContainer;
-
-	/**
-	 * @param mAPDialog
-	 */
-	public DialogUserAbort(MAPDialog mAPDialog, MAPUserAbortChoice userReason, MAPExtensionContainer extensionContainer) {
-		super(mAPDialog);
-		this.userReason = userReason;
-		this.extensionContainer = extensionContainer;
+	public MAPEvent(T mAPDialog) {
+		this.mAPDialog = mAPDialog;
 	}
 
-	public MAPUserAbortChoice getUserReason() {
-		return userReason;
-	}
-
-	public MAPExtensionContainer getExtensionContainer() {
-		return extensionContainer;
+	public T getMAPDialog() {
+		return mAPDialog;
 	}
 
 }

@@ -23,29 +23,18 @@
 /**
  * 
  */
-package org.mobicents.slee.resource.map;
+package org.mobicents.slee.resource.map.events;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPNoticeProblemDiagnostic;
 
 /**
  * @author amit bhayani
  * 
  */
-public class DialogNotice extends MAPEvent {
+public class DialogDelimiter extends MAPEvent {
 
-	private final MAPNoticeProblemDiagnostic noticeProblemDiagnostic;
-
-	/**
-	 * @param mAPDialog
-	 */
-	public DialogNotice(MAPDialog mAPDialog, MAPNoticeProblemDiagnostic noticeProblemDiagnostic) {
+	public DialogDelimiter(MAPDialog mAPDialog) {
 		super(mAPDialog);
-		this.noticeProblemDiagnostic = noticeProblemDiagnostic;
-	}
-
-	public MAPNoticeProblemDiagnostic getNoticeProblemDiagnostic() {
-		return noticeProblemDiagnostic;
 	}
 
 }

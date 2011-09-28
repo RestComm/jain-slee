@@ -40,111 +40,230 @@
 		</resource-adaptor-type-classes>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.DIALOG_DELIMITER
-			</event-type-name>
+			<event-type-name>ss7.map.DIALOG_DELIMITER</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.DIALOG_REQUEST
-			</event-type-name>
+			<event-type-name>ss7.map.DIALOG_REQUEST</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.DIALOG_ACCEPT
-			</event-type-name>
+			<event-type-name>ss7.map.DIALOG_ACCEPT</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.DIALOG_REJECT
-			</event-type-name>
+			<event-type-name>ss7.map.DIALOG_REJECT</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.DIALOG_USERABORT
-			</event-type-name>
+			<event-type-name>ss7.map.DIALOG_USERABORT</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.DIALOG_PROVIDERABORT
-			</event-type-name>
+			<event-type-name>ss7.map.DIALOG_PROVIDERABORT</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.DIALOG_CLOSE
-			</event-type-name>
+			<event-type-name>ss7.map.DIALOG_CLOSE</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.DIALOG_NOTICE
-			</event-type-name>
+			<event-type-name>ss7.map.DIALOG_NOTICE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<!-- SERVICE: suplementary -->
+		<event-type-ref>
+			<event-type-name>ss7.map.service.suplementary.UNSTRUCTURED_SS_REQUEST</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION
-			</event-type-name>
+			<event-type-name>ss7.map.service.suplementary.UNSTRUCTURED_SS_RESPONSE</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>
-				org.mobicents.protocols.ss7.map.UNSTRUCTURED_SS_REQUEST_INDICATION
-			</event-type-name>
+			<event-type-name>ss7.map.service.suplementary.PROCESS_UNSTRUCTURED_SS_REQUEST</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_TIMEOUT</event-type-name>
+			<event-type-name>ss7.map.service.suplementary.PROCESS_UNSTRUCTURED_SS_RESPONSE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+		
+		<event-type-ref>
+			<event-type-name>ss7.map.service.suplementary.UNSTRUCTURED_SS_NOTIFY_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		
+		<!-- SERVICE: lsm -->
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.lsm.PROVIDE_SUBSCRIBER_LOCATION_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+		
+		<event-type-ref>
+			<event-type-name>ss7.map.service.lsm.PROVIDE_SUBSCRIBER_LOCATION_RESPONSE</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>org.mobicents.protocols.ss7.map.INVOKE_TIMEOUT</event-type-name>
+			<event-type-name>ss7.map.service.lsm.SEND_ROUTING_INFO_FOR_LCS_REQUEST</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>org.mobicents.protocols.ss7.map.ERROR_COMPONENT</event-type-name>
+			<event-type-name>ss7.map.service.lsm.SEND_ROUTING_INFO_FOR_LCS_RESPONSE</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>org.mobicents.protocols.ss7.map.PROVIDER_ERROR_COMPONENT</event-type-name>
+			<event-type-name>ss7.map.service.lsm.SUBSCRIBER_LOCATION_REPORT_REQUEST</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
 		<event-type-ref>
-			<event-type-name>org.mobicents.protocols.ss7.map.REJECT_COMPONENT</event-type-name>
+			<event-type-name>ss7.map.service.lsm.SUBSCRIBER_LOCATION_REPORT_RESPONSE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<!-- SERVICE: sms -->
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.FORWARD_SHORT_MESSAGE_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.FORWARD_SHORT_MESSAGE_RESPONSE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.MO_FORWARD_SHORT_MESSAGE_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.MO_FORWARD_SHORT_MESSAGE_RESPONSE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.MT_FORWARD_SHORT_MESSAGE_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.MT_FORWARD_SHORT_MESSAGE_RESPONSE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.SEND_ROUTING_INFO_FOR_SM_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.SEND_ROUTING_INFO_FOR_SM_RESPONSE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.REPORT_SM_DELIVERY_STATUS_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.REPORT_SM_DELIVERY_STATUS_RESPONSE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.INFORM_SERVICE_CENTER_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.ALERT_SERVICE_CENTER_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.sms.ALERT_SERVICE_CENTER_RESPONSE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+
+		<!-- Dialog stuff -->
+		<event-type-ref>
+			<event-type-name>ss7.map.DIALOG_TIMEOUT</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.INVOKE_TIMEOUT</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.ERROR_COMPONENT</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.PROVIDER_ERROR_COMPONENT</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.REJECT_COMPONENT</event-type-name>
 			<event-type-vendor>org.mobicents</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>

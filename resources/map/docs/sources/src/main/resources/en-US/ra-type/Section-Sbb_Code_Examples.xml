@@ -17,7 +17,7 @@ public abstract class SipSbb implements Sbb {
 
 	private MAPContextInterfaceFactory mapAcif;
 	private MAPProvider mapProvider;
-	private MapServiceFactory mapServiceFactory;
+	private MAPParameterFactory mapParameterFactory;
 	
 	private static byte ussdDataCodingScheme = 0x0F;
 
@@ -118,7 +118,7 @@ public abstract class SipSbb implements Sbb {
 			mapProvider = (MAPProvider) ctx
 					.lookup("slee/resources/map/2.0/provider");
 
-			this.mapServiceFactory = this.mapProvider.getMapServiceFactory();
+			this.mapParameterFactory = this.mapProvider.getMAPParameterFactory();
 
 			
 		} catch (Exception ne) {

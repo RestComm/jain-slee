@@ -24,8 +24,8 @@ package org.mobicents.slee.resource.map.wrappers;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
+import org.mobicents.protocols.ss7.map.api.MAPParameterFactory;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
-import org.mobicents.protocols.ss7.map.api.MapServiceFactory;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessageFactory;
 import org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms;
@@ -44,7 +44,8 @@ public class MAPProviderWrapper implements MAPProvider {
 	////////////////////////////////
 	protected MAPProvider wrappedProvider;
 	protected MAPServiceSupplementaryWrapper wrappedUSSD;  //we could implement it all in one class, but....
-
+	protected MAPServiceLsmWrapper wrappedLSM;
+	protected MAPServiceSmsWrapper wrappedSMS;
 	
 	protected MAPResourceAdaptor ra;
 	
@@ -62,6 +63,8 @@ public class MAPProviderWrapper implements MAPProvider {
 		//now create service wrappers
 		
 		this.wrappedUSSD = new MAPServiceSupplementaryWrapper(this,wrappedProvider.getMAPServiceSupplementary());
+		this.wrappedLSM = new MAPServiceLsmWrapper(this,wrappedProvider.getMAPServiceLsm());
+		this.wrappedSMS = new MAPServiceSmsWrapper(this,wrappedProvider.getMAPServiceSms());
 	}
 
 	/* (non-Javadoc)
@@ -82,8 +85,8 @@ public class MAPProviderWrapper implements MAPProvider {
 	}
 
 	@Override
-	public MapServiceFactory getMapServiceFactory() {
-		return this.wrappedProvider.getMapServiceFactory();
+	public MAPParameterFactory getMAPParameterFactory() {
+		return this.wrappedProvider.getMAPParameterFactory();
 	}
 	
 	/* (non-Javadoc)
@@ -116,7 +119,7 @@ public class MAPProviderWrapper implements MAPProvider {
 	 */
 	@Override
 	public MAPServiceSms getMAPServiceSms() {
-		throw new UnsupportedOperationException(); 
+		return this.wrappedSMS;
 	}
 
 	/* (non-Javadoc)
@@ -124,7 +127,7 @@ public class MAPProviderWrapper implements MAPProvider {
 	 */
 	@Override
 	public MAPServiceLsm getMAPServiceLsm() {
-		throw new UnsupportedOperationException(); 
+		return this.wrappedLSM; 
 	}
 
 }

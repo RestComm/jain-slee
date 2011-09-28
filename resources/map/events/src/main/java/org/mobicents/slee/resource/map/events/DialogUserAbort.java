@@ -23,47 +23,32 @@
 /**
  * 
  */
-package org.mobicents.slee.resource.map;
+package org.mobicents.slee.resource.map.events;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPProviderError;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPRefuseReason;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortChoice;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
-import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
 
 /**
  * @author amit bhayani
  * 
  */
-public class DialogReject extends MAPEvent {
+public class DialogUserAbort extends MAPEvent {
 
-	private final MAPRefuseReason refuseReason;
-	private final MAPProviderError providerError;
-	private final ApplicationContextName alternativeApplicationContext;
+	private final MAPUserAbortChoice userReason;
 	private final MAPExtensionContainer extensionContainer;
 
 	/**
 	 * @param mAPDialog
 	 */
-	public DialogReject(MAPDialog mAPDialog, MAPRefuseReason refuseReason, MAPProviderError providerError,
-			ApplicationContextName alternativeApplicationContext, MAPExtensionContainer extensionContainer) {
+	public DialogUserAbort(MAPDialog mAPDialog, MAPUserAbortChoice userReason, MAPExtensionContainer extensionContainer) {
 		super(mAPDialog);
-		this.refuseReason = refuseReason;
-		this.providerError = providerError;
-		this.alternativeApplicationContext = alternativeApplicationContext;
+		this.userReason = userReason;
 		this.extensionContainer = extensionContainer;
 	}
 
-	public MAPRefuseReason getRefuseReason() {
-		return refuseReason;
-	}
-
-	public MAPProviderError getProviderError() {
-		return providerError;
-	}
-
-	public ApplicationContextName getAlternativeApplicationContext() {
-		return alternativeApplicationContext;
+	public MAPUserAbortChoice getUserReason() {
+		return userReason;
 	}
 
 	public MAPExtensionContainer getExtensionContainer() {

@@ -23,17 +23,20 @@
 /**
  * 
  */
-package org.mobicents.slee.resource.map;
+package org.mobicents.slee.resource.map.events;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 
 /**
- * @author amit bhayani
+ * @author abhayani
  * 
  */
-public class DialogDelimiter extends MAPEvent {
+public class DialogClose extends MAPEvent {
 
-	public DialogDelimiter(MAPDialog mAPDialog) {
+	/**
+	 * @param mAPDialog
+	 */
+	public DialogClose(MAPDialog mAPDialog) {
 		super(mAPDialog);
 	}
 

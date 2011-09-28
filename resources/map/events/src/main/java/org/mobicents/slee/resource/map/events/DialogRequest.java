@@ -23,21 +23,43 @@
 /**
  * 
  */
-package org.mobicents.slee.resource.map;
+package org.mobicents.slee.resource.map.events;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
+import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
+import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 
 /**
- * @author abhayani
+ * @author amit bhayani
  * 
  */
-public class DialogClose extends MAPEvent {
+public class DialogRequest extends MAPEvent {
+
+	private final AddressString destReference;
+	private final AddressString origReference;
+	private final MAPExtensionContainer extensionContainer;
 
 	/**
 	 * @param mAPDialog
 	 */
-	public DialogClose(MAPDialog mAPDialog) {
+	public DialogRequest(MAPDialog mAPDialog, AddressString destReference, AddressString origReference,
+			MAPExtensionContainer extensionContainer) {
 		super(mAPDialog);
+		this.destReference = destReference;
+		this.origReference = origReference;
+		this.extensionContainer = extensionContainer;
+	}
+
+	public AddressString getDestReference() {
+		return destReference;
+	}
+
+	public AddressString getOrigReference() {
+		return origReference;
+	}
+
+	public MAPExtensionContainer getExtensionContainer() {
+		return extensionContainer;
 	}
 
 }

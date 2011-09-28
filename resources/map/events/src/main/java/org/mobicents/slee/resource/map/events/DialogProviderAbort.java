@@ -23,23 +23,44 @@
 /**
  * 
  */
-package org.mobicents.slee.resource.map;
+package org.mobicents.slee.resource.map.events;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortProviderReason;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortSource;
+import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 
 /**
  * @author amit bhayani
  * 
  */
-public abstract class MAPEvent {
-	private final MAPDialog mAPDialog;
+public class DialogProviderAbort extends MAPEvent {
 
-	public MAPEvent(MAPDialog mAPDialog) {
-		this.mAPDialog = mAPDialog;
+	private final MAPAbortProviderReason abortProviderReason;
+	private final MAPAbortSource abortSource;
+	private final MAPExtensionContainer extensionContainer;
+
+	/**
+	 * @param mAPDialog
+	 */
+	public DialogProviderAbort(MAPDialog mAPDialog, MAPAbortProviderReason abortProviderReason,
+			MAPAbortSource abortSource, MAPExtensionContainer extensionContainer) {
+		super(mAPDialog);
+		this.abortProviderReason = abortProviderReason;
+		this.abortSource = abortSource;
+		this.extensionContainer = extensionContainer;
 	}
 
-	public MAPDialog getMAPDialog() {
-		return mAPDialog;
+	public MAPAbortProviderReason getAbortProviderReason() {
+		return abortProviderReason;
+	}
+
+	public MAPAbortSource getAbortSource() {
+		return abortSource;
+	}
+
+	public MAPExtensionContainer getExtensionContainer() {
+		return extensionContainer;
 	}
 
 }

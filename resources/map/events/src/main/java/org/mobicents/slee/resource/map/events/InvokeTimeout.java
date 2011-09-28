@@ -20,31 +20,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.resource.map;
+package org.mobicents.slee.resource.map.events;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
-import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
 
 /**
  * @author baranowb
  *
  */
-public class RejectComponent extends ComponentEvent {
+public class InvokeTimeout extends ComponentEvent {
 
-	
-	protected Problem problem;
 	/**
 	 * @param mAPDialog
 	 * @param invokeId
 	 */
-	public RejectComponent(MAPDialog mAPDialog, Long invokeId, Problem problem) {
+	public InvokeTimeout(MAPDialog mAPDialog, Long invokeId) {
 		super(mAPDialog, invokeId);
-		this.problem = problem;
 	}
 
-	
-	public Problem getProblem()
-	{
-		return this.problem;
-	}
 }

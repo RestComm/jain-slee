@@ -23,44 +23,29 @@
 /**
  * 
  */
-package org.mobicents.slee.resource.map;
+package org.mobicents.slee.resource.map.events;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortProviderReason;
-import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortSource;
-import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
+import org.mobicents.protocols.ss7.map.api.dialog.MAPNoticeProblemDiagnostic;
 
 /**
  * @author amit bhayani
  * 
  */
-public class DialogProviderAbort extends MAPEvent {
+public class DialogNotice extends MAPEvent {
 
-	private final MAPAbortProviderReason abortProviderReason;
-	private final MAPAbortSource abortSource;
-	private final MAPExtensionContainer extensionContainer;
+	private final MAPNoticeProblemDiagnostic noticeProblemDiagnostic;
 
 	/**
 	 * @param mAPDialog
 	 */
-	public DialogProviderAbort(MAPDialog mAPDialog, MAPAbortProviderReason abortProviderReason,
-			MAPAbortSource abortSource, MAPExtensionContainer extensionContainer) {
+	public DialogNotice(MAPDialog mAPDialog, MAPNoticeProblemDiagnostic noticeProblemDiagnostic) {
 		super(mAPDialog);
-		this.abortProviderReason = abortProviderReason;
-		this.abortSource = abortSource;
-		this.extensionContainer = extensionContainer;
+		this.noticeProblemDiagnostic = noticeProblemDiagnostic;
 	}
 
-	public MAPAbortProviderReason getAbortProviderReason() {
-		return abortProviderReason;
-	}
-
-	public MAPAbortSource getAbortSource() {
-		return abortSource;
-	}
-
-	public MAPExtensionContainer getExtensionContainer() {
-		return extensionContainer;
+	public MAPNoticeProblemDiagnostic getNoticeProblemDiagnostic() {
+		return noticeProblemDiagnostic;
 	}
 
 }

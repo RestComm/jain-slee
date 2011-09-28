@@ -20,30 +20,31 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.resource.map;
+package org.mobicents.slee.resource.map.events;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
-import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
+import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
 
 /**
  * @author baranowb
  *
  */
-public class ErrorComponent extends ComponentEvent {
+public class RejectComponent extends ComponentEvent {
 
-	protected  MAPErrorMessage mapErrorMessage;
+	
+	protected Problem problem;
 	/**
 	 * @param mAPDialog
 	 * @param invokeId
 	 */
-	public ErrorComponent(MAPDialog mAPDialog, Long invokeId, MAPErrorMessage mapErrorMessage) {
+	public RejectComponent(MAPDialog mAPDialog, Long invokeId, Problem problem) {
 		super(mAPDialog, invokeId);
-		this.mapErrorMessage = mapErrorMessage;
+		this.problem = problem;
 	}
 
-	public MAPErrorMessage getMAPErrorMessage()
-	{
-		return this.mapErrorMessage;
-	}
 	
+	public Problem getProblem()
+	{
+		return this.problem;
+	}
 }

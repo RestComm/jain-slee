@@ -25,7 +25,7 @@ public interface MAPProvider {
 
     public abstract void removeMAPDialogListener(MAPDialogListener mapdialoglistener);
 
-    public abstract MapServiceFactory getMapServiceFactory();
+    public abstract MAPParameterFactory getMAPParameterFactory();
 
     public abstract MAPErrorMessageFactory getMAPErrorMessageFactory();
 
@@ -54,9 +54,9 @@ public interface MAPProvider {
 			</listitem>
 		</varlistentry>
 		<varlistentry>
-			<term>public abstract MapServiceFactory getMapServiceFactory();</term>
+			<term>public abstract MAPParameterFactory getMAPParameterFactory();</term>
 			<listitem>
-				<para>retrieves factory for generic MAP components(interface name is missleading, will be changed in CR1)</para>
+				<para>retrieves factory for generic MAP components</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>
