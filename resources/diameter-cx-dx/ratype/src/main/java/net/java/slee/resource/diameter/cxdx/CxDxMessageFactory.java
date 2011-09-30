@@ -22,6 +22,8 @@
 
 package net.java.slee.resource.diameter.cxdx;
 
+import net.java.slee.resource.diameter.base.DiameterMessageFactory;
+
 import net.java.slee.resource.diameter.cxdx.events.LocationInfoRequest;
 import net.java.slee.resource.diameter.cxdx.events.MultimediaAuthenticationRequest;
 import net.java.slee.resource.diameter.cxdx.events.PushProfileRequest;
@@ -171,5 +173,9 @@ public interface CxDxMessageFactory {
    */
   PushProfileRequest createPushProfileRequest(String sessionId) throws IllegalArgumentException;
 
- 
+  /**
+   * 
+   * @return Base Diameter message factory
+   */
+  public DiameterMessageFactory getBaseMessageFactory();
 }

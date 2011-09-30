@@ -23,6 +23,8 @@
 package org.mobicents.slee.resource.diameter.cxdx;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
+import net.java.slee.resource.diameter.base.DiameterMessageFactory;
+
 import net.java.slee.resource.diameter.base.NoSuchAvpException;
 import net.java.slee.resource.diameter.base.events.DiameterHeader;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
@@ -72,7 +74,8 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
 
   public static final ApplicationId cxdxAppId = ApplicationId.createByAuthAppId(_CXDX_VENDOR, _CXFX_AUTH_APP_ID);
   private DiameterAvpFactory baseAvpFactory = null;
- 
+  protected DiameterMessageFactory baseFactory = null;
+  
   private DiameterAvp[] EMPTY_AVP_ARRAY = new DiameterAvp[]{}; 
 
   /**
@@ -80,19 +83,21 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
    * @param stack
    * @param avps
    */
-  public CxDxMessageFactoryImpl(Session session, Stack stack, DiameterIdentity... avps) {
+  public CxDxMessageFactoryImpl(DiameterMessageFactory baseFactory,Session session, Stack stack, DiameterIdentity... avps) {
     super(session, stack, avps);
 
     this.baseAvpFactory = new DiameterAvpFactoryImpl();
+    this.baseFactory = baseFactory;
   }
 
   /**
    * @param stack
    */
-  public CxDxMessageFactoryImpl(Stack stack) {
-    super(stack);
-
+  public CxDxMessageFactoryImpl(DiameterMessageFactory baseFactory,Stack stack) {
+    super(stack);   
+    
     this.baseAvpFactory = new DiameterAvpFactoryImpl();
+    this.baseFactory = baseFactory;
   }
 
   /* (non-Javadoc)
@@ -239,6 +244,12 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
     return uar;
   }
 
+  @Override
+  public DiameterMessageFactory getBaseMessageFactory() 
+  {
+		return baseFactory;
+  }
+  
   /**
    * Creates a CxDx Message with specified command-code and avps filled. If a header is present an answer will be created, if not
    * it will generate a request.
@@ -266,18 +277,18 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
       raw.setProxiable(true);
       raw.setRequest(true);
       msg = raw;
-    }
+    }    
 
     if (msg.getAvps().getAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID) == null) {
-      try {
-        DiameterAvp avpVendorId = this.baseAvpFactory.createAvp(Avp.VENDOR_ID, _CXDX_VENDOR);
-        DiameterAvp avpAcctApplicationId = this.baseAvpFactory.createAvp(Avp.AUTH_APPLICATION_ID, _CXFX_AUTH_APP_ID);
-        DiameterAvp vendorSpecific = this.baseAvpFactory.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAcctApplicationId });
-        msg.getAvps().addAvp(vendorSpecific.getCode(), vendorSpecific.byteArrayValue());
-      }
-      catch(NoSuchAvpException nsae) {
-        logger.error("Failed to create AVPs", nsae);
-      }
+    	try {
+    	    DiameterAvp avpVendorId = this.baseAvpFactory.createAvp(Avp.VENDOR_ID, _CXDX_VENDOR);
+    	    DiameterAvp avpAcctApplicationId = this.baseAvpFactory.createAvp(Avp.AUTH_APPLICATION_ID, _CXFX_AUTH_APP_ID);
+    	    DiameterAvp vendorSpecific = this.baseAvpFactory.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAcctApplicationId });
+    	    msg.getAvps().addAvp(vendorSpecific.getCode(), vendorSpecific.byteArrayValue());
+    	}
+    	catch(NoSuchAvpException nsae) {
+    	   logger.error("Failed to create AVPs", nsae);
+    	}
     }
 
     int commandCode = creatingRequest ? _commandCode : diameterHeader.getCommandCode();
