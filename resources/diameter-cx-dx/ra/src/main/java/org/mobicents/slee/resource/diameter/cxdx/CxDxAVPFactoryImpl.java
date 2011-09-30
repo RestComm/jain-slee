@@ -24,6 +24,7 @@ package org.mobicents.slee.resource.diameter.cxdx;
 
 import static net.java.slee.resource.diameter.cxdx.events.avp.DiameterCxDxAvpCodes.*;
 
+import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
 import net.java.slee.resource.diameter.cxdx.CxDxAVPFactory;
 import net.java.slee.resource.diameter.cxdx.events.avp.AssociatedIdentities;
@@ -36,6 +37,7 @@ import net.java.slee.resource.diameter.cxdx.events.avp.SCSCFRestorationInfo;
 import net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem;
 import net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate;
 import net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo;
+import net.java.slee.resource.diameter.cxdx.events.avp.ServerCapabilities;
 
 import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
 import org.mobicents.slee.resource.diameter.cxdx.events.avp.AssociatedIdentitiesImpl;
@@ -47,6 +49,7 @@ import org.mobicents.slee.resource.diameter.cxdx.events.avp.SCSCFRestorationInfo
 import org.mobicents.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItemImpl;
 import org.mobicents.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticateImpl;
 import org.mobicents.slee.resource.diameter.cxdx.events.avp.SubscriptionInfoImpl;
+import org.mobicents.slee.resource.diameter.cxdx.events.avp.ServerCapabilitiesImpl;
 
 /**
  *
@@ -57,13 +60,21 @@ import org.mobicents.slee.resource.diameter.cxdx.events.avp.SubscriptionInfoImpl
  */
 public class CxDxAVPFactoryImpl extends DiameterAvpFactoryImpl implements CxDxAVPFactory {
 
+  DiameterAvpFactory baseAvpFactory;
   /**
    * 
    */
-  public CxDxAVPFactoryImpl() {
+  public CxDxAVPFactoryImpl(DiameterAvpFactory baseAvpFactory) {
     super();
+    this.baseAvpFactory = baseAvpFactory;
   }
 
+  @Override
+  public DiameterAvpFactory getBaseFactory() 
+  {
+		return baseAvpFactory;
+  }
+  
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.CxDxAVPFactory#createAssociatedIdentities()
    */
@@ -83,6 +94,13 @@ public class CxDxAVPFactoryImpl extends DiameterAvpFactoryImpl implements CxDxAV
    */
   public ChargingInformation createChargingInformation() {
     return (ChargingInformation) AvpUtilities.createAvp(CHARGING_INFORMATION, CXDX_VENDOR_ID, null, ChargingInformationImpl.class);
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.CxDxAVPFactory#createChargingInformation()
+   */
+  public ServerCapabilities createServerCapabilities() {
+    return (ServerCapabilities) AvpUtilities.createAvp(SERVER_CAPABILITIES, CXDX_VENDOR_ID, null, ServerCapabilitiesImpl.class);
   }
 
   /* (non-Javadoc)
@@ -199,5 +217,5 @@ public class CxDxAVPFactoryImpl extends DiameterAvpFactoryImpl implements CxDxAV
 
     return avp;
   }
-
+ 
 }

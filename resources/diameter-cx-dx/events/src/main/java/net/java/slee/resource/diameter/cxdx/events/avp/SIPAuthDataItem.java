@@ -244,7 +244,7 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * Returns the value of the Line-Identifier AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String getLineIdentifiers();
+  public String[] getLineIdentifiers();
 
   /**
    * Sets the value of the Line-Identifier AVP, of type OctetString.

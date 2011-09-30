@@ -23,6 +23,7 @@
 package net.java.slee.resource.diameter.cxdx;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
+
 import net.java.slee.resource.diameter.cxdx.events.avp.AssociatedIdentities;
 import net.java.slee.resource.diameter.cxdx.events.avp.AssociatedRegisteredIdentities;
 import net.java.slee.resource.diameter.cxdx.events.avp.ChargingInformation;
@@ -33,7 +34,7 @@ import net.java.slee.resource.diameter.cxdx.events.avp.SCSCFRestorationInfo;
 import net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem;
 import net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate;
 import net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo;
-
+import net.java.slee.resource.diameter.cxdx.events.avp.ServerCapabilities;
 
 /**
  * Factory to support the creation of Grouped AVP instances for Cx/Dx.
@@ -43,6 +44,8 @@ import net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo;
  */
 public interface CxDxAVPFactory extends DiameterAvpFactory{
 
+  public DiameterAvpFactory  getBaseFactory();
+  
   /**
    * Create an empty AssociatedIdentities instance.
    * 
@@ -64,6 +67,13 @@ public interface CxDxAVPFactory extends DiameterAvpFactory{
    */
   ChargingInformation createChargingInformation();
 
+  /**
+   * Create an empty ServerCapabilities instance.
+   * 
+   * @return a new and empty ServerCapabilities instance
+   */
+  ServerCapabilities createServerCapabilities();
+  
   /**
    * Create an empty DeregistrationReason instance.
    * 
