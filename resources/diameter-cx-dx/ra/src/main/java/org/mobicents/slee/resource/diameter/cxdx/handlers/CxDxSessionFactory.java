@@ -22,6 +22,8 @@
 
 package org.mobicents.slee.resource.diameter.cxdx.handlers;
 
+import net.java.slee.resource.diameter.cxdx.events.avp.DiameterCxDxAvpCodes;
+
 import org.apache.log4j.Logger;
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.ApplicationId;
@@ -338,7 +340,7 @@ public class CxDxSessionFactory extends CxDxSessionFactoryImpl {
    */
   public long getApplicationId() {
     // FIXME: Not needed?
-    return 16777216;
+    return DiameterCxDxAvpCodes.CXDX_AUTH_APP_ID;
   }
 
   private void doFireEvent(AppSession appSession, Message message) {

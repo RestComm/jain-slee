@@ -41,19 +41,6 @@ import net.java.slee.resource.diameter.cxdx.events.UserAuthorizationRequest;
 public interface CxDxMessageFactory {
 
   /**
-   * The Cx interface protocol is defined as an IETF vendor specific Diameter application, where
-   * the vendor is 3GPP. The vendor identifier assigned by IANA to 3GPP 
-   * (http://www.iana.org/assignments/enterprise-numbers) is 10415.
-   */
-  public static final long _CXDX_VENDOR = 10415L;
-
-  /**
-   * The Diameter application identifier assigned to the Cx/Dx interface application is 16777216 
-   * (allocated by IANA).
-   */
-  public static final long _CXFX_AUTH_APP_ID = 16777216L;
-
-  /**
    * Create a UserAuthorizationRequest instance, populating it with the internal
    * AVPs not known or needed by the application.
    * 

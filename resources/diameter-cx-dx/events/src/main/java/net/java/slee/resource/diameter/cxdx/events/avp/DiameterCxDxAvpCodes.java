@@ -29,7 +29,7 @@ public class DiameterCxDxAvpCodes {
   }
   
   public static final long CXDX_VENDOR_ID = 10415L; 
-  
+  public static final long CXDX_AUTH_APP_ID = 16777216L;
   /**
    * <pre>
    * Name......: Visited-Network-Identifier

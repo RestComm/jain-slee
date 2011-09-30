@@ -37,6 +37,7 @@ import net.java.slee.resource.diameter.cxdx.events.PushProfileRequest;
 import net.java.slee.resource.diameter.cxdx.events.RegistrationTerminationRequest;
 import net.java.slee.resource.diameter.cxdx.events.ServerAssignmentRequest;
 import net.java.slee.resource.diameter.cxdx.events.UserAuthorizationRequest;
+import net.java.slee.resource.diameter.cxdx.events.avp.DiameterCxDxAvpCodes;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.ApplicationId;
@@ -72,7 +73,7 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
 
   private static Logger logger = Logger.getLogger(CxDxMessageFactoryImpl.class);
 
-  public static final ApplicationId cxdxAppId = ApplicationId.createByAuthAppId(_CXDX_VENDOR, _CXFX_AUTH_APP_ID);
+  public static final ApplicationId cxdxAppId = ApplicationId.createByAuthAppId(DiameterCxDxAvpCodes.CXDX_VENDOR_ID, DiameterCxDxAvpCodes.CXDX_AUTH_APP_ID);
   private DiameterAvpFactory baseAvpFactory = null;
   protected DiameterMessageFactory baseFactory = null;
   
@@ -281,8 +282,8 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
 
     if (msg.getAvps().getAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID) == null) {
     	try {
-    	    DiameterAvp avpVendorId = this.baseAvpFactory.createAvp(Avp.VENDOR_ID, _CXDX_VENDOR);
-    	    DiameterAvp avpAcctApplicationId = this.baseAvpFactory.createAvp(Avp.AUTH_APPLICATION_ID, _CXFX_AUTH_APP_ID);
+    	    DiameterAvp avpVendorId = this.baseAvpFactory.createAvp(Avp.VENDOR_ID, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
+    	    DiameterAvp avpAcctApplicationId = this.baseAvpFactory.createAvp(Avp.AUTH_APPLICATION_ID, DiameterCxDxAvpCodes.CXDX_AUTH_APP_ID);
     	    DiameterAvp vendorSpecific = this.baseAvpFactory.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAcctApplicationId });
     	    msg.getAvps().addAvp(vendorSpecific.getCode(), vendorSpecific.byteArrayValue());
     	}
