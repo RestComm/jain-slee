@@ -56,54 +56,57 @@ public class ServerCapabilitiesImpl extends GroupedAvpImpl implements ServerCapa
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#getMandatoryCapability()
    */
-  public long[] getMandatoryCapabilities() {
-    return getAvpsAsUnsigned32(DiameterCxDxAvpCodes.MANDATORY_CAPABILITY, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
+  public long getMandatoryCapability() {
+    return getAvpAsUnsigned32(DiameterCxDxAvpCodes.MANDATORY_CAPABILITY, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#getOptionalCapability()
    */
-  public long[] getOptionalCapabilities() {
-    return getAvpsAsUnsigned32(DiameterCxDxAvpCodes.OPTIONAL_CAPABILITY, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
+  public long getOptionalCapability() { 
+    return getAvpAsUnsigned32(DiameterCxDxAvpCodes.OPTIONAL_CAPABILITY, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#getServerName()
    */
-  public String[] getServerNames() {
-    return getAvpsAsUTF8String(DiameterCxDxAvpCodes.SERVER_NAME, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
+  public String getServerName() {
+    return getAvpAsUTF8String(DiameterCxDxAvpCodes.SERVER_NAME, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
   }
-  
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#hasMandatoryCapability()
+   */
+  public boolean hasMandatoryCapability() {
+    return hasAvp(DiameterCxDxAvpCodes.MANDATORY_CAPABILITY, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#hasOptionalCapability()
+   */
+  public boolean hasOptionalCapability() {
+    return hasAvp(DiameterCxDxAvpCodes.OPTIONAL_CAPABILITY, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#hasServerName()
+   */
+  public boolean hasServerName() {
+    return hasAvp(DiameterCxDxAvpCodes.SERVER_NAME, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
+  }
+
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#setMandatoryCapability(long)
    */
   public void setMandatoryCapability( long mandatoryCapability ) {
     addAvp(DiameterCxDxAvpCodes.MANDATORY_CAPABILITY, DiameterCxDxAvpCodes.CXDX_VENDOR_ID, mandatoryCapability);
   }
-  
-  /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#setMandatoryCapabilities(long[])
-   */
-  public void setMandatoryCapabilities( long[] mandatoryCapabilities ) {
-	  for(long mandatoryCapability : mandatoryCapabilities) {
-		  setMandatoryCapability(mandatoryCapability);
-	    }
-  }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#setOptionalCapability(long[])
+   * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#setOptionalCapability(long)
    */
   public void setOptionalCapability( long optionalCapability ) {
     addAvp(DiameterCxDxAvpCodes.OPTIONAL_CAPABILITY, DiameterCxDxAvpCodes.CXDX_VENDOR_ID, optionalCapability);
-  }
-  
-  /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#setOptionalCapabilities(long[])
-   */
-  public void setOptionalCapabilities( long[] optionalCapabilities ) {
-	  for(long optionalCapability : optionalCapabilities) {
-		  setOptionalCapability(optionalCapability);
-	    }
   }
 
   /* (non-Javadoc)
@@ -111,15 +114,6 @@ public class ServerCapabilitiesImpl extends GroupedAvpImpl implements ServerCapa
    */
   public void setServerName( String serverName ) {
     addAvp(DiameterCxDxAvpCodes.SERVER_NAME, DiameterCxDxAvpCodes.CXDX_VENDOR_ID, serverName);
-  }
-  
-  /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.ro.events.avp.ServerCapabilities#setServerNames(java.lang.String[])
-   */
-  public void setServerNames( String[] serverNames ) {
-	  for(String serverName : serverNames) {
-		  setServerName(serverName);
-	    }
   }
 
 }
