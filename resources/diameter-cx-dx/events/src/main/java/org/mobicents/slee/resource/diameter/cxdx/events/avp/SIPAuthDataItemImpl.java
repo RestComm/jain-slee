@@ -66,7 +66,7 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   public String getFramedIPAddress() {
     // 6.11.1. Framed-IP-Address AVP
     // The Framed-IP-Address AVP (AVP Code 8) [RADIUS] is of type OctetString
-    return getAvpAsOctetString(8);
+    return getAvpAsOctetString(FRAMED_IP_ADDRESS);
   }
 
   /* (non-Javadoc)
@@ -75,7 +75,7 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   public String getFramedIPv6Prefix() {
     // 6.11.6. Framed-IPv6-Prefix AVP
     // The Framed-IPv6-Prefix AVP (AVP Code 97) is of type OctetString
-    return getAvpAsOctetString(97);
+    return getAvpAsOctetString(FRAMED_IPV6_PREFIX);
   }
 
   /* (non-Javadoc)
@@ -84,7 +84,7 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   public long getFramedInterfaceId() {
     // 6.11.5. Framed-Interface-Id AVP
     // The Framed-Interface-Id AVP (AVP Code 96) is of type Unsigned64
-    return getAvpAsUnsigned64(96);
+    return getAvpAsUnsigned64(FRAMED_INTERFACE);
   }
 
   /* (non-Javadoc)
@@ -97,10 +97,10 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getLineIdentifiers()
    */
-  public String getLineIdentifiers() {
+  public String[] getLineIdentifiers() {
     // 6.3.42  Line-Identifier AVP
     // The Line-Identifier AVP is of type OctetString. This AVP has Vendor Id ETSI (13019) and AVP code 500.
-    return getAvpAsOctetString(500, 13019L);
+    return (String[])getAvpsAsOctetString(LINE_IDENTIFIER, ETSI_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -156,21 +156,21 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#hasFramedIPAddress()
    */
   public boolean hasFramedIPAddress() {
-    return hasAvp(8);
+    return hasAvp(FRAMED_IP_ADDRESS);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#hasFramedIPv6Prefix()
    */
   public boolean hasFramedIPv6Prefix() {
-    return hasAvp(97);
+    return hasAvp(FRAMED_IPV6_PREFIX);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#hasFramedInterfaceId()
    */
   public boolean hasFramedInterfaceId() {
-    return hasAvp(96);
+    return hasAvp(FRAMED_INTERFACE);
   }
 
   /* (non-Javadoc)
@@ -233,21 +233,21 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setFramedIPAddress(java.lang.String)
    */
   public void setFramedIPAddress(String framedIPAddress) {
-    addAvp(8, framedIPAddress);
+    addAvp(FRAMED_IP_ADDRESS, framedIPAddress);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setFramedIPv6Prefix(java.lang.String)
    */
   public void setFramedIPv6Prefix(String framedIPv6Prefix) {
-    addAvp(97, framedIPv6Prefix);
+    addAvp(FRAMED_IPV6_PREFIX, framedIPv6Prefix);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setFramedInterfaceId(long)
    */
   public void setFramedInterfaceId(long framedInterfaceId) {
-    addAvp(96, framedInterfaceId);
+    addAvp(FRAMED_INTERFACE, framedInterfaceId);
   }
 
   /* (non-Javadoc)
@@ -261,7 +261,7 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setLineIdentifier(java.lang.String)
    */
   public void setLineIdentifier(String lineIdentifier) {
-    addAvp(500, 13019L, lineIdentifier);
+    addAvp(LINE_IDENTIFIER, ETSI_VENDOR_ID, lineIdentifier);
   }
 
   /* (non-Javadoc)

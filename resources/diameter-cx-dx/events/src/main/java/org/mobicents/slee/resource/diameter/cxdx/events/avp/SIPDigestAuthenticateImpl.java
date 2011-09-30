@@ -23,6 +23,7 @@
 package org.mobicents.slee.resource.diameter.cxdx.events.avp;
 
 import net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate;
+import net.java.slee.resource.diameter.cxdx.events.avp.DiameterCxDxAvpCodes;
 
 import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
 
@@ -54,84 +55,84 @@ public class SIPDigestAuthenticateImpl extends GroupedAvpImpl implements SIPDige
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#getDigestAlgorithm()
    */
   public String getDigestAlgorithm() {
-    return getAvpAsUTF8String(509, 13019L);
+    return getAvpAsUTF8String(DiameterCxDxAvpCodes.TGPP_DIGEST_ALGORITHM);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#getDigestHA1()
    */
   public String getDigestHA1() {
-    return getAvpAsUTF8String(511, 13019L);
+    return getAvpAsUTF8String(DiameterCxDxAvpCodes.TGPP_DIGEST_HA1);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#getDigestQoP()
    */
   public String getDigestQoP() {
-    return getAvpAsUTF8String(510, 13019L);
+    return getAvpAsUTF8String(DiameterCxDxAvpCodes.TGPP_DIGEST_QOP);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#getDigestRealm()
    */
   public String getDigestRealm() {
-    return getAvpAsUTF8String(504, 13019L);
+    return getAvpAsUTF8String(DiameterCxDxAvpCodes.TGPP_DIGEST_REALM);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#hasDigestAlgorithm()
    */
   public boolean hasDigestAlgorithm() {
-    return hasAvp(509, 13019L);
+    return hasAvp(DiameterCxDxAvpCodes.TGPP_DIGEST_ALGORITHM);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#hasDigestHA1()
    */
   public boolean hasDigestHA1() {
-    return hasAvp(511, 13019L);
+    return hasAvp(DiameterCxDxAvpCodes.TGPP_DIGEST_HA1);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#hasDigestQoP()
    */
   public boolean hasDigestQoP() {
-    return hasAvp(510, 13019L);
+    return hasAvp(DiameterCxDxAvpCodes.TGPP_DIGEST_QOP);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#hasDigestRealm()
    */
   public boolean hasDigestRealm() {
-    return hasAvp(504, 13019L);
+    return hasAvp(DiameterCxDxAvpCodes.TGPP_DIGEST_REALM);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#setDigestAlgorithm(java.lang.String)
    */
   public void setDigestAlgorithm(String digestAlgorithm) {
-    addAvp(509, 13019L, digestAlgorithm);
+    addAvp(DiameterCxDxAvpCodes.TGPP_DIGEST_ALGORITHM, digestAlgorithm);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#setDigestHA1(java.lang.String)
    */
   public void setDigestHA1(String digestHA1) {
-    addAvp(511, 13019L, digestHA1);
+    addAvp(DiameterCxDxAvpCodes.TGPP_DIGEST_HA1, digestHA1);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#setDigestQoP(java.lang.String)
    */
   public void setDigestQoP(String digestQoP) {
-    addAvp(510, 13019L, digestQoP);
+    addAvp(DiameterCxDxAvpCodes.TGPP_DIGEST_QOP, digestQoP);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#setDigestRealm(java.lang.String)
    */
   public void setDigestRealm(String digestRealm) {
-    addAvp(504, 13019L, digestRealm);
+    addAvp(DiameterCxDxAvpCodes.TGPP_DIGEST_REALM, digestRealm);
   }
 
 }
