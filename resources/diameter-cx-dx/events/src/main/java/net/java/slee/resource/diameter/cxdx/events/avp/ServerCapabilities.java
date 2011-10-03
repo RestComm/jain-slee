@@ -44,45 +44,45 @@ public interface ServerCapabilities extends net.java.slee.resource.diameter.base
   /**
    * Returns the value of the Mandatory-Capability AVP, of type Unsigned32. A return value of null implies that the AVP has not been set.
    */
-  abstract long getMandatoryCapability(); 
+  abstract long[] getMandatoryCapabilities(); 
 
   /**
    * Returns the value of the Optional-Capability AVP, of type Unsigned32. A return value of null implies that the AVP has not been set.
    */
-  abstract long getOptionalCapability();
+  abstract long[] getOptionalCapabilities(); 
 
   /**
    * Returns the value of the Server-Name AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
-  abstract String getServerName();
+  abstract String[] getServerNames(); 
 
   /**
-   * Returns true if the Mandatory-Capability AVP is present in the message.
+   * Sets the value of the Mandatory-Capability AVP, of type Unsigned32. 
    */
-  abstract boolean hasMandatoryCapability();
-
-  /**
-   * Returns true if the Optional-Capability AVP is present in the message.
-   */
-  abstract boolean hasOptionalCapability();
-
-  /**
-   * Returns the value of the Server-Name AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
-   */
-  abstract boolean hasServerName();
-
+  abstract void setMandatoryCapability(long mandatoryCapability); 
+  
   /**
    * Sets the value of the Mandatory-Capability AVP, of type Unsigned32.
    */
-  abstract void setMandatoryCapability(long mandatoryCapability);
+  abstract void setMandatoryCapabilities(long[] mandatoryCapabilities); 
 
   /**
    * Sets the value of the Optional-Capability AVP, of type Unsigned32.
    */
   abstract void setOptionalCapability(long optionalCapability);
+  
+  /** 
+   * Sets the value of the Optional-Capability AVP, of type Unsigned32.
+   */
+  abstract void setOptionalCapabilities(long[] optionalCapabilities);
 
   /**
    * Returns the value of the Server-Name AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract void setServerName(String serverName);
+  
+  /** 
+   * Returns the value of the Server-Name AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
+   */
+  abstract void setServerNames(String[] serverNames);
 }

@@ -28,8 +28,9 @@ public class DiameterCxDxAvpCodes {
   private DiameterCxDxAvpCodes() {
   }
   
-  public static final long CXDX_VENDOR_ID = 10415L; 
+  public static final long CXDX_VENDOR_ID = 10415L;
   public static final long CXDX_AUTH_APP_ID = 16777216L;
+  public static final long ETSI_VENDOR_ID = 13019L; 
   /**
    * <pre>
    * Name......: Visited-Network-Identifier
@@ -764,5 +765,18 @@ public class DiameterCxDxAvpCodes {
    * </pre>
    */
   public static final int RESTORATION_INFO = 649;
- 
+   
+  //3GPP AVP CODES
+  public static final int TGPP_DIGEST_ALGORITHM = 111;
+  public static final int TGPP_DIGEST_HA1 = 121;
+  public static final int TGPP_DIGEST_QOP = 110;
+  public static final int TGPP_DIGEST_REALM = 104;  
+  
+  //ETSI AVP CODES
+  public static final int LINE_IDENTIFIER = 500;
+
+  //AVPS WITHOUT VENDOR ID
+  public static final int FRAMED_IP_ADDRESS = 8;
+  public static final int FRAMED_INTERFACE = 96;
+  public static final int FRAMED_IPV6_PREFIX = 97;
 }
