@@ -9,6 +9,6 @@
 
 	<title>Clustering</title>
 
-	<para>Currently &THIS.PLATFORM; &THIS.RA; RA implementation does not support clustering.</para>
+	<para>Currently &THIS.PLATFORM; &THIS.RA; Resource Adaptor implementation does not support clustering.</para>
 	
 </chapter>
