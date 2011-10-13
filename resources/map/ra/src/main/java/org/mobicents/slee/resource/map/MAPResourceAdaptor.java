@@ -160,7 +160,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	private transient static final Address address = new Address(AddressPlan.IP, "localhost");
 
 	public MAPResourceAdaptor() {
-		// TODO Auto-generated constructor stub
+		this.mapProvider = new MAPProviderWrapper(this);
 	}
 
 	//////////////////
@@ -258,7 +258,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.realProvider.getMAPServiceSms().acivate();
 			this.realProvider.getMAPServiceLsm().acivate();
 			
-			this.mapProvider = new MAPProviderWrapper(realProvider, this);
+			this.mapProvider.setWrappedProvider(this.realProvider);
 		} catch (Exception e) {
 			this.tracer.severe("Failed to activate MAP RA ", e);
 		}

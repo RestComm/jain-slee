@@ -55,16 +55,13 @@ public class MAPProviderWrapper implements MAPProvider {
 	 * @param wrappedProvider
 	 * @param ra
 	 */
-	public MAPProviderWrapper(MAPProvider wrappedProvider, MAPResourceAdaptor ra) {
+	public MAPProviderWrapper(MAPResourceAdaptor ra) {
 		super();
-		this.wrappedProvider = wrappedProvider;
+		
 		this.ra = ra;
 		
 		//now create service wrappers
 		
-		this.wrappedUSSD = new MAPServiceSupplementaryWrapper(this,wrappedProvider.getMAPServiceSupplementary());
-		this.wrappedLSM = new MAPServiceLsmWrapper(this,wrappedProvider.getMAPServiceLsm());
-		this.wrappedSMS = new MAPServiceSmsWrapper(this,wrappedProvider.getMAPServiceSms());
 	}
 
 	/* (non-Javadoc)
@@ -86,6 +83,10 @@ public class MAPProviderWrapper implements MAPProvider {
 
 	@Override
 	public MAPParameterFactory getMAPParameterFactory() {
+		if(this.wrappedProvider == null)
+		{
+			throw new IllegalStateException("RA is has not been activated.");
+		}
 		return this.wrappedProvider.getMAPParameterFactory();
 	}
 	
@@ -94,6 +95,10 @@ public class MAPProviderWrapper implements MAPProvider {
 	 */
 	@Override
 	public MAPErrorMessageFactory getMAPErrorMessageFactory() {
+		if(this.wrappedProvider == null)
+		{
+			throw new IllegalStateException("RA is has not been activated.");
+		}
 		return this.wrappedProvider.getMAPErrorMessageFactory();
 	}
 
@@ -102,6 +107,10 @@ public class MAPProviderWrapper implements MAPProvider {
 	 */
 	@Override
 	public MAPDialog getMAPDialog(Long long1) {
+		if(this.wrappedProvider == null)
+		{
+			throw new IllegalStateException("RA is has not been activated.");
+		}
 		MAPDialogActivityHandle ah = new MAPDialogActivityHandle(long1);
 		return (MAPDialog) this.ra.getActivity(ah);
 	}
@@ -111,6 +120,10 @@ public class MAPProviderWrapper implements MAPProvider {
 	 */
 	@Override
 	public MAPServiceSupplementary getMAPServiceSupplementary() {
+		if(this.wrappedProvider == null)
+		{
+			throw new IllegalStateException("RA is has not been activated.");
+		}
 		return this.wrappedUSSD;
 	}
 
@@ -119,6 +132,10 @@ public class MAPProviderWrapper implements MAPProvider {
 	 */
 	@Override
 	public MAPServiceSms getMAPServiceSms() {
+		if(this.wrappedProvider == null)
+		{
+			throw new IllegalStateException("RA is has not been activated.");
+		}
 		return this.wrappedSMS;
 	}
 
@@ -127,7 +144,18 @@ public class MAPProviderWrapper implements MAPProvider {
 	 */
 	@Override
 	public MAPServiceLsm getMAPServiceLsm() {
+		if(this.wrappedProvider == null)
+		{
+			throw new IllegalStateException("RA is has not been activated.");
+		}
 		return this.wrappedLSM; 
+	}
+
+	public void setWrappedProvider(MAPProvider wrappedProvider) {
+		this.wrappedProvider = wrappedProvider;
+		this.wrappedUSSD = new MAPServiceSupplementaryWrapper(this,wrappedProvider.getMAPServiceSupplementary());
+		this.wrappedLSM = new MAPServiceLsmWrapper(this,wrappedProvider.getMAPServiceLsm());
+		this.wrappedSMS = new MAPServiceSmsWrapper(this,wrappedProvider.getMAPServiceSms());
 	}
 
 }
