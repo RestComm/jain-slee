@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
+<sbb-jar>
+	
+	<sbb>
+		<sbb-name>DataSourceChild</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.0</sbb-version>
+
+		<sbb-classes>
+			<sbb-abstract-class
+				reentrant="True">
+				<sbb-abstract-class-name>
+					org.mobicents.slee.example.sjr.data.jdbc.DataSourceChildSbb
+				</sbb-abstract-class-name>
+			</sbb-abstract-class>
+			<sbb-local-interface>
+				<sbb-local-interface-name>
+					org.mobicents.slee.example.sjr.data.DataSourceChildSbbLocalObject
+				</sbb-local-interface-name>
+			</sbb-local-interface>
+		</sbb-classes>
+		
+		<event
+			event-direction="Receive"
+			initial-event="False">
+			<event-name>SimpleJdbcTaskResultEvent</event-name>
+			<event-type-ref>
+				<event-type-name>SimpleJdbcTaskResultEvent</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event
+			event-direction="Receive"
+			initial-event="False">
+			<event-name>JdbcTaskExecutionThrowableEvent</event-name>
+			<event-type-ref>
+				<event-type-name>JdbcTaskExecutionThrowableEvent</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+		
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					JDBCResourceAdaptorType
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					org.mobicents
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.0
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/ra/jdbc/1.0/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/ra/jdbc/1.0/sbbinterface
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					JDBCRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+	</sbb>
+	
+	<sbb>
+		<sbb-name>SIP Registrar</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.0</sbb-version>
+	
+		<sbb-ref>
+			<sbb-name>DataSourceChild</sbb-name>
+			<sbb-vendor>org.mobicents</sbb-vendor>
+			<sbb-version>1.0</sbb-version>
+			<sbb-alias>childSbb</sbb-alias>
+		</sbb-ref>
+		
+		<sbb-classes>
+			<sbb-abstract-class
+				reentrant="True">
+				<sbb-abstract-class-name>org.mobicents.slee.example.sjr.sip.SIPRegistrarSbb</sbb-abstract-class-name>
+				<get-child-relation-method>
+					<sbb-alias-ref>childSbb</sbb-alias-ref>					
+					<get-child-relation-method-name>getChildRelation</get-child-relation-method-name>
+					<default-priority>0</default-priority>					
+				</get-child-relation-method>				
+			</sbb-abstract-class>
+			<sbb-local-interface>
+				<sbb-local-interface-name>
+					org.mobicents.slee.example.sjr.data.DataSourceParentSbbLocalObject
+				</sbb-local-interface-name>
+			</sbb-local-interface>
+			<sbb-activity-context-interface>
+				<sbb-activity-context-interface-name>
+					org.mobicents.slee.example.sjr.sip.SbbActivityContextInterface
+				</sbb-activity-context-interface-name>
+			</sbb-activity-context-interface>			
+		</sbb-classes>
+		<event
+			event-direction="Receive"
+			initial-event="True">
+			<event-name>TimerEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.facilities.TimerEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+			<initial-event-select
+				variable="ActivityContext" />
+		</event>
+		<!-- SLEE events to play with DB -->
+		<event
+			event-direction="Receive"
+			initial-event="True">
+			<event-name>ServiceStartedEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.serviceactivity.ServiceStartedEvent
+			</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select
+				variable="ActivityContext" />
+		</event>
+
+		<event
+			event-direction="Receive"
+			initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.slee.ActivityEndEvent</event-type-name>
+				<event-type-vendor> javax.slee </event-type-vendor>
+				<event-type-version> 1.0 </event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>RegisterEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.REGISTER</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+		
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					JAIN SIP
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					javax.sip
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.2
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/jainsip/1.2/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/jainsip/1.2/provider
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					SipRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+		
+	</sbb>
+</sbb-jar>
