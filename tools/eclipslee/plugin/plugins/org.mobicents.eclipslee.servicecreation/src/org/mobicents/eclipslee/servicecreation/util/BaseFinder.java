@@ -800,7 +800,7 @@ public DTDXML[] getComponents(int type, String projectName, IProgressMonitor mon
 	 */
 	
 	private Vector<DTDXML> getComponentsFromContainer(IContainer container) {
-	  return getComponentsFromContainer(container, null);
+	  return getComponentsFromContainer(container, ".*");
 	}
 
   private Vector<DTDXML> getComponentsFromContainer(IContainer container, String filter) {

@@ -95,7 +95,7 @@ public class ServiceRootSbbPage extends WizardPage implements Listener, WizardCh
           return;
 
         // Get all available SBBs, then add only the possible root SBBs
-        DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.JARS | BaseFinder.MAVEN_PROJECT, project);
+        DTDXML xml[] = SbbFinder.getDefault().getComponents(BaseFinder.ALL/*JARS | BaseFinder.MAVEN_PROJECT*/, project);
         for (int i = 0; i < xml.length; i++) {
           SbbJarXML jarXML = (SbbJarXML) xml[i];			
           SbbXML sbbs[] = jarXML.getSbbs();
