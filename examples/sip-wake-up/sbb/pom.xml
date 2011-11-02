@@ -12,9 +12,9 @@
 			
 	<dependencies>
 		<dependency>
-			<artifactId>sip-services-location-sbb</artifactId>
+			<artifactId>mobicents-slee-example-sip-jdbc-registrar-sbb</artifactId>
 			<groupId>org.mobicents.examples</groupId>
-			<version>2.4.0.FINAL</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

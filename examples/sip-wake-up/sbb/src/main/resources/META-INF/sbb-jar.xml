@@ -9,9 +9,9 @@
 		<sbb-version>1.0</sbb-version>
 
 		<sbb-ref>
-			<sbb-name>LocationSbb</sbb-name>
+			<sbb-name>DataSourceChild</sbb-name>
 			<sbb-vendor>org.mobicents</sbb-vendor>
-			<sbb-version>1.2</sbb-version>
+			<sbb-version>1.0</sbb-version>
 			<sbb-alias>LocationSbb</sbb-alias>
 		</sbb-ref>
 
@@ -35,6 +35,11 @@
 					<default-priority>0</default-priority>
 				</get-child-relation-method>
 			</sbb-abstract-class>
+			<sbb-local-interface>
+				<sbb-local-interface-name>
+					org.mobicents.slee.example.sjr.data.DataSourceParentSbbLocalObject
+				</sbb-local-interface-name>
+			</sbb-local-interface>
 		</sbb-classes>
 
 		<event event-direction="Receive" initial-event="True">
