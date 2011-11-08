@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <body>
+    <menu name="Overview">
+      <item name="Introduction" href="index.html"/> 
+      <item name="Coverage Report" href="coverage.html"/>
+      <item name="Dependency Report" href="dependencies.html"/>  
+      <item name="Surefire Test Report" href="surefire-report.html"/>       
+    </menu>    
+  </body>
+</project>

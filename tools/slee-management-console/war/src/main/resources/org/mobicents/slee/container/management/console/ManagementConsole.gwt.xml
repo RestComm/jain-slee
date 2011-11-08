@@ -1,0 +1,17 @@
+<module>
+
+	<!-- Inherit the core Web Toolkit stuff -->
+	<inherits name="com.google.gwt.user.User"/>
+
+	<!-- App Entry Point Class -->
+	<entry-point class="org.mobicents.slee.container.management.console.client.ManagementConsole"/>
+
+	<stylesheet src="css/style.css"/>
+	<stylesheet src="css/gwt.css"/>
+	<stylesheet src="css/common.css"/>
+
+	<!-- stylesheet src="css/components.css"/ -->
+	<!-- stylesheet src="css/deployableunits.css"/ -->
+	<!-- stylesheet src="css/services.css"/ -->
+
+</module>
