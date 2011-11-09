@@ -930,7 +930,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
     // TODO: Do we need to manage session?
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity, true);
+    addActivity(activity, false);
   }
 
   /*
@@ -985,7 +985,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
       if(activity == null) {
         if (message.isRequest()) {
           if(message.getCommandCode() == PushProfileRequest.COMMAND_CODE || message.getCommandCode() == RegistrationTerminationRequest.COMMAND_CODE) {
-            return createCxDxClientSessionActivity((Request) message);
+            return createCxDxClientSessionActivity((Request) message, false);
           }
           else {
             return createCxDxServerSessionActivity((Request) message);
@@ -1043,7 +1043,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
     // Actual Provider Methods 
 
     public CxDxClientSessionActivity createCxDxClientSessionActivity() throws CreateActivityException {
-      return createCxDxClientSessionActivity(null);
+      return createCxDxClientSessionActivity(null, true);
     }
 
     public CxDxServerSessionActivity createCxDxServerSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException {
@@ -1074,13 +1074,13 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
       }
     }
 
-    private CxDxClientSessionActivity createCxDxClientSessionActivity(Request request) throws CreateActivityException {
+    private CxDxClientSessionActivity createCxDxClientSessionActivity(final Request request, final boolean suspend) throws CreateActivityException {
       try {
         String sessionId = request == null? null: request.getSessionId();
         ClientCxDxSession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(sessionId, ApplicationId.createByAuthAppId(DiameterCxDxAvpCodes.CXDX_VENDOR_ID, DiameterCxDxAvpCodes.CXDX_AUTH_APP_ID), ClientCxDxSession.class);
 
         CxDxClientSessionImpl activity = new CxDxClientSessionImpl(new CxDxMessageFactoryImpl(this.ra.baseMessageFactory,session.getSessions().get(0),stack), ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, null, null, ra.sleeEndpoint);
-        addActivity(activity, true);
+        addActivity(activity, suspend);
 
         if(request != null) {
           if(request.getCommandCode() == PushProfileRequest.COMMAND_CODE) {

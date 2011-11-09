@@ -703,7 +703,7 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       ShServerSubscriptionActivityImpl _activity = new ShServerSubscriptionActivityImpl(shServerMsgFactory, this.shAvpFactory, session, null, null);
       _activity.setSessionListener(this);
       activity = _activity;
-      activityCreated(activity, true);
+      activityCreated(activity, false);
     }
     else {
       ShServerActivityImpl _activity = new ShServerActivityImpl(shServerMsgFactory, this.shAvpFactory, session, null, null);

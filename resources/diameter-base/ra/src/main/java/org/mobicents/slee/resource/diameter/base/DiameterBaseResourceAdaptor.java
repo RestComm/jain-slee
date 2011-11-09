@@ -1044,7 +1044,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
     // TODO: Do we need to manage session?
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity, true);
+    // false, since we can't know if it comes from SBB or RA callback
+    addActivity(activity, false);
   }
 
   //  /*
