@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<notification-map-list>
+
+	<!-- NOTE: 'enterprise' must be equal to OID of MBean! -->
+  <!-- SLEE MGMT --> 
+  
+  <mapping name="sleeManagement" notification-type="javax.slee.management.sleestatechange" generic="6" specific="10" enterprise=".1.3.6.1.4.1.2312.101.1.100.1" definition-name="sleeManagementNotifications" security-name="TEST">
+    <var-bind-list wrapper-class="org.mobicents.slee.tools.snmp.SleeStateNotificationWrapperSupport">
+    	<var-bind tag="n:oldState" oid="1.3.6.1.4.1.2312.101.1.100.1.101" type="OCTET STRING"/>
+      	<var-bind tag="n:newState" oid="1.3.6.1.4.1.2312.101.1.100.1.102" type="OCTET STRING"/>
+    </var-bind-list>               
+  </mapping>
+
+
+  <!-- ALARMS: define with *, since this is matched as regexp, we want to cover all by default      -->     
+  <mapping name="alarmManagement" notification-type="javax.slee.management.alarm.*" generic="6" specific="11" enterprise=".1.3.6.1.4.1.2312.101.1.100.2" definition-name="alarmFacilityNotifications" security-name="TEST">
+    <var-bind-list wrapper-class="org.mobicents.slee.tools.snmp.AlarmNotificationWrapperSupport"> 
+      <var-bind tag="n:source" oid="1.3.6.1.4.1.2312.101.1.100.2.101" type="OCTET STRING"/>
+      <var-bind tag="n:level" oid="1.3.6.1.4.1.2312.101.1.100.2.102" type="OCTET STRING"/>
+      <var-bind tag="n:instanceId" oid="1.3.6.1.4.1.2312.101.1.100.2.103" type="OCTET STRING"/>
+      <var-bind tag="n:id" oid="1.3.6.1.4.1.2312.101.1.100.2.104" type="OCTET STRING"/>
+      <var-bind tag="n:type" oid="1.3.6.1.4.1.2312.101.1.100.105" type="OCTET STRING"/>
+    </var-bind-list>               
+  </mapping>
+  
+</notification-map-list>

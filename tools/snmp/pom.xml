@@ -1,0 +1,97 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>mobicents-parent</artifactId>
+		<version>2.18</version>
+	</parent>
+
+	<!-- is this correct? -->
+	<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
+	<artifactId>snmp-parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>Mobicents JAIN SLEE SNMP Parent</name>
+	<description>Configuration for JBoss SNMP adaptor and conversion utility classes.</description>
+
+	<properties>
+		<mobicents.jslee.version>2.6.0-SNAPSHOT</mobicents.jslee.version>
+		<snmp.adaptor.version>1.0.0-SNAPSHOT</snmp.adaptor.version>
+	</properties>
+
+	<dependencyManagement>
+
+		<dependencies>
+			<dependency>
+				<groupId>org.jboss.snmp.adaptor</groupId>
+				<artifactId>service</artifactId>
+				<version>${snmp.adaptor.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.snmp.adaptor</groupId>
+				<artifactId>core</artifactId>
+				<version>${snmp.adaptor.version}</version>
+			</dependency>
+			<!-- 
+			<dependency>
+				<groupId>javax.slee</groupId>
+				<artifactId>jain-slee</artifactId>
+			</dependency>
+			 -->
+		</dependencies>
+	</dependencyManagement>
+	
+	<modules>
+		<module>core</module>
+		<module>adaptor</module>
+	</modules>
+
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<groupId>org.mobicents.tools</groupId>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms />
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+					</classpathExcludes>
+					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<eclipseProjectName>mobicents-slee-tools-snmp</eclipseProjectName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
+
+	<repositories>
+		<repository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
+
+</project>

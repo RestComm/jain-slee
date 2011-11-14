@@ -1,0 +1,177 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
+		<artifactId>snmp-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<!-- is this correct? -->
+	<artifactId>adaptor</artifactId>
+	<packaging>jar</packaging>
+
+	<name>Mobicents JAIN SLEE SNMP Adaptor</name>
+
+	<properties>
+		<assemble.directory>${project.build.directory}/snmp-adaptor</assemble.directory>
+		<mibgen.plugin.version>1.0.0-SNAPSHOT</mibgen.plugin.version>
+	</properties>
+
+
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.3</version>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.jboss.snmp.adaptor</groupId>
+									<artifactId>service</artifactId>		
+									<!-- this has to be equal to assembly ID: in general ${artifactId}-${version}-${classifier}.jar -->
+									<classifier>sar</classifier>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${assemble.directory}</outputDirectory>
+									<includes>**/*</includes>
+									<excludes>**/MANIFEST.MF,**/jboss-service.xml,**/adaptor.mib,**/attributes.xml,**/notifications.xml</excludes>
+								</artifactItem>
+							</artifactItems>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<artifactId>slee-core</artifactId>
+									<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
+									<version>${pom.version}</version>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${assemble.directory}</outputDirectory>
+									<includes>**/*</includes>
+								</artifactItem>
+							</artifactItems>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<!-- should this be in generate resources? and included in jar? or shoudl it be in separate profile/module? -->
+				<groupId>org.jboss.snmp.mib</groupId>
+				<artifactId>maven-plugin</artifactId>
+				<version>${mibgen.plugin.version}</version>
+				<configuration>
+					<attributesFile>${basedir}/src/main/resources/attributes.xml</attributesFile>
+					<notificationsFile>${basedir}/src/main/resources/notifications.xml</notificationsFile>
+					<moduleName>SLEE-MIB</moduleName>
+					<outputFile>${assemble.directory}/mobicents-slee.mib</outputFile>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>generate-mib</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<!-- build adaptor -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+			
+				<executions>
+					<execution>
+						<id>assembly</id>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<phase>package</phase>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/snmp-adaptor-sar.xml</descriptor>
+								<!-- <descriptor>src/main/assembly/snmp-adaptor.xml</descriptor> -->
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+							<tasks>
+								<condition
+									property="jboss.dir"
+									value="${jboss.home}"
+									else="${env.JBOSS_HOME}">
+									<isset
+										property="jboss.home" />
+								</condition>
+
+								<unjar
+									src="${project.build.directory}/${artifactId}-${project.version}-sar.jar"
+									dest="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar" />
+
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>clean</id>
+						<phase>clean</phase>
+						<configuration>
+							<tasks>
+								<condition
+									property="jboss.dir"
+									value="${jboss.home}"
+									else="${env.JBOSS_HOME}">
+									<isset
+										property="jboss.home" />
+								</condition>
+								<delete
+									dir="${jboss.dir}/server/${node}/deploy/snmp-adaptor.sar" />
+
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
