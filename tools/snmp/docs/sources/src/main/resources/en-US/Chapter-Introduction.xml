@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="introduction">
+
+	<title>Introduction
+		to &THIS.PLATFORM;
+		SLEE SNMP Adaptor
+	</title>
+
+	<para>&THIS.PLATFORM;
+		SLEE SNMP Adaptor is a SNMP Adaptor, which can be used to monitor and interact with &THIS.PLATFORM;
+		JAIN SLEE remotely. 
+	</para>
+	<para>SNMP is internet standard protocol for managing devices on IP enabled network. It is mostly used to monitor devices for certain
+		conditions which require administrative action. It also allows to perform basic management of devices and their configuration.</para>
+</chapter>
