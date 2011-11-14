@@ -57,7 +57,6 @@ public class ServiceManagementMBeanImpl extends MobicentsServiceMBeanSupport imp
 	
 	public ServiceManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
 		super(sleeContainer,ServiceManagementMBeanImplMBean.class);
-		//FIXME check if possible to avoid MobicentsServiceMBeanSupport and remove cast by passing service management through beans xml
 		this.serviceManagement = (ServiceManagementImpl) sleeContainer.getServiceManagement();
 	}
 	

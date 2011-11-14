@@ -99,7 +99,7 @@ public class SleeContainer {
 							"..")));
 			java.net.URI uri = new java.net.URI(url.toExternalForm()
 					.replaceAll(" ", "%20"));
-			deployPath = new File(uri).getAbsolutePath();
+			deployPath = new File(new File(uri).getParent()).getAbsolutePath();
 		} catch (Exception e) {
 			logger
 					.error(

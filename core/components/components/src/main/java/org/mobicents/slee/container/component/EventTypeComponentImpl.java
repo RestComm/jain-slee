@@ -37,6 +37,7 @@ import java.util.TreeSet;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
+import javax.slee.ServiceID;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
@@ -188,9 +189,24 @@ public class EventTypeComponentImpl extends AbstractSleeComponent implements Eve
 	 * @param serviceComponent
 	 */
 	public void activatedServiceWhichDefineEventAsInitial(ServiceComponent serviceComponent) {
-		synchronized (activeServicesWhichDefineEventAsInitial) {
-			activeServicesWhichDefineEventAsInitial.add(serviceComponent);
+		// create new ordered set
+		SortedSet<ServiceComponent> activeServicesWhichDefineEventAsInitial = new TreeSet<ServiceComponent>(new ActiveServicesWhichDefineEventAsInitialComparator());
+		// add all existent active services, except old version, this allows smooth service upgrade
+		ServiceID oldVersion = serviceComponent.getOldVersion();
+		if (oldVersion == null) {
+			activeServicesWhichDefineEventAsInitial.addAll(this.activeServicesWhichDefineEventAsInitial);
 		}
+		else {
+			for (ServiceComponent existentServiceComponent : this.activeServicesWhichDefineEventAsInitial) {
+				if(!existentServiceComponent.getServiceID().equals(oldVersion)) {
+					activeServicesWhichDefineEventAsInitial.add(existentServiceComponent);
+				}
+			}
+		}
+		// add new service
+		activeServicesWhichDefineEventAsInitial.add(serviceComponent);
+		// replace old set
+		this.activeServicesWhichDefineEventAsInitial = activeServicesWhichDefineEventAsInitial;
 	}
 	
 	/**
@@ -198,9 +214,16 @@ public class EventTypeComponentImpl extends AbstractSleeComponent implements Eve
 	 * @param serviceComponent
 	 */
 	public void deactivatedServiceWhichDefineEventAsInitial(ServiceComponent serviceComponent) {
-		synchronized (activeServicesWhichDefineEventAsInitial) {
-			activeServicesWhichDefineEventAsInitial.remove(serviceComponent);
+		// create new ordered set
+		SortedSet<ServiceComponent> activeServicesWhichDefineEventAsInitial = new TreeSet<ServiceComponent>(new ActiveServicesWhichDefineEventAsInitialComparator());
+		// add all existent active services, except one deactivated
+		for (ServiceComponent existentServiceComponent : this.activeServicesWhichDefineEventAsInitial) {
+			if(!existentServiceComponent.equals(serviceComponent)) {
+				activeServicesWhichDefineEventAsInitial.add(existentServiceComponent);				
+			}
 		}
+		// replace old set
+		this.activeServicesWhichDefineEventAsInitial = activeServicesWhichDefineEventAsInitial;
 	}
 	
 	@Override

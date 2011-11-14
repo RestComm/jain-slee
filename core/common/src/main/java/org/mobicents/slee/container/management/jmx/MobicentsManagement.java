@@ -43,16 +43,16 @@ public class MobicentsManagement extends ServiceMBeanSupport implements
 
 	// Number of minutes after lingering entities of inactive service will be
 	// removed.
-	public static double entitiesRemovalDelay = 1;
+	public static int entitiesRemovalDelay = 0;
 
 	// mobicents version
 	private String mobicentsVersion = Version.instance.toString();
 
-	public double getEntitiesRemovalDelay() {
+	public int getEntitiesRemovalDelay() {
 		return MobicentsManagement.entitiesRemovalDelay;
 	}
 
-	public void setEntitiesRemovalDelay(double entitiesRemovalDelay) {
+	public void setEntitiesRemovalDelay(int entitiesRemovalDelay) {
 		MobicentsManagement.entitiesRemovalDelay = entitiesRemovalDelay;
 	}
 

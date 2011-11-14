@@ -34,13 +34,13 @@ public interface MobicentsManagementMBean extends ServiceMBean {
 	 * 
 	 * @return
 	 */
-	public double getEntitiesRemovalDelay();
+	public int getEntitiesRemovalDelay();
 
 	/**
 	 * 
 	 * @param entitiesRemovalDelay
 	 */
-	public void setEntitiesRemovalDelay(double entitiesRemovalDelay);
+	public void setEntitiesRemovalDelay(int entitiesRemovalDelay);
 		
 	/**
 	 * 

@@ -295,4 +295,16 @@ public class ServiceComponentImpl extends AbstractSleeComponent implements Servi
 		}
 		this.serviceState = state;
 	}
+	
+	private ServiceID oldVersion;
+	
+	@Override
+	public ServiceID getOldVersion() {
+		return oldVersion;
+	}
+	
+	@Override
+	public void setOldVersion(ServiceID oldVersion) {
+		this.oldVersion = oldVersion; 		
+	}
 }

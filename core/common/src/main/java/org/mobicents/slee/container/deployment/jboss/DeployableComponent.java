@@ -34,7 +34,6 @@ import javax.slee.ComponentID;
 import javax.slee.ServiceID;
 
 import org.jboss.logging.Logger;
-
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentDescriptorFactory;
 import org.mobicents.slee.container.component.event.EventTypeDescriptor;
@@ -609,6 +608,8 @@ public class DeployableComponent {
 					List<? extends ResourceAdaptorDescriptor> raDescriptors = radf
 							.parse(is);
 
+					DeployConfigParser sleeDeployConfigParser = sleeContainerDeployer.getSLEEDeployConfigParser();
+
 					// Go through all the Resource Adaptor Elements
 					for (ResourceAdaptorDescriptor raDescriptor : raDescriptors) {
 						DeployableComponent dc = new DeployableComponent(this,sleeContainerDeployer);
@@ -646,6 +647,18 @@ public class DeployableComponent {
 							logger.trace("--------------------------- End of Dependencies --------------------------");
 						}
 
+						// get management actions for this ra, in SLEE's deploy config
+						if (sleeDeployConfigParser != null) {
+							Collection<ManagementAction> managementActions = sleeDeployConfigParser.getPostInstallActions().get(dc.getComponentKey());
+							if (managementActions != null) {
+								dc.installActions.addAll(managementActions);
+							}
+							managementActions = sleeDeployConfigParser.getPreUninstallActions().get(dc.getComponentKey());
+							if (managementActions != null) {
+								dc.uninstallActions.addAll(managementActions);
+							}
+						}
+						
 						deployableComponents.add(dc);
 					}
 				} catch (Exception e) {

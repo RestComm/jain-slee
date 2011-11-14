@@ -22,6 +22,9 @@
 
 package org.mobicents.slee.container.deployment.jboss;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,13 +35,16 @@ import java.util.concurrent.Executors;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentMBean;
 import javax.slee.management.ManagementException;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
 import org.jboss.deployment.DeploymentException;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.ExternalDeployer;
 import org.mobicents.slee.container.deployment.InternalDeployer;
 import org.mobicents.slee.container.deployment.SleeContainerDeployer;
+import org.xml.sax.SAXException;
 
 /**
  * The SLEE module responsible for persistent deployments. It complements the
@@ -286,5 +292,21 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 					LOGGER.debug("Ignoring undeploy invoked from external deployer, SLEE in shutdown");
 			}
 		}			
+	}
+	
+	public DeployConfigParser getSLEEDeployConfigParser() throws IOException, SAXException, ParserConfigurationException {
+		File file = new File(SleeContainer.getDeployPath(), "deploy-config.xml");
+		if(!file.exists() || file.isDirectory()) {
+			return null;
+		}
+		FileInputStream in = new FileInputStream(file);
+		try {
+			return new DeployConfigParser(
+						in,
+						getSleeContainer()
+								.getResourceManagement());						
+		} finally {
+			in.close();						
+		}
 	}
 }

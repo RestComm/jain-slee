@@ -62,6 +62,7 @@ import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.event.EventTypeComponent;
 import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
 import org.mobicents.slee.container.component.service.ServiceComponent;
+import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBean;
 import org.mobicents.slee.container.service.ServiceActivityContextHandle;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
@@ -212,12 +213,16 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.slee.management.ServiceManagementMBean#activate(javax.slee.ServiceID
-	 * )
+	 * @see org.mobicents.slee.container.management.ServiceManagement#activate(javax.slee.ServiceID)
 	 */
-	public void activate(final ServiceID serviceID)
+	@Override
+	public void activate(ServiceID serviceID) throws NullPointerException,
+			UnrecognizedServiceException, InvalidStateException,
+			InvalidLinkNameBindingStateException {
+		activate(serviceID,null);		
+	}
+	
+	private void activate(final ServiceID serviceID, final ServiceID oldServiceID)
 			throws NullPointerException, UnrecognizedServiceException,
 			InvalidStateException, InvalidLinkNameBindingStateException {
 
@@ -249,6 +254,11 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 						referencedRAEntityLinksWhichNotExists.iterator().next());
 			}
 
+			// set old version (used for smooth service version upgrade
+			if (oldServiceID != null) {
+				serviceComponent.setOldVersion(oldServiceID);
+			}
+			
 			// change service state
 			serviceComponent.setServiceState(ServiceState.ACTIVE);
 
@@ -532,7 +542,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			if (serviceToDeactivate == null) {
 				throw new UnrecognizedServiceException();
 			} else {
-				activate(arg1);
+				activate(arg1,arg0);
 				deactivate(arg0);
 			}
 		} catch (InvalidStateException ise) {
@@ -556,37 +566,26 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			ManagementException {
 
 		if (arg0.length == 0 || arg1.length == 0)
-			throw new InvalidArgumentException("The service array is empty!");
-		for (int i = 0; i < arg0.length; i++)
-			if (arg0[i] == null)
-				throw new InvalidArgumentException("InvalidArgumentException");
-
-		for (int i = 0; i < arg1.length; i++)
-			if (arg1[i] == null)
-				throw new InvalidArgumentException("InvalidArgumentException");
-		for (int i = 0; i < arg0.length - 1; i++)
-			for (int j = i + 1; j < arg0.length; j++)
-				if (arg0[i] == (arg0[j]))
-					throw new InvalidArgumentException(
-							"InvalidArgumentException");
-		for (int i = 0; i < arg1.length - 1; i++)
-			for (int j = i + 1; j < arg1.length; j++)
-				if (arg1[i] == (arg1[j]))
-					throw new InvalidArgumentException(
-							"InvalidArgumentException");
-
-		for (int i = 0; i < arg0.length; i++)
-			for (int j = 0; j < arg1.length; j++)
-				if (arg0[i] == (arg1[j]))
-					throw new InvalidArgumentException(
-							"InvalidArgumentException");
+			throw new InvalidArgumentException("The parameter array(s) must not be empty.");
+		
+		if (arg0.length != arg1.length)
+			throw new InvalidArgumentException("The parameter arrays must have same lenght.");
+		
+		Set<ServiceID> services = new HashSet<ServiceID>();
+		
+		for (int i = 0; i < arg0.length - 1; i++) {
+			if (arg0[i] == null || arg1[i] == null) {
+				throw new InvalidArgumentException("Null entry found in parameter array(s).");
+			}
+			if (!services.add(arg0[i]) || !services.add(arg1[i])) {
+				throw new InvalidArgumentException("Repeated entry found in parameter array(s).");
+			}
+		}
+		
 		try {
 			for (int i = 0; i < arg0.length; i++) {
-				deactivate(arg0[i]);
-			}
-			for (int i = 0; i < arg1.length; i++) {
-				activate(arg1[i]);
-			}
+				deactivateAndActivate(arg0[i],arg1[i]);
+			}			
 		} catch (InvalidStateException ise) {
 			throw ise;
 		} catch (ManagementException me) {
@@ -980,7 +979,9 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 					}
 					if (serviceComponent.getServiceState().isStopping()) {
 						boolean noRootSbbEntities = false;
-						for(int i=0;i<30;i++) {
+						int entitiesRemovalDelay = MobicentsManagement.entitiesRemovalDelay * 60;
+						int waitingTime = 0;
+						while(true) {
 							try {
 								if (sleeContainer.getSbbEntityFactory().getRootSbbEntityIDs(serviceID).isEmpty()) {
 									noRootSbbEntities = true;
@@ -994,9 +995,13 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 							catch (Exception e) {
 								logger.error("failure waiting for the ending of all sbb entities from "+serviceID,e);
 							}
+							waitingTime += 1;
+							if(entitiesRemovalDelay > 0 && entitiesRemovalDelay<= waitingTime) {
+								break;
+							}
 						}
 						if (!noRootSbbEntities) {
-							// seems 30 secs were not enough, force the removal of all sbb entities
+							// force the removal of all sbb entities
 							new RootSbbEntitiesRemovalTask(serviceComponent).run();
 						}
 						// ensure service cache data is removed

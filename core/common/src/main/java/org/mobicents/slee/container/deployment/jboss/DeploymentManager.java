@@ -32,14 +32,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.slee.ComponentID;
 import javax.slee.InvalidStateException;
-import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.DependencyException;
-import javax.slee.management.ManagementException;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
-import javax.slee.management.ResourceAdaptorEntityState;
-import javax.slee.management.ServiceState;
 import javax.slee.management.UnrecognizedLinkNameException;
-import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
@@ -51,8 +46,6 @@ import org.mobicents.slee.container.deployment.jboss.action.ManagementAction;
 import org.mobicents.slee.container.deployment.jboss.action.RemoveResourceAdaptorEntityAction;
 import org.mobicents.slee.container.deployment.jboss.action.UnbindLinkNameAction;
 import org.mobicents.slee.container.management.ResourceManagement;
-import org.mobicents.slee.container.management.ServiceManagement;
-import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 
 /**
  * This class represents the Manager responsible for executing deployment actions
@@ -322,12 +315,12 @@ public class DeploymentManager {
         // Invoke it.
         action.invoke();
         // We need to wait for service/entity to deactivate...
-        if(action instanceof DeactivateServiceAction) {
+        /*if(action instanceof DeactivateServiceAction) {
           waitForServiceDeactivation((DeactivateServiceAction) action);
         }
         else if (action instanceof DeactivateResourceAdaptorEntityAction) {
           waitForResourceAdaptorEntityDeactivation((DeactivateResourceAdaptorEntityAction) action);
-        }
+        }*/
       }
       catch (Exception e) {
         // We might expect some exceptions...
@@ -440,6 +433,7 @@ public class DeploymentManager {
 	  }
   }
 
+  /*
   private boolean waitForServiceDeactivation(DeactivateServiceAction action) throws InterruptedException, NullPointerException, UnrecognizedServiceException, ManagementException {
    
     long waited = 0;
@@ -496,5 +490,6 @@ public class DeploymentManager {
 
     return raes.isInactive();
   }
-
+ */
+  
 }

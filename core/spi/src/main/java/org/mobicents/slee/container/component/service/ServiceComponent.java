@@ -127,5 +127,16 @@ public interface ServiceComponent extends SleeComponent {
 	 * @return
 	 */
 	public ServiceState getServiceState();
-		
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public ServiceID getOldVersion();
+
+	/**
+	 * 
+	 * @param serviceID
+	 */
+	public void setOldVersion(ServiceID serviceID);
 }

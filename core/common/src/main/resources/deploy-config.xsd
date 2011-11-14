@@ -4,7 +4,7 @@
   <xs:element name="deploy-config">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="ra-entity" maxOccurs="unbounded" minOccurs="1"/>
+        <xs:element ref="ra-entity" maxOccurs="unbounded" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
