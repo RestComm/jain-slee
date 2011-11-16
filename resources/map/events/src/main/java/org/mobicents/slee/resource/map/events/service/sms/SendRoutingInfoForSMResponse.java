@@ -62,4 +62,12 @@ public class SendRoutingInfoForSMResponse extends MAPEvent<MAPDialogSms> {
 		return wrapped.getLocationInfoWithLMSI();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SendRoutingInfoForSMResponse [wrapped=" + wrapped + "]";
+	}
+
 }

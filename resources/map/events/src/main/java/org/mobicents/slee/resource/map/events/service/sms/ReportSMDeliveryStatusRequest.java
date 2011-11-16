@@ -87,4 +87,12 @@ public class ReportSMDeliveryStatusRequest extends MAPEvent<MAPDialogSms> {
 		return wrapped.getServiceCentreAddress();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ReportSMDeliveryStatusRequest [wrapped=" + wrapped + "]";
+	}
+
 }

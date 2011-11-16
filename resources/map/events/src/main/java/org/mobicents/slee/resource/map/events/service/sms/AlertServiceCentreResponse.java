@@ -47,4 +47,12 @@ public class AlertServiceCentreResponse extends MAPEvent<MAPDialogSms> {
 		return wrapped.getInvokeId();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "AlertServiceCentreResponse [wrapped=" + wrapped + "]";
+	}
+
 }

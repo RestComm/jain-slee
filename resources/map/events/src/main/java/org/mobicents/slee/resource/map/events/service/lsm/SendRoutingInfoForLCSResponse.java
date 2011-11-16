@@ -78,4 +78,12 @@ public class SendRoutingInfoForLCSResponse extends MAPEvent<MAPDialogLsm> {
 		return wrapped.getVgmlcAddress();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SendRoutingInfoForLCSResponse [wrapped=" + wrapped + "]";
+	}
+
 }

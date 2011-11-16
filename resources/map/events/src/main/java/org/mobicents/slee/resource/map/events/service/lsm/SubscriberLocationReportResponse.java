@@ -61,4 +61,12 @@ public class SubscriberLocationReportResponse extends MAPEvent<MAPDialogLsm> {
 		return wrapped.getNaESRK();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SubscriberLocationReportResponse [wrapped=" + wrapped + "]";
+	}
+
 }

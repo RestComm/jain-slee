@@ -47,4 +47,12 @@ public class ForwardShortMessageResponse extends MAPEvent<MAPDialogSms> {
 		return wrapped.getInvokeId();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ForwardShortMessageResponse [wrapped=" + wrapped + "]";
+	}
+
 }

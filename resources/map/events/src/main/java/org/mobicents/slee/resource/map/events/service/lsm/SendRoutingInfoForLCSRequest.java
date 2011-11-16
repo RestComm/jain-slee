@@ -62,4 +62,12 @@ public class SendRoutingInfoForLCSRequest extends MAPEvent<MAPDialogLsm> {
 		return wrapped.getTargetMS();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SendRoutingInfoForLCSRequest [wrapped=" + wrapped + "]";
+	}
+
 }

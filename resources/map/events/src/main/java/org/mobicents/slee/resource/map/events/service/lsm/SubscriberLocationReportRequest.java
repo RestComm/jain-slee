@@ -140,4 +140,12 @@ public class SubscriberLocationReportRequest extends MAPEvent<MAPDialogLsm> {
 		return wrapped.getUtranPositioningData();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SubscriberLocationReportRequest [wrapped=" + wrapped + "]";
+	}
+
 }

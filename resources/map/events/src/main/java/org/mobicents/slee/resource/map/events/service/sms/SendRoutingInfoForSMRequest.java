@@ -79,4 +79,12 @@ public class SendRoutingInfoForSMRequest extends MAPEvent<MAPDialogSms> {
 		return wrapped.getSm_RP_PRI();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SendRoutingInfoForSMRequest [wrapped=" + wrapped + "]";
+	}
+
 }

@@ -70,4 +70,12 @@ public class InformServiceCentreRequest extends MAPEvent<MAPDialogSms> {
 		return wrapped.getStoredMSISDN();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "InformServiceCentreRequest [wrapped=" + wrapped + "]";
+	}
+
 }

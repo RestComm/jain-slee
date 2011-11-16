@@ -59,4 +59,12 @@ public class ProcessUnstructuredSSResponse extends MAPEvent<MAPDialogSupplementa
 		return wrapped.getUSSDString();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ProcessUnstructuredSSResponse [wrapped=" + wrapped + "]";
+	}
+
 }

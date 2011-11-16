@@ -131,4 +131,12 @@ public class ProvideSubscriberLocationRequest extends MAPEvent<MAPDialogLsm> {
 		return wrapped.getSupportedGADShapes();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ProvideSubscriberLocationRequest [wrapped=" + wrapped + "]";
+	}
+
 }

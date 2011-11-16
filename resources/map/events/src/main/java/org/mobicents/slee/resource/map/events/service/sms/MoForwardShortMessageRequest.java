@@ -71,4 +71,12 @@ public class MoForwardShortMessageRequest extends MAPEvent<MAPDialogSms> {
 		return wrapped.getSM_RP_UI();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "MoForwardShortMessageRequest [wrapped=" + wrapped + "]";
+	}
+
 }
