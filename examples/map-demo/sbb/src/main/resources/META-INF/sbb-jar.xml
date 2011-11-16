@@ -22,7 +22,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>DialogDelimiter</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_DELIMITER</event-type-name>
+				<event-type-name>ss7.map.DIALOG_DELIMITER</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -31,7 +31,7 @@
 		<event event-direction="Receive" initial-event="True">
 			<event-name>DialogRequest</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_REQUEST</event-type-name>
+				<event-type-name>ss7.map.DIALOG_REQUEST</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -41,7 +41,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>DialogAccept</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_ACCEPT</event-type-name>
+				<event-type-name>ss7.map.DIALOG_ACCEPT</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -50,7 +50,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>DialogReject</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_REJECT</event-type-name>
+				<event-type-name>ss7.map.DIALOG_REJECT</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -59,7 +59,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>DialogUserAbort</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_USERABORT</event-type-name>
+				<event-type-name>ss7.map.DIALOG_USERABORT</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -68,7 +68,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>DialogProviderAbort</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_PROVIDERABORT</event-type-name>
+				<event-type-name>ss7.map.DIALOG_PROVIDERABORT</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -77,7 +77,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>DialogClose</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_CLOSE</event-type-name>
+				<event-type-name>ss7.map.DIALOG_CLOSE</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -86,7 +86,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>DialogNotice</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_NOTICE</event-type-name>
+				<event-type-name>ss7.map.DIALOG_NOTICE</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -95,7 +95,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>DialogTimeout</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.DIALOG_TIMEOUT</event-type-name>
+				<event-type-name>ss7.map.DIALOG_TIMEOUT</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -104,7 +104,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>InvokeTimeout</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.INVOKE_TIMEOUT</event-type-name>
+				<event-type-name>ss7.map.INVOKE_TIMEOUT</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -113,7 +113,7 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>ProcessUnstructuredSSRequest</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION</event-type-name>
+				<event-type-name>ss7.map.service.suplementary.PROCESS_UNSTRUCTURED_SS_REQUEST</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
@@ -122,7 +122,17 @@
 		<event event-direction="Receive" initial-event="False">
 			<event-name>UnstructuredSSRequest</event-name>
 			<event-type-ref>
-				<event-type-name>org.mobicents.protocols.ss7.map.UNSTRUCTURED_SS_REQUEST_INDICATION</event-type-name>
+				<event-type-name>ss7.map.service.suplementary.UNSTRUCTURED_SS_REQUEST</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<!-- SMS -->
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ForwardShortMessageRequest</event-name>
+			<event-type-ref>
+				<event-type-name>ss7.map.service.sms.FORWARD_SHORT_MESSAGE_REQUEST</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
