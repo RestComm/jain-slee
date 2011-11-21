@@ -14,6 +14,7 @@ import org.mobicents.protocols.ss7.map.api.MAPParameterFactory;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.USSDString;
+import org.mobicents.protocols.ss7.map.api.service.sms.MAPDialogSms;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPDialogSupplementary;
 import org.mobicents.slee.resource.map.MAPContextInterfaceFactory;
 import org.mobicents.slee.resource.map.events.DialogAccept;
@@ -170,6 +171,15 @@ public abstract class MapSbb implements Sbb {
 
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info(String.format("Received FORWARD_SHORT_MESSAGE_REQUEST event=%s", evt.toString()));
+		}
+		
+		MAPDialogSms dialog = evt.getMAPDialog();
+		
+		try {
+			dialog.addForwardShortMessageResponse(evt.getInvokeId());
+			dialog.close(false);
+		} catch (MAPException e) {
+			logger.severe("Error while sending ForwardShortMessageResponse ", e);
 		}
 	}
 
