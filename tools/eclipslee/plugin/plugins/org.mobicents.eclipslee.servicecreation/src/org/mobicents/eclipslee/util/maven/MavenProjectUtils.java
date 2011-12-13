@@ -77,7 +77,7 @@ public class MavenProjectUtils {
   static {
     MOBICENTS_PARENT.setGroupId("org.mobicents");
     MOBICENTS_PARENT.setArtifactId("mobicents-parent");
-    MOBICENTS_PARENT.setVersion("2.20");
+    MOBICENTS_PARENT.setVersion("2.21-SNAPSHOT");
 
     JAIN_SLEE_DEPENDENCY.setGroupId("javax.slee");
     JAIN_SLEE_DEPENDENCY.setArtifactId("jain-slee");
