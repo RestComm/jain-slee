@@ -42,6 +42,7 @@ import net.java.slee.resource.diameter.base.events.ReAuthRequest;
 import net.java.slee.resource.diameter.base.events.SessionTerminationAnswer;
 import net.java.slee.resource.diameter.base.events.SessionTerminationRequest;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
+import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
@@ -520,18 +521,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
   }
 
   protected void addAvp(DiameterAvp avp, AvpSet set) {
-
-    if (avp instanceof GroupedAvp) {
-      AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
-
-      DiameterAvp[] groupedAVPs = ((GroupedAvp) avp).getExtensionAvps();
-      for (DiameterAvp avpFromGroup : groupedAVPs) {
-        addAvp(avpFromGroup, avpSet);
-      }
-    }
-    else if (avp != null) {
-      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
-    }
+    AvpUtilities.addAvp(avp, set);
   }
 
   /**

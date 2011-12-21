@@ -205,11 +205,24 @@ public class AvpUtilities {
   public static void setAvpAsString(Message msg, int avpCode, long vendorId, boolean isOctetString, AvpSet set, boolean isMandatory, boolean isProtected, String value) {
     performPreAddOperations(msg, avpCode, vendorId, set);
 
-    if(avpCode == Avp.SESSION_ID) {
-      set.insertAvp(0, avpCode, value, vendorId, isMandatory, isProtected, isOctetString);
-    }
-    else {
-      set.addAvp(avpCode, value, vendorId, isMandatory, isProtected, isOctetString);
+    switch(avpCode) {
+      case Avp.SESSION_ID:
+        // (...) the Session-Id SHOULD appear immediately following the Diameter Header
+        set.insertAvp(0, avpCode, value, vendorId, isMandatory, isProtected, isOctetString);
+        break;
+      case Avp.ORIGIN_HOST:
+      case Avp.ORIGIN_REALM:
+      case Avp.DESTINATION_HOST:
+      case Avp.DESTINATION_REALM:
+        // This AVP SHOULD be placed as close to the Diameter header as possible.
+        Avp firstAvp = set.getAvpByIndex(0);
+        int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
+
+        set.insertAvp(index, avpCode, value, vendorId, isMandatory, isProtected, isOctetString);
+        break;
+      default:
+        set.addAvp(avpCode, value, vendorId, isMandatory, isProtected, isOctetString);
+        break;
     }
   }
 
@@ -438,11 +451,24 @@ public class AvpUtilities {
   public static void setAvpAsUTF8String(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, String value) {
     performPreAddOperations(msg, avpCode, vendorId, set);
 
-    if(avpCode == Avp.SESSION_ID) {
-      set.insertAvp(0, avpCode, value, vendorId, isMandatory, isProtected, false);
-    }
-    else {
-      set.addAvp(avpCode, value, vendorId, isMandatory, isProtected, false);
+    switch(avpCode) {
+      case Avp.SESSION_ID:
+        // (...) the Session-Id SHOULD appear immediately following the Diameter Header
+        set.insertAvp(0, avpCode, value, vendorId, isMandatory, isProtected, false);
+        break;
+      case Avp.ORIGIN_HOST:
+      case Avp.ORIGIN_REALM:
+      case Avp.DESTINATION_HOST:
+      case Avp.DESTINATION_REALM:
+        // This AVP SHOULD be placed as close to the Diameter header as possible.
+        Avp firstAvp = set.getAvpByIndex(0);
+        int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
+
+        set.insertAvp(index, avpCode, value, vendorId, isMandatory, isProtected, false);
+        break;
+      default:
+        set.addAvp(avpCode, value, vendorId, isMandatory, isProtected, false);
+        break;
     }
   }
 
@@ -1525,11 +1551,24 @@ public class AvpUtilities {
   public static void setAvpAsRaw(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, byte[] value) {
     performPreAddOperations(msg, avpCode, vendorId, set);
 
-    if(avpCode == Avp.SESSION_ID) {
-      set.insertAvp(0, avpCode, value, vendorId, isMandatory, isProtected);
-    }
-    else {
-      set.addAvp(avpCode, value, vendorId, isMandatory, isProtected);
+    switch(avpCode) {
+      case Avp.SESSION_ID:
+        // (...) the Session-Id SHOULD appear immediately following the Diameter Header
+        set.insertAvp(0, avpCode, value, vendorId, isMandatory, isProtected);
+        break;
+      case Avp.ORIGIN_HOST:
+      case Avp.ORIGIN_REALM:
+      case Avp.DESTINATION_HOST:
+      case Avp.DESTINATION_REALM:
+        // This AVP SHOULD be placed as close to the Diameter header as possible.
+        Avp firstAvp = set.getAvpByIndex(0);
+        int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
+
+        set.insertAvp(index, avpCode, value, vendorId, isMandatory, isProtected);
+        break;
+      default:
+        set.addAvp(avpCode, value, vendorId, isMandatory, isProtected);
+        break;
     }
   }
 
@@ -2090,17 +2129,44 @@ public class AvpUtilities {
   }
 
   private static void addAvpInternal(DiameterAvp avp, AvpSet set) {
+    int avpCode = avp.getCode();
     if (avp.getType() == DiameterAvpType.GROUPED) {
-      GroupedAvp gAvp = (GroupedAvp) avp;
+      AvpSet groupedAvp = null;
+      if (avpCode == Avp.VENDOR_SPECIFIC_APPLICATION_ID) {
+          // This AVP SHOULD be placed as close to the Diameter header as possible.
+          Avp firstAvp = set.getAvpByIndex(0);
+          int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
 
-      AvpSet groupedAvp = set.addGroupedAvp(gAvp.getCode(), gAvp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
+          groupedAvp = set.insertGroupedAvp(index, avpCode, avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
+      }
+      else {
+          groupedAvp = set.addGroupedAvp(avpCode, avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
+      }
 
-      for (DiameterAvp subAvp : gAvp.getExtensionAvps()) {
+      for (DiameterAvp subAvp : ((GroupedAvp) avp).getExtensionAvps()) {
         addAvpInternal(subAvp, groupedAvp);
       }
     }
     else {
-      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
+      switch (avpCode) {
+        case Avp.SESSION_ID:          
+          // (...) the Session-Id SHOULD appear immediately following the Diameter Header
+          set.insertAvp(0, avpCode, avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
+          break;
+        case Avp.ORIGIN_HOST: 
+        case Avp.ORIGIN_REALM: 
+        case Avp.DESTINATION_HOST: 
+        case Avp.DESTINATION_REALM: 
+        case Avp.VENDOR_SPECIFIC_APPLICATION_ID:
+          // This AVP SHOULD be placed as close to the Diameter header as possible.
+          Avp firstAvp = set.getAvpByIndex(0);
+          int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
+          set.insertAvp(index, avpCode, avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);        
+          break;
+        default:
+          set.addAvp(avpCode, avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
+          break;
+      }
     }
   }
 
