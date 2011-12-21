@@ -25,6 +25,8 @@ package org.mobicents.slee.resource.diameter.sh.events;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -42,7 +44,32 @@ import org.jdiameter.api.Message;
 import org.mobicents.slee.resource.diameter.sh.events.DiameterShMessageImpl;
 import org.mobicents.slee.resource.diameter.sh.events.avp.UserIdentityAvpImpl;
 import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.ObjectFactory;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TApplicationServer;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TCSLocationInformation;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TChargingInformation;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TDSAI;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TExtension;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.THeader;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TIFCs;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TISDNAddress;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TInitialFilterCriteria;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TPSLocationInformation;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TPublicIdentity;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TPublicIdentityExtension;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TPublicIdentityExtension2;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TSePoTri;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TSePoTriExtension;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TServiceData;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TSessionDescription;
 import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShData;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShDataExtension;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShDataExtension2;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShIMSData;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShIMSDataExtension;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShIMSDataExtension2;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TShIMSDataExtension3;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TTransparentData;
+import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.TTrigger;
 import org.mobicents.slee.resource.diameter.sh.events.avp.userdata.UserDataObjectFactoryImpl;
 
 /**
@@ -179,9 +206,54 @@ public class ProfileUpdateRequestImpl extends DiameterShMessageImpl implements P
    * @see net.java.slee.resource.diameter.sh.events.ProfileUpdateRequest#setUserDataObject(net.java.slee.resource.diameter.sh.events.avp.userdata.ShData)
    */
   public void setUserDataObject(ShData userData) throws IOException {
+    setUserDataObject(userData, new Class[]{});
+  }
+
+  /**
+   * Method allowing to set user data as object and passing custom classes for the JAXB context
+   * 
+   * @param userData the user data object
+   * @param classes the class(es) to be added to the JAXB context
+   * @throws IOException
+   */
+  public void setUserDataObject(ShData userData, Class<?>... classes) throws IOException {
     try {
-      
-      Marshaller marshaller =  JAXBContext.newInstance("org.mobicents.slee.resource.diameter.sh.events.avp.userdata", getClass().getClassLoader()).createMarshaller();
+
+      List<Class<?>> ctxClasses = new ArrayList<Class<?>>();
+      ctxClasses.add(ObjectFactory.class);
+      ctxClasses.add(TIFCs.class);
+      ctxClasses.add(TSePoTri.class);
+      ctxClasses.add(TShIMSData.class);
+      ctxClasses.add(TApplicationServer.class);
+      ctxClasses.add(TISDNAddress.class);
+      ctxClasses.add(TSePoTriExtension.class);
+      ctxClasses.add(TShIMSDataExtension.class);
+      ctxClasses.add(TCSLocationInformation.class);
+      ctxClasses.add(TInitialFilterCriteria.class);
+      ctxClasses.add(TServiceData.class);
+      ctxClasses.add(TShIMSDataExtension2.class);
+      ctxClasses.add(TChargingInformation.class);
+      ctxClasses.add(TPSLocationInformation.class);
+      ctxClasses.add(TSessionDescription.class);
+      ctxClasses.add(TShIMSDataExtension3.class);
+      ctxClasses.add(TDSAI.class);
+      ctxClasses.add(TPublicIdentity.class);
+      ctxClasses.add(TShData.class);
+      ctxClasses.add(TTransparentData.class);
+      ctxClasses.add(TExtension.class);
+      ctxClasses.add(TPublicIdentityExtension.class);
+      ctxClasses.add(TShDataExtension.class);
+      ctxClasses.add(TTrigger.class);
+      ctxClasses.add(THeader.class);
+      ctxClasses.add(TPublicIdentityExtension2.class);
+      ctxClasses.add(TShDataExtension2.class);
+      //ctxClasses.add(UserDataObjectFactoryImpl.class);
+
+      for(Class<?> clazz : classes) {
+        ctxClasses.add(clazz);
+      }
+
+      Marshaller marshaller =  JAXBContext.newInstance(ctxClasses.toArray(new Class[ctxClasses.size()])).createMarshaller();
 
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       marshaller.marshal(userData, baos);
