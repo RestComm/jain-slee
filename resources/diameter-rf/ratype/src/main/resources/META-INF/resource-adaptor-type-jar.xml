@@ -7,6 +7,7 @@
 
 	<resource-adaptor-type>
 		<description>Diameter Rf Resource Adaptor Type</description>
+
 		<resource-adaptor-type-name>Diameter Rf</resource-adaptor-type-name>
 		<resource-adaptor-type-vendor>java.net</resource-adaptor-type-vendor>
 		<resource-adaptor-type-version>0.8.1</resource-adaptor-type-version>
@@ -23,14 +24,13 @@
 			<activity-context-interface-factory-interface>
 				<activity-context-interface-factory-interface-name>
 					net.java.slee.resource.diameter.rf.RfActivityContextInterfaceFactory
-		</activity-context-interface-factory-interface-name>
+				</activity-context-interface-factory-interface-name>
 			</activity-context-interface-factory-interface>
 
 			<resource-adaptor-interface>
 				<resource-adaptor-interface-name>net.java.slee.resource.diameter.rf.RfProvider</resource-adaptor-interface-name>
 			</resource-adaptor-interface>
 		</resource-adaptor-type-classes>
-
 
 		<event-type-ref>
 			<event-type-name>net.java.slee.resource.diameter.rf.events.RfAccountingRequest</event-type-name>
@@ -40,6 +40,20 @@
 
 		<event-type-ref>
 			<event-type-name>net.java.slee.resource.diameter.rf.events.RfAccountingAnswer</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+
+		<!-- Generic Error Answer -->
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.base.events.ErrorAnswer</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+
+		<!--	All other fall into extension -->
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.base.events.ExtensionDiameterMessage</event-type-name>
 			<event-type-vendor>java.net</event-type-vendor>
 			<event-type-version>0.8</event-type-version>
 		</event-type-ref>

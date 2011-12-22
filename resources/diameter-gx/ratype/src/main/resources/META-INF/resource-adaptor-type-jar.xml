@@ -4,14 +4,15 @@
 
 <resource-adaptor-type-jar>
 	<description />
+
 	<resource-adaptor-type>
 		<description>Diameter Gx Resource Adaptor Type</description>
+
 		<resource-adaptor-type-name>Diameter Gx</resource-adaptor-type-name>
 		<resource-adaptor-type-vendor>java.net</resource-adaptor-type-vendor>
 		<resource-adaptor-type-version>0.8.1</resource-adaptor-type-version>
 
 		<resource-adaptor-type-classes>
-
 			<activity-type>
 				<activity-type-name>net.java.slee.resource.diameter.gx.GxClientSessionActivity</activity-type-name>
 			</activity-type>
@@ -21,7 +22,7 @@
 			</activity-type>
 
 			<activity-type>
-				<activity-type-name>org.jainslee.resources.diameter.base.DiameterActivity</activity-type-name>
+				<activity-type-name>net.java.slee.resource.diameter.base.DiameterActvity</activity-type-name> 
 			</activity-type>
 
 			<activity-context-interface-factory-interface>
@@ -35,51 +36,56 @@
 			</resource-adaptor-interface>
 		</resource-adaptor-type-classes>
 
-
 		<event-type-ref>
 			<event-type-name>net.java.slee.resource.diameter.gx.events.GxCreditControlRequest</event-type-name>
 			<event-type-vendor>java.net</event-type-vendor>
 			<event-type-version>0.8</event-type-version>
 		</event-type-ref>
-		<!-- CLIENT SENDS: Answers == BASE -->
-<!--		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.base.events.ReAuthAnswer</event-type-name>
-			<event-type-vendor>java.net</event-type-vendor>
-			<event-type-version>0.8</event-type-version>
-		</event-type-ref>-->
-		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.gx.events.GxReAuthAnswer</event-type-name>
-			<event-type-vendor>java.net</event-type-vendor>
-			<event-type-version>0.8</event-type-version>
-		</event-type-ref>
-                
-		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.base.events.AbortSessionAnswer</event-type-name>
-			<event-type-vendor>java.net</event-type-vendor>
-			<event-type-version>0.8</event-type-version>
-		</event-type-ref>
-		<!-- SERVER SENDS: BASE -->
-		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.base.events.AbortSessionRequest</event-type-name>
-			<event-type-vendor>java.net</event-type-vendor>
-			<event-type-version>0.8</event-type-version>
-		</event-type-ref>
-<!--		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.base.events.ReAuthRequest</event-type-name>
-			<event-type-vendor>java.net</event-type-vendor>
-			<event-type-version>0.8</event-type-version>
-		</event-type-ref>-->
-                
-		<event-type-ref>
-			<event-type-name>net.java.slee.resource.diameter.gx.events.GxReAuthRequest</event-type-name>
-			<event-type-vendor>java.net</event-type-vendor>
-			<event-type-version>0.8</event-type-version>
-		</event-type-ref>
-		<!-- SERVER SENDS: Answers == CCA, BASE -->
+
 		<event-type-ref>
 			<event-type-name>net.java.slee.resource.diameter.gx.events.GxCreditControlAnswer</event-type-name>
 			<event-type-vendor>java.net</event-type-vendor>
 			<event-type-version>0.8</event-type-version>
 		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.gx.events.GxReAuthRequest</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.gx.events.GxReAuthAnswer</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+								
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.base.events.AbortSessionRequest</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.base.events.AbortSessionAnswer</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+
+		<!-- Generic Error Answer -->
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.base.events.ErrorAnswer</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+
+		<!--	All other fall into extension -->
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.base.events.ExtensionDiameterMessage</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+
 	</resource-adaptor-type>
+
 </resource-adaptor-type-jar>

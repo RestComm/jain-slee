@@ -7,12 +7,12 @@
 
 	<resource-adaptor-type>
 		<description>Diameter Rx Resource Adaptor Type</description>
+
 		<resource-adaptor-type-name>Diameter Rx</resource-adaptor-type-name>
 		<resource-adaptor-type-vendor>java.net</resource-adaptor-type-vendor>
 		<resource-adaptor-type-version>0.8.1</resource-adaptor-type-version>
 
 		<resource-adaptor-type-classes>
-
 			<activity-type>
 				<activity-type-name>net.java.slee.resource.diameter.rx.RxClientSessionActivity</activity-type-name>
 			</activity-type>
@@ -83,5 +83,21 @@
 			<event-type-vendor>java.net</event-type-vendor>
 			<event-type-version>0.8</event-type-version>
 		</event-type-ref>
+
+		<!-- Generic Error Answer -->
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.base.events.ErrorAnswer</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+
+		<!--	All other fall into extension -->
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.diameter.base.events.ExtensionDiameterMessage</event-type-name>
+			<event-type-vendor>java.net</event-type-vendor>
+			<event-type-version>0.8</event-type-version>
+		</event-type-ref>
+
 	</resource-adaptor-type>
+
 </resource-adaptor-type-jar>
