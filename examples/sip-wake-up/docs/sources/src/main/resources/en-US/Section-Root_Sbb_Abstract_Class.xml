@@ -171,7 +171,7 @@
 		
 			<section id="root_sbb_abstract_class_child_relation_getter">
 				<title>Location Service SBB Child Relation</title>
-				<para>The SBB uses SIP Service's Location Service to retrieve the URIs of all entities registered with the target address, the child relation method is an abstract class that SLEE implements.</para>
+				<para>The SBB uses SIP JDBC Registrar's to retrieve the URIs of all entities registered with the target address, the child relation method is an abstract class that SLEE implements.</para>
             	
             	<para>The child relation's getter code:</para>
             	<programlisting language="Java" role="JAVA"><![CDATA[
@@ -186,17 +186,11 @@
         	
         	<section id="root_sbb_abstract_class_timer_event_handler">
 				<title>The TimerEvent handler</title>
-				<para>The JAIN SLEE TimerEvent handler is invoked when the duration requested by the SIP Message has passed, it is the final "piece" of the service instance logic, and its responsibility is:</para>
+				<para>The JAIN SLEE TimerEvent handler is invoked when the duration requested by the SIP Message has passed, and its responsibility is:</para>
 				
 				<itemizedlist>
 					<listitem>
-				        <para>Retrieve all instance data from CMP fields.</para>
-	   				</listitem>
-	   				<listitem>
-				        <para>Create a Location Service child SBB and retrieve the target's registered URIs.</para>
-	   				</listitem>
-	   				<listitem>
-				        <para>Send the wake up message(s).</para>
+				        <para>Create the child SBB and ask for the message target's registered URIs.</para>
 	   				</listitem>
 				</itemizedlist>
             	
@@ -212,64 +206,98 @@
 	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 		// detaching so the null AC is claimed after the event handling
 		aci.detach(sbbContext.getSbbLocalObject());
-		// get data from cmp fields
-		String body = getBody();
-		CallIdHeader callId = getCallId();
-		Address sender = getSender();
 		try {
-			// create headers needed to create a out-of-dialog request
-			AddressFactory addressFactory = sipProvider.getAddressFactory();
-			Address fromNameAddress = addressFactory
-					.createAddress("sip:wakeup@mobicents.org");
-			fromNameAddress.setDisplayName("Wake Up Service");
-			HeaderFactory headerFactory = sipProvider.getHeaderFactory();
-			FromHeader fromHeader = headerFactory.createFromHeader(
-					fromNameAddress, null);
-			List<ViaHeader> viaHeaders = new ArrayList<ViaHeader>(1);
-			ListeningPoint listeningPoint = sipProvider.getListeningPoints()[0];
-			ViaHeader viaHeader = sipProvider.getHeaderFactory()
-					.createViaHeader(listeningPoint.getIPAddress(),
-							listeningPoint.getPort(),
-							listeningPoint.getTransport(), null);
-			viaHeaders.add(viaHeader);
-			ContentTypeHeader contentTypeHeader = headerFactory
-					.createContentTypeHeader("text", "plain");
-			CSeqHeader cSeqHeader = headerFactory.createCSeqHeader(2L,
-					Request.MESSAGE);
-			MaxForwardsHeader maxForwardsHeader = headerFactory
-					.createMaxForwardsHeader(70);
-			// create location service child sbb
-			final LocationSbbLocalObject locationChildSbb = (LocationSbbLocalObject) 
-				getLocationChildRelation().create();
-			// get sender bindings and send a message to each
-			MessageFactory messageFactory = sipProvider.getMessageFactory();
-			for (RegistrationBinding registration : locationChildSbb
-					.getBindings(sender.getURI().toString()).values()) {
-				try {
-					// create request uri
-					URI requestURI = addressFactory.createURI(registration
-							.getContactAddress());
-					// create to header
-					ToHeader toHeader = headerFactory.createToHeader(sender,
-							null);
-					// create request
-					Request request = messageFactory.createRequest(requestURI,
-							Request.MESSAGE, callId, cSeqHeader, fromHeader,
-							toHeader, viaHeaders, maxForwardsHeader,
-							contentTypeHeader, body);
-					// create client transaction and send request
-					ClientTransaction clientTransaction = sipProvider
-							.getNewClientTransaction(request);
-					clientTransaction.sendRequest();
-				} catch (Throwable f) {
-					tracer.severe("Failed to create and send message", f);
-				}
-			}
-		} catch (Throwable e) {
-			tracer.severe("Failed to create message headers", e);
+			// create child
+			DataSourceChildSbbLocalInterface child = (DataSourceChildSbbLocalInterface) getLocationChildRelation().create();
+			// request bindings of the message target
+			child.getBindings(getSender().getURI().toString());
+		} catch (Exception e) {
+			tracer.severe("failed to create sip registrar child sbb, to lookup the sender's contacts",e);
+			return;
 		}
 	}
             	]]>
 				</programlisting>
 			</section>
+			
+			<section id="root_sbb_abstract_class_registrar_callback">
+				<title>The Child's SBB Callback</title>
+				<para>The Child SBB provides the registration bindings result asynchronously through a callback, it is the final "piece" of the service instance logic, and its responsibility is:</para>
+				
+				<itemizedlist>
+					<listitem>
+				        <para>Retrieve all data needed to compose the SIP MESSAGE from CMP fields.</para>
+	   				</listitem>	   				
+	   				<listitem>
+				        <para>Send the wake up message(s).</para>
+	   				</listitem>
+				</itemizedlist>
+            	
+            	<para>The callback method code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
+	public void getBindingsResult(int resultCode, List<RegistrationBinding> bindings) {
+		if (resultCode < 300) {
+			// get data from cmp fields
+			String body = getBody();
+			CallIdHeader callId = getCallId();
+			Address sender = getSender();
+			try {
+				// create headers needed to create a out-of-dialog request
+				AddressFactory addressFactory = sipProvider.getAddressFactory();
+				Address fromNameAddress = addressFactory
+						.createAddress("sip:wakeup@mobicents.org");
+				fromNameAddress.setDisplayName("Wake Up Service");
+				HeaderFactory headerFactory = sipProvider.getHeaderFactory();
+				FromHeader fromHeader = headerFactory.createFromHeader(
+						fromNameAddress, null);
+				List<ViaHeader> viaHeaders = new ArrayList<ViaHeader>(1);
+				ListeningPoint listeningPoint = sipProvider.getListeningPoints()[0];
+				ViaHeader viaHeader = sipProvider.getHeaderFactory()
+						.createViaHeader(listeningPoint.getIPAddress(),
+								listeningPoint.getPort(),
+								listeningPoint.getTransport(), null);
+				viaHeaders.add(viaHeader);
+				ContentTypeHeader contentTypeHeader = headerFactory
+						.createContentTypeHeader("text", "plain");
+				CSeqHeader cSeqHeader = headerFactory.createCSeqHeader(2L,
+						Request.MESSAGE);
+				MaxForwardsHeader maxForwardsHeader = headerFactory
+						.createMaxForwardsHeader(70);
+				
+				// send a message to each contact of the target resource
+				MessageFactory messageFactory = sipProvider.getMessageFactory();
+				for (RegistrationBinding registration : bindings) {
+					try {
+						// create request uri
+						URI requestURI = addressFactory.createURI(registration
+								.getContactAddress());
+						// create to header
+						ToHeader toHeader = headerFactory.createToHeader(sender,
+								null);
+						// create request
+						Request request = messageFactory.createRequest(requestURI,
+								Request.MESSAGE, callId, cSeqHeader, fromHeader,
+								toHeader, viaHeaders, maxForwardsHeader,
+								contentTypeHeader, body);
+						// create client transaction and send request
+						ClientTransaction clientTransaction = sipProvider
+								.getNewClientTransaction(request);
+						clientTransaction.sendRequest();
+					} catch (Throwable f) {
+						tracer.severe("Failed to create and send message", f);
+					}
+				}
+			} catch (Throwable e) {
+				tracer.severe("Failed to create message headers", e);
+			}
+		}
+		else {
+			tracer.severe("Unable to send wake up message, the SIP Registrar did 
+				not retrieved the target bindings with sucess");
+		}		
+	}
+            	]]>
+				</programlisting>
+			</section>
+			
 		</section>	

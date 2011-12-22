@@ -5,7 +5,7 @@
 
 	<title>Design Overview</title>
 	
-	<para>The &THIS.EXAMPLE; Example is JAIN SLEE 1.1 Application which handles SIP MESSAGE requests containing a specific content format, to trigger a wake up message. The wake up message and target user are extracted from the SIP MESSAGE request, as the duration of the timer to set. Once the timer expires the application will get all SIP entities registered as the target user, from SIP Services application, and a SIP MESSAGE request is sent for each of those entities. The diagram below depicts this behavior.</para> 
+	<para>The &THIS.EXAMPLE; Example is JAIN SLEE 1.1 Application which handles SIP MESSAGE requests containing a specific content format, to trigger a wake up message. The wake up message and target user are extracted from the SIP MESSAGE request, as the duration of the timer to set. Once the timer expires the application will get all SIP entities registered as the target user, from SIP JDBC Registrar application, and a SIP MESSAGE request is sent for each of those entities. The diagram below depicts this behavior.</para> 
 	
 	<mediaobject>
 		<imageobject>

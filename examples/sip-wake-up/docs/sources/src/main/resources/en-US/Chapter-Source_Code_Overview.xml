@@ -5,7 +5,7 @@
 
 	<title>Source Code Overview</title>
 	
-	<para>The example application is defined by a service descriptor, which refers the included root SBB. The root SBB uses the Location Service SBB (from SIP Services Example) as a child, to retrieve the SIP entities registered.</para>
+	<para>The example application is defined by a service descriptor, which refers the included root SBB. The root SBB uses the DataSourceChild SBB (from SIP JDBC Registrar Example) as a child, to retrieve the SIP entities registered.</para>
 		
 	<important>
 		<para>To obtain the example's complete source code please refer to <xref linkend="source_code"/>.</para>

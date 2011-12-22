@@ -14,7 +14,7 @@
 		</section>
 		<section id="software_prerequisites">
 			<title>Software Prerequisites</title>
-			<para>The Example requires &THIS.PLATFORM; JAIN SLEE properly set, with SIP11 Resource Adaptor and SIP Services Example deployed.</para>
+			<para>The Example requires &THIS.PLATFORM; JAIN SLEE properly set, with SIP11 Resource Adaptor and SIP JDBC Registrar Example deployed.</para>
 		</section>
 	</section>	
 	
