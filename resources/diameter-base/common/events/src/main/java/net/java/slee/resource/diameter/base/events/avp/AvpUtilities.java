@@ -215,7 +215,7 @@ public class AvpUtilities {
       case Avp.DESTINATION_HOST:
       case Avp.DESTINATION_REALM:
         // This AVP SHOULD be placed as close to the Diameter header as possible.
-        Avp firstAvp = set.getAvpByIndex(0);
+        Avp firstAvp = set.size() > 0 ? set.getAvpByIndex(0) : null;
         int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
 
         set.insertAvp(index, avpCode, value, vendorId, isMandatory, isProtected, isOctetString);
@@ -461,7 +461,7 @@ public class AvpUtilities {
       case Avp.DESTINATION_HOST:
       case Avp.DESTINATION_REALM:
         // This AVP SHOULD be placed as close to the Diameter header as possible.
-        Avp firstAvp = set.getAvpByIndex(0);
+        Avp firstAvp = set.size() > 0 ? set.getAvpByIndex(0) : null;
         int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
 
         set.insertAvp(index, avpCode, value, vendorId, isMandatory, isProtected, false);
@@ -1561,7 +1561,7 @@ public class AvpUtilities {
       case Avp.DESTINATION_HOST:
       case Avp.DESTINATION_REALM:
         // This AVP SHOULD be placed as close to the Diameter header as possible.
-        Avp firstAvp = set.getAvpByIndex(0);
+        Avp firstAvp = set.size() > 0 ? set.getAvpByIndex(0) : null;
         int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
 
         set.insertAvp(index, avpCode, value, vendorId, isMandatory, isProtected);
@@ -2134,7 +2134,7 @@ public class AvpUtilities {
       AvpSet groupedAvp = null;
       if (avpCode == Avp.VENDOR_SPECIFIC_APPLICATION_ID) {
           // This AVP SHOULD be placed as close to the Diameter header as possible.
-          Avp firstAvp = set.getAvpByIndex(0);
+          Avp firstAvp = set.size() > 0 ? set.getAvpByIndex(0) : null;
           int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
 
           groupedAvp = set.insertGroupedAvp(index, avpCode, avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
@@ -2159,7 +2159,7 @@ public class AvpUtilities {
         case Avp.DESTINATION_REALM: 
         case Avp.VENDOR_SPECIFIC_APPLICATION_ID:
           // This AVP SHOULD be placed as close to the Diameter header as possible.
-          Avp firstAvp = set.getAvpByIndex(0);
+          Avp firstAvp = set.size() > 0 ? set.getAvpByIndex(0) : null;
           int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
           set.insertAvp(index, avpCode, avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);        
           break;
