@@ -54,7 +54,7 @@ public abstract class RxSessionActivityImpl extends DiameterActivityImpl impleme
 
   private static final long serialVersionUID = 5037967180962414549L;
 
-  protected RxMessageFactory rxMessageFactory;
+  protected transient RxMessageFactory rxMessageFactory;
 
   /**
    * @param messageFactory
@@ -92,8 +92,8 @@ public abstract class RxSessionActivityImpl extends DiameterActivityImpl impleme
     Message receivedMessage = null;
     try {
       if(message instanceof DiameterMessageImpl) {
-        Future future = session.send(((DiameterMessageImpl)message).getGenericData());
-        receivedMessage = (Message)future.get();
+        Future<Message> future = session.send(((DiameterMessageImpl)message).getGenericData());
+        receivedMessage = future.get();
       }
       else {
         throw new OperationNotSupportedException((new StringBuilder()).append("Trying to send wrong type of message? [").append(message.getClass()).append("] \n").append(message).toString());

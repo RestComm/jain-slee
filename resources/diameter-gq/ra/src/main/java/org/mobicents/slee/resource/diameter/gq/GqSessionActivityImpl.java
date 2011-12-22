@@ -53,7 +53,7 @@ public abstract class GqSessionActivityImpl extends DiameterActivityImpl impleme
 
   private static final long serialVersionUID = 1L;
 
-  protected GqMessageFactory gqMessageFactory;
+  protected transient GqMessageFactory gqMessageFactory;
 
   /**
    * @param messageFactory

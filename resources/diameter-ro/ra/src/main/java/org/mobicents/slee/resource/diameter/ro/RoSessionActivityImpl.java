@@ -48,7 +48,7 @@ public abstract class RoSessionActivityImpl extends DiameterActivityImpl impleme
 
   private static final long serialVersionUID = 5037967180962414949L;
 
-  protected RoMessageFactory roMessageFactory;
+  protected transient RoMessageFactory roMessageFactory;
 
   /**
    * @param messageFactory
