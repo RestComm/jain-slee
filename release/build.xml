@@ -3,8 +3,8 @@
 
 	<property environment="sys"/>
 	
-	<property name="ra.dirs" value="jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-gq,diameter-rx,xcap-client"/>
-	<property name="example.dirs" value="slee-connectivity,sip-services,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo,converged-demo"/>
+	<property name="ra.dirs" value="mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-gq,diameter-rx,xcap-client"/>
+	<property name="example.dirs" value="mscontrol-demo,slee-connectivity,sip-jdbc-registrar,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo"/>
 	<property name="enabler.dirs" value="rest-client,xdm-client,sip-publication-client,sip-subscription-client,hss-client"/>
 	<property name="tool.dirs" value="management-console,eclipslee,remote-slee-connection,twiddle"/>
 
@@ -18,12 +18,12 @@
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
 
-	<property name="mms.version" value="2.1.0.BETA1" />
-	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
+	<property name="mms.version" value="2.1.0.BETA4" />
+	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-2.1.0-b5.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 
-	<property name="ss7.version" value="1.0.0.BETA10" />
-	<property name="ss7.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Protocols%20Suite/1.0.0.B10/mobicents-ss7-${ss7.version}.zip"/>
+	<property name="ss7.version" value="1.0.0.CR2" />
+	<property name="ss7.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Protocols%20Suite/${ss7.version}/mobicents-ss7-${ss7.version}.zip"/>
 	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip"/>
 		
 	
@@ -33,13 +33,13 @@
 	<property name="diameter.download.url" value ="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Diameter-1.x-Release/lastSuccessfulBuild/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201109060020.sar.zip"/>	
 	-->
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
-
+	<!--
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0.CR1.jar"/>
 	<property name="eclipslee.download.url" value ="http://mobicents.googlecode.com/svn/downloads/eclipse-update-site/plugins/${eclipslee.jar}"/>
-	<!--
+	-->
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0-SNAPSHOT.jar"/>
 	<property name="eclipslee.download.url" value ="http://hudson.jboss.org/jenkins/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>
-	-->
+	
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="${ant.file.mobicents.release}/../ant-contrib-1.0b3.jar" />
@@ -91,6 +91,9 @@
 
 	<target name="build-core" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
+			<arg line="install javadoc:aggregate -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
+		</exec>
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/slee-management-console">
 			<arg line="install javadoc:aggregate -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
 		</exec>
 		<antcall target="build-docs">
@@ -162,7 +165,7 @@
 				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
 					<arg line="install -P release,${docs.profile},set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
-				<move toDir="${release.dir}/docs/examples/@{dir.name}/user-guide" overwrite="true">
+				<move toDir="${release.dir}/docs/examples/@{dir.name}/user-guide" overwrite="true" failonerror="false">
 					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/examples/@{dir.name}/docs" />
 				</move>
 			</sequential>
@@ -287,10 +290,12 @@
 			<zipfileset dir="${release.dir}" prefix=""
                 excludes="**/*.sh **/server/*/data/** **/server/*/log/** **/server/*/tmp/** **/server/*/work/** **/server/tmp/**"/>
 		</zip>
+		<!-- SF has checksum info, no need for this atm 
 		<antcall target="checksum">
 			<param name="source.file" value="${ant.file.mobicents.release}/../${zip.filename}" />
 			<param name="algorithm" value="sha1" />
 		</antcall>
+		-->
 	</target>
 
 	<target name="set-src-excludes">
@@ -373,7 +378,7 @@
 
 	<target name="unzip-mms">
 		<delete dir="${release.dir}/extra/mobicents-media-server" failonerror="false" />
-		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/mobicents-media-server" />
+		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra" />
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" property="got.ss7" />
