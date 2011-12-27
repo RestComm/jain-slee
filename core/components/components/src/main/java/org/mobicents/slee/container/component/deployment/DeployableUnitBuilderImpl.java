@@ -280,15 +280,7 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 
 			return deployableUnit;
 		} catch (Throwable e) {
-			if (deployableUnit != null) {
-				if (logger.isInfoEnabled()) {
-					logger
-							.info(
-									"Undeploying deployable unit due to building error",
-									e);
-				}
-				deployableUnit.undeploy();
-			} else {
+			if (deployableUnit == null) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Deleting deployable unit temp dir "
 							+ deploymentDir);

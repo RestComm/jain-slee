@@ -306,8 +306,11 @@ public class DeployableUnitImpl implements DeployableUnit {
 	 */
 	private void deletePath(File path) {
 		if (path.isDirectory()) {
-			for (File file : path.listFiles()) {
-				deletePath(file);
+			File[] files = path.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					deletePath(file);
+				}
 			}
 		}
 		path.delete();

@@ -155,6 +155,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 				ClassLoader currentClassLoader = currentThread
 						.getContextClassLoader();
 
+				Set<SleeComponent> componentsInstalled = new HashSet<SleeComponent>();
 				boolean rollback = true;
 				try {
 					// start transaction
@@ -181,6 +182,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 								.getClassLoader());
 						sleeContainer.getResourceManagement()
 								.installResourceAdaptorType(component);
+						componentsInstalled.add(component);
 						logger.info("Installed " + component);
 					}
 					// before executing the logic to install an profile spec, ra
@@ -206,6 +208,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 								.getClassLoader());
 						sleeContainer.getSleeProfileTableManager()
 								.installProfileSpecification(component);
+						componentsInstalled.add(component);
 						updateSecurityPermissions(component, false);
 						logger.info("Installed " + component);
 					}
@@ -215,6 +218,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 								.getClassLoader());
 						sleeContainer.getResourceManagement()
 								.installResourceAdaptor(component);
+						componentsInstalled.add(component);
 						updateSecurityPermissions(component, false);
 						logger.info("Installed " + component);
 					}
@@ -223,6 +227,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 						currentThread.setContextClassLoader(component
 								.getClassLoader());
 						sleeContainer.getSbbManagement().installSbb(component);
+						componentsInstalled.add(component);
 						updateSecurityPermissions(component, false);
 						logger.info("Installed " + component);
 					}
@@ -233,6 +238,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 						componentRepositoryImpl.putComponent(component);
 						sleeContainer.getServiceManagement().installService(
 								component);
+						componentsInstalled.add(component);
 						logger.info("Installed " + component+". Root sbb is "+component.getRootSbbComponent());
 					}
 					
@@ -266,6 +272,9 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 										.getResourceAdaptorTypeComponents()
 										.values()) {
 									removeSecurityPermissions(component, false);
+									if(componentsInstalled.contains(component)) {
+										sleeContainer.getResourceManagement().uninstallResourceAdaptorType(component);
+									}
 									componentRepositoryImpl.removeComponent(component.getResourceAdaptorTypeID());
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
@@ -273,6 +282,9 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 								for (ProfileSpecificationComponent component : deployableUnit
 										.getProfileSpecificationComponents()
 										.values()) {
+									if(componentsInstalled.contains(component)) {
+										sleeContainer.getSleeProfileTableManager().uninstallProfileSpecification(component);
+									}
 									componentRepositoryImpl.removeComponent(component.getProfileSpecificationID());
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
@@ -280,6 +292,9 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 								for (ResourceAdaptorComponent component : deployableUnit
 										.getResourceAdaptorComponents().values()) {
 									removeSecurityPermissions(component, false);
+									if(componentsInstalled.contains(component)) {
+										sleeContainer.getResourceManagement().uninstallResourceAdaptor(component);
+									}
 									componentRepositoryImpl.removeComponent(component.getResourceAdaptorID());
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
@@ -287,12 +302,18 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 								for (SbbComponent component : deployableUnit
 										.getSbbComponents().values()) {
 									removeSecurityPermissions(component, false);
+									if(componentsInstalled.contains(component)) {
+										sleeContainer.getSbbManagement().uninstallSbb(component);
+									}
 									componentRepositoryImpl.removeComponent(component.getSbbID());
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
 								}
 								for (ServiceComponent component : deployableUnit
 										.getServiceComponents().values()) {
+									if(componentsInstalled.contains(component)) {
+										sleeContainer.getServiceManagement().uninstallService(component);
+									}
 									componentRepositoryImpl.removeComponent(component.getServiceID());
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
