@@ -41,6 +41,11 @@
 					      	<entry>timerThreads</entry>
 				    	    <entry>int</entry>
 				       		<entry>defines how many threads should be used by the Timer Facility</entry>
+					      </row>
+					      <row>
+					      	<entry>purgePeriod</entry>
+				    	    <entry>int</entry>
+				       		<entry>defines the period (in minutes) of purging canceled tasks from the Timer Facility. Use 0 for no purge at all.</entry>
 					      </row>					      					 
 			    	</tbody>
 			  	</tgroup>

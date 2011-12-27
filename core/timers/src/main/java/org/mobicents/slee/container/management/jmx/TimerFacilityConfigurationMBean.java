@@ -47,4 +47,16 @@ public interface TimerFacilityConfigurationMBean {
 	 */
 	public void setTimerThreads(int value);
 	
+	/**
+	 * Retrieves the period (in minutes) of purging canceled tasks from the Timer Facility.
+	 * @return
+	 */
+	public int getPurgePeriod();
+	
+	/**
+	 * Sets the period (in minutes) of purging canceled tasks from the Timer Facility. Use 0 for no purge at all.
+	 * @param value
+	 */
+	public void setPurgePeriod(int value);
+	
 }

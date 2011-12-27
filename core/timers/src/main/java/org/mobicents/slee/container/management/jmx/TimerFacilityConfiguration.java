@@ -39,6 +39,8 @@ public class TimerFacilityConfiguration implements
 
 	private Integer timerThreads;
 
+	private Integer purgePeriod;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -47,7 +49,7 @@ public class TimerFacilityConfiguration implements
 	 * #getTimerThreads()
 	 */
 	public int getTimerThreads() {
-		return timerThreads;
+		return timerThreads != null ? timerThreads.intValue() : 0;
 	}
 
 	/*
@@ -73,4 +75,25 @@ public class TimerFacilityConfiguration implements
 		this.timerThreads = value;
 	}
 
+	@Override
+	public int getPurgePeriod() {
+		return purgePeriod != null ? purgePeriod.intValue() : 0;
+	}
+	
+	@Override
+	public void setPurgePeriod(int value) {
+		if (this.purgePeriod == null) {
+			logger
+			.info("SLEE Timer facility initiated with "
+					+ value
+					+ " for purge period.");
+		}
+		else {
+			logger
+			.warn("Setting timer facility purge period to "
+					+ value
+					+ ". If called with server running a stop and start is need to apply changes.");
+		}
+		this.purgePeriod = value;
+	}
 }
