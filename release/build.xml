@@ -378,7 +378,7 @@
 
 	<target name="unzip-mms">
 		<delete dir="${release.dir}/extra/mobicents-media-server" failonerror="false" />
-		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra" />
+		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/mobicents-media-server" />
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" property="got.ss7" />
