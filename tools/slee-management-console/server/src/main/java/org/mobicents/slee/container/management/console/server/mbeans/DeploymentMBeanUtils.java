@@ -24,6 +24,7 @@ package org.mobicents.slee.container.management.console.server.mbeans;
 
 import java.util.ArrayList;
 
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.slee.ComponentID;
@@ -308,8 +309,17 @@ public class DeploymentMBeanUtils {
       mbeanServer.invoke(deploymentMBean, "uninstall", new Object[] { id }, new String[] { DeployableUnitID.class.getName() });
     }
     catch (Exception e) {
-      e.printStackTrace();
-      throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+      if(e instanceof MBeanException) {
+        Throwable t = e;
+        while(t.getCause() != null) {
+          t = t.getCause();
+        }
+        throw new ManagementConsoleException(t.getMessage());
+      }
+      else {
+        e.printStackTrace();
+        throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+      }
     }
   }
 

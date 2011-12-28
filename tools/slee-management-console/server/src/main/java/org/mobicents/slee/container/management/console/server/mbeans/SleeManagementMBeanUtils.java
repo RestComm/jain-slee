@@ -194,12 +194,12 @@ public class SleeManagementMBeanUtils {
     do {
       StackTraceElement[] trace = e.getStackTrace();
       if (tick++ == 0)
-        sb.append(e.getClass().getCanonicalName() + ":" + e.getLocalizedMessage() + "\n");
+        sb.append(e.getClass().getCanonicalName() + ":" + e.getLocalizedMessage() + "<br/>\n");
       else
-        sb.append("Caused by: " + e.getClass().getCanonicalName() + ":" + e.getLocalizedMessage() + "\n");
+        sb.append("Caused by: " + e.getClass().getCanonicalName() + ":" + e.getLocalizedMessage() + "<br/>\n");
 
       for (StackTraceElement ste : trace)
-        sb.append("\t" + ste + "\n");
+        sb.append("\t" + ste + "<br/>\n");
 
       e = e.getCause();
     } while (e != null);
