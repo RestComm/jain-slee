@@ -125,8 +125,13 @@ public class LibraryComponentImpl extends AbstractSleeComponent implements Libra
 	public javax.slee.management.LibraryDescriptor getSpecsDescriptor() {
 		if (specsDescriptor == null) {
 			final LibraryID[] libraryIDs = descriptor.getLibraryRefs().toArray(new LibraryID[descriptor.getLibraryRefs().size()]);
-			final String[] jars = descriptor.getJars().toArray(new String[descriptor.getJars().size()]);
-			specsDescriptor = new javax.slee.management.LibraryDescriptor(getLibraryID(), getDeployableUnit().getDeployableUnitID(), getDeploymentUnitSource(), libraryIDs, jars);
+			final JarDescriptor[] jars = descriptor.getJars().toArray(new JarDescriptor[descriptor.getJars().size()]);
+			String[] libraryJars = new String[jars.length];
+			int i = 0;
+			for(JarDescriptor jar : jars) {
+			  libraryJars[i++] = jar.getJarName();
+			}
+			specsDescriptor = new javax.slee.management.LibraryDescriptor(getLibraryID(), getDeployableUnit().getDeployableUnitID(), getDeploymentUnitSource(), libraryIDs, libraryJars);
 		}
 		return specsDescriptor;
 	}
