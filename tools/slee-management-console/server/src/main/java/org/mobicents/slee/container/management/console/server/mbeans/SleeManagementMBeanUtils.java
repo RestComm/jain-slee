@@ -22,6 +22,7 @@
 
 package org.mobicents.slee.container.management.console.server.mbeans;
 
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
@@ -33,8 +34,9 @@ import javax.slee.management.SleeState;
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
 
 /**
- * @author Stefano Zappaterra
  * 
+ * @author Stefano Zappaterra
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SleeManagementMBeanUtils {
   private MBeanServerConnection mbeanServer;
@@ -189,20 +191,32 @@ public class SleeManagementMBeanUtils {
 
   public static String doMessage(Throwable t) {
     StringBuffer sb = new StringBuffer();
-    int tick = 0;
-    Throwable e = t;
-    do {
-      StackTraceElement[] trace = e.getStackTrace();
-      if (tick++ == 0)
-        sb.append(e.getClass().getCanonicalName() + ":" + e.getLocalizedMessage() + "<br/>\n");
-      else
-        sb.append("Caused by: " + e.getClass().getCanonicalName() + ":" + e.getLocalizedMessage() + "<br/>\n");
 
-      for (StackTraceElement ste : trace)
-        sb.append("\t" + ste + "<br/>\n");
+    // Just show the interesting bits to the management console log...
+    if(t instanceof MBeanException) {
+      Throwable tCause = t;
+      while(tCause.getCause() != null) {
+        tCause = tCause.getCause();
+      }
+      sb.append(tCause.getMessage() + "<br />\n");
+      sb.append("Check the JAIN SLEE logs for more detailed information about this error.");
+    }
+    else {
+      int tick = 0;
+      Throwable e = t;
+      do {
+        StackTraceElement[] trace = e.getStackTrace();
+        if (tick++ == 0)
+          sb.append(e.getClass().getCanonicalName() + ":" + e.getLocalizedMessage() + "<br/>\n");
+        else
+          sb.append("Caused by: " + e.getClass().getCanonicalName() + ":" + e.getLocalizedMessage() + "<br/>\n");
 
-      e = e.getCause();
-    } while (e != null);
+        for (StackTraceElement ste : trace)
+          sb.append("\t" + ste + "<br/>\n");
+
+            e = e.getCause();
+      } while (e != null);
+    }
 
     return sb.toString();
 
