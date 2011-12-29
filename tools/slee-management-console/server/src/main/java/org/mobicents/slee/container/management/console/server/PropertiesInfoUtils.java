@@ -41,8 +41,8 @@ public class PropertiesInfoUtils {
       return propertiesInfo;
 
     for (Property property : properties.getProperties()) {
-      String key = property.getName();
-      String value = property.getType() + "=" + (String) property.getValue(); // FIXME: Cast to proper type..?
+      String key = property.getName() + " :: " + property.getType();
+      String value = property.getValue().toString();
       propertiesInfo.setProperty(key, value);
     }
     return propertiesInfo;
@@ -51,10 +51,10 @@ public class PropertiesInfoUtils {
   public static ConfigProperties toProperties(PropertiesInfo propertiesInfo) {
     ConfigProperties properties = new ConfigProperties();
 
-    for (Object key : propertiesInfo.keySet()) {
-      String name = (String) key;
-      String[] typeAndValue = propertiesInfo.getProperty(name).split("=", 2);
-      Property property = new Property(name, typeAndValue[0], typeAndValue[1]);
+    for (String key : propertiesInfo.keySet()) {
+      String[] nameAndType = key.split(" :: ", 2);
+      String value = propertiesInfo.getProperty(nameAndType[0]);
+      Property property = new Property(nameAndType[0], nameAndType[1], value);
       properties.addProperty(property);
     }
     return properties;
