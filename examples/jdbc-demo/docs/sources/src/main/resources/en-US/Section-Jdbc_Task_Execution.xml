@@ -1,0 +1,31 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<section id="jdbc_task_execution">
+	<title>JDBC Task Execution</title>
+	<para>
+	Task execution is fairly simple problem with <acronym>JDBC</acronym> <acronym>RA</acronym>. Once task implementation is defined, it can be scheduled for execution 
+	with few lines of code:
+	</para>
+	<programlisting role="JAVA" language="Java">
+        public void onServiceStartedEvent(ServiceStartedEvent event,
+            ActivityContextInterface aci) {
+
+        tracer.info("JDBC Example started.");
+
+        JdbcActivity jdbcActivity = jdbcRA.createActivity();
+        tracer.info("Created JDBC RA activity, using RA's SBB Interface.");
+
+        ActivityContextInterface jdbcACI = jdbcACIF
+                .getActivityContextInterface(jdbcActivity);
+        jdbcACI.attach(contextExt.getSbbLocalObject());
+        tracer.info("Retrieved the ACI related to the JDBC RA activity, and attached the sbb entity.");
+
+        SimpleJdbcTask task = new SimpleJdbcTask() { ... };
+        jdbcActivity.execute(task);
+    }
+     </programlisting>
+
+</section>	

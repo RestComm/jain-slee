@@ -1,0 +1,111 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="jdbc_sbb">
+	<title>JdbcExampleSbb overview</title>
+	<para>
+		<acronym>JDBC</acronym> <acronym>SBB</acronym> is root
+		<acronym>SBB</acronym> of example service.
+		
+	</para>
+
+	<para>
+		<literal>JdbcExampleSbb</literal> expects <acronym>SLEE</acronym> <literal>ServiceStartedEvent</literal> to be fired.
+		Class
+		<literal>org.mobicents.slee.example.jdbc.JdbcExampleSbb
+			</literal>
+		has all the logic to schedule database operations. Said operations are declared in anonymous inner class, for details please refer to XXX.
+		.
+	</para>
+	<section id="jdbc_sbb_initial">
+		<title>Initial event handler</title>
+		<para>
+			As root of service <acronym>SBB</acronym>declares initial event. It does that
+			with xml descriptor of event handler in sbb-jar.xml, for instance:
+			<acronym></acronym>
+		</para>
+		<programlisting language="XML" role="XML"><![CDATA[
+        <event event-direction="Receive" initial-event="True">
+            <event-name>ServiceStartedEvent</event-name>
+            <event-type-ref>
+                <event-type-name>
+                    javax.slee.serviceactivity.ServiceStartedEvent
+            </event-type-name>
+                <event-type-vendor>javax.slee</event-type-vendor>
+                <event-type-version>1.1</event-type-version>
+            </event-type-ref>
+            <initial-event-select variable="ActivityContext" />
+        </event>
+		]]>
+		</programlisting>
+		<para>
+			Event handlers declaration has
+			<literal>initial-event-select</literal>
+			element. This element identifies which <acronym>SLEE</acronym> variable is used to generate <literal>SBB Entity</literal> name. 
+			If entity for generated name does not exist, <acronym>SLEE</acronym> creates it.
+			
+			
+			
+		</para>
+		
+		<para>
+			<acronym>JDBC RA</acronym> events are not considered as initial events. This is because entity created to handle <literal>ServiceStartedEvent</literal> will
+			be attached to <literal>JDBC</literal> Activity on which result will be fired.
+		</para>
+	</section>
+	<section id="jdbc_sbb_results">
+		<title>JDBC Result handlers</title>
+		<para>
+			Result handlers are responsible for relying outcome of executed queries. Since this example uses generic 
+			<literal>JDBC</literal> <literal>RA Type</literal> task to execute queries, the RA will fire generic events. If <acronym>RA</acronym> starts execution of task, it will fire
+	
+			</para>
+			
+        <programlisting language="XML" role="XML"><![CDATA[
+    <event-type-name>SimpleJdbcTaskResultEvent</event-type-name>
+    <event-type-vendor>org.mobicents</event-type-vendor>
+    <event-type-version>1.0</event-type-version>
+        ]]>
+        </programlisting>
+        <para>In case of exception is caught before user queries are executed, it will fire:</para>
+        <programlisting language="XML" role="XML"><![CDATA[
+     <event-type-name>JdbcTaskExecutionThrowableEvent</event-type-name>
+     <event-type-vendor>org.mobicents</event-type-vendor>
+     <event-type-version>1.0</event-type-version>
+        ]]>
+        </programlisting>
+        
+        
+			<para>
+			Event handler code for <acronym>JDBC</acronym> result looks as follows in this example:
+		</para>
+		<programlisting role="JAVA" language="Java">
+
+    public void onSimpleJdbcTaskResultEvent(SimpleJdbcTaskResultEvent event,
+            ActivityContextInterface aci) {
+        tracer.info("Received a SimpleJdbcTaskResultEvent, task = "
+                + event.getTask() + ", result object = " + event.getResult());
+        ((JdbcActivity) aci.getActivity()).endActivity();
+    }
+
+   
+    public void onJdbcTaskExecutionThrowableEvent(
+            JdbcTaskExecutionThrowableEvent event, ActivityContextInterface aci) {
+        tracer.info(
+                "Received a JdbcTaskExecutionThrowableEvent, as result of executed task "
+                        + event.getTask(), event.getThrowable());
+        tracer.info("Ending JDBC Activity...");
+        ((JdbcActivity) aci.getActivity()).endActivity();
+    }
+
+		</programlisting>
+		
+		<important>
+		  <para>Note that event handlers end activities explicitly. <acronym>RA</acronym> only manages pool of activities, it is responsibility of entity using activity to end it!</para>
+		</important>
+		
+	</section>
+</section>	

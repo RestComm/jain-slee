@@ -1,0 +1,53 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+
+	<para>As said in introduction the &THIS.EXAMPLE;
+		Example is JAIN SLEE 1.1 Application performs <acronym>CRUD</acronym> operations on database with <literal>java.sql</literal>.
+		It performs following operations in sequence:
+	</para>
+	<variablelist>
+	   <varlistentry>
+           <term>Create table</term>
+           <listitem>
+               <para>Create simple table</para>
+           </listitem>
+       </varlistentry>
+       <varlistentry>
+           <term>Insert row</term>
+           <listitem>
+               <para>Create row in table, with column value set to '<literal>Mobicents</literal>' </para>
+           </listitem>
+       </varlistentry>
+       <varlistentry>
+           <term>Query</term>
+           <listitem>
+               <para>Query table for all entries from table(column entries)</para>
+           </listitem>
+       </varlistentry>
+       <varlistentry>
+           <term>Drop table</term>
+           <listitem>
+               <para>Remove table from database</para>
+           </listitem>
+       </varlistentry>
+	</variablelist>
+	<para>Flow diagram below, depicts how example works:</para>
+	<mediaobject>
+        <imageobject>
+            <imagedata width="300px" align="center"
+                fileref="images/jdbc_example_flow.jpeg" format="JPG" />
+        </imageobject>
+        <caption>
+            <para>&THIS.EXAMPLE; Flow Diagram
+            </para>
+        </caption>
+    </mediaobject>
+	<para>This example does not use custom events mechanism provided by JDBC RA. It performs all operations with JDBC RAType generic events.
+	Example code and documentation with regard to custom events can be found in RA documentation. Please refer to specific RA documentation version.
+	</para>
+</chapter>
+
