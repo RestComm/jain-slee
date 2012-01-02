@@ -52,7 +52,7 @@ public class SubscriptionIdAvpImpl extends GroupedAvpImpl implements Subscriptio
    * @see net.java.slee.resource.diameter.cca.events.avp.SubscriptionIdAvp#getSubscriptionIdData()
    */
   public String getSubscriptionIdData() {
-    return getAvpAsOctetString(CreditControlAVPCodes.Subscription_Id_Data);
+    return getAvpAsUTF8String(CreditControlAVPCodes.Subscription_Id_Data);
   }
 
   /*
