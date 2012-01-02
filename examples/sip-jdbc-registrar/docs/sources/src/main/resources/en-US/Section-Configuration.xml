@@ -1,0 +1,29 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="configuration">
+	<title>Configuration</title>
+	<para>There are only two parameter which can be configured. Both are exposed as <acronym>JMX</acronym> properties.
+	The <acronym>JMX</acronym> bean can be accessed under <literal>slee:sipregistrarconfigurator=v2RegistrarConf</literal> name.
+	</para>
+    <para>
+    It exposes following properties:
+    </para>
+    <variablelist>
+        <varlistentry>
+            <term>minExpires</term>
+            <listitem>
+                <para>sets lower boundry acceptable for <literal>Expires</literal> header. Its expressed in seconds and has default value of 120.</para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>maxExpires</term>
+            <listitem>
+                <para>sets upper boundry for <literal>Expires</literal> header. Its expressed in seconds and has default value of 3600.</para>
+            </listitem>
+        </varlistentry>
+    </variablelist>
+</section>

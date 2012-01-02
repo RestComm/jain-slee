@@ -1,0 +1,685 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="datasource_child_sbb">
+	<title>DataSourceChild SBB</title>
+	<para>
+	<literal>DataSourceChild SBB</literal> is responsible for two tasks. First one is to persist registration data in some sort of a storage. Second is to callback 
+	<literal>SIP Registrar SBB</literal> with result of operation invoked on <literal>DataSourceChild SBB</literal> local interface.
+	</para>
+	<para>This example uses <literal>DataSourceChild SBB</literal> implementation which interacts with database by means of JDBC Resource Adaptor. This following sections contain not only general description of <literal>DataSourceChild SBB</literal> 
+	, they contain description of specific implementation of said SBB.</para>
+    <section id="datasource_child_sbb_local_interface">
+        <title>Local interface</title>
+        <para><literal>DataSourceChild SBB</literal> declares SBB Local interface. This interface is used by <literal>SIP Registrar SBB</literal> to trigger <literal>DataSourceChild SBB</literal> to perform certain operation on 
+        storage in which registration data is beeing held.
+        So in short it defines contract between <literal>SIP Registrar SBB</literal> and <literal>DataSourceChild SBB</literal>. Local interface is declared in <filename>sbb-jar.xml</filename> in following way:
+        </para>
+        <programlisting language="XML" role="XML"><![CDATA[
+ <sbb-jar>
+ 
+    ...
+ 
+    <sbb>
+        <sbb-name>DataSourceChild</sbb-name>
+        <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-version>1.0</sbb-version>
+
+        <sbb-classes>
+            <sbb-abstract-class
+                reentrant="True">
+                <sbb-abstract-class-name>
+                    org.mobicents.slee.example.sjr.data.jdbc.DataSourceChildSbb
+                </sbb-abstract-class-name>
+            </sbb-abstract-class>
+            <sbb-local-interface>
+                <sbb-local-interface-name>
+                    org.mobicents.slee.example.sjr.data.DataSourceChildSbbLocalObject
+                </sbb-local-interface-name>
+            </sbb-local-interface>
+        </sbb-classes>
+        
+        ...
+        
+    </sbb>
+</sbb-jar>
+        ]]>
+        </programlisting>
+        <para>Child interface is declared as follows:</para>
+        <programlisting language="Java" role="JAVA">
+public interface DataSourceChildSbbLocalObject extends SbbLocalObject,
+        DataSourceChildSbbLocalInterface {
+
+}
+        </programlisting>
+        <para>Above methods(<xref linkend="interface_DataSourecChildSbbLocal"/>) are invoked by <literal>SIP Registrar SBB</literal> as result of registrar routines. According to name, methods perform certain task:</para>
+        <variablelist>
+            <varlistentry>
+                <term>Initiate data storage</term>
+                <listitem>
+                    <programlisting language="Java" role="JAVA">
+    @Override
+    public void init() {
+        // create db schema if needed
+        Connection connection = null;
+        try {
+            connection = jdbcRA.getConnection();
+            connection.createStatement().execute(
+                    DataSourceSchemaInfo._QUERY_CREATE);
+        } catch (SQLException e) {
+            tracer.warning("failed to create db schema", e);
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                tracer.severe("failed to close db connection", e);
+            }
+        }
+    }
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+           <varlistentry>
+                <term>Fetch bindings for AOR</term>
+                <listitem>
+                    <programlisting language="Java" role="JAVA">
+    @Override
+    public void getBindings(String address) {
+        executeTask(new GetBindingsJdbcTask(address, tracer));
+    }
+
+    
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Remove single binding</term>
+                <listitem>
+                    <programlisting language="Java" role="JAVA">
+    @Override
+    public void removeBinding(String contact, String address) {
+        executeTask(new RemoveBindingJdbcTask(address, contact, tracer));
+    }
+
+   
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Remove all bindings</term>
+                <listitem>
+                    <programlisting language="Java" role="JAVA">
+    @Override
+    public void removeBindings(String address, String callId, long cSeq) {
+        executeTask(new RemoveBindingsJdbcTask(address, callId, cSeq, tracer));
+    }
+
+   
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Update/Add bindings</term>
+                <listitem>
+                    <programlisting language="Java" role="JAVA">
+    @Override
+    public void updateBindings(String address, String callId, long cSeq,
+            List&lt;ContactHeader&gt; contacts) {
+        executeTask(new UpdateBindingsJdbcTask(address, callId, cSeq, contacts, tracer));
+    }
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+
+    </section>
+    <section id="datasource_child_sbb_parent">
+        <title>Parent relation</title>
+        <para>The <literal>DataSourceChild SBB</literal> in this example has a parent. In this example, the parent is <literal>SIP Registrar SBB</literal>.
+        The <literal>DataSourceChild SBB</literal> accesses its parent by using &THIS.PLATFORM; SLEE extension API:
+        </para>
+        <programlisting language="Java" role="JAVA">
+        final DataSourceParentSbbLocalInterface parent = (DataSourceParentSbbLocalInterface) sbbContextExt
+                .getSbbLocalObject().getParent();
+         </programlisting>
+     </section>
+    <section id="datasource_child_sbb_jdbc_tasks">
+        <title>JDBC RA Tasks
+        </title>
+        <para>Default implementation of <literal>DataSourceChild SBB</literal> uses JDBC RA to persist user contact information. It performs its task using set of JDBC RA tasks.
+        </para>
+        <para>
+            Each task use queries defined in <classname>org.mobicents.slee.example.sjr.data.jdbc.DataSourceSchemaInfo</classname>. Example of such query, looks as follows:
+        </para>
+        <programlisting language="Java" role="JAVA">
+public class DataSourceSchemaInfo {
+
+    // lets define some statics for table and queries in one place.
+    public static final String _TABLE_NAME = "SIP_REGISTRAR";
+    public static final String _COLUMN_SIP_ADDRESS = "SIP_ADDRESS";
+    public static final String _COLUMN_CONTACT = "CONTACT";
+    public static final String _COLUMN_EXPIRES = "EXPIRES";
+    public static final String _COLUMN_REGISTER_DATE = "REGISTER_DATE";
+    public static final String _COLUMN_Q = "Q"; 
+    public static final String _COLUMN_CALL_ID = "CALL_ID";
+    public static final String _COLUMN_C_SEQ = "C_SEQ";
+
+    // SQL queries.
+    // drop table
+    public static final String _QUERY_DROP = "DROP TABLE IF EXISTS "
+            + _TABLE_NAME + ";";
+    // create table, use contact as PK, since it will be unique ?
+    // | CONTACT (PK) | SIP_ADDRESS (PK) | Q | EXPIRES | REGISTER_DATE | CALL_ID
+    // | C_SEQ |
+    public static final String _QUERY_CREATE = "CREATE TABLE " + _TABLE_NAME
+            + " (" + _COLUMN_CONTACT + " VARCHAR(255) NOT NULL, "
+            + _COLUMN_SIP_ADDRESS + " VARCHAR(255) NOT NULL, " + _COLUMN_Q
+            + " FLOAT NOT NULL, " + _COLUMN_EXPIRES + " BIGINT NOT NULL, "
+            + _COLUMN_REGISTER_DATE + " BIGINT NOT NULL, " + _COLUMN_C_SEQ
+            + " BIGINT NOT NULL, " + _COLUMN_CALL_ID
+            + " VARCHAR(255) NOT NULL, " + "PRIMARY KEY(" + _COLUMN_CONTACT
+            + "," + _COLUMN_SIP_ADDRESS + ")" + ");";
+
+    ...    
+
+    // update row for AOR and contact
+    public static final String _QUERY_UPDATE = "UPDATE " + _TABLE_NAME + " "
+            + "SET " + _COLUMN_CALL_ID + "=?, " + _COLUMN_C_SEQ + "=?, "
+            + _COLUMN_EXPIRES + "=?, " + _COLUMN_Q + "=?, "
+            + _COLUMN_REGISTER_DATE + "=? " + "WHERE " + _COLUMN_SIP_ADDRESS
+            + "=? AND " + _COLUMN_CONTACT + "=?;";
+    
+    ...
+    
+}
+        </programlisting>
+        <para>Following tasks are defined to perform operations on persistent storage:</para>
+        <!-- TOOD: those are toooo long listings? -->
+        <variablelist>
+            <varlistentry>
+                <term>GetBindingsJdbcTask</term>
+                <listitem>
+                    <para></para>
+                    <programlisting language="Java" role="JAVA">
+public class GetBindingsJdbcTask extends DataSourceJdbcTask {
+
+    private List&lt;RegistrationBinding&gt; bindings = null;
+
+    private final String address;
+    private final Tracer tracer;
+    
+    public GetBindingsJdbcTask(String address, Tracer tracer) {
+        this.address = address;
+        this.tracer = tracer;
+    }
+
+    @Override
+    public Object executeSimple(JdbcTaskContext taskContext) {
+        try {
+            PreparedStatement preparedStatement = taskContext.getConnection()
+                    .prepareStatement(DataSourceSchemaInfo._QUERY_SELECT);
+            preparedStatement.setString(1, address);
+            preparedStatement.execute();
+            ResultSet resultSet = preparedStatement.getResultSet();
+            bindings = DataSourceSchemaInfo.getBindingsAsList(address, resultSet);
+        } catch (Exception e) {
+            tracer.severe("failed to execute task to get bindings of "+address,e);
+        }
+        return this;
+    }
+
+    @Override
+    public void callBackParentOnException(
+            DataSourceParentSbbLocalInterface parent) {
+        parent.getBindingsResult(Response.SERVER_INTERNAL_ERROR,
+                EMPTY_BINDINGS_LIST);
+
+    }
+
+    @Override
+    public void callBackParentOnResult(DataSourceParentSbbLocalInterface parent) {
+        if (bindings == null) {
+            parent.getBindingsResult(Response.SERVER_INTERNAL_ERROR, EMPTY_BINDINGS_LIST);
+        }
+        else {
+            parent.getBindingsResult(Response.OK, bindings);
+
+        }
+    }
+
+}
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>RemoveBindingJdbcTask</term>
+                <listitem>
+                    <para></para>
+                    <programlisting language="Java" role="JAVA">
+public class RemoveBindingJdbcTask extends DataSourceJdbcTask {
+
+    private final String address;
+    private final String contact;
+    private final Tracer tracer;
+
+    public RemoveBindingJdbcTask(String address, String contact, Tracer tracer) {
+        this.address = address;
+        this.contact = contact;
+        this.tracer = tracer;
+    }
+
+    @Override
+    public Object executeSimple(JdbcTaskContext taskContext) {
+        try {
+            PreparedStatement preparedStatement = taskContext.getConnection()
+                    .prepareStatement(DataSourceSchemaInfo._QUERY_DELETE);
+            preparedStatement.setString(1, address);
+            preparedStatement.setString(2, contact);
+            preparedStatement.execute();
+            if (this.tracer.isInfoEnabled()) {
+                this.tracer.info("Removed binding: " + address
+                        + " -> " + contact);
+            }
+        } catch (Exception e) {
+            tracer.severe("failed to remove binding", e);
+        }
+        return this;
+    }
+
+    @Override
+    public void callBackParentOnException(
+            DataSourceParentSbbLocalInterface parent) {
+        // nothing to call back
+    }
+
+    @Override
+    public void callBackParentOnResult(DataSourceParentSbbLocalInterface parent) {
+        // nothing to call back
+    }
+}
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term></term>
+                <listitem>
+                    <para>RemoveBindingsJdbcTask</para>
+                    <programlisting language="Java" role="JAVA">
+public class RemoveBindingsJdbcTask extends DataSourceJdbcTask {
+
+    private int resultCode = Response.OK;
+    private List&lt;RegistrationBinding&gt; currentBindings = null;
+    private List&lt;RegistrationBinding&gt; removedBindings = null;
+
+    private final String address;
+    private final String callId;
+    private final long cSeq;
+
+    private final Tracer tracer;
+
+    public RemoveBindingsJdbcTask(String address, String callId, long cSeq,
+            Tracer tracer) {
+        this.address = address;
+        this.callId = callId;
+        this.cSeq = cSeq;
+        this.tracer = tracer;
+    }
+
+    @Override
+    public Object executeSimple(JdbcTaskContext taskContext) {
+
+        SleeTransaction tx = null;
+        try {
+            tx = taskContext.getSleeTransactionManager().beginSleeTransaction();
+
+            Connection connection = taskContext.getConnection();
+            // static value of query string, since its widely used :)
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement(DataSourceSchemaInfo._QUERY_SELECT);
+            preparedStatement.setString(1, address);
+
+            preparedStatement.execute();
+            ResultSet resultSet = preparedStatement.getResultSet();
+            // IMPORTANT: we need both - currently present bindings and removed
+            // ones
+            // so SBB can update timers
+            currentBindings = DataSourceSchemaInfo.getBindingsAsList(address, resultSet);
+            List&lt;RegistrationBinding&gt; removedBindings = new ArrayList&lt;RegistrationBinding&gt;();
+            Iterator&lt;RegistrationBinding&gt; it = currentBindings.iterator();
+
+            while (it.hasNext()) {
+                RegistrationBinding binding = it.next();
+                if (callId.equals(binding.getCallId())) {
+                    if (cSeq > binding.getCSeq()) {
+                        it.remove();
+                        removedBindings.add(binding);
+                        preparedStatement = connection
+                                .prepareStatement(DataSourceSchemaInfo._QUERY_DELETE);
+                        preparedStatement.setString(1, address);
+                        preparedStatement.setString(2,
+                                binding.getContactAddress());
+                        preparedStatement.execute();
+                        if (this.tracer.isInfoEnabled()) {
+                            this.tracer.info("Removed binding: " + address
+                                    + " -> " + binding.getContactAddress());
+                        }
+
+                    } else {
+                        resultCode = Response.BAD_REQUEST;
+                        return this;
+                    }
+                } else {
+                    removedBindings.add(binding);
+                    preparedStatement = connection
+                            .prepareStatement(DataSourceSchemaInfo._QUERY_DELETE);
+                    preparedStatement.setString(1, address);
+                    preparedStatement.setString(2, binding.getContactAddress());
+                    preparedStatement.execute();
+                    if (this.tracer.isInfoEnabled()) {
+                        this.tracer.info("Removed binding: " + address
+                                + " -> " + binding.getContactAddress());
+                    }
+                }
+            }
+
+            tx.commit();
+            tx = null;
+
+        } catch (Exception e) {
+            tracer.severe("Failed to execute task", e);
+            resultCode = Response.SERVER_INTERNAL_ERROR;
+        } finally {
+
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception f) {
+                    tracer.severe("failed to rollback tx", f);
+                }
+            }
+        }
+
+        return this;
+    }
+
+    @Override
+    public void callBackParentOnException(
+            DataSourceParentSbbLocalInterface parent) {
+        parent.removeBindingsResult(Response.SERVER_INTERNAL_ERROR,
+                EMPTY_BINDINGS_LIST, EMPTY_BINDINGS_LIST);
+    }
+
+    @Override
+    public void callBackParentOnResult(DataSourceParentSbbLocalInterface parent) {
+        if (resultCode > 299) {
+            parent.removeBindingsResult(resultCode, EMPTY_BINDINGS_LIST,
+                     EMPTY_BINDINGS_LIST);
+        } else {
+            parent.removeBindingsResult(resultCode, currentBindings,
+                    removedBindings);
+        }
+    }
+
+}
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>UpdateBindingsJdbcTask</term>
+                <listitem>
+                    <para></para>
+                    <programlisting language="Java" role="JAVA">
+public class UpdateBindingsJdbcTask extends DataSourceJdbcTask {
+
+    private int resultCode = Response.OK;
+    private List&lt;RegistrationBinding&gt; currentBindings = null;
+    private List&lt;RegistrationBinding&gt; updatedBindings = null;
+    private List&lt;RegistrationBinding&gt; removedBindings = null;
+
+    private final String address;
+    private final String callId;
+    private final long cSeq;
+    private final List&lt;ContactHeader&gt; contacts;
+
+    private final Tracer tracer;
+
+    public UpdateBindingsJdbcTask(String address, String callId, long cSeq,
+            List&lt;ContactHeader&gt; contacts, Tracer tracer) {
+        this.address = address;
+        this.callId = callId;
+        this.cSeq = cSeq;
+        this.contacts = contacts;
+        this.tracer = tracer;
+    }
+
+    @Override
+    public Object executeSimple(JdbcTaskContext taskContext) {
+
+        // fetch those values, yes, we do some things twice, its done to
+        // avoid pushing everythin into JDBC execute.
+
+        // final ExpiresHeader expiresHeader =
+        // super.event.getRequest().getExpires();
+        ListIterator&lt;ContactHeader&gt; li = this.contacts.listIterator();
+        SleeTransaction tx = null;
+        try {
+            tx = taskContext.getSleeTransactionManager().beginSleeTransaction();
+            Connection connection = taskContext.getConnection();
+            // static value of query string, since its widely used :)
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement(DataSourceSchemaInfo._QUERY_SELECT);
+            preparedStatement.setString(1, address);
+
+            preparedStatement.execute();
+            ResultSet resultSet = preparedStatement.getResultSet();
+
+            // lets have it as map, it will be easier to manipulate in this
+            // case.
+            Map&lt;String, RegistrationBinding&gt; bindings = DataSourceSchemaInfo
+                    .getBindingsAsMap(address, resultSet);
+            removedBindings = new ArrayList&lt;RegistrationBinding&gt;();
+            updatedBindings = new ArrayList&lt;RegistrationBinding&gt;();
+
+            while (li.hasNext()) {
+                ContactHeader contact = li.next();
+
+                //
+                // get expires value, either in header or default
+                // do min-expires etc
+                long requestedExpires = contact.getExpires();
+
+                float q = 0;
+                if (contact.getQValue() != -1)
+                    q = contact.getQValue();
+
+                // Find existing binding
+                String contactAddress = contact.getAddress().getURI()
+                        .toString();
+
+                RegistrationBinding binding = (RegistrationBinding) bindings
+                        .get(contactAddress);
+
+                if (binding != null) { // Update this binding
+
+                    if (this.callId.equals(binding.getCallId())) {
+                        if (this.cSeq &lt;= binding.getCSeq()) {
+                            resultCode = Response.BAD_REQUEST;
+                            return this;
+                        }
+                    }
+
+                    if (requestedExpires == 0) {
+                        bindings.remove(contactAddress);
+                        removedBindings.add(binding);
+                        preparedStatement = connection
+                                .prepareStatement(DataSourceSchemaInfo._QUERY_DELETE);
+                        preparedStatement.setString(1, address);
+                        preparedStatement.setString(2,
+                                binding.getContactAddress());
+                        preparedStatement.execute();
+                        if (this.tracer.isInfoEnabled()) {
+                            this.tracer.info("Removed binding: " + address
+                                    + " -> " + contactAddress);
+                        }
+                    } else {
+                        // udpate binding in map, it will be sent back
+                        binding.setCallId(callId);
+                        binding.setExpires(requestedExpires);
+                        binding.setRegistrationDate(System.currentTimeMillis());
+                        binding.setCSeq(this.cSeq);
+                        binding.setQValue(q);
+                        updatedBindings.add(binding);
+                        // udpate DB
+                        preparedStatement = connection
+                                .prepareStatement(DataSourceSchemaInfo._QUERY_UPDATE);
+                        preparedStatement.setString(1, binding.getCallId());
+                        preparedStatement.setLong(2, binding.getCSeq());
+                        preparedStatement.setLong(3, binding.getExpires());
+                        preparedStatement.setFloat(4, binding.getQValue());
+                        preparedStatement.setLong(5,
+                                binding.getRegistrationDate());
+
+                        preparedStatement.setString(6, address);
+                        preparedStatement.setString(7,
+                                binding.getContactAddress());
+                        preparedStatement.execute();
+                        if (this.tracer.isInfoEnabled()) {
+                            this.tracer.info("Updated binding: " + address
+                                    + " -&lt; " + contactAddress);
+                        }
+                    }
+
+                } else {
+
+                    // Create new binding
+                    if (requestedExpires != 0) {
+                        RegistrationBinding newRegistrationBinding = new RegistrationBinding(
+                                address, contactAddress, requestedExpires,
+                                System.currentTimeMillis(), q, callId,
+                                this.cSeq);
+                        // put in bindings
+                        bindings.put(
+                                newRegistrationBinding.getContactAddress(),
+                                newRegistrationBinding);
+                        updatedBindings.add(newRegistrationBinding);
+                        // update DB
+                        preparedStatement = connection
+                                .prepareStatement(DataSourceSchemaInfo._QUERY_INSERT);
+                        preparedStatement.setString(1,
+                                newRegistrationBinding.getCallId());
+                        preparedStatement.setLong(2,
+                                newRegistrationBinding.getCSeq());
+                        preparedStatement.setLong(3,
+                                newRegistrationBinding.getExpires());
+                        preparedStatement.setFloat(4,
+                                newRegistrationBinding.getQValue());
+                        preparedStatement.setLong(5,
+                                newRegistrationBinding.getRegistrationDate());
+
+                        preparedStatement.setString(6, address);
+                        preparedStatement.setString(7,
+                                newRegistrationBinding.getContactAddress());
+                        preparedStatement.execute();
+                        if (this.tracer.isInfoEnabled()) {
+                            this.tracer.info("Added new binding: " + address
+                                    + " -&lt; " + contactAddress);
+                        }
+                    }
+                }
+            }
+            // now lets push current bindings
+            currentBindings = new ArrayList&lt;RegistrationBinding&gt;(
+                    bindings.values());
+            tx.commit();
+            tx = null;
+
+        } catch (Exception e) {
+            tracer.severe("Failed to execute jdbc task.", e);
+            resultCode = Response.SERVER_INTERNAL_ERROR;
+        } finally {
+
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception f) {
+                    tracer.severe("failed to rollback tx", f);
+                }
+            }
+        }
+
+        return this;
+    }
+
+    @Override
+    public void callBackParentOnException(
+            DataSourceParentSbbLocalInterface parent) {
+        parent.updateBindingsResult(Response.SERVER_INTERNAL_ERROR,
+                EMPTY_BINDINGS_LIST, EMPTY_BINDINGS_LIST, EMPTY_BINDINGS_LIST);
+    }
+
+    @Override
+    public void callBackParentOnResult(DataSourceParentSbbLocalInterface parent) {
+        if (resultCode > 299) {
+            parent.updateBindingsResult(resultCode, EMPTY_BINDINGS_LIST,
+                    EMPTY_BINDINGS_LIST, EMPTY_BINDINGS_LIST);
+        } else {
+            parent.updateBindingsResult(resultCode, currentBindings,
+                    updatedBindings, removedBindings);
+        }
+    }
+
+}
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </section>
+    <section id="datasource_child_sbb_exception_handler">
+        <title>JDBC Task Exception handler</title>
+        <para>The <literal>JdbcTaskExecutionThrowableEvent</literal> handler is fairly simple as it only invokes parent:</para>
+        <programlisting language="Java" role="JAVA">
+    public void onJdbcTaskExecutionThrowableEvent(
+            JdbcTaskExecutionThrowableEvent event, ActivityContextInterface aci) {
+        if (tracer.isWarningEnabled()) {
+            tracer.warning(
+                    "Received a JdbcTaskExecutionThrowableEvent, as result of executed task "
+                            + event.getTask(), event.getThrowable());
+        }
+        // end jdbc activity
+        final JdbcActivity activity = (JdbcActivity) aci.getActivity();
+        activity.endActivity();
+        // call back parent
+        final DataSourceParentSbbLocalInterface parent = (DataSourceParentSbbLocalInterface) sbbContextExt
+                .getSbbLocalObject().getParent();
+        final DataSourceJdbcTask jdbcTask = (DataSourceJdbcTask) event
+                .getTask();
+        jdbcTask.callBackParentOnException(parent);
+    }
+        </programlisting>
+    </section>
+    <section id="datasource_child_sbb_result_handler">
+        <title>JDBC Task Result handler</title>
+        <para>Similar to <xref linkend="datasource_child_sbb_exception_handler"/>, the <literal>SimpleJdbcTaskResultEvent</literal> is also very simple:</para>
+        <programlisting language="Java" role="JAVA">
+    public void onSimpleJdbcTaskResultEvent(SimpleJdbcTaskResultEvent event,
+            ActivityContextInterface aci) {
+        if (tracer.isFineEnabled()) {
+            tracer.fine("Received a SimpleJdbcTaskResultEvent, as result of executed task "
+                    + event.getTask());
+        }
+        // end jdbc activity
+        final JdbcActivity activity = (JdbcActivity) aci.getActivity();
+        activity.endActivity();
+        // call back parent
+        final DataSourceParentSbbLocalInterface parent = (DataSourceParentSbbLocalInterface) sbbContextExt
+                .getSbbLocalObject().getParent();
+        final DataSourceJdbcTask jdbcTask = (DataSourceJdbcTask) event
+                .getTask();
+        jdbcTask.callBackParentOnResult(parent);
+    }
+        </programlisting>
+    </section>
+</section>	

@@ -1,0 +1,440 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="registrar_sbb">
+	<title>SIPRegistrarSbb</title>
+	<para>
+		<literal>SIP Registrar SBB</literal>
+		is responsible for handling
+		<literal>REGISTER</literal>
+		requests and sending proper response.
+		<literal>SIP Registrar SBB</literal>
+		receives REGISTER requests as initial events.
+				
+	</para>
+	<para>Class <literal>org.mobicents.slee.example.sjr.sip.SIPRegistrarSbb</literal> includes all the service logic required to perform registry tasks. That is to consume REGISTER and generate proper answer based on outcome of
+	registry operation.
+	</para>
+	<section id="registrar_sbb_local_interface">
+        <title>Local interface</title>
+        <para><literal>SIP Registrar SBB</literal> declares SBB Local interface. This interface is used by <literal>DataSourceChild SBB</literal> to inform <literal>SIP Registrar SBB</literal> when data source operation returns result.
+        So in short it defines contract between <literal>SIP Registrar SBB</literal> and <literal>DataSourceChild SBB</literal>. Local interface is declared in <filename>sbb-jar.xml</filename> in following way:
+        </para>
+        <programlisting language="XML" role="XML"><![CDATA[
+ <sbb-jar>
+    <sbb>
+        <sbb-name>SIP Registrar</sbb-name>
+        <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-version>1.0</sbb-version>
+    
+       ...
+        
+        <sbb-classes>
+            <sbb-abstract-class
+                reentrant="True">
+                <sbb-abstract-class-name>org.mobicents.slee.example.sjr.sip.SIPRegistrarSbb</sbb-abstract-class-name>
+                <sbb-local-interface>
+                    <sbb-local-interface-name>
+                        org.mobicents.slee.example.sjr.data.DataSourceParentSbbLocalObject
+                    </sbb-local-interface-name>
+                </sbb-local-interface>   
+            </sbb-abstract-class>
+            
+            ....
+                       
+        </sbb-classes>
+        
+        ...
+        
+    </sbb>
+</sbb-jar>
+        ]]>
+        </programlisting>
+        <para>Parent interface is declared as follows:</para>
+        <programlisting language="Java" role="JAVA">
+public interface DataSourceParentSbbLocalObject extends SbbLocalObject,
+        DataSourceParentSbbLocalInterface {
+
+}
+        </programlisting>
+        <para>Above methods(<xref linkend="interface_DataSourecParentSbbLocal"/>) are invoked by <literal>DataSourceChild SBB</literal> as result of operations invoked on its local interface. According to name, methods perform certain task:</para>
+        <variablelist>
+            <varlistentry>
+                <term>Send query result to UAC</term>
+                <listitem>
+                    <programlisting language="Java" role="JAVA">
+    @Override
+    public void getBindingsResult(int resultCode,
+            List&lt;RegistrationBinding&gt; bindings) {
+        ServerTransaction serverTransaction = getRegisterTransactionToReply();
+        if (serverTransaction == null) {
+            tracer.warning("failed to find SIP server tx to send response");
+            return;
+        }
+        try {
+            if (resultCode &lt; 300) {
+                sendRegisterSuccessResponse(resultCode, bindings,
+                        serverTransaction);
+            } else {
+                sendErrorResponse(resultCode, serverTransaction);
+            }
+        } catch (Exception e) {
+            tracer.severe("failed to send SIP response", e);
+        }
+    }
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Send update binding result to UAC</term>
+                <listitem>
+                    <programlisting language="Java" role="JAVA">
+    @Override
+    public void updateBindingsResult(int resultCode,
+            List&lt;RegistrationBinding&gt; currentBindings,
+            List&lt;RegistrationBinding&gt; updatedBindings,
+            List&lt;RegistrationBinding&gt; removedBindings) {
+        ServerTransaction serverTransaction = getRegisterTransactionToReply();
+        if (serverTransaction == null) {
+            tracer.warning("failed to find SIP server tx to send response");
+            return;
+        }
+        try {
+            if (resultCode &lt; 300) {
+                // we have to post process, reset/add/cancel timers...
+                // first update, since those are more important. This has to be
+                // done, since we want timers updated first
+                // so events are not fired and dont corrupt DB entries(remove
+                // them,
+                // after they are updated)
+                updateTimers(updatedBindings);
+                cancelTimers(removedBindings);
+                sendRegisterSuccessResponse(resultCode, currentBindings,
+                        serverTransaction);
+            } else {
+                // we just fail :)
+                sendErrorResponse(resultCode, serverTransaction);
+            }
+        } catch (Exception e) {
+            tracer.severe("failed to send SIP response", e);
+        }
+    }
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Send confirmation on remove of binding</term>
+                <listitem>
+                    <para></para>
+                    <programlisting language="Java" role="JAVA">
+    private static final List&lt;RegistrationBinding&gt; EMPTY_LIST = Collections.emptyList();
+
+    @Override
+    public void removeBindingsResult(int resultCode,
+            List&lt;RegistrationBinding&gt; currentBindings,
+            List&lt;RegistrationBinding&gt; removedBindings) {
+        // same processing as update result
+        updateBindingsResult(resultCode, currentBindings, EMPTY_LIST,
+                removedBindings);
+    }
+                    </programlisting>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </section>
+    <section id="registrar_sbb_child_relation">
+	    <title>Child relation</title>
+	    <para><literal>SIP Registrar SBB</literal> defines <literal>DataSourceChild SBB</literal> as child. The <literal>DataSourceChild SBB</literal> child is
+	    used as a driver which manages persistence of user registration data. Child relation is declared in sbb-jar.xml descriptor: </para>
+	    <programlisting language="XML" role="XML"><![CDATA[
+ <sbb-jar>
+    <sbb>
+        <sbb-name>SIP Registrar</sbb-name>
+        <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-version>1.0</sbb-version>
+    
+        <sbb-ref>
+            <sbb-name>DataSourceChild</sbb-name>
+            <sbb-vendor>org.mobicents</sbb-vendor>
+            <sbb-version>1.0</sbb-version>
+            <sbb-alias>childSbb</sbb-alias>
+        </sbb-ref>
+        
+        <sbb-classes>
+            <sbb-abstract-class
+                reentrant="True">
+                <sbb-abstract-class-name>org.mobicents.slee.example.sjr.sip.SIPRegistrarSbb</sbb-abstract-class-name>
+                <get-child-relation-method>
+                    <sbb-alias-ref>childSbb</sbb-alias-ref>                 
+                    <get-child-relation-method-name>getChildRelation</get-child-relation-method-name>
+                    <default-priority>0</default-priority>                  
+                </get-child-relation-method>                
+            </sbb-abstract-class>
+            
+            ....
+                       
+        </sbb-classes>
+        
+        ...
+        
+    </sbb>
+</sbb-jar>
+        ]]>
+        </programlisting>
+        <para>Parent declaration in descriptor defines method name, in case of example its <literal>getChildRelation</literal>, implented by <acronym>JSLEE</acronym>. This method allows parent to access <literal>javax.slee.ChildRelation</literal> object representing link to defined child.
+        <literal>ChildRelation</literal> object gives access to <literal>SbbLocalObject</literal> interface. This object allows parent to:
+         </para>
+         <itemizedlist>
+            <listitem><para>attach child to <literal>ActivityContextInterface</literal> to make it eligible to receive events.</para></listitem>
+            <listitem><para>invoke synchronously methods defined in child <literal>SbbLocalObject</literal>.</para></listitem> 
+        </itemizedlist>
+        <para>Its defined in source as follows:</para>
+        <programlisting language="Java" role="JAVA">
+public abstract class SIPRegistrarSbb implements Sbb, DataSourceParentSbbLocalInterface{
+        
+    ...
+    
+    public abstract ChildRelationExt getChildRelation();
+    
+    ...
+}
+        </programlisting>
+        <!-- TODO: change to proper ref -->
+        <para>Refer to <xref linkend="datasource_child_sbb"/> for definition of child interface.</para>
+    </section>
+    
+	<section id="registrar_sbb_register_handler">
+	<title>REGISTER handler</title>
+		<para>The <literal>SIPRegistrarSbb</literal> performs following operations in <literal>REGISTER</literal> event handler:</para>
+		<itemizedlist>
+			<listitem>
+				<para>check if request is a query, if so send response with list of contacts</para>
+				<programlisting language="Java" role="JAVA">
+            // get configuration from MBean
+            final long maxExpires = config.getSipRegistrationMaxExpires();
+            final long minExpires = config.getSipRegistrationMinExpires();
+
+            // Process require header
+
+            // Authenticate
+            // Authorize
+            // OK we're authorized now ;-)
+
+            // extract address-of-record
+            String sipAddressOfRecord = getCanonicalAddress((HeaderAddress) event
+                    .getRequest().getHeader(ToHeader.NAME));
+
+            if (this.tracer.isFineEnabled()) {
+                this.tracer
+                        .fine("onRegisterEvent: address-of-record from request= "
+                                + sipAddressOfRecord);
+            }
+
+            final String sipAddress = getCanonicalAddress((HeaderAddress) event
+                    .getRequest().getHeader(ToHeader.NAME));
+            final String callId = ((CallIdHeader) event.getRequest().getHeader(
+                    CallIdHeader.NAME)).getCallId();
+            final long cSeq = ((CSeqHeader) event.getRequest().getHeader(
+                    CSeqHeader.NAME)).getSeqNumber();
+            if (event.getRequest().getHeader(ContactHeader.NAME) == null) {
+                // Just send OK with current bindings - this request was a
+                // query.
+                if (this.tracer.isFineEnabled()) {
+                    this.tracer.fine("query for bindings: sipAddress="
+                            + sipAddress);
+                }
+                try {
+                    DataSourceChildSbbLocalInterface child = (DataSourceChildSbbLocalInterface) getChildRelation()
+                            .create(ChildRelationExt.DEFAULT_CHILD_NAME);
+                    child.getBindings(sipAddress);
+                } catch (Exception e) {
+                    tracer.severe("Exception invoking data source child sbb.",
+                            e);
+                    aci.detach(sbbContextExt.getSbbLocalObject());
+                    sendErrorResponse(Response.SERVER_INTERNAL_ERROR,
+                            event.getServerTransaction());
+                }
+                return;
+            }
+				</programlisting>
+			</listitem>
+			<listitem>
+				<para>check if request is remove action, if so remove bindings from data base</para>
+				<programlisting language="Java" role="JAVA">
+            // else its update/add/remove op
+            // do some prechecks before sending task to JDBC RA. JDBC exeutes
+            // batch in another set of threads. To avoid
+            // latency, lets check if we can deny REGISTER without pushing job
+            // to JDBC RA threads.
+            List&lt;ContactHeader&gt; newContacts = getContactHeaderList(event
+                    .getRequest().getHeaders(ContactHeader.NAME));
+
+            final ExpiresHeader expiresHeader = event.getRequest().getExpires();
+
+            if (hasWildCard(newContacts)) {
+                if (this.tracer.isFineEnabled()) {
+                    this.tracer.fine("Wildcard remove");
+                }
+                // This is a "Contact: *" "remove all bindings" request
+                if ((expiresHeader == null)
+                        || (expiresHeader.getExpires() != 0)
+                        || (newContacts.size() > 1)) {
+                    // malformed request in RFC3261 ch10.3 step 6
+                    aci.detach(sbbContextExt.getSbbLocalObject());
+                    sendErrorResponse(Response.BAD_REQUEST,
+                            event.getServerTransaction());
+                    return;
+                }
+
+                // now do the work. in jdbc task
+                try {
+                    DataSourceChildSbbLocalInterface child = (DataSourceChildSbbLocalInterface) getChildRelation()
+                            .create(ChildRelationExt.DEFAULT_CHILD_NAME);
+                    child.removeBindings(sipAddress, callId, cSeq);
+                } catch (Exception e) {
+                    tracer.severe("Exception invoking data source child sbb.",
+                            e);
+                    aci.detach(sbbContextExt.getSbbLocalObject());
+                    sendErrorResponse(Response.SERVER_INTERNAL_ERROR,
+                            event.getServerTransaction());
+                    return;
+                }
+
+            } else { ... }
+				</programlisting>
+			</listitem>
+			<listitem>
+				<para>check condition for udpate, update bindings, add,remove and send response</para>
+				<programlisting language="Java" role="JAVA">
+		      if(){ 
+                // ...
+               } else {
+                // Update bindings
+                if (this.tracer.isFineEnabled()) {
+                    this.tracer.fine("Updating bindings");
+                }
+                ListIterator&lt;ContactHeader&gt; li = newContacts.listIterator();
+
+                while (li.hasNext()) {
+                    final ContactHeader contact = (ContactHeader) li.next();
+
+                    // get expires value, either in header or default
+                    // do min-expires etc
+                    long requestedExpires = 0;
+
+                    if (contact.getExpires() >= 0) {
+                        requestedExpires = contact.getExpires();
+                    } else if ((expiresHeader != null)
+                            &amp;&amp; (expiresHeader.getExpires() >= 0)) {
+                        requestedExpires = expiresHeader.getExpires();
+                    } else {
+                        requestedExpires = 3600; // default
+                    }
+
+                    // If expires too large, reset to our local max
+                    if (requestedExpires > maxExpires) {
+                        requestedExpires = maxExpires;
+
+                    } else if ((requestedExpires &gt; 0)
+                            &amp;&amp; (requestedExpires &lt; minExpires)) {
+                        // requested expiry too short, send response with
+                        // min-expires
+                        //
+                        aci.detach(sbbContextExt.getSbbLocalObject());
+                        sendErrorResponse(Response.INTERVAL_TOO_BRIEF,
+                                event.getServerTransaction());
+                        return;
+                    }
+
+                    try {
+                        contact.setExpires((int) requestedExpires);
+                    } catch (InvalidArgumentException e) {
+                        tracer.severe("failed to set expires?!?!", e);
+                        aci.detach(sbbContextExt.getSbbLocalObject());
+                        sendErrorResponse(Response.SERVER_INTERNAL_ERROR,
+                                event.getServerTransaction());
+                        return;
+                    }
+
+                    // Get the q-value (preference) for this binding - default
+                    // to 0.0 (min)
+                    float q = 0;
+                    if (contact.getQValue() != -1)
+                        q = contact.getQValue();
+                    if ((q &gt; 1) || (q &lt; 0)) {
+                        aci.detach(sbbContextExt.getSbbLocalObject());
+                        sendErrorResponse(Response.BAD_REQUEST,
+                                event.getServerTransaction());
+                        return;
+                    }
+
+                }
+
+                // play with DB :)
+                try {
+                    DataSourceChildSbbLocalInterface child = (DataSourceChildSbbLocalInterface) getChildRelation()
+                            .create(ChildRelationExt.DEFAULT_CHILD_NAME);
+                    child.updateBindings(sipAddress, callId, cSeq, newContacts);
+                } catch (Exception e) {
+                    tracer.severe("Exception invoking data source child sbb.",
+                            e);
+                    aci.detach(sbbContextExt.getSbbLocalObject());
+                    sendErrorResponse(Response.SERVER_INTERNAL_ERROR,
+                            event.getServerTransaction());
+                    return;
+                }
+            }
+		      
+				</programlisting>
+			</listitem>
+		</itemizedlist>
+	</section>
+	<section id="registrar_sbb_timer_handler">
+	   <title>TIMER handler</title>
+        <para>The <literal>SIPRegistrarSbb</literal> listens for timer events. Receiving one, is equal to expiration of certain contact. 
+        The AOR and expired contact are determined by value of <acronym>ACI</acronym> variable of custom activity context interface. The interface is defined as follows:</para>
+        <programlisting language="Java" role="JAVA">
+public interface SbbActivityContextInterface extends
+        ActivityContextInterfaceExt {
+
+    public RegistrationBindingData getData();
+
+    public void setData(RegistrationBindingData value);
+
+}
+        </programlisting>
+        <para>
+        Since <acronym>SLEE 1.1</acronym> allows custom <acronym>ACI</acronym> in event handler method signature, timer event handler looks as follows:
+        </para>
+        <programlisting language="Java" role="JAVA">
+    public void onTimerEvent(TimerEvent timer, SbbActivityContextInterface aci) {
+        // detach from this activity, we don't want to handle any other event on
+        // it
+        aci.detach(this.sbbContextExt.getSbbLocalObject());
+        // get data needed to remove binding from aci
+        RegistrationBindingData data = aci.getData();
+        if (data == null) {
+            // another service's timer event, ignore
+            return;
+        }
+        try {
+            DataSourceChildSbbLocalInterface child = (DataSourceChildSbbLocalInterface) getChildRelation()
+                    .create(ChildRelationExt.DEFAULT_CHILD_NAME);
+            child.removeBinding(data.getContact(), data.getAddress());
+        } catch (Exception e) {
+            tracer.severe("Exception invoking data source child sbb.", e);
+            return;
+        }
+        // end the activity
+        try {
+            ((NullActivity) aci.getActivity()).endActivity();
+        } catch (Exception e) {
+            tracer.warning("failed to end binding aci", e);
+        }
+    }
+        </programlisting>
+	</section>
+</section>	

@@ -1,0 +1,178 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="interfaces_contracts">
+	<title>Interfaces and contracts</title>
+	<para>
+    	This section outlines interfaces declared by this example. Those interfaces declare contracts between example components. Thus it is important to understand them well, since
+    	such design allows one to introduce his own implementation of examples component.
+	</para>
+    <section id="interface_RegistrationBinding">
+        <title>Registration Binding</title>
+        <para> The <literal>RegistrationBinding</literal> class is a simple java bean. It is used to pass information 
+        about user contact from <literal>DataSourceChild SBB</literal> to <literal>SIPRegistrar SBB</literal>. 
+        It has simple set of fields which correspond to contact data like contact address, call id, etc:</para>
+        <programlisting language="Java" role="JAVA">
+public class RegistrationBinding {
+    private String sipAddress;
+    private String contactAddress;
+    private long expires;
+    private long registrationDate;
+    private float qValue;
+    private String callId;
+    private long cSeq;
+    
+    public RegistrationBinding(String sipAddress, String contactAddress, long expires, long registrationDate, float value, String callId, long seq) {
+        super();
+        this.sipAddress = sipAddress;
+        this.contactAddress = contactAddress;
+        this.expires = expires;
+        this.registrationDate = registrationDate;
+        this.qValue = value;
+        this.callId = callId;
+        this.cSeq = seq;
+        
+    }
+    
+    ....
+    
+}
+        </programlisting>
+        <para>Since <literal>RegistrationBinding</literal> follows java bean pattern, it also defines set of simple accessors:</para>
+        <programlisting language="Java" role="JAVA">
+public class RegistrationBinding {       
+
+    public String getSipAddress() {
+        return sipAddress;
+    }
+
+    public void setSipAddress(String sipAddress) {
+        this.sipAddress = sipAddress;
+    }
+
+    public String getContactAddress() {
+        return contactAddress;
+    }
+
+    public void setContactAddress(String contactAddress) {
+        this.contactAddress = contactAddress;
+    }
+
+   ...
+   
+    // --- logic methods
+
+    /**
+     * Returns number of mseconds till this entry expires May be 0 or -ve if
+     * already expired
+     */
+    public long getExpiresDelta() {
+        return ((getExpires() - (System.currentTimeMillis() - getRegistrationDate()) / 1000));
+    }
+ 
+    ....
+    
+}
+
+        </programlisting>
+    </section>
+	<section id="interface_DataSourecChildSbbLocal">
+       <title>Data Source Child</title>
+       <para>The <literal>Data Source Child</literal> (<literal>DataSourceChild SBB</literal>) as mentioned is responsible for proper storing user contact data.
+       To allow that, there must be a definition of methods, which will allow to manipulate user data. Such definition can be found in <classname>org.mobicents.slee.example.sjr.data.DataSourceChildSbbLocalInterface</classname>. The said interface is defined as follows: </para>
+       <programlisting language="Java" role="JAVA">
+public interface DataSourceChildSbbLocalInterface {
+
+    public void init();
+
+    public void getBindings(String address);
+
+    public void removeBinding(String contact, String address);
+
+    public void removeBindings(String address, String callId, long cSeq);
+
+    public void updateBindings(String address, String callId, long cSeq,
+            List&lt;ContactHeader&gt; contacts);
+
+}
+       </programlisting>
+       <para>Defined methods have following contracts:</para>
+       <variablelist>
+            <varlistentry>
+                <term>init()</term>
+                <listitem>
+                    <para>allows to initialize data storage. It is invoked once, when service starts.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>getBindings(String address)</term>
+                <listitem>
+                    <para>request <literal>DataSourceChild SBB</literal> to fetch contact addresses for passed AOR. Result is passed to parent as <literal>SBB Local Interface</literal> invocation(<xref linkend="interface_DataSourecParentSbbLocal"/>). </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>removeBinding(String contact, String address)</term>
+                <listitem>
+                    <para>request <literal>DataSourceChild SBB</literal> to remove one contact address for passed AOR.Result is passed to parent as <literal>SBB Local Interface</literal> invocation(<xref linkend="interface_DataSourecParentSbbLocal"/>).  </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>removeBindings(String address, String callId, long cSeq)</term>
+                <listitem>
+                    <para>request <literal>DataSourceChild SBB</literal> to remove all contacts addresses for passed AOR. Result is passed to parent as <literal>SBB Local Interface</literal> invocation(<xref linkend="interface_DataSourecParentSbbLocal"/>). </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>updateBindings(String address, String callId, long cSeq, List&lt;ContactHeader&gt; contacts)</term>
+                <listitem>
+                    <para>request <literal>DataSourceChild SBB</literal> to update list of available contacts for AOR. Result is passed to parent as <literal>SBB Local Interface</literal> invocation(<xref linkend="interface_DataSourecParentSbbLocal"/>). Passed list with contacts
+                    will become current set of contact for passed AOR(this may result in removal of previously existing contacts if they are not in new set).</para>
+                </listitem>
+            </varlistentry>
+       </variablelist>
+    </section>
+    <section id="interface_DataSourecParentSbbLocal">
+       <title>Data Source Parent</title>
+       <para>The <literal>Data Source Parent</literal> (<literal>SIPRegistrar SBB</literal>/<literal>DataSourceParent SBB</literal> ) consumes UAC requests and triggers <literal>DataSourceChild SBB</literal> to store registration infomration.
+       To do so it makes use of <literal>DataSourceChildSbbLocalInterface</literal>(<xref linkend="interface_DataSourecChildSbbLocal"/>). The child SBB passes outcome of invocations to <literal>Data Source Parent</literal> by means of
+       another interface - <classname>org.mobicents.slee.example.sjr.data.DataSourceParentSbbLocalInterface</classname>. It is defined as follows: </para>
+       <programlisting language="Java" role="JAVA">
+public interface DataSourceParentSbbLocalInterface {
+
+    public void getBindingsResult(int resultCode, List&lt;RegistrationBinding&gt; bindings);
+        
+    public void removeBindingsResult(int resultCode, List&lt;RegistrationBinding&gt; currentBindings, List&lt;RegistrationBinding&gt; removedBindings);
+    
+    public void updateBindingsResult(int resultCode, List&lt;RegistrationBinding&gt; currentBindings, List&lt;RegistrationBinding&gt; updatedBindings, List&lt;RegistrationBinding&gt; removedBindings);
+    
+}
+       </programlisting>
+       <para>Note that each method has <literal>resultCode</literal> argument. Its value indicates outcome of child interface invocation, that is, this value is set as <literal>Status-Code</literal> header in asnwer</para>
+       
+       
+       <para> Defined methods have following contracts:</para>
+       <variablelist>
+            <varlistentry>
+                <term>getBindingsResult(int resultCode, List&lt;RegistrationBinding&gt; bindings)</term>
+                <listitem>
+                    <para>invoked as result of call to <literal>DataSourceChildSbbLocalInterface.getBindings</literal>. Arguments contain list of current bindings.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>removeBindingsResult(int resultCode, List&lt;RegistrationBinding&gt; currentBindings, List&lt;RegistrationBinding&gt; removedBindings)</term>
+                <listitem>
+                    <para>invoked as result of call to <literal>DataSourceChildSbbLocalInterface.removeBinding</literal> and <literal>DataSourceChildSbbLocalInterface.removeBindings</literal>. Arguments contain list of current bindings and list of removed bindings.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>updateBindingsResult(int resultCode, List&lt;RegistrationBinding&gt; currentBindings, List&lt;RegistrationBinding&gt; updatedBindings, List&lt;RegistrationBinding&gt; removedBindings);</term>
+                <listitem>
+                    <para>invoked as result of call to <literal>DataSourceChildSbbLocalInterface.updateBindings</literal>. Arguments contain list of current bindings, updated bindings and removed bindings.</para>
+                </listitem>
+            </varlistentry>
+       </variablelist>
+    </section>
+</section>	
