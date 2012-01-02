@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction
+		to &THIS.PLATFORM;
+		JAIN SLEE &THIS.EXAMPLE;
+		Example
+	</title>
+	<para>This example is a JAIN SLEE application which processes SIP
+		Messages from SIP UAs. To be precise it consumes REGISTER requests and acts as registrar.
+	</para>
+	<para>
+		Registrar routines can be found in 
+		<ulink url="http://tools.ietf.org/html/rfc3261#section-10">section 10</ulink>
+		of RFC3261.
+	</para>
+	<para>It is not a trivial example as it  provides usage of 
+	</para>
+	<itemizedlist>
+		<listitem>
+			<para> child relations</para>
+		</listitem>
+		<listitem>
+			<para> timers</para>
+		</listitem>
+		<listitem>
+			<para> null activities</para>
+		</listitem>
+		<listitem>
+			<para>
+				<acronym>SBB</acronym>
+				activity context interfaces
+			</para>
+		</listitem>
+		<listitem>
+			<para>activity context interfaces variables</para>
+		</listitem>
+		<listitem>
+			<para>
+				<acronym>SBB</acronym>
+				local interfaces
+			</para>
+		</listitem>
+		<listitem>
+            <para>JAIN SIP RA code</para>
+        </listitem>
+        <listitem>
+            <para>JDBC RA code</para>
+        </listitem>
+        <listitem>
+            <para>SQL and java.sql API</para>
+        </listitem>
+        <listitem>
+            <para>
+                <acronym>JMX</acronym> and
+                <acronym>SLEE</acronym> integration
+            </para>
+        </listitem>
+	</itemizedlist>
+	<para>Thus it should be considered as target for more advanced users. For trivial JDBC RA example please refer to <literal>jdbc-demo</literal> source code and documentation.</para>
+	
+</chapter>

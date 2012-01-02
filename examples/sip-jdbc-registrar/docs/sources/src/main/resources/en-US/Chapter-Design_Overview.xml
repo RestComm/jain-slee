@@ -1,0 +1,79 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+
+	<para>The &THIS.EXAMPLE;
+		Example is JAIN SLEE 1.1 Application which handles incoming SIP REGISTER requests. Depending on message content, it performs registrar routines and respond to 
+		UAC with proper message.
+	</para>
+	
+	<section id="design_overview_components">
+		<title>Example Components</title>
+		<para>Example consist of following components:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>SIP Registrar Sbb</term>
+				<listitem>
+					<para>
+						Is entry point of examples service. It consumes REGISTER requests and issues calls to its child SBB in order to perform specific operations on data 
+						storage, ie. fetch contacts for particular AOR. It performs partial validation of REGISTER requests.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>DataSourceChild SBB</term>
+				<listitem>
+					<para>
+						Is responsible for performing operations on persistent data store. It exposes operations which allow other SBBs to fetch, remove or udpate AOR contacts.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>RegistrarConfiguration</term>
+				<listitem>
+					<para>
+						Is a simple JMX bean which exposes configuration parameters used in registrar routines to check if message has correct content.
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<para>
+			Root SBB of service is <literal>SIP Registrar SBB</literal>, which receives messages as first.
+			Relation between
+			<acronym>SBB</acronym>
+			s look as follows:
+		</para>
+
+		<mediaobject>
+			<imageobject>
+				<imagedata width="300px" align="center"
+					fileref="images/jdbc_registrar_relations.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>&THIS.EXAMPLE;
+					Example components relations
+				</para>
+			</caption>
+		</mediaobject>
+	</section>
+	<section id="design_overview_registrar_and_lcoation">
+		<title>Registrar and Datasource Operations</title>
+		<para>To better understand source code, it is required that you are familiar atleast with general design of examples service. Below you can find a diagram which depicts general call flow in example: </para>
+		<mediaobject>
+            <imageobject>
+                <imagedata width="300px" align="center"
+                    fileref="images/jdb_registrar-seq.png" format="PNG" />
+            </imageobject>
+            <caption>
+                <para>&THIS.EXAMPLE;
+                    Example call flow
+                </para>
+            </caption>
+        </mediaobject>
+	</section>
+</chapter>
+

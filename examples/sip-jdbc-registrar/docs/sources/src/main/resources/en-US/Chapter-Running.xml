@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="running">
+
+	<title>Running the Example</title>
+
+	<para>
+		The easiest way to test example is to deploy example and start
+		container, and run <literal>SIPP</literal> scripts from <filename>sipp</filename> directory.
+	</para>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Configuration.xml" />
+	
+</chapter>
+
