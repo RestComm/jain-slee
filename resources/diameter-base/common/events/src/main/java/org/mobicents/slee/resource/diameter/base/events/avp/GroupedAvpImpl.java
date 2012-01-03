@@ -157,7 +157,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
   }
 
   private DiameterAvp[] getExtensionAvpsInternal(AvpSet set) throws Exception {
-    List<DiameterAvp> acc = new ArrayList<DiameterAvp>();
+    List<DiameterAvp> avps = new ArrayList<DiameterAvp>();
 
     for (Avp a : set) {
       // FIXME: alexandre: This is how I can check if it's a Grouped AVP... 
@@ -169,14 +169,15 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
         gAVP.setExtensionAvps(getExtensionAvpsInternal(a.getGrouped()));
 
         // This is a grouped AVP... let's make it like that.
-        acc.add(gAVP);
+        avps.add(gAVP);
       }
       else {
-        acc.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw(), null));
+        AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(a.getCode(), a.getVendorId());
+        avps.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw(), DiameterAvpType.fromString(avpRep.getType())));
       }
     }
 
-    return acc.toArray(new DiameterAvp[0]);
+    return avps.toArray(new DiameterAvp[avps.size()]);
   }  
 
   // AVP Utilities Proxy Methods
