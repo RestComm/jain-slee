@@ -2,12 +2,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.mobicents.tools</groupId>
-		<artifactId>mobicents-tools-mmc</artifactId>
+		<groupId>org.mobicents.servers.jainslee.tools</groupId>
+		<artifactId>mobicents-slee-tools-management-console-parent</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>slee-management-console-rpc</artifactId>
+	<artifactId>mobicents-slee-tools-management-console-rpc</artifactId>
 
 	<name>Mobicents :: Tools :: slee-management-console-rpc</name>
 

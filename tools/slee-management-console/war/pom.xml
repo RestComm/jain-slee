@@ -2,14 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.mobicents.tools</groupId>
-		<artifactId>mobicents-tools-mmc</artifactId>
+		<groupId>org.mobicents.servers.jainslee.tools</groupId>
+		<artifactId>mobicents-slee-tools-management-console-parent</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 
 	<packaging>war</packaging>
 
-	<artifactId>slee-management-console-war</artifactId>
+	<artifactId>mobicents-slee-tools-management-console-war</artifactId>
 
 	<name>Mobicents :: Tools :: slee-management-console-war</name>
 
@@ -109,7 +109,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-			<artifactId>slee-management-console-server</artifactId>
+			<artifactId>mobicents-slee-tools-management-console-server</artifactId>
 		</dependency>
 		<!-- GWT deps -->
 		<dependency>
