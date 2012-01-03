@@ -58,7 +58,7 @@ public class DiameterAvpImpl implements DiameterAvp, Externalizable {
     this.mnd = mnd;
     this.prt = prt;
     this.value = value;
-    this.type=type;
+    this.type = type;
   }
 
   public int getCode() {
@@ -114,7 +114,23 @@ public class DiameterAvpImpl implements DiameterAvp, Externalizable {
 
   public long longValue() {
     try {
-      return  AvpUtilities.getParser().bytesToLong(value);
+      switch (type.getType()) {
+        case DiameterAvpType._UNSIGNED_32:
+        case DiameterAvpType._TIME:
+          // unsigned. Make sure the sign is not extended on cast to long
+          int intValue = AvpUtilities.getParser().bytesToInt(value);
+          return intValue & 0x00000000FFFFFFFFL;
+
+        case DiameterAvpType._INTEGER_32:
+          // signed. Cast to long will extend sign.
+          return AvpUtilities.getParser().bytesToInt(value);
+
+        case DiameterAvpType._INTEGER_64:
+          return  AvpUtilities.getParser().bytesToLong(value);
+
+        default:
+          return Long.MIN_VALUE;
+      }
     }
     catch (Exception e) {
       return Long.MIN_VALUE;
