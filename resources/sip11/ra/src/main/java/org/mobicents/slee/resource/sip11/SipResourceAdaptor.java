@@ -75,6 +75,7 @@ import javax.slee.Address;
 import javax.slee.SLEEException;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.Tracer;
+import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ActivityIsEndingException;
@@ -303,7 +304,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			else {
 				activity = cancelSTW;
 				cancelSTW.setActivity(true);
-				if (!addActivity(activity, false)) {
+				if (!addActivity(activity)) {
 					final String errorMsg = "Failed to add cancel transaction activity, can't proceed.";
 					tracer.severe(errorMsg);
 					sendErrorResponse(req.getServerTransaction(), req.getRequest(),
@@ -481,7 +482,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		if (activity == null) {
 			activity = stw;
 			stw.setActivity(true);
-			if (!addActivity(activity, false)) {
+			if (!addActivity(activity)) {
 				sendErrorResponse(req.getServerTransaction(), req.getRequest(),
 						Response.SERVER_INTERNAL_ERROR,
 						"Failed to deliver request event to JAIN SLEE container");
@@ -788,7 +789,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 					final DialogWithIdActivityHandle forkedDialogHandle = new DialogWithIdActivityHandle(forkedDialog.getDialogId());
 					forkedDialogWrapper = new DialogWrapper(forkedDialogHandle, this);
 					forkedDialogWrapper.setWrappedDialog(forkedDialog);
-					addActivity(forkedDialogWrapper, false);
+					addActivity(forkedDialogWrapper);
 					// fire dialog fork event in original dialog activity
 					handle = originalDialogWrapper.getActivityHandle();
 					event = new DialogForkedEvent(responseEventExt.getSource(), (ClientTransaction) getTransactionWrapper(originalClientTransaction), originalDialogWrapper, forkedDialogWrapper, responseEventExt.getResponse());			
@@ -813,7 +814,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 					final DialogWithIdActivityHandle forkedDialogHandle = new DialogWithIdActivityHandle(forkedDialog.getDialogId());
 					forkedDialogWrapper = new DialogWrapper(forkedDialogHandle, this);
 					forkedDialogWrapper.setWrappedDialog(forkedDialog);
-					addActivity(forkedDialogWrapper, false);
+					addActivity(forkedDialogWrapper);
 					// fire dialog fork event in original dialog activity
 					handle = originalDialogWrapper.getActivityHandle();
 					event = new DialogForkedEvent(responseEventExt.getSource(), (ClientTransaction) getTransactionWrapper(originalClientTransaction), originalDialogWrapper, forkedDialogWrapper, responseEventExt.getResponse());			
@@ -1130,7 +1131,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	 * @param transacted
 	 * @return
 	 */
-	public boolean addActivity(Wrapper wrapperActivity, boolean transacted) {
+	public boolean addActivity(Wrapper wrapperActivity) {
 
 		if (tracer.isFineEnabled()) {
 			tracer.fine("Adding sip activity handle " + wrapperActivity.getActivityHandle());
@@ -1138,15 +1139,16 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 
 		final int activityFlags = wrapperActivity.isDialog() ? MARSHABLE_ACTIVITY_FLAGS : NON_MARSHABLE_ACTIVITY_FLAGS;
 		try {
-			if (transacted) {
-				sleeEndpoint.startActivityTransacted(wrapperActivity.getActivityHandle(),wrapperActivity,activityFlags);
+			sleeEndpoint.startActivity(wrapperActivity.getActivityHandle(),wrapperActivity,activityFlags);			
+		}
+		catch (ActivityAlreadyExistsException e) {
+			if(tracer.isFineEnabled()) {
+				tracer.fine("Skipping activity start",e);
 			}
-			else {
-				sleeEndpoint.startActivity(wrapperActivity.getActivityHandle(),wrapperActivity,activityFlags);
-			}
+			return true;
 		}
 		catch (Throwable e) {
-			tracer.severe(e.getMessage(),e);
+			tracer.severe("Failed to start activity",e);
 			return false;
 		}
 		activityManagement.put(wrapperActivity.getActivityHandle(), wrapperActivity);
@@ -1169,8 +1171,14 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		try {
 			sleeEndpoint.startActivitySuspended(wrapperActivity.getActivityHandle(),wrapperActivity,activityFlags);
 		}
+		catch (ActivityAlreadyExistsException e) {
+			if(tracer.isFineEnabled()) {
+				tracer.fine("Skipping activity start",e);
+			}
+			return true;
+		}
 		catch (Throwable e) {
-			tracer.severe(e.getMessage(),e);
+			tracer.severe("Failed to start activity",e);
 			return false;
 		}
 		activityManagement.put(wrapperActivity.getActivityHandle(), wrapperActivity);
