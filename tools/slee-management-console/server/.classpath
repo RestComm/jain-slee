@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-fileupload/commons-fileupload/1.1/commons-fileupload-1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-io/commons-io/1.1/commons-io-1.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-fileupload/commons-fileupload/1.2.2/commons-fileupload-1.2.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-io/commons-io/1.3.1/commons-io-1.3.1.jar"/>
 	<classpathentry kind="src" path="/slee-management-console-rpc"/>
 	<classpathentry kind="var" path="M2_REPO/com/google/gwt/gwt-servlet/1.7.1/gwt-servlet-1.7.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/google/gwt/gwt-user/1.7.1/gwt-user-1.7.1.jar"/>
