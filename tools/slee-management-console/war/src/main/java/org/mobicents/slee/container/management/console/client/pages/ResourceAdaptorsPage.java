@@ -25,12 +25,15 @@ package org.mobicents.slee.container.management.console.client.pages;
 import org.mobicents.slee.container.management.console.client.common.CardControl;
 import org.mobicents.slee.container.management.console.client.common.SmartTabPage;
 import org.mobicents.slee.container.management.console.client.resources.ResourceAdaptorsCard;
+import org.mobicents.slee.container.management.console.client.usage.RaUsageCard;
 
 public class ResourceAdaptorsPage extends SmartTabPage {
 
   private CardControl cardControl = new CardControl();
 
   private ResourceAdaptorsCard resourceAdaptorsCard;
+
+  private RaUsageCard usageCard;
 
   public ResourceAdaptorsPage() {
     initWidget(cardControl);
@@ -46,9 +49,11 @@ public class ResourceAdaptorsPage extends SmartTabPage {
 
   public void onInit() {
     resourceAdaptorsCard = new ResourceAdaptorsCard();
+    usageCard = new RaUsageCard();
 
     cardControl.onInit();
     cardControl.add(resourceAdaptorsCard, "<image align='absbottom' src='images/resources.gif' /> Resource Adaptors", true);
+    cardControl.add(usageCard, "<image align='absbottom' src='images/usage.gif' /> Usage Parameters", true);
 
     cardControl.setWidth("100%");
     cardControl.selectTab(0);

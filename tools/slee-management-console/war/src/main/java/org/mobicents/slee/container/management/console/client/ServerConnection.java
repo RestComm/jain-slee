@@ -38,6 +38,8 @@ import org.mobicents.slee.container.management.console.client.services.ServicesS
 import org.mobicents.slee.container.management.console.client.services.ServicesServiceAsync;
 import org.mobicents.slee.container.management.console.client.sleestate.SleeStateService;
 import org.mobicents.slee.container.management.console.client.sleestate.SleeStateServiceAsync;
+import org.mobicents.slee.container.management.console.client.usage.RaUsageService;
+import org.mobicents.slee.container.management.console.client.usage.RaUsageServiceAsync;
 import org.mobicents.slee.container.management.console.client.usage.UsageService;
 import org.mobicents.slee.container.management.console.client.usage.UsageServiceAsync;
 
@@ -62,6 +64,8 @@ public class ServerConnection {
   final static public UsageServiceAsync usageServiceAsync;
 
   final static public ResourceServiceAsync resourceServiceAsync;
+
+  final static public RaUsageServiceAsync raUsageServiceAsync;
 
   final static public ActivityServiceAsync activityServiceAsync;
 
@@ -94,6 +98,10 @@ public class ServerConnection {
     resourceServiceAsync = (ResourceServiceAsync) GWT.create(ResourceService.class);
     ServiceDefTarget resourceEndpoint = (ServiceDefTarget) resourceServiceAsync;
     resourceEndpoint.setServiceEntryPoint(GWT.getModuleBaseURL().replaceAll("org.mobicents.slee.container.management.console.ManagementConsole", "") + "/ResourceService");
+
+    raUsageServiceAsync = (RaUsageServiceAsync) GWT.create(RaUsageService.class);
+    ServiceDefTarget raUsageEndpoint = (ServiceDefTarget) raUsageServiceAsync;
+    raUsageEndpoint.setServiceEntryPoint(GWT.getModuleBaseURL().replaceAll("org.mobicents.slee.container.management.console.ManagementConsole", "") + "/RaUsageService");
 
     activityServiceAsync = (ActivityServiceAsync) GWT.create(ActivityService.class);
     ServiceDefTarget activityEndpoint = (ServiceDefTarget) activityServiceAsync;

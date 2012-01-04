@@ -242,4 +242,8 @@ public class ResourceManagementMBeanUtils {
       throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
     }
   }
+  
+  public ResourceUsageMBeanUtils getResourceUsageMBeanUtils(String entityName) throws ManagementConsoleException {
+	  return new ResourceUsageMBeanUtils(mbeanServer, resourceManagementMBean, entityName);
+  }
 }

@@ -54,6 +54,12 @@
 		</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>RaUsageService</servlet-name>
+		<servlet-class>
+			org.mobicents.slee.container.management.console.server.usage.RaUsageServiceImpl
+		</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>ResourceService</servlet-name>
 		<servlet-class>
 			org.mobicents.slee.container.management.console.server.resources.ResourceServiceImpl
@@ -99,6 +105,10 @@
 	<servlet-mapping>
 		<servlet-name>UsageService</servlet-name>
 		<url-pattern>/UsageService</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RaUsageService</servlet-name>
+		<url-pattern>/RaUsageService</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ResourceService</servlet-name>
