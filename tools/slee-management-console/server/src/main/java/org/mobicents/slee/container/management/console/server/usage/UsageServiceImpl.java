@@ -26,7 +26,7 @@ import javax.slee.SbbID;
 import javax.slee.ServiceID;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
-import org.mobicents.slee.container.management.console.client.usage.SBBUsageParameterInfo;
+import org.mobicents.slee.container.management.console.client.usage.UsageParameterInfo;
 import org.mobicents.slee.container.management.console.client.usage.UsageService;
 import org.mobicents.slee.container.management.console.server.ManagementConsole;
 import org.mobicents.slee.container.management.console.server.mbeans.SbbUsageMBeanUtils;
@@ -119,7 +119,7 @@ public class UsageServiceImpl extends RemoteServiceServlet implements UsageServi
     serviceUsageMBeanUtils.resetAllUsageParameters(sbbID);
   }
 
-  public SBBUsageParameterInfo[] getSBBUsageParameters(String strServiceID, String strSbbID, String parameterSet) throws ManagementConsoleException {
+  public UsageParameterInfo[] getSBBUsageParameters(String strServiceID, String strSbbID, String parameterSet) throws ManagementConsoleException {
     ServiceID serviceID = (ServiceID) managementConsole.getComponentIDMap().get(strServiceID);
 
     ServiceUsageMBeanUtils serviceUsageMBeanUtils = getServiceUsageMBeanUtils(serviceID);

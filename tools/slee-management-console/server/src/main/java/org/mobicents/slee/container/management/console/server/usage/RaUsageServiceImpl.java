@@ -24,7 +24,7 @@ package org.mobicents.slee.container.management.console.server.usage;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
 import org.mobicents.slee.container.management.console.client.usage.RaUsageService;
-import org.mobicents.slee.container.management.console.client.usage.SBBUsageParameterInfo;
+import org.mobicents.slee.container.management.console.client.usage.UsageParameterInfo;
 import org.mobicents.slee.container.management.console.server.ManagementConsole;
 import org.mobicents.slee.container.management.console.server.mbeans.RaEntityUsageMBeanUtils;
 import org.mobicents.slee.container.management.console.server.mbeans.ResourceUsageMBeanUtils;
@@ -95,7 +95,7 @@ public class RaUsageServiceImpl extends RemoteServiceServlet implements RaUsageS
     resourceUsageMBeanUtils.resetAllUsageParameters();
   }
 
-  public SBBUsageParameterInfo[] getRaUsageParameters(String entityName, String parameterSet) throws ManagementConsoleException {
+  public UsageParameterInfo[] getRaUsageParameters(String entityName, String parameterSet) throws ManagementConsoleException {
 
     ResourceUsageMBeanUtils resourceUsageMBeanUtils = getRaUsageMBeanUtils(entityName);
 
@@ -106,7 +106,7 @@ public class RaUsageServiceImpl extends RemoteServiceServlet implements RaUsageS
     else {
       raEntityUsageMBeanUtils = resourceUsageMBeanUtils.getRaEntityUsageMBeanUtils(parameterSet);
     }
-    return raEntityUsageMBeanUtils.getSBBUsageParameterInfos();
+    return raEntityUsageMBeanUtils.getUsageParameterInfos();
   }
 
   public void resetAllUsageParameters(String entityName, String parameterSet) throws ManagementConsoleException {

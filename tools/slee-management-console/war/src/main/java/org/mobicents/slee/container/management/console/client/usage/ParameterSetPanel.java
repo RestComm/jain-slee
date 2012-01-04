@@ -143,13 +143,13 @@ public class ParameterSetPanel extends Composite {
       public void onSuccess(Object result) {
         counterTypeUsageParametersPanel.emptyTable();
         sampleTypeUsageParametersPanel.emptyTable();
-        SBBUsageParameterInfo[] usageParameterInfos = (SBBUsageParameterInfo[]) result;
+        UsageParameterInfo[] usageParameterInfos = (UsageParameterInfo[]) result;
         for (int i = 0; i < usageParameterInfos.length; i++) {
-          final SBBUsageParameterInfo usageParameterInfo = usageParameterInfos[i];
+          final UsageParameterInfo usageParameterInfo = usageParameterInfos[i];
           Hyperlink resetLink = new Hyperlink("reset", "reset");
 
-          if (GWT.getTypeName(usageParameterInfo).equals("org.mobicents.slee.container.management.console.client.usage.CounterTypeSBBUsageParameterInfo")) {
-            CounterTypeSBBUsageParameterInfo counterTypeSBBUsageParameterInfo = (CounterTypeSBBUsageParameterInfo) usageParameterInfo;
+          if (GWT.getTypeName(usageParameterInfo).equals("org.mobicents.slee.container.management.console.client.usage.CounterTypeUsageParameterInfo")) {
+            CounterTypeUsageParameterInfo counterTypeSBBUsageParameterInfo = (CounterTypeUsageParameterInfo) usageParameterInfo;
             int row = counterTypeUsageParametersPanel.getRowCount();
             counterTypeUsageParametersPanel.setCell(row, 0, new Image("images/usage.parameter.gif"));
             counterTypeUsageParametersPanel.setCellText(row, 1, counterTypeSBBUsageParameterInfo.getName());
@@ -163,8 +163,8 @@ public class ParameterSetPanel extends Composite {
             });
           }
 
-          if (GWT.getTypeName(usageParameterInfo).equals("org.mobicents.slee.container.management.console.client.usage.SampleTypeSBBUsageParameterInfo")) {
-            SampleTypeSBBUsageParameterInfo sampleTypeSBBUsageParameterInfo = (SampleTypeSBBUsageParameterInfo) usageParameterInfo;
+          if (GWT.getTypeName(usageParameterInfo).equals("org.mobicents.slee.container.management.console.client.usage.SampleTypeUsageParameterInfo")) {
+            SampleTypeUsageParameterInfo sampleTypeSBBUsageParameterInfo = (SampleTypeUsageParameterInfo) usageParameterInfo;
             int row = sampleTypeUsageParametersPanel.getRowCount();
             sampleTypeUsageParametersPanel.setCell(row, 0, new Image("images/usage.parameter.gif"));
             sampleTypeUsageParametersPanel.setCellText(row, 1, sampleTypeSBBUsageParameterInfo.getName());

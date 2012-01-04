@@ -28,19 +28,19 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Stefano Zappaterra
  * 
  */
-public class CounterTypeSBBUsageParameterInfo extends SBBUsageParameterInfo implements IsSerializable {
+abstract public class UsageParameterInfo implements IsSerializable {
 
-  private long value;
+  private String name;
 
-  public CounterTypeSBBUsageParameterInfo() {
+  public UsageParameterInfo(String name) {
+    super();
+    this.name = name;
   }
 
-  public CounterTypeSBBUsageParameterInfo(String name, long value) {
-    super(name);
-    this.value = value;
+  public UsageParameterInfo() {
   }
 
-  public long getValue() {
-    return value;
+  public String getName() {
+    return name;
   }
 }

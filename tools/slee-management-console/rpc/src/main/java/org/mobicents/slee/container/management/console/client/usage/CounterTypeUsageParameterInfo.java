@@ -28,40 +28,19 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Stefano Zappaterra
  * 
  */
-public class SampleTypeSBBUsageParameterInfo extends SBBUsageParameterInfo implements IsSerializable {
+public class CounterTypeUsageParameterInfo extends UsageParameterInfo implements IsSerializable {
 
-  private long maximum;
+  private long value;
 
-  private long minimum;
+  public CounterTypeUsageParameterInfo() {
+  }
 
-  private double mean;
-
-  private long sampleCount;
-
-  public SampleTypeSBBUsageParameterInfo(String name, long maximum, long minimum, double mean, long sampleCount) {
+  public CounterTypeUsageParameterInfo(String name, long value) {
     super(name);
-    this.maximum = maximum;
-    this.minimum = minimum;
-    this.mean = mean;
-    this.sampleCount = sampleCount;
+    this.value = value;
   }
 
-  public SampleTypeSBBUsageParameterInfo() {
-  }
-
-  public long getMaximum() {
-    return maximum;
-  }
-
-  public double getMean() {
-    return mean;
-  }
-
-  public long getMinimum() {
-    return minimum;
-  }
-
-  public long getSampleCount() {
-    return sampleCount;
+  public long getValue() {
+    return value;
   }
 }

@@ -40,7 +40,7 @@ public interface UsageService extends RemoteService {
 
   public void resetAllUsageParameters(String serviceID, String sbbID) throws ManagementConsoleException;
 
-  public SBBUsageParameterInfo[] getSBBUsageParameters(String serviceID, String sbbID, String parameterSet) throws ManagementConsoleException;
+  public UsageParameterInfo[] getSBBUsageParameters(String serviceID, String sbbID, String parameterSet) throws ManagementConsoleException;
 
   public void resetAllUsageParameters(String serviceID, String sbbID, String parameterSet) throws ManagementConsoleException;
 

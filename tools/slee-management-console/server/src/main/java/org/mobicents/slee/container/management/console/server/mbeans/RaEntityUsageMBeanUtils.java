@@ -31,9 +31,9 @@ import javax.management.ObjectName;
 import javax.slee.usage.SampleStatistics;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
-import org.mobicents.slee.container.management.console.client.usage.CounterTypeSBBUsageParameterInfo;
-import org.mobicents.slee.container.management.console.client.usage.SBBUsageParameterInfo;
-import org.mobicents.slee.container.management.console.client.usage.SampleTypeSBBUsageParameterInfo;
+import org.mobicents.slee.container.management.console.client.usage.CounterTypeUsageParameterInfo;
+import org.mobicents.slee.container.management.console.client.usage.UsageParameterInfo;
+import org.mobicents.slee.container.management.console.client.usage.SampleTypeUsageParameterInfo;
 
 /**
  * @author Povilas Jurna
@@ -90,9 +90,9 @@ public class RaEntityUsageMBeanUtils {
     }
   }
 
-  private SBBUsageParameterInfo toSBBUsageParameterInfo(MBeanOperationInfo beanOperationInfo) throws ManagementConsoleException {
-    ManagementConsoleException exception = new ManagementConsoleException("SBB Usage MBean method " + beanOperationInfo.getName()
-        + " does not correspond to a SBB Usage Parameter");
+  private UsageParameterInfo toUsageParameterInfo(MBeanOperationInfo beanOperationInfo) throws ManagementConsoleException {
+    ManagementConsoleException exception = new ManagementConsoleException("Resource Adaptor Usage MBean method " + beanOperationInfo.getName()
+        + " does not correspond to a Resource Adaptor Usage Parameter");
 
     // operation name must start with "get"
     String parameterName = beanOperationInfo.getName();
@@ -117,7 +117,7 @@ public class RaEntityUsageMBeanUtils {
       // counter type usage parameter
       long parameterValue = getCounterTypeParameter(parameterName, false).longValue();
 
-      CounterTypeSBBUsageParameterInfo parameterInfo = new CounterTypeSBBUsageParameterInfo(parameterName, parameterValue);
+      CounterTypeUsageParameterInfo parameterInfo = new CounterTypeUsageParameterInfo(parameterName, parameterValue);
       return parameterInfo;
 
     }
@@ -125,7 +125,7 @@ public class RaEntityUsageMBeanUtils {
       // sample type usage parameter
       SampleStatistics parameterValue = getSampleTypeParameter(parameterName, false);
 
-      SampleTypeSBBUsageParameterInfo parameterInfo = new SampleTypeSBBUsageParameterInfo(parameterName, parameterValue.getMaximum(),
+      SampleTypeUsageParameterInfo parameterInfo = new SampleTypeUsageParameterInfo(parameterName, parameterValue.getMaximum(),
           parameterValue.getMinimum(), parameterValue.getMean(), parameterValue.getSampleCount());
 
       return parameterInfo;
@@ -135,21 +135,21 @@ public class RaEntityUsageMBeanUtils {
     }
   }
 
-  public SBBUsageParameterInfo[] getSBBUsageParameterInfos() throws ManagementConsoleException {
+  public UsageParameterInfo[] getUsageParameterInfos() throws ManagementConsoleException {
     try {
-      ArrayList<SBBUsageParameterInfo> SBBUsageParameterInfoArrayList = new ArrayList<SBBUsageParameterInfo>();
+      ArrayList<UsageParameterInfo> usageParameterInfoArrayList = new ArrayList<UsageParameterInfo>();
       MBeanOperationInfo[] beanOperationInfos = mbeanServer.getMBeanInfo(raEntityUsageMBean).getOperations();
       for (int i = 0; i < beanOperationInfos.length; i++) {
         MBeanOperationInfo beanOperationInfo = beanOperationInfos[i];
         try {
-          SBBUsageParameterInfoArrayList.add(toSBBUsageParameterInfo(beanOperationInfo));
+          usageParameterInfoArrayList.add(toUsageParameterInfo(beanOperationInfo));
         }
         catch (Exception e) {
         }
       }
-      SBBUsageParameterInfo[] SBBUsageParameterInfos = new SBBUsageParameterInfo[SBBUsageParameterInfoArrayList.size()];
-      SBBUsageParameterInfos = SBBUsageParameterInfoArrayList.toArray(SBBUsageParameterInfos);
-      return SBBUsageParameterInfos;
+      UsageParameterInfo[] usageParameterInfos = new UsageParameterInfo[usageParameterInfoArrayList.size()];
+      usageParameterInfos = usageParameterInfoArrayList.toArray(usageParameterInfos);
+      return usageParameterInfos;
     }
     catch (Exception e) {
       e.printStackTrace();

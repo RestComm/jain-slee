@@ -33,9 +33,9 @@ import javax.slee.ServiceID;
 import javax.slee.usage.SampleStatistics;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
-import org.mobicents.slee.container.management.console.client.usage.CounterTypeSBBUsageParameterInfo;
-import org.mobicents.slee.container.management.console.client.usage.SBBUsageParameterInfo;
-import org.mobicents.slee.container.management.console.client.usage.SampleTypeSBBUsageParameterInfo;
+import org.mobicents.slee.container.management.console.client.usage.CounterTypeUsageParameterInfo;
+import org.mobicents.slee.container.management.console.client.usage.UsageParameterInfo;
+import org.mobicents.slee.container.management.console.client.usage.SampleTypeUsageParameterInfo;
 
 /**
  * @author Stefano Zappaterra
@@ -122,7 +122,7 @@ public class SbbUsageMBeanUtils {
     }
   }
 
-  private SBBUsageParameterInfo toSBBUsageParameterInfo(MBeanOperationInfo beanOperationInfo) throws ManagementConsoleException {
+  private UsageParameterInfo toSBBUsageParameterInfo(MBeanOperationInfo beanOperationInfo) throws ManagementConsoleException {
     ManagementConsoleException exception = new ManagementConsoleException("SBB Usage MBean method " + beanOperationInfo.getName()
         + " does not correspond to a SBB Usage Parameter");
 
@@ -148,7 +148,7 @@ public class SbbUsageMBeanUtils {
 
       long parameterValue = getCounterTypeParameter(parameterName, false).longValue();
 
-      CounterTypeSBBUsageParameterInfo parameterInfo = new CounterTypeSBBUsageParameterInfo(parameterName, parameterValue);
+      CounterTypeUsageParameterInfo parameterInfo = new CounterTypeUsageParameterInfo(parameterName, parameterValue);
       return parameterInfo;
 
     }
@@ -157,7 +157,7 @@ public class SbbUsageMBeanUtils {
 
       SampleStatistics parameterValue = getSampleTypeParameter(parameterName, false);
 
-      SampleTypeSBBUsageParameterInfo parameterInfo = new SampleTypeSBBUsageParameterInfo(parameterName, parameterValue.getMaximum(),
+      SampleTypeUsageParameterInfo parameterInfo = new SampleTypeUsageParameterInfo(parameterName, parameterValue.getMaximum(),
           parameterValue.getMinimum(), parameterValue.getMean(), parameterValue.getSampleCount());
 
       return parameterInfo;
@@ -167,9 +167,9 @@ public class SbbUsageMBeanUtils {
     }
   }
 
-  public SBBUsageParameterInfo[] getSBBUsageParameterInfos() throws ManagementConsoleException {
+  public UsageParameterInfo[] getSBBUsageParameterInfos() throws ManagementConsoleException {
     try {
-      ArrayList<SBBUsageParameterInfo> SBBUsageParameterInfoArrayList = new ArrayList<SBBUsageParameterInfo>();
+      ArrayList<UsageParameterInfo> SBBUsageParameterInfoArrayList = new ArrayList<UsageParameterInfo>();
       MBeanOperationInfo[] beanOperationInfos = mbeanServer.getMBeanInfo(sbbUsageMBean).getOperations();
       for (int i = 0; i < beanOperationInfos.length; i++) {
         MBeanOperationInfo beanOperationInfo = beanOperationInfos[i];
@@ -179,7 +179,7 @@ public class SbbUsageMBeanUtils {
         catch (Exception e) {
         }
       }
-      SBBUsageParameterInfo[] SBBUsageParameterInfos = new SBBUsageParameterInfo[SBBUsageParameterInfoArrayList.size()];
+      UsageParameterInfo[] SBBUsageParameterInfos = new UsageParameterInfo[SBBUsageParameterInfoArrayList.size()];
       SBBUsageParameterInfos = SBBUsageParameterInfoArrayList.toArray(SBBUsageParameterInfos);
       return SBBUsageParameterInfos;
     }

@@ -40,7 +40,7 @@ public interface RaUsageService extends RemoteService {
 
   public void resetAllUsageParameters(String entityName) throws ManagementConsoleException;
 
-  public SBBUsageParameterInfo[] getRaUsageParameters(String entityName, String parameterSet) throws ManagementConsoleException;
+  public UsageParameterInfo[] getRaUsageParameters(String entityName, String parameterSet) throws ManagementConsoleException;
 
   public void resetAllUsageParameters(String entityName, String parameterSet) throws ManagementConsoleException;
 

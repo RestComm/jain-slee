@@ -31,9 +31,6 @@ import org.mobicents.slee.container.management.console.client.common.ListPanel;
 import org.mobicents.slee.container.management.console.client.common.PropertiesPanel;
 import org.mobicents.slee.container.management.console.client.common.Title;
 import org.mobicents.slee.container.management.console.client.components.info.ComponentInfo;
-import org.mobicents.slee.container.management.console.client.components.info.ResourceAdaptorInfo;
-import org.mobicents.slee.container.management.console.client.components.info.SbbInfo;
-import org.mobicents.slee.container.management.console.client.components.info.ServiceInfo;
 import org.mobicents.slee.container.management.console.client.resources.ResourceAdaptorEntityInfo;
 
 import com.google.gwt.core.client.GWT;
@@ -146,17 +143,17 @@ public class RaParameterSetPanel extends Composite {
       public void onSuccess(Object result) {
         counterTypeUsageParametersPanel.emptyTable();
         sampleTypeUsageParametersPanel.emptyTable();
-        SBBUsageParameterInfo[] usageParameterInfos = (SBBUsageParameterInfo[]) result;
+        UsageParameterInfo[] usageParameterInfos = (UsageParameterInfo[]) result;
         for (int i = 0; i < usageParameterInfos.length; i++) {
-          final SBBUsageParameterInfo usageParameterInfo = usageParameterInfos[i];
+          final UsageParameterInfo usageParameterInfo = usageParameterInfos[i];
           Hyperlink resetLink = new Hyperlink("reset", "reset");
 
-          if (GWT.getTypeName(usageParameterInfo).equals("org.mobicents.slee.container.management.console.client.usage.CounterTypeSBBUsageParameterInfo")) {
-            CounterTypeSBBUsageParameterInfo counterTypeSBBUsageParameterInfo = (CounterTypeSBBUsageParameterInfo) usageParameterInfo;
+          if (GWT.getTypeName(usageParameterInfo).equals("org.mobicents.slee.container.management.console.client.usage.CounterTypeUsageParameterInfo")) {
+            CounterTypeUsageParameterInfo counterTypeRAUsageParameterInfo = (CounterTypeUsageParameterInfo) usageParameterInfo;
             int row = counterTypeUsageParametersPanel.getRowCount();
             counterTypeUsageParametersPanel.setCell(row, 0, new Image("images/usage.parameter.gif"));
-            counterTypeUsageParametersPanel.setCellText(row, 1, counterTypeSBBUsageParameterInfo.getName());
-            counterTypeUsageParametersPanel.setCellText(row, 2, Long.toString((counterTypeSBBUsageParameterInfo.getValue())));
+            counterTypeUsageParametersPanel.setCellText(row, 1, counterTypeRAUsageParameterInfo.getName());
+            counterTypeUsageParametersPanel.setCellText(row, 2, Long.toString((counterTypeRAUsageParameterInfo.getValue())));
             counterTypeUsageParametersPanel.setCell(row, 3, resetLink);
 
             resetLink.addClickListener(new ClickListener() {
@@ -166,15 +163,15 @@ public class RaParameterSetPanel extends Composite {
             });
           }
 
-          if (GWT.getTypeName(usageParameterInfo).equals("org.mobicents.slee.container.management.console.client.usage.SampleTypeSBBUsageParameterInfo")) {
-            SampleTypeSBBUsageParameterInfo sampleTypeSBBUsageParameterInfo = (SampleTypeSBBUsageParameterInfo) usageParameterInfo;
+          if (GWT.getTypeName(usageParameterInfo).equals("org.mobicents.slee.container.management.console.client.usage.SampleTypeUsageParameterInfo")) {
+            SampleTypeUsageParameterInfo sampleTypeRAUsageParameterInfo = (SampleTypeUsageParameterInfo) usageParameterInfo;
             int row = sampleTypeUsageParametersPanel.getRowCount();
             sampleTypeUsageParametersPanel.setCell(row, 0, new Image("images/usage.parameter.gif"));
-            sampleTypeUsageParametersPanel.setCellText(row, 1, sampleTypeSBBUsageParameterInfo.getName());
-            sampleTypeUsageParametersPanel.setCellText(row, 2, Long.toString((sampleTypeSBBUsageParameterInfo.getMinimum())));
-            sampleTypeUsageParametersPanel.setCellText(row, 3, Double.toString((sampleTypeSBBUsageParameterInfo.getMean())));
-            sampleTypeUsageParametersPanel.setCellText(row, 4, Long.toString((sampleTypeSBBUsageParameterInfo.getMaximum())));
-            sampleTypeUsageParametersPanel.setCellText(row, 5, Long.toString((sampleTypeSBBUsageParameterInfo.getSampleCount())));
+            sampleTypeUsageParametersPanel.setCellText(row, 1, sampleTypeRAUsageParameterInfo.getName());
+            sampleTypeUsageParametersPanel.setCellText(row, 2, Long.toString((sampleTypeRAUsageParameterInfo.getMinimum())));
+            sampleTypeUsageParametersPanel.setCellText(row, 3, Double.toString((sampleTypeRAUsageParameterInfo.getMean())));
+            sampleTypeUsageParametersPanel.setCellText(row, 4, Long.toString((sampleTypeRAUsageParameterInfo.getMaximum())));
+            sampleTypeUsageParametersPanel.setCellText(row, 5, Long.toString((sampleTypeRAUsageParameterInfo.getSampleCount())));
             sampleTypeUsageParametersPanel.setCell(row, 6, resetLink);
 
             resetLink.addClickListener(new ClickListener() {
