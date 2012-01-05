@@ -214,6 +214,14 @@
 	</target>
 
 	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-core,build-tools,get-eclipslee,build-sip-balancer,build-ras,build-enablers,build-examples,build-sources-for-debug-zip">
+		
+		<!-- hack to replace diameter cluster libs -->
+		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/cache-1.12.jar" failonerror="true"/>
+		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/core-1.12.jar" failonerror="true"/>
+		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/timers-1.12.jar" failonerror="true"/>
+		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/lib/cache-1.13-SNAPSHOT.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/cache-1.13-SNAPSHOT.jar"/>
+		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/lib/core-1.13-SNAPSHOT.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/core-1.13-SNAPSHOT.jar"/>
+		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/lib/timers-1.13-SNAPSHOT.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/timers-1.13-SNAPSHOT.jar"/>
 
 		<!-- copy log4j presets -->
 		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${release.dir}/jboss-${jboss.version}/server/default/conf/jboss-log4j.xml" overwrite="true" />
