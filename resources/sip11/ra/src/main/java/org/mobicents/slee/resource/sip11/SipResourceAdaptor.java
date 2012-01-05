@@ -60,7 +60,6 @@ import javax.sip.address.AddressFactory;
 import javax.sip.address.URI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
-import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.HeaderFactory;
@@ -279,6 +278,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 				cancelSTW = new ServerTransactionWrapper(cancelST,this);
 			} catch (Throwable e) {
 				tracer.severe("Failed to create server tx in provider",e);
+				return;
 			}
 		}
 		else {
@@ -304,13 +304,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			else {
 				activity = cancelSTW;
 				cancelSTW.setActivity(true);
-				if (!addActivity(activity)) {
-					final String errorMsg = "Failed to add cancel transaction activity, can't proceed.";
-					tracer.severe(errorMsg);
-					sendErrorResponse(req.getServerTransaction(), req.getRequest(),
-							Response.SERVER_INTERNAL_ERROR,errorMsg);				
-					return;
-				}
+				addActivity(activity);
 			}
 		}
 		if (tracer.isFineEnabled()) {
@@ -427,10 +421,15 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
             }            
             cancelSTW.getWrappedServerTransaction().sendResponse(response);
         } catch (Throwable e) {
-            tracer.severe(e.getMessage(), e);
+            tracer.severe("Failed to reply to cancel not handled", e);
+            try {
+            	cancelSTW.terminate();
+			} catch (ObjectInUseException f) {
+				tracer.severe("failed to terminate server tx", f);
+			}
+			processTransactionTerminated(cancelSTW);
         }
         // we may need to delete it manually, since the stack does not do it for early server dialogs
-        // TODO confirm the above statement
         final Dialog d = cancelSTW.getDialog();
         if (d != null) {
             d.delete();
@@ -482,12 +481,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		if (activity == null) {
 			activity = stw;
 			stw.setActivity(true);
-			if (!addActivity(activity)) {
-				sendErrorResponse(req.getServerTransaction(), req.getRequest(),
-						Response.SERVER_INTERNAL_ERROR,
-						"Failed to deliver request event to JAIN SLEE container");
-				return;
-			}
+			addActivity(activity);
 		}
 		
 		int eventFlags = DEFAULT_EVENT_FLAGS;
@@ -503,31 +497,25 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			if (tracer.isFineEnabled()) {
 				tracer.fine("Event " + (eventType==null?"null":eventType.getEventType()) + " filtered");
 			}
-			// event was filtered
-			if (!stw.isAckTransaction()) {
-				sendErrorResponse(req.getServerTransaction(), req.getRequest(),
-						Response.SERVER_INTERNAL_ERROR,
-						"Failed to deliver request event to JAIN SLEE container");
+			// event was filtered, let's clean up state
+			try {
+				stw.terminate();
+			} catch (ObjectInUseException e) {
+				tracer.severe("failed to terminate server tx", e);
 			}
-			else {
-				// stack won't do it for us
-				processTransactionTerminated(stw);
-			}
+			processTransactionTerminated(stw);
 		} else {
 			try {
 				fireEvent(activity.getActivityHandle(), eventType, rew, activity.getEventFiringAddress(), eventFlags);			
 			} catch (Throwable e) {
+				// event not fired due to error, let's trace and cleanup state
 				tracer.severe("Failed to fire event",e);
-				// event not fired due to error
-				if (!stw.isAckTransaction()) {
-					sendErrorResponse(req.getServerTransaction(), req.getRequest(),
-							Response.SERVER_INTERNAL_ERROR,
-							"Failed to deliver request event to JAIN SLEE container");
+				try {
+					stw.terminate();
+				} catch (ObjectInUseException f) {
+					tracer.severe("failed to terminate server tx", f);
 				}
-				else {
-					// stack won't do it for us
-					processTransactionTerminated(stw);
-				}
+				processTransactionTerminated(stw);
 			}
 		}
 			
@@ -994,6 +982,8 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	 */
 	public void processTimeout(TimeoutEvent timeoutEvent) {
 		
+		tracer.info("processTimeout()");
+		
 		SIPTransaction t = null; 
 		if (timeoutEvent.isServerTransaction()) {
 			t = (SIPTransaction) timeoutEvent.getServerTransaction();
@@ -1054,6 +1044,8 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	public void processTransactionTerminated(
 			TransactionTerminatedEvent txTerminatedEvent) {
 		
+		tracer.info("processTransactionTerminated()");
+
 		Transaction t = null; 
 		if (txTerminatedEvent.isServerTransaction()) {
 			t = txTerminatedEvent.getServerTransaction();
@@ -1185,30 +1177,6 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		return true;
 	}
 
-	// ------- END OF PROVISIONING
-
-    // --- XXX - error responses to be a good citizen
-    private void sendErrorResponse(ServerTransaction serverTransaction, Request request,
-            int code, String msg) {
-        if (!request.getMethod().equals(Request.ACK)) {
-            try {
-                ContentTypeHeader contentType = this.providerWrapper.getHeaderFactory().createContentTypeHeader("text", "plain");
-                Response response = providerWrapper.getMessageFactory().createResponse(code, request, contentType, msg.getBytes());
-                // createResponse(..) method does not generate a To header tag,
-                // if there is no tag, we must generate it
-                ToHeader toHeader = (ToHeader) response.getHeader(ToHeader.NAME);
-                if (toHeader.getTag() == null) {
-                	toHeader.setTag(Utils.getInstance().generateTag());
-                }
-                if (serverTransaction != null) {
-                    serverTransaction.sendResponse(response);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-	
 	// LIFECYLE
 	
 	/*
