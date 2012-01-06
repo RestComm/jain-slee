@@ -16,7 +16,12 @@
 			org.mobicents.slee.container.management.console.server.log.LogServiceImpl
 		</servlet-class>
 	</servlet>
-	
+	<servlet>
+    <servlet-name>AlarmsService</servlet-name>
+    <servlet-class>
+      org.mobicents.slee.container.management.console.server.alarms.AlarmsServiceImpl
+    </servlet-class>
+  </servlet>
 	<servlet>
 		<servlet-name>ComponentsService</servlet-name>
 		<servlet-class>
@@ -126,6 +131,10 @@
 		<servlet-name>LogService</servlet-name>
 		<url-pattern>/LogService</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+    <servlet-name>AlarmsService</servlet-name>
+    <url-pattern>/AlarmsService</url-pattern>
+  </servlet-mapping>
 	
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>

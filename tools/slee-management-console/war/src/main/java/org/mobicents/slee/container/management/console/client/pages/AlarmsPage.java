@@ -22,17 +22,36 @@
 
 package org.mobicents.slee.container.management.console.client.pages;
 
+import org.mobicents.slee.container.management.console.client.alarms.ActiveAlarmsCard;
+import org.mobicents.slee.container.management.console.client.common.CardControl;
 import org.mobicents.slee.container.management.console.client.common.SmartTabPage;
 
 import com.google.gwt.user.client.ui.Label;
 
 public class AlarmsPage extends SmartTabPage {
-
+	
+  private CardControl cardControl = new CardControl();
+	
   public AlarmsPage() {
-    Label label = new Label("TODO");
-
-    initWidget(label);
+    initWidget(cardControl);
   }
+  
+  public void onInit() {
+    ActiveAlarmsCard activeAlarmsCard = new ActiveAlarmsCard();
+    cardControl.add(activeAlarmsCard, "<image align='absbottom' src='images/alarms.gif' /> Active Alarms", true);
+        
+    cardControl.selectTab(0);
+    cardControl.setWidth("100%");
+  }
+
+  public void onHide() {
+    cardControl.onHide();
+  }
+
+  public void onShow() {
+    cardControl.onShow();
+  }
+  
 
   public static SmartTabPageInfo getInfo() {
     return new SmartTabPageInfo("<image src='images/alarms.gif' /> Alarms", "Alarms") {

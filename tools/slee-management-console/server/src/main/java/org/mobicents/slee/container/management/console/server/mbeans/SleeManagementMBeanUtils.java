@@ -57,6 +57,8 @@ public class SleeManagementMBeanUtils {
   private SbbEntitiesMBeanUtils sbbEntitiesMBeanUtils;
 
   private LogManagementMBeanUtils logManagementMBeanUtils;
+  
+  private AlarmMBeanUtils alarmMBeanUtils;
 
   public SleeManagementMBeanUtils() throws ManagementConsoleException {
     try {
@@ -89,6 +91,8 @@ public class SleeManagementMBeanUtils {
     sbbEntitiesMBeanUtils = new SbbEntitiesMBeanUtils(mbeanServer, sleeManagementMBean);
 
     logManagementMBeanUtils = new LogManagementMBeanUtils(mbeanServer, sleeManagementMBean);
+    
+    alarmMBeanUtils = new AlarmMBeanUtils(mbeanServer, sleeManagementMBean);
   }
 
   public DeploymentMBeanUtils getDeploymentMBeanUtils() {
@@ -187,6 +191,10 @@ public class SleeManagementMBeanUtils {
 
   public LogManagementMBeanUtils getLogManagementMBeanUtils() {
     return logManagementMBeanUtils;
+  }
+
+  public AlarmMBeanUtils getAlarmMBeanUtils() {
+    return alarmMBeanUtils;
   }
 
   public static String doMessage(Throwable t) {

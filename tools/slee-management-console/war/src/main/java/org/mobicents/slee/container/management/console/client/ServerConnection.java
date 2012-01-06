@@ -24,6 +24,8 @@ package org.mobicents.slee.container.management.console.client;
 
 import org.mobicents.slee.container.management.console.client.activity.ActivityService;
 import org.mobicents.slee.container.management.console.client.activity.ActivityServiceAsync;
+import org.mobicents.slee.container.management.console.client.alarms.AlarmsService;
+import org.mobicents.slee.container.management.console.client.alarms.AlarmsServiceAsync;
 import org.mobicents.slee.container.management.console.client.components.ComponentsService;
 import org.mobicents.slee.container.management.console.client.components.ComponentsServiceAsync;
 import org.mobicents.slee.container.management.console.client.deployableunits.DeployableUnitsService;
@@ -71,6 +73,8 @@ public class ServerConnection {
 
   final static public SbbEntitiesServiceAsync sbbEntitiesServiceAsync;
 
+  final static public AlarmsServiceAsync alarmsServiceAsync;
+
   final static public LogServiceAsync logServiceAsync;
 
   static {
@@ -110,6 +114,10 @@ public class ServerConnection {
     sbbEntitiesServiceAsync = (SbbEntitiesServiceAsync) GWT.create(SbbEntitiesService.class);
     ServiceDefTarget sbbEntitiesEndpoint = (ServiceDefTarget) sbbEntitiesServiceAsync;
     sbbEntitiesEndpoint.setServiceEntryPoint(GWT.getModuleBaseURL().replaceAll("org.mobicents.slee.container.management.console.ManagementConsole", "") + "/SbbEntitiesService");
+
+    alarmsServiceAsync = (AlarmsServiceAsync) GWT.create(AlarmsService.class);
+    ServiceDefTarget alarmsEndpoint = (ServiceDefTarget) alarmsServiceAsync;
+    alarmsEndpoint.setServiceEntryPoint(GWT.getModuleBaseURL().replaceAll("org.mobicents.slee.container.management.console.ManagementConsole", "") + "/AlarmsService");
 
     logServiceAsync = (LogServiceAsync) GWT.create(LogService.class);
     ServiceDefTarget logEndpoint = (ServiceDefTarget) logServiceAsync;

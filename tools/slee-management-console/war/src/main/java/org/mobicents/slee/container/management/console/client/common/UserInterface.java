@@ -23,6 +23,7 @@
 package org.mobicents.slee.container.management.console.client.common;
 
 import org.mobicents.slee.container.management.console.client.pages.ActivityPage;
+import org.mobicents.slee.container.management.console.client.pages.AlarmsPage;
 import org.mobicents.slee.container.management.console.client.pages.ComponentsPage;
 import org.mobicents.slee.container.management.console.client.pages.DeployableUnitsPage;
 import org.mobicents.slee.container.management.console.client.pages.ResourceAdaptorsPage;
@@ -65,7 +66,7 @@ public class UserInterface extends VerticalPanel implements HasHorizontalAlignme
     smartTabPanel.add(ActivityPage.getInfo());
 
     // smartTabPanel.add(LogManagementPage.getInfo());
-    // smartTabPanel.add(AlarmsPage.getInfo());
+    smartTabPanel.add(AlarmsPage.getInfo());
     // smartTabPanel.add(ProfilesPage.getInfo());
 
     add(topPanel);
