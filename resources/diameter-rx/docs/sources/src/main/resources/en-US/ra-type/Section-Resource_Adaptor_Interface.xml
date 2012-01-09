@@ -35,17 +35,21 @@
 
 		public RxClientSessionActivity getActivityBySessionID(String sessionID);
 
-		public RxClientSessionActivity createRxClientSessionActivity() throws CreateActivityException;
+		public RxClientSessionActivity createRxClientSessionActivity() 
+			throws CreateActivityException;
 
-		public RxClientSessionActivity createRxClientSessionActivity(DiameterIdentity destinationHost, 
+		public RxClientSessionActivity createRxClientSessionActivity(
+			DiameterIdentity destinationHost, 
 			DiameterIdentity destinationRealm) throws CreateActivityException;
 
 		public AAAnswer sendAARequest(AARequest aar) throws IOException;
 
-		public AbortSessionAnswer sendAbortSessionRequest(AbortSessionRequest asr)
+		public AbortSessionAnswer sendAbortSessionRequest(
+			AbortSessionRequest asr)
 			throws IOException;
 
-		public ReAuthAnswer sendReAuthRequest(ReAuthRequest rar) throws IOException;
+		public ReAuthAnswer sendReAuthRequest(
+			ReAuthRequest rar) throws IOException;
 
 		DiameterIdentity[] getConnectedPeers();
 

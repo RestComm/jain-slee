@@ -29,28 +29,28 @@
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.rx.events. AARequest</entry>
+			   		<entry>net.java.slee.resource. diameter.rx.events. AARequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.rx.events. AARequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.rx.events. AARequest</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.rx.events. AbortSessionAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.rx.events. AbortSessionAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.rx.events. AbortSessionAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.rx.events. AbortSessionAnswer</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.rx.events. ReAuthAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.rx.events. ReAuthAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.rx.events. ReAuthAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.rx.events. ReAuthAnswer</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.rx.events. SessionTerminationRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.rx.events. SessionTerminationRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.rx.events. SessionTerminationRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.rx.events. SessionTerminationRequest</entry>
 			    </row>
 			</tbody>
 	 	</tgroup>
@@ -72,28 +72,28 @@
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.rx.events. AAAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.rx.events. AAAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.rx.events. AAAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.rx.events. AAAnswer</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.rx.events. AbortSessionRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.rx.events. AbortSessionRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.rx.events. AbortSessionRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.rx.events. AbortSessionRequest</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.rx.events. ReAuthRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.rx.events. ReAuthRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.rx.events. ReAuthRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.rx.events. ReAuthRequest</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.rx.events. SessionTerminationAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.rx.events. SessionTerminationAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.rx.events. SessionTerminationAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.rx.events. SessionTerminationAnswer</entry>
 			    </row>
 			</tbody>
 	 	</tgroup>
