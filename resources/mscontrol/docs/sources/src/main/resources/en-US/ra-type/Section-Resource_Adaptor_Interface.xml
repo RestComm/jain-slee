@@ -31,9 +31,11 @@ public interface MsControlFactory {
 
     public Parameters createParameters() ;
 
-    public VideoLayout createVideoLayout(String mimeType,Reader xmlDef) throws MediaConfigException;
+    public VideoLayout createVideoLayout(String mimeType,Reader xmlDef) 
+    	throws MediaConfigException;
 
-    public VideoLayout[] getPresetLayouts(int numberOfActiveRegions) throws MediaConfigException ;
+    public VideoLayout[] getPresetLayouts(int numberOfActiveRegions) 
+    	throws MediaConfigException ;
 
     public VideoLayout getPresetLayout(String type) throws MediaConfigException ;
 

@@ -82,12 +82,10 @@
 			colsep="1"
 			cols="3"
 			align="left">
-			<colspec
-				colnum="1"
-				colname="c0" />
-			<colspec
-				colnum="2"
-				colname="c1" />
+			<colspec colnum="1" colname="c0" colwidth="1*" />
+		    <colspec colnum="2" colname="c1" colwidth="1*" />
+		    <colspec colnum="3" colname="c2" colwidth="2*" />
+		    
 
 
 			<thead>
@@ -179,7 +177,7 @@
 			<colspec
 				colnum="1"
 				colname="c0"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="2"
 				colname="c1"
@@ -187,7 +185,7 @@
 			<colspec
 				colnum="3"
 				colname="c2"
-				colwidth="1*" />
+				colwidth="2*" />
 
 			<thead>
 				<row>
@@ -253,7 +251,7 @@
 			<colspec
 				colnum="1"
 				colname="c0"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="2"
 				colname="c1"
@@ -261,7 +259,7 @@
 			<colspec
 				colnum="3"
 				colname="c2"
-				colwidth="1*" />
+				colwidth="2*" />
 
 			<thead>
 				<row>
@@ -334,7 +332,7 @@
 			<colspec
 				colnum="1"
 				colname="c0"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="2"
 				colname="c1"
@@ -342,7 +340,7 @@
 			<colspec
 				colnum="3"
 				colname="c2"
-				colwidth="1*" />
+				colwidth="2*" />
 
 			<thead>
 				<row>
@@ -412,7 +410,7 @@
 			<colspec
 				colnum="1"
 				colname="c0"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="2"
 				colname="c1"
@@ -420,7 +418,7 @@
 			<colspec
 				colnum="3"
 				colname="c2"
-				colwidth="1*" />
+				colwidth="2*" />
 
 			<thead>
 				<row>
@@ -531,7 +529,7 @@
 			<colspec
 				colnum="1"
 				colname="c0"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="2"
 				colname="c1"
@@ -539,7 +537,7 @@
 			<colspec
 				colnum="3"
 				colname="c2"
-				colwidth="1*" />
+				colwidth="2*" />
 
 			<thead>
 				<row>
@@ -598,7 +596,7 @@
 			<colspec
 				colnum="1"
 				colname="c0"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="2"
 				colname="c1"
@@ -664,7 +662,7 @@
 			<colspec
 				colnum="1"
 				colname="c0"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="2"
 				colname="c1"
@@ -672,7 +670,7 @@
 			<colspec
 				colnum="3"
 				colname="c2"
-				colwidth="1*" />
+				colwidth="2*" />
 
 			<thead>
 				<row>
@@ -747,15 +745,15 @@
 			<colspec
 				colnum="1"
 				colname="c0"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="2"
 				colname="c1"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="3"
 				colname="c2"
-				colwidth="1*" />
+				colwidth="2*" />
 
 			<thead>
 				<row>
@@ -766,7 +764,7 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>RENDERING_COMPLETED</entry>
+					<entry>RENDERING_ COMPLETED</entry>
 					<entry>MediaGroup</entry>
 					<entry>Event indicating end of video stream. </entry>
 				</row>
@@ -808,15 +806,15 @@
 			<colspec
 				colnum="1"
 				colname="c0"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="2"
 				colname="c1"
-				colwidth="2*" />
+				colwidth="1*" />
 			<colspec
 				colnum="3"
 				colname="c2"
-				colwidth="1*" />
+				colwidth="2*" />
 
 			<thead>
 				<row>

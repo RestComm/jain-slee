@@ -163,7 +163,8 @@ public void onInvite(RequestEvent event, ActivityContextInterface aci) {
 
     private void joinInitiate() {
         try {
-            MediaGroup ivr = session.createMediaGroup(MediaGroup.PLAYER_RECORDER_SIGNALDETECTOR);
+            MediaGroup ivr = session.createMediaGroup(MediaGroup.
+            	PLAYER_RECORDER_SIGNALDETECTOR);
             connection.joinInitiate(Direction.DUPLEX, ivr, "context");
         } catch (Exception e) {
             tracer.severe("Unable to initiate join: ", e);
