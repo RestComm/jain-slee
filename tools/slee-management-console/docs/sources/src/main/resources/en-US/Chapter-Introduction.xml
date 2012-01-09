@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<chapter id="introduction">
+	<title>Introduction to &THIS.PLATFORM; &MANAGEMENT.PLATFORM;</title>
+
+	<para>&THIS.PLATFORM; &MANAGEMENT.PLATFORM; is an application which lets an administrator user interact with the <acronym>SLEE</acronym> in order to perform management functions.</para>
+	<para>The console is a <acronym>J2EE</acronym> compliant web-based application deployed in the running instance of Apache Tomcat inside JBoss <acronym>AS</acronym>. An administrator can connect to this console via HTTP through a common web browser.</para>
+	<para>&THIS.PLATFORM; &MANAGEMENT.PLATFORM; allows the administrator to perform most common management operations, such as deployment and installation of <acronym>JAIN SLEE</acronym> Deployable Units, <acronym>JAIN SLEE</acronym> Component Management and Configuration, etc. as well as some monitoring task such as observing and inspecting <acronym>JAIN SLEE</acronym> Activities.</para>
+	<!--para>&THIS.PLATFORM; &MANAGEMENT.PLATFORM; allows the administrator to perform most common management operations as well as some monitoring tasks.</para-->
+</chapter>

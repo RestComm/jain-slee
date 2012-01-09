@@ -1,0 +1,130 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="Services_top">
+	<title>"Services" View</title>
+	<para>In this view, the services present in SLEE are shown, along with their state. It is possible to view the services, their details, view and change the service state.</para>
+
+	<section id="Services_details">
+		<title>View Service Details</title>
+
+		<para>In the <guilabel>Services</guilabel> tab the list of services is shown. When clicking on one of the services' name, it's details are shown. The following details are displayed:</para>
+
+		<itemizedlist>
+			<listitem>
+				<para>Name</para>
+				<para>The SLEE component Name identifier.</para>
+			</listitem>
+			<listitem>
+				<para>ID</para>
+				<para>The SLEE component identifier, built from the component type, name, vendor and version.</para>
+			</listitem>
+			<listitem>
+				<para>Vendor</para>
+				<para>The SLEE component Vendor identifier.</para>
+			</listitem>
+			<listitem>
+				<para>Version</para>
+				<para>The SLEE component Version identifier.</para>
+			</listitem>
+			<listitem>
+				<para>Source</para>
+				<para>The path to the jar containing this component, inside the deployable unit jar.</para>
+			</listitem>
+			<listitem>
+				<para>Deployable Unit</para>
+				<para>The deployable unit used to deploy this component.</para>
+			</listitem>
+			<listitem>
+				<para>Library References</para>
+				<para>The libraries this component refers, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Address Profile Table</para>
+				<para>The Address Profile Table name to be used by this service, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Resource Info Profile Table</para>
+				<para>The Resource Info Profile Table name to be used by this service, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Root SBB</para>
+				<para>The SBB to be used as the Root SBB for this service. This entry is clickable and will lead to the details view for this SBB component.</para>
+			</listitem>
+		</itemizedlist>
+	</section>
+
+	<section id="Services_state">
+		<title>View and Change Service State</title>
+
+		<para>When the existing services list is shown, the service state is presented, it can be:</para>
+		<itemizedlist>
+			<listitem>
+				<para>INACTIVE</para>
+				<para>The Service has been installed successfully and is ready to be activated. The Service is not running, i.e. root SBB entities of the Service’s root SBB will not be created to process events.</para>
+				<para>In this state it is possible to activate the service by clicking the <guibutton>activate</guibutton> link.</para>
+			</listitem>
+			<listitem>
+				<para>ACTIVE</para>
+				<para>The Service has been activated, i.e. it is running. The SLEE will create root SBB entities of the Service’s root SBB to receive initial events and invoke SBB entities in the SBB entity trees of the Service.</para>
+				<para>In this state it is possible to deactivate the service by clicking the <guibutton>deactivate</guibutton> link.</para>
+			</listitem>
+			<listitem>
+				<para>STOPPING</para>
+				<para>The Service is being deactivated. However, some SBB entity trees of the Service still exist in the SLEE and have not completed their processing. The SLEE is waiting for the SBB entities in these SBB entity trees to complete processing so that they can be reclaimed. An SBB entity has completed processing and can be reclaimed when it and all of its child SBB entities are no longer attached to any Activity Context.</para>
+				<para>No state changing operations are available in this state, as this is a transition state, from ACTIVE to INACTIVE.</para>
+			</listitem>
+		</itemizedlist>
+	</section>
+
+	<section id="Services_usage_parameters">
+		<title>Service Usage Parameters</title>
+
+		<para>In the <guilabel>Usage Parameters</guilabel> tab is possible to view and manage the service <acronym>SBB</acronym>s Usage Parameters. In this screen, select a Service and an SBB and if a SBB Usage Parameter Interface is defined, this view will present the default and other available Usage Parameter Sets.</para>
+
+		<section id="Services_usage_parameters_view">
+			<title>View Service Usage Parameters</title>
+			<para>In order to view the Usage Parameters for a given set click it's name. The following types are displayed:</para>
+			<itemizedlist>
+				<listitem>
+					<para>Counter Type</para>
+					<para>A counter-type usage parameter can be incremented or decremented. The current (approximate) value of the counter-type usage parameter is displayed under the <guilabel>Value</guilabel> column is shown.</para>
+				</listitem>
+				<listitem>
+					<para>Sample Type</para>
+					<para>A sample-type usage parameter accumulates sample data, when a SLEE Component submit samples to the usage parameter. The current (approximate) minimum, maximum, mean, and the number of sample values added to the sample-type usage parameter are shown.</para>
+				</listitem>
+			</itemizedlist>
+			
+			<note>
+				<title>No automatic refresh</title>
+				<para>In order to keep a low impact on the SLEE no real-time update is performed with regards to the Usage Parameters. To update the displayed values, please click the <guibutton>refresh</guibutton> link.</para>
+			</note>
+		</section>
+
+		<section id="Services_usage_parameters_reset">
+			<title>Reset Service Usage Parameters</title>
+			<para>It is possible to reset a single Usage Parameter, when viewing the Service Usage Parameters list, by clicking the <guibutton>reset</guibutton> link, next to each, both for Counter and Sample type usage parameters.</para>
+			<para>In order to reset all the Usage Parameters for a given service, in the main Usage Parameters view click the <guibutton>Reset all usage parameters</guibutton> button and all will be reset.</para>
+		</section>
+
+		<section id="Services_usage_parameters_create_set">
+			<title>Create Named Service Usage Parameters Set</title>
+			<para>In addition to the default usage parameter set created by the SLEE, it is possible to create additional usage parameter sets for the same notification source, which must have a name. To create one, in the main Usage Parameters view, fill the <guilabel>New parameter set</guilabel> with the name and press the <guibutton>Create</guibutton> button and the new set is created.</para>
+		</section>
+
+		<section id="Services_usage_parameters_remove_set">
+			<title>Remove Named Service Usage Parameters Set</title>
+			<para>To remove a created Usage Parameter Set, in the main Usage Parameters view, under the <guilabel>Parameter Sets</guilabel> list, in the <guilabel>Actions</guilabel> column, click the <guibutton>remove</guibutton> link and the set will be removed.</para>
+			
+			<note>
+				<title>The "default" Usage Parameters Set is not removable</title>
+				<para>Only named Usage Parameters Sets can be removed, the "default" will always exist when there's a Usage Parameter Interface defined for this component.</para>
+			</note>
+		</section>
+	</section>
+
+</section>

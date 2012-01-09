@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. -->
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<chapter id="configuration_and_running">
+	<title>Configuring and Running &THIS.PLATFORM; &MANAGEMENT.PLATFORM;</title>
+	<section id="running">
+		<title>Running &THIS.PLATFORM; &MANAGEMENT.PLATFORM;</title>
+		<para>&THIS.PLATFORM; &MANAGEMENT.PLATFORM; starts and stops with &THIS.PLATFORM; JAIN SLEE. It can be accessed via web browser at the URL: http://<parameter>IP_ADDRESS</parameter>:8080/slee-management-console/.</para>
+	</section>
+	<section id="configuration">
+		<title>Configuring &THIS.PLATFORM; &MANAGEMENT.PLATFORM;</title>
+		<para>&THIS.PLATFORM; &MANAGEMENT.PLATFORM; has no configuration options.</para>
+	</section>
+</chapter>

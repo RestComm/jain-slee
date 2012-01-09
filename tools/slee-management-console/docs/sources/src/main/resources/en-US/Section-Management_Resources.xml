@@ -1,0 +1,191 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="Resources_top">
+	<title>"Resources" View</title>
+	<para>In this view, the resource adaptors present in SLEE are shown, identified by their name, vendor, version and RA Type implemented. It is possible to view the resources, their details, view and manage Resource Adaptor Entities and Links.</para>
+
+	<section id="Resources_details">
+		<title>View Resource Adaptor Details</title>
+
+		<para>In the <guilabel>Resources</guilabel> tab the list of Resource Adaptors is shown. When clicking on one of the resource adpators' name, it's details are shown. The following details are displayed:</para>
+
+		<itemizedlist>
+			<listitem>
+				<para>Name</para>
+				<para>The SLEE component Name identifier.</para>
+			</listitem>
+			<listitem>
+				<para>ID</para>
+				<para>The SLEE component identifier, built from the component type, name, vendor and version.</para>
+			</listitem>
+			<listitem>
+				<para>Vendor</para>
+				<para>The SLEE component Vendor identifier.</para>
+			</listitem>
+			<listitem>
+				<para>Version</para>
+				<para>The SLEE component Version identifier.</para>
+			</listitem>
+			<listitem>
+				<para>Source</para>
+				<para>The path to the jar containing this component, inside the deployable unit jar.</para>
+			</listitem>
+			<listitem>
+				<para>Deployable Unit</para>
+				<para>The deployable unit used to deploy this component.</para>
+			</listitem>
+			<listitem>
+				<para>Library References</para>
+				<para>The libraries this component refers, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Resource Adaptor Entities</para>
+				<para>A list of the created Resource Adaptor Entities for this Resource Adaptor. These entities are clickable, and will lead to view the Entities details.</para>
+			</listitem>
+		</itemizedlist>
+	</section>
+
+	<section id="Resources_Entities_state">
+		<title>View and Change Resource Adaptor Entities State</title>
+
+		<para>When the existing Resource Adaptor Entities list is shown, the Resource Adaptor Entities state is presented in the <guilabel>State</guilabel> column, it can be:</para>
+		<itemizedlist>
+			<listitem>
+				<para>INACTIVE</para>
+				<para>The resource adaptor entity has been successfully created in the SLEE. An Inactive resource adaptor entity is ready to be activated.</para>
+				<para>In this state it is possible to activate the resource adaptor entity by clicking the <guibutton>activate</guibutton> link.</para>
+			</listitem>
+			<listitem>
+				<para>ACTIVE</para>
+				<para>The resource adaptor entity has been activated. If the SLEE is in the Running state, resource adaptor objects associated with the resource adaptor entity can create new activities, submit events on activities, and end activities. If the SLEE is in the Stopping state, resource adaptor objects associated with the resource adaptor entity cannot start new activities, but may submit events on existing activities and end activities.</para>
+				<para>In this state it is possible to deactivate the resource adaptor entity by clicking the <guibutton>deactivate</guibutton> link.</para>
+			</listitem>
+			<listitem>
+				<para>STOPPING</para>
+				<para>The resource adaptor entity is being deactivated. However, some activities created by the resource adaptor objects associated with the resource adaptor entity may still exist in the SLEE and have not completed their processing. The SLEE is waiting for these activities to end. Once all activities owned by resource adaptor objects of the resource adaptor entity have ended, the SLEE will transition the resource adaptor entity back to the Inactive state.</para>
+				<para>No state changing operations are available in this state, as this is a transition state, from ACTIVE to INACTIVE.</para>
+			</listitem>
+		</itemizedlist>
+	</section>
+
+	<section id="Resources_Entities_create">
+		<title>Create a Resource Adaptor Entity</title>
+
+		<para>In order to create a new Resource Adaptor Entity, after selecting the Resource Adaptor, fill the new entity name in the textbox next to <guilabel>Create entity</guilabel> and click the <guibutton>Create</guibutton> button. A new Entity will be created with default properties and in <literal>INACTIVE</literal> state.</para>
+	</section>
+
+	<section id="Resources_Entities_remove">
+		<title>Remove a Resource Adaptor Entity</title>
+
+		<important>
+			<title>Requirements to remove a Resource Adaptor Entity</title>
+			<para>To remove a Resource Adaptor Entity, there should be no Resource Adaptor Entity Links for this entity and it should be in <literal>INACTIVE</literal> state.</para>
+		</important>
+
+		<para>In order to remove a Resource Adaptor Entity, after selecting the Resource Adaptor, click the <guibutton>remove</guibutton> link. Make sure the above pre-requirements above are fulfilled.</para>
+	</section>
+
+	<section id="Resources_Entities_details">
+		<title>View Resource Adaptor Entity Details</title>
+
+		<para>After selecting the Resource Adaptor, a list of the existent Resource Adaptor Entities can be found in the bottom of the panel. By clicking one of the Entities, the following details can be observed:</para>
+		<itemizedlist>
+			<listitem>
+				<para>Name</para>
+				<para>The Resource Adaptor Entity Name.</para>
+			</listitem>
+			<listitem>
+				<para>State</para>
+				<para>The current state of the Resource Adaptor Entity.</para>
+			</listitem>
+			<listitem>
+				<para>Entity Configuration Properties</para>
+				<para>The Resource Adaptor configuration properties provide a standardized mechanism for configuration of a resource adaptor entity. The consist of a triplet, Name, Type and Value.</para>
+			</listitem>
+			<listitem>
+				<para>Entity Links</para>
+				<para>The Resource Adaptor Entity Links provide a link to an entity, to be used by <acronym>SBB</acronym>s.</para>
+			</listitem>
+		</itemizedlist>
+	</section>
+
+	<section id="Resources_Entities_config">
+		<title>View and Change Resource Adaptor Entity Configuration Properties</title>
+
+		<para>After selecting the Resource Adaptor Entity, a list of the Resource Adaptor Entity Configuration Properties is shown. They are displayed as <parameter>&lt;name&gt;</parameter> :: <parameter>&lt;type&gt;</parameter> - <parameter>&lt;value&gt;</parameter>. Only the value can be changed.</para>
+
+		<important>
+			<title>Requirements to edit Resource Adaptor Entity Configuration Properties</title>
+			<para>To edit the Resource Adaptor Entity, if the Resource Adaptor does not support reconfiguration in <literal>ACTIVE</literal> state, it must be in <literal>INACTIVE</literal> state.</para>
+		</important>
+
+		<para>To change these values, click the <guibutton>Edit Properties</guibutton>. The values will change to an editable form. Change the values accordingly and click the <guibutton>Save</guibutton> button.</para>
+	</section>
+
+	<section id="Resources_Entities_links">
+		<title>View and Change Resource Adaptor Entity Links</title>
+
+		<para>After selecting the Resource Adaptor Entity, a list of the Resource Adaptor Entity Links is shown. It is possible to remove existing and add new links.</para>
+
+		<important>
+			<title>Requirements to remove a Resource Adaptor Entity Link</title>
+			<para>To remove a Resource Adaptor Entity Link, there should be no SBBs referring it.</para>
+		</important>
+
+		<para>To create a new Resource Adaptor Entity Link, fill the new link name in the <guilabel>Bind entity link</guilabel> textbox and click the <guibutton>Bind</guibutton> button.</para>
+
+		<para>To remove an existing Resource Adaptor Entity Link, click the <guibutton>unbind</guibutton> link.</para>
+	</section>
+
+	<section id="Resources_usage_parameters">
+		<title>Resource Adaptor Usage Parameters</title>
+
+		<para>In the <guilabel>Usage Parameters</guilabel> tab is possible to view and manage the Resource Adaptors' Entities Usage Parameters. In this screen, select a Resource Adaptor and a Resource Adaptor Entity and if a Resource Adaptor Usage Parameter Interface is defined, this view will present the default and other available Usage Parameter Sets.</para>
+
+		<section id="Resources_usage_parameters_view">
+			<title>View Resource Adaptor Usage Parameters</title>
+			<para>In order to view the Usage Parameters for a given set click it's name. The following types are displayed:</para>
+			<itemizedlist>
+				<listitem>
+					<para>Counter Type</para>
+					<para>A counter-type usage parameter can be incremented or decremented. The current (approximate) value of the counter-type usage parameter is displayed under the <guilabel>Value</guilabel> column is shown.</para>
+				</listitem>
+				<listitem>
+					<para>Sample Type</para>
+					<para>A sample-type usage parameter accumulates sample data, when a SLEE Component submit samples to the usage parameter. The current (approximate) minimum, maximum, mean, and the number of sample values added to the sample-type usage parameter are shown.</para>
+				</listitem>
+			</itemizedlist>
+			
+			<note>
+				<title>No automatic refresh</title>
+				<para>In order to keep a low impact on the SLEE no real-time update is performed with regards to the Usage Parameters. To update the displayed values, please click the <guibutton>refresh</guibutton> link.</para>
+			</note>
+		</section>
+
+		<section id="Resources_usage_parameters_reset">
+			<title>Reset Resource Adaptor Usage Parameters</title>
+			<para>It is possible to reset a single Usage Parameter, when viewing the Resource Adaptor Usage Parameters list, by clicking the <guibutton>reset</guibutton> link, next to each, both for Counter and Sample type usage parameters.</para>
+			<para>In order to reset all the Usage Parameters for a given Resource Adaptor, in the main Usage Parameters view click the <guibutton>Reset all usage parameters</guibutton> button and all will be reset.</para>
+		</section>
+
+		<section id="Resources_usage_parameters_create_set">
+			<title>Create Named Resource Adaptor Usage Parameters Set</title>
+			<para>In addition to the default usage parameter set created by the SLEE, it is possible to create additional usage parameter sets for the same notification source, which must have a name. To create one, in the main Usage Parameters view, fill the <guilabel>New parameter set</guilabel> with the name and press the <guibutton>Create</guibutton> button and the new set is created.</para>
+		</section>
+
+		<section id="Resources_usage_parameters_remove_set">
+			<title>Remove Named Resource Adaptor Usage Parameters Set</title>
+			<para>To remove a created Usage Parameter Set, in the main Usage Parameters view, under the <guilabel>Parameter Sets</guilabel> list, in the <guilabel>Actions</guilabel> column, click the <guibutton>remove</guibutton> link and the set will be removed.</para>
+			
+			<note>
+				<title>The "default" Usage Parameters Set is not removable</title>
+				<para>Only named Usage Parameters Sets can be removed, the "default" will always exist when there's a Usage Parameter Interface defined for this component.</para>
+			</note>
+		</section>
+	</section>
+
+</section>

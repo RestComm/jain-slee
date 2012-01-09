@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="Activities_top">
+	<title>"Activities" View</title>
+	<para>In this view, it's possible to monitor the existing activities in the SLEE. The Activity Contexts are listed by their ID, TTL (maximum time in seconds without being accessed) and their Java Class Name.</para>
+
+	<section id="Activities_details">
+		<title>View Activities Details</title>
+
+		<para>In the <guilabel>Browse Activities</guilabel> tab the list of activities is shown. When clicking on one of the Activity Context ID, it's details are shown. The following details are displayed:</para>
+
+		<itemizedlist>
+			<listitem>
+				<para>ID</para>
+				<para>The internal identifier for this Activity Context.</para>
+			</listitem>
+			<listitem>
+				<para>Activity Class</para>
+				<para>The Java class representing this activity.</para>
+			</listitem>
+			<listitem>
+				<para>Last Access Timestamp</para>
+				<para>The timestamp of when this Activity Context was last accessed.</para>
+			</listitem>
+			<listitem>
+				<para>Timers</para>
+				<para>The SLEE Timers attached to this Activity Context, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Data Attributes</para>
+				<para>The CMP attributes set in this Activity Context, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Name Bindings</para>
+				<para>The set of names given to this Activity Context, if any.</para>
+			</listitem>
+			<listitem>
+				<para>RA Entity</para>
+				<para>The Resource Adaptor Entity responsible for creating this Activity Context, if any.</para>
+			</listitem>
+			<listitem>
+				<para>SBB Attachments</para>
+				<para>The SBBs attached to this Activity Context, if any.</para>
+			</listitem>
+		</itemizedlist>
+	</section>
+
+	<section id="Activities_query_liveness">
+		<title>Query Activity Context Liveness</title>
+
+		<para>It is possible to query Resource Adaptor created activities for validity, by querying their liveness. If the Activity is not alive the Resource Adaptor is expected to end the activity. If the Activity is still alive the Resource Adaptor is not expected to do anything.</para>
+	</section>
+
+</section>
