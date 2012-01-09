@@ -29,28 +29,28 @@
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.gq.events. GqAARequest</entry>
+			   		<entry>net.java.slee.resource. diameter.gq.events. GqAARequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.gq.events. GqAARequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.gq.events. GqAARequest</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.gq.events. GqAbortSessionAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.gq.events. GqAbortSessionAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.gq.events. GqAbortSessionAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.gq.events. GqAbortSessionAnswer</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.gq.events. GqReAuthAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.gq.events. GqReAuthAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.gq.events. GqReAuthAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.gq.events. GqReAuthAnswer</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.gq.events. GqSessionTerminationRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.gq.events. GqSessionTerminationRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.gq.events. GqSessionTerminationRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.gq.events. GqSessionTerminationRequest</entry>
 			    </row>
 			</tbody>
 	 	</tgroup>
@@ -72,28 +72,28 @@
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.gq.events. GqAAAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.gq.events. GqAAAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.gq.events. GqAAAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.gq.events. GqAAAnswer</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.gq.events. GqAbortSessionRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.gq.events. GqAbortSessionRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.gq.events. GqAbortSessionRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.gq.events. GqAbortSessionRequest</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.gq.events. GqReAuthRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.gq.events. GqReAuthRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.gq.events. GqReAuthRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.gq.events. GqReAuthRequest</entry>
 			    </row>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.gq.events. GqSessionTerminationAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.gq.events. GqSessionTerminationAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.gq.events. GqSessionTerminationAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.gq.events. GqSessionTerminationAnswer</entry>
 			    </row>
 			</tbody>
 	 	</tgroup>

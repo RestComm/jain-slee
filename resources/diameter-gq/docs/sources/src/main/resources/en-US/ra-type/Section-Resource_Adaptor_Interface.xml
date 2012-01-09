@@ -34,17 +34,20 @@
 
 		public GqClientSessionActivity getActivityBySessionID(String sessionID);
 
-		public GqClientSessionActivity createGqClientSessionActivity() throws CreateActivityException;
+		public GqClientSessionActivity createGqClientSessionActivity() 
+			throws CreateActivityException;
 
-		public GqClientSessionActivity createGqClientSessionActivity(DiameterIdentity destinationHost, 
+		public GqClientSessionActivity createGqClientSessionActivity(
+			DiameterIdentity destinationHost, 
 			DiameterIdentity destinationRealm) throws CreateActivityException;
 
 		public GqAAAnswer sendGqAARequest(GqAARequest aar) throws IOException;
 
-		public GqAbortSessionAnswer sendGqAbortSessionRequest(GqAbortSessionRequest asr)
-			throws IOException;
+		public GqAbortSessionAnswer sendGqAbortSessionRequest(
+			GqAbortSessionRequest asr) throws IOException;
 
-		public GqReAuthAnswer sendGqReAuthRequest(GqReAuthRequest rar) throws IOException;
+		public GqReAuthAnswer sendGqReAuthRequest(
+			GqReAuthRequest rar) throws IOException;
 
 		DiameterIdentity[] getConnectedPeers();
 
