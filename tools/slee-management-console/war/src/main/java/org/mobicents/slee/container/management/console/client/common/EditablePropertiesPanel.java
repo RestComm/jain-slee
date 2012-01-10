@@ -55,6 +55,8 @@ public class EditablePropertiesPanel extends Composite {
 
   private Button saveButton = new Button("Save");
 
+  private Button cancelButton = new Button("Cancel");
+
   private String nameWidth = "100px";
 
   final private int READ_MODE = 0;
@@ -83,6 +85,7 @@ public class EditablePropertiesPanel extends Composite {
     buttonPanel.setCellPadding(2);
     buttonPanel.setWidget(0, 0, editButton);
     buttonPanel.setWidget(0, 1, saveButton);
+    buttonPanel.setWidget(0, 2, cancelButton);
 
     rootPanel.add(propertiesTable);
     rootPanel.add(buttonPanel);
@@ -96,6 +99,12 @@ public class EditablePropertiesPanel extends Composite {
     saveButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         onSaveButton();
+      }
+    });
+
+    cancelButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        onCancelButton();
       }
     });
 
@@ -124,10 +133,12 @@ public class EditablePropertiesPanel extends Composite {
     if (mode == READ_MODE) {
       editButton.setEnabled(true);
       saveButton.setEnabled(false);
+      cancelButton.setEnabled(false);
     }
     else {
       editButton.setEnabled(false);
       saveButton.setEnabled(true);
+      cancelButton.setEnabled(true);
     }
   }
 
@@ -198,6 +209,10 @@ public class EditablePropertiesPanel extends Composite {
     setMode(READ_MODE);
     if (listener != null)
       listener.onSaveProperties(propertiesInfo);
+  }
+
+  public void onCancelButton() {
+    setMode(READ_MODE);
   }
 
 }
