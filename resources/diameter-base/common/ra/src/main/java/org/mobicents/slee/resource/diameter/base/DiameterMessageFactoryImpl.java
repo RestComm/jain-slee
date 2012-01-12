@@ -484,7 +484,6 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
     boolean isError = false;
     boolean isPotentiallyRetransmitted = false;
 
-    ApplicationId aid = null;
     if (header != null) {
       commandCode = header.getCommandCode();
       endToEndId = header.getEndToEndId();
@@ -494,16 +493,12 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
       isProxiable = header.isProxiable();
       isError = header.isError();
       isPotentiallyRetransmitted = header.isPotentiallyRetransmitted();
-
-      aid = (commandCode == AccountingRequest.commandCode) ? 
-          ApplicationId.createByAccAppId(header.getApplicationId()) : ApplicationId.createByAuthAppId(header.getApplicationId());
     }
     else {
       commandCode = _commandCode;
-      aid = appId == null? BASE_AUTH_APP_ID : appId;
     }
     try {
-      Message msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+      Message msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, appId, hopByHopId, endToEndId);
 
       // Set the message flags from header (or default)
       msg.setRequest(isRequest);
@@ -535,7 +530,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
    * @see net.java.slee.resource.diameter.base.DiameterMessageFactory#createMessage(net.java.slee.resource.diameter.base.events.DiameterHeader, net.java.slee.resource.diameter.base.events.avp.DiameterAvp[])
    */
   public DiameterMessage createMessage(DiameterHeader header, DiameterAvp[] avps) throws AvpNotAllowedException {
-    return this.createDiameterMessage(header, avps, header.getCommandCode(), getApplicationId(header));
+    return this.createDiameterMessage(header, avps, header.getCommandCode(), getApplicationId(avps));
   }
 
   private void addOriginHostAndRealm(DiameterMessage msg) {
@@ -587,10 +582,10 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
     return applicationId;
   }
 
-  private ApplicationId getApplicationId(DiameterHeader header) {
-    return header.getCommandCode() == AccountingRequest.commandCode ? 
-        ApplicationId.createByAccAppId(header.getApplicationId()) : ApplicationId.createByAuthAppId(header.getApplicationId());
-  }
+  // private ApplicationId getApplicationId(DiameterHeader header) {
+  //   return header.getCommandCode() == AccountingRequest.commandCode ? 
+  //       ApplicationId.createByAccAppId(header.getApplicationId()) : ApplicationId.createByAuthAppId(header.getApplicationId());
+  // }
 
   private void addSessionIdAvp(DiameterMessage msg) {
     if(!msg.hasSessionId() && session != null) {

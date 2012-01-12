@@ -93,23 +93,33 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 
       DiameterAvp sessionId = avpFactory.createAvp(Avp.SESSION_ID, serverSession.getSessions().get(0).getSessionId());
 
-      DiameterMessageImpl answer = (DiameterMessageImpl) messageFactory.createMessage(implRequest.getHeader(), new DiameterAvp[] { accRecordNumber, accRecordType, originHost, originRealm, sessionId });
+      DiameterMessageImpl answer = (DiameterMessageImpl) messageFactory.createMessage(implRequest.getHeader(), new DiameterAvp[] { sessionId, accRecordNumber, accRecordType, originHost, originRealm });
 
       // RFC3588, Page 119-120
       // One of Acct-Application-Id and Vendor-Specific-Application-Id AVPs
       // MUST be present. If the Vendor-Specific-Application-Id grouped AVP
       // is present, it must have an Acct-Application-Id inside.
 
-      if (request.hasAcctApplicationId()) {
-        answer.addAvp(avpFactory.createAvp(Avp.ACCT_APPLICATION_ID, request.getAcctApplicationId()));
-      }
-      else {
-        // We should have an Vendor-Specific-Application-Id grouped AVP
-        answer.addAvp(request.getVendorSpecificApplicationId());
-      }
-
       // Get the raw Answer
       Message rawAnswer = answer.getGenericData();
+      
+      if (request.hasAcctApplicationId()) {
+        if(!answer.hasAcctApplicationId()) {
+          rawAnswer.getAvps().insertAvp(answer.hasSessionId() ? 1 : 0, Avp.ACCT_APPLICATION_ID, request.getAcctApplicationId(), true);
+        }
+      }
+      else {
+        // We should have a Vendor-Specific-Application-Id grouped AVP
+        
+        // This AVP MUST also be present as the first AVP in all experimental
+        // commands defined in the vendor-specific application.
+
+        // This AVP SHOULD be placed as close to the Diameter header as
+        // possible.
+        if(!answer.hasVendorSpecificApplicationId()) {
+          rawAnswer.getAvps().insertAvp(answer.hasSessionId() ? 1 : 0, Avp.VENDOR_SPECIFIC_APPLICATION_ID, request.getVendorSpecificApplicationId().byteArrayValue());
+        }
+      }
 
       // This is an answer.
       rawAnswer.setRequest(false);
