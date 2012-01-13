@@ -99,9 +99,10 @@ public abstract class CallSbb implements Sbb {
 		} else if (destination.indexOf(CONFERENCE_DEMO) > 0) {
 			// This should have been taken care
 			return;
-		} else if (destination.indexOf(TTS_DEMO) > 0) {
-			ChildRelation relation = getTTSSbbChild();
-			forwardEvent(relation, aci, evt);
+//		not implemented yet	
+//		} else if (destination.indexOf(TTS_DEMO) > 0) {
+//			ChildRelation relation = getTTSSbbChild();
+//			forwardEvent(relation, aci, evt);
 		} else {
 			logger.info("MGCP Demo can understand only " + IVR_DEMO + ", " + RECORDER_DEMO + " and " + CONFERENCE_DEMO
 					+ " dialed numbers");

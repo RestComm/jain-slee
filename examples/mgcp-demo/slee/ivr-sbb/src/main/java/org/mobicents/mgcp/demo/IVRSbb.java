@@ -58,6 +58,7 @@ import jain.protocol.ip.mgcp.pkg.MgcpEvent;
 import jain.protocol.ip.mgcp.pkg.PackageName;
 
 import java.text.ParseException;
+import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -85,6 +86,8 @@ import javax.slee.SbbContext;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.facilities.Tracer;
 
+import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
+
 import net.java.slee.resource.mgcp.JainMgcpProvider;
 import net.java.slee.resource.mgcp.MgcpActivityContextInterfaceFactory;
 import net.java.slee.resource.mgcp.MgcpConnectionActivity;
@@ -99,7 +102,7 @@ import net.java.slee.resource.sip.SleeSipProvider;
  */
 public abstract class IVRSbb implements Sbb {
 
-	public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
+	public final static String ENDPOINT_NAME = "mobicents/ivr/$";
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
 
@@ -270,33 +273,33 @@ public abstract class IVRSbb implements Sbb {
 		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 				.getUniqueRequestIdentifier());
 		
-		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
+		//ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
 		
-		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath), connectionIdentifier) };
+		EventName[] signalRequests = { new EventName(AUPackage.AU, MgcpEvent.factory("pa").withParm("an="+mediaPath/*+" mn=1"*/)/* , connectionIdentifier */) };
 		notificationRequest.setSignalRequests(signalRequests);
 
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
 
 		RequestedEvent[] requestedEvents = {
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf0, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf1, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf2, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf3, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf4, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf5, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf6, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf7, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf8, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("0")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("1")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("2")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("3")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("4")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("5")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("6")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("7")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("8")/* , connectionIdentifier */), actions),
 
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf9, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfA, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfB, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfC, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfD, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfStar, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfHash, connectionIdentifier), actions) };
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("9")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("A")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("B")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("C")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("D")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("*")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("#")/* , connectionIdentifier */), actions) };
 
 		notificationRequest.setRequestedEvents(requestedEvents);
 		notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
@@ -321,7 +324,7 @@ public abstract class IVRSbb implements Sbb {
 
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
 
-		logger.info(" NotificationRequest sent");
+		logger.info("============================= \nNotificationRequest sent:\n"+notificationRequest+"\n=============================");
 	}
 
 	public void onNotificationRequestResponse(NotificationRequestResponse event, ActivityContextInterface aci) {
@@ -344,7 +347,7 @@ public abstract class IVRSbb implements Sbb {
 	}
 
 	public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
-		logger.info("onNotifyRequest");
+		logger.info("onNotifyRequest:\n"+event);
 
 		 NotifyResponse response = new  NotifyResponse(event.getSource(),
 				ReturnCode.Transaction_Executed_Normally);
@@ -355,6 +358,7 @@ public abstract class IVRSbb implements Sbb {
 		EventName[] observedEvents = event.getObservedEvents();
 
 		for (EventName observedEvent : observedEvents) {
+			
 			switch (observedEvent.getEventIdentifier().intValue()) {
 			case MgcpEvent.REPORT_ON_COMPLETION:
 				logger.info("Announcemnet Completed NTFY received");
@@ -363,6 +367,86 @@ public abstract class IVRSbb implements Sbb {
 				logger.info("Announcemnet Failed received");
 				// TODO : Send DLCX and Send BYE to UA
 				break;
+			default:
+				//MGCP RI expects D/dtmfX, but correct is D/X ... hence it fails to match on 
+				//MgcpEvent.DTMF_X .... Thus event ID is wrong....
+				if(observedEvent.getPackageName().toString().equals("D"))
+				{
+					int decodedId = decodeDTMF(observedEvent);
+					processDTMF(decodedId);
+				}
+				
+			
+			}
+		}
+	}
+
+	public void onCallTerminated(RequestEvent evt, ActivityContextInterface aci) {
+		EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":"
+				+ MGCP_PEER_PORT);
+		DeleteConnection deleteConnection = new DeleteConnection(this, endpointID);
+
+		deleteConnection.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
+		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { deleteConnection });
+
+		ServerTransaction tx = evt.getServerTransaction();
+		Request request = evt.getRequest();
+
+		try {
+			Response response = messageFactory.createResponse(Response.OK, request);
+			tx.sendResponse(response);
+		} catch (Exception e) {
+			logger.severe("Error while sending DLCX ", e);
+		}
+	}
+	
+	
+	private int decodeDTMF(EventName observed)
+	{
+		
+		String eventName = observed.getEventIdentifier().getName();
+		if(Pattern.matches("\\d", eventName))
+		{
+			//digit
+			int i = Integer.parseInt(eventName);
+			return MgcpEvent.DTMF_0+i;
+		} else if(Pattern.matches("[A-D]#*", eventName))
+		{
+			switch(eventName.charAt(0))
+			{
+			case 'A':
+				return MgcpEvent.DTMF_A;
+				
+			case 'B':
+				return MgcpEvent.DTMF_B;
+				
+			case 'C':
+				return MgcpEvent.DTMF_C;
+				
+			case 'D':
+				return MgcpEvent.DTMF_D;
+					
+			case '#':
+				return MgcpEvent.DTMF_HASH;
+				
+			case '*':
+				return MgcpEvent.DTMF_STAR;
+			
+			default:
+					return -1;
+					
+			}
+		} else 
+		{
+			return -1;
+		}
+
+	}
+	
+	private void processDTMF(int id)
+	{
+		switch(id)
+		{
 			case MgcpEvent.DTMF_0:
 				logger.info("You have pressed 0");
 				sendRQNT(DTMF_0, false);
@@ -418,38 +502,18 @@ public abstract class IVRSbb implements Sbb {
 			case MgcpEvent.DTMF_D:
 				logger.info("You have pressed D");
 				sendRQNT(D, false);
-
+	
 				break;
 			case MgcpEvent.DTMF_STAR:
 				logger.info("You have pressed *");
 				sendRQNT(STAR, false);
-
+	
 				break;
 			case MgcpEvent.DTMF_HASH:
 				logger.info("You have pressed C");
 				sendRQNT(POUND, false);
-
+	
 				break;
-			}
-		}
-	}
-
-	public void onCallTerminated(RequestEvent evt, ActivityContextInterface aci) {
-		EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":"
-				+ MGCP_PEER_PORT);
-		DeleteConnection deleteConnection = new DeleteConnection(this, endpointID);
-
-		deleteConnection.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
-		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { deleteConnection });
-
-		ServerTransaction tx = evt.getServerTransaction();
-		Request request = evt.getRequest();
-
-		try {
-			Response response = messageFactory.createResponse(Response.OK, request);
-			tx.sendResponse(response);
-		} catch (Exception e) {
-			logger.severe("Error while sending DLCX ", e);
 		}
 	}
 

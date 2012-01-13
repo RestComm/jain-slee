@@ -69,6 +69,7 @@ import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.mgcp.MgcpEndpointActivity;
 
 import org.mobicents.mgcp.demo.events.CustomEvent;
+import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
 
 /**
  * 
@@ -76,7 +77,7 @@ import org.mobicents.mgcp.demo.events.CustomEvent;
  */
 public abstract class ConfLegSbb implements Sbb {
 
-	public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
+	public final static String ENDPOINT_NAME = "mobicents/ivr/$";
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
 
@@ -111,7 +112,7 @@ public abstract class ConfLegSbb implements Sbb {
 			CallIdentifier callID = new CallIdentifier(evt.getCallId());
 			this.setCallIdentifier(callID);
 
-			CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
+			CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.Confrnce);
 			createConnection.setSecondEndpointIdentifier(ivrEndpointID);
 
 			int txID = mgcpProvider.getUniqueTransactionHandler();
@@ -125,13 +126,14 @@ public abstract class ConfLegSbb implements Sbb {
 			epnAci.attach(sbbContext.getSbbLocalObject());
 
 			mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { createConnection });
+			logger.info("Sent CRCX: \n"+createConnection);
 		} catch (Exception e) {
 			logger.severe("Error while receiving the Custom Event ", e);
 		}
 	}
 
 	public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityContextInterface aci) {
-		logger.info("Receive CRCX response: " + event.getTransactionHandle());
+		logger.info("Receive CRCX response: " + event);
 
 		ReturnCode status = event.getReturnCode();
 
@@ -157,16 +159,16 @@ public abstract class ConfLegSbb implements Sbb {
 
 		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 				.getUniqueRequestIdentifier());
-		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
-		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath),
-				connectionIdentifier) };
+		//ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
+		EventName[] signalRequests = { new EventName(AUPackage.AU, MgcpEvent.factory("pa").withParm("an="+mediaPath)
+				/*, connectionIdentifier*/) };
 		notificationRequest.setSignalRequests(signalRequests);
 
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
 
 		RequestedEvent[] requestedEvents = {
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier), actions) };
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc/*, connectionIdentifier*/), actions),
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of/*, connectionIdentifier*/), actions) };
 
 		notificationRequest.setRequestedEvents(requestedEvents);
 		notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
@@ -191,7 +193,7 @@ public abstract class ConfLegSbb implements Sbb {
 
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
 
-		logger.info(" NotificationRequest sent");
+		logger.info(" NotificationRequest sent:\n"+notificationRequest);
 	}
 
 	public void onCallTerminated(CustomEvent evt, ActivityContextInterface aci) {

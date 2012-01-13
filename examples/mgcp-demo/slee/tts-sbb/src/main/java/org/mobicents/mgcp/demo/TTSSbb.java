@@ -57,6 +57,7 @@ import jain.protocol.ip.mgcp.pkg.MgcpEvent;
 import jain.protocol.ip.mgcp.pkg.PackageName;
 
 import java.text.ParseException;
+import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -84,6 +85,8 @@ import javax.slee.SbbContext;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.facilities.Tracer;
 
+import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
+
 import net.java.slee.resource.mgcp.JainMgcpProvider;
 import net.java.slee.resource.mgcp.MgcpActivityContextInterfaceFactory;
 import net.java.slee.resource.mgcp.MgcpConnectionActivity;
@@ -98,7 +101,7 @@ import net.java.slee.resource.sip.SleeSipProvider;
  */
 public abstract class TTSSbb implements Sbb {
 
-	public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
+	public final static String ENDPOINT_NAME = "mobicents/ivr/$";
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
 	
@@ -278,33 +281,34 @@ public abstract class TTSSbb implements Sbb {
 		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 				.getUniqueRequestIdentifier());
 		
-		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
+		//ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
 		
-		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath), connectionIdentifier) };
+		EventName[] signalRequests = { new EventName(AUPackage.AU, MgcpEvent.factory("pa").withParm("an="+mediaPath/*+" mn=1"*/)/* , connectionIdentifier */) };
 		notificationRequest.setSignalRequests(signalRequests);
 
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
 
 		RequestedEvent[] requestedEvents = {
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf0, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf1, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf2, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf3, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf4, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf5, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf6, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf7, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf8, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("0")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("1")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("2")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("3")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("4")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("5")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("6")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("7")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("8")/* , connectionIdentifier */), actions),
 
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf9, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfA, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfB, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfC, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfD, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfStar, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfHash, connectionIdentifier), actions) };
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("9")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("A")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("B")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("C")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("D")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("*")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("#")/* , connectionIdentifier */), actions) };
+
 
 		notificationRequest.setRequestedEvents(requestedEvents);
 		notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
@@ -339,33 +343,36 @@ public abstract class TTSSbb implements Sbb {
 		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 				.getUniqueRequestIdentifier());
 
+		
+		//TODO: update this to makeit work!!
 		ttsText = "ts("+ttsText+") vc("+voice+")";
-		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
-		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(ttsText), connectionIdentifier) };
+		//ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
+		EventName[] signalRequests = { new EventName(AUPackage.AU, MgcpEvent.factory("pa").withParm(ttsText) /*,connectionIdentifier*/) };
 		notificationRequest.setSignalRequests(signalRequests);
 
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
 
 		RequestedEvent[] requestedEvents = {
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf0, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf1, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf2, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf3, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf4, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf5, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf6, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf7, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf8, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("0")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("1")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("2")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("3")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("4")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("5")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("6")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("7")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("8")/* , connectionIdentifier */), actions),
 
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf9, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfA, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfB, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfC, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfD, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfStar, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfHash, connectionIdentifier), actions) };
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("9")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("A")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("B")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("C")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("D")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("*")/* , connectionIdentifier */), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("#")/* , connectionIdentifier */), actions) };
+
 
 		notificationRequest.setRequestedEvents(requestedEvents);
 		notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
@@ -432,73 +439,15 @@ public abstract class TTSSbb implements Sbb {
 				logger.info("Announcemnet Failed received");
 				// TODO : Send DLCX and Send BYE to UA
 				break;
-			case MgcpEvent.DTMF_0:
-				logger.info("You have pressed 0");
-				sendTTSRQNT(DTMF_0, VOICE_KEVIN, false);
-				break;
-			case MgcpEvent.DTMF_1:
-				logger.info("You have pressed 1");
-				sendTTSRQNT(DTMF_1, VOICE_KEVIN16, false);
-				break;
-			case MgcpEvent.DTMF_2:
-				logger.info("You have pressed 2");
-				sendTTSRQNT(DTMF_2, VOICE_ALAN, false);
-				break;
-			case MgcpEvent.DTMF_3:
-				logger.info("You have pressed 3");
-				sendTTSRQNT(DTMF_3, VOICE_MBROLA_US1, false);
-				break;
-			case MgcpEvent.DTMF_4:
-				logger.info("You have pressed 4");
-				sendTTSRQNT(DTMF_4, VOICE_MBROLA_US2, false);
-				break;
-			case MgcpEvent.DTMF_5:
-				logger.info("You have pressed 5");
-				sendTTSRQNT(DTMF_5, VOICE_MBROLA_US3, false);
-				break;
-			case MgcpEvent.DTMF_6:
-				logger.info("You have pressed 6");
-				sendTTSRQNT(DTMF_6, VOICE_KEVIN, false);
-				break;
-			case MgcpEvent.DTMF_7:
-				logger.info("You have pressed 7");
-				sendTTSRQNT(DTMF_7, VOICE_KEVIN, false);
-				break;
-			case MgcpEvent.DTMF_8:
-				logger.info("You have pressed 8");
-				sendTTSRQNT(DTMF_8, VOICE_KEVIN, false);
-				break;
-			case MgcpEvent.DTMF_9:
-				logger.info("You have pressed 9");
-				sendTTSRQNT(DTMF_9, VOICE_KEVIN, false);
-				break;
-			case MgcpEvent.DTMF_A:
-				logger.info("You have pressed A");
-				sendTTSRQNT(A, VOICE_KEVIN, false);
-				break;
-			case MgcpEvent.DTMF_B:
-				logger.info("You have pressed B");
-				sendTTSRQNT(B, VOICE_KEVIN, false);
-				break;
-			case MgcpEvent.DTMF_C:
-				logger.info("You have pressed C");
-				sendTTSRQNT(C, VOICE_KEVIN, false);
-				break;
-			case MgcpEvent.DTMF_D:
-				logger.info("You have pressed D");
-				sendTTSRQNT(D, VOICE_KEVIN, false);
-
-				break;
-			case MgcpEvent.DTMF_STAR:
-				logger.info("You have pressed *");
-				sendTTSRQNT(STAR, VOICE_KEVIN, false);
-
-				break;
-			case MgcpEvent.DTMF_HASH:
-				logger.info("You have pressed C");
-				sendTTSRQNT(POUND, VOICE_KEVIN, false);
-
-				break;
+			default:
+				//MGCP RI expects D/dtmfX, but correct is D/X ... hence it fails to match on 
+				//MgcpEvent.DTMF_X .... Thus event ID is wrong....
+				if(observedEvent.getPackageName().toString().equals("D"))
+				{
+					int decodedId = decodeDTMF(observedEvent);
+					processDTMF(decodedId);
+				}
+				
 			}
 		}
 	}
@@ -520,6 +469,122 @@ public abstract class TTSSbb implements Sbb {
 			tx.sendResponse(response);
 		} catch (Exception e) {
 			logger.severe("Error while sending DLCX ", e);
+		}
+	}
+	
+	private int decodeDTMF(EventName observed)
+	{
+		
+		String eventName = observed.getEventIdentifier().getName();
+		if(Pattern.matches("\\d", eventName))
+		{
+			//digit
+			int i = Integer.parseInt(eventName);
+			return MgcpEvent.DTMF_0+i;
+		} else if(Pattern.matches("[A-D]#*", eventName))
+		{
+			switch(eventName.charAt(0))
+			{
+			case 'A':
+				return MgcpEvent.DTMF_A;
+				
+			case 'B':
+				return MgcpEvent.DTMF_B;
+				
+			case 'C':
+				return MgcpEvent.DTMF_C;
+				
+			case 'D':
+				return MgcpEvent.DTMF_D;
+					
+			case '#':
+				return MgcpEvent.DTMF_HASH;
+				
+			case '*':
+				return MgcpEvent.DTMF_STAR;
+			
+			default:
+					return -1;
+					
+			}
+		} else 
+		{
+			return -1;
+		}
+
+	}
+	
+	private void processDTMF(int id)
+	{
+		switch(id)
+		{
+		case MgcpEvent.DTMF_0:
+			logger.info("You have pressed 0");
+			sendTTSRQNT(DTMF_0, VOICE_KEVIN, false);
+			break;
+		case MgcpEvent.DTMF_1:
+			logger.info("You have pressed 1");
+			sendTTSRQNT(DTMF_1, VOICE_KEVIN16, false);
+			break;
+		case MgcpEvent.DTMF_2:
+			logger.info("You have pressed 2");
+			sendTTSRQNT(DTMF_2, VOICE_ALAN, false);
+			break;
+		case MgcpEvent.DTMF_3:
+			logger.info("You have pressed 3");
+			sendTTSRQNT(DTMF_3, VOICE_MBROLA_US1, false);
+			break;
+		case MgcpEvent.DTMF_4:
+			logger.info("You have pressed 4");
+			sendTTSRQNT(DTMF_4, VOICE_MBROLA_US2, false);
+			break;
+		case MgcpEvent.DTMF_5:
+			logger.info("You have pressed 5");
+			sendTTSRQNT(DTMF_5, VOICE_MBROLA_US3, false);
+			break;
+		case MgcpEvent.DTMF_6:
+			logger.info("You have pressed 6");
+			sendTTSRQNT(DTMF_6, VOICE_KEVIN, false);
+			break;
+		case MgcpEvent.DTMF_7:
+			logger.info("You have pressed 7");
+			sendTTSRQNT(DTMF_7, VOICE_KEVIN, false);
+			break;
+		case MgcpEvent.DTMF_8:
+			logger.info("You have pressed 8");
+			sendTTSRQNT(DTMF_8, VOICE_KEVIN, false);
+			break;
+		case MgcpEvent.DTMF_9:
+			logger.info("You have pressed 9");
+			sendTTSRQNT(DTMF_9, VOICE_KEVIN, false);
+			break;
+		case MgcpEvent.DTMF_A:
+			logger.info("You have pressed A");
+			sendTTSRQNT(A, VOICE_KEVIN, false);
+			break;
+		case MgcpEvent.DTMF_B:
+			logger.info("You have pressed B");
+			sendTTSRQNT(B, VOICE_KEVIN, false);
+			break;
+		case MgcpEvent.DTMF_C:
+			logger.info("You have pressed C");
+			sendTTSRQNT(C, VOICE_KEVIN, false);
+			break;
+		case MgcpEvent.DTMF_D:
+			logger.info("You have pressed D");
+			sendTTSRQNT(D, VOICE_KEVIN, false);
+
+			break;
+		case MgcpEvent.DTMF_STAR:
+			logger.info("You have pressed *");
+			sendTTSRQNT(STAR, VOICE_KEVIN, false);
+
+			break;
+		case MgcpEvent.DTMF_HASH:
+			logger.info("You have pressed C");
+			sendTTSRQNT(POUND, VOICE_KEVIN, false);
+
+			break;
 		}
 	}
 

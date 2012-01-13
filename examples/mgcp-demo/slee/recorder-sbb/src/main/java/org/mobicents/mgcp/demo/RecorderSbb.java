@@ -45,7 +45,6 @@ import jain.protocol.ip.mgcp.message.Notify;
 import jain.protocol.ip.mgcp.message.parms.CallIdentifier;
 import jain.protocol.ip.mgcp.message.parms.ConflictingParameterException;
 import jain.protocol.ip.mgcp.message.parms.ConnectionDescriptor;
-import jain.protocol.ip.mgcp.message.parms.ConnectionIdentifier;
 import jain.protocol.ip.mgcp.message.parms.ConnectionMode;
 import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 import jain.protocol.ip.mgcp.message.parms.EventName;
@@ -54,8 +53,8 @@ import jain.protocol.ip.mgcp.message.parms.RequestedAction;
 import jain.protocol.ip.mgcp.message.parms.RequestedEvent;
 import jain.protocol.ip.mgcp.message.parms.ReturnCode;
 import jain.protocol.ip.mgcp.pkg.MgcpEvent;
-import jain.protocol.ip.mgcp.pkg.PackageName;
 
+import java.io.File;
 import java.text.ParseException;
 
 import javax.naming.Context;
@@ -96,7 +95,6 @@ import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
 
-import org.mobicents.protocols.mgcp.jain.pkg.AUMgcpEvent;
 import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
 
 /**
@@ -107,7 +105,7 @@ public abstract class RecorderSbb implements Sbb {
 
 	private Tracer logger;
 
-	public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
+	public final static String ENDPOINT_NAME = "mobicents/ivr/$";
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
 
@@ -178,7 +176,7 @@ public abstract class RecorderSbb implements Sbb {
 			connectionActivity = mgcpProvider
 					.getConnectionActivity(createConnection.getTransactionHandle(), endpointID);
 			ActivityContextInterface epnAci = mgcpAcif.getActivityContextInterface(connectionActivity);
-			logger.info("END 111: " + connectionActivity.getEndpointIdentifier());
+
 			epnAci.attach(sbbContext.getSbbLocalObject());
 		} catch (FactoryException ex) {
 			ex.printStackTrace();
@@ -258,16 +256,16 @@ public abstract class RecorderSbb implements Sbb {
 
 		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 				.getUniqueRequestIdentifier());
-		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
-		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath),
-				connectionIdentifier) };
+		//ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
+		EventName[] signalRequests = { new EventName(AUPackage.AU, MgcpEvent.factory("pa").withParm("an="+mediaPath)
+				/*, connectionIdentifier*/) };
 		notificationRequest.setSignalRequests(signalRequests);
 
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
 
 		RequestedEvent[] requestedEvents = {
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier), actions),
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier), actions), };
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc/*, connectionIdentifier*/), actions),
+				new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of/*, connectionIdentifier*/), actions), };
 
 		notificationRequest.setRequestedEvents(requestedEvents);
 		notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
@@ -292,13 +290,13 @@ public abstract class RecorderSbb implements Sbb {
 
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
 
-		logger.info(" NotificationRequest sent");
+		logger.info(" NotificationRequest sent\n"+notificationRequest);
 	}
 
 	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 		logger.info("****** RecorderSbb Recieved TimerEvent ******* ");
 		this.setBye(true);
-		sendRQNT("recorded.wav", false);
+		sendRQNT(getFileURL("recorded.wav"), false);
 	}
 
 	/**
@@ -342,7 +340,7 @@ public abstract class RecorderSbb implements Sbb {
 	}
 
 	public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
-		logger.info("onNotifyRequest");
+		logger.info("onNotifyRequest:\n"+event);
 
 		NotificationRequestResponse response = new NotificationRequestResponse(event.getSource(),
 				ReturnCode.Transaction_Executed_Normally);
@@ -368,14 +366,14 @@ public abstract class RecorderSbb implements Sbb {
 					notificationRequest.setNotifiedEntity(notifiedEntity);
 					notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
 
-					ConnectionIdentifier connId = new ConnectionIdentifier(this.getConnectionIdentifier());
+					//ConnectionIdentifier connId = new ConnectionIdentifier(this.getConnectionIdentifier());
 
-					EventName[] signalRequests = { new EventName(AUPackage.AU, AUMgcpEvent.aupr
-							.withParm("recorded.wav"), connId) };
+					EventName[] signalRequests = { new EventName(AUPackage.AU, MgcpEvent.factory("pr")
+							.withParm("ri="+getFileURL("recorded.wav")+" oa=true")/*, connId*/) };
 					notificationRequest.setSignalRequests(signalRequests);
 
 					mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
-
+					logger.info(" NotificationRequest2 sent\n"+notificationRequest);
 					setTimer(aci);
 				}
 
@@ -411,6 +409,21 @@ public abstract class RecorderSbb implements Sbb {
 		}
 	}
 
+	private String getFileURL(String fileName)
+	{
+		String prefix = null;
+		if(File.separator.equals("/"))
+		{
+			prefix="file://";
+		}else
+		{
+			//windows requires /// ...
+			prefix="file:///";
+		}
+		String fileURL = prefix+System.getProperty("jboss.server.data.dir")+File.separator+fileName;
+		return fileURL;
+	}
+	
 	private void respond(RequestEvent evt, int cause) {
 		Request request = evt.getRequest();
 		ServerTransaction tx = evt.getServerTransaction();

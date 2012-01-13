@@ -95,7 +95,7 @@ public abstract class ConferenceSbb implements Sbb {
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
 
-	public final static String ENDPOINT_NAME = "/mobicents/media/cnf/$";
+	public final static String ENDPOINT_NAME = "mobicents/cnf/$";
 
 	public static final int MGCP_PEER_PORT = 2427;
 	public static final int MGCP_PORT = 2727;
@@ -162,7 +162,7 @@ public abstract class ConferenceSbb implements Sbb {
 			logger.info("Conference has already begun at endpoint " + endpointID);
 		}
 
-		CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
+		CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.Confrnce);
 
 		try {
 			String sdp = new String(evt.getRequest().getRawContent());
@@ -194,10 +194,11 @@ public abstract class ConferenceSbb implements Sbb {
 		}
 
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { createConnection });
+		logger.info("Sent CRCX:\n"+createConnection);
 	}
 
 	public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityContextInterface aci) {
-		logger.info("Receive CRCX response: " + event.getTransactionHandle());
+		logger.info("Receive CRCX response: \n" + event);
 
 		ServerTransaction txn = null;
 		HashMap fromVsConnIdMap = this.getFromVsConnIdMap();
