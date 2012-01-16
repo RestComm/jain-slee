@@ -30,7 +30,7 @@
 								<configuration>
 									<tasks>
 										<!-- copy docs -->
-										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/tools/management-console/docs">
+										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/tools/jopr-plugin/docs">
 											<fileset dir="${basedir}/target/docbook/publish" />
 										</copy>
 									</tasks>
