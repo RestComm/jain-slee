@@ -180,6 +180,18 @@
 				</os>
 			</activation>
 		</profile>
+		<profile>
+			<id>release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
+		</profile>
 	</profiles>
 
 </project>
