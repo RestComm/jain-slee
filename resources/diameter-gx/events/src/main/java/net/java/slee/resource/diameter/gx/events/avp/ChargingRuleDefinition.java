@@ -63,7 +63,7 @@ public interface ChargingRuleDefinition extends GroupedAvp {
      * Returns the value of the Charging-Rule-Name AVP, of type Octet String.
      * @return String
      */
-    abstract String getChargingRuleName();
+    abstract byte[] getChargingRuleName();
 
     /**
      * Returns the value of the Service-Identifier AVP, of type long.
@@ -117,7 +117,7 @@ public interface ChargingRuleDefinition extends GroupedAvp {
      * Returns the value of the AF-ChargingIdentifier AVP, of type OctetString.
      * @return String
      */
-    abstract String getAFChargingIdentifier();
+    abstract byte[] getAFChargingIdentifier();
 
     /**
      * Returns the value of the Flows AVP, of type Grouped.
@@ -195,7 +195,7 @@ public interface ChargingRuleDefinition extends GroupedAvp {
      * Sets the value of the charging-Rule-Name AVP, of type Octet String.
      * @param chargingRuleName
      */
-    abstract void setChargingRuleName(String chargingRuleName);
+    abstract void setChargingRuleName(byte[] chargingRuleName);
 
     /**
      * Sets the value of the Service-Identifier AVP, of type long.
@@ -249,7 +249,7 @@ public interface ChargingRuleDefinition extends GroupedAvp {
      * Sets the value of the AF-Charging-Identifier AVP, of type Octet String.
      * @param afChargingIdentifier
      */
-    abstract void setAFChargingIdentifier(String afChargingIdentifier);
+    abstract void setAFChargingIdentifier(byte[] afChargingIdentifier);
 
     /**
      * Sets the value of the Flows AVP, of type Grouped.

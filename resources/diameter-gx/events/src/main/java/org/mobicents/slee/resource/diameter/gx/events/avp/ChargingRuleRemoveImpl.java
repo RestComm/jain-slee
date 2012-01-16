@@ -43,7 +43,7 @@ public class ChargingRuleRemoveImpl extends GroupedAvpImpl implements ChargingRu
      *
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleRemove#getChargingRuleName()
      */
-    public String getChargingRuleName() {
+    public byte[] getChargingRuleName() {
         return getAvpAsOctetString(DiameterGxAvpCodes.CHARGING_RULE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
@@ -53,7 +53,7 @@ public class ChargingRuleRemoveImpl extends GroupedAvpImpl implements ChargingRu
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleRemove#getChargingRuleBaseName()
      */
     public String getChargingRuleBaseName() {
-        return getAvpAsOctetString(DiameterGxAvpCodes.CHARGING_RULE_BASE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID);
+        return getAvpAsUTF8String(DiameterGxAvpCodes.CHARGING_RULE_BASE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
     /**
@@ -79,7 +79,7 @@ public class ChargingRuleRemoveImpl extends GroupedAvpImpl implements ChargingRu
      *
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleRemove#setChargingRuleName(String)
      */
-    public void setChargingRuleName(String chargingRuleName) {
+    public void setChargingRuleName(byte[] chargingRuleName) {
         addAvp(DiameterGxAvpCodes.CHARGING_RULE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID, chargingRuleName);
     }
 

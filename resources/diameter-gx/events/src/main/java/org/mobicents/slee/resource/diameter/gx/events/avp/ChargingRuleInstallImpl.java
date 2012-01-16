@@ -53,7 +53,7 @@ public class ChargingRuleInstallImpl extends GroupedAvpImpl implements ChargingR
      *
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleInstall#getChargingRuleName()
      */
-    public String getChargingRuleName() {
+    public byte[] getChargingRuleName() {
         return getAvpAsOctetString(DiameterGxAvpCodes.CHARGING_RULE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
@@ -63,7 +63,7 @@ public class ChargingRuleInstallImpl extends GroupedAvpImpl implements ChargingR
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleInstall#getChargingRuleBaseName()
      */
     public String getChargingRuleBaseName() {
-        return getAvpAsOctetString(DiameterGxAvpCodes.CHARGING_RULE_BASE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID);
+        return getAvpAsUTF8String(DiameterGxAvpCodes.CHARGING_RULE_BASE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
     /**
@@ -107,7 +107,7 @@ public class ChargingRuleInstallImpl extends GroupedAvpImpl implements ChargingR
      *
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleInstall#setChargingRuleName(String)
      */
-    public void setChargingRuleName(String chargingRuleName) {
+    public void setChargingRuleName(byte[] chargingRuleName) {
         addAvp(DiameterGxAvpCodes.CHARGING_RULE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID, chargingRuleName);
     }
 

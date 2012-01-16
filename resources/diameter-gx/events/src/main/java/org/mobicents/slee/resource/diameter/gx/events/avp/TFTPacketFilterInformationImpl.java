@@ -62,7 +62,7 @@ public class TFTPacketFilterInformationImpl extends GroupedAvpImpl implements TF
      *
      * @see net.java.slee.resource.diameter.gx.events.avp.TFTPacketFilterInformation#getTosTrafficClass()
      */
-    public String getTosTrafficClass() {
+    public byte[] getTosTrafficClass() {
         return getAvpAsOctetString(DiameterGxAvpCodes.ToS_TRAFFIC_CLASS, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
@@ -116,7 +116,7 @@ public class TFTPacketFilterInformationImpl extends GroupedAvpImpl implements TF
      *
      * @see net.java.slee.resource.diameter.gx.events.avp.TFTPacketFilterInformation#setTosTrafficClass(String)
      */
-    public void setTosTrafficClass(String tosTrafficClass) {
+    public void setTosTrafficClass(byte[] tosTrafficClass) {
         addAvp(DiameterGxAvpCodes.ToS_TRAFFIC_CLASS, DiameterGxAvpCodes.TGPP_VENDOR_ID, tosTrafficClass);
     }
 

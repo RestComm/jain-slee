@@ -52,7 +52,7 @@ public class ChargingRuleDefinitionImpl extends GroupedAvpImpl implements Chargi
      * 
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleDefinition#getChargingRuleName()
      */
-    public String getChargingRuleName() {
+    public byte[] getChargingRuleName() {
         return getAvpAsOctetString(DiameterGxAvpCodes.CHARGING_RULE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
@@ -134,7 +134,7 @@ public class ChargingRuleDefinitionImpl extends GroupedAvpImpl implements Chargi
      *
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleDefinition#getAFChargingIdentifier()
      */
-    public String getAFChargingIdentifier() {
+    public byte[] getAFChargingIdentifier() {
         return getAvpAsOctetString(DiameterGxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
@@ -251,7 +251,7 @@ public class ChargingRuleDefinitionImpl extends GroupedAvpImpl implements Chargi
      *
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleDefinition#setChargingRuleName(String)
      */
-    public void setChargingRuleName(String chargingRuleName) {
+    public void setChargingRuleName(byte[] chargingRuleName) {
         addAvp(DiameterGxAvpCodes.CHARGING_RULE_NAME, DiameterGxAvpCodes.TGPP_VENDOR_ID, chargingRuleName);
     }
 
@@ -332,7 +332,7 @@ public class ChargingRuleDefinitionImpl extends GroupedAvpImpl implements Chargi
      *
      * @see net.java.slee.resource.diameter.gx.events.avp.ChargingRuleDefinition#setAFChargingIdentifier(String)
      */
-    public void setAFChargingIdentifier(String afChargingIdentifier) {
+    public void setAFChargingIdentifier(byte[] afChargingIdentifier) {
         addAvp(DiameterGxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterGxAvpCodes.TGPP_VENDOR_ID, afChargingIdentifier);
     }
 

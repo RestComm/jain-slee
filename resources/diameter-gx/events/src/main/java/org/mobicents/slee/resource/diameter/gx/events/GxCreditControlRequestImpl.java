@@ -173,7 +173,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#getFramedIPAddress()
      */
-    public String getFramedIPAddress() {
+    public byte[] getFramedIPAddress() {
         return getAvpAsOctetString(DiameterGxAvpCodes.FRAMED_IP_ADDRESS);
     }
 
@@ -189,7 +189,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#setFramedIPAddress()
      */
-    public void setFramedIPAddress(String framedIpAddress) {
+    public void setFramedIPAddress(byte[] framedIpAddress) {
         addAvp(DiameterGxAvpCodes.FRAMED_IP_ADDRESS, framedIpAddress);
     }
 
@@ -197,7 +197,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#getFramedIPV6Prefix()
      */
-    public String getFramedIPV6Prefix() {
+    public byte[] getFramedIPV6Prefix() {
         return getAvpAsOctetString(DiameterGxAvpCodes.FRAMED_IPV6_PREFIX);
     }
 
@@ -213,7 +213,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#setFramedIPV6Prefix()
      */
-    public void setFramedIPV6Prefix(String framedIPV6Prefix) {
+    public void setFramedIPV6Prefix(byte[] framedIPV6Prefix) {
         addAvp(DiameterGxAvpCodes.FRAMED_IPV6_PREFIX, framedIPV6Prefix);
     }
 
@@ -221,7 +221,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#getTgppRatType()
      */
-    public String getTgppRatType() {
+    public byte[] getTgppRatType() {
         return getAvpAsOctetString(DiameterGxAvpCodes.TGPP_RAT_TYPE, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
@@ -237,7 +237,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#setTgppRatType()
      */
-    public void setTgppRatType(String tgppRatType) {
+    public void setTgppRatType(byte[] tgppRatType) {
         addAvp(DiameterGxAvpCodes.TGPP_RAT_TYPE, DiameterGxAvpCodes.TGPP_VENDOR_ID, tgppRatType);
     }
 
@@ -245,7 +245,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#getTgppGPRSNegotiatedQosProfile()
      */
-    public String getTgppGPRSNegotiatedQosProfile() {
+    public byte[] getTgppGPRSNegotiatedQosProfile() {
         return getAvpAsOctetString(DiameterGxAvpCodes.TGPP_GPRS_NEGOTIATED_QOS_PROFILE, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
@@ -261,7 +261,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#setTgppGPRSNegotiatedQosProfile()
      */
-    public void setTgppGPRSNegotiatedQosProfile(String tgppGPRSNegotiatedQosProfile) {
+    public void setTgppGPRSNegotiatedQosProfile(byte[] tgppGPRSNegotiatedQosProfile) {
         addAvp(DiameterGxAvpCodes.TGPP_GPRS_NEGOTIATED_QOS_PROFILE, DiameterGxAvpCodes.TGPP_VENDOR_ID, tgppGPRSNegotiatedQosProfile);
     }
 
@@ -269,7 +269,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#getTgppSgsnMccMnc()
      */
-    public String getTgppSgsnMccMnc() {
+    public byte[] getTgppSgsnMccMnc() {
         return getAvpAsOctetString(DiameterGxAvpCodes.TGPP_SGSN_MCC_MNC, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
@@ -285,7 +285,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#setTgppSgsnMccMnc()
      */
-    public void setTgppSgsnMccMnc(String tgppSgsnMccMnc) {
+    public void setTgppSgsnMccMnc(byte[] tgppSgsnMccMnc) {
         addAvp(DiameterGxAvpCodes.TGPP_SGSN_MCC_MNC, DiameterGxAvpCodes.TGPP_VENDOR_ID, tgppSgsnMccMnc);
     }
 
@@ -293,8 +293,8 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#getTgppSgsnAddress()
      */
-    public String getTgppSgsnAddress() {
-        return getAvpAsUTF8String(DiameterGxAvpCodes.TGPP_SGSN_ADDRESS, DiameterGxAvpCodes.TGPP_VENDOR_ID);
+    public byte[] getTgppSgsnAddress() {
+        return getAvpAsOctetString(DiameterGxAvpCodes.TGPP_SGSN_ADDRESS, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
     /**
@@ -309,7 +309,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#setTgppSgsnAddress()
      */
-    public void setTgppSgsnAddress(String TgppSgsnAddress) {
+    public void setTgppSgsnAddress(byte[] TgppSgsnAddress) {
         addAvp(DiameterGxAvpCodes.TGPP_SGSN_ADDRESS, DiameterGxAvpCodes.TGPP_VENDOR_ID, TgppSgsnAddress);
     }
 
@@ -317,8 +317,8 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#getTgppSgsnIPV6Address()
      */
-    public String getTgppSgsnIPV6Address() {
-        return getAvpAsUTF8String(DiameterGxAvpCodes.TGPP_SGSN_IPv6_ADDRESS, DiameterGxAvpCodes.TGPP_VENDOR_ID);
+    public byte[] getTgppSgsnIPV6Address() {
+        return getAvpAsOctetString(DiameterGxAvpCodes.TGPP_SGSN_IPv6_ADDRESS, DiameterGxAvpCodes.TGPP_VENDOR_ID);
     }
 
     /**
@@ -333,7 +333,7 @@ public class GxCreditControlRequestImpl extends GxCreditControlMessageImpl imple
      * (non-Javadoc)
      * @see net.java.slee.resource.diameter.gx.events.GxCreditControlRequest#setTgppSgsnIPV6Address()
      */
-    public void setTgppSgsnIPV6Address(String tgppSgsnIPV6Address) {
+    public void setTgppSgsnIPV6Address(byte[] tgppSgsnIPV6Address) {
         addAvp(DiameterGxAvpCodes.TGPP_SGSN_IPv6_ADDRESS, DiameterGxAvpCodes.TGPP_VENDOR_ID, tgppSgsnIPV6Address);
     }
 

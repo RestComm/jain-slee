@@ -56,7 +56,7 @@ public interface TFTPacketFilterInformation extends GroupedAvp {
     abstract long getPrecedence();
 
     /**
-     * Returns the value of the TFT-Filter AVP, of type Octet IPFilterRule.
+     * Returns the value of the TFT-Filter AVP, of type IPFilterRule.
      * @return IPFilterRule
      */
     abstract IPFilterRule getTFTFilter();
@@ -65,7 +65,7 @@ public interface TFTPacketFilterInformation extends GroupedAvp {
      * Returns the value of the ToS-Traffic-Class AVP, of type Octet String.
      * @return String
      */
-    abstract String getTosTrafficClass();
+    abstract byte[] getTosTrafficClass();
 
      /**
      * Returns true if the Precedence AVP is present in the message.
@@ -101,6 +101,6 @@ public interface TFTPacketFilterInformation extends GroupedAvp {
      * Sets the value of the ToS-Traffic-Class AVP, of type Octet String.
      * @param flowDescription
      */
-    abstract void setTosTrafficClass(String tosTrafficClass);
+    abstract void setTosTrafficClass(byte[] tosTrafficClass);
 
 }

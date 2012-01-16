@@ -48,7 +48,7 @@ public interface ChargingRuleRemove extends GroupedAvp {
      * Returns the value of the Charging-Rule-Name AVP, of type Octet String.
      * @return String
      */
-    abstract String getChargingRuleName();
+    abstract byte[] getChargingRuleName();
 
     /**
      * Returns the value of the Charging-Rule-Base-Name AVP, of type UTF8 String.
@@ -72,7 +72,7 @@ public interface ChargingRuleRemove extends GroupedAvp {
      * Sets the value of the Charging-Rule-Name AVP, of type OctetString.
      * @param flowDescription
      */
-    abstract void setChargingRuleName(String chargingRuleName);
+    abstract void setChargingRuleName(byte[] chargingRuleName);
 
     /**
      * Sets the value of the Charging-Rule-Base-Name AVP, of type UTF8 String.

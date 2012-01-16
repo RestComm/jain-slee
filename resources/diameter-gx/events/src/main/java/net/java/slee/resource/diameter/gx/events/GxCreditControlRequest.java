@@ -167,7 +167,7 @@ public interface GxCreditControlRequest extends GxCreditControlMessage {
      * http://www.ietf.org/rfc/rfc4005.txt
      * @return String
      */
-    String getFramedIPAddress();
+    byte[] getFramedIPAddress();
 
     /**
      * Returns true if Framed-Ip-Address AVP is present in the request. Defined in IEFT RFC 4005
@@ -181,14 +181,14 @@ public interface GxCreditControlRequest extends GxCreditControlMessage {
      * http://www.ietf.org/rfc/rfc4005.txt
      * @param framedIpAddress String
      */
-    void setFramedIPAddress(String framedIpAddress);
+    void setFramedIPAddress(byte[] framedIpAddress);
 
     /**
      * Returns the value of Framed-IPv6-Prefix AVP as octet string. Defined in IEFT RFC 4005
      * http://www.ietf.org/rfc/rfc4006.txt
      * @return String
      */
-    String getFramedIPV6Prefix();
+    byte[] getFramedIPV6Prefix();
 
     /**
      * Returns true if Framed-IPv6-Prefix AVP is present in the request. Defined in IEFT RFC 4005
@@ -202,14 +202,14 @@ public interface GxCreditControlRequest extends GxCreditControlMessage {
      * http://www.ietf.org/rfc/rfc4005.txt
      * @param framedIPV6Prefix
      */
-    void setFramedIPV6Prefix(String framedIPV6Prefix);
+    void setFramedIPV6Prefix(byte[] framedIPV6Prefix);
 
     /**
      * Returns the value of 3GPP-RAT-Type AVP as octet string. Defined in 3GPP TS 29.061
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @return String
      */
-    String getTgppRatType();
+    byte[] getTgppRatType();
 
     /**
      * Returns true if 3GPP-RAT-Type AVP is present in the request. Defined in 3GPP TS 29.061
@@ -223,14 +223,14 @@ public interface GxCreditControlRequest extends GxCreditControlMessage {
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @param tgppRatType String
      */
-    void setTgppRatType(String tgppRatType);
+    void setTgppRatType(byte[] tgppRatType);
 
     /**
      * Returns the value of 3GPP-GPRS-Negotiated-QoS-Profile AVP as Octet string. Defined in 3GPP TS 29.061
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @return String
      */
-    String getTgppGPRSNegotiatedQosProfile();
+    byte[] getTgppGPRSNegotiatedQosProfile();
 
     /**
      * Returns true if 3GPP-GPRS-Negotiated-QoS-Profile AVP is present in the request. Defined in 3GPP TS 29.061
@@ -244,14 +244,14 @@ public interface GxCreditControlRequest extends GxCreditControlMessage {
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @param tgppGPRSNegotiatedQosProfile
      */
-    void setTgppGPRSNegotiatedQosProfile(String tgppGPRSNegotiatedQosProfile);
+    void setTgppGPRSNegotiatedQosProfile(byte[] tgppGPRSNegotiatedQosProfile);
 
     /**
      * Returns the value of 3GPP-SGSN-MCC_MNC AVP as Octet string. Defined in 3GPP TS 29.061
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @return String
      */
-    String getTgppSgsnMccMnc();
+    byte[] getTgppSgsnMccMnc();
 
     /**
      * Returns true if 3GPP-SGSN-MCC_MNC AVP is present in the request. Defined in 3GPP TS 29.061
@@ -265,14 +265,14 @@ public interface GxCreditControlRequest extends GxCreditControlMessage {
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @param tgppSgsnMccMnc String
      */
-    void setTgppSgsnMccMnc(String tgppSgsnMccMnc);
+    void setTgppSgsnMccMnc(byte[] tgppSgsnMccMnc);
 
     /**
      * Returns the value of 3GPP-SGSN-Address AVP as Octet string. Defined in 3GPP S 29.061
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @return String
      */
-    String getTgppSgsnAddress();
+    byte[] getTgppSgsnAddress();
 
     /**
      * Returns true if 3GPP-SGSN-Address AVP is present in the request. Defined in 3GPP S 29.061
@@ -286,14 +286,14 @@ public interface GxCreditControlRequest extends GxCreditControlMessage {
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @param TgppSgsnAddress
      */
-    void setTgppSgsnAddress(String TgppSgsnAddress);
+    void setTgppSgsnAddress(byte[] TgppSgsnAddress);
 
     /**
      * Returns the value of 3GPP-SGSN-IPv6-Address AVP as Octet string. Defined in 3GPP S 29.061
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @return String
      */
-    String getTgppSgsnIPV6Address();
+    byte[] getTgppSgsnIPV6Address();
 
     /**
      * Returns true if 3GPP-SGSN-IPv6-Address AVP is present in the request. Defined in 3GPP S 29.061
@@ -307,7 +307,7 @@ public interface GxCreditControlRequest extends GxCreditControlMessage {
      * http://pda.etsi.org/pda/home.asp?wkr=RTS/TSGC-0329061v6f0
      * @param tgppSgsnIPV6Address
      */
-    void setTgppSgsnIPV6Address(String tgppSgsnIPV6Address);
+    void setTgppSgsnIPV6Address(byte[] tgppSgsnIPV6Address);
 
     /**
      * Returns the value of Called-Station AVP as UTF8String. Defined in IEFT RFC 4005
