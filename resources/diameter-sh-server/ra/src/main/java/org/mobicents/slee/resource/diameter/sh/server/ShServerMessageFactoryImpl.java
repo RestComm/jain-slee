@@ -147,7 +147,7 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
     PushNotificationRequest pnr = this.createPushNotificationRequest();
 
     pnr.setUserIdentity(userIdentity);
-    pnr.setUserData(new String(userData));
+    pnr.setUserData(userData);
 
     return pnr;
   }
@@ -217,7 +217,7 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
 
   public UserDataAnswer createUserDataAnswer(UserDataRequest request, byte[] userData) {
     UserDataAnswer uda = this.createUserDataAnswer(request);
-    uda.setUserData(new String(userData));
+    uda.setUserData(userData);
 
     return uda;
   }
