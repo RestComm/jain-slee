@@ -24,6 +24,7 @@ package org.mobicents.slee.example.sjr.data.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import javax.sip.header.ContactHeader;
@@ -76,6 +77,10 @@ public abstract class DataSourceChildSbb implements Sbb,
 		Connection connection = null;
 		try {
 			connection = jdbcRA.getConnection();
+			
+			connection.createStatement().execute(
+					DataSourceSchemaInfo._QUERY_DROP);
+			
 			connection.createStatement().execute(
 					DataSourceSchemaInfo._QUERY_CREATE);
 		} catch (SQLException e) {
