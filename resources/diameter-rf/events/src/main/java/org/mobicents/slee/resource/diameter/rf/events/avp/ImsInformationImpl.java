@@ -73,7 +73,7 @@ public class ImsInformationImpl extends GroupedAvpImpl implements ImsInformation
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.ImsInformation#getBearerService()
    */
-  public String getBearerService() {
+  public byte[] getBearerService() {
     return getAvpAsOctetString(DiameterRfAvpCodes.BEARER_SERVICE, DiameterRfAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -327,7 +327,7 @@ public class ImsInformationImpl extends GroupedAvpImpl implements ImsInformation
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.ImsInformation#setBearerService(String)
    */
-  public void setBearerService( String bearerService ) {
+  public void setBearerService( byte[] bearerService ) {
     addAvp(DiameterRfAvpCodes.BEARER_SERVICE, DiameterRfAvpCodes.TGPP_VENDOR_ID, bearerService);
   }
 

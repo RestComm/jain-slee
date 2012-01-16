@@ -84,7 +84,7 @@ public class SdpMediaComponentImpl extends GroupedAvpImpl implements SdpMediaCom
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.SdpMediaComponent#getTgppChargingId()
    */
-  public String getTgppChargingId() {
+  public byte[] getTgppChargingId() {
     return getAvpAsOctetString(DiameterRfAvpCodes.TGPP_CHARGING_ID, DiameterRfAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -156,7 +156,7 @@ public class SdpMediaComponentImpl extends GroupedAvpImpl implements SdpMediaCom
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.SdpMediaComponent#setTgppChargingId(byte[])
    */
-  public void setTgppChargingId( String tgppChargingId ) {
+  public void setTgppChargingId( byte[] tgppChargingId ) {
     addAvp(DiameterRfAvpCodes.TGPP_CHARGING_ID, DiameterRfAvpCodes.TGPP_VENDOR_ID, tgppChargingId);
   }
 

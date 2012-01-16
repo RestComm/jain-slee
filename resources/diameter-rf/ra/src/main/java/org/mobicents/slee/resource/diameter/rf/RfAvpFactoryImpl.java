@@ -162,7 +162,7 @@ public class RfAvpFactoryImpl extends DiameterAvpFactoryImpl implements RfAvpFac
     return (MbmsInformation) AvpUtilities.createAvp(DiameterRfAvpCodes.MBMS_INFORMATION, DiameterRfAvpCodes.TGPP_VENDOR_ID, null, MbmsInformationImpl.class);
   }
 
-  public MbmsInformation createMbmsInformation(String tmgi, MbmsServiceType mbmsServiceType, MbmsUserServiceType mbmsUserServiceType) {
+  public MbmsInformation createMbmsInformation(byte[] tmgi, MbmsServiceType mbmsServiceType, MbmsUserServiceType mbmsUserServiceType) {
     // Create the empty AVP
     MbmsInformation mbmsInformationAvp = createMbmsInformation();
 
@@ -203,7 +203,7 @@ public class RfAvpFactoryImpl extends DiameterAvpFactoryImpl implements RfAvpFac
         PsFurnishChargingInformationImpl.class);
   }
 
-  public PsFurnishChargingInformation createPsFurnishChargingInformation(String tgppChargingId, String psFreeFormatData) {
+  public PsFurnishChargingInformation createPsFurnishChargingInformation(byte[] tgppChargingId, byte[] psFreeFormatData) {
     // Create the empty AVP
     PsFurnishChargingInformation psFurnishChargingInformationAvp = createPsFurnishChargingInformation();
 

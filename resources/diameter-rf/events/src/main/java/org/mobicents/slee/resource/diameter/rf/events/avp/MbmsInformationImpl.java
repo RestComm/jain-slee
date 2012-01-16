@@ -72,7 +72,7 @@ public class MbmsInformationImpl extends GroupedAvpImpl implements MbmsInformati
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.MbmsInformation#getMbmsServiceAreas()
    */
-  public String[] getMbmsServiceAreas() {
+  public byte[][] getMbmsServiceAreas() {
     return getAvpsAsOctetString(DiameterRfAvpCodes.MBMS_SERVICE_AREA, DiameterRfAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -86,7 +86,7 @@ public class MbmsInformationImpl extends GroupedAvpImpl implements MbmsInformati
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.MbmsInformation#getMbmsSessionIdentity()
    */
-  public String getMbmsSessionIdentity() {
+  public byte[] getMbmsSessionIdentity() {
     return getAvpAsOctetString(DiameterRfAvpCodes.MBMS_SESSION_IDENTITY, DiameterRfAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -101,20 +101,20 @@ public class MbmsInformationImpl extends GroupedAvpImpl implements MbmsInformati
    * @see net.java.slee.resource.diameter.rf.events.avp.MbmsInformation#getRai()
    */
   public String getRai() {
-    return getAvpAsOctetString(DiameterRfAvpCodes.RAI, DiameterRfAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUTF8String(DiameterRfAvpCodes.RAI, DiameterRfAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.MbmsInformation#getRequiredMbmsBearerCapabilities()
    */
   public String getRequiredMbmsBearerCapabilities() {
-    return getAvpAsOctetString(DiameterRfAvpCodes.REQUIRED_MBMS_BEARER_CAPABILITIES, DiameterRfAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUTF8String(DiameterRfAvpCodes.REQUIRED_MBMS_BEARER_CAPABILITIES, DiameterRfAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.MbmsInformation#getTmgi()
    */
-  public String getTmgi() {
+  public byte[] getTmgi() {
     return getAvpAsOctetString(DiameterRfAvpCodes.TMGI, DiameterRfAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -191,15 +191,15 @@ public class MbmsInformationImpl extends GroupedAvpImpl implements MbmsInformati
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.MbmsInformation#setMbmsServiceArea(String)
    */
-  public void setMbmsServiceArea( String mbmsServiceArea ) {
+  public void setMbmsServiceArea( byte[] mbmsServiceArea ) {
     addAvp(DiameterRfAvpCodes.MBMS_SERVICE_AREA, DiameterRfAvpCodes.TGPP_VENDOR_ID, mbmsServiceArea);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.MbmsInformation#setMbmsServiceAreas(String[])
    */
-  public void setMbmsServiceAreas( String[] mbmsServiceAreas ) {
-    for(String mbmsServiceArea : mbmsServiceAreas) {
+  public void setMbmsServiceAreas( byte[][] mbmsServiceAreas ) {
+    for(byte[] mbmsServiceArea : mbmsServiceAreas) {
       setMbmsServiceArea(mbmsServiceArea);
     }
   }
@@ -214,7 +214,7 @@ public class MbmsInformationImpl extends GroupedAvpImpl implements MbmsInformati
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.MbmsInformation#setMbmsSessionIdentity(String)
    */
-  public void setMbmsSessionIdentity( String mbmsSessionIdentity ) {
+  public void setMbmsSessionIdentity( byte[] mbmsSessionIdentity ) {
     addAvp(DiameterRfAvpCodes.MBMS_SESSION_IDENTITY, DiameterRfAvpCodes.TGPP_VENDOR_ID, mbmsSessionIdentity);
   }
 
@@ -242,7 +242,7 @@ public class MbmsInformationImpl extends GroupedAvpImpl implements MbmsInformati
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rf.events.avp.MbmsInformation#setTmgi(String)
    */
-  public void setTmgi( String tmgi ) {
+  public void setTmgi( byte[] tmgi ) {
     addAvp(DiameterRfAvpCodes.TMGI, DiameterRfAvpCodes.TGPP_VENDOR_ID, tmgi);
   }
 

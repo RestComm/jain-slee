@@ -69,7 +69,7 @@ public interface PsInformation extends GroupedAvp {
   abstract net.java.slee.resource.diameter.base.events.avp.Address getCgAddress();
 
   /**
-   * Returns the value of the Charging-Rule-Base-Name AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the Charging-Rule-Base-Name AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract String getChargingRuleBaseName();
 
@@ -96,72 +96,72 @@ public interface PsInformation extends GroupedAvp {
   /**
    * Returns the value of the TGPP-CAMEL-Charging-Info AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getTgppCamelChargingInfo();
+  abstract byte[] getTgppCamelChargingInfo();
 
   /**
-   * Returns the value of the TGPP-Charging-Characteristics AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the TGPP-Charging-Characteristics AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract String getTgppChargingCharacteristics();
 
   /**
-   * Returns the value of the TGPP-Charging-Id AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the TGPP-Charging-Id AVP, of type OctetString.
    */
-  abstract String getTgppChargingId();
+  abstract byte[] getTgppChargingId();
 
   /**
-   * Returns the value of the TGPP-GGSN-MCC-MNC AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the TGPP-GGSN-MCC-MNC AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract String getTgppGgsnMccMnc();
 
   /**
-   * Returns the value of the TGPP-GPRS-Negotiated-QoS-Profile AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the TGPP-GPRS-Negotiated-QoS-Profile AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract String getTgppGprsNegotiatedQosProfile();
 
   /**
-   * Returns the value of the TGPP-IMSI-MCC-MNC AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the TGPP-IMSI-MCC-MNC AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract String getTgppImsiMccMnc();
 
   /**
    * Returns the value of the TGPP-MS-TimeZone AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getTgppMsTimezone();
+  abstract byte[] getTgppMsTimezone();
 
   /**
    * Returns the value of the TGPP-NSAPI AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getTgppNsapi();
+  abstract byte[] getTgppNsapi();
 
   /**
-   * Returns the value of the TGPP-PDP-Type AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the TGPP-PDP-Type AVP, of type EnumeratedString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getTgppPdpType();
+  abstract byte[] getTgppPdpType();
 
   /**
    * Returns the value of the TGPP-RAT-Type AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getTgppRatType();
+  abstract byte[] getTgppRatType();
 
   /**
-   * Returns the value of the TGPP-Selection-Mode AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the TGPP-Selection-Mode AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract String getTgppSelectionMode();
 
   /**
    * Returns the value of the TGPP-Session-Stop-Indicator AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getTgppSessionStopIndicator();
+  abstract byte[] getTgppSessionStopIndicator();
 
   /**
-   * Returns the value of the TGPP-SGSN-MCC-MNC AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the TGPP-SGSN-MCC-MNC AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract String getTgppSgsnMccMnc();
 
   /**
    * Returns the value of the TGPP-User-Location-Info AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getTgppUserLocationInfo();
+  abstract byte[] getTgppUserLocationInfo();
 
   /**
    * Returns true if the CG-Address AVP is present in the message.
@@ -296,71 +296,71 @@ public interface PsInformation extends GroupedAvp {
   /**
    * Sets the value of the TGPP-CAMEL-Charging-Info AVP, of type OctetString.
    */
-  abstract void setTgppCamelChargingInfo(String tgppCamelChargingInfo);
+  abstract void setTgppCamelChargingInfo(byte[] tgppCamelChargingInfo);
 
   /**
-   * Sets the value of the TGPP-Charging-Characteristics AVP, of type OctetString.
+   * Sets the value of the TGPP-Charging-Characteristics AVP, of type UTF8String.
    */
   abstract void setTgppChargingCharacteristics(String tgppChargingCharacteristics);
 
   /**
    * Sets the value of the TGPP-Charging-Id AVP, of type OctetString.
    */
-  abstract void setTgppChargingId(String tgppChargingId);
+  abstract void setTgppChargingId(byte[] tgppChargingId);
 
   /**
-   * Sets the value of the TGPP-GGSN-MCC-MNC AVP, of type OctetString.
+   * Sets the value of the TGPP-GGSN-MCC-MNC AVP, of type UTF8String.
    */
   abstract void setTgppGgsnMccMnc(String tgppGgsnMccMnc);
 
   /**
-   * Sets the value of the TGPP-GPRS-Negotiated-QoS-Profile AVP, of type OctetString.
+   * Sets the value of the TGPP-GPRS-Negotiated-QoS-Profile AVP, of type UTF8String.
    */
   abstract void setTgppGprsNegotiatedQosProfile(String tgppGprsNegotiatedQosProfile);
 
   /**
-   * Sets the value of the TGPP-IMSI-MCC-MNC AVP, of type OctetString.
+   * Sets the value of the TGPP-IMSI-MCC-MNC AVP, of type UTF8String.
    */
   abstract void setTgppImsiMccMnc(String tgppImsiMccMnc);
 
   /**
    * Sets the value of the TGPP-MS-TimeZone AVP, of type OctetString.
    */
-  abstract void setTgppMsTimezone(String tgppMsTimezone);
+  abstract void setTgppMsTimezone(byte[] tgppMsTimezone);
 
   /**
    * Sets the value of the TGPP-NSAPI AVP, of type OctetString.
    */
-  abstract void setTgppNsapi(String tgppNsapi);
+  abstract void setTgppNsapi(byte[] tgppNsapi);
 
   /**
    * Sets the value of the TGPP-PDP-Type AVP, of type OctetString.
    */
-  abstract void setTgppPdpType(String tgppPdpType);
+  abstract void setTgppPdpType(byte[] tgppPdpType);
 
   /**
    * Sets the value of the TGPP-RAT-Type AVP, of type OctetString.
    */
-  abstract void setTgppRatType(String tgppRatType);
+  abstract void setTgppRatType(byte[] tgppRatType);
 
   /**
-   * Sets the value of the TGPP-Selection-Mode AVP, of type OctetString.
+   * Sets the value of the TGPP-Selection-Mode AVP, of type UTF8String.
    */
   abstract void setTgppSelectionMode(String tgppSelectionMode);
 
   /**
    * Sets the value of the TGPP-Session-Stop-Indicator AVP, of type OctetString.
    */
-  abstract void setTgppSessionStopIndicator(String tgppSessionStopIndicator);
+  abstract void setTgppSessionStopIndicator(byte[] tgppSessionStopIndicator);
 
   /**
-   * Sets the value of the TGPP-SGSN-MCC-MNC AVP, of type OctetString.
+   * Sets the value of the TGPP-SGSN-MCC-MNC AVP, of type UTF8String.
    */
   abstract void setTgppSgsnMccMnc(String tgppSgsnMccMnc);
 
   /**
    * Sets the value of the TGPP-User-Location-Info AVP, of type OctetString.
    */
-  abstract void setTgppUserLocationInfo(String tgppUserLocationInfo);
+  abstract void setTgppUserLocationInfo(byte[] tgppUserLocationInfo);
 
 }

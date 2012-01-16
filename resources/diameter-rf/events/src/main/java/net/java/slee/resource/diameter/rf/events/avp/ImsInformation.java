@@ -71,7 +71,7 @@ public interface ImsInformation extends GroupedAvp {
   /**
    * Returns the value of the Bearer-Service AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getBearerService();
+  abstract byte[] getBearerService();
 
   /**
    * Returns the value of the Called-Party-Address AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
@@ -251,7 +251,7 @@ public interface ImsInformation extends GroupedAvp {
   /**
    * Sets the value of the Bearer-Service AVP, of type OctetString.
    */
-  abstract void setBearerService(String bearerService);
+  abstract void setBearerService(byte[] bearerService);
 
   /**
    * Sets the value of the Called-Party-Address AVP, of type UTF8String.
@@ -334,7 +334,7 @@ public interface ImsInformation extends GroupedAvp {
   abstract void setServedPartyIpAddress(Address servedPartyIpAddress);
 
   /**
-   * Sets the value of the Server-Capabilities AVP, of type OctetString.
+   * Sets the value of the Server-Capabilities AVP, of type Grouped.
    */
   abstract void setServerCapabilities(ServerCapabilities serverCapabilities);
 

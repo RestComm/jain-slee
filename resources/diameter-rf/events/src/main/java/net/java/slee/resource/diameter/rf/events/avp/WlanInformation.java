@@ -68,7 +68,7 @@ public interface WlanInformation extends GroupedAvp {
   /**
    * Returns the value of the WAG-PLMN-Id AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getWagPlmnId();
+  abstract byte[] getWagPlmnId();
 
   /**
    * Returns the value of the WLAN-Radio-Container AVP, of type Grouped. A return value of null implies that the AVP has not been set.
@@ -138,7 +138,7 @@ public interface WlanInformation extends GroupedAvp {
   /**
    * Sets the value of the WAG-PLMN-Id AVP, of type OctetString.
    */
-  abstract void setWagPlmnId(String wagPlmnId);
+  abstract void setWagPlmnId(byte[] wagPlmnId);
 
   /**
    * Sets the value of the WLAN-Radio-Container AVP, of type Grouped.
