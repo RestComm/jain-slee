@@ -503,12 +503,12 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
         isGrouped = true;
       }
       else {
-        avpValue = avp.getOctetString().replaceAll("\r", "").replaceAll("\n", "");
+        avpValue = avp.getUTF8String().replaceAll("\r", "").replaceAll("\n", "");
       }
     }
     catch (Exception ignore) {
       try {
-        avpValue = avp.getOctetString().replaceAll("\r", "").replaceAll("\n", "");
+        avpValue = avp.getUTF8String().replaceAll("\r", "").replaceAll("\n", "");
       }
       catch (AvpDataException e) {
         avpValue = avp.toString();
@@ -718,19 +718,19 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
     AvpUtilities.setAvpAsUTF8String(message, code, vendorId, message.getAvps(), isMandatory, isProtected, value);
   }
 
-  protected String getAvpAsOctetString(int code) {
+  protected byte[] getAvpAsOctetString(int code) {
     return AvpUtilities.getAvpAsOctetString(code, message.getAvps());
   }
 
-  protected String getAvpAsOctetString(int code, long vendorId) {
+  protected byte[] getAvpAsOctetString(int code, long vendorId) {
     return AvpUtilities.getAvpAsOctetString(code, vendorId, message.getAvps());
   }
 
-  protected String[] getAvpsAsOctetString(int code) {
+  protected byte[][] getAvpsAsOctetString(int code) {
     return AvpUtilities.getAvpsAsOctetString(code, message.getAvps());
   }
 
-  protected String[] getAvpsAsOctetString(int code, long vendorId) {
+  protected byte[][] getAvpsAsOctetString(int code, long vendorId) {
     return AvpUtilities.getAvpsAsOctetString(code, vendorId, message.getAvps());
   }
 

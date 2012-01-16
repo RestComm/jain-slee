@@ -362,19 +362,19 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
     AvpUtilities.setAvpAsUTF8String(null, code, vendorId, avpSet, isMandatory, isProtected, value);
   }
 
-  protected String getAvpAsOctetString(int code) {
+  protected byte[] getAvpAsOctetString(int code) {
     return AvpUtilities.getAvpAsOctetString(code, avpSet);
   }
 
-  protected String getAvpAsOctetString(int code, long vendorId) {
+  protected byte[] getAvpAsOctetString(int code, long vendorId) {
     return AvpUtilities.getAvpAsOctetString(code, vendorId, avpSet);
   }
 
-  protected String[] getAvpsAsOctetString(int code) {
+  protected byte[][] getAvpsAsOctetString(int code) {
     return AvpUtilities.getAvpsAsOctetString(code, avpSet);
   }
 
-  protected String[] getAvpsAsOctetString(int code, long vendorId) {
+  protected byte[][] getAvpsAsOctetString(int code, long vendorId) {
     return AvpUtilities.getAvpsAsOctetString(code, vendorId, avpSet);
   }
 

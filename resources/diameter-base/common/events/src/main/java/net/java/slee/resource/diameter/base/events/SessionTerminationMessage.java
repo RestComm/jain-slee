@@ -60,7 +60,7 @@ public interface SessionTerminationMessage extends DiameterMessage {
    * no Class AVPs have been set. The elements in the given array are byte[]
    * objects.
    */
-  String[] getClassAvps();
+  byte[][] getClassAvps();
 
   /**
    * Sets a single Class AVP in the message, of type OctetString.
@@ -68,7 +68,7 @@ public interface SessionTerminationMessage extends DiameterMessage {
    * @throws IllegalStateException
    *             if setClassAvp or setClassAvps has already been called
    */
-  void setClassAvp(String classAvp);
+  void setClassAvp(byte[] classAvp);
 
   /**
    * Sets the set of Class AVPs, with all the values in the given array. The
@@ -82,6 +82,6 @@ public interface SessionTerminationMessage extends DiameterMessage {
    * @throws IllegalStateException
    *             if setClassAvp or setClassAvps has already been called
    */
-  void setClassAvps(String[] classAvps);
+  void setClassAvps(byte[][] classAvps);
 
 }

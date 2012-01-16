@@ -334,7 +334,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
    * (non-Javadoc)
    * @see net.java.slee.resource.diameter.base.DiameterAvpFactory#createProxyInfo(net.java.slee.resource.diameter.base.events.avp.DiameterIdentity, byte[])
    */
-  public ProxyInfoAvp createProxyInfo( DiameterIdentity proxyHost, String proxyState )
+  public ProxyInfoAvp createProxyInfo( DiameterIdentity proxyHost, byte[] proxyState )
   {
     ProxyInfoAvp proxyInfo = createProxyInfo();
     

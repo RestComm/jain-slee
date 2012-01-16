@@ -226,7 +226,7 @@ public class AvpUtilities {
     }
   }
 
-  public static String getAvpAsOctetString(int avpCode, AvpSet set) {
+  public static byte[] getAvpAsOctetString(int avpCode, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode);
       return avp != null ? avp.getOctetString() : null;
@@ -239,11 +239,11 @@ public class AvpUtilities {
     }
   }
 
-  public static String[] getAvpsAsOctetString(int avpCode, AvpSet set) {
+  public static byte[][] getAvpsAsOctetString(int avpCode, AvpSet set) {
     try {
       AvpSet avpSet = set.getAvps(avpCode);
 
-      String[] values = new String[avpSet.size()];
+      byte[][] values = new byte[avpSet.size()][];
       int i = 0;
 
       for(Avp avp : avpSet) {
@@ -256,11 +256,11 @@ public class AvpUtilities {
       if(logger.isDebugEnabled()) { 
         logger.debug("Failed to obtain AVP with code " + avpCode + " as type OctetString.", e);
       }
-      return new String[0];
+      return new byte[0][];
     }
   }
 
-  public static String getAvpAsOctetString(int avpCode, long vendorId, AvpSet set) {
+  public static byte[] getAvpAsOctetString(int avpCode, long vendorId, AvpSet set) {
     try {
       Avp avp = set.getAvp(avpCode, vendorId);
       return avp != null ? avp.getOctetString() : null;
@@ -273,11 +273,11 @@ public class AvpUtilities {
     }
   }
 
-  public static String[] getAvpsAsOctetString(int avpCode, long vendorId, AvpSet set) {
+  public static byte[][] getAvpsAsOctetString(int avpCode, long vendorId, AvpSet set) {
     try {
       AvpSet avpSet = set.getAvps(avpCode, vendorId);
 
-      String[] values = new String[avpSet.size()];
+      byte[][] values = new byte[avpSet.size()][];
       int i = 0;
 
       for(Avp avp : avpSet) {
@@ -290,7 +290,7 @@ public class AvpUtilities {
       if(logger.isDebugEnabled()) { 
         logger.debug("Failed to obtain AVP with code " + avpCode + " as type OctetString.", e);
       }
-      return new String[0];
+      return new byte[0][];
     }
   }
 
@@ -1735,25 +1735,41 @@ public class AvpUtilities {
   // Some special types getter/setter
 
   public static DiameterIdentity getAvpAsDiameterIdentity(int avpCode, AvpSet set) {
-    String value = getAvpAsOctetString(avpCode, set);
-
-    return value != null ? new DiameterIdentity(value) : null;
+    try {
+      Avp avp = set.getAvp(avpCode);
+      return avp != null ? new DiameterIdentity(avp.getDiameterIdentity()) : null;
+    }
+    catch (AvpDataException e) {
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type OctetString.", e);
+      }
+      return null;
+    }
   }
 
   public static DiameterIdentity[] getAvpsAsDiameterIdentity(int avpCode, AvpSet set) {
-    List<DiameterIdentity> values = new ArrayList<DiameterIdentity>();
+    try {
+      AvpSet avpSet = set.getAvps(avpCode);
 
-    for(String value : getAvpsAsOctetString(avpCode, set)) {
-      if(value != null) {
-        values.add(new DiameterIdentity(value));
+      DiameterIdentity[] values = new DiameterIdentity[avpSet.size()];
+      int i = 0;
+
+      for(Avp avp : avpSet) {
+        values[i++] = new DiameterIdentity(avp.getDiameterIdentity());
       }
-    }
 
-    return values.toArray(new DiameterIdentity[0]);
+      return values;
+    }
+    catch (AvpDataException e) {
+      if(logger.isDebugEnabled()) { 
+        logger.debug("Failed to obtain AVP with code " + avpCode + " as type DiameterIdentity.", e);
+      }
+      return new DiameterIdentity[0];
+    }
   }
 
   public static DiameterIdentity getAvpAsDiameterIdentity(int avpCode, long vendorId, AvpSet set) {
-    String value = getAvpAsOctetString(avpCode, vendorId, set);
+    String value = getAvpAsUTF8String(avpCode, vendorId, set);
 
     return value != null ? new DiameterIdentity(value) : null;
   }
@@ -1761,7 +1777,7 @@ public class AvpUtilities {
   public static DiameterIdentity[] getAvpsAsDiameterIdentity(int avpCode, long vendorId, AvpSet set) {
     List<DiameterIdentity> values = new ArrayList<DiameterIdentity>();
 
-    for(String value : getAvpsAsOctetString(avpCode, vendorId, set)) {
+    for(String value : getAvpsAsUTF8String(avpCode, vendorId, set)) {
       if(value != null) {
         values.add(new DiameterIdentity(value));
       }
@@ -1772,7 +1788,7 @@ public class AvpUtilities {
 
   public static DiameterURI getAvpAsDiameterURI(int avpCode, AvpSet set) {
     try {
-      String value = getAvpAsOctetString(avpCode, set);
+      String value = getAvpAsUTF8String(avpCode, set);
 
       return value != null ? new DiameterURI(value) : null;
     }
@@ -1788,7 +1804,7 @@ public class AvpUtilities {
     try {
       List<DiameterURI> values = new ArrayList<DiameterURI>();
 
-      for(String value : getAvpsAsOctetString(avpCode, set)) {
+      for(String value : getAvpsAsUTF8String(avpCode, set)) {
         if(value != null) {
           values.add(new DiameterURI(value));
         }
@@ -1806,7 +1822,7 @@ public class AvpUtilities {
 
   public static DiameterURI getAvpAsDiameterURI(int avpCode, long vendorId, AvpSet set) {
     try {
-      String value = getAvpAsOctetString(avpCode, vendorId, set);
+      String value = getAvpAsUTF8String(avpCode, vendorId, set);
 
       return value != null ? new DiameterURI(value) : null;
     }
@@ -1822,7 +1838,7 @@ public class AvpUtilities {
     try {
       List<DiameterURI> values = new ArrayList<DiameterURI>();
 
-      for(String value : getAvpsAsOctetString(avpCode, vendorId, set)) {
+      for(String value : getAvpsAsUTF8String(avpCode, vendorId, set)) {
         if(value != null) {
           values.add(new DiameterURI(value));
         }
@@ -1964,7 +1980,7 @@ public class AvpUtilities {
 
   public static IPFilterRule getAvpAsIPFilterRule(int avpCode, AvpSet set) {
     try {
-      String value = getAvpAsOctetString(avpCode, set);
+      String value = getAvpAsUTF8String(avpCode, set);
 
       return value != null ? new IPFilterRule(value) : null;
     }
@@ -1979,7 +1995,7 @@ public class AvpUtilities {
   public static IPFilterRule[] getAvpsAsIPFilterRule(int avpCode, AvpSet set) {
     List<IPFilterRule> values = new ArrayList<IPFilterRule>();
 
-    for(String value : getAvpsAsOctetString(avpCode, set)) {
+    for(String value : getAvpsAsUTF8String(avpCode, set)) {
       if(value != null) {
         values.add(new IPFilterRule(value));
       }
@@ -1990,7 +2006,7 @@ public class AvpUtilities {
 
   public static IPFilterRule getAvpAsIPFilterRule(int avpCode, long vendorId, AvpSet set) {
     try {
-      String value = getAvpAsOctetString(avpCode, vendorId, set);
+      String value = getAvpAsUTF8String(avpCode, vendorId, set);
 
       return value != null ? new IPFilterRule(value) : null;
     }
@@ -2005,7 +2021,7 @@ public class AvpUtilities {
   public static IPFilterRule[] getAvpsAsIPFilterRule(int avpCode, long vendorId, AvpSet set) {
     List<IPFilterRule> values = new ArrayList<IPFilterRule>();
 
-    for(String value : getAvpsAsOctetString(avpCode, set)) {
+    for(String value : getAvpsAsUTF8String(avpCode, set)) {
       if(value != null) {
         values.add(new IPFilterRule(value));
       }
@@ -2082,17 +2098,17 @@ public class AvpUtilities {
       case DiameterAvpType._ADDRESS:
         return Address.decode(getAvpAsRaw(avpCode, vendorId, set));
       case DiameterAvpType._DIAMETER_IDENTITY:
-        return new DiameterIdentity(getAvpAsOctetString(avpCode, vendorId, set));
+        return new DiameterIdentity(getAvpAsUTF8String(avpCode, vendorId, set));
       case DiameterAvpType._DIAMETER_URI:
         try {
-          return new DiameterURI(getAvpAsOctetString(avpCode, vendorId, set));
+          return new DiameterURI(getAvpAsUTF8String(avpCode, vendorId, set));
         }
         catch (URISyntaxException e) {
           logger.error("Failed to return AVP with code " + avpCode + " of type DiameterURI as it is malformed: " + getAvpAsOctetString(avpCode, vendorId, set), e);
           return null;
         }
       case DiameterAvpType._IP_FILTER_RULE:
-        return new IPFilterRule(getAvpAsOctetString(avpCode, vendorId, set));
+        return new IPFilterRule(getAvpAsUTF8String(avpCode, vendorId, set));
       case DiameterAvpType._OCTET_STRING:
         return getAvpAsOctetString(avpCode, vendorId, set);
       case DiameterAvpType._QOS_FILTER_RULE:

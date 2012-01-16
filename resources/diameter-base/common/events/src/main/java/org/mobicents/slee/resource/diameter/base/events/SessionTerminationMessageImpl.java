@@ -48,15 +48,15 @@ public abstract class SessionTerminationMessageImpl extends DiameterMessageImpl 
     super(message);
   }
 
-  public String[] getClassAvps() {
+  public byte[][] getClassAvps() {
     return getAvpsAsOctetString(Avp.CLASS);
   }
 
-  public void setClassAvp(String classAvp) {
+  public void setClassAvp(byte[] classAvp) {
     addAvp(Avp.CLASS, classAvp);
   }
 
-  public void setClassAvps(String[] classAvps) {
+  public void setClassAvps(byte[][] classAvps) {
     DiameterAvp[] values = new DiameterAvp[classAvps.length];
 
     for(int index = 0; index < classAvps.length; index++) {

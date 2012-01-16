@@ -66,12 +66,12 @@ public interface ProxyInfoAvp extends GroupedAvp {
    * Returns the value of the Proxy-State AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set.
    */
-  public String getProxyState();
+  public byte[] getProxyState();
 
   /**
    * Sets the value of the Proxy-State AVP, of type OctetString.
    * @throws IllegalStateException if setProxyState has already been called
    */
-  public void setProxyState(String proxyState);
+  public void setProxyState(byte[] proxyState);
 
 }

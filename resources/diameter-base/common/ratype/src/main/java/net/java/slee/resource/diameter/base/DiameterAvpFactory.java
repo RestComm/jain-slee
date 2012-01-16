@@ -278,7 +278,7 @@ public interface DiameterAvpFactory {
    * @param proxyState
    * @return
    */
-  ProxyInfoAvp createProxyInfo(DiameterIdentity proxyHost, String proxyState);
+  ProxyInfoAvp createProxyInfo(DiameterIdentity proxyHost, byte[] proxyState);
 
   /**
    * Create an empty ProxyInfo (Grouped AVP) instance.

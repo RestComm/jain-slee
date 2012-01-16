@@ -57,11 +57,11 @@ public class ProxyInfoAvpImpl extends GroupedAvpImpl implements ProxyInfoAvp {
     return hasAvp(PROXY_STATE);
   }
 
-  public String getProxyState() {
+  public byte[] getProxyState() {
     return getAvpAsOctetString(PROXY_STATE);
   }
 
-  public void setProxyState(String proxyState) {
+  public void setProxyState(byte[] proxyState) {
     addAvp(PROXY_STATE, proxyState);
   }
 }
