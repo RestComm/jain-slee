@@ -150,14 +150,14 @@ public interface ReAuthAnswer extends DiameterMessage {
    * 
    * @param serviceURN
    */
-  public void setServiceURN(String serviceURN);
+  public void setServiceURN(byte[] serviceURN);
 
   /**
    * Fetches value of the Service-URN AVP (AVP code 525).
    * 
    * @return
    */
-  public String getServiceURN();
+  public byte[] getServiceURN();
 
   /**
    * Returns true if the Origin-State-Id AVP is present in the message.

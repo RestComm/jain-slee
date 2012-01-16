@@ -40,8 +40,8 @@ public class AccessNetworkChargingIdentifierAvpImpl extends GroupedAvpImpl imple
    * 
    */
   public AccessNetworkChargingIdentifierAvpImpl() {
-    super.code = DiameterRxAvpCodes.ACCESS_NETWORK_CHARGING_IDENTIFIER;
-    super.vendorId = DiameterRxAvpCodes.TGPP_VENDOR_ID;
+    code = DiameterRxAvpCodes.ACCESS_NETWORK_CHARGING_IDENTIFIER;
+    vendorId = DiameterRxAvpCodes.TGPP_VENDOR_ID;
   }
 
   /**
@@ -61,23 +61,23 @@ public class AccessNetworkChargingIdentifierAvpImpl extends GroupedAvpImpl imple
    */
   @Override
   public boolean hasAccessNetworkChargingIdentifierValue() {
-    return super.hasAvp(DiameterRxAvpCodes.ACCESS_NETWORK_CHARGING_IDENTIFIER_VALUE, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.ACCESS_NETWORK_CHARGING_IDENTIFIER_VALUE, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rx.events.avp.AccessNetworkChargingIdentifierAvp#setAccessNetworkChargingIdentifier(java.lang.String)
    */
   @Override
-  public void setAccessNetworkChargingIdentifierValue(String anci) {
-    super.addAvp(DiameterRxAvpCodes.ACCESS_NETWORK_CHARGING_IDENTIFIER_VALUE, DiameterRxAvpCodes.TGPP_VENDOR_ID, anci);
+  public void setAccessNetworkChargingIdentifierValue(byte[] anci) {
+    addAvp(DiameterRxAvpCodes.ACCESS_NETWORK_CHARGING_IDENTIFIER_VALUE, DiameterRxAvpCodes.TGPP_VENDOR_ID, anci);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rx.events.avp.AccessNetworkChargingIdentifierAvp#getAccessNetworkChargingIdentifier()
    */
   @Override
-  public String getAccessNetworkChargingIdentifierValue() {
-    return super.getAvpAsOctetString(DiameterRxAvpCodes.ACCESS_NETWORK_CHARGING_IDENTIFIER_VALUE, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+  public byte[] getAccessNetworkChargingIdentifierValue() {
+    return getAvpAsOctetString(DiameterRxAvpCodes.ACCESS_NETWORK_CHARGING_IDENTIFIER_VALUE, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -85,7 +85,7 @@ public class AccessNetworkChargingIdentifierAvpImpl extends GroupedAvpImpl imple
    */
   @Override
   public boolean hasFlows() {
-    return super.hasAvp(DiameterRxAvpCodes.FLOWS, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.FLOWS, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -93,7 +93,7 @@ public class AccessNetworkChargingIdentifierAvpImpl extends GroupedAvpImpl imple
    */
   @Override
   public FlowsAvp[] getFlows() {
-    return (FlowsAvp[])super.getAvpsAsCustom(DiameterRxAvpCodes.FLOWS, DiameterRxAvpCodes.TGPP_VENDOR_ID, FlowsAvpImpl.class);
+    return (FlowsAvp[])getAvpsAsCustom(DiameterRxAvpCodes.FLOWS, DiameterRxAvpCodes.TGPP_VENDOR_ID, FlowsAvpImpl.class);
   }
 
   /* (non-Javadoc)
@@ -101,7 +101,7 @@ public class AccessNetworkChargingIdentifierAvpImpl extends GroupedAvpImpl imple
    */
   @Override
   public void setFlows(FlowsAvp flows) {
-    super.addAvp(DiameterRxAvpCodes.FLOWS, DiameterRxAvpCodes.TGPP_VENDOR_ID,flows.getExtensionAvps());
+    addAvp(DiameterRxAvpCodes.FLOWS, DiameterRxAvpCodes.TGPP_VENDOR_ID,flows.getExtensionAvps());
   }
 
   /* (non-Javadoc)
@@ -109,8 +109,8 @@ public class AccessNetworkChargingIdentifierAvpImpl extends GroupedAvpImpl imple
    */
   @Override
   public void setFlows(FlowsAvp[] flows) {
-    //super.addAvp(DiameterRxAvpCodes.FLOWS, DiameterRxAvpCodes.TGPP_VENDOR_ID, flows);
-    super.setExtensionAvps(flows);
+    //addAvp(DiameterRxAvpCodes.FLOWS, DiameterRxAvpCodes.TGPP_VENDOR_ID, flows);
+    setExtensionAvps(flows);
   }
 
 }

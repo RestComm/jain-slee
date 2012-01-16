@@ -158,7 +158,7 @@ public interface MediaComponentDescriptionAvp extends GroupedAvp {
    * 
    * @param afAppId
    */
-  public void setAFChargingIdentifier(String afAppId);
+  public void setAFChargingIdentifier(byte[] afAppId);
 
   /**
    * Check if AF-Charging-Identifier AVP (AVP code 505) is present in message.
@@ -174,7 +174,7 @@ public interface MediaComponentDescriptionAvp extends GroupedAvp {
    * 
    * @return
    */
-  public String getAFChargingIdentifier();
+  public byte[] getAFChargingIdentifier();
 
   /**
    * Returns true if the Media-Type AVP (AVP code 520) is present in the
@@ -346,21 +346,8 @@ public interface MediaComponentDescriptionAvp extends GroupedAvp {
   /**
    * Sets the value of the Codec-Data AVP, of type OctetString.
    */
-  public void setCodecData(String[] codecsData);
+  public void setCodecDatas(byte[][] codecsData);
 
-  /**
-   * Sets the value of the Codec-Data AVP, of type OctetString.
-   */
-  public void setCodecData(String codecData);
-
-  public String[] getCodecData();
-
-  /**
-   * Checks if the Codec-Data AVP (AVP code 524) is present in Grouped AVP. In
-   * case it is, method returns true;
-   * 
-   * @return
-   */
-  public boolean hasCodecData();
+  public byte[][] getCodecDatas();
 
 }

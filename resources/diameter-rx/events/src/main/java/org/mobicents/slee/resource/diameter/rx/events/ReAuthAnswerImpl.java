@@ -59,63 +59,63 @@ public class ReAuthAnswerImpl extends DiameterMessageImpl implements ReAuthAnswe
 
   @Override
   public boolean hasExperimentalResult() {
-    return super.hasAvp(DiameterAvpCodes.EXPERIMENTAL_RESULT);
+    return hasAvp(DiameterAvpCodes.EXPERIMENTAL_RESULT);
   }
 
   @Override
   public ExperimentalResultAvp getExperimentalResult() {
-    return (ExperimentalResultAvp) super.getAvpAsCustom(DiameterAvpCodes.EXPERIMENTAL_RESULT, ExperimentalResultAvpImpl.class);
+    return (ExperimentalResultAvp) getAvpAsCustom(DiameterAvpCodes.EXPERIMENTAL_RESULT, ExperimentalResultAvpImpl.class);
   }
 
   @Override
   public void setExperimentalResult(ExperimentalResultAvp experimentalResult) throws IllegalStateException {
-    super.addAvp(DiameterAvpCodes.EXPERIMENTAL_RESULT,experimentalResult.getExtensionAvps());
+    addAvp(DiameterAvpCodes.EXPERIMENTAL_RESULT,experimentalResult.getExtensionAvps());
   }
 
   @Override
   public boolean hasMediaComponentDescription() {
-    return super.hasAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public void setMediaComponentDescription(MediaComponentDescriptionAvp mcd) {
-    super.addAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID, mcd.getExtensionAvps());
+    addAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID, mcd.getExtensionAvps());
   }
 
   @Override
   public MediaComponentDescriptionAvp[] getMediaComponentDescriptions() {
-    return (MediaComponentDescriptionAvp[]) super.getAvpsAsCustom(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID,
+    return (MediaComponentDescriptionAvp[]) getAvpsAsCustom(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID,
         MediaComponentDescriptionAvpImpl.class);
   }
 
   @Override
   public void setMediaComponentDescriptions(MediaComponentDescriptionAvp[] mcds) {
-    super.setExtensionAvps(mcds);
+    setExtensionAvps(mcds);
   }
 
   @Override
   public boolean hasServiceURN() {
-    return super.hasAvp(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
-  public void setServiceURN(String serviceURN) {
-    super.addAvp(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID, serviceURN);
+  public void setServiceURN(byte[] serviceURN) {
+    addAvp(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID, serviceURN);
   }
 
   @Override
-  public String getServiceURN() {
-    return super.getAvpAsOctetString(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+  public byte[] getServiceURN() {
+    return getAvpAsOctetString(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public boolean hasProxyInfo() {
-    return super.hasAvp(DiameterAvpCodes.PROXY_INFO);
+    return hasAvp(DiameterAvpCodes.PROXY_INFO);
   }
 
   @Override
   public boolean hasFailedAvp() {
-    return super.hasAvp(DiameterAvpCodes.FAILED_AVP);
+    return hasAvp(DiameterAvpCodes.FAILED_AVP);
   }
 
 }

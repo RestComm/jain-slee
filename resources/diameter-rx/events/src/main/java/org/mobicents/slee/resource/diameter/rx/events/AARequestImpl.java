@@ -72,7 +72,7 @@ public class AARequestImpl extends AAMessageImpl implements AARequest {
    * 
    * @see net.java.slee.resource.diameter.rx.events.RxCreditControlRequest#getFramedIPAddress()
    */
-  public String getFramedIPAddress() {
+  public byte[] getFramedIPAddress() {
     return getAvpAsOctetString(DiameterRxAvpCodes.FRAMED_IP_ADDRESS);
   }
 
@@ -90,240 +90,240 @@ public class AARequestImpl extends AAMessageImpl implements AARequest {
    * 
    * @see net.java.slee.resource.diameter.rx.events.RxCreditControlRequest#setFramedIPAddress()
    */
-  public void setFramedIPAddress(String framedIpAddress) {
+  public void setFramedIPAddress(byte[] framedIpAddress) {
     addAvp(DiameterRxAvpCodes.FRAMED_IP_ADDRESS, framedIpAddress);
   }
 
   @Override
-  public void setAFApplicationIdentifier(String afAppId) {
-    super.addAvp(DiameterRxAvpCodes.AF_APPLICATION_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID, afAppId);
+  public void setAFApplicationIdentifier(byte[] afAppId) {
+    addAvp(DiameterRxAvpCodes.AF_APPLICATION_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID, afAppId);
   }
 
   @Override
   public boolean hasAFApplicationIdentifier() {
-    return super.hasAvp(DiameterRxAvpCodes.AF_APPLICATION_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.AF_APPLICATION_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
-  public String getAFApplicationIdentifier() {
-    return super.getAvpAsOctetString(DiameterRxAvpCodes.AF_APPLICATION_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+  public byte[] getAFApplicationIdentifier() {
+    return getAvpAsOctetString(DiameterRxAvpCodes.AF_APPLICATION_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
-  public void setAFChargingIdentifier(String afAppId) {
-    super.addAvp(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID, afAppId);
+  public void setAFChargingIdentifier(byte[] afAppId) {
+    addAvp(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID, afAppId);
   }
 
   @Override
   public boolean hasAFChargingIdentifier() {
-    return super.hasAvp(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
-  public String getAFChargingIdentifier() {
-    return super.getAvpAsOctetString(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+  public byte[] getAFChargingIdentifier() {
+    return getAvpAsOctetString(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public boolean hasCalledStationId() {
-    return super.hasAvp(DiameterRxAvpCodes.CALLED_STATION_ID);
+    return hasAvp(DiameterRxAvpCodes.CALLED_STATION_ID);
   }
 
   @Override
   public String getCalledStationId() {
-    return super.getAvpAsUTF8String(DiameterRxAvpCodes.CALLED_STATION_ID);
+    return getAvpAsUTF8String(DiameterRxAvpCodes.CALLED_STATION_ID);
   }
 
   @Override
   public void setCalledStationId(String csi) {
-    super.addAvp(DiameterRxAvpCodes.CALLED_STATION_ID, csi);
+    addAvp(DiameterRxAvpCodes.CALLED_STATION_ID, csi);
 
   }
 
   @Override
-  public String getFramedIPV6Prefix() {
-    return super.getAvpAsOctetString(DiameterRxAvpCodes.FRAMED_IPV6_PREFIX);
+  public byte[] getFramedIPV6Prefix() {
+    return getAvpAsOctetString(DiameterRxAvpCodes.FRAMED_IPV6_PREFIX);
   }
 
   @Override
   public boolean hasFramedIPV6Prefix() {
-    return super.hasAvp(DiameterRxAvpCodes.FRAMED_IPV6_PREFIX);
+    return hasAvp(DiameterRxAvpCodes.FRAMED_IPV6_PREFIX);
   }
 
   @Override
-  public void setFramedIPV6Prefix(String framedIpV6Prefix) {
-    super.addAvp(DiameterRxAvpCodes.FRAMED_IPV6_PREFIX,  framedIpV6Prefix);
+  public void setFramedIPV6Prefix(byte[] framedIpV6Prefix) {
+    addAvp(DiameterRxAvpCodes.FRAMED_IPV6_PREFIX,  framedIpV6Prefix);
   }
 
   @Override
   public boolean hasMediaComponentDescription() {
-    return super.hasAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public void setMediaComponentDescription(MediaComponentDescriptionAvp mcd) {
-    super.addAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID, mcd.getExtensionAvps());
+    addAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID, mcd.getExtensionAvps());
   }
 
   @Override
   public MediaComponentDescriptionAvp[] getMediaComponentDescriptions() {
-    return (MediaComponentDescriptionAvp[]) super.getAvpsAsCustom(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID,
+    return (MediaComponentDescriptionAvp[]) getAvpsAsCustom(DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION, DiameterRxAvpCodes.TGPP_VENDOR_ID,
         MediaComponentDescriptionAvpImpl.class);
   }
 
   @Override
   public void setMediaComponentDescriptions(MediaComponentDescriptionAvp[] mcds) {
-    super.setExtensionAvps(mcds);
+    setExtensionAvps(mcds);
 
   }
 
   @Override
   public boolean hasMPSIdentifier() {
-    return super.hasAvp(DiameterRxAvpCodes.MPS_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.MPS_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
-  public void setMPSIdentifier(String mpsIdentifier) {
-    super.addAvp(DiameterRxAvpCodes.MPS_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID, mpsIdentifier);
+  public void setMPSIdentifier(byte[] mpsIdentifier) {
+    addAvp(DiameterRxAvpCodes.MPS_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID, mpsIdentifier);
   }
 
   @Override
-  public String getMPSIdentifier() {
-    return super.getAvpAsOctetString(DiameterRxAvpCodes.MPS_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+  public byte[] getMPSIdentifier() {
+    return getAvpAsOctetString(DiameterRxAvpCodes.MPS_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public ReservationPriority getReservationPriority() {
-    return (ReservationPriority) super.getAvpAsEnumerated(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID,
+    return (ReservationPriority) getAvpAsEnumerated(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID,
         ReservationPriority.class);
   }
 
   @Override
   public void setReservationPriority(ReservationPriority reservationPriority) throws IllegalStateException {
-    super.addAvp(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID, reservationPriority.getValue());
+    addAvp(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID, reservationPriority.getValue());
 
   }
 
   @Override
   public boolean hasReservationPriority() {
-    return super.hasAvp(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID);
   }
 
   @Override
   public ServiceInfoStatus getServiceInfoStatus() {
-    return (ServiceInfoStatus) super.getAvpAsEnumerated(DiameterRxAvpCodes.SERVICE_INFO_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID, ServiceInfoStatus.class);
+    return (ServiceInfoStatus) getAvpAsEnumerated(DiameterRxAvpCodes.SERVICE_INFO_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID, ServiceInfoStatus.class);
   }
 
   @Override
   public void setServiceInfoStatus(ServiceInfoStatus s) {
-    super.addAvp(DiameterRxAvpCodes.SERVICE_INFO_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID, s.getValue());
+    addAvp(DiameterRxAvpCodes.SERVICE_INFO_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID, s.getValue());
 
   }
 
   @Override
   public boolean hasServiceInfoStatus() {
-    return super.hasAvp(DiameterRxAvpCodes.SERVICE_INFO_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.SERVICE_INFO_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public boolean hasServiceURN() {
-    return super.hasAvp(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
-  public void setServiceURN(String serviceURN) {
-    super.addAvp(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID, serviceURN);
+  public void setServiceURN(byte[] serviceURN) {
+    addAvp(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID, serviceURN);
 
   }
 
   @Override
-  public String getServiceURN() {
-    return super.getAvpAsOctetString(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+  public byte[] getServiceURN() {
+    return getAvpAsOctetString(DiameterRxAvpCodes.SERVICE_URN, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public boolean hasSIPForkingIndication() {
-    return super.hasAvp(DiameterRxAvpCodes.SIP_FORKING_INDICATION, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.SIP_FORKING_INDICATION, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public void setSIPForkingIndication(SIPForkingIndication v) {
-    super.addAvp(DiameterRxAvpCodes.SIP_FORKING_INDICATION, DiameterRxAvpCodes.TGPP_VENDOR_ID, v.getValue());
+    addAvp(DiameterRxAvpCodes.SIP_FORKING_INDICATION, DiameterRxAvpCodes.TGPP_VENDOR_ID, v.getValue());
   }
 
   @Override
   public SIPForkingIndication getSIPForkingIndication() {
-    return (SIPForkingIndication) super.getAvpAsEnumerated(DiameterRxAvpCodes.SIP_FORKING_INDICATION, DiameterRxAvpCodes.TGPP_VENDOR_ID,
+    return (SIPForkingIndication) getAvpAsEnumerated(DiameterRxAvpCodes.SIP_FORKING_INDICATION, DiameterRxAvpCodes.TGPP_VENDOR_ID,
         SIPForkingIndication.class);
   }
 
   @Override
   public boolean hasSpecificAction() {
-    return super.hasAvp(DiameterRxAvpCodes.SPECIFIC_ACTION, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.SPECIFIC_ACTION, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public void setSpecificAction(SpecificAction v) {
-    super.addAvp(DiameterRxAvpCodes.SPECIFIC_ACTION, DiameterRxAvpCodes.TGPP_VENDOR_ID,v.getValue());
+    addAvp(DiameterRxAvpCodes.SPECIFIC_ACTION, DiameterRxAvpCodes.TGPP_VENDOR_ID,v.getValue());
 
   }
 
   @Override
   public SpecificAction[] getSpecificActions() {
-    return (SpecificAction[]) super.getAvpsAsEnumerated(DiameterRxAvpCodes.SPECIFIC_ACTION, DiameterRxAvpCodes.TGPP_VENDOR_ID, SpecificAction.class);
+    return (SpecificAction[]) getAvpsAsEnumerated(DiameterRxAvpCodes.SPECIFIC_ACTION, DiameterRxAvpCodes.TGPP_VENDOR_ID, SpecificAction.class);
   }
 
   @Override
   public void setSpecificActions(SpecificAction[] v) {
     // FIXME: fixme
     for(SpecificAction e:v)
-      super.addAvp(DiameterRxAvpCodes.SPECIFIC_ACTION, DiameterRxAvpCodes.TGPP_VENDOR_ID, e.getValue());
+      addAvp(DiameterRxAvpCodes.SPECIFIC_ACTION, DiameterRxAvpCodes.TGPP_VENDOR_ID, e.getValue());
   }
 
   @Override
   public boolean hasSponsoredConnectivityData() {
-    return super.hasAvp(DiameterRxAvpCodes.SPONSORED_CONNECTIVITY_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.SPONSORED_CONNECTIVITY_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
   public void setSponsoredConnectivityData(SponsoredConnectivityDataAvp scd) {
-    super.addAvp(DiameterRxAvpCodes.SPONSORED_CONNECTIVITY_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID, scd.getExtensionAvps());
+    addAvp(DiameterRxAvpCodes.SPONSORED_CONNECTIVITY_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID, scd.getExtensionAvps());
 
   }
 
   @Override
   public SponsoredConnectivityDataAvp getSponsoredConnectivityData() {
-    return (SponsoredConnectivityDataAvp) super.getAvpAsCustom(DiameterRxAvpCodes.SPONSORED_CONNECTIVITY_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID,
+    return (SponsoredConnectivityDataAvp) getAvpAsCustom(DiameterRxAvpCodes.SPONSORED_CONNECTIVITY_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID,
         SponsoredConnectivityDataAvpImpl.class);
   }
 
   @Override
   public boolean hasSubscriptionId() {
-    return super.hasAvp(CreditControlAVPCodes.Subscription_Id);
+    return hasAvp(CreditControlAVPCodes.Subscription_Id);
   }
 
   @Override
   public void setSubscriptionId(SubscriptionIdAvp sid) {
-    super.addAvp(CreditControlAVPCodes.Subscription_Id, sid.getExtensionAvps());
+    addAvp(CreditControlAVPCodes.Subscription_Id, sid.getExtensionAvps());
   }
 
   @Override
   public void setSubscriptionIds(SubscriptionIdAvp[] sids) {
-    super.setExtensionAvps(sids);
+    setExtensionAvps(sids);
   }
 
   @Override
   public SubscriptionIdAvp[] getSubscriptionIds() {
-    return (SubscriptionIdAvp[]) super.getAvpsAsCustom(CreditControlAVPCodes.Subscription_Id, SubscriptionIdAvpImpl.class);
+    return (SubscriptionIdAvp[]) getAvpsAsCustom(CreditControlAVPCodes.Subscription_Id, SubscriptionIdAvpImpl.class);
   }
 
   @Override
   public boolean hasProxyInfo() {
-    return super.hasAvp(DiameterAvpCodes.PROXY_INFO);
+    return hasAvp(DiameterAvpCodes.PROXY_INFO);
   }
 
   @Override
   public boolean hasRouteRecord() {
-    return super.hasAvp(DiameterAvpCodes.ROUTE_RECORD);
+    return hasAvp(DiameterAvpCodes.ROUTE_RECORD);
   }
 }

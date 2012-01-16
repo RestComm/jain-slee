@@ -58,7 +58,7 @@ public interface AccessNetworkChargingIdentifierAvp extends GroupedAvp {
    * Sets value of the Access-Network-Charging-Identifier-Value AVP (AVP code
    * 503),of type OctetString. It contains a charging identifier (e.g. GCID).
    */
-  public void setAccessNetworkChargingIdentifierValue(String anci);
+  public void setAccessNetworkChargingIdentifierValue(byte[] anci);
 
   /**
    * Fetches value of the Access-Network-Charging-Identifier-Value AVP (AVP
@@ -66,7 +66,7 @@ public interface AccessNetworkChargingIdentifierAvp extends GroupedAvp {
    * 
    * @return
    */
-  public String getAccessNetworkChargingIdentifierValue();
+  public byte[] getAccessNetworkChargingIdentifierValue();
 
   /**
    * Checks if Flows-AVP (AVP code 513)  is present in GroupedAVP.

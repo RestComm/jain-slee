@@ -44,8 +44,8 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    * 
    */
   public MediaComponentDescriptionAvpImpl() {
-    super.code = DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION;
-    super.vendorId = DiameterRxAvpCodes.TGPP_VENDOR_ID;
+    code = DiameterRxAvpCodes.MEDIA_COMPONENT_DESCRIPTION;
+    vendorId = DiameterRxAvpCodes.TGPP_VENDOR_ID;
   }
 
   /**
@@ -72,7 +72,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setMediaComponentNumber(long l) {
-    super.addAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_NUMBER, DiameterRxAvpCodes.TGPP_VENDOR_ID,l);
+    addAvp(DiameterRxAvpCodes.MEDIA_COMPONENT_NUMBER, DiameterRxAvpCodes.TGPP_VENDOR_ID,l);
   }
 
   /* (non-Javadoc)
@@ -80,7 +80,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public long getMediaComponentNumber() {
-    return super.getAvpAsUnsigned32(DiameterRxAvpCodes.MEDIA_COMPONENT_NUMBER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUnsigned32(DiameterRxAvpCodes.MEDIA_COMPONENT_NUMBER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -88,7 +88,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public boolean hasMediaSubComponent() {
-    return super.hasAvp(DiameterRxAvpCodes.MEDIA_SUBCOMPONENT, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.MEDIA_SUBCOMPONENT, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -96,7 +96,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setMediaSubComponent(MediaSubComponentAvp msc) {
-    super.addAvp(DiameterRxAvpCodes.MEDIA_SUBCOMPONENT, DiameterRxAvpCodes.TGPP_VENDOR_ID,msc.getExtensionAvps());
+    addAvp(DiameterRxAvpCodes.MEDIA_SUBCOMPONENT, DiameterRxAvpCodes.TGPP_VENDOR_ID,msc.getExtensionAvps());
   }
 
   /* (non-Javadoc)
@@ -104,8 +104,8 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setMediaSubComponents(MediaSubComponentAvp[] mscs) {
-    //super.addAvp(DiameterRxAvpCodes.MEDIA_SUBCOMPONENT, DiameterRxAvpCodes.TGPP_VENDOR_ID,mscs);
-    super.setExtensionAvps(mscs);
+    //addAvp(DiameterRxAvpCodes.MEDIA_SUBCOMPONENT, DiameterRxAvpCodes.TGPP_VENDOR_ID,mscs);
+    setExtensionAvps(mscs);
   }
 
   /* (non-Javadoc)
@@ -113,15 +113,15 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public MediaSubComponentAvp[] getMediaSubComponents() {
-    return (MediaSubComponentAvp[]) super.getAvpsAsCustom(DiameterRxAvpCodes.MEDIA_SUBCOMPONENT, DiameterRxAvpCodes.TGPP_VENDOR_ID, MediaSubComponentAvpImpl.class);
+    return (MediaSubComponentAvp[]) getAvpsAsCustom(DiameterRxAvpCodes.MEDIA_SUBCOMPONENT, DiameterRxAvpCodes.TGPP_VENDOR_ID, MediaSubComponentAvpImpl.class);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rx.events.avp.MediaComponentDescriptionAvp#setAFChargingIdentifier(java.lang.String)
    */
   @Override
-  public void setAFChargingIdentifier(String afAppId) {
-    super.addAvp(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID,afAppId);
+  public void setAFChargingIdentifier(byte[] afAppId) {
+    addAvp(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID,afAppId);
   }
 
   /* (non-Javadoc)
@@ -129,15 +129,15 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public boolean hasAFChargingIdentifier() {
-    return super.hasAvp(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.rx.events.avp.MediaComponentDescriptionAvp#getAFChargingIdentifier()
    */
   @Override
-  public String getAFChargingIdentifier() {
-    return super.getAvpAsOctetString(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+  public byte[] getAFChargingIdentifier() {
+    return getAvpAsOctetString(DiameterRxAvpCodes.AF_CHARGING_IDENTIFIER, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -145,7 +145,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public boolean hasMediaType() {
-    return super.hasAvp(DiameterRxAvpCodes.MEDIA_TYPE, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.MEDIA_TYPE, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -153,7 +153,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setMediaType(MediaType mediaType) {
-    super.addAvp(DiameterRxAvpCodes.MEDIA_TYPE, DiameterRxAvpCodes.TGPP_VENDOR_ID,mediaType.getValue());
+    addAvp(DiameterRxAvpCodes.MEDIA_TYPE, DiameterRxAvpCodes.TGPP_VENDOR_ID,mediaType.getValue());
   }
 
   /* (non-Javadoc)
@@ -161,7 +161,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public MediaType getMediaType() {
-    return (MediaType) super.getAvpAsEnumerated(DiameterRxAvpCodes.MEDIA_TYPE, DiameterRxAvpCodes.TGPP_VENDOR_ID, MediaType.class);
+    return (MediaType) getAvpAsEnumerated(DiameterRxAvpCodes.MEDIA_TYPE, DiameterRxAvpCodes.TGPP_VENDOR_ID, MediaType.class);
   }
 
   /* (non-Javadoc)
@@ -169,7 +169,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public boolean hasMaxRequestedBandwidthDL() {
-    return super.hasAvp(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_DL, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_DL, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -177,7 +177,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setMaxRequestedBandwidthDL(long mrbdl) {
-    super.addAvp(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_DL, DiameterRxAvpCodes.TGPP_VENDOR_ID,mrbdl);
+    addAvp(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_DL, DiameterRxAvpCodes.TGPP_VENDOR_ID,mrbdl);
   }
 
   /* (non-Javadoc)
@@ -185,7 +185,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public long getMaxRequestedBandwidthDL() {
-    return super.getAvpAsUnsigned32(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_DL, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUnsigned32(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_DL, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -193,7 +193,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public boolean hasMaxRequestedBandwidthUL() {
-    return super.hasAvp(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_UL, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_UL, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -201,7 +201,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setMaxRequestedBandwidthUL(long mrbUL) {
-    super.addAvp(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_UL, DiameterRxAvpCodes.TGPP_VENDOR_ID,mrbUL);
+    addAvp(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_UL, DiameterRxAvpCodes.TGPP_VENDOR_ID,mrbUL);
   }
 
   /* (non-Javadoc)
@@ -209,7 +209,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public long getMaxRequestedBandwidthUL() {
-    return super.getAvpAsUnsigned32(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_UL, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUnsigned32(DiameterRxAvpCodes.MAX_REQUESTED_BANDWIDTH_UL, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -217,7 +217,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public FlowStatus getFlowStatus() {
-    return (FlowStatus) super.getAvpAsEnumerated(DiameterRxAvpCodes.FLOW_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID, FlowStatus.class);
+    return (FlowStatus) getAvpAsEnumerated(DiameterRxAvpCodes.FLOW_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID, FlowStatus.class);
   }
 
   /* (non-Javadoc)
@@ -225,7 +225,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public boolean hasFlowStatus() {
-    return super.hasAvp(DiameterRxAvpCodes.FLOW_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.FLOW_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -233,7 +233,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setFlowStatus(FlowStatus flowStatus) {
-    super.addAvp(DiameterRxAvpCodes.FLOW_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID,flowStatus.getValue());
+    addAvp(DiameterRxAvpCodes.FLOW_STATUS, DiameterRxAvpCodes.TGPP_VENDOR_ID,flowStatus.getValue());
   }
 
   /* (non-Javadoc)
@@ -241,7 +241,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public ReservationPriority getReservationPriority() {
-    return (ReservationPriority)super.getAvpAsEnumerated(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID, ReservationPriority.class);
+    return (ReservationPriority)getAvpAsEnumerated(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID, ReservationPriority.class);
   }
 
   /* (non-Javadoc)
@@ -249,7 +249,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setReservationPriority(ReservationPriority reservationPriority) throws IllegalStateException {
-    super.addAvp(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID,reservationPriority.getValue());
+    addAvp(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID,reservationPriority.getValue());
   }
 
   /* (non-Javadoc)
@@ -257,7 +257,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public boolean hasReservationPriority() {
-    return super.hasAvp(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.ETSI_RESERVATION_PRIORITY, DiameterRxAvpCodes.ETSI_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -265,7 +265,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public boolean hasRSBandwidth() {
-    return super.hasAvp(DiameterRxAvpCodes.RS_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.RS_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -273,7 +273,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setRSBandwidth(long mrbUL) {
-    super.addAvp(DiameterRxAvpCodes.RS_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID,mrbUL);
+    addAvp(DiameterRxAvpCodes.RS_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID,mrbUL);
   }
 
   /* (non-Javadoc)
@@ -281,7 +281,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public long getRSBandwidth() {
-    return super.getAvpAsUnsigned32(DiameterRxAvpCodes.RS_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUnsigned32(DiameterRxAvpCodes.RS_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -289,7 +289,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public boolean hasRRBandwidth() {
-    return super.hasAvp(DiameterRxAvpCodes.RR_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return hasAvp(DiameterRxAvpCodes.RR_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -297,7 +297,7 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public void setRRBandwidth(long mrbUL) {
-    super.addAvp(DiameterRxAvpCodes.RR_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID,mrbUL);
+    addAvp(DiameterRxAvpCodes.RR_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID,mrbUL);
   }
 
   /* (non-Javadoc)
@@ -305,38 +305,22 @@ public class MediaComponentDescriptionAvpImpl extends GroupedAvpImpl implements 
    */
   @Override
   public long getRRBandwidth() {
-    return super.getAvpAsUnsigned32(DiameterRxAvpCodes.RR_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUnsigned32(DiameterRxAvpCodes.RR_BANDWIDTH, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.rx.events.avp.MediaComponentDescriptionAvp#setCodecData(java.lang.String[])
+   * @see net.java.slee.resource.diameter.rx.events.avp.MediaComponentDescriptionAvp#setCodecDatas(byte[][])
    */
   @Override
-  public void setCodecData(String[] codecsData) {
-    //FIXME: how this should be done?
-    for(String s:codecsData)
-      super.addAvp(DiameterRxAvpCodes.CODEC_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID,s);
-  }
-
-  /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.rx.events.avp.MediaComponentDescriptionAvp#setCodecData(java.lang.String)
-   */
-  @Override
-  public void setCodecData(String codecData) {
-    super.addAvp(DiameterRxAvpCodes.CODEC_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID,codecData);
-  }
-
-  /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.rx.events.avp.MediaComponentDescriptionAvp#hasCodecData()
-   */
-  @Override
-  public boolean hasCodecData() {
-    return super.hasAvp(DiameterRxAvpCodes.CODEC_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+  public void setCodecDatas(byte[][] codecDatas) {
+    for(byte[] codecData : codecDatas) {
+      addAvp(DiameterRxAvpCodes.CODEC_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID, codecData);
+    }
   }
 
   @Override
-  public String[] getCodecData() {
-    return super.getAvpsAsOctetString(DiameterRxAvpCodes.CODEC_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID);
+  public byte[][] getCodecDatas() {
+    return getAvpsAsOctetString(DiameterRxAvpCodes.CODEC_DATA, DiameterRxAvpCodes.TGPP_VENDOR_ID);
   }
 
 }

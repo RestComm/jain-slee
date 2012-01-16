@@ -87,7 +87,7 @@ public interface AARequest extends AAMessage {
    * 
    * @param afAppId
    */
-  public void setAFApplicationIdentifier(String afAppId);
+  public void setAFApplicationIdentifier(byte[] afAppId);
 
   /**
    * Check if AF-Application-identifier AVP (AVP code 504) is present in
@@ -103,7 +103,7 @@ public interface AARequest extends AAMessage {
    * 
    * @return
    */
-  public String getAFApplicationIdentifier();
+  public byte[] getAFApplicationIdentifier();
 
   /**
    * Check if Media-Component-Description AVP (AVP code 517) is present in
@@ -161,7 +161,7 @@ public interface AARequest extends AAMessage {
    * 
    * @param afAppId
    */
-  public void setAFChargingIdentifier(String afAppId);
+  public void setAFChargingIdentifier(byte[] afAppId);
 
   /**
    * Check if AF-Charging-Identifier AVP (AVP code 505) is present in message.
@@ -177,7 +177,7 @@ public interface AARequest extends AAMessage {
    * 
    * @return
    */
-  public String getAFChargingIdentifier();
+  public byte[] getAFChargingIdentifier();
 
   /**
    * Checks if the SIP-Forking-Indication AVP (AVP code 523) is present in
@@ -288,7 +288,7 @@ public interface AARequest extends AAMessage {
    * 
    * @return
    */
-  public String getFramedIPAddress();
+  public byte[] getFramedIPAddress();
 
   /**
    * Checks if the Framed-IP-Address AVP (AVP Code 8) is present in message.
@@ -303,7 +303,7 @@ public interface AARequest extends AAMessage {
    * 
    * @param framedIpAddress
    */
-  public void setFramedIPAddress(String framedIpAddress);
+  public void setFramedIPAddress(byte[] framedIpAddress);
 
   /**
    * Fetches the Framed-IP-V6Prefix AVP (AVP Code 97) [RADIUS], of type
@@ -311,7 +311,7 @@ public interface AARequest extends AAMessage {
    * 
    * @return
    */
-  public String getFramedIPV6Prefix();
+  public byte[] getFramedIPV6Prefix();
 
   /**
    * Checks if the Framed-IP-V6Prefix AVP (AVP Code 97) is present in message.
@@ -326,7 +326,7 @@ public interface AARequest extends AAMessage {
    * 
    * @param framedIpV6Prefix
    */
-  public void setFramedIPV6Prefix(String framedIpV6Prefix);
+  public void setFramedIPV6Prefix(byte[] framedIpV6Prefix);
 
   /**
    * Checks if the Called-Station-Id AVP (AVP Code 30) is present in message.
@@ -380,14 +380,14 @@ public interface AARequest extends AAMessage {
    * 
    * @param serviceURN
    */
-  public void setServiceURN(String serviceURN);
+  public void setServiceURN(byte[] serviceURN);
 
   /**
    * Fetches value of the Service-URN AVP (AVP code 525).
    * 
    * @return
    */
-  public String getServiceURN();
+  public byte[] getServiceURN();
 
   /**
    * Checks if the Sponsored-Connectivity-Data AVP (AVP code 530) is present
@@ -428,14 +428,14 @@ public interface AARequest extends AAMessage {
    * 
    * @param mpsIdentifier
    */
-  public void setMPSIdentifier(String mpsIdentifier);
+  public void setMPSIdentifier(byte[] mpsIdentifier);
 
   /**
    * Fetches value of the MPS-Identifier AVP (AVP code 528).
    * 
    * @return
    */
-  public String getMPSIdentifier();
+  public byte[] getMPSIdentifier();
 
   /**
    * Returns true if the Origin-State-Id AVP is present in the message.
