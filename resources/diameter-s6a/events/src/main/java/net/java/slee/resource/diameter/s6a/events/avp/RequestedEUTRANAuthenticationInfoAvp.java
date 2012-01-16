@@ -58,7 +58,7 @@ public interface RequestedEUTRANAuthenticationInfoAvp extends GroupedAvp {
   public void setImmediateResponsePreferred(long immediateResponsePreferred);
 
   public boolean hasResynchronizationInfo();
-  public String getResynchronizationInfo();
-  public void setResynchronizationInfo(String resynchronizationInfo);
+  public byte[] getResynchronizationInfo();
+  public void setResynchronizationInfo(byte[] resynchronizationInfo);
 
 }

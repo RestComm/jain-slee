@@ -74,11 +74,11 @@ public class MIP6AgentInfoAvpImpl extends GroupedAvpImpl implements MIP6AgentInf
     return hasAvp(DiameterS6aAvpCodes.MIP6_HOME_LINK_PREFIX);
   }
 
-  public String getMIP6HomeLinkPrefix() {
+  public byte[] getMIP6HomeLinkPrefix() {
     return getAvpAsOctetString(DiameterS6aAvpCodes.MIP6_HOME_LINK_PREFIX);
   }
 
-  public void setMIP6HomeLinkPrefix(String prefix) {
+  public void setMIP6HomeLinkPrefix(byte[] prefix) {
     addAvp(DiameterS6aAvpCodes.MIP6_HOME_LINK_PREFIX, prefix);
   }
 

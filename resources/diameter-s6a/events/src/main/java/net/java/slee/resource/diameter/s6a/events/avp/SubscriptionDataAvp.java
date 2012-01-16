@@ -79,12 +79,12 @@ public interface SubscriptionDataAvp extends GroupedAvp {
   public SubscriberStatus getSubscriberStatus();
 
   public boolean hasMSISDN();
-  public String getMSISDN();
-  public void setMSISDN(String msisdn);
+  public byte[] getMSISDN();
+  public void setMSISDN(byte[] msisdn);
 
   public boolean hasSTNSR();
-  public String getSTNSR();
-  public void setSTNSR(String stnsr);
+  public byte[] getSTNSR();
+  public void setSTNSR(byte[] stnsr);
 
   public boolean hasICSIndicator();
   public ICSIndicator getICSIndicator();
@@ -102,9 +102,9 @@ public interface SubscriptionDataAvp extends GroupedAvp {
   public long getHPLMNODB();
   public void setHPLMNODB(long hplmnOdb);
 
-  public String[] getRegionalSubscriptionZoneCodes();
-  public void setRegionalSubscriptionZoneCode(String rszc);
-  public void setRegionalSubscriptionZoneCodes(String[] rszcs);
+  public byte[][] getRegionalSubscriptionZoneCodes();
+  public void setRegionalSubscriptionZoneCode(byte[] rszc);
+  public void setRegionalSubscriptionZoneCodes(byte[][] rszcs);
 
   public boolean hasAccessRestrictionData();
   public long getAccessRestrictionData();

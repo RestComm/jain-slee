@@ -235,14 +235,14 @@ public interface UpdateLocationRequest extends DiameterMessage {
    * 
    * @return the value of the Visited-PLMN-Id AVP or null if it has not been set on this message
    */
-  String getVisitedPLMNId();
+  byte[] getVisitedPLMNId();
 
   /**
    * Sets the value of the Visited-PLMN-Id AVP, of type OctetString.
    * 
    * @param visitedPLMNId
    */
-  void setVisitedPLMNId(String visitedPLMNId);
+  void setVisitedPLMNId(byte[] visitedPLMNId);
 
   /**
    * Returns true if the SGSN-Number AVP is present in the message.

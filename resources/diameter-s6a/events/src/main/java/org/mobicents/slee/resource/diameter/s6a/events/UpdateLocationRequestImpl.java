@@ -102,11 +102,11 @@ public class UpdateLocationRequestImpl extends DiameterMessageImpl implements Up
     return hasAvp(VISITED_PLMN_ID, S6A_VENDOR_ID);
   }
 
-  public String getVisitedPLMNId() {
+  public byte[] getVisitedPLMNId() {
     return getAvpAsOctetString(VISITED_PLMN_ID, S6A_VENDOR_ID);
   }
 
-  public void setVisitedPLMNId(String visitedPLMNId) {
+  public void setVisitedPLMNId(byte[] visitedPLMNId) {
     addAvp(VISITED_PLMN_ID, S6A_VENDOR_ID, visitedPLMNId);
   }
 

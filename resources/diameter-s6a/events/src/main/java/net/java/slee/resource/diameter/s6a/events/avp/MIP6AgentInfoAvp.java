@@ -69,7 +69,7 @@ public interface MIP6AgentInfoAvp extends GroupedAvp {
   public void setMIPHomeAgentHost(MIPHomeAgentHostAvp hah);
 
   public boolean hasMIP6HomeLinkPrefix();
-  public String getMIP6HomeLinkPrefix();
-  public void setMIP6HomeLinkPrefix(String prefix);
+  public byte[] getMIP6HomeLinkPrefix();
+  public void setMIP6HomeLinkPrefix(byte[] prefix);
 
 }

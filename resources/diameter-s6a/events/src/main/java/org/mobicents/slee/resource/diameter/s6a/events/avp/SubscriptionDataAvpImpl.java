@@ -66,11 +66,11 @@ public class SubscriptionDataAvpImpl extends GroupedAvpImpl implements Subscript
     return hasAvp(DiameterS6aAvpCodes.MSISDN, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
-  public String getMSISDN() {
+  public byte[] getMSISDN() {
     return getAvpAsOctetString(DiameterS6aAvpCodes.MSISDN, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
-  public void setMSISDN(String msisdn) {
+  public void setMSISDN(byte[] msisdn) {
     addAvp(DiameterS6aAvpCodes.MSISDN, DiameterS6aAvpCodes.S6A_VENDOR_ID, msisdn);
   }
 
@@ -78,11 +78,11 @@ public class SubscriptionDataAvpImpl extends GroupedAvpImpl implements Subscript
     return hasAvp(DiameterS6aAvpCodes.STN_SR, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
-  public String getSTNSR() {
+  public byte[] getSTNSR() {
     return getAvpAsOctetString(DiameterS6aAvpCodes.STN_SR, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
-  public void setSTNSR(String stnsr) {
+  public void setSTNSR(byte[] stnsr) {
     addAvp(DiameterS6aAvpCodes.STN_SR, DiameterS6aAvpCodes.S6A_VENDOR_ID, stnsr);
   }
 
@@ -170,16 +170,16 @@ public class SubscriptionDataAvpImpl extends GroupedAvpImpl implements Subscript
     addAvp(DiameterS6aAvpCodes.HPLMN_ODB, DiameterS6aAvpCodes.S6A_VENDOR_ID, hplmnOdb);
   }
 
-  public String[] getRegionalSubscriptionZoneCodes() {
+  public byte[][] getRegionalSubscriptionZoneCodes() {
     return getAvpsAsOctetString(DiameterS6aAvpCodes.REGIONAL_SUBSCRIPTION_ZONE_CODE, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
-  public void setRegionalSubscriptionZoneCode(String rszc) {
+  public void setRegionalSubscriptionZoneCode(byte[] rszc) {
     addAvp(DiameterS6aAvpCodes.REGIONAL_SUBSCRIPTION_ZONE_CODE, DiameterS6aAvpCodes.S6A_VENDOR_ID, rszc);
   }
 
-  public void setRegionalSubscriptionZoneCodes(String[] rszcs) {
-    for(String rszc : rszcs) {
+  public void setRegionalSubscriptionZoneCodes(byte[][] rszcs) {
+    for(byte[] rszc : rszcs) {
       setRegionalSubscriptionZoneCode(rszc);
     }
   }

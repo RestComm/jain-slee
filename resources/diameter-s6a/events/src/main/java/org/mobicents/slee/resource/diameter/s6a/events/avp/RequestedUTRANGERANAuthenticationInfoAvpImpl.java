@@ -107,14 +107,14 @@ public class RequestedUTRANGERANAuthenticationInfoAvpImpl extends GroupedAvpImpl
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.s6a.events.avp.RequestedUTRANGERANAuthenticationInfoAvp#getResynchronizationInfo()
    */
-  public String getResynchronizationInfo() {
+  public byte[] getResynchronizationInfo() {
     return getAvpAsOctetString(DiameterS6aAvpCodes.RESYNCHRONIZATION_INFO, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.s6a.events.avp.RequestedUTRANGERANAuthenticationInfoAvp#setResynchronizationInfo(java.lang.String)
    */
-  public void setResynchronizationInfo(String resynchronizationInfo) {
+  public void setResynchronizationInfo(byte[] resynchronizationInfo) {
     addAvp(DiameterS6aAvpCodes.RESYNCHRONIZATION_INFO, DiameterS6aAvpCodes.S6A_VENDOR_ID, resynchronizationInfo);
   }
 

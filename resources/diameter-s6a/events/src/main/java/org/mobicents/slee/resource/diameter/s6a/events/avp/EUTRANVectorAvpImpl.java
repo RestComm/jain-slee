@@ -50,12 +50,12 @@ public class EUTRANVectorAvpImpl extends GroupedAvpImpl implements EUTRANVectorA
   }
 
   @Override
-  public String getRAND() {
+  public byte[] getRAND() {
     return getAvpAsOctetString(DiameterS6aAvpCodes.RAND, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   @Override
-  public void setRAND(String RAND) {
+  public void setRAND(byte[] RAND) {
     addAvp(DiameterS6aAvpCodes.RAND, DiameterS6aAvpCodes.S6A_VENDOR_ID, RAND);
   }
 
@@ -65,12 +65,12 @@ public class EUTRANVectorAvpImpl extends GroupedAvpImpl implements EUTRANVectorA
   }
 
   @Override
-  public String getXRES() {
+  public byte[] getXRES() {
     return getAvpAsOctetString(DiameterS6aAvpCodes.XRES, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   @Override
-  public void setXRES(String XRES) {
+  public void setXRES(byte[] XRES) {
     addAvp(DiameterS6aAvpCodes.XRES, DiameterS6aAvpCodes.S6A_VENDOR_ID, XRES);
   }
 
@@ -80,12 +80,12 @@ public class EUTRANVectorAvpImpl extends GroupedAvpImpl implements EUTRANVectorA
   }
 
   @Override
-  public String getAUTN() {
+  public byte[] getAUTN() {
     return getAvpAsOctetString(DiameterS6aAvpCodes.AUTN, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   @Override
-  public void setAUTN(String AUTN) {
+  public void setAUTN(byte[] AUTN) {
     addAvp(DiameterS6aAvpCodes.AUTN, DiameterS6aAvpCodes.S6A_VENDOR_ID, AUTN);
   }
 
@@ -95,12 +95,12 @@ public class EUTRANVectorAvpImpl extends GroupedAvpImpl implements EUTRANVectorA
   }
 
   @Override
-  public String getKASME() {
+  public byte[] getKASME() {
     return getAvpAsOctetString(DiameterS6aAvpCodes.KASME, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   @Override
-  public void setKASME(String KASME) {
+  public void setKASME(byte[] KASME) {
     addAvp(DiameterS6aAvpCodes.KASME, DiameterS6aAvpCodes.S6A_VENDOR_ID, KASME);
   }
 

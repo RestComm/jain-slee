@@ -55,19 +55,19 @@ public interface EUTRANVectorAvp extends GroupedAvp {
   public boolean hasItemNumber();
 
   public boolean hasRAND();
-  public String getRAND();
-  public void setRAND(String RAND);
+  public byte[] getRAND();
+  public void setRAND(byte[] RAND);
 
   public boolean hasXRES();
-  public String getXRES();
-  public void setXRES(String XRES);
+  public byte[] getXRES();
+  public void setXRES(byte[] XRES);
 
   public boolean hasAUTN();
-  public String getAUTN();
-  public void setAUTN(String AUTN);
+  public byte[] getAUTN();
+  public void setAUTN(byte[] AUTN);
 
   public boolean hasKASME();
-  public String getKASME();
-  public void setKASME(String KASME);
+  public byte[] getKASME();
+  public void setKASME(byte[] KASME);
 
 }
