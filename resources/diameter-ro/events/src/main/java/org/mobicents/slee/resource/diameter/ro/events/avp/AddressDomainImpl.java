@@ -66,7 +66,7 @@ public class AddressDomainImpl extends GroupedAvpImpl implements AddressDomain {
    * @see net.java.slee.resource.diameter.ro.events.avp.AddressDomain#getTgppImsiMccMnc()
    */
   public byte[] getTgppImsiMccMnc() {
-    return getAvpAsRaw(DiameterRoAvpCodes.TGPP_IMSI_MCC_MNC, DiameterRoAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_IMSI_MCC_MNC, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /*

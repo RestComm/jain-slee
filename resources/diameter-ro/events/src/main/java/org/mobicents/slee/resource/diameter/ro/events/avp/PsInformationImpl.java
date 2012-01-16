@@ -99,7 +99,7 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppCamelChargingInfo()
    */
   public byte[] getTgppCamelChargingInfo() {
-    return getAvpAsRaw(DiameterRoAvpCodes.TGPP_CAMEL_CHARGING_INFO, DiameterRoAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_CAMEL_CHARGING_INFO, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
