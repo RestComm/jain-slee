@@ -52,7 +52,7 @@ public class MMELocationInformationAvpImpl extends GroupedAvpImpl implements MME
   }
 
   public byte[] getEUTRANCellGlobalIdentity() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.E_UTRAN_CELL_GLOBAL_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.E_UTRAN_CELL_GLOBAL_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasTrackingAreaIdentity() {
@@ -64,7 +64,7 @@ public class MMELocationInformationAvpImpl extends GroupedAvpImpl implements MME
   }
 
   public byte[] getTrackingAreaIdentity() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.TRACKING_AREA_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.TRACKING_AREA_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasGeographicalInformation() {
@@ -76,7 +76,7 @@ public class MMELocationInformationAvpImpl extends GroupedAvpImpl implements MME
   }
 
   public byte[] getGeographicalInformation() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.GEOGRAPHICAL_INFORMATION, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.GEOGRAPHICAL_INFORMATION, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasGeodeticInformation() {
@@ -88,7 +88,7 @@ public class MMELocationInformationAvpImpl extends GroupedAvpImpl implements MME
   }
 
   public byte[] getGeodeticInformation() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.GEODETIC_INFORMATION, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.GEODETIC_INFORMATION, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasCurrentLocationRetrieved() {

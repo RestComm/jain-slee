@@ -165,7 +165,7 @@ public class NotifyRequestImpl extends DiameterMessageImpl implements NotifyRequ
    * @see net.java.slee.resource.diameter.s6a.events.NotifyRequest#getVisitedNetworkIdentifier()
    */
   public byte[] getVisitedNetworkIdentifier() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.VISITED_NETWORK_IDENTIFIER, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.VISITED_NETWORK_IDENTIFIER, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   /* (non-Javadoc)

@@ -162,7 +162,7 @@ public class DeleteSubscriberDataRequestImpl extends DiameterMessageImpl impleme
    * @see net.java.slee.resource.diameter.s6a.events.DeleteSubscriberDataRequest#getTraceReference()
    */
   public byte[] getTraceReference() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.TRACE_REFERENCE, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.TRACE_REFERENCE, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -176,7 +176,7 @@ public class DeleteSubscriberDataRequestImpl extends DiameterMessageImpl impleme
    * @see net.java.slee.resource.diameter.s6a.events.DeleteSubscriberDataRequest#getTSCodes()
    */
   public byte[][] getTSCodes() {
-    return getAvpsAsRaw(DiameterS6aAvpCodes.TS_CODE, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpsAsOctetString(DiameterS6aAvpCodes.TS_CODE, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   /* (non-Javadoc)

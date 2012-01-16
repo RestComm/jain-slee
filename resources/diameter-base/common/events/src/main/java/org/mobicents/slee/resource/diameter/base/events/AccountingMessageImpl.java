@@ -88,7 +88,7 @@ public abstract class AccountingMessageImpl extends DiameterMessageImpl implemen
   }
 
   public byte[] getAccountingSessionId() {
-    return getAvpAsRaw(Avp.ACC_SESSION_ID);
+    return getAvpAsOctetString(Avp.ACC_SESSION_ID);
   }
 
   public void setAccountingSessionId(byte[] accountingSessionId) {

@@ -62,7 +62,7 @@ public class ServiceParameterInfoAvpImpl extends GroupedAvpImpl implements Servi
    * net.java.slee.resource.diameter.cca.events.avp.ServiceParameterInfoAvp#getServiceParameterValue()
    */
   public byte[] getServiceParameterValue() {
-    return getAvpAsRaw(CreditControlAVPCodes.Service_Parameter_Value);
+    return getAvpAsOctetString(CreditControlAVPCodes.Service_Parameter_Value);
   }
 
   /*

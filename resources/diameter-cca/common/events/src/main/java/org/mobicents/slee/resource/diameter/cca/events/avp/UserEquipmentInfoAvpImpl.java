@@ -57,7 +57,7 @@ public class UserEquipmentInfoAvpImpl extends GroupedAvpImpl implements UserEqui
    * @see net.java.slee.resource.diameter.cca.events.avp.UserEquipmentInfoAvp#getUserEquipmentInfoValue()
    */
   public byte[] getUserEquipmentInfoValue() {
-    return getAvpAsRaw(CreditControlAVPCodes.User_Equipment_Info_Value);
+    return getAvpAsOctetString(CreditControlAVPCodes.User_Equipment_Info_Value);
   }
 
   /*

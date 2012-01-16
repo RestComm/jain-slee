@@ -63,7 +63,7 @@ public class TerminalInformationAvpImpl extends GroupedAvpImpl implements Termin
   }
 
   public byte[] get3GPP2MEID() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.TGPP2_MEID, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.TGPP2_MEID, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasSoftwareVersion() {

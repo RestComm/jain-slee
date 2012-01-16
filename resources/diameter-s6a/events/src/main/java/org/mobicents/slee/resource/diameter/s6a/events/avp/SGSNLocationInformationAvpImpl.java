@@ -52,7 +52,7 @@ public class SGSNLocationInformationAvpImpl extends GroupedAvpImpl implements SG
   }
 
   public byte[] getCellGlobalIdentity() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.CELL_GLOBAL_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.CELL_GLOBAL_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasLocationAreaIdentity() {
@@ -64,7 +64,7 @@ public class SGSNLocationInformationAvpImpl extends GroupedAvpImpl implements SG
   }
 
   public byte[] getLocationAreaIdentity() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.LOCATION_AREA_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.LOCATION_AREA_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasServiceAreaIdentity() {
@@ -76,7 +76,7 @@ public class SGSNLocationInformationAvpImpl extends GroupedAvpImpl implements SG
   }
 
   public byte[] getServiceAreaIdentity() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.SERVICE_AREA_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.SERVICE_AREA_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasRoutingAreaIdentity() {
@@ -88,7 +88,7 @@ public class SGSNLocationInformationAvpImpl extends GroupedAvpImpl implements SG
   }
 
   public byte[] getRoutingAreaIdentity() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.ROUTING_AREA_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.ROUTING_AREA_IDENTITY, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasGeographicalInformation() {
@@ -100,7 +100,7 @@ public class SGSNLocationInformationAvpImpl extends GroupedAvpImpl implements SG
   }
 
   public byte[] getGeographicalInformation() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.GEOGRAPHICAL_INFORMATION, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.GEOGRAPHICAL_INFORMATION, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasGeodeticInformation() {
@@ -112,7 +112,7 @@ public class SGSNLocationInformationAvpImpl extends GroupedAvpImpl implements SG
   }
 
   public byte[] getGeodeticInformation() {
-    return getAvpAsRaw(DiameterS6aAvpCodes.GEODETIC_INFORMATION, DiameterS6aAvpCodes.S6A_VENDOR_ID);
+    return getAvpAsOctetString(DiameterS6aAvpCodes.GEODETIC_INFORMATION, DiameterS6aAvpCodes.S6A_VENDOR_ID);
   }
 
   public boolean hasCurrentLocationRetrieved() {

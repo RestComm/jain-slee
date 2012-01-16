@@ -115,7 +115,7 @@ public class UpdateLocationRequestImpl extends DiameterMessageImpl implements Up
   }
 
   public byte[] getSGSNNumber() {
-    return getAvpAsRaw(SGSN_NUMBER, S6A_VENDOR_ID);
+    return getAvpAsOctetString(SGSN_NUMBER, S6A_VENDOR_ID);
   }
 
   public void setSGSNNumber(byte[] sgsnNumber) {

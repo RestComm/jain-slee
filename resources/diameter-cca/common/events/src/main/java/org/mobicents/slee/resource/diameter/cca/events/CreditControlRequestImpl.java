@@ -77,7 +77,7 @@ public class CreditControlRequestImpl extends CreditControlMessageImpl implement
    */
   public byte[] getCcCorrelationId()
   {
-    return getAvpAsRaw(CreditControlAVPCodes.CC_Correlation_Id);
+    return getAvpAsOctetString(CreditControlAVPCodes.CC_Correlation_Id);
   }
 
   /*

@@ -165,7 +165,7 @@ public class AuthenticationInformationRequestImpl extends DiameterMessageImpl im
    * @see net.java.slee.resource.diameter.s6a.events.AuthenticationInformationRequest#getVisitedPLMNId()
    */
   public byte[] getVisitedPLMNId() {
-    return getAvpAsRaw(VISITED_PLMN_ID, S6A_VENDOR_ID);
+    return getAvpAsOctetString(VISITED_PLMN_ID, S6A_VENDOR_ID);
   }
 
   /* (non-Javadoc)
