@@ -92,7 +92,7 @@ public class UserDataAnswerImpl extends DiameterShMessageImpl implements UserDat
    * (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.events.UserDataAnswer#getUserData()
    */
-  public String getUserData() {
+  public byte[] getUserData() {
     return getAvpAsOctetString(DiameterShAvpCodes.USER_DATA, DiameterShAvpCodes.SH_VENDOR_ID);
   }
 
@@ -119,7 +119,7 @@ public class UserDataAnswerImpl extends DiameterShMessageImpl implements UserDat
    * (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.events.UserDataAnswer#setUserData(byte[])
    */
-  public void setUserData(String userData) {
+  public void setUserData(byte[] userData) {
     addAvp(DiameterShAvpCodes.USER_DATA, DiameterShAvpCodes.SH_VENDOR_ID, userData);
   }
 

@@ -100,7 +100,7 @@ public interface SubscribeNotificationsRequest extends DiameterShMessage {
    * the AVPs in the order they appear in the message. A return value of null
    * implies that no Service-Indication AVPs have been set.
    */
-  String[] getServiceIndications();
+  byte[][] getServiceIndications();
 
   /**
    * Sets a single Service-Indication AVP in the message, of type OctetString.
@@ -109,7 +109,7 @@ public interface SubscribeNotificationsRequest extends DiameterShMessage {
    *             if setServiceIndication or setServiceIndications has already
    *             been called
    */
-  void setServiceIndication(String serviceIndication);
+  void setServiceIndication(byte[] serviceIndication);
 
   /**
    * Sets the set of Service-Indication AVPs, with all the values in the given
@@ -124,7 +124,7 @@ public interface SubscribeNotificationsRequest extends DiameterShMessage {
    *             if setServiceIndication or setServiceIndications has already
    *             been called
    */
-  void setServiceIndications(String[] serviceIndications);
+  void setServiceIndications(byte[][] serviceIndications);
 
   /**
    * Returns true if the Server-Name AVP is present in the message.

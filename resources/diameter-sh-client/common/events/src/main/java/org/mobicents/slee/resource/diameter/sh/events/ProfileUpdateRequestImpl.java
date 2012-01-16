@@ -170,7 +170,7 @@ public class ProfileUpdateRequestImpl extends DiameterShMessageImpl implements P
    * (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.ProfileUpdateRequest#getUserData()
    */
-  public String getUserData() {
+  public byte[] getUserData() {
     return getAvpAsOctetString(DiameterShAvpCodes.USER_DATA, DiameterShAvpCodes.SH_VENDOR_ID);
   }
 
@@ -197,7 +197,7 @@ public class ProfileUpdateRequestImpl extends DiameterShMessageImpl implements P
    * (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.ProfileUpdateRequest#setUserData(java.lang.String)
    */
-  public void setUserData(String userData) {
+  public void setUserData(byte[] userData) {
     addAvp(DiameterShAvpCodes.USER_DATA, DiameterShAvpCodes.SH_VENDOR_ID, userData);
   }
 

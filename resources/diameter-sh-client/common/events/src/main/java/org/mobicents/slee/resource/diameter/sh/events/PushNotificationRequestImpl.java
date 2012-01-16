@@ -115,7 +115,7 @@ public class PushNotificationRequestImpl extends DiameterShMessageImpl implement
    * (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.events.PushNotificationRequest#getUserData()
    */
-  public String getUserData() {
+  public byte[] getUserData() {
     return getAvpAsOctetString(DiameterShAvpCodes.USER_DATA, DiameterShAvpCodes.SH_VENDOR_ID);
   }
 
@@ -142,7 +142,7 @@ public class PushNotificationRequestImpl extends DiameterShMessageImpl implement
    * (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.events.PushNotificationRequest#setUserData(java.lang.String)
    */
-  public void setUserData(String userData) {
+  public void setUserData(byte[] userData) {
     addAvp(DiameterShAvpCodes.USER_DATA, DiameterShAvpCodes.SH_VENDOR_ID, userData);
   }
 

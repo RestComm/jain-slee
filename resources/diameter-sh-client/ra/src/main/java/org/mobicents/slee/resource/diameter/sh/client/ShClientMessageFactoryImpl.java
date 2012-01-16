@@ -98,7 +98,7 @@ public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
 
     pur.setUserIdentity(userIdentity);
     pur.setDataReference(reference);
-    pur.setUserData(new String(userData));
+    pur.setUserData(userData);
     
     return pur;
   }

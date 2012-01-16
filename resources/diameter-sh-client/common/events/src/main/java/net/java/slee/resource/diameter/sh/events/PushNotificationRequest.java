@@ -97,7 +97,7 @@ public interface PushNotificationRequest extends DiameterShMessage {
    * @return the value of the User-Data AVP or null if it has not been set on
    *         this message
    */
-  String getUserData();
+  byte[] getUserData();
 
   /**
    * Returns the value of the User-Data AVP, of type UserData.
@@ -113,7 +113,7 @@ public interface PushNotificationRequest extends DiameterShMessage {
    * @throws IllegalStateException
    *             if setUserData has already been called
    */
-  void setUserData(String userData);
+  void setUserData(byte[] userData);
 
   /**
    * Sets the value of the User-Data AVP, of type UserData.

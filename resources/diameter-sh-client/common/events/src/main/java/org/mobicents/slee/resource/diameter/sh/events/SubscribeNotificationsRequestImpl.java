@@ -135,22 +135,22 @@ public class SubscribeNotificationsRequestImpl extends DiameterShMessageImpl imp
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#getServiceIndications()
    */
-  public String[] getServiceIndications() {
+  public byte[][] getServiceIndications() {
     return getAvpsAsOctetString(DiameterShAvpCodes.SERVICE_INDICATION, DiameterShAvpCodes.SH_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setServiceIndication(java.lang.String)
    */
-  public void setServiceIndication(String serviceIndication) {
+  public void setServiceIndication(byte[] serviceIndication) {
     addAvp(DiameterShAvpCodes.SERVICE_INDICATION, DiameterShAvpCodes.SH_VENDOR_ID, serviceIndication);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setServiceIndications(java.lang.String[])
    */
-  public void setServiceIndications(String[] serviceIndications) {
-    for(String serviceIndication : serviceIndications) {
+  public void setServiceIndications(byte[][] serviceIndications) {
+    for(byte[] serviceIndication : serviceIndications) {
       setServiceIndication(serviceIndication);
     }
   }
