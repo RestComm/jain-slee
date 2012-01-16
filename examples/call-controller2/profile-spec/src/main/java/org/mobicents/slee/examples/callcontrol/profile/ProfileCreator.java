@@ -24,9 +24,7 @@ package org.mobicents.slee.examples.callcontrol.profile;
 
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -43,10 +41,10 @@ import javax.slee.management.ProfileProvisioningMBean;
 
 import org.apache.log4j.Logger;
 import org.jboss.jmx.adaptor.rmi.RMIAdaptor;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
 
 public class ProfileCreator {
 	private static final String CONF="credential.properties";

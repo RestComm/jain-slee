@@ -33,7 +33,6 @@ import jain.protocol.ip.mgcp.message.NotifyResponse;
 import jain.protocol.ip.mgcp.message.parms.CallIdentifier;
 import jain.protocol.ip.mgcp.message.parms.ConflictingParameterException;
 import jain.protocol.ip.mgcp.message.parms.ConnectionDescriptor;
-import jain.protocol.ip.mgcp.message.parms.ConnectionIdentifier;
 import jain.protocol.ip.mgcp.message.parms.ConnectionMode;
 import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 import jain.protocol.ip.mgcp.message.parms.EventName;
@@ -45,10 +44,10 @@ import jain.protocol.ip.mgcp.pkg.MgcpEvent;
 import jain.protocol.ip.mgcp.pkg.PackageName;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -91,7 +90,6 @@ import net.java.slee.resource.mgcp.MgcpEndpointActivity;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 
-import org.mobicents.protocols.mgcp.jain.pkg.AUMgcpEvent;
 import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
 import org.mobicents.slee.examples.callcontrol.common.SubscriptionProfileSbb;
 import org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP;
@@ -189,7 +187,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 						PRE_ENDPOINT_NAME, mmsBindAddress + ":"
 								+ MGCP_PEER_PORT);
 				CreateConnection createConnection = new CreateConnection(this,
-						callID, endpointID, ConnectionMode.SendRecv);
+						callID, endpointID, ConnectionMode.Confrnce);
 				try {
 					createConnection
 							.setRemoteConnectionDescriptor(new ConnectionDescriptor(
@@ -361,15 +359,14 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			EndpointIdentifier endpointID = new EndpointIdentifier(
 					IVR_ENDPOINT_NAME, mmsBindAddress + ":" + MGCP_PEER_PORT);
 			CreateConnection createConnection = new CreateConnection(this,
-					getCallIdentifier(), endpointID, ConnectionMode.SendRecv);
+					getCallIdentifier(), event					.getSpecificEndpointIdentifier(), ConnectionMode.Confrnce);
 
 			int txID = mgcpProvider.getUniqueTransactionHandler();
 			createConnection.setTransactionHandle(txID);
 
 			// now set other end
 			try {
-				createConnection.setSecondEndpointIdentifier(event
-						.getSpecificEndpointIdentifier());
+				createConnection.setSecondEndpointIdentifier(endpointID);
 			} catch (ConflictingParameterException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -399,7 +396,16 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			startMailMedia = true;
 
 		}
-		EndpointIdentifier eid = event.getSpecificEndpointIdentifier();
+		
+		EndpointIdentifier eid = null;
+		if(startMailMedia)
+		{
+			eid = event.getSecondEndpointIdentifier();
+		}else
+		{
+			eid = event.getSpecificEndpointIdentifier();	
+		}
+		 
 		log.info("Creating endpoint activity on: " + eid);
 		MgcpEndpointActivity eActivity = mgcpProvider.getEndpointActivity(eid);
 		ActivityContextInterface eAci = mgcpActivityContestInterfaceFactory
@@ -422,7 +428,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		ActivityContextInterface[] activities = getSbbContext().getActivities();
 		SbbLocalObject sbbLocalObject = getSbbContext().getSbbLocalObject();
 
-		MgcpEndpointActivity mea = getEndpointActivity("IVR");
+		MgcpEndpointActivity mea = getEndpointActivity("ivr");
 		if(mea!=null)
 		{
 			//empty RQNT, this is requiered to flush data.
@@ -438,7 +444,9 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	
 
 			}
-			if (attachedAci.getActivity() instanceof MgcpEndpointActivity) {
+			//we need to send call wide DLCX only once.
+			boolean callConnectionsTermianted = false;
+			if ( (attachedAci.getActivity() instanceof MgcpEndpointActivity) && !callConnectionsTermianted) {
 				attachedAci.detach(sbbLocalObject);
 	
 				MgcpEndpointActivity mgcpEndpoint = (MgcpEndpointActivity) attachedAci
@@ -450,7 +458,8 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 				deleteConnection.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
 				mgcpProvider.sendMgcpEvents(
 						new JainMgcpEvent[] { deleteConnection });
-
+				log.info("Delete connections: \n"+deleteConnection);
+				callConnectionsTermianted = true;
 			}
 
 		}
@@ -495,7 +504,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			case MgcpEvent.REPORT_ON_COMPLETION:
 				log.info("########## VOICE MAIL SBB: Signal completed, event identifier["+observedEvent.getEventIdentifier()+"] ##########");
 				
-				if(observedEvent.getEventIdentifier().toString().equals("oc"))
+				if(observedEvent.getEventIdentifier().getName().toString().equals("oc"))
 				{
 					onAnnouncementComplete();
 				}
@@ -506,25 +515,67 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 				//releaseState();
 				sendByeRequest();
 				break;
-			
-			case MgcpEvent.DTMF_1:
-				this.checkDtmfDigit("1");
-				break;
-			case MgcpEvent.DTMF_7:
-				this.checkDtmfDigit("7");
-				break;
-			case MgcpEvent.DTMF_9:
-				this.checkDtmfDigit("9");
-				break;
-			
 			default:
-				log.info("########## VOICE MAIL SBB: Notify on unknown event, event identifier["+observedEvent.getEventIdentifier()+"]identifier["+observedEvent.getEventIdentifier().intValue()+"] ##########");
-				break;
+				//MGCP RI expects D/dtmfX, but correct is D/X ... hence it fails to match on 
+				//MgcpEvent.DTMF_X .... Thus event ID is wrong....
+				if(observedEvent.getPackageName().toString().equals("D"))
+				{
+					int decodedId = decodeDTMF(observedEvent);
+					processDTMF(decodedId);
+				}else
+				{
+					log.info("########## VOICE MAIL SBB: Notify on unknown event, event identifier["+observedEvent.getEventIdentifier()+"] identifier["+observedEvent.getEventIdentifier().intValue()+"] ##########");
+				}
 			}
 			
 		}
 
 	}
+	
+	private int decodeDTMF(EventName observed)
+	{
+		
+		String eventName = observed.getEventIdentifier().getName();
+		if(Pattern.matches("\\d", eventName))
+		{
+			//digit
+			int i = Integer.parseInt(eventName);
+			return MgcpEvent.DTMF_0+i;
+		} else if(Pattern.matches("[A-D]#*", eventName))
+		{
+			switch(eventName.charAt(0))
+			{
+			case 'A':
+				return MgcpEvent.DTMF_A;
+				
+			case 'B':
+				return MgcpEvent.DTMF_B;
+				
+			case 'C':
+				return MgcpEvent.DTMF_C;
+				
+			case 'D':
+				return MgcpEvent.DTMF_D;
+					
+			case '#':
+				return MgcpEvent.DTMF_HASH;
+				
+			case '*':
+				return MgcpEvent.DTMF_STAR;
+			
+			default:
+					return -1;
+					
+			}
+		} else 
+		{
+			return -1;
+		}
+
+	}
+	
+
+		
 	
 	
 	private void onAnnouncementComplete() {
@@ -541,17 +592,16 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			Request request = txn.getRequest();
 
 			ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
-			String fileName = ((SipURI) toHeader.getAddress().getURI())
-					.getUser()
-					+ WAV_EXT;
+			String userName = ((SipURI) toHeader.getAddress().getURI())
+					.getUser();
 
-			String recordFilePath = null;
+			String recordFilePath = getAudioFileURL(getAudioFileString(userName));
 
-			if (route != null) {
-				recordFilePath = route+File.separator+fileName;
-			} else {
-				recordFilePath = _DEFAULT_FILE_ROUTE_+File.separator+fileName;
-			}
+//			if (route != null) {
+//				recordFilePath = route+File.separator+fileName;
+//			} else {
+//				recordFilePath = _DEFAULT_FILE_ROUTE_+File.separator+fileName;
+//			}
 			
 			record = true;
 			detectDtmf = false;
@@ -632,13 +682,31 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		}
 	}
 
-	private String getAudioFileString() {
-
-		FromHeader fromHeader = (FromHeader) this.getInviteRequest().getHeader(
-				FromHeader.NAME);
-
-		String fileName = ((SipURI) fromHeader.getAddress().getURI()).getUser()
-				+ WAV_EXT;
+	/*
+	 * Methods below are required for two reasons. Java seems to be loose with URL and File objects:
+	 * 
+	 * File f1= new File("file:///e:/tmp");
+	 * File f2= new File("file://e:/tmp");
+	 * File f3= new File("file:/e:/tmp");
+	 * File f4= new File("file:///e:/tmp");
+	 * 
+	 * ONLY f.exists() will return true.
+	 * To make it worst: Class.getResource(String) returns URLs... which have look as follows:
+	 * 'file:/e:/tmp' which is seems to be a violation of 'file:///'.=.
+	 * 
+	 * Its better to specify proper one, record signals dont work with 'file:/', announcement 
+	 * depends on javax, which seems to be less restrictive
+	 * 
+	 */
+	
+	/**
+	 * Fectch audio file string for passed user name. Used to get file string when called user is not available.
+	 * @param userName
+	 * @return
+	 */
+	private String getAudioFileString(String userName)
+	{
+		String fileName = userName + WAV_EXT;
 
 		String recordFilePath = System.getenv(_DEFAULT_RECORDINGS_HOME_)
 				+ File.separator;
@@ -655,67 +723,91 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 		return recordFilePath;
 	}
+	/**
+	 * Fetch audio file string for callee, used to check for recorded message.
+	 * @return
+	 */
+	private String getAudioFileString() {
 
-	private boolean checkDtmfDigit(String dtmf) {
-		URL audioFileURL = null;
+		FromHeader fromHeader = (FromHeader) this.getInviteRequest().getHeader(
+				FromHeader.NAME);
+
+		return getAudioFileString(((SipURI) fromHeader.getAddress().getURI()).getUser());
+	}
+	
+	private String getAudioFileURL(String audioFileString)
+	{
+		
+		if(audioFileString.startsWith("file:///"))
+			return audioFileString;
+		
+		if(audioFileString.startsWith("file://"))
+		{
+			return audioFileString.replace("file://", "file:///");
+		}
+		
+		if(audioFileString.startsWith("file:/"))
+		{
+			return audioFileString.replace("file:/", "file:///");
+		}
+		
+		if(audioFileString.startsWith("/"))
+		{
+			return "file://"+audioFileString;
+		}else
+		{
+			return "file:///"+audioFileString;
+		}
+	
+	}
+
+	private boolean processDTMF(int id) {
+		String audioFileURL = null;
 
 		boolean bye = false;
-
-		// Press 1 if you want to listen the next message
-		if (dtmf.equals("1")) {
+		switch(id)
+		{
+		case MgcpEvent.DTMF_1:
 			String filePath = getAudioFileString();
 			File f = new File(filePath);
 			boolean exists = f.exists();
 			//String audioFileString = "file:/" + filePath;
 			//linux stuff?
-			if(filePath.startsWith("/"))
-			{
-				filePath="file:"+filePath;
-			}else
-			{
-				filePath="file:/"+filePath;
-			}
+			
 			try {
 				// Just to check if file exist
 				//File file = new File(filePath);
 				if (exists) {
-					audioFileURL = new URL(filePath);
+					audioFileURL = getAudioFileURL(filePath);
 				} else {
-					audioFileURL = getClass().getResource(novoicemessage);
+					audioFileURL = getAudioFileURL(getClass().getResource(novoicemessage).toString());
 				}
 			} catch (NullPointerException npe) {
 				log.severe(
 						"Ignore. NullPointerException. The file does not exist "
 								+ filePath, npe);
-				audioFileURL = getClass().getResource(dtmf1);
+				audioFileURL = getAudioFileURL(getClass().getResource(dtmf1).toString());
 
-			} catch (MalformedURLException e1) {
-				log.severe(
-						"Ignore. MalformedURLException while trying to create the audio file URL "
-								+ filePath, e1);
-				audioFileURL = getClass().getResource(dtmf1);
-			}
-		}
-		// Press 7 if you want to delete the last message
-		else if (dtmf.equals("7")) {
-			audioFileURL = getClass().getResource(dtmf7);
-			String filePath = null;
+			} 
+			break;
+		case MgcpEvent.DTMF_7:
+			audioFileURL = getAudioFileURL(getClass().getResource(dtmf7).toString());
+
 
 			filePath = getAudioFileString();
 			File fileToBeDeleted = new File(filePath);
 			boolean deleted = fileToBeDeleted.delete();
 			log.info("Deletion of file " + filePath + " is successful = "
 					+ deleted);
-
-		}
-		// Press 9 if you want to hang up
-		else if (dtmf.equals("9")) {
+			break;
+		case MgcpEvent.DTMF_9:
 			// audioFileURL = getClass().getResource(dtmf9);
-			this.sendByeRequest();
-			bye = true;
-
-		} else {
-			audioFileURL = getClass().getResource(tryAgain);
+						this.sendByeRequest();
+						bye = true;
+			break;
+			default:
+				log.info("########## VOICE MAIL SBB: Notify on not handled DTMF! ##########");
+				audioFileURL = getAudioFileURL(getClass().getResource(tryAgain).toString());
 		}
 
 		if (!bye) {
@@ -845,9 +937,9 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 	private final String WAV_EXT = ".wav";
 
-	public final static String IVR_ENDPOINT_NAME = "/mobicents/media/IVR/$";
+	public final static String IVR_ENDPOINT_NAME = "mobicents/ivr/$";
 	// Pre is required since it has capability to transcode
-	public final static String PRE_ENDPOINT_NAME = "/mobicents/media/packetrelay/$";
+	public final static String PRE_ENDPOINT_NAME = "mobicents/relay/$";
 	public final static String _DEFAULT_FILE_ROUTE_ = "call-controll2";
 	public final static String _DEFAULT_RECORDINGS_HOME_="MOBICENTS_SLEE_EXAMPLE_CC2_RECORDINGS_HOME";
 	
@@ -890,8 +982,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 				MgcpEndpointActivity activity = (MgcpEndpointActivity) aci
 						.getActivity();
-				if (activity.getEndpointIdentifier().toString().toLowerCase()
-						.contains(ePartialID.toLowerCase())) {
+				if (activity.getEndpointIdentifier().toString().toLowerCase().contains(ePartialID.toLowerCase())) {
 					return activity;
 				}
 			}
@@ -940,13 +1031,13 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			audioFileURL = getClass().getResource(recordAfterTone);
 		}
 
-		MgcpEndpointActivity mea = getEndpointActivity("IVR");
+		MgcpEndpointActivity mea = getEndpointActivity("ivr");
 
 		log.info("########## VOICE MAIL SBB: Execute on ["
 				+ mea
 				+ "] ##########");
-		
-		sendRQNT(audioFileURL.toString(), record, waitDtmf);
+		String stringURL = getAudioFileURL(audioFileURL.toString());
+		sendRQNT(stringURL, record, waitDtmf);
 	}
 
 	private MgcpConnectionActivity getConnectionActivity(EndpointIdentifier eid) {
@@ -964,23 +1055,23 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	}
 
 	public void sendRQNT(String audioFileUrl, boolean record, boolean detectDtmf) {
-		MgcpEndpointActivity endpointActivity = getEndpointActivity("IVR");
+		MgcpEndpointActivity endpointActivity = getEndpointActivity("ivr");
 
 		if (endpointActivity == null) {
 			// bad practice
 			throw new RuntimeException("There is no IVR endpoint activity");
 		}
-		MgcpConnectionActivity connectionActivity = getConnectionActivity(endpointActivity
-				.getEndpointIdentifier());
-		if (connectionActivity == null) {
-			// bad practice
-			throw new RuntimeException(
-					"There is no IVR connection activity");
-		}
+//		MgcpConnectionActivity connectionActivity = getConnectionActivity(endpointActivity
+//				.getEndpointIdentifier());
+//		if (connectionActivity == null) {
+//			// bad practice
+//			throw new RuntimeException(
+//					"There is no IVR connection activity");
+//		}
 		EndpointIdentifier endpointID = endpointActivity
 				.getEndpointIdentifier();
-		ConnectionIdentifier connectionID = new ConnectionIdentifier(
-				connectionActivity.getConnectionIdentifier());
+//		ConnectionIdentifier connectionID = new ConnectionIdentifier(
+//				connectionActivity.getConnectionIdentifier());
 		NotificationRequest notificationRequest = new NotificationRequest(this,
 				endpointID, mgcpProvider.getUniqueRequestIdentifier());
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
@@ -993,21 +1084,20 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			if (!record) {
 
 				signalRequests = new EventName[] { new EventName(
-						PackageName.Announcement, MgcpEvent.ann
-								.withParm(audioFileUrl),connectionID) };
+						AUPackage.AU, MgcpEvent.factory("pa").withParm("an="+audioFileUrl)/*,connectionID*/) };
 				
 				RequestedEvent[] requestedEvents = {
-						new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionID), actions),
-						new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionID), actions), };
+						new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc/*,connectionID*/), actions),
+						new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of/*,connectionID*/), actions), };
 				notificationRequest.setRequestedEvents(requestedEvents);
 								
 			} else {
-				signalRequests = new EventName[] { new EventName(AUPackage.AU,
-						AUMgcpEvent.aupr.withParm(audioFileUrl), connectionID) };
+				signalRequests = new EventName[] { new EventName(AUPackage.AU, MgcpEvent.factory("pr")
+						.withParm("ri="+audioFileUrl+" oa=true")/*,connectionID*/) };
 				
 				RequestedEvent[] requestedEvents = { 
-						new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc, connectionID), actions),
-						new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of, connectionID), actions), };
+						new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc/*,connectionID*/), actions),
+						new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of/*,connectionID*/), actions), };
 				notificationRequest.setRequestedEvents(requestedEvents);
 			}
 
@@ -1026,39 +1116,25 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			// previous set.
 			RequestedEvent[] requestedDtmfEvents = {
 					
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf0,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf1,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf2,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf3,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf4,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf5,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf6,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf7,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf8,connectionID), actions),
+					new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.oc/* , connectionID */), actions),
+					new RequestedEvent(new EventName(AUPackage.AU, MgcpEvent.of/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("0")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("1")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("2")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("3")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("4")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("5")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("6")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("7")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("8")/* , connectionID */), actions),
 
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmf9,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmfA,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmfB,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmfC,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmfD,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmfStar,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Dtmf,
-							MgcpEvent.dtmfHash,connectionID), actions) };
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("9")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("A")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("B")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("C")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("D")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("*")/* , connectionID */), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.factory("#")/* , connectionID */), actions) };
 
 			if(notificationRequest.getRequestedEvents()!=null)
 			{
@@ -1085,11 +1161,6 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			}
 			notificationRequest.setRequestedEvents(requestedEvents);
 		}
-		
-		
-		//lastly set callback events
-		
-	
 		
 		notificationRequest.setTransactionHandle(mgcpProvider
 				.getUniqueTransactionHandler());

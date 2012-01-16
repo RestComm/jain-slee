@@ -24,9 +24,10 @@ package org.mobicents.slee.examples.callcontrol.forwarding;
 
 import java.text.ParseException;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 import javax.sip.InvalidArgumentException;
+import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.address.Address;
@@ -40,18 +41,19 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.AddressPlan;
 import javax.slee.ChildRelation;
 import javax.slee.CreateException;
+import javax.slee.EventContext;
 import javax.slee.SLEEException;
 import javax.slee.SbbContext;
-import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.Tracer;
 
+import org.mobicents.slee.example.sjr.data.DataSourceChildSbbLocalInterface;
+import org.mobicents.slee.example.sjr.data.DataSourceChildSbbLocalObject;
+import org.mobicents.slee.example.sjr.data.DataSourceParentSbbLocalInterface;
+import org.mobicents.slee.example.sjr.data.RegistrationBinding;
 import org.mobicents.slee.examples.callcontrol.common.SubscriptionProfileSbb;
 import org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP;
-import org.mobicents.slee.services.sip.common.SipSendErrorResponseException;
-import org.mobicents.slee.services.sip.location.LocationSbbLocalObject;
-import org.mobicents.slee.services.sip.location.LocationServiceException;
-import org.mobicents.slee.services.sip.location.RegistrationBinding;
+
 
 /**
  * 
@@ -59,69 +61,42 @@ import org.mobicents.slee.services.sip.location.RegistrationBinding;
  * 
  * @author torosvi
  * @author Ivelin Ivanov
- * 
+ * @author baranowb
  */
-public abstract class CallForwardingSbb extends SubscriptionProfileSbb implements javax.slee.Sbb {
+public abstract class CallForwardingSbb extends SubscriptionProfileSbb implements javax.slee.Sbb,DataSourceParentSbbLocalInterface {
 
-	public void onInvite(javax.sip.RequestEvent event, CallForwardingSbbActivityContextInterface localAci) {
+	public void onInvite(javax.sip.RequestEvent event, CallForwardingSbbActivityContextInterface localAci,EventContext eventContext) {
 		Request request;
 
 		try {
-			localAci.detach(this.getSbbLocalObject());
+			
 
 			if (localAci.getFilteredByAncestor()) {
 				log.info("########## CALL FORWARDING SBB: FILTERED BY ANCESTOR ##########");
 				// Next in chain has to know that someone is looking after
 				// message
 				localAci.setFilteredByMe(true);
+				localAci.detach(this.getSbbLocalObject());
 				// If it was not set, every change in the chain of services will
 				// extort source change in service lower in chain...
 				return;
 			}
-
+			//suspend, so others wont get it.
+			
+			//query location service
+			eventContext.suspendDelivery();
+			//store event context
+			this.setEventContextCMP(eventContext);
 			request = event.getRequest();
 			// ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
 			// URI toURI = toHeader.getAddress().getURI();
 			URI toURI = event.getRequest().getRequestURI();
-			URI contactURI = isUserAvailable(toURI);
-			if (contactURI != null) {
-				// USER IS AVAILABLE
-				localAci.setFilteredByMe(true);
-				log.info("########## User " + toURI + " is available with contact " + contactURI);
-
-				// Create proxy child SBB
-				ChildRelation ProxyRelation = getJainSipProxySbb();
-				SbbLocalObject ProxyChild = ProxyRelation.create();
-				// Attach ProxyChild to the activity
-				// Event router will pass this event to child SBB,
-				// which in this case is the Proxy SBB. It will in turn proxy
-				// the request to the callee.
-				localAci.attach(ProxyChild);
-
-				return;
-			} else {
-				log.info("########## User " + toURI + " is not available, not forwarding");
-			}
-		} catch (SipSendErrorResponseException e) {
-			log.severe(e.getMessage(), e);
+			getLocationSbb().getBindings(toURI.toString());
+			
 		} catch (CreateException e) {
 			log.severe(e.getMessage(), e);
 		}
-
-		// IF WE GOT HERE IT MEANS THAT USER IS NOT AVAILABLE AND SBB HIGHER IN
-		// CHAIN DID NOT FILTER INVITE.
-		// WE HAVE TO FIND NEW ADDRESS... OR LEAVE INVITE TO BE PROCESSED BY
-		// NEXT SBB IN CHAIN.
-		Address add = forwardCall(event, localAci);
-
-		if (add != null) {
-			// INVITE WAS FORWARDED
-			// let the next service in the chain know that the event was
-			// processed here.
-			localAci.setFilteredByMe(true);
-		}
-
-		// LET NEXT CHAINED SBB TAKE CARE OF INVITE.
+		
 		return;
 	}
 
@@ -140,9 +115,66 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 
 	private HeaderFactory headerFactory;
 
-	public abstract ChildRelation getJainSipProxySbb();
-
 	public abstract CallForwardingSbbActivityContextInterface asSbbActivityContextInterface(ActivityContextInterface aci);
+
+	
+	// SBB LO methods
+	
+	
+	@Override
+	public void getBindingsResult(int arg0, List<RegistrationBinding> bindings) {
+		//here we act.
+		
+		EventContext eventContext = this.getEventContextCMP();
+		RequestEvent event = (RequestEvent) eventContext.getEvent();
+		URI toURI = event.getRequest().getRequestURI();
+		CallForwardingSbbActivityContextInterface localAci = this.asSbbActivityContextInterface(eventContext.getActivityContextInterface());
+		
+		//detach and resume delivery
+		eventContext.resumeDelivery();
+		localAci.detach(getSbbLocalObject());
+		
+		
+		URI contactURI = isUserAvailable(bindings);
+		if (contactURI != null) {
+			// USER IS AVAILABLE
+			localAci.setFilteredByMe(true);
+			log.info("########## User " + toURI + " is available with contact " + contactURI);
+
+			//Deffer to proxy ?
+			
+			return;
+		} else {
+			log.info("########## User " + toURI + " is not available, checking backup address");
+		}
+		// IF WE GOT HERE IT MEANS THAT USER IS NOT AVAILABLE AND SBB HIGHER IN
+		// CHAIN DID NOT FILTER INVITE.
+		// WE HAVE TO FIND NEW ADDRESS... OR LEAVE INVITE TO BE PROCESSED BY
+		// NEXT SBB IN CHAIN.
+		Address add = forwardCall(event, localAci);
+
+		if (add != null) {
+			// INVITE WAS FORWARDED
+			// let the next service in the chain know that the event was
+			// processed here.
+			localAci.setFilteredByMe(true);
+		}
+
+		// LET NEXT CHAINED SBB TAKE CARE OF INVITE.
+	}
+
+	@Override
+	public void removeBindingsResult(int arg0, List<RegistrationBinding> arg1,
+			List<RegistrationBinding> arg2) {
+		//Definetly wont happen
+		
+	}
+
+	@Override
+	public void updateBindingsResult(int arg0, List<RegistrationBinding> arg1,
+			List<RegistrationBinding> arg2, List<RegistrationBinding> arg3) {
+		//Should not happen :)
+	}
 
 	/**
 	 * Try to find a backup address for the user where the call can be forwarded
@@ -196,29 +228,16 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 	 * Attempts to find a locally registered contact address for the given URI,
 	 * using the location service interface.
 	 */
-	private URI isUserAvailable(URI uri) throws SipSendErrorResponseException {
-		String addressOfRecord = uri.toString();
+	private URI isUserAvailable(List<RegistrationBinding> bindings)  {
+
 		URI target = null;
-		Map bindings = null;
-
-		try {
-			bindings = getLocationSbb().getBindings(addressOfRecord);
-
-		} catch (LocationServiceException e) {
-			log.severe(e.getMessage(), e);
-		} catch (TransactionRequiredLocalException e) {
-			log.severe(e.getMessage(), e);
-		} catch (SLEEException e) {
-			log.severe(e.getMessage(), e);
-		} catch (CreateException e) {
-			log.severe(e.getMessage(), e);
-		}
+		
 
 		if (bindings != null & !bindings.isEmpty()) {
-			Iterator it = bindings.values().iterator();
+			Iterator<RegistrationBinding> it = bindings.iterator();
 
 			while (it.hasNext()) {
-				RegistrationBinding binding = (RegistrationBinding) it.next();
+				RegistrationBinding binding = it.next();
 				log.info("########## BINDINGS: " + binding);
 				ContactHeader header = null;
 				try {
@@ -238,11 +257,6 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 				break;
 			}
 
-			if (target == null) {
-				log.severe("findLocalTarget: No contacts for " + addressOfRecord + " found.");
-				throw new SipSendErrorResponseException("User temporarily unavailable",
-						Response.TEMPORARILY_UNAVAILABLE);
-			}
 		}
 
 		return target;
@@ -303,17 +317,24 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 		}
 	}
 	 */
-	public abstract ChildRelation getLocationSbbChildRelation();
+	public abstract ChildRelation getLocationChildRelation();
 
-	public abstract LocationSbbLocalObject getLocationSbbCMP();
+	public abstract DataSourceChildSbbLocalObject getLocationSbbCMP();
 
-	public abstract void setLocationSbbCMP(LocationSbbLocalObject value);
+	public abstract void setLocationSbbCMP(DataSourceChildSbbLocalObject value);
+	
+	public abstract EventContext getEventContextCMP();
 
-	public LocationSbbLocalObject getLocationSbb() throws TransactionRequiredLocalException, SLEEException,
+	public abstract void setEventContextCMP(EventContext value);
+	
+	
+	
+
+	public DataSourceChildSbbLocalInterface getLocationSbb() throws TransactionRequiredLocalException, SLEEException,
 			CreateException {
-		LocationSbbLocalObject sbbLocalObject = getLocationSbbCMP();
+		DataSourceChildSbbLocalObject sbbLocalObject = getLocationSbbCMP();
 		if (sbbLocalObject == null) {
-			sbbLocalObject = (LocationSbbLocalObject) getLocationSbbChildRelation().create();
+			sbbLocalObject = (DataSourceChildSbbLocalObject) getLocationChildRelation().create();
 			setLocationSbbCMP(sbbLocalObject);
 		}
 		return sbbLocalObject;

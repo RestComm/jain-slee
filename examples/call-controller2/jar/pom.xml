@@ -13,7 +13,7 @@
 
 	<dependencies>
 		<dependency>
-			<artifactId>sip-services-location-sbb</artifactId>
+			<artifactId>mobicents-slee-example-sip-jdbc-registrar-sbb</artifactId>
 			<groupId>org.mobicents.examples</groupId>
 		</dependency>
 		<dependency>
