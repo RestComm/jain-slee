@@ -96,13 +96,13 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * Returns the value of the SIP-Authenticate AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String getSIPAuthenticate();
+  public byte[] getSIPAuthenticate();
 
   /**
    * Sets the value of the SIP-Authenticate AVP, of type OctetString.
    * @throws IllegalStateException if setSIPAuthenticate has already been called
    */
-  public void setSIPAuthenticate(String sipAuthenticate);
+  public void setSIPAuthenticate(byte[] sipAuthenticate);
 
   /**
    * Returns true if the SIP-Authorization AVP is present in the message.
@@ -113,13 +113,13 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * Returns the value of the SIP-Authorization AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String getSIPAuthorization();
+  public byte[] getSIPAuthorization();
 
   /**
    * Sets the value of the SIP-Authorization AVP, of type OctetString.
    * @throws IllegalStateException if setSIPAuthorization has already been called
    */
-  public void setSIPAuthorization(String sipAuthorization);
+  public void setSIPAuthorization(byte[] sipAuthorization);
 
   /**
    * Returns true if the SIP-Authentication-Context AVP is present in the message.
@@ -130,13 +130,13 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * Returns the value of the SIP-Authentication-Context AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String getSIPAuthenticationContext();
+  public byte[] getSIPAuthenticationContext();
 
   /**
    * Sets the value of the SIP-Authentication-Context AVP, of type OctetString.
    * @throws IllegalStateException if setSIPAuthenticationContext has already been called
    */
-  public void setSIPAuthenticationContext(String sipAuthenticationContext);
+  public void setSIPAuthenticationContext(byte[] sipAuthenticationContext);
 
   /**
    * Returns true if the Confidentiality-Key AVP is present in the message.
@@ -147,13 +147,13 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * Returns the value of the Confidentiality-Key AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String getConfidentialityKey();
+  public byte[] getConfidentialityKey();
 
   /**
    * Sets the value of the Confidentiality-Key AVP, of type OctetString.
    * @throws IllegalStateException if setConfidentialityKey has already been called
    */
-  public void setConfidentialityKey(String confidentialityKey);
+  public void setConfidentialityKey(byte[] confidentialityKey);
 
   /**
    * Returns true if the Integrity-Key AVP is present in the message.
@@ -164,13 +164,13 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * Returns the value of the Integrity-Key AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String getIntegrityKey();
+  public byte[] getIntegrityKey();
 
   /**
    * Sets the value of the Integrity-Key AVP, of type OctetString.
    * @throws IllegalStateException if setIntegrityKey has already been called
    */
-  public void setIntegrityKey(String integrityKey);
+  public void setIntegrityKey(byte[] integrityKey);
 
   /**
    * Returns true if the SIP-Digest-Authenticate AVP is present in the message.
@@ -198,13 +198,13 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * Returns the value of the Framed-IP-Address AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String getFramedIPAddress();
+  public byte[] getFramedIPAddress();
 
   /**
    * Sets the value of the Framed-IP-Address AVP, of type OctetString.
    * @throws IllegalStateException if setFramedIPAddress has already been called
    */
-  public void setFramedIPAddress(String framedIPAddress);
+  public void setFramedIPAddress(byte[] framedIPAddress);
 
   /**
    * Returns true if the Framed-IPv6-Prefix AVP is present in the message.
@@ -215,13 +215,13 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * Returns the value of the Framed-IPv6-Prefix AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String getFramedIPv6Prefix();
+  public byte[] getFramedIPv6Prefix();
 
   /**
    * Sets the value of the Framed-IPv6-Prefix AVP, of type OctetString.
    * @throws IllegalStateException if setFramedIPv6Prefix has already been called
    */
-  public void setFramedIPv6Prefix(String framedIPv6Prefix);
+  public void setFramedIPv6Prefix(byte[] framedIPv6Prefix);
 
   /**
    * Returns true if the Framed-Interface-Id AVP is present in the message.
@@ -244,18 +244,18 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * Returns the value of the Line-Identifier AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String[] getLineIdentifiers(); 
+  public byte[][] getLineIdentifiers(); 
 
   /**
    * Sets the value of the Line-Identifier AVP, of type OctetString.
    * @throws IllegalStateException if setLineIdentifier has already been called
    */
-  public void setLineIdentifier(String lineIdentifier);
+  public void setLineIdentifier(byte[] lineIdentifier);
 
   /**
    * Sets the value of the Line-Identifier AVP, of type OctetString.
    * @throws IllegalStateException if setLineIdentifier has already been called
    */
-  public void setLineIdentifiers(String[] lineIdentifiers);
+  public void setLineIdentifiers(byte[][] lineIdentifiers);
 
 }

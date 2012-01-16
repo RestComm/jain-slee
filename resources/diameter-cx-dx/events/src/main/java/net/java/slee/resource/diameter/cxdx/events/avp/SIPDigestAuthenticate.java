@@ -105,12 +105,12 @@ public interface SIPDigestAuthenticate extends GroupedAvp {
    * Returns the value of the Digest-HA1 AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set or some error has been encountered.
    */
-  public String getDigestHA1();
+  public byte[] getDigestHA1();
 
   /**
    * Sets the value of the Digest-HA1 AVP, of type OctetString.
    * @throws IllegalStateException if setDigestHA1 has already been called
    */
-  public void setDigestHA1(String digestHA1);
+  public void setDigestHA1(byte[] digestHA1);
 
 }

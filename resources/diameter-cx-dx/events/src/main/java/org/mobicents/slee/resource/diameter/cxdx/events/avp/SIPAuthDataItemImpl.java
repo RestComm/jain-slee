@@ -56,14 +56,14 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getConfidentialityKey()
    */
-  public String getConfidentialityKey() {
+  public byte[] getConfidentialityKey() {
     return getAvpAsOctetString(CONFIDENTIALITY_KEY, CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getFramedIPAddress()
    */
-  public String getFramedIPAddress() {
+  public byte[] getFramedIPAddress() {
     // 6.11.1. Framed-IP-Address AVP
     // The Framed-IP-Address AVP (AVP Code 8) [RADIUS] is of type OctetString
     return getAvpAsOctetString(FRAMED_IP_ADDRESS); 
@@ -72,7 +72,7 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getFramedIPv6Prefix()
    */
-  public String getFramedIPv6Prefix() {
+  public byte[] getFramedIPv6Prefix() {
     // 6.11.6. Framed-IPv6-Prefix AVP
     // The Framed-IPv6-Prefix AVP (AVP Code 97) is of type OctetString
     return getAvpAsOctetString(FRAMED_IPV6_PREFIX); 
@@ -90,30 +90,30 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getIntegrityKey()
    */
-  public String getIntegrityKey() {
+  public byte[] getIntegrityKey() {
     return getAvpAsOctetString(INTEGRITY_KEY, CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getLineIdentifiers()
    */
-  public String[] getLineIdentifiers() { 
+  public byte[][] getLineIdentifiers() { 
     // 6.3.42  Line-Identifier AVP
     // The Line-Identifier AVP is of type OctetString. This AVP has Vendor Id ETSI (13019) and AVP code 500.
-    return (String[])getAvpsAsOctetString(LINE_IDENTIFIER, ETSI_VENDOR_ID); 
+    return getAvpsAsOctetString(LINE_IDENTIFIER, ETSI_VENDOR_ID); 
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getSIPAuthenticate()
    */
-  public String getSIPAuthenticate() {
+  public byte[] getSIPAuthenticate() {
     return getAvpAsOctetString(SIP_AUTHENTICATE, CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getSIPAuthenticationContext()
    */
-  public String getSIPAuthenticationContext() {
+  public byte[] getSIPAuthenticationContext() {
     return getAvpAsOctetString(SIP_AUTHENTICATION_CONTEXT, CXDX_VENDOR_ID);
   }
 
@@ -127,7 +127,7 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getSIPAuthorization()
    */
-  public String getSIPAuthorization() {
+  public byte[] getSIPAuthorization() {
     return getAvpAsOctetString(SIP_AUTHORIZATION, CXDX_VENDOR_ID);
   }
 
@@ -223,23 +223,23 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setConfidentialityKey(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setConfidentialityKey(java.lang.byte[])
    */
-  public void setConfidentialityKey(String confidentialityKey) {
+  public void setConfidentialityKey(byte[] confidentialityKey) {
     addAvp(CONFIDENTIALITY_KEY, CXDX_VENDOR_ID, confidentialityKey);
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setFramedIPAddress(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setFramedIPAddress(java.lang.byte[])
    */
-  public void setFramedIPAddress(String framedIPAddress) {
+  public void setFramedIPAddress(byte[] framedIPAddress) {
     addAvp(FRAMED_IP_ADDRESS, framedIPAddress); 
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setFramedIPv6Prefix(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setFramedIPv6Prefix(java.lang.byte[])
    */
-  public void setFramedIPv6Prefix(String framedIPv6Prefix) {
+  public void setFramedIPv6Prefix(byte[] framedIPv6Prefix) {
     addAvp(FRAMED_IPV6_PREFIX, framedIPv6Prefix); 
   }
 
@@ -251,39 +251,39 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setIntegrityKey(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setIntegrityKey(java.lang.byte[])
    */
-  public void setIntegrityKey(String integrityKey) {
+  public void setIntegrityKey(byte[] integrityKey) {
     addAvp(INTEGRITY_KEY, CXDX_VENDOR_ID, integrityKey);
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setLineIdentifier(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setLineIdentifier(java.lang.byte[])
    */
-  public void setLineIdentifier(String lineIdentifier) {
+  public void setLineIdentifier(byte[] lineIdentifier) {
     addAvp(LINE_IDENTIFIER, ETSI_VENDOR_ID, lineIdentifier); 
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setLineIdentifiers(java.lang.String[])
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setLineIdentifiers(java.lang.byte[][])
    */
-  public void setLineIdentifiers(String[] lineIdentifiers) {
-    for(String lineIdentifier : lineIdentifiers) {
+  public void setLineIdentifiers(byte[][] lineIdentifiers) {
+    for(byte[] lineIdentifier : lineIdentifiers) {
       setLineIdentifier(lineIdentifier);
     }
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setSIPAuthenticate(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setSIPAuthenticate(java.lang.byte[])
    */
-  public void setSIPAuthenticate(String sipAuthenticate) {
+  public void setSIPAuthenticate(byte[] sipAuthenticate) {
     addAvp(SIP_AUTHENTICATE, CXDX_VENDOR_ID, sipAuthenticate);
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setSIPAuthenticationContext(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setSIPAuthenticationContext(java.lang.byte[])
    */
-  public void setSIPAuthenticationContext(String sipAuthenticationContext) {
+  public void setSIPAuthenticationContext(byte[] sipAuthenticationContext) {
     addAvp(SIP_AUTHENTICATION_CONTEXT, CXDX_VENDOR_ID, sipAuthenticationContext);
   }
 
@@ -295,9 +295,9 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setSIPAuthorization(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setSIPAuthorization(java.lang.byte[])
    */
-  public void setSIPAuthorization(String sipAuthorization) {
+  public void setSIPAuthorization(byte[] sipAuthorization) {
     addAvp(SIP_AUTHORIZATION, CXDX_VENDOR_ID, sipAuthorization);
   }
 

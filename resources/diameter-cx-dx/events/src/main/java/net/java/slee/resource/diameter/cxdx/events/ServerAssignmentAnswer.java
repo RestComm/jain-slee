@@ -222,13 +222,13 @@ public interface ServerAssignmentAnswer extends DiameterMessage {
    * Returns the value of the User-Data AVP, of type OctetString.
    * @return the value of the User-Data AVP or null if it has not been set on this message
    */
-  String getUserData();
+  byte[] getUserData();
 
   /**
    * Sets the value of the User-Data AVP, of type OctetString.
    * @throws IllegalStateException if setUserData has already been called
    */
-  void setUserData(String userData);
+  void setUserData(byte[] userData);
 
   /**
    * Returns true if the Charging-Information AVP is present in the message.

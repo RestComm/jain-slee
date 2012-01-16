@@ -184,13 +184,13 @@ public interface UserAuthorizationRequest extends DiameterMessage {
    * Returns the value of the Visited-Network-Identifier AVP, of type OctetString.
    * A return value of null implies that the AVP has not been set.
    */
-  public String getVisitedNetworkIdentifier();
+  public byte[] getVisitedNetworkIdentifier();
 
   /**
    * Sets the value of the Visited-Network-Identifier AVP, of type OctetString.
    * @throws IllegalStateException if setVisitedNetworkIdentifier has already been called
    */
-  public void setVisitedNetworkIdentifier(String visitedNetworkIdentifier);
+  public void setVisitedNetworkIdentifier(byte[] visitedNetworkIdentifier);
 
   /**
    * Returns true if the User-Authorization-Type AVP is present in the message.

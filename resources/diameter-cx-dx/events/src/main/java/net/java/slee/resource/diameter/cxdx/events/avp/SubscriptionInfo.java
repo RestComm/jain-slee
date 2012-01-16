@@ -56,13 +56,13 @@ public interface SubscriptionInfo extends GroupedAvp {
    * Returns the value of the Call-ID-SIP-Header AVP, of type OctetString.
    * @return the value of the Call-ID-SIP-Header AVP or null if it has not been set on this message
    */
-  String getCallIDSIPHeader();
+  byte[] getCallIDSIPHeader();
 
   /**
    * Sets the value of the Call-ID-SIP-Header AVP, of type OctetString.
    * @throws IllegalStateException if setCallIDSIPHeader has already been called
    */
-  void setCallIDSIPHeader(String callIDSIPHeader);
+  void setCallIDSIPHeader(byte[] callIDSIPHeader);
 
   /**
    * Returns true if the From-SIP-Header AVP is present in the message.
@@ -73,13 +73,13 @@ public interface SubscriptionInfo extends GroupedAvp {
    * Returns the value of the From-SIP-Header AVP, of type OctetString.
    * @return the value of the From-SIP-Header AVP or null if it has not been set on this message
    */
-  String getFromSIPHeader();
+  byte[] getFromSIPHeader();
 
   /**
    * Sets the value of the From-SIP-Header AVP, of type OctetString.
    * @throws IllegalStateException if setFromSIPHeader has already been called
    */
-  void setFromSIPHeader(String fromSIPHeader);
+  void setFromSIPHeader(byte[] fromSIPHeader);
 
   /**
    * Returns true if the To-SIP-Header AVP is present in the message.
@@ -90,13 +90,13 @@ public interface SubscriptionInfo extends GroupedAvp {
    * Returns the value of the To-SIP-Header AVP, of type OctetString.
    * @return the value of the To-SIP-Header AVP or null if it has not been set on this message
    */
-  String getToSIPHeader();
+  byte[] getToSIPHeader();
 
   /**
    * Sets the value of the To-SIP-Header AVP, of type OctetString.
    * @throws IllegalStateException if setToSIPHeader has already been called
    */
-  void setToSIPHeader(String toSIPHeader);
+  void setToSIPHeader(byte[] toSIPHeader);
 
   /**
    * Returns true if the Record-Route AVP is present in the message.
@@ -107,13 +107,13 @@ public interface SubscriptionInfo extends GroupedAvp {
    * Returns the value of the Record-Route AVP, of type OctetString.
    * @return the value of the Record-Route AVP or null if it has not been set on this message
    */
-  String getRecordRoute();
+  byte[] getRecordRoute();
 
   /**
    * Sets the value of the Record-Route AVP, of type OctetString.
    * @throws IllegalStateException if setRecordRoute has already been called
    */
-  void setRecordRoute(String recordRoute);
+  void setRecordRoute(byte[] recordRoute);
 
   /**
    * Returns true if the Contact AVP is present in the message.
@@ -124,12 +124,12 @@ public interface SubscriptionInfo extends GroupedAvp {
    * Returns the value of the Contact AVP, of type OctetString.
    * @return the value of the Contact AVP or null if it has not been set on this message
    */
-  String getContact();
+  byte[] getContact();
 
   /**
    * Sets the value of the Contact AVP, of type OctetString.
    * @throws IllegalStateException if setContact has already been called
    */
-  void setContact(String contact);
+  void setContact(byte[] contact);
 
 }

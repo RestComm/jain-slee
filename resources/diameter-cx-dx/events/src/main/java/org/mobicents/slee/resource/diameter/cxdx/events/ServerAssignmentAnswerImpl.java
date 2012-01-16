@@ -142,7 +142,7 @@ public class ServerAssignmentAnswerImpl extends DiameterMessageImpl implements S
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.ServerAssignmentAnswer#getUserData()
    */
-  public String getUserData() {
+  public byte[] getUserData() {
     return getAvpAsOctetString(USER_DATA, CXDX_VENDOR_ID);
   }
 
@@ -286,7 +286,7 @@ public class ServerAssignmentAnswerImpl extends DiameterMessageImpl implements S
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.ServerAssignmentAnswer#setUserData(java.lang.String)
    */
-  public void setUserData(String userData) {
+  public void setUserData(byte[] userData) {
     addAvp(USER_DATA, CXDX_VENDOR_ID, userData);
   }
 

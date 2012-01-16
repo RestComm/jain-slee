@@ -56,14 +56,14 @@ public class RestorationInfoImpl extends GroupedAvpImpl implements RestorationIn
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.RestorationInfo#getContact()
    */
-  public String getContact() {
+  public byte[] getContact() {
     return getAvpAsOctetString(CONTACT, CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.RestorationInfo#getPath()
    */
-  public String getPath() {
+  public byte[] getPath() {
     return getAvpAsOctetString(PATH, CXDX_VENDOR_ID);
   }
 
@@ -96,16 +96,16 @@ public class RestorationInfoImpl extends GroupedAvpImpl implements RestorationIn
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.RestorationInfo#setContact(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.RestorationInfo#setContact(java.lang.byte[])
    */
-  public void setContact(String contact) {
+  public void setContact(byte[] contact) {
     addAvp(CONTACT, CXDX_VENDOR_ID, contact);
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.RestorationInfo#setPath(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.RestorationInfo#setPath(java.lang.byte[])
    */
-  public void setPath(String path) {
+  public void setPath(byte[] path) {
     addAvp(PATH, CXDX_VENDOR_ID, path);
   }
 

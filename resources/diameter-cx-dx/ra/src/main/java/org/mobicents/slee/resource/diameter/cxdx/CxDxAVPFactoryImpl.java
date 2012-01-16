@@ -133,7 +133,7 @@ public class CxDxAVPFactoryImpl extends DiameterAvpFactoryImpl implements CxDxAV
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.CxDxAVPFactory#createRestorationInfo(java.lang.String, java.lang.String)
    */
-  public RestorationInfo createRestorationInfo(String path, String contact) {
+  public RestorationInfo createRestorationInfo(byte[] path, byte[] contact) {
     // Create the empty AVP
     RestorationInfo avp = createRestorationInfo();
 
@@ -182,7 +182,7 @@ public class CxDxAVPFactoryImpl extends DiameterAvpFactoryImpl implements CxDxAV
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.CxDxAVPFactory#createSIPDigestAuthenticate(java.lang.String, java.lang.String, java.lang.String)
    */
-  public SIPDigestAuthenticate createSIPDigestAuthenticate(String digestRealm, String digestQoP, String digestHA1) {
+  public SIPDigestAuthenticate createSIPDigestAuthenticate(String digestRealm, String digestQoP, byte[] digestHA1) {
     // Create the empty AVP
     SIPDigestAuthenticate avp = createSIPDigestAuthenticate();
 
@@ -204,7 +204,7 @@ public class CxDxAVPFactoryImpl extends DiameterAvpFactoryImpl implements CxDxAV
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.CxDxAVPFactory#createSubscriptionInfo(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
-  public SubscriptionInfo createSubscriptionInfo(String callIDSIPHeader, String fromSIPHeader, String toSIPHeader, String recordRoute, String contact) {
+  public SubscriptionInfo createSubscriptionInfo(byte[] callIDSIPHeader, byte[] fromSIPHeader, byte[] toSIPHeader, byte[] recordRoute, byte[] contact) {
     // Create the empty AVP
     SubscriptionInfo avp = createSubscriptionInfo();
 

@@ -61,8 +61,8 @@ public class SIPDigestAuthenticateImpl extends GroupedAvpImpl implements SIPDige
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#getDigestHA1()
    */
-  public String getDigestHA1() {
-    return getAvpAsUTF8String(DiameterCxDxAvpCodes.TGPP_DIGEST_HA1); 
+  public byte[] getDigestHA1() {
+    return getAvpAsOctetString(DiameterCxDxAvpCodes.TGPP_DIGEST_HA1); 
   }
 
   /* (non-Javadoc)
@@ -117,7 +117,7 @@ public class SIPDigestAuthenticateImpl extends GroupedAvpImpl implements SIPDige
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate#setDigestHA1(java.lang.String)
    */
-  public void setDigestHA1(String digestHA1) {
+  public void setDigestHA1(byte[] digestHA1) {
     addAvp(DiameterCxDxAvpCodes.TGPP_DIGEST_HA1, digestHA1); 
   }
 

@@ -105,7 +105,7 @@ public class UserAuthorizationRequestImpl extends DiameterMessageImpl implements
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.UserAuthorizationRequest#getVisitedNetworkIdentifier()
    */
-  public String getVisitedNetworkIdentifier() {
+  public byte[] getVisitedNetworkIdentifier() {
     return getAvpAsOctetString(VISITED_NETWORK_IDENTIFIER, CXDX_VENDOR_ID);
   }
 
@@ -191,7 +191,7 @@ public class UserAuthorizationRequestImpl extends DiameterMessageImpl implements
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.UserAuthorizationRequest#setVisitedNetworkIdentifier(java.lang.String)
    */
-  public void setVisitedNetworkIdentifier(String visitedNetworkIdentifier) {
+  public void setVisitedNetworkIdentifier(byte[] visitedNetworkIdentifier) {
     addAvp(VISITED_NETWORK_IDENTIFIER, CXDX_VENDOR_ID, visitedNetworkIdentifier);
   }
 

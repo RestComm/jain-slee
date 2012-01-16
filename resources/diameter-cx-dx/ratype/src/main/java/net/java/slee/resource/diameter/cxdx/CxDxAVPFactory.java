@@ -103,7 +103,7 @@ public interface CxDxAVPFactory extends DiameterAvpFactory{
    * @param contact the Contact AVP value
    * @return a new RestorationInfo instance
    */
-  RestorationInfo createRestorationInfo(String path, String contact);
+  RestorationInfo createRestorationInfo(byte[] path, byte[] contact);
 
   /**
    * Create an empty SCSCFRestorationInfo instance.
@@ -143,7 +143,7 @@ public interface CxDxAVPFactory extends DiameterAvpFactory{
    * @param digestHA1 the Digest-HA1 AVP value
    * @return a new SIPDigestAuthenticate instance
    */
-  SIPDigestAuthenticate createSIPDigestAuthenticate(String digestRealm, String digestQoP, String digestHA1);
+  SIPDigestAuthenticate createSIPDigestAuthenticate(String digestRealm, String digestQoP, byte[] digestHA1);
 
   /**
    * Create an empty SubscriptionInfo instance.
@@ -162,6 +162,6 @@ public interface CxDxAVPFactory extends DiameterAvpFactory{
    * @param contact the Contact AVP value
    * @return a new SubscriptionInfo instance
    */
-  SubscriptionInfo createSubscriptionInfo(String callIDSIPHeader, String fromSIPHeader, String toSIPHeader, String recordRoute, String contact);
+  SubscriptionInfo createSubscriptionInfo(byte[] callIDSIPHeader, byte[] fromSIPHeader, byte[] toSIPHeader, byte[] recordRoute, byte[] contact);
 
 }

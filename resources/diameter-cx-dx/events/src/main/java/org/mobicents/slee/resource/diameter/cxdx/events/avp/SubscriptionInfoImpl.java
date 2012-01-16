@@ -55,35 +55,35 @@ public class SubscriptionInfoImpl extends GroupedAvpImpl implements Subscription
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#getCallIDSIPHeader()
    */
-  public String getCallIDSIPHeader() {
+  public byte[] getCallIDSIPHeader() {
     return getAvpAsOctetString(CALL_ID_SIP_HEADER, CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#getContact()
    */
-  public String getContact() {
+  public byte[] getContact() {
     return getAvpAsOctetString(CONTACT, CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#getFromSIPHeader()
    */
-  public String getFromSIPHeader() {
+  public byte[] getFromSIPHeader() {
     return getAvpAsOctetString(FROM_SIP_HEADER, CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#getRecordRoute()
    */
-  public String getRecordRoute() {
+  public byte[] getRecordRoute() {
     return getAvpAsOctetString(RECORD_ROUTE, CXDX_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#getToSIPHeader()
    */
-  public String getToSIPHeader() {
+  public byte[] getToSIPHeader() {
     return getAvpAsOctetString(TO_SIP_HEADER, CXDX_VENDOR_ID);
   }
 
@@ -123,37 +123,37 @@ public class SubscriptionInfoImpl extends GroupedAvpImpl implements Subscription
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setCallIDSIPHeader(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setCallIDSIPHeader(java.lang.byte[])
    */
-  public void setCallIDSIPHeader(String callIDSIPHeader) {
+  public void setCallIDSIPHeader(byte[] callIDSIPHeader) {
     addAvp(CALL_ID_SIP_HEADER, CXDX_VENDOR_ID, callIDSIPHeader);
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setContact(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setContact(java.lang.byte[])
    */
-  public void setContact(String contact) {
+  public void setContact(byte[] contact) {
     addAvp(CONTACT, CXDX_VENDOR_ID, contact);
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setFromSIPHeader(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setFromSIPHeader(java.lang.byte[])
    */
-  public void setFromSIPHeader(String fromSIPHeader) {
+  public void setFromSIPHeader(byte[] fromSIPHeader) {
     addAvp(FROM_SIP_HEADER, CXDX_VENDOR_ID, fromSIPHeader);
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setRecordRoute(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setRecordRoute(java.lang.byte[])
    */
-  public void setRecordRoute(String recordRoute) {
+  public void setRecordRoute(byte[] recordRoute) {
     addAvp(RECORD_ROUTE, CXDX_VENDOR_ID, recordRoute);
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setToSIPHeader(java.lang.String)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SubscriptionInfo#setToSIPHeader(java.lang.byte[])
    */
-  public void setToSIPHeader(String toSIPHeader) {
+  public void setToSIPHeader(byte[] toSIPHeader) {
     addAvp(TO_SIP_HEADER, CXDX_VENDOR_ID, toSIPHeader);
   }
 

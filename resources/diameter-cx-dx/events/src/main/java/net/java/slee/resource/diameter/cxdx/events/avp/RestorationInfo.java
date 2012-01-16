@@ -54,13 +54,13 @@ public interface RestorationInfo extends GroupedAvp {
    * Returns the value of the Path AVP, of type OctetString.
    * @return the value of the Path AVP or null if it has not been set on this message
    */
-  String getPath();
+  byte[] getPath();
 
   /**
    * Sets the value of the Path AVP, of type OctetString.
    * @throws IllegalStateException if setPath has already been called
    */
-  void setPath(String path);
+  void setPath(byte[] path);
 
   /**
    * Returns true if the Contact AVP is present in the message.
@@ -71,13 +71,13 @@ public interface RestorationInfo extends GroupedAvp {
    * Returns the value of the Contact AVP, of type OctetString.
    * @return the value of the Contact AVP or null if it has not been set on this message
    */
-  String getContact();
+  byte[] getContact();
 
   /**
    * Sets the value of the Contact AVP, of type OctetString.
    * @throws IllegalStateException if setContact has already been called
    */
-  void setContact(String contact);
+  void setContact(byte[] contact);
 
   /**
    * Returns true if the Subscription-Info AVP is present in the message.
