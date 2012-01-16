@@ -77,7 +77,7 @@ public class WlanInformationImpl extends GroupedAvpImpl implements WlanInformati
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.WlanInformation#getWagPlmnId()
    */
-  public String getWagPlmnId() {
+  public byte[] getWagPlmnId() {
     return getAvpAsOctetString(DiameterRoAvpCodes.WAG_PLMN_ID, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -175,7 +175,7 @@ public class WlanInformationImpl extends GroupedAvpImpl implements WlanInformati
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.WlanInformation#setWagPlmnId(byte[])
    */
-  public void setWagPlmnId( String wagPlmnId ) {
+  public void setWagPlmnId( byte[] wagPlmnId ) {
     addAvp(DiameterRoAvpCodes.WAG_PLMN_ID, DiameterRoAvpCodes.TGPP_VENDOR_ID, wagPlmnId);
   }
 

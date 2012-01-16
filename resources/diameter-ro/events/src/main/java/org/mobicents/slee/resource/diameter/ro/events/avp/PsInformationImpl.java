@@ -98,21 +98,21 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppCamelChargingInfo()
    */
-  public String getTgppCamelChargingInfo() {
-    return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_CAMEL_CHARGING_INFO, DiameterRoAvpCodes.TGPP_VENDOR_ID);
+  public byte[] getTgppCamelChargingInfo() {
+    return getAvpAsRaw(DiameterRoAvpCodes.TGPP_CAMEL_CHARGING_INFO, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppChargingCharacteristics()
    */
   public String getTgppChargingCharacteristics() {
-    return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_CHARGING_CHARACTERISTICS, DiameterRoAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUTF8String(DiameterRoAvpCodes.TGPP_CHARGING_CHARACTERISTICS, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppChargingId()
    */
-  public String getTgppChargingId() {
+  public byte[] getTgppChargingId() {
     return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_CHARGING_ID, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -120,48 +120,48 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppGgsnMccMnc()
    */
   public String getTgppGgsnMccMnc() {
-    return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_GGSN_MCC_MNC, DiameterRoAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUTF8String(DiameterRoAvpCodes.TGPP_GGSN_MCC_MNC, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppGprsNegotiatedQosProfile()
    */
   public String getTgppGprsNegotiatedQosProfile() {
-    return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_GPRS_NEGOTIATED_QOS_PROFILE, DiameterRoAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUTF8String(DiameterRoAvpCodes.TGPP_GPRS_NEGOTIATED_QOS_PROFILE, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppImsiMccMnc()
    */
   public String getTgppImsiMccMnc() {
-    return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_IMSI_MCC_MNC, DiameterRoAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUTF8String(DiameterRoAvpCodes.TGPP_IMSI_MCC_MNC, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppMsTimezone()
    */
-  public String getTgppMsTimezone() {
+  public byte[] getTgppMsTimezone() {
     return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_MS_TIMEZONE, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppNsapi()
    */
-  public String getTgppNsapi() {
+  public byte[] getTgppNsapi() {
     return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_NSAPI, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppPdpType()
    */
-  public String getTgppPdpType() {
+  public byte[] getTgppPdpType() {
     return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_PDP_TYPE, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppRatType()
    */
-  public String getTgppRatType() {
+  public byte[] getTgppRatType() {
     return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_RAT_TYPE, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -169,13 +169,13 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppSelectionMode()
    */
   public String getTgppSelectionMode() {
-    return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_SELECTION_MODE, DiameterRoAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUTF8String(DiameterRoAvpCodes.TGPP_SELECTION_MODE, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppSessionStopIndicator()
    */
-  public String getTgppSessionStopIndicator() {
+  public byte[] getTgppSessionStopIndicator() {
     return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_SESSION_STOP_INDICATOR, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -183,13 +183,13 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppSgsnMccMnc()
    */
   public String getTgppSgsnMccMnc() {
-    return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_SGSN_MCC_MNC, DiameterRoAvpCodes.TGPP_VENDOR_ID);
+    return getAvpAsUTF8String(DiameterRoAvpCodes.TGPP_SGSN_MCC_MNC, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#getTgppUserLocationInfo()
    */
-  public String getTgppUserLocationInfo() {
+  public byte[] getTgppUserLocationInfo() {
     return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_USER_LOCATION_INFO, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -378,7 +378,7 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#setTgppCamelChargingInfo(String)
    */
-  public void setTgppCamelChargingInfo( String tgppCamelChargingInfo ) {
+  public void setTgppCamelChargingInfo( byte[] tgppCamelChargingInfo ) {
     addAvp(DiameterRoAvpCodes.TGPP_CAMEL_CHARGING_INFO, DiameterRoAvpCodes.TGPP_VENDOR_ID, tgppCamelChargingInfo);
   }
 
@@ -392,7 +392,7 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#setTgppChargingId(String)
    */
-  public void setTgppChargingId( String tgppChargingId ) {
+  public void setTgppChargingId( byte[] tgppChargingId ) {
     addAvp(DiameterRoAvpCodes.TGPP_CHARGING_ID, DiameterRoAvpCodes.TGPP_VENDOR_ID, tgppChargingId);
   }
 
@@ -420,28 +420,28 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#setTgppMsTimezone(String)
    */
-  public void setTgppMsTimezone( String tgppMsTimezone ) {
+  public void setTgppMsTimezone( byte[] tgppMsTimezone ) {
     addAvp(DiameterRoAvpCodes.TGPP_MS_TIMEZONE, DiameterRoAvpCodes.TGPP_VENDOR_ID, tgppMsTimezone);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#setTgppNsapi(String)
    */
-  public void setTgppNsapi( String tgppNsapi ) {
+  public void setTgppNsapi( byte[] tgppNsapi ) {
     addAvp(DiameterRoAvpCodes.TGPP_NSAPI, DiameterRoAvpCodes.TGPP_VENDOR_ID, tgppNsapi);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#setTgppPdpType(String)
    */
-  public void setTgppPdpType( String tgppPdpType ) {
+  public void setTgppPdpType( byte[] tgppPdpType ) {
     addAvp(DiameterRoAvpCodes.TGPP_PDP_TYPE, DiameterRoAvpCodes.TGPP_VENDOR_ID, tgppPdpType);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#setTgppRatType(String)
    */
-  public void setTgppRatType( String tgppPdpType ) {
+  public void setTgppRatType( byte[] tgppPdpType ) {
     addAvp(DiameterRoAvpCodes.TGPP_RAT_TYPE, DiameterRoAvpCodes.TGPP_VENDOR_ID, tgppPdpType);
   }
 
@@ -455,7 +455,7 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#setTgppSessionStopIndicator(String)
    */
-  public void setTgppSessionStopIndicator( String tgppSessionStopIndicator ) {
+  public void setTgppSessionStopIndicator( byte[] tgppSessionStopIndicator ) {
     addAvp(DiameterRoAvpCodes.TGPP_SESSION_STOP_INDICATOR, DiameterRoAvpCodes.TGPP_VENDOR_ID, tgppSessionStopIndicator);
   }
 
@@ -469,7 +469,7 @@ public class PsInformationImpl extends GroupedAvpImpl implements PsInformation {
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsInformation#setTgppUserLocationInfo(String)
    */
-  public void setTgppUserLocationInfo( String tgppUserLocationInfo ) {
+  public void setTgppUserLocationInfo( byte[] tgppUserLocationInfo ) {
     addAvp(DiameterRoAvpCodes.TGPP_USER_LOCATION_INFO, DiameterRoAvpCodes.TGPP_VENDOR_ID, tgppUserLocationInfo);
   }
 

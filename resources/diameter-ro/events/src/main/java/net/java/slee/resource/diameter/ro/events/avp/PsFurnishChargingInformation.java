@@ -57,12 +57,12 @@ public interface PsFurnishChargingInformation extends GroupedAvp {
   /**
    * Returns the value of the PS-Free-Format-Data AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getPsFreeFormatData();
+  abstract byte[] getPsFreeFormatData();
 
   /**
    * Returns the value of the TGPP-Charging-Id AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getTgppChargingId();
+  abstract byte[] getTgppChargingId();
 
   /**
    * Returns true if the PS-Append-Free-Format-Data AVP is present in the message.
@@ -87,11 +87,11 @@ public interface PsFurnishChargingInformation extends GroupedAvp {
   /**
    * Sets the value of the PS-Free-Format-Data AVP, of type OctetString.
    */
-  abstract void setPsFreeFormatData(String psFreeFormatData);
+  abstract void setPsFreeFormatData(byte[] psFreeFormatData);
 
   /**
    * Sets the value of the TGPP-Charging-Id AVP, of type OctetString.
    */
-  abstract void setTgppChargingId(String tgppChargingId);
+  abstract void setTgppChargingId(byte[] tgppChargingId);
 
 }

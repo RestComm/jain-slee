@@ -167,7 +167,7 @@ public interface RoAvpFactory extends CreditControlAVPFactory {
    * @param mbmsUserServiceType
    * @return
    */
-  public MbmsInformation createMbmsInformation(String tmgi, MbmsServiceType mbmsServiceType, MbmsUserServiceType mbmsUserServiceType);
+  public MbmsInformation createMbmsInformation(byte[] tmgi, MbmsServiceType mbmsServiceType, MbmsUserServiceType mbmsUserServiceType);
 
   /**
    * Create an empty MessageBody (Grouped AVP) instance.
@@ -226,7 +226,7 @@ public interface RoAvpFactory extends CreditControlAVPFactory {
    * @param psFreeFormatData
    * @return
    */
-  public PsFurnishChargingInformation createPsFurnishChargingInformation(String tgppChargingId, String psFreeFormatData);
+  public PsFurnishChargingInformation createPsFurnishChargingInformation(byte[] tgppChargingId, byte[] psFreeFormatData);
 
   /**
    * Create an empty PsInformation (Grouped AVP) instance.

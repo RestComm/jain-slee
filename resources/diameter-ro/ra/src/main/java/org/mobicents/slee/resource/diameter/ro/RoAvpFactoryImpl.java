@@ -160,7 +160,7 @@ public class RoAvpFactoryImpl extends CreditControlAVPFactoryImpl implements RoA
     return (MbmsInformation) AvpUtilities.createAvp(DiameterRoAvpCodes.MBMS_INFORMATION, DiameterRoAvpCodes.TGPP_VENDOR_ID, null, MbmsInformationImpl.class);
   }
 
-  public MbmsInformation createMbmsInformation(String tmgi, MbmsServiceType mbmsServiceType, MbmsUserServiceType mbmsUserServiceType) {
+  public MbmsInformation createMbmsInformation(byte[] tmgi, MbmsServiceType mbmsServiceType, MbmsUserServiceType mbmsUserServiceType) {
     // Create the empty AVP
     MbmsInformation mbmsInformationAvp = createMbmsInformation();
 
@@ -200,7 +200,7 @@ public class RoAvpFactoryImpl extends CreditControlAVPFactoryImpl implements RoA
     return (PsFurnishChargingInformation) AvpUtilities.createAvp(DiameterRoAvpCodes.PS_FURNISH_CHARGING_INFORMATION, DiameterRoAvpCodes.TGPP_VENDOR_ID, null, PsFurnishChargingInformationImpl.class);
   }
 
-  public PsFurnishChargingInformation createPsFurnishChargingInformation(String tgppChargingId, String psFreeFormatData) {
+  public PsFurnishChargingInformation createPsFurnishChargingInformation(byte[] tgppChargingId, byte[] psFreeFormatData) {
     // Create the empty AVP
     PsFurnishChargingInformation psFurnishChargingInformationAvp = createPsFurnishChargingInformation();
 

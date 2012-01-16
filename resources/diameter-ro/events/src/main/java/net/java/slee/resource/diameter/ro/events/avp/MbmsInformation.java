@@ -56,14 +56,14 @@ public interface MbmsInformation extends GroupedAvp {
   abstract FileRepairSupported getFileRepairSupported();
 
   /**
-   * Returns the value of the MBMS-2G-3G-Indicator AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the MBMS-2G-3G-Indicator AVP, of type Enumerated. A return value of null implies that the AVP has not been set.
    */
   abstract Mbms2g3gIndicator getMbms2g3gIndicator();
 
   /**
    * Returns the set of MBMS-Service-Area AVPs. The returned array contains the AVPs in the order they appear in the message. A return value of null implies that no MBMS-Service-Area AVPs have been set. The elements in the given array are byte[] objects.
    */
-  abstract String[] getMbmsServiceAreas();
+  abstract byte[][] getMbmsServiceAreas();
 
   /**
    * Returns the value of the MBMS-Service-Type AVP, of type Enumerated. A return value of null implies that the AVP has not been set.
@@ -73,7 +73,7 @@ public interface MbmsInformation extends GroupedAvp {
   /**
    * Returns the value of the MBMS-Session-Identity AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getMbmsSessionIdentity();
+  abstract byte[] getMbmsSessionIdentity();
 
   /**
    * Returns the value of the MBMS-User-Service-Type AVP, of type Enumerated. A return value of null implies that the AVP has not been set.
@@ -81,19 +81,19 @@ public interface MbmsInformation extends GroupedAvp {
   abstract MbmsUserServiceType getMbmsUserServiceType();
 
   /**
-   * Returns the value of the RAI AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the RAI AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract String getRai();
 
   /**
-   * Returns the value of the Required-MBMS-Bearer-Capabilities AVP, of type OctetString. A return value of null implies that the AVP has not been set.
+   * Returns the value of the Required-MBMS-Bearer-Capabilities AVP, of type UTF8String. A return value of null implies that the AVP has not been set.
    */
   abstract String getRequiredMbmsBearerCapabilities();
 
   /**
    * Returns the value of the TMGI AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getTmgi();
+  abstract byte[] getTmgi();
 
   /**
    * Returns true if the File-Repair-Supported AVP is present in the message.
@@ -148,12 +148,12 @@ public interface MbmsInformation extends GroupedAvp {
   /**
    * Sets a single MBMS-Service-Area AVP in the message, of type OctetString.
    */
-  abstract void setMbmsServiceArea(String mbmsServiceArea);
+  abstract void setMbmsServiceArea(byte[] mbmsServiceArea);
 
   /**
    * Sets the set of MBMS-Service-Area AVPs, with all the values in the given array. The AVPs will be added to message in the order in which they appear in the array. Note: the array must not be altered by the caller following this call, and getMbmsServiceAreas() is not guaranteed to return the same array instance, e.g. an "==" check would fail.
    */
-  abstract void setMbmsServiceAreas(String[] mbmsServiceAreas);
+  abstract void setMbmsServiceAreas(byte[][] mbmsServiceAreas);
 
   /**
    * Sets the value of the MBMS-Service-Type AVP, of type Enumerated.
@@ -163,7 +163,7 @@ public interface MbmsInformation extends GroupedAvp {
   /**
    * Sets the value of the MBMS-Session-Identity AVP, of type OctetString.
    */
-  abstract void setMbmsSessionIdentity(String mbmsSessionIdentity);
+  abstract void setMbmsSessionIdentity(byte[] mbmsSessionIdentity);
 
   /**
    * Sets the value of the MBMS-User-Service-Type AVP, of type Enumerated.
@@ -171,18 +171,18 @@ public interface MbmsInformation extends GroupedAvp {
   abstract void setMbmsUserServiceType(MbmsUserServiceType mbmsUserServiceType);
 
   /**
-   * Sets the value of the RAI AVP, of type OctetString.
+   * Sets the value of the RAI AVP, of type UTF8String.
    */
   abstract void setRai(String rai);
 
   /**
-   * Sets the value of the Required-MBMS-Bearer-Capabilities AVP, of type OctetString.
+   * Sets the value of the Required-MBMS-Bearer-Capabilities AVP, of type UTF8String.
    */
   abstract void setRequiredMbmsBearerCapabilities(String requiredMbmsBearerCapabilities);
 
   /**
    * Sets the value of the TMGI AVP, of type OctetString.
    */
-  abstract void setTmgi(String tmgi);
+  abstract void setTmgi(byte[] tmgi);
 
 }

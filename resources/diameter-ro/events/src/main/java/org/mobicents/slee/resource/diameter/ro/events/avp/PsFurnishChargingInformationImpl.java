@@ -62,14 +62,14 @@ public class PsFurnishChargingInformationImpl extends GroupedAvpImpl implements 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsFurnishChargingInformation#getPsFreeFormatData()
    */
-  public String getPsFreeFormatData() {
+  public byte[] getPsFreeFormatData() {
     return getAvpAsOctetString(DiameterRoAvpCodes.PS_FREE_FORMAT_DATA, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsFurnishChargingInformation#getTgppChargingId()
    */
-  public String getTgppChargingId() {
+  public byte[] getTgppChargingId() {
     return getAvpAsOctetString(DiameterRoAvpCodes.TGPP_CHARGING_ID, DiameterRoAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -104,14 +104,14 @@ public class PsFurnishChargingInformationImpl extends GroupedAvpImpl implements 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsFurnishChargingInformation#setPsFreeFormatData(byte[])
    */
-  public void setPsFreeFormatData( String psFreeFormatData ) {
+  public void setPsFreeFormatData( byte[] psFreeFormatData ) {
     addAvp(DiameterRoAvpCodes.PS_FREE_FORMAT_DATA, DiameterRoAvpCodes.TGPP_VENDOR_ID, psFreeFormatData);
   }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.ro.events.avp.PsFurnishChargingInformation#setTgppChargingId(byte[])
    */
-  public void setTgppChargingId( String tgppChargingId ) {
+  public void setTgppChargingId( byte[] tgppChargingId ) {
     addAvp(DiameterRoAvpCodes.TGPP_CHARGING_ID, DiameterRoAvpCodes.TGPP_VENDOR_ID, tgppChargingId);
   }
 
