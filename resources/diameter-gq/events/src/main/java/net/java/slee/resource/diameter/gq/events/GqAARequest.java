@@ -233,12 +233,12 @@ public interface GqAARequest extends DiameterMessage {
   /**
    * Returns the value of the AF-Charging-Identifier AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  String getAFChargingIdentifier();
+  byte[] getAFChargingIdentifier();
 
   /**
    * Sets the value of the AF-Charging-Identifier AVP, of type OctetString.
    */
-  void setAFChargingIdentifier(String AFChargingIdentifier);
+  void setAFChargingIdentifier(byte[] AFChargingIdentifier);
 
   /**
    * Returns true if the AF-Charging-Identifier AVP is present in the message.

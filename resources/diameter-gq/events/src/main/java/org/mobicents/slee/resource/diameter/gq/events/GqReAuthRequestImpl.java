@@ -190,7 +190,7 @@ public class GqReAuthRequestImpl extends DiameterMessageImpl implements GqReAuth
    * 
    * @see net.java.slee.resource.diameter.gq.events.GqReAuthRequest#getLogicalAccessId
    */
-  public String getLogicalAccessId() {
+  public byte[] getLogicalAccessId() {
     return getAvpAsOctetString(DiameterGqAvpCodes.ETSI_LOGICAL_ACCESS_ID, DiameterGqAvpCodes.ETSI_VENDOR_ID);
   }
 
@@ -200,7 +200,7 @@ public class GqReAuthRequestImpl extends DiameterMessageImpl implements GqReAuth
    * 
    * @see net.java.slee.resource.diameter.gq.events.GqReAuthRequest#setLogicalAccessId
    */
-  public void setLogicalAccessId(String logicalAccessId) throws IllegalStateException {
+  public void setLogicalAccessId(byte[] logicalAccessId) throws IllegalStateException {
     addAvp(DiameterGqAvpCodes.ETSI_LOGICAL_ACCESS_ID, DiameterGqAvpCodes.ETSI_VENDOR_ID, logicalAccessId);
   }
 

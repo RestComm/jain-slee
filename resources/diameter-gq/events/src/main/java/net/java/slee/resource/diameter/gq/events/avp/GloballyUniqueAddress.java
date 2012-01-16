@@ -47,17 +47,17 @@ public interface GloballyUniqueAddress extends GroupedAvp {
   /**
    * Returns the value of the Framed-IP-Address AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getFramedIPAddress();
+  abstract byte[] getFramedIPAddress();
 
   /**
    * Returns the value of the Framed-IPv6-Prefix AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getFramedIPV6Prefix();
+  abstract byte[] getFramedIPV6Prefix();
 
   /**
    * Returns the value of the Address-Realm AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getAddressRealm();
+  abstract byte[] getAddressRealm();
 
   /**
    * Returns true if the Framed-IP-Address AVP is present in the message.
@@ -77,15 +77,15 @@ public interface GloballyUniqueAddress extends GroupedAvp {
   /**
    * Sets the value of the Framed-IP-Address AVP, of type OctetString.
    */
-  abstract void setFramedIPAddress(String framedIPAddress);
+  abstract void setFramedIPAddress(byte[] framedIPAddress);
 
   /**
    * Sets the value of the Framed-IPv6-Prefix AVP, of type OctetString.
    */
-  abstract void setFramedIPV6Prefix(String framedIPV6Prefix);
+  abstract void setFramedIPV6Prefix(byte[] framedIPV6Prefix);
 
   /**
    * Sets the value of the Address-Realm AVP, of type OctetString.
    */
-  abstract void setAddressRealm(String addressRealm);
+  abstract void setAddressRealm(byte[] addressRealm);
 }

@@ -238,11 +238,11 @@ public interface GqReAuthRequest extends DiameterMessage
 	* Returns the value of the Logical-Access-Id AVP, of type OctetString.
 	* @return the value of the Logical-Access-Id AVP or null if it has not been set on this message
 	*/
-	String getLogicalAccessId();
+	byte[] getLogicalAccessId();
 
 	/**
 	* Sets the value of the Logical-Access-Id AVP, of type OctetString.
 	* @throws IllegalStateException if setLogicalAccessId has already been called
 	*/
-	void setLogicalAccessId(String logicalAccessId) throws IllegalStateException;
+	void setLogicalAccessId(byte[] logicalAccessId) throws IllegalStateException;
 }

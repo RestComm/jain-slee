@@ -170,7 +170,7 @@ public interface GqSessionTerminationRequest extends DiameterMessage {
    * 
    * @return
    */
-  String[] getClasses();
+  byte[][] getClasses();
 
   /**
    * Sets a single Class AVP in the message, of type OctetString.
@@ -178,7 +178,7 @@ public interface GqSessionTerminationRequest extends DiameterMessage {
    * @param classValue
    * @throws IllegalStateException
    */
-  void setClass(String classValue) throws IllegalStateException;
+  void setClass(byte[] classValue) throws IllegalStateException;
 
   /**
    * Sets the set of Class AVPs, with all the values in the given array.
@@ -186,5 +186,5 @@ public interface GqSessionTerminationRequest extends DiameterMessage {
    * @param classes
    * @throws IllegalStateException
    */
-  void setClasses(String[] classes) throws IllegalStateException;
+  void setClasses(byte[][] classes) throws IllegalStateException;
 }

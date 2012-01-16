@@ -47,7 +47,7 @@ public interface V4TransportAddress extends GroupedAvp {
   /**
    * Returns the value of the Framed-IP-Address AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getFramedIPAddress();
+  abstract byte[] getFramedIPAddress();
 
   /**
    * Returns the value of the Port-Number AVP, of type Unsigned32. A return value of null implies that the AVP has not been set.
@@ -67,7 +67,7 @@ public interface V4TransportAddress extends GroupedAvp {
   /**
    * Sets the value of the Framed-IP-Address AVP, of type OctetString.
    */
-  abstract void setFramedIPAddress(String framedIPAddress);
+  abstract void setFramedIPAddress(byte[] framedIPAddress);
 
   /**
    * Sets the value of the Port-Number AVP, of type Unsigned32.

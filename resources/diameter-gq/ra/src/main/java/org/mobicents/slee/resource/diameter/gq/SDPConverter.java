@@ -274,7 +274,7 @@ public class SDPConverter {
           else
             codecLine += bandwidth.get(j).toString() + System.getProperty("line.separator");
 
-      currDescription.setCodecData(codecLine);
+      currDescription.setCodecData(codecLine.getBytes());
       if (currMedia.getMediaPort() == 0)
         currDescription.setFlowStatus(FlowStatus.REMOVED);
       else if (mode.equals("recvonly"))
@@ -433,7 +433,7 @@ public class SDPConverter {
               codecLine += bandwidth.get(j).toString() + System.getProperty("line.separator");
 
         currDescription.setMediaSubComponents(mediaSubComponents.get(i));
-        currDescription.setCodecData(codecLine);
+        currDescription.setCodecData(codecLine.getBytes());
       }
     }
 
@@ -651,7 +651,7 @@ public class SDPConverter {
           else
             codecLine += bandwidth.get(j).toString() + System.getProperty("line.separator");
 
-      currDescription.setCodecData(codecLine);
+      currDescription.setCodecData(codecLine.getBytes());
       if (currMedia.getMediaPort() == 0)
         currDescription.setFlowStatus(FlowStatus.REMOVED);
       else if (mode.equals("recvonly"))

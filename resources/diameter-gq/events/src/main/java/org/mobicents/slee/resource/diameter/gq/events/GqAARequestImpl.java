@@ -187,7 +187,7 @@ public class GqAARequestImpl extends DiameterMessageImpl implements GqAARequest 
    * 
    * @see net.java.slee.resource.diameter.gq.events.GqAARequest#getAFChargingIdentifier
    */
-  public String getAFChargingIdentifier() {
+  public byte[] getAFChargingIdentifier() {
     return getAvpAsOctetString(DiameterGqAvpCodes.TGPP_AF_CHARGING_IDENTIFIER, DiameterGqAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -197,7 +197,7 @@ public class GqAARequestImpl extends DiameterMessageImpl implements GqAARequest 
    * 
    * @see net.java.slee.resource.diameter.gq.events.GqAARequest#setAFChargingIdentifier
    */
-  public void setAFChargingIdentifier(String AFChargingIdentifier) {
+  public void setAFChargingIdentifier(byte[] AFChargingIdentifier) {
     addAvp(DiameterGqAvpCodes.TGPP_AF_CHARGING_IDENTIFIER, DiameterGqAvpCodes.TGPP_VENDOR_ID, AFChargingIdentifier);
   }
 

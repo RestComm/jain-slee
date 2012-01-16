@@ -47,7 +47,7 @@ public interface V6TransportAddress extends GroupedAvp {
   /**
    * Returns the value of the Framed-IPv6-Prefix AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String getFramedIPV6Prefix();
+  abstract byte[] getFramedIPV6Prefix();
 
   /**
    * Returns the value of the Port-Number AVP, of type Unsigned32. A return value of null implies that the AVP has not been set.
@@ -67,7 +67,7 @@ public interface V6TransportAddress extends GroupedAvp {
   /**
    * Sets the value of the Framed-IPv6-Prefix AVP, of type OctetString.
    */
-  abstract void setFramedIPV6Prefix(String framedIPV6Prefix);
+  abstract void setFramedIPV6Prefix(byte[] framedIPV6Prefix);
 
   /**
    * Sets the value of the Port-Number AVP, of type Unsigned32.

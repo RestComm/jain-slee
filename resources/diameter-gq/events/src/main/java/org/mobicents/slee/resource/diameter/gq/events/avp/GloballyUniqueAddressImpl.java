@@ -56,7 +56,7 @@ public class GloballyUniqueAddressImpl extends GroupedAvpImpl implements Globall
    * 
    * @see net.java.slee.resource.diameter.gq.events.avp.GloballyUniqueAddress#getFramedIPAddress()
    */
-  public String getFramedIPAddress() {
+  public byte[] getFramedIPAddress() {
     return getAvpAsOctetString(DiameterGqAvpCodes.FRAMED_IP_ADDRESS);
   }
 
@@ -66,7 +66,7 @@ public class GloballyUniqueAddressImpl extends GroupedAvpImpl implements Globall
    * 
    * @see net.java.slee.resource.diameter.gq.events.avp.GloballyUniqueAddress#getFramedIPV6Prefix()
    */
-  public String getFramedIPV6Prefix() {
+  public byte[] getFramedIPV6Prefix() {
     return getAvpAsOctetString(DiameterGqAvpCodes.FRAMED_IPV6_PREFIX);
   }
 
@@ -76,7 +76,7 @@ public class GloballyUniqueAddressImpl extends GroupedAvpImpl implements Globall
    * 
    * @see net.java.slee.resource.diameter.gq.events.avp.GloballyUniqueAddress#getAddressRealm()
    */
-  public String getAddressRealm() {
+  public byte[] getAddressRealm() {
     return getAvpAsOctetString(DiameterGqAvpCodes.ETSI_ADRESS_REALM, DiameterGqAvpCodes.ETSI_VENDOR_ID);
   }
 
@@ -116,7 +116,7 @@ public class GloballyUniqueAddressImpl extends GroupedAvpImpl implements Globall
    * 
    * @see net.java.slee.resource.diameter.gq.events.avp.GloballyUniqueAddress#setFramedIPAddress()
    */
-  public void setFramedIPAddress(String framedIPAddress) {
+  public void setFramedIPAddress(byte[] framedIPAddress) {
     addAvp(DiameterGqAvpCodes.FRAMED_IP_ADDRESS, framedIPAddress);
   }
 
@@ -126,7 +126,7 @@ public class GloballyUniqueAddressImpl extends GroupedAvpImpl implements Globall
    * 
    * @see net.java.slee.resource.diameter.gq.events.avp.GloballyUniqueAddress#setFramedIPV6Prefix()
    */
-  public void setFramedIPV6Prefix(String framedIPV6Prefix) {
+  public void setFramedIPV6Prefix(byte[] framedIPV6Prefix) {
     addAvp(DiameterGqAvpCodes.FRAMED_IPV6_PREFIX, framedIPV6Prefix);
   }
 
@@ -136,7 +136,7 @@ public class GloballyUniqueAddressImpl extends GroupedAvpImpl implements Globall
    * 
    * @see net.java.slee.resource.diameter.gq.events.avp.GloballyUniqueAddress#seAddressRealm()
    */
-  public void setAddressRealm(String addressRealm) {
+  public void setAddressRealm(byte[] addressRealm) {
     addAvp(DiameterGqAvpCodes.ETSI_ADRESS_REALM, DiameterGqAvpCodes.ETSI_VENDOR_ID, addressRealm);
   }
 

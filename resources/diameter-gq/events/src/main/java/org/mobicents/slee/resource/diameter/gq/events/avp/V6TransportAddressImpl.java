@@ -55,7 +55,7 @@ public class V6TransportAddressImpl extends GroupedAvpImpl implements V6Transpor
    * 
    * @see V6TransportAddress#getFramedIPV6Prefix()
    */
-  public String getFramedIPV6Prefix() {
+  public byte[] getFramedIPV6Prefix() {
     return getAvpAsOctetString(DiameterGqAvpCodes.FRAMED_IPV6_PREFIX);
   }
 
@@ -95,7 +95,7 @@ public class V6TransportAddressImpl extends GroupedAvpImpl implements V6Transpor
    * 
    * @see V6TransportAddress#setFramedIPV6Prefix()
    */
-  public void setFramedIPV6Prefix(String framedIPV6Prefix) {
+  public void setFramedIPV6Prefix(byte[] framedIPV6Prefix) {
     addAvp(DiameterGqAvpCodes.FRAMED_IPV6_PREFIX, framedIPV6Prefix);
   }
 

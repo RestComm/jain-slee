@@ -81,7 +81,7 @@ public class MediaComponentDescriptionImpl extends GroupedAvpImpl implements Med
    * 
    * @see MediaComponentDescription#getAFApplicationIdentifier()
    */
-  public String getAFApplicationIdentifier() {
+  public byte[] getAFApplicationIdentifier() {
     return getAvpAsOctetString(DiameterGqAvpCodes.TGPP_AF_APPLICATION_IDENTIFIER, DiameterGqAvpCodes.TGPP_VENDOR_ID);
   }
 
@@ -182,8 +182,8 @@ public class MediaComponentDescriptionImpl extends GroupedAvpImpl implements Med
    * 
    * @see MediaComponentDescription#getCodecData()
    */
-  public String[] getCodecData() {
-    return (String[]) getAvpsAsOctetString(DiameterGqAvpCodes.TGPP_CODEC_DATA, DiameterGqAvpCodes.TGPP_VENDOR_ID);
+  public byte[][] getCodecData() {
+    return (byte[][]) getAvpsAsOctetString(DiameterGqAvpCodes.TGPP_CODEC_DATA, DiameterGqAvpCodes.TGPP_VENDOR_ID);
   }
 
   @Override
@@ -346,7 +346,7 @@ public class MediaComponentDescriptionImpl extends GroupedAvpImpl implements Med
    * 
    * @see MediaComponentDescription#setAFApplicationIdentifier()
    */
-  public void setAFApplicationIdentifier(String AFApplicationIdentifier) {
+  public void setAFApplicationIdentifier(byte[] AFApplicationIdentifier) {
     addAvp(DiameterGqAvpCodes.TGPP_AF_APPLICATION_IDENTIFIER, DiameterGqAvpCodes.TGPP_VENDOR_ID, AFApplicationIdentifier);
   }
 
@@ -447,8 +447,8 @@ public class MediaComponentDescriptionImpl extends GroupedAvpImpl implements Med
    * 
    * @see MediaComponentDescription#setCodecData()
    */
-  public void setCodecData(String[] codecsData) {
-    for (String codecData : codecsData) {
+  public void setCodecData(byte[][] codecsData) {
+    for (byte[] codecData : codecsData) {
       setCodecData(codecData);
     }
   }
@@ -459,7 +459,7 @@ public class MediaComponentDescriptionImpl extends GroupedAvpImpl implements Med
    * 
    * @see MediaComponentDescription#setCodecData()
    */
-  public void setCodecData(String codecData) {
+  public void setCodecData(byte[] codecData) {
     addAvp(AvpUtilities.createAvp(DiameterGqAvpCodes.TGPP_CODEC_DATA, DiameterGqAvpCodes.TGPP_VENDOR_ID, codecData));
     // addAvp(DiameterGqAvpCodes.TGPP_CODEC_DATA, DiameterGqAvpCodes.TGPP_VENDOR_ID, codecData);
 

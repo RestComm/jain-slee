@@ -55,7 +55,7 @@ public class V4TransportAddressImpl extends GroupedAvpImpl implements V4Transpor
    * 
    * @see V4TransportAddress#getFramedIPAddress()
    */
-  public String getFramedIPAddress() {
+  public byte[] getFramedIPAddress() {
     return getAvpAsOctetString(DiameterGqAvpCodes.FRAMED_IP_ADDRESS);
   }
 
@@ -95,7 +95,7 @@ public class V4TransportAddressImpl extends GroupedAvpImpl implements V4Transpor
    * 
    * @see V4TransportAddress#setFramedIPAddress()
    */
-  public void setFramedIPAddress(String framedIPAddress) {
+  public void setFramedIPAddress(byte[] framedIPAddress) {
     addAvp(DiameterGqAvpCodes.FRAMED_IP_ADDRESS, framedIPAddress);
   }
 

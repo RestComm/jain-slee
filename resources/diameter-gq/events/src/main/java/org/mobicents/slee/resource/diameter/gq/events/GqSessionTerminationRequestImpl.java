@@ -95,7 +95,7 @@ public class GqSessionTerminationRequestImpl extends DiameterMessageImpl impleme
    * 
    * @see net.java.slee.resource.diameter.gq.events.GqSessionTerminationRequest#getClasses
    */
-  public String[] getClasses() {
+  public byte[][] getClasses() {
     return getAvpsAsOctetString(DiameterAvpCodes.CLASS_AVP);
   }
 
@@ -105,7 +105,7 @@ public class GqSessionTerminationRequestImpl extends DiameterMessageImpl impleme
    * 
    * @see net.java.slee.resource.diameter.gq.events.GqSessionTerminationRequest#setClass
    */
-  public void setClass(String classValue) throws IllegalStateException {
+  public void setClass(byte[] classValue) throws IllegalStateException {
     addAvp(DiameterAvpCodes.CLASS_AVP, classValue);
   }
 
@@ -115,8 +115,8 @@ public class GqSessionTerminationRequestImpl extends DiameterMessageImpl impleme
    * 
    * @see net.java.slee.resource.diameter.gq.events.GqSessionTerminationRequest#setClasses
    */
-  public void setClasses(String[] classes) throws IllegalStateException {
-    for (String classValue : classes) {
+  public void setClasses(byte[][] classes) throws IllegalStateException {
+    for (byte[] classValue : classes) {
       setClass(classValue);
     }
   }

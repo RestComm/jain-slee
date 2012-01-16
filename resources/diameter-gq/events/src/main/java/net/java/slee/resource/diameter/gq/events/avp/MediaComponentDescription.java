@@ -70,7 +70,7 @@ public interface MediaComponentDescription extends GroupedAvp {
    * Returns the value of the AF-Application-Identifier AVP, of type OctetString. A return value of null implies that the AVP has not been
    * set.
    */
-  abstract String getAFApplicationIdentifier();
+  abstract byte[] getAFApplicationIdentifier();
 
   /**
    * Returns the value of the Media-Type AVP, of type Grouped. A return value of null implies that the AVP has not been set.
@@ -122,7 +122,7 @@ public interface MediaComponentDescription extends GroupedAvp {
   /**
    * Returns the value of the Codec-Data AVP, of type OctetString. A return value of null implies that the AVP has not been set.
    */
-  abstract String[] getCodecData();
+  abstract byte[][] getCodecData();
 
   /**
    * Returns the value of the Media-Authorization-Context-Id AVP, of type UTF8String. A return value of null implies that the AVP has not
@@ -201,9 +201,9 @@ public interface MediaComponentDescription extends GroupedAvp {
   abstract void setMediaSubComponent(MediaSubComponent mediaSubComponent);
 
   /**
-   * Sets the value of the AF-Application-Identifier AVP, of type Unsigned32.
+   * Sets the value of the AF-Application-Identifier AVP, of type OctetString.
    */
-  abstract void setAFApplicationIdentifier(String AFApplicationIdentifier);
+  abstract void setAFApplicationIdentifier(byte[] AFApplicationIdentifier);
 
   /**
    * Sets the value of the Media-Type AVP, of type Unsigned32.
@@ -253,12 +253,12 @@ public interface MediaComponentDescription extends GroupedAvp {
   /**
    * Sets the value of the Codec-Data AVP, of type OctetString.
    */
-  abstract void setCodecData(String[] codecsData);
+  abstract void setCodecData(byte[][] codecsData);
 
   /**
    * Sets the value of the Codec-Data AVP, of type OctetString.
    */
-  abstract void setCodecData(String codecData);
+  abstract void setCodecData(byte[] codecData);
 
   /**
    * Sets the value of the Media-Authorization-Context-Id AVP, of type UTF8String.
