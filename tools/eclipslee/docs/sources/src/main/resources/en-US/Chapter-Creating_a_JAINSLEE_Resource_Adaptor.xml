@@ -64,7 +64,10 @@
 			The source folder and package dialogs will be completed if <menuchoice><guimenu>New</guimenu><guisubmenu>Other ...</guisubmenu></menuchoice> has been selected from right-clicking on a package. Otherwise it may need to be chosen by selecting <guibutton>Browse...</guibutton> and selecting the desired locations or typing it's name in the appropriate field and it will be created in the end.
 		</para>
 		<para>
-			Name the Resource Adaptor; the name must end with "<filename>ResourceAdaptor.java</filename>". Then click <guibutton>Next</guibutton> to go to the component identity dialog, pictured below:
+			Name the Resource Adaptor; the name must end with "<filename>ResourceAdaptor.java</filename>".
+		</para>
+		<para>
+			If you wish to develop a Fault Tolerant Resource Adaptor, by making use of the Mobicents specific <classname>FaultTolerantResourceAdaptor</classname> interface, check the <guibutton>Fault Tolerant Resource Adaptor</guibutton> checkbox. When done, click <guibutton>Next</guibutton> to go to the component identity dialog, pictured below:
 			<figure>
 				<title>JAIN SLEE Component Identity dialog in EclipSLEE</title>
 				<mediaobject>
