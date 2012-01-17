@@ -65,6 +65,7 @@ public class ResourceAdaptorWizard extends BaseWizard {
   private HashMap[] resourceAdaptorLibraries;
   private HashMap[] resourceAdaptorConfigProperties;
   private boolean resourceAdaptorSupportActiveReconfig;
+  private boolean faultTolerantResourceAdaptor;
 
   public ResourceAdaptorWizard() {
     super();
@@ -94,7 +95,9 @@ public class ResourceAdaptorWizard extends BaseWizard {
 
     resourceAdaptorConfigProperties = resourceAdaptorConfigPropertiesPage.getConfigProperties();
 
-    resourceAdaptorSupportActiveReconfig = resourceAdaptorConfigPropertiesPage.getActiveReconfiguration(); 
+    resourceAdaptorSupportActiveReconfig = resourceAdaptorConfigPropertiesPage.getActiveReconfiguration();
+    
+    faultTolerantResourceAdaptor = filePage.getFaultTolerantResourceAdaptor();
 
     return super.performFinish();
   }
@@ -227,6 +230,39 @@ public class ResourceAdaptorWizard extends BaseWizard {
 
       subs.put("__CONFIG_PROPERTIES__", subConfigProperties);
       subs.put("__RA_CONFIGURE_IMPL__", subRaConfigureMethod);
+      
+      if(faultTolerantResourceAdaptor) {
+        subs.put("__FAULT_TOLERANT_IMPORT__", "\nimport java.io.Serializable;\n\nimport org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;\nimport org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;\n");
+        subs.put("__RA_INTERFACE__", "FaultTolerantResourceAdaptor<Serializable, Serializable>");
+        subs.put("__FAULT_TOLERANT_IMPLEMENTATION__", "\n\t// Fault Tolerant RA Callbacks --------------------------------------------\n" +
+            "\n" +
+        		"\tprivate FaultTolerantResourceAdaptorContext ftRaContext;\n" +
+            "\n" +
+            "\tpublic void setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext<Serializable, Serializable> context) {\n" +
+            "\t\tthis.ftRaContext = context;\n" +
+            "\t}\n" +
+            "\n" +
+            "\tpublic void unsetFaultTolerantResourceAdaptorContext() {\n" +
+            "\t\tthis.ftRaContext = null;\n" +
+            "\t}\n" +
+            "\n" +
+            "\tpublic void dataRemoved(Serializable key) {\n" +
+            "\t\t// TODO: implement this optional callback from SLEE when the replicated\n" +
+            "\t\t//       data key was removed from the cluster, this may be helpful when\n" +
+            "\t\t//       the local RA maintains local state.\n" +
+            "\t}\n" +
+            "\n" +
+            "\tpublic void failOver(Serializable key) {\n" +
+            "\t\t// TODO: implement the callback from SLEE when the local RA was selected\n" +
+            "\t\t//       to recover the state for a replicated data key, which was owned\n" +
+            "\t\t//       by a cluster member that failed.\n" +
+            "\t}\n");
+      }
+      else {
+        subs.put("__FAULT_TOLERANT_IMPORT__", "");
+        subs.put("__RA_INTERFACE__", "ResourceAdaptor");
+        subs.put("__FAULT_TOLERANT_IMPLEMENTATION__", "");
+      }
 
       final IFile resourceAdaptorFile;
       final IFile resourceAdaptorMarshalerFile;

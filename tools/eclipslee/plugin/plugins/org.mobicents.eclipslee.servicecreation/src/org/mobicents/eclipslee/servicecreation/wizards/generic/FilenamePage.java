@@ -50,6 +50,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -81,6 +82,7 @@ public class FilenamePage extends WizardPage {
     "Choose the Container (package) that this component should be created in, then choose a name for its main Java file.";
 
   boolean isServiceWizard;
+  boolean isResourceAdaptorWizard;
 
   /**
    * Constructor for SampleNewWizardPage.
@@ -88,7 +90,6 @@ public class FilenamePage extends WizardPage {
    */
   public FilenamePage(ISelection selection, String title, String ends, String mavenModule) {
     this(selection, title, ends);
-    this.mavenModule = mavenModule;
   }
 
   /**
@@ -118,6 +119,7 @@ public class FilenamePage extends WizardPage {
   public void createControl(Composite parent) {
 
     isServiceWizard = getWizard() instanceof ServiceWizard;
+    isResourceAdaptorWizard = getWizard() instanceof ResourceAdaptorWizard;
 
     refreshJars();
 
@@ -166,6 +168,12 @@ public class FilenamePage extends WizardPage {
         dialogChanged();
       }
     });
+
+    if(isResourceAdaptorWizard) {
+      label = new Label(container, SWT.NULL);
+      faultTolerantRACheckBox = new Button(container, SWT.CHECK);
+      faultTolerantRACheckBox.setText("Fault Tolerant Resource Adaptor");
+    }
 
     initialize();
     dialogChanged();
@@ -376,12 +384,10 @@ public class FilenamePage extends WizardPage {
     packageWidget.setText(t);
   }
 
-  /* TODO: Remove
-	private void setFileName(String t) {
-		fileText.setText(t);
-	}	
-   */
-
+  public boolean getFaultTolerantResourceAdaptor() {
+    return faultTolerantRACheckBox.getSelection();
+  }
+  
   private void updateStatus(String message) {
     setErrorMessage(message);
     setPageComplete(message == null);
@@ -573,11 +579,10 @@ public class FilenamePage extends WizardPage {
   private IPackageFragment pack;
 
   private String ends;
-  private String mavenModule;
   private TextButton packageWidget;
   private TextButton projectWidget;
 
   private Text fileText;
-  //  private Text mavenModuleText;
+  private Button faultTolerantRACheckBox;
   private ISelection selection;
 }

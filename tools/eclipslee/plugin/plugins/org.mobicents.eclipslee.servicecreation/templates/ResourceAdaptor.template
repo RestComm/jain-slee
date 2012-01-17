@@ -3,8 +3,8 @@ __PACKAGE__
 import javax.slee.*;
 import javax.slee.facilities.*;
 import javax.slee.resource.*;
-
-public class __NAME__ResourceAdaptor implements ResourceAdaptor {
+__FAULT_TOLERANT_IMPORT__
+public class __NAME__ResourceAdaptor implements __RA_INTERFACE__ {
 
 	private static final long serialVersionUID = 1L;
 
@@ -240,6 +240,6 @@ __RA_CONFIGURE_IMPL__
 	public void activityUnreferenced(ActivityHandle handle) {
 		// TODO: decide to end the Activity at this time if desired.
 	}
-
+__FAULT_TOLERANT_IMPLEMENTATION__
 	// TODO: Add __NAME__ Resource Adaptor specific logic.
 }
