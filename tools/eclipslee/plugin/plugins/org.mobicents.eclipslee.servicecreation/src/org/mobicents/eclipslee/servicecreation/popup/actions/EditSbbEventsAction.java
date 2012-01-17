@@ -222,6 +222,7 @@ public class EditSbbEventsAction implements IActionDelegate {
 						// Deal with any change in the scoped name.
 						if (!oldScopedName.equals(scopedName)) {
 							sbbEventXML.setScopedName(scopedName);
+              sbbEventXML.setInitialEventSelectorMethod("on" + Utils.capitalize(scopedName) + "InitialEventSelect");
 			
 							// Rename the fire, receive and ies methods if they exist.
 							ClassUtil.renameMethodInClass(abstractFile,
@@ -232,7 +233,7 @@ public class EditSbbEventsAction implements IActionDelegate {
 									"fire" + Utils.capitalize(scopedName));
 							ClassUtil.renameMethodInClass(abstractFile,
 									"on" + Utils.capitalize(oldScopedName) + "InitialEventSelect",
-									"on" + Utils.capitalize(scopedName) + "InitialEventSelect");							
+									"on" + Utils.capitalize(scopedName) + "InitialEventSelect");
 						}					
 					}
 				}
