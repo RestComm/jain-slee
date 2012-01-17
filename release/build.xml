@@ -115,7 +115,7 @@
 		<move toDir="${release.dir}/docs/tools/slee-management-console/user-guide" overwrite="true" failonerror="false">
 			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/slee-management-console/docs" />
 		</move>
-		<delete dir="${release.dir}/tools/slee-management-console" />
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/slee-management-console" />
 	</target>
 	
 	<target name="build-docs" description="">
