@@ -6,7 +6,7 @@
 	<property name="ra.dirs" value="mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-gq,diameter-rx,xcap-client"/>
 	<property name="example.dirs" value="mscontrol-demo,slee-connectivity,sip-jdbc-registrar,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo"/>
 	<property name="enabler.dirs" value="rest-client,xdm-client,sip-publication-client,sip-subscription-client,hss-client"/>
-	<property name="tool.dirs" value="management-console,eclipslee,remote-slee-connection,twiddle"/>
+	<property name="tool.dirs" value="jopr-plugin,eclipslee,remote-slee-connection,twiddle"/>
 
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
@@ -18,8 +18,11 @@
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
 
+	<!--
 	<property name="mms.version" value="2.1.0.BETA4" />
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-2.1.0-b5.zip"/>
+	-->
+	<property name="mms.download.url" value ="http://hudson.jboss.org/hudson/view/Mobicents/job/Mobicents-MediaServer-2.x-Release/525/artifact/mms-server-r21528-120116072638.zip"/>	
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 
 	<property name="ss7.version" value="1.0.0.CR2" />
@@ -38,7 +41,10 @@
 	<property name="eclipslee.download.url" value ="http://mobicents.googlecode.com/svn/downloads/eclipse-update-site/plugins/${eclipslee.jar}"/>
 	-->
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0-SNAPSHOT.jar"/>
+	<!--
 	<property name="eclipslee.download.url" value ="http://hudson.jboss.org/jenkins/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>
+	-->
+	<property name="eclipslee.download.url" value ="https://hudson.qa.jboss.com/hudson/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild//artifact/plugins/${eclipslee.jar}"/>
 	
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -90,12 +96,11 @@
 	</condition>
 
 	<target name="build-core" description="">
+		<!-- build core -->
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
 			<arg line="install javadoc:aggregate -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
 		</exec>
-		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/slee-management-console">
-			<arg line="install javadoc:aggregate -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
-		</exec>
+		<!-- build core docs -->
 		<antcall target="build-docs">
 			<param name="docs.source.dir" value="${ant.file.mobicents.release}/../checkout/core/docs" />
 			<param name="docs.dest.dir" value="${release.dir}/docs/container/user-guide" />
@@ -103,8 +108,16 @@
 		<copy failonerror="true" toDir="${release.dir}/docs/container/javadoc" overwrite="true">
 			<fileset dir="${ant.file.mobicents.release}/../checkout/core/target/site/apidocs" />
 		</copy>
+		<!-- build web console -->
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/slee-management-console">
+			<arg line="install -P release,${docs.profile},set-svn-revision -Drelease.name=target -Djboss.home=${jboss.home}" />
+		</exec>				
+		<move toDir="${release.dir}/docs/tools/slee-management-console/user-guide" overwrite="true" failonerror="false">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/slee-management-console/docs" />
+		</move>
+		<delete dir="${release.dir}/tools/slee-management-console" />
 	</target>
-
+	
 	<target name="build-docs" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${docs.source.dir}">
 			<arg line="clean install -P ${docs.profile}" />
