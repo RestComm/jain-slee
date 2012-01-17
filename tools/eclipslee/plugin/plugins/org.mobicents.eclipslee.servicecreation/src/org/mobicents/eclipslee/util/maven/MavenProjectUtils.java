@@ -424,7 +424,7 @@ public class MavenProjectUtils {
     // Add build
     Build build = new Build();
 
-    // Add DU Plugin
+    // Add Library Plugin
     Plugin libraryPlugin = new Plugin();
     libraryPlugin.setGroupId(LIBRARY_PLUGIN_GROUP_ID);
     libraryPlugin.setArtifactId(LIBRARY_PLUGIN_ARTIFACT_ID);
@@ -432,7 +432,7 @@ public class MavenProjectUtils {
     // Build configuration as Xpp3Dom object
     Xpp3Dom libraryPluginConfiguration = new Xpp3Dom("configuration");
     Xpp3Dom libraryPluginConfigurationLibraryName = new Xpp3Dom("library-name");
-    libraryPluginConfigurationLibraryName.setValue(project.getName() + "-library");
+    libraryPluginConfigurationLibraryName.setValue(model.getArtifactId());
     Xpp3Dom libraryPluginConfigurationLibraryVendor = new Xpp3Dom("library-vendor");
     libraryPluginConfigurationLibraryVendor.setValue(DEFAULT_GROUP_ID);
     Xpp3Dom libraryPluginConfigurationLibraryVersion = new Xpp3Dom("library-version");
