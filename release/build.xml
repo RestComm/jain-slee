@@ -44,7 +44,7 @@
 	<!--
 	<property name="eclipslee.download.url" value ="http://hudson.jboss.org/jenkins/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>
 	-->
-	<property name="eclipslee.download.url" value ="https://hudson.qa.jboss.com/hudson/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>
+	<property name="eclipslee.download.url" value ="http://hudson.qa.jboss.com/hudson/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>
 	
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
