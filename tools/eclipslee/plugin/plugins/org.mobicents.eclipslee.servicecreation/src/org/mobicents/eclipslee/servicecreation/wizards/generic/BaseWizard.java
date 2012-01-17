@@ -40,157 +40,140 @@ import org.mobicents.eclipslee.servicecreation.wizards.WizardChangeListener;
  */
 public abstract class BaseWizard extends Wizard implements INewWizard {
 
-	protected String WIZARD_TITLE = "JAIN SLEE Base Wizard";
-	protected String ENDS = ".java";
+  protected String WIZARD_TITLE = "JAIN SLEE Base Wizard";
+  protected String ENDS = ".java";
   protected String MAVEN_MODULE = "undefined";
-	
-	/**
-	 * This class must be subclassed.
-	 */
-	protected BaseWizard() {
-		super();
-		setNeedsProgressMonitor(true);
-	}
 
-	/**
-	 * If you override this method you must call super.addPages() if you want to use
-	 * the standard Filename and Identity Pages provided in this abstract class.
-	 */
-	
-	public void addPages() {
-		filePage = new FilenamePage(selection, WIZARD_TITLE, ENDS, MAVEN_MODULE);
-		addPage(filePage);
-		identityPage = new IdentityPage(WIZARD_TITLE);		
-		addPage(identityPage);
-	}
+  /**
+   * This class must be subclassed.
+   */
+  protected BaseWizard() {
+    super();
+    setNeedsProgressMonitor(true);
+  }
 
-	/**
-	 * When a page's contents change in a way that might impact other pages
-	 * this method should be called so that other pages can react.
-	 * @param page
-	 */
-	public void pageChanged(WizardPage page) {
-		IWizardPage pages[] = this.getPages();
-		for (int i= 0; i < pages.length; i++) {
-			if (pages[i] instanceof WizardChangeListener) {
-				((WizardChangeListener) pages[i]).onWizardPageChanged(page);
-			}
-		}
-	}
+  /**
+   * If you override this method you must call super.addPages() if you want to use
+   * the standard Filename and Identity Pages provided in this abstract class.
+   */
+  public void addPages() {
+    filePage = new FilenamePage(selection, WIZARD_TITLE, ENDS, MAVEN_MODULE);
+    addPage(filePage);
+    identityPage = new IdentityPage(WIZARD_TITLE);		
+    addPage(identityPage);
+  }
 
-	/**
-	 * This method calls doFinish() in a new thread.
-	 */
-	
-	public boolean performFinish() {
-		
-		componentName = identityPage.getComponentName();
-		componentVendor = identityPage.getComponentVendor();
-		componentVersion = identityPage.getComponentVersion();
-		componentDescription = identityPage.getComponentDescription();
+  /**
+   * When a page's contents change in a way that might impact other pages
+   * this method should be called so that other pages can react.
+   * @param page
+   */
+  public void pageChanged(WizardPage page) {
+    IWizardPage pages[] = this.getPages();
+    for (int i= 0; i < pages.length; i++) {
+      if (pages[i] instanceof WizardChangeListener) {
+        ((WizardChangeListener) pages[i]).onWizardPageChanged(page);
+      }
+    }
+  }
 
-		sourceContainer = filePage.getSourceContainer();
-		project = sourceContainer.getProject();
-		
-		packageName = filePage.getPackageName();
-		filename = filePage.getFileName();
-		
-//		mavenModuleName = filePage.getMavenModuleName();
-		
-		// sourceFolder = "/" + projectName + "/" + packageName.replaceAll("\\.", "/");
-		
-		/*
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource resource = root.findMember(new Path(sourceFolder));
-		if (resource == null || !resource.exists() || !(resource instanceof IContainer)) {
-			MessageDialog.openError(getShell(), "Error", "The Source Folder '" + sourceFolder + "' does not exist.");
-			return false;
-		}
-		container = (IContainer) resource;
-*/
-		
-		IRunnableWithProgress op = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) throws InvocationTargetException {
-				try {
-					doFinish(monitor);
-				} catch (CoreException e) {
-					throw new InvocationTargetException(e);
-				} finally {
-					monitor.done();
-				}
-			}
-		};
-		try {
-			getContainer().run(true, false, op);
-		} catch (InterruptedException e) {
-			return false;
-		} catch (InvocationTargetException e) {
-			Throwable realException = e.getTargetException();
-			if (realException != null)
-				MessageDialog.openError(getShell(), "Error", realException.getMessage());
-			else
-				MessageDialog.openError(getShell(), "Error", e.getMessage());
-			return false;
-		}
-		return true;
-	}
+  /**
+   * This method calls doFinish() in a new thread.
+   */
+  public boolean performFinish() {
 
-	public abstract void doFinish(IProgressMonitor monitor) throws CoreException;
+    componentName = identityPage.getComponentName();
+    componentVendor = identityPage.getComponentVendor();
+    componentVersion = identityPage.getComponentVersion();
+    componentDescription = identityPage.getComponentDescription();
 
-	/**
-	 * If you override this method be sure to call super.init() in your implementation.
-	 */
-	
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		this.selection = selection;
-	}
+    sourceContainer = filePage.getSourceContainer();
+    project = sourceContainer.getProject();
 
-	protected CoreException newCoreException(String message, Exception cause) {
-		String stackTrace = message + "\n" + cause.toString() + ":" + cause.getMessage() + "\n";
-		StackTraceElement elements[] = cause.getStackTrace();
-		for (int i = 0; i < elements.length; i++) {
-			stackTrace = stackTrace + elements[i].toString() + "\n";
-		}
-	
-		return newCoreException(stackTrace);		
-	}
-	
-	protected CoreException newCoreException(String message) {
-		IStatus status = new Status(IStatus.ERROR, "org.mobicents.eclipslee.servicecreation", IStatus.OK, message, null);
-		return new CoreException(status);
-		
-	}
-	
-	protected void throwCoreException(String message) throws CoreException {
-		throw newCoreException(message);
-	}
+    packageName = filePage.getPackageName();
+    filename = filePage.getFileName();
 
-	protected void throwCoreException(String message, Exception cause) throws CoreException {
-		throw newCoreException(message, cause);
-	}
+    IRunnableWithProgress op = new IRunnableWithProgress() {
+      public void run(IProgressMonitor monitor) throws InvocationTargetException {
+        try {
+          doFinish(monitor);
+        }
+        catch (CoreException e) {
+          throw new InvocationTargetException(e);
+        }
+        finally {
+          monitor.done();
+        }
+      }
+    };
+    try {
+      getContainer().run(true, false, op);
+    }
+    catch (InterruptedException e) {
+      return false;
+    }
+    catch (InvocationTargetException e) {
+      Throwable realException = e.getTargetException();
+      if (realException != null)
+        MessageDialog.openError(getShell(), "Error", realException.getMessage());
+      else
+        MessageDialog.openError(getShell(), "Error", e.getMessage());
+      return false;
+    }
+    return true;
+  }
 
-	public IContainer getSourceContainer() { return sourceContainer; }
-	public IProject getProject() { return project; }
-//  public String getMavenModuleName() { return mavenModuleName; }
+  public abstract void doFinish(IProgressMonitor monitor) throws CoreException;
+
+  /**
+   * If you override this method be sure to call super.init() in your implementation.
+   */
+  public void init(IWorkbench workbench, IStructuredSelection selection) {
+    this.selection = selection;
+  }
+
+  protected CoreException newCoreException(String message, Exception cause) {
+    String stackTrace = message + "\n" + cause.toString() + ":" + cause.getMessage() + "\n";
+    StackTraceElement elements[] = cause.getStackTrace();
+    for (int i = 0; i < elements.length; i++) {
+      stackTrace = stackTrace + elements[i].toString() + "\n";
+    }
+
+    return newCoreException(stackTrace);		
+  }
+
+  protected CoreException newCoreException(String message) {
+    IStatus status = new Status(IStatus.ERROR, "org.mobicents.eclipslee.servicecreation", IStatus.OK, message, null);
+    return new CoreException(status);
+  }
+
+  protected void throwCoreException(String message) throws CoreException {
+    throw newCoreException(message);
+  }
+
+  protected void throwCoreException(String message, Exception cause) throws CoreException {
+    throw newCoreException(message, cause);
+  }
+
+  public IContainer getSourceContainer() { return sourceContainer; }
+  public IProject getProject() { return project; }
   public String getPackageName() { return packageName; }
-	public String getComponentName() { return componentName; }
-	public String getComponentVendor() { return componentVendor; }
-	public String getComponentVersion() { return componentVersion; }
-	public String getComponentDescription() { return componentDescription; }
-	public String getFileName() { return filename; }
-	
-	protected IStructuredSelection selection;	
+  public String getComponentName() { return componentName; }
+  public String getComponentVendor() { return componentVendor; }
+  public String getComponentVersion() { return componentVersion; }
+  public String getComponentDescription() { return componentDescription; }
+  public String getFileName() { return filename; }
 
-	// Pages common to all SLEE wizards.
-	protected FilenamePage filePage;
-	protected IdentityPage identityPage;
-	
-	private String filename;
-	private String componentName, componentVendor, componentVersion, componentDescription;
+  protected IStructuredSelection selection;	
+
+  // Pages common to all SLEE wizards.
+  protected FilenamePage filePage;
+  protected IdentityPage identityPage;
+
+  private String filename;
+  private String componentName, componentVendor, componentVersion, componentDescription;
   private String packageName;
-//  private String mavenModuleName;
-	private IContainer sourceContainer;
-	private IProject project;
-	
-	
+  private IContainer sourceContainer;
+  private IProject project;
+
 }
