@@ -322,7 +322,10 @@ public class SbbWizard extends BaseWizard {
 						if (selectors[j].equals("Custom")) {
 							String methodName = "on" + Utils.capitalize(sbbEvent.getScopedName()) + "InitialEventSelector";							
 							sbbEvent.setInitialEventSelectorMethod(methodName);
-							iesMethods += "\tpublic InitialEventSelector " + methodName + "(InitialEventSelector ies) {\nreturn ies;\n\t}\n\n";
+							String iesComment = "\t\t// TODO: Implement this method properly.\n" +
+							    "\t\t// Please see Section 8.6.4 (Initial event selector method) of the\n" +
+							    "\t\t// JAIN SLEE 1.1 Specification for more information.\n";
+							iesMethods += "\tpublic InitialEventSelector " + methodName + "(InitialEventSelector ies) {\n" + iesComment + "\t\treturn ies;\n\t}\n\n";
 						} else {
 							sbbEvent.addInitialEventSelector(selectors[j]);
 						}

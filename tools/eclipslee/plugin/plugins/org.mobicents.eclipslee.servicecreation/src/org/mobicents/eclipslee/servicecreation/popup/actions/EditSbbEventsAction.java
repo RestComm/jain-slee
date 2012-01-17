@@ -124,8 +124,11 @@ public class EditSbbEventsAction implements IActionDelegate {
 						for (int j = 0; j < selectors.length; j++) {
 							if (selectors[j].equals("Custom")) {
 								String methodName = "on" + Utils.capitalize(scopedName) + "InitialEventSelect";
+	              String iesComment = "\t\t// TODO: Implement this method properly.\n" +
+	                  "\t\t// Please see Section 8.6.4 (Initial event selector method) of the\n" +
+	                  "\t\t// JAIN SLEE 1.1 Specification for more information.\n";
 								ClassUtil.addMethodToClass(abstractFile,
-										"\tpublic InitialEventSelector " + methodName + "(InitialEventSelector ies) {\n\treturn ies;\n\t}\n");
+										"\tpublic InitialEventSelector " + methodName + "(InitialEventSelector ies) {\n" + iesComment + "\t\treturn ies;\n\t}\n");
 								sbbEventXML.setInitialEventSelectorMethod(methodName);
 							} else {
 								sbbEventXML.addInitialEventSelector(selectors[j]);								
@@ -207,8 +210,11 @@ public class EditSbbEventsAction implements IActionDelegate {
 							if (oldIESMethod == null && customIES == true) {
 								// Create the IES
 								String methodName = "on" + Utils.capitalize(scopedName) + "InitialEventSelect";
+	              String iesComment = "\t\t// TODO: Implement this method properly.\n" +
+	                  "\t\t// Please see Section 8.6.4 (Initial event selector method) of the\n" +
+	                  "\t\t// JAIN SLEE 1.1 Specification for more information.\n";
 								ClassUtil.addMethodToClass(abstractFile,
-										"\tpublic InitialEventSelector " + methodName + "(InitialEventSelector ies) {\n\t\treturn ies;\n\t}\n");
+										"\tpublic InitialEventSelector " + methodName + "(InitialEventSelector ies) {\n" + iesComment + "\t\treturn ies;\n\t}\n");
 								sbbEventXML.setInitialEventSelectorMethod(methodName);							
 							}
 						}
