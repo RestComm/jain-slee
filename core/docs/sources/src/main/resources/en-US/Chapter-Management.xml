@@ -70,16 +70,23 @@
 			<important><para>For further information about JAIN SLEE 1.1 MBeans and their operations refer to the JAIN SLEE 1.1 Specification, all are covered with great detail.</para></important>
 		</section>
 		
+		<section id="management_web_console">
+			<title>SLEE Management Console</title>
+			<para>The JMX Console is simple but the MBeans operations were made considering its invocation by management clients, not people using browsers. The SLEE Management Console is a web application that provides high level management functionality for the SLEE, and comes pre-deployed in SLEE binary releases. To access this console point a web browser to <literal>http://ip:8080/slee-management-console</literal>, where <literal>ip</literal> is the IP/Host the container is bound. Unless set during start up, the IP/Host will be <literal>127.0.0.1/localhost</literal> by default.</para>
+			<para>Full documentation for this management tool can be found in <filename>docs/tools/slee-management-console</filename> directory.</para>			
+		</section>
+		
 		<section id="management_jon_console">
 			<title>&MANAGEMENT.PLATFORM; Console</title>
-			<para>The JMX Console is simple but the MBeans operations were made considering its invocation by management clients, not people using browsers. &MANAGEMENT.PLATFORM; was developed to become Red Hat's Middleware Administration Tool, providing an unified interface and extensible model, to be used to control, monitor and manage servers individually, and clusters.</para>
-			<para>&THIS.PLATFORM; JAIN SLEE binary release includes a &MANAGEMENT.PLATFORM; Console in <filename>tools/management-console</filename>, with standalone documentation.</para>			
+			<para>&MANAGEMENT.PLATFORM; was developed to become Red Hat's Middleware Administration Tool, providing an unified interface and extensible model, to be used mainly to control and monitor servers individually, or clusters.</para>
+			<para>&THIS.PLATFORM; JAIN SLEE binary release includes a &MANAGEMENT.PLATFORM; Console in <filename>tools/jopr-plugin</filename>, with standalone documentation on same path, but inside <filename>docs</filename> directory.</para>			
 		</section>
+		
 		<section id="management_twiddle_cli">
 			<title><literal>TWIDDLE</literal> <acronym>CLI</acronym></title>
 			<para>Both, <acronym>JMX</acronym> Console and  &MANAGEMENT.PLATFORM; Console, are graphic(web) based tools. Some deployments may require command line access to &THIS.PLATFORM; <acronym>SLEE</acronym>.
 			To aid such cases, &THIS.PLATFORM; offers <literal>TWIDDLE</literal> based <acronym>CLI</acronym>. It allows to manage single instance (remote or local) of &THIS.PLATFORM; <acronym>SLEE</acronym> server. </para>
-			<para>&THIS.PLATFORM; JAIN SLEE binary release includes a <literal>TWIDDLE</literal> <acronym>CLI</acronym> in <filename>tools/twiddle</filename>, with standalone documentation.</para>			
+			<para>&THIS.PLATFORM; JAIN SLEE binary release includes a <literal>TWIDDLE</literal> <acronym>CLI</acronym> in <filename>tools/twiddle</filename>, with standalone documentation on same path, but inside <filename>docs</filename> directory.</para>			
 		</section>
 	</section>
 				
