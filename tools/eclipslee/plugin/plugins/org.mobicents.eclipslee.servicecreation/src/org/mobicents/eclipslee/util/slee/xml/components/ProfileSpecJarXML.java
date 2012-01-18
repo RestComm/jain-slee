@@ -124,7 +124,7 @@ public class ProfileSpecJarXML extends DTDXML {
 			if (cmpClassName.equals(specs[i].getManagementInterfaceName()))
 				return specs[i];
 			
-			if (cmpClassName.equals(specs[i].getManagementAbstractClassName()))
+			if (cmpClassName.equals(specs[i].getAbstractClassName()))
 				return specs[i];
 		}			
 		
@@ -179,9 +179,12 @@ public class ProfileSpecJarXML extends DTDXML {
 	// profile-spec-jar/profile-spec/profile-spec-name
 	// profile-spec-vendor
 	// profile-spec-version
-	// profile-classes/profile-cmp-interface-name
-	//                 profile-management-interface-name
-	//                 profile-management-abstract-class-name
+	// profile-classes/profile-cmp-interface/profile-cmp-interface-name
+	//                 profile-local-interface/profile-local-interface-name
+	//                 profile-management-interface/profile-management-interface-name
+	//                 profile-abstract-class/profile-abstract-class-name
+	//                 profile-table-interface/profile-table-interface-name
+	//                 profile-usage-parameters-interface/profile-usage-parameters-interface-name
 	// profile-index (unique=Foo)
 
 }

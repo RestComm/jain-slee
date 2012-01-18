@@ -172,7 +172,7 @@ public class ProfileSpecFinder extends BaseFinder {
 		
 		try {
 			ProfileSpecXML profileXML = profileSpecJarXML.getProfileSpec(clazzName);
-			String cmp = profileXML.getManagementAbstractClassName();
+			String cmp = profileXML.getAbstractClassName();
 			if (cmp == null) return null;
 			IPath path = new Path(cmp.replaceAll("\\.", "/") + ".java");
 			
@@ -197,7 +197,7 @@ public class ProfileSpecFinder extends BaseFinder {
 
 		try {
 			ProfileSpecXML profileXML = profileSpecJarXML.getProfileSpec(name, vendor, version);
-			String cmp = profileXML.getManagementAbstractClassName();
+			String cmp = profileXML.getAbstractClassName();
 			if (cmp == null) return null;
 			IPath path = new Path(cmp.replaceAll("\\.", "/") + ".java");
 			

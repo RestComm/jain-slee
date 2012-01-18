@@ -164,7 +164,7 @@ public final class ProfileWizard extends BaseWizard {
       profileSpecXML.setCMPInterfaceName(Utils.getSafePackagePrefix(getPackageName()) + profileBaseName + "ProfileCMP");
       // if make_abstract_class
       if (createProfileAbstractClass)
-        profileSpecXML.setManagementAbstractClassName(Utils.getSafePackagePrefix(getPackageName()) + profileBaseName + "ProfileManagementImpl");
+        profileSpecXML.setAbstractClassName(Utils.getSafePackagePrefix(getPackageName()) + profileBaseName + "ProfileManagementImpl");
       // if make_mgmt_iface
       if (createMgmtIface)
         profileSpecXML.setManagementInterfaceName(Utils.getSafePackagePrefix(getPackageName()) + profileBaseName + "ProfileManagement");

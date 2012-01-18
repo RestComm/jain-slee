@@ -133,29 +133,34 @@ public class ProfileSpecXML extends DTDXML {
 	 * 
 	 * @param name the name of the management abstract class, null to remove
 	 */
-	
-	public void setManagementAbstractClassName(String name) {
+	public void setAbstractClassName(String name) {
 
-		Element classes = getChild(getRoot(), "profile-classes");
-		if (classes == null)
-			classes = addElement(getRoot(), "profile-classes");
+    Element classes = getChild(getRoot(), "profile-classes");
+    if (classes == null)
+      classes = addElement(getRoot(), "profile-classes");
+
+    if (getChild(classes, "profile-abstract-class") == null)
+      classes = addElement(classes, "profile-abstract-class");
 
 		if (name == null) {
-			Element child = this.getChild(classes, "profile-management-abstract-class-name");
+			Element child = this.getChild(classes, "profile-abstract-class-name");
 			if (child != null)
 				classes.removeChild(child);
 			return;
 		}
 			
-		setChildText(classes, "profile-management-abstract-class-name", name);	
+		setChildText(classes, "profile-abstract-class-name", name);	
 	}
 	
-	public String getManagementAbstractClassName() {
+	public String getAbstractClassName() {
 
 		Element classes = getChild(getRoot(), "profile-classes");
 		if (classes == null) return null;
 		
-		return getChildText(classes, "profile-management-abstract-class-name");		
+		classes = getChild(classes, "profile-abstract-class");
+		if (classes == null) return null;
+		
+		return getChildText(classes, "profile-abstract-class-name");		
 	}
 	
   public LibraryRefXML[] getLibraryRefs() {
