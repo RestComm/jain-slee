@@ -19,12 +19,11 @@ package org.mobicents.slee.resource.mediacontrol;
 
 import java.io.Reader;
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.media.mscontrol.Configuration;
 import javax.media.mscontrol.MediaConfig;
@@ -91,7 +90,7 @@ public class MsResourceAdaptor implements ResourceAdaptor {
 	// Driver configuration
 	private Properties config = new Properties();
 	private String driverName;
-	private Map<MsActivityHandle, MsActivity> activities = Collections.synchronizedMap(new HashMap<MsActivityHandle, MsActivity>());
+	private Map<MsActivityHandle, MsActivity> activities = new ConcurrentHashMap<MsActivityHandle, MsActivity>();
 	
 	/**
 	 * 
@@ -357,10 +356,7 @@ public class MsResourceAdaptor implements ResourceAdaptor {
 	public void startActivity(MsActivity wrapper) throws ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException,
 			StartActivityException {
 		MsActivityHandle handle = wrapper.getActivityHandle();
-		if (this.activities.containsKey(handle)) {
-			throw new IllegalArgumentException("Activity already present: " + handle);
-		}
-		sleeEndpoint.startActivity(handle, wrapper, ACTIVITY_FLAGS);
+		sleeEndpoint.startActivitySuspended(handle, wrapper, ACTIVITY_FLAGS);
 		this.activities.put(handle, wrapper);
 	}
 
