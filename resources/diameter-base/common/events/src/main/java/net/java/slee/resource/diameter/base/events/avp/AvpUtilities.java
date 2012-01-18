@@ -73,7 +73,7 @@ public class AvpUtilities {
     parser = new MessageParser();
     dictionary = DictionaryImpl.INSTANCE;
   }
-  
+
   public static void setParser(MessageParser singletonParser) {
     parser = singletonParser;
   }
@@ -112,7 +112,7 @@ public class AvpUtilities {
    */
   private static void performPreAddOperations(Message msg, int avpCode, long vendorId, AvpSet set) throws AvpNotAllowedException {
     if (msg == null) {
-    	//TODO: add validation here
+      // TODO: add validation here
       if (hasAvp(avpCode, vendorId, set) && !isAvpRemoveAllowed()) {
         throw new IllegalStateException("AVP is already present in message and cannot be overwritten.");
       }
@@ -121,12 +121,17 @@ public class AvpUtilities {
       }
     }
     else {
-      // We might just invoke validate, but we need more info
-     // DiameterMessageValidator validator = DiameterMessageValidator.getInstance();
       if (!dictionary.isEnabled()) {
         return;
       }
       MessageRepresentation msgRep = dictionary.getMessage(msg.getCommandCode(), msg.getApplicationId(), msg.isRequest());
+      // if we don't know anything about this message, let's just move on..
+      if(msgRep == null) {
+        if(logger.isDebugEnabled()) {
+          logger.debug("Unable to find message in dictionary, skipping validation. (Command Code: " + msg.getCommandCode() + ", Application-Id: " + msg.getApplicationId() + ")");
+        }
+        return;
+      }
       if (!msgRep.isAllowed(avpCode, vendorId)) {
         throw new AvpNotAllowedException("Avp defined by code: " + avpCode + ", vendorId: " + vendorId + " is not allowed in message - code: " + msg.getCommandCode() + ", appId: "
             + msg.getApplicationId() + ", isRequest: " + msg.isRequest(), avpCode, vendorId);
@@ -938,7 +943,7 @@ public class AvpUtilities {
    * @param value the value of the AVP to add
    */
   public static void setAvpAsInteger64(Message msg, int avpCode, AvpSet set, long value) {
-    setAvpAsInteger64(msg, avpCode, value, set, value);
+    setAvpAsInteger64(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
@@ -1656,6 +1661,9 @@ public class AvpUtilities {
     if(rep != null) {
       addAvp(msg, rep.getCode(), rep.getVendorId(), set, avp);
     }
+    else {
+      throw new IllegalArgumentException("Unknown AVP with name '" + avpName + "'. Unable to add it.");
+    }
   }
 
   public static void addAvp(Message msg, int avpCode, AvpSet set, Object avp) {
@@ -1684,49 +1692,48 @@ public class AvpUtilities {
       }
       else {
         switch (avpType.getType()) {
-        case DiameterAvpType._ADDRESS:
-        case DiameterAvpType._DIAMETER_IDENTITY:
-        case DiameterAvpType._DIAMETER_URI:
-        case DiameterAvpType._IP_FILTER_RULE:
-        case DiameterAvpType._OCTET_STRING:
-        case DiameterAvpType._QOS_FILTER_RULE:
-        	if(avp instanceof Address)
-        	{
-        		 //issue: http://code.google.com/p/mobicents/issues/detail?id=2758 
-            	setAvpAsRaw(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp,((Address)avp).encode());
-        	}else
-        	{
-        		setAvpAsOctetString(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, avp.toString());
-        	}
-          break;
-        case DiameterAvpType._ENUMERATED:
-        case DiameterAvpType._INTEGER_32:
-          setAvpAsInteger32(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Integer) avp);        
-          break;
-        case DiameterAvpType._FLOAT_32:
-          setAvpAsFloat32(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Float) avp);        
-          break;
-        case DiameterAvpType._FLOAT_64:
-          setAvpAsFloat64(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Float) avp);        
-          break;
-        case DiameterAvpType._GROUPED:
-          setAvpAsGrouped(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (DiameterAvp[]) avp);
-          break;
-        case DiameterAvpType._INTEGER_64:
-          setAvpAsInteger64(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
-          break;
-        case DiameterAvpType._TIME:
-          setAvpAsTime(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Date) avp);
-          break;
-        case DiameterAvpType._UNSIGNED_32:
-          setAvpAsUnsigned32(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
-          break;
-        case DiameterAvpType._UNSIGNED_64:
-          setAvpAsUnsigned64(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
-          break;
-        case DiameterAvpType._UTF8_STRING:
-          setAvpAsUTF8String(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (String) avp);
-          break;
+          case DiameterAvpType._ADDRESS:
+          case DiameterAvpType._DIAMETER_IDENTITY:
+          case DiameterAvpType._DIAMETER_URI:
+          case DiameterAvpType._IP_FILTER_RULE:
+          case DiameterAvpType._OCTET_STRING:
+          case DiameterAvpType._QOS_FILTER_RULE:
+            if(avp instanceof Address) {
+              // issue: http://code.google.com/p/mobicents/issues/detail?id=2758 
+              setAvpAsRaw(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp,((Address)avp).encode());
+            }
+            else {
+              setAvpAsOctetString(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, avp.toString());
+            }
+            break;
+          case DiameterAvpType._ENUMERATED:
+          case DiameterAvpType._INTEGER_32:
+            setAvpAsInteger32(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Integer) avp);        
+            break;
+          case DiameterAvpType._FLOAT_32:
+            setAvpAsFloat32(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Float) avp);        
+            break;
+          case DiameterAvpType._FLOAT_64:
+            setAvpAsFloat64(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Float) avp);        
+            break;
+          case DiameterAvpType._GROUPED:
+            setAvpAsGrouped(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (DiameterAvp[]) avp);
+            break;
+          case DiameterAvpType._INTEGER_64:
+            setAvpAsInteger64(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
+            break;
+          case DiameterAvpType._TIME:
+            setAvpAsTime(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Date) avp);
+            break;
+          case DiameterAvpType._UNSIGNED_32:
+            setAvpAsUnsigned32(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
+            break;
+          case DiameterAvpType._UNSIGNED_64:
+            setAvpAsUnsigned64(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
+            break;
+          case DiameterAvpType._UTF8_STRING:
+            setAvpAsUTF8String(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (String) avp);
+            break;
         }
       }
     }
@@ -2050,7 +2057,7 @@ public class AvpUtilities {
   public static void removeAvp(int avpCode, long vendorId, AvpSet set) {
     set.removeAvp(avpCode,vendorId);
   }
-  
+
   /**
    * Method for obtaining AVP with given code and any Vendor-Id.
    * 
@@ -2095,45 +2102,45 @@ public class AvpUtilities {
       DiameterAvpType avpType = DiameterAvpType.fromString(avpRep.getType());
 
       switch (avpType.getType()) {
-      case DiameterAvpType._ADDRESS:
-        return Address.decode(getAvpAsRaw(avpCode, vendorId, set));
-      case DiameterAvpType._DIAMETER_IDENTITY:
-        return new DiameterIdentity(getAvpAsUTF8String(avpCode, vendorId, set));
-      case DiameterAvpType._DIAMETER_URI:
-        try {
-          return new DiameterURI(getAvpAsUTF8String(avpCode, vendorId, set));
-        }
-        catch (URISyntaxException e) {
-          logger.error("Failed to return AVP with code " + avpCode + " of type DiameterURI as it is malformed: " + getAvpAsOctetString(avpCode, vendorId, set), e);
-          return null;
-        }
-      case DiameterAvpType._IP_FILTER_RULE:
-        return new IPFilterRule(getAvpAsUTF8String(avpCode, vendorId, set));
-      case DiameterAvpType._OCTET_STRING:
-        return getAvpAsOctetString(avpCode, vendorId, set);
-      case DiameterAvpType._QOS_FILTER_RULE:
-        return getAvpAsOctetString(avpCode, vendorId, set);
-      case DiameterAvpType._ENUMERATED:
-      case DiameterAvpType._INTEGER_32:
-        return getAvpAsInteger32(avpCode, vendorId, set);        
-      case DiameterAvpType._FLOAT_32:
-        return getAvpAsFloat32(avpCode, vendorId, set);        
-      case DiameterAvpType._FLOAT_64:
-        return getAvpAsFloat64(avpCode, vendorId, set);        
-      case DiameterAvpType._GROUPED:
-        return getAvpAsGrouped(avpCode, vendorId, set);
-      case DiameterAvpType._INTEGER_64:
-        return getAvpAsInteger64(avpCode, vendorId, set);
-      case DiameterAvpType._TIME:
-        return getAvpAsTime(avpCode, vendorId, set);
-      case DiameterAvpType._UNSIGNED_32:
-        return getAvpAsUnsigned32(avpCode, vendorId, set);
-      case DiameterAvpType._UNSIGNED_64:
-        return getAvpAsUnsigned64(avpCode, vendorId, set);
-      case DiameterAvpType._UTF8_STRING:
-        return getAvpAsUTF8String(avpCode, vendorId, set);
-      default:
-        return getAvpAsRaw(avpCode, vendorId, set);
+        case DiameterAvpType._ADDRESS:
+          return Address.decode(getAvpAsRaw(avpCode, vendorId, set));
+        case DiameterAvpType._DIAMETER_IDENTITY:
+          return new DiameterIdentity(getAvpAsUTF8String(avpCode, vendorId, set));
+        case DiameterAvpType._DIAMETER_URI:
+          try {
+            return new DiameterURI(getAvpAsUTF8String(avpCode, vendorId, set));
+          }
+          catch (URISyntaxException e) {
+            logger.error("Failed to return AVP with code " + avpCode + " of type DiameterURI as it is malformed: " + getAvpAsOctetString(avpCode, vendorId, set), e);
+            return null;
+          }
+        case DiameterAvpType._IP_FILTER_RULE:
+          return new IPFilterRule(getAvpAsUTF8String(avpCode, vendorId, set));
+        case DiameterAvpType._OCTET_STRING:
+          return getAvpAsOctetString(avpCode, vendorId, set);
+        case DiameterAvpType._QOS_FILTER_RULE:
+          return getAvpAsOctetString(avpCode, vendorId, set);
+        case DiameterAvpType._ENUMERATED:
+        case DiameterAvpType._INTEGER_32:
+          return getAvpAsInteger32(avpCode, vendorId, set);
+        case DiameterAvpType._FLOAT_32:
+          return getAvpAsFloat32(avpCode, vendorId, set);
+        case DiameterAvpType._FLOAT_64:
+          return getAvpAsFloat64(avpCode, vendorId, set);
+        case DiameterAvpType._GROUPED:
+          return getAvpAsGrouped(avpCode, vendorId, set);
+        case DiameterAvpType._INTEGER_64:
+          return getAvpAsInteger64(avpCode, vendorId, set);
+        case DiameterAvpType._TIME:
+          return getAvpAsTime(avpCode, vendorId, set);
+        case DiameterAvpType._UNSIGNED_32:
+          return getAvpAsUnsigned32(avpCode, vendorId, set);
+        case DiameterAvpType._UNSIGNED_64:
+          return getAvpAsUnsigned64(avpCode, vendorId, set);
+        case DiameterAvpType._UTF8_STRING:
+          return getAvpAsUTF8String(avpCode, vendorId, set);
+        default:
+          return getAvpAsRaw(avpCode, vendorId, set);
       }
     }
 
@@ -2149,14 +2156,14 @@ public class AvpUtilities {
     if (avp.getType() == DiameterAvpType.GROUPED) {
       AvpSet groupedAvp = null;
       if (avpCode == Avp.VENDOR_SPECIFIC_APPLICATION_ID) {
-          // This AVP SHOULD be placed as close to the Diameter header as possible.
-          Avp firstAvp = set.size() > 0 ? set.getAvpByIndex(0) : null;
-          int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
+        // This AVP SHOULD be placed as close to the Diameter header as possible.
+        Avp firstAvp = set.size() > 0 ? set.getAvpByIndex(0) : null;
+        int index = (firstAvp != null && firstAvp.getCode() == Avp.SESSION_ID) ? 1 : 0;
 
-          groupedAvp = set.insertGroupedAvp(index, avpCode, avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
+        groupedAvp = set.insertGroupedAvp(index, avpCode, avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
       }
       else {
-          groupedAvp = set.addGroupedAvp(avpCode, avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
+        groupedAvp = set.addGroupedAvp(avpCode, avp.getVendorId(), avp.getMandatoryRule() != DiameterAvp.FLAG_RULE_MUSTNOT, avp.getProtectedRule() == DiameterAvp.FLAG_RULE_MUST);
       }
 
       for (DiameterAvp subAvp : ((GroupedAvp) avp).getExtensionAvps()) {
