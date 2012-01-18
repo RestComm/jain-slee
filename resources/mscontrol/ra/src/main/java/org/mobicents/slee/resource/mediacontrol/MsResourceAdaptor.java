@@ -65,7 +65,7 @@ import javax.slee.resource.StartActivityException;
 import javax.slee.resource.UnrecognizedActivityHandleException;
 
 import org.mobicents.slee.resource.mediacontrol.wrapper.MediaSessionWrapper;
-
+import org.mobicents.javax.media.mscontrol.spi.DriverImpl;
 /**
  * 
  * @author baranowb
@@ -167,6 +167,13 @@ public class MsResourceAdaptor implements ResourceAdaptor {
 			this.tracer.severe("Some activities still remain! "+this.activities);
 		}
 		this.activities.clear();
+		//HACK, MSC does not expose any method to shutdown resources once driver is not used.
+		//mobicents impl does.
+		if(this.mscDriver instanceof DriverImpl)
+		{
+		    DriverImpl driverImpl = (DriverImpl)this.mscDriver;
+		    driverImpl.shutdown();
+		}
 		this.mscDriver = null;
 		this.mscFactory.setFactory(null);
 	}
@@ -177,6 +184,7 @@ public class MsResourceAdaptor implements ResourceAdaptor {
 		{
 			throw new InvalidConfigurationException("No driver property specified!");
 		}
+
 		String driverName = null;
 		Properties config = new Properties();
 		for(Property p:cfg.getProperties())
@@ -197,14 +205,16 @@ public class MsResourceAdaptor implements ResourceAdaptor {
 		{
 			throw new InvalidConfigurationException("Failed to create driver for: "+driverName);
 		}
-		try {
-			if(d.getFactory(config) == null)
-			{
-				throw new InvalidConfigurationException("Failed to create MscFactory for: "+config);
-			}
-		} catch (MsControlException e) {
-			throw new InvalidConfigurationException("Failed to create MscFactory for: "+config,e);
-		}
+		
+	    //postpone interaction with Driver, since we dont want anything to be started.
+//		try {
+//			if(d.getFactory(config) == null)
+//			{
+//				throw new InvalidConfigurationException("Failed to create MscFactory for: "+config);
+//			}
+//		} catch (MsControlException e) {
+//			throw new InvalidConfigurationException("Failed to create MscFactory for: "+config,e);
+//		}
 	}
 
 	public void raConfigurationUpdate(ConfigProperties config) {
