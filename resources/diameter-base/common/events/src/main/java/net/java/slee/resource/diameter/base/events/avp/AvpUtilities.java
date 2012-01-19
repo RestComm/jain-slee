@@ -47,10 +47,8 @@ import org.mobicents.slee.resource.diameter.base.events.avp.DiameterAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
 
 /**
- * Start time:13:11:26 2008-11-12<br>
- * Project: mobicents-diameter-parent<br>
- * This class contains some handy methods. It requires avp dictionary to be
- * loaded
+ * This class contains some handy methods for working with AVPs in messages and other AVPs.
+ * It requires AVP dictionary to be loaded.
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
@@ -63,8 +61,6 @@ public class AvpUtilities {
 
   private static boolean _DEFAULT_MANDATORY = true;
   private static boolean _DEFAULT_PROTECTED = false;
-
-  private static boolean _AVP_REMOVAL_ALLOWED = true;
 
   private static Dictionary dictionary;
 
@@ -90,14 +86,6 @@ public class AvpUtilities {
     return parser;
   }
 
-  public static boolean isAvpRemoveAllowed() {
-    return _AVP_REMOVAL_ALLOWED;
-  }
-
-  public static void allowRemove(boolean flag) {
-    _AVP_REMOVAL_ALLOWED = flag;
-  }
-
   public static boolean hasAvp(int avpCode, long vendorId, AvpSet set) {
     AvpSet inner = set.getAvps(avpCode, vendorId);
 
@@ -105,26 +93,24 @@ public class AvpUtilities {
   }
 
   /**
+   * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode
    * @param vendorId
    * @param set
    * @throws AvpNotAllowedException 
    */
-  private static void performPreAddOperations(Message msg, int avpCode, long vendorId, AvpSet set) throws AvpNotAllowedException {
-    if (msg == null) {
-      // TODO: add validation here
-      if (hasAvp(avpCode, vendorId, set) && !isAvpRemoveAllowed()) {
-        throw new IllegalStateException("AVP is already present in message and cannot be overwritten.");
-      }
-      else {
-        set.removeAvp(avpCode,vendorId);
-      }
+  private static void performPreAddOperations(Object parent, int avpCode, long vendorId, AvpSet set) throws AvpNotAllowedException {
+    if (!dictionary.isEnabled()) {
+      // no need to proceed any further.. no validation
+      return;
     }
-    else {
-      if (!dictionary.isEnabled()) {
-        return;
-      }
+
+    if(parent instanceof Message) {
+      Message msg = (Message) parent;
+
       MessageRepresentation msgRep = dictionary.getMessage(msg.getCommandCode(), msg.getApplicationId(), msg.isRequest());
+
       // if we don't know anything about this message, let's just move on..
       if(msgRep == null) {
         if(logger.isDebugEnabled()) {
@@ -141,10 +127,33 @@ public class AvpUtilities {
         // its ok.
         return;
       }
-      else if (isAvpRemoveAllowed()) {
-        AvpSet removed = set.removeAvp(avpCode,vendorId);
-        removed.removeAvpByIndex(removed.size() - 1);
-        set.addAvp(removed);
+      else {
+        throw new AvpNotAllowedException("Avp not allowed, count exceeded.", avpCode, vendorId);
+      }
+    }
+    else if (parent instanceof GroupedAvp) {
+      GroupedAvpImpl gAvp = (GroupedAvpImpl) parent;
+
+      org.jdiameter.api.validation.AvpRepresentation parentAvpRep = dictionary.getAvp(gAvp.getCode(), gAvp.getVendorId());
+
+      // if we don't know anything about this avp, let's just move on..
+      if(parentAvpRep == null) {
+        if(logger.isDebugEnabled()) {
+          logger.debug("Unable to find parent AVP in dictionary, skipping validation. (AVP Code: " + gAvp.getCode() + ", Vendor-Id: " + gAvp.getVendorId() + ")");
+        }
+        return;
+      }
+      if (!parentAvpRep.isAllowed(avpCode, vendorId)) {
+        throw new AvpNotAllowedException("AVP with Code '" + avpCode + "' and Vendor-Id '" + vendorId + "' is not allowed as a child of AVP with Code '" + parentAvpRep.getCode() + "' and Vendor-Id '"
+            + parentAvpRep.getVendorId() + "'.", avpCode, vendorId);
+      }
+
+      // Now we get the actual AVP to add representation...
+      org.jdiameter.api.validation.AvpRepresentation avpRep = dictionary.getAvp(avpCode, vendorId);
+
+      // ..to check if it can be added (multiplicity) to the parent.
+      if (avpRep.isCountValidForMultiplicity(gAvp.getGenericData(), 1)) { // 1 --> +1
+        // its ok.
         return;
       }
       else {
@@ -167,38 +176,41 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as String (Octet or UTF-8) with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param isOctetString if true added as OctetString type, otherwise as UTF8String
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsString(Message msg, int avpCode, boolean isOctetString, AvpSet set, String value) {
-    setAvpAsString(msg, avpCode, _DEFAULT_VENDOR_ID, isOctetString, set, value);
+  public static void setAvpAsString(Object parent, int avpCode, boolean isOctetString, AvpSet set, String value) {
+    setAvpAsString(parent, avpCode, _DEFAULT_VENDOR_ID, isOctetString, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as String (Octet or UTF-8) with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param isOctetString if true added as OctetString type, otherwise as UTF8String
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsString(Message msg, int avpCode, long vendorId, boolean isOctetString, AvpSet set, String value) {
+  public static void setAvpAsString(Object parent, int avpCode, long vendorId, boolean isOctetString, AvpSet set, String value) {
     AvpRepresentation rep = getAvpRepresentation(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsString(msg, avpCode, vendorId, isOctetString, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsString(parent, avpCode, vendorId, isOctetString, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsString(msg, avpCode, vendorId, isOctetString, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsString(parent, avpCode, vendorId, isOctetString, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as String (Octet or UTF-8) with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param isOctetString if true added as OctetString type, otherwise as UTF8String
@@ -207,8 +219,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsString(Message msg, int avpCode, long vendorId, boolean isOctetString, AvpSet set, boolean isMandatory, boolean isProtected, String value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsString(Object parent, int avpCode, long vendorId, boolean isOctetString, AvpSet set, boolean isMandatory, boolean isProtected, String value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     switch(avpCode) {
       case Avp.SESSION_ID:
@@ -302,36 +314,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as OctetString with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsOctetString(Message msg, int avpCode, AvpSet set, String value) {
-    setAvpAsOctetString(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsOctetString(Object parent, int avpCode, AvpSet set, String value) {
+    setAvpAsOctetString(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as OctetString with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsOctetString(Message msg, int avpCode, long vendorId, AvpSet set, String value) {
+  public static void setAvpAsOctetString(Object parent, int avpCode, long vendorId, AvpSet set, String value) {
     AvpRepresentation rep = getAvpRepresentation(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsOctetString(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsOctetString(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsOctetString(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsOctetString(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as OctetString with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -339,8 +354,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsOctetString(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, String value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsOctetString(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, String value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     set.addAvp(avpCode, value, vendorId, isMandatory, isProtected, true);
   }
@@ -416,36 +431,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as UTF8String with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsUTF8String(Message msg, int avpCode, AvpSet set, String value) {
-    setAvpAsUTF8String(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsUTF8String(Object parent, int avpCode, AvpSet set, String value) {
+    setAvpAsUTF8String(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as UTF8String with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsUTF8String(Message msg, int avpCode, long vendorId, AvpSet set, String value) {
+  public static void setAvpAsUTF8String(Object parent, int avpCode, long vendorId, AvpSet set, String value) {
     AvpRepresentation rep = getAvpRepresentation(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsUTF8String(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsUTF8String(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsUTF8String(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsUTF8String(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as OctetString with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -453,8 +471,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsUTF8String(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, String value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsUTF8String(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, String value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     switch(avpCode) {
       case Avp.SESSION_ID:
@@ -560,36 +578,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as Unsigned32 with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsUnsigned32(Message msg, int avpCode, AvpSet set, long value) {
-    setAvpAsUnsigned32(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsUnsigned32(Object parent, int avpCode, AvpSet set, long value) {
+    setAvpAsUnsigned32(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Unsigned32 with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsUnsigned32(Message msg, int avpCode, long vendorId, AvpSet set, long value) {
+  public static void setAvpAsUnsigned32(Object parent, int avpCode, long vendorId, AvpSet set, long value) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsUnsigned32(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsUnsigned32(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsUnsigned32(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsUnsigned32(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Unsigned32 with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -597,8 +618,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsUnsigned32(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, long value) { 
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsUnsigned32(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, long value) { 
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     set.addAvp(avpCode, value, vendorId, isMandatory, isProtected, true);
   }
@@ -686,36 +707,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as Unsigned64 with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsUnsigned64(Message msg, int avpCode, AvpSet set, long value) {
-    setAvpAsUnsigned64(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsUnsigned64(Object parent, int avpCode, AvpSet set, long value) {
+    setAvpAsUnsigned64(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Unsigned64 with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsUnsigned64(Message msg, int avpCode, long vendorId, AvpSet set, long value) {
+  public static void setAvpAsUnsigned64(Object parent, int avpCode, long vendorId, AvpSet set, long value) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsUnsigned64(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsUnsigned64(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsUnsigned64(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsUnsigned64(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Unsigned64 with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -723,8 +747,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsUnsigned64(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, long value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsUnsigned64(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, long value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     set.addAvp(avpCode, value, vendorId, isMandatory, isProtected, false);
   }
@@ -812,36 +836,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as Integer32 with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsInteger32(Message msg, int avpCode, AvpSet set, int value) {
-    setAvpAsInteger32(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsInteger32(Object parent, int avpCode, AvpSet set, int value) {
+    setAvpAsInteger32(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Integer32 with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsInteger32(Message msg, int avpCode, long vendorId, AvpSet set, int value) {
+  public static void setAvpAsInteger32(Object parent, int avpCode, long vendorId, AvpSet set, int value) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsInteger32(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsInteger32(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsInteger32(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsInteger32(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Integer32 with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -849,8 +876,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsInteger32(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, int value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsInteger32(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, int value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     set.addAvp(avpCode, value, vendorId, isMandatory, isProtected);
   }
@@ -938,36 +965,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as Integer64 with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsInteger64(Message msg, int avpCode, AvpSet set, long value) {
-    setAvpAsInteger64(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsInteger64(Object parent, int avpCode, AvpSet set, long value) {
+    setAvpAsInteger64(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Integer64 with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsInteger64(Message msg, int avpCode, long vendorId, AvpSet set, long value) {
+  public static void setAvpAsInteger64(Object parent, int avpCode, long vendorId, AvpSet set, long value) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsInteger64(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsInteger64(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsInteger64(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsInteger64(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Integer64 with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -975,8 +1005,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsInteger64(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, long value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsInteger64(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, long value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     set.addAvp(avpCode, value, vendorId, isMandatory, isProtected, false);
   }
@@ -1052,36 +1082,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as Float32 with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsFloat32(Message msg, int avpCode, AvpSet set, float value) {
-    setAvpAsFloat32(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsFloat32(Object parent, int avpCode, AvpSet set, float value) {
+    setAvpAsFloat32(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Float32 with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsFloat32(Message msg, int avpCode, long vendorId, AvpSet set, float value) {
+  public static void setAvpAsFloat32(Object parent, int avpCode, long vendorId, AvpSet set, float value) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsFloat32(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsFloat32(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsFloat32(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsFloat32(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Float32 with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -1089,8 +1122,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsFloat32(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, float value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsFloat32(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, float value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     set.addAvp(avpCode, value, vendorId, isMandatory, isProtected);
   }
@@ -1166,38 +1199,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as Float64 with the given code and Base Vendor-Id (0).
    * 
-   * @param msg the message where AVP will be added to, for validation purposes. if null, no validation is performed.
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsFloat64(Message msg, int avpCode, AvpSet set, double value) {
-    setAvpAsFloat64(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsFloat64(Object parent, int avpCode, AvpSet set, double value) {
+    setAvpAsFloat64(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Float64 with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsFloat64(Message msg, int avpCode, long vendorId, AvpSet set, double value) {
+  public static void setAvpAsFloat64(Object parent, int avpCode, long vendorId, AvpSet set, double value) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsFloat64(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsFloat64(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsFloat64(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsFloat64(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Float64 with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
-   * @param the message where AVP will be added to, for validation purposes. if null, no validation is performed.
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -1205,8 +1239,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsFloat64(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, double value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsFloat64(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, double value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     set.addAvp(avpCode, value, vendorId, isMandatory, isProtected);
   }
@@ -1282,36 +1316,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as Time with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsTime(Message msg, int avpCode, AvpSet set, Date value) {
-    setAvpAsTime(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsTime(Object parent, int avpCode, AvpSet set, Date value) {
+    setAvpAsTime(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Time with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsTime(Message msg, int avpCode, long vendorId, AvpSet set, Date value) {
+  public static void setAvpAsTime(Object parent, int avpCode, long vendorId, AvpSet set, Date value) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsTime(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsTime(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsTime(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsTime(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Time with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -1319,8 +1356,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsTime(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, Date value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsTime(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, Date value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     set.addAvp(avpCode, value, vendorId, isMandatory, isProtected);
   }
@@ -1396,36 +1433,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as Grouped with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static AvpSet setAvpAsGrouped(Message msg, int avpCode, AvpSet set, DiameterAvp[] childs) {
-    return setAvpAsGrouped(msg, avpCode, _DEFAULT_VENDOR_ID, set, childs);
+  public static AvpSet setAvpAsGrouped(Object parent, int avpCode, AvpSet set, DiameterAvp[] childs) {
+    return setAvpAsGrouped(parent, avpCode, _DEFAULT_VENDOR_ID, set, childs);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Grouped with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static AvpSet setAvpAsGrouped(Message msg, int avpCode, long vendorId, AvpSet set, DiameterAvp[] childs) {
+  public static AvpSet setAvpAsGrouped(Object parent, int avpCode, long vendorId, AvpSet set, DiameterAvp[] childs) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if (rep != null) {
-      return setAvpAsGrouped(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), childs);
+      return setAvpAsGrouped(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), childs);
     }
     else {
-      return setAvpAsGrouped(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, childs);
+      return setAvpAsGrouped(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, childs);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as Grouped with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -1433,8 +1473,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static AvpSet setAvpAsGrouped(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, DiameterAvp[] childs) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static AvpSet setAvpAsGrouped(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, DiameterAvp[] childs) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     AvpSet grouped = set.addGroupedAvp(avpCode, vendorId, isMandatory, isProtected);
 
@@ -1516,36 +1556,39 @@ public class AvpUtilities {
   /**
    * Adds AVP to {@link AvpSet} as raw data with the given code and Base Vendor-Id (0).
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param set the Vendor-Id of the AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsRaw(Message msg, int avpCode, AvpSet set, byte[] value) {
-    setAvpAsRaw(msg, avpCode, _DEFAULT_VENDOR_ID, set, value);
+  public static void setAvpAsRaw(Object parent, int avpCode, AvpSet set, byte[] value) {
+    setAvpAsRaw(parent, avpCode, _DEFAULT_VENDOR_ID, set, value);
   }
 
   /**
    * Adds AVP to {@link AvpSet} as raw data with the given code and given Vendor-Id.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsRaw(Message msg, int avpCode, long vendorId, AvpSet set, byte[] value) {
+  public static void setAvpAsRaw(Object parent, int avpCode, long vendorId, AvpSet set, byte[] value) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if (rep != null) {
-      setAvpAsRaw(msg, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
+      setAvpAsRaw(parent, avpCode, vendorId, set, rep.isMandatory(), rep.isProtected(), value);
     }
     else {
-      setAvpAsRaw(msg, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
+      setAvpAsRaw(parent, avpCode, vendorId, set, _DEFAULT_MANDATORY, _DEFAULT_PROTECTED, value);
     }
   }
 
   /**
    * Adds AVP to {@link AvpSet} as raw data with the given code and given Vendor-Id plus defined mandatory and protected flags.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP
    * @param vendorId the Vendor-Id of the AVP
    * @param set the AvpSet to add AVP
@@ -1553,8 +1596,8 @@ public class AvpUtilities {
    * @param isProtected the value for the protected bit
    * @param value the value of the AVP to add
    */
-  public static void setAvpAsRaw(Message msg, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, byte[] value) {
-    performPreAddOperations(msg, avpCode, vendorId, set);
+  public static void setAvpAsRaw(Object parent, int avpCode, long vendorId, AvpSet set, boolean isMandatory, boolean isProtected, byte[] value) {
+    performPreAddOperations(parent, avpCode, vendorId, set);
 
     switch(avpCode) {
       case Avp.SESSION_ID:
@@ -1655,30 +1698,31 @@ public class AvpUtilities {
     }
   }
 
-  public static void addAvp(Message msg, String avpName, AvpSet set, Object avp) {
+  public static void addAvp(Object parent, String avpName, AvpSet set, Object avp) {
     AvpRepresentation rep = AvpDictionary.INSTANCE.getAvp(avpName);
 
     if(rep != null) {
-      addAvp(msg, rep.getCode(), rep.getVendorId(), set, avp);
+      addAvp(parent, rep.getCode(), rep.getVendorId(), set, avp);
     }
     else {
       throw new IllegalArgumentException("Unknown AVP with name '" + avpName + "'. Unable to add it.");
     }
   }
 
-  public static void addAvp(Message msg, int avpCode, AvpSet set, Object avp) {
-    addAvp(msg, avpCode, 0L, set, avp);
+  public static void addAvp(Object parent, int avpCode, AvpSet set, Object avp) {
+    addAvp(parent, avpCode, 0L, set, avp);
   }
 
   /**
    * Method for adding AVP with given code and Vendor-Id to the given set.
    * 
+   * @param parent the Message/Grouped AVP where AVP will be added to, for validation purposes. if null, no validation is performed.
    * @param avpCode the code of the AVP to look for
    * @param vendorId the Vendor-Id of the AVP to be added
    * @param avp the AVP object
    * @param set the AvpSet where to add the AVP
    */
-  public static void addAvp(Message msg, int avpCode, long vendorId, AvpSet set, Object avp) {
+  public static void addAvp(Object parent, int avpCode, long vendorId, AvpSet set, Object avp) {
     AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(avpCode, vendorId);
 
     if(avpRep != null) {
@@ -1688,7 +1732,7 @@ public class AvpUtilities {
       boolean isProtectedAvp = avpRep.getRuleProtected().equals("must");
 
       if(avp instanceof byte[]) {
-        setAvpAsRaw(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (byte[]) avp);
+        setAvpAsRaw(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (byte[]) avp);
       }
       else {
         switch (avpType.getType()) {
@@ -1700,39 +1744,39 @@ public class AvpUtilities {
           case DiameterAvpType._QOS_FILTER_RULE:
             if(avp instanceof Address) {
               // issue: http://code.google.com/p/mobicents/issues/detail?id=2758 
-              setAvpAsRaw(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp,((Address)avp).encode());
+              setAvpAsRaw(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp,((Address)avp).encode());
             }
             else {
-              setAvpAsOctetString(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, avp.toString());
+              setAvpAsOctetString(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, avp.toString());
             }
             break;
           case DiameterAvpType._ENUMERATED:
           case DiameterAvpType._INTEGER_32:
-            setAvpAsInteger32(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Integer) avp);        
+            setAvpAsInteger32(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Integer) avp);        
             break;
           case DiameterAvpType._FLOAT_32:
-            setAvpAsFloat32(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Float) avp);        
+            setAvpAsFloat32(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Float) avp);        
             break;
           case DiameterAvpType._FLOAT_64:
-            setAvpAsFloat64(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Float) avp);        
+            setAvpAsFloat64(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Float) avp);        
             break;
           case DiameterAvpType._GROUPED:
-            setAvpAsGrouped(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (DiameterAvp[]) avp);
+            setAvpAsGrouped(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (DiameterAvp[]) avp);
             break;
           case DiameterAvpType._INTEGER_64:
-            setAvpAsInteger64(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
+            setAvpAsInteger64(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
             break;
           case DiameterAvpType._TIME:
-            setAvpAsTime(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Date) avp);
+            setAvpAsTime(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Date) avp);
             break;
           case DiameterAvpType._UNSIGNED_32:
-            setAvpAsUnsigned32(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
+            setAvpAsUnsigned32(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
             break;
           case DiameterAvpType._UNSIGNED_64:
-            setAvpAsUnsigned64(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
+            setAvpAsUnsigned64(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (Long) avp);
             break;
           case DiameterAvpType._UTF8_STRING:
-            setAvpAsUTF8String(msg, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (String) avp);
+            setAvpAsUTF8String(parent, avpCode, vendorId, set, isMandatoryAvp, isProtectedAvp, (String) avp);
             break;
         }
       }
