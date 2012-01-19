@@ -126,6 +126,7 @@ public class DiameterAvpImpl implements DiameterAvp, Externalizable {
           return AvpUtilities.getParser().bytesToInt(value);
 
         case DiameterAvpType._INTEGER_64:
+        case DiameterAvpType._UNSIGNED_64: // FIXME: we may overflow here... BigInteger ?
           return  AvpUtilities.getParser().bytesToLong(value);
 
         default:
