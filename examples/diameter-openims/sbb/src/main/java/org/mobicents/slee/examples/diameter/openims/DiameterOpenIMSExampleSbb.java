@@ -342,7 +342,7 @@ public abstract class DiameterOpenIMSExampleSbb implements javax.slee.Sbb {
       tracer.info("Push-Notification-Request received.\r\n" + pnr);
     }
 
-    String userData = pnr.getUserData();
+    String userData = new String(pnr.getUserData());
 
     try {
       String userId = null;
