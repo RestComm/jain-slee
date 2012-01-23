@@ -28,7 +28,7 @@
       <description>List of supported Authorization Application Ids in form of {vendor}:{application-id}, separated by comma (',')</description>
       <config-property-name>authApplicationIds</config-property-name>
       <config-property-type>java.lang.String</config-property-type>
-      <config-property-value>10415:16777236</config-property-value>
+      <config-property-value>0:16777236, 10415:16777236</config-property-value>
     </config-property>
 
   </resource-adaptor>
