@@ -54,7 +54,6 @@ import org.jdiameter.api.AvpSet;
 import org.jdiameter.api.Message;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.Stack;
-import org.jdiameter.client.impl.helpers.UIDGenerator;
 import org.jdiameter.client.impl.parser.MessageImpl;
 import org.mobicents.slee.resource.diameter.base.events.AbortSessionAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.AbortSessionRequestImpl;
@@ -75,10 +74,6 @@ import org.mobicents.slee.resource.diameter.base.events.SessionTerminationReques
 /**
  * Diameter Base Message Factory
  * 
- * <br>
- * Super project: mobicents <br>
- * 6:52:13 PM May 9, 2008 <br>
- * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author Erick Svenson
@@ -86,9 +81,6 @@ import org.mobicents.slee.resource.diameter.base.events.SessionTerminationReques
 public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
 
   private static Logger logger = Logger.getLogger(DiameterMessageFactoryImpl.class);
-
-  // Used for generating session id's
-  public static final UIDGenerator uid = new UIDGenerator();
 
   protected Session session;
   protected Stack stack;
