@@ -981,9 +981,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	 * @see javax.sip.SipListener#processTimeout(javax.sip.TimeoutEvent)
 	 */
 	public void processTimeout(TimeoutEvent timeoutEvent) {
-		
-		tracer.info("processTimeout()");
-		
+				
 		SIPTransaction t = null; 
 		if (timeoutEvent.isServerTransaction()) {
 			t = (SIPTransaction) timeoutEvent.getServerTransaction();
@@ -1044,8 +1042,6 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	public void processTransactionTerminated(
 			TransactionTerminatedEvent txTerminatedEvent) {
 		
-		tracer.info("processTransactionTerminated()");
-
 		Transaction t = null; 
 		if (txTerminatedEvent.isServerTransaction()) {
 			t = txTerminatedEvent.getServerTransaction();
