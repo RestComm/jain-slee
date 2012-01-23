@@ -119,8 +119,7 @@ public class DiameterGqResourceAdaptor implements ResourceAdaptor, DiameterListe
   private static final long serialVersionUID = 1L;
 
   // Config Properties Names ---------------------------------------------
-  // not used since using static application id value
-  // private static final String AUTH_APPLICATION_IDS = "authApplicationIds";
+  private static final String AUTH_APPLICATION_IDS = "authApplicationIds";
 
   // Config Properties Values --------------------------------------------
 
@@ -229,8 +228,7 @@ public class DiameterGqResourceAdaptor implements ResourceAdaptor, DiameterListe
   private static final int MARSHALABLE_ACTIVITY_FLAGS = ActivityFlags.setSleeMayMarshal(DEFAULT_ACTIVITY_FLAGS);
 
   public DiameterGqResourceAdaptor() {
-    authApplicationIds = new ArrayList<ApplicationId>();
-    authApplicationIds.add(ApplicationId.createByAuthAppId(GqMessageFactory._GQ_TGPP_VENDOR_ID, GqMessageFactory._GQ_AUTH_APP_ID));
+    // TODO: Initialize any default values.
   }
 
   // Lifecycle methods ---------------------------------------------------
@@ -398,8 +396,23 @@ public class DiameterGqResourceAdaptor implements ResourceAdaptor, DiameterListe
   }
 
   @Override
-  public void raConfigure(ConfigProperties arg0) {
-    // possibly should load app ids here , currently using static application id
+  public void raConfigure(ConfigProperties properties) {
+    parseApplicationIds((String) properties.getProperty(AUTH_APPLICATION_IDS).getValue());
+  }
+
+  private void parseApplicationIds(final String appIdsStr) {
+    if (appIdsStr != null) {
+      final String trimmedString = appIdsStr.replaceAll(" ", "");
+
+      final String[] appIdsStrings = trimmedString.split(",");
+
+      authApplicationIds = new ArrayList<ApplicationId>(appIdsStrings.length);
+
+      for (String appId : appIdsStrings) {
+        final String[] vendorAndAppId = appId.split(":");
+        authApplicationIds.add(ApplicationId.createByAuthAppId(Long.valueOf(vendorAndAppId[0]), Long.valueOf(vendorAndAppId[1])));
+      }
+    }
   }
 
   @Override

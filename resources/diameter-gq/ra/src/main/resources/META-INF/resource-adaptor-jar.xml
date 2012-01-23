@@ -6,12 +6,12 @@
 		<description>Diameter Gq Resource Adaptor</description> 
 
 		<resource-adaptor-name>DiameterGqResourceAdaptor</resource-adaptor-name> 
-		<resource-adaptor-vendor>com.webukraine</resource-adaptor-vendor> 
+		<resource-adaptor-vendor>java.net</resource-adaptor-vendor> 
 		<resource-adaptor-version>0.8.1</resource-adaptor-version> 
 
 		<resource-adaptor-type-ref>
 			<resource-adaptor-type-name>Diameter Gq</resource-adaptor-type-name> 
-			<resource-adaptor-type-vendor>com.webukraine</resource-adaptor-type-vendor> 
+			<resource-adaptor-type-vendor>java.net</resource-adaptor-type-vendor> 
 			<resource-adaptor-type-version>0.8.1</resource-adaptor-type-version> 
 		</resource-adaptor-type-ref>
 
@@ -20,5 +20,14 @@
 				<resource-adaptor-class-name>org.mobicents.slee.resource.diameter.gq.DiameterGqResourceAdaptor</resource-adaptor-class-name> 
 			</resource-adaptor-class>
 		</resource-adaptor-classes>
+
+		<config-property>
+			<description>List of supported Authorization Application Ids in form of {vendor}:{application-id}, separated by comma (',')</description>
+			<config-property-name>authApplicationIds</config-property-name>
+			<config-property-type>java.lang.String</config-property-type>
+			<config-property-value>0:16777222, 10415:16777222</config-property-value>
+		</config-property>
+
 	</resource-adaptor>
+
 </resource-adaptor-jar>

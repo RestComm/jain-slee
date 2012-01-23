@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy-config>
-  <ra-entity resource-adaptor-id="ResourceAdaptorID[name=DiameterGqResourceAdaptor,vendor=com.webukraine,version=0.8.1]" entity-name="DiameterGq">
+  <ra-entity resource-adaptor-id="ResourceAdaptorID[name=DiameterGqResourceAdaptor,vendor=java.net,version=0.8.1]" entity-name="DiameterGq">
     <properties file="" />
     <ra-link name="DiameterGq" />
   </ra-entity>
