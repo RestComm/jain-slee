@@ -26,8 +26,6 @@ import org.mobicents.slee.container.management.console.client.alarms.ActiveAlarm
 import org.mobicents.slee.container.management.console.client.common.CardControl;
 import org.mobicents.slee.container.management.console.client.common.SmartTabPage;
 
-import com.google.gwt.user.client.ui.Label;
-
 public class AlarmsPage extends SmartTabPage {
 	
   private CardControl cardControl = new CardControl();

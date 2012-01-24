@@ -22,17 +22,13 @@
 
 package org.mobicents.slee.container.management.console.client.pages;
 
-import org.mobicents.slee.container.management.console.client.ServerConnection;
 import org.mobicents.slee.container.management.console.client.activity.ActivityCard;
-import org.mobicents.slee.container.management.console.client.activity.ActivityServiceAsync;
 import org.mobicents.slee.container.management.console.client.common.CardControl;
 import org.mobicents.slee.container.management.console.client.common.SmartTabPage;
 
 public class ActivityPage extends SmartTabPage {
 
   private CardControl cardControl = new CardControl();
-
-  private ActivityServiceAsync service = ServerConnection.activityServiceAsync;
 
   public ActivityPage() {
     initWidget(cardControl);
