@@ -281,16 +281,15 @@ public abstract class ConferenceSbb implements Sbb {
 	public void onCallTerminated(RequestEvent evt, ActivityContextInterface aci) {
 
 		try {
-
 			Request request = evt.getRequest();
 			FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
 			String fromURI = from.getAddress().getURI().toString();
 
-			ConnectionIdentifier connId = (ConnectionIdentifier) this.getFromVsConnIdMap().remove(fromURI);
+			//ConnectionIdentifier connId = (ConnectionIdentifier) this.getFromVsConnIdMap().remove(fromURI);
 
 			// EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, JBOSS_BIND_ADDRESS+":2729");
 			EndpointIdentifier endpointID = this.getEndpointIdentifier();
-			DeleteConnection deleteConnection = new DeleteConnection(this, this.getCallIdentifier(), endpointID, connId);
+			DeleteConnection deleteConnection = new DeleteConnection(this, this.getCallIdentifier(), endpointID/*, connId*/);
 
 			deleteConnection.setTransactionHandle(this.mgcpProvider.getUniqueTransactionHandler());
 			mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { deleteConnection });
