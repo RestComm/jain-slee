@@ -30,7 +30,7 @@ import org.mobicents.slee.container.management.console.client.components.info.Co
 
 /**
  * @author Stefano Zappaterra
- * 
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ComponentBrowserCard extends Card {
 

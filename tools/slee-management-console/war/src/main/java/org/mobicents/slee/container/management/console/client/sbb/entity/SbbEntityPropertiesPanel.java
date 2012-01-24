@@ -26,28 +26,28 @@ import org.mobicents.slee.container.management.console.client.common.BrowseConta
 import org.mobicents.slee.container.management.console.client.common.PropertiesPanel;
 import org.mobicents.slee.container.management.console.client.components.SimpleComponentNameLabel;
 
+import com.google.gwt.user.client.ui.Label;
+
 /**
- * @author Vladimir Ralev
  * 
+ * @author Vladimir Ralev
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbEntityPropertiesPanel extends PropertiesPanel {
 
   private BrowseContainer browseContainer;
 
-  public SbbEntityPropertiesPanel(BrowseContainer browseContainer, final SbbEntityInfo info) {
+  public SbbEntityPropertiesPanel(BrowseContainer container, final SbbEntityInfo info) {
     super();
 
-    this.browseContainer = browseContainer;
+    this.browseContainer = container;
     add("Entity ID", info.getSbbEntityId());
-    add("Node name", info.getNodeName());
-    add("Parent SBB Entity", new SbbEntityLabel(info.getParentId(), info.getSbbEntityId(), browseContainer));
+    add("Parent SBB Entity", (info.getParentId() == null || info.getParentId().equals("null")) ? new Label("-") : new SbbEntityLabel(info.getParentId(), info.getSbbEntityId(), browseContainer));
     add("Root SBB Entity", new SbbEntityLabel(info.getRootId(), info.getSbbEntityId(), browseContainer));
     add("SBB", new SimpleComponentNameLabel(info.getSbbId(), browseContainer));
     add("Priority", info.getPriority());
     add("Service Convergence Name", info.getServiceConvergenceName());
-    add("Usage Parameter Path", info.getUsageParameterPath());
     add("Service", new SimpleComponentNameLabel(info.getServiceId(), browseContainer));
-    add("Current Event", info.getCurrentEvent());
   }
 
 }

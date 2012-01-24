@@ -25,28 +25,20 @@ package org.mobicents.slee.container.management.console.client.sbb.entity;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * @author Vladimir Ralev
  * 
+ * @author Vladimir Ralev
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbEntityInfo implements IsSerializable {
+
   String sbbEntityId;
-  String nodeName;
   String rootId;
   String parentId;
   String serviceId;
   String priority;
-  String currentEvent;
   String sbbId;
   String serviceConvergenceName;
   String usageParameterPath;
-
-  public String getCurrentEvent() {
-    return currentEvent;
-  }
-
-  public void setCurrentEvent(String currentEvent) {
-    this.currentEvent = currentEvent;
-  }
 
   public String getParentId() {
     return parentId;
@@ -104,19 +96,4 @@ public class SbbEntityInfo implements IsSerializable {
     this.serviceId = serviceId;
   }
 
-  public String getUsageParameterPath() {
-    return usageParameterPath;
-  }
-
-  public void setUsageParameterPath(String usageParameterPath) {
-    this.usageParameterPath = usageParameterPath;
-  }
-
-  public String getNodeName() {
-    return nodeName;
-  }
-
-  public void setNodeName(String nodeName) {
-    this.nodeName = nodeName;
-  }
 }

@@ -59,10 +59,7 @@ public class SbbEntitiesServiceImpl extends RemoteServiceServlet implements SbbE
     sbbInfo.setSbbId(info[3] != null ? info[3].toString() : null);
     sbbInfo.setPriority(info[4] != null ? info[4].toString() : null);
     sbbInfo.setServiceConvergenceName(info[5] != null ? info[5].toString() : null);
-    // sbbInfo.setUsageParameterPath( info[6] != null ? info[6].toString() : null );
     sbbInfo.setServiceId(info[6] != null ? info[6].toString() : null);
-    // sbbInfo.setCurrentEvent( info[8] != null ? info[8].toString() : null );
-    // sbbInfo.setNodeName( info[9] != null ? info[9].toString() : null );
     return sbbInfo;
   }
 
