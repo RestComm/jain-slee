@@ -22,8 +22,6 @@
 
 package org.mobicents.slee.container.management.console.client.components;
 
-import org.mobicents.slee.container.management.console.client.ServerConnection;
-import org.mobicents.slee.container.management.console.client.activity.ActivityServiceAsync;
 import org.mobicents.slee.container.management.console.client.common.BrowseContainer;
 import org.mobicents.slee.container.management.console.client.common.PropertiesPanel;
 import org.mobicents.slee.container.management.console.client.components.info.ComponentInfo;
@@ -35,6 +33,7 @@ import org.mobicents.slee.container.management.console.client.components.info.Re
 import org.mobicents.slee.container.management.console.client.components.info.SbbInfo;
 import org.mobicents.slee.container.management.console.client.components.info.ServiceInfo;
 
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -44,15 +43,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class ComponentSpecificPropertiesPanel extends VerticalPanel {
 
-  private ActivityServiceAsync service = ServerConnection.activityServiceAsync;
-
   private PropertiesPanel propertiesPanel;
-
-  private BrowseContainer browseContainer;
 
   public ComponentSpecificPropertiesPanel(BrowseContainer browseContainer, ComponentInfo componentInfo) {
     super();
-    this.browseContainer = browseContainer;
     propertiesPanel = new PropertiesPanel();
     String type = componentInfo.getComponentType();
 
@@ -67,6 +61,7 @@ public class ComponentSpecificPropertiesPanel extends VerticalPanel {
     else if (type.equals(ComponentInfo.RESOURCE_ADAPTOR)) {
       ResourceAdaptorInfo resourceAdaptorInfo = (ResourceAdaptorInfo) componentInfo;
       propertiesPanel.add("Resource Adaptor Type", new ComponentNameLabel(resourceAdaptorInfo.getResourceAdaptorTypeID()));
+      propertiesPanel.add("Supports Active Reconfiguration", new Label(String.valueOf(resourceAdaptorInfo.getSupportsActiveReconfiguration())));
     }
     else if (type.equals(ComponentInfo.RESOURCE_ADAPTOR_TYPE)) {
       ResourceAdaptorTypeInfo resourceAdaptorTypeInfo = (ResourceAdaptorTypeInfo) componentInfo;

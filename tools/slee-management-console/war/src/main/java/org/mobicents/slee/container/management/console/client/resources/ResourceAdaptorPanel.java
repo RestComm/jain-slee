@@ -30,6 +30,7 @@ import org.mobicents.slee.container.management.console.client.common.ComponentPr
 import org.mobicents.slee.container.management.console.client.common.ControlContainer;
 import org.mobicents.slee.container.management.console.client.common.ListPanel;
 import org.mobicents.slee.container.management.console.client.common.Title;
+import org.mobicents.slee.container.management.console.client.components.ComponentNameLabel;
 import org.mobicents.slee.container.management.console.client.components.ComponentsServiceAsync;
 import org.mobicents.slee.container.management.console.client.components.info.ResourceAdaptorInfo;
 
@@ -107,9 +108,9 @@ public class ResourceAdaptorPanel extends Composite {
   }
 
   private void setResourceAdaptorProperties() {
-
     ComponentPropertiesPanel componentPropertiesPanel = new ComponentPropertiesPanel(resourceAdaptorInfo);
     rootPanel.setWidget(ROW_COMPONENT_INFO, 0, componentPropertiesPanel);
+    componentPropertiesPanel.add("Supports Active Reconfiguration", new Label(String.valueOf(resourceAdaptorInfo.getSupportsActiveReconfiguration())));    
   }
 
   private void refreshResourceAdaptorEntities() {

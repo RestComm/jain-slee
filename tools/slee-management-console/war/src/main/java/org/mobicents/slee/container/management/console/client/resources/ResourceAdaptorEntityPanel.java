@@ -37,15 +37,15 @@ import org.mobicents.slee.container.management.console.client.common.ListPanel;
 import org.mobicents.slee.container.management.console.client.common.PropertiesPanel;
 import org.mobicents.slee.container.management.console.client.common.Title;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author Stefano Zappaterra
@@ -122,12 +122,12 @@ public class ResourceAdaptorEntityPanel extends Composite implements EditablePro
     setCreateEntityLinkPanel();
 
     Button viewAssocAcs = new Button("View Associated ActivityContexts");
-    ClickListener viewAcsClickListener = new ClickListener() {
-      public void onClick(Widget source) {
+    ClickHandler viewAcsClickListener = new ClickHandler() {
+      public void onClick(ClickEvent event) {
         onViewAssocAcs(entityName);
       }
     };
-    viewAssocAcs.addClickListener(viewAcsClickListener);
+    viewAssocAcs.addClickHandler(viewAcsClickListener);
     rootPanel.setWidget(ROW_VIEW_ASSOC_ACS, 0, viewAssocAcs);
   }
 
@@ -206,8 +206,8 @@ public class ResourceAdaptorEntityPanel extends Composite implements EditablePro
       entityLinksPanel.setCellText(i, 1, entityLink);
 
       Hyperlink unbindLink = new Hyperlink("unbind", "unbind");
-      unbindLink.addClickListener(new ClickListener() {
-        public void onClick(Widget sender) {
+      unbindLink.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
           onUnbindEntityLink(entityLink);
         }
       });
@@ -237,8 +237,8 @@ public class ResourceAdaptorEntityPanel extends Composite implements EditablePro
     createEntityLinkPanel.setWidget(0, 1, createEntityLinkTextBox);
     createEntityLinkPanel.setWidget(0, 2, createEntityLinkButton);
 
-    createEntityLinkButton.addClickListener(new ClickListener() {
-      public void onClick(Widget sender) {
+    createEntityLinkButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
         createEntityLink(createEntityLinkTextBox.getText());
       }
     });

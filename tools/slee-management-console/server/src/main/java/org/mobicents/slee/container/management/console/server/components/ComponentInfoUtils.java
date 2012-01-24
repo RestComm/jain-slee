@@ -121,7 +121,8 @@ public class ComponentInfoUtils {
 
       return new ResourceAdaptorInfo(resourceAdaptorDescriptor.getName(), resourceAdaptorDescriptor.getSource(), resourceAdaptorDescriptor.getVendor(),
           resourceAdaptorDescriptor.getVersion(), toString(resourceAdaptorDescriptor.getID()), DeployableUnitInfoUtils.toString(resourceAdaptorDescriptor
-              .getDeployableUnit()), toString(resourceAdaptorDescriptor.getResourceAdaptorType()), toStringArray(resourceAdaptorDescriptor.getLibraries()));
+              .getDeployableUnit()), toString(resourceAdaptorDescriptor.getResourceAdaptorType()), resourceAdaptorDescriptor.supportsActiveReconfiguration(), 
+              toStringArray(resourceAdaptorDescriptor.getLibraries()));
     }
     else if (componentDescriptor instanceof LibraryDescriptor) {
       LibraryDescriptor libraryDescriptor = (LibraryDescriptor) componentDescriptor;

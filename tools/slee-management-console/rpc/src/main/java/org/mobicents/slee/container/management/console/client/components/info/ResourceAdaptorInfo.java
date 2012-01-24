@@ -31,10 +31,12 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class ResourceAdaptorInfo extends ComponentInfo implements IsSerializable {
 
   private String resourceAdaptorTypeID;
+  private boolean supportsActiveReconfiguration;
 
-  public ResourceAdaptorInfo(String name, String source, String vendor, String version, String ID, String deployableUnitID, String resourceAdaptorTypeID, String[] libraryRefs) {
+  public ResourceAdaptorInfo(String name, String source, String vendor, String version, String ID, String deployableUnitID, String resourceAdaptorTypeID, boolean supportsActiveReconfiguration, String[] libraryRefs) {
     super(name, source, vendor, version, ID, deployableUnitID, libraryRefs);
     this.resourceAdaptorTypeID = resourceAdaptorTypeID;
+    this.supportsActiveReconfiguration = supportsActiveReconfiguration;
     componentType = ComponentInfo.RESOURCE_ADAPTOR;
   }
 
@@ -44,5 +46,9 @@ public class ResourceAdaptorInfo extends ComponentInfo implements IsSerializable
 
   public String getResourceAdaptorTypeID() {
     return resourceAdaptorTypeID;
+  }
+
+  public boolean getSupportsActiveReconfiguration() {
+    return supportsActiveReconfiguration;
   }
 }
