@@ -285,7 +285,7 @@ public abstract class ConferenceSbb implements Sbb {
 			FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
 			String fromURI = from.getAddress().getURI().toString();
 
-			//ConnectionIdentifier connId = (ConnectionIdentifier) this.getFromVsConnIdMap().remove(fromURI);
+			ConnectionIdentifier connId = (ConnectionIdentifier) this.getFromVsConnIdMap().remove(fromURI);
 
 			// EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, JBOSS_BIND_ADDRESS+":2729");
 			EndpointIdentifier endpointID = this.getEndpointIdentifier();
