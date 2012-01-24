@@ -73,5 +73,7 @@ public class ComponentBrowserCard extends Card {
   }
 
   public void onShow() {
+    browseContainer.empty();
+    refreshData();
   }
 }
