@@ -434,6 +434,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			//empty RQNT, this is requiered to flush data.
 			sendRQNT(null,false,false);
 		}
+	
 		for (ActivityContextInterface attachedAci : activities) {
 			if (attachedAci.getActivity() instanceof Dialog) {
 				attachedAci.detach(sbbLocalObject);
@@ -444,9 +445,8 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	
 
 			}
-			//we need to send call wide DLCX only once.
-			boolean callConnectionsTermianted = false;
-			if ( (attachedAci.getActivity() instanceof MgcpEndpointActivity) && !callConnectionsTermianted) {
+			
+			if ( (attachedAci.getActivity() instanceof MgcpEndpointActivity)) {
 				attachedAci.detach(sbbLocalObject);
 	
 				MgcpEndpointActivity mgcpEndpoint = (MgcpEndpointActivity) attachedAci
@@ -459,13 +459,12 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 				mgcpProvider.sendMgcpEvents(
 						new JainMgcpEvent[] { deleteConnection });
 				log.info("Delete connections: \n"+deleteConnection);
-				callConnectionsTermianted = true;
+		
 			}
 
 		}
 		this.setCallIdentifier(null);
 	}
-
 	
 	public void onNotificationRequestResponse(NotificationRequestResponse event, ActivityContextInterface aci) {
 
