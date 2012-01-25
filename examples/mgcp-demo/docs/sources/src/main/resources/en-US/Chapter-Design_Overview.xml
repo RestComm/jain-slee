@@ -6,9 +6,8 @@
 					30 seconds.
 				</para>
 				<para>
-					2012 : If user dialed 2012, ConferenceSbb is create by SLEE
-					as root SBB of service. As name suggest ConferenceSbb is responsible
-					for creating conference with user and another participant.
+					2012 : If user dialed 2012, CallSbb ignores message and relies task of
+					creating ConferenceSbb to SLEE.
 				</para>
 								<!--<para>					2013 : If user dialed 2013, TTSSbb child is created.					TTSSbb sends the text to Mobicents Media Server					(MMS) and MMS plays back the speech corresponding to					this text to user.				</para>
 				  -->			</blockquote>		</para>		<para>			ConferenceSbb is responsible for maintaining Conference.			User gets connected to Conference endpoint by dialing 2012			from SIP Phone. If this is the first User joining			Conference, ConferenceSbb fires Custom Event that is			consumed by ConfLegSbb. Multiple users can dial 2012 and get			connected to same Conference endpoint and participate in			conference call.		</para>		<para>			ConfLegSbb is acting as one of the automated leg of			Conference. As soon as conference is initiated, this leg of			conference will start a back ground music so even if there			is only one participant in conference he/she can listen to			music that verifies Conference has started.		</para>		<para>			As explained earlier, the main purpose of this demo is to			make developers understand how to use the MGCP API and MGCP			RA. Once there is clear understanding of MGCP API and RA,			the business logic can be written as required. Let us go to			Section 4, where MGCP usage from respective SBB is			explained.		</para>	</section></chapter>
