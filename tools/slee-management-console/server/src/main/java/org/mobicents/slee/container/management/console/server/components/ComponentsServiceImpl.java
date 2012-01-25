@@ -186,7 +186,7 @@ public class ComponentsServiceImpl extends RemoteServiceServlet implements Compo
   public String getComponentName(String id) throws ManagementConsoleException {
     ComponentID componentID = managementConsole.getComponentIDMap().get(id);
     ComponentDescriptor componentDescriptor = deploymentMBeanUtils.getDescriptor(componentID);
-    return componentDescriptor.getName();
+    return componentDescriptor.getID().toString();
   }
 
 }
