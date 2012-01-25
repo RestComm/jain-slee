@@ -48,8 +48,11 @@ public class SbbPanel extends Composite {
 
   private String sbbID;
 
+  private BrowseContainer browseContainer;
+
   public SbbPanel(BrowseContainer browseContainer, String sbbID) {
     super();
+    this.browseContainer = browseContainer;
     this.sbbID = sbbID;
 
     initWidget(rootPanel);
@@ -70,7 +73,7 @@ public class SbbPanel extends Composite {
 
   private void refreshSbbPropertiesPanel(SbbInfo sbbInfo) {
 
-    ComponentPropertiesPanel componentPropertiesPanel = new ComponentPropertiesPanel(sbbInfo);
+    ComponentPropertiesPanel componentPropertiesPanel = new ComponentPropertiesPanel(browseContainer, sbbInfo);
     rootPanel.setWidget(ROW_COMPONENT_INFO, 0, componentPropertiesPanel);
 
     PropertiesPanel sbbPropertiesPanel = new PropertiesPanel();

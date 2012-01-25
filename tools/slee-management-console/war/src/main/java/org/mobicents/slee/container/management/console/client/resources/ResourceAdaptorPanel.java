@@ -108,7 +108,7 @@ public class ResourceAdaptorPanel extends Composite {
   }
 
   private void setResourceAdaptorProperties() {
-    ComponentPropertiesPanel componentPropertiesPanel = new ComponentPropertiesPanel(resourceAdaptorInfo);
+    ComponentPropertiesPanel componentPropertiesPanel = new ComponentPropertiesPanel(browseContainer, resourceAdaptorInfo);
     rootPanel.setWidget(ROW_COMPONENT_INFO, 0, componentPropertiesPanel);
     componentPropertiesPanel.add("Supports Active Reconfiguration", new Label(String.valueOf(resourceAdaptorInfo.getSupportsActiveReconfiguration())));    
   }

@@ -30,8 +30,9 @@ import org.mobicents.slee.container.management.console.client.components.Compone
 import com.google.gwt.user.client.ui.Composite;
 
 /**
- * @author Stefano Zappaterra
  * 
+ * @author Stefano Zappaterra
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class DeployableUnitPanel extends Composite {
 
@@ -39,9 +40,11 @@ public class DeployableUnitPanel extends Composite {
 
   private DeployableUnitInfo deployableUnitInfo;
 
+  private BrowseContainer browseContainer;
+
   public DeployableUnitPanel(BrowseContainer browseContainer, DeployableUnitInfo deployableUnitInfo) {
     super();
-
+    this.browseContainer = browseContainer;
     this.deployableUnitInfo = deployableUnitInfo;
 
     initWidget(rootPanel);
@@ -50,14 +53,13 @@ public class DeployableUnitPanel extends Composite {
   }
 
   private void setData() {
-
     PropertiesPanel propertiesPanel = new PropertiesPanel();
 
     propertiesPanel.add("Name", deployableUnitInfo.getName());
     propertiesPanel.add("ID", deployableUnitInfo.getID());
     propertiesPanel.add("Date", deployableUnitInfo.getDeploymentDate().toString());
     propertiesPanel.add("URL", deployableUnitInfo.getURL());
-    propertiesPanel.add("Components", ComponentNameLabel.toArray(deployableUnitInfo.getComponents()));
+    propertiesPanel.add("Components", ComponentNameLabel.toArray(deployableUnitInfo.getComponents(), browseContainer));
 
     rootPanel.setWidget(0, 0, propertiesPanel);
   }

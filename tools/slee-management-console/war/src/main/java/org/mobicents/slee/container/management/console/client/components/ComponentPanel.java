@@ -66,7 +66,7 @@ public class ComponentPanel extends Composite {
 
   private void setData() {
 
-    ComponentPropertiesPanel componentPropertiesPanel = new ComponentPropertiesPanel(componentInfo);
+    ComponentPropertiesPanel componentPropertiesPanel = new ComponentPropertiesPanel(browseContainer, componentInfo);
     rootPanel.setWidget(0, 0, componentPropertiesPanel);
 
     ComponentSpecificPropertiesPanel specificPropertiesPanel = new ComponentSpecificPropertiesPanel(browseContainer, componentInfo);

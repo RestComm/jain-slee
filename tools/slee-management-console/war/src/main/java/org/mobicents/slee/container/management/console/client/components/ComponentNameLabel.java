@@ -22,8 +22,12 @@
 
 package org.mobicents.slee.container.management.console.client.components;
 
+import org.mobicents.slee.container.management.console.client.Logger;
 import org.mobicents.slee.container.management.console.client.ServerCallback;
 import org.mobicents.slee.container.management.console.client.ServerConnection;
+import org.mobicents.slee.container.management.console.client.common.BrowseContainer;
+import org.mobicents.slee.container.management.console.client.components.info.ComponentInfo;
+import org.mobicents.slee.container.management.console.client.components.info.ComponentSearchParams;
 
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
@@ -32,8 +36,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * @author Stefano Zappaterra
  * 
+ * @author Stefano Zappaterra
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ComponentNameLabel extends Composite {
 
@@ -42,6 +47,8 @@ public class ComponentNameLabel extends Composite {
   private Label label;
 
   private Hyperlink link;
+
+  private BrowseContainer browseContainer;
 
   private ComponentsServiceAsync service = ServerConnection.componentsService;
 
@@ -64,6 +71,42 @@ public class ComponentNameLabel extends Composite {
         }
       };
       service.getComponentName(id, callback);
+    }
+    else {
+      initWidget(new Label("-"));
+    }
+  }
+
+  public ComponentNameLabel(final String id, final BrowseContainer browseContainer) {
+    link = new Hyperlink("", "");
+    this.browseContainer = browseContainer;
+
+    if (id != null && id.length() > 0) {
+      initWidget(link);
+      ServerCallback callback = new ServerCallback(this) {
+        public void onSuccess(Object result) {
+          final ComponentInfo[] infos = (ComponentInfo[]) result;
+          if (infos.length >= 1) {
+            link.setText(infos[0].getID());
+            ClickListener serviceClickListener = new ClickListener() {
+              public void onClick(Widget source) {
+                onComponentNameLabelClick(infos[0]);
+              }
+            };
+            link.addClickListener(serviceClickListener);
+
+          }
+          else
+            initWidget(new Label("Not Found"));
+        }
+      };
+      try {
+        ComponentSearchParams params = new ComponentSearchParams("", id, "", "");
+        service.searchComponents(params, callback);
+      }
+      catch (Exception e) {
+        Logger.info(e.toString());
+      }
     }
     else {
       initWidget(new Label("-"));
@@ -100,6 +143,18 @@ public class ComponentNameLabel extends Composite {
     return componentNameLabels;
   }
 
+  public static ComponentNameLabel[] toArray(String[] ids, BrowseContainer browseContainer) {
+    if (ids == null || ids.length == 0)
+      return null;
+
+    ComponentNameLabel[] componentNameLabels = new ComponentNameLabel[ids.length];
+    for (int i = 0; i < ids.length; i++) {
+      componentNameLabels[i] = new ComponentNameLabel(ids[i], browseContainer);
+    }
+
+    return componentNameLabels;
+  }
+
   public static ComponentNameLabel[] toArray(String[] ids) {
     if (ids == null || ids.length == 0)
       return null;
@@ -112,4 +167,8 @@ public class ComponentNameLabel extends Composite {
     return componentNameLabels;
   }
 
+  public void onComponentNameLabelClick(ComponentInfo componentInfo) {
+    ComponentPanel cp = new ComponentPanel(browseContainer, componentInfo);
+    browseContainer.add(componentInfo.getID(), cp);
+  }
 }

@@ -97,7 +97,7 @@ public class ServicePanel extends Composite implements ComponentNameClickListene
 
   private void refreshServicePropertiesPanel(ServiceInfo serviceInfo) {
 
-    ComponentPropertiesPanel componentPropertiesPanel = new ComponentPropertiesPanel(serviceInfo);
+    ComponentPropertiesPanel componentPropertiesPanel = new ComponentPropertiesPanel(browseContainer, serviceInfo);
     rootPanel.setWidget(ROW_COMPONENT_INFO, 0, componentPropertiesPanel);
 
     PropertiesPanel servicePropertiesPanel = new PropertiesPanel();

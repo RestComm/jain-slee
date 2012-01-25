@@ -33,14 +33,16 @@ import org.mobicents.slee.container.management.console.client.components.info.Co
  */
 public class ComponentPropertiesPanel extends PropertiesPanel {
 
-  public ComponentPropertiesPanel(ComponentInfo componentInfo) {
+  public ComponentPropertiesPanel(BrowseContainer browseContainer, ComponentInfo componentInfo) {
     super();
+    
     add("Name", componentInfo.getName());
     add("ID", componentInfo.getID());
     add("Vendor", componentInfo.getVendor());
     add("Version", componentInfo.getVersion());
     add("Source", componentInfo.getSource());
     add("Deployable Unit", new DeployableUnitNameLabel(componentInfo.getDeployableUnitID()));
-    add("Library References", ComponentNameLabel.toArray(componentInfo.getLibraryRefs()));
+    add("Library References", ComponentNameLabel.toArray(componentInfo.getLibraryRefs(), browseContainer));
   }
+
 }
