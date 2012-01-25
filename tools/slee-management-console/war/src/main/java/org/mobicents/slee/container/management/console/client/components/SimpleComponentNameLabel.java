@@ -60,7 +60,7 @@ public class SimpleComponentNameLabel extends Composite {
         public void onSuccess(Object result) {
           final ComponentInfo[] infos = (ComponentInfo[]) result;
           if (infos.length >= 1) {
-            link.setText(infos[0].getName());
+            link.setText(infos[0].getID());
             ClickListener serviceClickListener = new ClickListener() {
               public void onClick(Widget source) {
                 onServiceLabelClick(infos[0]);
@@ -88,6 +88,6 @@ public class SimpleComponentNameLabel extends Composite {
 
   public void onServiceLabelClick(ComponentInfo componentInfo) {
     ComponentPanel cp = new ComponentPanel(browseContainer, componentInfo);
-    browseContainer.add(componentInfo.getName(), cp);
+    browseContainer.add(componentInfo.getID(), cp);
   }
 }
