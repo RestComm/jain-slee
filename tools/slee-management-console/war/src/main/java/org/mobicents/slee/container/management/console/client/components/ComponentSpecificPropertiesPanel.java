@@ -60,16 +60,16 @@ public class ComponentSpecificPropertiesPanel extends VerticalPanel {
     }
     else if (type.equals(ComponentInfo.RESOURCE_ADAPTOR)) {
       ResourceAdaptorInfo resourceAdaptorInfo = (ResourceAdaptorInfo) componentInfo;
-      propertiesPanel.add("Resource Adaptor Type", new ComponentNameLabel(resourceAdaptorInfo.getResourceAdaptorTypeID()));
+      propertiesPanel.add("Resource Adaptor Type", new ComponentNameLabel(resourceAdaptorInfo.getResourceAdaptorTypeID(), browseContainer));
       propertiesPanel.add("Supports Active Reconfiguration", new Label(String.valueOf(resourceAdaptorInfo.getSupportsActiveReconfiguration())));
     }
     else if (type.equals(ComponentInfo.RESOURCE_ADAPTOR_TYPE)) {
       ResourceAdaptorTypeInfo resourceAdaptorTypeInfo = (ResourceAdaptorTypeInfo) componentInfo;
-      propertiesPanel.add("Event Types", ComponentNameLabel.toArray(resourceAdaptorTypeInfo.getEventTypeIDs()));
+      propertiesPanel.add("Event Types", ComponentNameLabel.toArray(resourceAdaptorTypeInfo.getEventTypeIDs(), browseContainer));
     }
     else if (type.equals(ComponentInfo.SBB)) {
       SbbInfo sbbInfo = (SbbInfo) componentInfo;
-      propertiesPanel.add("Address Profile Specification", new ComponentNameLabel(sbbInfo.getAddressProfileSpecificationID()));
+      propertiesPanel.add("Address Profile Specification", new ComponentNameLabel(sbbInfo.getAddressProfileSpecificationID(), browseContainer));
       propertiesPanel.add("Event Types", ComponentNameLabel.toArray(sbbInfo.getEventTypeIDs()));
       propertiesPanel.add("Profile Specifications", ComponentNameLabel.toArray(sbbInfo.getProfileSpecificationIDs()));
       propertiesPanel.add("Resource Adaptor Entity Links", sbbInfo.getResourceAdaptorEntityLinks());

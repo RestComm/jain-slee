@@ -24,10 +24,16 @@ package org.mobicents.slee.container.management.console.client.components;
 
 import org.mobicents.slee.container.management.console.client.ServerCallback;
 import org.mobicents.slee.container.management.console.client.ServerConnection;
+import org.mobicents.slee.container.management.console.client.common.BrowseContainer;
+import org.mobicents.slee.container.management.console.client.deployableunits.DeployableUnitInfo;
+import org.mobicents.slee.container.management.console.client.deployableunits.DeployableUnitPanel;
 import org.mobicents.slee.container.management.console.client.deployableunits.DeployableUnitsServiceAsync;
 
+import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author Stefano Zappaterra
@@ -39,20 +45,12 @@ public class DeployableUnitNameLabel extends Composite {
 
   private Label label;
 
-  // private Hyperlink link;
+  private Hyperlink link;
+
+  private BrowseContainer browseContainer;
 
   private DeployableUnitsServiceAsync service = ServerConnection.deployableUnitsService;
 
-  /*
-   * public DeployableUnitNameLabel(final String id, final ComponentNameClickListener listener) {
-   * 
-   * if (id != null && id.length() > 0) { link = new Hyperlink(id, id); initWidget(link);
-   * 
-   * link.addClickListener(new ClickListener() { public void onClick(Widget sender) { listener.onClick(id, name); } });
-   * 
-   * ServerCallback callback = new ServerCallback(this) { public void onSuccess(final Object result) { name = (String) result;
-   * link.setText(name); } }; service.getComponentName(id, callback); } else { initWidget(new Label("-")); } }
-   */
   public DeployableUnitNameLabel(String id) {
     if (id != null && id.length() > 0) {
       label = new Label(id);
@@ -69,5 +67,40 @@ public class DeployableUnitNameLabel extends Composite {
     else {
       initWidget(new Label("-"));
     }
+  }
+
+  public DeployableUnitNameLabel(final String id, final BrowseContainer browseContainer) {
+    link = new Hyperlink(id, "");
+    this.browseContainer = browseContainer;
+
+    if (id != null && id.length() > 0) {
+      initWidget(link);
+
+      ServerCallback callback = new ServerCallback(this) {
+        public void onSuccess(Object result) {
+          final DeployableUnitInfo[] infos = (DeployableUnitInfo[]) result;
+          for(final DeployableUnitInfo info : infos) {
+            if (info.getID().equals(id)) {
+              link.setText(info.getName());
+              ClickListener serviceClickListener = new ClickListener() {
+                public void onClick(Widget source) {
+                  onDeployableUnitNameLabelClick(info);
+                }
+              };
+              link.addClickListener(serviceClickListener);
+            }
+          }
+        }
+      };
+      service.getDeployableUnits(callback);
+    }
+    else {
+      initWidget(new Label("-"));
+    }
+  }
+
+  public void onDeployableUnitNameLabelClick(DeployableUnitInfo deployableUnitInfo) {
+    DeployableUnitPanel cp = new DeployableUnitPanel(browseContainer, deployableUnitInfo);
+    browseContainer.add(deployableUnitInfo.getName(), cp);
   }
 }

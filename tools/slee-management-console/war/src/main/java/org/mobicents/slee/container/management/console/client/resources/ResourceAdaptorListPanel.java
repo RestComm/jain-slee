@@ -116,7 +116,7 @@ public class ResourceAdaptorListPanel extends Composite {
       listPanel.setCell(i, COLUMN_NAME, nameLink);
 
       // COLUMN_TYPE
-      listPanel.setCell(i, COLUMN_TYPE, new ComponentNameLabel(resourceAdaptorInfo.getResourceAdaptorTypeID()));
+      listPanel.setCell(i, COLUMN_TYPE, new ComponentNameLabel(resourceAdaptorInfo.getResourceAdaptorTypeID(), browseContainer));
 
       // COLUMN_VENDOR
       listPanel.setCellText(i, COLUMN_VENDOR, resourceAdaptorInfo.getVendor());

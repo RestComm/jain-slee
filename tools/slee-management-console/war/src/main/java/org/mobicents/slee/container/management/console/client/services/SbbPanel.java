@@ -77,11 +77,11 @@ public class SbbPanel extends Composite {
     rootPanel.setWidget(ROW_COMPONENT_INFO, 0, componentPropertiesPanel);
 
     PropertiesPanel sbbPropertiesPanel = new PropertiesPanel();
-    sbbPropertiesPanel.add("Event types", ComponentNameLabel.toArray(sbbInfo.getEventTypeIDs()));
+    sbbPropertiesPanel.add("Event types", ComponentNameLabel.toArray(sbbInfo.getEventTypeIDs(), browseContainer));
     sbbPropertiesPanel.add("RA entity links", sbbInfo.getResourceAdaptorEntityLinks());
     sbbPropertiesPanel.add("Resource adaptors", ComponentNameLabel.toArray(sbbInfo.getResourceAdaptorTypeIDs()));
     sbbPropertiesPanel.add("SBBs", ComponentNameLabel.toArray(sbbInfo.getSbbIDs()));
-    sbbPropertiesPanel.add("Address profile", new ComponentNameLabel(sbbInfo.getAddressProfileSpecificationID()));
+    sbbPropertiesPanel.add("Address profile", new ComponentNameLabel(sbbInfo.getAddressProfileSpecificationID(), browseContainer));
     sbbPropertiesPanel.add("Profile specifications", ComponentNameLabel.toArray(sbbInfo.getProfileSpecificationIDs()));
 
     rootPanel.setWidget(ROW_SBB_INFO, 0, sbbPropertiesPanel);

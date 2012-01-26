@@ -41,7 +41,7 @@ public class ComponentPropertiesPanel extends PropertiesPanel {
     add("Vendor", componentInfo.getVendor());
     add("Version", componentInfo.getVersion());
     add("Source", componentInfo.getSource());
-    add("Deployable Unit", new DeployableUnitNameLabel(componentInfo.getDeployableUnitID()));
+    add("Deployable Unit", new DeployableUnitNameLabel(componentInfo.getDeployableUnitID(), browseContainer));
     add("Library References", ComponentNameLabel.toArray(componentInfo.getLibraryRefs(), browseContainer));
   }
 

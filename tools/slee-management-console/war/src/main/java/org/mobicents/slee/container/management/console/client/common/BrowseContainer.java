@@ -156,7 +156,8 @@ public class BrowseContainer extends Composite {
       }
     }
     for (int i = firstLink; i <= links.size() - 1; i++) {
-      header.add((BrowseLink) links.get(i));
+      BrowseLink link = links.get(i);
+      shortifyAndAddLink(header, link);
       if (i != links.size() - 1) {
         header.add(new Image("images/chain.separator.gif"));
         ((BrowseLink) links.get(i)).setStyle(false);
@@ -166,6 +167,74 @@ public class BrowseContainer extends Composite {
       }
     }
     rootPanel.add(header);
+  }
+
+  private void shortifyAndAddLink(HorizontalPanel header, BrowseLink link) {
+    // return linkText.length() > 35 ? (linkText.substring(0, 32) + "...") : linkText;
+    // EventTypeID[name=net.java.slee.resource.diameter.gq.events.GqSessionTerminationRequest,vendor=java.net,version=0.8]
+    String linkText = link.getText();
+    String linkTitle = link.getTitle();
+
+    // Have we handled this before ?
+    String shortLinkText = linkText;
+    if(linkText.contains("[name=")) {
+      link.setTitle(linkText);
+      // break it apart
+      String compType = linkText.substring(0, linkText.indexOf("["));
+      String compName = substring(linkText, "[name=", true, ",vendor=", true);
+      String compVend = substring(linkText, ",vendor=", true, ",version=", true);
+      String compVers = substring(linkText, ",version=", true, "]", true);
+      
+      // trim a bit if too big
+      if(compName.length() > 50) {
+        compName = compName.substring(0, 9) + ".." + compName.substring(compName.length()-29);
+      }
+      if(compVend.length() > 50) {
+        compVend = compVend.substring(0, 9) + ".." + compVend.substring(compVend.length()-29);
+      }
+      if(compVers.length() > 50) {
+        compVers = compVers.substring(0, 9) + ".." + compVers.substring(compVers.length()-29);
+      }
+
+      addComponentImage(header, compType);
+
+      shortLinkText = compName + " / " + compVend + " / " + compVers;
+      link.setText(shortLinkText);
+    }
+    else if(linkTitle.contains("[name=")) {
+      String compType = linkTitle.substring(0, linkTitle.indexOf("["));
+      addComponentImage(header, compType);
+    }
+    
+    header.add(link);
+  }
+
+  private void addComponentImage(HorizontalPanel header, String componentType) {
+    if(componentType.equals("EventTypeID")) {
+      header.add(new Image("images/components.event type.gif"));
+    }
+    else if(componentType.equals("LibraryID")) {
+      header.add(new Image("images/components.library.gif"));
+    }
+    else if(componentType.equals("ResourceAdaptorID")) {
+      header.add(new Image("images/components.resource adaptor.gif"));
+    }
+    else if(componentType.equals("ResourceAdaptorTypeID")) {
+      header.add(new Image("images/components.resource adaptor type.gif"));
+    }
+    else if(componentType.equals("ProfileSpecificationID")) {
+      header.add(new Image("images/components.profile specification.gif"));
+    }
+    else if(componentType.equals("SbbID")) {
+      header.add(new Image("images/components.sbb.gif"));
+    }
+    else if(componentType.equals("ServiceID")) {
+      header.add(new Image("images/components.service.gif"));
+    }
+  }
+
+  private String substring(String original, String beginString, boolean excludeBegin, String endString, boolean excludeEnd) {
+    return original.substring(original.indexOf(beginString) + (excludeBegin ? beginString.length() : 0), original.indexOf(endString) + (excludeEnd ? 0 : endString.length()));
   }
 
   private void refreshTitle() {
