@@ -81,7 +81,7 @@ public class DeployableUnitNameLabel extends Composite {
           final DeployableUnitInfo[] infos = (DeployableUnitInfo[]) result;
           for(final DeployableUnitInfo info : infos) {
             if (info.getID().equals(id)) {
-              link.setText(info.getName());
+              link.setText(info.getID());
               ClickListener serviceClickListener = new ClickListener() {
                 public void onClick(Widget source) {
                   onDeployableUnitNameLabelClick(info);
@@ -101,6 +101,6 @@ public class DeployableUnitNameLabel extends Composite {
 
   public void onDeployableUnitNameLabelClick(DeployableUnitInfo deployableUnitInfo) {
     DeployableUnitPanel cp = new DeployableUnitPanel(browseContainer, deployableUnitInfo);
-    browseContainer.add(deployableUnitInfo.getName(), cp);
+    browseContainer.add(deployableUnitInfo.getID(), cp);
   }
 }

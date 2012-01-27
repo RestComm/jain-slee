@@ -184,7 +184,7 @@ public class BrowseContainer extends Composite {
       String compName = substring(linkText, "[name=", true, ",vendor=", true);
       String compVend = substring(linkText, ",vendor=", true, ",version=", true);
       String compVers = substring(linkText, ",version=", true, "]", true);
-      
+
       // trim a bit if too big
       if(compName.length() > 50) {
         compName = compName.substring(0, 9) + ".." + compName.substring(compName.length()-29);
@@ -201,11 +201,26 @@ public class BrowseContainer extends Composite {
       shortLinkText = compName + " / " + compVend + " / " + compVers;
       link.setText(shortLinkText);
     }
-    else if(linkTitle.contains("[name=")) {
+    else if(linkText.contains("[url=")) {
+      link.setTitle(linkText);
+
+      // We know it's DeployableUnitID.. but, this should be future-proof
+      String compType = linkText.substring(0, linkText.indexOf("["));
+
+      shortLinkText = linkText.substring(0, linkText.lastIndexOf(".jar"));
+      shortLinkText = shortLinkText.substring(shortLinkText.lastIndexOf("/") + 1, shortLinkText.length());
+      if(shortLinkText.length() > 50) {
+        shortLinkText = shortLinkText.substring(0, 19) + ".." + shortLinkText.substring(shortLinkText.length()-19);
+      }
+      link.setText(shortLinkText);
+
+      addComponentImage(header, compType);
+    }
+    else if(linkTitle.contains("[name=") || linkTitle.contains("[url=")) {
       String compType = linkTitle.substring(0, linkTitle.indexOf("["));
       addComponentImage(header, compType);
     }
-    
+
     header.add(link);
   }
 
@@ -230,6 +245,9 @@ public class BrowseContainer extends Composite {
     }
     else if(componentType.equals("ServiceID")) {
       header.add(new Image("images/components.service.gif"));
+    }
+    else if(componentType.equals("DeployableUnitID")) {
+      header.add(new Image("images/deployableunits.deployableunit.gif"));
     }
   }
 

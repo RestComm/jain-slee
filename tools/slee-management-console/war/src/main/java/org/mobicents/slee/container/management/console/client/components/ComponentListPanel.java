@@ -71,7 +71,7 @@ public class ComponentListPanel extends Composite {
 
       listPanel.setCell(i, 0, new Image("images/components." + componentInfo.getComponentType().toLowerCase() + ".gif"));
 
-      Hyperlink componentNameLink = new Hyperlink(componentInfo.getName(), componentInfo.getName());
+      Hyperlink componentNameLink = new Hyperlink(componentInfo.getName(), componentInfo.getID());
       componentNameLink.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {
           onComponentName(componentInfo);
@@ -88,6 +88,6 @@ public class ComponentListPanel extends Composite {
 
   private void onComponentName(ComponentInfo componentInfo) {
     ComponentPanel componentPanel = new ComponentPanel(browseContainer, componentInfo);
-    browseContainer.add(componentInfo.getName(), componentPanel);
+    browseContainer.add(componentInfo.getID(), componentPanel);
   }
 }
