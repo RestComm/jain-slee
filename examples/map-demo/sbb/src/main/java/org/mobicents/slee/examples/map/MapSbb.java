@@ -29,7 +29,7 @@ import org.mobicents.slee.resource.map.events.DialogUserAbort;
 import org.mobicents.slee.resource.map.events.InvokeTimeout;
 import org.mobicents.slee.resource.map.events.service.sms.ForwardShortMessageRequest;
 import org.mobicents.slee.resource.map.events.service.suplementary.ProcessUnstructuredSSRequest;
-import org.mobicents.slee.resource.map.events.service.suplementary.UnstructuredSSRequest;
+import org.mobicents.slee.resource.map.events.service.suplementary.UnstructuredSSResponse;
 
 /**
  * A simple example that listens for incoming MAP(USSD) Message and sends back
@@ -123,7 +123,7 @@ public abstract class MapSbb implements Sbb {
 		long invokeId = evt.getInvokeId();
 
 		if (this.logger.isInfoEnabled()) {
-			this.logger.info(String.format("Received PROCESS_UNSTRUCTURED_SS_REQUEST_INDICATION event USSDString=%s invokeId=%d", ussdStr, invokeId));
+			this.logger.info(String.format("Received PROCESS_UNSTRUCTURED_SS_REQUEST event USSDString=%s invokeId=%d", ussdStr, invokeId));
 		}
 
 		this.setInvokeId(invokeId);
@@ -142,13 +142,13 @@ public abstract class MapSbb implements Sbb {
 
 	}
 
-	public void onUnstructuredSSRequest(UnstructuredSSRequest evt, ActivityContextInterface aci) {
+	public void onUnstructuredSSResponse(UnstructuredSSResponse evt, ActivityContextInterface aci) {
 		USSDString ussdStrObj = evt.getUSSDString();
 		String ussdStr = ussdStrObj.getString();
 		long invokeId = evt.getInvokeId();
 
 		if (this.logger.isInfoEnabled()) {
-			this.logger.info(String.format("Received UNSTRUCTURED_SS_REQUEST_INDICATION event USSDString=%s invokeId=%d", ussdStr, invokeId));
+			this.logger.info(String.format("Received UNSTRUCTURED_SS_RESPONSE event USSDString=%s invokeId=%d", ussdStr, invokeId));
 		}
 
 		ussdStrObj = this.mapParameterFactory.createUSSDString("Your balance = 350");
