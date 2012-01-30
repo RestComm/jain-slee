@@ -89,7 +89,7 @@ public class SbbEventConfigDialog extends Dialog implements ModifyListener, Sele
 		label = new Label(topComp, SWT.NONE);
 		label.setText("&Event Direction:");
 		
-		directionCombo = new Combo(topComp, SWT.DROP_DOWN);
+		directionCombo = new Combo(topComp, SWT.DROP_DOWN | SWT.READ_ONLY);
 		directionCombo.setItems(EVENT_DIRECTIONS);
 		directionCombo.addModifyListener(this);
 		directionCombo.addSelectionListener(this);
