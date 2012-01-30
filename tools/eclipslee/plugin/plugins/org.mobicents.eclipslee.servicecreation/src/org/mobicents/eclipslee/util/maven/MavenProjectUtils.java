@@ -73,6 +73,7 @@ public class MavenProjectUtils {
 
   private static final Dependency JAIN_SLEE_DEPENDENCY = new Dependency();
   private static final Dependency JAIN_SLEE_EXT_DEPENDENCY = new Dependency();
+  private static final Dependency MOBICENTS_FT_RA_DEPENDENCY = new Dependency();
 
   static {
     MOBICENTS_PARENT.setGroupId("org.mobicents");
@@ -84,6 +85,10 @@ public class MavenProjectUtils {
     
     JAIN_SLEE_EXT_DEPENDENCY.setGroupId("org.mobicents.servers.jainslee.api");
     JAIN_SLEE_EXT_DEPENDENCY.setArtifactId("jain-slee-11-ext");
+
+    MOBICENTS_FT_RA_DEPENDENCY.setGroupId("org.mobicents.servers.jainslee.core");
+    MOBICENTS_FT_RA_DEPENDENCY.setArtifactId("fault-tolerant-ra-api");
+    MOBICENTS_FT_RA_DEPENDENCY.setVersion("2.6.0-SNAPSHOT");
   }
 
   public static void generateMavenPomFiles(IProject project, ProjectModules projectModules) {
@@ -384,6 +389,7 @@ public class MavenProjectUtils {
 
     // Add JAIN SLEE Dependency
     addDependency(model, JAIN_SLEE_DEPENDENCY);
+    addDependency(model, MOBICENTS_FT_RA_DEPENDENCY);
     // Not needed so far ...
     // if(useExtensions(project)) {
     //   addDependency(model, JAIN_SLEE_EXT_DEPENDENCY);
