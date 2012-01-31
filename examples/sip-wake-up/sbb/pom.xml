@@ -14,7 +14,7 @@
 		<dependency>
 			<artifactId>mobicents-slee-example-sip-jdbc-registrar-sbb</artifactId>
 			<groupId>org.mobicents.examples</groupId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.0.BETA1</version>
 		</dependency>
 	</dependencies>
 	
