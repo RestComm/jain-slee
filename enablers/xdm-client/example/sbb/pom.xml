@@ -4,14 +4,14 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.enablers.xdm.example</groupId>
 		<artifactId>xdm-client</artifactId>
-		<version>1.0.0.FINAL</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>xdm-client-sbb</artifactId>
 
 	<dependencies>
 		<dependency>
-			<version>1.0.0.FINAL</version>
+			<version>1.0.0-SNAPSHOT</version>
 			<artifactId>xdm-client-sbb</artifactId>
 			<groupId>org.mobicents.servers.jainslee.enablers</groupId>
 		</dependency>
