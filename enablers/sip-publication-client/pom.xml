@@ -11,7 +11,7 @@
 
 	<groupId>org.mobicents.servers.jainslee.enablers</groupId>
 	<artifactId>sip-publication-client</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0.FINAL</version>
 
 	<modules>
 		<module>sbb</module>
@@ -61,9 +61,9 @@
 	</profiles>
 
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/sip-publication-client</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/sip-publication-client</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/enablers/sip-publication-client</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/sip-publication-client/1.0.0.FINAL</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/sip-publication-client/1.0.0.FINAL</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/enablers/sip-publication-client/1.0.0.FINAL</url>
 	</scm>
 
 	<build>
