@@ -6,6 +6,21 @@
 
 <section id="Alarms_top">
 	<title>"Alarms" View</title>
+
+	<para>
+		<figure>
+			<title>Alarms Main View</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-smc-Alarms-main-view.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>The Alarms Main View, showing the existing Alarms, and an action link for clearing each.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+
 	<para>In this view, it's possible to monitor the alarms which occured in the SLEE. The alarms are listed by their Timestamp, ID, Level and Message.</para>
 
 	<note>
@@ -15,6 +30,20 @@
 
 	<section id="Alarms_details">
 		<title>View Alarms Details</title>
+
+		<para>
+			<figure>
+				<title>Alarms Details View</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-smc-Alarms-main-view.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>The Alarms Details View, showing the details of a selected alarm.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
 
 		<para>In the <guilabel>Active Alarms</guilabel> tab the list of alarms is shown. When clicking on one of the alarms ID, it's details are shown. The following details are displayed:</para>
 

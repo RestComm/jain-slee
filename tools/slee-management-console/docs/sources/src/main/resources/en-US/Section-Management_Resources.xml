@@ -6,7 +6,22 @@
 
 <section id="Resources_top">
 	<title>"Resources" View</title>
+
 	<para>In this view, the resource adaptors present in SLEE are shown, identified by their name, vendor, version and RA Type implemented. It is possible to view the resources, their details, view and manage Resource Adaptor Entities and Links.</para>
+
+	<para>
+		<figure>
+			<title>Resources Main View</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-smc-Resources-main-view.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>The Resources Main View, showing the existing Resource Adaptors, and the RA Type they implement.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
 
 	<section id="Resources_details">
 		<title>View Resource Adaptor Details</title>
@@ -146,9 +161,39 @@
 
 		<para>In the <guilabel>Usage Parameters</guilabel> tab is possible to view and manage the Resource Adaptors' Entities Usage Parameters. In this screen, select a Resource Adaptor and a Resource Adaptor Entity and if a Resource Adaptor Usage Parameter Interface is defined, this view will present the default and other available Usage Parameter Sets.</para>
 
+		<para>
+			<figure>
+				<title>Resource Adaptor Usage Parameters View</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-smc-Resources-usage-parameters-view.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>The Resource Adaptor Usage Parameters View, showing the available usage parameters sets for a selected Resource Adaptor.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+
 		<section id="Resources_usage_parameters_view">
 			<title>View Resource Adaptor Usage Parameters</title>
-			<para>In order to view the Usage Parameters for a given set click it's name. The following types are displayed:</para>
+			<para>In order to view the Usage Parameters for a given set click it's name.</para>
+
+			<para>
+				<figure>
+					<title>Resource Adaptor Usage Parameters Details View</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata width="100%" align="center" fileref="images/img-smc-Resources-usage-parameters-details.png" format="PNG"/>
+						</imageobject>
+						<textobject>
+							<para>The Resource Adaptor Usage Parameters Details View, showing the usage parameters sets for a selected set from a Resource Adaptor.</para>
+						</textobject>
+					</mediaobject>
+				</figure>
+			</para>
+
+			<para>The following types are displayed:</para>
 			<itemizedlist>
 				<listitem>
 					<para>Counter Type</para>

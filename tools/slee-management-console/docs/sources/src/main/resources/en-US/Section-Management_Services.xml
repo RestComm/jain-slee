@@ -6,6 +6,21 @@
 
 <section id="Services_top">
 	<title>"Services" View</title>
+
+	<para>
+		<figure>
+			<title>Services Main View</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-smc-Services-main-view.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>The Services Main View, showing the currently deployed JAIN SLEE services, and an action link to activate/deactivate them.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+
 	<para>In this view, the services present in SLEE are shown, along with their state. It is possible to view the services, their details, view and change the service state.</para>
 
 	<section id="Services_details">
@@ -84,6 +99,20 @@
 		<title>Service Usage Parameters</title>
 
 		<para>In the <guilabel>Usage Parameters</guilabel> tab is possible to view and manage the service <acronym>SBB</acronym>s Usage Parameters. In this screen, select a Service and an SBB and if a SBB Usage Parameter Interface is defined, this view will present the default and other available Usage Parameter Sets.</para>
+
+		<para>
+			<figure>
+				<title>Services Usage Parameters View</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-smc-Services-usage-parameters-view.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>The Services Usage Parameters View, showing non-existing usage parameters for a service.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
 
 		<section id="Services_usage_parameters_view">
 			<title>View Service Usage Parameters</title>

@@ -6,7 +6,24 @@
 
 <section id="SLEE">
 	<title>"<acronym>SLEE</acronym>" View</title>
-	<para>In this view, it is possible to view the ID of the server, such as name, vendor, version and codename and also the <acronym>SLEE</acronym> state. The following states can be observed:
+
+	<para>In this view, it is possible to view the ID of the server, such as name, vendor, version and codename and also the <acronym>SLEE</acronym> state.</para>
+
+	<para>
+		<figure>
+			<title>SLEE Main View</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-smc-SLEE-main-view.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>The SLEE Main View, showing the current state and buttons for allowing changes.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+
+	<para>The following states can be observed:
 		<itemizedlist>
 			<listitem>
 				<para><literal>STOPPED</literal></para>
