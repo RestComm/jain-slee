@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.20</version>
+		<version>2.21</version>
 	</parent>
 
 	<artifactId>mobicents-slee-example-sip-jdbc-registrar</artifactId>
@@ -30,12 +30,12 @@
 			<dependency>
 				<groupId>org.mobicents.resources</groupId>
 				<artifactId>sip11-ratype</artifactId>
-				<version>2.5.0.FINAL</version>
+				<version>2.6.0.FINAL</version>
 			</dependency>
 			<dependency>
 				<artifactId>mobicents-slee-ra-jdbc-ratype</artifactId>
 				<groupId>org.mobicents.resources</groupId>
-				<version>1.0.0.CR1</version>
+				<version>1.0.0.FINAL</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
