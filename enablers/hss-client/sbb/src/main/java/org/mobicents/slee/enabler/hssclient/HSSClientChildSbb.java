@@ -358,13 +358,7 @@ public abstract class HSSClientChildSbb implements Sbb, HSSClientChild {
     SubscribeNotificationsRequest snr = diameterShClientMessageFactory.createSubscribeNotificationsRequest(publicIdentityAvp, DataReferenceType.REPOSITORY_DATA, SubsReqType.fromInt(subscriptionRequestType));
     snr.setAuthSessionState(AuthSessionStateType.NO_STATE_MAINTAINED);
 
-    // hack.. to be fixed in Resource Adaptor
-    String[] serviceIndicationStrings = new String[serviceIndications.length];
-    for (int i = 0; i < serviceIndications.length; i++) {
-      serviceIndicationStrings[i] = new String(serviceIndications[i]);
-    }
-
-    snr.setServiceIndications(serviceIndicationStrings);
+    snr.setServiceIndications(serviceIndications);
 
     // Set destination -- Realm is mandatory, host is optional
     snr.setDestinationRealm(new DiameterIdentity(destinationRealm));
@@ -605,7 +599,7 @@ public abstract class HSSClientChildSbb implements Sbb, HSSClientChild {
     
     // Retrieve useful data from request
     String [] userIdentityValues = getUserIdentityValues(event);
-    String data = event.getUserData();
+    String data = new String(event.getUserData());
 
     // Deliver to parent
     getParent().receivedProfileUpdate(userIdentityValues[0], userIdentityValues[1].getBytes(), data, event.getOriginRealm().toString(), event.getOriginHost().toString());
@@ -614,7 +608,7 @@ public abstract class HSSClientChildSbb implements Sbb, HSSClientChild {
   public void onUserDataAnswer(UserDataAnswer event, RequestMappingACI aci) {
     MessageData udrData = aci.getRequestData();
 
-    String data = event.getUserData();
+    String data = new String(event.getUserData());
     long resultCode = event.getResultCode();
 
     // only one data ref should be present.. but at least one must!

@@ -106,11 +106,7 @@ public class MessageData implements Serializable {
       }
       this.dataReferences = snr.getDataReferences();
 
-      String[] serviceIndicationStrings = snr.getServiceIndications();
-      this.serviceIndications = new byte[serviceIndicationStrings.length][];
-      for (int i = 0; i < serviceIndicationStrings.length; i++) {
-        this.serviceIndications[i] = serviceIndicationStrings[i].getBytes();
-      }
+      this.serviceIndications = snr.getServiceIndications();
 
       if(snr.hasServerName()) {
         this.serverName = snr.getServerName();
