@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>mobicents-slee-example-sip-jdbc-registrar-docs</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0.BETA1</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-example-sip-jdbc-registrar-docs-jdocbook-jbcp</artifactId>

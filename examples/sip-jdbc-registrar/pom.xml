@@ -1,7 +1,4 @@
-<project
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>pom</packaging>
@@ -14,7 +11,7 @@
 
 	<artifactId>mobicents-slee-example-sip-jdbc-registrar</artifactId>
 	<groupId>org.mobicents.examples</groupId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0.BETA1</version>
 
 	<modules>
 		<module>sbb</module>
@@ -72,9 +69,9 @@
 	</profiles>
 
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-jdbc-registrar</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-jdbc-registrar</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-jdbc-registrar</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-jdbc-registrar/1.0.0.BETA1</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-jdbc-registrar/1.0.0.BETA1</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-jdbc-registrar/1.0.0.BETA1</url>
 	</scm>
 
 	<build>
