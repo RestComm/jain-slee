@@ -36,7 +36,7 @@
 				<title>Alarms Details View</title>
 				<mediaobject>
 					<imageobject>
-						<imagedata width="100%" align="center" fileref="images/img-smc-Alarms-main-view.png" format="PNG"/>
+						<imagedata width="100%" align="center" fileref="images/img-smc-Alarms-alarm-details.png" format="PNG"/>
 					</imageobject>
 					<textobject>
 						<para>The Alarms Details View, showing the details of a selected alarm.</para>
