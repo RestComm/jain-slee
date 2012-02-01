@@ -109,6 +109,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   public GqAAAnswer createGqAAAnswer(GqAARequest aar) {
     Message raw = createMessage(aar.getHeader(), new DiameterAvp[] {});
     raw.setRequest(false); // this should be different ...
+    raw.setReTransmitted(false); // just in case. answers never have T flag set
     GqAAAnswerImpl aaa = new GqAAAnswerImpl(raw);
     aaa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     aaa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -150,6 +151,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   public GqAbortSessionAnswer createGqAbortSessionAnswer(GqAbortSessionRequest asr) {
     Message raw = createMessage(asr.getHeader(), new DiameterAvp[] {});
     raw.setRequest(false); // this should be different ...
+    raw.setReTransmitted(false); // just in case. answers never have T flag set
     GqAbortSessionAnswerImpl asa = new GqAbortSessionAnswerImpl(raw);
     asa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     asa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -194,6 +196,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   public GqReAuthAnswer createGqReAuthAnswer(GqReAuthRequest rar) {
     Message raw = createMessage(rar.getHeader(), new DiameterAvp[] {});
     raw.setRequest(false); // this should be different ...
+    raw.setReTransmitted(false); // just in case. answers never have T flag set
     GqReAuthAnswerImpl raa = new GqReAuthAnswerImpl(raw);
     raa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     raa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -238,6 +241,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   public GqSessionTerminationAnswer createGqSessionTerminationAnswer(GqSessionTerminationRequest str) {
     Message raw = createMessage(str.getHeader(), new DiameterAvp[] {});
     raw.setRequest(false); // this should be different ...
+    raw.setReTransmitted(false); // just in case. answers never have T flag set
     GqSessionTerminationAnswerImpl sta = new GqSessionTerminationAnswerImpl(raw);
     sta.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     sta.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -318,7 +322,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
       msg.setRequest(isRequest);
       msg.setProxiable(isProxiable);
       msg.setError(isError);
-      msg.setReTransmitted(isPotentiallyRetransmitted);
+      msg.setReTransmitted(isRequest && isPotentiallyRetransmitted);
     }
     catch (IllegalDiameterStateException e) {
       logger.error("Failed to get session factory for message creation.", e);
