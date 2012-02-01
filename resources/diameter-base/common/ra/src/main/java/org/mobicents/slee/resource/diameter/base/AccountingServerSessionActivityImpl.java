@@ -102,6 +102,7 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
       // This is an answer.
       Message rawAnswer = answer.getGenericData();
       rawAnswer.setRequest(false);
+      rawAnswer.setReTransmitted(false); // just in case. answers never have T flag set
 
       return new AccountingAnswerImpl(rawAnswer);
     }

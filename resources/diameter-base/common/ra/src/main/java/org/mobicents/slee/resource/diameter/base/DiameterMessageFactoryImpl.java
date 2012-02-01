@@ -304,6 +304,10 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
         ExtensionDiameterMessageImpl msg = (ExtensionDiameterMessageImpl) this.createDiameterMessage(null, avps, command.getCode(), aid);
         msg.getGenericData().setRequest(command.isRequest());
         ((MessageImpl)msg.getGenericData()).setProxiable(command.isProxiable());
+        if(!command.isRequest()) {
+          // just in case. answers never have T flag set
+          ((MessageImpl)msg.getGenericData()).setReTransmitted(false);
+        }
 
         return msg;
   }
@@ -396,6 +400,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
       Message raw = createMessage(diameterHeader, avps, 0, appId);
       //raw.setProxiable(true);
       raw.setRequest(false);
+      raw.setReTransmitted(false); // just in case. answers never have T flag set
       msg = raw;
     }
     else {
@@ -496,7 +501,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory {
       msg.setRequest(isRequest);
       msg.setProxiable(isProxiable);
       msg.setError(isError);
-      msg.setReTransmitted(isPotentiallyRetransmitted);
+      msg.setReTransmitted(isRequest && isPotentiallyRetransmitted);
       
       return msg;
     }
