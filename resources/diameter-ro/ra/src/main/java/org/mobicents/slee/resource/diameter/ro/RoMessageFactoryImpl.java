@@ -150,12 +150,14 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
     RoCreditControlAnswerImpl msg = new RoCreditControlAnswerImpl(createMessage(ccr.getHeader(), new DiameterAvp[] {}));
 
     // FIXME: ammendonca: go through proper methods...
-    msg.getGenericData().setRequest(false);
-    
-    msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
-    msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
-    msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_HOST);
-    msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_REALM);
+    Message raw = msg.getGenericData();
+    raw.setRequest(false);
+    raw.setReTransmitted(false); // just in case. answers never have T flag set
+
+    raw.getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
+    raw.getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
+    raw.getAvps().removeAvp(DiameterAvpCodes.ORIGIN_HOST);
+    raw.getAvps().removeAvp(DiameterAvpCodes.ORIGIN_REALM);
     msg.setSessionId(request.getSessionId());
     // Now copy the needed AVPs
 
@@ -194,6 +196,7 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
       Message raw = createMessage(diameterHeader, avps);
       raw.setProxiable(true);
       raw.setRequest(false);
+      raw.setReTransmitted(false); // just in case. answers never have T flag set
       msg = new RoCreditControlAnswerImpl(raw);
     } else {
       Message raw = createMessage(null, avps);
@@ -261,7 +264,7 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
     msg.setRequest(isRequest);
     msg.setProxiable(isProxiable);
     msg.setError(isError);
-    msg.setReTransmitted(isPotentiallyRetransmitted);
+    msg.setReTransmitted(isRequest && isPotentiallyRetransmitted);
 
     return msg;
   }
