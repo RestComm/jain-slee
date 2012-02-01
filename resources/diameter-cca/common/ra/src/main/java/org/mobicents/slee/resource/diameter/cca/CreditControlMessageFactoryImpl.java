@@ -248,6 +248,7 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
       Message raw = createMessage(diameterHeader, avps);
       raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
+      raw.setReTransmitted(false); // just in case. answers never have T flag set
       msg = new CreditControlAnswerImpl(raw);
     }
     else {
