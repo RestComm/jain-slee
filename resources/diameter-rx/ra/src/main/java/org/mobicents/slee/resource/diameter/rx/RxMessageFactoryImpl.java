@@ -267,6 +267,7 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     if (!creatingRequest) {
       Message raw = createMessage(diameterHeader, avps, 0, appId);
       raw.setRequest(false);
+      raw.setReTransmitted(false); // just in case. answers never have T flag set
       msg = raw;
     }
     else {
@@ -367,7 +368,7 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
       msg.setRequest(isRequest);
       msg.setProxiable(isProxiable);
       msg.setError(isError);
-      msg.setReTransmitted(isPotentiallyRetransmitted);
+      msg.setReTransmitted(isRequest && isPotentiallyRetransmitted);
 
       return msg;
     }
