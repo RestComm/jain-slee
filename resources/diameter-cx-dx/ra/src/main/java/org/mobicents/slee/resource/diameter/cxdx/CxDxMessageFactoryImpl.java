@@ -271,6 +271,7 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
       Message raw = createMessage(diameterHeader, avps, 0, appId);
       raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
+      raw.setReTransmitted(false); // just in case. answers never have T flag set
       msg = raw;
     }
     else {
