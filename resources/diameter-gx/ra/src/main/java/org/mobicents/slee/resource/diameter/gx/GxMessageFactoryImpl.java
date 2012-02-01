@@ -139,6 +139,7 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
         final Message raw = createMessage(ccr.getHeader(), new DiameterAvp[]{});
         raw.setProxiable(ccr.getHeader().isProxiable());
         raw.setRequest(false);
+        raw.setReTransmitted(false); // just in case. answers never have T flag set
         final GxCreditControlAnswerImpl msg = new GxCreditControlAnswerImpl(raw);
         
 
@@ -174,6 +175,7 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
         final Message raw = this.createReAuthMessage(rar.getHeader(), new DiameterAvp[]{});
         raw.setProxiable(rar.getHeader().isProxiable());
         raw.setRequest(false);
+        raw.setReTransmitted(false); // just in case. answers never have T flag set
         final GxReAuthAnswerImpl msg = new GxReAuthAnswerImpl(raw);
         
 
@@ -220,6 +222,7 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
             final Message raw = createMessage(diameterHeader, avps);
             raw.setProxiable(true);
             raw.setRequest(false);
+            raw.setReTransmitted(false); // just in case. answers never have T flag set
             msg = new GxCreditControlAnswerImpl(raw);
         } else {
             final Message raw = createMessage(null, avps);
@@ -243,6 +246,7 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
             final Message raw = createReAuthMessage(diameterHeader, avps);
             raw.setProxiable(true);
             raw.setRequest(false);
+            raw.setReTransmitted(false); // just in case. answers never have T flag set
             msg = new GxReAuthAnswerImpl(raw);
         } else {
             final Message raw = createReAuthMessage(null, avps);
