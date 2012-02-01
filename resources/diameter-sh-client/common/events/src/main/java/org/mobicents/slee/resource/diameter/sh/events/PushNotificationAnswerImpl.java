@@ -50,6 +50,7 @@ public class PushNotificationAnswerImpl extends DiameterShMessageImpl implements
     super(msg);
 
     msg.setRequest(false);
+    msg.setReTransmitted(false); // just in case. answers never have T flag set
 
     super.longMessageName = "Push-Notificaton-Answer";
     super.shortMessageName = "PNA";

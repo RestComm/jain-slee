@@ -76,6 +76,7 @@ public class UserDataAnswerImpl extends DiameterShMessageImpl implements UserDat
   public UserDataAnswerImpl(Message msg) {
     super(msg);
     msg.setRequest(false);
+    msg.setReTransmitted(false); // just in case. answers never have T flag set
     super.longMessageName = "User-Data-Answer";
     super.shortMessageName = "UDA";
   }

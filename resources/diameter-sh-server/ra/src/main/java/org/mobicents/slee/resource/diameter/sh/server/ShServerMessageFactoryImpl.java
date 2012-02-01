@@ -300,6 +300,7 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
       Message raw = createMessage(diameterHeader, avps);
       raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
+      raw.setReTransmitted(false); // just in case. answers never have T flag set
       msg = raw;
     }
     else {

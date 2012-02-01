@@ -51,6 +51,7 @@ public class SubscribeNotificationsAnswerImpl extends DiameterShMessageImpl impl
   public SubscribeNotificationsAnswerImpl(Message msg) {
     super(msg);
     msg.setRequest(false);
+    msg.setReTransmitted(false); // just in case. answers never have T flag set
     super.longMessageName = "Subscribe-Notification-Answer";
     super.shortMessageName = "SNA";
   }

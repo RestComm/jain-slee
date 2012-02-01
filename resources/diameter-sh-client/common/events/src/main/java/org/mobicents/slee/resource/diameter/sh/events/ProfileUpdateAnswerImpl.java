@@ -45,6 +45,7 @@ public class ProfileUpdateAnswerImpl extends DiameterShMessageImpl implements Pr
   public ProfileUpdateAnswerImpl(Message msg) {
     super(msg);
     msg.setRequest(false);
+    msg.setReTransmitted(false); // just in case. answers never have T flag set
     super.longMessageName = "Profile-Update-Answer";
     super.shortMessageName = "PUA";
   }
