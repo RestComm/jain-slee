@@ -66,7 +66,7 @@
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-s6a</tagBase>
-                            <branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/resources/diameter-s6a</branchBase>
+							<branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/resources/diameter-s6a</branchBase>
                             <preparationGoals>clean install</preparationGoals>
                         </configuration>
                     </plugin>
@@ -76,9 +76,9 @@
     </profiles>
 
     <scm>
-    <connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-rs6a/1.0.0.CR1</connection>
-    <developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-s6a/1.0.0.CR1</developerConnection>
-    <url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-s6a/1.0.0.CR1</url>
+      <connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-s6a</connection>
+      <developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-s6a</developerConnection>
+      <url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-s6a</url>
     </scm>
 
     <build>
