@@ -27,18 +27,16 @@ import org.jdiameter.api.SessionFactory;
 import org.jdiameter.api.app.AppAnswerEvent;
 import org.jdiameter.api.app.AppRequestEvent;
 import org.jdiameter.api.app.AppSession;
-
-import org.jdiameter.api.auth.events.ReAuthAnswer;
-import org.jdiameter.api.auth.events.ReAuthRequest;
-import org.jdiameter.api.auth.events.SessionTermAnswer;
-import org.jdiameter.api.auth.events.SessionTermRequest;
-import org.jdiameter.api.auth.events.AbortSessionAnswer;
-import org.jdiameter.api.auth.events.AbortSessionRequest;
-
 import org.jdiameter.api.rx.ClientRxSession;
 import org.jdiameter.api.rx.ServerRxSession;
 import org.jdiameter.api.rx.events.RxAAAnswer;
 import org.jdiameter.api.rx.events.RxAARequest;
+import org.jdiameter.api.rx.events.RxAbortSessionAnswer;
+import org.jdiameter.api.rx.events.RxAbortSessionRequest;
+import org.jdiameter.api.rx.events.RxReAuthAnswer;
+import org.jdiameter.api.rx.events.RxReAuthRequest;
+import org.jdiameter.api.rx.events.RxSessionTermAnswer;
+import org.jdiameter.api.rx.events.RxSessionTermRequest;
 import org.jdiameter.common.impl.app.rx.RxSessionFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.handlers.DiameterRAInterface;
 
@@ -71,12 +69,12 @@ public class RxSessionFactory extends RxSessionFactoryImpl {
   }
 
   @Override
-  public void doSessionTermAnswer(ClientRxSession session, SessionTermRequest request, SessionTermAnswer answer) throws InternalException {
+  public void doSessionTermAnswer(ClientRxSession session, RxSessionTermRequest request, RxSessionTermAnswer answer) throws InternalException {
     ra.fireEvent(session.getSessionId(), answer.getMessage());
   }
 
   @Override
-  public void doSessionTermRequest(ServerRxSession session, SessionTermRequest request) throws InternalException {
+  public void doSessionTermRequest(ServerRxSession session, RxSessionTermRequest request) throws InternalException {
     ra.fireEvent(session.getSessionId(), request.getMessage());
   }
 
@@ -91,22 +89,22 @@ public class RxSessionFactory extends RxSessionFactoryImpl {
   }
 
   @Override
-  public void doReAuthAnswer(ServerRxSession session, ReAuthRequest request, ReAuthAnswer answer) throws InternalException {
+  public void doReAuthAnswer(ServerRxSession session, RxReAuthRequest request, RxReAuthAnswer answer) throws InternalException {
     ra.fireEvent(session.getSessionId(), answer.getMessage());
   }
 
   @Override
-  public void doReAuthRequest(ClientRxSession session, ReAuthRequest request) throws InternalException {
+  public void doReAuthRequest(ClientRxSession session, RxReAuthRequest request) throws InternalException {
     ra.fireEvent(session.getSessionId(), request.getMessage());
   }
 
   @Override
-  public void doAbortSessionAnswer(ServerRxSession session, AbortSessionRequest request, AbortSessionAnswer answer) throws InternalException {
+  public void doAbortSessionAnswer(ServerRxSession session, RxAbortSessionRequest request, RxAbortSessionAnswer answer) throws InternalException {
     ra.fireEvent(session.getSessionId(), answer.getMessage());
   }
 
   @Override
-  public void doAbortSessionRequest(ClientRxSession session, AbortSessionRequest request) throws InternalException {
+  public void doAbortSessionRequest(ClientRxSession session, RxAbortSessionRequest request) throws InternalException {
     ra.fireEvent(session.getSessionId(), request.getMessage());
   }
 

@@ -44,10 +44,10 @@ import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.rx.ClientRxSession;
 import org.jdiameter.common.api.app.rx.ClientRxSessionState;
-import org.jdiameter.common.impl.app.auth.AbortSessionAnswerImpl;
-import org.jdiameter.common.impl.app.auth.ReAuthAnswerImpl;
-import org.jdiameter.common.impl.app.auth.SessionTermRequestImpl;
 import org.jdiameter.common.impl.app.rx.RxAARequestImpl;
+import org.jdiameter.common.impl.app.rx.RxAbortSessionAnswerImpl;
+import org.jdiameter.common.impl.app.rx.RxReAuthAnswerImpl;
+import org.jdiameter.common.impl.app.rx.RxSessionTermRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 /**
@@ -136,7 +136,7 @@ public class RxClientSessionActivityImpl extends RxSessionActivityImpl implement
   public void sendSessionTermRequest(final SessionTerminationRequest str) throws IOException {
     final DiameterMessageImpl msg = (DiameterMessageImpl) str;
     try {
-      session.sendSessionTermRequest(new SessionTermRequestImpl((Request) msg.getGenericData()));
+      session.sendSessionTermRequest(new RxSessionTermRequestImpl((Request) msg.getGenericData()));
     }
     catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
@@ -153,7 +153,7 @@ public class RxClientSessionActivityImpl extends RxSessionActivityImpl implement
     final DiameterMessageImpl msg = (DiameterMessageImpl) raa;
 
     try {
-      session.sendReAuthAnswer(new ReAuthAnswerImpl((Answer) msg.getGenericData()));
+      session.sendReAuthAnswer(new RxReAuthAnswerImpl((Answer) msg.getGenericData()));
     }
     catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
@@ -167,7 +167,7 @@ public class RxClientSessionActivityImpl extends RxSessionActivityImpl implement
     final DiameterMessageImpl msg = (DiameterMessageImpl) asr;
 
     try {
-      session.sendAbortSessionAnswer(new AbortSessionAnswerImpl((Answer) msg.getGenericData()));
+      session.sendAbortSessionAnswer(new RxAbortSessionAnswerImpl((Answer) msg.getGenericData()));
     }
     catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());

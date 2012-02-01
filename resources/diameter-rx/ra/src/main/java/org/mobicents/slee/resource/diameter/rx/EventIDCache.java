@@ -31,10 +31,10 @@ import javax.slee.EventTypeID;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.resource.FireableEventType;
 
-import net.java.slee.resource.diameter.base.events.AbortSessionRequest;
-import net.java.slee.resource.diameter.base.events.ReAuthRequest;
-import net.java.slee.resource.diameter.base.events.SessionTerminationRequest;
 import net.java.slee.resource.diameter.rx.events.AARequest;
+import net.java.slee.resource.diameter.rx.events.AbortSessionRequest;
+import net.java.slee.resource.diameter.rx.events.ReAuthRequest;
+import net.java.slee.resource.diameter.rx.events.SessionTerminationRequest;
 
 import org.jdiameter.api.Message;
 

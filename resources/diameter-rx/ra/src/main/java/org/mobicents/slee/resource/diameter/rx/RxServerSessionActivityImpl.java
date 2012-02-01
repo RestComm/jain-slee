@@ -26,17 +26,16 @@ import java.io.IOException;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
-
-
-import net.java.slee.resource.diameter.rx.events.*;
-
-
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.rx.RxServerSessionActivity;
 import net.java.slee.resource.diameter.rx.RxSessionState;
 import net.java.slee.resource.diameter.rx.events.AAAnswer;
 import net.java.slee.resource.diameter.rx.events.AARequest;
+import net.java.slee.resource.diameter.rx.events.AbortSessionRequest;
+import net.java.slee.resource.diameter.rx.events.ReAuthRequest;
+import net.java.slee.resource.diameter.rx.events.SessionTerminationAnswer;
+import net.java.slee.resource.diameter.rx.events.SessionTerminationRequest;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.Answer;
@@ -47,13 +46,11 @@ import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.rx.ServerRxSession;
 import org.jdiameter.common.api.app.rx.ServerRxSessionState;
-
 import org.jdiameter.common.impl.app.rx.RxAAAnswerImpl;
+import org.jdiameter.common.impl.app.rx.RxAbortSessionRequestImpl;
+import org.jdiameter.common.impl.app.rx.RxReAuthRequestImpl;
+import org.jdiameter.common.impl.app.rx.RxSessionTermAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
-
-import org.jdiameter.common.impl.app.auth.ReAuthRequestImpl;
-import org.jdiameter.common.impl.app.auth.SessionTermAnswerImpl;
-import org.jdiameter.common.impl.app.auth.AbortSessionRequestImpl;
 
 /**
  * Implementation of {@link RxServerSessionActivity}.
@@ -145,7 +142,7 @@ public class RxServerSessionActivityImpl extends RxSessionActivityImpl implement
     final DiameterMessageImpl msg = (DiameterMessageImpl) sta;
 
     try {
-      session.sendSessionTermAnswer(new SessionTermAnswerImpl((Answer) msg.getGenericData()));
+      session.sendSessionTermAnswer(new RxSessionTermAnswerImpl((Answer) msg.getGenericData()));
     }
     catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       final AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
@@ -169,7 +166,7 @@ public class RxServerSessionActivityImpl extends RxSessionActivityImpl implement
     final DiameterMessageImpl msg = (DiameterMessageImpl) rar;
 
     try {
-      session.sendReAuthRequest(new ReAuthRequestImpl((Request) msg.getGenericData()));
+      session.sendReAuthRequest(new RxReAuthRequestImpl((Request) msg.getGenericData()));
     }
     catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       final AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
@@ -193,7 +190,7 @@ public class RxServerSessionActivityImpl extends RxSessionActivityImpl implement
     final DiameterMessageImpl msg = (DiameterMessageImpl) asr;
 
     try {
-      session.sendAbortSessionRequest(new AbortSessionRequestImpl((Request) msg.getGenericData()));
+      session.sendAbortSessionRequest(new RxAbortSessionRequestImpl((Request) msg.getGenericData()));
     }
     catch (org.jdiameter.api.validation.AvpNotAllowedException e) {
       final AvpNotAllowedException anae = new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
