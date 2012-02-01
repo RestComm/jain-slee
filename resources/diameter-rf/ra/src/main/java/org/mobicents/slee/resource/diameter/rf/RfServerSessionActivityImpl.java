@@ -114,6 +114,7 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
 
       // This is an answer.
       rawAnswer.setRequest(false);
+      rawAnswer.setReTransmitted(false); // just in case. answers never have T flag set
 
       RfAccountingAnswerImpl ans = new RfAccountingAnswerImpl(rawAnswer);
       ans.setData(request);

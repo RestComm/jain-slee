@@ -86,6 +86,7 @@ public class RfMessageFactoryImpl implements RfMessageFactory {
       Message raw = createMessage(diameterHeader, avps);
       raw.setProxiable(true);
       raw.setRequest(false);
+      raw.setReTransmitted(false); // just in case. answers never have T flag set
       msg = new RfAccountingAnswerImpl(raw);
     } else {
       Message raw = createMessage(null, avps);
