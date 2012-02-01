@@ -120,6 +120,7 @@ public class S6aMessageFactoryImpl extends DiameterMessageFactoryImpl implements
       Message raw = createMessage(diameterHeader, avps, 0, appId);
       raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
+      raw.setReTransmitted(false); // just in case. answers never have T flag set
       raw.getAvps().removeAvp(Avp.AUTH_APPLICATION_ID);
       msg = raw;
     }
