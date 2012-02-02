@@ -13,7 +13,7 @@
 
 	<groupId>org.mobicents.servers.diameter.resources</groupId>
 	<artifactId>gq-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0.CR1</version>
 
 	<name>Mobicents :: Diameter Resources :: ${pom.artifactId}</name>
 
@@ -67,9 +67,9 @@
 	</profiles>
 
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-gq</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-gq</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-gq</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-gq/1.0.0.CR1</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-gq/1.0.0.CR1</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-gq/1.0.0.CR1</url>
 	</scm>
 
 	<build>
