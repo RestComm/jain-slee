@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.18</version>
+		<version>2.21</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-ra-map</artifactId>
@@ -28,13 +28,13 @@
 		<docs.ra.dirname>MAP</docs.ra.dirname>
 		<docs.bookid>MAP</docs.bookid>
 		
-		<map.version>1.0.0-SNAPSHOT</map.version>
-		<tcap.version>1.0.0-SNAPSHOT</tcap.version>
-		<sccp.version>1.0.0-SNAPSHOT</sccp.version>
+		<map.version>1.0.0.CR2</map.version>
+		<tcap.version>1.0.0.CR2</tcap.version>
+		<sccp.version>1.0.0.CR2</sccp.version>
 		<asn.version>1.0.0.CR1</asn.version>
-		<mtp.version>1.0.0-SNAPSHOT</mtp.version>
+		<mtp.version>1.0.0.CR2</mtp.version>
 		<stream.version>1.0.0.CR1</stream.version>
-		<m3ua.version>1.0.0-SNAPSHOT</m3ua.version>
+		<m3ua.version>1.0.0.CR2</m3ua.version>
 		
 		<javolution.version>5.5.1</javolution.version>
 	</properties>
