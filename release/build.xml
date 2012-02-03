@@ -3,7 +3,7 @@
 
 	<property environment="sys"/>
 	
-	<property name="ra.dirs" value="mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-gq,diameter-rx,xcap-client"/>
+	<property name="ra.dirs" value="mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-gq,diameter-rx,diameter-s6a,xcap-client"/>
 	<property name="example.dirs" value="mscontrol-demo,slee-connectivity,sip-jdbc-registrar,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo"/>
 	<property name="enabler.dirs" value="rest-client,xdm-client,sip-publication-client,sip-subscription-client,hss-client"/>
 	<property name="tool.dirs" value="jopr-plugin,eclipslee,remote-slee-connection,twiddle"/>
@@ -22,7 +22,7 @@
 	<property name="mms.version" value="2.1.0.BETA4" />
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-2.1.0-b5.zip"/>
 	-->
-	<property name="mms.download.url" value ="http://hudson.qa.jboss.com/hudson/view/Mobicents/job/Mobicents-MediaServer-2.x-Release/535/artifact/mms-server-r21645-120125233113.zip"/>	
+	<property name="mms.download.url" value ="http://hudson.qa.jboss.com/hudson/view/Mobicents/job/Mobicents-MediaServer-2.x-Release/544/artifact/mms-server-r21834-120202212603.zip"/>	
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 
 	<property name="ss7.version" value="1.0.0.CR2" />
@@ -30,7 +30,7 @@
 	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip"/>
 		
 	
-	<property name="diameter.version" value="1.4.0.CR1" />
+	<property name="diameter.version" value="1.4.0.CR2" />
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
 	<!--
 	<property name="diameter.download.url" value ="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Diameter-1.x-Release/lastSuccessfulBuild/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201109060020.sar.zip"/>	
@@ -228,14 +228,15 @@
 
 	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-core,build-tools,get-eclipslee,build-sip-balancer,build-ras,build-enablers,build-examples,build-sources-for-debug-zip">
 		
-		<!-- hack to replace diameter cluster libs -->
+		<!-- hack to replace diameter cluster libs 
 		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/cache-1.12.jar" failonerror="true"/>
 		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/core-1.12.jar" failonerror="true"/>
 		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/timers-1.12.jar" failonerror="true"/>
 		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/lib/cache-1.13-SNAPSHOT.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/cache-1.13-SNAPSHOT.jar"/>
 		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/lib/core-1.13-SNAPSHOT.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/core-1.13-SNAPSHOT.jar"/>
 		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/lib/timers-1.13-SNAPSHOT.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/timers-1.13-SNAPSHOT.jar"/>
-
+		-->
+		
 		<!-- copy log4j presets -->
 		<copy file="${release.dir}/jboss-${jboss.version}/server/default/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${release.dir}/jboss-${jboss.version}/server/default/conf/jboss-log4j.xml" overwrite="true" />
 		<copy file="${release.dir}/jboss-${jboss.version}/server/all/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${release.dir}/jboss-${jboss.version}/server/all/conf/jboss-log4j.xml" overwrite="true" />
