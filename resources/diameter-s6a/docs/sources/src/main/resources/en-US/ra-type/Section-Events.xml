@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_events">
+
+	<title>Events</title>
+
+	<para>&THIS.RA; Resource Adaptor Type declares the Diameter S6a Interface specific events.</para>
+	<para>The following tables shows which events are fired on each activity.</para>
+
+	<table frame="all" pgwide="1">
+		<title>Events received on S6a Server Activity</title>
+		<tgroup colsep="1" cols="4">
+		   	<colspec colnum="1" colname="c0" colwidth="2.5*" />
+		    <colspec colnum="2" colname="c1" colwidth="1*" />
+		    <colspec colnum="3" colname="c2" colwidth="1*" />
+		    <colspec colnum="4" colname="c3" colwidth="2.5*" />
+		    <thead>
+				<row>
+		    	    <entry>Name</entry>
+		   	    	<entry>Vendor</entry>
+		   	    	<entry>Version</entry>
+		   	    	<entry>Class</entry>
+		    	</row>
+			</thead>
+			<tbody>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. AuthenticationInformationRequest</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. AuthenticationInformationRequest</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. CancelLocationAnswer</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. CancelLocationAnswer</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. DeleteSubscriberDataAnswer</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. DeleteSubscriberDataAnswer</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. InsertSubscriberDataAnswer</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. InsertSubscriberDataAnswer</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. NotifyRequest</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. NotifyRequest</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. PurgeUERequest</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. PurgeUERequest</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. ResetRequest</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. ResetRequest</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. UpdateLocationAnswer</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. UpdateLocationAnswer</entry>
+			    </row>
+			</tbody>
+	 	</tgroup>
+	</table>
+	<table frame="all" pgwide="1">
+		<title>Events received on S6a Client Activity</title>
+		<tgroup colsep="1" cols="4">
+		   	<colspec colnum="1" colname="c0" colwidth="2.5*" />
+		    <colspec colnum="2" colname="c1" colwidth="1*" />
+		    <colspec colnum="3" colname="c2" colwidth="1*" />
+		    <colspec colnum="4" colname="c3" colwidth="2.5*" />
+		    <thead>
+				<row>
+		    	    <entry>Name</entry>
+		   	    	<entry>Vendor</entry>
+		   	    	<entry>Version</entry>
+		   	    	<entry>Class</entry>
+		    	</row>
+			</thead>
+			<tbody>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. AuthenticationInformationAnswer</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. AuthenticationInformationAnswer</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. CancelLocationRequest</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. CancelLocationRequest</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. DeleteSubscriberDataRequest</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. DeleteSubscriberDataRequest</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. InsertSubscriberDataRequest</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. InsertSubscriberDataRequest</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. NotifyAnswer</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. NotifyAnswer</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. PurgeUEAnswer</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. PurgeUEAnswer</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. ResetAnswer</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. ResetAnswer</entry>
+			    </row>
+				<row>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. UpdateLocationRequest</entry>
+			   	    <entry>java.net</entry>
+			   	    <entry>0.8</entry>
+			   		<entry>net.java.slee.resource. diameter.s6a.events. UpdateLocationRequest</entry>
+			    </row>
+			</tbody>
+	 	</tgroup>
+	</table>
+
+	<important>
+		<para>Spaces where introduced in <literal>Name</literal> and <literal>Event Class</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>
+</section>

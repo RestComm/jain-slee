@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="ra_clustering">
+	<title>Clustering</title>
+	<section
+		id="ra_clustering_failover">
+		<title>Failover</title>
+		<para>
+			The Diameter stack used by the &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor supports application session failover, with specific session state being replicated, thus only available for Application sessions.
+			Failover of application activities is transparent to SLEE applications. This means that SLEE applications must be in charge of properly adapting its state machine to recover generic session on node failure.
+		</para>
+	</section>
+	<section
+		id="ra_clustering_load_balancing">
+		<title>Load Balancing</title>
+		<para>Currently, the only available balancing mechanism is provided by Diameter stack. It depends on <ulink url="http://tools.ietf.org/html/rfc3588">RFC 3588</ulink> algorithm to select one peer from realm serving the desired application.</para>
+	</section>
+</chapter>

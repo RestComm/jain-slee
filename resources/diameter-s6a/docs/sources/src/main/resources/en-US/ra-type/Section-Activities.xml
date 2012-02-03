@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para>&THIS.RA; Type &THIS.VERSION;	defines the following Activities:</para>
+	
+	<variablelist>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.s6a.S6aServerSessionActivity</term>
+			<listitem>
+				<para>This type of activity represents server side of S6a session. Authentication-Information-Request (AIR), Purge-UE-Request (PUR) and Update-Location-Request (ULR) messages are received in this Activity and respective Answers are sent from it. Cancel-Location-Request (CLR), Delete-Subscriber-Data-Request (DSR), Insert-Subscriber-Data-Request (DSR), Notify-Request (NOR) and Reset-Request (RSR) messages can be created and sent in this Activity, receiving the respective Answer (or timeout) later on this Activity.</para>
+				<para>This activity type is implicitly created by the Resource Adaptor upon reception of the AA-Request message. It ends once underlying S6a session ends.</para>
+				<!-- para>State machine for server Authorization sessions can be found at <ulink url="http://tools.ietf.org/html/rfc3588#section-8.1">Section 8.1</ulink> of Diameter Base Protocol RFC.</para -->
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.s6a.S6aClientSessionActivity</term>
+			<listitem>
+				<para>This type of activity represents client side of S6a session. Cancel-Location-Request (CLR), Delete-Subscriber-Data-Request (DSR), Insert-Subscriber-Data-Request (DSR), Notify-Request (NOR) and Reset-Request (RSR) messages are received in this Activity and respective Answers are sent from it. Authentication-Information-Request (AIR), Purge-UE-Request (PUR) and Update-Location-Request (ULR) messages can be created and sent in this Activity, receiving the respective Answer (or timeout) later on this Activity.</para>
+				<para>This activity type can be created with call to the proper <methodname>createS6aClientSessionActivity</methodname> method of <classname>net.java.slee.resource.diameter.s6a.S6aProvider</classname>. It ends once underlying S6a session ends.</para>
+				<!-- para>State machine for client Authorization sessions can be found at <ulink url="http://tools.ietf.org/html/rfc3588#section-8.1">Section 8.1</ulink> of Diameter Base Protocol RFC.</para -->
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	
+	<para>
+		All activities define methods required to properly function and	expose necessary information to	<acronym>JAIN SLEE</acronym> services.
+		S6a Server Activity is defined as follows:
+	</para>
+	
+	<programlisting role="JAVA" language="Java">
+	  public UpdateLocationAnswer createUpdateLocationAnswer();
+
+	  public void sendUpdateLocationAnswer(UpdateLocationAnswer ula) throws IOException;
+
+	  public AuthenticationInformationAnswer createAuthenticationInformationAnswer();
+
+	  public void sendAuthenticationInformationAnswer(AuthenticationInformationAnswer aia) throws IOException;
+
+	  public void sendCancelLocationRequest(CancelLocationRequest clr) throws IOException;
+
+	  public void sendInsertSubscriberDataRequest(InsertSubscriberDataRequest idr) throws IOException;
+
+	  public void sendDeleteSubscriberDataRequest(DeleteSubscriberDataRequest dsr) throws IOException;
+
+	  public PurgeUEAnswer createPurgeUEAnswer();
+
+	  public void sendPurgeUEAnswer(PurgeUEAnswer pua) throws IOException;
+
+	  public void sendResetRequest(ResetRequest rsr) throws IOException;
+
+	  public NotifyAnswer createNotifyAnswer();
+
+	  public void sendNotifyAnswer(NotifyAnswer noa) throws IOException;
+	</programlisting>
+
+	<variablelist>
+		<varlistentry>
+			<term>public UpdateLocationAnswer createUpdateLocationAnswer();</term>
+			<listitem>
+				<para>This method creates a S6a Update-Location-Answer message pre-populated with the AVPs appropriate for this session taken from previously received session Update-Location-Request.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendUpdateLocationAnswer(UpdateLocationAnswer ula) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Update-Location-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public AuthenticationInformationAnswer createAuthenticationInformationAnswer();</term>
+			<listitem>
+				<para>This method creates a S6a Authentication-Information-Answer message pre-populated with the AVPs appropriate for this session taken from previously received session Authentication-Information-Request.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendAuthenticationInformationAnswer(AuthenticationInformationAnswer aia) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Authentication-Information-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendInsertSubscriberDataRequest(InsertSubscriberDataRequest idr) throws IOException;</term>
+			<listitem>
+				<para>This method sends a S6a Insert-Subscriber-Data-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendDeleteSubscriberDataRequest(DeleteSubscriberDataRequest dsr) throws IOException;</term>
+			<listitem>
+				<para>This method sends a S6a Delete-Subscriber-Data-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public PurgeUEAnswer createPurgeUEAnswer();</term>
+			<listitem>
+				<para>This method creates a S6a Purge-UE-Answer message pre-populated with the AVPs appropriate for this session taken from previously received session Purge-UE-Request.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendPurgeUEAnswer(PurgeUEAnswer pua) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Purge-UE-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendResetRequest(ResetRequest rsr) throws IOException;</term>
+			<listitem>
+				<para>This method sends a S6a Reset-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public NotifyAnswer createNotifyAnswer();</term>
+			<listitem>
+				<para>This method creates a S6a Notify-Answer message pre-populated with the AVPs appropriate for this session taken from previously received session Notify-Request.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendNotifyAnswer(NotifyAnswer noa) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Notify-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+	</variablelist>
+
+	<para>S6a Client Activity is defined as follows:</para>
+	
+	<programlisting role="JAVA" language="Java">
+	  public void sendUpdateLocationRequest(UpdateLocationRequest ulr) throws IOException;
+
+	  public void sendAuthenticationInformationRequest(AuthenticationInformationRequest air) throws IOException;
+
+	  public CancelLocationAnswer createCancelLocationAnswer();
+
+	  public void sendCancelLocationAnswer(CancelLocationAnswer cla) throws IOException;
+
+	  public InsertSubscriberDataAnswer createInsertSubscriberDataAnswer();
+
+	  public void sendInsertSubscriberDataAnswer(InsertSubscriberDataAnswer ida) throws IOException;
+
+	  public DeleteSubscriberDataAnswer createDeleteSubscriberDataAnswer();
+
+	  public void sendDeleteSubscriberDataAnswer(DeleteSubscriberDataAnswer dsa) throws IOException;
+
+	  public void sendPurgeUERequest(PurgeUERequest pur) throws IOException;
+
+	  public ResetAnswer createResetAnswer();
+
+	  public void sendResetAnswer(ResetAnswer rsa) throws IOException;
+
+	  public void sendNotifyRequest(NotifyRequest nor) throws IOException;
+	</programlisting>
+
+	<variablelist>
+		<varlistentry>
+			<term>public void sendUpdateLocationRequest(UpdateLocationRequest ulr) throws IOException;</term>
+			<listitem>
+				<para>Sends an Update-Location-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendAuthenticationInformationRequest(AuthenticationInformationRequest air) throws IOException;</term>
+			<listitem>
+				<para>Sends an Authentication-Information-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public CancelLocationAnswer createCancelLocationAnswer();</term>
+			<listitem>
+				<para>This method creates a S6a Cancel-Location-Answer message pre-populated with the AVPs appropriate for this session taken from previously received session Cancel-Location-Request.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendCancelLocationAnswer(CancelLocationAnswer cla) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Cancel-Location-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public InsertSubscriberDataAnswer createInsertSubscriberDataAnswer();</term>
+			<listitem>
+				<para>This method creates a S6a Insert-Subscriber-Data-Answer message pre-populated with the AVPs appropriate for this session taken from previously received session Insert-Subscriber-Data-Request.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendInsertSubscriberDataAnswer(InsertSubscriberDataAnswer ida) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Insert-Subscriber-Data-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public DeleteSubscriberDataAnswer createDeleteSubscriberDataAnswer();</term>
+			<listitem>
+				<para>This method creates a S6a Delete-Subscriber-Data-Answer message pre-populated with the AVPs appropriate for this session taken from previously received session Delete-Subscriber-Data-Request.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendDeleteSubscriberDataAnswer(DeleteSubscriberDataAnswer dsa) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Delete-Subscriber-Data-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendPurgeUERequest(PurgeUERequest pur) throws IOException;</term>
+			<listitem>
+				<para>Sends an Purge-UE-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public ResetAnswer createResetAnswer();</term>
+			<listitem>
+				<para>This method creates a S6a Reset-Answer message pre-populated with the AVPs appropriate for this session taken from previously received session Reset-Request.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>public void sendResetAnswer(ResetAnswer rsa) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Reset-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendNotifyRequest(NotifyRequest nor) throws IOException;</term>
+			<listitem>
+				<para>Sends an Notify-Request message to the peer.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+	<note><para>It is safe to type cast all the mentioned Diameter Activities to it's super interface <classname>net.java.slee.resource.diameter.base.DiameterActivity</classname> defined in Diameter Base Activities section.</para></note>
+</section>

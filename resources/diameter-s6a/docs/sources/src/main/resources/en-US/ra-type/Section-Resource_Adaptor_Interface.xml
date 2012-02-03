@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_ra_interface">
+
+	<title>Resource Adaptor Interface</title>
+
+	<para>The &THIS.PLATFORM; &THIS.RA; Resource Adaptor SBB Interface provides SBBs with access to the Diameter objects required for creating and sending messages. It is defined as follows: </para>
+
+	<programlisting role="JAVA" langugage="Java">
+	package net.java.slee.resource.diameter.s6a;
+	
+	import net.java.slee.resource.diameter.Validator;
+	import net.java.slee.resource.diameter.base.CreateActivityException;
+	import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+	
+	public interface S6aProvider {
+	
+	  S6aMessageFactory getS6aMessageFactory();
+	
+	  S6aAVPFactory getS6aAVPFactory();
+	
+	  S6aServerSessionActivity createS6aServerSessionActivity()throws CreateActivityException;
+	
+	  S6aServerSessionActivity createS6aServerSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;
+	
+	  S6aClientSessionActivity createS6aClientSessionActivity()throws CreateActivityException;
+	
+	  S6aClientSessionActivity createS6aClientSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;
+	
+	  DiameterIdentity[] getConnectedPeers();
+	
+	  int getPeerCount();
+	
+	  Validator getValidator();
+	
+	}
+	</programlisting>
+	
+	<para>
+		<variablelist>
+			<varlistentry>
+				<term>public S6aMessageFactory getS6aMessageFactory();</term>
+				<listitem><para>This method returns a message factory to be used to create concrete implementations of S6a messages.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public S6aAvpFactory getS6aAvpFactory();</term>
+				<listitem><para>This method returns an avp factory to be used to create concrete implementations of S6a AVPs.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public S6aServerSessionActivity createS6aServerSessionActivity() throws CreateActivityException;</term>
+				<listitem><para>This method creates a new activity to send and receive Diameter S6a messages.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public S6aServerSessionActivity createS6aServerSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;</term>
+				<listitem><para>This method creates a new activity to send and receive Diameter S6a messages for the given host and/or realm.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public S6aClientSessionActivity createS6aClientSessionActivity() throws CreateActivityException;</term>
+				<listitem><para>This method creates a new activity to send and receive Diameter S6a messages.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public S6aClientSessionActivity createS6aClientSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;</term>
+				<listitem><para>This method creates a new activity to send and receive Diameter S6a messages for the given host and/or realm.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public DiameterIdentity[] getConnectedPeers();</term>
+				<listitem><para>This method returns the identities of peers this Diameter resource adaptor is connected to.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public int getPeerCount();</term>
+				<listitem><para>This method returns the number of peers this Diameter resource adaptor is connected to.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public Validator getValidator();</term>
+				<listitem><para>This method returns the Diameter Message and AVP validator instance.</para></listitem>
+			</varlistentry>
+		</variablelist>
+	</para>
+</section>

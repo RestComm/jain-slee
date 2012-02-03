@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_aci_factory">
+
+	<title>Activity Context Interface Factory</title>
+
+	<para>The &THIS.PLATFORM; &THIS.RA; Activity Context Interface Factory is defined as follows:</para>
+	
+	<programlisting role="JAVA" langugage="Java">
+	package net.java.slee.resource.diameter.s6a;
+	
+	import javax.slee.ActivityContextInterface;
+	
+	public interface S6aActivityContextInterfaceFactory {
+	
+	  /**
+	   * Method for obtaining a ACI wrapping the given S6a Client Session.
+	   * @param s6acs the S6a Client Session
+	   * @return an ActivityContextInterface
+	   */
+	  public ActivityContextInterface getActivityContextInterface(S6aClientSessionActivity s6acs);
+	
+	  /**
+	   * Method for obtaining a ACI wrapping the given S6a Server Session.
+	   * @param s6ass the S6a Server Session
+	   * @return an ActivityContextInterface
+	   */
+	  public ActivityContextInterface getActivityContextInterface(S6aServerSessionActivity s6ass);
+	
+	}
+	</programlisting>
+
+</section>
