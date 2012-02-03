@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.20</version>
+		<version>2.21</version>
 	</parent>
 
 	<packaging>pom</packaging>
@@ -191,7 +191,27 @@
 			<modules>
 				<module>docs</module>
 			</modules>
+			<build>
+				<plugins>
+					<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/slee-management-console</tagBase>
+						<branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/tools/slee-management-console</branchBase>
+						<preparationGoals>clean install</preparationGoals>
+					</configuration>
+					</plugin>
+				</plugins>
+			</build>		
 		</profile>
 	</profiles>
-
+    
+	<scm>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/slee-management-console</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/slee-management-console</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/slee-management-console</url>
+	</scm>
+	
 </project>
