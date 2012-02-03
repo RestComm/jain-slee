@@ -78,7 +78,7 @@ public class MavenProjectUtils {
   static {
     MOBICENTS_PARENT.setGroupId("org.mobicents");
     MOBICENTS_PARENT.setArtifactId("mobicents-parent");
-    MOBICENTS_PARENT.setVersion("2.21-SNAPSHOT");
+    MOBICENTS_PARENT.setVersion("2.21");
 
     JAIN_SLEE_DEPENDENCY.setGroupId("javax.slee");
     JAIN_SLEE_DEPENDENCY.setArtifactId("jain-slee");
@@ -88,7 +88,7 @@ public class MavenProjectUtils {
 
     MOBICENTS_FT_RA_DEPENDENCY.setGroupId("org.mobicents.servers.jainslee.core");
     MOBICENTS_FT_RA_DEPENDENCY.setArtifactId("fault-tolerant-ra-api");
-    MOBICENTS_FT_RA_DEPENDENCY.setVersion("2.6.0-SNAPSHOT");
+    MOBICENTS_FT_RA_DEPENDENCY.setVersion("2.6.0.FINAL");
   }
 
   public static void generateMavenPomFiles(IProject project, ProjectModules projectModules) {
