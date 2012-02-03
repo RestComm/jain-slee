@@ -86,7 +86,7 @@
         <description>Mobicents Diameter Gq Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>gq-ratype</artifactId>
-        <version>1.0.0.CR1</version>
+        <version>1.0.0.CR2</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Rx Interface</description>
@@ -98,7 +98,7 @@
         <description>Mobicents Diameter S6a Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>s6a-ratype</artifactId>
-        <version>1.0.0.BETA1</version>
+        <version>1.0.0.BETA2</version>
       </dependency>
       <dependency>
         <description>Mobicents HTTP Client</description>
