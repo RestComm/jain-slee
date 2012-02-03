@@ -134,7 +134,7 @@
 				<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
 					<arg line="install javadoc:aggregate -P release,${docs.profile},set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
-				<move toDir="${release.dir}/docs/resources/@{dir.name}/user-guide" overwrite="true">
+				<move toDir="${release.dir}/docs/resources/@{dir.name}/user-guide" overwrite="true" failonerror="false">
 					<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/resources/@{dir.name}/docs" />
 				</move>
 				<copy failonerror="true" toDir="${release.dir}/docs/resources/@{dir.name}/javadoc" overwrite="true">
