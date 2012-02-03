@@ -5,7 +5,7 @@
 	
 	<property name="ra.dirs" value="mscontrol,jdbc,tftp-server,sip11,http-client,http-servlet,xmpp,smpp5,map,jcc,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-gx,diameter-cx-dx,diameter-rf,diameter-ro,diameter-gq,diameter-rx,diameter-s6a,xcap-client"/>
 	<property name="example.dirs" value="mscontrol-demo,slee-connectivity,sip-jdbc-registrar,sip-wake-up,google-talk-bot,sip-b2bua,sip-uas,call-controller2,mgcp-demo"/>
-	<property name="enabler.dirs" value="rest-client,xdm-client,sip-publication-client,sip-subscription-client,hss-client"/>
+	<property name="enabler.dirs" value="rest-client,sip-publication-client,sip-subscription-client,xdm-client,hss-client"/>
 	<property name="tool.dirs" value="jopr-plugin,eclipslee,remote-slee-connection,twiddle"/>
 
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
