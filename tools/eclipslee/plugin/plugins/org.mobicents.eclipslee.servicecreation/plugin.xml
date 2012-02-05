@@ -876,6 +876,13 @@
           class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
           />
          <action
+          id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewService"
+          icon="icons/Service-icon.gif"
+          label="New JAIN SLEE Service ..."
+          menubarPath="org.mobicents.eclipslee.servicecreation.Wizards.Menu/SecondGroup"
+          class="org.mobicents.eclipslee.servicecreation.popup.actions.WizardShortcutsAction"
+          />
+         <action
           id="org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewSbb"
           icon="icons/SBB-icon.gif"
           label="New JAIN SLEE Service Building Block (SBB) ..."

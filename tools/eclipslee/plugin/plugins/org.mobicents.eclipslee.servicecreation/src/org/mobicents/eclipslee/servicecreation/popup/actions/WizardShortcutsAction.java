@@ -34,6 +34,7 @@ import org.mobicents.eclipslee.servicecreation.wizards.profile.ProfileWizard;
 import org.mobicents.eclipslee.servicecreation.wizards.ra.ResourceAdaptorWizard;
 import org.mobicents.eclipslee.servicecreation.wizards.ratype.RaTypeWizard;
 import org.mobicents.eclipslee.servicecreation.wizards.sbb.SbbWizard;
+import org.mobicents.eclipslee.servicecreation.wizards.service.ServiceWizard;
 
 /**
  * Holder for the New .. Wizards shortcuts
@@ -63,6 +64,9 @@ public class WizardShortcutsAction implements IActionDelegate {
     }
     else if(actionId.equals("org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewSbb")) {
       newWizard = new SbbWizard();
+    }
+    else if(actionId.equals("org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewService")) {
+      newWizard = new ServiceWizard();
     }
     else if(actionId.equals("org.mobicents.eclipslee.servicecreation.Wizards.Menu.NewRaType")) {
       newWizard = new RaTypeWizard();
