@@ -19,10 +19,14 @@ import org.apache.maven.model.RepositoryPolicy;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -647,6 +651,11 @@ public class MavenProjectUtils {
       req.setGoals(Arrays.asList(goals));
       req.setCacheTransferError(false); // enables to fetch remotely ?
       result = maven.execute(req, monitor);
+      for(String goal : goals) {
+        if(goal.equals("mobicents:eclipse")) {
+          fixProjectNature(pom.getProject());
+        }
+      }
     }
     catch (CoreException e) {
       e.printStackTrace();
@@ -654,4 +663,50 @@ public class MavenProjectUtils {
 
     return result;
   }
+
+  private static void fixProjectNature(IProject project) {
+    try {
+      IProgressMonitor monitor = new NullProgressMonitor();
+      project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+      if (!project.hasNature(ServiceCreationPlugin.NATURE_ID)) {
+        IProjectDescription desc = project.getDescription();
+        String originalIds[] = desc.getNatureIds();
+        String newIds[] = new String[originalIds.length + 1];
+        // Add it before other natures
+        System.arraycopy(originalIds, 0, newIds, 1, originalIds.length);
+        newIds[0] = ServiceCreationPlugin.NATURE_ID;
+        desc.setNatureIds(newIds);
+
+        ICommand[] commands = desc.getBuildSpec();
+        ICommand command = desc.newCommand();
+        command.setBuilderName("org.mobicents.eclipslee.servicecreation.jainsleebuilder");
+        ICommand[] newCommands = new ICommand[commands.length + 1];
+
+        // Add it after other builders... will be reversed and will be first
+        System.arraycopy(commands, 0, newCommands, 0, commands.length);
+
+        newCommands[newCommands.length-1] = command;
+        desc.setBuildSpec(newCommands);
+        
+        project.setDescription(desc, monitor);
+      }
+
+      // Add the Java Nature to the project.
+      if (!project.hasNature(JavaCore.NATURE_ID)) {
+        IProjectDescription desc = project.getDescription();
+        String originalIds[] = desc.getNatureIds();
+        String newIds[] = new String[originalIds.length + 1];
+        System.arraycopy(originalIds, 0, newIds, 0, originalIds.length);
+        newIds[originalIds.length] = JavaCore.NATURE_ID;
+        desc.setNatureIds(newIds);
+
+        project.setDescription(desc, monitor);
+      }
+    }
+    catch (CoreException e) {
+      e.printStackTrace();
+      // hopefully we are good...
+    }
+  }
+
 }

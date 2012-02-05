@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -33,11 +34,14 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -166,6 +170,8 @@ public class AddModuleAction implements IObjectActionDelegate {
 
   private boolean initialized = false;
 
+  MavenExecutionResult mavenResult = null;
+
   private class CaptureModuleNameWizard extends Wizard {
     ModuleNamePage moduleNamePage;
 
@@ -264,7 +270,7 @@ public class AddModuleAction implements IObjectActionDelegate {
 
           project.refreshLocal(IResource.DEPTH_INFINITE, null);
 
-          // Add to Classpath
+          // Add to classpath.. let's do a backup before
           IJavaProject javaProject = JavaCore.create(parentPom.getProject());
           IClasspathEntry[] classpath = javaProject.getRawClasspath();
           IClasspathEntry[] extendedCP = new IClasspathEntry[classpath.length+2];
@@ -281,7 +287,25 @@ public class AddModuleAction implements IObjectActionDelegate {
             extendedCP[isAdded ? i+2 : i] = cpEntry;
           }
 
-          javaProject.setRawClasspath(extendedCP, null);
+          // Let's try updating with mobicents:eclipse
+          try {
+            ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell()); 
+            dialog.run(true, false, new IRunnableWithProgress(){ 
+              public void run(IProgressMonitor monitor) { 
+                monitor.beginTask("Updating classpath. This may take a few seconds ...", 100);
+                mavenResult = null;
+                mavenResult = MavenProjectUtils.runMavenTask(project.getFile("pom.xml"), new String[]{"mobicents:eclipse"}, monitor);
+                monitor.done(); 
+              } 
+            });
+          }
+          catch (Exception e) {
+            // ignore
+          }
+          // Fallback to manually created since mobicents:eclipse failed
+          if(mavenResult == null || mavenResult.hasExceptions()) {
+            javaProject.setRawClasspath(extendedCP, null);
+          }
 
           project.refreshLocal(IResource.DEPTH_INFINITE, null);
         }
