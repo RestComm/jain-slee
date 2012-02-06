@@ -7,8 +7,23 @@
 		<sbb-vendor>org.mobicents</sbb-vendor>
 		<sbb-version>1.0</sbb-version>
 		<sbb-classes>
-			<sbb-abstract-class>
+			<sbb-abstract-class reentrant="True">
 				<sbb-abstract-class-name>org.mobicents.slee.example.msc.CallSbb</sbb-abstract-class-name>
+				<cmp-field>
+					<cmp-field-name>serverTransactionACI</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>dialogACI</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>mediaSessionACI</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>networkConnectionACI</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>mediaGroupACI</cmp-field-name>
+				</cmp-field>
 			</sbb-abstract-class>
 		</sbb-classes>
 		<event

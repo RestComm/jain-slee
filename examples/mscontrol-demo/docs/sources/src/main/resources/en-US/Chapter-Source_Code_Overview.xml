@@ -67,6 +67,21 @@
         <sbb-classes>
             <sbb-abstract-class>
                 <sbb-abstract-class-name>org.mobicents.slee.example.msc.CallSbb</sbb-abstract-class-name>
+                <cmp-field>
+					<cmp-field-name>serverTransactionACI</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>dialogACI</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>mediaSessionACI</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>networkConnectionACI</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>mediaGroupACI</cmp-field-name>
+				</cmp-field>
             </sbb-abstract-class>
         </sbb-classes>
 			]]>
@@ -223,38 +238,27 @@
 			<programlisting
 				language="Java"
 				role="JAVA"><![CDATA[
-	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
-	public final static String WELCOME = "http://" + JBOSS_BIND_ADDRESS + ":8080/mscontrol/audio/RQNT-ULAW.wav";
-
-	public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
-
-	protected static int CALL_ID_GEN = 1;
-	protected static int GEN = 1000;
-	protected SbbContext sbbContext;
-	protected Tracer tracer;
-	protected SleeSipProvider sipProvider;
-	protected AddressFactory addressFactory;
-	protected HeaderFactory headerFactory;
-	protected MessageFactory messageFactory;
-	protected SipActivityContextInterfaceFactory acif;
-	private MsControlFactory mscFactory;
-	private MscActivityContextInterfaceFactory mscAcifFactory;
+	private SbbContext sbbContext;
+	private Tracer tracer;
+	private SleeSipProvider sipRaSbbInterface;
+	private SipActivityContextInterfaceFactory sipRaAciFactory;
+	private MsControlFactory msRaSbbInterface;
+	private MsActivityContextInterfaceFactory mscRaAciFactory;
 	
 	public void setSbbContext(SbbContext sbbContext) {
 		this.sbbContext = sbbContext;
 		this.tracer = sbbContext.getTracer("MS-Control-DEMO");
 		try {
-			Context ctx = (Context) new InitialContext().lookup("java:comp/env");
-
-			// initialize SIP API
-			sipProvider = (SleeSipProvider) ctx.lookup("slee/resources/jainsip/1.2/provider");
-			acif = (SipActivityContextInterfaceFactory) ctx.lookup("slee/resources/jainsip/1.2/acifactory");
-			messageFactory = sipProvider.getMessageFactory();
-			headerFactory = sipProvider.getHeaderFactory();
-			addressFactory = sipProvider.getAddressFactory();
-
-			mscFactory = (MsControlFactory) ctx.lookup("slee/resources/media/1.0/provider");
-			mscAcifFactory = (MscActivityContextInterfaceFactory) ctx.lookup("slee/resources/media/1.0/acifactory");
+			Context ctx = (Context) new InitialContext()
+					.lookup("java:comp/env");
+			sipRaSbbInterface = (SleeSipProvider) ctx
+					.lookup("slee/resources/jainsip/1.2/provider");
+			sipRaAciFactory = (SipActivityContextInterfaceFactory) ctx
+					.lookup("slee/resources/jainsip/1.2/acifactory");
+			msRaSbbInterface = (MsControlFactory) ctx
+					.lookup("slee/resources/media/1.0/provider");
+			mscRaAciFactory = (MsActivityContextInterfaceFactory) ctx
+					.lookup("slee/resources/media/1.0/acifactory");
 		} catch (Exception ne) {
 			tracer.severe("Could not set SBB context:", ne);
 		}
@@ -272,14 +276,10 @@
 
 			<itemizedlist>
 				<listitem>
-					<para>Create <literal>DialogActivity</literal> and send provisional response.</para>
+					<para>Do the initial SIP session setup, which means create the SIP Dialog and send provisional response.</para>
 				</listitem>
 				<listitem>
-					<para>Create <literal>MediaSession</literal> object. Session is container for all <literal>MS Control</literal> objects. It is not activity.
-					</para>
-				</listitem>
-				<listitem>
-					<para>Create <literal>NetworkConnection</literal> activity and attach to it. Inititiate <literal>SDP</literal> processing on activity.</para>
+					<para>Do the initial Media session setup, which means create the <literal>MediaSession</literal> object (the session is container for all <literal>MS Control</literal> objects) and create the <literal>NetworkConnection</literal>, which is then provided with the SIP client SDP.</para>
 				</listitem>
 			</itemizedlist>
 
@@ -287,81 +287,116 @@
 			<programlisting
 				language="Java"
 				role="JAVA"><![CDATA[
+	/**
+	 * Handles the event notifying new SIP session invitation.
+	 * 
+	 * @param event
+	 * @param aci
+	 */
 	public void onInvite(RequestEvent event, ActivityContextInterface aci) {
-		tracer.info("Receive call ");
-
-		Request request = event.getRequest();
-
-		// sending provisional response to the UA which indiactes that initial
-		// request
-		// successfuly reach call controller and is going to be handled
+		tracer.info("Received new SIP session invitation.");
 		try {
-			Response response = messageFactory.createResponse(Response.TRYING, request);
-			event.getServerTransaction().sendResponse(response);
+			initialSipSessionSetup(event, aci);
 		} catch (Exception e) {
-			// Can not send provisional response? Forget about this request.
+			tracer.severe("Failed to do initial sip session setup.", e);
+			abortSipSessionSetup();
 			return;
 		}
-
-		// Provisional response sent so possible to obtain SIP Dialog activity
-		// and attach this
-		// SBB to the Dialog activity. Dialog activity can be used to maintain
-		// current state too.
-		ActivityContextInterface callActivity = null;
 		try {
-			Dialog dialog = sipProvider.getNewDialog(event.getServerTransaction());
-			dialog.terminateOnBye(true);
-			callActivity = acif.getActivityContextInterface((DialogActivity) dialog);
-			callActivity.attach(sbbContext.getSbbLocalObject());
+			initialMediaSessionSetup(event.getServerTransaction());
 		} catch (Exception e) {
-			// oops, this is unexpected core problem. there is only one way -
-			// terminate call
-			tracer.severe("Unexpected error", e);
-			reject();
-			return;
+			tracer.severe("Failed to process sip invite", e);
+			abortSipSessionSetup();
+			abortMediaSessionSetup();
 		}
-		MediaSession session = null;
-		try {
-			session = mscFactory.createMediaSession();
-		} catch (MsControlException e) {
-			tracer.severe("Unexpected error", e);
-			reject();
-			return;
-		}
-
+	}
+	
+	/*
+	 * Setup of the media session: creates the media session, creates a network
+	 * connection on it and process the client sdp received on SIP
+	 */
+	private void initialMediaSessionSetup(ServerTransaction serverTransaction)
+			throws MsControlException {
+		// create media session
+		MediaSession session = msRaSbbInterface.createMediaSession();
+		ActivityContextInterface mediaSessionACI = mscRaAciFactory
+				.getActivityContextInterface(session);
+		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
+		mediaSessionACI.attach(sbbLocalObject);
+		// store the media session aci in a cmp shortcut
+		setMediaSessionACI(mediaSessionACI);
 		tracer.info("Created media session: " + session);
-		NetworkConnection connection = null;
-		try {
-			connection = session.createNetworkConnection(NetworkConnection.BASIC);
-		} catch (MsControlException e) {
-			tracer.severe("Unexpected error", e);
-			reject();
-			return;
-		}
-
+		// create network connection
+		NetworkConnection connection = session
+				.createNetworkConnection(NetworkConnection.BASIC);
+		ActivityContextInterface connectionACI = mscRaAciFactory
+				.getActivityContextInterface(connection);
+		connectionACI.attach(sbbLocalObject);
+		// store the network connection aci in a cmp shortcut
+		setNetworkConnectionACI(connectionACI);
 		tracer.info("Created network connection: " + connection);
-		// creating media connection activity context interface
-		ActivityContextInterface activityContextInterface = null;
-		try {
-			activityContextInterface = mscAcifFactory.getActivityContextInterface(connection);
-			activityContextInterface.attach(sbbContext.getSbbLocalObject());
-		} catch (Exception e) {
-			tracer.severe("Unexpected error", e);
-			reject();
-			return;
+		// process the received sdp
+		SdpPortManager sdpManager = connection.getSdpPortManager();
+		tracer.info("Created SDP Manager, sending client sdp...");
+		sdpManager.processSdpOffer((byte[]) serverTransaction.getRequest()
+				.getContent());
+	}
+	
+	/*
+	 * Aborts the media session: releases the network connection and the media
+	 * session.
+	 */
+	private void abortMediaSessionSetup() {
+		releaseMediaSession();
+	}
+	
+	/*
+	 * 
+	 */
+	private void releaseMediaSession() {
+		// get sbb entity local object
+		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
+		// release media group (the ivr) if exists
+		ActivityContextInterface mediaGroupACI = getMediaGroupACI();
+		if (mediaGroupACI != null) {
+			mediaGroupACI.detach(sbbLocalObject);
+			try {
+				MediaGroup mediaGroup = (MediaGroup) mediaGroupACI
+						.getActivity();
+				if (mediaGroup != null) {
+					mediaGroup.release();
+				}
+			} catch (Exception e) {
+				tracer.severe("failed to abort media network connection.", e);
+			}
 		}
-
-		SdpPortManager sdpManager = null;
-		try {
-			sdpManager = connection.getSdpPortManager();
-		} catch (MsControlException e) {
+		// release network connection if exists
+		ActivityContextInterface networkConnectionACI = getNetworkConnectionACI();
+		if (networkConnectionACI != null) {
+			networkConnectionACI.detach(sbbLocalObject);
+			try {
+				NetworkConnection networkConnection = (NetworkConnection) networkConnectionACI
+						.getActivity();
+				if (networkConnection != null) {
+					networkConnection.release();
+				}
+			} catch (Exception e) {
+				tracer.severe("failed to abort media network connection.", e);
+			}
 		}
-
-		tracer.info("SDP Manager: " + sdpManager);
-		try {
-			sdpManager.processSdpOffer((byte[]) request.getContent());
-			tracer.info("SDP Manager: sent process offer request");
-		} catch (SdpPortManagerException e) {
+		// release media session if exists
+		ActivityContextInterface mediaSessionACI = getMediaSessionACI();
+		if (mediaSessionACI != null) {
+			mediaSessionACI.detach(sbbLocalObject);
+			try {
+				MediaSession mediaSession = (MediaSession) mediaSessionACI
+						.getActivity();
+				if (mediaSession != null) {
+					mediaSession.release();
+				}
+			} catch (Exception e) {
+				tracer.severe("failed to abort media session.", e);
+			}
 		}
 	}
             	]]>
@@ -375,13 +410,10 @@
 
 			<itemizedlist>
 				<listitem>
-					<para>Send <literal>SDP</literal> offer back to call initiating peer.</para>
+					<para>Finish the SIP session setup, that is, send the received <literal>SDP</literal> offer back to the sip client.</para>
 				</listitem>
 				<listitem>
-					<para>Create <literal>MediaGroup</literal> activity and attach to it.</para>
-				</listitem>
-				<listitem>
-					<para>Join <literal>MediaGroup</literal> and <literal>NetworkConnection</literal>.</para>
+					<para>Finish the Media session setup, that is, create the <literal>MediaGroup IVR</literal> and join it with the <literal>NetworkConnection</literal>.</para>
 				</listitem>
 			</itemizedlist>
 
@@ -389,57 +421,51 @@
 			<programlisting
 				language="Java"
 				role="JAVA"><![CDATA[
-	public void onAnswerGenerated(SdpPortManagerEvent evt, ActivityContextInterface aci) {
-		tracer.info("Received SDP answer:");
-		byte[] sdp = evt.getMediaServerSdp();
-
-		ContentTypeHeader contentType = null;
+	/**
+	 * Event with the media server generated sdp, send it back to the sip
+	 * client.
+	 * 
+	 * @param event
+	 * @param aci
+	 */
+	public void onAnswerGenerated(SdpPortManagerEvent event,
+			ActivityContextInterface aci) {
+		tracer.info("Received SDP answer.");
 		try {
-			contentType = headerFactory.createContentTypeHeader("application", "sdp");
-		} catch (ParseException ex) {
-		}
-
-		String localAddress = sipProvider.getListeningPoints()[0].getIPAddress();
-		int localPort = sipProvider.getListeningPoints()[0].getPort();
-
-		Address contactAddress = null;
-		try {
-			contactAddress = addressFactory.createAddress("sip:" + localAddress + ":" + localPort);
-		} catch (ParseException ex) {
-		}
-		ContactHeader contact = headerFactory.createContactHeader(contactAddress);
-
-		try {
-			ServerTransaction st = getServerTransaction();
-			
-			Response ok = messageFactory.createResponse(Response.OK, 
-				st.getRequest(), contentType, sdp);
-			ok.setHeader(contact);
-			st.sendResponse(ok);
-			// provider.sendResponse(ok);
+			finishSipSessionSetup(event.getMediaServerSdp());
 		} catch (Exception e) {
-			tracer.info("Can not send SIP response: ", e);
+			tracer.severe("Unable to send OK response with generated SDP", e);
+			abortSipSessionSetup();
+			abortMediaSessionSetup();
+			return;
 		}
-
-		joinInitiate();
-	}
-
-	private void joinInitiate() {
 		try {
-			NetworkConnection connection = null;
-			MediaSession session = connection.getMediaSession();
-			MediaGroup ivr = session.createMediaGroup(MediaGroup.
-				PLAYER_RECORDER_SIGNALDETECTOR);
-			connection.joinInitiate(Direction.DUPLEX, ivr, "context");
-			ActivityContextInterface activityContextInterface = mscAcifFactory.
-				getActivityContextInterface(ivr);
-			activityContextInterface.attach(sbbContext.getSbbLocalObject());
-			
+			finishMediaSessionSetup(aci);
 		} catch (Exception e) {
-			tracer.severe("Unable to initiate join: ", e);
+			tracer.severe("Unable to initiate join.", e);
+			terminateSipSession();
+			abortMediaSessionSetup();
 		}
 	}
-
+	
+	/*
+	 * End of the media session setup: creates ivr and make it join the session
+	 * with the sip client.
+	 */
+	private void finishMediaSessionSetup(
+			ActivityContextInterface networkConnectionAci)
+			throws MsControlException {
+		NetworkConnection connection = (NetworkConnection) networkConnectionAci
+				.getActivity();
+		MediaSession session = connection.getMediaSession();
+		MediaGroup mediaGroup = session
+				.createMediaGroup(MediaGroup.PLAYER_RECORDER_SIGNALDETECTOR);
+		connection.joinInitiate(Direction.DUPLEX, mediaGroup, "context");
+		ActivityContextInterface mediaGroupACI = mscRaAciFactory
+				.getActivityContextInterface(mediaGroup);
+		mediaGroupACI.attach(sbbContext.getSbbLocalObject());
+		setMediaGroupACI(mediaGroupACI);
+	}
             	]]>
 				</programlisting>
 		</section>
@@ -450,27 +476,43 @@
 
 			<itemizedlist>
 				<listitem>
-					<para>Request media playbeck from group player.</para>
+					<para>Request media playback from group player.</para>
 				</listitem>
-
 			</itemizedlist>
 
 			<para>The event handler code:</para>
 			<programlisting
 				language="Java"
 				role="JAVA"><![CDATA[
-public void onJoined(JoinEvent event, ActivityContextInterface aci) {
-		tracer.info("**** LOCAL CONNECION WAS CREATED");
-
-		URI uri = null;
+   /**
+	 * Event notifying the connection between the sip client and the media
+	 * server.
+	 * 
+	 * @param event
+	 * @param aci
+	 */
+	public void onJoined(JoinEvent event, ActivityContextInterface aci) {
+		tracer.info("SIP client and media server connected, requesting play of announcement...");
 		try {
-			uri = new URI(WELCOME);
-			getMediaGroup().getPlayer().play(uri, null, null);
+			ActivityContextInterface mediaGroupACI = getMediaGroupACI();
+			MediaGroup mediaGroup = (MediaGroup) mediaGroupACI.getActivity();
+			mediaGroup.getPlayer().play(new URI(WELCOME), null, null);
 		} catch (Exception e) {
-			tracer.severe("Unexpected error", e);
+			tracer.severe(
+					"Unexpected error playing annoucenment, terminating sip and media sessions.",
+					e);
+			terminateSipSession();
+			terminateMediaSession();
 		}
 	}
-
+	
+	/*
+	 * Terminates the media session: releases the network connection and the
+	 * media session.
+	 */
+	private void terminateMediaSession() {
+		releaseMediaSession();
+	}
             	]]>
 				</programlisting>
 		</section>
