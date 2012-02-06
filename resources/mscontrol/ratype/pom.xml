@@ -5,7 +5,7 @@
     <parent>
 		<artifactId>mobicents-slee-ra-mscontrol</artifactId>
 		<groupId>org.mobicents.resources.mscontrol</groupId>
-    	<version>1.0.0.BETA1</version>
+    	<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-ra-mscontrol-ratype</artifactId>
