@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>mobicents-slee-ra-mscontrol</artifactId>
 		<groupId>org.mobicents.resources.mscontrol</groupId>
-    	<version>3.0.0-SNAPSHOT</version>
+    	<version>1.0.0.BETA1</version>
 	</parent>
 
 	<artifactId>mobicents-slee-ra-mscontrol-events</artifactId>
