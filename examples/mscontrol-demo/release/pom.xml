@@ -1,13 +1,10 @@
-<project
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<artifactId>mobicents-slee-example-mscontrol-demo</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>2.1.0-SNAPSHOT</version>
+		<version>1.0.0.BETA1</version>
 	</parent>
 
 	<artifactId>mobicents-slee-example-mscontrol-demo-release</artifactId>
@@ -33,40 +30,21 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy
-											overwrite="true"
-											todir="${release.dir}">
-											<fileset
-												dir="${basedir}/../du/target">
-												<include
-													name="**.jar" />
-												<include
-													name="*.xml" />
-												<include
-													name="*.properties" />
+										<copy overwrite="true" todir="${release.dir}">
+											<fileset dir="${basedir}/../du/target">
+												<include name="**.jar" />
+												<include name="*.xml" />
+												<include name="*.properties" />
 											</fileset>
 										</copy>
 
-										<copy
-											overwrite="true"
-											file="${basedir}/../web/target/mscontrol-audio.war"
-											todir="${release.dir}" />
-										<copy
-											overwrite="true"
-											file="${basedir}/../du/target/build.xml"
-											tofile="${release.dir}/du-management.xml" />
+										<copy overwrite="true" file="${basedir}/../web/target/mscontrol-audio.war" todir="${release.dir}" />
+										<copy overwrite="true" file="${basedir}/../du/target/build.xml" tofile="${release.dir}/du-management.xml" />
 
-										<copy
-											overwrite="true"
-											file="${basedir}/build.xml"
-											todir="${release.dir}">
+										<copy overwrite="true" file="${basedir}/build.xml" todir="${release.dir}">
 											<filterset>
-												<filter
-													token="JBOSS.PATH"
-													value="${jboss.path}" />
-												<filter
-													token="JBOSS.CONFIG"
-													value="${node}" />
+												<filter token="JBOSS.PATH" value="${jboss.path}" />
+												<filter token="JBOSS.CONFIG" value="${node}" />
 											</filterset>
 										</copy>
 									</tasks>
