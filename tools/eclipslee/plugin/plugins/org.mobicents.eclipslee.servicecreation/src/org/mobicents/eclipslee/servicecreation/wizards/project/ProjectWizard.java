@@ -23,6 +23,7 @@ import java.util.zip.ZipFile;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.maven.execution.MavenExecutionResult;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -77,6 +78,9 @@ public class ProjectWizard extends Wizard implements INewWizard {
   private static final String SLEE_EXT_1_1_VERSION = "1.0.0.BETA2";
   private static final IPath SLEE_EXT_1_1_JAR = new Path("M2_REPO/org/mobicents/servers/jainslee/api/jain-slee-11-ext/" + SLEE_EXT_1_1_VERSION + "/jain-slee-11-ext-" + SLEE_EXT_1_1_VERSION + ".jar");
 
+  private static final String MOBICENTS_FT_RA_VERSION = "2.6.0.FINAL";
+  private static final IPath MOBICENTS_FT_RA_JAR = new Path("M2_REPO/org/mobicents/servers/jainslee/core/fault-tolerant-ra-api/" + MOBICENTS_FT_RA_VERSION + "/fault-tolerant-ra-api-" + MOBICENTS_FT_RA_VERSION + ".jar");
+
   private static final IPath SLEE_TASKS_JAR = new Path("lib/slee-tasks.jar");
 	private	static final IPath SLEE_API_ZIP = new Path("lib/" + APIDialog.SLEE_API_ZIP);
 	
@@ -118,13 +122,17 @@ public class ProjectWizard extends Wizard implements INewWizard {
 			installDTDs(project, monitor);
 			*/
       configureClasspath(project, monitor);
-			monitor.worked(1);
-			
+      monitor.worked(1);
+
 			// ammendonca: Creating Maven files instead
 			// createAntBuildFile(project, monitor);
 			createMavenPomFile(project, monitor);
 			monitor.worked(1);
 			
+			// After creating POMs we try classpath with mobicents:eclipse
+      configureClasspath(project, monitor);
+      monitor.worked(1);
+
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			
 		} catch (Exception e) {
@@ -273,41 +281,56 @@ public class ProjectWizard extends Wizard implements INewWizard {
 	}
 	*/
 
-	private void configureClasspath(IProject project, IProgressMonitor monitor) throws CoreException {
-		// Add slee.jar to the project's classpath
-		IJavaProject javaProject = JavaCore.create(project);
-		IPath path = project.getFullPath().append("/target/classes");
-		javaProject.setOutputLocation(path, null);
-		
-		/*
-		 * ammendonca: removed, adding maven structure
-		IClasspathEntry[] entries = new IClasspathEntry[3];
-		path = project.getFullPath().append("/src");
-		entries[0] = JavaCore.newSourceEntry(path);
-		*/
-		int n = 0;
-    IClasspathEntry[] entries = new IClasspathEntry[projectModules.getModuleCount() * 2 + 1 + (projectUseExtensions ? 1 : 0)];
-		for(String module : projectModules.getModules()) {
-		  if(!module.equals("du")) {
-        path = project.getFullPath().append(module + "/src/main/java");
-        entries[n++] = JavaCore.newSourceEntry(path);
-		  }
 
-      path = project.getFullPath().append(module + "/src/main/resources");
-      entries[n++] = JavaCore.newSourceEntry(path);
-		}
-		entries[n++] = JavaCore.newContainerEntry(new Path("org.eclipse.jdt.launching.JRE_CONTAINER"));
-
-		// Path to slee.jar
-		//path = project.getFullPath().append(SLEE_JAR.toOSString());
-		//IPath docPath = project.getFullPath().append("/" + SLEE_API_ZIP.toOSString());
-		//entries[2] = JavaCore.newLibraryEntry(path, docPath /* No available source */, null /* hell knows */);
-    entries[n++] = JavaCore.newVariableEntry(new Path(SLEE_JAR.toOSString()), null /* No available source */, null /* hell knows */);
-    if (projectUseExtensions) {
-      entries[n++] = JavaCore.newVariableEntry(new Path(SLEE_EXT_1_1_JAR.toOSString()), null /* No available source */, null /* hell knows */);
+  private void configureClasspath(final IProject project, IProgressMonitor monitor) throws CoreException {
+    // Let's try with mobicents:eclipse first...
+    MavenExecutionResult mavenResult = null;
+    try {
+      mavenResult = MavenProjectUtils.runMavenTask(project.getFile("pom.xml"), new String[]{"mobicents:eclipse"}, monitor);
+    }
+    catch (Exception e) {
+      // ignore
     }
 
-		javaProject.setRawClasspath(entries, null);
+    if(mavenResult == null || mavenResult.hasExceptions()) {
+      // Fallback to manually created since mobicents:eclipse failed
+  		IJavaProject javaProject = JavaCore.create(project);
+  		IPath path = project.getFullPath().append("/target/classes");
+  		javaProject.setOutputLocation(path, null);
+  		
+  		/*
+  		 * ammendonca: removed, adding maven structure
+  		IClasspathEntry[] entries = new IClasspathEntry[3];
+  		path = project.getFullPath().append("/src");
+  		entries[0] = JavaCore.newSourceEntry(path);
+  		*/
+  		int n = 0;
+  		boolean hasRA = projectModules.getModules().contains("ra");
+      IClasspathEntry[] entries = new IClasspathEntry[projectModules.getModuleCount() * 2 + 1 + (projectUseExtensions ? 1 : 0) + (hasRA ? 1 : 0)];
+  		for(String module : projectModules.getModules()) {
+  		  if(!module.equals("du")) {
+          path = project.getFullPath().append(module + "/src/main/java");
+          entries[n++] = JavaCore.newSourceEntry(path);
+  		  }
+  
+        path = project.getFullPath().append(module + "/src/main/resources");
+        entries[n++] = JavaCore.newSourceEntry(path);
+  		}
+  		entries[n++] = JavaCore.newContainerEntry(new Path("org.eclipse.jdt.launching.JRE_CONTAINER"));
+  
+  		// Path to slee.jar
+      entries[n++] = JavaCore.newVariableEntry(new Path(SLEE_JAR.toOSString()), null /* No available source */, null /* hell knows */);
+      // If we are using SLEE 1.1 Extensions
+      if (projectUseExtensions) {
+        entries[n++] = JavaCore.newVariableEntry(new Path(SLEE_EXT_1_1_JAR.toOSString()), null /* No available source */, null /* hell knows */);
+      }
+      // If we have an RA, we are using Mobicents FT RA API
+      if (hasRA) {
+        entries[n++] = JavaCore.newVariableEntry(new Path(MOBICENTS_FT_RA_JAR.toOSString()), null /* No available source */, null /* hell knows */);
+      }
+  
+  		javaProject.setRawClasspath(entries, null);
+    }
 	}
 	
 	private void installLibraries(IProject project, IProgressMonitor monitor) throws CoreException, IOException{
