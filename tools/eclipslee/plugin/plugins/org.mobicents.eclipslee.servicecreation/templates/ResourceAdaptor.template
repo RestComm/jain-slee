@@ -6,8 +6,6 @@ import javax.slee.resource.*;
 __FAULT_TOLERANT_IMPORT__
 public class __NAME__ResourceAdaptor implements __RA_INTERFACE__ {
 
-	private static final long serialVersionUID = 1L;
-
 __CONFIG_PROPERTIES__
 
 	/**
