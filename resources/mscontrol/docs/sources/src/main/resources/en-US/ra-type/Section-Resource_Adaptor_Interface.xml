@@ -95,14 +95,14 @@ public interface MsControlFactory {
     <varlistentry>
       <term>The <literal>getPresetLayouts(int numberOfActiveRegions) throws MediaConfigException</literal> method:</term>
       <listitem>
-        <para>Returns an array of mixer VideoLayouts that are supported by the mediaserver. 
+        <para>Returns an array of mixer VideoLayouts that are supported by the media server. 
 Each entry in the array may differ from the previous by the size of the regions, decoration, etc. </para>
       </listitem>
     </varlistentry>
     <varlistentry>
       <term>The <literal>getPresetLayout(String type) throws MediaConfigException</literal> method:</term>
       <listitem>
-        <para>Returns a VideoLayout (supported by the mediaserver), with the characteristics as defined by type</para>
+        <para>Returns a VideoLayout (supported by the media server), with the characteristics as defined by type</para>
       </listitem>
     </varlistentry>
     <varlistentry>

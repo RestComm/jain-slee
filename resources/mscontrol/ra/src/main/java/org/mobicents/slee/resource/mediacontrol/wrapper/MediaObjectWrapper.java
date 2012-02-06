@@ -19,12 +19,10 @@ package org.mobicents.slee.resource.mediacontrol.wrapper;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.media.mscontrol.EventType;
 import javax.media.mscontrol.MediaObject;
@@ -37,7 +35,6 @@ import javax.slee.facilities.Tracer;
 
 import org.mobicents.slee.resource.mediacontrol.MsActivityHandle;
 import org.mobicents.slee.resource.mediacontrol.MsResourceAdaptor;
-import org.mobicents.slee.resource.mediacontrol.wrapper.networkconnection.NetworkConnectionWrapper;
 
 /**
  * Base class for all media objects, implements some basic methods... :)
@@ -51,7 +48,7 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	protected final MediaObject wrappedObject;
 	protected final MsResourceAdaptor ra;
 	// map which holds childred if present. Maps real object to wrapper.
-	protected final Map<MediaObject, MediaObjectWrapper> realToWrapperMap = Collections.synchronizedMap(new HashMap<MediaObject, MediaObjectWrapper>());
+	protected final ConcurrentHashMap<MediaObject, MediaObjectWrapper> realToWrapperMap = new ConcurrentHashMap<MediaObject, MediaObjectWrapper>();
 
 	/**
 	 * 
@@ -154,9 +151,12 @@ public abstract class MediaObjectWrapper implements MediaObject, Wrapper {
 	public void release() {
 		Set<MediaObjectWrapper> childs = new HashSet<MediaObjectWrapper>(this.realToWrapperMap.values());
 		for (MediaObjectWrapper child : childs) {
-			child.release(); // this will call release on real object and make
-								// possible callbacks.
-
+			try {
+				child.release(); // this will call release on real object and make possible callbacks.
+			}
+			catch (Exception e) {
+				logger.severe("Failed to release child media object"+child.wrappedObject,e);
+			} 
 		}
 		this.wrappedObject.release();
 	}

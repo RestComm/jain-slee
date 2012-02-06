@@ -42,16 +42,13 @@
 			</listitem>
 		</varlistentry>
 	</variablelist>
+	
 	<note>
 		<para>
 			For proper rendering some part of values have been removed from the tables below.
 	    </para>
 	</note>
-	<note>
-		<para>
-			For proper rendering some part of values have been removed from the tables below.
-	    </para>
-	</note>
+	
 	<para>
 		Following prefixes have been removed from table columns:
 	</para>
@@ -199,7 +196,7 @@
 					<entry>JOINED</entry>
 					<entry>NetworkConnection, MediaGroup, MediaMixer, VxmlDialog, </entry>
 					<entry>
-						Generated when resources are joined, ie.
+						Generated when resources are joined, i.e.
 						<literal>MediaGroup</literal>
 						and
 						<literal>NetworkConnection</literal>

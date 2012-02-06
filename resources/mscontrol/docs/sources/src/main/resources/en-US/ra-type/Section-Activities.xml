@@ -36,7 +36,7 @@
 			The
 			<literal>MediaSession</literal>
 			activity represents interaction with controlled media server. It is parent activity of all other activities. That is
-			if its termianted,
+			if its terminated,
 			all activities created by it are also terminated.
 			<literal>MediaSession</literal>
 			is target for only
@@ -89,7 +89,7 @@
 			activity represents set of connections, on which certain operations are performed.
 			<literal>MediaGroup</literal>
 			is used with
-			other activities to, for instance generete signal and stream them. It is released when one of following condition occurs:
+			other activities to, for instance generate signal and stream them. It is released when one of following condition occurs:
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -169,7 +169,7 @@
 				</listitem>
 				<listitem>
 					<para>
-						Activtiy receives one of following events: <literal>DISCONNECTION_REQUESTED</literal>, <literal>ERROR_EVENT</literal> or <literal>EXITED</literal>.
+						Activity receives one of following events: <literal>DISCONNECTION_REQUESTED</literal>, <literal>ERROR_EVENT</literal> or <literal>EXITED</literal>.
 					</para>
 				</listitem>
 			</itemizedlist>
