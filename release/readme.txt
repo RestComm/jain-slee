@@ -15,7 +15,7 @@ Directory Structure
  +--- resources						(JAIN SLEE Resource Adaptors and related scripts)
  +--- enablers						(JAIN SLEE Application Enablers)
  +--- examples						(JAIN SLEE Application Examples)
- +--- tools/management-console		(JOPR Management Console)
+ +--- tools/jopr-plugin		(JOPR Management Console)
  +--- tools/remote-slee-connection	(Remote SLEE Connection Tool)
  +--- tools/twiddle					(Twiddle Command Line Interface)
  +--- tools/eclipslee				(EclipSLEE Plugin)
