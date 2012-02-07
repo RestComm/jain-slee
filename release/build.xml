@@ -21,8 +21,9 @@
 	<!--
 	<property name="mms.version" value="2.1.0.BETA4" />
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-2.1.0-b5.zip"/>
-	-->
 	<property name="mms.download.url" value ="http://hudson.qa.jboss.com/hudson/view/Mobicents/job/Mobicents-MediaServer-2.x-Release/544/artifact/mms-server-r21834-120202212603.zip"/>	
+	-->
+	<property name="mms.download.url" value ="http://mobicents.googlecode.com/files/mms-server-r21834-120202212603.zip"/>		
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 
 	<property name="ss7.version" value="1.0.0.CR2" />
