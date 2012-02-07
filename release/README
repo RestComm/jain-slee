@@ -1,9 +1,9 @@
 The Mobicents team is glad to announce that Mobicents JAIN-SLEE 
-2.6.0.FINAL, codenamed GHANDI, is now available for download. 
+2.6.0.FINAL, codenamed GANDHI, is now available for download. 
 
 Release Notes:
 
-The GHANDI SLEE Core includes, besides a few bug fixes, enhancements for 
+The GANDHI SLEE Core includes, besides a few bug fixes, enhancements for 
 smooth upgrades of SLEE services with zero downtime, and also a core 
 deploy-config.xml resource that admins may use to define Resource Adaptor 
 Entities out of deployable units. The SLEE core also includes support for 
@@ -13,7 +13,7 @@ the Mobicents Cluster framework.
 Regarding SIP, the SIP11 Resource Adaptor includes fixes for several bugs 
 reported by the community.
 
-With respect to Diameter, GHANDI bundles the recently released Mobicents 
+With respect to Diameter, GANDHI bundles the recently released Mobicents 
 Diameter 1.4.0.CR2, and with it introduces a new Resource Adaptor too: 
 Diameter S6a.
 
@@ -21,7 +21,7 @@ With respect to SS7, the release bundles the latest Mobicents SS7
 1.0.0.CR3, and both MAP and JCC Resource Adaptors were updated 
 to ensure compatibility.
 
-With respect to media control, GHANDI includes the first BETA release of 
+With respect to media control, GANDHI includes the first BETA release of 
 the MS Control (JSR 309) Resource Adaptor, which aims to provide a 
 standard high level API to interact with media resources. 
 
