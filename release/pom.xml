@@ -41,7 +41,7 @@
 		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp5/2.5.0.FINAL</ra.smpp.connectionURL>
 		<ra.xcap-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xcap-client/2.4.1.FINAL</ra.xcap-client.connectionURL>
 		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xmpp/2.4.0.FINAL</ra.xmpp.connectionURL>
-		<ra.map.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/map/1.0.0.CR2</ra.map.connectionURL>
+		<ra.map.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/map/1.0.0.CR3</ra.map.connectionURL>
 		<ra.jcc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jcc/${tag.version}</ra.jcc.connectionURL>
 		<ra.jdbc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/jdbc/1.0.0.FINAL</ra.jdbc.connectionURL>
 		<ra.tftp-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/tftp-server/1.0.0.FINAL</ra.tftp-server.connectionURL>

@@ -11,7 +11,7 @@
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
-	<property name="release.version" value="2.6.0-SNAPSHOT"/>
+	<property name="release.version" value="2.6.0.FINAL"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
 	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
@@ -26,7 +26,7 @@
 	<property name="mms.download.url" value ="http://mobicents.googlecode.com/files/mms-server-r21834-120202212603.zip"/>		
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 
-	<property name="ss7.version" value="1.0.0.CR2" />
+	<property name="ss7.version" value="1.0.0.CR3" />
 	<property name="ss7.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Protocols%20Suite/${ss7.version}/mobicents-ss7-${ss7.version}.zip"/>
 	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip"/>
 		
