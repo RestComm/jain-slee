@@ -28,14 +28,9 @@
 		<docs.ra.dirname>MAP</docs.ra.dirname>
 		<docs.bookid>MAP</docs.bookid>
 		
-		<map.version>1.0.0.CR2</map.version>
-		<tcap.version>1.0.0.CR2</tcap.version>
-		<sccp.version>1.0.0.CR2</sccp.version>
-		<asn.version>1.0.0.CR1</asn.version>
-		<mtp.version>1.0.0.CR2</mtp.version>
+		<ss7.version>1.0.0.CR3</ss7.version>
+		<asn.version>1.0.0.CR2</asn.version>
 		<stream.version>1.0.0.CR1</stream.version>
-		<m3ua.version>1.0.0.CR2</m3ua.version>
-		
 		<javolution.version>5.5.1</javolution.version>
 	</properties>
 	

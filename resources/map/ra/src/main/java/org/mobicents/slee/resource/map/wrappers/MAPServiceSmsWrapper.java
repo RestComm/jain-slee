@@ -27,7 +27,6 @@ import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
 import org.mobicents.protocols.ss7.map.api.dialog.ServingCheckData;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
-import org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPDialogSms;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSmsListener;
@@ -116,7 +115,13 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	@Override
 	public MAPDialogSms createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress, AddressString addressstring,
 			SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
-		return this.wrappedSMS.createNewDialog(mapapplicationcontext, sccpaddress, addressstring, sccpaddress1, addressstring1);
+		try {
+			MAPDialogSms mapDialog = this.wrappedSMS.createNewDialog(mapapplicationcontext, sccpaddress, addressstring, sccpaddress1, addressstring1);
+			mapProviderWrapper.ra.createActivity(mapDialog);
+			return mapDialog;
+		} catch (Exception e) {
+			throw new MAPException(e);
+		}
 	}
 
 	/* (non-Javadoc)
