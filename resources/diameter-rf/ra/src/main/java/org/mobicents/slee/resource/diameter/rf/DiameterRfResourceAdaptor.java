@@ -379,7 +379,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
     if(appIdsStr != null) {
       appIdsStr = appIdsStr.replaceAll(" ", "");
 
-      String[] appIdsStrings  = appIdsStr.split(", ");
+      String[] appIdsStrings  = appIdsStr.split(",");
 
       acctApplicationIds = new ArrayList<ApplicationId>(appIdsStrings.length);
 
