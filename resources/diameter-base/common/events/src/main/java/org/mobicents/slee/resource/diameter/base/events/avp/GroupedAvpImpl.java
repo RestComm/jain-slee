@@ -160,20 +160,32 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp , Exte
     List<DiameterAvp> avps = new ArrayList<DiameterAvp>();
 
     for (Avp a : set) {
-      // FIXME: alexandre: This is how I can check if it's a Grouped AVP... 
-      // should use dictionary (again). a.getGrouped() get's into deadlock.
-      if(a.getRaw().length == 0) {
-        GroupedAvpImpl gAVP = new GroupedAvpImpl(a.getCode(), a.getVendorId(),
-            a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw());
+      AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(a.getCode(), a.getVendorId());
+      if(avpRep != null) {
+        if(avpRep.isGrouped()) {
+          AvpSet grouped = a.getGrouped(); // warning, this changes getRaw to return byte[0] if successful
+          GroupedAvpImpl gAVP = new GroupedAvpImpl(a.getCode(), a.getVendorId(),
+              a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw());
 
-        gAVP.setExtensionAvps(getExtensionAvpsInternal(a.getGrouped()));
-
-        // This is a grouped AVP... let's make it like that.
-        avps.add(gAVP);
+          gAVP.setExtensionAvps(getExtensionAvpsInternal(grouped));
+          avps.add(gAVP);
+        }        
+        else {
+          avps.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw(), DiameterAvpType.fromString(avpRep.getType())));
+        }
       }
-      else {
-        AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(a.getCode(), a.getVendorId());
-        avps.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw(), DiameterAvpType.fromString(avpRep.getType())));
+      else { // we don't have it in dictionary
+        try {
+          AvpSet grouped = a.getGrouped(); // warning, this changes getRaw to return byte[0] if successful
+          GroupedAvpImpl gAVP = new GroupedAvpImpl(a.getCode(), a.getVendorId(),
+              a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw());
+
+          gAVP.setExtensionAvps(getExtensionAvpsInternal(grouped));
+          avps.add(gAVP);
+        }
+        catch (AvpDataException ade) {
+          avps.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a.isMandatory() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.isEncrypted() ? DiameterAvp.FLAG_RULE_MUST : DiameterAvp.FLAG_RULE_MUSTNOT, a.getRaw(), null));
+        }
       }
     }
 
