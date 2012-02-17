@@ -446,10 +446,15 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 		if (arg2 instanceof ResponseEvent) {
 			ResponseEvent event = (ResponseEvent) arg2;
 			HttpResponse response = event.getHttpResponse();
-			try {
-				EntityUtils.consume(response.getEntity());
-			} catch (IOException e) {
-				this.tracer.severe("Exception while housekeeping. Event unreferenced", e);
+			
+			//May be this event  is carrying Exception and not actual Response in which case
+			//skip housekeeping
+			if(response != null){
+				try {
+					EntityUtils.consume(response.getEntity());
+				} catch (IOException e) {
+					this.tracer.severe("Exception while housekeeping. Event unreferenced", e);
+				}
 			}
 		}
 	}
