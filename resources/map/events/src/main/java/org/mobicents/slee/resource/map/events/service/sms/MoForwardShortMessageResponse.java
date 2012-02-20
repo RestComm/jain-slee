@@ -25,6 +25,7 @@ package org.mobicents.slee.resource.map.events.service.sms;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPDialogSms;
 import org.mobicents.protocols.ss7.map.api.service.sms.MoForwardShortMessageResponseIndication;
+import org.mobicents.protocols.ss7.map.api.service.sms.SmsSignalInfo;
 import org.mobicents.slee.resource.map.events.MAPEvent;
 
 /**
@@ -52,7 +53,7 @@ public class MoForwardShortMessageResponse extends MAPEvent<MAPDialogSms> {
 		return wrapped.getInvokeId();
 	}
 
-	public byte[] getSM_RP_UI() {
+	public SmsSignalInfo getSM_RP_UI() {
 		return wrapped.getSM_RP_UI();
 	}
 

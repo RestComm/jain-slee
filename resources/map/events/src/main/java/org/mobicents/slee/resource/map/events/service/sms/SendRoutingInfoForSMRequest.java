@@ -27,6 +27,7 @@ import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPDialogSms;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_MTI;
+import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_SMEA;
 import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMRequestIndication;
 import org.mobicents.slee.resource.map.events.MAPEvent;
 
@@ -67,7 +68,7 @@ public class SendRoutingInfoForSMRequest extends MAPEvent<MAPDialogSms> {
 		return wrapped.getSM_RP_MTI();
 	}
 
-	public byte[] getSM_RP_SMEA() {
+	public SM_RP_SMEA getSM_RP_SMEA() {
 		return wrapped.getSM_RP_SMEA();
 	}
 
