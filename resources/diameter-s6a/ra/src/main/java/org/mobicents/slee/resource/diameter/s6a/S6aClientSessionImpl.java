@@ -37,6 +37,7 @@ import net.java.slee.resource.diameter.s6a.events.DeleteSubscriberDataAnswer;
 import net.java.slee.resource.diameter.s6a.events.DeleteSubscriberDataRequest;
 import net.java.slee.resource.diameter.s6a.events.InsertSubscriberDataAnswer;
 import net.java.slee.resource.diameter.s6a.events.InsertSubscriberDataRequest;
+import net.java.slee.resource.diameter.s6a.events.NotifyRequest;
 import net.java.slee.resource.diameter.s6a.events.PurgeUERequest;
 import net.java.slee.resource.diameter.s6a.events.ResetAnswer;
 import net.java.slee.resource.diameter.s6a.events.ResetRequest;
@@ -54,6 +55,7 @@ import org.jdiameter.common.impl.app.s6a.JAuthenticationInformationRequestImpl;
 import org.jdiameter.common.impl.app.s6a.JCancelLocationAnswerImpl;
 import org.jdiameter.common.impl.app.s6a.JDeleteSubscriberDataAnswerImpl;
 import org.jdiameter.common.impl.app.s6a.JInsertSubscriberDataAnswerImpl;
+import org.jdiameter.common.impl.app.s6a.JNotifyRequestImpl;
 import org.jdiameter.common.impl.app.s6a.JPurgeUERequestImpl;
 import org.jdiameter.common.impl.app.s6a.JResetAnswerImpl;
 import org.jdiameter.common.impl.app.s6a.JUpdateLocationRequestImpl;
@@ -315,6 +317,23 @@ public class S6aClientSessionImpl extends S6aSessionImpl implements S6aClientSes
     JResetAnswerImpl request = new JResetAnswerImpl((Answer) msg.getGenericData());
     try {
       appSession.sendResetAnswer(request);
+    }
+    catch (org.jdiameter.api.validation.AvpNotAllowedException anae) {
+      throw new AvpNotAllowedException(anae.getMessage(), anae.getAvpCode(), anae.getVendorId());
+    }
+    catch (Exception e) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Failed to send message.", e);
+      }
+      throw new IOException(e.getMessage());
+    }
+  }
+
+  public void sendNotifyRequest(NotifyRequest nor) throws IOException {
+    DiameterMessageImpl msg = (DiameterMessageImpl) nor;
+    JNotifyRequestImpl request = new JNotifyRequestImpl((Request) msg.getGenericData());
+    try {
+      appSession.sendNotifyRequest(request);
     }
     catch (org.jdiameter.api.validation.AvpNotAllowedException anae) {
       throw new AvpNotAllowedException(anae.getMessage(), anae.getAvpCode(), anae.getVendorId());

@@ -28,6 +28,7 @@ import net.java.slee.resource.diameter.s6a.events.AuthenticationInformationReque
 import net.java.slee.resource.diameter.s6a.events.CancelLocationAnswer;
 import net.java.slee.resource.diameter.s6a.events.DeleteSubscriberDataAnswer;
 import net.java.slee.resource.diameter.s6a.events.InsertSubscriberDataAnswer;
+import net.java.slee.resource.diameter.s6a.events.NotifyRequest;
 import net.java.slee.resource.diameter.s6a.events.PurgeUERequest;
 import net.java.slee.resource.diameter.s6a.events.ResetAnswer;
 import net.java.slee.resource.diameter.s6a.events.UpdateLocationRequest;
@@ -60,5 +61,7 @@ public interface S6aClientSessionActivity extends S6aSessionActivity {
   public ResetAnswer createResetAnswer();
 
   public void sendResetAnswer(ResetAnswer rsa) throws IOException;
+
+  public void sendNotifyRequest(NotifyRequest nor) throws IOException;
 
 }
