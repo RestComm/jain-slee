@@ -41,4 +41,8 @@ public abstract class MAPEvent<T> {
 		return mAPDialog;
 	}
 
+	@Override
+	public String toString() {
+		return "MAPEvent [MAPDialog=" + mAPDialog + "]";
+	}
 }
