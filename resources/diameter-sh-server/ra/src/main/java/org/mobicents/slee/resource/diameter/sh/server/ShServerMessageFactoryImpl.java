@@ -36,7 +36,6 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
 import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
-import net.java.slee.resource.diameter.sh.MessageFactory;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateRequest;
 import net.java.slee.resource.diameter.sh.events.PushNotificationRequest;
@@ -49,7 +48,6 @@ import net.java.slee.resource.diameter.sh.server.ShServerMessageFactory;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.ApplicationId;
-import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpSet;
 import org.jdiameter.api.IllegalDiameterStateException;
 import org.jdiameter.api.InternalException;
@@ -82,6 +80,9 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
 
   protected ArrayList<DiameterAvp> avpList = new ArrayList<DiameterAvp>();
 
+  // Sh: Vendor-Specific-Application-Id is mandatory;
+  private ApplicationId shAppId = ApplicationId.createByAuthAppId(_SH_VENDOR_ID, _SH_APP_ID);
+
   public ShServerMessageFactoryImpl(Session session, Stack stack) {
     super();
     this.session = session;
@@ -104,6 +105,14 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
     this.localFactory = (DiameterShAvpFactoryImpl) localFactory;
   }
 
+  public void setApplicationId(long vendorId, long applicationId) {
+    this.shAppId = ApplicationId.createByAuthAppId(vendorId, applicationId);      
+  }
+  
+  public ApplicationId getApplicationId() {
+    return this.shAppId;      
+  }
+  
   public ProfileUpdateAnswer createProfileUpdateAnswer(ProfileUpdateRequest request, long resultCode, boolean isExperimentalResult) {
     ProfileUpdateAnswer pua = this.createProfileUpdateAnswer(request);
 
@@ -324,12 +333,6 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
         addAvp(avp, set);
       }
 
-      if (msg.getAvps().getAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID) == null) {
-        DiameterAvp avpVendorId = this.localFactory.getBaseFactory().createAvp(Avp.VENDOR_ID, MessageFactory._SH_VENDOR_ID);
-        DiameterAvp avpAuthApplicationId = this.localFactory.getBaseFactory().createAvp(Avp.AUTH_APPLICATION_ID, MessageFactory._SH_APP_ID);
-        DiameterAvp vendorSpecific = this.localFactory.getBaseFactory().createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAuthApplicationId });
-        msg.getAvps().addAvp(vendorSpecific.getCode(), vendorSpecific.byteArrayValue());
-      }
       return msg;
     }
     catch (Exception e) {
@@ -343,22 +346,19 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
     int commandCode = 0;
     long endToEndId = 0;
     long hopByHopId = 0;
-    ApplicationId aid = null;
     if (header != null) {
       commandCode = header.getCommandCode();
       endToEndId = header.getEndToEndId();
       hopByHopId = header.getHopByHopId();
-      aid = ApplicationId.createByAuthAppId(header.getApplicationId());
     }
     else {
       //FIXME: This is the only one ;[
       commandCode = PushNotificationRequest.commandCode;
       endToEndId = (long) (Math.random()*1000000);
       hopByHopId = (long) (Math.random()*1000000)+1;
-      aid = ApplicationId.createByAuthAppId(_SH_VENDOR_ID, _SH_APP_ID);
     }
     try {
-      return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+      return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, shAppId, hopByHopId, endToEndId);
     }
     catch (InternalException e) {
       logger.error("Unable to create Raw Message.", e);

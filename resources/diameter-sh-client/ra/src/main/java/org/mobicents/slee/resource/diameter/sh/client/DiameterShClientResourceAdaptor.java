@@ -200,6 +200,8 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
 
   private DiameterAvpFactory baseAvpFactory = null;
   private DiameterShAvpFactory shAvpFactory = null;
+  
+  private ShClientMessageFactory shClientMessageFactory = null;
 
   /**
    * the EventLookupFacility is used to look up the event id of incoming
@@ -326,6 +328,12 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
       // Initialize factories
       this.baseAvpFactory = new DiameterAvpFactoryImpl();
       this.shAvpFactory = new DiameterShAvpFactoryImpl(baseAvpFactory);
+
+      this.shClientMessageFactory = new ShClientMessageFactoryImpl(stack);
+
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      ((ShClientMessageFactoryImpl)this.shClientMessageFactory).setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
 
       // Setup session factories
       this.sessionFactory = this.stack.getSessionFactory();
@@ -790,7 +798,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
               ClientShSession appSession = this.diameterStack.getSession(activity.getSessionId(), ClientShSession.class);
               session = appSession.getSessions().get(0);
               performBeforeReturnOnBase(activity, session);
-              performBeforeReturnSH(sh,session);
+              performBeforeReturnSh(sh,session);
               sh.setSession(appSession);
 
             }else if(activity instanceof ShClientSubscriptionActivity)
@@ -799,7 +807,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
               ClientShSession appSession = this.diameterStack.getSession(activity.getSessionId(), ClientShSession.class);
               session = appSession.getSessions().get(0);
               performBeforeReturnOnBase(activity, session);
-              performBeforeReturnSH(sh,session);
+              performBeforeReturnSh(sh,session);
               sh.setSession(appSession);
 
             }else
@@ -812,23 +820,29 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
           }
         }
 
-        private void performBeforeReturnSH(
-            ShClientSubscriptionActivityImpl sh,Session session) {
+        private void performBeforeReturnSh(ShClientSubscriptionActivityImpl sh,Session session) {
           ShClientMessageFactoryImpl messageFactory = new ShClientMessageFactoryImpl(session, stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
           sh.setClientMessageFactory(messageFactory);
           sh.setClientAvpFactory(shAvpFactory);
-
         }
 
-        private void performBeforeReturnSH(ShClientActivityImpl sh,Session session) {
+        private void performBeforeReturnSh(ShClientActivityImpl sh, Session session) {
           ShClientMessageFactoryImpl messageFactory = new ShClientMessageFactoryImpl(session, stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
           sh.setClientMessageFactory(messageFactory);
           sh.setClientAvpFactory(shAvpFactory);
-
         }
 
-        private void performBeforeReturnOnBase(DiameterActivityImpl ac,Session session)
-        {
+        private void performBeforeReturnOnBase(DiameterActivityImpl ac,Session session) {
           DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session, stack, new DiameterIdentity[] {});
           ac.setAvpFactory(baseAvpFactory);
           ac.setMessageFactory(msgFactory);
@@ -841,16 +855,11 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
           DiameterActivity da = super.get(handle);
 
           return da;
-
         }
 
         @Override
-        public void put(DiameterActivityHandle handle,
-            DiameterActivity activity) {
-
-
+        public void put(DiameterActivityHandle handle, DiameterActivity activity) {
           super.put(handle, activity);
-
         }
 
         @Override
@@ -1145,7 +1154,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
     }
 
     public ShClientMessageFactory getClientMessageFactory() {
-      return new ShClientMessageFactoryImpl(stack);
+      return shClientMessageFactory;
     }
 
     public net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer profileUpdateRequest(ProfileUpdateRequest message) throws IOException {

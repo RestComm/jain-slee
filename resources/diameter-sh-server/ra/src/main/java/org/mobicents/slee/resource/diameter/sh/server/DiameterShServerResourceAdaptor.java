@@ -205,6 +205,8 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
    */
   private transient ShServerProviderImpl raProvider = null;
 
+  private ShServerMessageFactoryImpl shServerMessageFactory;
+
   /**
    * for all events we are interested in knowing when the event failed to be processed
    */
@@ -315,6 +317,12 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
       // Initialize factories
       this.baseAvpFactory = new DiameterAvpFactoryImpl();
       this.shAvpFactory = new DiameterShAvpFactoryImpl(baseAvpFactory);
+
+      this.shServerMessageFactory = new ShServerMessageFactoryImpl(stack);
+      
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      ((ShServerMessageFactoryImpl)this.shServerMessageFactory).setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
 
       // Setup session factories
       this.sessionFactory = this.stack.getSessionFactory();
@@ -845,12 +853,22 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
 
         private void performBeforeReturnSh(ShServerSubscriptionActivityImpl sh, Session session) {
           ShServerMessageFactoryImpl messageFactory = new ShServerMessageFactoryImpl(session, stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
           sh.setServerMessageFactory(messageFactory);
           sh.setServerAvpFactory(shAvpFactory);
         }
 
         private void performBeforeReturnSh(ShServerActivityImpl sh, Session session) {
           ShServerMessageFactoryImpl messageFactory = new ShServerMessageFactoryImpl(session, stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
           sh.setServerMessageFactory(messageFactory);
           sh.setServerAvpFactory(shAvpFactory);
         }
@@ -968,7 +986,7 @@ public class DiameterShServerResourceAdaptor  implements ResourceAdaptor, Diamet
     }
 
     public ShServerMessageFactory getServerMessageFactory() {
-      return new ShServerMessageFactoryImpl(stack);
+      return shServerMessageFactory;
     }
 
     public DiameterShAvpFactory getServerAvpFactory() {

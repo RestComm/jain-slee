@@ -32,7 +32,6 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
-import net.java.slee.resource.diameter.sh.MessageFactory;
 import net.java.slee.resource.diameter.sh.client.ShClientMessageFactory;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateRequest;
 import net.java.slee.resource.diameter.sh.events.PushNotificationAnswer;
@@ -45,7 +44,6 @@ import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.ApplicationId;
-import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpSet;
 import org.jdiameter.api.IllegalDiameterStateException;
 import org.jdiameter.api.InternalException;
@@ -68,12 +66,15 @@ import org.mobicents.slee.resource.diameter.sh.events.UserDataRequestImpl;
  */
 public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
 
+  private static Logger logger = Logger.getLogger(ShClientMessageFactoryImpl.class);
+
   protected Session session;
   protected Stack stack;
   protected DiameterMessageFactoryImpl baseFactory = null;
   protected DiameterAvpFactory baseAvpFactory = null;
 
-  private static Logger logger = Logger.getLogger(ShClientMessageFactoryImpl.class);
+  // Sh: Vendor-Specific-Application-Id is mandatory;
+  private ApplicationId shAppId = ApplicationId.createByAuthAppId(_SH_VENDOR_ID, _SH_APP_ID);
 
   // Used for generating session id's
   protected static UIDGenerator uid = new UIDGenerator();
@@ -93,6 +94,14 @@ public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
     this.baseAvpFactory = new DiameterAvpFactoryImpl();
   }
 
+  public void setApplicationId(long vendorId, long applicationId) {
+    this.shAppId = ApplicationId.createByAuthAppId(vendorId, applicationId);      
+  }
+  
+  public ApplicationId getApplicationId() {
+    return this.shAppId;      
+  }
+  
   public ProfileUpdateRequest createProfileUpdateRequest(UserIdentityAvp userIdentity, DataReferenceType reference, byte[] userData) {
     ProfileUpdateRequest pur = this.createProfileUpdateRequest();
 
@@ -246,13 +255,6 @@ public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
         addAvp(avp, set);
       }
 
-      if (msg.getAvps().getAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID) == null) {
-        DiameterAvp avpVendorId = this.baseAvpFactory.createAvp(Avp.VENDOR_ID, MessageFactory._SH_VENDOR_ID);
-        DiameterAvp avpAuthApplicationId = this.baseAvpFactory.createAvp(Avp.AUTH_APPLICATION_ID, MessageFactory._SH_APP_ID);
-        DiameterAvp vendorSpecific = this.baseAvpFactory.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAuthApplicationId });
-        msg.getAvps().addAvp(vendorSpecific.getCode(), vendorSpecific.byteArrayValue());
-      }
-
       return msg;
     }
     catch (Exception e) {
@@ -266,21 +268,18 @@ public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
     int commandCode = 0;
     long endToEndId = 0;
     long hopByHopId = 0;
-    ApplicationId aid = null;
 
     if (header != null) {
       commandCode = header.getCommandCode();
       endToEndId = header.getEndToEndId();
       hopByHopId = header.getHopByHopId();
-      aid = ApplicationId.createByAuthAppId(header.getApplicationId());
     }
     else {
       commandCode = _commandCode;
-      aid = ApplicationId.createByAuthAppId(_SH_VENDOR_ID, _SH_APP_ID);
     }
     try {
-      return header != null ? stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId) : 
-        stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
+      return header != null ? stack.getSessionFactory().getNewRawSession().createMessage(commandCode, shAppId, hopByHopId, endToEndId) : 
+        stack.getSessionFactory().getNewRawSession().createMessage(commandCode, shAppId);
     }
     catch (InternalException e) {
       logger.error("Unexpected failure trying to create Raw Message.", e);
