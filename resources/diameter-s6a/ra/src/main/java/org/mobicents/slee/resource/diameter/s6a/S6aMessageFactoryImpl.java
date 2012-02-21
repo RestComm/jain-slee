@@ -22,8 +22,6 @@
 
 package org.mobicents.slee.resource.diameter.s6a;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.NoSuchAvpException;
 import net.java.slee.resource.diameter.base.events.DiameterHeader;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
@@ -40,12 +38,10 @@ import net.java.slee.resource.diameter.s6a.events.UpdateLocationRequest;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.ApplicationId;
-import org.jdiameter.api.Avp;
 import org.jdiameter.api.InternalException;
 import org.jdiameter.api.Message;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.Stack;
-import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.events.ExtensionDiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.s6a.events.AuthenticationInformationAnswerImpl;
@@ -76,9 +72,11 @@ import org.mobicents.slee.resource.diameter.s6a.events.UpdateLocationRequestImpl
 public class S6aMessageFactoryImpl extends DiameterMessageFactoryImpl implements S6aMessageFactory {
 
   private static Logger logger = Logger.getLogger(S6aMessageFactoryImpl.class);
-  public static final ApplicationId s6aAppId = ApplicationId.createByAuthAppId(_S6A_VENDOR, _S6A_AUTH_APP_ID);
-  private DiameterAvpFactory baseAvpFactory = null;
+
   private DiameterAvp[] EMPTY_AVP_ARRAY = new DiameterAvp[]{};
+
+  // S6a: Vendor-Specific-Application-Id is set as optional and may be discarded in future releases; No Auth-Application-Id either;
+  private ApplicationId s6aAppId = ApplicationId.createByAuthAppId(_S6A_VENDOR, _S6A_AUTH_APP_ID);
 
   /**
    * @param session
@@ -87,8 +85,6 @@ public class S6aMessageFactoryImpl extends DiameterMessageFactoryImpl implements
    */
   public S6aMessageFactoryImpl(Session session, Stack stack, DiameterIdentity... avps) {
     super(session, stack, avps);
-
-    this.baseAvpFactory = new DiameterAvpFactoryImpl();
   }
 
   /**
@@ -96,10 +92,16 @@ public class S6aMessageFactoryImpl extends DiameterMessageFactoryImpl implements
    */
   public S6aMessageFactoryImpl(Stack stack) {
     super(stack);
-
-    this.baseAvpFactory = new DiameterAvpFactoryImpl();
   }
 
+  public void setApplicationId(long vendorId, long applicationId) {
+    this.s6aAppId = ApplicationId.createByAuthAppId(vendorId, applicationId);      
+  }
+  
+  public ApplicationId getApplicationId() {
+    return this.s6aAppId;      
+  }
+  
   /**
    * Creates a S6a Message with specified command-code and avps filled. If a header is present an answer will be created, if not
    * it will generate a request.
@@ -121,7 +123,7 @@ public class S6aMessageFactoryImpl extends DiameterMessageFactoryImpl implements
       raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
       raw.setReTransmitted(false); // just in case. answers never have T flag set
-      raw.getAvps().removeAvp(Avp.AUTH_APPLICATION_ID);
+      // FIXME ? raw.getAvps().removeAvp(Avp.AUTH_APPLICATION_ID);
       msg = raw;
     }
     else {
@@ -129,19 +131,6 @@ public class S6aMessageFactoryImpl extends DiameterMessageFactoryImpl implements
       raw.setProxiable(true);
       raw.setRequest(true);
       msg = raw;
-    }
-
-    if (msg.getAvps().getAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID) == null) {
-
-      try {
-        DiameterAvp avpVendorId = this.baseAvpFactory.createAvp(Avp.VENDOR_ID, _S6A_VENDOR);
-        DiameterAvp avpAuthApplicationId = this.baseAvpFactory.createAvp(Avp.AUTH_APPLICATION_ID, _S6A_AUTH_APP_ID);
-        DiameterAvp vendorSpecific = this.baseAvpFactory.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[]{avpVendorId, avpAuthApplicationId});
-        msg.getAvps().addAvp(vendorSpecific.getCode(), vendorSpecific.byteArrayValue());
-      }
-      catch (NoSuchAvpException nsae) {
-        logger.error("Failed to create AVPs", nsae);
-      }
     }
 
     int commandCode = creatingRequest ? _commandCode : diameterHeader.getCommandCode();
@@ -315,4 +304,5 @@ public class S6aMessageFactoryImpl extends DiameterMessageFactoryImpl implements
     nor.setSessionId(sessionId);
     return nor;
   }
+
 }

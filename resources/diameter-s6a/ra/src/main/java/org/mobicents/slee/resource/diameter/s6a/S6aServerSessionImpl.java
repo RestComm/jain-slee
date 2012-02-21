@@ -127,7 +127,7 @@ public class S6aServerSessionImpl extends S6aSessionImpl implements S6aServerSes
 
     try {
       // Create the answer
-      AuthenticationInformationAnswer aia = (AuthenticationInformationAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, AuthenticationInformationAnswer.COMMAND_CODE, S6aMessageFactoryImpl.s6aAppId);
+      AuthenticationInformationAnswer aia = (AuthenticationInformationAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, AuthenticationInformationAnswer.COMMAND_CODE, s6aMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(aia);
@@ -167,7 +167,7 @@ public class S6aServerSessionImpl extends S6aSessionImpl implements S6aServerSes
 
     try {
       // Create the answer
-      PurgeUEAnswer aia = (PurgeUEAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, PurgeUEAnswer.COMMAND_CODE, S6aMessageFactoryImpl.s6aAppId);
+      PurgeUEAnswer aia = (PurgeUEAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, PurgeUEAnswer.COMMAND_CODE, s6aMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(aia);
@@ -207,7 +207,7 @@ public class S6aServerSessionImpl extends S6aSessionImpl implements S6aServerSes
 
     try {
       // Create the answer
-      UpdateLocationAnswer aia = (UpdateLocationAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, UpdateLocationAnswer.COMMAND_CODE, S6aMessageFactoryImpl.s6aAppId);
+      UpdateLocationAnswer aia = (UpdateLocationAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, UpdateLocationAnswer.COMMAND_CODE, s6aMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(aia);
@@ -315,7 +315,7 @@ public class S6aServerSessionImpl extends S6aSessionImpl implements S6aServerSes
 
     try {
       // Create the answer
-      NotifyAnswer aia = (NotifyAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, NotifyAnswer.COMMAND_CODE, S6aMessageFactoryImpl.s6aAppId);
+      NotifyAnswer aia = (NotifyAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, NotifyAnswer.COMMAND_CODE, s6aMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(aia);

@@ -161,7 +161,7 @@ public class S6aClientSessionImpl extends S6aSessionImpl implements S6aClientSes
 
     try {
       // Create the answer
-      CancelLocationAnswer cla = (CancelLocationAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, CancelLocationAnswer.COMMAND_CODE, S6aMessageFactoryImpl.s6aAppId);
+      CancelLocationAnswer cla = (CancelLocationAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, CancelLocationAnswer.COMMAND_CODE, s6aMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(cla);
@@ -201,7 +201,7 @@ public class S6aClientSessionImpl extends S6aSessionImpl implements S6aClientSes
 
     try {
       // Create the answer
-      InsertSubscriberDataAnswer ida = (InsertSubscriberDataAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, InsertSubscriberDataAnswer.COMMAND_CODE, S6aMessageFactoryImpl.s6aAppId);
+      InsertSubscriberDataAnswer ida = (InsertSubscriberDataAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, InsertSubscriberDataAnswer.COMMAND_CODE, s6aMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(ida);
@@ -241,7 +241,7 @@ public class S6aClientSessionImpl extends S6aSessionImpl implements S6aClientSes
 
     try {
       // Create the answer
-      DeleteSubscriberDataAnswer dsa = (DeleteSubscriberDataAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, DeleteSubscriberDataAnswer.COMMAND_CODE, S6aMessageFactoryImpl.s6aAppId);
+      DeleteSubscriberDataAnswer dsa = (DeleteSubscriberDataAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, DeleteSubscriberDataAnswer.COMMAND_CODE, s6aMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(dsa);
@@ -298,7 +298,7 @@ public class S6aClientSessionImpl extends S6aSessionImpl implements S6aClientSes
 
     try {
       // Create the answer
-      ResetAnswer rsa = (ResetAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, ResetAnswer.COMMAND_CODE, S6aMessageFactoryImpl.s6aAppId);
+      ResetAnswer rsa = (ResetAnswer) this.s6aMessageFactory.createS6aMessage(lastRequest.getHeader(), new DiameterAvp[]{}, ResetAnswer.COMMAND_CODE, s6aMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(rsa);

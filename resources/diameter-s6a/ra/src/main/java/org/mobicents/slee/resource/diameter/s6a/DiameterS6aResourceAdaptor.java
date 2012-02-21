@@ -280,8 +280,12 @@ public class DiameterS6aResourceAdaptor implements ResourceAdaptor, DiameterList
       // Initialize factories
       this.baseAvpFactory = new DiameterAvpFactoryImpl();
 
-      this.s6aMessageFactory = new S6aMessageFactoryImpl(stack);
       this.s6aAvpFactory = new S6aAVPFactoryImpl(baseAvpFactory);
+      this.s6aMessageFactory = new S6aMessageFactoryImpl(stack);
+
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      ((S6aMessageFactoryImpl)this.s6aMessageFactory).setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
 
       // Setup session factories
       this.sessionFactory = this.stack.getSessionFactory();
@@ -713,7 +717,12 @@ public class DiameterS6aResourceAdaptor implements ResourceAdaptor, DiameterList
   // S6a Session Creation Listener --------------------------------------
 
   public void sessionCreated(ServerS6aSession session) {
-    S6aMessageFactory sessionMsgFactory = new S6aMessageFactoryImpl(session.getSessions().get(0), stack, new DiameterIdentity[]{});
+    S6aMessageFactoryImpl sessionMsgFactory = new S6aMessageFactoryImpl(session.getSessions().get(0), stack, new DiameterIdentity[]{});
+
+    // Set the first configured Application-Id as default for message factory
+    ApplicationId firstAppId = authApplicationIds.get(0);
+    sessionMsgFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
     S6aServerSessionImpl serverActivity = new S6aServerSessionImpl(sessionMsgFactory, s6aAvpFactory, session, this, null, null, stack);
     //session.addStateChangeNotification(serverActivity);
     //addActivity(serverActivity);
@@ -721,7 +730,12 @@ public class DiameterS6aResourceAdaptor implements ResourceAdaptor, DiameterList
   }
 
   public void sessionCreated(ClientS6aSession session) {
-    S6aMessageFactory sessionMsgFactory = new S6aMessageFactoryImpl(session.getSessions().get(0), stack, new DiameterIdentity[]{});
+    S6aMessageFactoryImpl sessionMsgFactory = new S6aMessageFactoryImpl(session.getSessions().get(0), stack, new DiameterIdentity[]{});
+
+    // Set the first configured Application-Id as default for message factory
+    ApplicationId firstAppId = authApplicationIds.get(0);
+    sessionMsgFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
     S6aClientSessionImpl clientActivity = new S6aClientSessionImpl(sessionMsgFactory, s6aAvpFactory, session, this, null, null, stack);
     //session.addStateChangeNotification(serverActivity);
     //addActivity(serverActivity);
