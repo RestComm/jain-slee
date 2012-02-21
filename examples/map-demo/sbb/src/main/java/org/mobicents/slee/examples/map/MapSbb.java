@@ -29,6 +29,7 @@ import org.mobicents.slee.resource.map.events.DialogUserAbort;
 import org.mobicents.slee.resource.map.events.InvokeTimeout;
 import org.mobicents.slee.resource.map.events.service.sms.ForwardShortMessageRequest;
 import org.mobicents.slee.resource.map.events.service.suplementary.ProcessUnstructuredSSRequest;
+import org.mobicents.slee.resource.map.events.service.suplementary.UnstructuredSSRequest;
 import org.mobicents.slee.resource.map.events.service.suplementary.UnstructuredSSResponse;
 
 /**
@@ -123,12 +124,14 @@ public abstract class MapSbb implements Sbb {
 		long invokeId = evt.getInvokeId();
 
 		if (this.logger.isInfoEnabled()) {
-			this.logger.info(String.format("Received PROCESS_UNSTRUCTURED_SS_REQUEST event USSDString=%s invokeId=%d", ussdStr, invokeId));
+			this.logger.info(String.format("Received PROCESS_UNSTRUCTURED_SS_REQUEST event USSDString=%s invokeId=%d",
+					ussdStr, invokeId));
 		}
 
 		this.setInvokeId(invokeId);
 
-		ussdStrObj = this.mapParameterFactory.createUSSDString("USSD String : Hello World <CR> 1. Balance <CR> 2. Texts Remaining");
+		ussdStrObj = this.mapParameterFactory
+				.createUSSDString("USSD String : Hello World <CR> 1. Balance <CR> 2. Texts Remaining");
 		byte ussdDataCodingScheme = (byte) 0x0F;
 		MAPDialogSupplementary dialog = evt.getMAPDialog();
 
@@ -142,13 +145,37 @@ public abstract class MapSbb implements Sbb {
 
 	}
 
+	public void onUnstructuredSSRequest(UnstructuredSSRequest evt, ActivityContextInterface aci) {
+		USSDString ussdStrObj = evt.getUSSDString();
+		String ussdStr = ussdStrObj.getString();
+		long invokeId = evt.getInvokeId();
+
+		if (this.logger.isInfoEnabled()) {
+			this.logger.info(String.format("Received UNSTRUCTURED_SS_REQUEST event USSDString=%s invokeId=%d", ussdStr,
+					invokeId));
+		}
+
+		ussdStrObj = this.mapParameterFactory.createUSSDString("Welcome to Mobicents world!");
+		byte ussdDataCodingScheme = (byte) 0x0F;
+		MAPDialogSupplementary dialog = evt.getMAPDialog();
+
+		try {
+			dialog.addUnstructuredSSResponse(invokeId, ussdDataCodingScheme, ussdStrObj);
+			dialog.close(false);
+		} catch (MAPException e) {
+			logger.severe("Error while sending UnstructuredSSRequest ", e);
+		}
+
+	}
+
 	public void onUnstructuredSSResponse(UnstructuredSSResponse evt, ActivityContextInterface aci) {
 		USSDString ussdStrObj = evt.getUSSDString();
 		String ussdStr = ussdStrObj.getString();
 		long invokeId = evt.getInvokeId();
 
 		if (this.logger.isInfoEnabled()) {
-			this.logger.info(String.format("Received UNSTRUCTURED_SS_RESPONSE event USSDString=%s invokeId=%d", ussdStr, invokeId));
+			this.logger.info(String.format("Received UNSTRUCTURED_SS_RESPONSE event USSDString=%s invokeId=%d",
+					ussdStr, invokeId));
 		}
 
 		ussdStrObj = this.mapParameterFactory.createUSSDString("Your balance = 350");
@@ -172,9 +199,9 @@ public abstract class MapSbb implements Sbb {
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info(String.format("Received FORWARD_SHORT_MESSAGE_REQUEST event=%s", evt.toString()));
 		}
-		
+
 		MAPDialogSms dialog = evt.getMAPDialog();
-		
+
 		try {
 			dialog.addForwardShortMessageResponse(evt.getInvokeId());
 			dialog.close(false);
