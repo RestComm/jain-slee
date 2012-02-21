@@ -22,10 +22,9 @@
 
 package org.mobicents.slee.resource.diameter.ro;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.ro.RoAvpFactory;
 import net.java.slee.resource.diameter.ro.RoMessageFactory;
 import net.java.slee.resource.diameter.ro.RoSessionActivity;
 import net.java.slee.resource.diameter.ro.events.RoCreditControlRequest;
@@ -58,9 +57,10 @@ public abstract class RoSessionActivityImpl extends DiameterActivityImpl impleme
    * @param destinationHost
    * @param destinationRealm
    */
-  public RoSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener,
+  public RoSessionActivityImpl(RoMessageFactory roMessageFactory, RoAvpFactory roAvpFactory, Session session, EventListener<Request, Answer> raEventListener,
       DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
-    super(messageFactory, avpFactory, session, raEventListener, destinationHost, destinationRealm);
+    super(roMessageFactory.getBaseMessageFactory(), roAvpFactory.getBaseFactory(), session, raEventListener, destinationHost, destinationRealm);
+    this.roMessageFactory = roMessageFactory;
   }
 
   @Override

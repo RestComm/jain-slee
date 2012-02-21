@@ -24,13 +24,13 @@ package org.mobicents.slee.resource.diameter.ro;
 
 import java.io.IOException;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.ReAuthRequest;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.ReAuthRequestType;
 import net.java.slee.resource.diameter.cca.CreditControlMessageFactory;
+import net.java.slee.resource.diameter.ro.RoAvpFactory;
+import net.java.slee.resource.diameter.ro.RoMessageFactory;
 import net.java.slee.resource.diameter.ro.RoServerSessionActivity;
 import net.java.slee.resource.diameter.ro.RoSessionState;
 import net.java.slee.resource.diameter.ro.events.RoCreditControlAnswer;
@@ -63,13 +63,12 @@ public class RoServerSessionActivityImpl extends RoSessionActivityImpl implement
   protected transient ServerRoSession session = null;
   protected transient RoCreditControlRequest lastRequest = null;
 
-  public RoServerSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ServerRoSession session, DiameterIdentity destinationHost,
+  public RoServerSessionActivityImpl(RoMessageFactory roMessageFactory, RoAvpFactory roAvpFactory, ServerRoSession session, DiameterIdentity destinationHost,
       DiameterIdentity destinationRealm, Stack stack) {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
+    super(roMessageFactory, roAvpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
 
     setSession(session);
     super.setCurrentWorkingSession(this.session.getSessions().get(0));
-    super.setRoMessageFactory(new RoMessageFactoryImpl(messageFactory, session.getSessionId(), stack));
   }
 
   /*

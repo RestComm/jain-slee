@@ -56,6 +56,9 @@ import org.mobicents.slee.resource.diameter.ro.events.RoCreditControlRequestImpl
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class RoMessageFactoryImpl implements RoMessageFactory {
+
+  protected Logger logger = Logger.getLogger(RoMessageFactoryImpl.class);
+
   protected final static Set<Integer> ids;
 
   static {
@@ -95,7 +98,8 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
 
   protected String sessionId;
   protected Stack stack;
-  protected Logger logger = Logger.getLogger(this.getClass());
+
+  private ApplicationId roAppId = ApplicationId.createByAuthAppId(0, _RO_AUTH_APP_ID);
 
   // protected RfAVPFactory rfAvpFactory = null;
   public RoMessageFactoryImpl(DiameterMessageFactory baseFactory, String sessionId, Stack stack/*
@@ -110,6 +114,14 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
     this.stack = stack;
   }
 
+  public void setApplicationId(long vendorId, long applicationId) {
+    this.roAppId = ApplicationId.createByAuthAppId(vendorId, applicationId);
+  }
+  
+  public ApplicationId getApplicationId() {
+    return this.roAppId;      
+  }
+  
   /*
    * (non-Javadoc)
    * 
@@ -194,7 +206,7 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
     RoCreditControlMessage msg = null;
     if (!isRequest) {
       Message raw = createMessage(diameterHeader, avps);
-      raw.setProxiable(true);
+      raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
       raw.setReTransmitted(false); // just in case. answers never have T flag set
       msg = new RoCreditControlAnswerImpl(raw);
@@ -229,7 +241,6 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
     boolean isError = false;
     boolean isPotentiallyRetransmitted = false;
 
-    ApplicationId aid = ApplicationId.createByAuthAppId(0, _RO_AUTH_APP_ID);
     if (header != null) {
       // Answer
       commandCode = header.getCommandCode();
@@ -250,9 +261,9 @@ public class RoMessageFactoryImpl implements RoMessageFactory {
     Message msg = null;
     try {
       if (header != null) {
-        msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+        msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, roAppId, hopByHopId, endToEndId);
       } else {
-        msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
+        msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, roAppId);
       }
     } catch (IllegalDiameterStateException e) {
       logger.error("Failed to get session factory for message creation.", e);

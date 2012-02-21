@@ -333,6 +333,10 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       this.roAvpFactory = new RoAvpFactoryImpl(baseAvpFactory);
       this.roMessageFactory = new RoMessageFactoryImpl(baseMessageFactory, null, stack);
 
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      ((RoMessageFactoryImpl)this.roMessageFactory).setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
       this.sessionFactory = this.stack.getSessionFactory();
       this.ccaSessionFactory = new RoSessionFactory( this, sessionFactory,defaultDirectDebitingFailureHandling, defaultCreditControlFailureHandling,  defaultValidityTime, defaultTxTimerValue);
 
@@ -820,12 +824,24 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
         }
 
         private void performBeforeReturnRo(RoServerSessionActivityImpl acc, Session session) {
-          acc.setRoMessageFactory(new RoMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
+          RoMessageFactoryImpl messageFactory = new RoMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+          acc.setRoMessageFactory(messageFactory);
           // acc.setRoAvpFactory(roAvpFactory);
         }
 
         private void performBeforeReturnRo(RoClientSessionActivityImpl acc, Session session) {
-          acc.setRoMessageFactory(new RoMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
+          RoMessageFactoryImpl messageFactory = new RoMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+          acc.setRoMessageFactory(messageFactory);
           // acc.setRoAvpFactory(roAvpFactory);
         }
 
@@ -967,14 +983,10 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       return;
     }
 
-    // Get Message Factories (for Base and CCA)
-    DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(ccClientSession.getSessions().get(0), this.stack);
-    //RoMessageFactoryImpl ccaMsgFactory = new RoMessageFactoryImpl(baseMsgFactory, ccClientSession.getSessionId(), this.stack);
-
     // Create Client Activity
-    RoClientSessionActivityImpl activity = new RoClientSessionActivityImpl(baseMsgFactory, this.baseAvpFactory, ccClientSession, null, null, stack);
+    RoClientSessionActivityImpl activity = new RoClientSessionActivityImpl(roMessageFactory, roAvpFactory, ccClientSession, null, null, stack);
 
-    //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
+    //FIXME: baranowb: add basic session mgmt for base? or do we rely on responses?
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
     addActivity(activity, true);
@@ -988,14 +1000,10 @@ public class DiameterRoResourceAdaptor implements ResourceAdaptor, DiameterListe
       return;
     }
 
-    // Get Message Factories (for Base and CCA)
-    DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(ccServerSession.getSessions().get(0), this.stack);
-  //RoMessageFactoryImpl ccaMsgFactory = new RoMessageFactoryImpl(baseMsgFactory, ccClientSession.getSessionId(), this.stack);
-
     // Create Server Activity
-    RoServerSessionActivityImpl activity = new RoServerSessionActivityImpl(baseMsgFactory, this.baseAvpFactory, ccServerSession, null, null, stack);
+    RoServerSessionActivityImpl activity = new RoServerSessionActivityImpl(roMessageFactory, roAvpFactory, ccServerSession, null, null, stack);
 
-    //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
+    //FIXME: baranowb: add basic session mgmt for base? or do we rely on responses?
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
     addActivity(activity, false);
