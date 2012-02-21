@@ -132,7 +132,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
 
     try {
       // Create the answer
-      LocationInfoAnswer lia = (LocationInfoAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, LocationInfoAnswer.COMMAND_CODE, CxDxMessageFactoryImpl.cxdxAppId);
+      LocationInfoAnswer lia = (LocationInfoAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, LocationInfoAnswer.COMMAND_CODE, cxdxMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(lia);
@@ -159,7 +159,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
 
     try {
       // Create the answer
-      MultimediaAuthenticationAnswer maa = (MultimediaAuthenticationAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, MultimediaAuthenticationAnswer.COMMAND_CODE, CxDxMessageFactoryImpl.cxdxAppId);
+      MultimediaAuthenticationAnswer maa = (MultimediaAuthenticationAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, MultimediaAuthenticationAnswer.COMMAND_CODE, cxdxMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(maa);
@@ -186,7 +186,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
 
     try {
       // Create the answer
-      ServerAssignmentAnswer saa = (ServerAssignmentAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, ServerAssignmentAnswer.COMMAND_CODE, CxDxMessageFactoryImpl.cxdxAppId);
+      ServerAssignmentAnswer saa = (ServerAssignmentAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, ServerAssignmentAnswer.COMMAND_CODE, cxdxMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(saa);
@@ -213,7 +213,7 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
 
     try {
       // Create the answer
-      UserAuthorizationAnswer uaa = (UserAuthorizationAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, UserAuthorizationAnswer.COMMAND_CODE, CxDxMessageFactoryImpl.cxdxAppId);
+      UserAuthorizationAnswer uaa = (UserAuthorizationAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, UserAuthorizationAnswer.COMMAND_CODE, cxdxMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(uaa);

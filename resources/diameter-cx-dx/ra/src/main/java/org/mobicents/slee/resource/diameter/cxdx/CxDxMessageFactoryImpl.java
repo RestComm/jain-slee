@@ -73,10 +73,11 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
 
   private static Logger logger = Logger.getLogger(CxDxMessageFactoryImpl.class);
 
-  public static final ApplicationId cxdxAppId = ApplicationId.createByAuthAppId(DiameterCxDxAvpCodes.CXDX_VENDOR_ID, DiameterCxDxAvpCodes.CXDX_AUTH_APP_ID);
   private DiameterAvpFactory baseAvpFactory = null;
   protected DiameterMessageFactory baseFactory = null;
   
+  private ApplicationId cxdxAppId = ApplicationId.createByAuthAppId(DiameterCxDxAvpCodes.CXDX_VENDOR_ID, DiameterCxDxAvpCodes.CXDX_AUTH_APP_ID);
+
   private DiameterAvp[] EMPTY_AVP_ARRAY = new DiameterAvp[]{}; 
 
   /**
@@ -101,6 +102,14 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
     this.baseFactory = baseFactory;
   }
 
+  public void setApplicationId(long vendorId, long applicationId) {
+    this.cxdxAppId = ApplicationId.createByAuthAppId(vendorId, applicationId);      
+  }
+  
+  public ApplicationId getApplicationId() {
+    return this.cxdxAppId;      
+  }
+  
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.CxDxMessageFactory#createLocationInfoRequest()
    */
@@ -280,18 +289,6 @@ public class CxDxMessageFactoryImpl extends DiameterMessageFactoryImpl implement
       raw.setRequest(true);
       msg = raw;
     }    
-
-    if (msg.getAvps().getAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID) == null) {
-    	try {
-    	    DiameterAvp avpVendorId = this.baseAvpFactory.createAvp(Avp.VENDOR_ID, DiameterCxDxAvpCodes.CXDX_VENDOR_ID);
-    	    DiameterAvp avpAcctApplicationId = this.baseAvpFactory.createAvp(Avp.AUTH_APPLICATION_ID, DiameterCxDxAvpCodes.CXDX_AUTH_APP_ID);
-    	    DiameterAvp vendorSpecific = this.baseAvpFactory.createAvp(Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[] { avpVendorId, avpAcctApplicationId });
-    	    msg.getAvps().addAvp(vendorSpecific.getCode(), vendorSpecific.byteArrayValue());
-    	}
-    	catch(NoSuchAvpException nsae) {
-    	   logger.error("Failed to create AVPs", nsae);
-    	}
-    }
 
     int commandCode = creatingRequest ? _commandCode : diameterHeader.getCommandCode();
     DiameterMessage diamMessage = null;

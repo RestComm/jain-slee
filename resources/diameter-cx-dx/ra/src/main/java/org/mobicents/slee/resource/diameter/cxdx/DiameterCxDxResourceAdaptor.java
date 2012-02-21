@@ -335,8 +335,12 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
       this.baseAvpFactory = new DiameterAvpFactoryImpl();
       this.baseMessageFactory = new DiameterMessageFactoryImpl(stack);
 	   
-      this.cxdxMessageFactory = new CxDxMessageFactoryImpl(baseMessageFactory,stack);
       this.cxdxAvpFactory = new CxDxAVPFactoryImpl(baseAvpFactory);
+      this.cxdxMessageFactory = new CxDxMessageFactoryImpl(baseMessageFactory,stack);
+
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      ((CxDxMessageFactoryImpl)this.cxdxMessageFactory).setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
  
       // Setup session factories
       this.sessionFactory = this.stack.getSessionFactory();
@@ -898,8 +902,13 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
    * @see org.mobicents.slee.resource.diameter.cxdx.handlers.CxDxSessionCreationListener#sessionCreated(org.jdiameter.api.cxdx.ServerCxDxSession)
    */
   public void sessionCreated(ServerCxDxSession session) {
-	DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack);
-	CxDxMessageFactory sessionMsgFactory = new CxDxMessageFactoryImpl(baseMsgFactory,session.getSessions().get(0), stack, new DiameterIdentity[]{});
+    DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack);
+    CxDxMessageFactoryImpl sessionMsgFactory = new CxDxMessageFactoryImpl(baseMsgFactory,session.getSessions().get(0), stack, new DiameterIdentity[]{});
+
+    // Set the first configured Application-Id as default for message factory
+    ApplicationId firstAppId = authApplicationIds.get(0);
+    sessionMsgFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
     CxDxServerSessionImpl serverActivity = new CxDxServerSessionImpl(sessionMsgFactory, cxdxAvpFactory, session, this, null, null, stack);
     //session.addStateChangeNotification(serverActivity);
     //addActivity(serverActivity);
@@ -911,8 +920,13 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
    * @see org.mobicents.slee.resource.diameter.cxdx.handlers.CxDxSessionCreationListener#sessionCreated(org.jdiameter.api.cxdx.ClientCxDxSession)
    */
   public void sessionCreated(ClientCxDxSession session) {
-	DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack);
-	CxDxMessageFactory sessionMsgFactory = new CxDxMessageFactoryImpl(baseMsgFactory,session.getSessions().get(0), stack, new DiameterIdentity[]{});
+    DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack);
+    CxDxMessageFactoryImpl sessionMsgFactory = new CxDxMessageFactoryImpl(baseMsgFactory,session.getSessions().get(0), stack, new DiameterIdentity[]{});
+
+    // Set the first configured Application-Id as default for message factory
+    ApplicationId firstAppId = authApplicationIds.get(0);
+    sessionMsgFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
     CxDxClientSessionImpl clientActivity = new CxDxClientSessionImpl(sessionMsgFactory, cxdxAvpFactory, session, this, null, null, sleeEndpoint);
     //session.addStateChangeNotification(clientActivity);
     //addActivity(clientActivity);
@@ -1065,7 +1079,13 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
       try {
 
     	ClientCxDxSession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, ApplicationId.createByAuthAppId(DiameterCxDxAvpCodes.CXDX_VENDOR_ID, DiameterCxDxAvpCodes.CXDX_AUTH_APP_ID), ClientCxDxSession.class);
-        CxDxClientSessionImpl activity = new CxDxClientSessionImpl(new CxDxMessageFactoryImpl(this.ra.baseMessageFactory,session.getSessions().get(0),stack), ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, destinationHost, destinationRealm, ra.sleeEndpoint);
+      CxDxMessageFactoryImpl sessionMsgFactory = new CxDxMessageFactoryImpl(this.ra.baseMessageFactory,session.getSessions().get(0), stack, new DiameterIdentity[]{});
+
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      sessionMsgFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+        CxDxClientSessionImpl activity = new CxDxClientSessionImpl(sessionMsgFactory, ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, destinationHost, destinationRealm, ra.sleeEndpoint);
         addActivity(activity, true);
         return activity;
       }
@@ -1078,8 +1098,13 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
       try {
         String sessionId = request == null? null: request.getSessionId();
         ClientCxDxSession session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(sessionId, ApplicationId.createByAuthAppId(DiameterCxDxAvpCodes.CXDX_VENDOR_ID, DiameterCxDxAvpCodes.CXDX_AUTH_APP_ID), ClientCxDxSession.class);
+        CxDxMessageFactoryImpl sessionMsgFactory = new CxDxMessageFactoryImpl(this.ra.baseMessageFactory,session.getSessions().get(0), stack, new DiameterIdentity[]{});
 
-        CxDxClientSessionImpl activity = new CxDxClientSessionImpl(new CxDxMessageFactoryImpl(this.ra.baseMessageFactory,session.getSessions().get(0),stack), ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, null, null, ra.sleeEndpoint);
+        // Set the first configured Application-Id as default for message factory
+        ApplicationId firstAppId = authApplicationIds.get(0);
+        sessionMsgFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+        CxDxClientSessionImpl activity = new CxDxClientSessionImpl(sessionMsgFactory, ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, null, null, ra.sleeEndpoint);
         addActivity(activity, suspend);
 
         if(request != null) {

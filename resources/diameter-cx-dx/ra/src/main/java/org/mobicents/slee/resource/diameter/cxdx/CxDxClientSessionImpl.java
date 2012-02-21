@@ -127,7 +127,7 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
 
     try {
       // Create the answer
-      PushProfileAnswer ppa = (PushProfileAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, PushProfileAnswer.COMMAND_CODE, CxDxMessageFactoryImpl.cxdxAppId);
+      PushProfileAnswer ppa = (PushProfileAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, PushProfileAnswer.COMMAND_CODE, cxdxMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(ppa);
@@ -153,7 +153,7 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
 
     try {
       // Create the answer
-      RegistrationTerminationAnswer rta = (RegistrationTerminationAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, RegistrationTerminationAnswer.COMMAND_CODE, CxDxMessageFactoryImpl.cxdxAppId);
+      RegistrationTerminationAnswer rta = (RegistrationTerminationAnswer) this.cxdxMessageFactory.createCxDxMessage(lastRequest.getHeader(), new DiameterAvp[]{}, RegistrationTerminationAnswer.COMMAND_CODE, cxdxMessageFactory.getApplicationId());
 
       // Fill session related AVPs, if present
       fillSessionAVPs(rta);
