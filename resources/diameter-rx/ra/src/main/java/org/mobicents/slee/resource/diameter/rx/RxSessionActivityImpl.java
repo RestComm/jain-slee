@@ -30,6 +30,7 @@ import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.rx.RxAvpFactory;
 import net.java.slee.resource.diameter.rx.RxMessageFactory;
 import net.java.slee.resource.diameter.rx.RxSessionActivity;
 import net.java.slee.resource.diameter.rx.events.AARequest;
@@ -64,10 +65,11 @@ public abstract class RxSessionActivityImpl extends DiameterActivityImpl impleme
    * @param destinationHost
    * @param destinationRealm
    */
-  public RxSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, Session session,
+  public RxSessionActivityImpl(RxMessageFactory rxMessageFactory, RxAvpFactory rxAvpFactory, Session session,
       EventListener<Request, Answer> raEventListener,
       DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
-    super(messageFactory, avpFactory, session, raEventListener, destinationHost, destinationRealm);
+    super(rxMessageFactory.getBaseMessageFactory(), rxAvpFactory.getBaseFactory(), session, raEventListener, destinationHost, destinationRealm);
+    this.rxMessageFactory = rxMessageFactory;
   }
 
   @Override

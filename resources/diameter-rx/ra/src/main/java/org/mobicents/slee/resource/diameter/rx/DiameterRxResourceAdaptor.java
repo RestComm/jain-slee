@@ -317,6 +317,10 @@ public class DiameterRxResourceAdaptor implements ResourceAdaptor, DiameterListe
       this.rxAvpFactory = new RxAvpFactoryImpl(baseAvpFactory);
       this.rxMessageFactory = new RxMessageFactoryImpl(baseMessageFactory, null, stack);
 
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      ((RxMessageFactoryImpl)this.rxMessageFactory).setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
       this.sessionFactory = this.stack.getSessionFactory();
       this.rxSessionFactory = new RxSessionFactory(this, sessionFactory);
 
@@ -897,10 +901,8 @@ public class DiameterRxResourceAdaptor implements ResourceAdaptor, DiameterListe
       return;
     }
 
-    final DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(rxClientSession.getSessions().get(0), this.stack);
-
     // Create Client Activity
-    final RxClientSessionActivityImpl activity = new RxClientSessionActivityImpl(baseMsgFactory, this.baseAvpFactory, rxClientSession, null, null, stack);
+    final RxClientSessionActivityImpl activity = new RxClientSessionActivityImpl(rxMessageFactory, rxAvpFactory, rxClientSession, null, null, stack);
 
     //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
     //session.addStateChangeNotification(activity);
@@ -915,10 +917,8 @@ public class DiameterRxResourceAdaptor implements ResourceAdaptor, DiameterListe
       return;
     }
 
-    final DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(rxServerSession.getSessions().get(0), this.stack);
-
     // Create Server Activity
-    final RxServerSessionActivityImpl activity = new RxServerSessionActivityImpl(baseMsgFactory, this.baseAvpFactory, rxServerSession, null, null, stack);
+    final RxServerSessionActivityImpl activity = new RxServerSessionActivityImpl(rxMessageFactory, rxAvpFactory, rxServerSession, null, null, stack);
 
     //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
     //session.addStateChangeNotification(activity);
@@ -1216,11 +1216,23 @@ public class DiameterRxResourceAdaptor implements ResourceAdaptor, DiameterListe
     }
 
     private void performBeforeReturnRx(final RxServerSessionActivityImpl acc, Session session) {
-      acc.setRxMessageFactory(new RxMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
+      RxMessageFactoryImpl messageFactory = new RxMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack);
+
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+      acc.setRxMessageFactory(messageFactory);
     }
 
     private void performBeforeReturnRx(final RxClientSessionActivityImpl acc, Session session) {
-      acc.setRxMessageFactory(new RxMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
+      RxMessageFactoryImpl messageFactory = new RxMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack);
+
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+      acc.setRxMessageFactory(messageFactory);
     }
 
     private void performBeforeReturnOnBase(final DiameterActivityImpl ac, final Session session) {

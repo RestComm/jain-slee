@@ -69,16 +69,16 @@ import org.mobicents.slee.resource.diameter.rx.events.avp.DiameterRxAvpCodes;
  */
 public class RxMessageFactoryImpl implements RxMessageFactory {
 
-  private static final ApplicationId AUTH_APP_ID = ApplicationId.createByAuthAppId(DiameterRxAvpCodes.RX_APPLICATION_ID);
-  protected final static Set<Integer> ids;
+  protected Logger logger = Logger.getLogger(RxMessageFactoryImpl.class);
 
   private static final DiameterAvp[] EMPTY_AVP_ARRAY = new DiameterAvp[]{};
-  
+  protected final static Set<Integer> ids;
+
   static {
     final Set<Integer> _ids = new HashSet<Integer>();
-    _ids.add(Avp.SESSION_ID);
-    _ids.add(Avp.AUTH_APPLICATION_ID);
-    _ids.add(Avp.VENDOR_SPECIFIC_APPLICATION_ID);
+    //_ids.add(Avp.SESSION_ID);
+    //_ids.add(Avp.AUTH_APPLICATION_ID);
+    //_ids.add(Avp.VENDOR_SPECIFIC_APPLICATION_ID);
 
     ids = Collections.unmodifiableSet(_ids);
   }
@@ -86,9 +86,9 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
   protected DiameterMessageFactory baseFactory = null;
   protected String sessionId;
   protected Stack stack;
-  protected Logger logger = Logger.getLogger(this.getClass());
 
-  // protected RfAVPFactory rfAvpFactory = null;
+  private ApplicationId rxAppId = ApplicationId.createByAuthAppId(DiameterRxAvpCodes.RX_APPLICATION_ID);
+
   public RxMessageFactoryImpl(final DiameterMessageFactory baseFactory, final String sessionId, final Stack stack) {
     super();
 
@@ -97,12 +97,20 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     this.stack = stack;
   }
 
+  public void setApplicationId(long vendorId, long applicationId) {
+    this.rxAppId = ApplicationId.createByAuthAppId(vendorId, applicationId);      
+  }
+  
+  public ApplicationId getApplicationId() {
+    return this.rxAppId;      
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
   public AARequest createAARequest() {
-    final AARequest aar = (AARequest) createDiameterMessage(null,new DiameterAvp[]{},AARequest.commandCode,AUTH_APP_ID);
+    final AARequest aar = (AARequest) createDiameterMessage(null,new DiameterAvp[]{},AARequest.commandCode, rxAppId);
     if (sessionId != null) {
       aar.setSessionId(sessionId);
     }
@@ -121,7 +129,7 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
 
   public AAAnswer createAAAnswer(final AARequest request) {
     // Create the answer from the request
-    final AAAnswerImpl msg = (AAAnswerImpl) createDiameterMessage(request.getHeader(), EMPTY_AVP_ARRAY, 0, AUTH_APP_ID);
+    final AAAnswerImpl msg = (AAAnswerImpl) createDiameterMessage(request.getHeader(), EMPTY_AVP_ARRAY, 0, rxAppId);
 
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_HOST);
     msg.getGenericData().getAvps().removeAvp(DiameterAvpCodes.DESTINATION_REALM);
@@ -167,7 +175,7 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
   }
 
   public AbortSessionRequest createAbortSessionRequest(DiameterAvp[] avps) throws AvpNotAllowedException {
-    AbortSessionRequest msg = (AbortSessionRequest) this.createDiameterMessage(null, avps, Message.ABORT_SESSION_REQUEST, AUTH_APP_ID);
+    AbortSessionRequest msg = (AbortSessionRequest) this.createDiameterMessage(null, avps, Message.ABORT_SESSION_REQUEST, rxAppId);
 
     // Add Session-Id AVP if not present
 
@@ -204,7 +212,7 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
   }
 
   public ReAuthRequest createReAuthRequest(DiameterAvp[] avps) throws AvpNotAllowedException {
-    ReAuthRequest msg = (ReAuthRequest) this.createDiameterMessage(null, avps, Message.RE_AUTH_REQUEST, AUTH_APP_ID);
+    ReAuthRequest msg = (ReAuthRequest) this.createDiameterMessage(null, avps, Message.RE_AUTH_REQUEST, rxAppId);
 
     // Add Session-Id AVP if not present
 
@@ -223,7 +231,7 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
   }
 
   public SessionTerminationAnswer createSessionTerminationAnswer(SessionTerminationRequest request, DiameterAvp[] avps) throws AvpNotAllowedException {
-    SessionTerminationAnswer msg = (SessionTerminationAnswer) this.createDiameterMessage(request.getHeader(), avps, Message.SESSION_TERMINATION_REQUEST, getApplicationId(request));
+    SessionTerminationAnswer msg = (SessionTerminationAnswer) this.createDiameterMessage(request.getHeader(), avps, Message.SESSION_TERMINATION_REQUEST, rxAppId);
 
     // Add Session-Id AVP if not present
 
@@ -232,8 +240,8 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
 
   public SessionTerminationAnswer createSessionTerminationAnswer(SessionTerminationRequest request) {
     try {
-      return createSessionTerminationAnswer(request, new DiameterAvp[0]);
-    }
+      return createSessionTerminationAnswer(request, EMPTY_AVP_ARRAY);
+     }
     catch (AvpNotAllowedException e) {
       logger.error("Unexpected failure while trying to create STA message.", e);
     }
@@ -242,7 +250,7 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
   }
 
   public SessionTerminationRequest createSessionTerminationRequest(DiameterAvp[] avps) throws AvpNotAllowedException {
-    SessionTerminationRequest msg = (SessionTerminationRequest) this.createDiameterMessage(null, avps, Message.SESSION_TERMINATION_REQUEST, AUTH_APP_ID);
+    SessionTerminationRequest msg = (SessionTerminationRequest) this.createDiameterMessage(null, avps, Message.SESSION_TERMINATION_REQUEST, rxAppId);
 
     // Add Session-Id AVP if not present
 
@@ -344,7 +352,6 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     boolean isError = false;
     boolean isPotentiallyRetransmitted = false;
 
-    ApplicationId aid = null;
     if (header != null) {
       commandCode = header.getCommandCode();
       endToEndId = header.getEndToEndId();
@@ -354,15 +361,12 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
       isProxiable = header.isProxiable();
       isError = header.isError();
       isPotentiallyRetransmitted = header.isPotentiallyRetransmitted();
-
-      aid = AUTH_APP_ID;
     }
     else {
       commandCode = _commandCode;
-      aid = appId == null? AUTH_APP_ID : appId;
     }
     try {
-      Message msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+      Message msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, appId != null ? appId : rxAppId, hopByHopId, endToEndId);
 
       // Set the message flags from header (or default)
       msg.setRequest(isRequest);
@@ -404,7 +408,7 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
    * @see net.java.slee.resource.diameter.base.DiameterMessageFactory#createMessage(net.java.slee.resource.diameter.base.events.DiameterHeader, net.java.slee.resource.diameter.base.events.avp.DiameterAvp[])
    */
   public DiameterMessage createMessage(DiameterHeader header, DiameterAvp[] avps) throws AvpNotAllowedException {
-    return this.createDiameterMessage(header, avps, header.getCommandCode(),AUTH_APP_ID );
+    return this.createDiameterMessage(header, avps, header.getCommandCode(), rxAppId);
   }
 
   private void addOriginHostAndRealm(DiameterMessage msg) {
@@ -420,7 +424,7 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     ApplicationId applicationId = getApplicationId(msg.getAvps());
 
     if (applicationId == null) {
-      applicationId = AUTH_APP_ID;
+      applicationId = rxAppId;
     }
 
     return applicationId;

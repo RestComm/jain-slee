@@ -24,10 +24,9 @@ package org.mobicents.slee.resource.diameter.rx;
 
 import java.io.IOException;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.rx.RxAvpFactory;
 import net.java.slee.resource.diameter.rx.RxClientSessionActivity;
 import net.java.slee.resource.diameter.rx.RxMessageFactory;
 import net.java.slee.resource.diameter.rx.RxSessionState;
@@ -61,7 +60,6 @@ public class RxClientSessionActivityImpl extends RxSessionActivityImpl implement
 
   private static final long serialVersionUID = 6391181777305378777L;
 
-  protected transient RxMessageFactory roMessageFactory = null;
   protected transient ClientRxSession session;
 
   /**
@@ -74,13 +72,12 @@ public class RxClientSessionActivityImpl extends RxSessionActivityImpl implement
    * @param endpoint
    * @param stack
    */
-  public RxClientSessionActivityImpl(final DiameterMessageFactory messageFactory, final DiameterAvpFactory avpFactory, final ClientRxSession session,
+  public RxClientSessionActivityImpl(final RxMessageFactory rxMessageFactory, final RxAvpFactory rxAvpFactory, final ClientRxSession session,
       final DiameterIdentity destinationHost, final DiameterIdentity destinationRealm, final Stack stack) {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
+    super(rxMessageFactory, rxAvpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
 
     setSession(session);
     super.setCurrentWorkingSession(session.getSessions().get(0));
-    super.setRxMessageFactory(new RxMessageFactoryImpl(messageFactory, session.getSessionId(), stack));
   }
 
 
