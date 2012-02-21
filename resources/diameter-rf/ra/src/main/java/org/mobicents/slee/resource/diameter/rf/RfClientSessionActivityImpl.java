@@ -24,11 +24,10 @@ package org.mobicents.slee.resource.diameter.rf;
 
 import java.io.IOException;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.avp.AccountingRecordType;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.rf.RfAvpFactory;
 import net.java.slee.resource.diameter.rf.RfClientSessionActivity;
 import net.java.slee.resource.diameter.rf.RfMessageFactory;
 import net.java.slee.resource.diameter.rf.RfSessionState;
@@ -41,7 +40,6 @@ import org.jdiameter.api.Stack;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.rf.ClientRfSession;
 import org.jdiameter.common.api.app.rf.ClientRfSessionState;
-import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 /**
@@ -54,16 +52,13 @@ public class RfClientSessionActivityImpl extends RfSessionActivityImpl implement
 
   private static final long serialVersionUID = -896041231173969408L;
 
-  protected transient RfMessageFactory rfMessageFactory = null;
-
   protected transient ClientRfSession clientSession = null;
 
-  public RfClientSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ClientRfSession clientSession, DiameterIdentity destinationHost,
+  public RfClientSessionActivityImpl(RfMessageFactory rfMessageFactory, RfAvpFactory rfAvpFactory, ClientRfSession clientSession, DiameterIdentity destinationHost,
       DiameterIdentity destinationRealm, Stack stack) {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) clientSession, destinationHost, destinationRealm);
+    super(rfMessageFactory, rfAvpFactory, null, (EventListener<Request, Answer>) clientSession, destinationHost, destinationRealm);
 
     setSession(clientSession);
-    this.rfMessageFactory = new RfMessageFactoryImpl((DiameterMessageFactoryImpl) messageFactory,clientSession.getSessionId(), stack);
     super.setCurrentWorkingSession(this.clientSession.getSessions().get(0));
   }
 

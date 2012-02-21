@@ -25,12 +25,11 @@ package org.mobicents.slee.resource.diameter.rf;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.rf.RfAvpFactory;
 import net.java.slee.resource.diameter.rf.RfMessageFactory;
 import net.java.slee.resource.diameter.rf.RfServerSessionActivity;
 import net.java.slee.resource.diameter.rf.RfSessionState;
@@ -46,7 +45,6 @@ import org.jdiameter.api.Stack;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.rf.ServerRfSession;
 import org.jdiameter.common.api.app.rf.ServerRfSessionState;
-import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 import org.mobicents.slee.resource.diameter.rf.events.RfAccountingAnswerImpl;
 
@@ -59,9 +57,6 @@ import org.mobicents.slee.resource.diameter.rf.events.RfAccountingAnswerImpl;
 public class RfServerSessionActivityImpl extends RfSessionActivityImpl implements RfServerSessionActivity {
 
   private static final long serialVersionUID = -4463687722140594904L;
-
-  protected transient RfMessageFactory rfMessageFactory = null;
-  // protected DiameterIdentity remoteRealm;
 
   /**
    * Should contain requests, so we can create answer.
@@ -76,22 +71,17 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
 
   // boolean destroyAfterSending = false;
 
-  public RfServerSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ServerRfSession serverSession, DiameterIdentity destinationHost,
+  public RfServerSessionActivityImpl(RfMessageFactory rfMessageFactory, RfAvpFactory rfAvpFactory, ServerRfSession serverSession, DiameterIdentity destinationHost,
       DiameterIdentity destinationRealm, Stack stack) {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) serverSession, destinationHost, destinationRealm);
+    super(rfMessageFactory, rfAvpFactory, null, (EventListener<Request, Answer>) serverSession, destinationHost, destinationRealm);
 
     this.originHost = stack.getMetaData().getLocalPeer().getUri().toString();
     this.originRealm = stack.getMetaData().getLocalPeer().getRealmName();
     setSession(serverSession);
-    super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
-    this.rfMessageFactory = new RfMessageFactoryImpl((DiameterMessageFactoryImpl) messageFactory,serverSession.getSessionId(),  stack);
   }
 
   public RfAccountingAnswer createRfAccountingAnswer(RfAccountingRequest request) {
     try {
-      // Get the impl
-      DiameterMessageImpl implRequest = (DiameterMessageImpl) request;
-
       // Extract interesting AVPs
       ArrayList<DiameterAvp> copyAvps = new ArrayList<DiameterAvp>();
 
@@ -101,13 +91,13 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
       copyAvps.add(avpFactory.createAvp(Avp.ORIGIN_REALM, this.originRealm.getBytes()));
 
       for(DiameterAvp avp : request.getAvps()) {
-        if(avp.getCode() == Avp.ACC_RECORD_NUMBER || avp.getCode() == Avp.ACC_RECORD_TYPE || 
-            avp.getCode() == Avp.ACCT_APPLICATION_ID || avp.getCode() == Avp.VENDOR_SPECIFIC_APPLICATION_ID) {
+        if(avp.getCode() == Avp.ACC_RECORD_NUMBER || avp.getCode() == Avp.ACC_RECORD_TYPE /* || 
+            avp.getCode() == Avp.ACCT_APPLICATION_ID || avp.getCode() == Avp.VENDOR_SPECIFIC_APPLICATION_ID*/) {
           copyAvps.add((DiameterAvp) avp.clone());
         }
       }
 
-      DiameterMessageImpl answer = (DiameterMessageImpl) messageFactory.createMessage(implRequest.getHeader(), copyAvps.toArray(new DiameterAvp[copyAvps.size()]));
+      RfAccountingAnswerImpl answer = (RfAccountingAnswerImpl) ((RfMessageFactoryImpl)rfMessageFactory).createRfAccountingMessage(request.getHeader(), copyAvps.toArray(new DiameterAvp[copyAvps.size()]));
 
       // Get the raw Answer
       Message rawAnswer = answer.getGenericData();
@@ -116,9 +106,9 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
       rawAnswer.setRequest(false);
       rawAnswer.setReTransmitted(false); // just in case. answers never have T flag set
 
-      RfAccountingAnswerImpl ans = new RfAccountingAnswerImpl(rawAnswer);
-      ans.setData(request);
-      return ans;
+      answer.setData(request);
+
+      return answer;
     }
     catch (Exception e) {
       logger.error("", e);
@@ -213,7 +203,6 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
 	        if(!answer.hasSessionId() && session != null) {
 	          answer.setSessionId(session.getSessionId());
 	        }
-	        answer.setAcctApplicationId(3L);
 
 	        ((DiameterMessageImpl)answer).setData(msg);
 	        break;

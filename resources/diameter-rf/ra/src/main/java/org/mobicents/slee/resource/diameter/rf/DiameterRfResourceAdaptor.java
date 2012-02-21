@@ -309,8 +309,13 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
       this.baseAvpFactory = new DiameterAvpFactoryImpl();
       this.baseMessageFactory = new DiameterMessageFactoryImpl(stack);
 
-      this.rfMessageFactory = new RfMessageFactoryImpl(baseMessageFactory,null, stack);
       this.rfAvpFactory = new RfAvpFactoryImpl();
+      this.rfMessageFactory = new RfMessageFactoryImpl(baseMessageFactory,null, stack);
+
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = acctApplicationIds.get(0);
+      ((RfMessageFactoryImpl)this.rfMessageFactory).setApplicationId(firstAppId.getVendorId(), firstAppId.getAcctAppId());
+
       // Register Accounting App Session Factories
       this.sessionFactory = this.stack.getSessionFactory();
 
@@ -781,12 +786,22 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
         private void performBeforeReturnRf(RfClientSessionActivityImpl ac) {
           // we just have to set factory
           RfMessageFactoryImpl rfMessageFactory = new RfMessageFactoryImpl(baseMessageFactory, ac.getSessionId(),stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = acctApplicationIds.get(0);
+          rfMessageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAcctAppId());
+
           ac.setRfMessageFactory(rfMessageFactory);
         }
 
         private void performBeforeReturnRf(RfServerSessionActivityImpl ac) {
           // we just have to set factory
           RfMessageFactoryImpl rfMessageFactory = new RfMessageFactoryImpl(baseMessageFactory,ac.getSessionId(), stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = acctApplicationIds.get(0);
+          rfMessageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAcctAppId());
+
           ac.setRfMessageFactory(rfMessageFactory);
         }
 
@@ -895,9 +910,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
    * @see org.mobicents.slee.resource.diameter.base.handlers.BaseSessionCreationListener#sessionCreated(org.jdiameter.api.acc.ClientAccSession)
    */
   public void sessionCreated(ClientRfSession session) {
-    DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(stack);
-
-    RfClientSessionActivityImpl activity = new RfClientSessionActivityImpl(msgFactory, baseAvpFactory, session, null, null,stack);
+    RfClientSessionActivityImpl activity = new RfClientSessionActivityImpl(rfMessageFactory, rfAvpFactory, session, null, null,stack);
 
     activity.setSessionListener(this);
     session.addStateChangeNotification(activity);
@@ -909,9 +922,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
    * @see org.mobicents.slee.resource.diameter.base.handlers.BaseSessionCreationListener#sessionCreated(org.jdiameter.api.acc.ServerAccSession)
    */
   public void sessionCreated(ServerRfSession session) {
-    DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(stack);
-
-    RfServerSessionActivityImpl activity = new RfServerSessionActivityImpl(msgFactory, baseAvpFactory, session, null, null, stack);
+    RfServerSessionActivityImpl activity = new RfServerSessionActivityImpl(rfMessageFactory, rfAvpFactory, session, null, null, stack);
 
     session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
@@ -1052,7 +1063,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
           throw new CreateActivityException("Got NULL Session while creating Client Accounting Activity");
         }
         sessionCreated(session);
-        return new RfClientSessionActivityImpl(baseMessageFactory, baseAvpFactory, session, destinationHost, destinationRealm, stack);
+        return new RfClientSessionActivityImpl(rfMessageFactory, rfAvpFactory, session, destinationHost, destinationRealm, stack);
       }
       catch (Exception e) {
         throw new CreateActivityException("Internal exception while creating Client Accounting Activity", e);

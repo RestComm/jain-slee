@@ -50,11 +50,15 @@ import org.mobicents.slee.resource.diameter.rf.events.RfAccountingRequestImpl;
  */
 public class RfMessageFactoryImpl implements RfMessageFactory {
 
+  protected Logger logger = Logger.getLogger(RfMessageFactoryImpl.class);
+
   protected DiameterMessageFactory baseFactory = null;
 
   protected String sessionId;
   protected Stack stack;
-  protected Logger logger = Logger.getLogger(this.getClass());
+
+  // Rf: Vendor-Specific-Application-Id is not permitted, only Acct-Application-Id;
+  private ApplicationId rfAppId = ApplicationId.createByAccAppId(0L, _RF_ACC_APP_ID);
 
   // protected RfAVPFactory rfAvpFactory = null;
   public RfMessageFactoryImpl(DiameterMessageFactory baseFactory, String sessionId, Stack stack/*, RfAVPFactory creditControlAvpFactory*/) {
@@ -65,10 +69,18 @@ public class RfMessageFactoryImpl implements RfMessageFactory {
     this.stack = stack;
   }
 
+  public void setApplicationId(long vendorId, long applicationId) {
+    this.rfAppId = ApplicationId.createByAccAppId(vendorId, applicationId);      
+  }
+  
+  public ApplicationId getApplicationId() {
+    return this.rfAppId;      
+  }
+  
   public RfAccountingRequest createRfAccountingRequest(AccountingRecordType accountingrecordtype) {
     DiameterAvp[] avps = new DiameterAvp[] {};
 
-    RfAccountingRequest acr = (RfAccountingRequest) createRfAccountingRequest(null, avps);
+    RfAccountingRequest acr = (RfAccountingRequest) createRfAccountingMessage(null, avps);
     if (this.sessionId != null) {
       acr.setSessionId(sessionId);
     }
@@ -78,13 +90,13 @@ public class RfMessageFactoryImpl implements RfMessageFactory {
     return acr;
   }
 
-  private RfAccountingMessage createRfAccountingRequest(DiameterHeader diameterHeader, DiameterAvp[] avps) throws IllegalArgumentException {
+  protected RfAccountingMessage createRfAccountingMessage(DiameterHeader diameterHeader, DiameterAvp[] avps) throws IllegalArgumentException {
     // List<DiameterAvp> list = (List<DiameterAvp>) this.avpList.clone();
     boolean isRequest = diameterHeader == null;
     RfAccountingMessage msg = null;
     if (!isRequest) {
       Message raw = createMessage(diameterHeader, avps);
-      raw.setProxiable(true);
+      raw.setProxiable(diameterHeader.isProxiable());
       raw.setRequest(false);
       raw.setReTransmitted(false); // just in case. answers never have T flag set
       msg = new RfAccountingAnswerImpl(raw);
@@ -114,24 +126,20 @@ public class RfMessageFactoryImpl implements RfMessageFactory {
     long endToEndId = 0;
     long hopByHopId = 0;
 
-    ApplicationId aid = ApplicationId.createByAccAppId(0, _RF_ACC_APP_ID);
     if (header != null) {
       // Answer
       commandCode = header.getCommandCode();
       endToEndId = header.getEndToEndId();
       hopByHopId = header.getHopByHopId();
-      // aid = ApplicationId.createByAuthAppId(header.getApplicationId());
     } else {
       commandCode = RfAccountingRequest.commandCode;
-      // endToEndId = (long) (Math.random()*1000000);
-      // hopByHopId = (long) (Math.random()*1000000)+1;
     }
 
     try {
       if (header != null) {
-        return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+        return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, rfAppId, hopByHopId, endToEndId);
       } else {
-        return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
+        return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, rfAppId);
       }
     } catch (IllegalDiameterStateException e) {
       logger.error("Failed to get session factory for message creation.", e);

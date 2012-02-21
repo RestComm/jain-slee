@@ -22,10 +22,10 @@
 
 package org.mobicents.slee.resource.diameter.rf;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.rf.RfAvpFactory;
+import net.java.slee.resource.diameter.rf.RfMessageFactory;
 import net.java.slee.resource.diameter.rf.RfSessionActivity;
 import net.java.slee.resource.diameter.rf.events.RfAccountingRequest;
 
@@ -49,6 +49,8 @@ public abstract class RfSessionActivityImpl extends DiameterActivityImpl impleme
 
   private static final long serialVersionUID = 4602851199202393775L;
 
+  protected RfMessageFactory rfMessageFactory;
+
   /**
    * @param messageFactory
    * @param avpFactory
@@ -57,9 +59,10 @@ public abstract class RfSessionActivityImpl extends DiameterActivityImpl impleme
    * @param destinationHost
    * @param destinationRealm
    */
-  public RfSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, Session session, EventListener<Request, Answer> raEventListener,
+  public RfSessionActivityImpl(RfMessageFactory rfMessageFactory, RfAvpFactory rfAvpFactory, Session session, EventListener<Request, Answer> raEventListener,
       DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
-    super(messageFactory, avpFactory, session, raEventListener, destinationHost, destinationRealm);
+    super(rfMessageFactory.getBaseMessageFactory(), rfAvpFactory.getBaseFactory(), session, raEventListener, destinationHost, destinationRealm);
+    this.rfMessageFactory = rfMessageFactory;
   }
 
   @Override
