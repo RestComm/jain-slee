@@ -70,6 +70,8 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   protected Stack stack;
   protected Logger logger = Logger.getLogger(GqMessageFactoryImpl.class);
 
+  private ApplicationId gqAppId = ApplicationId.createByAuthAppId(0L, _GQ_AUTH_APP_ID);
+
   public GqMessageFactoryImpl(DiameterMessageFactory baseFactory, String sessionId, Stack stack) {
     super();
 
@@ -78,6 +80,14 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     this.stack = stack;
   }
 
+  public void setApplicationId(long vendorId, long applicationId) {
+    this.gqAppId = ApplicationId.createByAuthAppId(vendorId, applicationId);      
+  }
+  
+  public ApplicationId getApplicationId() {
+    return this.gqAppId;      
+  }
+  
   @Override
   public GqAARequest createGqAARequest() {
     Message raw = createRequest(GqAARequest.COMMAND_CODE, new DiameterAvp[] {});
@@ -86,8 +96,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     if (sessionId != null) {
       aar.setSessionId(sessionId);
     }
-
-    aar.setAuthApplicationId(_GQ_AUTH_APP_ID);
 
     addOrigin(aar);
     return aar;
@@ -98,8 +106,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     Message raw = createRequest(GqAARequest.COMMAND_CODE, new DiameterAvp[] {});
     GqAARequest aar = new GqAARequestImpl(raw);
     aar.setSessionId(sessionId);
-
-    aar.setAuthApplicationId(_GQ_AUTH_APP_ID);
 
     addOrigin(aar);
     return aar;
@@ -117,8 +123,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     aaa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_REALM);
     aaa.setSessionId(aar.getSessionId());
 
-    aaa.setAuthApplicationId(_GQ_AUTH_APP_ID);
-
     addOrigin(aaa);
     return aaa;
   }
@@ -131,8 +135,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     if (sessionId != null) {
       asr.setSessionId(sessionId);
     }
-
-    asr.setAuthApplicationId(_GQ_AUTH_APP_ID);
 
     addOrigin(asr);
     return asr;
@@ -159,8 +161,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     asa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_REALM);
     asa.setSessionId(asr.getSessionId());
 
-    asa.setAuthApplicationId(_GQ_AUTH_APP_ID);
-
     addOrigin(asa);
     return asa;
   }
@@ -174,8 +174,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
       rar.setSessionId(sessionId);
     }
 
-    rar.setAuthApplicationId(_GQ_AUTH_APP_ID);
-
     addOrigin(rar);
     return rar;
   }
@@ -185,8 +183,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     Message raw = createRequest(GqReAuthRequest.COMMAND_CODE, new DiameterAvp[] {});
     GqReAuthRequest rar = new GqReAuthRequestImpl(raw);
     rar.setSessionId(sessionId);
-
-    rar.setAuthApplicationId(_GQ_AUTH_APP_ID);
 
     addOrigin(rar);
     return rar;
@@ -204,8 +200,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     raa.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_REALM);
     raa.setSessionId(rar.getSessionId());
 
-    raa.setAuthApplicationId(_GQ_AUTH_APP_ID);
-
     addOrigin(raa);
     return raa;
   }
@@ -219,8 +213,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
       str.setSessionId(sessionId);
     }
 
-    str.setAuthApplicationId(_GQ_AUTH_APP_ID);
-
     addOrigin(str);
     return str;
   }
@@ -230,8 +222,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     Message raw = createRequest(GqSessionTerminationRequest.COMMAND_CODE, new DiameterAvp[] {});
     GqSessionTerminationRequest str = new GqSessionTerminationRequestImpl(raw);
     str.setSessionId(sessionId);
-
-    str.setAuthApplicationId(_GQ_AUTH_APP_ID);
 
     addOrigin(str);
     return str;
@@ -248,8 +238,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     sta.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_HOST);
     sta.getGenericData().getAvps().removeAvp(DiameterAvpCodes.ORIGIN_REALM);
     sta.setSessionId(str.getSessionId());
-
-    sta.setAuthApplicationId(_GQ_AUTH_APP_ID);
 
     addOrigin(sta);
     return sta;
@@ -303,7 +291,6 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     boolean isError = false;
     boolean isPotentiallyRetransmitted = false;
 
-    ApplicationId aid = ApplicationId.createByAuthAppId(_GQ_TGPP_VENDOR_ID, _GQ_AUTH_APP_ID);
     commandCode = header.getCommandCode();
     endToEndId = header.getEndToEndId();
     hopByHopId = header.getHopByHopId();
@@ -316,7 +303,7 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
     Message msg = null;
 
     try {
-      msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+      msg = stack.getSessionFactory().getNewRawSession().createMessage(commandCode, gqAppId, hopByHopId, endToEndId);
 
       // Set the message flags from header (or default)
       msg.setRequest(isRequest);
@@ -335,9 +322,8 @@ public class GqMessageFactoryImpl implements GqMessageFactory {
   }
 
   protected Message createRawMessage(int commandCode) {
-    ApplicationId aid = ApplicationId.createByAuthAppId(_GQ_TGPP_VENDOR_ID, _GQ_AUTH_APP_ID);
     try {
-      return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
+      return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, gqAppId);
     }
     catch (IllegalDiameterStateException e) {
       logger.error("Failed to get session factory for message creation.", e);

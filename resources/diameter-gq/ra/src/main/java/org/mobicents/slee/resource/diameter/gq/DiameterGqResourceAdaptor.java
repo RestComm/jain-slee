@@ -23,10 +23,11 @@
 package org.mobicents.slee.resource.diameter.gq;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.management.ObjectName;
+import javax.naming.OperationNotSupportedException;
 import javax.slee.Address;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.Tracer;
@@ -333,6 +334,10 @@ public class DiameterGqResourceAdaptor implements ResourceAdaptor, DiameterListe
 
       this.gqAvpFactory = new GqAvpFactoryImpl(baseAvpFactory);
       this.gqMessageFactory = new GqMessageFactoryImpl(baseMessageFactory, null, stack);
+
+      // Set the first configured Application-Id as default for message factory
+      ApplicationId firstAppId = authApplicationIds.get(0);
+      ((GqMessageFactoryImpl)this.gqMessageFactory).setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
 
       this.sessionFactory = this.stack.getSessionFactory();
       this.gqSessionFactory = new GqSessionFactory(this, sessionFactory);
@@ -798,12 +803,24 @@ public class DiameterGqResourceAdaptor implements ResourceAdaptor, DiameterListe
         }
 
         private void performBeforeReturnGq(GqServerSessionActivityImpl auth, Session session) {
-          auth.setGqMessageFactory(new GqMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
+          GqMessageFactoryImpl messageFactory = new GqMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+          auth.setGqMessageFactory(messageFactory);
           // acc.setRoAvpFactory(roAvpFactory);
         }
 
         private void performBeforeReturnGq(GqClientSessionActivityImpl auth, Session session) {
-          auth.setGqMessageFactory(new GqMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
+          GqMessageFactoryImpl messageFactory = new GqMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+          auth.setGqMessageFactory(messageFactory);
           // acc.setRoAvpFactory(roAvpFactory);
         }
 
