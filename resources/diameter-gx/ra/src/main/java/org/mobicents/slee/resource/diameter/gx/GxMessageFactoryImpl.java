@@ -64,6 +64,8 @@ import org.mobicents.slee.resource.diameter.gx.events.GxReAuthRequestImpl;
  */
 public class GxMessageFactoryImpl implements GxMessageFactory {
 
+    protected Logger logger = Logger.getLogger(this.getClass());
+
     protected final static Set<Integer> ids;
 
     static {
@@ -77,7 +79,8 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
     protected DiameterMessageFactory baseFactory = null;
     protected String sessionId;
     protected Stack stack;
-    protected Logger logger = Logger.getLogger(this.getClass());
+
+    private ApplicationId gxAppId = ApplicationId.createByAuthAppId(0L, _GX_AUTH_APP_ID);
 
     // protected RfAVPFactory rfAvpFactory = null;
     public GxMessageFactoryImpl(final DiameterMessageFactory baseFactory, final String sessionId, final Stack stack) {
@@ -88,6 +91,14 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
         this.stack = stack;
     }
 
+    public void setApplicationId(long vendorId, long applicationId) {
+      this.gxAppId = ApplicationId.createByAuthAppId(vendorId, applicationId);      
+    }
+    
+    public ApplicationId getApplicationId() {
+      return this.gxAppId;      
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -136,7 +147,7 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
         final GxCreditControlRequestImpl ccr = (GxCreditControlRequestImpl) request;
 
         //final GxCreditControlAnswerImpl msg = new GxCreditControlAnswerImpl(createMessage(ccr.getHeader(), new DiameterAvp[]{}));
-        final Message raw = createMessage(ccr.getHeader(), new DiameterAvp[]{});
+        final Message raw = createGxMessage(ccr.getHeader(), new DiameterAvp[]{}, GxCreditControlRequest.commandCode);
         raw.setProxiable(ccr.getHeader().isProxiable());
         raw.setRequest(false);
         raw.setReTransmitted(false); // just in case. answers never have T flag set
@@ -172,7 +183,7 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
 
         //final GxReAuthAnswerImpl msg = new GxReAuthAnswerImpl(createMessage(rar.getHeader(), new DiameterAvp[]{}));
         
-        final Message raw = this.createReAuthMessage(rar.getHeader(), new DiameterAvp[]{});
+        final Message raw = this.createGxMessage(rar.getHeader(), new DiameterAvp[]{}, GxReAuthAnswer.commandCode);
         raw.setProxiable(rar.getHeader().isProxiable());
         raw.setRequest(false);
         raw.setReTransmitted(false); // just in case. answers never have T flag set
@@ -219,13 +230,13 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
 
         GxCreditControlMessage msg = null;
         if (!isRequest) {
-            final Message raw = createMessage(diameterHeader, avps);
+            final Message raw = createGxMessage(diameterHeader, avps, GxCreditControlRequest.commandCode);
             raw.setProxiable(true);
             raw.setRequest(false);
             raw.setReTransmitted(false); // just in case. answers never have T flag set
             msg = new GxCreditControlAnswerImpl(raw);
         } else {
-            final Message raw = createMessage(null, avps);
+            final Message raw = createGxMessage(null, avps, GxCreditControlRequest.commandCode);
             raw.setProxiable(true);
             raw.setRequest(true);
             msg = new GxCreditControlRequestImpl(raw);
@@ -243,13 +254,13 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
 
         GxReAuthMessage msg = null;
         if (!isRequest) {
-            final Message raw = createReAuthMessage(diameterHeader, avps);
+            final Message raw = createGxMessage(diameterHeader, avps, GxReAuthAnswer.commandCode);
             raw.setProxiable(true);
             raw.setRequest(false);
             raw.setReTransmitted(false); // just in case. answers never have T flag set
             msg = new GxReAuthAnswerImpl(raw);
         } else {
-            final Message raw = createReAuthMessage(null, avps);
+            final Message raw = createGxMessage(null, avps, GxReAuthRequest.commandCode);
             raw.setProxiable(true);
             raw.setRequest(true);
             msg = new GxReAuthRequestImpl(raw);
@@ -258,8 +269,8 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
         return msg;
     }
     
-    public Message createMessage(final DiameterHeader header, final DiameterAvp[] avps) throws AvpNotAllowedException {
-        final Message msg = createRawMessage(header);
+    public Message createGxMessage(final DiameterHeader header, final DiameterAvp[] avps, int commandCode) throws AvpNotAllowedException {
+        final Message msg = createRawMessage(header, commandCode);
 
         final AvpSet set = msg.getAvps();
         for (DiameterAvp avp : avps) {
@@ -269,67 +280,22 @@ public class GxMessageFactoryImpl implements GxMessageFactory {
         return msg;
     }
 
-    public Message createReAuthMessage(final DiameterHeader header, final DiameterAvp[] avps) throws AvpNotAllowedException {
-        final Message msg = createReAuthRawMessage(header);
-
-        final AvpSet set = msg.getAvps();
-        for (DiameterAvp avp : avps) {
-            addAvp(avp, set);
-        }
-
-        return msg;
-    }
-    
-    protected Message createRawMessage(final DiameterHeader header) {
-        int commandCode = 0;
+    protected Message createRawMessage(final DiameterHeader header, int commandCode) {
         long endToEndId = 0;
         long hopByHopId = 0;
 
-        final ApplicationId aid = ApplicationId.createByAuthAppId(0, _GX_AUTH_APP_ID);
         if (header != null) {
             // Answer
             commandCode = header.getCommandCode();
             endToEndId = header.getEndToEndId();
             hopByHopId = header.getHopByHopId();
-        } else {
-            commandCode = GxCreditControlRequest.commandCode;
         }
 
         try {
             if (header != null) {
-                return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
+                return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, this.gxAppId, hopByHopId, endToEndId);
             } else {
-                return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
-            }
-        } catch (IllegalDiameterStateException e) {
-            logger.error("Failed to get session factory for message creation.", e);
-        } catch (InternalException e) {
-            logger.error("Failed to create new raw session for message creation.", e);
-        }
-
-        return null;
-    }
-    
-    protected Message createReAuthRawMessage(final DiameterHeader header) {
-        int commandCode = 0;
-        long endToEndId = 0;
-        long hopByHopId = 0;
-
-        final ApplicationId aid = ApplicationId.createByAuthAppId(0, _GX_AUTH_APP_ID);
-        if (header != null) {
-            // Answer
-            commandCode = header.getCommandCode();
-            endToEndId = header.getEndToEndId();
-            hopByHopId = header.getHopByHopId();
-        } else {
-            commandCode = GxReAuthRequest.commandCode;
-        }
-
-        try {
-            if (header != null) {
-                return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid, hopByHopId, endToEndId);
-            } else {
-                return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, aid);
+                return stack.getSessionFactory().getNewRawSession().createMessage(commandCode, this.gxAppId);
             }
         } catch (IllegalDiameterStateException e) {
             logger.error("Failed to get session factory for message creation.", e);

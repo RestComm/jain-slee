@@ -24,11 +24,10 @@ package org.mobicents.slee.resource.diameter.gx;
 
 import java.io.IOException;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.ReAuthRequestType;
+import net.java.slee.resource.diameter.gx.GxAvpFactory;
 import net.java.slee.resource.diameter.gx.GxMessageFactory;
 import net.java.slee.resource.diameter.gx.GxServerSessionActivity;
 import net.java.slee.resource.diameter.gx.GxSessionState;
@@ -61,13 +60,12 @@ public class GxServerSessionActivityImpl extends GxSessionActivityImpl implement
   protected transient ServerGxSession session = null;
   protected transient GxCreditControlRequest lastRequest = null;
 
-  public GxServerSessionActivityImpl(final DiameterMessageFactory messageFactory, final DiameterAvpFactory avpFactory, final ServerGxSession session,
+  public GxServerSessionActivityImpl(final GxMessageFactory gxMessageFactory, final GxAvpFactory gxAvpFactory, final ServerGxSession session,
       final DiameterIdentity destinationHost, final DiameterIdentity destinationRealm, final Stack stack) {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
+    super(gxMessageFactory, gxAvpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
 
     setSession(session);
     super.setCurrentWorkingSession(this.session.getSessions().get(0));
-    super.setGxMessageFactory(new GxMessageFactoryImpl(messageFactory, session.getSessionId(), stack));
   }
 
   /**
@@ -133,9 +131,11 @@ public class GxServerSessionActivityImpl extends GxSessionActivityImpl implement
      if(!rar.hasReAuthRequestType()) {
        rar.setReAuthRequestType(ReAuthRequestType.AUTHORIZE_ONLY);
      }
-     if(!rar.hasAuthApplicationId()) {
-       rar.setAuthApplicationId(GxMessageFactory._GX_AUTH_APP_ID);
-     }
+     //*****
+     //if(!rar.hasAuthApplicationId()) {
+     //  rar.setAuthApplicationId(((Gxmthis.messageFactoryGxMessageFactory._GX_AUTH_APP_ID);
+     //}
+     //************
 
      final DiameterMessageImpl msg = (DiameterMessageImpl) rar;
 

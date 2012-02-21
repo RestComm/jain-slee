@@ -311,6 +311,10 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
             this.gxAvpFactory = new GxAvpFactoryImpl(baseAvpFactory);
             this.gxMessageFactory = new GxMessageFactoryImpl(baseMessageFactory, null, stack);
 
+            // Set the first configured Application-Id as default for message factory
+            ApplicationId firstAppId = authApplicationIds.get(0);
+            ((GxMessageFactoryImpl)this.gxMessageFactory).setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
             this.sessionFactory = this.stack.getSessionFactory();
             this.gxSessionFactory = new GxSessionFactory(this, sessionFactory, defaultDirectDebitingFailureHandling, defaultCreditControlFailureHandling,
                   defaultValidityTime, defaultTxTimerValue);
@@ -877,10 +881,8 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
             return;
         }
 
-        final DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(gxClientSession.getSessions().get(0), this.stack);
-
         // Create Client Activity
-        final GxClientSessionActivityImpl activity = new GxClientSessionActivityImpl(baseMsgFactory, this.baseAvpFactory, gxClientSession, null, null, stack);
+        final GxClientSessionActivityImpl activity = new GxClientSessionActivityImpl(gxMessageFactory, gxAvpFactory, gxClientSession, null, null, stack);
 
         //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
         //session.addStateChangeNotification(activity);
@@ -895,10 +897,8 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
             return;
         }
 
-        final DiameterMessageFactoryImpl baseMsgFactory = new DiameterMessageFactoryImpl(gxServerSession.getSessions().get(0), this.stack);
-
         // Create Server Activity
-        final GxServerSessionActivityImpl activity = new GxServerSessionActivityImpl(baseMsgFactory, this.baseAvpFactory, gxServerSession, null, null, stack);
+        final GxServerSessionActivityImpl activity = new GxServerSessionActivityImpl(gxMessageFactory, gxAvpFactory, gxServerSession, null, null, stack);
 
         //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
         //session.addStateChangeNotification(activity);
@@ -1146,11 +1146,23 @@ public class DiameterGxResourceAdaptor implements ResourceAdaptor, DiameterListe
         }
 
         private void performBeforeReturnGx(final GxServerSessionActivityImpl acc, Session session) {
-            acc.setGxMessageFactory(new GxMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
+          GxMessageFactoryImpl messageFactory = new GxMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+          acc.setGxMessageFactory(messageFactory);
         }
 
         private void performBeforeReturnGx(final GxClientSessionActivityImpl acc, Session session) {
-            acc.setGxMessageFactory(new GxMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack));
+          GxMessageFactoryImpl messageFactory = new GxMessageFactoryImpl(baseMessageFactory, session.getSessionId(), stack);
+
+          // Set the first configured Application-Id as default for message factory
+          ApplicationId firstAppId = authApplicationIds.get(0);
+          messageFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
+
+          acc.setGxMessageFactory(messageFactory);
         }
 
         private void performBeforeReturnOnBase(final DiameterActivityImpl ac, final Session session) {

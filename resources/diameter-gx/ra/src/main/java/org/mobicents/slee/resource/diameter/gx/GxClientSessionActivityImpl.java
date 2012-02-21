@@ -24,17 +24,16 @@ package org.mobicents.slee.resource.diameter.gx;
 
 import java.io.IOException;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterException;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
-import net.java.slee.resource.diameter.gx.events.GxReAuthAnswer;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.cca.events.avp.CcRequestType;
+import net.java.slee.resource.diameter.gx.GxAvpFactory;
 import net.java.slee.resource.diameter.gx.GxClientSessionActivity;
 import net.java.slee.resource.diameter.gx.GxMessageFactory;
 import net.java.slee.resource.diameter.gx.GxSessionState;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
+import net.java.slee.resource.diameter.gx.events.GxReAuthAnswer;
 import net.java.slee.resource.diameter.gx.events.GxReAuthRequest;
 
 import org.jdiameter.api.Answer;
@@ -45,8 +44,8 @@ import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.gx.ClientGxSession;
 import org.jdiameter.common.api.app.gx.ClientGxSessionState;
-import org.jdiameter.common.impl.app.gx.GxReAuthAnswerImpl;
 import org.jdiameter.common.impl.app.gx.GxCreditControlRequestImpl;
+import org.jdiameter.common.impl.app.gx.GxReAuthAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 /**
@@ -71,13 +70,12 @@ public class GxClientSessionActivityImpl extends GxSessionActivityImpl implement
    * @param endpoint
    * @param stack
    */
-  public GxClientSessionActivityImpl(final DiameterMessageFactory messageFactory, final DiameterAvpFactory avpFactory, final ClientGxSession session,
+  public GxClientSessionActivityImpl(final GxMessageFactory gxMessageFactory, final GxAvpFactory gxAvpFactory, final ClientGxSession session,
       final DiameterIdentity destinationHost, final DiameterIdentity destinationRealm, final Stack stack) {
-    super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
+    super(gxMessageFactory, gxAvpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
 
     setSession(session);
     super.setCurrentWorkingSession(session.getSessions().get(0));
-    super.setGxMessageFactory(new GxMessageFactoryImpl(messageFactory, session.getSessionId(), stack));
   }
 
   /*

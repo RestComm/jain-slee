@@ -22,10 +22,9 @@
 
 package org.mobicents.slee.resource.diameter.gx;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+import net.java.slee.resource.diameter.gx.GxAvpFactory;
 import net.java.slee.resource.diameter.gx.GxMessageFactory;
 import net.java.slee.resource.diameter.gx.GxSessionActivity;
 import net.java.slee.resource.diameter.gx.events.GxCreditControlRequest;
@@ -49,7 +48,9 @@ import org.mobicents.slee.resource.diameter.gx.events.GxReAuthRequestImpl;
 public abstract class GxSessionActivityImpl extends DiameterActivityImpl implements GxSessionActivity {
 
     private static final long serialVersionUID = 5037967180962414549L;
+
     protected transient GxMessageFactory gxMessageFactory;
+    protected transient GxAvpFactory gxAvpFactory;
 
     /**
      * @param messageFactory
@@ -59,10 +60,12 @@ public abstract class GxSessionActivityImpl extends DiameterActivityImpl impleme
      * @param destinationHost
      * @param destinationRealm
      */
-    public GxSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, Session session,
+    public GxSessionActivityImpl(GxMessageFactory gxMessageFactory, GxAvpFactory gxAvpFactory, Session session,
                                  EventListener<Request, Answer> raEventListener,
                                  DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
-        super(messageFactory, avpFactory, session, raEventListener, destinationHost, destinationRealm);
+        super(gxMessageFactory.getBaseMessageFactory(), gxAvpFactory.getBaseFactory(), session, raEventListener, destinationHost, destinationRealm);
+        this.gxMessageFactory = gxMessageFactory;
+        this.gxAvpFactory = gxAvpFactory;
     }
 
     @Override
