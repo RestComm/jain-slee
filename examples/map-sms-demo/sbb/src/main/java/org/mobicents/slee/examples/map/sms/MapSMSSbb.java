@@ -75,8 +75,11 @@ public abstract class MapSMSSbb implements Sbb {
 
 	private final ProtocolIdentifierImpl pi = new ProtocolIdentifierImpl(0);
 
-	private static final String SC_ADDRESS = "923330053058";
-	private static final String CALLED_PARTY_MSISDN = "923335500057";
+	/**
+	 * NOTE : Replace below XXXXXXXXXXXX, YYYYYYYYYYYY by your service center MSISDN and called party MSISDN
+	 */
+	private static final String SC_ADDRESS = "XXXXXXXXXXXX";
+	private static final String CALLED_PARTY_MSISDN = "YYYYYYYYYYYY";
 
 	private SbbContextExt sbbContext;
 
