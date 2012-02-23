@@ -107,7 +107,6 @@ public class GxClientSessionActivityImpl extends GxSessionActivityImpl implement
     // fetchCurrentState(ccr);
 
     final DiameterMessageImpl msg = (DiameterMessageImpl) ccr;
-    ccr.setCcRequestType(CcRequestType.EVENT_REQUEST);
     validateState(ccr);
     try {
       session.sendCreditControlRequest(new GxCreditControlRequestImpl((Request) msg.getGenericData()));
@@ -129,8 +128,6 @@ public class GxClientSessionActivityImpl extends GxSessionActivityImpl implement
    */
   public void sendInitialGxCreditControlRequest(final GxCreditControlRequest ccr) throws IOException {
     // FIXME: should this affect FSM ?
-    ccr.setCcRequestType(CcRequestType.INITIAL_REQUEST);
-
     validateState(ccr);
 
     final DiameterMessageImpl msg = (DiameterMessageImpl) ccr;
@@ -152,8 +149,6 @@ public class GxClientSessionActivityImpl extends GxSessionActivityImpl implement
    */
   public void sendUpdateGxCreditControlRequest(final GxCreditControlRequest ccr) throws IOException {
     // FIXME: Should this come already in the CCR?
-    ccr.setCcRequestType(CcRequestType.UPDATE_REQUEST);
-
     validateState(ccr);
 
     final DiameterMessageImpl msg = (DiameterMessageImpl) ccr;
@@ -175,10 +170,6 @@ public class GxClientSessionActivityImpl extends GxSessionActivityImpl implement
    */
   public void sendTerminationGxCreditControlRequest(final GxCreditControlRequest ccr) throws IOException {
     // This should not be used to terminate sub-sessions!
-
-    // FIXME: Should this come already in the CCR?
-    ccr.setCcRequestType(CcRequestType.TERMINATION_REQUEST);
-
     validateState(ccr);
 
     final DiameterMessageImpl msg = (DiameterMessageImpl) ccr;
