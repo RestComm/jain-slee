@@ -78,7 +78,7 @@
 		class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,registerDirectly=true)</annotation>
 		<!-- 0 means entities are not removed by force -->
-		<property name="entitiesRemovalDelay">0</property>
+		<property name="entitiesRemovalDelay">1</property>
 	</bean>
 		
 	<bean name="Mobicents.JAINSLEE.ComponentsManagement"
