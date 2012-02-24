@@ -178,7 +178,7 @@ public class ACKDummyTransaction implements ServerTransaction {
 	 * @see javax.sip.Transaction#terminate()
 	 */
 	public void terminate() throws ObjectInUseException {
-		throw new UnsupportedOperationException();
+		// ignore
 	}
 
 }
