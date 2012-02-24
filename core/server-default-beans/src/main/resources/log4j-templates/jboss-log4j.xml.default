@@ -36,6 +36,10 @@
 		<priority value="INFO" />
 	</category>
 	
+	<category name="gov.nist">
+		<priority value="WARN" />
+	</category>
+	
 	<root>
 		<level value="INFO"/>
 		<appender-ref ref="CONSOLE"/>
