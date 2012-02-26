@@ -45,6 +45,11 @@ public class MessageResourceAdaptorSbbInterfaceImpl implements
 		this.ra = ra;
 		this.messageFactory = messageFactory;
 
+		
+	}
+	
+	void initTracer()
+	{
 		this.tracer = this.ra.getResourceAdaptorContext().getTracer(
 				MessageResourceAdaptorSbbInterfaceImpl.class.getSimpleName());
 	}

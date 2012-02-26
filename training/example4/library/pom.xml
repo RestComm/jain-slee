@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<packaging>jainslee-library</packaging>
+
 	<parent>
 		<artifactId>training-example4-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
@@ -25,9 +25,6 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<version>
-					${mobicents.tools.mavenplugin.library.version}
-				</version>
 				<extensions>true</extensions>
 				<configuration>
 					<library-name>example4-library</library-name>

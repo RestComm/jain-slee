@@ -101,6 +101,15 @@ public class MessageResourceAdaptor implements ResourceAdaptor,
 
 	private transient EventLookupFacility eventLookup = null;
 
+	
+	
+	public MessageResourceAdaptor() {
+		super();
+		messageFactory = new MessageFactoryImpl();
+		raProvider = new MessageResourceAdaptorSbbInterfaceImpl(this,
+				messageFactory);
+	}
+
 	/**
 	 * RA Lifecycle methods
 	 */
@@ -230,9 +239,7 @@ public class MessageResourceAdaptor implements ResourceAdaptor,
 						+ this.resourceAdaptorContext.getEntityName());
 			}
 
-			messageFactory = new MessageFactoryImpl();
-			raProvider = new MessageResourceAdaptorSbbInterfaceImpl(this,
-					messageFactory);
+			
 			messageParser = new MessageParserImpl();
 
 			stack = new RAFStack(localHost, port, remotehost, remoteport,
@@ -283,10 +290,10 @@ public class MessageResourceAdaptor implements ResourceAdaptor,
 
 		if (tracer.isFineEnabled()) {
 			StringBuffer sb = new StringBuffer();
-			sb.append("Configured RA. Poperties : \nLocalHost = ").append(
-					this.localHost).append("\nLocalPort = ").append(port)
-					.append("\nRemoteHost=").append(remotehost).append(
-							"\nRemotePort=").append(remoteport);
+			sb.append("Configured RA. Poperties : \nLocalHost = ")
+					.append(this.localHost).append("\nLocalPort = ")
+					.append(port).append("\nRemoteHost=").append(remotehost)
+					.append("\nRemotePort=").append(remoteport);
 			tracer.fine(sb.toString());
 		}
 
@@ -390,6 +397,8 @@ public class MessageResourceAdaptor implements ResourceAdaptor,
 		this.tracer = this.resourceAdaptorContext
 				.getTracer(MessageResourceAdaptor.class.getSimpleName());
 
+		((MessageResourceAdaptorSbbInterfaceImpl)this.raProvider).initTracer();
+		
 		this.eventTypeCache = new FireableEventTypeCache(this.tracer);
 
 		this.eventLookup = this.resourceAdaptorContext.getEventLookupFacility();
@@ -465,7 +474,17 @@ public class MessageResourceAdaptor implements ResourceAdaptor,
 			}
 			return;
 		}
-
+		switch (event.getMessage().getCommandId()) {
+		case Message.INIT:
+			activity.initReceived();
+			break;
+		case Message.ANY:
+			activity.anyReceived();
+			break;
+		case Message.END:
+			activity.endReceived();
+			break;
+		}
 		activities.put(handle, activity);
 
 		// the fireEvent() method needs a default address to where the events
@@ -483,8 +502,7 @@ public class MessageResourceAdaptor implements ResourceAdaptor,
 						ActivityFlags.REQUEST_ENDED_CALLBACK);
 			} catch (ActivityAlreadyExistsException e) {
 				this.tracer
-						.severe(
-								"ActivityAlreadyExistsException while starting the Actvity",
+						.severe("ActivityAlreadyExistsException while starting the Actvity",
 								e);
 				return;
 			} catch (NullPointerException e) {
