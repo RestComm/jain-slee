@@ -34,6 +34,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class ProcessUnstructuredSSRequest extends MAPEvent<MAPDialogSupplementary> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.suplementary.PROCESS_UNSTRUCTURED_SS_REQUEST";
 
 	protected final ProcessUnstructuredSSRequestIndication wrapped;
 
@@ -41,7 +43,7 @@ public class ProcessUnstructuredSSRequest extends MAPEvent<MAPDialogSupplementar
 	 * @param mAPDialog
 	 */
 	public ProcessUnstructuredSSRequest(MAPDialogSupplementary mAPDialog, ProcessUnstructuredSSRequestIndication req) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = req;
 	}
 

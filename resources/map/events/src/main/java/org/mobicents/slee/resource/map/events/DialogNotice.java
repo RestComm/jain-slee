@@ -33,6 +33,8 @@ import org.mobicents.protocols.ss7.map.api.dialog.MAPNoticeProblemDiagnostic;
  * 
  */
 public class DialogNotice extends MAPEvent {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_NOTICE";
 
 	private final MAPNoticeProblemDiagnostic noticeProblemDiagnostic;
 
@@ -40,12 +42,17 @@ public class DialogNotice extends MAPEvent {
 	 * @param mAPDialog
 	 */
 	public DialogNotice(MAPDialog mAPDialog, MAPNoticeProblemDiagnostic noticeProblemDiagnostic) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.noticeProblemDiagnostic = noticeProblemDiagnostic;
 	}
 
 	public MAPNoticeProblemDiagnostic getNoticeProblemDiagnostic() {
 		return noticeProblemDiagnostic;
+	}
+
+	@Override
+	public String toString() {
+		return "DialogNotice [noticeProblemDiagnostic=" + noticeProblemDiagnostic + ", " + mAPDialog + "]";
 	}
 
 }

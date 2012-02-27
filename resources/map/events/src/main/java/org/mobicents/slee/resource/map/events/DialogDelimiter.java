@@ -32,9 +32,15 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
  * 
  */
 public class DialogDelimiter extends MAPEvent {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_DELIMITER";
 
 	public DialogDelimiter(MAPDialog mAPDialog) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 	}
-
+	
+	@Override
+	public String toString() {
+		return "DialogClose [" + mAPDialog + "]";
+	}
 }

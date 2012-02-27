@@ -32,6 +32,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class UnstructuredSSResponse extends MAPEvent<MAPDialogSupplementary> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.suplementary.UNSTRUCTURED_SS_RESPONSE";
 
 	protected final UnstructuredSSResponseIndication wrapped;
 
@@ -39,7 +41,7 @@ public class UnstructuredSSResponse extends MAPEvent<MAPDialogSupplementary> {
 	 * @param mAPDialog
 	 */
 	public UnstructuredSSResponse(MAPDialogSupplementary mAPDialog, UnstructuredSSResponseIndication res) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = res;
 	}
 

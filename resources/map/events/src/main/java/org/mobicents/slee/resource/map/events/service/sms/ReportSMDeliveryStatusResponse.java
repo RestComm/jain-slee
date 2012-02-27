@@ -33,6 +33,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class ReportSMDeliveryStatusResponse extends MAPEvent<MAPDialogSms> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.sms.REPORT_SM_DELIVERY_STATUS_RESPONSE";
 
 	private final ReportSMDeliveryStatusResponseIndication wrapped;
 
@@ -41,7 +43,7 @@ public class ReportSMDeliveryStatusResponse extends MAPEvent<MAPDialogSms> {
 	 * @param reportSmDeliveryStatusResponse
 	 */
 	public ReportSMDeliveryStatusResponse(MAPDialogSms mAPDialog, ReportSMDeliveryStatusResponseIndication reportSmDeliveryStatusResponse) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = reportSmDeliveryStatusResponse;
 	}
 

@@ -30,6 +30,8 @@ import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
  *
  */
 public class ErrorComponent extends ComponentEvent {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.ERROR_COMPONENT";
 
 	protected  MAPErrorMessage mapErrorMessage;
 	/**
@@ -37,7 +39,7 @@ public class ErrorComponent extends ComponentEvent {
 	 * @param invokeId
 	 */
 	public ErrorComponent(MAPDialog mAPDialog, Long invokeId, MAPErrorMessage mapErrorMessage) {
-		super(mAPDialog, invokeId);
+		super(mAPDialog, invokeId, EVENT_TYPE_NAME);
 		this.mapErrorMessage = mapErrorMessage;
 	}
 

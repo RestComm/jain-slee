@@ -31,14 +31,20 @@ package org.mobicents.slee.resource.map.events;
  * 
  */
 public abstract class MAPEvent<T> {
-	private final T mAPDialog;
+	protected final T mAPDialog;
+	private final String eventTypeName;
 
-	public MAPEvent(T mAPDialog) {
+	public MAPEvent(T mAPDialog, String eventTypeName) {
 		this.mAPDialog = mAPDialog;
+		this.eventTypeName = eventTypeName;
 	}
 
 	public T getMAPDialog() {
 		return mAPDialog;
+	}
+
+	public String getEventTypeName() {
+		return eventTypeName;
 	}
 
 	@Override

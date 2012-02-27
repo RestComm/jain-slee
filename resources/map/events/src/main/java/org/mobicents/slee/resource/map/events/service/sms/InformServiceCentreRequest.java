@@ -34,6 +34,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class InformServiceCentreRequest extends MAPEvent<MAPDialogSms> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.sms.INFORM_SERVICE_CENTER_REQUEST";
 
 	private final InformServiceCentreRequestIndication wrapped;
 
@@ -42,7 +44,7 @@ public class InformServiceCentreRequest extends MAPEvent<MAPDialogSms> {
 	 * @param informServiCecentreRequest
 	 */
 	public InformServiceCentreRequest(MAPDialogSms mAPDialog, InformServiceCentreRequestIndication informServiCecentreRequest) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = informServiCecentreRequest;
 	}
 

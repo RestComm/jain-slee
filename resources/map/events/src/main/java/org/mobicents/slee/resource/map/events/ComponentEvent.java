@@ -34,8 +34,8 @@ public abstract class ComponentEvent extends MAPEvent {
 	/**
 	 * @param mAPDialog
 	 */
-	public ComponentEvent(MAPDialog mAPDialog, Long invokeId) {
-		super(mAPDialog);
+	public ComponentEvent(MAPDialog mAPDialog, Long invokeId, String eventTypeName) {
+		super(mAPDialog, eventTypeName);
 		this.invokeId = invokeId;
 	}
 

@@ -27,6 +27,7 @@ package org.mobicents.slee.resource.map.events;
 
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
+import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 
 /**
@@ -34,20 +35,38 @@ import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
  * 
  */
 public class DialogRequest extends MAPEvent {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_REQUEST";
 
+	private boolean eriStyle = false;
 	private final AddressString destReference;
 	private final AddressString origReference;
 	private final MAPExtensionContainer extensionContainer;
+	private final IMSI eriImsi;
+	private final AddressString eriVlrNo;
+
+	public DialogRequest(MAPDialog mAPDialog, AddressString destReference, AddressString origReference, IMSI eriImsi,
+			AddressString eriVlrNo) {
+		super(mAPDialog, EVENT_TYPE_NAME);
+		this.destReference = destReference;
+		this.origReference = origReference;
+		this.eriImsi = eriImsi;
+		this.eriVlrNo = eriVlrNo;
+		this.eriStyle = true;
+		this.extensionContainer = null;
+	}
 
 	/**
 	 * @param mAPDialog
 	 */
 	public DialogRequest(MAPDialog mAPDialog, AddressString destReference, AddressString origReference,
 			MAPExtensionContainer extensionContainer) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.destReference = destReference;
 		this.origReference = origReference;
 		this.extensionContainer = extensionContainer;
+		this.eriImsi = null;
+		this.eriVlrNo = null;
 	}
 
 	public AddressString getDestReference() {
@@ -60,6 +79,25 @@ public class DialogRequest extends MAPEvent {
 
 	public MAPExtensionContainer getExtensionContainer() {
 		return extensionContainer;
+	}
+
+	public boolean isEriStyle() {
+		return eriStyle;
+	}
+
+	public IMSI getEriImsi() {
+		return eriImsi;
+	}
+
+	public AddressString getEriVlrNo() {
+		return eriVlrNo;
+	}
+
+	@Override
+	public String toString() {
+		return "DialogRequest [eriStyle=" + eriStyle + ", destReference=" + destReference + ", origReference="
+				+ origReference + ", extensionContainer=" + extensionContainer + ", eriImsi=" + eriImsi + ", eriVlrNo="
+				+ eriVlrNo + ", " + mAPDialog + "]";
 	}
 
 }

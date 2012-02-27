@@ -31,6 +31,7 @@ import org.mobicents.protocols.ss7.map.api.dialog.MAPProviderError;
  */
 public class ProviderErrorComponent extends ComponentEvent {
 
+	private static final String EVENT_TYPE_NAME = "ss7.map.PROVIDER_ERROR_COMPONENT";
 	
 	protected  MAPProviderError mapProviderError;
 	/**
@@ -38,7 +39,7 @@ public class ProviderErrorComponent extends ComponentEvent {
 	 * @param invokeId
 	 */
 	public ProviderErrorComponent(MAPDialog mAPDialog, Long invokeId, MAPProviderError mapProviderError) {
-		super(mAPDialog, invokeId);
+		super(mAPDialog, invokeId, EVENT_TYPE_NAME);
 		this.mapProviderError = mapProviderError;
 	}
 

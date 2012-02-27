@@ -34,6 +34,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class SendRoutingInfoForSMResponse extends MAPEvent<MAPDialogSms> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.sms.SEND_ROUTING_INFO_FOR_SM_RESPONSE";
 
 	private final SendRoutingInfoForSMResponseIndication wrapped;
 
@@ -42,7 +44,7 @@ public class SendRoutingInfoForSMResponse extends MAPEvent<MAPDialogSms> {
 	 * @param sendRoutingInfoForSmResponse
 	 */
 	public SendRoutingInfoForSMResponse(MAPDialogSms mAPDialog, SendRoutingInfoForSMResponseIndication sendRoutingInfoForSmResponse) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = sendRoutingInfoForSmResponse;
 	}
 

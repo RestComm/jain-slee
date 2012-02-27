@@ -34,6 +34,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class SendRoutingInfoForLCSResponse extends MAPEvent<MAPDialogLsm> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.lsm.SEND_ROUTING_INFO_FOR_LCS_RESPONSE";
 
 	private final SendRoutingInfoForLCSResponseIndication wrapped;
 
@@ -42,7 +44,7 @@ public class SendRoutingInfoForLCSResponse extends MAPEvent<MAPDialogLsm> {
 	 * @param sendRoutingInfoForLCSResponse
 	 */
 	public SendRoutingInfoForLCSResponse(MAPDialogLsm mAPDialog, SendRoutingInfoForLCSResponseIndication sendRoutingInfoForLCSResponse) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = sendRoutingInfoForLCSResponse;
 	}
 

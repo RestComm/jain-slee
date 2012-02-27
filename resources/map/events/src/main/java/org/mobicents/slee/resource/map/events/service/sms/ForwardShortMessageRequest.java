@@ -21,7 +21,7 @@
  */
 
 package org.mobicents.slee.resource.map.events.service.sms;
-
+  
 import org.mobicents.protocols.ss7.map.api.service.sms.ForwardShortMessageRequestIndication;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPDialogSms;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_DA;
@@ -34,6 +34,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class ForwardShortMessageRequest extends MAPEvent<MAPDialogSms> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.sms.FORWARD_SHORT_MESSAGE_REQUEST";
 
 	private final ForwardShortMessageRequestIndication wrapped;
 
@@ -42,7 +44,7 @@ public class ForwardShortMessageRequest extends MAPEvent<MAPDialogSms> {
 	 * @param forwardShortMessageRequest
 	 */
 	public ForwardShortMessageRequest(MAPDialogSms mAPDialog, ForwardShortMessageRequestIndication forwardShortMessageRequest) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = forwardShortMessageRequest;
 	}
 

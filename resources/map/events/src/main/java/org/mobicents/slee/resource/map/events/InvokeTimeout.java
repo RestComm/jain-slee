@@ -30,12 +30,14 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
  */
 public class InvokeTimeout extends ComponentEvent {
 
+	private static final String EVENT_TYPE_NAME = "ss7.map.INVOKE_TIMEOUT";
+	
 	/**
 	 * @param mAPDialog
 	 * @param invokeId
 	 */
 	public InvokeTimeout(MAPDialog mAPDialog, Long invokeId) {
-		super(mAPDialog, invokeId);
+		super(mAPDialog, invokeId, EVENT_TYPE_NAME);
 	}
 
 }

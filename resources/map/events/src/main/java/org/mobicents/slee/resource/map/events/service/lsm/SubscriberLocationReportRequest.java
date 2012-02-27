@@ -40,6 +40,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class SubscriberLocationReportRequest extends MAPEvent<MAPDialogLsm> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.lsm.SUBSCRIBER_LOCATION_REPORT_REQUEST";
 
 	private final SubscriberLocationReportRequestIndication wrapped;
 
@@ -48,7 +50,7 @@ public class SubscriberLocationReportRequest extends MAPEvent<MAPDialogLsm> {
 	 * @param subscriberLocationReportRequest
 	 */
 	public SubscriberLocationReportRequest(MAPDialogLsm mAPDialog, SubscriberLocationReportRequestIndication subscriberLocationReportRequest) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = subscriberLocationReportRequest;
 	}
 

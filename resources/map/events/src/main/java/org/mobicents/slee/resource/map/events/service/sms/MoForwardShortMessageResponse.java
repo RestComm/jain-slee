@@ -33,6 +33,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class MoForwardShortMessageResponse extends MAPEvent<MAPDialogSms> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.sms.MO_FORWARD_SHORT_MESSAGE_RESPONSE";
 
 	private final MoForwardShortMessageResponseIndication wrapped;
 
@@ -41,7 +43,7 @@ public class MoForwardShortMessageResponse extends MAPEvent<MAPDialogSms> {
 	 * @param moForwardShortMessageResponse
 	 */
 	public MoForwardShortMessageResponse(MAPDialogSms mAPDialog, MoForwardShortMessageResponseIndication moForwardShortMessageResponse) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = moForwardShortMessageResponse;
 	}
 

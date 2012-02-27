@@ -31,6 +31,8 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * 
  */
 public class AlertServiceCentreResponse extends MAPEvent<MAPDialogSms> {
+	
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.sms.ALERT_SERVICE_CENTER_RESPONSE";
 
 	private final AlertServiceCentreResponseIndication wrapped;
 
@@ -39,7 +41,7 @@ public class AlertServiceCentreResponse extends MAPEvent<MAPDialogSms> {
 	 * @param alertServiCecentreResponse
 	 */
 	public AlertServiceCentreResponse(MAPDialogSms mAPDialog, AlertServiceCentreResponseIndication alertServiCecentreResponse) {
-		super(mAPDialog);
+		super(mAPDialog, EVENT_TYPE_NAME);
 		this.wrapped = alertServiCecentreResponse;
 	}
 
