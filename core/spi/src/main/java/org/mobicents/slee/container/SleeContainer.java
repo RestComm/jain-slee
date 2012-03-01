@@ -290,12 +290,12 @@ public class SleeContainer {
 		this.sbbManagement = sbbManagement;
 		addModule(sbbManagement);
 
-		this.serviceManagement = serviceManagement;
-		addModule(serviceManagement);	
-		
 		this.sleeProfileTableManager = profileManagement;
 		addModule(sleeProfileTableManager);
 
+		this.serviceManagement = serviceManagement;
+		addModule(serviceManagement);	
+		
 		this.deployer = sleeContainerDeployer;
 		addModule(sleeContainerDeployer);	
 

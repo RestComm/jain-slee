@@ -609,7 +609,8 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 	public void loadProfileTableLocally(String profileTableName,
 			ProfileSpecificationComponent component) throws IllegalArgumentException {
 		if(profileTableFramework.getProfileTableNames(component.getProfileSpecificationID()).contains(profileTableName)) {
-			addProfileTableLocally(createProfileTableInstance(profileTableName, component), false, false);			
+			boolean createAC = sleeContainer.getSleeState() != null && sleeContainer.getSleeState().isRunning();
+			addProfileTableLocally(createProfileTableInstance(profileTableName, component), createAC, false);
 		}
 		else {
 			throw new IllegalArgumentException("Either profile table named "+profileTableName+" does not exists or its component is not the specified one");

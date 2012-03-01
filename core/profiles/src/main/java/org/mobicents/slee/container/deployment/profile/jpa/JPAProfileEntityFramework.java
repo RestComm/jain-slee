@@ -586,7 +586,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			} catch (Throwable e) {
 				throw new SLEEException(e.getMessage(), e);
 			}
-			component.setProfileEntityFramework(null);
+			//component.setProfileEntityFramework(null);
 		}
 	}
 
