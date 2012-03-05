@@ -31,7 +31,7 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
  * @author amit bhayani
  * 
  */
-public class DialogDelimiter extends MAPEvent {
+public class DialogDelimiter extends MAPEvent<MAPDialog> {
 	
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_DELIMITER";
 

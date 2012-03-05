@@ -35,7 +35,7 @@ import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
  * @author amit bhayani
  * 
  */
-public class DialogReject extends MAPEvent {
+public class DialogReject extends MAPEvent<MAPDialog> {
 
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_REJECT";
 	

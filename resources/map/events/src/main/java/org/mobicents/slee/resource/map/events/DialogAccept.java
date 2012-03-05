@@ -32,7 +32,7 @@ import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
  * @author amit bhayani
  * 
  */
-public class DialogAccept extends MAPEvent {
+public class DialogAccept extends MAPEvent<MAPDialog> {
 
 	private final MAPExtensionContainer extensionContainer;
 	

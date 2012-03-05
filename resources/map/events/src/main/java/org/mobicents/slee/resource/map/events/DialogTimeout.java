@@ -28,7 +28,7 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
  * @author baranowb
  *
  */
-public class DialogTimeout extends MAPEvent {
+public class DialogTimeout extends MAPEvent<MAPDialog> {
 
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_TIMEOUT";
 	

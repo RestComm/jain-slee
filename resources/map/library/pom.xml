@@ -20,6 +20,11 @@
 			<version>${asn.version}</version>
 		</dependency>
 		<dependency>
+			<artifactId>congestion</artifactId>
+			<groupId>org.mobicents.protocols.ss7.congestion</groupId>
+			<version>${ss7.congestion.version}</version>
+		</dependency>		
+		<dependency>
 			<artifactId>map-api</artifactId>
 			<groupId>org.mobicents.protocols.ss7.map</groupId>
 			<version>${ss7.version}</version>

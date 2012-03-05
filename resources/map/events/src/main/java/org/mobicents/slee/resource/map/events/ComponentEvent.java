@@ -28,7 +28,7 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
  * @author baranowb
  *
  */
-public abstract class ComponentEvent extends MAPEvent {
+public abstract class ComponentEvent extends MAPEvent<MAPDialog> {
 
 	protected Long invokeId;
 	/**

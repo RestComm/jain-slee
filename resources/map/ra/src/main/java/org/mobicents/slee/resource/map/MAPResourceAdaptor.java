@@ -103,33 +103,10 @@ import org.mobicents.slee.resource.map.events.DialogRequest;
 import org.mobicents.slee.resource.map.events.DialogTimeout;
 import org.mobicents.slee.resource.map.events.DialogUserAbort;
 import org.mobicents.slee.resource.map.events.ErrorComponent;
+import org.mobicents.slee.resource.map.events.EventsType;
 import org.mobicents.slee.resource.map.events.InvokeTimeout;
 import org.mobicents.slee.resource.map.events.ProviderErrorComponent;
 import org.mobicents.slee.resource.map.events.RejectComponent;
-import org.mobicents.slee.resource.map.events.service.lsm.ProvideSubscriberLocationRequest;
-import org.mobicents.slee.resource.map.events.service.lsm.ProvideSubscriberLocationResponse;
-import org.mobicents.slee.resource.map.events.service.lsm.SendRoutingInfoForLCSRequest;
-import org.mobicents.slee.resource.map.events.service.lsm.SendRoutingInfoForLCSResponse;
-import org.mobicents.slee.resource.map.events.service.lsm.SubscriberLocationReportRequest;
-import org.mobicents.slee.resource.map.events.service.lsm.SubscriberLocationReportResponse;
-import org.mobicents.slee.resource.map.events.service.sms.AlertServiceCentreRequest;
-import org.mobicents.slee.resource.map.events.service.sms.AlertServiceCentreResponse;
-import org.mobicents.slee.resource.map.events.service.sms.ForwardShortMessageRequest;
-import org.mobicents.slee.resource.map.events.service.sms.ForwardShortMessageResponse;
-import org.mobicents.slee.resource.map.events.service.sms.InformServiceCentreRequest;
-import org.mobicents.slee.resource.map.events.service.sms.MoForwardShortMessageRequest;
-import org.mobicents.slee.resource.map.events.service.sms.MoForwardShortMessageResponse;
-import org.mobicents.slee.resource.map.events.service.sms.MtForwardShortMessageRequest;
-import org.mobicents.slee.resource.map.events.service.sms.MtForwardShortMessageResponse;
-import org.mobicents.slee.resource.map.events.service.sms.ReportSMDeliveryStatusRequest;
-import org.mobicents.slee.resource.map.events.service.sms.ReportSMDeliveryStatusResponse;
-import org.mobicents.slee.resource.map.events.service.sms.SendRoutingInfoForSMRequest;
-import org.mobicents.slee.resource.map.events.service.sms.SendRoutingInfoForSMResponse;
-import org.mobicents.slee.resource.map.events.service.suplementary.ProcessUnstructuredSSRequest;
-import org.mobicents.slee.resource.map.events.service.suplementary.ProcessUnstructuredSSResponse;
-import org.mobicents.slee.resource.map.events.service.suplementary.UnstructuredSSNotifyRequest;
-import org.mobicents.slee.resource.map.events.service.suplementary.UnstructuredSSRequest;
-import org.mobicents.slee.resource.map.events.service.suplementary.UnstructuredSSResponse;
 import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
 
 /**
@@ -138,8 +115,7 @@ import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
  * @author baranowb
  * 
  */
-public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceSupplementaryListener,
-		MAPServiceLsmListener, MAPServiceSmsListener {
+public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceSupplementaryListener, MAPServiceLsmListener, MAPServiceSmsListener {
 	/**
 	 * for all events we are interested in knowing when the event failed to be
 	 * processed
@@ -210,20 +186,18 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	}
 
-	public void eventProcessingFailed(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3,
-			ReceivableService arg4, int arg5, FailureReason arg6) {
+	public void eventProcessingFailed(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5,
+			FailureReason arg6) {
 		// TODO Auto-generated method stub
 
 	}
 
-	public void eventProcessingSuccessful(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3,
-			ReceivableService arg4, int arg5) {
+	public void eventProcessingSuccessful(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5) {
 		// TODO Auto-generated method stub
 
 	}
 
-	public void eventUnreferenced(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3,
-			ReceivableService arg4, int arg5) {
+	public void eventUnreferenced(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5) {
 		// TODO Auto-generated method stub
 
 	}
@@ -387,8 +361,8 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	// Helper methods //
 	// //////////////////
 
-	public MAPDialogActivityHandle createActivity(MAPDialog mapDialog) throws ActivityAlreadyExistsException,
-			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
+	public MAPDialogActivityHandle createActivity(MAPDialog mapDialog) throws ActivityAlreadyExistsException, NullPointerException, IllegalStateException,
+			SLEEException, StartActivityException {
 		MAPDialogActivityHandle handle = new MAPDialogActivityHandle(mapDialog);
 		this.sleeEndpoint.startActivity(handle, mapDialog, ACTIVITY_FLAGS);
 		this.handlers.put(mapDialog.getDialogId(), handle);
@@ -402,8 +376,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 */
 	private void fireEvent(String eventName, ActivityHandle handle, Object event) {
 
-		FireableEventType eventID = eventIdCache.getEventId(this.resourceAdaptorContext.getEventLookupFacility(),
-				eventName);
+		FireableEventType eventID = eventIdCache.getEventId(this.resourceAdaptorContext.getEventLookupFacility(), eventName);
 
 		if (eventID == null) {
 			tracer.severe("Event id for " + eventID + " is unknown, cant fire!!!");
@@ -430,8 +403,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		MAPDialogActivityHandle mapDialogActHndl = this.handlers.get(mapDialog.getDialogId());
 		if (mapDialogActHndl == null) {
 			if (this.tracer.isWarningEnabled()) {
-				this.tracer.warning("Activity ended but no MAPDialogActivityHandle found for Dialog ID "
-						+ mapDialog.getDialogId());
+				this.tracer.warning("Activity ended but no MAPDialogActivityHandle found for Dialog ID " + mapDialog.getDialogId());
 			}
 		} else {
 			this.sleeEndpoint.endActivity(mapDialogActHndl);
@@ -451,8 +423,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
 
 		if (handle == null) {
-			this.tracer.severe(String.format("Rx : %s but there is no Handler for this DialogId=%d", eventName,
-					mapDialog.getDialogId()));
+			this.tracer.severe(String.format("Rx : %s but there is no Handler for this DialogId=%d", eventName, mapDialog.getDialogId()));
 			return null;
 		}
 		handle.resetTimeoutCount();
@@ -507,11 +478,10 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onDialogProviderAbort(MAPDialog mapDialog, MAPAbortProviderReason abortProviderReason,
-			MAPAbortSource abortSource, MAPExtensionContainer extensionContainer) {
+	public void onDialogProviderAbort(MAPDialog mapDialog, MAPAbortProviderReason abortProviderReason, MAPAbortSource abortSource,
+			MAPExtensionContainer extensionContainer) {
 
-		DialogProviderAbort dialogProviderAbort = new DialogProviderAbort(mapDialog, abortProviderReason, abortSource,
-				extensionContainer);
+		DialogProviderAbort dialogProviderAbort = new DialogProviderAbort(mapDialog, abortProviderReason, abortSource, extensionContainer);
 		MAPDialogActivityHandle handle = onEvent(dialogProviderAbort.getEventTypeName(), mapDialog, dialogProviderAbort);
 
 		// End Activity
@@ -527,8 +497,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	public void onDialogReject(MAPDialog mapDialog, MAPRefuseReason refuseReason, MAPProviderError providerError,
 			ApplicationContextName alternativeApplicationContext, MAPExtensionContainer extensionContainer) {
 
-		DialogReject dialogReject = new DialogReject(mapDialog, refuseReason, providerError,
-				alternativeApplicationContext, extensionContainer);
+		DialogReject dialogReject = new DialogReject(mapDialog, refuseReason, providerError, alternativeApplicationContext, extensionContainer);
 		MAPDialogActivityHandle handle = onEvent(dialogReject.getEventTypeName(), mapDialog, dialogReject);
 
 		// End Activity
@@ -540,8 +509,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onDialogRequest(MAPDialog mapDialog, AddressString destReference, AddressString origReference,
-			MAPExtensionContainer extensionContainer) {
+	public void onDialogRequest(MAPDialog mapDialog, AddressString destReference, AddressString origReference, MAPExtensionContainer extensionContainer) {
 
 		if (this.tracer.isFineEnabled()) {
 			this.tracer.fine(String.format("Received onDialogRequest id=%d ", mapDialog.getDialogId()));
@@ -556,15 +524,13 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			DialogRequest event = new DialogRequest(mapDialog, destReference, origReference, extensionContainer);
 			this.fireEvent(event.getEventTypeName(), handle, event);
 		} catch (Exception e) {
-			this.tracer.severe(String.format(
-					"Exception when trying to fire event DIALOG_REQUEST for received DialogRequest=%s ", mapDialog), e);
+			this.tracer.severe(String.format("Exception when trying to fire event DIALOG_REQUEST for received DialogRequest=%s ", mapDialog), e);
 		}
 
 	}
 
 	@Override
-	public void onDialogRequestEricsson(MAPDialog mapDialog, AddressString destReference, AddressString origReference,
-			IMSI eriImsi, AddressString eriVlrNo) {
+	public void onDialogRequestEricsson(MAPDialog mapDialog, AddressString destReference, AddressString origReference, IMSI eriImsi, AddressString eriVlrNo) {
 		if (this.tracer.isFineEnabled()) {
 			this.tracer.fine(String.format("Received Ericsson onDialogRequest id=%d ", mapDialog.getDialogId()));
 		}
@@ -578,9 +544,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			DialogRequest event = new DialogRequest(mapDialog, destReference, origReference, eriImsi, eriVlrNo);
 			this.fireEvent("ss7.map.DIALOG_REQUEST", handle, event);
 		} catch (Exception e) {
-			this.tracer.severe(String.format(
-					"Exception when trying to fire event DIALOG_REQUEST for received Ericsson DialogRequest=%s ",
-					mapDialog), e);
+			this.tracer.severe(String.format("Exception when trying to fire event DIALOG_REQUEST for received Ericsson DialogRequest=%s ", mapDialog), e);
 		}
 	}
 
@@ -588,8 +552,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onDialogUserAbort(MAPDialog mapDialog, MAPUserAbortChoice userReason,
-			MAPExtensionContainer extensionContainer) {
+	public void onDialogUserAbort(MAPDialog mapDialog, MAPUserAbortChoice userReason, MAPExtensionContainer extensionContainer) {
 		DialogUserAbort dialogUserAbort = new DialogUserAbort(mapDialog, userReason, extensionContainer);
 		MAPDialogActivityHandle handle = onEvent(dialogUserAbort.getEventTypeName(), mapDialog, dialogUserAbort);
 
@@ -612,8 +575,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		MAPDialogActivityHandle handle = this.handlers.get(mapDialog.getDialogId());
 
 		if (handle == null) {
-			this.tracer.severe(String.format("Rx : onDialogResease but there is no Handler for this DialogId=%d",
-					mapDialog.getDialogId()));
+			this.tracer.severe(String.format("Rx : onDialogResease but there is no Handler for this DialogId=%d", mapDialog.getDialogId()));
 			return;
 		}
 
@@ -637,8 +599,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		MAPDialogActivityHandle handle = this.handlers.get(dialog.getDialogId());
 
 		if (handle == null) {
-			this.tracer.severe(String.format("Rx : DialogTimeout but there is no Handler for this DialogId=%d",
-					dialog.getDialogId()));
+			this.tracer.severe(String.format("Rx : DialogTimeout but there is no Handler for this DialogId=%d", dialog.getDialogId()));
 			return;
 		}
 
@@ -703,10 +664,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 */
 	@Override
 	public void onProcessUnstructuredSSRequestIndication(ProcessUnstructuredSSRequestIndication processUnstrSSInd) {
-		ProcessUnstructuredSSRequest processUnstructuredSSRequest = new ProcessUnstructuredSSRequest(
-				processUnstrSSInd.getMAPDialog(), processUnstrSSInd);
-		onEvent(processUnstructuredSSRequest.getEventTypeName(), processUnstrSSInd.getMAPDialog(),
-				processUnstructuredSSRequest);
+		onEvent(EventsType.PROCESS_UNSTRUCTURED_SS_REQUEST, processUnstrSSInd.getMAPDialog(), processUnstrSSInd);
 	}
 
 	/**
@@ -714,10 +672,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 */
 	@Override
 	public void onProcessUnstructuredSSResponseIndication(ProcessUnstructuredSSResponseIndication unstrSSInd) {
-		ProcessUnstructuredSSResponse processUnstructuredSSResponse = new ProcessUnstructuredSSResponse(
-				unstrSSInd.getMAPDialog(), unstrSSInd);
-		onEvent(processUnstructuredSSResponse.getEventTypeName(), unstrSSInd.getMAPDialog(),
-				processUnstructuredSSResponse);
+		onEvent(EventsType.PROCESS_UNSTRUCTURED_SS_RESPONSE, unstrSSInd.getMAPDialog(), unstrSSInd);
 	}
 
 	/**
@@ -725,9 +680,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 */
 	@Override
 	public void onUnstructuredSSRequestIndication(UnstructuredSSRequestIndication processUnstrSSInd) {
-		UnstructuredSSRequest unstructuredSSRequest = new UnstructuredSSRequest(processUnstrSSInd.getMAPDialog(),
-				processUnstrSSInd);
-		onEvent(unstructuredSSRequest.getEventTypeName(), processUnstrSSInd.getMAPDialog(), unstructuredSSRequest);
+		onEvent(EventsType.UNSTRUCTURED_SS_REQUEST, processUnstrSSInd.getMAPDialog(), processUnstrSSInd);
 	}
 
 	/**
@@ -735,9 +688,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 */
 	@Override
 	public void onUnstructuredSSResponseIndication(UnstructuredSSResponseIndication unstrSSInd) {
-		UnstructuredSSResponse unstructuredSSResponse = new UnstructuredSSResponse(unstrSSInd.getMAPDialog(),
-				unstrSSInd);
-		onEvent(unstructuredSSResponse.getEventTypeName(), unstrSSInd.getMAPDialog(), unstructuredSSResponse);
+		onEvent(EventsType.UNSTRUCTURED_SS_RESPONSE, unstrSSInd.getMAPDialog(), unstrSSInd);
 	}
 
 	/**
@@ -745,9 +696,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 */
 	@Override
 	public void onUnstructuredSSNotifyRequestIndication(UnstructuredSSNotifyRequestIndication unstrSSInd) {
-		UnstructuredSSNotifyRequest unstructuredSSNotifyRequest = new UnstructuredSSNotifyRequest(
-				unstrSSInd.getMAPDialog(), unstrSSInd);
-		onEvent(unstructuredSSNotifyRequest.getEventTypeName(), unstrSSInd.getMAPDialog(), unstructuredSSNotifyRequest);
+		onEvent(EventsType.UNSTRUCTURED_SS_NOTIFY_REQUEST, unstrSSInd.getMAPDialog(), unstrSSInd);
 	}
 
 	// ////////////////
@@ -758,26 +707,16 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onProvideSubscriberLocationRequestIndication(
-			ProvideSubscriberLocationRequestIndication provideSubscriberLocationRequest) {
-
-		ProvideSubscriberLocationRequest provideSubscriberLocationRequestEvent = new ProvideSubscriberLocationRequest(
-				provideSubscriberLocationRequest.getMAPDialog(), provideSubscriberLocationRequest);
-		onEvent(provideSubscriberLocationRequestEvent.getEventTypeName(),
-				provideSubscriberLocationRequest.getMAPDialog(), provideSubscriberLocationRequestEvent);
+	public void onProvideSubscriberLocationRequestIndication(ProvideSubscriberLocationRequestIndication provideSubscriberLocationRequest) {
+		onEvent(EventsType.PROVIDE_SUBSCRIBER_LOCATION_REQUEST, provideSubscriberLocationRequest.getMAPDialog(), provideSubscriberLocationRequest);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onProvideSubscriberLocationResponseIndication(
-			ProvideSubscriberLocationResponseIndication provideSubscriberLocationResponse) {
-
-		ProvideSubscriberLocationResponse provideSubscriberLocationResponseEvent = new ProvideSubscriberLocationResponse(
-				provideSubscriberLocationResponse.getMAPDialog(), provideSubscriberLocationResponse);
-		onEvent(provideSubscriberLocationResponseEvent.getEventTypeName(),
-				provideSubscriberLocationResponse.getMAPDialog(), provideSubscriberLocationResponseEvent);
+	public void onProvideSubscriberLocationResponseIndication(ProvideSubscriberLocationResponseIndication provideSubscriberLocationResponse) {
+		onEvent(EventsType.PROVIDE_SUBSCRIBER_LOCATION_RESPONSE, provideSubscriberLocationResponse.getMAPDialog(), provideSubscriberLocationResponse);
 
 	}
 
@@ -785,12 +724,8 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onSendRoutingInforForLCSRequestIndication(
-			SendRoutingInfoForLCSRequestIndication sendRoutingInfoForLCSRequest) {
-		SendRoutingInfoForLCSRequest sendRoutingInfoForLCSRequestEvt = new SendRoutingInfoForLCSRequest(
-				sendRoutingInfoForLCSRequest.getMAPDialog(), sendRoutingInfoForLCSRequest);
-		onEvent(sendRoutingInfoForLCSRequestEvt.getEventTypeName(), sendRoutingInfoForLCSRequest.getMAPDialog(),
-				sendRoutingInfoForLCSRequestEvt);
+	public void onSendRoutingInforForLCSRequestIndication(SendRoutingInfoForLCSRequestIndication sendRoutingInfoForLCSRequest) {
+		onEvent(EventsType.SEND_ROUTING_INFO_FOR_LCS_REQUEST, sendRoutingInfoForLCSRequest.getMAPDialog(), sendRoutingInfoForLCSRequest);
 
 	}
 
@@ -798,11 +733,8 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onSendRoutingInforForLCSResponseIndication(
-			SendRoutingInfoForLCSResponseIndication sendRoutingInfoForLCSResponse) {
-		SendRoutingInfoForLCSResponse event = new SendRoutingInfoForLCSResponse(
-				sendRoutingInfoForLCSResponse.getMAPDialog(), sendRoutingInfoForLCSResponse);
-		onEvent(event.getEventTypeName(), sendRoutingInfoForLCSResponse.getMAPDialog(), event);
+	public void onSendRoutingInforForLCSResponseIndication(SendRoutingInfoForLCSResponseIndication sendRoutingInfoForLCSResponse) {
+		onEvent(EventsType.SEND_ROUTING_INFO_FOR_LCS_RESPONSE, sendRoutingInfoForLCSResponse.getMAPDialog(), sendRoutingInfoForLCSResponse);
 
 	}
 
@@ -810,11 +742,8 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onSubscriberLocationReportRequestIndication(
-			SubscriberLocationReportRequestIndication subscriberLocationReportRequest) {
-		SubscriberLocationReportRequest event = new SubscriberLocationReportRequest(
-				subscriberLocationReportRequest.getMAPDialog(), subscriberLocationReportRequest);
-		onEvent(event.getEventTypeName(), subscriberLocationReportRequest.getMAPDialog(), event);
+	public void onSubscriberLocationReportRequestIndication(SubscriberLocationReportRequestIndication subscriberLocationReportRequest) {
+		onEvent(EventsType.SUBSCRIBER_LOCATION_REPORT_REQUEST, subscriberLocationReportRequest.getMAPDialog(), subscriberLocationReportRequest);
 
 	}
 
@@ -822,11 +751,8 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onSubscriberLocationReportResponseIndication(
-			SubscriberLocationReportResponseIndication subscriberLocationReportResponse) {
-		SubscriberLocationReportResponse event = new SubscriberLocationReportResponse(
-				subscriberLocationReportResponse.getMAPDialog(), subscriberLocationReportResponse);
-		onEvent(event.getEventTypeName(), subscriberLocationReportResponse.getMAPDialog(), event);
+	public void onSubscriberLocationReportResponseIndication(SubscriberLocationReportResponseIndication subscriberLocationReportResponse) {
+		onEvent(EventsType.SUBSCRIBER_LOCATION_REPORT_RESPONSE, subscriberLocationReportResponse.getMAPDialog(), subscriberLocationReportResponse);
 
 	}
 
@@ -836,102 +762,72 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	@Override
 	public void onForwardShortMessageIndication(ForwardShortMessageRequestIndication forwardShortMessageRequest) {
-		ForwardShortMessageRequest event = new ForwardShortMessageRequest(forwardShortMessageRequest.getMAPDialog(),
-				forwardShortMessageRequest);
-		onEvent(event.getEventTypeName(), forwardShortMessageRequest.getMAPDialog(), event);
+		onEvent(EventsType.FORWARD_SHORT_MESSAGE_REQUEST, forwardShortMessageRequest.getMAPDialog(), forwardShortMessageRequest);
 	}
 
 	@Override
 	public void onForwardShortMessageRespIndication(ForwardShortMessageResponseIndication forwardShortMessageResponse) {
-		ForwardShortMessageResponse event = new ForwardShortMessageResponse(forwardShortMessageResponse.getMAPDialog(),
-				forwardShortMessageResponse);
-		onEvent(event.getEventTypeName(), forwardShortMessageResponse.getMAPDialog(), event);
+		onEvent(EventsType.FORWARD_SHORT_MESSAGE_RESPONSE, forwardShortMessageResponse.getMAPDialog(), forwardShortMessageResponse);
 
 	}
 
 	@Override
 	public void onMoForwardShortMessageIndication(MoForwardShortMessageRequestIndication moForwardShortMessageRequest) {
-		MoForwardShortMessageRequest event = new MoForwardShortMessageRequest(
-				moForwardShortMessageRequest.getMAPDialog(), moForwardShortMessageRequest);
-		onEvent(event.getEventTypeName(), moForwardShortMessageRequest.getMAPDialog(), event);
+		onEvent(EventsType.MO_FORWARD_SHORT_MESSAGE_REQUEST, moForwardShortMessageRequest.getMAPDialog(), moForwardShortMessageRequest);
 
 	}
 
 	@Override
-	public void onMoForwardShortMessageRespIndication(
-			MoForwardShortMessageResponseIndication moForwardShortMessageResponse) {
-		MoForwardShortMessageResponse event = new MoForwardShortMessageResponse(
-				moForwardShortMessageResponse.getMAPDialog(), moForwardShortMessageResponse);
-		onEvent(event.getEventTypeName(), moForwardShortMessageResponse.getMAPDialog(), event);
+	public void onMoForwardShortMessageRespIndication(MoForwardShortMessageResponseIndication moForwardShortMessageResponse) {
+		onEvent(EventsType.MO_FORWARD_SHORT_MESSAGE_RESPONSE, moForwardShortMessageResponse.getMAPDialog(), moForwardShortMessageResponse);
 	}
 
 	@Override
 	public void onMtForwardShortMessageIndication(MtForwardShortMessageRequestIndication mtForwardShortMessageRequest) {
-		MtForwardShortMessageRequest event = new MtForwardShortMessageRequest(
-				mtForwardShortMessageRequest.getMAPDialog(), mtForwardShortMessageRequest);
-		onEvent(event.getEventTypeName(), mtForwardShortMessageRequest.getMAPDialog(), event);
+		onEvent(EventsType.MT_FORWARD_SHORT_MESSAGE_REQUEST, mtForwardShortMessageRequest.getMAPDialog(), mtForwardShortMessageRequest);
 	}
 
 	@Override
-	public void onMtForwardShortMessageRespIndication(
-			MtForwardShortMessageResponseIndication mtForwardShortMessageResponse) {
-		MtForwardShortMessageResponse event = new MtForwardShortMessageResponse(
-				mtForwardShortMessageResponse.getMAPDialog(), mtForwardShortMessageResponse);
-		onEvent(event.getEventTypeName(), mtForwardShortMessageResponse.getMAPDialog(), event);
+	public void onMtForwardShortMessageRespIndication(MtForwardShortMessageResponseIndication mtForwardShortMessageResponse) {
+		onEvent(EventsType.MT_FORWARD_SHORT_MESSAGE_RESPONSE, mtForwardShortMessageResponse.getMAPDialog(), mtForwardShortMessageResponse);
 	}
 
 	@Override
 	public void onSendRoutingInfoForSMIndication(SendRoutingInfoForSMRequestIndication sendRoutingInfoForSmRequest) {
-		SendRoutingInfoForSMRequest event = new SendRoutingInfoForSMRequest(sendRoutingInfoForSmRequest.getMAPDialog(),
-				sendRoutingInfoForSmRequest);
-		onEvent(event.getEventTypeName(), sendRoutingInfoForSmRequest.getMAPDialog(), event);
+		onEvent(EventsType.SEND_ROUTING_INFO_FOR_SM_REQUEST, sendRoutingInfoForSmRequest.getMAPDialog(), sendRoutingInfoForSmRequest);
 	}
 
 	@Override
 	public void onSendRoutingInfoForSMRespIndication(SendRoutingInfoForSMResponseIndication sendRoutingInfoForSmResponse) {
-		SendRoutingInfoForSMResponse event = new SendRoutingInfoForSMResponse(
-				sendRoutingInfoForSmResponse.getMAPDialog(), sendRoutingInfoForSmResponse);
-		onEvent(event.getEventTypeName(), sendRoutingInfoForSmResponse.getMAPDialog(), event);
+		onEvent(EventsType.SEND_ROUTING_INFO_FOR_SM_RESPONSE, sendRoutingInfoForSmResponse.getMAPDialog(), sendRoutingInfoForSmResponse);
 	}
 
 	@Override
 	public void onReportSMDeliveryStatusIndication(ReportSMDeliveryStatusRequestIndication reportSmDeliveryStatusRequest) {
-		ReportSMDeliveryStatusRequest event = new ReportSMDeliveryStatusRequest(
-				reportSmDeliveryStatusRequest.getMAPDialog(), reportSmDeliveryStatusRequest);
-		onEvent(event.getEventTypeName(), reportSmDeliveryStatusRequest.getMAPDialog(), event);
+		onEvent(EventsType.REPORT_SM_DELIVERY_STATUS_REQUEST, reportSmDeliveryStatusRequest.getMAPDialog(), reportSmDeliveryStatusRequest);
 
 	}
 
 	@Override
-	public void onReportSMDeliveryStatusRespIndication(
-			ReportSMDeliveryStatusResponseIndication reportSmDeliveryStatusResponse) {
-		ReportSMDeliveryStatusResponse event = new ReportSMDeliveryStatusResponse(
-				reportSmDeliveryStatusResponse.getMAPDialog(), reportSmDeliveryStatusResponse);
-		onEvent(event.getEventTypeName(), reportSmDeliveryStatusResponse.getMAPDialog(), event);
+	public void onReportSMDeliveryStatusRespIndication(ReportSMDeliveryStatusResponseIndication reportSmDeliveryStatusResponse) {
+		onEvent(EventsType.REPORT_SM_DELIVERY_STATUS_RESPONSE, reportSmDeliveryStatusResponse.getMAPDialog(), reportSmDeliveryStatusResponse);
 
 	}
 
 	@Override
 	public void onInformServiceCentreIndication(InformServiceCentreRequestIndication informServiCecentreRequest) {
-		InformServiceCentreRequest event = new InformServiceCentreRequest(informServiCecentreRequest.getMAPDialog(),
-				informServiCecentreRequest);
-		onEvent(event.getEventTypeName(), informServiCecentreRequest.getMAPDialog(), event);
+		onEvent(EventsType.INFORM_SERVICE_CENTER_REQUEST, informServiCecentreRequest.getMAPDialog(), informServiCecentreRequest);
 	}
 
 	@Override
 	public void onAlertServiceCentreIndication(AlertServiceCentreRequestIndication alertServiCecentreRequest) {
-		AlertServiceCentreRequest event = new AlertServiceCentreRequest(alertServiCecentreRequest.getMAPDialog(),
-				alertServiCecentreRequest);
-		onEvent(event.getEventTypeName(), alertServiCecentreRequest.getMAPDialog(), event);
+		onEvent(EventsType.ALERT_SERVICE_CENTER_REQUEST, alertServiCecentreRequest.getMAPDialog(), alertServiCecentreRequest);
 
 	}
 
 	@Override
 	public void onAlertServiceCentreRespIndication(AlertServiceCentreResponseIndication alertServiCecentreResponse) {
-		AlertServiceCentreResponse event = new AlertServiceCentreResponse(alertServiCecentreResponse.getMAPDialog(),
-				alertServiCecentreResponse);
-		onEvent(event.getEventTypeName(), alertServiCecentreResponse.getMAPDialog(), event);
-
+		onEvent(EventsType.ALERT_SERVICE_CENTER_RESPONSE, alertServiCecentreResponse.getMAPDialog(), alertServiCecentreResponse);
 	}
 
 }
