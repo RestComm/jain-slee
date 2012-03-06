@@ -46,7 +46,6 @@ import net.java.slee.resource.diameter.rx.events.SessionTerminationRequest;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.ApplicationId;
-import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpSet;
 import org.jdiameter.api.Message;
 import org.jdiameter.api.Stack;
@@ -159,6 +158,15 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     AbortSessionAnswer msg = (AbortSessionAnswer) this.createDiameterMessage(request.getHeader(), avps, Message.ABORT_SESSION_ANSWER, getApplicationId(request));
 
     // Add Session-Id AVP if not present
+    if (msg.getSessionId() == null) {
+      String reqSessionId = request.getSessionId();
+      if (reqSessionId != null) {
+        msg.setSessionId(reqSessionId);
+      }
+      else if (sessionId != null) {
+        msg.setSessionId(sessionId);
+      }
+    }
 
     return msg;
   }
@@ -178,6 +186,11 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     AbortSessionRequest msg = (AbortSessionRequest) this.createDiameterMessage(null, avps, Message.ABORT_SESSION_REQUEST, rxAppId);
 
     // Add Session-Id AVP if not present
+    if (msg.getSessionId() == null) {
+      if (sessionId != null) {
+        msg.setSessionId(sessionId);
+      }
+    }
 
     return msg;
   }
@@ -196,6 +209,15 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     ReAuthAnswer msg = (ReAuthAnswer) this.createDiameterMessage(request.getHeader(), avps, Message.RE_AUTH_ANSWER, getApplicationId(request));
 
     // Add Session-Id AVP if not present
+    if (msg.getSessionId() == null) {
+      String reqSessionId = request.getSessionId();
+      if (reqSessionId != null) {
+        msg.setSessionId(reqSessionId);
+      }
+      else if (sessionId != null) {
+        msg.setSessionId(sessionId);
+      }
+    }
 
     return msg;
   }
@@ -215,6 +237,11 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     ReAuthRequest msg = (ReAuthRequest) this.createDiameterMessage(null, avps, Message.RE_AUTH_REQUEST, rxAppId);
 
     // Add Session-Id AVP if not present
+    if (msg.getSessionId() == null) {
+      if (sessionId != null) {
+        msg.setSessionId(sessionId);
+      }
+    }
 
     return msg;
   }
@@ -234,6 +261,15 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     SessionTerminationAnswer msg = (SessionTerminationAnswer) this.createDiameterMessage(request.getHeader(), avps, Message.SESSION_TERMINATION_REQUEST, rxAppId);
 
     // Add Session-Id AVP if not present
+    if (msg.getSessionId() == null) {
+      String reqSessionId = request.getSessionId();
+      if (reqSessionId != null) {
+        msg.setSessionId(reqSessionId);
+      }
+      else if (sessionId != null) {
+        msg.setSessionId(sessionId);
+      }
+    }
 
     return msg;
   }
@@ -253,6 +289,11 @@ public class RxMessageFactoryImpl implements RxMessageFactory {
     SessionTerminationRequest msg = (SessionTerminationRequest) this.createDiameterMessage(null, avps, Message.SESSION_TERMINATION_REQUEST, rxAppId);
 
     // Add Session-Id AVP if not present
+    if (msg.getSessionId() == null) {
+      if (sessionId != null) {
+        msg.setSessionId(sessionId);
+      }
+    }
 
     return msg;
   }
