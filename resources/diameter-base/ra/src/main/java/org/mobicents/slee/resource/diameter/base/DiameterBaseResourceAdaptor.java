@@ -1015,7 +1015,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity, true);
+    addActivity(activity, false /*true*/);
   }
 
   /*
@@ -1029,7 +1029,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
     activity.setSessionListener(this);
     // session.addStateChangeNotification(activity);
-    addActivity(activity, true);
+    addActivity(activity, false /*true*/);
   }
 
   /*

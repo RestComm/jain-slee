@@ -913,7 +913,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
 
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    activityCreated(activity, true);
+    activityCreated(activity, false /*true*/);
   }
 
   private void sessionCreated(ServerCCASession ccServerSession) {

@@ -907,7 +907,7 @@ public class DiameterRxResourceAdaptor implements ResourceAdaptor, DiameterListe
     //FIXME: baranowb: add basic session mgmt for base? or do we relly on responses?
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity, true);
+    addActivity(activity, false /*true*/);
   }
 
   public void sessionCreated(final ServerRxSession rxServerSession) {

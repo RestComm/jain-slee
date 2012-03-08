@@ -914,7 +914,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
 
     activity.setSessionListener(this);
     session.addStateChangeNotification(activity);
-    addActivity(activity, true);
+    addActivity(activity, false /*true*/);
   }
 
   /*

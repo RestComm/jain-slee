@@ -1057,7 +1057,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
     // Actual Provider Methods 
 
     public CxDxClientSessionActivity createCxDxClientSessionActivity() throws CreateActivityException {
-      return createCxDxClientSessionActivity(null, true);
+      return createCxDxClientSessionActivity(null, false /*true*/);
     }
 
     public CxDxServerSessionActivity createCxDxServerSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException {
@@ -1086,7 +1086,7 @@ public class DiameterCxDxResourceAdaptor implements ResourceAdaptor, DiameterLis
       sessionMsgFactory.setApplicationId(firstAppId.getVendorId(), firstAppId.getAuthAppId());
 
         CxDxClientSessionImpl activity = new CxDxClientSessionImpl(sessionMsgFactory, ra.cxdxAvpFactory, session, (EventListener<Request, Answer>) session, destinationHost, destinationRealm, ra.sleeEndpoint);
-        addActivity(activity, true);
+        addActivity(activity, false /*true*/);
         return activity;
       }
       catch (Exception e) {

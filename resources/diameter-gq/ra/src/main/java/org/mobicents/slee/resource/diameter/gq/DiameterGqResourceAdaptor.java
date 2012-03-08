@@ -971,7 +971,7 @@ public class DiameterGqResourceAdaptor implements ResourceAdaptor, DiameterListe
     // Update Session Activity FSM to allow correct requests/responses
     clientSession.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity, true);
+    addActivity(activity, false /*true*/);
   }
 
   public void sessionCreated(GqServerSession serverSession) {

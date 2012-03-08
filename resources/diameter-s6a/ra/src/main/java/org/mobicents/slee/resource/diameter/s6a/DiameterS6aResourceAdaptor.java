@@ -749,7 +749,7 @@ public class DiameterS6aResourceAdaptor implements ResourceAdaptor, DiameterList
     // TODO: Do we need to manage session?
     //session.addStateChangeNotification(activity);
     activity.setSessionListener(this);
-    addActivity(activity, true);
+    addActivity(activity, false /*true*/);
   }
 
   /*

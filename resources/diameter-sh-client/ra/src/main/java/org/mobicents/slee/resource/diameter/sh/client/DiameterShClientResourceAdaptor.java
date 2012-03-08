@@ -1148,7 +1148,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
       ShClientActivityImpl activity = new ShClientActivityImpl(getSessionShMessageFactory(session), shAvpFactory, session, null, null);
 
       activity.setSessionListener(ra);
-      activityCreated(activity, true);
+      activityCreated(activity, false /*true*/);
 
       return activity;
     }
@@ -1249,7 +1249,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
 
       ShClientSubscriptionActivityImpl activity = new ShClientSubscriptionActivityImpl(getSessionShMessageFactory(session), shAvpFactory, session, null, null);
       activity.setSessionListener(ra);
-      activityCreated(activity, true);
+      activityCreated(activity, false /*true*/);
 
       return activity;
     }
