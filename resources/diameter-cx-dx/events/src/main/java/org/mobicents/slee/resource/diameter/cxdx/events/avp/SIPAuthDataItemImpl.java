@@ -24,6 +24,10 @@ package org.mobicents.slee.resource.diameter.cxdx.events.avp;
 
 import static net.java.slee.resource.diameter.cxdx.events.avp.DiameterCxDxAvpCodes.*;
 
+import net.java.slee.resource.diameter.cxdx.events.avp.CableLabsSIPDigestAuthenticate;
+import net.java.slee.resource.diameter.cxdx.events.avp.EtsiSIPAuthenticate;
+import net.java.slee.resource.diameter.cxdx.events.avp.EtsiSIPAuthenticationInfo;
+import net.java.slee.resource.diameter.cxdx.events.avp.EtsiSIPAuthorization;
 import net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem;
 import net.java.slee.resource.diameter.cxdx.events.avp.SIPDigestAuthenticate;
 
@@ -146,6 +150,34 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   }
 
   /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getCableLabsSipDigestAuthenticate()
+   */
+  public CableLabsSIPDigestAuthenticate getCableLabsSipDigestAuthenticate() {
+    return (CableLabsSIPDigestAuthenticate) getAvpAsCustom(CABLELABS_SIP_DIGEST_AUTHENTICATE, CABLELABS_VENDOR_ID, CableLabsSIPDigestAuthenticateImpl.class);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getEtsiSIPAuthorization()
+   */
+  public EtsiSIPAuthorization getEtsiSIPAuthorization() {
+    return (EtsiSIPAuthorization) getAvpAsCustom(ETSI_SIP_AUTHORIZATION, ETSI_VENDOR_ID, EtsiSIPAuthorizationImpl.class);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getEtsiSIPAuthenticate()
+   */
+  public EtsiSIPAuthenticate getEtsiSIPAuthenticate() {
+    return (EtsiSIPAuthenticate) getAvpAsCustom(ETSI_SIP_AUTHENTICATE, ETSI_VENDOR_ID, EtsiSIPAuthenticateImpl.class);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#getEtsiSIPAuthenticationInfo()
+   */
+  public EtsiSIPAuthenticationInfo getEtsiSIPAuthenticationInfo() {
+    return (EtsiSIPAuthenticationInfo) getAvpAsCustom(ETSI_SIP_AUTHENTICATION_INFO, ETSI_VENDOR_ID, EtsiSIPAuthenticationInfoImpl.class);
+  }
+
+  /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#hasConfidentialityKey()
    */
   public boolean hasConfidentialityKey() {
@@ -221,6 +253,34 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
   public boolean hasSIPItemNumber() {
     return hasAvp(SIP_ITEM_NUMBER, CXDX_VENDOR_ID);
   }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#hasCableLabsSipDigestAuthenticate()
+   */
+  public boolean hasCableLabsSipDigestAuthenticate() {
+    return hasAvp(CABLELABS_SIP_DIGEST_AUTHENTICATE, CABLELABS_VENDOR_ID);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#hasEtsiSIPAuthenticate()
+   */
+  public boolean hasEtsiSIPAuthenticate() {
+    return hasAvp(ETSI_SIP_AUTHENTICATE, ETSI_VENDOR_ID);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#hasEtsiSIPAuthorization()
+   */
+  public boolean hasEtsiSIPAuthorization() {
+    return hasAvp(ETSI_SIP_AUTHORIZATION, ETSI_VENDOR_ID);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#hasEtsiSIPAuthenticationInfo()
+   */
+  public boolean hasEtsiSIPAuthenticationInfo() {
+    return hasAvp(ETSI_SIP_AUTHENTICATION_INFO, ETSI_VENDOR_ID);
+  }  
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setConfidentialityKey(java.lang.byte[])
@@ -313,6 +373,34 @@ public class SIPAuthDataItemImpl extends GroupedAvpImpl implements SIPAuthDataIt
    */
   public void setSIPItemNumber(long sipItemNumber) {
     addAvp(SIP_ITEM_NUMBER, CXDX_VENDOR_ID, sipItemNumber);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setCableLabsSipDigestAuthenticate(net.java.slee.resource.diameter.cxdx.events.avp.CableLabsSIPDigestAuthenticate)
+   */
+  public void setCableLabsSipDigestAuthenticate(CableLabsSIPDigestAuthenticate cableLabsSipDigestAuthenticate) {
+    addAvp(CABLELABS_SIP_DIGEST_AUTHENTICATE, CABLELABS_VENDOR_ID, cableLabsSipDigestAuthenticate.byteArrayValue());
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setEtsiSIPAuthentication(net.java.slee.resource.diameter.cxdx.events.avp.EtsiSIPAuthenticate)
+   */
+  public void setEtsiSIPAuthentication(EtsiSIPAuthenticate etsiSIPAuthenticate) {
+    addAvp(ETSI_SIP_AUTHENTICATE, ETSI_VENDOR_ID, etsiSIPAuthenticate.byteArrayValue());
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setEtsiSIPAuthorization(net.java.slee.resource.diameter.cxdx.events.avp.EtsiSIPAuthorization)
+   */
+  public void setEtsiSIPAuthorization(EtsiSIPAuthorization etsiSipAuthorization) {
+    addAvp(ETSI_SIP_AUTHORIZATION, ETSI_VENDOR_ID, etsiSipAuthorization.byteArrayValue());
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.cxdx.events.avp.SIPAuthDataItem#setEtsiSIPAuthenticationInfo(net.java.slee.resource.diameter.cxdx.events.avp.EtsiSIPAuthenticationInfo)
+   */
+  public void setEtsiSIPAuthenticationInfo(EtsiSIPAuthenticationInfo etsiSIPAuthenticationInfo) {
+    addAvp(ETSI_SIP_AUTHENTICATION_INFO, ETSI_VENDOR_ID, etsiSIPAuthenticationInfo.byteArrayValue());
   }
 
 }

@@ -39,6 +39,16 @@ import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
  *                    [ SIP-Authentication-Context ]
  *                    [ Confidentiality-Key ]
  *                    [ Integrity-Key ]
+ *                    taken from cablelabs specification
+ *                    [ CableLabs-SIP-Digest-Authenticate ]
+ *                    taken from etsi specification
+ *                    [ ETSI-SIP-Authenticate ]
+ *                    [ ETSI-SIP-Authentication-Info ]
+ *                    [ ETSI-SIP-Authorization ]
+ *                    taken from 3GPP specification
+ *                    [ SIP-Digest-Authenticate ]
+ *                    [ Framed-IP-Address ]
+ *                    [ Framed-IPv6-Prefix ]
  *                    [ SIP-Digest-Authenticate ]
  *                    [ Framed-IP-Address ]
  *                    [ Framed-IPv6-Prefix ]
@@ -257,5 +267,73 @@ public interface SIPAuthDataItem extends GroupedAvp {
    * @throws IllegalStateException if setLineIdentifier has already been called
    */
   public void setLineIdentifiers(byte[][] lineIdentifiers);
+
+  /**
+   * Returns true if the CableLabs-Sip-Digest-Authenticate AVP is present in the message.
+   */
+  public boolean hasCableLabsSipDigestAuthenticate();
+
+  /**
+   * Returns the value of the CableLabs-Sip-Digest-Authenticate AVP, of type Grouped AVP.
+   * A return value of null implies that the AVP has not been set or some error has been encountered.
+   */
+  public CableLabsSIPDigestAuthenticate getCableLabsSipDigestAuthenticate();
+
+  /**
+   * Sets the value of the CableLabs-Sip-Digest-Authenticate AVP, of type Grouped AVP.
+   * @throws IllegalStateException if setCableLabsSipDigestAuthenticate has already been called
+   */
+  public void setCableLabsSipDigestAuthenticate(CableLabsSIPDigestAuthenticate cableLabsSipDigestAuthenticate);
+
+  /**
+   * Returns true if the Etsi-SIP-Authorization AVP is present in the message.
+   */
+  public boolean hasEtsiSIPAuthorization();
+
+  /**
+   * Returns the value of the Etsi-SIP-Authorization AVP, of type Grouped.
+   * A return value of null implies that the AVP has not been set or some error has been encountered.
+   */
+  public EtsiSIPAuthorization getEtsiSIPAuthorization();
+
+  /**
+   * Sets the value of the Etsi-SIP-Authorization AVP, of type Grouped.
+   * @throws IllegalStateException if setSIPAuthorization has already been called
+   */
+  public void setEtsiSIPAuthorization(EtsiSIPAuthorization etsiSipAuthorization);
+
+  /**
+   * Returns true if the Etsi-SIP-Authenticate AVP is present in the message.
+   */
+  public boolean hasEtsiSIPAuthenticate();
+
+  /**
+   * Returns the value of the Etsi-SIP-Authenticate AVP, of type Grouped.
+   * A return value of null implies that the AVP has not been set or some error has been encountered.
+   */
+  public EtsiSIPAuthenticate getEtsiSIPAuthenticate();
+
+  /**
+   * Sets the value of the Etsi-SIP-Authenticate AVP, of type Grouped.
+   * @throws IllegalStateException if setEtsiSIPAuthorization has already been called
+   */
+  public void setEtsiSIPAuthentication(EtsiSIPAuthenticate etsiSIPAuthenticate);
+
+  /**
+   * Returns true if the Etsi-SIP-Authorization AVP is present in the message.
+   */
+  public boolean hasEtsiSIPAuthenticationInfo();
+
+  /**
+   * Returns the value of the Etsi-SIP-Authorization AVP, of type Grouped.
+   * A return value of null implies that the AVP has not been set or some error has been encountered.
+   */
+  public EtsiSIPAuthenticationInfo getEtsiSIPAuthenticationInfo();
+
+  /**
+   * Sets the value of the Etsi-SIP-Authorization AVP, of type Grouped.
+   * @throws IllegalStateException if setEtsiSIPAuthenticationInfo has already been called
+   */
+  public void setEtsiSIPAuthenticationInfo(EtsiSIPAuthenticationInfo etsiSIPAuthenticationInfo);
 
 }

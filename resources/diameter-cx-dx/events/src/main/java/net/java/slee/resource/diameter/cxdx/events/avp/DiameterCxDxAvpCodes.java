@@ -27,10 +27,12 @@ public class DiameterCxDxAvpCodes {
 
   private DiameterCxDxAvpCodes() {
   }
-  
+
   public static final long CXDX_VENDOR_ID = 10415L;
   public static final long CXDX_AUTH_APP_ID = 16777216L;
   public static final long ETSI_VENDOR_ID = 13019L; 
+  public static final long CABLELABS_VENDOR_ID = 4491L;
+
   /**
    * <pre>
    * Name......: Visited-Network-Identifier
@@ -765,17 +767,47 @@ public class DiameterCxDxAvpCodes {
    * </pre>
    */
   public static final int RESTORATION_INFO = 649;
-   
-  //3GPP AVP CODES
+
+  // 3GPP AVP CODES
   public static final int TGPP_DIGEST_ALGORITHM = 111;
   public static final int TGPP_DIGEST_HA1 = 121;
   public static final int TGPP_DIGEST_QOP = 110;
   public static final int TGPP_DIGEST_REALM = 104;  
-  
-  //ETSI AVP CODES
-  public static final int LINE_IDENTIFIER = 500;
 
-  //AVPS WITHOUT VENDOR ID
+  // ETSI AVP CODES
+  public static final int LINE_IDENTIFIER = 500;
+  public static final int ETSI_SIP_AUTHENTICATE = 501;
+  public static final int ETSI_SIP_AUTHORIZATION = 502;
+  public static final int ETSI_SIP_AUTHENTICATION_INFO = 503;
+  public static final int ETSI_DIGEST_REALM = 504;
+  public static final int ETSI_DIGEST_NONCE = 505;
+  public static final int ETSI_DIGEST_DOMAIN = 506;
+  public static final int ETSI_DIGEST_OPAQUE = 507;
+  public static final int ETSI_DIGEST_STALE = 508;
+  public static final int ETSI_DIGEST_ALGORITHM = 509;
+  public static final int ETSI_DIGEST_QOP = 510;
+  public static final int ETSI_DIGEST_HA1 = 511;
+  public static final int ETSI_DIGEST_AUTH_PARAM = 512;
+  public static final int ETSI_DIGEST_USERNAME = 513;
+  public static final int ETSI_DIGEST_URI = 514;
+  public static final int ETSI_DIGEST_RESPONSE = 515;
+  public static final int ETSI_DIGEST_CNONCE = 516;
+  public static final int ETSI_DIGEST_NONCE_COUNT = 517;
+  public static final int ETSI_DIGEST_METHOD = 518;
+  public static final int ETSI_DIGEST_ENTITY_BODY_HASH = 519;
+  public static final int ETSI_DIGEST_NEXTNONCE = 520;
+  public static final int ETSI_DIGEST_RESPONSE_AUTH = 521;
+
+  // CABLELABS AVP CODES
+  public static final int CABLELABS_DIGEST_ALGORITHM = 204;
+  public static final int CABLELABS_DIGEST_AUTH_PARAM = 205;
+  public static final int CABLELABS_DIGEST_DOMAIN = 206;
+  public static final int CABLELABS_DIGEST_HA1 = 207;
+  public static final int CABLELABS_DIGEST_QOP = 208;
+  public static final int CABLELABS_DIGEST_REALM = 209;
+  public static final int CABLELABS_SIP_DIGEST_AUTHENTICATE = 228;
+
+  // AVPS WITHOUT VENDOR ID
   public static final int FRAMED_IP_ADDRESS = 8;
   public static final int FRAMED_INTERFACE = 96;
   public static final int FRAMED_IPV6_PREFIX = 97;
