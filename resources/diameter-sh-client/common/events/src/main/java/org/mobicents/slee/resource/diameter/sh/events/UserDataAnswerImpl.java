@@ -165,4 +165,51 @@ public class UserDataAnswerImpl extends DiameterShMessageImpl implements UserDat
     addAvp(Avp.EXPERIMENTAL_RESULT, experimentalResult.byteArrayValue());
   }
 
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer#hasWildcardedPSI()
+   */
+  public boolean hasWildcardedPSI() {
+    return hasAvp(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer#getWildcardedPSI()
+   */
+  public String getWildcardedPSI() {
+    return getAvpAsUTF8String(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer#setWildcardedPSI(String)
+   */
+  public void setWildcardedPSI(String wildcardedPSI) {
+    addAvp(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID, wildcardedPSI);
+  }
+  
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer#hasWildcardedIMPU()
+   */
+  public boolean hasWildcardedIMPU() {
+    return hasAvp(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer#getWildcardedIMPU()
+   */
+  public String getWildcardedIMPU() {
+    return getAvpAsUTF8String(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer#setWildcardedIMPU(String)
+   */
+  public void setWildcardedIMPU(String wildcardedIMPU) {
+    addAvp(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID, wildcardedIMPU);
+  }  
 }

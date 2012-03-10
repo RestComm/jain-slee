@@ -28,7 +28,7 @@ import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
 /**
  * Defines an interface representing the Push-Notification-Answer command.
  * 
- * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V7.1.0)
+ * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V9.2.0)
  * specification:
  * 
  * <pre>

@@ -27,6 +27,7 @@ import net.java.slee.resource.diameter.sh.events.avp.CurrentLocationType;
 import net.java.slee.resource.diameter.sh.events.avp.DataReferenceType;
 import net.java.slee.resource.diameter.sh.events.avp.DiameterShAvpCodes;
 import net.java.slee.resource.diameter.sh.events.avp.IdentitySetType;
+import net.java.slee.resource.diameter.sh.events.avp.SessionPriorityType;
 import net.java.slee.resource.diameter.sh.events.avp.RequestedDomainType;
 import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
 
@@ -74,8 +75,8 @@ public class UserDataRequestImpl extends DiameterShMessageImpl implements UserDa
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#getIdentitySet()
    */
-  public IdentitySetType getIdentitySet() {
-    return IdentitySetType.fromInt(getAvpAsInteger32(DiameterShAvpCodes.IDENTITY_SET, DiameterShAvpCodes.SH_VENDOR_ID));    
+  public IdentitySetType[] getIdentitySet() {
+    return (IdentitySetType[]) getAvpsAsEnumerated(DiameterShAvpCodes.IDENTITY_SET, DiameterShAvpCodes.SH_VENDOR_ID, IdentitySetType.class);
   }
 
   /* (non-Javadoc)
@@ -105,19 +106,33 @@ public class UserDataRequestImpl extends DiameterShMessageImpl implements UserDa
   public UserIdentityAvp getUserIdentity() {
     return (UserIdentityAvp) getAvpAsCustom(DiameterShAvpCodes.USER_IDENTITY, DiameterShAvpCodes.SH_VENDOR_ID, UserIdentityAvpImpl.class);
   }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#getDSAITag()
+   */
+  public byte[][] getDSAITag() {
+    return getAvpsAsRaw(DiameterShAvpCodes.DSAI_TAG, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#getSessionPriority()
+   */
+  public SessionPriorityType getSessionPriority() {
+    return SessionPriorityType.fromInt(getAvpAsInteger32(DiameterShAvpCodes.SESSION_PRIORITY, DiameterShAvpCodes.SH_VENDOR_ID));
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#getRequestedNodes()
+   */
+  public long getRequestedNodes() {
+    return getAvpAsUnsigned32(DiameterShAvpCodes.REQUESTED_NODES, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
 
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#hasCurrentLocation()
    */
   public boolean hasCurrentLocation() {
     return hasAvp(DiameterShAvpCodes.CURRENT_LOCATION, DiameterShAvpCodes.SH_VENDOR_ID);
-  }
-
-  /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#hasIdentitySet()
-   */
-  public boolean hasIdentitySet() {
-    return hasAvp(DiameterShAvpCodes.IDENTITY_SET, DiameterShAvpCodes.SH_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -139,6 +154,20 @@ public class UserDataRequestImpl extends DiameterShMessageImpl implements UserDa
    */
   public boolean hasUserIdentity() {
     return hasAvp(DiameterShAvpCodes.USER_IDENTITY, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#hasSessionPriority()
+   */
+  public boolean hasSessionPriority() {
+    return hasAvp(DiameterShAvpCodes.SESSION_PRIORITY, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#hasRequestedNodes()
+   */
+  public boolean hasRequestedNodes() {
+    return hasAvp(DiameterShAvpCodes.REQUESTED_NODES, DiameterShAvpCodes.SH_VENDOR_ID);
   }
 
   /* (non-Javadoc)
@@ -165,10 +194,21 @@ public class UserDataRequestImpl extends DiameterShMessageImpl implements UserDa
   }
 
   /* (non-Javadoc)
-   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setIdentitySet(net.java.slee.resource.diameter.sh.events.avp.IdentitySetType)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setIdentitySet(IdentitySetType)
    */
-  public void setIdentitySet(IdentitySetType identitySet) {
+  public void setIdentitySet(IdentitySetType identitySet)
+  {
     addAvp(DiameterShAvpCodes.IDENTITY_SET, DiameterShAvpCodes.SH_VENDOR_ID, identitySet.getValue());
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setIdentitySets(IdentitySetType[])
+   */
+  public void setIdentitySets(IdentitySetType[] identitySets)
+  {
+	  for(IdentitySetType identitySet : identitySets) {
+		  setIdentitySet(identitySet);
+	    }
   }
 
   /* (non-Javadoc)
@@ -208,4 +248,33 @@ public class UserDataRequestImpl extends DiameterShMessageImpl implements UserDa
     addAvp(DiameterShAvpCodes.USER_IDENTITY, DiameterShAvpCodes.SH_VENDOR_ID, userIdentity.byteArrayValue());
   }
 
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setDSAITag(byte[])
+   */
+  public void setDSAITag(byte[] dsaiTag) {
+    addAvp(DiameterShAvpCodes.DSAI_TAG, DiameterShAvpCodes.SH_VENDOR_ID, dsaiTag);
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setDSAITag(byte[])
+   */
+  public void setDSAITags(byte[][] dsaiTags) {
+	  for(byte[] dsaiTag : dsaiTags) {
+		  setDSAITag(dsaiTag);
+	    }    
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setSessionPriority(SessionPriority)
+   */
+  public void setSessionPriority(SessionPriorityType sesionPriority) {
+    addAvp(DiameterShAvpCodes.SESSION_PRIORITY, DiameterShAvpCodes.SH_VENDOR_ID, sesionPriority.getValue());
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.UserDataRequest#setRequestedNodes(long)
+   */
+  public void setRequestedNodes(long requestedNodes) {
+    addAvp(DiameterShAvpCodes.REQUESTED_NODES, DiameterShAvpCodes.SH_VENDOR_ID, requestedNodes);
+  }
 }

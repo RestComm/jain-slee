@@ -29,6 +29,8 @@ import net.java.slee.resource.diameter.sh.events.avp.DataReferenceType;
 import net.java.slee.resource.diameter.sh.events.avp.DiameterShAvpCodes;
 import net.java.slee.resource.diameter.sh.events.avp.SendDataIndicationType;
 import net.java.slee.resource.diameter.sh.events.avp.SubsReqType;
+import net.java.slee.resource.diameter.sh.events.avp.OneTimeNotificationType;
+import net.java.slee.resource.diameter.sh.events.avp.IdentitySetType;
 import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
 
 import org.jdiameter.api.Message;
@@ -220,4 +222,122 @@ public class SubscribeNotificationsRequestImpl extends DiameterShMessageImpl imp
     addAvp(DiameterShAvpCodes.EXPIRY_TIME, DiameterShAvpCodes.SH_VENDOR_ID, expiryTime);
   }
 
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#hasWildcardedPSI()
+   */
+  public boolean hasWildcardedPSI() {
+    return hasAvp(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#getWildcardedPSI()
+   */
+  public String getWildcardedPSI() {
+    return getAvpAsUTF8String(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setWildcardedPSI(String)
+   */
+  public void setWildcardedPSI(String wildcardedPSI) {
+    addAvp(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID, wildcardedPSI);
+  }
+  
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#hasWildcardedIMPU()
+   */
+  public boolean hasWildcardedIMPU() {
+    return hasAvp(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#getWildcardedIMPU()
+   */
+  public String getWildcardedIMPU() {
+    return getAvpAsUTF8String(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setWildcardedIMPU(String)
+   */
+  public void setWildcardedIMPU(String wildcardedIMPU) {
+    addAvp(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID, wildcardedIMPU);
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#getIdentitySet()
+   */
+  public IdentitySetType[] getIdentitySet() {
+    return (IdentitySetType[]) getAvpsAsEnumerated(DiameterShAvpCodes.IDENTITY_SET, DiameterShAvpCodes.SH_VENDOR_ID, IdentitySetType.class);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setIdentitySet(IdentitySetType)
+   */
+  public void setIdentitySet(IdentitySetType identitySet)
+  {
+    addAvp(DiameterShAvpCodes.IDENTITY_SET, DiameterShAvpCodes.SH_VENDOR_ID, identitySet.getValue());
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setIdentitySets(IdentitySetType[])
+   */
+  public void setIdentitySets(IdentitySetType[] identitySets)
+  {
+	  for(IdentitySetType identitySet : identitySets) {
+		  setIdentitySet(identitySet);
+	    }
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#hasOneTimeNotification()
+   */
+  public boolean hasOneTimeNotification()
+  {
+    return hasAvp(DiameterShAvpCodes.ONE_TIME_NOTIFICATION, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#getOneTimeNotification()
+   */
+  public OneTimeNotificationType getOneTimeNotification() {
+    return (OneTimeNotificationType) getAvpAsEnumerated(DiameterShAvpCodes.ONE_TIME_NOTIFICATION, DiameterShAvpCodes.SH_VENDOR_ID, OneTimeNotificationType.class);
+  }
+
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setOneTimeNotification(OneTimeNotification)
+   */
+  public void setOneTimeNotification(OneTimeNotificationType oneTimeNotification)
+  {
+    addAvp(DiameterShAvpCodes.ONE_TIME_NOTIFICATION, DiameterShAvpCodes.SH_VENDOR_ID, oneTimeNotification.getValue());
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#getDSAITag()
+   */
+  public byte[][] getDSAITag() {
+    return getAvpsAsRaw(DiameterShAvpCodes.DSAI_TAG, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setDSAITag(byte[])
+   */
+  public void setDSAITag(byte[] dsaiTag) {
+    addAvp(DiameterShAvpCodes.DSAI_TAG, DiameterShAvpCodes.SH_VENDOR_ID, dsaiTag);
+  }
+  
+  /* (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#setDSAITag(byte[])
+   */
+  public void setDSAITags(byte[][] dsaiTags) {
+	  for(byte[] dsaiTag : dsaiTags) {
+		  setDSAITag(dsaiTag);
+	    }    
+  }
 }

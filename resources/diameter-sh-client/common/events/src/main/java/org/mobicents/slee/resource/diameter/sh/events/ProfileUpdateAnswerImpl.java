@@ -24,6 +24,7 @@ package org.mobicents.slee.resource.diameter.sh.events;
 
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
 import net.java.slee.resource.diameter.base.events.avp.ExperimentalResultAvp;
+import net.java.slee.resource.diameter.sh.events.avp.DiameterShAvpCodes;
 import net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer;
 import net.java.slee.resource.diameter.sh.events.PushNotificationRequest;
 
@@ -62,4 +63,51 @@ public class ProfileUpdateAnswerImpl extends DiameterShMessageImpl implements Pr
     addAvp(Avp.EXPERIMENTAL_RESULT, experimentalResult.byteArrayValue());
   }
 
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.ProfileUpdateAnswer#hasWildcardedPSI()
+   */
+  public boolean hasWildcardedPSI() {
+    return hasAvp(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.ProfileUpdateAnswer#getWildcardedPSI()
+   */
+  public String getWildcardedPSI() {
+    return getAvpAsUTF8String(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.ProfileUpdateAnswer#setWildcardedPSI(String)
+   */
+  public void setWildcardedPSI(String wildcardedPSI) {
+    addAvp(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID, wildcardedPSI);
+  }
+  
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.ProfileUpdateAnswer#hasWildcardedIMPU()
+   */
+  public boolean hasWildcardedIMPU() {
+    return hasAvp(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.ProfileUpdateAnswer#getWildcardedIMPU()
+   */
+  public String getWildcardedIMPU() {
+    return getAvpAsUTF8String(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.server.events.ProfileUpdateAnswer#setWildcardedIMPU(String)
+   */
+  public void setWildcardedIMPU(String wildcardedIMPU) {
+    addAvp(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID, wildcardedIMPU);
+  }
 }

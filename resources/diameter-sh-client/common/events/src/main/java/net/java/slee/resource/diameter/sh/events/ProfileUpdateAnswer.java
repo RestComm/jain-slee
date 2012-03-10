@@ -28,7 +28,7 @@ import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
 /**
  * Defines an interface representing the Profile-Update-Answer command.
  * 
- * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V7.1.0)
+ * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V9.2.0)
  * specification:
  * 
  * <pre>
@@ -49,6 +49,8 @@ import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
  *                                 { Auth-Session-State }
  *                                 { Origin-Host }
  *                                 { Origin-Realm }
+ *                                 [ Wildcarded-PSI ]
+ *                                 [ Wildcarded-IMPU ]
  *                                 *[ Supported-Features ]
  *                                 *[ AVP ]
  *                                 *[ Failed-AVP ]
@@ -137,4 +139,49 @@ public interface ProfileUpdateAnswer extends DiameterShMessage {
    */
   void setFailedAvps(FailedAvp[] failedAvps);
 
+  /**
+   * Returns true if the Wildcarded-PSI AVP is present in the message.
+   */
+  boolean hasWildcardedPSI();
+
+  /**
+   * Returns the value of the Wildcarded-PSI AVP, of type UTF8String. Use
+   * {@link #hasWildcardedPSI()} to check the existence of this AVP.
+   * 
+   * @return the value of the Wildcarded-PSI AVP
+   * @throws IllegalStateException
+   *             if the Wildcarded-PSI AVP has not been set on this message
+   */
+  String getWildcardedPSI();
+
+  /**
+   * Sets the value of the Wildcarded-PSI AVP, of type UTF8String.
+   * 
+   * @throws IllegalStateException
+   *             if setWildcardedPSI has already been called
+   */
+  void setWildcardedPSI(String wildcardedPSI); 
+  
+  /**
+   * Returns true if the Wildcarded-IMPU AVP is present in the message.
+   */
+  boolean hasWildcardedIMPU();
+
+  /**
+   * Returns the value of the Wildcarded-IMPU AVP, of type UTF8String. Use
+   * {@link #hasWildcardedIMPU()} to check the existence of this AVP.
+   * 
+   * @return the value of the Wildcarded-IMPU AVP
+   * @throws IllegalStateException
+   *             if the Wildcarded-IMPU AVP has not been set on this message
+   */
+  String getWildcardedIMPU();
+
+  /**
+   * Sets the value of the Wildcarded-IMPU AVP, of type UTF8String.
+   * 
+   * @throws IllegalStateException
+   *             if setWildcardedIMPU has already been called
+   */
+  void setWildcardedIMPU(String WildcardedIMPU);
 }

@@ -22,18 +22,17 @@
 
 package net.java.slee.resource.diameter.sh.events;
 
-import net.java.slee.resource.diameter.base.events.avp.ProxyInfoAvp;
 import net.java.slee.resource.diameter.sh.events.avp.CurrentLocationType;
 import net.java.slee.resource.diameter.sh.events.avp.DataReferenceType;
 import net.java.slee.resource.diameter.sh.events.avp.IdentitySetType;
 import net.java.slee.resource.diameter.sh.events.avp.RequestedDomainType;
-import net.java.slee.resource.diameter.sh.events.avp.SupportedFeaturesAvp;
+import net.java.slee.resource.diameter.sh.events.avp.SessionPriorityType;
 import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
 
 /**
  * Defines an interface representing the User-Data-Request command.
  * 
- * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V7.1.0)
+ * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V9.2.0)
  * specification:
  * 
  * <pre>
@@ -57,9 +56,12 @@ import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
  *                             [ Server-Name ]
  *                             *[ Service-Indication ]
  *                             *{ Data-Reference }
- *                             [ Identity-Set ]
+ *                             *[ Identity-Set ]
  *                             [ Requested-Domain ]
  *                             [ Current-Location ]
+ *                             *[ DSAI-Tag ]
+ *                             [ Session-Priority ]
+ *                             [ Requested-Nodes ]
  *                             *[ AVP ]
  *                             *[ Proxy-Info ]
  *                             *[ Route-Record ]
@@ -71,8 +73,6 @@ import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
 public interface UserDataRequest extends DiameterShMessage {
 
   static final int commandCode = 306;
-
-
 
   /**
    * Returns true if the User-Identity AVP is present in the message.
@@ -94,6 +94,30 @@ public interface UserDataRequest extends DiameterShMessage {
    *             if setUserIdentity has already been called
    */
   void setUserIdentity(UserIdentityAvp userIdentity);
+
+  /**
+   * Returns the value of the Identity-Set AVP, of type Enumerated.
+   * 
+   * @return the value of the Identity-Set AVP or null if it has not been set
+   *         on this message
+   */
+  IdentitySetType[] getIdentitySet();
+
+  /**
+   * Sets the value of the Identity-Set AVP, of type Enumerated.
+   * 
+   * @throws IllegalStateException
+   *             if setSessionPriority has already been called
+   */
+  void setIdentitySet(IdentitySetType identitySet);
+  
+  /**
+   * Sets the value of the Identity-Set AVP, of type Enumerated.
+   * 
+   * @throws IllegalStateException
+   *             if setSessionPriority has already been called
+   */
+  void setIdentitySets(IdentitySetType[] identitySet);
 
   /**
    * Returns true if the Server-Name AVP is present in the message.
@@ -178,28 +202,7 @@ public interface UserDataRequest extends DiameterShMessage {
    *             if setDataReference or setDataReferences has already been
    *             called
    */
-  void setDataReferences(DataReferenceType[] dataReferences);
-
-  /**
-   * Returns true if the Identity-Set AVP is present in the message.
-   */
-  boolean hasIdentitySet();
-
-  /**
-   * Returns the value of the Identity-Set AVP, of type Enumerated.
-   * 
-   * @return the value of the Identity-Set AVP or null if it has not been set
-   *         on this message
-   */
-  IdentitySetType getIdentitySet();
-
-  /**
-   * Sets the value of the Identity-Set AVP, of type Enumerated.
-   * 
-   * @throws IllegalStateException
-   *             if setIdentitySet has already been called
-   */
-  void setIdentitySet(IdentitySetType identitySet);
+  void setDataReferences(DataReferenceType[] dataReferences);  
 
   /**
    * Returns true if the Requested-Domain AVP is present in the message.
@@ -243,6 +246,69 @@ public interface UserDataRequest extends DiameterShMessage {
    */
   void setCurrentLocation(CurrentLocationType currentLocation);
 
+  /**
+   * Returns the value of the DSAI-Tag AVP, of type OctetString.
+   * 
+   * @return the value of the DSAI-Tag AVP or null if it has not been set
+   *         on this message
+   */
+  byte[][] getDSAITag();
 
+  /**
+   * Sets the value of the DSAI-Tag AVP, of type OctetString.
+   * 
+   * @throws IllegalStateException
+   *             if setDSAITag has already been called
+   */
+  void setDSAITag(byte[] dsaiTag);
+  
+  /**
+   * Sets the value of the DSAI-Tag AVP, of type OctetString.
+   * 
+   * @throws IllegalStateException
+   *             if setDSAITag has already been called
+   */
+  void setDSAITags(byte[][] dsaiTag);
 
+  /**
+   * Returns true if the Session-Priority AVP is present in the message.
+   */
+  boolean hasSessionPriority();
+
+  /**
+   * Returns the value of the Session-Priority AVP, of type Enumerated.
+   * 
+   * @return the value of the Session-Priority AVP or null if it has not been set
+   *         on this message
+   */
+  SessionPriorityType getSessionPriority();
+
+  /**
+   * Sets the value of the Session-Priority AVP, of type Enumerated.
+   * 
+   * @throws IllegalStateException
+   *             if setSessionPriority has already been called
+   */
+  void setSessionPriority(SessionPriorityType sesionPriority);
+  
+  /**
+   * Returns true if the Requested-Nodes AVP is present in the message.
+   */
+  boolean hasRequestedNodes();
+
+  /**
+   * Returns the value of the Requested-Nodes AVP, of type Unsigned32.
+   * 
+   * @return the value of the Requested-Nodes AVP or null if it has not been set
+   *         on this message
+   */
+  long getRequestedNodes();
+
+  /**
+   * Sets the value of the Requested-Nodes AVP, of type Unsigned32.
+   * 
+   * @throws IllegalStateException
+   *             if setRequestedNodes has already been called
+   */
+  void setRequestedNodes(long requestedNodes);
 }

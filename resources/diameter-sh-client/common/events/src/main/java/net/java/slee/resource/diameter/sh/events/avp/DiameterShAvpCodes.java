@@ -224,4 +224,69 @@ public class DiameterShAvpCodes {
    */
   public static final DiameterAvpType PUBLIC_IDENTITY_AVP_TYPE = DiameterAvpType.fromString("UTF8String");
 
+  /**
+   * AVP Code defined by Diameter specification for Wildcarded-PSI AVP.  Data type
+   * is UTF8String.
+   */
+  public static final int WILDCARDED_PSI = 634;
+
+  /**
+   * AVP Data Type defined by Diameter specification for Wildcarded-PSI AVP.
+   */
+  public static final DiameterAvpType WILDCARDED_PSI_AVP_TYPE = DiameterAvpType.fromString("UTF8String");
+
+  /**
+   * AVP Code defined by Diameter specification for WILDCARDED_IMPU AVP.  Data type
+   * is UTF8String.
+   */
+  public static final int WILDCARDED_IMPU = 634;
+
+  /**
+   * AVP Data Type defined by Diameter specification for WILDCARDED_IMPU AVP.
+   */
+  public static final DiameterAvpType WILDCARDED_IMPU_AVP_TYPE = DiameterAvpType.fromString("UTF8String");
+
+  /**
+   * AVP Code defined by Diameter specification for DSAI_TAG AVP.  Data type
+   * is UTF8String.
+   */
+  public static final int DSAI_TAG = 711;
+
+  /**
+   * AVP Data Type defined by Diameter specification for DSAI_TAG AVP.
+   */
+  public static final DiameterAvpType DSAI_TAG_AVP_TYPE = DiameterAvpType.fromString("OctetString");
+
+  /**
+   * AVP Code defined by Diameter specification for SESSION_PRIORITY AVP.  Data type
+   * is Enumerated.
+   */
+  public static final int SESSION_PRIORITY = 650;
+
+  /**
+   * AVP Data Type defined by Diameter specification for SESSION_PRIORITY AVP.
+   */
+  public static final DiameterAvpType SESSION_PRIORITY_AVP_TYPE = DiameterAvpType.fromString("Enumerated");
+
+  /**
+   * AVP Code defined by Diameter specification for REQUESTED_NODES AVP.  Data type
+   * is UTF8String.
+   */
+  public static final int REQUESTED_NODES = 713;
+
+  /**
+   * AVP Data Type defined by Diameter specification for REQUESTED_NODES AVP.
+   */
+  public static final DiameterAvpType REQUESTED_NODES_AVP_TYPE = DiameterAvpType.fromString("Unsigned32");
+
+  /**
+   * AVP Code defined by Diameter specification for ONE_TIME_NOTIFICATION AVP.  Data type
+   * is Enumerated.
+   */
+  public static final int ONE_TIME_NOTIFICATION = 712;
+
+  /**
+   * AVP Data Type defined by Diameter specification for SESSION_PRIORITY AVP.
+   */
+  public static final DiameterAvpType ONE_TIME_NOTIFICATION_AVP_TYPE = DiameterAvpType.fromString("Enumerated");  
 }

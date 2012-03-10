@@ -27,13 +27,15 @@ import java.util.Date;
 import net.java.slee.resource.diameter.sh.events.avp.DataReferenceType;
 import net.java.slee.resource.diameter.sh.events.avp.SendDataIndicationType;
 import net.java.slee.resource.diameter.sh.events.avp.SubsReqType;
+import net.java.slee.resource.diameter.sh.events.avp.OneTimeNotificationType;
+import net.java.slee.resource.diameter.sh.events.avp.IdentitySetType;
 import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
 
 /**
  * Defines an interface representing the Subscribe-Notifications-Request
  * command.
  * 
- * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V7.1.0)
+ * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V9.2.0)
  * specification:
  * 
  * <pre>
@@ -56,12 +58,17 @@ import net.java.slee.resource.diameter.sh.events.avp.UserIdentityAvp;
  *                                         { Destination-Realm }
  *                                         *[ Supported-Features ]
  *                                         { User-Identity }
- *                                         *[ Service-Indication]
+ *                                         [ Wildcarded-PSI ]
+ *                                         [ Wildcarded-IMPU ]
+ *                                         *[ Service-Indication ]
+ *                                         [ Send-Data-Indication ]
  *                                         [ Server-Name ]
  *                                         { Subs-Req-Type }
  *                                         *{ Data-Reference }
- *                                         [ Expiry-Time ]
- *                                         [ Send-Data-Indication ]
+ *                                         *[ Identity-Set ]
+ *                                         [ Expiry-Time ]                                         
+ *                                         *[ DSAI-Tag ]
+ *                                         [ One-Time-Notification ]
  *                                         *[ AVP ]
  *                                         *[ Proxy-Info ]
  *                                         *[ Route-Record ]
@@ -242,4 +249,118 @@ public interface SubscribeNotificationsRequest extends DiameterShMessage {
    */
   void setSendDataIndication(SendDataIndicationType sendDataIndication);
 
+  /**
+   * Returns true if the Wildcarded-PSI AVP is present in the message.
+   */
+  boolean hasWildcardedPSI();
+
+  /**
+   * Returns the value of the Wildcarded-PSI AVP, of type UTF8String. Use
+   * {@link #hasWildcardedPSI()} to check the existence of this AVP.
+   * 
+   * @return the value of the Wildcarded-PSI AVP
+   * @throws IllegalStateException
+   *             if the Wildcarded-PSI AVP has not been set on this message
+   */
+  String getWildcardedPSI();
+
+  /**
+   * Sets the value of the Wildcarded-PSI AVP, of type UTF8String.
+   * 
+   * @throws IllegalStateException
+   *             if setWildcardedPSI has already been called
+   */
+  void setWildcardedPSI(String wildcardedPSI); 
+  
+  /**
+   * Returns true if the Wildcarded-IMPU AVP is present in the message.
+   */
+  boolean hasWildcardedIMPU();
+
+  /**
+   * Returns the value of the Wildcarded-IMPU AVP, of type UTF8String. Use
+   * {@link #hasWildcardedIMPU()} to check the existence of this AVP.
+   * 
+   * @return the value of the Wildcarded-IMPU AVP
+   * @throws IllegalStateException
+   *             if the Wildcarded-IMPU AVP has not been set on this message
+   */
+  String getWildcardedIMPU();
+
+  /**
+   * Sets the value of the Wildcarded-IMPU AVP, of type UTF8String.
+   * 
+   * @throws IllegalStateException
+   *             if setWildcardedIMPU has already been called
+   */
+  void setWildcardedIMPU(String WildcardedIMPU);
+  
+  /**
+   * Returns the value of the DSAI-Tag AVP, of type OctetString.
+   * 
+   * @return the value of the DSAI-Tag AVP or null if it has not been set
+   *         on this message
+   */
+  byte[][] getDSAITag();
+
+  /**
+   * Sets the value of the DSAI-Tag AVP, of type OctetString.
+   * 
+   * @throws IllegalStateException
+   *             if setDSAITag has already been called
+   */
+  void setDSAITag(byte[] dsaiTag);
+  
+  /**
+   * Sets the value of the DSAI-Tag AVP, of type OctetString.
+   * 
+   * @throws IllegalStateException
+   *             if setDSAITag has already been called
+   */
+  void setDSAITags(byte[][] dsaiTag);
+  
+  /**
+   * Returns the value of the Identity-Set AVP, of type Enumerated.
+   * 
+   * @return the value of the Identity-Set AVP or null if it has not been set
+   *         on this message
+   */
+  IdentitySetType[] getIdentitySet();
+
+  /**
+   * Sets the value of the Identity-Set AVP, of type Enumerated.
+   * 
+   * @throws IllegalStateException
+   *             if setSessionPriority has already been called
+   */
+  void setIdentitySet(IdentitySetType identitySet);
+  
+  /**
+   * Sets the value of the Identity-Set AVP, of type Enumerated.
+   * 
+   * @throws IllegalStateException
+   *             if setSessionPriority has already been called
+   */
+  void setIdentitySets(IdentitySetType[] identitySet);
+  
+  /**
+   * Returns true if the One-Time-Notification AVP is present in the message.
+   */
+  boolean hasOneTimeNotification();
+
+  /**
+   * Returns the value of the One-Time-Notification AVP, of type Enumerated.
+   * 
+   * @return the value of the One-Time-Notification AVP or null if it has not been set
+   *         on this message
+   */
+  OneTimeNotificationType getOneTimeNotification();
+
+  /**
+   * Sets the value of the One-Time-Notification AVP, of type Enumerated.
+   * 
+   * @throws IllegalStateException
+   *             if setOneTimeNotification has already been called
+   */
+  void setOneTimeNotification(OneTimeNotificationType oneTimeNotification);
 }

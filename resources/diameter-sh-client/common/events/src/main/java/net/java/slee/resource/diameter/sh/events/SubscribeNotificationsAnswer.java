@@ -22,15 +22,18 @@
 
 package net.java.slee.resource.diameter.sh.events;
 
+import java.io.IOException;
+
 import java.util.Date;
 
 import net.java.slee.resource.diameter.base.events.avp.ExperimentalResultAvp;
 import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
+import net.java.slee.resource.diameter.sh.events.avp.userdata.ShData;
 
 /**
  * Defines an interface representing the Subscribe-Notifications-Answer command.
  * 
- * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V7.1.0)
+ * From the Diameter Sh Reference Point Protocol Details (3GPP TS 29.329 V9.2.0)
  * specification:
  * 
  * <pre>
@@ -51,8 +54,11 @@ import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
  *                                             [ Experimental-Result ]
  *                                             { Origin-Host }
  *                                             { Origin-Realm }
+ *                                             [ Wildcarded-PSI ]
+ *                                             [ Wildcarded-IMPU ]
  *                                             *[ Supported-Features ]
- *                                             [ Expiry-Time ]
+ *                                             [ User-Data ]
+ *                                             [ Expiry-Time ]                                                                                         
  *                                             *[ AVP ]
  *                                             *[ Failed-AVP ]
  *                                             *[ Proxy-Info ]
@@ -161,4 +167,88 @@ public interface SubscribeNotificationsAnswer extends DiameterShMessage {
    */
   void setFailedAvps(FailedAvp[] failedAvps);
 
+  /**
+   * Returns true if the User-Data AVP is present in the message.
+   */
+  boolean hasUserData();
+
+  /**
+   * Returns the value of the User-Data AVP, of type OctetString. Use
+   * {@link #hasUserData()} to check the existence of this AVP.
+   * 
+   * @return the value of the User-Data AVP
+   * @throws IllegalStateException
+   *             if the User-Data AVP has not been set on this message
+   */
+  byte[] getUserData();
+
+  /**
+   * Returns the value of the User-Data AVP, of type UserData.
+   * 
+   * @return the value of the User-Data AVP or null if it has not been set on
+   *         this message
+   */
+  ShData getUserDataObject() throws IOException;
+  
+  /**
+   * Sets the value of the User-Data AVP, of type OctetString.
+   * 
+   * @throws IllegalStateException
+   *             if setUserData has already been called
+   */
+  void setUserData(byte[] userData); 
+  
+  /**
+   * Sets the value of the User-Data AVP, of type UserData.
+   * 
+   * @throws IllegalStateException
+   *             if setUserData has already been called
+   */
+  void setUserDataObject(ShData userData) throws IOException;
+  
+  /**
+   * Returns true if the Wildcarded-PSI AVP is present in the message.
+   */
+  boolean hasWildcardedPSI();
+
+  /**
+   * Returns the value of the Wildcarded-PSI AVP, of type UTF8String. Use
+   * {@link #hasWildcardedPSI()} to check the existence of this AVP.
+   * 
+   * @return the value of the Wildcarded-PSI AVP
+   * @throws IllegalStateException
+   *             if the Wildcarded-PSI AVP has not been set on this message
+   */
+  String getWildcardedPSI();
+
+  /**
+   * Sets the value of the Wildcarded-PSI AVP, of type UTF8String.
+   * 
+   * @throws IllegalStateException
+   *             if setWildcardedPSI has already been called
+   */
+  void setWildcardedPSI(String wildcardedPSI); 
+  
+  /**
+   * Returns true if the Wildcarded-IMPU AVP is present in the message.
+   */
+  boolean hasWildcardedIMPU();
+
+  /**
+   * Returns the value of the Wildcarded-IMPU AVP, of type UTF8String. Use
+   * {@link #hasWildcardedIMPU()} to check the existence of this AVP.
+   * 
+   * @return the value of the Wildcarded-IMPU AVP
+   * @throws IllegalStateException
+   *             if the Wildcarded-IMPU AVP has not been set on this message
+   */
+  String getWildcardedIMPU();
+
+  /**
+   * Sets the value of the Wildcarded-IMPU AVP, of type UTF8String.
+   * 
+   * @throws IllegalStateException
+   *             if setWildcardedIMPU has already been called
+   */
+  void setWildcardedIMPU(String WildcardedIMPU);
 }

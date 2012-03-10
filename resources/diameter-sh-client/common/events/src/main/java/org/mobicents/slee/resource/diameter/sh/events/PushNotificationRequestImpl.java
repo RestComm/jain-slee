@@ -163,4 +163,51 @@ public class PushNotificationRequestImpl extends DiameterShMessageImpl implement
     }
   }
 
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.PushNotificationRequest#hasWildcardedPSI()
+   */
+  public boolean hasWildcardedPSI() {
+    return hasAvp(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.PushNotificationRequest#getWildcardedPSI()
+   */
+  public String getWildcardedPSI() {
+    return getAvpAsUTF8String(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.PushNotificationRequest#setWildcardedPSI(String)
+   */
+  public void setWildcardedPSI(String wildcardedPSI) {
+    addAvp(DiameterShAvpCodes.WILDCARDED_PSI, DiameterShAvpCodes.SH_VENDOR_ID, wildcardedPSI);
+  }
+  
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.PushNotificationRequest#hasWildcardedIMPU()
+   */
+  public boolean hasWildcardedIMPU() {
+    return hasAvp(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.PushNotificationRequest#getWildcardedIMPU()
+   */
+  public String getWildcardedIMPU() {
+    return getAvpAsUTF8String(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID);
+  }
+
+  /* 
+   * (non-Javadoc)
+   * @see net.java.slee.resource.diameter.sh.events.PushNotificationRequest#setWildcardedIMPU(String)
+   */
+  public void setWildcardedIMPU(String wildcardedIMPU) {
+    addAvp(DiameterShAvpCodes.WILDCARDED_IMPU, DiameterShAvpCodes.SH_VENDOR_ID, wildcardedIMPU);
+  }
 }
