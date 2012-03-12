@@ -301,7 +301,7 @@ public interface SubscribeNotificationsRequest extends DiameterShMessage {
    * @return the value of the DSAI-Tag AVP or null if it has not been set
    *         on this message
    */
-  byte[][] getDSAITag();
+  byte[][] getDSAITags();
 
   /**
    * Sets the value of the DSAI-Tag AVP, of type OctetString.
@@ -325,7 +325,7 @@ public interface SubscribeNotificationsRequest extends DiameterShMessage {
    * @return the value of the Identity-Set AVP or null if it has not been set
    *         on this message
    */
-  IdentitySetType[] getIdentitySet();
+  IdentitySetType[] getIdentitySets();
 
   /**
    * Sets the value of the Identity-Set AVP, of type Enumerated.

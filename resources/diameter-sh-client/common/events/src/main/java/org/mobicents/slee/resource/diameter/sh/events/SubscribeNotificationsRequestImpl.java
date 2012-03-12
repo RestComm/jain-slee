@@ -273,7 +273,7 @@ public class SubscribeNotificationsRequestImpl extends DiameterShMessageImpl imp
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#getIdentitySet()
    */
-  public IdentitySetType[] getIdentitySet() {
+  public IdentitySetType[] getIdentitySets() {
     return (IdentitySetType[]) getAvpsAsEnumerated(DiameterShAvpCodes.IDENTITY_SET, DiameterShAvpCodes.SH_VENDOR_ID, IdentitySetType.class);
   }
 
@@ -321,7 +321,7 @@ public class SubscribeNotificationsRequestImpl extends DiameterShMessageImpl imp
   /* (non-Javadoc)
    * @see net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest#getDSAITag()
    */
-  public byte[][] getDSAITag() {
+  public byte[][] getDSAITags() {
     return getAvpsAsRaw(DiameterShAvpCodes.DSAI_TAG, DiameterShAvpCodes.SH_VENDOR_ID);
   }
   
