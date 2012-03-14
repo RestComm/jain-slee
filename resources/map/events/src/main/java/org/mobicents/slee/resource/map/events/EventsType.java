@@ -31,6 +31,7 @@ public interface EventsType {
 	public static final String PROCESS_UNSTRUCTURED_SS_REQUEST = "ss7.map.service.suplementary.PROCESS_UNSTRUCTURED_SS_REQUEST";
 	public static final String PROCESS_UNSTRUCTURED_SS_RESPONSE = "ss7.map.service.suplementary.PROCESS_UNSTRUCTURED_SS_RESPONSE";
 	public static final String UNSTRUCTURED_SS_NOTIFY_REQUEST = "ss7.map.service.suplementary.UNSTRUCTURED_SS_NOTIFY_REQUEST";
+	public static final String UNSTRUCTURED_SS_NOTIFY_RESPONSE = "ss7.map.service.suplementary.UNSTRUCTURED_SS_NOTIFY_RESPONSE";
 	public static final String UNSTRUCTURED_SS_REQUEST = "ss7.map.service.suplementary.UNSTRUCTURED_SS_REQUEST";
 	public static final String UNSTRUCTURED_SS_RESPONSE = "ss7.map.service.suplementary.UNSTRUCTURED_SS_RESPONSE";
 

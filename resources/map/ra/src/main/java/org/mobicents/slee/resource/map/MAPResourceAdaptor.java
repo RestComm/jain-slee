@@ -88,6 +88,7 @@ import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSuppl
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSRequestIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSResponseIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSNotifyRequestIndication;
+import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSNotifyResponseIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSRequestIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSResponseIndication;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
@@ -697,6 +698,11 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	@Override
 	public void onUnstructuredSSNotifyRequestIndication(UnstructuredSSNotifyRequestIndication unstrSSInd) {
 		onEvent(EventsType.UNSTRUCTURED_SS_NOTIFY_REQUEST, unstrSSInd.getMAPDialog(), unstrSSInd);
+	}
+	
+	@Override
+	public void onUnstructuredSSNotifyResponseIndication(UnstructuredSSNotifyResponseIndication unstrSSInd) {
+		onEvent(EventsType.UNSTRUCTURED_SS_NOTIFY_RESPONSE, unstrSSInd.getMAPDialog(), unstrSSInd);
 	}
 
 	// ////////////////

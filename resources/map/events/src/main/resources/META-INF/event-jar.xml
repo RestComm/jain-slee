@@ -113,6 +113,13 @@
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSNotifyRequestIndication</event-class-name>
 	</event-definition>
+	
+	<event-definition>
+		<event-type-name>ss7.map.service.suplementary.UNSTRUCTURED_SS_NOTIFY_RESPONSE</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSNotifyResponseIndication</event-class-name>
+	</event-definition>	
 
 	<!-- LSM -->
 	<event-definition>
