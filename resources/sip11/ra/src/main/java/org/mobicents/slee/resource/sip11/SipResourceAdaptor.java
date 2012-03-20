@@ -732,18 +732,6 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 				}
 			}
 		}
-
-		// TODO check what is this needed for
-		if ((response.getStatusCode() == 481 || response.getStatusCode() == 408) && dw != null) {
-			final String method = ((CSeqHeader) response.getHeader(CSeqHeader.NAME)).getMethod();
-			if (!method.equals(Request.INVITE) || !method.equals(Request.SUBSCRIBE)) {
-				try {
-					this.provider.sendRequest(dw.createRequest(Request.BYE));
-				} catch (Throwable e) {
-					tracer.severe(e.getMessage(),e);
-				}
-			}
-		}
 	}
 	
 	private void processResponseEventForked(ResponseEventExt responseEventExt) {
