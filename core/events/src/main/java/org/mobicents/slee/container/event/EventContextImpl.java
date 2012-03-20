@@ -224,7 +224,8 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 	protected void eventUnreferenced() {
 		super.remove();
 		if (data.getUnreferencedCallback() != null) {
-			data.getUnreferencedCallback().eventUnreferenced();
+			data.getUnreferencedCallback().eventUnreferenced();		
+			data.unsetUnreferencedCallback();
 		}		
 	}
 	

@@ -118,8 +118,13 @@ public interface EventContextData {
 	public EventContext[] removeEventsBarried();
 
 	/**
-	 * @param object
+	 * 
 	 */
 	public void unsetFailedCallback();
+	
+	/**
+	 * 
+	 */
+	public void unsetUnreferencedCallback();
 
 }

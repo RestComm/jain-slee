@@ -28,6 +28,7 @@ package org.mobicents.slee.runtime.event;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.event.EventUnreferencedCallback;
 import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextImpl;
 
 /**
  * @author martins
@@ -52,7 +53,10 @@ public class ActivityEndEventUnreferencedCallback implements EventUnreferencedCa
 	 * @see org.mobicents.slee.container.event.EventUnreferencedCallback#eventUnreferenced()
 	 */
 	public void eventUnreferenced() {
-		factory.getActivityContext(ach).activityEnded();
+		ActivityContextImpl ac = factory.getActivityContext(ach);
+		if(ac != null) {
+			ac.activityEnded();
+		}
 	}
 
 	/* (non-Javadoc)

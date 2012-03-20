@@ -236,6 +236,11 @@ public class DefaultEventContextData implements EventContextData {
 		this.failedCallback = null;
 	}
 	
+	@Override
+	public void unsetUnreferencedCallback() {
+		this.unreferencedCallback = null;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

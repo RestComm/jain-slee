@@ -54,7 +54,8 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 	 * stores the activity end event when set
 	 */
 	private EventContext activityEndEvent;
-
+	private boolean activityEndEventRouted;
+	
 	/**
 	 * the set of pending events, i.e., events not committed yet, for this
 	 * activity
@@ -86,19 +87,18 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 
 	@Override
 	public void pending(final EventContext event) {
+		if (doTraceLogs) {
+			logger.trace("Pending event of type "
+					+ event.getEventTypeId() + " in AC with handle "
+					+ event.getActivityContextHandle());
+		}	
+		// manage event references
+		event.getReferencesHandler().add(
+				localAC.getActivityContextHandle());
+		// add event to pending set
 		Runnable r = new Runnable() {
 			@Override
-			public void run() {
-				if (doTraceLogs) {
-					logger.trace("Pending event of type "
-							+ event.getEventTypeId() + " in AC with handle "
-							+ event.getActivityContextHandle());
-				}
-
-				// manage event references
-				event.getReferencesHandler().add(
-						localAC.getActivityContextHandle());
-				// add event to pending set
+			public void run() {							
 				if (pendingEvents == null) {
 					pendingEvents = new HashSet<EventContext>(4);
 				}
@@ -124,7 +124,9 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 								+ event.getActivityContextHandle()
 								+ ", the activity end event is already committed");
 					}
-					event.eventProcessingFailed(FailureReason.OTHER_REASON);
+					if(!event.isActivityEndEvent()) { 
+						event.eventProcessingFailed(FailureReason.OTHER_REASON);
+					}
 				}
 			}
 		};
@@ -152,7 +154,9 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 								+ event.getActivityContextHandle()
 								+ ", the activity end event is already committed");
 					}
-					event.eventProcessingFailed(FailureReason.OTHER_REASON);
+					if(!event.isActivityEndEvent()) { 
+						event.eventProcessingFailed(FailureReason.OTHER_REASON);
+					}
 				}
 			}
 		};
@@ -213,10 +217,12 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 		if (pendingEvents == null || pendingEvents.isEmpty()) {
 			// no pending events
 			// now check if we have a frozen activity end event
-			if (activityEndEvent != null) {
-				// route the frozen activity end event too
-				localAC.getExecutorService().routeEvent(activityEndEvent);
+			if (activityEndEvent == null || activityEndEventRouted) {
+				return;
 			}
+			activityEndEventRouted = true;
+			// route the activity end event on hold
+			localAC.getExecutorService().routeEvent(activityEndEvent);			
 		}
 	}
 
@@ -230,7 +236,6 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 							+ event.getEventTypeId() + " in AC with handle "
 							+ event.getActivityContextHandle());
 				}
-
 				if (pendingEvents != null && pendingEvents.remove(event)) {
 					// confirmed the event was pending
 					routeActivityEndEventIfNeeded();
