@@ -80,7 +80,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	@Override
 	public void sleeInitialization() {
-		sleeContainer.getCluster().addDataRemovalListener(new DataRemovaClusterListener());		
+		sleeContainer.getCluster().addDataRemovalListener(new DataRemovalClusterListener());		
 	}
 	
 	@Override
@@ -210,7 +210,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 			+ "\n+-- Number of ACs: " + getActivityContextCount();
 	}
 	
-	private class DataRemovaClusterListener implements DataRemovalListener {
+	private class DataRemovalClusterListener implements DataRemovalListener {
 		
 		@SuppressWarnings("rawtypes")
 		public void dataRemoved(Fqn arg0) {
@@ -221,7 +221,6 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 				if (executor != null) {
 					executor.activityUnmapped(localActivityContext.getActivityContextHandle());
 				}
-				localActivityContext.setExecutorService(null);
 				if(doTraceLogs) {
 					logger.trace("Remotely removed local AC for "+ach);
 				}
