@@ -159,6 +159,21 @@
 		<event-class-name>org.mobicents.protocols.ss7.map.api.service.lsm.SubscriberLocationReportResponseIndication</event-class-name>
 	</event-definition>
 
+	<!-- Subscriber Information services -->
+	<event-definition>
+		<event-type-name>ss7.map.service.subscriberinfo.ANY_TIME_INTERROGATION_REQUEST</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.map.api.service.subscriberInformation.AnyTimeInterrogationRequestIndication</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>ss7.map.service.subscriberinfo.ANY_TIME_INTERROGATION_RESPONSE</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.map.api.service.subscriberInformation.AnyTimeInterrogationResponseIndication</event-class-name>
+	</event-definition>	
+	
 	<!-- SMS -->
 
 	<event-definition>

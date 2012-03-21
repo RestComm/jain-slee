@@ -52,6 +52,7 @@ import javax.slee.resource.UnrecognizedActivityHandleException;
 import org.mobicents.protocols.ss7.map.MAPStackImpl;
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
+import org.mobicents.protocols.ss7.map.api.MAPMessage;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
 import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortProviderReason;
 import org.mobicents.protocols.ss7.map.api.dialog.MAPAbortSource;
@@ -84,6 +85,9 @@ import org.mobicents.protocols.ss7.map.api.service.sms.ReportSMDeliveryStatusReq
 import org.mobicents.protocols.ss7.map.api.service.sms.ReportSMDeliveryStatusResponseIndication;
 import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMRequestIndication;
 import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMResponseIndication;
+import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.AnyTimeInterrogationRequestIndication;
+import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.AnyTimeInterrogationResponseIndication;
+import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.MAPServiceSubscriberInformationListener;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementaryListener;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSRequestIndication;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSResponseIndication;
@@ -116,7 +120,8 @@ import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
  * @author baranowb
  * 
  */
-public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceSupplementaryListener, MAPServiceLsmListener, MAPServiceSmsListener {
+public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceSupplementaryListener, MAPServiceLsmListener, MAPServiceSmsListener,
+		MAPServiceSubscriberInformationListener {
 	/**
 	 * for all events we are interested in knowing when the event failed to be
 	 * processed
@@ -246,12 +251,14 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.realProvider.getMAPServiceSupplementary().addMAPServiceListener(this);
 			this.realProvider.getMAPServiceSms().addMAPServiceListener(this);
 			this.realProvider.getMAPServiceLsm().addMAPServiceListener(this);
+			this.realProvider.getMapServiceSubscriberInformation().addMAPServiceListener(this);
 
 			this.sleeEndpoint = resourceAdaptorContext.getSleeEndpoint();
 
 			this.realProvider.getMAPServiceSupplementary().acivate();
 			this.realProvider.getMAPServiceSms().acivate();
 			this.realProvider.getMAPServiceLsm().acivate();
+			this.realProvider.getMapServiceSubscriberInformation().acivate();
 
 			this.mapProvider.setWrappedProvider(this.realProvider);
 		} catch (Exception e) {
@@ -282,9 +289,11 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		this.realProvider.getMAPServiceSupplementary().deactivate();
 		this.realProvider.getMAPServiceLsm().deactivate();
 		this.realProvider.getMAPServiceSms().deactivate();
+		this.realProvider.getMapServiceSubscriberInformation().deactivate();
 		this.realProvider.getMAPServiceSupplementary().removeMAPServiceListener(this);
 		this.realProvider.getMAPServiceLsm().removeMAPServiceListener(this);
 		this.realProvider.getMAPServiceSms().removeMAPServiceListener(this);
+		this.realProvider.getMapServiceSubscriberInformation().removeMAPServiceListener(this);
 		this.realProvider.removeMAPDialogListener(this);
 		this.mapStack.stop();
 	}
@@ -567,7 +576,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onDialogResease(MAPDialog mapDialog) {
+	public void onDialogRelease(MAPDialog mapDialog) {
 
 		if (this.tracer.isFineEnabled()) {
 			this.tracer.fine(String.format("Rx : onDialogResease for DialogId=%d", mapDialog.getDialogId()));
@@ -699,7 +708,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	public void onUnstructuredSSNotifyRequestIndication(UnstructuredSSNotifyRequestIndication unstrSSInd) {
 		onEvent(EventsType.UNSTRUCTURED_SS_NOTIFY_REQUEST, unstrSSInd.getMAPDialog(), unstrSSInd);
 	}
-	
+
 	@Override
 	public void onUnstructuredSSNotifyResponseIndication(UnstructuredSSNotifyResponseIndication unstrSSInd) {
 		onEvent(EventsType.UNSTRUCTURED_SS_NOTIFY_RESPONSE, unstrSSInd.getMAPDialog(), unstrSSInd);
@@ -760,6 +769,17 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	public void onSubscriberLocationReportResponseIndication(SubscriberLocationReportResponseIndication subscriberLocationReportResponse) {
 		onEvent(EventsType.SUBSCRIBER_LOCATION_REPORT_RESPONSE, subscriberLocationReportResponse.getMAPDialog(), subscriberLocationReportResponse);
 
+	}
+
+	// ///////////////
+	// SERVICE : SUBSCRIBER INFORMATION
+	// //////////////
+	public void onAnyTimeInterrogationRequestIndication(AnyTimeInterrogationRequestIndication event) {
+		onEvent(EventsType.ANY_TIME_INTERROGATION_REQUEST, event.getMAPDialog(), event);
+	}
+
+	public void onAnyTimeInterrogationResponseIndication(AnyTimeInterrogationResponseIndication event) {
+		onEvent(EventsType.ANY_TIME_INTERROGATION_RESPONSE, event.getMAPDialog(), event);
 	}
 
 	// ////////////////
@@ -834,6 +854,14 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	@Override
 	public void onAlertServiceCentreRespIndication(AlertServiceCentreResponseIndication alertServiCecentreResponse) {
 		onEvent(EventsType.ALERT_SERVICE_CENTER_RESPONSE, alertServiCecentreResponse.getMAPDialog(), alertServiCecentreResponse);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceListener#onMAPMessage(org.mobicents.protocols.ss7.map.api.MAPMessage)
+	 */
+	@Override
+	public void onMAPMessage(MAPMessage arg0) {
+		//Do nothing
 	}
 
 }

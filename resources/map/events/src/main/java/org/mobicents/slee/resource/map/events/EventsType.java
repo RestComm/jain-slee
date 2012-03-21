@@ -57,4 +57,9 @@ public interface EventsType {
 	public static final String REPORT_SM_DELIVERY_STATUS_RESPONSE = "ss7.map.service.sms.REPORT_SM_DELIVERY_STATUS_RESPONSE";
 	public static final String SEND_ROUTING_INFO_FOR_SM_REQUEST = "ss7.map.service.sms.SEND_ROUTING_INFO_FOR_SM_REQUEST";
 	public static final String SEND_ROUTING_INFO_FOR_SM_RESPONSE = "ss7.map.service.sms.SEND_ROUTING_INFO_FOR_SM_RESPONSE";
+	
+	//SUBSCRIBER INFORMATION
+	public static final String ANY_TIME_INTERROGATION_REQUEST = "ss7.map.service.subscriberinfo.ANY_TIME_INTERROGATION_REQUEST";
+	public static final String ANY_TIME_INTERROGATION_RESPONSE = "ss7.map.service.subscriberinfo.ANY_TIME_INTERROGATION_RESPONSE";
+	
 }

@@ -163,6 +163,19 @@
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 
+		<!-- Subscriber Information services -->
+		<event-type-ref>
+			<event-type-name>ss7.map.service.subscriberinfo.ANY_TIME_INTERROGATION_REQUEST</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
+		<event-type-ref>
+			<event-type-name>ss7.map.service.subscriberinfo.ANY_TIME_INTERROGATION_RESPONSE</event-type-name>
+			<event-type-vendor>org.mobicents</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+
 		<!-- SERVICE: sms -->
 		<event-type-ref>
 			<event-type-name>ss7.map.service.sms.FORWARD_SHORT_MESSAGE_REQUEST</event-type-name>
