@@ -37,6 +37,13 @@ public interface ActivityContextInterfaceExt extends ActivityContextInterface {
 				<para>Retrieves the names currently bound to the ACI.</para>
 			</listitem>
 		</varlistentry>
+		
+		<varlistentry>
+			<term>The <literal>suspend()</literal> method:</term>
+			<listitem>
+				<para>This feature may be used before attaching to an ActivityContextInterface, to ensure that any event fired concurrently will be received. It suspends routing of events in the activity context immediately, till the active transaction ends.</para>
+			</listitem>
+		</varlistentry>
 	</variablelist>
 		
 </section>

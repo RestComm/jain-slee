@@ -33,9 +33,14 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextInterface;
+import org.mobicents.slee.container.activity.ActivityEventQueueManager;
 import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.eventrouter.EventRoutingTask;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
+import org.mobicents.slee.container.transaction.SleeTransaction;
+import org.mobicents.slee.container.transaction.SleeTransactionManager;
+import org.mobicents.slee.container.transaction.TransactionContext;
+import org.mobicents.slee.container.transaction.TransactionalAction;
 
 /**
  * 
@@ -272,20 +277,39 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 	private static final String[] EMPTY_STRING_ARRAY = {}; 
 	private static final TimerID[] EMPTY_TIMERID_ARRAY = {};
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.ActivityContextInterfaceExt#getNamesBound()
-	 */
+	// SLEE 1.1 Extensions
+	
+	@Override
 	public String[] getNamesBound() {
 		return activityContext.getNamingBindings().toArray(EMPTY_STRING_ARRAY);		
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.ActivityContextInterfaceExt#getTimers()
-	 */
+	@Override
 	public TimerID[] getTimers() {
 		return activityContext.getAttachedTimers().toArray(EMPTY_TIMERID_ARRAY);
 	}
-	
+
+	@Override
+	public void suspend() throws TransactionRequiredLocalException,
+			SLEEException {
+		final SleeTransactionManager txManager = sleeContainer
+				.getTransactionManager();
+		txManager.mandateTransaction();
+		try {
+			final SleeTransaction tx = txManager.getTransaction();
+			final ActivityEventQueueManager aeqm = activityContext
+					.getLocalActivityContext().getEventQueueManager();
+			aeqm.createBarrier(tx);
+			final TransactionalAction action = new TransactionalAction() {
+				public void execute() {
+					aeqm.removeBarrier(tx);
+				}
+			};
+			final TransactionContext tc = tx.getTransactionContext();
+			tc.getAfterCommitActions().add(action);
+			tc.getAfterRollbackActions().add(action);
+		} catch (Throwable e) {
+			throw new SLEEException(e.getMessage(), e);
+		}
+	}
 }

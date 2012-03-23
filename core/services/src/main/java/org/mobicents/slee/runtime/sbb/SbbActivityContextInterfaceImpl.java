@@ -260,20 +260,21 @@ public class SbbActivityContextInterfaceImpl implements
 		return value;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.ActivityContextInterfaceExt#getNamesBound()
-	 */
+	// SLEE 1.1 Extensions 
+
+	@Override
 	public String[] getNamesBound() {
 		return aciImpl.getNamesBound();
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.ActivityContextInterfaceExt#getTimers()
-	 */
+
+	@Override
 	public TimerID[] getTimers() {
 		return aciImpl.getTimers();
 	}
-	
+
+	@Override
+	public void suspend() throws TransactionRequiredLocalException,
+			SLEEException {
+		aciImpl.suspend();
+	}
 }
