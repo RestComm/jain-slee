@@ -25,6 +25,12 @@ package org.mobicents.slee;
 import javax.slee.ActivityContextInterface;
 import javax.slee.facilities.TimerID;
 
+/**
+ * JAIN SLEE 1.1 {@link ActivityContextInterface} Extension.
+ * 
+ * @author martins
+ * 
+ */
 public interface ActivityContextInterfaceExt extends ActivityContextInterface {
 
 	/**
@@ -42,5 +48,18 @@ public interface ActivityContextInterfaceExt extends ActivityContextInterface {
 	 * @return an array with the names bound.
 	 */
 	public String[] getNamesBound();
+
+	/**
+	 * Suspends the routing of events on the activity context, till the current
+	 * transaction ends.
+	 * 
+	 * @throws javax.slee.TransactionRequiredLocalException
+	 *             if it is invoked without a valid transaction context.
+	 * @throws javax.slee.SLEEException
+	 *             if the requested operation cannot be performed due to a
+	 *             system-level failure.
+	 */
+	public void suspend() throws javax.slee.TransactionRequiredLocalException,
+			javax.slee.SLEEException;
 
 }
