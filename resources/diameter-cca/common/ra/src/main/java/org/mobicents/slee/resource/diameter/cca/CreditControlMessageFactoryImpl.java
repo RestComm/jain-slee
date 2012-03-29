@@ -112,8 +112,8 @@ public class CreditControlMessageFactoryImpl implements CreditControlMessageFact
     //_ids.add(Avp.DESTINATION_HOST);
     //{ Auth-Application-Id }
     //_ids.add(Avp.AUTH_APPLICATION_ID);
-    //{ Service-Context-Id }
-    _ids.add(CreditControlAVPCodes.Service_Context_Id);
+    //{ Service-Context-Id } // NOT TO BE INCLUDED IN Credit-Control-Answer
+    //_ids.add(CreditControlAVPCodes.Service_Context_Id);
     //{ CC-Request-Type }
     _ids.add(CreditControlAVPCodes.CC_Request_Type);
     //{ CC-Request-Number }
