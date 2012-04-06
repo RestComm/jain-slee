@@ -73,6 +73,7 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 
     this.originHost = stack.getMetaData().getLocalPeer().getUri().toString();
     this.originRealm = stack.getMetaData().getLocalPeer().getRealmName();
+
     setSession(serverSession);
     super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
   }

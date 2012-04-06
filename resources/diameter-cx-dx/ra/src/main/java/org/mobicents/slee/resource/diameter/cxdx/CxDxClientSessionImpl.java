@@ -81,7 +81,9 @@ public class CxDxClientSessionImpl extends CxDxSessionImpl implements CxDxClient
    */
   public CxDxClientSessionImpl(CxDxMessageFactory messageFactory, CxDxAVPFactory avpFactory, ClientCxDxSession session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, SleeEndpoint endpoint) {
     super(messageFactory, avpFactory, session.getSessions().get(0), raEventListener, destinationHost, destinationRealm);
+
     setSession(session);
+    super.setCurrentWorkingSession(session.getSessions().get(0));
   }
 
   public void setSession(ClientCxDxSession session) {

@@ -63,8 +63,8 @@ public class AuthServerSessionActivityImpl extends AuthSessionActivityImpl imple
   public AuthServerSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ServerAuthSession serverSession, DiameterIdentity destinationHost, DiameterIdentity destinationRealm) {
     super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) serverSession, destinationHost, destinationRealm);
 
-    super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
     setSession(serverSession);
+    super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
   }
 
   public AbortSessionRequest createAbortSessionRequest() {

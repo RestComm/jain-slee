@@ -59,7 +59,6 @@ public class AccountingClientSessionActivityImpl extends AccountingSessionActivi
     super(messageFactory, avpFactory, null,(EventListener<Request, Answer>) clientSession, destinationHost, destinationRealm);
 
     setSession(clientSession);
-
     super.setCurrentWorkingSession(this.clientSession.getSessions().get(0));
   }
 

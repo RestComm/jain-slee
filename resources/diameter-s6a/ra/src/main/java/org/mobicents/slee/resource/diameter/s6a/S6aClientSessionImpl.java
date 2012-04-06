@@ -77,7 +77,9 @@ public class S6aClientSessionImpl extends S6aSessionImpl implements S6aClientSes
   public S6aClientSessionImpl(S6aMessageFactory s6aMessageFactory, S6aAVPFactory s6aAvpFactory, ClientS6aSession session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, Stack stack) {
     super(s6aMessageFactory, s6aAvpFactory, session.getSessions().get(0), raEventListener, destinationHost, destinationRealm);
     // FIXME: remove stack?
+
     setSession(session);
+    super.setCurrentWorkingSession(session.getSessions().get(0));
   }
 
   public void setSession(ClientS6aSession session) {

@@ -71,13 +71,15 @@ public class RfServerSessionActivityImpl extends RfSessionActivityImpl implement
 
   // boolean destroyAfterSending = false;
 
-  public RfServerSessionActivityImpl(RfMessageFactory rfMessageFactory, RfAvpFactory rfAvpFactory, ServerRfSession serverSession, DiameterIdentity destinationHost,
+  public RfServerSessionActivityImpl(RfMessageFactory rfMessageFactory, RfAvpFactory rfAvpFactory, ServerRfSession session, DiameterIdentity destinationHost,
       DiameterIdentity destinationRealm, Stack stack) {
-    super(rfMessageFactory, rfAvpFactory, null, (EventListener<Request, Answer>) serverSession, destinationHost, destinationRealm);
+    super(rfMessageFactory, rfAvpFactory, null, (EventListener<Request, Answer>) session, destinationHost, destinationRealm);
 
     this.originHost = stack.getMetaData().getLocalPeer().getUri().toString();
     this.originRealm = stack.getMetaData().getLocalPeer().getRealmName();
-    setSession(serverSession);
+
+    setSession(session);
+    super.setCurrentWorkingSession(session.getSessions().get(0));
   }
 
   public RfAccountingAnswer createRfAccountingAnswer(RfAccountingRequest request) {

@@ -71,8 +71,10 @@ public class GqServerSessionActivityImpl extends GqSessionActivityImpl implement
   public GqServerSessionActivityImpl(DiameterMessageFactory messageFactory, DiameterAvpFactory avpFactory, ServerAuthSession session,
       DiameterIdentity destinationHost, DiameterIdentity destinationRealm, Stack stack) {
     super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
+
     setSession(session);
-    super.setCurrentWorkingSession(this.session.getSessions().get(0));
+    super.setCurrentWorkingSession(session.getSessions().get(0));
+
     super.setGqMessageFactory(new GqMessageFactoryImpl(messageFactory, session.getSessionId(), stack));
   }
 

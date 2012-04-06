@@ -82,8 +82,9 @@ public class CxDxServerSessionImpl extends CxDxSessionImpl implements CxDxServer
    */
   public CxDxServerSessionImpl(CxDxMessageFactory cxdxMessageFactory, CxDxAVPFactory cxdxAvpFactory, ServerCxDxSession session, EventListener<Request, Answer> raEventListener, DiameterIdentity destinationHost, DiameterIdentity destinationRealm, Stack stack) {
     super(cxdxMessageFactory, cxdxAvpFactory, session.getSessions().get(0), raEventListener, destinationHost, destinationRealm);
-    // FIXME: why stack?
+
     setSession(session);
+    super.setCurrentWorkingSession(session.getSessions().get(0));
   }
 
   public void setSession(ServerCxDxSession session) {

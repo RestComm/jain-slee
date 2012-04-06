@@ -68,7 +68,7 @@ public class RoServerSessionActivityImpl extends RoSessionActivityImpl implement
     super(roMessageFactory, roAvpFactory, null, (EventListener<Request, Answer>) session, destinationRealm, destinationRealm);
 
     setSession(session);
-    super.setCurrentWorkingSession(this.session.getSessions().get(0));
+    super.setCurrentWorkingSession(session.getSessions().get(0));
   }
 
   /*
