@@ -22,7 +22,7 @@
 	
 	<properties>
 		<!-- Mobicents Diameter Components Versions -->
-		<mobicents.diameter.resources.sh-client.version>2.6.0-SNAPSHOT</mobicents.diameter.resources.sh-client.version>
+		<mobicents.diameter.resources.sh-client.version>2.7.0-SNAPSHOT</mobicents.diameter.resources.sh-client.version>
 		
 		<!-- Other Mobicents Components Versions -->
 		<mobicents.servers.jainslee.resources.sip11.version>2.5.0.FINAL</mobicents.servers.jainslee.resources.sip11.version>
