@@ -5,11 +5,11 @@
 	<parent>
 		<groupId>org.mobicents.servers.diameter.resources</groupId>
 		<artifactId>rx-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0.CR1</version>
 	</parent>
 
 	<artifactId>rx-ra-release</artifactId>
-  <version>2.4.0.FINAL</version>
+  <version>1.0.0.CR1</version>
 
 	<name>Mobicents :: Diameter Resources :: ${pom.artifactId}</name>
 
