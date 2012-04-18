@@ -48,7 +48,7 @@ public class RemoteEventWrapper implements Externalizable {
 
 	public RemoteEventWrapper() {
 		super();
-		// deff consturctor, so JVM can create instance.
+		// default constructor, so JVM can create instance.
 	}
 
 	// add more.
@@ -84,7 +84,7 @@ public class RemoteEventWrapper implements Externalizable {
 			throw new IOException("No serialized event set.");
 		}
 		// add id?
-		out.write(this.serializedEvent.length);
+		out.writeInt(this.serializedEvent.length);
 		out.write(this.serializedEvent);
 	}
 
@@ -95,11 +95,11 @@ public class RemoteEventWrapper implements Externalizable {
 	 */
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		int len = in.read();
+		int len = in.readInt();
 		this.serializedEvent = new byte[len];
 		in.read(serializedEvent);
-
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -132,15 +132,12 @@ public class RemoteEventWrapper implements Externalizable {
 	{
 		//possibly this should be moved to more generic package, so we can use it, ie. Marshaler objects of RA??
 		
-		
-		
 		/**
 		 * @throws IOException
 		 * @throws SecurityException
 		 */
 		public TCCLObjectInputStream() throws IOException, SecurityException {
 			super();
-			// TODO Auto-generated constructor stub
 		}
 
 		/**
@@ -149,7 +146,6 @@ public class RemoteEventWrapper implements Externalizable {
 		 */
 		public TCCLObjectInputStream(InputStream in) throws IOException {
 			super(in);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
