@@ -58,7 +58,7 @@
 		<section
 			id="stopping">
 			<title>Stopping</title>
-			<para>You can shut down the server(s) you can run server(s) by executing the <command>shutdown.sh -s</command> (Unix) or <command>shutdown.bat -s</command> (Microsoft Windows) scripts in the <filename>&lt;install_directory&gt;/bin</filename> directory (on Unix or Windows). Note that if you properly stop the server, you will see the following three lines as the last output in the Unix terminal or Command Prompt:</para>
+			<para>You can shut down the server(s) by executing the <command>shutdown.sh -s</command> (Unix) or <command>shutdown.bat -s</command> (Microsoft Windows) scripts in the <filename>&lt;install_directory&gt;/bin</filename> directory (on Unix or Windows). Note that if you properly stop the server, you will see the following three lines as the last output in the Unix terminal or Command Prompt:</para>
 			<screen><![CDATA[[Server] Shutdown complete
 Shutdown complete
 Halting VM]]></screen>
