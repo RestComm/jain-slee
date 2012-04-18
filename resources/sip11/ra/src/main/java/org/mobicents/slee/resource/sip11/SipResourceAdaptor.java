@@ -1636,11 +1636,11 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	public ActivityHandle getActivityHandle(Object activity) {
 		if (activity instanceof Wrapper) {
 			final Wrapper w = (Wrapper) activity;
-			return w != null ? w.getActivityHandle() : null;
+			if (w.getRa() == this) {
+				return w.getActivityHandle();
+			}			
 		}
-		else {
-			return null;
-		}
+		return null;		
 	}
 	
 	/*

@@ -105,10 +105,10 @@ public abstract class Wrapper {
 	public void clear() {
 		if (activityHandle != null) {
 			activityHandle.setActivity(null);
-		}
-		// leave the handle
-		// activityHandle = null;
-		ra = null;
+		}		
 	}
 	
+	public SipResourceAdaptor getRa() {
+		return ra;
+	}
 }
