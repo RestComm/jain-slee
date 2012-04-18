@@ -53,7 +53,7 @@
 				negative values indicates how many timeouts may occur before dialog is released.</description>
 			<config-property-name>timeout</config-property-name>
 			<config-property-type>java.lang.Integer</config-property-type>
-			<config-property-value>2</config-property-value>
+			<config-property-value>1</config-property-value>
 		</config-property>
 		
 	</resource-adaptor>
