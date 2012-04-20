@@ -205,14 +205,23 @@
 	<bean name="Mobicents.JAINSLEE.EventContextFactoryDataSource"
 		class="org.mobicents.slee.container.event.DefaultEventContextFactoryDataSource" />
 		
+	<bean name="Mobicents.JAINSLEE.EventContextFactoryConfiguration"
+		class="org.mobicents.slee.container.management.jmx.EventContextFactoryConfiguration">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=EventContextFactoryConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.EventContextFactoryConfigurationMBean.class,registerDirectly=true)</annotation>
+		<property name="defaultEventContextSuspensionTimeout">10000</property>
+	</bean>
+		
 	<bean name="Mobicents.JAINSLEE.EventContextFactory"
 		class="org.mobicents.slee.container.event.EventContextFactoryImpl">
 		<constructor>
 			<parameter>
-				<inject bean="Mobicents.JAINSLEE.EventContextFactoryDataSource" />
+				<inject bean="Mobicents.JAINSLEE.EventContextFactoryDataSource" />				
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.EventContextFactoryConfiguration" />
 			</parameter>
 		</constructor>
-	</bean>
+	</bean>	
 	
 	<bean name="Mobicents.JAINSLEE.CongestionControlConfiguration"
 		class="org.mobicents.slee.container.management.jmx.CongestionControlConfiguration">

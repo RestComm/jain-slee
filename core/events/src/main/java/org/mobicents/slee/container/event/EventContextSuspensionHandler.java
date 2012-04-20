@@ -45,13 +45,6 @@ import org.mobicents.slee.container.transaction.TransactionalAction;
  */
 public class EventContextSuspensionHandler {
 
-	/**
-	 * default timeout for a context suspension, 1 min seems appropriate since
-	 * this will block other events in the activity this could be configurable
-	 * but since the app can specify its own timeout value ...
-	 */
-	private static final int DEFAULT_TIMEOUT = 10000;
-
 	private final EventContextImpl event;
 
 	private final SleeContainer sleeContainer;
@@ -144,11 +137,6 @@ public class EventContextSuspensionHandler {
 				throw new IllegalStateException();
 			}
 		}
-	}
-
-	public void suspendDelivery() throws IllegalStateException,
-			TransactionRequiredLocalException, SLEEException {
-		suspendDelivery(DEFAULT_TIMEOUT);
 	}
 
 	public void suspendDelivery(final int timeout)

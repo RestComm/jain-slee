@@ -137,8 +137,7 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 	 */
 	public void suspendDelivery() throws IllegalStateException,
 			TransactionRequiredLocalException, SLEEException {
-		suspensionHandlerLazyInit();
-		suspensionHandler.suspendDelivery();
+		suspendDelivery(factory.getConfiguration().getDefaultEventContextSuspensionTimeout());
 	}
 	
 	/* (non-Javadoc)

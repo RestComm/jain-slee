@@ -1,0 +1,57 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="eventcontext_factory_configuration">
+	
+	<title>EventContext Factory Configuration</title>
+	
+	<para>The EventContext Factory is responsible for managing all EventContexts in the SLEE Container, and its behavior is configurable.</para>
+		
+	<para>The EventContext Factory configuration can be changed through an XML file and a JMX MBean.</para>
+	
+		<section id="eventcontext_factory_persistent_configuration">
+			<title>EventContext Factory Persistent Configuration</title>
+			<para>Configuration is done through an XML descriptor for each &THIS.PLATFORM; Cluster. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>{JBOSS_HOME}/server/{profile_name}/deploy/mobicents-slee/META-INF</filename></para>
+			<para>The configuration is exposed a JBoss Microcontainer Bean:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+<bean name="Mobicents.JAINSLEE.EventContextFactoryConfiguration"
+	class="org.mobicents.slee.container.management.jmx.EventContextFactoryConfiguration">
+	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name=
+		"org.mobicents.slee:name=EventContextFactoryConfiguration",exposedInterface=
+		org.mobicents.slee.container.management.jmx.EventContextFactoryConfigurationMBean.class,
+		registerDirectly=true)</annotation>
+	<property name="defaultEventContextSuspensionTimeout">60000</property>
+</bean>]]>
+			</programlisting>
+			<table frame="all" pgwide="1">
+			  	<title>EventContext Factory Bean Configuration</title>
+				<tgroup colsep="1" cols="3">
+			    	<colspec colnum="1" colname="c0"/>
+				    <colspec colnum="2" colname="c1"/>
+				    <colspec colnum="3" colname="c2"/>
+				    <thead>
+						<row>
+					        <entry>Property Name</entry>
+				    	    <entry>Property Type</entry>
+					    	<entry>Description</entry>
+	      				</row>
+				    </thead>
+				    <tbody>
+					      <row>
+					      	<entry>defaultEventContextSuspensionTimeout</entry>
+				    	    <entry>int</entry>
+				       		<entry>defines the default timeout applied when suspending delivery of an EventContext</entry>
+					      </row>					      					      					 
+			    	</tbody>
+			  	</tgroup>
+			</table>
+		</section>
+		
+		<section id="eventcontext_factory_jmx_configuration">
+			<title>EventContext Factory JMX Configuration</title>
+			<para>Through JMX the EventContext Factory module configuration can be changed with the container running. Note that such configuration changes are not persisted.</para>			
+			<para>The JMX MBean which can be used to change the EventContext Factory configuration is named <application>org.mobicents.slee:name=EventContextFactoryConfiguration</application>, and provides getters and setters to change each property defined in the persistent configuration. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
+		</section>	
+		
+</section>
+	
