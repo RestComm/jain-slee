@@ -42,7 +42,6 @@ import org.apache.log4j.Logger;
 import org.jboss.util.naming.Util;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
-import org.mobicents.cache.MobicentsCache;
 import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
@@ -614,7 +613,6 @@ public class SleeContainer {
 		
 		// notify modules and complete request
 		final Runnable task = new Runnable() {			
-			@Override
 			public void run() {
 				try {
 					if (newState == SleeState.STARTING) {
