@@ -455,12 +455,15 @@ public class SbbEntityImpl implements SbbEntity {
 
 		// store some info about the invocation in the tx context
 		final EventRoutingTransactionData data = new EventRoutingTransactionDataImpl(
-				sleeEvent, aci);
-		if (!isReentrant()) {
-			data.getInvokedNonReentrantSbbEntities().add(sbbeId);
-		}
+				sleeEvent, aci);		
 		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 		txContext.setEventRoutingTransactionData(data);
+		// track sbb entity invocations if reentrant
+		Set<SbbEntityID> invokedSbbentities = null;
+		if (!isReentrant()) {
+			invokedSbbentities = txContext.getInvokedNonReentrantSbbEntities();
+			invokedSbbentities.add(sbbeId);
+		}
 		// invoke method
 		try {
 
@@ -517,6 +520,11 @@ public class SbbEntityImpl implements SbbEntity {
 			}
 		} catch(Exception e) {
 			log.error(e.getMessage(),e);
+		}
+		finally {
+			if(invokedSbbentities != null) {
+				invokedSbbentities.remove(sbbeId);
+			}
 		}
 		// remove data from tx context
 		txContext.setEventRoutingTransactionData(null);

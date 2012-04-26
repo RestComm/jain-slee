@@ -79,8 +79,7 @@ public class SbbLocalObjectInterceptor {
 		Set<SbbEntityID> invokedsbbEntities = null;
 		if (!sbbEntity.isReentrant()) {
 			invokedsbbEntities = sleeContainer
-				.getTransactionManager().getTransactionContext()
-				.getEventRoutingTransactionData().getInvokedNonReentrantSbbEntities();		
+				.getTransactionManager().getTransactionContext().getInvokedNonReentrantSbbEntities();		
 			if (!invokedsbbEntities.add(sbbEntity.getSbbEntityId())) {
 				throw new SLEEException(" unable to invoke sbb local object, re-entrancy not allowed by sbb "+sbbEntity.getSbbId());
 			}

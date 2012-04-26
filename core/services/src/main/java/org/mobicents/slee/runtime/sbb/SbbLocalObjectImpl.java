@@ -253,9 +253,9 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
     		logger.trace("remove()");
     	        
        validateInvocation();
-        
+       
        if (!sbbEntity.isReentrant()
-				&& sleeContainer.getTransactionManager().getTransactionContext().getEventRoutingTransactionData()
+				&& sleeContainer.getTransactionManager().getTransactionContext()
 						.getInvokedNonReentrantSbbEntities().contains(sbbEntity.getSbbEntityId()))
 			throw new SLEEException(" re-entrancy not allowed ");             
         

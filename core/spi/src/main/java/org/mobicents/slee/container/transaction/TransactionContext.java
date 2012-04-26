@@ -24,8 +24,10 @@ package org.mobicents.slee.container.transaction;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * 
@@ -97,5 +99,13 @@ public interface TransactionContext {
 	 * @param eventRoutingTransactionData
 	 */
 	public void setEventRoutingTransactionData(EventRoutingTransactionData eventRoutingTransactionData);
+	
+	/**
+	 * Retrieves a set with the non reentrant sbb entities in the call tree, since the
+	 * event was passed to the event handler method
+	 * 
+	 * @return
+	 */
+	public Set<SbbEntityID> getInvokedNonReentrantSbbEntities();
 	
 }

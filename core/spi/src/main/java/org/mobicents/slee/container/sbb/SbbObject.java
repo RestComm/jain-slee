@@ -27,9 +27,7 @@ package org.mobicents.slee.container.sbb;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.CreateException;
-import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
-import javax.slee.SbbContext;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 
@@ -60,14 +58,6 @@ public interface SbbObject {
 	 * 
 	 */
 	public Sbb getSbbConcrete();
-
-	/**
-	 * Getter for property sbbContextobj.
-	 * 
-	 * @return Value of property sbbContextobj.
-	 * 
-	 */
-	public SbbContext getSbbContext();
 
 	public SbbEntity getSbbEntity() throws TransactionRequiredLocalException;
 

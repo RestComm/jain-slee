@@ -24,11 +24,14 @@ package org.mobicents.slee.runtime.transaction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
 
@@ -84,7 +87,7 @@ public class TransactionContextImpl implements TransactionContext {
 	/**
 	 * transaction data
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private Map data;
 
 	/**
@@ -154,7 +157,7 @@ public class TransactionContextImpl implements TransactionContext {
 
 	// ------- DATA MANAGEMENT
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Map getData() {
 		if (data == null) {
 			data = new HashMap();
@@ -243,6 +246,7 @@ public class TransactionContextImpl implements TransactionContext {
 	protected void cleanup() {
 		data = null;
 		eventRoutingTransactionData = null;
+		invokedSbbEntities = null;
 	}
 
 	public EventRoutingTransactionData getEventRoutingTransactionData() {
@@ -251,6 +255,25 @@ public class TransactionContextImpl implements TransactionContext {
 
 	public void setEventRoutingTransactionData(EventRoutingTransactionData eventRoutingTransactionData) {
 		this.eventRoutingTransactionData = eventRoutingTransactionData;
+	}
+	
+	/**
+	 * a linked list with the non reentrant sbb entities in the call tree, since the event was
+	 * passed to the event handler method
+	 */
+	private Set<SbbEntityID> invokedSbbEntities = null;
+	
+	/**
+	 * Retrieves a set with the non reentrant sbb entities in the call tree, since the
+	 * event was passed to the event handler method
+	 * 
+	 * @return
+	 */
+	public Set<SbbEntityID> getInvokedNonReentrantSbbEntities() {
+		if (invokedSbbEntities == null) {
+			invokedSbbEntities = new HashSet<SbbEntityID>();
+		}
+		return invokedSbbEntities;
 	}
 	
 }
