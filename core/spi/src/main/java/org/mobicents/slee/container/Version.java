@@ -51,6 +51,7 @@ public final class Version {
 	 *
 	 * @return 
 	 */
+	@SuppressWarnings("rawtypes")
 	public Map getProperties() {
 		return Collections.unmodifiableMap(props);
 	}
