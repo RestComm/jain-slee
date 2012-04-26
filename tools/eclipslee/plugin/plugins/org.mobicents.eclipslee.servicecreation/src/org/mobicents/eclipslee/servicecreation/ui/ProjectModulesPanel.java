@@ -24,10 +24,13 @@ package org.mobicents.eclipslee.servicecreation.ui;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 
 /**
  * 
@@ -60,11 +63,16 @@ public class ProjectModulesPanel extends Composite {
   private Button libraryCheckbox;
   private Button deployableUnitCheckbox;
 
+  private Button hlService;
+  private Button hlEnabler;
+  private Button hlResourceAdaptor;
+  private Button hlCustom;
+
   public ProjectModulesPanel(Composite parent, int style) {
     super(parent, style);
 
     GridLayout layout = new GridLayout();
-    layout.numColumns = 1;
+    layout.numColumns = 2;
     setLayout(layout);
     
     Group sleeExtGroup = new Group(this, SWT.SHADOW_ETCHED_IN);
@@ -75,22 +83,139 @@ public class ProjectModulesPanel extends Composite {
     sleeExtCheckbox.pack();
 
     new Button(this, SWT.CHECK).setVisible(false);
+
+    new Label(this, SWT.NONE); // just to fill the cell..
+
+    new Label(this, SWT.NONE); // just to fill the cell..
+
+    Label hlLabel = new Label(this, SWT.NONE);
+    hlLabel.setText("Select a High-Level Component Type");
+
+    new Label(this, SWT.NONE); // just to fill the cell..
+
+    //Group sleeHighLevelGroup = new Group(this, SWT.NORMAL);
+    //sleeHighLevelGroup.setText("JAIN SLEE High-Level Project Types");
+    hlService = new Button(this, SWT.RADIO);
+    hlService.setText("JAIN SLEE Service");
+    hlService.addSelectionListener(new SelectionListener() {
+      public void widgetSelected(SelectionEvent se) {
+        eventsCheckbox.setEnabled(true);
+        eventsCheckbox.setSelection(false);
+
+        sbbCheckbox.setEnabled(false);
+        sbbCheckbox.setSelection(true);
+
+        profileSpecCheckbox.setEnabled(true);
+        profileSpecCheckbox.setSelection(false);
+
+        libraryCheckbox.setEnabled(true);
+        libraryCheckbox.setSelection(false);
+        
+        raTypeCheckbox.setEnabled(false);
+        raTypeCheckbox.setSelection(false);
+
+        raCheckbox.setEnabled(false);
+        raCheckbox.setSelection(false);;
+      }
+      
+      public void widgetDefaultSelected(SelectionEvent se) {
+        // NO-OP
+      }
+    });
+    hlService.pack();
+
+    hlEnabler = new Button(this, SWT.RADIO);
+    hlEnabler.setText("JAIN SLEE Enabler");
+    hlEnabler.addSelectionListener(new SelectionListener() {
+      public void widgetSelected(SelectionEvent se) {
+        eventsCheckbox.setEnabled(true);
+        eventsCheckbox.setSelection(false);
+
+        sbbCheckbox.setEnabled(false);
+        sbbCheckbox.setSelection(true);
+
+        profileSpecCheckbox.setEnabled(true);
+        profileSpecCheckbox.setSelection(false);
+
+        libraryCheckbox.setEnabled(true);
+        libraryCheckbox.setSelection(false);
+        
+        raTypeCheckbox.setEnabled(false);
+        raTypeCheckbox.setSelection(false);
+
+        raCheckbox.setEnabled(false);
+        raCheckbox.setSelection(false);;
+      }
+      
+      public void widgetDefaultSelected(SelectionEvent se) {
+        // NO-OP
+      }
+    });
+    hlEnabler.pack();
     
+    hlResourceAdaptor = new Button(this, SWT.RADIO);
+    hlResourceAdaptor.setText("JAIN SLEE Resource Adaptor");
+    hlResourceAdaptor.addSelectionListener(new SelectionListener() {
+      public void widgetSelected(SelectionEvent se) {
+        eventsCheckbox.setEnabled(true);
+        eventsCheckbox.setSelection(true);
+
+        raTypeCheckbox.setEnabled(true);
+        raTypeCheckbox.setSelection(true);
+
+        raCheckbox.setEnabled(false);
+        raCheckbox.setSelection(true);;
+
+        libraryCheckbox.setEnabled(true);
+        libraryCheckbox.setSelection(false);
+        
+        sbbCheckbox.setEnabled(false);
+        sbbCheckbox.setSelection(false);
+
+        profileSpecCheckbox.setEnabled(false);
+        profileSpecCheckbox.setSelection(false);
+      }
+      
+      public void widgetDefaultSelected(SelectionEvent se) {
+        // NO-OP
+      }
+    });
+    hlResourceAdaptor.pack();
+
+    hlCustom = new Button(this, SWT.RADIO);
+    hlCustom.setText("Custom...");
+    hlCustom.addSelectionListener(new SelectionListener() {
+      public void widgetSelected(SelectionEvent se) {
+        eventsCheckbox.setEnabled(true);
+        raTypeCheckbox.setEnabled(true);
+        raCheckbox.setEnabled(true);
+        libraryCheckbox.setEnabled(true);
+        sbbCheckbox.setEnabled(true);
+        profileSpecCheckbox.setEnabled(true);
+      }
+
+      public void widgetDefaultSelected(SelectionEvent se) {
+        // NO-OP
+      }
+    });
+    hlCustom.setSelection(true);
+    hlCustom.pack();
+    
+    new Label(this, SWT.NONE); // just to fill the cell..
+
+    new Label(this, SWT.NONE); // just to fill the cell..
+
+    new Label(this, SWT.NONE).setText("Components:");
+
+    new Label(this, SWT.NONE); // just to fill the cell..
+
     eventsCheckbox = new Button(this, SWT.CHECK);
     eventsCheckbox.setText(EVENTS_MODULE_TEXT);
     eventsCheckbox.setSelection(false);
 
-    sbbCheckbox = new Button(this, SWT.CHECK);
-    sbbCheckbox.setText(SBB_MODULE_TEXT);
-    sbbCheckbox.setSelection(true);
-
     profileSpecCheckbox = new Button(this, SWT.CHECK);
     profileSpecCheckbox.setText(PROFILE_SPEC_MODULE_TEXT);
     profileSpecCheckbox.setSelection(false);
-
-    // serviceCheckbox = new Button(this, SWT.CHECK);
-    // serviceCheckbox.setText(SERVICE_MODULE_TEXT);
-    // serviceCheckbox.setSelection(false);
 
     raTypeCheckbox = new Button(this, SWT.CHECK);
     raTypeCheckbox.setText(RA_TYPE_MODULE_TEXT);
@@ -99,6 +224,14 @@ public class ProjectModulesPanel extends Composite {
     raCheckbox = new Button(this, SWT.CHECK);
     raCheckbox.setText(RA_MODULE_TEXT);
     raCheckbox.setSelection(false);
+
+    sbbCheckbox = new Button(this, SWT.CHECK);
+    sbbCheckbox.setText(SBB_MODULE_TEXT);
+    sbbCheckbox.setSelection(true);
+
+    // serviceCheckbox = new Button(this, SWT.CHECK);
+    // serviceCheckbox.setText(SERVICE_MODULE_TEXT);
+    // serviceCheckbox.setSelection(false);
 
     libraryCheckbox = new Button(this, SWT.CHECK);
     libraryCheckbox.setText(LIBRARY_MODULE_TEXT);
