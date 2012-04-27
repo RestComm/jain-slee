@@ -48,7 +48,7 @@ public interface ActivityContextFactory extends SleeContainerModule {
 
 	/**
 	 * Retrieves the {@link ActivityContext} for the specified
-	 * {@link ActivityContextHandle}.
+	 * {@link ActivityContextHandle}. Same as getActivityContext(ach,false).
 	 * 
 	 * @param ach
 	 * @return null if no such activity context exists
@@ -68,6 +68,29 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 * @return null if no such activity context exists
 	 */
 	public ActivityContext getActivityContext(ActivityContextHandle ach,
+			boolean updateLastAccessTime);
+	
+	/**
+	 * Retrieves the {@link ActivityContext} for the specified string id.
+	 * Same as getActivityContext(sid,false).
+	 * 
+	 * @param sid
+	 * @return null if no such activity context exists
+	 */
+	public ActivityContext getActivityContext(String sid);
+	
+	/**
+	 * Retrieves the {@link ActivityContext} for the specified string id.
+	 * 
+	 * @param sid
+	 * @param updateLastAccessTime
+	 *            indicates if an update of last access time is needed. Note
+	 *            that this doesn't mean an update will be done, it may depend
+	 *            if activity idleness checks are on, the activity type or
+	 *            simply when last update was done.
+	 * @return null if no such activity context exists
+	 */
+	public ActivityContext getActivityContext(String sid,
 			boolean updateLastAccessTime);
 
 	/**

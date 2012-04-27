@@ -707,4 +707,19 @@ public class ActivityContextImpl implements ActivityContext {
 			acReferencesHandler.sbbeReferenceCreated(true);
 		}
 	}
+	
+	@Override
+	public String getStringID() {
+		return getStringID(true);
+	}
+	
+	public String getStringID(boolean createIfNull) {
+		String sid = cacheData.getStringID();
+		if (sid == null && createIfNull) {
+			sid = sleeContainer.getUuidGenerator().createUUID();
+			cacheData.setStringID(sid);
+		}
+		return sid;
+	}
+	
 }

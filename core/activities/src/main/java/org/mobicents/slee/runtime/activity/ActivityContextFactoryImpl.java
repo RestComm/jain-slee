@@ -33,6 +33,7 @@ import org.jboss.cache.Fqn;
 import org.mobicents.cluster.DataRemovalListener;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityType;
@@ -160,6 +161,26 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		else {
 			return null; 
 		}
+	}
+	
+	@Override
+	public ActivityContext getActivityContext(String sid) {
+		return getActivityContext(sid, false);
+	}
+
+	@Override
+	public ActivityContext getActivityContext(String sid,
+			boolean updateLastAccessTime) {
+		// TODO add alternative strategy where there is a cache data mapping from sid to
+		// ach, and configuration option to select strategy
+		ActivityContextImpl ac = null;
+		for (ActivityContextHandle ach : getAllActivityContextsHandles()) {
+			ac = getActivityContext(ach, updateLastAccessTime);
+			if (sid.equals(ac.getStringID(false))) {
+				break;
+			}
+		}
+		return ac;
 	}
 	
 	/*

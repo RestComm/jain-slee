@@ -79,6 +79,8 @@ public class ActivityContextCacheData extends CacheData {
 
 	private static final Boolean CMP_ATTRIBUTES_NODE_MAP_KEY = Boolean.TRUE;
 
+	private static final String STRING_ID_ATTRIBUTE_MAP_KEY = "sid";
+	
 	private Node _attachedSbbsNode;
 	
 	private Node getAttachedSbbsNode(boolean createIfNotExists) {
@@ -396,6 +398,16 @@ public class ActivityContextCacheData extends CacheData {
 			}
 			return result;
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public String getStringID() {
+		return (String) getNode().get(STRING_ID_ATTRIBUTE_MAP_KEY);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setStringID(String sid) {
+		getNode().put(STRING_ID_ATTRIBUTE_MAP_KEY, sid);
 	}
 
 }

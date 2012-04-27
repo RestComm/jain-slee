@@ -226,5 +226,11 @@ public interface ActivityContext {
 	 * 
 	 */
 	public void beforeDeliveringEvent(EventContext eventContext);
-
+	
+	/**
+	 * Retrieves the assigned String ID. 
+	 * @return
+	 */
+	public String getStringID();
+	
 }
