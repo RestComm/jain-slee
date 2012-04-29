@@ -24,6 +24,7 @@ package org.mobicents.slee.runtime.sbbentity;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -59,7 +60,9 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	private static final boolean doTraceLogs = logger.isTraceEnabled();
 	
 	protected SbbEntityLockFacility lockFacility;
-
+	
+	private final SbbEntityIDComparator sbbEntityIDComparator = new SbbEntityIDComparator(this); 
+	
 	@Override
 	public void sleeInitialization() {
 		this.lockFacility = new SbbEntityLockFacility(sleeContainer);
@@ -331,10 +334,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		}
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
+	@Override
 	public Set<SbbEntityID> getSbbEntityIDs() {
 		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster());
 		if (cacheData.exists()) {
@@ -343,5 +343,12 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		else {
 			return Collections.emptySet();
 		}
+	}
+	
+	@Override
+	public Set<SbbEntityID> sortByPriority(Set<SbbEntityID> ids) {
+		final Set<SbbEntityID> orderSbbSet = new TreeSet<SbbEntityID>(sbbEntityIDComparator);
+		orderSbbSet.addAll(ids);
+		return orderSbbSet;
 	}
 }

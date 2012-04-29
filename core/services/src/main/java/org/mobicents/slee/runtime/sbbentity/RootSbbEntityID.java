@@ -177,7 +177,7 @@ public class RootSbbEntityID implements SbbEntityID {
 	public String toString() {
 		if (toString == null) {
 			toString = new StringBuilder("/").append(serviceID.toString())
-					.append("/").append(convergenceName).toString();
+					.append('/').append(convergenceName).toString();
 		}
 		return toString;
 	}

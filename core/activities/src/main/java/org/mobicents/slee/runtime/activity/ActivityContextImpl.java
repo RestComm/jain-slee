@@ -22,10 +22,9 @@
 
 package org.mobicents.slee.runtime.activity;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.slee.Address;
 import javax.slee.EventTypeID;
@@ -90,9 +89,6 @@ public class ActivityContextImpl implements ActivityContext {
 	 * the data stored in cache for this ac
 	 */
 	protected final ActivityContextCacheData cacheData;
-
-	private static final SbbEntityComparator sbbEntityComparator = new SbbEntityComparator(
-			sleeContainer.getSbbEntityFactory());
 
 	private final ActivityContextFactoryImpl factory;
 
@@ -397,18 +393,20 @@ public class ActivityContextImpl implements ActivityContext {
 	 * @return list of SbbEIDs
 	 * 
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Set<SbbEntityID> getSortedSbbAttachmentSet(
 			Set<SbbEntityID> excludeSet) {
 		final Set<SbbEntityID> sbbAttachementSet = cacheData
 				.getSbbEntitiesAttached();
-		final SortedSet orderSbbSet = new TreeSet(sbbEntityComparator);
+		Set<SbbEntityID> result = new HashSet<SbbEntityID>();
 		for (SbbEntityID sbbEntityId : sbbAttachementSet) {
 			if (!excludeSet.contains(sbbEntityId)) {
-				orderSbbSet.add(sbbEntityId);
+				result.add(sbbEntityId);
 			}
 		}
-		return orderSbbSet;
+		if (result.size() > 1) {
+			result = sleeContainer.getSbbEntityFactory().sortByPriority(result);
+		}
+		return result;
 	}
 
 	public Set<SbbEntityID> getSbbAttachmentSet() {

@@ -124,7 +124,7 @@ public class NonRootSbbEntityID implements SbbEntityID {
 	@Override
 	public String toString() {
 		if (toString == null) {
-			toString = new StringBuilder(parentSbbEntityID.toString()).append("/").append(parentChildRelation).append("/").append(childID).toString();
+			toString = new StringBuilder(parentSbbEntityID.toString()).append('/').append(parentChildRelation).append('/').append(childID).toString();
 		}
 		return toString;
 	}

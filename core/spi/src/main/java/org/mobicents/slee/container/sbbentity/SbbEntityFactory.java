@@ -96,4 +96,13 @@ public interface SbbEntityFactory extends SleeContainerModule {
 	public void removeSbbEntity(SbbEntity sbbEntity,
 			boolean useCurrentClassLoader);
 
+	/**
+	 * Orders the specified set of {@link SbbEntityID}, according to priority of
+	 * related Sbb Entities. In case 2 Sbb Entities have same priority, order is
+	 * defined by comparing the toString() of the IDs.
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	public Set<SbbEntityID> sortByPriority(Set<SbbEntityID> ids);
 }
