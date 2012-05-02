@@ -48,7 +48,14 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<goals>
+							<goal>copy-dependencies</goal>
+							<goal>generate-descriptor</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<library-name>isup</library-name>
 					<library-vendor>mobicents.org</library-vendor>
