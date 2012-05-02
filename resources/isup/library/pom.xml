@@ -3,8 +3,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<packaging>jainslee-library</packaging>
-
 	<parent>
 		<artifactId>isup-parent</artifactId>
 		<groupId>org.mobicents.resources</groupId>
