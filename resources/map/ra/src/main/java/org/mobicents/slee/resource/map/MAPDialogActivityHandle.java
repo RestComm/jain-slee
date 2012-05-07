@@ -26,7 +26,7 @@ import java.io.Serializable;
 
 import javax.slee.resource.ActivityHandle;
 
-import org.mobicents.protocols.ss7.map.api.MAPDialog;
+import org.mobicents.slee.resource.map.wrappers.MAPDialogWrapper;
 
 /**
  * 
@@ -35,15 +35,10 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
  */
 public class MAPDialogActivityHandle implements Serializable, ActivityHandle {
 
-	//private MAPDialog mapDialog;
 	private long dialogId;
-	private int timeoutCount;  //not a best thing, but now its the only way.
+	private transient MAPDialogWrapper activity;
 	
-	public MAPDialogActivityHandle(MAPDialog mapDialog) {
-		this.dialogId = mapDialog.getDialogId();
-	}
 
-	
 	/**
 	 * @param dialogId
 	 */
@@ -52,6 +47,18 @@ public class MAPDialogActivityHandle implements Serializable, ActivityHandle {
 		this.dialogId = dialogId;
 	}
 
+	public long getDialogId() {
+		return this.dialogId;
+	}
+
+
+	public MAPDialogWrapper getActivity() {
+		return activity;
+	}
+
+	public void setActivity(MAPDialogWrapper activity) {
+		this.activity = activity;
+	}
 
 	@Override
 	public int hashCode() {
@@ -80,24 +87,5 @@ public class MAPDialogActivityHandle implements Serializable, ActivityHandle {
 	@Override
 	public String toString() {
 		return "MAPDialogActivityHandle(id=" + this.dialogId + ")";
-	}
-
-	public long getDialogId() {
-		return this.dialogId;
-	}
-
-	public void increateTimeoutCount()
-	{
-		this.timeoutCount++;
-	}
-	
-	public int getTimeoutCount()
-	{
-		return this.timeoutCount;
-	}
-	
-	public void resetTimeoutCount()
-	{
-		this.timeoutCount = 0;
 	}
 }

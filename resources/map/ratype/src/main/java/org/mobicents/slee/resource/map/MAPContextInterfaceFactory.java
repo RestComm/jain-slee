@@ -22,11 +22,11 @@
 
 package org.mobicents.slee.resource.map;
 
-import org.mobicents.protocols.ss7.map.api.MAPDialog;
-
 import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
 import javax.slee.UnrecognizedActivityException;
+
+import org.mobicents.protocols.ss7.map.api.MAPDialog;
 
 /**
  * 

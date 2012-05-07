@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.resource.map.wrappers;
+package org.mobicents.slee.resource.map.service.lsm.wrappers;
 
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPException;
@@ -30,8 +30,9 @@ import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
 import org.mobicents.protocols.ss7.map.api.service.lsm.MAPDialogLsm;
 import org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm;
 import org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsmListener;
-import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementary;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.slee.resource.map.MAPDialogActivityHandle;
+import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
 
 /**
  * @author baranowb
@@ -116,7 +117,19 @@ public class MAPServiceLsmWrapper implements MAPServiceLsm {
 	@Override
 	public MAPDialogLsm createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress, AddressString addressstring,
 			SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
-		return this.wrappedLSM.createNewDialog(mapapplicationcontext, sccpaddress, addressstring, sccpaddress1, addressstring1);
+
+		MAPDialogLsm mapDialogLsm = this.wrappedLSM.createNewDialog(mapapplicationcontext, sccpaddress, addressstring, sccpaddress1, addressstring1);
+		MAPDialogActivityHandle activityHandle = new MAPDialogActivityHandle(mapDialogLsm.getDialogId());
+		MAPDialogLsmWrapper dw = new MAPDialogLsmWrapper(mapDialogLsm, activityHandle, this.mapProviderWrapper.getRa());
+		mapDialogLsm.setUserObject(dw);
+		
+		try {
+			this.mapProviderWrapper.getRa().createActivity(dw);
+		} catch (Exception e) {
+			throw new MAPException(e);
+		}
+		
+		return dw;
 	}
 
 	/* (non-Javadoc)

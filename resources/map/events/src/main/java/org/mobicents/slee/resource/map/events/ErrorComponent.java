@@ -35,7 +35,7 @@ public class ErrorComponent extends ComponentEvent {
 
 	protected  MAPErrorMessage mapErrorMessage;
 	/**
-	 * @param mAPDialog
+	 * @param mapDialogWrapper
 	 * @param invokeId
 	 */
 	public ErrorComponent(MAPDialog mAPDialog, Long invokeId, MAPErrorMessage mapErrorMessage) {

@@ -26,22 +26,22 @@ import org.mobicents.protocols.ss7.map.api.MAPDialog;
 
 /**
  * @author baranowb
- *
+ * 
  */
-public class DialogTimeout extends MAPEvent<MAPDialog> {
+public class DialogTimeout extends MAPEvent {
 
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_TIMEOUT";
-	
+
 	/**
-	 * @param mAPDialog
+	 * @param mapDialogWrapper
 	 */
-	public DialogTimeout(MAPDialog mAPDialog) {
-		super(mAPDialog, EVENT_TYPE_NAME);
+	public DialogTimeout(MAPDialog mapDialogWrapper) {
+		super(mapDialogWrapper, EVENT_TYPE_NAME);
 	}
-	
+
 	@Override
 	public String toString() {
-		return "DialogClose [" + mAPDialog + "]";
+		return "DialogClose [" + this.mapDialogWrapper + "]";
 	}
 
 }

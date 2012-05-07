@@ -36,7 +36,7 @@ public class RejectComponent extends ComponentEvent {
 	
 	protected Problem problem;
 	/**
-	 * @param mAPDialog
+	 * @param mapDialogWrapper
 	 * @param invokeId
 	 */
 	public RejectComponent(MAPDialog mAPDialog, Long invokeId, Problem problem) {

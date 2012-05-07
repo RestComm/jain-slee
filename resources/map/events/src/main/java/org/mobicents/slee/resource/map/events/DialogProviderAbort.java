@@ -34,8 +34,8 @@ import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
  * @author amit bhayani
  * 
  */
-public class DialogProviderAbort extends MAPEvent<MAPDialog> {
-	
+public class DialogProviderAbort extends MAPEvent {
+
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_PROVIDERABORT";
 
 	private final MAPAbortProviderReason abortProviderReason;
@@ -43,11 +43,11 @@ public class DialogProviderAbort extends MAPEvent<MAPDialog> {
 	private final MAPExtensionContainer extensionContainer;
 
 	/**
-	 * @param mAPDialog
+	 * @param mapDialogWrapper
 	 */
-	public DialogProviderAbort(MAPDialog mAPDialog, MAPAbortProviderReason abortProviderReason,
+	public DialogProviderAbort(MAPDialog mapDialogWrapper, MAPAbortProviderReason abortProviderReason,
 			MAPAbortSource abortSource, MAPExtensionContainer extensionContainer) {
-		super(mAPDialog, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME);
 		this.abortProviderReason = abortProviderReason;
 		this.abortSource = abortSource;
 		this.extensionContainer = extensionContainer;
@@ -68,8 +68,7 @@ public class DialogProviderAbort extends MAPEvent<MAPDialog> {
 	@Override
 	public String toString() {
 		return "DialogProviderAbort [abortProviderReason=" + abortProviderReason + ", abortSource=" + abortSource
-				+ ", extensionContainer=" + extensionContainer + ", " + mAPDialog + "]";
+				+ ", extensionContainer=" + extensionContainer + ", " + this.mapDialogWrapper + "]";
 	}
-	
 
 }

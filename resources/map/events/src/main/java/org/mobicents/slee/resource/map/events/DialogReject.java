@@ -35,21 +35,22 @@ import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
  * @author amit bhayani
  * 
  */
-public class DialogReject extends MAPEvent<MAPDialog> {
+public class DialogReject extends MAPEvent {
 
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_REJECT";
-	
+
 	private final MAPRefuseReason refuseReason;
 	private final MAPProviderError providerError;
 	private final ApplicationContextName alternativeApplicationContext;
 	private final MAPExtensionContainer extensionContainer;
 
 	/**
-	 * @param mAPDialog
+	 * @param mapDialogWrapper
 	 */
-	public DialogReject(MAPDialog mAPDialog, MAPRefuseReason refuseReason, MAPProviderError providerError,
-			ApplicationContextName alternativeApplicationContext, MAPExtensionContainer extensionContainer) {
-		super(mAPDialog, EVENT_TYPE_NAME);
+	public DialogReject(MAPDialog mapDialogWrapper, MAPRefuseReason refuseReason,
+			MAPProviderError providerError, ApplicationContextName alternativeApplicationContext,
+			MAPExtensionContainer extensionContainer) {
+		super(mapDialogWrapper, EVENT_TYPE_NAME);
 		this.refuseReason = refuseReason;
 		this.providerError = providerError;
 		this.alternativeApplicationContext = alternativeApplicationContext;
@@ -76,7 +77,7 @@ public class DialogReject extends MAPEvent<MAPDialog> {
 	public String toString() {
 		return "DialogReject [refuseReason=" + refuseReason + ", providerError=" + providerError
 				+ ", alternativeApplicationContext=" + alternativeApplicationContext + ", extensionContainer="
-				+ extensionContainer + ", " + mAPDialog + "]";
+				+ extensionContainer + ", " + this.mapDialogWrapper + "]";
 	}
 
 }

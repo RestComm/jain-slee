@@ -34,8 +34,8 @@ import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
  * @author amit bhayani
  * 
  */
-public class DialogRequest extends MAPEvent<MAPDialog> {
-	
+public class DialogRequest extends MAPEvent {
+
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_REQUEST";
 
 	private boolean eriStyle = false;
@@ -45,28 +45,17 @@ public class DialogRequest extends MAPEvent<MAPDialog> {
 	private final IMSI eriImsi;
 	private final AddressString eriVlrNo;
 
-	public DialogRequest(MAPDialog mAPDialog, AddressString destReference, AddressString origReference, IMSI eriImsi,
-			AddressString eriVlrNo) {
-		super(mAPDialog, EVENT_TYPE_NAME);
-		this.destReference = destReference;
-		this.origReference = origReference;
-		this.eriImsi = eriImsi;
-		this.eriVlrNo = eriVlrNo;
-		this.eriStyle = true;
-		this.extensionContainer = null;
-	}
-
 	/**
-	 * @param mAPDialog
+	 * @param mapDialogWrapper
 	 */
-	public DialogRequest(MAPDialog mAPDialog, AddressString destReference, AddressString origReference,
-			MAPExtensionContainer extensionContainer) {
-		super(mAPDialog, EVENT_TYPE_NAME);
+	public DialogRequest(MAPDialog mapDialogWrapper, AddressString destReference, AddressString origReference,
+			MAPExtensionContainer extensionContainer, IMSI eriImsi, AddressString eriVlrNo) {
+		super(mapDialogWrapper, EVENT_TYPE_NAME);
 		this.destReference = destReference;
 		this.origReference = origReference;
 		this.extensionContainer = extensionContainer;
-		this.eriImsi = null;
-		this.eriVlrNo = null;
+		this.eriImsi = eriImsi;
+		this.eriVlrNo = eriVlrNo;
 	}
 
 	public AddressString getDestReference() {
@@ -97,7 +86,7 @@ public class DialogRequest extends MAPEvent<MAPDialog> {
 	public String toString() {
 		return "DialogRequest [eriStyle=" + eriStyle + ", destReference=" + destReference + ", origReference="
 				+ origReference + ", extensionContainer=" + extensionContainer + ", eriImsi=" + eriImsi + ", eriVlrNo="
-				+ eriVlrNo + ", " + mAPDialog + "]";
+				+ eriVlrNo + ", " + this.mapDialogWrapper + "]";
 	}
 
 }

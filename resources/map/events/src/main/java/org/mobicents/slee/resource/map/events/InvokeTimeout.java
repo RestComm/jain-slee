@@ -33,7 +33,7 @@ public class InvokeTimeout extends ComponentEvent {
 	private static final String EVENT_TYPE_NAME = "ss7.map.INVOKE_TIMEOUT";
 	
 	/**
-	 * @param mAPDialog
+	 * @param mapDialogWrapper
 	 * @param invokeId
 	 */
 	public InvokeTimeout(MAPDialog mAPDialog, Long invokeId) {

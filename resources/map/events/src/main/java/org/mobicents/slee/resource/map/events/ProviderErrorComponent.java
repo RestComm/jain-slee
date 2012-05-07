@@ -35,7 +35,7 @@ public class ProviderErrorComponent extends ComponentEvent {
 	
 	protected  MAPProviderError mapProviderError;
 	/**
-	 * @param mAPDialog
+	 * @param mapDialogWrapper
 	 * @param invokeId
 	 */
 	public ProviderErrorComponent(MAPDialog mAPDialog, Long invokeId, MAPProviderError mapProviderError) {

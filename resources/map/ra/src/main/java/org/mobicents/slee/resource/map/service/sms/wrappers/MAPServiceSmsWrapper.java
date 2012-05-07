@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.resource.map.wrappers;
+package org.mobicents.slee.resource.map.service.sms.wrappers;
 
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPException;
@@ -31,10 +31,13 @@ import org.mobicents.protocols.ss7.map.api.service.sms.MAPDialogSms;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSmsListener;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.slee.resource.map.MAPDialogActivityHandle;
+import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
 
 /**
  * @author baranowb
- *
+ * @author amit bhayani
+ * 
  */
 public class MAPServiceSmsWrapper implements MAPServiceSms {
 
@@ -48,7 +51,7 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 		this.wrappedSMS = mapServiceSupplementary;
 		this.mapProviderWrapper = mapProviderWrapper;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -59,7 +62,7 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 		throw new UnsupportedOperationException();
 
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -90,6 +93,7 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	public boolean isActivated() {
 		return this.wrappedSMS.isActivated();
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -100,8 +104,12 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 		return this.wrappedSMS.isServingService(mapapplicationcontext);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms#addMAPServiceListener(org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSmsListener)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms#
+	 * addMAPServiceListener
+	 * (org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSmsListener)
 	 */
 	@Override
 	public void addMAPServiceListener(MAPServiceSmsListener mapservicesmslistener) {
@@ -109,23 +117,42 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms#createNewDialog(org.mobicents.protocols.ss7.map.api.MAPApplicationContext, org.mobicents.protocols.ss7.sccp.parameter.SccpAddress, org.mobicents.protocols.ss7.map.api.primitives.AddressString, org.mobicents.protocols.ss7.sccp.parameter.SccpAddress, org.mobicents.protocols.ss7.map.api.primitives.AddressString)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms#createNewDialog
+	 * (org.mobicents.protocols.ss7.map.api.MAPApplicationContext,
+	 * org.mobicents.protocols.ss7.sccp.parameter.SccpAddress,
+	 * org.mobicents.protocols.ss7.map.api.primitives.AddressString,
+	 * org.mobicents.protocols.ss7.sccp.parameter.SccpAddress,
+	 * org.mobicents.protocols.ss7.map.api.primitives.AddressString)
 	 */
 	@Override
-	public MAPDialogSms createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress, AddressString addressstring,
-			SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
+	public MAPDialogSmsWrapper createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress,
+			AddressString addressstring, SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
+		MAPDialogSms mapDialog = this.wrappedSMS.createNewDialog(mapapplicationcontext, sccpaddress, addressstring,
+				sccpaddress1, addressstring1);
+		MAPDialogActivityHandle activityHandle = new MAPDialogActivityHandle(mapDialog.getDialogId());
+
+		MAPDialogSmsWrapper dw = new MAPDialogSmsWrapper(mapDialog, activityHandle, this.mapProviderWrapper.getRa());
+		mapDialog.setUserObject(dw);
+
 		try {
-			MAPDialogSms mapDialog = this.wrappedSMS.createNewDialog(mapapplicationcontext, sccpaddress, addressstring, sccpaddress1, addressstring1);
-			mapProviderWrapper.ra.createActivity(mapDialog);
-			return mapDialog;
+			this.mapProviderWrapper.getRa().createActivity(dw);
 		} catch (Exception e) {
 			throw new MAPException(e);
 		}
+
+		return dw;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms#removeMAPServiceListener(org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSmsListener)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms#
+	 * removeMAPServiceListener
+	 * (org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSmsListener)
 	 */
 	@Override
 	public void removeMAPServiceListener(MAPServiceSmsListener mapservicesmslistener) {

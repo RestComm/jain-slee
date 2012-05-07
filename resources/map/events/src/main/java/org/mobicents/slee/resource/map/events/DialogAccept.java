@@ -32,17 +32,17 @@ import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
  * @author amit bhayani
  * 
  */
-public class DialogAccept extends MAPEvent<MAPDialog> {
+public class DialogAccept extends MAPEvent {
 
 	private final MAPExtensionContainer extensionContainer;
-	
+
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_ACCEPT";
 
 	/**
-	 * @param mAPDialog
+	 * @param mapDialogWrapper
 	 */
-	public DialogAccept(MAPDialog mAPDialog, MAPExtensionContainer extensionContainer) {
-		super(mAPDialog, EVENT_TYPE_NAME);
+	public DialogAccept(MAPDialog mapDialogWrapper, MAPExtensionContainer extensionContainer) {
+		super(mapDialogWrapper, EVENT_TYPE_NAME);
 		this.extensionContainer = extensionContainer;
 	}
 
@@ -52,7 +52,7 @@ public class DialogAccept extends MAPEvent<MAPDialog> {
 
 	@Override
 	public String toString() {
-		return "DialogAccept [extensionContainer=" + extensionContainer + ", " + mAPDialog + "]";
+		return "DialogAccept [extensionContainer=" + extensionContainer + ", " + this.mapDialogWrapper + "]";
 	}
-	
+
 }

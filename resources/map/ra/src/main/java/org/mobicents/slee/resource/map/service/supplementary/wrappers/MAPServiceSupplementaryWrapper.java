@@ -20,12 +20,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.resource.map.wrappers;
+package org.mobicents.slee.resource.map.service.supplementary.wrappers;
 
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
-import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPException;
-import org.mobicents.protocols.ss7.map.api.MAPParsingComponentException;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
 import org.mobicents.protocols.ss7.map.api.dialog.ServingCheckData;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
@@ -33,13 +31,12 @@ import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPDialogSupple
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementary;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementaryListener;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
-import org.mobicents.protocols.ss7.tcap.asn.comp.ComponentType;
-import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
-import org.mobicents.protocols.ss7.tcap.asn.comp.OperationCode;
-import org.mobicents.protocols.ss7.tcap.asn.comp.Parameter;
+import org.mobicents.slee.resource.map.MAPDialogActivityHandle;
+import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
 
 /**
  * @author baranowb
+ * @author amit bhayani
  * 
  */
 public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
@@ -50,7 +47,8 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	/**
 	 * @param mapServiceSupplementary
 	 */
-	public MAPServiceSupplementaryWrapper(MAPProviderWrapper mapProviderWrapper, MAPServiceSupplementary mapServiceSupplementary) {
+	public MAPServiceSupplementaryWrapper(MAPProviderWrapper mapProviderWrapper,
+			MAPServiceSupplementary mapServiceSupplementary) {
 		this.wrappedUSSD = mapServiceSupplementary;
 		this.mapProviderWrapper = mapProviderWrapper;
 	}
@@ -65,7 +63,7 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 		throw new UnsupportedOperationException();
 
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -136,20 +134,26 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * org.mobicents.protocols.ss7.map.api.primitives.AddressString)
 	 */
 	@Override
-	public MAPDialogSupplementary createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress, AddressString addressstring,
-			SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
+	public MAPDialogSupplementary createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress,
+			AddressString addressstring, SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
+
+		MAPDialogSupplementary mapDialog = this.wrappedUSSD.createNewDialog(mapapplicationcontext, sccpaddress,
+				addressstring, sccpaddress1, addressstring1);
+		MAPDialogActivityHandle activityHandle = new MAPDialogActivityHandle(mapDialog.getDialogId());
+		MAPDialogSupplementaryWrapper dw = new MAPDialogSupplementaryWrapper(mapDialog, activityHandle,
+				this.mapProviderWrapper.getRa());
+		mapDialog.setUserObject(dw);
 
 		try {
-			MAPDialogSupplementary mapDialog = this.wrappedUSSD
-					.createNewDialog(mapapplicationcontext, sccpaddress, addressstring, sccpaddress1, addressstring1);
-			mapProviderWrapper.ra.createActivity(mapDialog);
-			return mapDialog;
+			this.mapProviderWrapper.getRa().createActivity(dw);
 		} catch (Exception e) {
 			throw new MAPException(e);
 		}
 
+		return dw;
+
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -163,7 +167,5 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 		throw new UnsupportedOperationException();
 
 	}
-	
-	
 
 }

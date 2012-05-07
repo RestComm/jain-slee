@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-package org.mobicents.slee.resource.map.wrappers;
+package org.mobicents.slee.resource.map.service.subscriberInformation.wrappers;
 
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPException;
@@ -30,9 +30,11 @@ import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.MAPDial
 import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.MAPServiceSubscriberInformation;
 import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.MAPServiceSubscriberInformationListener;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.slee.resource.map.MAPDialogActivityHandle;
+import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
 
 /**
- * @author abhayani
+ * @author amit bhayani
  * 
  */
 public class MAPServiceSubscriberInformationWrapper implements MAPServiceSubscriberInformation {
@@ -44,7 +46,8 @@ public class MAPServiceSubscriberInformationWrapper implements MAPServiceSubscri
 	 * @param wrappedSubsInfo
 	 * @param mapProviderWrapper
 	 */
-	public MAPServiceSubscriberInformationWrapper(MAPProviderWrapper mapProviderWrapper, MAPServiceSubscriberInformation wrappedSubsInfo) {
+	public MAPServiceSubscriberInformationWrapper(MAPProviderWrapper mapProviderWrapper,
+			MAPServiceSubscriberInformation wrappedSubsInfo) {
 		super();
 		this.wrappedSubsInfo = wrappedSubsInfo;
 		this.mapProviderWrapper = mapProviderWrapper;
@@ -129,16 +132,23 @@ public class MAPServiceSubscriberInformationWrapper implements MAPServiceSubscri
 	 * org.mobicents.protocols.ss7.map.api.primitives.AddressString)
 	 */
 	@Override
-	public MAPDialogSubscriberInformation createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress, AddressString addressstring,
-			SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
+	public MAPDialogSubscriberInformation createNewDialog(MAPApplicationContext mapapplicationcontext,
+			SccpAddress sccpaddress, AddressString addressstring, SccpAddress sccpaddress1, AddressString addressstring1)
+			throws MAPException {
+		MAPDialogSubscriberInformation mapDialog = this.wrappedSubsInfo.createNewDialog(mapapplicationcontext,
+				sccpaddress, addressstring, sccpaddress1, addressstring1);
+		MAPDialogActivityHandle activityHandle = new MAPDialogActivityHandle(mapDialog.getDialogId());
+		MAPDialogSubscriberInformationWrapper dw = new MAPDialogSubscriberInformationWrapper(mapDialog, activityHandle,
+				this.mapProviderWrapper.getRa());
+		mapDialog.setUserObject(dw);
+
 		try {
-			MAPDialogSubscriberInformation mapDialog = this.wrappedSubsInfo.createNewDialog(mapapplicationcontext, sccpaddress, addressstring, sccpaddress1,
-					addressstring1);
-			mapProviderWrapper.ra.createActivity(mapDialog);
-			return mapDialog;
+			this.mapProviderWrapper.getRa().createActivity(dw);
 		} catch (Exception e) {
 			throw new MAPException(e);
 		}
+
+		return dw;
 	}
 
 	/*
