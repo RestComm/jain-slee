@@ -35,7 +35,7 @@ public class AlertServiceCentreRequestWrapper extends SmsMessageWrapper<AlertSer
 	 */
 	@Override
 	public String toString() {
-		return "AlertServiceCentreRequest [wrapped=" + this.wrappedEvent + "]";
+		return "AlertServiceCentreRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

@@ -35,7 +35,7 @@ public class ReportSMDeliveryStatusResponseWrapper extends SmsMessageWrapper<Rep
 	 */
 	@Override
 	public String toString() {
-		return "ReportSMDeliveryStatusResponse [wrapped=" + this.wrappedEvent + "]";
+		return "ReportSMDeliveryStatusResponseWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

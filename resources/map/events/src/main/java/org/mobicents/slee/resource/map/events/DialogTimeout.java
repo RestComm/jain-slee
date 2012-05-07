@@ -41,7 +41,7 @@ public class DialogTimeout extends MAPEvent {
 
 	@Override
 	public String toString() {
-		return "DialogClose [" + this.mapDialogWrapper + "]";
+		return "DialogTimeout [" + this.mapDialogWrapper + "]";
 	}
 
 }

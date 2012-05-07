@@ -41,7 +41,7 @@ public class SendRoutingInfoForSMResponseWrapper extends SmsMessageWrapper<SendR
 	 */
 	@Override
 	public String toString() {
-		return "SendRoutingInfoForSMResponse [wrapped=" + this.wrappedEvent + "]";
+		return "SendRoutingInfoForSMResponseWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

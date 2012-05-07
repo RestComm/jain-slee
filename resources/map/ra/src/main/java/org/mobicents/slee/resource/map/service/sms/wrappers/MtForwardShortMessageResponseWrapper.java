@@ -35,7 +35,7 @@ public class MtForwardShortMessageResponseWrapper extends SmsMessageWrapper<MtFo
 	 */
 	@Override
 	public String toString() {
-		return "MtForwardShortMessageResponse [wrapped=" + this.wrappedEvent + "]";
+		return "MtForwardShortMessageResponseWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

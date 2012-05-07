@@ -27,13 +27,14 @@ import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 
 /**
  * @author baranowb
- *
+ * 
  */
 public class ErrorComponent extends ComponentEvent {
-	
+
 	private static final String EVENT_TYPE_NAME = "ss7.map.ERROR_COMPONENT";
 
-	protected  MAPErrorMessage mapErrorMessage;
+	protected MAPErrorMessage mapErrorMessage;
+
 	/**
 	 * @param mapDialogWrapper
 	 * @param invokeId
@@ -43,9 +44,14 @@ public class ErrorComponent extends ComponentEvent {
 		this.mapErrorMessage = mapErrorMessage;
 	}
 
-	public MAPErrorMessage getMAPErrorMessage()
-	{
+	public MAPErrorMessage getMAPErrorMessage() {
 		return this.mapErrorMessage;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "ErrorComponent [mapErrorMessage=" + mapErrorMessage + ", invokeId=" + invokeId + ", mapDialogWrapper="
+				+ mapDialogWrapper + "]";
+	}
+
 }

@@ -59,7 +59,7 @@ public class ProcessUnstructuredSSRequestWrapper extends SupplementaryMessageWra
 	 */
 	@Override
 	public String toString() {
-		return "ProcessUnstructuredSSRequest [wrapped=" + this.wrappedEvent + "]";
+		return "ProcessUnstructuredSSRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

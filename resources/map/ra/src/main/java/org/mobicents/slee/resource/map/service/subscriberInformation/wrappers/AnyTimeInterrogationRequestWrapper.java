@@ -51,7 +51,7 @@ public class AnyTimeInterrogationRequestWrapper extends
 	 */
 	@Override
 	public String toString() {
-		return "AnyTimeInterrogationRequest [wrapped=" + this.wrappedEvent + "]";
+		return "AnyTimeInterrogationRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

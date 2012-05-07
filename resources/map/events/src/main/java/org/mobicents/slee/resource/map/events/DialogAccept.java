@@ -52,7 +52,7 @@ public class DialogAccept extends MAPEvent {
 
 	@Override
 	public String toString() {
-		return "DialogAccept [extensionContainer=" + extensionContainer + ", " + this.mapDialogWrapper + "]";
+		return "DialogAccept [extensionContainer=" + extensionContainer + ", mapDialogWrapper=" + mapDialogWrapper
+				+ "]";
 	}
-
 }

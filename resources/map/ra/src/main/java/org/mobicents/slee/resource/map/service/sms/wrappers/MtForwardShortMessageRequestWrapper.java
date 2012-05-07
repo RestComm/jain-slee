@@ -52,7 +52,7 @@ public class MtForwardShortMessageRequestWrapper extends SmsMessageWrapper<MtFor
 	 */
 	@Override
 	public String toString() {
-		return "MtForwardShortMessageRequest [wrapped=" + this.wrappedEvent + "]";
+		return "MtForwardShortMessageRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

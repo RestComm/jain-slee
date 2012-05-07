@@ -27,14 +27,14 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
 
 /**
  * @author baranowb
- *
+ * 
  */
 public class RejectComponent extends ComponentEvent {
-	
+
 	private static final String EVENT_TYPE_NAME = "ss7.map.REJECT_COMPONENT";
 
-	
 	protected Problem problem;
+
 	/**
 	 * @param mapDialogWrapper
 	 * @param invokeId
@@ -44,9 +44,13 @@ public class RejectComponent extends ComponentEvent {
 		this.problem = problem;
 	}
 
-	
-	public Problem getProblem()
-	{
+	public Problem getProblem() {
 		return this.problem;
+	}
+
+	@Override
+	public String toString() {
+		return "RejectComponent [problem=" + problem + ", invokeId=" + invokeId + ", mapDialogWrapper="
+				+ mapDialogWrapper + "]";
 	}
 }

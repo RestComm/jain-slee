@@ -53,7 +53,7 @@ public class MoForwardShortMessageRequestWrapper extends SmsMessageWrapper<MoFor
 	 */
 	@Override
 	public String toString() {
-		return "MoForwardShortMessageRequest [wrapped=" + this.wrappedEvent + "]";
+		return "MoForwardShortMessageRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

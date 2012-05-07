@@ -71,7 +71,7 @@ public class UnstructuredSSRequestWrapper extends SupplementaryMessageWrapper<Un
 	 */
 	@Override
 	public String toString() {
-		return "UnstructuredSSRequest [wrapped=" + this.wrappedEvent + "]";
+		return "UnstructuredSSRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

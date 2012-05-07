@@ -84,7 +84,7 @@ public class SendRoutingInfoForLCSResponseWrapper extends LsmMessageWrapper<Send
 	 */
 	@Override
 	public String toString() {
-		return "SendRoutingInfoForLCSResponse [wrapped=" + this.wrappedEvent + "]";
+		return "SendRoutingInfoForLCSResponseWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

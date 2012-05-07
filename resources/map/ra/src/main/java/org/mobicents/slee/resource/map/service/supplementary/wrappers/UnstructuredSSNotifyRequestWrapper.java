@@ -59,7 +59,7 @@ public class UnstructuredSSNotifyRequestWrapper extends SupplementaryMessageWrap
 	 */
 	@Override
 	public String toString() {
-		return "UnstructuredSSNotifyRequest [wrapped=" + this.wrappedEvent + "]";
+		return "UnstructuredSSNotifyRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

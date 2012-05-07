@@ -46,7 +46,7 @@ public class ForwardShortMessageRequestWrapper extends SmsMessageWrapper<Forward
 	 */
 	@Override
 	public String toString() {
-		return "ForwardShortMessageRequest [wrapped=" + this.wrappedEvent + "]";
+		return "ForwardShortMessageRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

@@ -39,7 +39,7 @@ public class AnyTimeInterrogationResponseWrapper extends
 	 */
 	@Override
 	public String toString() {
-		return "AnyTimeInterrogationResponse [wrapped=" + this.wrappedEvent + "]";
+		return "AnyTimeInterrogationResponseWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

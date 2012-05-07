@@ -49,7 +49,7 @@ public class ProcessUnstructuredSSResponseWrapper extends
 	 */
 	@Override
 	public String toString() {
-		return "ProcessUnstructuredSSResponse [wrapped=" + this.wrappedEvent + "]";
+		return "ProcessUnstructuredSSResponseWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

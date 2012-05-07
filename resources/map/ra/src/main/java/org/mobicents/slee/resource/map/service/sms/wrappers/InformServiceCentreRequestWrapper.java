@@ -51,7 +51,7 @@ public class InformServiceCentreRequestWrapper extends SmsMessageWrapper<InformS
 	 */
 	@Override
 	public String toString() {
-		return "InformServiceCentreRequest [wrapped=" + this.wrappedEvent + "]";
+		return "InformServiceCentreRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

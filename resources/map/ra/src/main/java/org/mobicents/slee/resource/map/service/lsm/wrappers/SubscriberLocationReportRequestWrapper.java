@@ -152,7 +152,7 @@ public class SubscriberLocationReportRequestWrapper extends LsmMessageWrapper<Su
 	 */
 	@Override
 	public String toString() {
-		return "SubscriberLocationReportRequest [wrapped=" + this.wrappedEvent + "]";
+		return "SubscriberLocationReportRequestWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 
 }

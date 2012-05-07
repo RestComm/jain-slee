@@ -35,6 +35,6 @@ public class MoForwardShortMessageResponseWrapper extends SmsMessageWrapper<MoFo
 	 */
 	@Override
 	public String toString() {
-		return "MoForwardShortMessageResponse [wrapped=" + this.wrappedEvent + "]";
+		return "MoForwardShortMessageResponseWrapper [wrapped=" + this.wrappedEvent + "]";
 	}
 }
