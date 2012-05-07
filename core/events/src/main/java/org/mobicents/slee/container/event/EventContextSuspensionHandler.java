@@ -134,7 +134,9 @@ public class EventContextSuspensionHandler {
 				transactionContext.getAfterRollbackActions().add(rollbackAction);				
 			}
 			else {
-				throw new IllegalStateException();
+				// tx action queued to suspend, lets cancel it 
+				transactionalAction.cancel();
+				transactionalAction = null;
 			}
 		}
 	}
@@ -229,33 +231,39 @@ public class EventContextSuspensionHandler {
 		
 		private Transaction tx;
 		
+		private boolean canceled;
+		
 		public void execute() {
-			transactionalAction = null;
-			switch (op) {
-			case suspend:
-				suspended = true;		
-				transaction = tx;
-				// put a barrier in the event queue manager for this activity, to
-				// freeze the event routing on this activity at that level
-				event.getLocalActivityContext().getEventQueueManager().createBarrier(tx);
-				// init queue to store events about to be routed (after this one),
-				// which may have passed the barrier
-				barriedEvents = new LinkedList<EventContext>();
-				// set state as suspended
-				suspended = true;
-				// schedule task 
-				scheduledFuture = sleeContainer.getNonClusteredScheduler().schedule(new SuspensionTimerTask(),timeout,TimeUnit.MILLISECONDS);
-				break;
-			case resume:
-				resume();
-				break;
-				
-			default:
-				throw new SLEEException("unxpected op type when executing event context state change");
-			}
-			
+			if(!canceled) {
+				transactionalAction = null;
+				switch (op) {
+				case suspend:
+					suspended = true;		
+					transaction = tx;
+					// put a barrier in the event queue manager for this activity, to
+					// freeze the event routing on this activity at that level
+					event.getLocalActivityContext().getEventQueueManager().createBarrier(tx);
+					// init queue to store events about to be routed (after this one),
+					// which may have passed the barrier
+					barriedEvents = new LinkedList<EventContext>();
+					// set state as suspended
+					suspended = true;
+					// schedule task 
+					scheduledFuture = sleeContainer.getNonClusteredScheduler().schedule(new SuspensionTimerTask(),timeout,TimeUnit.MILLISECONDS);
+					break;
+				case resume:
+					resume();
+					break;
+
+				default:
+					throw new SLEEException("unxpected op type when executing event context state change");
+				}
+			}			
 		}
 		
+		public void cancel() {
+			canceled = true;
+		}
 	}
 	
 	private static final Logger logger = Logger.getLogger(EventContextImpl.class);
