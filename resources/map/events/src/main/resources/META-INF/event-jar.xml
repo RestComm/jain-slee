@@ -75,6 +75,13 @@
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>org.mobicents.slee.resource.map.events.DialogTimeout</event-class-name>
 	</event-definition>
+	
+	<event-definition>
+		<event-type-name>ss7.map.DIALOG_RELEASE</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.slee.resource.map.events.DialogRelease</event-class-name>
+	</event-definition>	
 
 	<!-- Service Specific -->
 

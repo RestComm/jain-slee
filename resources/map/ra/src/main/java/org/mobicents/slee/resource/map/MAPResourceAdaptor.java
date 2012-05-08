@@ -105,6 +105,7 @@ import org.mobicents.slee.resource.map.events.DialogDelimiter;
 import org.mobicents.slee.resource.map.events.DialogNotice;
 import org.mobicents.slee.resource.map.events.DialogProviderAbort;
 import org.mobicents.slee.resource.map.events.DialogReject;
+import org.mobicents.slee.resource.map.events.DialogRelease;
 import org.mobicents.slee.resource.map.events.DialogRequest;
 import org.mobicents.slee.resource.map.events.DialogTimeout;
 import org.mobicents.slee.resource.map.events.DialogUserAbort;
@@ -601,20 +602,11 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 */
 	@Override
 	public void onDialogRelease(MAPDialog mapDialog) {
-
 		try {
 
 			MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
-
-			if (mapDialogWrapper == null) {
-				return;
-			}
-
-			MAPDialogActivityHandle handle = mapDialogWrapper.getActivityHandle();
-
-			if (handle == null) {
-				return;
-			}
+			DialogRelease dialogUserAbort = new DialogRelease(mapDialogWrapper);
+			MAPDialogActivityHandle handle = onEvent(dialogUserAbort.getEventTypeName(), mapDialogWrapper, dialogUserAbort);
 
 			// End Activity
 			this.sleeEndpoint.endActivity(handle);
