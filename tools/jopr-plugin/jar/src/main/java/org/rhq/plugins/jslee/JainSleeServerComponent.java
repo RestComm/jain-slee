@@ -796,7 +796,8 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
           PropertyMap col = new PropertyMap("element");
 
           Object tempObj = tempObjects[0];
-          PropertySimple activityHandle = new PropertySimple("ActivityHandle", tempObj != null ? ((JmxActivityContextHandle) tempObj).getActivityHandleToString() : "-");
+          PropertySimple activityHandle = new PropertySimple("ActivityHandle", 
+              tempObj != null ? (tempObj instanceof JmxActivityContextHandle ? ((JmxActivityContextHandle) tempObj).getActivityHandleToString() : tempObj) : "-");
 
           col.put(activityHandle);
 
