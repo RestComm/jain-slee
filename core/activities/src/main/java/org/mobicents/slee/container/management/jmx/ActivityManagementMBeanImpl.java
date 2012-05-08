@@ -356,15 +356,19 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 
 		while (it.hasNext()) {
 			ActivityContextHandle achOrig = it.next();
-			JmxActivityContextHandle ach = ActivityContextHandleSerializer.encode(achOrig);
+			//JmxActivityContextHandle ach = ActivityContextHandleSerializer.encode(achOrig);
 			ActivityContextImpl ac = this.acFactory.getActivityContext(achOrig);
 			if (ac == null) {
 				continue;
 			}
 			Object activity = achOrig.getActivityObject();
+
 			if (activity != null) {  
 				
-				switch (criteria) {
+	      String acId = ac.getStringID();
+	      String acSource = achOrig.getActivityType() == ActivityType.RA ? ((ResourceAdaptorActivityContextHandle)achOrig).getResourceAdaptorEntity().getName() : "";
+
+	      switch (criteria) {
 				case LIST_BY_ACTIVITY_CLASS:
 
 					if (!activity.getClass().getCanonicalName().equals(comparisonCriteria)) {
@@ -374,8 +378,8 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 
 				case LIST_BY_RAENTITY:
 
-					if (ach.getActivityType() == ActivityType.RA) {
-						if (!ach.getActivitySource().equals(comparisonCriteria))
+					if (achOrig.getActivityType() == ActivityType.RA) {
+						if (!acSource.equals(comparisonCriteria))
 							ac = null;
 					} else
 						ac = null;
@@ -441,7 +445,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 				// Now we have to check - if we want only IDS
 				Object singleResult = null;
 				if (!listIDsOnly) {
-					logger.debug("Adding AC[" + ach + "]");
+					logger.debug("Adding AC[" + acId + "]");
 
 					Object[] o = getDetails(ac);
 
@@ -465,7 +469,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 
 				} else {
 
-					singleResult = ach;
+					singleResult = acId;
 				}
 
 				lst.add(singleResult);
@@ -495,16 +499,17 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		Object[] o = new Object[ARRAY_SIZE];
 
 		ActivityContextHandle achOrig = ac.getActivityContextHandle();
-		JmxActivityContextHandle ach = ActivityContextHandleSerializer.encode(achOrig);
+		//JmxActivityContextHandle ach = ActivityContextHandleSerializer.encode(achOrig);
+		String acId = ac.getStringID();
 		
-		o[ActivityManagementMBeanImplMBean.AC_ID] = ach;
+		o[ActivityManagementMBeanImplMBean.AC_ID] = acId;
 		logger.debug("======[getDetails]["
 				+ o[ActivityManagementMBeanImplMBean.AC_ID] + "]["
 				+ ac.hashCode() + "]");
 		
 		
-		if (ach.getActivityType() == ActivityType.RA) {
-			o[RA] = ach.getActivitySource();
+		if (achOrig.getActivityType() == ActivityType.RA) {
+			o[RA] = ((ResourceAdaptorActivityContextHandle)achOrig).getResourceAdaptorEntity().getName();
 		}
 		
 		o[ACTIVITY_CLASS] = achOrig.getActivityObject().getClass().getName();
