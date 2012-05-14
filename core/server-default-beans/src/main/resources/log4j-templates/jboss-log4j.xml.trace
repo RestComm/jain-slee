@@ -14,7 +14,7 @@
 		<param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d %-5p [%c] %m%n"/>
+			<param name="ConversionPattern" value="%d %-5p [%c] (%t) %m%n"/>
 		</layout>
 	</appender>
 
@@ -24,7 +24,7 @@
 		<param name="Threshold" value="TRACE"/>
 
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
+			<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] (%t) %m%n"/>
 		</layout>
 	</appender>
 	
