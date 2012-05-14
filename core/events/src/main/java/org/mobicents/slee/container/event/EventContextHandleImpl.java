@@ -75,5 +75,9 @@ public class EventContextHandleImpl implements EventContextHandle {
 		return this.id.equals(other.id);
 	}
 	
+	@Override
+	public String toString() {
+		return getId();
+	}
 	
 }

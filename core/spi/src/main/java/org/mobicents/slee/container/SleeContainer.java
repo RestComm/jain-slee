@@ -631,6 +631,9 @@ public class SleeContainer {
 						}
 					}
 					else if (newState == SleeState.STOPPED) {
+						if(logger.isInfoEnabled()) {
+							logger.info(dumpState());
+						}
 						for (Iterator<SleeContainerModule> i=modules.descendingIterator(); i.hasNext();) {
 							i.next().sleeStopped();
 						}			

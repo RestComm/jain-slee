@@ -227,8 +227,8 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	@Override
 	public String toString() {
 		return "ActivityContext Factory: " 
-			+ "\n+-- Number of Local ACs: " + localActivityContexts.size()
-			+ "\n+-- Number of ACs: " + getActivityContextCount();
+			+ "\n+-- Local ACs: " + (localActivityContexts.size() > 20 ? localActivityContexts.size() : localActivityContexts.keySet())
+			+ "\n+-- ACs: " + (getActivityContextCount() > 20 ? getActivityContextCount() : getAllActivityContextsHandles());
 	}
 	
 	private class DataRemovalClusterListener implements DataRemovalListener {

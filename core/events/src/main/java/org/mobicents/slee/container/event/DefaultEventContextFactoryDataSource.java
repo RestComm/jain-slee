@@ -78,7 +78,7 @@ public class DefaultEventContextFactoryDataSource implements EventContextFactory
 	
 	@Override
 	public String toString() {
-		return "DefaultEventContextFactoryDataSource[ "+dataSource.keySet()+" ]";
+		return "DefaultEventContextFactoryDataSource[ "+(dataSource.size() > 20 ? dataSource.size() : dataSource.values())+" ]";
 	}
 	
 }
