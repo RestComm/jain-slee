@@ -91,6 +91,8 @@ public class ServiceComponentImpl extends AbstractSleeComponent implements Servi
 	
 	private ServiceState serviceState = ServiceState.INACTIVE;
 	
+	private boolean activityEnded = false;
+	
 	/**
 	 * 
 	 * @param descriptor
@@ -306,5 +308,13 @@ public class ServiceComponentImpl extends AbstractSleeComponent implements Servi
 	@Override
 	public void setOldVersion(ServiceID oldVersion) {
 		this.oldVersion = oldVersion; 		
+	}
+	
+	public boolean isActivityEnded() {
+		return activityEnded;
+	}
+	
+	public void setActivityEnded(boolean activityEnded) {
+		this.activityEnded = activityEnded;
 	}
 }

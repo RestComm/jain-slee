@@ -139,4 +139,8 @@ public interface ServiceComponent extends SleeComponent {
 	 * @param serviceID
 	 */
 	public void setOldVersion(ServiceID serviceID);
+	
+	public boolean isActivityEnded();
+	
+	public void setActivityEnded(boolean activityEnded);
 }

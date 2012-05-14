@@ -311,6 +311,8 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		// ensure the service cache data exists
 		new ServiceCacheData(serviceComponent.getServiceID(), sleeContainer
 				.getCluster().getMobicentsCache()).create();
+		serviceComponent.setActivityEnded(false);
+		
 		// fire slee 1.0 and 1.1 service started events
 		ServiceStartedEventImpl event = new ServiceStartedEventImpl(
 				serviceComponent.getServiceID());
@@ -376,8 +378,8 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 
 			if (serviceComponent == null)
 				throw new UnrecognizedServiceException("Service not found for "
-						+ serviceID);
-
+						+ serviceID);				
+			
 			if (logger.isDebugEnabled())
 				logger.debug(serviceID.toString() + " state = "
 						+ serviceComponent.getServiceState());
@@ -405,9 +407,19 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			// only end activity if slee was running and is single node in
 			// cluster, otherwise not needed (cluster) or
 			// slee already did it
-			if (sleeContainer.getCluster().isSingleMember()
-					&& sleeState == SleeState.RUNNING) {
-				endServiceActivity(serviceID);
+			if (sleeContainer.getCluster().isSingleMember()) {
+				if (sleeState == SleeState.RUNNING) {
+					endServiceActivity(serviceID);
+				}
+				else {
+					// chance of concurrency with activity end
+					synchronized (serviceComponent) {
+						if(serviceComponent.isActivityEnded()) {
+							// activity already ended but service was not in stopping state
+							completeServiceStop(serviceComponent);
+						}
+					}
+				}
 			} else {
 				serviceComponent.setServiceState(ServiceState.INACTIVE);
 				// warn ra entities about state change
@@ -419,7 +431,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				logger.info("Deactivated " + serviceID);
 			}
 
-			// remove runtime cache related wih this service
+			// remove runtime cache related with this service
 			for (EventEntryDescriptor mEventEntry : serviceComponent
 					.getRootSbbComponent().getDescriptor().getEventEntries()
 					.values()) {
@@ -430,6 +442,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 							.deactivatedServiceWhichDefineEventAsInitial(serviceComponent);
 				}
 			}
+						
 		}
 	}
 
@@ -973,61 +986,22 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				final ServiceComponent serviceComponent = componentRepositoryImpl
 				.getComponentByID(serviceID);
 				if (serviceComponent != null) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Service is in "
-								+ serviceComponent.getServiceState() + " state.");
-					}
-					if (serviceComponent.getServiceState().isStopping()) {
-						boolean noRootSbbEntities = false;
-						int entitiesRemovalDelay = MobicentsManagement.entitiesRemovalDelay * 60;
-						int waitingTime = 0;
-						while(true) {
-							try {
-								if (sleeContainer.getSbbEntityFactory().getRootSbbEntityIDs(serviceID).isEmpty()) {
-									noRootSbbEntities = true;
-									break;
-								}
-								Thread.sleep(1000);
-								if (logger.isDebugEnabled()) {
-									logger.debug("Waiting for service "+serviceComponent+" root sbb entities to end.");
-								}
-							}
-							catch (Exception e) {
-								logger.error("failure waiting for the ending of all sbb entities from "+serviceID,e);
-							}
-							waitingTime += 1;
-							if(entitiesRemovalDelay > 0 && entitiesRemovalDelay<= waitingTime) {
-								break;
-							}
-						}
-						if (!noRootSbbEntities) {
-							// force the removal of all sbb entities
-							new RootSbbEntitiesRemovalTask(serviceComponent).run();
-						}
-						// ensure service cache data is removed
-						ServiceCacheData serviceCacheData = new ServiceCacheData(serviceComponent.getServiceID(), sleeContainer
-								.getCluster().getMobicentsCache());
-						if (serviceCacheData.exists()) {
-							serviceCacheData.remove();
-						}
-						// change state
-						serviceComponent.setServiceState(ServiceState.INACTIVE);
-						// notifying the resource adaptors about service state change
-						final ResourceManagement resourceManagement = sleeContainer
-						.getResourceManagement();
-						for (String raEntityName : resourceManagement
-								.getResourceAdaptorEntities()) {
-							resourceManagement.getResourceAdaptorEntity(raEntityName)
-							.serviceInactive(serviceID);
-						}
-						logger.info("Deactivated " + serviceID);
-					}
-					else {
+					synchronized (serviceComponent) {
 						if (logger.isDebugEnabled()) {
-							logger.debug(serviceID.toString()+ " activity ended, but component not found, removed concurrently?");
+							logger.debug("Service is in "
+									+ serviceComponent.getServiceState() + " state.");
 						}
+						if (serviceComponent.getServiceState().isStopping()) {
+							completeServiceStop(serviceComponent);
+						}
+						serviceComponent.setActivityEnded(true);
 					}
 				}
+				else {
+					if (logger.isDebugEnabled()) {
+						logger.debug(serviceID.toString()+ " activity ended, but component not found, removed concurrently?");
+					}
+				}				
 			}
 		};
 		final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -1056,5 +1030,52 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			}
 			executorService.shutdown();
 		}
+	}
+
+	protected void completeServiceStop(ServiceComponent serviceComponent) {
+		boolean noRootSbbEntities = false;
+		int entitiesRemovalDelay = MobicentsManagement.entitiesRemovalDelay * 60;
+		int waitingTime = 0;
+		while(true) {
+			try {
+				if (sleeContainer.getSbbEntityFactory().getRootSbbEntityIDs(serviceComponent.getServiceID()).isEmpty()) {
+					noRootSbbEntities = true;
+					break;
+				}
+				Thread.sleep(1000);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Waiting for service "+serviceComponent+" root sbb entities to end.");
+				}
+			}
+			catch (Exception e) {
+				logger.error("failure waiting for the ending of all sbb entities from "+serviceComponent.getServiceID(),e);
+			}
+			waitingTime += 1;
+			if(entitiesRemovalDelay > 0 && entitiesRemovalDelay<= waitingTime) {
+				break;
+			}
+		}
+		if (!noRootSbbEntities) {
+			// force the removal of all sbb entities
+			new RootSbbEntitiesRemovalTask(serviceComponent).run();
+		}
+		// ensure service cache data is removed
+		ServiceCacheData serviceCacheData = new ServiceCacheData(serviceComponent.getServiceID(), sleeContainer
+				.getCluster().getMobicentsCache());
+		if (serviceCacheData.exists()) {
+			serviceCacheData.remove();
+		}
+		// change state
+		serviceComponent.setServiceState(ServiceState.INACTIVE);
+		// notifying the resource adaptors about service state change
+		final ResourceManagement resourceManagement = sleeContainer
+		.getResourceManagement();
+		for (String raEntityName : resourceManagement
+				.getResourceAdaptorEntities()) {
+			resourceManagement.getResourceAdaptorEntity(raEntityName)
+			.serviceInactive(serviceComponent.getServiceID());
+		}
+		logger.info("Deactivated " + serviceComponent.getServiceID());
+		
 	}
 }
