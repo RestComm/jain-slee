@@ -38,8 +38,6 @@ import javax.slee.SbbID;
 import javax.slee.facilities.TimerID;
 import javax.slee.management.ManagementException;
 import javax.slee.nullactivity.NullActivity;
-import javax.slee.resource.ActivityFlags;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -52,7 +50,6 @@ import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
-import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextImpl;
 
@@ -65,7 +62,6 @@ import org.mobicents.slee.runtime.activity.ActivityContextImpl;
  * @author Eduardo Martins
  * 
  */
-@SuppressWarnings("unchecked")
 public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		implements ActivityManagementMBeanImplMBean {
 
@@ -76,7 +72,6 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	
 	private final ActivityContextFactoryImpl acFactory;
 	private final SbbEntityFactory sbbEntityFactory;
-	private final SleeTransactionManager txMgr;
 
 	private static Logger logger = Logger
 			.getLogger(ActivityManagementMBeanImpl.class);
@@ -84,30 +79,13 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	public ActivityManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
 		super(sleeContainer,ActivityManagementMBeanImpl.class);
 		this.acFactory = (ActivityContextFactoryImpl) sleeContainer.getActivityContextFactory();
-		this.txMgr = sleeContainer.getTransactionManager();
 		this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();
 	}
 
 	// === PROPERTIES
 
 	public int getActivityContextCount() {
-		// prepareBean();
-		boolean newtx = txMgr.requireTransaction();
-		try {
-			return this.acFactory.getActivityContextCount();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return -1;
-		}
-		finally {
-			if (newtx) {
-				try {
-					txMgr.rollback();
-				} catch (SystemException e) {
-					logger.error("Failed to rollback new tx for retreival of activity context count",e);
-				}
-			}
-		}
+		return this.acFactory.getActivityContextCount();
 	}
 
 	/*
@@ -156,44 +134,25 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 
 		// Again this is tx method
 		logger.info("Trying to stop null activity[" + ach + "]!!");
-		// prepareBean();
-		boolean createdTx = false;
-		try {
-			createdTx = txMgr.requireTransaction();
-			ActivityContext ac = acFactory.getActivityContext(ach);
-			if (ac == null) {
-				logger.debug("There is no ac associated with given acID["
+		ActivityContext ac = acFactory.getActivityContext(ach);
+		if (ac == null) {
+			logger.debug("There is no ac associated with given acID["
 						+ ach + "]!!");
-				throw new ManagementException("Can not find AC for given ID["
-						+ ach + "], try again!!!");
-			}
-			if (ac.getActivityContextHandle().getActivityType() == ActivityType.NULL) {
-				logger.debug("Scheduling activity end for acID[" + ach
-						+ "]");
-
-				NullActivity nullActivity = (NullActivity) ac.getActivityContextHandle().getActivityObject();
-				if (nullActivity != null) {
-					nullActivity.endActivity();
-				}
-			} else {
-				logger.debug("AC is not null activity context");
-				throw new IllegalArgumentException("Given ID[" + ach
-						+ "] does not point to NullActivity");
-			}
-			
-		} catch (Throwable e) {
-			logger.error(e.getMessage(),e);
-		} finally {
-
-			if (createdTx) {
-				try {
-					txMgr.commit();
-				} catch (Throwable e) {
-					logger.error(e.getMessage(),e);
-				}
-			}
+			throw new ManagementException("Can not find AC for given ID["
+					+ ach + "], try again!!!");
 		}
-
+		if (ac.getActivityContextHandle().getActivityType() == ActivityType.NULL) {
+			logger.debug("Scheduling activity end for acID[" + ach
+						+ "]");
+			NullActivity nullActivity = (NullActivity) ac.getActivityContextHandle().getActivityObject();
+			if (nullActivity != null) {
+				nullActivity.endActivity();
+			}
+		} else {
+			logger.debug("AC is not null activity context");
+			throw new IllegalArgumentException("Given ID[" + ach
+					+ "] does not point to NullActivity");
+		}		
 	}
 
 	public void queryActivityContextLiveness() {
@@ -208,110 +167,36 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	}
 
 	public String[] listActivityContextsFactories() {
-
-		logger.info("Listing AC  factory");
-		boolean createdTx = false;
-		String[] ret = null;
-		try {
-			createdTx = txMgr.requireTransaction();
-
-			// Now we need to sort acs per factory type, raentity ?
-			Set factoriesSet = new HashSet();
-
-			Iterator<ActivityContextHandle> it = this.acFactory.getAllActivityContextsHandles()
-					.iterator();
-
-			logger.debug("Gathering information");
-
-			while (it.hasNext()) {
-				ActivityContextHandle ach = it.next();
-				factoriesSet.add(ach.getActivityType() == ActivityType.RA ? ((ResourceAdaptorActivityContextHandle)ach).getResourceAdaptorEntity().getName() : "");
-			}
-
-			logger.debug("Composing response");
-			// Now lets gather details
-			if (factoriesSet.size() == 0)
-				return null;
-
-			ret = new String[factoriesSet.size()];
-			ret = (String[]) factoriesSet.toArray(ret);
-
-		} catch (Throwable e) {
-			logger.error(e.getMessage(),e);
-		} finally {
-
-			if (createdTx) {
-				try {
-					txMgr.commit();
-				} catch (Throwable e) {
-					logger.error(e.getMessage(),e);
-				}
-			}
-		}
-
+		logger.info("Listing AC factories");
+		Set<String> factoriesSet = new HashSet<String>();		
+		for (ActivityContextHandle ach : this.acFactory.getAllActivityContextsHandles()) {
+			factoriesSet.add(ach.getActivityType() == ActivityType.RA ? ((ResourceAdaptorActivityContextHandle)ach).getResourceAdaptorEntity().getName() : "");
+		}		
+		if (factoriesSet.size() == 0)
+			return null;
+		String[] ret = new String[factoriesSet.size()];
+		ret = (String[]) factoriesSet.toArray(ret);
 		return ret;
 	}
 
 	public Object[] listActivityContexts(boolean inDetails) {
-
-		// prepareBean();
 		logger.info("Listing ACs with details[" + inDetails + "]");
-		boolean createdTx = false;
-		Object[] ret = null;
-		try {
-			createdTx = txMgr.requireTransaction();
-			ret = listWithCriteria(false, inDetails, LIST_BY_NO_CRITERIA, null);
-		} catch (Throwable e) {
-			logger.error(e.getMessage(),e);
-		} finally {
-			if (createdTx) {
-				try {
-					txMgr.commit();
-				} catch (Throwable e) {
-					logger.error(e.getMessage(),e);
-				}
-			}
-		}
-
-		return ret;
+		return listWithCriteria(false, inDetails, LIST_BY_NO_CRITERIA, null);
 	}
 
 	public Object[] retrieveActivityContextDetails(ActivityContextHandle ach)
 			throws ManagementException {
 		logger.info("Retrieving AC details for " + ach);
-		// prepareBean();
-		boolean createdTx = false;
-		Object[] o = null;
-		try {
-			createdTx = txMgr.requireTransaction();
-			ActivityContextImpl ac = this.acFactory.getActivityContext(ach);
-			if (ac == null) {
-				logger.debug("Ac retrieval failed, no such ac[" + ach
+		ActivityContextImpl ac = this.acFactory.getActivityContext(ach);
+		if (ac == null) {
+			logger.debug("Ac retrieval failed, no such ac[" + ach
 						+ "]!!!");
-				throw new ManagementException(
+			throw new ManagementException(
 						"Activity Context does not exist (ACID[" + ach
 						+ "]), try another one!!");
-			}
-			o = getDetails(ac);
-		} catch (Throwable e) {
-			logger.error(e.getMessage(),e);
-		} finally {
-			if (createdTx) {
-				try {
-					txMgr.commit();
-				} catch (Throwable e) {
-					logger.error(e.getMessage(),e);
-				}
-			}
-
 		}
-
-		return o;
+		return getDetails(ac);
 	}
-
-	/*
-	 * This method should be run in tx
-	 */
 
 	/**
 	 * This is main place where SLEE is accessed. This functions lists AC in
@@ -349,10 +234,10 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 				+ inDetails + "] only IDS[" + listIDsOnly + "]");
 
 		Iterator<ActivityContextHandle> it = this.acFactory.getAllActivityContextsHandles().iterator();
-		ArrayList lst = new ArrayList();
+		ArrayList<Object> lst = new ArrayList<Object>();
 
 		// Needed by LIST_BY_SBBID
-		HashMap sbbEntityIdToSbbID = new HashMap();
+		HashMap<SbbEntityID,SbbID> sbbEntityIdToSbbID = new HashMap<SbbEntityID,SbbID>();
 
 		while (it.hasNext()) {
 			ActivityContextHandle achOrig = it.next();
@@ -492,6 +377,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	 * 
 	 * This method should be run in tx
 	 */
+	@SuppressWarnings("rawtypes")
 	private Object[] getDetails(ActivityContextImpl ac) {
 
 		logger.debug("Retrieveing details for acID["
@@ -567,105 +453,27 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 
 		logger.info("Retrieving AC by activity class name["
 				+ fullQualifiedActivityClassName + "]");
-		// prepareBean();
-		boolean createdTx = false;
-		Object[] ret = null;
-		try {
-			createdTx = txMgr.requireTransaction();
-
-			ret = listWithCriteria(true, true, LIST_BY_ACTIVITY_CLASS,
+		return listWithCriteria(true, true, LIST_BY_ACTIVITY_CLASS,
 					fullQualifiedActivityClassName);
-		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
-		} finally {
-			if (createdTx) {
-				try {
-					txMgr.commit();
-				} catch (Throwable e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-
-		}
-
-		return ret;
 	}
 
 	public Object[] retrieveActivityContextIDByResourceAdaptorEntityName(
 			String entityName) {
 
 		logger.info("Retrieving AC by entity name[" + entityName + "]");
-		// prepareBean();
-		boolean createdTx = false;
-		Object[] ret = null;
-		try {
-			createdTx = txMgr.requireTransaction();
-			ret = listWithCriteria(false, true, LIST_BY_RAENTITY, entityName);
-		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
-		} finally {
-
-			if (createdTx) {
-				try {
-					txMgr.commit();
-				} catch (Throwable e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-
-		return ret;
+		return listWithCriteria(false, true, LIST_BY_RAENTITY, entityName);
 	}
 
 	public Object[] retrieveActivityContextIDBySbbEntityID(String sbbEID) {
 
 		logger.info("Retrieving ACs by sbb entity id [" + sbbEID + "]");
-		// prepareBean();
-		boolean createdTx = false;
-		Object[] ret = null;
-		try {
-			createdTx = txMgr.requireTransaction();
-			ret = listWithCriteria(true, true, LIST_BY_SBBENTITY, sbbEID);
-		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
-		} finally {
-
-			if (createdTx) {
-				try {
-					txMgr.commit();
-				} catch (Throwable e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-
-		}
-
-		return ret;
+		return listWithCriteria(true, true, LIST_BY_SBBENTITY, sbbEID);
 	}
 
 	public Object[] retrieveActivityContextIDBySbbID(String sbbID) {
 
 		logger.info("Retrieving ACs by sbb id [" + sbbID + "]");
-		// prepareBean();
-		boolean createdTx = false;
-		Object[] ret = null;
-		try {
-			createdTx = txMgr.requireTransaction();
-			ret = listWithCriteria(true, true, LIST_BY_SBBID, sbbID);
-		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
-		} finally {
-			if (createdTx) {
-				try {
-					txMgr.commit();
-				} catch (Throwable e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-
-		}
-
-		return ret;
+		return listWithCriteria(true, true, LIST_BY_SBBID, sbbID);
 	}
 
 	// TimerClass to run periodic livelines querry - here is decided which ac
@@ -686,50 +494,31 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 				logger
 					.debug("Periodic Liveliness Task is on the run, processing AC "+ach);
 			
-			try {
-				txMgr.begin();
-				ActivityContextImpl ac = acFactory.getActivityContext(ach);
-				if (ac != null) {  					
-					if ((currentTime - ac.getLastAccessTime()) < acFactory.getConfiguration().getMaxTimeIdleInMs()) {
-						// This one has been accessed in near past, so we dont
-						// want to query it
-						return;
-					}
-					final ResourceAdaptorActivityContextHandle raach = (ResourceAdaptorActivityContextHandle) ach; 
-					final ResourceAdaptorEntity raEntity = raach.getResourceAdaptorEntity();
-					if (ActivityFlags.hasRequestSleeActivityGCCallback(ac.getActivityFlags()) && ac.isAttachedTimersEmpty() && ac.isNamingBindingEmpty() && ac.isSbbAttachmentSetEmpty()) {
-						// reporting unreferenced activity may fail to happen due to wrong usage of non tx aware methods to start activities
-						raEntity.getResourceAdaptorObject().activityUnreferenced(ach.getActivityHandle());					
-					}
-					if (logger.isDebugEnabled()) {
-						logger.debug("Invoking ra entity "+raEntity.getName()+" queryLiveness() for activity handle "+ach.getActivityHandle());
-					}
-					raEntity.getResourceAdaptorObject().queryLiveness(
-								ach.getActivityHandle());					
-				}
+			ActivityContextImpl ac = acFactory.getActivityContext(ach);
+			if(ac == null) {
+				return;
 			}
-			catch (Exception e) {
-				logger.error("failed to query liveness on AC "+ach, e);
-				
+			
+			if ((currentTime - ac.getLastAccessTime()) < acFactory.getConfiguration().getMaxTimeIdleInMs()) {
+				// This one has been accessed in near past, so we dont
+				// want to query it
+				return;
 			}
-			finally {
-				try {
-					txMgr.commit();
-				}
-				catch (Exception e) {
-					logger.error("failed to end tx to to query liveness on AC "+ach, e);
-				}
+			
+			final ResourceAdaptorActivityContextHandle raach = (ResourceAdaptorActivityContextHandle) ach; 
+			final ResourceAdaptorEntity raEntity = raach.getResourceAdaptorEntity();
+			if (logger.isDebugEnabled()) {
+				logger.debug("Invoking ra entity "+raEntity.getName()+" queryLiveness() for activity handle "+ach.getActivityHandle());
 			}
+			raEntity.getResourceAdaptorObject().queryLiveness(
+								ach.getActivityHandle());								
 			
 		}
 		
 		public void run() {
-			Set<ActivityContextHandle> achs = acFactory.getAllActivityContextsHandles();
-			if (achs != null) {
-				long currentTime = System.currentTimeMillis();
-				for (ActivityContextHandle ach : achs) {
-					this.queryLiveness(ach,currentTime);										
-				}
+			long currentTime = System.currentTimeMillis();
+			for (ActivityContextHandle ach : acFactory.getAllActivityContextsHandles()) {
+				this.queryLiveness(ach,currentTime);										
 			}
 			scheduleLivenessQuery();
 		}
