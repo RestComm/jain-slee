@@ -45,10 +45,9 @@ import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 
-public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implements
-		SbbEntitiesMBeanImplMBean {
-	
-	private static final int SBB_ENTITY_ID = 0;
+public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implements SbbEntitiesMBeanImplMBean {
+
+  private static final int SBB_ENTITY_ID = 0;
   private static final int PARENT_SBB_ENTITY_ID = 1;
   private static final int ROOT_SBB_ENTITY_ID = 2;
   private static final int SBB_ID = 3;
@@ -58,223 +57,216 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
   private static final int ACS = 7;
 
   private final SbbEntityFactory sbbEntityFactory;
-	
-	public SbbEntitiesMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
-		super(sleeContainer,SbbEntitiesMBeanImplMBean.class);
-		this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();
-		PropertyEditorManager.registerEditor(SbbEntityID[].class,
-				SbbEntityIDArrayPropertyEditor.class);
-		PropertyEditorManager.registerEditor(SbbEntityID.class,
-				SbbEntityIDPropertyEditor.class);
-	}
-	
-	@Override
-	public Object[] retrieveSbbEntitiesBySbbId(String sbbId) throws ManagementException {
-		ArrayList result = new ArrayList();
-		final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
-		boolean started = false;
-		try {
-			if(txMgr.getTransaction() == null)
-			{
-				txMgr.begin();
-				started = true;
-			}
 
+  public SbbEntitiesMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
+    super(sleeContainer, SbbEntitiesMBeanImplMBean.class);
+    this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();
+    PropertyEditorManager.registerEditor(SbbEntityID[].class, SbbEntityIDArrayPropertyEditor.class);
+    PropertyEditorManager.registerEditor(SbbEntityID.class, SbbEntityIDPropertyEditor.class);
+  }
 
-			Iterator<SbbEntityID> sbbes = retrieveAllSbbEntitiesIds().iterator();
-			while (sbbes.hasNext()) {
-				try {
-					SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbes.next(),false);
-					if (sbbe != null && sbbe.getSbbId().toString().equals(sbbId)) {
-						Object res = sbbEntityToArray(sbbe); 
-						if(res!=null)
-							result.add(res);
-					}
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-			return result.toArray();
-		} catch (Exception e) {
-			throw new ManagementException(
-					"Failed to build set of existent sbb entities", e);
-		} finally
-		{
-			if(started)
-			{
-				try{
-					txMgr.commit();
-				}catch(Exception e)
-				{}
-			}
-		}
-		
-	}
+  @Override
+  public Object[] retrieveSbbEntitiesBySbbId(String sbbId) throws ManagementException {
+    ArrayList result = new ArrayList();
+    final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
+    boolean started = false;
+    try {
+      if (txMgr.getTransaction() == null) {
+        txMgr.begin();
+        started = true;
+      }
 
-	@Override
-	public Object[] retrieveAllSbbEntities() throws ManagementException {
-		ArrayList result = new ArrayList();
-		final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
-		boolean started = false;
-		try {
-			if(txMgr.getTransaction() == null)
-			{
-				txMgr.begin();
-				started = true;
-			}
+      Iterator<SbbEntityID> sbbes = retrieveAllSbbEntitiesIds().iterator();
+      while (sbbes.hasNext()) {
+        try {
+          SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbes.next(), false);
+          if (sbbe != null && sbbe.getSbbId().toString().equals(sbbId)) {
+            Object res = sbbEntityToArray(sbbe);
+            if (res != null)
+              result.add(res);
+          }
+        }
+        catch (Exception e) {
+          // ignore
+        }
+      }
+      return result.toArray();
+    }
+    catch (Exception e) {
+      throw new ManagementException("Failed to build set of existent sbb entities", e);
+    }
+    finally {
+      if (started) {
+        try {
+          txMgr.commit();
+        }
+        catch (Exception e) {
+        }
+      }
+    }
 
+  }
 
-			Iterator<SbbEntityID> sbbes = retrieveAllSbbEntitiesIds().iterator();
-			while (sbbes.hasNext()) {
-				try {
-					SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbes.next(),false);
-					if (sbbe != null) {
-						result.add(sbbEntityToArray(sbbe));
-					}
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-			return result.toArray();
-		} catch (Exception e) {
-			throw new ManagementException(
-					"Failed to build set of existent sbb entities", e);
-		} finally
-		{
-			if(started)
-			{
-				try
-				{
-					txMgr.commit();
-				}catch(Exception e)
-				{}
-			}
-		}
-	}
+  @Override
+  public Object[] retrieveAllSbbEntities() throws ManagementException {
+    ArrayList result = new ArrayList();
+    final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
+    boolean started = false;
+    try {
+      if (txMgr.getTransaction() == null) {
+        txMgr.begin();
+        started = true;
+      }
 
-	private Set<SbbEntityID> retrieveAllSbbEntitiesIds() throws SystemException, NullPointerException, ManagementException, NotSupportedException {
-		Set<SbbEntityID> result = new HashSet<SbbEntityID>();
+      Iterator<SbbEntityID> sbbes = retrieveAllSbbEntitiesIds().iterator();
+      while (sbbes.hasNext()) {
+        try {
+          SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbes.next(), false);
+          if (sbbe != null) {
+            result.add(sbbEntityToArray(sbbe));
+          }
+        }
+        catch (Exception e) {
+          // ignore
+        }
+      }
+      return result.toArray();
+    }
+    catch (Exception e) {
+      throw new ManagementException("Failed to build set of existent sbb entities", e);
+    }
+    finally {
+      if (started) {
+        try {
+          txMgr.commit();
+        }
+        catch (Exception e) {
+        }
+      }
+    }
+  }
 
+  private Set<SbbEntityID> retrieveAllSbbEntitiesIds() throws SystemException, NullPointerException, ManagementException, NotSupportedException {
+    Set<SbbEntityID> result = new HashSet<SbbEntityID>();
 
+    for (ServiceID serviceID : sleeContainer.getServiceManagement().getServices(ServiceState.ACTIVE)) {
+      try {
+        for (SbbEntityID rootSbbId : sbbEntityFactory.getRootSbbEntityIDs(serviceID)) {
+          result.addAll(getChildSbbEntities(rootSbbId));
+        }
+      }
+      catch (Exception e) {
+        // ignore
+      }
+    }
 
-			for (ServiceID serviceID : sleeContainer.getServiceManagement().getServices(ServiceState.ACTIVE)) {
-				try {
-					for (SbbEntityID rootSbbId : sbbEntityFactory.getRootSbbEntityIDs(serviceID)) {
-						result.addAll(getChildSbbEntities(rootSbbId));
-					}
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-		
+    return result;
+  }
 
-		return result;
-	}
+  private Set<SbbEntityID> getChildSbbEntities(SbbEntityID sbbEntityId) {
 
-	private Set<SbbEntityID> getChildSbbEntities(SbbEntityID sbbEntityId) {
+    Set<SbbEntityID> result = new HashSet<SbbEntityID>();
 
-		Set<SbbEntityID> result = new HashSet<SbbEntityID>();
+    try {
+      SbbEntity sbbEntity = getSbbEntityById(sbbEntityId);
+      for (GetChildRelationMethodDescriptor method : sbbEntity.getSbbComponent().getDescriptor().getGetChildRelationMethodsMap().values()) {
+        ChildRelation childRelationImpl = sbbEntity.getChildRelation(method.getChildRelationMethodName());
+        if (childRelationImpl != null) {
+          for (SbbEntityID childSbbEntityId : childRelationImpl.getSbbEntitySet()) {
+            result.addAll(getChildSbbEntities(childSbbEntityId));
+          }
+        }
+      }
+      result.add(sbbEntityId);
+    }
+    catch (Exception e) {
+      // ignore
+    }
 
-		try {
-			SbbEntity sbbEntity = getSbbEntityById(sbbEntityId);
-			for (GetChildRelationMethodDescriptor method : sbbEntity.getSbbComponent().getDescriptor().getGetChildRelationMethodsMap().values()) {
-				ChildRelation childRelationImpl = sbbEntity.getChildRelation(method.getChildRelationMethodName());
-				if (childRelationImpl != null) {
-					for (SbbEntityID childSbbEntityId : childRelationImpl.getSbbEntitySet()) {
-						result.addAll(getChildSbbEntities(childSbbEntityId));
-					}
-				}
-			}
-			result.add(sbbEntityId);
-		} catch (Exception e) {
-			// ignore
-		}
+    return result;
+  }
 
-		return result;
-	}
+  private Object[] sbbEntityToArray(SbbEntity entity) {
+    Object[] info = new Object[8];
+    try {
 
-	private Object[] sbbEntityToArray(SbbEntity entity) {
-		Object[] info = new Object[8];
-		try {
+      if (entity == null)
+        return null;
+      info[SBB_ENTITY_ID] = entity.getSbbEntityId().toString();
+      info[PARENT_SBB_ENTITY_ID] = String.valueOf(entity.getSbbEntityId().getParentSBBEntityID());
+      info[ROOT_SBB_ENTITY_ID] = String.valueOf(entity.getSbbEntityId().getRootSBBEntityID());
+      info[SBB_ID] = entity.getSbbId().toString();
+      info[SBB_ENTITY_PRIORITY] = Byte.toString(entity.getPriority());
+      info[SBB_ENTITY_SERV_CONV_NAME] = entity.getSbbEntityId().getServiceConvergenceName();
+      info[SBB_ENTITY_SERVICE_ID] = String.valueOf(entity.getSbbEntityId().getServiceID());
+      Set acsSet = entity.getActivityContexts();
+      if (acsSet != null && acsSet.size() > 0) {
+        Object[] acsArray = acsSet.toArray();
+        String[] acs = new String[acsArray.length];
+        info[ACS] = acs;
+      }
 
-			if (entity == null)
-				return null;
-			info[SBB_ENTITY_ID] = entity.getSbbEntityId().toString();
-			info[PARENT_SBB_ENTITY_ID] = String.valueOf(entity.getSbbEntityId().getParentSBBEntityID());
-			info[ROOT_SBB_ENTITY_ID] = String.valueOf(entity.getSbbEntityId().getRootSBBEntityID());
-			info[SBB_ID] = entity.getSbbId().toString();
-			info[SBB_ENTITY_PRIORITY] = Byte.toString(entity.getPriority());
-			info[SBB_ENTITY_SERV_CONV_NAME] = entity.getSbbEntityId().getServiceConvergenceName();
-			info[SBB_ENTITY_SERVICE_ID] = String.valueOf(entity.getSbbEntityId().getServiceID());
-			Set acsSet = entity.getActivityContexts();
-			if (acsSet != null && acsSet.size() > 0) {
-				Object[] acsArray = acsSet.toArray();
-				String[] acs = new String[acsArray.length];
-				info[ACS] = acs;
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		return info;
-	}
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+    return info;
+  }
 
-	private SbbEntity getSbbEntityById(SbbEntityID sbbeId) {
-		try {
-			return sbbEntityFactory.getSbbEntity(sbbeId, false);
-		} catch (Exception e) {
-			return null;
-		}
+  private SbbEntity getSbbEntityById(SbbEntityID sbbeId) {
+    try {
+      return sbbEntityFactory.getSbbEntity(sbbeId, false);
+    }
+    catch (Exception e) {
+      return null;
+    }
 
-	}
+  }
 
-	public Object[] retrieveSbbEntityInfo(String sbbeId) throws ManagementException {
-		final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
-		boolean started = false;
-		try {
-			if(txMgr.getTransaction() == null)
-			{
-				txMgr.begin();
-				started = true;
-			}
+  public Object[] retrieveSbbEntityInfo(String sbbeId) throws ManagementException {
+    final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
+    boolean started = false;
+    try {
+      if (txMgr.getTransaction() == null) {
+        txMgr.begin();
+        started = true;
+      }
 
       SbbEntityIDPropertyEditor seipe = new SbbEntityIDPropertyEditor();
       seipe.setAsText(sbbeId);
-		SbbEntity entity = getSbbEntityById((SbbEntityID) seipe.getValue());
-		
-		return sbbEntityToArray(entity);
-		}catch(Exception e)
-		{
-			
-			throw new ManagementException(
-					"Failed to build set of existent sbb entities", e);
-		}finally
-		{
-			if(started)
-			{
-				try{
-					txMgr.commit();
-				}catch(Exception e)
-				{
-					
-				}
-			}
-		}
-	}
+      SbbEntity entity = getSbbEntityById((SbbEntityID) seipe.getValue());
 
-	public void removeSbbEntity(String sbbeId) throws ManagementException {
-		try {
-			SleeContainer sleeContainer = getSleeContainer();
-			sleeContainer.getTransactionManager().begin();
-			SbbEntityIDPropertyEditor seipe = new SbbEntityIDPropertyEditor();
-			seipe.setAsText(sbbeId);
-			sbbEntityFactory.removeSbbEntity(getSbbEntityById((SbbEntityID) seipe.getValue()), false);
-			sleeContainer.getTransactionManager().commit();
-		} catch (Exception e) {
-			throw new ManagementException(
-					"Failed to remove existent sbb entity", e);
-		}
-	}
+      return sbbEntityToArray(entity);
+    }
+    catch (Exception e) {
+
+      throw new ManagementException("Failed to build set of existent sbb entities", e);
+    }
+    finally {
+      if (started) {
+        try {
+          txMgr.commit();
+        }
+        catch (Exception e) {
+
+        }
+      }
+    }
+  }
+
+  public void removeSbbEntity(String sbbeId) throws ManagementException {
+    try {
+      SleeContainer sleeContainer = getSleeContainer();
+      sleeContainer.getTransactionManager().begin();
+      SbbEntityIDPropertyEditor seipe = new SbbEntityIDPropertyEditor();
+      seipe.setAsText(sbbeId);
+      sbbEntityFactory.removeSbbEntity(getSbbEntityById((SbbEntityID) seipe.getValue()), false);
+      sleeContainer.getTransactionManager().commit();
+    }
+    catch (Exception e) {
+      throw new ManagementException("Failed to remove existent sbb entity", e);
+    }
+  }
 
 }
