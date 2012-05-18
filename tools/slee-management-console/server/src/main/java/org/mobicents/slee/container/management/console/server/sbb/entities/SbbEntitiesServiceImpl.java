@@ -101,7 +101,7 @@ public class SbbEntitiesServiceImpl extends RemoteServiceServlet implements SbbE
       Object[] list = activity.retrieveAllSbbEntities();
       SbbEntityInfo[] sei = new SbbEntityInfo[list.length];
       for (int q = 0; q < sei.length; q++)
-        sei[q] = objectToSbbEntityInfo((Object[]) list);
+        sei[q] = objectToSbbEntityInfo((Object[]) list[q]);
       return sei;
     }
     catch (Exception e) {

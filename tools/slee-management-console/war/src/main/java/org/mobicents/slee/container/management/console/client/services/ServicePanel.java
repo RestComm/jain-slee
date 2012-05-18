@@ -35,6 +35,9 @@ import org.mobicents.slee.container.management.console.client.components.Compone
 import org.mobicents.slee.container.management.console.client.components.info.ComponentInfo;
 import org.mobicents.slee.container.management.console.client.components.info.SbbInfo;
 import org.mobicents.slee.container.management.console.client.components.info.ServiceInfo;
+import org.mobicents.slee.container.management.console.client.sbb.entity.SbbEntitiesServiceAsync;
+import org.mobicents.slee.container.management.console.client.sbb.entity.SbbEntityInfo;
+import org.mobicents.slee.container.management.console.client.sbb.entity.SbbEntityLabel;
 
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
@@ -57,6 +60,8 @@ public class ServicePanel extends Composite implements ComponentNameClickListene
   private final static int ROW_SERVICE_INFO = 1;
 
   private final static int ROW_SBBS = 2;
+
+  private final static int ROW_SBB_ENTITIES = 3;
 
   private ControlContainer rootPanel = new ControlContainer();
 
@@ -93,6 +98,15 @@ public class ServicePanel extends Composite implements ComponentNameClickListene
       }
     };
     servicesServiceAsync.getSbbsWithinService(serviceID, callback);
+
+    SbbEntitiesServiceAsync sbbEntitiesServiceAsync = ServerConnection.sbbEntitiesServiceAsync;
+    callback = new ServerCallback(this) {
+      public void onSuccess(Object result) {
+        SbbEntityInfo[] sbbeInfos = (SbbEntityInfo[]) result;
+        refreshSbbEntities(sbbeInfos);
+      }
+    };
+    sbbEntitiesServiceAsync.retrieveAllSbbEntities(callback);
   }
 
   private void refreshServicePropertiesPanel(ServiceInfo serviceInfo) {
@@ -136,6 +150,26 @@ public class ServicePanel extends Composite implements ComponentNameClickListene
     }
 
     rootPanel.setWidget(ROW_SBBS, 0, listPanel);
+  }
+
+  private void refreshSbbEntities(SbbEntityInfo[] sbbeInfos) {
+    ListPanel listPanel = new ListPanel();
+
+    listPanel.setHeader(1, "Root SBB Entities");
+
+    listPanel.setColumnWidth(1, "100%");
+
+    int count = 0;
+    for (final SbbEntityInfo sbbeInfo : sbbeInfos) {
+      // we only want those belonging to this service and which are root
+      if(sbbeInfo.getServiceId().equals(serviceID) && sbbeInfo.getSbbEntityId().equals(sbbeInfo.getRootId())) {
+        listPanel.setCell(count, 0, new Image("images/services.sbb.gif"));
+        listPanel.setCell(count, 1, new SbbEntityLabel(sbbeInfo.getSbbEntityId(), null, browseContainer));
+        count++;
+      }
+    }
+
+    rootPanel.setWidget(ROW_SBB_ENTITIES, 0, listPanel);
   }
 
   private void onSbbName(SbbInfo sbbInfo) {
