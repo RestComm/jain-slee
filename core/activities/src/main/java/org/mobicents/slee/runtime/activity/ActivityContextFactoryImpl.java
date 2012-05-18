@@ -156,7 +156,16 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	public ActivityContextImpl getActivityContext(ActivityContextHandle ach, boolean updateLastAccessTime) {
 		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
 		if (activityContextCacheData.exists()) {
-			return new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach, updateLastAccessTime),this);
+			try {
+				return new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach, updateLastAccessTime),this);
+			}
+			catch (Throwable e) {
+				logger.error("Failed to load AC.",e);
+				// force cache data & local resources removal
+				localActivityContexts.remove(ach);
+				activityContextCacheData.remove();
+				return null;
+			}
 		}
 		else {
 			return null; 
