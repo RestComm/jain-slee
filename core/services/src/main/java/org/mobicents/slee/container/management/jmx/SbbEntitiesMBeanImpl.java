@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.management.NotCompliantMBeanException;
-import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ServiceState;
@@ -49,7 +48,16 @@ import org.mobicents.slee.container.transaction.SleeTransactionManager;
 public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implements
 		SbbEntitiesMBeanImplMBean {
 	
-	private final SbbEntityFactory sbbEntityFactory;
+	private static final int SBB_ENTITY_ID = 0;
+  private static final int PARENT_SBB_ENTITY_ID = 1;
+  private static final int ROOT_SBB_ENTITY_ID = 2;
+  private static final int SBB_ID = 3;
+  private static final int SBB_ENTITY_PRIORITY = 4;
+  private static final int SBB_ENTITY_SERV_CONV_NAME = 5;
+  private static final int SBB_ENTITY_SERVICE_ID = 6;
+  private static final int ACS = 7;
+
+  private final SbbEntityFactory sbbEntityFactory;
 	
 	public SbbEntitiesMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
 		super(sleeContainer,SbbEntitiesMBeanImplMBean.class);
@@ -61,7 +69,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 	}
 	
 	@Override
-	public Object[] retrieveSbbEntitiesBySbbId(SbbID sbbId) throws ManagementException {
+	public Object[] retrieveSbbEntitiesBySbbId(String sbbId) throws ManagementException {
 		ArrayList result = new ArrayList();
 		final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
 		boolean started = false;
@@ -77,7 +85,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 			while (sbbes.hasNext()) {
 				try {
 					SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbes.next(),false);
-					if (sbbe != null && sbbe.getSbbId().equals(sbbId)) {
+					if (sbbe != null && sbbe.getSbbId().toString().equals(sbbId)) {
 						Object res = sbbEntityToArray(sbbe); 
 						if(res!=null)
 							result.add(res);
@@ -191,18 +199,18 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 
 			if (entity == null)
 				return null;
-			info[0] = entity.getSbbEntityId().toString();
-			info[1] = String.valueOf(entity.getSbbEntityId().getParentSBBEntityID());
-			info[2] = String.valueOf(entity.getSbbEntityId().getRootSBBEntityID());
-			info[3] = entity.getSbbId().toString();
-			info[4] = Byte.toString(entity.getPriority());
-			info[5] = entity.getSbbEntityId().getServiceConvergenceName();
-			info[6] = String.valueOf(entity.getSbbEntityId().getServiceID());
+			info[SBB_ENTITY_ID] = entity.getSbbEntityId().toString();
+			info[PARENT_SBB_ENTITY_ID] = String.valueOf(entity.getSbbEntityId().getParentSBBEntityID());
+			info[ROOT_SBB_ENTITY_ID] = String.valueOf(entity.getSbbEntityId().getRootSBBEntityID());
+			info[SBB_ID] = entity.getSbbId().toString();
+			info[SBB_ENTITY_PRIORITY] = Byte.toString(entity.getPriority());
+			info[SBB_ENTITY_SERV_CONV_NAME] = entity.getSbbEntityId().getServiceConvergenceName();
+			info[SBB_ENTITY_SERVICE_ID] = String.valueOf(entity.getSbbEntityId().getServiceID());
 			Set acsSet = entity.getActivityContexts();
 			if (acsSet != null && acsSet.size() > 0) {
 				Object[] acsArray = acsSet.toArray();
 				String[] acs = new String[acsArray.length];
-				info[7] = acs;
+				info[ACS] = acs;
 			}
 			
 		} catch (Exception e) {
@@ -221,7 +229,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 
 	}
 
-	public Object[] retrieveSbbEntityInfo(SbbEntityID sbbeId) throws ManagementException {
+	public Object[] retrieveSbbEntityInfo(String sbbeId) throws ManagementException {
 		final SleeTransactionManager txMgr = getSleeContainer().getTransactionManager();
 		boolean started = false;
 		try {
@@ -231,7 +239,9 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 				started = true;
 			}
 
-		SbbEntity entity = getSbbEntityById(sbbeId);
+      SbbEntityIDPropertyEditor seipe = new SbbEntityIDPropertyEditor();
+      seipe.setAsText(sbbeId);
+		SbbEntity entity = getSbbEntityById((SbbEntityID) seipe.getValue());
 		
 		return sbbEntityToArray(entity);
 		}catch(Exception e)
@@ -253,11 +263,13 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 		}
 	}
 
-	public void removeSbbEntity(SbbEntityID sbbeId) throws ManagementException {
+	public void removeSbbEntity(String sbbeId) throws ManagementException {
 		try {
 			SleeContainer sleeContainer = getSleeContainer();
 			sleeContainer.getTransactionManager().begin();
-			sbbEntityFactory.removeSbbEntity(getSbbEntityById(sbbeId),false);
+			SbbEntityIDPropertyEditor seipe = new SbbEntityIDPropertyEditor();
+			seipe.setAsText(sbbeId);
+			sbbEntityFactory.removeSbbEntity(getSbbEntityById((SbbEntityID) seipe.getValue()), false);
 			sleeContainer.getTransactionManager().commit();
 		} catch (Exception e) {
 			throw new ManagementException(
