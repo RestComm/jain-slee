@@ -145,7 +145,7 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 		mapDialog.setUserObject(dw);
 
 		try {
-			this.mapProviderWrapper.getRa().createActivity(dw);
+			this.mapProviderWrapper.getRa().startSuspendedActivity(dw);
 		} catch (Exception e) {
 			throw new MAPException(e);
 		}

@@ -375,10 +375,16 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	// //////////////////
 	// Helper methods //
 	// //////////////////
-	public void createActivity(MAPDialogWrapper mapDialogWrapper) throws ActivityAlreadyExistsException,
+	public void startActivity(MAPDialogWrapper mapDialogWrapper) throws ActivityAlreadyExistsException,
 			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
 		this.sleeEndpoint.startActivity(mapDialogWrapper.getActivityHandle(), mapDialogWrapper, ACTIVITY_FLAGS);
 	}
+	
+	public void startSuspendedActivity(MAPDialogWrapper mapDialogWrapper)
+			throws ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException,
+			StartActivityException {
+		this.sleeEndpoint.startActivitySuspended(mapDialogWrapper.getActivityHandle(), mapDialogWrapper, ActivityFlags.REQUEST_ENDED_CALLBACK);
+	}	
 
 	/**
 	 * Private methods
@@ -556,7 +562,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			DialogRequest event = new DialogRequest(mapDialogWrapper, destReference, origReference, extensionContainer,
 					eriImsi, eriVlrNo);
 			mapDialog.setUserObject(mapDialogWrapper);
-			this.createActivity(mapDialogWrapper);
+			this.startActivity(mapDialogWrapper);
 			this.fireEvent(event.getEventTypeName(), mapDialogWrapper.getActivityHandle(), event);
 
 		} catch (Exception e) {
