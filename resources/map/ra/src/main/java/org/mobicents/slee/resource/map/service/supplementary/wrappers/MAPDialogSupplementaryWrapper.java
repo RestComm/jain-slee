@@ -50,6 +50,11 @@ public class MAPDialogSupplementaryWrapper extends MAPDialogWrapper<MAPDialogSup
 			ISDNAddressString arg4) throws MAPException {
 		return this.wrappedDialog.addUnstructuredSSNotifyRequest(arg0, arg1, arg2, arg3, arg4);
 	}
+	
+	@Override
+	public void addUnstructuredSSNotifyResponse(long invokeId) throws MAPException{
+		this.wrappedDialog.addUnstructuredSSNotifyResponse(invokeId);
+	}
 
 	@Override
 	public Long addUnstructuredSSRequest(byte arg0, USSDString arg1, AlertingPattern arg2, ISDNAddressString arg3)

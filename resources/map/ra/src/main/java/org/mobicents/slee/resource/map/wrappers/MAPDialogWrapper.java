@@ -11,6 +11,7 @@ import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
+import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
 import org.mobicents.protocols.ss7.tcap.asn.comp.ReturnResult;
@@ -35,6 +36,14 @@ public abstract class MAPDialogWrapper<T extends MAPDialog> implements MAPDialog
 		this.activityHandle.setActivity(this);
 		this.ra = ra;
 	}
+	
+    public SccpAddress getLocalAddress(){
+    	return this.wrappedDialog.getLocalAddress();
+    }
+    
+    public SccpAddress getRemoteAddress(){
+    	return this.wrappedDialog.getRemoteAddress();
+    }
 
 	@Override
 	public void abort(MAPUserAbortChoice arg0) throws MAPException {
