@@ -456,16 +456,20 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
         //log.error("Avp with code: " + a.getCode() + " VendorId: " + a.getVendorId() + " is not listed in dictionary, skipping!");
         continue;
       }
-      else if (avpRep.getType().equals("Grouped")) {
-        GroupedAvpImpl gAVP = new GroupedAvpImpl(a.getCode(), a.getVendorId(), a.isMandatory() ? 1 : 0, a.isEncrypted() ? 1 : 0, a.getRaw());
-
-        gAVP.setExtensionAvps(getAvpsInternal(a.getGrouped()));
-
-        // This is a grouped AVP... let's make it like that.
-        avps.add(gAVP);
-      }
       else {
-        avps.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a.isMandatory() ? 1 : 0, a.isEncrypted() ? 1 : 0, a.getRaw(), DiameterAvpType.fromString(avpRep.getType())));
+        if (avpRep.getType().equals("Grouped")) {
+          // TODO: There's no info about if AVP has mandatory or protected flags set...
+          GroupedAvpImpl gAVP = new GroupedAvpImpl(a.getCode(), a.getVendorId(), avpRep.getRuleMandatoryAsInt(), avpRep.getRuleProtectedAsInt(), a.getRaw());
+
+          gAVP.setExtensionAvps(getAvpsInternal(a.getGrouped()));
+
+          // This is a grouped AVP... let's make it like that.
+          avps.add(gAVP);
+        }
+        else {
+          // TODO: There's no info about if AVP has mandatory or protected flags set...
+          avps.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), avpRep.getRuleMandatoryAsInt(), avpRep.getRuleProtectedAsInt(), a.getRaw(), DiameterAvpType.fromString(avpRep.getType())));
+        }
       }
     }
 
@@ -516,7 +520,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
     }
 
     avpStringSB.append("| ").append(indent).append("AVP: Code[").append(avp.getCode()).append("] VendorID[").append(avp.getVendorId()).append("] Value[").append(avpValue).
-    append("] Flags[M=").append(avp.isMandatory()).append(";E=").append(avp.isEncrypted()).append(";V=").append(avp.isVendorId()).append("]\r\n");
+    append("] Flags[V=").append(avp.isVendorId()).append(";M=").append(avp.isMandatory()).append(";P=").append(avp.isEncrypted()).append("]\r\n");
 
     if (isGrouped) {
       try {

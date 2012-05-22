@@ -43,7 +43,7 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterAvpType;
 public class DiameterAvpImpl implements DiameterAvp, Externalizable {
 
   protected long vendorId;
-  protected int code, mnd, prt;
+  protected int code, mnd = FLAG_RULE_MUST, prt = FLAG_RULE_MAY;
   protected String name = "undefined";
   protected DiameterAvpType type = null;
 
