@@ -143,12 +143,7 @@ public class CreditControlSessionFactory  extends  CCASessionFactoryImpl{
       logger.info("Diameter CCA RA :: doOtherEvent :: appSession[" + session + "], Request[" + request + "], Answer[" + answer + "]");
     }
 
-    if (answer != null) {
-      doMessage(session, answer);
-    }
-    else {
-      doMessage(session, request);
-    }
+    doMessage(session, answer != null ? answer : request);
   }
 
   // ///////////////////////////
