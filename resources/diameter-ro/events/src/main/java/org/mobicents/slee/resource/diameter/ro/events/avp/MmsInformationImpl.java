@@ -166,7 +166,7 @@ public class MmsInformationImpl extends GroupedAvpImpl implements MmsInformation
    * @see net.java.slee.resource.diameter.ro.events.avp.MmsInformation#getRecipientAddresses()
    */
   public RecipientAddress[] getRecipientAddresses() {
-    return (RecipientAddress[]) getAvpAsCustom(DiameterRoAvpCodes.RECIPIENT_ADDRESS, DiameterRoAvpCodes.TGPP_VENDOR_ID, RecipientAddressImpl.class);
+    return (RecipientAddress[]) getAvpsAsCustom(DiameterRoAvpCodes.RECIPIENT_ADDRESS, DiameterRoAvpCodes.TGPP_VENDOR_ID, RecipientAddressImpl.class);
   }
 
   /* (non-Javadoc)
