@@ -80,12 +80,7 @@ public class RxSessionFactory extends RxSessionFactoryImpl {
 
   @Override
   public void doOtherEvent(AppSession session, AppRequestEvent request, AppAnswerEvent answer) throws InternalException {
-    if (request != null) {
-      ra.fireEvent(session.getSessionId(), request.getMessage());
-    }
-    else {
-      ra.fireEvent(session.getSessionId(), answer.getMessage());
-    }
+    ra.fireEvent(session.getSessionId(), answer != null ? answer.getMessage() : request.getMessage());
   }
 
   @Override
