@@ -95,9 +95,6 @@ public class GqSessionFactory extends GqSessionFactoryImpl {
 
   public void doOtherEvent(AppSession appSession, AppRequestEvent request, AppAnswerEvent answer) throws InternalException,
   IllegalDiameterStateException, RouteException, OverloadException {
-    if (answer != null)
-      ra.fireEvent(appSession.getSessionId(), answer.getMessage());
-    else
-      ra.fireEvent(appSession.getSessionId(), request.getMessage());
+    ra.fireEvent(appSession.getSessionId(), answer != null ? answer.getMessage() : request.getMessage());
   }
 }
