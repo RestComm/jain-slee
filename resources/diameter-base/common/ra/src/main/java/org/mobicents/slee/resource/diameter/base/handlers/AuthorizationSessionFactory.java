@@ -167,7 +167,7 @@ public class AuthorizationSessionFactory extends AuthSessionFactoryImpl implemen
   public void doOtherEvent(AppSession appSession, AppRequestEvent request, AppAnswerEvent answer) throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
     logger.info("Diameter Base AuthorizationSessionFactory :: doOtherEvent :: appSession[" + appSession + "], Request[" + request + "], Answer[" + answer + "]");
 
-    doFireEvent(appSession, request != null ? request.getMessage() : answer.getMessage());
+    doFireEvent(appSession, answer != null ? answer.getMessage() : request.getMessage());
   }
 
   public AppAnswerEvent createAuthAnswer(Answer answer) {

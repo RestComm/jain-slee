@@ -130,7 +130,7 @@ public class AccountingSessionFactory extends AccSessionFactoryImpl implements I
   public void doOtherEvent(AppSession appSession, AppRequestEvent request, AppAnswerEvent answer) throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
     logger.info("Diameter Base AccountingSessionFactory :: doOtherEvent :: appSession[" + appSession + "], Request[" + request + "], Answer[" + answer + "]");
 
-    doFireEvent(appSession, request != null ? request.getMessage() : answer.getMessage());
+    doFireEvent(appSession, answer != null ? answer.getMessage() : request.getMessage());
   }
 
   public void stateChanged(Enum oldState, Enum newState) {
