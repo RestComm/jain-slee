@@ -45,7 +45,7 @@ public class DialogUserAbort extends MAPEvent {
 	 */
 	public DialogUserAbort(MAPDialog mapDialogWrapper, MAPUserAbortChoice userReason,
 			MAPExtensionContainer extensionContainer) {
-		super(mapDialogWrapper, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME, null);
 		this.userReason = userReason;
 		this.extensionContainer = extensionContainer;
 	}

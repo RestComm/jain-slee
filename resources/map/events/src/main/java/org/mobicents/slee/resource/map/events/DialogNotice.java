@@ -42,7 +42,7 @@ public class DialogNotice extends MAPEvent {
 	 * @param mapDialogWrapper
 	 */
 	public DialogNotice(MAPDialog mapDialogWrapper, MAPNoticeProblemDiagnostic noticeProblemDiagnostic) {
-		super(mapDialogWrapper, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME, null);
 		this.noticeProblemDiagnostic = noticeProblemDiagnostic;
 	}
 

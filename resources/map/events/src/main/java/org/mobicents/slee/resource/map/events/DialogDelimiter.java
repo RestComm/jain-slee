@@ -36,7 +36,7 @@ public class DialogDelimiter extends MAPEvent {
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_DELIMITER";
 
 	public DialogDelimiter(MAPDialog mapDialogWrapper) {
-		super(mapDialogWrapper, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME, null);
 	}
 
 	@Override

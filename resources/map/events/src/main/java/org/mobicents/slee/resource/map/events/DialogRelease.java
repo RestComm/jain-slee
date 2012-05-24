@@ -12,7 +12,7 @@ public class DialogRelease extends MAPEvent {
 	private static final String EVENT_TYPE_NAME = "ss7.map.DIALOG_RELEASE";
 
 	public DialogRelease(MAPDialog mAPDialog) {
-		super(mAPDialog, EVENT_TYPE_NAME);
+		super(mAPDialog, EVENT_TYPE_NAME, null);
 	}
 	
 	@Override

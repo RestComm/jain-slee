@@ -39,7 +39,7 @@ public class DialogClose extends MAPEvent {
 	 * @param mapDialogWrapper
 	 */
 	public DialogClose(MAPDialog mapDialogWrapper) {
-		super(mapDialogWrapper, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME, null);
 	}
 
 	@Override

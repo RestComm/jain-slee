@@ -36,7 +36,7 @@ public class DialogTimeout extends MAPEvent {
 	 * @param mapDialogWrapper
 	 */
 	public DialogTimeout(MAPDialog mapDialogWrapper) {
-		super(mapDialogWrapper, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME, null);
 	}
 
 	@Override

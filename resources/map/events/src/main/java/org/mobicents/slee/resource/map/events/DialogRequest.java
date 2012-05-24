@@ -50,7 +50,7 @@ public class DialogRequest extends MAPEvent {
 	 */
 	public DialogRequest(MAPDialog mapDialogWrapper, AddressString destReference, AddressString origReference,
 			MAPExtensionContainer extensionContainer, IMSI eriImsi, AddressString eriVlrNo) {
-		super(mapDialogWrapper, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME, null);
 		this.destReference = destReference;
 		this.origReference = origReference;
 		this.extensionContainer = extensionContainer;

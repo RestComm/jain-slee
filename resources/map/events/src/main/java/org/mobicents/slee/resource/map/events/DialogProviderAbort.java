@@ -47,7 +47,7 @@ public class DialogProviderAbort extends MAPEvent {
 	 */
 	public DialogProviderAbort(MAPDialog mapDialogWrapper, MAPAbortProviderReason abortProviderReason,
 			MAPAbortSource abortSource, MAPExtensionContainer extensionContainer) {
-		super(mapDialogWrapper, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME, null);
 		this.abortProviderReason = abortProviderReason;
 		this.abortSource = abortSource;
 		this.extensionContainer = extensionContainer;

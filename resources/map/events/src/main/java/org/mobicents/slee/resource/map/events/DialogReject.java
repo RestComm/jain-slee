@@ -50,7 +50,7 @@ public class DialogReject extends MAPEvent {
 	public DialogReject(MAPDialog mapDialogWrapper, MAPRefuseReason refuseReason,
 			MAPProviderError providerError, ApplicationContextName alternativeApplicationContext,
 			MAPExtensionContainer extensionContainer) {
-		super(mapDialogWrapper, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME, null);
 		this.refuseReason = refuseReason;
 		this.providerError = providerError;
 		this.alternativeApplicationContext = alternativeApplicationContext;

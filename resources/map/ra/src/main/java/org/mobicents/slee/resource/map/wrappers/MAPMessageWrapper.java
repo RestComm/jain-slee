@@ -9,13 +9,12 @@ import org.mobicents.slee.resource.map.events.MAPEvent;
  * @author amit bhayani
  *
  */
-public abstract class MAPMessageWrapper<T extends MAPMessage> extends MAPEvent implements MAPMessage {
+public abstract class MAPMessageWrapper<T extends MAPMessage> extends MAPEvent<T> implements MAPMessage {
 
-	final protected T wrappedEvent;
+	
 
 	public MAPMessageWrapper(MAPDialogWrapper mapDialogWrapper, String eventTypeName, T wrappedEvent) {
-		super(mapDialogWrapper, eventTypeName);
-		this.wrappedEvent = wrappedEvent;
+		super(mapDialogWrapper, eventTypeName, wrappedEvent);
 	}
 
 	@Override
@@ -37,5 +36,5 @@ public abstract class MAPMessageWrapper<T extends MAPMessage> extends MAPEvent i
 	public void setInvokeId(long arg0) {
 		this.wrappedEvent.setInvokeId(arg0);
 	}
-
+	
 }

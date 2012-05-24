@@ -42,7 +42,7 @@ public class DialogAccept extends MAPEvent {
 	 * @param mapDialogWrapper
 	 */
 	public DialogAccept(MAPDialog mapDialogWrapper, MAPExtensionContainer extensionContainer) {
-		super(mapDialogWrapper, EVENT_TYPE_NAME);
+		super(mapDialogWrapper, EVENT_TYPE_NAME, null);
 		this.extensionContainer = extensionContainer;
 	}
 
