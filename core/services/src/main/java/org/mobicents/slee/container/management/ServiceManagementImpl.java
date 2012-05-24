@@ -407,7 +407,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			// only end activity if slee was running and is single node in
 			// cluster, otherwise not needed (cluster) or
 			// slee already did it
-			if (sleeContainer.getCluster().isSingleMember()) {
+			if (sleeContainer.getCluster().isSingleMember() && (sleeState == SleeState.RUNNING || sleeState == SleeState.STOPPING)) {
 				if (sleeState == SleeState.RUNNING) {
 					endServiceActivity(serviceID);
 				}
