@@ -187,6 +187,10 @@ public class EventContextSuspensionHandler {
 		// create runnable to resume the event context
 		Runnable runnable = new Runnable() {
 			public void run() {
+				if (scheduledFuture == null) {
+					// already resumed
+					return;
+				}
 				// cancel timer task
 				scheduledFuture.cancel(false);
 				scheduledFuture = null;

@@ -38,6 +38,8 @@ import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
+import org.mobicents.slee.container.transaction.TransactionContext;
+import org.mobicents.slee.container.transaction.TransactionalAction;
 
 /**
  * Activity context factory -- return an activity context given an activity or
@@ -106,9 +108,34 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 			localActivityContext = localActivityContexts.putIfAbsent(ach,newLocalActivityContext);
 			if (localActivityContext == null) {
 				localActivityContext = newLocalActivityContext;
-				EventRouterExecutor executor = sleeContainer.getEventRouter().getEventRouterExecutorMapper().getExecutor(ach);
+				final EventRouterExecutor executor = sleeContainer.getEventRouter().getEventRouterExecutorMapper().getExecutor(ach);
 				localActivityContext.setExecutorService(executor);
 				executor.activityMapped(ach);
+				TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+				if (txContext != null) {
+					TransactionalAction txAction = new TransactionalAction() {
+						@Override
+						public void execute() {
+							try {
+								Runnable r = new Runnable() {									
+									@Override
+									public void run() {
+										if (getActivityContext(ach) == null) {
+											localActivityContexts.remove(ach);
+											executor.activityUnmapped(ach);									
+										}
+									}
+								};
+								executor.execute(r);								
+							}
+							catch (Throwable e) {
+								logger.error("Failed to rollback removal of AC local resources",e);
+							}
+							
+						}
+					};
+					txContext.getAfterRollbackActions().add(txAction);
+				}
 			}
 		}
 		return localActivityContext;
@@ -162,7 +189,10 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 			catch (Throwable e) {
 				logger.error("Failed to load AC.",e);
 				// force cache data & local resources removal
-				localActivityContexts.remove(ach);
+				final LocalActivityContextImpl localActivityContext = localActivityContexts.remove(ach);
+				if (localActivityContext != null) {
+					localActivityContext.getExecutorService().activityUnmapped(ach);
+				}
 				activityContextCacheData.remove();
 				return null;
 			}

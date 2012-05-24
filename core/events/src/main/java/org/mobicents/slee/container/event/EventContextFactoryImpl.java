@@ -103,22 +103,13 @@ public class EventContextFactoryImpl extends AbstractSleeContainerModule
 		return eventContext;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.container.event.EventContextFactory#createEventContext
-	 * (javax.slee.EventTypeID, java.lang.Object,
-	 * org.mobicents.slee.container.activity.ActivityContext,
-	 * javax.slee.Address, javax.slee.ServiceID,
-	 * org.mobicents.slee.container.event.ReferencesHandler)
-	 */
+	@Override
 	public EventContext createEventContext(EventTypeID eventTypeId,
 			Object eventObject, ActivityContext ac, Address address,
-			ServiceID serviceID, ReferencesHandler referencesHandler) {
+			ServiceID serviceID, EventContext reference) {
 		final EventContextData data = dataSource.newEventContextData(
 				eventTypeId, eventObject, ac, address, serviceID, null, null,
-				null, referencesHandler);
+				null, ((EventContextImpl)reference).getReferencesHandler());
 		return new EventContextImpl(data, this);
 	}
 

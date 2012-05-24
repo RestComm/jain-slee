@@ -543,7 +543,7 @@ public class SbbAbstractMethodHandler {
 			if (eventBeingDelivered != null && eventBeingDelivered.getEvent() == eventObject) {
 				// there is an event being delivered by this tx and it matches the event being fired, lets copy the ref handler
 				// fire the event
-				ac.fireEvent(eventTypeID, eventObject, (Address) address, serviceID, eventBeingDelivered.getReferencesHandler());
+				ac.fireEvent(eventTypeID, eventObject, (Address) address, serviceID, eventBeingDelivered);
 				return;
 			}
 		}

@@ -73,12 +73,12 @@ public interface EventContextFactory extends SleeContainerModule {
 	 * @param ac
 	 * @param address
 	 * @param serviceID
-	 * @param referencesHandler
+	 * @param reference
 	 * @return
 	 */
 	public EventContext createEventContext(EventTypeID eventTypeId,
 			Object eventObject, ActivityContext ac, Address address,
-			ServiceID serviceID,ReferencesHandler referencesHandler);
+			ServiceID serviceID, EventContext reference);
 	
 	/**
 	 * 

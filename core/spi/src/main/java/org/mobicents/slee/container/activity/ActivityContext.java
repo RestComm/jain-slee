@@ -38,7 +38,6 @@ import javax.slee.resource.ActivityIsEndingException;
 import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.event.EventProcessingFailedCallback;
 import org.mobicents.slee.container.event.EventProcessingSucceedCallback;
-import org.mobicents.slee.container.event.ReferencesHandler;
 import org.mobicents.slee.container.event.EventUnreferencedCallback;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
@@ -130,13 +129,13 @@ public interface ActivityContext {
 	 * @param event
 	 * @param address
 	 * @param serviceID
-	 * @param referencesHandler
+	 * @param reference
 	 * @throws ActivityIsEndingException
 	 * @throws SLEEException
 	 */
 	public void fireEvent(EventTypeID eventTypeId, Object event,
 			Address address, ServiceID serviceID,
-			ReferencesHandler referencesHandler)
+			EventContext reference)
 			throws ActivityIsEndingException, SLEEException;
 
 	/**

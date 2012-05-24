@@ -44,7 +44,6 @@ import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.event.EventProcessingFailedCallback;
 import org.mobicents.slee.container.event.EventProcessingSucceedCallback;
 import org.mobicents.slee.container.event.EventUnreferencedCallback;
-import org.mobicents.slee.container.event.ReferencesHandler;
 import org.mobicents.slee.container.facilities.ActivityContextNamingFacility;
 import org.mobicents.slee.container.facilities.TimerFacility;
 import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandle;
@@ -527,18 +526,9 @@ public class ActivityContextImpl implements ActivityContext {
 				sleeContainer.getTransactionManager().getTransactionContext());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.container.activity.ActivityContext#fireEvent(javax
-	 * .slee.EventTypeID, java.lang.Object, javax.slee.Address,
-	 * javax.slee.ServiceID,
-	 * org.mobicents.slee.container.event.ReferencesHandler)
-	 */
 	public void fireEvent(EventTypeID eventTypeId, Object event,
 			Address address, ServiceID serviceID,
-			ReferencesHandler referencesHandler)
+			EventContext reference)
 			throws ActivityIsEndingException, SLEEException {
 
 		if (isEnding()) {
@@ -553,7 +543,7 @@ public class ActivityContextImpl implements ActivityContext {
 		fireEvent(
 				sleeContainer.getEventContextFactory().createEventContext(
 						eventTypeId, event, this, address, serviceID,
-						referencesHandler), sleeContainer
+						reference), sleeContainer
 						.getTransactionManager().getTransactionContext());
 	}
 

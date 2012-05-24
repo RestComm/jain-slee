@@ -174,7 +174,7 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 				// ignore
 			}
 		}
-		eventUnreferenced();
+		canceled();
 	}
 
 	/* (non-Javadoc)
@@ -221,7 +221,6 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 	 * 
 	 */
 	protected void eventUnreferenced() {
-		super.remove();
 		if (data.getUnreferencedCallback() != null) {
 			data.getUnreferencedCallback().eventUnreferenced();		
 			data.unsetUnreferencedCallback();
@@ -231,7 +230,7 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.container.event.EventContext#unreferencedCallbackRequiresTransaction()
 	 */
-	public boolean unreferencedCallbackRequiresTransaction() {
+	public boolean routedRequiresTransaction() {
 		final EventUnreferencedCallback unreferencedCallback = data.getUnreferencedCallback();
 		if (unreferencedCallback == null) {
 			return false;
@@ -239,6 +238,28 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 		else {
 			return unreferencedCallback.requiresTransaction();
 		}
+	}
+	
+	@Override
+	public void fired() {
+		final ReferencesHandler handler = data.getReferencesHandler();
+		if (handler != null) {
+			handler.add(data.getLocalActivityContext().getActivityContextHandle());
+		}
+	}
+	
+	@Override
+	public void canceled() {
+		routed();
+	}
+	
+	@Override
+	public void routed() {
+		final ReferencesHandler handler = data.getReferencesHandler();
+		if (handler != null) {
+			handler.remove(data.getLocalActivityContext().getActivityContextHandle());
+		}
+		remove();
 	}
 	
 }

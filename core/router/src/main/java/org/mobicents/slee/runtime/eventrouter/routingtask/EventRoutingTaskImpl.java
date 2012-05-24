@@ -560,17 +560,17 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 								// if it has a unrefrenced callback which is tx aware try to take advantage of that 
 								// and do post processing in this tx, in the worst (and unexpected) scenario
 								// the tx will rollback and we will do another spin, due to setting gotSbb as true
-								if (eventContext.unreferencedCallbackRequiresTransaction()) {
+								if (eventContext.routedRequiresTransaction()) {
 									finished = false;
 									routingPhase = RoutingPhase.DELIVERED;
-									eventContext.getReferencesHandler().remove(eventContext.getActivityContextHandle());
+									eventContext.routed();
 								}	
 								break;
 							case DELIVERED:
-								if (eventContext.unreferencedCallbackRequiresTransaction()) {
+								if (eventContext.routedRequiresTransaction()) {
 									// we had bad luck and last tx rollbacked, repeat action
 									finished = false;
-									eventContext.getReferencesHandler().remove(eventContext.getActivityContextHandle());
+									eventContext.routed();
 								}
 								break;								
 							default:
@@ -681,10 +681,9 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 			// we got to the end of the event routing, remove from local ac
 			lac.setCurrentEventRoutingTask(null);
 			
-			// manage event references
-			if (!eventContext.unreferencedCallbackRequiresTransaction()) {
-				eventContext.getReferencesHandler().remove(eventContext.getActivityContextHandle());
-			}			
+			if (!eventContext.routedRequiresTransaction()) {
+				eventContext.routed();
+			}						
 						
 		} catch (Exception e) {
 			logger.error("Unhandled Exception in event router top try", e);

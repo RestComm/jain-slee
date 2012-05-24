@@ -92,9 +92,8 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 					+ event.getEventTypeId() + " in AC with handle "
 					+ event.getActivityContextHandle());
 		}	
-		// manage event references
-		event.getReferencesHandler().add(
-				localAC.getActivityContextHandle());
+		// let the event know it was fired
+		event.fired();
 		// add event to pending set
 		Runnable r = new Runnable() {
 			@Override
@@ -124,9 +123,7 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 								+ event.getActivityContextHandle()
 								+ ", the activity end event is already committed");
 					}
-					if(!event.isActivityEndEvent()) { 
-						event.eventProcessingFailed(FailureReason.OTHER_REASON);
-					}
+					event.eventProcessingFailed(FailureReason.OTHER_REASON);					
 				}
 			}
 		};
@@ -135,8 +132,8 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 
 	@Override
 	public void fireNotTransacted(final EventContext event) {
-		// manage event references
-		event.getReferencesHandler().add(localAC.getActivityContextHandle());
+		// let the event know it was fired
+		event.fired();
 		// commit event
 		Runnable r = new Runnable() {
 			@Override
@@ -154,9 +151,7 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 								+ event.getActivityContextHandle()
 								+ ", the activity end event is already committed");
 					}
-					if(!event.isActivityEndEvent()) { 
-						event.eventProcessingFailed(FailureReason.OTHER_REASON);
-					}
+					event.eventProcessingFailed(FailureReason.OTHER_REASON);					
 				}
 			}
 		};
@@ -228,6 +223,8 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 
 	@Override
 	public void rollback(final EventContext event) {
+		// let the event know it was canceled
+		event.canceled();
 		Runnable r = new Runnable() {
 			@Override
 			public void run() {

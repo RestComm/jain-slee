@@ -107,12 +107,6 @@ public interface EventContext extends javax.slee.EventContext {
 	 * 
 	 * @return
 	 */
-	public ReferencesHandler getReferencesHandler();
-
-	/**
-	 * 
-	 * @return
-	 */
 	public Set<SbbEntityID> getSbbEntitiesThatHandledEvent();
 
 	/**
@@ -137,6 +131,12 @@ public interface EventContext extends javax.slee.EventContext {
 	 * 
 	 * @return
 	 */
-	public boolean unreferencedCallbackRequiresTransaction();
+	public boolean routedRequiresTransaction();
+
+	public void routed();
+
+	public void canceled();
+
+	public void fired();
 
 }

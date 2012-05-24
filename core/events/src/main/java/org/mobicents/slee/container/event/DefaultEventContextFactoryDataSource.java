@@ -31,6 +31,7 @@ import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.ServiceID;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.activity.ActivityContext;
 
 /**
@@ -39,6 +40,8 @@ import org.mobicents.slee.container.activity.ActivityContext;
  */
 public class DefaultEventContextFactoryDataSource implements EventContextFactoryDataSource {
 
+	private final static Logger logger = Logger.getLogger(DefaultEventContextFactoryDataSource.class);
+	
 	private final ConcurrentHashMap<EventContextHandle, EventContext> dataSource = new ConcurrentHashMap<EventContextHandle, EventContext>();
 	
 	/* (non-Javadoc)
@@ -46,6 +49,9 @@ public class DefaultEventContextFactoryDataSource implements EventContextFactory
 	 */
 	public void addEventContext(EventContextHandle handle,
 			EventContext eventContext) {
+		if(logger.isDebugEnabled()) {
+			logger.debug("Adding event context "+eventContext+" to datasource. Event context handle is "+handle);
+		}
 		dataSource.put(handle, eventContext);
 	}
 
@@ -73,6 +79,9 @@ public class DefaultEventContextFactoryDataSource implements EventContextFactory
 	 * @see org.mobicents.slee.container.event.EventContextFactoryDataSource#removeEventContext(org.mobicents.slee.container.event.EventContextHandle)
 	 */
 	public void removeEventContext(EventContextHandle handle) {
+		if(logger.isDebugEnabled()) {
+			logger.debug("Removing event context from datasource. Event context handle is "+handle);
+		}
 		dataSource.remove(handle);
 	}
 	

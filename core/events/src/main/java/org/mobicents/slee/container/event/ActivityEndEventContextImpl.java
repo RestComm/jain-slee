@@ -22,6 +22,8 @@
 
 package org.mobicents.slee.container.event;
 
+import javax.slee.resource.FailureReason;
+
 /**
  * Useful activity end event version of the {@link EventContextImpl}.
  * 
@@ -44,5 +46,17 @@ public class ActivityEndEventContextImpl extends EventContextImpl {
 	@Override
 	public boolean isActivityEndEvent() {
 		return true;
+	}
+	
+	@Override
+	public void eventProcessingFailed(FailureReason reason) {
+		// TODO this should ensure AC is removed from SLEE, perhaps after some timeout (if ac exists but ending state persists)
+		super.eventProcessingFailed(reason);
+	}
+	
+	@Override
+	public void canceled() {
+		// just remove event context, don't remove reference, otherwise unreferenced callback may end AC
+		remove();
 	}
 }
