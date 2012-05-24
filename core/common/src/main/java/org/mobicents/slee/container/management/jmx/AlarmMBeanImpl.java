@@ -36,9 +36,7 @@
  */
 package org.mobicents.slee.container.management.jmx;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -83,8 +81,8 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 	public static String JNDI_NAME = "alarm";
 	private static Logger log = Logger.getLogger(AlarmMBeanImpl.class);
 
-	private Map<AlarmPlaceHolder, NotificationSource> placeHolderToNotificationSource = new HashMap<AlarmPlaceHolder, NotificationSource>();
-	private Map<String, AlarmPlaceHolder> alarmIdToAlarm = new HashMap<String, AlarmPlaceHolder>();
+	private Map<AlarmPlaceHolder, NotificationSource> placeHolderToNotificationSource = new ConcurrentHashMap<AlarmPlaceHolder, NotificationSource>();
+	private Map<String, AlarmPlaceHolder> alarmIdToAlarm = new ConcurrentHashMap<String, AlarmPlaceHolder>();
 
 	private final SleeTransactionManager sleeTransactionManager;
 	private final TraceMBeanImpl traceMBean;
@@ -153,9 +151,7 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 		int count = 0;
 		try {
 
-			Map<AlarmPlaceHolder, NotificationSource> copy = new HashMap<AlarmPlaceHolder, NotificationSource>();
-			copy.putAll(this.placeHolderToNotificationSource);
-			for (Map.Entry<AlarmPlaceHolder, NotificationSource> e : copy.entrySet()) {
+			for (Map.Entry<AlarmPlaceHolder, NotificationSource> e : placeHolderToNotificationSource.entrySet()) {
 				if (e.getValue().equals(notificationSource)) {
 					if (clearAlarm(e.getKey().getAlarm().getAlarmID())) {
 						count++;
@@ -188,10 +184,8 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 		int count = 0;
 		try {
 
-			Map<AlarmPlaceHolder, NotificationSource> copy = new HashMap<AlarmPlaceHolder, NotificationSource>();
-			copy.putAll(this.placeHolderToNotificationSource);
-			for (Map.Entry<AlarmPlaceHolder, NotificationSource> e : copy.entrySet()) {
-				if (e.getValue().equals(notificationSource) && e.getKey().getAlarmType().compareTo(alarmType) == 0) {
+			for (Map.Entry<AlarmPlaceHolder, NotificationSource> e : placeHolderToNotificationSource.entrySet()) {
+				if (e.getValue().equals(notificationSource) && e.getKey().getAlarmType().equals(alarmType)) {
 					if (clearAlarm(e.getKey().getAlarm().getAlarmID())) {
 						count++;
 					}
@@ -211,8 +205,8 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 	 */
 	public String[] getAlarms() throws ManagementException {
 		try {
-
-			Set<String> ids = alarmIdToAlarm.keySet();
+			Set<String> ids = new HashSet<String>();
+			ids.addAll(alarmIdToAlarm.keySet());
 			return ids.toArray(new String[ids.size()]);
 		} catch (Exception e) {
 			throw new ManagementException("Failed to get list of active alarms due to.", e);
@@ -231,15 +225,12 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 		mandateSource(notificationSource);
 
 		try {
-			List<String> ids = new ArrayList<String>();
-			Map<AlarmPlaceHolder, NotificationSource> copy = new HashMap<AlarmPlaceHolder, NotificationSource>();
-			copy.putAll(this.placeHolderToNotificationSource);
-			for (Map.Entry<AlarmPlaceHolder, NotificationSource> e : copy.entrySet()) {
+			Set<String> ids = new HashSet<String>();
+			for (Map.Entry<AlarmPlaceHolder, NotificationSource> e : placeHolderToNotificationSource.entrySet()) {
 				if (e.getValue().equals(notificationSource)) {
 					ids.add(e.getKey().getAlarm().getAlarmID());
 				}
 			}
-
 			return ids.toArray(new String[ids.size()]);
 		} catch (Exception e) {
 			throw new ManagementException("Failed to get alarm id list due to: ", e);
@@ -269,7 +260,7 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 			throw new NullPointerException("AlarmID[] must not be null");
 		}
 
-		List<Alarm> alarms = new ArrayList<Alarm>();
+		Set<Alarm> alarms = new HashSet<Alarm>();
 
 		try {
 			for (String id : alarmIDs) {
