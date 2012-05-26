@@ -22,23 +22,23 @@ import org.mobicents.protocols.ss7.map.api.MAPApplicationContextVersion;
 import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParameterFactory;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
+import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressNature;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
-import org.mobicents.protocols.ss7.map.api.service.sms.ForwardShortMessageRequestIndication;
+import org.mobicents.protocols.ss7.map.api.service.sms.*;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPDialogSms;
-import org.mobicents.protocols.ss7.map.api.service.sms.MoForwardShortMessageRequestIndication;
-import org.mobicents.protocols.ss7.map.api.service.sms.MoForwardShortMessageResponseIndication;
-import org.mobicents.protocols.ss7.map.api.service.sms.MtForwardShortMessageRequestIndication;
-import org.mobicents.protocols.ss7.map.api.service.sms.MtForwardShortMessageResponseIndication;
+import org.mobicents.protocols.ss7.map.api.service.sms.SMDeliveryOutcome;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_DA;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_OA;
-import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMRequestIndication;
-import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMResponseIndication;
 import org.mobicents.protocols.ss7.map.api.service.sms.SmsSignalInfo;
 import org.mobicents.protocols.ss7.map.api.smstpdu.AddressField;
 import org.mobicents.protocols.ss7.map.api.smstpdu.NumberingPlanIdentification;
+import org.mobicents.protocols.ss7.map.api.smstpdu.SmsDeliverTpdu;
+import org.mobicents.protocols.ss7.map.api.smstpdu.SmsSubmitTpdu;
+import org.mobicents.protocols.ss7.map.api.smstpdu.SmsTpdu;
 import org.mobicents.protocols.ss7.map.api.smstpdu.TypeOfNumber;
+import org.mobicents.protocols.ss7.map.api.smstpdu.UserData;
 import org.mobicents.protocols.ss7.map.service.sms.SmsSignalInfoImpl;
 import org.mobicents.protocols.ss7.map.smstpdu.AbsoluteTimeStampImpl;
 import org.mobicents.protocols.ss7.map.smstpdu.AddressFieldImpl;
@@ -59,7 +59,10 @@ import org.mobicents.slee.resource.map.events.DialogReject;
 import org.mobicents.slee.resource.map.events.DialogRequest;
 import org.mobicents.slee.resource.map.events.DialogTimeout;
 import org.mobicents.slee.resource.map.events.DialogUserAbort;
+import org.mobicents.slee.resource.map.events.ErrorComponent;
 import org.mobicents.slee.resource.map.events.InvokeTimeout;
+import org.mobicents.slee.resource.map.events.ProviderErrorComponent;
+import org.mobicents.slee.resource.map.events.RejectComponent;
 
 /**
  * <p>
@@ -79,8 +82,8 @@ public abstract class MapSMSSbb implements Sbb {
 	 * NOTE : Replace below XXXXXXXXXXXX, YYYYYYYYYYYY by your service center
 	 * MSISDN and called party MSISDN
 	 */
-	private static final String SC_ADDRESS = "XXXXXXXXXXXX";
-	private static final String CALLED_PARTY_MSISDN = "YYYYYYYYYYYY";
+	private static final String SC_ADDRESS = "923330053058";
+	private static final String HLR_GT = "553496629960";
 
 	private SbbContextExt sbbContext;
 
@@ -115,8 +118,7 @@ public abstract class MapSMSSbb implements Sbb {
 	 * @param aci
 	 */
 	public void onStartServiceEvent(javax.slee.serviceactivity.ServiceStartedEvent event, ActivityContextInterface aci) {
-		logger.warning("Service activated, SMS will be sent out every 30 seconds");
-		this.setTimer(aci);
+		logger.warning("SMS Service activated");
 	}
 
 	/**
@@ -130,26 +132,35 @@ public abstract class MapSMSSbb implements Sbb {
 			logger.info("Sending out SRI");
 		}
 
-		// Send out SMS
-		MAPDialogSms mapDialogSms = null;
-		try {
-			// 1. Create Dialog first and add the SRI request to it
-			mapDialogSms = this.setupRoutingInfoForSMRequestIndication();
-
-			// 2. Create the ACI and attach this SBB
-			ActivityContextInterface sriDialogACI = this.mapAcif.getActivityContextInterface(mapDialogSms);
-			sriDialogACI.attach(this.sbbContext.getSbbLocalObject());
-
-			// 3. Finally send the request
-			mapDialogSms.send();
-		} catch (MAPException e) {
-			logger.severe("Error while trying to send RoutingInfoForSMRequestIndication", e);
-			// something horrible, release MAPDialog and free resources
-			mapDialogSms.release();
-		}
-
 		// Lets prepare the timer for next iteration
 		this.setTimer(aci);
+	}
+
+	/**
+	 * Components Events
+	 */
+
+	public void onInvokeTimeout(InvokeTimeout evt, ActivityContextInterface aci) {
+		if (logger.isInfoEnabled()) {
+			this.logger.info("Rx :  onInvokeTimeout" + evt);
+		}
+	}
+
+	public void onErrorComponent(ErrorComponent event, ActivityContextInterface aci) {
+
+		MAPErrorMessage mapErrorMessage = event.getMAPErrorMessage();
+		this.logger.severe("Rx :  onErrorComponent MAPErrorMessage.isEmAbsentSubscriber=" + mapErrorMessage.isEmAbsentSubscriber());
+		if (mapErrorMessage.isEmAbsentSubscriberSM()) {
+			this.sendReportSMDeliveryStatusRequest(SMDeliveryOutcome.absentSubscriber);
+		}
+	}
+
+	public void onProviderErrorComponent(ProviderErrorComponent event, ActivityContextInterface aci) {
+		this.logger.severe("Rx :  onProviderErrorComponent" + event);
+	}
+
+	public void onRejectComponent(RejectComponent event, ActivityContextInterface aci) {
+		this.logger.severe("Rx :  onRejectComponent" + event);
 	}
 
 	/**
@@ -204,12 +215,6 @@ public abstract class MapSMSSbb implements Sbb {
 		}
 	}
 
-	public void onInvokeTimeout(InvokeTimeout evt, ActivityContextInterface aci) {
-		if (logger.isInfoEnabled()) {
-			this.logger.info("Rx :  onInvokeTimeout" + evt);
-		}
-	}
-
 	public void onDialogRequest(DialogRequest evt, ActivityContextInterface aci) {
 		if (logger.isInfoEnabled()) {
 			this.logger.info("Rx :  onDialogRequest" + evt);
@@ -226,7 +231,7 @@ public abstract class MapSMSSbb implements Sbb {
 	 * @param evt
 	 * @param aci
 	 */
-	public void onForwardShortMessageRequest(ForwardShortMessageRequestIndication evt, ActivityContextInterface aci) {
+	public void onForwardShortMessageRequest(ForwardShortMessageRequest evt, ActivityContextInterface aci) {
 		ISDNAddressString isdn = evt.getSM_RP_OA().getMsisdn();
 		SmsSignalInfo smsSignalInfo = evt.getSM_RP_UI();
 
@@ -250,7 +255,7 @@ public abstract class MapSMSSbb implements Sbb {
 	 * @param evt
 	 * @param aci
 	 */
-	public void onSendRoutingInfoForSMResponse(SendRoutingInfoForSMResponseIndication evt, ActivityContextInterface aci) {
+	public void onSendRoutingInfoForSMResponse(SendRoutingInfoForSMResponse evt, ActivityContextInterface aci) {
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Received SEND_ROUTING_INFO_FOR_SM_RESPONSE = " + evt);
 		}
@@ -275,6 +280,55 @@ public abstract class MapSMSSbb implements Sbb {
 		}
 	}
 
+	public void onReportSMDeliveryStatusRequest(ReportSMDeliveryStatusRequest event, ActivityContextInterface aci) {
+
+		// TODO : We should never receive request rather we should send request.
+		// This is error condition
+
+		if (this.logger.isInfoEnabled()) {
+			this.logger.info("Received REPORT_SM_DELIVERY_STATUS_REQUEST = " + event);
+		}
+
+		try {
+			SMDeliveryOutcome smDeliveryOutcome = event.getSMDeliveryOutcome();
+
+			if (this.logger.isInfoEnabled()) {
+				this.logger.info("smDeliveryOutcome = " + smDeliveryOutcome);
+			}
+
+			MAPDialogSms mapDialogSms = event.getMAPDialog();
+			mapDialogSms.addReportSMDeliveryStatusResponse(event.getInvokeId(), null, null);
+			mapDialogSms.close(true);
+		} catch (Exception e) {
+			logger.severe("Error while trying to send ReportSMDeliveryStatusResponse", e);
+		}
+
+	}
+
+	public void onReportSMDeliveryStatusResponse(ReportSMDeliveryStatusResponse event, ActivityContextInterface aci) {
+		if (this.logger.isInfoEnabled()) {
+			this.logger.info("Received REPORT_SM_DELIVERY_STATUS_RESPONSE = " + event);
+		}
+	}
+
+	public void onAlertServiceCentreRequest(AlertServiceCentreRequest event, ActivityContextInterface aci) {
+		if (this.logger.isInfoEnabled()) {
+			this.logger.info("Received ALERT_SERVICE_CENTER_REQUEST = " + event);
+		}
+
+		try {
+
+			MAPDialogSms mapDialogSMS = event.getMAPDialog();
+			mapDialogSMS.addAlertServiceCentreResponse(event.getInvokeId());
+			mapDialogSMS.close(true);
+		} catch (Exception e) {
+			logger.severe("Error while trying to send AlertServiceCentreResponse", e);
+		}
+
+		// TODO : Send the SMS from persistent store for this MSISDN
+
+	}
+
 	/**
 	 * Received SRI request. But this is error, we should never receive this
 	 * request
@@ -282,7 +336,7 @@ public abstract class MapSMSSbb implements Sbb {
 	 * @param evt
 	 * @param aci
 	 */
-	public void onSendRoutingInfoForSMRequest(SendRoutingInfoForSMRequestIndication evt, ActivityContextInterface aci) {
+	public void onSendRoutingInfoForSMRequest(SendRoutingInfoForSMRequest evt, ActivityContextInterface aci) {
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Received SEND_ROUTING_INFO_FOR_SM_REQUEST = " + evt);
 		}
@@ -295,18 +349,77 @@ public abstract class MapSMSSbb implements Sbb {
 	 * @param evt
 	 * @param aci
 	 */
-	public void onMoForwardShortMessageRequest(MoForwardShortMessageRequestIndication evt, ActivityContextInterface aci) {
+	public void onMoForwardShortMessageRequest(MoForwardShortMessageRequest evt, ActivityContextInterface aci) {
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Received MO_FORWARD_SHORT_MESSAGE_REQUEST = " + evt);
+		}
+
+		SmsSignalInfo smsSignalInfo = evt.getSM_RP_UI();
+		SM_RP_OA smRPOA = evt.getSM_RP_OA();
+
+		AddressString callingPartyAddress = smRPOA.getMsisdn();
+		if (callingPartyAddress == null) {
+			callingPartyAddress = smRPOA.getServiceCentreAddressOA();
+		}
+
+		this.setCallingPartyAddressString(callingPartyAddress);
+
+		SmsTpdu smsTpdu = null;
+		AddressField destinationAddress = null;
+		try {
+			smsTpdu = smsSignalInfo.decodeTpdu(true);
+
+			switch (smsTpdu.getSmsTpduType()) {
+			case SMS_SUBMIT:
+				SmsSubmitTpdu smsSubmitTpdu = (SmsSubmitTpdu) smsTpdu;
+				if (this.logger.isInfoEnabled()) {
+					this.logger.info("Received SMS_SUBMIT = " + smsSubmitTpdu);
+				}
+
+				destinationAddress = smsSubmitTpdu.getDestinationAddress();
+
+				UserData userData = smsSubmitTpdu.getUserData();
+				userData.decode();
+				String decodedMessage = userData.getDecodedMessage();
+				this.setSmsMessage(decodedMessage);
+				if (this.logger.isInfoEnabled()) {
+					this.logger.info("decodedMessage SMS_SUBMIT = " + decodedMessage);
+				}
+
+				break;
+			case SMS_DELIVER:
+				SmsDeliverTpdu smsDeliverTpdu = (SmsDeliverTpdu) smsTpdu;
+				if (this.logger.isInfoEnabled()) {
+					this.logger.info("Received SMS_DELIVER = " + smsDeliverTpdu);
+				}
+				break;
+			default:
+				if (this.logger.isInfoEnabled()) {
+					this.logger.info("Received DEFAULT = " + smsTpdu);
+				}
+				break;
+			}
+		} catch (MAPException e1) {
+			logger.severe("Error while decoding SmsSignalInfo ", e1);
 		}
 
 		MAPDialogSms dialog = evt.getMAPDialog();
 
 		try {
-			dialog.addMtForwardShortMessageResponse(evt.getInvokeId(), null, null);
+			dialog.addMoForwardShortMessageResponse(evt.getInvokeId(), null, null);
 			dialog.close(false);
 		} catch (MAPException e) {
 			logger.severe("Error while sending ForwardShortMessageResponse ", e);
+		}
+
+		// TODO : Send the PENDING Status
+
+		if (destinationAddress != null) {
+			ISDNAddressString calledPartyISDNAddressString = this.getCalledPartyISDNAddressString(destinationAddress);
+			this.setCalledPartyISDNAddressString(calledPartyISDNAddressString);
+			this.sendSRI(destinationAddress);
+		} else {
+			logger.severe("Cannot send SRI as destinationAddress is null. Check errors above");
 		}
 	}
 
@@ -316,7 +429,7 @@ public abstract class MapSMSSbb implements Sbb {
 	 * @param evt
 	 * @param aci
 	 */
-	public void onMoForwardShortMessageResponse(MoForwardShortMessageResponseIndication evt, ActivityContextInterface aci) {
+	public void onMoForwardShortMessageResponse(MoForwardShortMessageResponse evt, ActivityContextInterface aci) {
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Received MO_FORWARD_SHORT_MESSAGE_RESPONSE = " + evt);
 		}
@@ -328,7 +441,7 @@ public abstract class MapSMSSbb implements Sbb {
 	 * @param evt
 	 * @param aci
 	 */
-	public void onMtForwardShortMessageRequest(MtForwardShortMessageRequestIndication evt, ActivityContextInterface aci) {
+	public void onMtForwardShortMessageRequest(MtForwardShortMessageRequest evt, ActivityContextInterface aci) {
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Received MT_FORWARD_SHORT_MESSAGE_REQUEST = " + evt);
 		}
@@ -340,7 +453,7 @@ public abstract class MapSMSSbb implements Sbb {
 	 * @param evt
 	 * @param aci
 	 */
-	public void onMtForwardShortMessageResponse(MtForwardShortMessageResponseIndication evt, ActivityContextInterface aci) {
+	public void onMtForwardShortMessageResponse(MtForwardShortMessageResponse evt, ActivityContextInterface aci) {
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Received MT_FORWARD_SHORT_MESSAGE_RESPONSE = " + evt);
 		}
@@ -410,16 +523,31 @@ public abstract class MapSMSSbb implements Sbb {
 
 	public abstract long getInvokeId();
 
+	public abstract void setSmsMessage(String message);
+
+	public abstract String getSmsMessage();
+
+	public abstract void setCalledPartyISDNAddressString(ISDNAddressString calledPartyISDNAddressString);
+
+	public abstract ISDNAddressString getCalledPartyISDNAddressString();
+
+	public abstract void setCallingPartyAddressString(AddressString callingPartyAddressString);
+
+	public abstract AddressString getCallingPartyAddressString();
+
 	/**
 	 * Private methods
 	 */
 
 	private AddressField getSmsTpduOriginatingAddress() {
-		if (this.smsTpduOriginatingAddress == null) {
-			this.smsTpduOriginatingAddress = new AddressFieldImpl(TypeOfNumber.InternationalNumber, NumberingPlanIdentification.ISDNTelephoneNumberingPlan,
-					SC_ADDRESS);
-		}
-		return this.smsTpduOriginatingAddress;
+//		if (this.smsTpduOriginatingAddress == null) {
+//			this.smsTpduOriginatingAddress = new AddressFieldImpl(TypeOfNumber.InternationalNumber, NumberingPlanIdentification.ISDNTelephoneNumberingPlan,
+//					SC_ADDRESS);
+//		}
+//		return this.smsTpduOriginatingAddress;
+		
+		return new AddressFieldImpl(TypeOfNumber.InternationalNumber, NumberingPlanIdentification.ISDNTelephoneNumberingPlan,
+				this.getCallingPartyAddressString().getAddress());
 	}
 
 	private TimerOptions getTimerOptions() {
@@ -441,7 +569,7 @@ public abstract class MapSMSSbb implements Sbb {
 	private MAPApplicationContext getSRIMAPApplicationContext() {
 		if (this.sriMAPApplicationContext == null) {
 			this.sriMAPApplicationContext = MAPApplicationContext.getInstance(MAPApplicationContextName.shortMsgGatewayContext,
-					MAPApplicationContextVersion.version2);
+					MAPApplicationContextVersion.version3);
 		}
 		return this.sriMAPApplicationContext;
 	}
@@ -466,8 +594,8 @@ public abstract class MapSMSSbb implements Sbb {
 	 */
 	private SccpAddress getHLRSccpAddress() {
 		if (this.hlrSCCPAddress == null) {
-			GT0100 gt = new GT0100(0, NumberingPlan.ISDN_TELEPHONY, NatureOfAddress.INTERNATIONAL, CALLED_PARTY_MSISDN);
-			this.hlrSCCPAddress = new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, 0, gt, 6);
+			GT0100 gt = new GT0100(0, NumberingPlan.ISDN_TELEPHONY, NatureOfAddress.INTERNATIONAL, HLR_GT);
+			return this.hlrSCCPAddress = new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, 0, gt, 6);
 		}
 		return this.hlrSCCPAddress;
 	}
@@ -485,12 +613,10 @@ public abstract class MapSMSSbb implements Sbb {
 	 * 
 	 * @return
 	 */
-	private ISDNAddressString getCalledPartyISDNAddressString() {
-		if (this.calledPartyAddress == null) {
-			this.calledPartyAddress = this.mapParameterFactory.createISDNAddressString(AddressNature.international_number,
-					org.mobicents.protocols.ss7.map.api.primitives.NumberingPlan.ISDN, CALLED_PARTY_MSISDN);
-		}
-		return this.calledPartyAddress;
+	private ISDNAddressString getCalledPartyISDNAddressString(AddressField destinationAddress) {
+		String address = changeNationalToInternational(destinationAddress);
+		return this.mapParameterFactory.createISDNAddressString(AddressNature.international_number,
+				org.mobicents.protocols.ss7.map.api.primitives.NumberingPlan.ISDN, address);
 	}
 
 	/**
@@ -512,19 +638,21 @@ public abstract class MapSMSSbb implements Sbb {
 		timerFacility.setTimer(aci, null, System.currentTimeMillis() + 30000L, getTimerOptions());
 	}
 
-	private MAPDialogSms setupRoutingInfoForSMRequestIndication() throws MAPException {
+	private MAPDialogSms setupRoutingInfoForSMRequestIndication(AddressField destinationAddress) throws MAPException {
 		// this.mapParameterFactory.creat
 
-		MAPDialogSms mapDialogSms = this.mapProvider.getMAPServiceSms().createNewDialog(this.getSRIMAPApplicationContext(), this.getServiceCenterSccpAddress(),
-				null, this.getHLRSccpAddress(), null);
+		SccpAddress destinationReference = this.convertAddressFieldToSCCPAddress(destinationAddress);
 
-		mapDialogSms
-				.addSendRoutingInfoForSMRequest(this.getCalledPartyISDNAddressString(), true, this.getServiceCenterAddressString(), null, false, null, null);
+		MAPDialogSms mapDialogSms = this.mapProvider.getMAPServiceSms().createNewDialog(this.getSRIMAPApplicationContext(), this.getServiceCenterSccpAddress(),
+				null, destinationReference, null);
+
+		mapDialogSms.addSendRoutingInfoForSMRequest(this.getCalledPartyISDNAddressString(destinationAddress), true, this.getServiceCenterAddressString(), null,
+				false, null, null);
 
 		return mapDialogSms;
 	}
 
-	private MAPDialogSms setupMtForwardShortMessageRequestIndication(SendRoutingInfoForSMResponseIndication evt) throws MAPException {
+	private MAPDialogSms setupMtForwardShortMessageRequestIndication(SendRoutingInfoForSMResponse evt) throws MAPException {
 		// this.mapParameterFactory.creat
 
 		MAPDialogSms mapDialogSms = this.mapProvider.getMAPServiceSms().createNewDialog(this.getMtFoSMSMAPApplicationContext(),
@@ -534,16 +662,88 @@ public abstract class MapSMSSbb implements Sbb {
 
 		SM_RP_OA sm_RP_OA = this.mapParameterFactory.createSM_RP_OA_ServiceCentreAddressOA(this.getServiceCenterAddressString());
 
-		UserDataImpl ud = new UserDataImpl("Hello, mobicents world !!!", new DataCodingSchemeImpl(0), null, null);
+		UserDataImpl ud = new UserDataImpl(this.getSmsMessage(), new DataCodingSchemeImpl(0), null, null);
 
 		AbsoluteTimeStampImpl serviceCentreTimeStamp = new AbsoluteTimeStampImpl(12, 2, 1, 15, 1, 11, 12);
 
-		SmsDeliverTpduImpl smsDeliverTpduImpl = new SmsDeliverTpduImpl(false, false, false, false, this.getSmsTpduOriginatingAddress(), pi,
+		SmsDeliverTpduImpl smsDeliverTpduImpl = new SmsDeliverTpduImpl(false, false, false, true, this.getSmsTpduOriginatingAddress(), pi,
 				serviceCentreTimeStamp, ud);
 
 		SmsSignalInfoImpl SmsSignalInfoImpl = new SmsSignalInfoImpl(smsDeliverTpduImpl, null);
 
 		mapDialogSms.addMtForwardShortMessageRequest(sm_RP_DA, sm_RP_OA, SmsSignalInfoImpl, false, null);
+
+		return mapDialogSms;
+	}
+
+	private void sendSRI(AddressField destinationAddress) {
+		// Send out SMS
+		MAPDialogSms mapDialogSms = null;
+		try {
+			// 1. Create Dialog first and add the SRI request to it
+			mapDialogSms = this.setupRoutingInfoForSMRequestIndication(destinationAddress);
+
+			// 2. Create the ACI and attach this SBB
+			ActivityContextInterface sriDialogACI = this.mapAcif.getActivityContextInterface(mapDialogSms);
+			sriDialogACI.attach(this.sbbContext.getSbbLocalObject());
+
+			// 3. Finally send the request
+			mapDialogSms.send();
+		} catch (MAPException e) {
+			logger.severe("Error while trying to send RoutingInfoForSMRequestIndication", e);
+			// something horrible, release MAPDialog and free resources
+			mapDialogSms.release();
+		}
+	}
+
+	private SccpAddress convertAddressFieldToSCCPAddress(AddressField destinationAddress) {
+
+		String address = changeNationalToInternational(destinationAddress);
+		GT0100 gt = new GT0100(0, NumberingPlan.ISDN_TELEPHONY, NatureOfAddress.INTERNATIONAL, address);
+		return new SccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, 0, gt, 6);
+	}
+
+	private String changeNationalToInternational(AddressField destinationAddress) {
+		String address = destinationAddress.getAddressValue();
+		if (destinationAddress.getTypeOfNumber() != TypeOfNumber.InternationalNumber) {
+			// TODO : Add logic to know if received address is international or
+			// national or local and make necessary changes to make it
+			// international format
+			address = address.substring(1);
+			address = "92" + address;
+			logger.info("Converted address " + address);
+		}
+		return address;
+	}
+
+	private void sendReportSMDeliveryStatusRequest(SMDeliveryOutcome smDeliveryOutcome) {
+		// Send out SMS
+		MAPDialogSms mapDialogSms = null;
+		try {
+			// 1. Create Dialog first and add the SRI request to it
+			mapDialogSms = this.setupReportSMDeliveryStatusRequest(smDeliveryOutcome);
+
+			// 2. Create the ACI and attach this SBB
+			ActivityContextInterface sriDialogACI = this.mapAcif.getActivityContextInterface(mapDialogSms);
+			sriDialogACI.attach(this.sbbContext.getSbbLocalObject());
+
+			// 3. Finally send the request
+			mapDialogSms.send();
+		} catch (MAPException e) {
+			logger.severe("Error while trying to send ReportSMDeliveryStatusRequest", e);
+			// something horrible, release MAPDialog and free resources
+			mapDialogSms.release();
+		}
+	}
+
+	private MAPDialogSms setupReportSMDeliveryStatusRequest(SMDeliveryOutcome smDeliveryOutcome) throws MAPException {
+		// this.mapParameterFactory.creat
+
+		MAPDialogSms mapDialogSms = this.mapProvider.getMAPServiceSms().createNewDialog(this.getSRIMAPApplicationContext(), this.getServiceCenterSccpAddress(),
+				null, this.getHLRSccpAddress(), null);
+
+		mapDialogSms.addReportSMDeliveryStatusRequest(this.getCalledPartyISDNAddressString(), this.getServiceCenterAddressString(), smDeliveryOutcome, null,
+				null, false, false, null, null);
 
 		return mapDialogSms;
 	}
