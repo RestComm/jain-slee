@@ -52,7 +52,7 @@ public class MAPDialogMobilityWrapper extends MAPDialogWrapper<MAPDialogMobility
 	public void addSendAuthenticationInfoResponse(long invokeId, long mapProtocolVersion,
 			AuthenticationSetList authenticationSetList, MAPExtensionContainer extensionContainer,
 			EpsAuthenticationSetList epsAuthenticationSetList) throws MAPException {
-		this.addSendAuthenticationInfoResponse(invokeId, mapProtocolVersion, authenticationSetList, extensionContainer,
+		this.wrappedDialog.addSendAuthenticationInfoResponse(invokeId, mapProtocolVersion, authenticationSetList, extensionContainer,
 				epsAuthenticationSetList);
 	}
 
