@@ -26,11 +26,22 @@ import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressNature;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
-import org.mobicents.protocols.ss7.map.api.service.sms.*;
+import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoResponse;
+import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreRequest;
+import org.mobicents.protocols.ss7.map.api.service.sms.ForwardShortMessageRequest;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPDialogSms;
+import org.mobicents.protocols.ss7.map.api.service.sms.MoForwardShortMessageRequest;
+import org.mobicents.protocols.ss7.map.api.service.sms.MoForwardShortMessageResponse;
+import org.mobicents.protocols.ss7.map.api.service.sms.MtForwardShortMessageRequest;
+import org.mobicents.protocols.ss7.map.api.service.sms.MtForwardShortMessageResponse;
+import org.mobicents.protocols.ss7.map.api.service.sms.ReportSMDeliveryStatusRequest;
+import org.mobicents.protocols.ss7.map.api.service.sms.ReportSMDeliveryStatusResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.SMDeliveryOutcome;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_DA;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_OA;
+import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMRequest;
+import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.SmsSignalInfo;
 import org.mobicents.protocols.ss7.map.api.smstpdu.AddressField;
 import org.mobicents.protocols.ss7.map.api.smstpdu.NumberingPlanIdentification;
@@ -458,7 +469,23 @@ public abstract class MapSMSSbb implements Sbb {
 			this.logger.info("Received MT_FORWARD_SHORT_MESSAGE_RESPONSE = " + evt);
 		}
 	}
-
+	
+	/**************************************
+	 * Mobility Events
+	 **************************************/
+	public void onSendAuthenticationInfoRequest(SendAuthenticationInfoRequest evt, ActivityContextInterface aci) {
+		if (this.logger.isInfoEnabled()) {
+			this.logger.info("Received SEND_AUTHENTICATION_INFO_REQUEST = " + evt);
+		}
+	}
+	
+	public void onSendAuthenticationInfoResponse(SendAuthenticationInfoResponse evt, ActivityContextInterface aci) {
+		if (this.logger.isInfoEnabled()) {
+			this.logger.info("Received SEND_AUTHENTICATION_INFO_RESPONSE = " + evt);
+		}
+	}
+	
+	
 	/**
 	 * Life cycle methods
 	 */
