@@ -1,5 +1,7 @@
 package org.mobicents.slee.examples.map.sms;
 
+import java.util.ArrayList;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.slee.ActivityContextInterface;
@@ -23,9 +25,13 @@ import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParameterFactory;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
+import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessageUnknownSubscriber;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressNature;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
+import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
+import org.mobicents.protocols.ss7.map.api.service.mobility.MAPDialogMobility;
+import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.AuthenticationTriplet;
 import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreRequest;
@@ -50,6 +56,9 @@ import org.mobicents.protocols.ss7.map.api.smstpdu.SmsSubmitTpdu;
 import org.mobicents.protocols.ss7.map.api.smstpdu.SmsTpdu;
 import org.mobicents.protocols.ss7.map.api.smstpdu.TypeOfNumber;
 import org.mobicents.protocols.ss7.map.api.smstpdu.UserData;
+import org.mobicents.protocols.ss7.map.service.mobility.authentication.AuthenticationSetListImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.authentication.AuthenticationTripletImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.authentication.TripletListImpl;
 import org.mobicents.protocols.ss7.map.service.sms.SmsSignalInfoImpl;
 import org.mobicents.protocols.ss7.map.smstpdu.AbsoluteTimeStampImpl;
 import org.mobicents.protocols.ss7.map.smstpdu.AddressFieldImpl;
@@ -469,7 +478,7 @@ public abstract class MapSMSSbb implements Sbb {
 			this.logger.info("Received MT_FORWARD_SHORT_MESSAGE_RESPONSE = " + evt);
 		}
 	}
-	
+
 	/**************************************
 	 * Mobility Events
 	 **************************************/
@@ -477,15 +486,46 @@ public abstract class MapSMSSbb implements Sbb {
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Received SEND_AUTHENTICATION_INFO_REQUEST = " + evt);
 		}
-	}
-	
-	public void onSendAuthenticationInfoResponse(SendAuthenticationInfoResponse evt, ActivityContextInterface aci) {
-		if (this.logger.isInfoEnabled()) {
-			this.logger.info("Received SEND_AUTHENTICATION_INFO_RESPONSE = " + evt);
+
+		IMSI imsi = evt.getImsi();
+		MAPDialogMobility mapDialogMobility = evt.getMAPDialog();
+
+		if ("724348899999950".equals(imsi.getData())) {
+			// Good IMSI
+			ArrayList<AuthenticationTriplet> ats = new ArrayList<AuthenticationTriplet>();
+
+			byte[] randData = new byte[] { 15, -2, 18, -92, -49, 43, -35, -71, -78, -98, 109, 83, -76, -87, 77, -128 };
+			byte[] sresData = new byte[] { -32, 82, -17, -14 };
+			byte[] kcData = new byte[] { 31, 72, -93, 97, 78, -17, -52, 0 };
+
+			AuthenticationTripletImpl at = new AuthenticationTripletImpl(randData, sresData, kcData);
+
+			ats.add(at);
+			TripletListImpl tl = new TripletListImpl(ats);
+			AuthenticationSetListImpl asl = new AuthenticationSetListImpl(tl, 3);
+
+			try {
+				mapDialogMobility.addSendAuthenticationInfoResponse(evt.getInvokeId(), 3, asl, null, null);
+				mapDialogMobility.close(false);
+			} catch (MAPException e) {
+				logger.severe("Error while sending SendAuthenticationInfoResponse ", e);
+			}
+
+		} else {
+			// we don't know about this IMSI
+			MAPErrorMessageUnknownSubscriber mapErrorMessageUnknownSubscriber = mapProvider.getMAPErrorMessageFactory().createMAPErrorMessageUnknownSubscriber(null, null);
+			try {
+				mapDialogMobility.sendErrorComponent(evt.getInvokeId(), mapErrorMessageUnknownSubscriber);
+			} catch (MAPException e) {
+				logger.severe("Error while sending SendAuthenticationInfoResponse MAPErrorMessageUnknownSubscriber", e);
+			}
 		}
 	}
-	
-	
+
+	public void onSendAuthenticationInfoResponse(SendAuthenticationInfoResponse evt, ActivityContextInterface aci) {
+		this.logger.severe("Received SEND_AUTHENTICATION_INFO_RESPONSE = " + evt);
+	}
+
 	/**
 	 * Life cycle methods
 	 */
@@ -567,14 +607,16 @@ public abstract class MapSMSSbb implements Sbb {
 	 */
 
 	private AddressField getSmsTpduOriginatingAddress() {
-//		if (this.smsTpduOriginatingAddress == null) {
-//			this.smsTpduOriginatingAddress = new AddressFieldImpl(TypeOfNumber.InternationalNumber, NumberingPlanIdentification.ISDNTelephoneNumberingPlan,
-//					SC_ADDRESS);
-//		}
-//		return this.smsTpduOriginatingAddress;
-		
-		return new AddressFieldImpl(TypeOfNumber.InternationalNumber, NumberingPlanIdentification.ISDNTelephoneNumberingPlan,
-				this.getCallingPartyAddressString().getAddress());
+		// if (this.smsTpduOriginatingAddress == null) {
+		// this.smsTpduOriginatingAddress = new
+		// AddressFieldImpl(TypeOfNumber.InternationalNumber,
+		// NumberingPlanIdentification.ISDNTelephoneNumberingPlan,
+		// SC_ADDRESS);
+		// }
+		// return this.smsTpduOriginatingAddress;
+
+		return new AddressFieldImpl(TypeOfNumber.InternationalNumber, NumberingPlanIdentification.ISDNTelephoneNumberingPlan, this
+				.getCallingPartyAddressString().getAddress());
 	}
 
 	private TimerOptions getTimerOptions() {
