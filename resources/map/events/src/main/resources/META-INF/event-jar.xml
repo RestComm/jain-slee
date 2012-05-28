@@ -273,6 +273,22 @@
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreResponse</event-class-name>
 	</event-definition>
+	
+	<!-- Mobility Authentication -->
+
+	<event-definition>
+		<event-type-name>ss7.map.service.mobility.authentication.SEND_AUTHENTICATION_INFO_REQUEST</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoRequest</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>ss7.map.service.mobility.authentication.SEND_AUTHENTICATION_INFO_RESPONSE</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoResponse</event-class-name>
+	</event-definition>	
 
 	<!-- Component events -->
 

@@ -28,12 +28,14 @@ import org.mobicents.protocols.ss7.map.api.MAPParameterFactory;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessageFactory;
 import org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm;
+import org.mobicents.protocols.ss7.map.api.service.mobility.MAPServiceMobility;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms;
 import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.MAPServiceSubscriberInformation;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementary;
 import org.mobicents.slee.resource.map.MAPDialogActivityHandle;
 import org.mobicents.slee.resource.map.MAPResourceAdaptor;
 import org.mobicents.slee.resource.map.service.lsm.wrappers.MAPServiceLsmWrapper;
+import org.mobicents.slee.resource.map.service.mobility.wrappers.MAPServiceMobilityWrapper;
 import org.mobicents.slee.resource.map.service.sms.wrappers.MAPServiceSmsWrapper;
 import org.mobicents.slee.resource.map.service.subscriberInformation.wrappers.MAPServiceSubscriberInformationWrapper;
 import org.mobicents.slee.resource.map.service.supplementary.wrappers.MAPServiceSupplementaryWrapper;
@@ -49,12 +51,11 @@ public class MAPProviderWrapper implements MAPProvider {
 	// Wrappers for MAP specifics //
 	// //////////////////////////////
 	private MAPProvider wrappedProvider;
-	private MAPServiceSupplementaryWrapper wrappedUSSD; // we could implement
-														// it all in one
-														// class, but....
+	private MAPServiceSupplementaryWrapper wrappedUSSD;
 	private MAPServiceLsmWrapper wrappedLSM;
 	private MAPServiceSmsWrapper wrappedSMS;
 	private MAPServiceSubscriberInformationWrapper wrappedSubsInfo;
+	private MAPServiceMobilityWrapper wrappedMAPServiceMobility;
 
 	private final MAPResourceAdaptor ra;
 
@@ -183,6 +184,13 @@ public class MAPProviderWrapper implements MAPProvider {
 		return this.wrappedSubsInfo;
 	}
 
+	public MAPServiceMobility getMAPServiceMobility() {
+		if (this.wrappedProvider == null) {
+			throw new IllegalStateException("RA is has not been activated.");
+		}
+		return this.wrappedMAPServiceMobility;
+	}
+
 	public void setWrappedProvider(MAPProvider wrappedProvider) {
 		this.wrappedProvider = wrappedProvider;
 		this.wrappedUSSD = new MAPServiceSupplementaryWrapper(this, wrappedProvider.getMAPServiceSupplementary());
@@ -190,6 +198,7 @@ public class MAPProviderWrapper implements MAPProvider {
 		this.wrappedSMS = new MAPServiceSmsWrapper(this, wrappedProvider.getMAPServiceSms());
 		this.wrappedSubsInfo = new MAPServiceSubscriberInformationWrapper(this,
 				wrappedProvider.getMapServiceSubscriberInformation());
+		this.wrappedMAPServiceMobility = new MAPServiceMobilityWrapper(this, wrappedProvider.getMAPServiceMobility());
 	}
 
 	public MAPResourceAdaptor getRa() {

@@ -70,6 +70,12 @@ import org.mobicents.protocols.ss7.map.api.service.lsm.SendRoutingInfoForLCSRequ
 import org.mobicents.protocols.ss7.map.api.service.lsm.SendRoutingInfoForLCSResponse;
 import org.mobicents.protocols.ss7.map.api.service.lsm.SubscriberLocationReportRequest;
 import org.mobicents.protocols.ss7.map.api.service.lsm.SubscriberLocationReportResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.MAPDialogMobility;
+import org.mobicents.protocols.ss7.map.api.service.mobility.MAPServiceMobilityListener;
+import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UpdateLocationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UpdateLocationResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreRequest;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.ForwardShortMessageRequest;
@@ -121,6 +127,9 @@ import org.mobicents.slee.resource.map.service.lsm.wrappers.SendRoutingInfoForLC
 import org.mobicents.slee.resource.map.service.lsm.wrappers.SendRoutingInfoForLCSResponseWrapper;
 import org.mobicents.slee.resource.map.service.lsm.wrappers.SubscriberLocationReportRequestWrapper;
 import org.mobicents.slee.resource.map.service.lsm.wrappers.SubscriberLocationReportResponseWrapper;
+import org.mobicents.slee.resource.map.service.mobility.authentication.wrapper.SendAuthenticationInfoRequestWrapper;
+import org.mobicents.slee.resource.map.service.mobility.authentication.wrapper.SendAuthenticationInfoResponseWrapper;
+import org.mobicents.slee.resource.map.service.mobility.wrappers.MAPDialogMobilityWrapper;
 import org.mobicents.slee.resource.map.service.sms.wrappers.AlertServiceCentreRequestWrapper;
 import org.mobicents.slee.resource.map.service.sms.wrappers.AlertServiceCentreResponseWrapper;
 import org.mobicents.slee.resource.map.service.sms.wrappers.ForwardShortMessageRequestWrapper;
@@ -155,7 +164,8 @@ import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
  * 
  */
 public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceSupplementaryListener,
-		MAPServiceLsmListener, MAPServiceSmsListener, MAPServiceSubscriberInformationListener {
+		MAPServiceLsmListener, MAPServiceSmsListener, MAPServiceSubscriberInformationListener,
+		MAPServiceMobilityListener {
 	/**
 	 * for all events we are interested in knowing when the event failed to be
 	 * processed
@@ -282,6 +292,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.realProvider.getMAPServiceSms().addMAPServiceListener(this);
 			this.realProvider.getMAPServiceLsm().addMAPServiceListener(this);
 			this.realProvider.getMapServiceSubscriberInformation().addMAPServiceListener(this);
+			this.realProvider.getMAPServiceMobility().addMAPServiceListener(this);
 
 			this.sleeEndpoint = resourceAdaptorContext.getSleeEndpoint();
 
@@ -289,6 +300,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.realProvider.getMAPServiceSms().acivate();
 			this.realProvider.getMAPServiceLsm().acivate();
 			this.realProvider.getMapServiceSubscriberInformation().acivate();
+			this.realProvider.getMAPServiceMobility().acivate();
 
 			this.mapProvider.setWrappedProvider(this.realProvider);
 		} catch (Exception e) {
@@ -316,10 +328,14 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		this.realProvider.getMAPServiceLsm().deactivate();
 		this.realProvider.getMAPServiceSms().deactivate();
 		this.realProvider.getMapServiceSubscriberInformation().deactivate();
+		this.realProvider.getMAPServiceMobility().deactivate();
+
 		this.realProvider.getMAPServiceSupplementary().removeMAPServiceListener(this);
 		this.realProvider.getMAPServiceLsm().removeMAPServiceListener(this);
 		this.realProvider.getMAPServiceSms().removeMAPServiceListener(this);
 		this.realProvider.getMapServiceSubscriberInformation().removeMAPServiceListener(this);
+		this.realProvider.getMAPServiceMobility().removeMAPServiceListener(this);
+		
 		this.realProvider.removeMAPDialogListener(this);
 	}
 
@@ -379,12 +395,12 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
 		this.sleeEndpoint.startActivity(mapDialogWrapper.getActivityHandle(), mapDialogWrapper, ACTIVITY_FLAGS);
 	}
-	
-	public void startSuspendedActivity(MAPDialogWrapper mapDialogWrapper)
-			throws ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException,
-			StartActivityException {
-		this.sleeEndpoint.startActivitySuspended(mapDialogWrapper.getActivityHandle(), mapDialogWrapper, ActivityFlags.REQUEST_ENDED_CALLBACK);
-	}	
+
+	public void startSuspendedActivity(MAPDialogWrapper mapDialogWrapper) throws ActivityAlreadyExistsException,
+			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
+		this.sleeEndpoint.startActivitySuspended(mapDialogWrapper.getActivityHandle(), mapDialogWrapper,
+				ActivityFlags.REQUEST_ENDED_CALLBACK);
+	}
 
 	/**
 	 * Private methods
@@ -461,7 +477,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 		// End Activity
 		// if (handle != null)
-		//	this.sleeEndpoint.endActivity(handle);
+		// this.sleeEndpoint.endActivity(handle);
 	}
 
 	/**
@@ -553,6 +569,9 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 				mapDialogWrapper = new MAPDialogSubscriberInformationWrapper(
 						(MAPDialogSubscriberInformation) mapDialog, activityHandle, this);
 				break;
+			case infoRetrievalContext:
+				mapDialogWrapper = new MAPDialogMobilityWrapper((MAPDialogMobility) mapDialog, activityHandle, this);
+				break;
 			default:
 				this.tracer.severe(String.format("Received onDialogRequest id=%d for unknown MAPApplicationContext=%s",
 						mapDialog.getDialogId(), mapApplicationContext.getApplicationContextName()));
@@ -612,7 +631,8 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 			MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
 			DialogRelease dialogUserAbort = new DialogRelease(mapDialogWrapper);
-			MAPDialogActivityHandle handle = onEvent(dialogUserAbort.getEventTypeName(), mapDialogWrapper, dialogUserAbort);
+			MAPDialogActivityHandle handle = onEvent(dialogUserAbort.getEventTypeName(), mapDialogWrapper,
+					dialogUserAbort);
 
 			// End Activity
 			this.sleeEndpoint.endActivity(handle);
@@ -980,6 +1000,33 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		AlertServiceCentreResponseWrapper event = new AlertServiceCentreResponseWrapper(mapDialogSmsWrapper,
 				alertServiCecentreResponse);
 		onEvent(event.getEventTypeName(), mapDialogSmsWrapper, event);
+	}
+
+	// ///////////////
+	// SERVICE : MOBILITY
+	// //////////////
+	public void onSendAuthenticationInfoRequest(SendAuthenticationInfoRequest ind) {
+		MAPDialogMobilityWrapper mapDialogMobilityWrapper = (MAPDialogMobilityWrapper) ind.getMAPDialog()
+				.getUserObject();
+		SendAuthenticationInfoRequestWrapper event = new SendAuthenticationInfoRequestWrapper(mapDialogMobilityWrapper,
+				ind);
+		onEvent(event.getEventTypeName(), mapDialogMobilityWrapper, event);
+	}
+
+	public void onSendAuthenticationInfoResponse(SendAuthenticationInfoResponse ind) {
+		MAPDialogMobilityWrapper mapDialogMobilityWrapper = (MAPDialogMobilityWrapper) ind.getMAPDialog()
+				.getUserObject();
+		SendAuthenticationInfoResponseWrapper event = new SendAuthenticationInfoResponseWrapper(
+				mapDialogMobilityWrapper, ind);
+		onEvent(event.getEventTypeName(), mapDialogMobilityWrapper, event);
+	}
+
+	public void onUpdateLocationRequest(UpdateLocationRequest ind) {
+		// TODO
+	}
+
+	public void onUpdateLocationResponse(UpdateLocationResponse ind) {
+		// TODO
 	}
 
 	/*
