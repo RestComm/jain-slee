@@ -362,8 +362,8 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     //  }
     //}
 
-    if(tracer.isInfoEnabled()) {
-      tracer.info("Diameter CCA RA :: entityDeactivating completed.");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("Diameter CCA RA :: entityDeactivating completed.");
     }
   }
 
@@ -396,7 +396,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     defaultTxTimerValue = (Long) (dttProp != null ? dttProp.getValue() : defaultTxTimerValue);
 
     if(tracer.isInfoEnabled()) {
-      tracer.info("RA supporting " + authApplicationIds);
+      tracer.info("Resource Adaptor Configured. Supported Applications: " + authApplicationIds);
     }
   }
 
@@ -518,8 +518,8 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
   // Optional callback methods -------------------------------------------
 
   public void eventProcessingFailed(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags, FailureReason reason) {
-    if(tracer.isInfoEnabled()) {
-      tracer.info("Diameter CCA RA :: eventProcessingFailed :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "], reason[" + reason + "].");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("Diameter CCA RA :: eventProcessingFailed :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "], reason[" + reason + "].");
     }
     if(!(handle instanceof DiameterActivityHandle)) {
       return;
@@ -529,8 +529,8 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
   }
 
   public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
-    if(tracer.isInfoEnabled()) {
-      tracer.info("Diameter CCA RA :: eventProcessingSuccessful :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "].");
+    if(tracer.isFineEnabled()) {
+      tracer.fine("Diameter CCA RA :: eventProcessingSuccessful :: handle[" + handle + "], eventType[" + eventType + "], event[" + event + "], address[" + address + "], flags[" + flags + "].");
     }
 
     if(!(handle instanceof DiameterActivityHandle)) {
