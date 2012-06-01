@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.diameter.resources</groupId> 
 		<artifactId>gq-parent</artifactId> 
-		<version>1.0.0-SNAPSHOT</version> 
+		<version>1.0.0.FINAL</version> 
 	</parent>
 
 	<artifactId>gq-ra</artifactId> 
