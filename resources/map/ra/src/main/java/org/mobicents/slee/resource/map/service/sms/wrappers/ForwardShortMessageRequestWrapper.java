@@ -19,22 +19,18 @@ public class ForwardShortMessageRequestWrapper extends SmsMessageWrapper<Forward
 		super(mAPDialog, EVENT_TYPE_NAME, req);
 	}
 
-	@Override
 	public boolean getMoreMessagesToSend() {
 		return this.wrappedEvent.getMoreMessagesToSend();
 	}
 
-	@Override
 	public SM_RP_DA getSM_RP_DA() {
 		return this.wrappedEvent.getSM_RP_DA();
 	}
 
-	@Override
 	public SM_RP_OA getSM_RP_OA() {
 		return this.wrappedEvent.getSM_RP_OA();
 	}
 
-	@Override
 	public SmsSignalInfo getSM_RP_UI() {
 		return this.wrappedEvent.getSM_RP_UI();
 	}

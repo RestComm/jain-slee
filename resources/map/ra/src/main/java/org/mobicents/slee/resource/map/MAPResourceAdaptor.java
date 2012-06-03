@@ -76,6 +76,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendA
 import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UpdateLocationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UpdateLocationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreRequest;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.ForwardShortMessageRequest;
@@ -91,10 +93,6 @@ import org.mobicents.protocols.ss7.map.api.service.sms.ReportSMDeliveryStatusReq
 import org.mobicents.protocols.ss7.map.api.service.sms.ReportSMDeliveryStatusResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMRequest;
 import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMResponse;
-import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.AnyTimeInterrogationRequest;
-import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.AnyTimeInterrogationResponse;
-import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.MAPDialogSubscriberInformation;
-import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.MAPServiceSubscriberInformationListener;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPDialogSupplementary;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementaryListener;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSRequest;
@@ -129,6 +127,8 @@ import org.mobicents.slee.resource.map.service.lsm.wrappers.SubscriberLocationRe
 import org.mobicents.slee.resource.map.service.lsm.wrappers.SubscriberLocationReportResponseWrapper;
 import org.mobicents.slee.resource.map.service.mobility.authentication.wrapper.SendAuthenticationInfoRequestWrapper;
 import org.mobicents.slee.resource.map.service.mobility.authentication.wrapper.SendAuthenticationInfoResponseWrapper;
+import org.mobicents.slee.resource.map.service.mobility.subscriberInformation.wrappers.AnyTimeInterrogationRequestWrapper;
+import org.mobicents.slee.resource.map.service.mobility.subscriberInformation.wrappers.AnyTimeInterrogationResponseWrapper;
 import org.mobicents.slee.resource.map.service.mobility.wrappers.MAPDialogMobilityWrapper;
 import org.mobicents.slee.resource.map.service.sms.wrappers.AlertServiceCentreRequestWrapper;
 import org.mobicents.slee.resource.map.service.sms.wrappers.AlertServiceCentreResponseWrapper;
@@ -144,9 +144,6 @@ import org.mobicents.slee.resource.map.service.sms.wrappers.ReportSMDeliveryStat
 import org.mobicents.slee.resource.map.service.sms.wrappers.ReportSMDeliveryStatusResponseWrapper;
 import org.mobicents.slee.resource.map.service.sms.wrappers.SendRoutingInfoForSMRequestWrapper;
 import org.mobicents.slee.resource.map.service.sms.wrappers.SendRoutingInfoForSMResponseWrapper;
-import org.mobicents.slee.resource.map.service.subscriberInformation.wrappers.AnyTimeInterrogationRequestWrapper;
-import org.mobicents.slee.resource.map.service.subscriberInformation.wrappers.AnyTimeInterrogationResponseWrapper;
-import org.mobicents.slee.resource.map.service.subscriberInformation.wrappers.MAPDialogSubscriberInformationWrapper;
 import org.mobicents.slee.resource.map.service.supplementary.wrappers.MAPDialogSupplementaryWrapper;
 import org.mobicents.slee.resource.map.service.supplementary.wrappers.ProcessUnstructuredSSRequestWrapper;
 import org.mobicents.slee.resource.map.service.supplementary.wrappers.ProcessUnstructuredSSResponseWrapper;
@@ -164,8 +161,7 @@ import org.mobicents.slee.resource.map.wrappers.MAPProviderWrapper;
  * 
  */
 public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, MAPServiceSupplementaryListener,
-		MAPServiceLsmListener, MAPServiceSmsListener, MAPServiceSubscriberInformationListener,
-		MAPServiceMobilityListener {
+		MAPServiceLsmListener, MAPServiceSmsListener, MAPServiceMobilityListener {
 	/**
 	 * for all events we are interested in knowing when the event failed to be
 	 * processed
@@ -291,7 +287,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.realProvider.getMAPServiceSupplementary().addMAPServiceListener(this);
 			this.realProvider.getMAPServiceSms().addMAPServiceListener(this);
 			this.realProvider.getMAPServiceLsm().addMAPServiceListener(this);
-			this.realProvider.getMapServiceSubscriberInformation().addMAPServiceListener(this);
 			this.realProvider.getMAPServiceMobility().addMAPServiceListener(this);
 
 			this.sleeEndpoint = resourceAdaptorContext.getSleeEndpoint();
@@ -299,7 +294,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			this.realProvider.getMAPServiceSupplementary().acivate();
 			this.realProvider.getMAPServiceSms().acivate();
 			this.realProvider.getMAPServiceLsm().acivate();
-			this.realProvider.getMapServiceSubscriberInformation().acivate();
 			this.realProvider.getMAPServiceMobility().acivate();
 
 			this.mapProvider.setWrappedProvider(this.realProvider);
@@ -327,15 +321,13 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		this.realProvider.getMAPServiceSupplementary().deactivate();
 		this.realProvider.getMAPServiceLsm().deactivate();
 		this.realProvider.getMAPServiceSms().deactivate();
-		this.realProvider.getMapServiceSubscriberInformation().deactivate();
 		this.realProvider.getMAPServiceMobility().deactivate();
 
 		this.realProvider.getMAPServiceSupplementary().removeMAPServiceListener(this);
 		this.realProvider.getMAPServiceLsm().removeMAPServiceListener(this);
 		this.realProvider.getMAPServiceSms().removeMAPServiceListener(this);
-		this.realProvider.getMapServiceSubscriberInformation().removeMAPServiceListener(this);
 		this.realProvider.getMAPServiceMobility().removeMAPServiceListener(this);
-		
+
 		this.realProvider.removeMAPDialogListener(this);
 	}
 
@@ -459,7 +451,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogAccept(MAPDialog mapDialog, MAPExtensionContainer extension) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
 		DialogAccept dialogAccept = new DialogAccept(mapDialogWrapper, extension);
@@ -469,7 +460,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogClose(MAPDialog mapDialog) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
 		DialogClose dialogClose = new DialogClose(mapDialogWrapper);
@@ -483,7 +473,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogDelimiter(MAPDialog mapDialog) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
 		DialogDelimiter dialogDelimiter = new DialogDelimiter(mapDialogWrapper);
@@ -493,7 +482,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogNotice(MAPDialog mapDialog, MAPNoticeProblemDiagnostic noticeProblemDiagnostic) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
 		DialogNotice dialogNotice = new DialogNotice(mapDialogWrapper, noticeProblemDiagnostic);
@@ -503,7 +491,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogProviderAbort(MAPDialog mapDialog, MAPAbortProviderReason abortProviderReason,
 			MAPAbortSource abortSource, MAPExtensionContainer extensionContainer) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
@@ -521,7 +508,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogReject(MAPDialog mapDialog, MAPRefuseReason refuseReason, MAPProviderError providerError,
 			ApplicationContextName alternativeApplicationContext, MAPExtensionContainer extensionContainer) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
@@ -566,8 +552,7 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 			// -- Subscriber Information Service
 			case anyTimeEnquiryContext:
 			case locationSvcGatewayContext:
-				mapDialogWrapper = new MAPDialogSubscriberInformationWrapper(
-						(MAPDialogSubscriberInformation) mapDialog, activityHandle, this);
+				mapDialogWrapper = new MAPDialogMobilityWrapper((MAPDialogMobility) mapDialog, activityHandle, this);
 				break;
 			case infoRetrievalContext:
 				mapDialogWrapper = new MAPDialogMobilityWrapper((MAPDialogMobility) mapDialog, activityHandle, this);
@@ -593,13 +578,11 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogRequest(MAPDialog mapDialog, AddressString destReference, AddressString origReference,
 			MAPExtensionContainer extensionContainer) {
 		this.handleDialogRequest(mapDialog, destReference, origReference, extensionContainer, null, null);
 	}
 
-	@Override
 	public void onDialogRequestEricsson(MAPDialog mapDialog, AddressString destReference, AddressString origReference,
 			IMSI eriImsi, AddressString eriVlrNo) {
 		this.handleDialogRequest(mapDialog, destReference, origReference, null, eriImsi, eriVlrNo);
@@ -608,7 +591,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogUserAbort(MAPDialog mapDialog, MAPUserAbortChoice userReason,
 			MAPExtensionContainer extensionContainer) {
 
@@ -625,7 +607,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogRelease(MAPDialog mapDialog) {
 		try {
 
@@ -646,7 +627,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onDialogTimeout(MAPDialog mapDialog) {
 
 		// TODO: done like that, since we want to process dialgo callbacks
@@ -666,7 +646,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onInvokeTimeout(MAPDialog mapDialog, Long invokeId) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
 		InvokeTimeout invokeTimeout = new InvokeTimeout(mapDialogWrapper, invokeId);
@@ -676,7 +655,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onErrorComponent(MAPDialog mapDialog, Long invokeId, MAPErrorMessage mapErrorMessage) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
 		ErrorComponent errorComponent = new ErrorComponent(mapDialogWrapper, invokeId, mapErrorMessage);
@@ -686,7 +664,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onProviderErrorComponent(MAPDialog mapDialog, Long invokeId, MAPProviderError mapProviderError) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
 		ProviderErrorComponent providerErrorComponent = new ProviderErrorComponent(mapDialogWrapper, invokeId,
@@ -697,7 +674,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onRejectComponent(MAPDialog mapDialog, Long invokeId, Problem problem) {
 		MAPDialogWrapper mapDialogWrapper = (MAPDialogWrapper) mapDialog.getUserObject();
 		RejectComponent rejectComponent = new RejectComponent(mapDialogWrapper, invokeId, problem);
@@ -711,7 +687,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onProcessUnstructuredSSRequest(ProcessUnstructuredSSRequest processUnstrSSInd) {
 		MAPDialogSupplementaryWrapper mapDialogSupplementaryWrapper = (MAPDialogSupplementaryWrapper) processUnstrSSInd
 				.getMAPDialog().getUserObject();
@@ -723,7 +698,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onProcessUnstructuredSSResponse(ProcessUnstructuredSSResponse processUnstructuredSSResponse) {
 		MAPDialogSupplementaryWrapper mapDialogSupplementaryWrapper = (MAPDialogSupplementaryWrapper) processUnstructuredSSResponse
 				.getMAPDialog().getUserObject();
@@ -735,7 +709,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onUnstructuredSSRequest(UnstructuredSSRequest unstructuredSSRequest) {
 		MAPDialogSupplementaryWrapper mapDialogSupplementaryWrapper = (MAPDialogSupplementaryWrapper) unstructuredSSRequest
 				.getMAPDialog().getUserObject();
@@ -747,7 +720,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onUnstructuredSSResponse(UnstructuredSSResponse unstructuredSSResponse) {
 		MAPDialogSupplementaryWrapper mapDialogSupplementaryWrapper = (MAPDialogSupplementaryWrapper) unstructuredSSResponse
 				.getMAPDialog().getUserObject();
@@ -759,7 +731,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onUnstructuredSSNotifyRequest(UnstructuredSSNotifyRequest unstructuredSSNotifyRequest) {
 		MAPDialogSupplementaryWrapper mapDialogSupplementaryWrapper = (MAPDialogSupplementaryWrapper) unstructuredSSNotifyRequest
 				.getMAPDialog().getUserObject();
@@ -768,7 +739,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogSupplementaryWrapper, event);
 	}
 
-	@Override
 	public void onUnstructuredSSNotifyResponse(UnstructuredSSNotifyResponse unstructuredSSNotifyResponse) {
 		MAPDialogSupplementaryWrapper mapDialogSupplementaryWrapper = (MAPDialogSupplementaryWrapper) unstructuredSSNotifyResponse
 				.getMAPDialog().getUserObject();
@@ -784,7 +754,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onProvideSubscriberLocationRequest(ProvideSubscriberLocationRequest provideSubscriberLocationRequest) {
 		MAPDialogLsmWrapper mapDialogLsmWrapper = (MAPDialogLsmWrapper) provideSubscriberLocationRequest.getMAPDialog()
 				.getUserObject();
@@ -796,7 +765,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onProvideSubscriberLocationResponse(ProvideSubscriberLocationResponse provideSubscriberLocationResponse) {
 		MAPDialogLsmWrapper mapDialogLsmWrapper = (MAPDialogLsmWrapper) provideSubscriberLocationResponse
 				.getMAPDialog().getUserObject();
@@ -809,7 +777,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onSendRoutingInforForLCSRequest(SendRoutingInfoForLCSRequest sendRoutingInfoForLCSRequest) {
 		MAPDialogLsmWrapper mapDialogLsmWrapper = (MAPDialogLsmWrapper) sendRoutingInfoForLCSRequest.getMAPDialog()
 				.getUserObject();
@@ -822,7 +789,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onSendRoutingInforForLCSResponse(SendRoutingInfoForLCSResponse sendRoutingInfoForLCSResponse) {
 		MAPDialogLsmWrapper mapDialogLsmWrapper = (MAPDialogLsmWrapper) sendRoutingInfoForLCSResponse.getMAPDialog()
 				.getUserObject();
@@ -835,7 +801,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onSubscriberLocationReportRequest(SubscriberLocationReportRequest subscriberLocationReportRequest) {
 		MAPDialogLsmWrapper mapDialogLsmWrapper = (MAPDialogLsmWrapper) subscriberLocationReportRequest.getMAPDialog()
 				.getUserObject();
@@ -848,7 +813,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void onSubscriberLocationReportResponse(SubscriberLocationReportResponse subscriberLocationReportResponse) {
 		MAPDialogLsmWrapper mapDialogLsmWrapper = (MAPDialogLsmWrapper) subscriberLocationReportResponse.getMAPDialog()
 				.getUserObject();
@@ -862,26 +826,25 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	// SERVICE : SUBSCRIBER INFORMATION
 	// //////////////
 	public void onAnyTimeInterrogationRequest(AnyTimeInterrogationRequest anyTimeInterrogationRequest) {
-		MAPDialogSubscriberInformationWrapper mapDialogSubscriberInformationWrapper = (MAPDialogSubscriberInformationWrapper) anyTimeInterrogationRequest
+		MAPDialogMobilityWrapper mapDialogMobilityWrapper = (MAPDialogMobilityWrapper) anyTimeInterrogationRequest
 				.getMAPDialog().getUserObject();
-		AnyTimeInterrogationRequestWrapper event = new AnyTimeInterrogationRequestWrapper(
-				mapDialogSubscriberInformationWrapper, anyTimeInterrogationRequest);
-		onEvent(event.getEventTypeName(), mapDialogSubscriberInformationWrapper, event);
+		AnyTimeInterrogationRequestWrapper event = new AnyTimeInterrogationRequestWrapper(mapDialogMobilityWrapper,
+				anyTimeInterrogationRequest);
+		onEvent(event.getEventTypeName(), mapDialogMobilityWrapper, event);
 	}
 
 	public void onAnyTimeInterrogationResponse(AnyTimeInterrogationResponse anyTimeInterrogationResponse) {
-		MAPDialogSubscriberInformationWrapper mapDialogSubscriberInformationWrapper = (MAPDialogSubscriberInformationWrapper) anyTimeInterrogationResponse
+		MAPDialogMobilityWrapper mapDialogMobilityWrapper = (MAPDialogMobilityWrapper) anyTimeInterrogationResponse
 				.getMAPDialog().getUserObject();
-		AnyTimeInterrogationResponseWrapper event = new AnyTimeInterrogationResponseWrapper(
-				mapDialogSubscriberInformationWrapper, anyTimeInterrogationResponse);
-		onEvent(event.getEventTypeName(), mapDialogSubscriberInformationWrapper, event);
+		AnyTimeInterrogationResponseWrapper event = new AnyTimeInterrogationResponseWrapper(mapDialogMobilityWrapper,
+				anyTimeInterrogationResponse);
+		onEvent(event.getEventTypeName(), mapDialogMobilityWrapper, event);
 	}
 
 	// ////////////////
 	// SERVICE: SMS //
 	// ////////////////
 
-	@Override
 	public void onForwardShortMessageRequest(ForwardShortMessageRequest forwardShortMessageRequest) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) forwardShortMessageRequest.getMAPDialog()
 				.getUserObject();
@@ -890,7 +853,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogSmsWrapper, event);
 	}
 
-	@Override
 	public void onForwardShortMessageResponse(ForwardShortMessageResponse forwardShortMessageResponse) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) forwardShortMessageResponse.getMAPDialog()
 				.getUserObject();
@@ -900,7 +862,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	}
 
-	@Override
 	public void onMoForwardShortMessageRequest(MoForwardShortMessageRequest moForwardShortMessageRequest) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) moForwardShortMessageRequest.getMAPDialog()
 				.getUserObject();
@@ -910,7 +871,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	}
 
-	@Override
 	public void onMoForwardShortMessageResponse(MoForwardShortMessageResponse moForwardShortMessageResponse) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) moForwardShortMessageResponse.getMAPDialog()
 				.getUserObject();
@@ -919,7 +879,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogSmsWrapper, event);
 	}
 
-	@Override
 	public void onMtForwardShortMessageRequest(MtForwardShortMessageRequest mtForwardShortMessageRequest) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) mtForwardShortMessageRequest.getMAPDialog()
 				.getUserObject();
@@ -928,7 +887,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogSmsWrapper, event);
 	}
 
-	@Override
 	public void onMtForwardShortMessageResponse(MtForwardShortMessageResponse mtForwardShortMessageResponse) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) mtForwardShortMessageResponse.getMAPDialog()
 				.getUserObject();
@@ -937,7 +895,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogSmsWrapper, event);
 	}
 
-	@Override
 	public void onSendRoutingInfoForSMRequest(SendRoutingInfoForSMRequest sendRoutingInfoForSMRequest) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) sendRoutingInfoForSMRequest.getMAPDialog()
 				.getUserObject();
@@ -946,7 +903,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogSmsWrapper, event);
 	}
 
-	@Override
 	public void onSendRoutingInfoForSMResponse(SendRoutingInfoForSMResponse sendRoutingInfoForSmResponse) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) sendRoutingInfoForSmResponse.getMAPDialog()
 				.getUserObject();
@@ -955,7 +911,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogSmsWrapper, event);
 	}
 
-	@Override
 	public void onReportSMDeliveryStatusRequest(ReportSMDeliveryStatusRequest reportSmDeliveryStatusRequest) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) reportSmDeliveryStatusRequest.getMAPDialog()
 				.getUserObject();
@@ -965,7 +920,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	}
 
-	@Override
 	public void onReportSMDeliveryStatusResponse(ReportSMDeliveryStatusResponse reportSmDeliveryStatusResponse) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) reportSmDeliveryStatusResponse.getMAPDialog()
 				.getUserObject();
@@ -975,7 +929,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	}
 
-	@Override
 	public void onInformServiceCentreRequest(InformServiceCentreRequest informServiCecentreRequest) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) informServiCecentreRequest.getMAPDialog()
 				.getUserObject();
@@ -984,7 +937,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogSmsWrapper, event);
 	}
 
-	@Override
 	public void onAlertServiceCentreRequest(AlertServiceCentreRequest alertServiCecentreRequest) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) alertServiCecentreRequest.getMAPDialog()
 				.getUserObject();
@@ -993,7 +945,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogSmsWrapper, event);
 	}
 
-	@Override
 	public void onAlertServiceCentreResponse(AlertServiceCentreResponse alertServiCecentreResponse) {
 		MAPDialogSmsWrapper mapDialogSmsWrapper = (MAPDialogSmsWrapper) alertServiCecentreResponse.getMAPDialog()
 				.getUserObject();
@@ -1036,7 +987,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	 * org.mobicents.protocols.ss7.map.api.MAPServiceListener#onMAPMessage(org
 	 * .mobicents.protocols.ss7.map.api.MAPMessage)
 	 */
-	@Override
 	public void onMAPMessage(MAPMessage arg0) {
 		// Do nothing
 	}

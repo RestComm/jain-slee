@@ -166,21 +166,6 @@
 		<event-class-name>org.mobicents.protocols.ss7.map.api.service.lsm.SubscriberLocationReportResponse</event-class-name>
 	</event-definition>
 
-	<!-- Subscriber Information services -->
-	<event-definition>
-		<event-type-name>ss7.map.service.subscriberinfo.ANY_TIME_INTERROGATION_REQUEST</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>org.mobicents.protocols.ss7.map.api.service.subscriberInformation.AnyTimeInterrogationRequest</event-class-name>
-	</event-definition>
-	
-	<event-definition>
-		<event-type-name>ss7.map.service.subscriberinfo.ANY_TIME_INTERROGATION_RESPONSE</event-type-name>
-		<event-type-vendor>org.mobicents</event-type-vendor>
-		<event-type-version>1.0</event-type-version>
-		<event-class-name>org.mobicents.protocols.ss7.map.api.service.subscriberInformation.AnyTimeInterrogationResponse</event-class-name>
-	</event-definition>	
-	
 	<!-- SMS -->
 
 	<event-definition>
@@ -289,6 +274,21 @@
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoResponse</event-class-name>
 	</event-definition>	
+	
+	<!-- Mobility Subscriber Information services -->
+	<event-definition>
+		<event-type-name>ss7.map.service.mobility.subscriberinfo.ANY_TIME_INTERROGATION_REQUEST</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>ss7.map.service.mobility.subscriberinfo.ANY_TIME_INTERROGATION_RESPONSE</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse</event-class-name>
+	</event-definition>		
 
 	<!-- Component events -->
 

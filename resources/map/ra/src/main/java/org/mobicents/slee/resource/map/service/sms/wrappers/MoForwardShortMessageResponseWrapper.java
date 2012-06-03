@@ -18,12 +18,10 @@ public class MoForwardShortMessageResponseWrapper extends SmsMessageWrapper<MoFo
 		super(mAPDialog, EVENT_TYPE_NAME, req);
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public SmsSignalInfo getSM_RP_UI() {
 		return this.wrappedEvent.getSM_RP_UI();
 	}

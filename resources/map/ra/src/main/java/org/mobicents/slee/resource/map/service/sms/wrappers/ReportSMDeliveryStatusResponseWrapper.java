@@ -18,12 +18,10 @@ public class ReportSMDeliveryStatusResponseWrapper extends SmsMessageWrapper<Rep
 		super(mAPDialog, EVENT_TYPE_NAME, req);
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public ISDNAddressString getStoredMSISDN() {
 		return this.wrappedEvent.getStoredMSISDN();
 	}

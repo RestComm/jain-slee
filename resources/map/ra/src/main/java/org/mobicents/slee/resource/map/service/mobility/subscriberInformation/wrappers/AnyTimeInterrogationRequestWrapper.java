@@ -1,45 +1,42 @@
-package org.mobicents.slee.resource.map.service.subscriberInformation.wrappers;
+package org.mobicents.slee.resource.map.service.mobility.subscriberInformation.wrappers;
 
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.primitives.SubscriberIdentity;
-import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.AnyTimeInterrogationRequest;
-import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.RequestedInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
+import org.mobicents.slee.resource.map.service.mobility.wrappers.MAPDialogMobilityWrapper;
+import org.mobicents.slee.resource.map.service.mobility.wrappers.MobilityMessageWrapper;
 
 /**
  * 
  * @author amit bhayani
- *
+ * 
  */
-public class AnyTimeInterrogationRequestWrapper extends
-		SubscriberInformationMessageWrapper<AnyTimeInterrogationRequest> implements AnyTimeInterrogationRequest {
+public class AnyTimeInterrogationRequestWrapper extends MobilityMessageWrapper<AnyTimeInterrogationRequest> implements
+		AnyTimeInterrogationRequest {
 
-	private static final String EVENT_TYPE_NAME = "ss7.map.service.subscriberinfo.ANY_TIME_INTERROGATION_REQUEST";
+	private static final String EVENT_TYPE_NAME = "ss7.map.service.mobility.subscriberinfo.ANY_TIME_INTERROGATION_REQUEST";
 
 	/**
 	 * @param mAPDialog
 	 */
-	public AnyTimeInterrogationRequestWrapper(MAPDialogSubscriberInformationWrapper mAPDialog,
-			AnyTimeInterrogationRequest req) {
+	public AnyTimeInterrogationRequestWrapper(MAPDialogMobilityWrapper mAPDialog, AnyTimeInterrogationRequest req) {
 		super(mAPDialog, EVENT_TYPE_NAME, req);
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public ISDNAddressString getGsmSCFAddress() {
 		return this.wrappedEvent.getGsmSCFAddress();
 	}
 
-	@Override
 	public RequestedInfo getRequestedInfo() {
 		return this.wrappedEvent.getRequestedInfo();
 	}
 
-	@Override
 	public SubscriberIdentity getSubscriberIdentity() {
 		return this.wrappedEvent.getSubscriberIdentity();
 	}

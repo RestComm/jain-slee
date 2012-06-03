@@ -22,58 +22,48 @@ public class MAPDialogSupplementaryWrapper extends MAPDialogWrapper<MAPDialogSup
 		super(wrappedDialog, activityHandle, ra);
 	}
 
-	@Override
 	public Long addProcessUnstructuredSSRequest(byte arg0, USSDString arg1, AlertingPattern arg2, ISDNAddressString arg3)
 			throws MAPException {
 		return this.wrappedDialog.addProcessUnstructuredSSRequest(arg0, arg1, arg2, arg3);
 	}
 
-	@Override
 	public Long addProcessUnstructuredSSRequest(int arg0, byte arg1, USSDString arg2, AlertingPattern arg3,
 			ISDNAddressString arg4) throws MAPException {
 		return this.wrappedDialog.addProcessUnstructuredSSRequest(arg0, arg1, arg2, arg3, arg4);
 	}
 
-	@Override
 	public void addProcessUnstructuredSSResponse(long arg0, byte arg1, USSDString arg2) throws MAPException {
 		this.wrappedDialog.addProcessUnstructuredSSResponse(arg0, arg1, arg2);
 	}
 
-	@Override
 	public Long addUnstructuredSSNotifyRequest(byte arg0, USSDString arg1, AlertingPattern arg2, ISDNAddressString arg3)
 			throws MAPException {
 		return this.wrappedDialog.addUnstructuredSSNotifyRequest(arg0, arg1, arg2, arg3);
 	}
 
-	@Override
 	public Long addUnstructuredSSNotifyRequest(int arg0, byte arg1, USSDString arg2, AlertingPattern arg3,
 			ISDNAddressString arg4) throws MAPException {
 		return this.wrappedDialog.addUnstructuredSSNotifyRequest(arg0, arg1, arg2, arg3, arg4);
 	}
 	
-	@Override
 	public void addUnstructuredSSNotifyResponse(long invokeId) throws MAPException{
 		this.wrappedDialog.addUnstructuredSSNotifyResponse(invokeId);
 	}
 
-	@Override
 	public Long addUnstructuredSSRequest(byte arg0, USSDString arg1, AlertingPattern arg2, ISDNAddressString arg3)
 			throws MAPException {
 		return this.wrappedDialog.addUnstructuredSSRequest(arg0, arg1, arg2, arg3);
 	}
 
-	@Override
 	public Long addUnstructuredSSRequest(int arg0, byte arg1, USSDString arg2, AlertingPattern arg3,
 			ISDNAddressString arg4) throws MAPException {
 		return this.wrappedDialog.addUnstructuredSSRequest(arg0, arg1, arg2, arg3, arg4);
 	}
 
-	@Override
 	public void addUnstructuredSSResponse(long arg0, byte arg1, USSDString arg2) throws MAPException {
 		this.wrappedDialog.addUnstructuredSSResponse(arg0, arg1, arg2);
 	}
 
-	@Override
 	public MAPDialogSupplementary getWrappedDialog() {
 		return this.wrappedDialog;
 	}

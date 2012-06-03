@@ -30,38 +30,31 @@ public class MAPServiceMobilityWrapper implements MAPServiceMobility {
 		this.mapProviderWrapper = mapProviderWrapper;
 	}
 
-	@Override
 	public void acivate() {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
 	public void deactivate() {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
 	public MAPProvider getMAPProvider() {
 		return this.mapProviderWrapper;
 	}
 
-	@Override
 	public boolean isActivated() {
 		return this.wrappedMobility.isActivated();
 	}
 
-	@Override
 	public ServingCheckData isServingService(MAPApplicationContext mapapplicationcontext) {
 		return this.wrappedMobility.isServingService(mapapplicationcontext);
 	}
 
-	@Override
 	public void addMAPServiceListener(MAPServiceMobilityListener arg0) {
 		throw new UnsupportedOperationException();
 
 	}
 
-	@Override
 	public MAPDialogMobility createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress,
 			AddressString addressstring, SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
 		MAPDialogMobility mapDialog = this.wrappedMobility.createNewDialog(mapapplicationcontext, sccpaddress,
@@ -80,7 +73,6 @@ public class MAPServiceMobilityWrapper implements MAPServiceMobility {
 		return dw;
 	}
 
-	@Override
 	public void removeMAPServiceListener(MAPServiceMobilityListener arg0) {
 		throw new UnsupportedOperationException();
 	}

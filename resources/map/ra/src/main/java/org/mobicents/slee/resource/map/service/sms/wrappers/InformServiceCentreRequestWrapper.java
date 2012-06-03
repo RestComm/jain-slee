@@ -19,27 +19,22 @@ public class InformServiceCentreRequestWrapper extends SmsMessageWrapper<InformS
 		super(mAPDialog, EVENT_TYPE_NAME, req);
 	}
 
-	@Override
 	public Integer getAbsentSubscriberDiagnosticSM() {
 		return this.wrappedEvent.getAbsentSubscriberDiagnosticSM();
 	}
 
-	@Override
 	public Integer getAdditionalAbsentSubscriberDiagnosticSM() {
 		return this.wrappedEvent.getAdditionalAbsentSubscriberDiagnosticSM();
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public MWStatus getMwStatus() {
 		return this.wrappedEvent.getMwStatus();
 	}
 
-	@Override
 	public ISDNAddressString getStoredMSISDN() {
 		return this.wrappedEvent.getStoredMSISDN();
 	}

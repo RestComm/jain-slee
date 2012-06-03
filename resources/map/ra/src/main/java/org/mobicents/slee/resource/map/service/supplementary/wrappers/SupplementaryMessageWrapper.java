@@ -22,12 +22,10 @@ public class SupplementaryMessageWrapper<T extends SupplementaryMessage> extends
 		return (MAPDialogSupplementaryWrapper) this.mapDialogWrapper;
 	}
 
-	@Override
 	public byte getUSSDDataCodingScheme() {
 		return this.wrappedEvent.getUSSDDataCodingScheme();
 	}
 
-	@Override
 	public USSDString getUSSDString() {
 		return this.wrappedEvent.getUSSDString();
 	}

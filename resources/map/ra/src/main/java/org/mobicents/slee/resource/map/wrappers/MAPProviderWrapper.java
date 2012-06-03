@@ -30,14 +30,12 @@ import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessageFactory;
 import org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm;
 import org.mobicents.protocols.ss7.map.api.service.mobility.MAPServiceMobility;
 import org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSms;
-import org.mobicents.protocols.ss7.map.api.service.subscriberInformation.MAPServiceSubscriberInformation;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementary;
 import org.mobicents.slee.resource.map.MAPDialogActivityHandle;
 import org.mobicents.slee.resource.map.MAPResourceAdaptor;
 import org.mobicents.slee.resource.map.service.lsm.wrappers.MAPServiceLsmWrapper;
 import org.mobicents.slee.resource.map.service.mobility.wrappers.MAPServiceMobilityWrapper;
 import org.mobicents.slee.resource.map.service.sms.wrappers.MAPServiceSmsWrapper;
-import org.mobicents.slee.resource.map.service.subscriberInformation.wrappers.MAPServiceSubscriberInformationWrapper;
 import org.mobicents.slee.resource.map.service.supplementary.wrappers.MAPServiceSupplementaryWrapper;
 
 /**
@@ -54,7 +52,6 @@ public class MAPProviderWrapper implements MAPProvider {
 	private MAPServiceSupplementaryWrapper wrappedUSSD;
 	private MAPServiceLsmWrapper wrappedLSM;
 	private MAPServiceSmsWrapper wrappedSMS;
-	private MAPServiceSubscriberInformationWrapper wrappedSubsInfo;
 	private MAPServiceMobilityWrapper wrappedMAPServiceMobility;
 
 	private final MAPResourceAdaptor ra;
@@ -79,7 +76,6 @@ public class MAPProviderWrapper implements MAPProvider {
 	 * org.mobicents.protocols.ss7.map.api.MAPProvider#addMAPDialogListener(
 	 * org.mobicents.protocols.ss7.map.api.MAPDialogListener)
 	 */
-	@Override
 	public void addMAPDialogListener(MAPDialogListener mapdialoglistener) {
 		throw new UnsupportedOperationException();
 	}
@@ -91,13 +87,11 @@ public class MAPProviderWrapper implements MAPProvider {
 	 * org.mobicents.protocols.ss7.map.api.MAPProvider#removeMAPDialogListener
 	 * (org.mobicents.protocols.ss7.map.api.MAPDialogListener)
 	 */
-	@Override
 	public void removeMAPDialogListener(MAPDialogListener mapdialoglistener) {
 		throw new UnsupportedOperationException();
 
 	}
 
-	@Override
 	public MAPParameterFactory getMAPParameterFactory() {
 		if (this.wrappedProvider == null) {
 			throw new IllegalStateException("RA is has not been activated.");
@@ -112,7 +106,6 @@ public class MAPProviderWrapper implements MAPProvider {
 	 * org.mobicents.protocols.ss7.map.api.MAPProvider#getMAPErrorMessageFactory
 	 * ()
 	 */
-	@Override
 	public MAPErrorMessageFactory getMAPErrorMessageFactory() {
 		if (this.wrappedProvider == null) {
 			throw new IllegalStateException("RA is has not been activated.");
@@ -127,7 +120,6 @@ public class MAPProviderWrapper implements MAPProvider {
 	 * org.mobicents.protocols.ss7.map.api.MAPProvider#getMAPDialog(java.lang
 	 * .Long)
 	 */
-	@Override
 	public MAPDialog getMAPDialog(Long long1) {
 		if (this.wrappedProvider == null) {
 			throw new IllegalStateException("RA is has not been activated.");
@@ -143,7 +135,6 @@ public class MAPProviderWrapper implements MAPProvider {
 	 * org.mobicents.protocols.ss7.map.api.MAPProvider#getMAPServiceSupplementary
 	 * ()
 	 */
-	@Override
 	public MAPServiceSupplementary getMAPServiceSupplementary() {
 		if (this.wrappedProvider == null) {
 			throw new IllegalStateException("RA is has not been activated.");
@@ -156,7 +147,6 @@ public class MAPProviderWrapper implements MAPProvider {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPProvider#getMAPServiceSms()
 	 */
-	@Override
 	public MAPServiceSms getMAPServiceSms() {
 		if (this.wrappedProvider == null) {
 			throw new IllegalStateException("RA is has not been activated.");
@@ -169,19 +159,11 @@ public class MAPProviderWrapper implements MAPProvider {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPProvider#getMAPServiceLsm()
 	 */
-	@Override
 	public MAPServiceLsm getMAPServiceLsm() {
 		if (this.wrappedProvider == null) {
 			throw new IllegalStateException("RA is has not been activated.");
 		}
 		return this.wrappedLSM;
-	}
-
-	public MAPServiceSubscriberInformation getMapServiceSubscriberInformation() {
-		if (this.wrappedProvider == null) {
-			throw new IllegalStateException("RA is has not been activated.");
-		}
-		return this.wrappedSubsInfo;
 	}
 
 	public MAPServiceMobility getMAPServiceMobility() {
@@ -196,8 +178,6 @@ public class MAPProviderWrapper implements MAPProvider {
 		this.wrappedUSSD = new MAPServiceSupplementaryWrapper(this, wrappedProvider.getMAPServiceSupplementary());
 		this.wrappedLSM = new MAPServiceLsmWrapper(this, wrappedProvider.getMAPServiceLsm());
 		this.wrappedSMS = new MAPServiceSmsWrapper(this, wrappedProvider.getMAPServiceSms());
-		this.wrappedSubsInfo = new MAPServiceSubscriberInformationWrapper(this,
-				wrappedProvider.getMapServiceSubscriberInformation());
 		this.wrappedMAPServiceMobility = new MAPServiceMobilityWrapper(this, wrappedProvider.getMAPServiceMobility());
 	}
 

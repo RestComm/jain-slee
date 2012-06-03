@@ -45,17 +45,14 @@ public class SendRoutingInfoForLCSRequestWrapper extends LsmMessageWrapper<SendR
 		super(mAPDialog, EVENT_TYPE_NAME, sendRoutingInfoForLCSRequest);
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public ISDNAddressString getMLCNumber() {
 		return this.wrappedEvent.getMLCNumber();
 	}
 
-	@Override
 	public SubscriberIdentity getTargetMS() {
 		return this.wrappedEvent.getTargetMS();
 	}

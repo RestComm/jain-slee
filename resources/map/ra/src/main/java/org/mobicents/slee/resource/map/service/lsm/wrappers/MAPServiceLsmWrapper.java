@@ -56,7 +56,6 @@ public class MAPServiceLsmWrapper implements MAPServiceLsm {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#acivate()
 	 */
-	@Override
 	public void acivate() {
 		throw new UnsupportedOperationException();
 
@@ -67,7 +66,6 @@ public class MAPServiceLsmWrapper implements MAPServiceLsm {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#deactivate()
 	 */
-	@Override
 	public void deactivate() {
 		throw new UnsupportedOperationException();
 
@@ -78,7 +76,6 @@ public class MAPServiceLsmWrapper implements MAPServiceLsm {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#getMAPProvider()
 	 */
-	@Override
 	public MAPProvider getMAPProvider() {
 		return this.mapProviderWrapper;
 	}
@@ -88,7 +85,6 @@ public class MAPServiceLsmWrapper implements MAPServiceLsm {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#isActivated()
 	 */
-	@Override
 	public boolean isActivated() {
 		return this.wrappedLSM.isActivated();
 	}
@@ -97,7 +93,6 @@ public class MAPServiceLsmWrapper implements MAPServiceLsm {
 	/* (non-Javadoc)
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#isServingService(org.mobicents.protocols.ss7.map.api.MAPApplicationContext)
 	 */
-	@Override
 	public ServingCheckData isServingService(MAPApplicationContext mapapplicationcontext) {
 		return this.wrappedLSM.isServingService(mapapplicationcontext);
 	}
@@ -105,7 +100,6 @@ public class MAPServiceLsmWrapper implements MAPServiceLsm {
 	/* (non-Javadoc)
 	 * @see org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm#addMAPServiceListener(org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsmListener)
 	 */
-	@Override
 	public void addMAPServiceListener(MAPServiceLsmListener mapservicelsmlistener) {
 		throw new UnsupportedOperationException();
 
@@ -114,7 +108,6 @@ public class MAPServiceLsmWrapper implements MAPServiceLsm {
 	/* (non-Javadoc)
 	 * @see org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm#createNewDialog(org.mobicents.protocols.ss7.map.api.MAPApplicationContext, org.mobicents.protocols.ss7.sccp.parameter.SccpAddress, org.mobicents.protocols.ss7.map.api.primitives.AddressString, org.mobicents.protocols.ss7.sccp.parameter.SccpAddress, org.mobicents.protocols.ss7.map.api.primitives.AddressString)
 	 */
-	@Override
 	public MAPDialogLsm createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress, AddressString addressstring,
 			SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
 
@@ -135,7 +128,6 @@ public class MAPServiceLsmWrapper implements MAPServiceLsm {
 	/* (non-Javadoc)
 	 * @see org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm#removeMAPServiceListener(org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsmListener)
 	 */
-	@Override
 	public void removeMAPServiceListener(MAPServiceLsmListener mapservicelsmlistener) {
 		throw new UnsupportedOperationException();
 	}

@@ -26,57 +26,46 @@ public class SendAuthenticationInfoRequestWrapper extends MobilityMessageWrapper
 		super(mAPDialog, EVENT_TYPE_NAME, req);
 	}
 
-	@Override
 	public boolean getAdditionalVectorsAreForEPS() {
 		return this.wrappedEvent.getAdditionalVectorsAreForEPS();
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public boolean getImmediateResponsePreferred() {
 		return this.wrappedEvent.getImmediateResponsePreferred();
 	}
 
-	@Override
 	public IMSI getImsi() {
 		return this.wrappedEvent.getImsi();
 	}
 
-	@Override
 	public long getMapProtocolVersion() {
 		return this.wrappedEvent.getMapProtocolVersion();
 	}
 
-	@Override
 	public Integer getNumberOfRequestedAdditionalVectors() {
 		return this.wrappedEvent.getNumberOfRequestedAdditionalVectors();
 	}
 
-	@Override
 	public int getNumberOfRequestedVectors() {
 		return this.wrappedEvent.getNumberOfRequestedVectors();
 	}
 
-	@Override
 	public ReSynchronisationInfo getReSynchronisationInfo() {
 		return this.wrappedEvent.getReSynchronisationInfo();
 	}
 
-	@Override
 	public RequestingNodeType getRequestingNodeType() {
 		return this.wrappedEvent.getRequestingNodeType();
 	}
 
-	@Override
 	public PlmnId getRequestingPlmnId() {
 		return this.wrappedEvent.getRequestingPlmnId();
 	}
 
-	@Override
 	public boolean getSegmentationProhibited() {
 		return this.wrappedEvent.getSegmentationProhibited();
 	}

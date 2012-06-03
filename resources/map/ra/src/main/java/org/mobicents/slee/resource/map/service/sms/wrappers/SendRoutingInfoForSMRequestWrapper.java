@@ -21,37 +21,30 @@ public class SendRoutingInfoForSMRequestWrapper extends SmsMessageWrapper<SendRo
 		super(mAPDialog, EVENT_TYPE_NAME, req);
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public boolean getGprsSupportIndicator() {
 		return this.wrappedEvent.getGprsSupportIndicator();
 	}
 
-	@Override
 	public ISDNAddressString getMsisdn() {
 		return this.wrappedEvent.getMsisdn();
 	}
 
-	@Override
 	public SM_RP_MTI getSM_RP_MTI() {
 		return this.wrappedEvent.getSM_RP_MTI();
 	}
 
-	@Override
 	public SM_RP_SMEA getSM_RP_SMEA() {
 		return this.wrappedEvent.getSM_RP_SMEA();
 	}
 
-	@Override
 	public AddressString getServiceCentreAddress() {
 		return this.wrappedEvent.getServiceCentreAddress();
 	}
 
-	@Override
 	public boolean getSm_RP_PRI() {
 		return this.wrappedEvent.getSm_RP_PRI();
 	}

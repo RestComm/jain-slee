@@ -20,47 +20,38 @@ public class ReportSMDeliveryStatusRequestWrapper extends SmsMessageWrapper<Repo
 		super(mAPDialog, EVENT_TYPE_NAME, req);
 	}
 
-	@Override
 	public Integer getAbsentSubscriberDiagnosticSM() {
 		return this.wrappedEvent.getAbsentSubscriberDiagnosticSM();
 	}
 
-	@Override
 	public Integer getAdditionalAbsentSubscriberDiagnosticSM() {
 		return this.wrappedEvent.getAdditionalAbsentSubscriberDiagnosticSM();
 	}
 
-	@Override
 	public SMDeliveryOutcome getAdditionalSMDeliveryOutcome() {
 		return this.wrappedEvent.getAdditionalSMDeliveryOutcome();
 	}
 
-	@Override
 	public boolean getDeliveryOutcomeIndicator() {
 		return this.wrappedEvent.getDeliveryOutcomeIndicator();
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public boolean getGprsSupportIndicator() {
 		return this.wrappedEvent.getGprsSupportIndicator();
 	}
 
-	@Override
 	public ISDNAddressString getMsisdn() {
 		return this.wrappedEvent.getMsisdn();
 	}
 
-	@Override
 	public SMDeliveryOutcome getSMDeliveryOutcome() {
 		return this.wrappedEvent.getSMDeliveryOutcome();
 	}
 
-	@Override
 	public AddressString getServiceCentreAddress() {
 		return this.wrappedEvent.getServiceCentreAddress();
 	}

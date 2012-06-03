@@ -58,7 +58,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#acivate()
 	 */
-	@Override
 	public void acivate() {
 		throw new UnsupportedOperationException();
 
@@ -69,7 +68,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#deactivate()
 	 */
-	@Override
 	public void deactivate() {
 		throw new UnsupportedOperationException();
 
@@ -80,7 +78,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#getMAPProvider()
 	 */
-	@Override
 	public MAPProvider getMAPProvider() {
 		return this.mapProviderWrapper;
 	}
@@ -90,7 +87,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#isActivated()
 	 */
-	@Override
 	public boolean isActivated() {
 		return this.wrappedUSSD.isActivated();
 	}
@@ -102,7 +98,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * org.mobicents.protocols.ss7.map.api.MAPServiceBase#isServingService(org
 	 * .mobicents.protocols.ss7.map.api.MAPApplicationContext)
 	 */
-	@Override
 	public ServingCheckData isServingService(MAPApplicationContext mapapplicationcontext) {
 		return this.wrappedUSSD.isServingService(mapapplicationcontext);
 	}
@@ -115,7 +110,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * #addMAPServiceListener(org.mobicents.protocols.ss7.
 	 * map.api.service.supplementary.MAPServiceSupplementaryListener)
 	 */
-	@Override
 	public void addMAPServiceListener(MAPServiceSupplementaryListener mapservicesupplementarylistener) {
 		throw new UnsupportedOperationException();
 
@@ -133,7 +127,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * org.mobicents.protocols.ss7.sccp.parameter.SccpAddress,
 	 * org.mobicents.protocols.ss7.map.api.primitives.AddressString)
 	 */
-	@Override
 	public MAPDialogSupplementary createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress,
 			AddressString addressstring, SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
 
@@ -162,7 +155,6 @@ public class MAPServiceSupplementaryWrapper implements MAPServiceSupplementary {
 	 * #removeMAPServiceListener(org.mobicents.protocols.ss7
 	 * .map.api.service.supplementary.MAPServiceSupplementaryListener)
 	 */
-	@Override
 	public void removeMAPServiceListener(MAPServiceSupplementaryListener mapservicesupplementarylistener) {
 		throw new UnsupportedOperationException();
 

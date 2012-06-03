@@ -18,12 +18,10 @@ public class AlertServiceCentreRequestWrapper extends SmsMessageWrapper<AlertSer
 		super(mAPDialog, EVENT_TYPE_NAME, req);
 	}
 
-	@Override
 	public ISDNAddressString getMsisdn() {
 		return this.wrappedEvent.getMsisdn();
 	}
 
-	@Override
 	public AddressString getServiceCentreAddress() {
 		return this.wrappedEvent.getServiceCentreAddress();
 	}

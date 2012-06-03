@@ -140,7 +140,6 @@ public class SubscriberLocationReportRequestWrapper extends LsmMessageWrapper<Su
 		return this.wrappedEvent.getUtranPositioningData();
 	}
 
-	@Override
 	public CellGlobalIdOrServiceAreaIdOrLAI getCellGlobalIdOrServiceAreaIdOrLAI() {
 		return this.wrappedEvent.getCellGlobalIdOrServiceAreaIdOrLAI();
 	}

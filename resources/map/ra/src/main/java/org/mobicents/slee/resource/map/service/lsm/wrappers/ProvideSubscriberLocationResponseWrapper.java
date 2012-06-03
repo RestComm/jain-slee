@@ -45,52 +45,42 @@ public class ProvideSubscriberLocationResponseWrapper extends LsmMessageWrapper<
 		super(mAPDialog, EVENT_TYPE_NAME, provideSubscriberLocationResponse);
 	}
 
-	@Override
 	public AccuracyFulfilmentIndicator getAccuracyFulfilmentIndicator() {
 		return this.wrappedEvent.getAccuracyFulfilmentIndicator();
 	}
 
-	@Override
 	public byte[] getAdditionalLocationEstimate() {
 		return this.wrappedEvent.getAdditionalLocationEstimate();
 	}
 
-	@Override
 	public Integer getAgeOfLocationEstimate() {
 		return this.wrappedEvent.getAgeOfLocationEstimate();
 	}
 
-	@Override
 	public CellGlobalIdOrServiceAreaIdOrLAI getCellGlobalIdOrServiceAreaIdOrLAI() {
 		return this.wrappedEvent.getCellGlobalIdOrServiceAreaIdOrLAI();
 	}
 
-	@Override
 	public Boolean getDeferredMTLRResponseIndicator() {
 		return this.wrappedEvent.getDeferredMTLRResponseIndicator();
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public byte[] getGeranPositioningData() {
 		return this.wrappedEvent.getGeranPositioningData();
 	}
 
-	@Override
 	public byte[] getLocationEstimate() {
 		return this.wrappedEvent.getLocationEstimate();
 	}
 
-	@Override
 	public Boolean getSaiPresent() {
 		return this.wrappedEvent.getSaiPresent();
 	}
 
-	@Override
 	public byte[] getUtranPositioningData() {
 		return this.wrappedEvent.getUtranPositioningData();
 	}

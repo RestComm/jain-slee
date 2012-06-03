@@ -57,7 +57,6 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#acivate()
 	 */
-	@Override
 	public void acivate() {
 		throw new UnsupportedOperationException();
 
@@ -68,7 +67,6 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#deactivate()
 	 */
-	@Override
 	public void deactivate() {
 		throw new UnsupportedOperationException();
 
@@ -79,7 +77,6 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#getMAPProvider()
 	 */
-	@Override
 	public MAPProvider getMAPProvider() {
 		return this.mapProviderWrapper;
 	}
@@ -89,7 +86,6 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#isActivated()
 	 */
-	@Override
 	public boolean isActivated() {
 		return this.wrappedSMS.isActivated();
 	}
@@ -99,7 +95,6 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	 * 
 	 * @see org.mobicents.protocols.ss7.map.api.MAPServiceBase#isActivated()
 	 */
-	@Override
 	public ServingCheckData isServingService(MAPApplicationContext mapapplicationcontext) {
 		return this.wrappedSMS.isServingService(mapapplicationcontext);
 	}
@@ -111,7 +106,6 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	 * addMAPServiceListener
 	 * (org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSmsListener)
 	 */
-	@Override
 	public void addMAPServiceListener(MAPServiceSmsListener mapservicesmslistener) {
 		throw new UnsupportedOperationException();
 
@@ -128,7 +122,6 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	 * org.mobicents.protocols.ss7.sccp.parameter.SccpAddress,
 	 * org.mobicents.protocols.ss7.map.api.primitives.AddressString)
 	 */
-	@Override
 	public MAPDialogSmsWrapper createNewDialog(MAPApplicationContext mapapplicationcontext, SccpAddress sccpaddress,
 			AddressString addressstring, SccpAddress sccpaddress1, AddressString addressstring1) throws MAPException {
 		MAPDialogSms mapDialog = this.wrappedSMS.createNewDialog(mapapplicationcontext, sccpaddress, addressstring,
@@ -154,7 +147,6 @@ public class MAPServiceSmsWrapper implements MAPServiceSms {
 	 * removeMAPServiceListener
 	 * (org.mobicents.protocols.ss7.map.api.service.sms.MAPServiceSmsListener)
 	 */
-	@Override
 	public void removeMAPServiceListener(MAPServiceSmsListener mapservicesmslistener) {
 		throw new UnsupportedOperationException();
 

@@ -24,22 +24,18 @@ public class SendAuthenticationInfoResponseWrapper extends MobilityMessageWrappe
 		super(mAPDialog, EVENT_TYPE_NAME, res);
 	}
 
-	@Override
 	public AuthenticationSetList getAuthenticationSetList() {
 		return this.wrappedEvent.getAuthenticationSetList();
 	}
 
-	@Override
 	public EpsAuthenticationSetList getEpsAuthenticationSetList() {
 		return this.wrappedEvent.getEpsAuthenticationSetList();
 	}
 
-	@Override
 	public MAPExtensionContainer getExtensionContainer() {
 		return this.wrappedEvent.getExtensionContainer();
 	}
 
-	@Override
 	public long getMapProtocolVersion() {
 		return this.wrappedEvent.getMapProtocolVersion();
 	}
