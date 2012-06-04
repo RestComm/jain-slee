@@ -24,6 +24,9 @@ package org.mobicents.slee.container.component.deployment.classloading;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.Vector;
@@ -51,6 +54,27 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 		super(sleeClassLoader);
 	}
 
+	@Override
+	protected Class<?> loadClass(final String name, final boolean resolve)
+			throws ClassNotFoundException {
+		if (System.getSecurityManager() != null) {
+			try {
+				return AccessController
+						.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+							public Class<?> run()
+									throws ClassNotFoundException {
+								return ReplicationClassLoaderImpl.super
+										.loadClass(name, resolve);
+							}
+						});
+			} catch (PrivilegedActionException e) {
+				throw (ClassNotFoundException) e.getException();
+			}
+		} else {
+			return super.loadClass(name, resolve);
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -76,14 +100,27 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 	}
 
 	@Override
-	protected Class<?> findClass(String name) throws ClassNotFoundException {
-		synchronized (ClassLoaderFactoryImpl.MONITOR) {
-			for (URLClassLoaderDomainImpl domain : domains) {
-				try {
-					return domain.loadClass(name);
-				} catch (Throwable e) {
-					// ignore
-				}
+	protected Class<?> findClass(final String name) throws ClassNotFoundException {		
+		for (final URLClassLoaderDomainImpl domain : domains) {
+			try {
+				if (System.getSecurityManager() != null) {
+					try {
+						return AccessController
+								.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+									public Class<?> run()
+											throws ClassNotFoundException {
+										return domain
+												.loadClass(name, false);
+									}
+								});
+					} catch (PrivilegedActionException e) {
+						throw (ClassNotFoundException) e.getException();
+					}
+				} else {
+					return domain.loadClass(name, false);
+				}				
+			} catch (Throwable e) {
+				// ignore
 			}
 		}
 		throw new ClassNotFoundException(name);
@@ -115,11 +152,6 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 			while (enumeration.hasMoreElements()) {
 				vector.add(enumeration.nextElement());
 			}
-		}
-		// now the local ones
-		enumeration = super.findResources(name);
-		while (enumeration.hasMoreElements()) {
-			vector.add(enumeration.nextElement());
 		}
 		return vector.elements();
 	}

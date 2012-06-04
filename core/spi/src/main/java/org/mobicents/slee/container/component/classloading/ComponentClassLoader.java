@@ -33,4 +33,7 @@ package org.mobicents.slee.container.component.classloading;
  */
 public abstract class ComponentClassLoader extends ClassLoader {
 	
+	public ComponentClassLoader(ClassLoader parent) {
+		super(parent);
+	}
 }

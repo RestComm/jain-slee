@@ -24,7 +24,6 @@ package org.mobicents.slee.container.component;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -103,16 +102,6 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 		this.classLoader = classLoader;		
 	}
 
-	private void addDomainLoadersToJavassistPool(Set<URLClassLoaderDomainImpl> visitedDomains, URLClassLoaderDomainImpl domain) {
-		if (visitedDomains.add(domain)) {
-			classPool.appendClassPath(new LoaderClassPath(domain));
-			// add dependency loaders class paths to the component's javassist classpool
-			for (URLClassLoaderDomainImpl dependencyDomain : domain.getDependencies()) {
-				addDomainLoadersToJavassistPool(visitedDomains, dependencyDomain);
-			}
-		}
-	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.core.component.SleeComponent#getClassLoaderDomain()
@@ -142,7 +131,10 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 			}
 			classPool = new ClassPool();
 			// add class path for domain and dependencies
-			addDomainLoadersToJavassistPool(new HashSet<URLClassLoaderDomainImpl>(),classLoaderDomain);
+			classPool.appendClassPath(new LoaderClassPath(classLoaderDomain));
+			for(ClassLoader domainDependencies : classLoaderDomain.getAllDependencies()) {
+				classPool.appendClassPath(new LoaderClassPath(domainDependencies));
+			}
 			// add class path also for slee 
 			classPool.appendClassPath(new LoaderClassPath(classLoaderDomain.getParent()));
 		}		
@@ -309,7 +301,7 @@ public abstract class AbstractSleeComponent implements SleeComponent {
 		classLoader = null;
 		
 		if (classLoaderDomain != null) {				
-			classLoaderDomain.getDependencies().clear();
+			classLoaderDomain.clear();
 			classLoaderDomain = null;				
 		}
 		

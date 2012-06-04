@@ -333,7 +333,7 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 									(SbbID) componentID);
 				}
 				if (dependency != null && dependency.getClassLoaderDomain() != null) {					
-					classLoaderDomain.getDependencies().add(dependency.getClassLoaderDomain());
+					classLoaderDomain.addDirectDependency(dependency.getClassLoaderDomain());
 					if (logger.isTraceEnabled()) {
 						logger.trace(classLoaderDomain+" added "+dependency.getClassLoaderDomain()+ " in dependencies");
 					}

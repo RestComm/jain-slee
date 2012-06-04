@@ -63,7 +63,7 @@ public class SbbObjectPoolManagementImpl implements SbbObjectPoolManagementImplM
 		config.maxIdle = 50;
 		config.maxWait = -1;
 		config.minEvictableIdleTimeMillis = 60000;
-		config.minIdle = 0;
+		config.minIdle = 1;
 		config.numTestsPerEvictionRun = -1;
 		config.testOnBorrow = true;
 		config.testOnReturn = true;

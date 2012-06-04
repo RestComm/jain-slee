@@ -28,14 +28,16 @@ import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
 
 /**
@@ -46,10 +48,13 @@ import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
  */
 public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 
+	private static final Logger logger = Logger
+			.getLogger(URLClassLoaderDomainImpl.class);
+
 	/**
 	 * the set of dependencies for the domain
 	 */
-	private Set<URLClassLoaderDomainImpl> dependencies = new HashSet<URLClassLoaderDomainImpl>();
+	private Set<URLClassLoaderDomainImpl> directDependencies = new HashSet<URLClassLoaderDomainImpl>();
 
 	/**
 	 * 
@@ -61,81 +66,122 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	}
 
 	/**
-	 * Retrieves the non thread safe set of dependencies for the domain.
+	 * Adds a direct dependency to this domain. Direct dependencies are other
+	 * domains which the domain depends on.
+	 * 
+	 * @param domain
+	 */
+	public void addDirectDependency(URLClassLoaderDomainImpl domain) {
+		if (logger.isTraceEnabled())
+			logger.trace(toString() + " adding domain " + domain
+					+ " to direct dependencies");
+		directDependencies.add(domain);
+	}
+
+	/**
+	 * Retrieves the set of direct dependencies for the domain.
 	 * 
 	 * @return
 	 */
-	public Set<URLClassLoaderDomainImpl> getDependencies() {
-		return dependencies;
+	public Set<URLClassLoaderDomainImpl> getDirectDependencies() {
+		return directDependencies;
+	}
+
+	/**
+	 * Retrieves a flat list containing all dependencies for the domain, i.e., all direct dependencies and their own dependencies.
+	 * @return
+	 */
+	public List<URLClassLoaderDomainImpl> getAllDependencies() {
+		List<URLClassLoaderDomainImpl> result = new ArrayList<URLClassLoaderDomainImpl>();
+		this.getAllDependencies(result);
+		return result;
+	}
+
+	private void getAllDependencies(List<URLClassLoaderDomainImpl> result) {
+		for (URLClassLoaderDomainImpl i : directDependencies) {
+			if (!result.contains(i)) {
+				result.add(i);
+				i.getAllDependencies(result);
+			}
+		}
+	}
+	
+	private static final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
+
+	private boolean acquireGlobalLock() {
+		if (GLOBAL_LOCK.isHeldByCurrentThread()) {
+			return false;
+		}
+		while (!GLOBAL_LOCK.tryLock()) {
+			try {
+				this.wait(10);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+		}
+		return true;
+	}
+
+	private void releaseGlobalLock() {
+		GLOBAL_LOCK.unlock();
 	}
 
 	@Override
 	protected Class<?> loadClass(final String name, final boolean resolve)
 			throws ClassNotFoundException {
-		// use thread locals to check if this domain was already used in this loading process
-		Map<String, Set<URLClassLoaderDomainImpl>> visitedDomainsMap = URLClassLoaderDomainThreadLocals
-				.getClassLoadingVisitedDomainsMap();
-		if (visitedDomainsMap == null) {
-			visitedDomainsMap = new HashMap<String, Set<URLClassLoaderDomainImpl>>();
-		}
-		Set<URLClassLoaderDomainImpl> visitedDomains = visitedDomainsMap
-				.get(name);
-		if (visitedDomains == null) {
-			visitedDomains = new HashSet<URLClassLoaderDomainImpl>();
-			visitedDomainsMap.put(name, visitedDomains);
-		}
-		if (!visitedDomains.add(this)) {
-			throw new ClassNotFoundException(name);
-		}
-		// not visited yet, proceed with loading
-		URLClassLoaderDomainThreadLocals
-				.setClassLoadingVisitedDomainsMap(visitedDomainsMap);
-		try {
-			if (System.getSecurityManager() != null) {
-				try {
-					return AccessController
-							.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
-								public Class<?> run()
-										throws ClassNotFoundException {
-									return URLClassLoaderDomainImpl.super
-											.loadClass(name, resolve);
-								}
-							});
-				} catch (PrivilegedActionException e) {
-					throw (ClassNotFoundException) e.getException();
+
+		if (logger.isTraceEnabled())
+			logger.trace(toString() + " loadClass: " + name);
+
+		synchronized (this) {
+			final boolean acquiredLock = acquireGlobalLock();
+			try {
+				// load the class
+				if (System.getSecurityManager() != null) {
+					try {
+						return AccessController
+								.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+									public Class<?> run()
+											throws ClassNotFoundException {
+										return URLClassLoaderDomainImpl.super
+												.loadClass(name, resolve);
+									}
+								});
+					} catch (PrivilegedActionException e) {
+						throw (ClassNotFoundException) e.getException();
+					}
+				} else {
+					return super.loadClass(name, resolve);
 				}
-			} else {
-				return super.loadClass(name, resolve);
+			} finally {
+				if (acquiredLock) {
+					releaseGlobalLock();
+				}
 			}
-		} finally {
-			// cleanup thread local state previously set
-			visitedDomainsMap = URLClassLoaderDomainThreadLocals
-					.getClassLoadingVisitedDomainsMap();
-			visitedDomains = visitedDomainsMap.get(name);
-			visitedDomains.remove(this);
-			if (visitedDomains.isEmpty()) {
-				visitedDomainsMap.remove(name);
-			}
-			if (visitedDomainsMap.isEmpty()) {
-				visitedDomainsMap = null;
-			}
-			URLClassLoaderDomainThreadLocals
-					.setClassLoadingVisitedDomainsMap(visitedDomainsMap);
 		}
 	}
 
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		if (logger.isTraceEnabled())
+			logger.trace(toString() + " findClass: " + name);
 		// try 1st in dependencies
-		for (URLClassLoaderDomainImpl dependency : dependencies) {
-			try {
-				return dependency.loadClass(name);
-			} catch (Throwable e) {
-				// ignore
+		Class<?> c = null;
+		for (URLClassLoaderDomainImpl dependency : getAllDependencies()) {
+			synchronized (dependency) {
+				c = dependency.findLoadedClass(name);
+				if (c != null) {
+					return c;
+				}
+				try {
+					return dependency.findClassLocallyLocked(name);
+				} catch (Throwable e) {
+					// ignore
+				}
 			}
 		}
 		// now locally
-		return findClassLocally(name);
+		return findClassLocallyLocked(name);
 	}
 
 	/**
@@ -148,54 +194,36 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	 */
 	protected Class<?> findClassLocally(String name)
 			throws ClassNotFoundException {
-		return super.findClass(name);
+		if (logger.isTraceEnabled())
+			logger.trace(toString() + " findClassLocally: " + name);
+		synchronized (this) {
+			final boolean acquiredLock = acquireGlobalLock();
+			try {
+				return findClassLocallyLocked(name);
+			} finally {
+				if (acquiredLock) {
+					releaseGlobalLock();
+				}
+			}
+		}
 	}
-
-	@Override
-	public URL getResource(String name) {
-		// use thread locals to check if this domain was already visited
-		Map<String, Set<URLClassLoaderDomainImpl>> visitedDomainsMap = URLClassLoaderDomainThreadLocals
-				.getResourceRetrievalVisitedDomainsMap();
-		if (visitedDomainsMap == null) {
-			visitedDomainsMap = new HashMap<String, Set<URLClassLoaderDomainImpl>>();
-		}
-		Set<URLClassLoaderDomainImpl> visitedDomains = visitedDomainsMap
-				.get(name);
-		if (visitedDomains == null) {
-			visitedDomains = new HashSet<URLClassLoaderDomainImpl>();
-			visitedDomainsMap.put(name, visitedDomains);
-		}
-		if (!visitedDomains.add(this)) {
-			return null;
-		}
-		// not visited yet, proceed with retrieval
-		URLClassLoaderDomainThreadLocals
-				.setResourceRetrievalVisitedDomainsMap(visitedDomainsMap);
-		try {
-			return super.getResource(name);
-		} finally {
-			// cleanup thread local state previously set
-			visitedDomainsMap = URLClassLoaderDomainThreadLocals
-					.getResourceRetrievalVisitedDomainsMap();
-			visitedDomains = visitedDomainsMap.get(name);
-			visitedDomains.remove(this);
-			if (visitedDomains.isEmpty()) {
-				visitedDomainsMap.remove(name);
-			}
-			if (visitedDomainsMap.isEmpty()) {
-				visitedDomainsMap = null;
-			}
-			URLClassLoaderDomainThreadLocals
-					.setResourceRetrievalVisitedDomainsMap(visitedDomainsMap);
-		}
+	
+	protected Class<?> findClassLocallyLocked(String name)
+			throws ClassNotFoundException {
+		if (logger.isTraceEnabled())
+			logger.trace(toString() + " findClassLocallyLocked: " + name);
+		return super.findClass(name);		
 	}
 
 	@Override
 	public URL findResource(String name) {
+		if (logger.isTraceEnabled())
+			logger.trace(toString() + " findResource: " + name);
+
 		// try 1st in dependencies
 		URL result = null;
-		for (URLClassLoaderDomainImpl dependency : dependencies) {
-			result = dependency.getResource(name);
+		for (URLClassLoaderDomainImpl dependency : getAllDependencies()) {
+			result = dependency.findResourceLocally(name);
 			if (result != null) {
 				return result;
 			}
@@ -212,58 +240,22 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	 * @return
 	 */
 	protected URL findResourceLocally(String name) {
+		if (logger.isTraceEnabled())
+			logger.trace(toString() + " findResourceLocally: " + name);
+
 		return super.findResource(name);
-	}
-
-	private static final Enumeration<URL> EMPTY_ENUMERATION = new Vector<URL>()
-			.elements();
-
-	@Override
-	public Enumeration<URL> getResources(String name) throws IOException {
-		// use thread locals to check if this domain was already visited
-		Map<String, Set<URLClassLoaderDomainImpl>> visitedDomainsMap = URLClassLoaderDomainThreadLocals
-				.getResourcesRetrievalVisitedDomainsMap();
-		if (visitedDomainsMap == null) {
-			visitedDomainsMap = new HashMap<String, Set<URLClassLoaderDomainImpl>>();
-		}
-		Set<URLClassLoaderDomainImpl> visitedDomains = visitedDomainsMap
-				.get(name);
-		if (visitedDomains == null) {
-			visitedDomains = new HashSet<URLClassLoaderDomainImpl>();
-			visitedDomainsMap.put(name, visitedDomains);
-		}
-		if (!visitedDomains.add(this)) {
-			return EMPTY_ENUMERATION;
-		}
-		// not visited yet, proceed with retrieval
-		URLClassLoaderDomainThreadLocals
-				.setResourcesRetrievalVisitedDomainsMap(visitedDomainsMap);
-		try {
-			return super.getResources(name);
-		} finally {
-			// cleanup thread local state previously set
-			visitedDomainsMap = URLClassLoaderDomainThreadLocals
-					.getResourcesRetrievalVisitedDomainsMap();
-			visitedDomains = visitedDomainsMap.get(name);
-			visitedDomains.remove(this);
-			if (visitedDomains.isEmpty()) {
-				visitedDomainsMap.remove(name);
-			}
-			if (visitedDomainsMap.isEmpty()) {
-				visitedDomainsMap = null;
-			}
-			URLClassLoaderDomainThreadLocals
-					.setResourcesRetrievalVisitedDomainsMap(visitedDomainsMap);
-		}
 	}
 
 	@Override
 	public Enumeration<URL> findResources(String name) throws IOException {
+		if (logger.isTraceEnabled())
+			logger.trace(toString() + " findResources: " + name);
+
 		Vector<URL> vector = new Vector<URL>();
 		// add resources from dependencies
 		Enumeration<URL> enumeration = null;
-		for (URLClassLoaderDomainImpl dependency : dependencies) {
-			enumeration = dependency.getResources(name);
+		for (URLClassLoaderDomainImpl dependency : getAllDependencies()) {
+			enumeration = dependency.findResourcesLocally(name);
 			while (enumeration.hasMoreElements()) {
 				vector.add(enumeration.nextElement());
 			}
@@ -286,6 +278,9 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	 */
 	protected Enumeration<URL> findResourcesLocally(String name)
 			throws IOException {
+		if (logger.isTraceEnabled())
+			logger.trace(toString() + " findResourcesLocally: " + name);
+
 		return super.findResources(name);
 	}
 
@@ -293,6 +288,10 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	public String toString() {
 		return "URLClassLoaderDomain( urls= " + Arrays.asList(getURLs())
 				+ " )\n";
+	}
+
+	public void clear() {
+		directDependencies.clear();
 	}
 
 }

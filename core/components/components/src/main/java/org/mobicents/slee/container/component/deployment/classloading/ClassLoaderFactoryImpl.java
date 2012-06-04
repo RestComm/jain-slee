@@ -35,11 +35,6 @@ import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
  */
 public class ClassLoaderFactoryImpl implements ClassLoaderFactory {
 	
-	/**
-	 * system wide monitor, used to sync class loading, ensure no dead locks
-	 */
-	static final Object MONITOR = new Object();
-	
 	/*
 	 * (non-Javadoc)
 	 * 
