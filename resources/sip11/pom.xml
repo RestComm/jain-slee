@@ -66,6 +66,11 @@
 				<artifactId>sip-balancer-jar</artifactId>
 				<version>${loadbalancer.version}</version>			
 			</dependency>
+			<dependency>
+				<groupId>javax.sip</groupId>
+				<artifactId>jain-sip-ri</artifactId>
+				<version>1.2.170</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 			
