@@ -40,7 +40,7 @@
 		<jbossas.version>5.1.0.GA</jbossas.version>
 		<jopr-version>2.2.0.GA</jopr-version>
 		<rhq-version>3.0.0.B06</rhq-version>
-		<mobicents.jslee.version>2.6.0.FINAL</mobicents.jslee.version>
+		<mobicents.jslee.version>2.7.0-SNAPSHOT</mobicents.jslee.version>
 		<getopt.version>1.0.13</getopt.version>
 	</properties>
 
