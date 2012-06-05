@@ -31,22 +31,21 @@
 	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip"/>
 		
 	
-	<property name="diameter.version" value="1.4.0.CR2" />
+	<property name="diameter.version" value="1.4.0.FINAL" />
 	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
 	<!--
 	<property name="diameter.download.url" value ="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Diameter-1.x-Release/lastSuccessfulBuild/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201109060020.sar.zip"/>	
 	-->
 	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
 
+	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0-SNAPSHOT.jar"/>
+	<property name="eclipslee.download.url" value ="http://hudson.jboss.org/jenkins/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>	
+	<!--
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0.FINAL.jar"/>
 	<property name="eclipslee.download.url" value ="http://mobicents.googlecode.com/svn/downloads/eclipse-update-site/plugins/${eclipslee.jar}"/>
-	<!--
-	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0-SNAPSHOT.jar"/>
-	<property name="eclipslee.download.url" value ="http://hudson.jboss.org/jenkins/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>
 	<property name="eclipslee.download.url" value ="http://hudson.qa.jboss.com/hudson/view/Mobicents/job/Mobicents-EclipSLEE/lastSuccessfulBuild/artifact/plugins/${eclipslee.jar}"/>
-
 	-->
-	
+			
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="${ant.file.mobicents.release}/../ant-contrib-1.0b3.jar" />
