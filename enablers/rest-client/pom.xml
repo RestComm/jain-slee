@@ -21,7 +21,7 @@
 
 	<properties>
 		<mobicents.resources.http.version>2.5.0.FINAL</mobicents.resources.http.version>
-		<mobicents.resources.xtension.version>1.0.0.BETA2</mobicents.resources.xtension.version>
+		<mobicents.resources.xtension.version>1.0.0-SNAPSHOT</mobicents.resources.xtension.version>
 	</properties>
 
 	<dependencyManagement>
