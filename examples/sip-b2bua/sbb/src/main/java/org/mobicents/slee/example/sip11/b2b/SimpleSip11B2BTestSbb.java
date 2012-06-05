@@ -58,6 +58,8 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 	public void onInviteEvent(RequestEvent event, ActivityContextInterface aci) {
 		// ACI is the server transaction activity
 		try {
+			// send "trying" response
+			replyToRequestEvent(event, Response.TRYING);
 			// Create the dialogs representing the incoming and outgoing call
 			// legs.
 			final DialogActivity incomingDialog = (DialogActivity) sipProvider

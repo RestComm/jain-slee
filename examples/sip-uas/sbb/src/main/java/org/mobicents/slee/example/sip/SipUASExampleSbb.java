@@ -40,6 +40,7 @@ import javax.slee.facilities.TimerEvent;
 import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
+import javax.slee.facilities.Tracer;
 import javax.slee.resource.ResourceAdaptorTypeID;
 import javax.slee.serviceactivity.ServiceStartedEvent;
 
@@ -50,8 +51,7 @@ import net.java.slee.resource.sip.SleeSipProvider;
 import org.mobicents.slee.ActivityContextInterfaceExt;
 import org.mobicents.slee.SbbContextExt;
 
-public abstract class SipUASExampleSbb
-		implements javax.slee.Sbb {
+public abstract class SipUASExampleSbb implements javax.slee.Sbb {
 
 	private static final ResourceAdaptorTypeID sipRATypeID = new ResourceAdaptorTypeID(
 			"JAIN SIP", "javax.sip", "1.2");
@@ -66,80 +66,11 @@ public abstract class SipUASExampleSbb
 
 	private static ContactHeader contactHeader;
 	private static TimerOptions timerOptions;
+	private static Tracer tracer;
 
-	private ContactHeader getContactHeader() throws ParseException {
-		if (contactHeader == null) {
-			final ListeningPoint listeningPoint = sleeSipProvider
-					.getListeningPoint("udp");
-			final javax.sip.address.SipURI sipURI = addressFactory
-					.createSipURI(null, listeningPoint.getIPAddress());
-			sipURI.setPort(listeningPoint.getPort());
-			sipURI.setTransportParam(listeningPoint.getTransport());
-			contactHeader = headerFactory.createContactHeader(addressFactory
-					.createAddress(sipURI));
-		}
-		return contactHeader;
-	}
+	private SbbContextExt sbbContext; // This SBB's SbbContext
 
-	private TimerOptions getTimerOptions() {
-		if (timerOptions == null) {
-			timerOptions = new TimerOptions();
-			timerOptions.setPreserveMissed(TimerPreserveMissed.ALL);
-		}
-		return timerOptions;
-	}
-	
-	public void onServiceStartedEvent(ServiceStartedEvent event,
-			ActivityContextInterface aci) {
-		sbbContext.getTracer(getClass().getSimpleName()).warning(
-				"Service activated, now execute SIPP script.");
-	}
-
-	public void onInviteEvent(javax.sip.RequestEvent requestEvent,
-			ActivityContextInterface aci) {
-
-		final SbbLocalObject sbbLocalObject = this.sbbContext
-				.getSbbLocalObject();
-		aci.detach(sbbLocalObject);
-
-		final ServerTransaction serverTransaction = requestEvent
-				.getServerTransaction();
-		try {
-			// create dialog and attach this entity to it's aci
-			final DialogActivity dialog = (DialogActivity) sleeSipProvider
-					.getNewDialog(serverTransaction);
-			final ActivityContextInterfaceExt dialogAci = (ActivityContextInterfaceExt) sipActivityContextInterfaceFactory
-					.getActivityContextInterface(dialog);
-			dialogAci.attach(sbbLocalObject);
-			// set timer of 60 secs on the dialog aci
-			timerFacility.setTimer(dialogAci, null,
-					System.currentTimeMillis() + 60000L, getTimerOptions());
-			// send 180
-			Response response = messageFactory.createResponse(Response.RINGING,
-					requestEvent.getRequest());
-			response.addHeader(getContactHeader());
-			serverTransaction.sendResponse(response);
-			// send 200 ok
-			response = messageFactory.createResponse(Response.OK, requestEvent
-					.getRequest());
-			response.addHeader(getContactHeader());
-			serverTransaction.sendResponse(response);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
-
-		aci.detach(sbbContext.getSbbLocalObject());
-
-		final DialogActivity dialog = (DialogActivity) aci.getActivity();
-		try {
-			dialog.sendRequest(dialog.createRequest(Request.BYE));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
+	// SbbObject lifecycle methods
 
 	public void setSbbContext(SbbContext context) {
 		sbbContext = (SbbContextExt) context;
@@ -185,6 +116,108 @@ public abstract class SipUASExampleSbb
 	public void sbbRolledBack(RolledBackContext context) {
 	}
 
-	private SbbContextExt sbbContext; // This SBB's SbbContext
+	// some helper methods to deal with lazy init of static fields
+
+	private ContactHeader getContactHeader() throws ParseException {
+		if (contactHeader == null) {
+			final ListeningPoint listeningPoint = sleeSipProvider
+					.getListeningPoint("udp");
+			final javax.sip.address.SipURI sipURI = addressFactory
+					.createSipURI(null, listeningPoint.getIPAddress());
+			sipURI.setPort(listeningPoint.getPort());
+			sipURI.setTransportParam(listeningPoint.getTransport());
+			contactHeader = headerFactory.createContactHeader(addressFactory
+					.createAddress(sipURI));
+		}
+		return contactHeader;
+	}
+
+	private TimerOptions getTimerOptions() {
+		if (timerOptions == null) {
+			timerOptions = new TimerOptions();
+			timerOptions.setPreserveMissed(TimerPreserveMissed.ALL);
+		}
+		return timerOptions;
+	}
+
+	private Tracer getTracer() {
+		if (tracer == null) {
+			tracer = sbbContext.getTracer(getClass().getSimpleName());
+		}
+		return tracer;
+	}
+
+	// event handlers, the service's logic
+
+	/**
+	 * Event handler method for the event signaling the service activation.
+	 * 
+	 * @param event
+	 * @param aci
+	 */
+	public void onServiceStartedEvent(ServiceStartedEvent event,
+			ActivityContextInterface aci) {
+		getTracer().warning("Service activated, now execute SIPP script.");
+	}
+
+	/**
+	 * Event handler method for the invite SIP message.
+	 * 
+	 * @param requestEvent
+	 * @param aci
+	 */
+	public void onInviteEvent(javax.sip.RequestEvent requestEvent,
+			ActivityContextInterface aci) {
+
+		final ServerTransaction serverTransaction = requestEvent
+				.getServerTransaction();
+		try {
+			// send "trying" response
+			Response response = messageFactory.createResponse(Response.TRYING,
+					requestEvent.getRequest());
+			serverTransaction.sendResponse(response);
+			// get local object
+			final SbbLocalObject sbbLocalObject = this.sbbContext
+					.getSbbLocalObject();
+			// detach from the server tx activity
+			aci.detach(sbbLocalObject);
+			// create dialog activity and attach to it
+			final DialogActivity dialog = (DialogActivity) sleeSipProvider
+					.getNewDialog(serverTransaction);
+			final ActivityContextInterfaceExt dialogAci = (ActivityContextInterfaceExt) sipActivityContextInterfaceFactory
+					.getActivityContextInterface(dialog);
+			dialogAci.attach(sbbLocalObject);
+			// set timer of 60 secs on the dialog aci
+			timerFacility.setTimer(dialogAci, null,
+					System.currentTimeMillis() + 60000L, getTimerOptions());
+			// send 180
+			response = messageFactory.createResponse(Response.RINGING,
+					requestEvent.getRequest());
+			serverTransaction.sendResponse(response);
+			// send 200 ok
+			response = messageFactory.createResponse(Response.OK,
+					requestEvent.getRequest());
+			response.addHeader(getContactHeader());
+			serverTransaction.sendResponse(response);
+		} catch (Exception e) {
+			getTracer().severe("failure while processing initial invite", e);
+		}
+	}
+
+	/**
+	 * Event handler method for the timer event.
+	 * 
+	 * @param event
+	 * @param aci
+	 */
+	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
+		aci.detach(sbbContext.getSbbLocalObject());
+		final DialogActivity dialog = (DialogActivity) aci.getActivity();
+		try {
+			dialog.sendRequest(dialog.createRequest(Request.BYE));
+		} catch (Exception e) {
+			getTracer().severe("failure while processing timer event", e);
+		}
+	}
 
 }
