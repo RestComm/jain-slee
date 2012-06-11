@@ -135,10 +135,11 @@ public class EditSbbEventsAction implements IActionDelegate {
 							}							
 						}
 							
-						if (direction.indexOf("Receive") != -1)
+						if (direction.indexOf("Receive") != -1) {
+		          String aciClass = sbb.getActivityContextInterfaceName() != null ? sbb.getActivityContextInterfaceName() : "ActivityContextInterface";
 							ClassUtil.addMethodToClass(abstractFile,
-									"\tpublic void on" + Utils.capitalize(scopedName) + "(" + eventXML.getEventClassName() + " event, ActivityContextInterface aci) {\n\n\t}\n");
-						
+									"\tpublic void on" + Utils.capitalize(scopedName) + "(" + eventXML.getEventClassName() + " event, " + aciClass + " aci/*, EventContext eventContext*/) {\n\n\t}\n");
+						}
 						if (direction.indexOf("Fire") != -1)
 							ClassUtil.addMethodToClass(abstractFile,
 									"\tpublic abstract void fire" + Utils.capitalize(scopedName) + "(" + eventXML.getEventClassName() + " event, ActivityContextInterface aci, Address address);");

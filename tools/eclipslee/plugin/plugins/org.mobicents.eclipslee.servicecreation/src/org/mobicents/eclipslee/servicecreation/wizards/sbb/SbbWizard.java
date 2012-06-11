@@ -304,7 +304,8 @@ public class SbbWizard extends BaseWizard {
 				if (direction.indexOf("Receive") != -1) {					
 					// Determine the event's alias.  To do this we have to
 					// add the event to the sbb-jar.xml.
-					eventHandlers += "\tpublic void on" + Utils.capitalize(sbbEvent.getScopedName()) + "(" + event.getEventClassName() + " event, ActivityContextInterface aci) {\n\t}\n\n";					
+				  String aciClass = createACI ? aciClassName.replaceFirst(Utils.getSafePackagePrefix(getPackageName()), "") : "ActivityContextInterface";
+					eventHandlers += "\tpublic void on" + Utils.capitalize(sbbEvent.getScopedName()) + "(" + event.getEventClassName() + " event, " + aciClass + " aci/*, EventContext eventContext*/) {\n\t}\n\n";					
 					evDir |= SbbEventXML.RECEIVE;
 				}
 				
