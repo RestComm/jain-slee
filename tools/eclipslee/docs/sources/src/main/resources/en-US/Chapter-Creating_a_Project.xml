@@ -52,15 +52,15 @@
 			</figure>
 		</para>
 		<para>
-			Choose the desired project modules to be created, from the list, as shown below. The correct Maven modules will be created according to the selection, as well as the Deployable Unit descriptor. You can also opt for using the Mobicents JAIN SLEE 1.1 specific extensions. You can find more information about these extensions on the Mobicents JAIN SLEE User Guide.
+			Choose the desired project modules to be created, from the list, as shown below. It is possible to select from pre-defined High Level component types, with proper component enabled and selected, or to use a custom configuration to freely select the components. The proper Maven modules will be created according to the selection, as well as the Deployable Unit descriptor. You can also opt for using the Mobicents JAIN SLEE 1.1 specific extensions. You can find more information about these extensions on the Mobicents JAIN SLEE User Guide.
 			<figure>
-				<title>Choosing Name and Location of the JAIN SLEE Project</title>
+				<title>Selecting Modules for the JAIN SLEE Project</title>
 				<mediaobject>
 					<imageobject>
 						<imagedata width="100%" align="center" fileref="images/img-eclipslee_select_modules.png" format="PNG"/>
 					</imageobject>
 					<textobject>
-						<para>Choosing Name and Location of the JAIN SLEE Project</para>
+						<para>Selecting Modules for the JAIN SLEE Project</para>
 					</textobject>
 				</mediaobject>
 			</figure>
