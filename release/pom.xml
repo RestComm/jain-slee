@@ -39,7 +39,9 @@
 		<ra.diameter-s6a.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-s6a/1.0.0.FINAL</ra.diameter-s6a.connectionURL> 
 		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-client/2.5.0.FINAL</ra.httpclient.connectionURL>
 		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-servlet/2.4.0.FINAL</ra.http-servlet.connectionURL>
+		<!-- 
 		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mgcp/2.4.0.FINAL</ra.mgcp.connectionURL> 
+		 -->
 		<ra.mscontrol.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mscontrol/1.0.0.BETA1</ra.mscontrol.connectionURL>		
 		<!-- 
 		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/${tag.version}</ra.sip11.connectionURL>
@@ -111,8 +113,8 @@
 		-->
 		<ra.jcc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/jcc</ra.jcc.connectionURL>
 		<ra.map.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/resources/map/1.0.x</ra.map.connectionURL>
-		<!--
 		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mgcp</ra.mgcp.connectionURL>
+		<!--
 		<ra.mscontrol.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mscontrol</ra.mscontrol.connectionURL>
 		-->
 		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
