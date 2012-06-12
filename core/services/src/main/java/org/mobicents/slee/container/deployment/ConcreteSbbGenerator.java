@@ -45,6 +45,7 @@ import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileLocalObject;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.ActivityContextInterfaceExt;
 import org.mobicents.slee.container.activity.ActivityContextInterface;
 import org.mobicents.slee.container.component.ClassPool;
 import org.mobicents.slee.container.component.sbb.AbstractSbbClassInfo;
@@ -223,7 +224,8 @@ public class ConcreteSbbGenerator {
 				if (methods != null) {
 					for (int i = 0; i < methods.length; i++) {
 						if (!methods[i].getDeclaringClass().getName().equals(
-								"javax.slee.ActivityContextInterface")) {
+								javax.slee.ActivityContextInterface.class.getName()) && !methods[i].getDeclaringClass().getName().equals(
+										ActivityContextInterfaceExt.class.getName())) {
 							String methodName = methods[i].getName();
 							// setters should have a single parameter and should
 							// return void type.

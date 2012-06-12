@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.slee.ActivityContextInterface;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
@@ -53,6 +54,7 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.mobicents.slee.ActivityContextInterfaceExt;
 import org.mobicents.slee.SbbLocalObjectExt;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.SbbComponentImpl;
@@ -589,7 +591,9 @@ public class SbbComponentValidator implements Validator {
 
 			// here we need all fields :)
 			HashSet<String> ignore = new HashSet<String>();
-			ignore.add("javax.slee.ActivityContextInterface");
+			ignore.add(ActivityContextInterfaceExt.class.getName());
+			ignore.add(ActivityContextInterface.class.getName());
+
 			// FIXME: we could go other way, run this for each super interface
 			// we
 			// have???

@@ -34,6 +34,7 @@ import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.ActivityContextInterfaceExt;
 import org.mobicents.slee.container.component.ClassPool;
 import org.mobicents.slee.runtime.sbb.SbbActivityContextInterfaceImpl;
 
@@ -166,18 +167,6 @@ public class ConcreteActivityContextInterfaceGenerator {
 
 	}
 
-	private boolean isBaseInterfaceMethod(String methodName) {
-		if ("getActivity".equals(methodName) || "attach".equals(methodName)
-				|| "detach".equals(methodName) || "isEnding".equals(methodName)
-				|| "isAttached".equals(methodName)
-				|| "equals".equals(methodName) || "hashCode".equals(methodName)
-				|| "getNamesBound".equals(methodName) || "getTimers".equals(methodName)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	/**
 	 * Generates the concrete methods of the class It generates a specific
 	 * method implementation for the javax.slee.ActivityContextInterface methods
@@ -196,7 +185,10 @@ public class ConcreteActivityContextInterfaceGenerator {
 		while (it.hasNext()) {
 			CtMethod interfaceMethod = (CtMethod) it.next();
 			if (interfaceMethod != null
-					&& isBaseInterfaceMethod(interfaceMethod.getName()))
+					//&& isBaseInterfaceMethod(interfaceMethod.getName()))
+					&& (interfaceMethod.getDeclaringClass().getName().equals(
+							javax.slee.ActivityContextInterface.class.getName()) || interfaceMethod.getDeclaringClass().getName().equals(
+									ActivityContextInterfaceExt.class.getName())))
 				continue; // @todo: need to check args also
 
 			try {
