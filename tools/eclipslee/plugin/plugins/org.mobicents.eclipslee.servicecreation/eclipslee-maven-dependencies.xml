@@ -1,6 +1,6 @@
 <eclipslee-maven-dependencies>
   <sbb>
-    <enablers description="Application Enablers">
+    <enablers description="Enablers">
       <dependency>
         <description>Mobicents HSS Client</description>
         <groupId>org.mobicents.servers.jainslee.enablers</groupId>
@@ -29,76 +29,75 @@
         <description>Mobicents REST Client</description>
         <groupId>org.mobicents.servers.jainslee.enablers</groupId>
         <artifactId>mobicents-slee-enabler-rest-client-sbb</artifactId>
-        <version>1.0.0.CR1</version>
+        <version>1.0.0.FINAL</version>
       </dependency>
     </enablers>
-
     <resource-adaptor-types description="Resource Adaptor Types">
       <dependency>
         <description>Mobicents Diameter Base</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>base-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Credit-Control Application</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>cca-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Cx/Dx Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>cx-dx-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Gx Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>gx-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Rf Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>rf-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Ro Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>ro-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Sh Client Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>sh-client-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Sh Server Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>sh-server-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Gq Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>gq-ratype</artifactId>
-        <version>1.0.0.CR2</version>
+        <version>1.0.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter Rx Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>rx-ratype</artifactId>
-        <version>1.0.0.BETA2</version>
+        <version>1.0.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents Diameter S6a Interface</description>
         <groupId>org.mobicents.servers.diameter.resources</groupId>
         <artifactId>s6a-ratype</artifactId>
-        <version>1.0.0.BETA2</version>
+        <version>1.0.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents HTTP Client</description>
@@ -116,7 +115,7 @@
         <description>Mobicents JCC</description>
         <groupId>org.mobicents.resources</groupId>
         <artifactId>jcc-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents JDBC</description>
@@ -128,13 +127,13 @@
         <description>Mobicents MAP</description>
         <groupId>org.mobicents.resources</groupId>
         <artifactId>mobicents-slee-ra-map-ratype</artifactId>
-        <version>1.0.0.CR2</version>
+        <version>1.0.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents MGCP</description>
         <groupId>org.mobicents.resources</groupId>
         <artifactId>mgcp-ratype</artifactId>
-        <version>2.4.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents MSControl</description>
@@ -146,7 +145,7 @@
         <description>Mobicents SIP11</description>
         <groupId>org.mobicents.resources</groupId>
         <artifactId>sip11-ratype</artifactId>
-        <version>2.6.0.FINAL</version>
+        <version>2.7.0.FINAL</version>
       </dependency>
       <dependency>
         <description>Mobicents SMPP5</description>
