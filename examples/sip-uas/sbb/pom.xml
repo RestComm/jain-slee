@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>mobicents-slee-example-sip-uas</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>2.4.1-SNAPSHOT</version>
+		<version>2.7.0.FINAL</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-example-sip-uas-sbb</artifactId>
