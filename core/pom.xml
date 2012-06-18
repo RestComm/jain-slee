@@ -50,7 +50,7 @@
 		<slee.name>Mobicents JAIN SLEE</slee.name>
 		<slee.vendor>JBoss, a Red Hat division</slee.vendor>
 		<slee.version>${pom.version}</slee.version>
-		<slee.codename>?</slee.codename>
+		<slee.codename>RAY</slee.codename>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.cluster.version>1.13</mobicents.cluster.version>
 	</properties>
@@ -75,7 +75,7 @@
 			<dependency>
 				<groupId>org.mobicents.servers.jainslee.api</groupId>
 				<artifactId>jain-slee-11-ext</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
+				<version>1.0.0.FINAL</version>
 			</dependency>	
 		</dependencies>
 	</dependencyManagement>

@@ -141,7 +141,9 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 				@Override
 				public void stateChanged(SleeState oldState) {
-					logger.info(generateMessageWithLogo("starting"));
+					if(logger.isDebugEnabled()) {
+						logger.debug(generateMessageWithLogo("starting"));
+					}
 					notifyStateChange(oldState, getNewState());
 				}
 
@@ -526,7 +528,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	// ah ah
 
-	private static final String rLogo = " >< >< >< >< >< >< >< ";
+	private static final String rLogo = " ## ## ## ## ## ## ## ";
 	private static final String lLogo = rLogo;
 
 	private String generateMessageWithLogo(String message) {
