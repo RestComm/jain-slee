@@ -124,6 +124,8 @@
 				<para>The SLEE Service to which this SBB Entity belongs.</para>
 			</listitem>
 		</itemizedlist>
+
+		<para>The <guibutton>Remove</guibutton> button allows to force the removal of this identity, useful for certain development and/or troubleshooting situations where entities may be leaking.</para>
 	</section>
 
 	<section id="Activities_query_liveness">
