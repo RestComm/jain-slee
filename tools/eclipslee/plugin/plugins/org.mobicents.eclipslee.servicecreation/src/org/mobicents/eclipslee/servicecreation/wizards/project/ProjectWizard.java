@@ -68,10 +68,10 @@ public class ProjectWizard extends Wizard implements INewWizard {
   private static final IPath SLEE_1_1_JAR = new Path("M2_REPO/javax/slee/jain-slee/1.1/" + APIDialog.SLEE_JAR_1_1);
   private static final IPath SLEE_JAR = SLEE_1_1_JAR;
 
-  private static final String SLEE_EXT_1_1_VERSION = "1.0.0.BETA2";
+  private static final String SLEE_EXT_1_1_VERSION = "1.0.0.FINAL";
   private static final IPath SLEE_EXT_1_1_JAR = new Path("M2_REPO/org/mobicents/servers/jainslee/api/jain-slee-11-ext/" + SLEE_EXT_1_1_VERSION + "/jain-slee-11-ext-" + SLEE_EXT_1_1_VERSION + ".jar");
 
-  private static final String MOBICENTS_FT_RA_VERSION = "2.6.0.FINAL";
+  private static final String MOBICENTS_FT_RA_VERSION = "2.7.0.FINAL";
   private static final IPath MOBICENTS_FT_RA_JAR = new Path("M2_REPO/org/mobicents/servers/jainslee/core/fault-tolerant-ra-api/" + MOBICENTS_FT_RA_VERSION + "/fault-tolerant-ra-api-" + MOBICENTS_FT_RA_VERSION + ".jar");
 
   public ProjectWizard() {
