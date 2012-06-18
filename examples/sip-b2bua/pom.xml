@@ -19,7 +19,7 @@
 	</modules>
 	
 	<properties>
-		<mobicents.resources.sip11.version>2.7.0-SNAPSHOT</mobicents.resources.sip11.version>
+		<mobicents.resources.sip11.version>2.7.0.FINAL</mobicents.resources.sip11.version>
 		<docs.profile>mobicents</docs.profile>
 	</properties>
 	
