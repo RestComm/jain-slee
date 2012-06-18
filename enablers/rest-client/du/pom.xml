@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>mobicents-slee-enabler-rest-client</artifactId>
 		<groupId>org.mobicents.servers.jainslee.enablers</groupId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0.FINAL</version>
 	</parent>
 
 	<artifactId>mobicents-slee-enabler-rest-client-DU</artifactId>
