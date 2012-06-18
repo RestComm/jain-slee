@@ -67,7 +67,11 @@
 			</listitem>
 			<listitem>
 				<para>Root SBB</para>
-				<para>The SBB to be used as the Root SBB for this service. This entry is clickable and will lead to the details view for this SBB component.</para>
+				<para>The SBB to be used as the Root SBB for this service. This entry is clickable and will lead to the details view for the SBB component.</para>
+			</listitem>
+			<listitem>
+				<para>Root SBB Entities</para>
+				<para>The existing Root SBB Entities for this service. This entry is clickable and will lead to the details view for the Root SBB Entity.</para>
 			</listitem>
 		</itemizedlist>
 	</section>
