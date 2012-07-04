@@ -119,7 +119,12 @@
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
-			<event-type-name>net.java.slee.resource.isup.FACILITY_ACCPETED</event-type-name>
+			<event-type-name>net.java.slee.resource.isup.FACILITY</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.isup.FACILITY_ACCEPTED</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
@@ -140,6 +145,16 @@
 		</event-type-ref>
 		<event-type-ref>
 			<event-type-name>net.java.slee.resource.isup.IDENTIFICATION_RESPONSE</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.isup.INFORMATION</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.isup.INFORMATION_REQUEST</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
