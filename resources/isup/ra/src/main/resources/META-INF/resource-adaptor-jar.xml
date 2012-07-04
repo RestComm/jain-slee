@@ -6,7 +6,7 @@
 		<description>ISUP resource adaptor</description>
 		<resource-adaptor-name>ISUPResourceAdaptor</resource-adaptor-name>
 		<resource-adaptor-vendor>org.mobicents</resource-adaptor-vendor>
-		<resource-adaptor-version>1.0</resource-adaptor-version>
+		<resource-adaptor-version>2.0</resource-adaptor-version>
 
 		<resource-adaptor-type-ref>
 			<resource-adaptor-type-name>ISUPResourceAdaptorType</resource-adaptor-type-name>
@@ -21,38 +21,15 @@
             </resource-adaptor-class-name>
 			</resource-adaptor-class>
 		</resource-adaptor-classes>
-
 		<config-property>
-			<description>Driver for MTP layer</description>
-			<config-property-name>mtp.driver</config-property-name>
-			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>m3ua</config-property-value>
+			<config-property-name>isupJndi</config-property-name>
+			<config-property-type>
+				java.lang.String
+			</config-property-type>
+			<config-property-value>
+				java:/mobicents/ss7/isup
+			</config-property-value>
 		</config-property>
-		<config-property>
-			<description>Streaming server address</description>
-			<config-property-name>mtp.address.local</config-property-name>
-			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>127.0.0.1:8998</config-property-value>
-		</config-property>
-		<config-property>
-			<description>Streaming server port</description>
-			<config-property-name>mtp.address.remote</config-property-name>
-			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>127.0.0.1:1345</config-property-value>
-		</config-property>
-		<config-property>
-			<description>Default APC(DPC)</description>
-			<config-property-name>mtp.apc</config-property-name>
-			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>12345</config-property-value>
-		</config-property>
-		<config-property>
-			<description>Default OPC</description>
-			<config-property-name>mtp.opc</config-property-name>
-			<config-property-type>java.lang.String</config-property-type>
-			<config-property-value>54321</config-property-value>
-		</config-property>
-		
 		<config-property>
 			<description>Value of timeout in milisecond. It controls timeout of
 				client

@@ -5,17 +5,15 @@ package org.mobicents.slee.resources.isup.ra;
 
 import javax.slee.resource.ActivityHandle;
 
-import org.mobicents.protocols.ss7.isup.TransactionKey;
-
 /**
  * @author baranowb
  *
  */
 public class ISUPActivityHandle implements ActivityHandle {
 
-	private TransactionKey key;
+	private long key;
 
-	ISUPActivityHandle(TransactionKey key) {
+	ISUPActivityHandle(long key) {
 		super();
 		this.key = key;
 	}
@@ -27,7 +25,7 @@ public class ISUPActivityHandle implements ActivityHandle {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = (int)(prime * result + key);
 		return result;
 	}
 
@@ -43,11 +41,9 @@ public class ISUPActivityHandle implements ActivityHandle {
 		if (getClass() != obj.getClass())
 			return false;
 		ISUPActivityHandle other = (ISUPActivityHandle) obj;
-		if (key == null) {
-			if (other.key != null)
-				return false;
-		} else if (!key.equals(other.key))
+		if (key !=other.key)
 			return false;
+		
 		return true;
 	}
 

@@ -11,13 +11,8 @@
 		<resource-adaptor-type-classes>
 			<activity-type>
 				<activity-type-name>
-					org.mobicents.protocols.ss7.isup.ISUPClientTransaction
-                </activity-type-name>
-			</activity-type>
-			<activity-type>
-				<activity-type-name>
-					org.mobicents.protocols.ss7.isup.ISUPServerTransaction
-                </activity-type-name>
+          org.mobicents.slee.resources.ss7.isup.ratype.CircuitActivity
+        </activity-type-name>
 			</activity-type>
 			<activity-context-interface-factory-interface>
 				<activity-context-interface-factory-interface-name>
@@ -249,7 +244,7 @@
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
 		<event-type-ref>
-			<event-type-name>net.java.slee.resource.isup.TRANSACTION_ENDED</event-type-name>
+			<event-type-name>net.java.slee.resource.isup.TRANSACTION_TIMEOUT</event-type-name>
 			<event-type-vendor>net.java</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>

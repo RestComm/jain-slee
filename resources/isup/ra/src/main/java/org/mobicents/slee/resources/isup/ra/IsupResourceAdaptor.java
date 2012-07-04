@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.naming.InitialContext;
 import javax.slee.Address;
 import javax.slee.SLEEException;
 import javax.slee.facilities.EventLookupFacility;
@@ -35,19 +36,14 @@ import javax.slee.resource.SleeEndpoint;
 import javax.slee.resource.StartActivityException;
 import javax.slee.resource.ConfigProperties.Property;
 
-import org.mobicents.protocols.ConfigurationException;
-import org.mobicents.protocols.StartFailedException;
-import org.mobicents.protocols.ss7.isup.ISUPClientTransaction;
 import org.mobicents.protocols.ss7.isup.ISUPListener;
 import org.mobicents.protocols.ss7.isup.ISUPMessageFactory;
 import org.mobicents.protocols.ss7.isup.ISUPParameterFactory;
 import org.mobicents.protocols.ss7.isup.ISUPProvider;
-import org.mobicents.protocols.ss7.isup.ISUPServerTransaction;
 import org.mobicents.protocols.ss7.isup.ISUPStack;
-import org.mobicents.protocols.ss7.isup.ISUPTransaction;
-import org.mobicents.protocols.ss7.isup.ParameterRangeInvalidException;
-import org.mobicents.protocols.ss7.isup.TransactionAlredyExistsException;
-import org.mobicents.protocols.ss7.isup.TransactionKey;
+import org.mobicents.protocols.ss7.isup.ISUPEvent;
+import org.mobicents.protocols.ss7.isup.ISUPTimeoutEvent;
+import org.mobicents.protocols.ss7.isup.ParameterException;
 import org.mobicents.protocols.ss7.isup.impl.ISUPStackImpl;
 import org.mobicents.protocols.ss7.isup.message.AddressCompleteMessage;
 import org.mobicents.protocols.ss7.isup.message.AnswerMessage;
@@ -93,10 +89,9 @@ import org.mobicents.protocols.ss7.isup.message.UnequippedCICMessage;
 import org.mobicents.protocols.ss7.isup.message.User2UserInformationMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartAvailableMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartTestMessage;
-import org.mobicents.protocols.ss7.mtp.provider.MtpProviderFactory;
-import org.mobicents.protocols.ss7.mtp.provider.m3ua.Provider;
-import org.mobicents.slee.resources.ss7.isup.events.TransactionEnded;
+import org.mobicents.slee.resources.ss7.isup.events.TimeoutEvent;
 import org.mobicents.slee.resources.ss7.isup.ratype.RAISUPProvider;
+import org.mobicents.slee.resources.ss7.isup.ratype.CircuitActivity;
 
 /**
  *
@@ -120,41 +115,26 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     ////////////
     private static final int EVENT_FLAGS = getEventFlags();
     private static final int ACTIVITY_FLAGS = getActivityFlags();
-    private Map<ActivityHandle, ISUPTransaction> activities = new HashMap<ActivityHandle, ISUPTransaction>();
-    
+    private Map<ActivityHandle, CircuitActivity> activities = new HashMap<ActivityHandle, CircuitActivity>();
+        
     /////////////////
     // RA Provider //
     /////////////////
     private RAISUPProviderImpl raProvider;
 
+    // ////////////////////////////
+    // Configuration parameters //
+    // ////////////////////////////
+    private static final String CONF_ISUP_JNDI = "isupJndi";
+    private String isupJndi = null;
+
     /////////////////
     // ISUP stack  //
-    /////////////////
-    private ISUPStack stack;
+    /////////////////    
     private ISUPProvider isupProvider;
     private boolean transportUp = false;
-    //////////////////
-    // MTP provider //
-    //////////////////
-    //private M3UserConnector mtpProvider;
-    //config for provider
-    private static final String _DEFAULT_serverAddress = "localhost";
-    private static final String _DEFAULT_serverPort = "1345";
-    private static final String _DEFAULT_clientAddress = "localhost";
-    private static final String _DEFAULT_clientPort = "8998";
-    private static final String _DEFAULT_driver = MtpProviderFactory.DRIVER_M3UA;
     
-    private String serverAddress = _DEFAULT_serverAddress+":"+_DEFAULT_serverPort;
-    private String clientAddress = _DEFAULT_clientAddress+":"+_DEFAULT_clientPort;
-    private String driver = _DEFAULT_driver;
-	
-    
-    
-    ////////////////////////
-    // MTP Provider props //
-    ////////////////////////
-    private static final String PROPERTY_OPC = "mtp.opc";
-    private static final String PROPERTY_DPC = "mtp.apc";
+    private int localspc,ni;
     
     private static int getEventFlags() {
         int eventFlags = EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK;
@@ -185,28 +165,16 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     }
 
     public void raConfigure(ConfigProperties configProperties) {
-
-    	if(tracer.isInfoEnabled())
-		{
-    		tracer.info("Configuring ISUP RA: "+this.raContext.getEntityName());
-		}
-    	//Its good to follow standards, why there is no proper method for that? 
-    	Properties props = new Properties();
-    	for(Property p: configProperties.getProperties())
-    	{
-    		props.put(p.getName(), p.getValue());
-    	}
-    	
-    	this.stack = new ISUPStackImpl();
     	try {
-			this.stack.configure(props);
-			this.isupProvider = this.stack.getIsupProvider();
-	    	this.raProvider = new RAISUPProviderImpl();
-		} catch (ConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
+            if (tracer.isInfoEnabled()) {
+                    tracer.info("Configuring ISUPRA: " + this.raContext.getEntityName());
+            }
+            this.isupJndi = (String) configProperties.getProperty(CONF_ISUP_JNDI).getValue();
+    	} catch (Exception e) {
+            tracer.severe("Configuring of ISUP RA failed ", e);
+    	}
+
+    	this.raProvider = new RAISUPProviderImpl();
     }
 
     public void raUnconfigure() {
@@ -214,19 +182,16 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     }
 
     public void raActive() {
- 	
     	try {
-			this.stack.start();
-			this.stack.getIsupProvider().addListener(this);
-		} catch (IllegalStateException e) {
+    		InitialContext ic = new InitialContext();
+            this.isupProvider = (ISUPProvider) ic.lookup(this.isupJndi);
+            tracer.info("Sucssefully connected to ISUP service[" + this.isupJndi + "]");
+            
+    		this.isupProvider.addListener(this);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (StartFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-  
+			this.tracer.severe("Failed to activate ISUP RA ", e);
+		}  
     }
 
     public void raStopping() {
@@ -238,56 +203,20 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     }
 
 	public void raVerifyConfiguration(ConfigProperties configProperties) throws InvalidConfigurationException {
-
 		try {
-			Property p = configProperties.getProperty(Provider.PROPERTY_RADDRESS);
-			if (p != null) {
-				this.serverAddress = (String) p.getValue();
-			}
-		
 
-			p = configProperties.getProperty(Provider.PROPERTY_RADDRESS);
-			if (p != null) {
-				this.clientAddress = (String) p.getValue();
-			}
-			String[] address  = this.clientAddress.split(":");
-			// check if we can bind
-			InetSocketAddress sockAddress = new InetSocketAddress(address[0], Integer.parseInt(address[1]));
-			new DatagramSocket(sockAddress).close();
-			
-			p = configProperties.getProperty(MtpProviderFactory.PROPERTY_MTP_DRIVER);
-			if (p != null) {
-				this.driver = (String) p.getValue();
-			}
-		} catch (Throwable t) {
-			throw new InvalidConfigurationException("", t);
-		}
+            if (tracer.isInfoEnabled()) {
+                    tracer.info("Verifying configuring ISUPA: " + this.raContext.getEntityName());
+            }
 
-		//try to start and stop stack
-		try
-		{
-			Properties props = new Properties();
-	    	for(Property p: configProperties.getProperties())
-	    	{
-	    		props.put(p.getName(), p.getValue());
-	    	}
-	    	
-	    	this.stack = new ISUPStackImpl();
-	    	this.stack.configure(props);
-	    	this.stack.start();
-	    	this.stack.stop();
-	    	this.stack = null;
-		} catch (Throwable t) {
-			throw new InvalidConfigurationException("Failed to start and stop stack", t);
-		}
-		if (configProperties.getProperty(PROPERTY_DPC) == null) {
-			throw new InvalidConfigurationException("No DPC set!");
-		}
+            this.isupJndi = (String) configProperties.getProperty(CONF_ISUP_JNDI).getValue();
+            if (this.isupJndi == null) {
+                    throw new InvalidConfigurationException("ISUP JNDI lookup name cannot be null");
+            }
 
-		if (configProperties.getProperty(PROPERTY_OPC) == null) {
-			throw new InvalidConfigurationException("No OPC set!");
+		} catch (Exception e) {
+            throw new InvalidConfigurationException("Failed to test configuration options!", e);
 		}
-	
 	}
 
     public void raConfigurationUpdate(ConfigProperties arg0) {
@@ -302,16 +231,16 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
         return null;
     }
 
-    public void serviceActive(ReceivableService arg0) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+    public void serviceActive(ReceivableService receivableService) {
+    	eventTypeFilter.serviceActive(receivableService);        
     }
 
-    public void serviceStopping(ReceivableService arg0) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+    public void serviceStopping(ReceivableService receivableService) {
+    	eventTypeFilter.serviceStopping(receivableService);
     }
 
-    public void serviceInactive(ReceivableService arg0) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+    public void serviceInactive(ReceivableService receivableService) {
+    	eventTypeFilter.serviceInactive(receivableService);
     }
 
     public void queryLiveness(ActivityHandle arg0) {
@@ -323,9 +252,9 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     }
 
     public ActivityHandle getActivityHandle(Object act) {
-    	if(act instanceof ISUPTransaction)
+    	if(act instanceof CircuitActivity)
     	{
-    		ISUPTransaction activity = (ISUPTransaction) act;
+    		CircuitActivity activity = (CircuitActivity) act;
     		return createActivityHandle(activity);
     	}
     	return null;
@@ -339,15 +268,15 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     }
 
     public void eventProcessingSuccessful(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+    	//throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void eventProcessingFailed(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5, FailureReason arg6) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+    	//throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void eventUnreferenced(ActivityHandle arg0, FireableEventType arg1, Object arg2, Address arg3, ReceivableService arg4, int arg5) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+    	//throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void activityEnded(ActivityHandle handle) {
@@ -356,38 +285,30 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     }
 
     public void activityUnreferenced(ActivityHandle handle) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    	
+    	//throw new UnsupportedOperationException("Not supported yet.");    	
     }
 
-    protected void fireEvent(String eventName, Object activity, Object event) {
-        final ActivityHandle handle = this.getActivityHandle(activity);        
-        final FireableEventType eventType = eventTypeCache.getEventType(eventLookupFacility, eventName);
-//        if (eventTypeFilter.filterEvent(eventType)) {
-//            if (tracer.isFineEnabled()) {
-//                tracer.fine("event " + eventName + " filtered");
-//            }
-//            return;
-//        }
+    protected void fireEvent(FireableEventType eventType, Object activity, Object event) {
+        final ActivityHandle handle = this.getActivityHandle(activity);                
 
         //TODO insert global title.
         //this causes failure
        // final Address address = new Address(AddressPlan.GT, "");
         try {
             sleeEndpoint.fireEvent(handle, eventType, event, null, null, EVENT_FLAGS);
-            tracer.info("Firde event: " + eventType);
+            tracer.info("Fired event: " + eventType);
         } catch (Throwable e) {
             tracer.severe("Failed to fire event", e);
         }
-    }
+    }    
     
     //////////////////
     // Some private //
     //////////////////
     
-    private ActivityHandle createActivityHandle(ISUPTransaction tx)
+    private ActivityHandle createActivityHandle(CircuitActivity ca)
     {
-    	TransactionKey txKey = tx.getTransactionKey();
+    	long txKey = ca.getTransactionKey();
     	return new ISUPActivityHandle(txKey);
     	
     }
@@ -399,41 +320,11 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     /* (non-Javadoc)
 	 * @see org.mobicents.protocols.ss7.isup.ISUPListener#onMessage(org.mobicents.protocols.ss7.isup.message.ISUPMessage)
 	 */
-	public void onMessage(ISUPMessage message) {
+	public void onEvent(ISUPEvent event) {
 		
 		if(tracer.isInfoEnabled())
 		{
-			tracer.info("Received Message, code: "+message.getMessageType().getCode());
-		}
-		//if there is no TX, lets create STX
-		ISUPTransaction tx = message.getTransaction();
-		if(tx == null)
-		{
-			//FIXME: determine in Qs if there is error msg to be sent.... can be extremly complciated since there is 40+ messages
-			try {
-				tx = this.raProvider.createServerTransaction(message);
-			} catch (ActivityAlreadyExistsException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SLEEException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (TransactionAlredyExistsException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (StartActivityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			tracer.info("Received Message, code: "+event.getMessage().getMessageType().getCode());
 		}
 		
 		//we have activity, now:
@@ -442,7 +333,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		// 3. fire
 		//ActivityHandle handle = createActivityHandle(tx);
 		String eventName = null;
-		switch(message.getMessageType().getCode())
+		switch(event.getMessage().getMessageType().getCode())
 		{
 		case AnswerMessage.MESSAGE_CODE:
 			eventName = "ANSWER";
@@ -574,71 +465,63 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		case UserPartTestMessage.MESSAGE_CODE:
 			eventName = "USER_PART_TEST";
 			break;
+		default:
+			tracer.severe("Received unkown event code: "+event.getMessage().getMessageType().getCode());			
+			return;
+			
+		}		
 		
-			
-			default:
-				tracer.severe("Received unkown event code: "+message.getMessageType().getCode());
-				return;
-			
+		final FireableEventType eventType = eventTypeCache.getEventType(eventLookupFacility, eventName);
+        if (eventTypeFilter.filterEvent(eventType)) {
+        	tracer.info("event " + eventName + " filtered");            
+            return;
+        }
+        
+        //if there is no TX, lets create STX
+      	CircuitActivity ca = (CircuitActivity)getActivity(new ISUPActivityHandle(CircuitActivity.generateTransactionKey(event.getMessage().getCircuitIdentificationCode().getCIC(),event.getDpc())));
+      	if(ca == null)
+		{
+			//FIXME: determine in Qs if there is error msg to be sent.... can be extremly complciated since there is 40+ messages
+			try {
+				ca = this.raProvider.createCircuitActivity(event.getMessage(),event.getDpc());
+			} catch (ActivityAlreadyExistsException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SLEEException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (StartActivityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
-		
-		this.fireEvent(eventName, tx, message);
+		this.fireEvent(eventType, ca, event.getMessage());			
+	}
 	
-		
+	public void onTimeout(ISUPTimeoutEvent event) {		
+		ActivityHandle handle=new ISUPActivityHandle(CircuitActivity.generateTransactionKey(event.getMessage().getCircuitIdentificationCode().getCIC(),event.getDpc()));
+        if(this.activities.containsKey(handle))
+        {        		
+                TimeoutEvent te = new TimeoutEvent(event.getMessage(),event.getTimerId());
+                final FireableEventType eventType = eventTypeCache.getEventType(eventLookupFacility, "TRANSACTION_TIMEOUT");
+                if (eventTypeFilter.filterEvent(eventType)) {
+                	tracer.info("event TRANSACTION_TIMEOUT filtered");            
+                    return;
+                }
+                this.fireEvent(eventType, getActivity(handle), te);                
+        }
 	}
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.isup.ISUPListener#onTransactionEnded(org.mobicents.protocols.ss7.isup.ISUPClientTransaction)
-	 */
-	public void onTransactionEnded(ISUPClientTransaction ctx) {
-		ActivityHandle handle = createActivityHandle(ctx);
-		if(this.activities.containsKey(handle))
-		{
-			TransactionEnded te = new TransactionEnded(ctx,false);
-			this.fireEvent("TRANSACTION_ENDED", ctx, te);
-			this.sleeEndpoint.endActivity(handle);
-		}
-		
-	}
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.isup.ISUPListener#onTransactionEnded(org.mobicents.protocols.ss7.isup.ISUPServerTransaction)
-	 */
-	public void onTransactionEnded(ISUPServerTransaction stx) {
-		ActivityHandle handle = createActivityHandle(stx);
-		if(this.activities.containsKey(handle))
-		{
-			TransactionEnded te = new TransactionEnded(stx,false);
-			this.fireEvent("TRANSACTION_ENDED", stx, te);
-			this.sleeEndpoint.endActivity(handle);
-		}
-		
-	}
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.isup.ISUPListener#onTransactionTimeout(org.mobicents.protocols.ss7.isup.ISUPClientTransaction)
-	 */
-	public void onTransactionTimeout(ISUPClientTransaction ctx) {
-		ActivityHandle handle = createActivityHandle(ctx);
-		if(this.activities.containsKey(handle))
-		{
-			TransactionEnded te = new TransactionEnded(ctx,true);
-			this.fireEvent("TRANSACTION_ENDED", ctx, te);
-			this.sleeEndpoint.endActivity(handle);
-		}
-		
-	}
-	/* (non-Javadoc)
-	 * @see org.mobicents.protocols.ss7.isup.ISUPListener#onTransactionTimeout(org.mobicents.protocols.ss7.isup.ISUPServerTransaction)
-	 */
-	public void onTransactionTimeout(ISUPServerTransaction stx) {
-		ActivityHandle handle = createActivityHandle(stx);
-		if(this.activities.containsKey(handle))
-		{
-			TransactionEnded te = new TransactionEnded(stx,true);
-			this.fireEvent("TRANSACTION_ENDED", stx, te);
-			this.sleeEndpoint.endActivity(handle);
-		}
-		
-	}
+	
 	/* (non-Javadoc)
 	 * @see org.mobicents.protocols.ss7.isup.ISUPListener#onTransportDown()
 	 */
@@ -654,39 +537,23 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		this.transportUp = true;
 	}
 
-
-
-
-
-
-
-
-
-
 	///////////////////////
     // RA Provider Class //
     ///////////////////////
     private class RAISUPProviderImpl implements RAISUPProvider
-    {
-
-		
-		public ISUPClientTransaction createClientTransaction(ISUPMessage arg0) throws TransactionAlredyExistsException,
-				IllegalArgumentException, ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException, StartActivityException {
-			
-			ISUPClientTransaction ctx = isupProvider.createClientTransaction(arg0);
-			ActivityHandle handle = createActivityHandle(ctx);
-			sleeEndpoint.startActivity(handle, ctx,ACTIVITY_FLAGS);
-			activities.put(handle,ctx);
-			return ctx;
-		}
-
-		public ISUPServerTransaction createServerTransaction(ISUPMessage arg0) throws TransactionAlredyExistsException,
-				IllegalArgumentException, ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException, StartActivityException {
-			ISUPServerTransaction stx = isupProvider.createServerTransaction(arg0);
-			ActivityHandle handle = createActivityHandle(stx);
-			sleeEndpoint.startActivity(handle, stx,ACTIVITY_FLAGS);
-			activities.put(handle,stx);
-			return stx;
+    {	
+		public CircuitActivity createCircuitActivity(ISUPMessage arg0,int dpc) throws IllegalArgumentException, ActivityAlreadyExistsException, 
+			NullPointerException, IllegalStateException, SLEEException, StartActivityException {
+				
+			ActivityHandle handle=new ISUPActivityHandle(CircuitActivity.generateTransactionKey(arg0.getCircuitIdentificationCode().getCIC(),dpc));
+	        if(activities.containsKey(handle))
+	        	throw new ActivityAlreadyExistsException("Circuit activity already exists");
+	        
+			CircuitActivity activity = new CircuitActivity(arg0,dpc,this);
+			handle = createActivityHandle(activity);
+			sleeEndpoint.startActivity(handle, activity,ACTIVITY_FLAGS);
+			activities.put(handle,activity);
+			return activity;
 		}
 
 		public ISUPMessageFactory getMessageFactory() {
@@ -698,11 +565,24 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		}
 
 
-		public void sendMessage(ISUPMessage arg0) throws ParameterRangeInvalidException, IOException {
-			isupProvider.sendMessage(arg0);
+		public void sendMessage(ISUPMessage arg0,int dpc) throws ParameterException, IOException {
+			isupProvider.sendMessage(arg0,dpc);
 			
 		}
 
+		public void cancelTimer(int cic, int dpc, int timerId)
+		{			
+			isupProvider.cancelTimer(cic,dpc,timerId);
+		}
+		
+		public void endActivity(CircuitActivity ac)
+		{
+			isupProvider.cancelAllTimers(ac.getCIC(),ac.getDPC());
+			ActivityHandle handle=getActivityHandle(ac);
+			sleeEndpoint.endActivity(handle);
+			activityEnded(handle);			
+		}
+		
 		/* (non-Javadoc)
 		 * @see org.mobicents.slee.resources.ss7.isup.ratype.RAISUPProvider#isTransportUp()
 		 */

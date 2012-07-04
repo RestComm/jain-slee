@@ -22,8 +22,6 @@ package org.mobicents.slee.resources.ss7.isup.ratype;
 import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
 import javax.slee.UnrecognizedActivityException;
-import org.mobicents.protocols.ss7.isup.ISUPClientTransaction;
-import org.mobicents.protocols.ss7.isup.ISUPServerTransaction;
 
 /**
  *
@@ -32,23 +30,12 @@ import org.mobicents.protocols.ss7.isup.ISUPServerTransaction;
 public interface ActivityContextInterfaceFactory{
     
     /**
-     * Gets ActivityContextInterface for client transaction activity.
+     * Gets ActivityContextInterface for circuit activity.
      *
      * @param activity
      *  the endpoint activity object.
      * @return the ActivityContextInterface.
      */
-    public ActivityContextInterface getActivityContextInterface(ISUPClientTransaction activity)
+    public ActivityContextInterface getActivityContextInterface(CircuitActivity activity)
         throws NullPointerException, UnrecognizedActivityException, FactoryException;
-
-    /**
-     * Gets ActivityContextInterface for server transaction activity.
-     *
-     * @param activity
-     *  the endpoint activity object.
-     * @return the ActivityContextInterface.
-     */
-    public ActivityContextInterface getActivityContextInterface(ISUPServerTransaction activity)
-        throws NullPointerException, UnrecognizedActivityException, FactoryException;
-    
 }

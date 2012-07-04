@@ -1,21 +1,18 @@
 package org.mobicents.slee.resources.ss7.isup.ratype;
 
 import java.io.IOException;
-
+import java.io.Serializable;
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
 
 import javax.slee.resource.StartActivityException;
 
-import org.mobicents.protocols.ss7.isup.ISUPClientTransaction;
 import org.mobicents.protocols.ss7.isup.ISUPMessageFactory;
 import org.mobicents.protocols.ss7.isup.ISUPParameterFactory;
-import org.mobicents.protocols.ss7.isup.ISUPServerTransaction;
-import org.mobicents.protocols.ss7.isup.ParameterRangeInvalidException;
-import org.mobicents.protocols.ss7.isup.TransactionAlredyExistsException;
 import org.mobicents.protocols.ss7.isup.message.ISUPMessage;
+import org.mobicents.protocols.ss7.isup.ParameterException;
 
-public interface RAISUPProvider {
+public interface RAISUPProvider extends Serializable {
 	
 	/**
 	 * Create client transaction activity
@@ -29,24 +26,8 @@ public interface RAISUPProvider {
 	 * @throws SLEEException
 	 * @throws StartActivityException
 	 */
-	public ISUPClientTransaction createClientTransaction(ISUPMessage arg0) throws TransactionAlredyExistsException,
-			IllegalArgumentException, ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException,
-			StartActivityException;
-	/**
-	 * Create server transaction activity
-	 * @param arg0
-	 * @return
-	 * @throws TransactionAlredyExistsException
-	 * @throws IllegalArgumentException
-	 * @throws ActivityAlreadyExistsException
-	 * @throws NullPointerException
-	 * @throws IllegalStateException
-	 * @throws SLEEException
-	 * @throws StartActivityException
-	 */
-	public ISUPServerTransaction createServerTransaction(ISUPMessage arg0) throws TransactionAlredyExistsException,
-			IllegalArgumentException, ActivityAlreadyExistsException, NullPointerException, IllegalStateException, SLEEException,
-			StartActivityException;
+	public CircuitActivity createCircuitActivity(ISUPMessage arg0,int dpc) throws IllegalArgumentException, ActivityAlreadyExistsException, 
+		NullPointerException, IllegalStateException, SLEEException,StartActivityException;	
 
 	/**
 	 * Get message factory.
@@ -64,7 +45,20 @@ public interface RAISUPProvider {
 	 * @throws ParameterRangeInvalidException
 	 * @throws IOException
 	 */
-	public void sendMessage(ISUPMessage arg0) throws ParameterRangeInvalidException, IOException;
+	public void sendMessage(ISUPMessage arg0, int dpc) throws ParameterException, IOException;
+	
+	/**
+	 * Ends circuit activity
+	 * @return
+	 */
+	public void cancelTimer(int cic, int dpc, int timerId);
+	
+	/**
+	 * Ends circuit activity
+	 * @return
+	 */
+	public void endActivity(CircuitActivity ac);
+	
 	/**
 	 * Determine if transport layer is connected and links are up.
 	 * @return

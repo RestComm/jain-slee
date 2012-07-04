@@ -40,20 +40,19 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.mobicents.tools</groupId>
-				<artifactId>maven-du-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration />
-				<executions>
-					<execution>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+      <plugin>
+        <groupId>org.mobicents.tools</groupId>
+        <artifactId>maven-du-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>copy-dependencies</goal>
+              <goal>generate-descriptor</goal>
+              <goal>generate-ant-management-script</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>

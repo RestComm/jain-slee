@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>mobicents-parent</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>2.18-SNAPSHOT</version>
+		<version>2.21</version>
 	</parent>
 
 	<artifactId>isup-parent</artifactId>
@@ -16,10 +16,10 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<isup.version>1.0.0.BETA3</isup.version>
-		<mtp.version>1.0.0.BETA4</mtp.version>
+		<isup.version>2.0.0-SNAPSHOT</isup.version>
+		<mtp.version>2.0.0-SNAPSHOT</mtp.version>
 		<stream.version>1.0.0.BETA1</stream.version>
-		<m3ua.version>1.0.0.BETA1</m3ua.version>
+		<m3ua.version>2.0.0-SNAPSHOT</m3ua.version>
 	</properties>
 
 	<dependencyManagement>
