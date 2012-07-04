@@ -49,6 +49,11 @@ public class FireableEventTypeFilter {
             new ConcurrentHashMap<EventTypeID, Set<ServiceID>>(31);
 
     /**
+     * Holds mappings eventTypeID --> Set(ServiceID) which are interested in initial receiving event
+     */
+    private final ConcurrentHashMap<EventTypeID, Set<ServiceID>> initialEventID2serviceIDs = 
+            new ConcurrentHashMap<EventTypeID, Set<ServiceID>>(31);
+    /**
      * checks if event should be filtered or not
      * @param eventType
      * @return true is event is to be filtered, false otherwise
@@ -57,6 +62,10 @@ public class FireableEventTypeFilter {
         return !eventID2serviceIDs.containsKey(eventType.getEventType());
     }
 
+    public boolean filterInitialEvent(FireableEventType eventType) {
+        return !initialEventID2serviceIDs.containsKey(eventType.getEventType());
+    }
+    
     /**
      * Informs the filter that a receivable service is now active.
      * For the events related with the service, and if there are no other
@@ -66,14 +75,30 @@ public class FireableEventTypeFilter {
      */
     public void serviceActive(ReceivableService receivableService) {
         for (ReceivableEvent receivableEvent : receivableService.getReceivableEvents()) {
-            Set<ServiceID> servicesReceivingEvent = eventID2serviceIDs.get(receivableEvent.getEventType());
-            if (servicesReceivingEvent == null) {
-                servicesReceivingEvent = new HashSet<ServiceID>();
-                Set<ServiceID> anotherSet = eventID2serviceIDs.putIfAbsent(receivableEvent.getEventType(), servicesReceivingEvent);
-                if (anotherSet != null) {
-                    servicesReceivingEvent = anotherSet;
-                }
-            }
+        	Set<ServiceID> servicesReceivingEvent;
+        	if(!receivableEvent.isInitialEvent())
+        	{
+        		servicesReceivingEvent = eventID2serviceIDs.get(receivableEvent.getEventType());
+        		if (servicesReceivingEvent == null) {
+        			servicesReceivingEvent = new HashSet<ServiceID>();
+        			Set<ServiceID> anotherSet = eventID2serviceIDs.putIfAbsent(receivableEvent.getEventType(), servicesReceivingEvent);
+        			if (anotherSet != null) {
+        				servicesReceivingEvent = anotherSet;
+        			}
+        		}
+        	}
+        	else
+        	{
+        		servicesReceivingEvent = initialEventID2serviceIDs.get(receivableEvent.getEventType());
+        		if (servicesReceivingEvent == null) {
+        			servicesReceivingEvent = new HashSet<ServiceID>();
+        			Set<ServiceID> anotherSet = initialEventID2serviceIDs.putIfAbsent(receivableEvent.getEventType(), servicesReceivingEvent);
+        			if (anotherSet != null) {
+        				servicesReceivingEvent = anotherSet;
+        			}
+        		}
+        	}
+        	
             synchronized (servicesReceivingEvent) {
                 servicesReceivingEvent.add(receivableService.getService());
             }

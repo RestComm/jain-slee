@@ -471,16 +471,17 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 			
 		}		
 		
-		final FireableEventType eventType = eventTypeCache.getEventType(eventLookupFacility, eventName);
-        if (eventTypeFilter.filterEvent(eventType)) {
-        	tracer.info("event " + eventName + " filtered");            
-            return;
-        }
+		final FireableEventType eventType = eventTypeCache.getEventType(eventLookupFacility, eventName);        
         
         //if there is no TX, lets create STX
       	CircuitActivity ca = (CircuitActivity)getActivity(new ISUPActivityHandle(CircuitActivity.generateTransactionKey(event.getMessage().getCircuitIdentificationCode().getCIC(),event.getDpc())));
       	if(ca == null)
 		{
+      		if (eventTypeFilter.filterInitialEvent(eventType)) {
+            	tracer.info("event " + eventName + " filtered");            
+                return;
+            }
+      		
 			//FIXME: determine in Qs if there is error msg to be sent.... can be extremly complciated since there is 40+ messages
 			try {
 				ca = this.raProvider.createCircuitActivity(event.getMessage(),event.getDpc());
@@ -504,7 +505,14 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 				e.printStackTrace();
 			}
 		}
-		
+      	else
+      	{
+      		if (eventTypeFilter.filterEvent(eventType)) {
+            	tracer.info("event " + eventName + " filtered");            
+                return;
+            }
+      	}
+      	
 		this.fireEvent(eventType, ca, event.getMessage());			
 	}
 	
