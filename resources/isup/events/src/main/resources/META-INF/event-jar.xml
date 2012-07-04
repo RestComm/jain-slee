@@ -137,7 +137,14 @@
 	</event-definition>
 
 	<event-definition>
-		<event-type-name>net.java.slee.resource.isup.FACILITY_ACCPETED</event-type-name>
+		<event-type-name>net.java.slee.resource.isup.FACILITY</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.isup.message.FacilityMessage</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>net.java.slee.resource.isup.FACILITY_ACCEPTED</event-type-name>
 		<event-type-vendor>net.java</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
 		<event-class-name>org.mobicents.protocols.ss7.isup.message.FacilityAcceptedMessage</event-class-name>
@@ -171,6 +178,20 @@
 		<event-class-name>org.mobicents.protocols.ss7.isup.message.IdentificationResponseMessage</event-class-name>
 	</event-definition>
 
+	<event-definition>
+		<event-type-name>net.java.slee.resource.isup.INFORMATION</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.isup.message.InformationMessage</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>net.java.slee.resource.isup.INFORMATION_REQUEST</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.mobicents.protocols.ss7.isup.message.InformationRequestMessage</event-class-name>
+	</event-definition>
+	
 	<event-definition>
 		<event-type-name>net.java.slee.resource.isup.INITIAL_ADDRESS_MESSAGE</event-type-name>
 		<event-type-vendor>net.java</event-type-vendor>
