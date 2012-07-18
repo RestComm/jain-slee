@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.naming.InitialContext;
 import javax.slee.Address;
 import javax.slee.SLEEException;
@@ -60,6 +63,7 @@ import org.mobicents.protocols.ss7.isup.message.CircuitGroupResetAckMessage;
 import org.mobicents.protocols.ss7.isup.message.CircuitGroupResetMessage;
 import org.mobicents.protocols.ss7.isup.message.CircuitGroupUnblockingAckMessage;
 import org.mobicents.protocols.ss7.isup.message.CircuitGroupUnblockingMessage;
+import org.mobicents.protocols.ss7.isup.message.ConfusionMessage;
 import org.mobicents.protocols.ss7.isup.message.ConnectMessage;
 import org.mobicents.protocols.ss7.isup.message.ContinuityCheckRequestMessage;
 import org.mobicents.protocols.ss7.isup.message.ContinuityMessage;
@@ -89,9 +93,12 @@ import org.mobicents.protocols.ss7.isup.message.UnequippedCICMessage;
 import org.mobicents.protocols.ss7.isup.message.User2UserInformationMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartAvailableMessage;
 import org.mobicents.protocols.ss7.isup.message.UserPartTestMessage;
+import org.mobicents.protocols.ss7.isup.message.parameter.CauseIndicators;
 import org.mobicents.slee.resources.ss7.isup.events.TimeoutEvent;
+import org.mobicents.slee.resources.ss7.isup.events.BlockedEvent;
 import org.mobicents.slee.resources.ss7.isup.ratype.RAISUPProvider;
 import org.mobicents.slee.resources.ss7.isup.ratype.CircuitActivity;
+
 
 /**
  *
@@ -115,7 +122,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
     ////////////
     private static final int EVENT_FLAGS = getEventFlags();
     private static final int ACTIVITY_FLAGS = getActivityFlags();
-    private Map<ActivityHandle, CircuitActivity> activities = new HashMap<ActivityHandle, CircuitActivity>();
+    private ConcurrentHashMap<ActivityHandle, CircuitActivity> activities = new ConcurrentHashMap<ActivityHandle, CircuitActivity>();
         
     /////////////////
     // RA Provider //
@@ -191,7 +198,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			this.tracer.severe("Failed to activate ISUP RA ", e);
-		}  
+		}
     }
 
     public void raStopping() {
@@ -474,11 +481,27 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		final FireableEventType eventType = eventTypeCache.getEventType(eventLookupFacility, eventName);        
         
         //if there is no TX, lets create STX
-      	CircuitActivity ca = (CircuitActivity)getActivity(new ISUPActivityHandle(CircuitActivity.generateTransactionKey(event.getMessage().getCircuitIdentificationCode().getCIC(),event.getDpc())));
+		long tx=CircuitActivity.generateTransactionKey(event.getMessage().getCircuitIdentificationCode().getCIC(),event.getDpc());
+		
+		CircuitActivity ca = (CircuitActivity)getActivity(new ISUPActivityHandle(tx));
       	if(ca == null)
 		{
       		if (eventTypeFilter.filterInitialEvent(eventType)) {
-            	tracer.info("event " + eventName + " filtered");            
+            	tracer.info("event " + eventName + " filtered");
+            	
+            	ConfusionMessage cm=this.raProvider.getMessageFactory().createCNF(event.getMessage().getCircuitIdentificationCode().getCIC());
+            	CauseIndicators ci=this.raProvider.getParameterFactory().createCauseIndicators();
+    			ci.setLocation(CauseIndicators._LOCATION_NETWORK_BEYOND_IP);
+    			ci.setCauseValue(CauseIndicators._CV_INVALID_MESSAGE_UNSPECIFIED);
+    			cm.setCauseIndicators(ci);
+    			
+    			try
+    			{
+    				this.raProvider.sendMessage(cm,event.getDpc());
+    			}
+    			catch(Exception ex)
+    			{}
+    			
                 return;
             }
       		
@@ -507,8 +530,23 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 		}
       	else
       	{
-      		if (eventTypeFilter.filterEvent(eventType)) {
-            	tracer.info("event " + eventName + " filtered");            
+      		//may be also initial event , for example for blocking
+      		if (eventTypeFilter.filterEvent(eventType) && eventTypeFilter.filterInitialEvent(eventType)) {
+            	tracer.info("event " + eventName + " filtered");  
+            	
+            	ConfusionMessage cm=this.raProvider.getMessageFactory().createCNF(event.getMessage().getCircuitIdentificationCode().getCIC());
+            	CauseIndicators ci=this.raProvider.getParameterFactory().createCauseIndicators();
+    			ci.setLocation(CauseIndicators._LOCATION_NETWORK_BEYOND_IP);
+    			ci.setCauseValue(CauseIndicators._CV_INVALID_MESSAGE_UNSPECIFIED);
+    			cm.setCauseIndicators(ci);
+    			
+    			try
+    			{
+    				this.raProvider.sendMessage(cm,event.getDpc());
+    			}
+    			catch(Exception ex)
+    			{}
+    			
                 return;
             }
       	}
@@ -528,7 +566,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
                 }
                 this.fireEvent(eventType, getActivity(handle), te);                
         }
-	}
+	}	
 	
 	/* (non-Javadoc)
 	 * @see org.mobicents.protocols.ss7.isup.ISUPListener#onTransportDown()
@@ -560,7 +598,7 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 			CircuitActivity activity = new CircuitActivity(arg0,dpc,this);
 			handle = createActivityHandle(activity);
 			sleeEndpoint.startActivity(handle, activity,ACTIVITY_FLAGS);
-			activities.put(handle,activity);
+			activities.putIfAbsent(handle,activity);
 			return activity;
 		}
 
@@ -578,6 +616,36 @@ public class IsupResourceAdaptor implements ResourceAdaptor, ISUPListener {
 			
 		}
 
+		public void notifyBlockedChannel(int cic, int dpc)
+		{
+			ActivityHandle handle=new ISUPActivityHandle(CircuitActivity.generateTransactionKey(cic,dpc));
+	        if(activities.containsKey(handle))
+	        {        		
+	                BlockedEvent be = new BlockedEvent(cic,dpc);
+	                final FireableEventType eventType = eventTypeCache.getEventType(eventLookupFacility, "BLOCKED");
+	                if (eventTypeFilter.filterEvent(eventType)) {
+	                	tracer.info("event BLOCKED filtered");            
+	                    return;
+	                }
+	                fireEvent(eventType, getActivity(handle), be);                
+	        }
+		}
+		
+		public void notifyResetChannel(int cic, int dpc)
+		{
+			ActivityHandle handle=new ISUPActivityHandle(CircuitActivity.generateTransactionKey(cic,dpc));
+	        if(activities.containsKey(handle))
+	        {        		
+	                BlockedEvent be = new BlockedEvent(cic,dpc);
+	                final FireableEventType eventType = eventTypeCache.getEventType(eventLookupFacility, "RESET");
+	                if (eventTypeFilter.filterEvent(eventType)) {
+	                	tracer.info("event RESET filtered");            
+	                    return;
+	                }
+	                fireEvent(eventType, getActivity(handle), be);                
+	        }
+		}
+		
 		public void cancelTimer(int cic, int dpc, int timerId)
 		{			
 			isupProvider.cancelTimer(cic,dpc,timerId);

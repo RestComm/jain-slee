@@ -54,6 +54,18 @@ public interface RAISUPProvider extends Serializable {
 	public void cancelTimer(int cic, int dpc, int timerId);
 	
 	/**
+	 * Notify blocked channel
+	 * @return
+	 */
+	public void notifyBlockedChannel(int cic, int dpc);
+	
+	/**
+	 * Notify reset channel
+	 * @return
+	 */
+	public void notifyResetChannel(int cic, int dpc);
+	
+	/**
 	 * Ends circuit activity
 	 * @return
 	 */

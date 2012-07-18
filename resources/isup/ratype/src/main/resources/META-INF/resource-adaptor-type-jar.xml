@@ -263,7 +263,16 @@
 			<event-type-vendor>net.java</event-type-vendor>
 			<event-type-version>1.0</event-type-version>
 		</event-type-ref>
-
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.isup.BLOCKED</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>net.java.slee.resource.isup.RESET</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>1.0</event-type-version>
+		</event-type-ref>
 
 	</resource-adaptor-type>
 </resource-adaptor-type-jar>
