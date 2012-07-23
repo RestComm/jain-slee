@@ -143,6 +143,7 @@
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=TimerFacilityConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.TimerFacilityConfigurationMBean.class,registerDirectly=true)</annotation>
 		<property name="timerThreads">4</property>
 		<property name="purgePeriod">0</property>
+		<property name="taskExecutionWaitsForTxCommitConfirmation">true</property>		
 	</bean>
 	
 	<bean name="Mobicents.JAINSLEE.TimerFacility"

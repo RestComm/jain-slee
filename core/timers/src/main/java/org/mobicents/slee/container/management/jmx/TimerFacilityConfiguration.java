@@ -41,6 +41,18 @@ public class TimerFacilityConfiguration implements
 
 	private Integer purgePeriod;
 	
+	private boolean taskExecutionWaitsForTxCommitConfirmation = true;
+	
+	@Override
+	public boolean getTaskExecutionWaitsForTxCommitConfirmation() {
+		return taskExecutionWaitsForTxCommitConfirmation;
+	}
+	
+	@Override
+	public void setTaskExecutionWaitsForTxCommitConfirmation(boolean value) {
+		taskExecutionWaitsForTxCommitConfirmation = value;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

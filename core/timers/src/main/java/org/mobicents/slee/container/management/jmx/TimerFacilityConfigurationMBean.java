@@ -59,4 +59,23 @@ public interface TimerFacilityConfigurationMBean {
 	 */
 	public void setPurgePeriod(int value);
 	
+	/**
+	 * Indicates if the timer task should wait for confirmation that the tx,
+	 * which set the timer, finished commit. This confirmation is the only
+	 * guarantee that short timers (such as the ones with 0 delay), set on new
+	 * tx aware activities, will not execute before all state (such as the actual AC), is committed.
+	 * 
+	 * @return
+	 */
+	public boolean getTaskExecutionWaitsForTxCommitConfirmation();
+	
+	/**
+	 * Defines if the timer task should wait for confirmation that the tx,
+	 * which set the timer, finished commit. This confirmation is the only
+	 * guarantee that short timers (such as the ones with 0 delay), set on new
+	 * tx aware activities, will not execute before all state (such as the actual AC), is committed.
+	 * @param value
+	 */
+	public void setTaskExecutionWaitsForTxCommitConfirmation(boolean value);
+	
 }

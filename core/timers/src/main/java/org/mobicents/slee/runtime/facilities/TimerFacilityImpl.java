@@ -22,6 +22,8 @@
 
 package org.mobicents.slee.runtime.facilities;
 
+import java.util.concurrent.CountDownLatch;
+
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.TransactionRequiredLocalException;
@@ -36,6 +38,8 @@ import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.facilities.TimerFacility;
 import org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
+import org.mobicents.slee.container.transaction.TransactionContext;
+import org.mobicents.slee.container.transaction.TransactionalAction;
 import org.mobicents.slee.container.util.JndiRegistrationManager;
 import org.mobicents.timers.FaultTolerantScheduler;
 
@@ -164,7 +168,21 @@ public class TimerFacilityImpl extends AbstractSleeContainerModule implements Ti
 		
 		// schedule timer task
 		TimerFacilityTimerTaskData taskData = new TimerFacilityTimerTaskData(timerID, aciImpl.getActivityContext().getActivityContextHandle(), address, startTime, period, numRepetitions, timerOptions);
-    	scheduler.schedule(new TimerFacilityTimerTask(taskData));
+    	final TimerFacilityTimerTask task = new TimerFacilityTimerTask(taskData);
+    	if(configuration.getTaskExecutionWaitsForTxCommitConfirmation()) {
+    		final CountDownLatch countDownLatch = new CountDownLatch(1);
+    		task.setCountDownLatch(countDownLatch);
+    		TransactionalAction action = new TransactionalAction() {			
+    			@Override
+    			public void execute() {
+    				countDownLatch.countDown();				
+    			}
+    		};
+    		TransactionContext txContext = txMgr.getTransactionContext();
+    		txContext.getAfterCommitActions().add(action);
+    		txContext.getAfterRollbackActions().add(action);
+    	}
+		scheduler.schedule(task);				
 
 		// If we started a tx for this operation, we commit it now
 		if (startedTx) {

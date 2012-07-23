@@ -22,6 +22,8 @@
 
 package org.mobicents.slee.runtime.facilities;
 
+import java.util.concurrent.CountDownLatch;
+
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
 
@@ -42,6 +44,8 @@ public class TimerFacilityTimerTask extends TimerTask {
 	private final static SleeContainer sleeContainer = SleeContainer
 			.lookupFromJndi();
 
+	private CountDownLatch countDownLatch = null;
+	
 	public TimerFacilityTimerTask(TimerFacilityTimerTaskData data) {
 		super(data);
 		this.data = data;
@@ -52,22 +56,33 @@ public class TimerFacilityTimerTask extends TimerTask {
 		return data;
 	}
 
+	public void setCountDownLatch(CountDownLatch countDownLatch) {
+		this.countDownLatch = countDownLatch;
+	}
+	
 	public void runTask() {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Executing task with timer ID "
-					+ getData().getTaskID());
+		if(countDownLatch != null) {
+			try {
+				countDownLatch.await();
+			} catch (InterruptedException e) {
+				logger.error("failed to wait on tx commit confirmation", e);
+			}
 		}
-
-		try {
-			runInternal();
-		} catch (Throwable t) {
-			logger.error(t.getMessage(), t);
-		}
+		runInternal();
+			
 	}
 
 	private void runInternal() {
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("Executing task with timer ID "
+				+ getData().getTaskID());
+		}
+
+		try {
+		
+		
 		int remainingRepetitions = data.getRemainingRepetitions();
 
 		// till the actual task cancellation (in the scheduler) a periodic timer
@@ -195,9 +210,8 @@ public class TimerFacilityTimerTask extends TimerTask {
 				final ActivityContext ac = acFactory.getActivityContext(data
 						.getActivityContextHandle());
 
-				// the AC can be null in the edge case when the activity was
-				// removed while the basic timer is firing an event
-				// and thus the timer cancelation came a bit late
+				// the AC can be null if the activity is
+				// removed concurrently with the task execution
 				if (ac == null) {
 					logger.warn("Cannot fire timer event with id "
 							+ data.getTaskID()
@@ -230,6 +244,10 @@ public class TimerFacilityTimerTask extends TimerTask {
 				}
 			}
 		}
+		
+		} catch (Throwable t) {
+			logger.error(t.getMessage(), t);
+		}
 
 	}
 
@@ -247,7 +265,6 @@ public class TimerFacilityTimerTask extends TimerTask {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void beforeRecover() {
-
 		long period = data.getPeriod();
 		long startTime = data.getStartTime();
 		long now = System.currentTimeMillis();
