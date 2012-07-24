@@ -2,6 +2,7 @@ package org.mobicents.slee.resource.map.service.mobility.wrappers;
 
 import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.primitives.GSNAddress;
+import org.mobicents.protocols.ss7.map.api.primitives.IMEI;
 import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.LMSI;
@@ -13,10 +14,12 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.Authe
 import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.EpsAuthenticationSetList;
 import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.ReSynchronisationInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.RequestingNodeType;
+import org.mobicents.protocols.ss7.map.api.service.mobility.imei.RequestedEquipmentInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.ADDInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.PagingArea;
-import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.VlrCapability;
+import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.VLRCapability;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberInfo;
 import org.mobicents.slee.resource.map.MAPDialogActivityHandle;
 import org.mobicents.slee.resource.map.MAPResourceAdaptor;
 import org.mobicents.slee.resource.map.wrappers.MAPDialogWrapper;
@@ -33,6 +36,7 @@ public class MAPDialogMobilityWrapper extends MAPDialogWrapper<MAPDialogMobility
 		super(wrappedDialog, activityHandle, ra);
 	}
 
+	@Override
 	public Long addSendAuthenticationInfoRequest(IMSI imsi, int numberOfRequestedVectors,
 			boolean segmentationProhibited, boolean immediateResponsePreferred,
 			ReSynchronisationInfo reSynchronisationInfo, MAPExtensionContainer extensionContainer,
@@ -43,6 +47,7 @@ public class MAPDialogMobilityWrapper extends MAPDialogWrapper<MAPDialogMobility
 				requestingNodeType, requestingPlmnId, numberOfRequestedAdditionalVectors, additionalVectorsAreForEPS);
 	}
 
+	@Override
 	public Long addSendAuthenticationInfoRequest(int customInvokeTimeout, IMSI imsi, int numberOfRequestedVectors,
 			boolean segmentationProhibited, boolean immediateResponsePreferred,
 			ReSynchronisationInfo reSynchronisationInfo, MAPExtensionContainer extensionContainer,
@@ -53,6 +58,7 @@ public class MAPDialogMobilityWrapper extends MAPDialogWrapper<MAPDialogMobility
 				requestingNodeType, requestingPlmnId, numberOfRequestedAdditionalVectors, additionalVectorsAreForEPS);
 	}
 
+	@Override
 	public void addSendAuthenticationInfoResponse(long invokeId, AuthenticationSetList authenticationSetList,
 			MAPExtensionContainer extensionContainer, EpsAuthenticationSetList epsAuthenticationSetList)
 			throws MAPException {
@@ -60,6 +66,7 @@ public class MAPDialogMobilityWrapper extends MAPDialogWrapper<MAPDialogMobility
 				epsAuthenticationSetList);
 	}
 
+	@Override
 	public long addAnyTimeInterrogationRequest(SubscriberIdentity subscriberIdentity, RequestedInfo requestedInfo,
 			ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer) throws MAPException {
 		return this.wrappedDialog.addAnyTimeInterrogationRequest(subscriberIdentity, requestedInfo, gsmSCFAddress,
@@ -75,14 +82,14 @@ public class MAPDialogMobilityWrapper extends MAPDialogWrapper<MAPDialogMobility
 	}
 
 	@Override
-	public long addAnyTimeInterrogationResponse(long invokeId) throws MAPException {
-		return this.addAnyTimeInterrogationResponse(invokeId);
+	public void addAnyTimeInterrogationResponse(long invokeId, SubscriberInfo subscriberInfo, MAPExtensionContainer extensionContainer) throws MAPException {
+		this.addAnyTimeInterrogationResponse(invokeId, subscriberInfo, extensionContainer);
 	}
 
 	@Override
 	public Long addUpdateLocationRequest(IMSI imsi, ISDNAddressString mscNumber, ISDNAddressString roamingNumber,
 			ISDNAddressString vlrNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
-			VlrCapability vlrCapability, boolean informPreviousNetworkEntity, boolean csLCSNotSupportedByUE,
+			VLRCapability vlrCapability, boolean informPreviousNetworkEntity, boolean csLCSNotSupportedByUE,
 			GSNAddress vGmlcAddress, ADDInfo addInfo, PagingArea pagingArea, boolean skipSubscriberDataUpdate,
 			boolean restorationIndicator) throws MAPException {
 		return this.wrappedDialog.addUpdateLocationRequest(imsi, mscNumber, roamingNumber, vlrNumber, lmsi,
@@ -93,7 +100,7 @@ public class MAPDialogMobilityWrapper extends MAPDialogWrapper<MAPDialogMobility
 	@Override
 	public Long addUpdateLocationRequest(int customInvokeTimeout, IMSI imsi, ISDNAddressString mscNumber,
 			ISDNAddressString roamingNumber, ISDNAddressString vlrNumber, LMSI lmsi,
-			MAPExtensionContainer extensionContainer, VlrCapability vlrCapability, boolean informPreviousNetworkEntity,
+			MAPExtensionContainer extensionContainer, VLRCapability vlrCapability, boolean informPreviousNetworkEntity,
 			boolean csLCSNotSupportedByUE, GSNAddress vGmlcAddress, ADDInfo addInfo, PagingArea pagingArea,
 			boolean skipSubscriberDataUpdate, boolean restorationIndicator) throws MAPException {
 		return this.wrappedDialog.addUpdateLocationRequest(customInvokeTimeout, imsi, mscNumber, roamingNumber,
@@ -112,6 +119,12 @@ public class MAPDialogMobilityWrapper extends MAPDialogWrapper<MAPDialogMobility
 	@Override
 	public MAPDialogMobility getWrappedDialog() {
 		return this.wrappedDialog;
+	}
+
+	@Override
+	public Long addCheckImeiRequest(IMEI imei, RequestedEquipmentInfo requestedEquipmentInfo, MAPExtensionContainer extensionContainer)
+			throws MAPException {
+		return this.wrappedDialog.addCheckImeiRequest(imei, requestedEquipmentInfo, extensionContainer);
 	}
 
 }

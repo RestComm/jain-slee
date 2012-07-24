@@ -74,6 +74,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.MAPDialogMobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.MAPServiceMobilityListener;
 import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.authentication.SendAuthenticationInfoResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.imei.CheckImeiRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.imei.CheckImeiResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UpdateLocationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UpdateLocationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
@@ -822,24 +824,6 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 
 	}
 
-	// ///////////////
-	// SERVICE : SUBSCRIBER INFORMATION
-	// //////////////
-	public void onAnyTimeInterrogationRequest(AnyTimeInterrogationRequest anyTimeInterrogationRequest) {
-		MAPDialogMobilityWrapper mapDialogMobilityWrapper = (MAPDialogMobilityWrapper) anyTimeInterrogationRequest
-				.getMAPDialog().getUserObject();
-		AnyTimeInterrogationRequestWrapper event = new AnyTimeInterrogationRequestWrapper(mapDialogMobilityWrapper,
-				anyTimeInterrogationRequest);
-		onEvent(event.getEventTypeName(), mapDialogMobilityWrapper, event);
-	}
-
-	public void onAnyTimeInterrogationResponse(AnyTimeInterrogationResponse anyTimeInterrogationResponse) {
-		MAPDialogMobilityWrapper mapDialogMobilityWrapper = (MAPDialogMobilityWrapper) anyTimeInterrogationResponse
-				.getMAPDialog().getUserObject();
-		AnyTimeInterrogationResponseWrapper event = new AnyTimeInterrogationResponseWrapper(mapDialogMobilityWrapper,
-				anyTimeInterrogationResponse);
-		onEvent(event.getEventTypeName(), mapDialogMobilityWrapper, event);
-	}
 
 	// ////////////////
 	// SERVICE: SMS //
@@ -956,6 +940,17 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 	// ///////////////
 	// SERVICE : MOBILITY
 	// //////////////
+
+	// -- Location Management Service
+	public void onUpdateLocationRequest(UpdateLocationRequest ind) {
+		// TODO
+	}
+
+	public void onUpdateLocationResponse(UpdateLocationResponse ind) {
+		// TODO
+	}
+	
+	// -- Authentication management services
 	public void onSendAuthenticationInfoRequest(SendAuthenticationInfoRequest ind) {
 		MAPDialogMobilityWrapper mapDialogMobilityWrapper = (MAPDialogMobilityWrapper) ind.getMAPDialog()
 				.getUserObject();
@@ -972,12 +967,30 @@ public class MAPResourceAdaptor implements ResourceAdaptor, MAPDialogListener, M
 		onEvent(event.getEventTypeName(), mapDialogMobilityWrapper, event);
 	}
 
-	public void onUpdateLocationRequest(UpdateLocationRequest ind) {
-		// TODO
+	// -- Subscriber Information services
+	public void onAnyTimeInterrogationRequest(AnyTimeInterrogationRequest anyTimeInterrogationRequest) {
+		MAPDialogMobilityWrapper mapDialogMobilityWrapper = (MAPDialogMobilityWrapper) anyTimeInterrogationRequest
+				.getMAPDialog().getUserObject();
+		AnyTimeInterrogationRequestWrapper event = new AnyTimeInterrogationRequestWrapper(mapDialogMobilityWrapper,
+				anyTimeInterrogationRequest);
+		onEvent(event.getEventTypeName(), mapDialogMobilityWrapper, event);
 	}
 
-	public void onUpdateLocationResponse(UpdateLocationResponse ind) {
-		// TODO
+	public void onAnyTimeInterrogationResponse(AnyTimeInterrogationResponse anyTimeInterrogationResponse) {
+		MAPDialogMobilityWrapper mapDialogMobilityWrapper = (MAPDialogMobilityWrapper) anyTimeInterrogationResponse
+				.getMAPDialog().getUserObject();
+		AnyTimeInterrogationResponseWrapper event = new AnyTimeInterrogationResponseWrapper(mapDialogMobilityWrapper,
+				anyTimeInterrogationResponse);
+		onEvent(event.getEventTypeName(), mapDialogMobilityWrapper, event);
+	}
+	
+	// -- International mobile equipment identities management services
+	public void onCheckImeiRequest(CheckImeiRequest request){
+		//TODO
+	}
+	
+	public void onCheckImeiResponse(CheckImeiResponse response){
+		//TODO
 	}
 
 	/*
