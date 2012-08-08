@@ -1,20 +1,0 @@
-<?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
-
-<chapter id="running">
-
-	<title>Running the Example</title>
-	
-	<para>Example does not require any additional setup except <acronym>USSD</acronym> gateway and simulator. Example should be deployed as follows:</para> 
-	<mediaobject>
-			<imageobject>
-				<imagedata width="300px" align="center"
-					fileref="images/ussd-run-deploy.png" format="PNG" />
-			</imageobject>
-			<caption>
-				<para>Deploy overview</para>
-			</caption>
-		</mediaobject>
-	<para>To run example simply make call from <acronym>USSD</acronym> simulator to preconfigured number( by default its #123*) and follow instructions displayed there.</para>
-</chapter>
-

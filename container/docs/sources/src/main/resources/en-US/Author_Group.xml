@@ -1,0 +1,45 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<authorgroup
+	id="authors">
+	<author>
+		<firstname>Alexandre</firstname>
+		<surname>Mendonça</surname>
+		<email>&AUTHOR.EMAIL.ALEX;</email>
+	</author>
+	<author>
+		<firstname>Amit</firstname>
+		<surname>Bhayani</surname>
+		<email>&AUTHOR.EMAIL.AMIT;</email>
+	</author>
+	<author>
+		<firstname>Bartosz</firstname>
+		<surname>Baranowski</surname>
+		<email>&AUTHOR.EMAIL.BARTOSZ;</email>
+	</author>
+	<author>
+		<firstname>Douglas</firstname>
+		<surname>Silas</surname>
+		<email>dhensley@redhat.com</email>
+	</author>
+	<author>
+		<firstname>Eduardo</firstname>
+		<surname>Martins</surname>
+		<email>&AUTHOR.EMAIL.EDUARDO;</email>
+	</author>
+	<author>
+		<firstname>Ivelin</firstname>
+		<surname>Ivanov</surname>
+		<email>&AUTHOR.EMAIL.IVELIN;</email>
+	</author>
+	<author>
+        <firstname>Jared</firstname>
+        <surname>Morgan</surname>
+        <email>jmorgan@redhat.com</email>
+    </author>
+	<author>
+		<firstname>Carl-Magnus</firstname>
+		<surname>Bjorkell</surname>
+		<email>carl-magnus.bjorkell@emblacom.com</email>
+	</author>
+</authorgroup>

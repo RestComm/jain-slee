@@ -1,16 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
-
-<chapter id="introduction">
-
-	<title>Introduction
-		to &THIS.PLATFORM;
-		JAIN SLEE &THIS.EXAMPLE;
-		Example
-	</title>
-	<para>
-		This example demonstrates the usage of SLEEConnection API, present in JAIN SLEE 1.1 specification, by a Java EE application, to fire events into a &THIS.PLATFORM; JAIN SLEE container. The Java EE application and the &THIS.PLATFORM; JAIN SLEE container may be in same or different JVM.
-	</para>
-	
-</chapter>

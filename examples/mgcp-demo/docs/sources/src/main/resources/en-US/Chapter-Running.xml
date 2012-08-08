@@ -1,25 +1,0 @@
-<?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]><chapter id="running">	<title>Running the Example</title>	<para>		The easiest way to try the example application is to start the		JAIN SLEE container, deploy the RA's as mentioned in 2.1.2.		Software		Prerequisites. Start the Mobicents Media Server.	</para>	<para>		Fire your favorite SIP Phone. Point the proxy of your SIP Phone		to Mobicents JAIN SLEE Server and dial	</para>
-	<variablelist>		<varlistentry>			<term>2010</term>			<listitem>				<para>To test IVR functionality</para>			</listitem>		</varlistentry>
-
-		<varlistentry>
-			<term>2011</term>
-			<listitem>
-				<para>To test Recording functionality</para>
-			</listitem>
-		</varlistentry>
-
-		<varlistentry>
-			<term>2012</term>
-			<listitem>
-				<para>To test Conference functionality</para>
-			</listitem>
-		</varlistentry>
-		<!-- 
-		<varlistentry>
-			<term>2013</term>
-			<listitem>
-				<para>To test TTS functionality</para>
-			</listitem>
-		</varlistentry>
-		 -->	</variablelist></chapter>

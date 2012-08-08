@@ -1,12 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
-
-<chapter id="introduction">
-
-	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
-
-	<para>The JSR 309 is designed to provide server-based Java applications with multimedia capabilities. It defines API and programming model, which create general interface to media server.
-	This interface abstracts from control protocol used to connect to media server.</para>
-	<para>&THIS.RA; Resource Adaptor includes &THIS.PLATFORM; implementation of JSR 309, which is based on <acronym>MGCP</acronym>, but may be used instead with any other JSR 309 implementation.</para>
-</chapter>

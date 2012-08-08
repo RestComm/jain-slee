@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>mobicents-parent</artifactId>
+		<version>2.23-SNAPSHOT</version>
+	</parent>
+	
+	<groupId>org.mobicents.servers.jainslee.core</groupId>
+	<artifactId>mobicents-slee-core</artifactId>
+	<version>2.8.0-SNAPSHOT</version>
+			
+	<packaging>pom</packaging>
+	
+	<modules>
+		<module>api/extensions</module>
+		<module>container</module>			
+	</modules>
+		
+	<scm>
+		<connection>scm:git:https://code.google.com/p/jain-slee.core/</connection>
+		<developerConnection>scm:git:https://code.google.com/p/jain-slee.core/</developerConnection>
+		<url>https://code.google.com/p/jain-slee.core/</url>
+	</scm>     
+			
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>tools/jopr-plugin</module>
+				<module>tools/slee-management-console</module>				
+				<module>tools/twiddle</module>				
+			</modules>			
+			<build>
+				<plugins>
+					<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<preparationGoals>clean install</preparationGoals>
+					</configuration>
+					</plugin>
+				</plugins>
+			</build>		
+		</profile>
+	</profiles>	
+	
+	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
+
+	<repositories>
+                <repository>
+                        <id>mobicents-public-repository-group</id>
+                        <name>Mobicents Public Maven Repository Group</name>
+                        <url>https://oss.sonatype.org/content/groups/public</url>
+                        <layout>default</layout>
+                        <releases>
+                                <enabled>true</enabled>
+                                <updatePolicy>never</updatePolicy>
+                        </releases>
+                        <snapshots>
+                                <enabled>true</enabled>
+                                <updatePolicy>never</updatePolicy>
+                        </snapshots>
+                </repository>
+        </repositories>
+	
+</project>

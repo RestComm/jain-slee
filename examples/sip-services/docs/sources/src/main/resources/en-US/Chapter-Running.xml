@@ -1,22 +1,0 @@
-<?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
-
-<chapter id="running">
-
-	<title>Running the Example</title>
-
-	<para>
-		The easiest way to test example is to deploy example and start
-		container, register two UACs and make call from one to another. UACs
-		must be configured to use container as proxy, by default each UAC
-		should point to proxy at
-		<literal>127.0.0.1:5060</literal>
-		and have domain set to either
-		<literal>nist.gov</literal>
-		or
-		<literal>mobicents.org</literal>
-	</para>
-	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Configuration.xml" />
-	
-</chapter>
-

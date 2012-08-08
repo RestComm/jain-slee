@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>mobicents-slee-core-container</artifactId>
+		<version>2.8.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>deployer</artifactId>
+
+	<dependencies>
+		<!-- <dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>spi</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>common</artifactId>
+			<version>${pom.version}</version>
+		</dependency> -->
+		
+		<dependency>
+			<groupId>javax.slee</groupId>
+           	<artifactId>jain-slee</artifactId>           	
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+           	<artifactId>jboss-as-j2se</artifactId>           	
+		</dependency>		
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+  			<artifactId>jboss-as-system-jmx</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>mobicents-jainslee-deployer</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>deploy</id>
+						<phase>install</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<copy overwrite="true" file="target/${project.build.finalName}.jar" todir="${jboss.home}/server/default/deployers" />
+								<copy overwrite="true" file="target/${project.build.finalName}.jar" todir="${jboss.home}/server/all/deployers" />
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>undeploy</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<delete file="${jboss.home}/server/all/deployers/${project.build.finalName}.jar" />
+								<delete file="${jboss.home}/server/default/deployers/${project.build.finalName}.jar" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

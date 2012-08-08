@@ -1,35 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">%BOOK_ENTITIES;]>
-
-<chapter id="ratype">	
-
-	<title>Resource Adaptor Type</title>
-
-	<para>&THIS.RA; Resource Adaptor Type is defined by &THIS.PLATFORM; team as part of effort to standardize RA Types.</para>
-	
-	<xi:include
-		xmlns:xi="http://www.w3.org/2001/XInclude"
-		href="Section-Activities.xml" />
-	
-	<xi:include
-		xmlns:xi="http://www.w3.org/2001/XInclude"
-		href="Section-Events.xml" />
-	
-	<xi:include
-		xmlns:xi="http://www.w3.org/2001/XInclude"
-		href="Section-Activity_Context_Interface_Factory.xml" />
-	
-	<xi:include
-		xmlns:xi="http://www.w3.org/2001/XInclude"
-		href="Section-Resource_Adaptor_Interface.xml" />
-	
-	<xi:include
-		xmlns:xi="http://www.w3.org/2001/XInclude"
-		href="Section-Restrictions.xml" />
-	
-	<xi:include
-		xmlns:xi="http://www.w3.org/2001/XInclude"
-		href="Section-Sbb_Code_Examples.xml" />
-							
-</chapter>

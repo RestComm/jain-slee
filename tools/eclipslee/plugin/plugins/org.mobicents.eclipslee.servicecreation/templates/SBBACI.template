@@ -1,5 +1,0 @@
-__PACKAGE__
-
-public interface __NAME__SbbActivityContextInterface extends javax.slee.ActivityContextInterface {
-
-}

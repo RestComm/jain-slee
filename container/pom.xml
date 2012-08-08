@@ -1,0 +1,97 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>mobicents-slee-core</artifactId>
+		<version>2.8.0-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>mobicents-slee-core-container</artifactId>
+			
+	<packaging>pom</packaging>
+	
+	<properties>
+		<slee.name>Mobicents JAIN SLEE</slee.name>
+		<slee.vendor>Mobicents</slee.vendor>
+		<slee.version>${pom.version}</slee.version>
+		<slee.codename>???</slee.codename>
+		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
+		<mobicents.cluster.version>1.13</mobicents.cluster.version>
+	</properties>
+	
+	<modules>
+		<module>jmx-property-editors</module>
+		<module>deployer</module>
+		<module>spi</module>
+		<module>common</module>
+		<module>usage</module>
+		<module>activities</module>
+		<module>events</module>
+		<module>profiles</module>
+		<module>remote</module>
+		<module>router</module>
+		<module>transaction</module>
+		<module>components</module>
+		<module>fault-tolerant-ra</module>
+		<module>resource</module>
+		<module>timers</module>
+		<module>services</module>
+		<module>congestion</module>
+		<module>ant-tasks</module>	
+		<module>standard-components</module>
+		<module>server-resources</module>
+		<module>server-default-beans</module>
+		<module>server-all-beans</module>	
+	</modules>
+        	
+	<dependencyManagement>
+		<dependencies>			
+			<dependency>
+				<groupId>org.mobicents.cluster</groupId>
+				<artifactId>core</artifactId>
+				<version>${mobicents.cluster.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.cluster</groupId>
+				<artifactId>cache</artifactId>
+				<version>${mobicents.cluster.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.cluster</groupId>
+				<artifactId>timers</artifactId>
+				<version>${mobicents.cluster.version}</version>
+			</dependency>					
+		</dependencies>
+	</dependencyManagement>
+			
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>docs</module>								
+			</modules>			
+		</profile>
+	</profiles>	
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<groupId>org.mobicents.tools</groupId>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms />
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+					</classpathExcludes>
+					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<eclipseProjectName>slee-core-container</eclipseProjectName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+		
+</project>

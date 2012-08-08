@@ -4,14 +4,13 @@
 	<packaging>pom</packaging>
 
 	<parent>
-		<groupId>org.mobicents</groupId>
-		<artifactId>mobicents-parent</artifactId>
-		<version>2.21</version>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>mobicents-slee-core</artifactId>
+		<version>2.8.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>org.mobicents.servers.jainslee.tools.twiddle</groupId>
 	<artifactId>cli-twiddle-parent</artifactId>
-	<version>2.7.0-SNAPSHOT</version>
 
 	<modules>
 		<module>cli</module>
@@ -27,7 +26,7 @@
 		<jboss.javaee.version>5.0.1.GA</jboss.javaee.version>
 		<jboss.security.version>2.0.3.SP1</jboss.security.version>
 		<getop.version>1.0.9</getop.version>
-		<mobicents.jslee.version>2.6.0.FINAL</mobicents.jslee.version>
+		<mobicents.jslee.version>${project.version}</mobicents.jslee.version>
 	</properties>
 
 
@@ -167,20 +166,7 @@
 			<modules>
 				<module>docs</module>
 				<module>release</module>
-			</modules>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-release-plugin</artifactId>
-						<configuration>
-							<autoVersionSubmodules>true</autoVersionSubmodules>
-							<preparationGoals>clean install</preparationGoals>
-							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/twiddle</tagBase>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
+			</modules>			
 		</profile>
 		<profile>
 			<id>release</id>
@@ -190,14 +176,7 @@
 			</modules>
 		</profile>
 	</profiles>
-
-	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/twiddle</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/twiddle</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/twiddle</url>
-	</scm>
-
-	<!-- -->
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -212,30 +191,10 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-tools-twiddle-cli</eclipseProjectName>
+					<eclipseProjectName>slee-core-tools-twiddle</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
-	<!-- dupe info from parent, but it's only way to retrieve the parent without 
-		checkout -->
-
-	<repositories>
-		<repository>
-			<id>jboss-public-repository-group</id>
-			<name>JBoss Public Maven Repository Group</name>
-			<url>https://repository.jboss.org/nexus/content/groups/public</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-		</repository>
-	</repositories>
 
 </project>

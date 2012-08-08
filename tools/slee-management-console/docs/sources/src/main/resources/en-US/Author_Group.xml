@@ -8,12 +8,6 @@
 	<author>
 		<firstname>Alexandre</firstname>
 		<surname>Mendon&#231;a</surname>
-		<!-- 
-		<affiliation>
-			<orgname>Red Hat, Inc.</orgname>
-			<orgdiv>${platform.name} ${product.name} Lead</orgdiv>			
-		</affiliation>
-		-->
 		<email>>&AUTHOR_EMAIL_ALEXANDRE;</email>
 	</author>
 </authorgroup>
