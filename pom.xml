@@ -19,9 +19,9 @@
 	</modules>
 		
 	<scm>
-		<connection>scm:git:https://code.google.com/p/jain-slee.core/</connection>
-		<developerConnection>scm:git:https://code.google.com/p/jain-slee.core/</developerConnection>
-		<url>https://code.google.com/p/jain-slee.core/</url>
+		<connection>scm:git:https://code.google.com/p/jain-slee/</connection>
+		<developerConnection>scm:git:https://code.google.com/p/jain-slee/</developerConnection>
+		<url>https://code.google.com/p/jain-slee/</url>
 	</scm>     
 			
 	<profiles>
