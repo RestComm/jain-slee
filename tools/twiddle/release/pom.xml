@@ -16,7 +16,7 @@
 
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>binary-release</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -30,11 +30,11 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy todir="${basedir}/../../../release/${release.name}/tools/twiddle">
+										<copy todir="${release.dir}/tools/twiddle">
 											<fileset dir="${basedir}/../cli/target/release">
 												<include name="**" />
 											</fileset>
-										</copy>
+										</copy>										
 									</tasks>
 								</configuration>
 							</execution>

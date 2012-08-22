@@ -7,6 +7,7 @@
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>mobicents-slee-core</artifactId>
 		<version>2.8.0-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
 	</parent>
 
 	<groupId>org.mobicents.servers.jainslee.tools.twiddle</groupId>
@@ -169,7 +170,7 @@
 			</modules>			
 		</profile>
 		<profile>
-			<id>release</id>
+			<id>binary-release</id>
 			<modules>
 				<module>docs</module>
 				<module>release</module>
@@ -191,7 +192,7 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>slee-core-tools-twiddle</eclipseProjectName>
+					<eclipseProjectName>slee-tool-twiddle</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>

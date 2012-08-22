@@ -97,7 +97,7 @@
 
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>binary-release</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -112,7 +112,8 @@
 								<configuration>
 									<tasks>
 										<!-- copy docs -->
-										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/tools/twiddle/docs">
+										<copy overwrite="true"
+											todir="${release.dir}/docs/tools/twiddle/user-guide">
 											<fileset dir="${basedir}/target/docbook/publish" />
 										</copy>
 									</tasks>

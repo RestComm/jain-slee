@@ -217,7 +217,7 @@
 
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>binary-release</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -231,12 +231,12 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy overwrite="true" todir="${basedir}/../../../release/${release.name}/tools/jopr-plugin">
+										<copy overwrite="true" todir="${release.dir}/tools/jopr-plugin">
 											<fileset dir="${basedir}/target">
 												<include name="**.jar" />
 											</fileset>
 										</copy>
-										<copy overwrite="true" file="${basedir}/release/README.TXT" todir="${basedir}/../../../release/${release.name}/tools/jopr-plugin" />
+										<copy overwrite="true" file="${basedir}/release/README.TXT" todir="${release.dir}/tools/jopr-plugin" />
 									</tasks>
 								</configuration>
 							</execution>

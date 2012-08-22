@@ -1,16 +1,18 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>mobicents-slee-core</artifactId>
 		<version>2.8.0-SNAPSHOT</version>
+		<relativePath>..</relativePath>
 	</parent>
-	
+
 	<artifactId>mobicents-slee-core-container</artifactId>
-			
+
 	<packaging>pom</packaging>
-	
+
 	<properties>
 		<slee.name>Mobicents JAIN SLEE</slee.name>
 		<slee.vendor>Mobicents</slee.vendor>
@@ -19,7 +21,7 @@
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.cluster.version>1.13</mobicents.cluster.version>
 	</properties>
-	
+
 	<modules>
 		<module>jmx-property-editors</module>
 		<module>deployer</module>
@@ -38,15 +40,15 @@
 		<module>timers</module>
 		<module>services</module>
 		<module>congestion</module>
-		<module>ant-tasks</module>	
+		<module>ant-tasks</module>
 		<module>standard-components</module>
 		<module>server-resources</module>
 		<module>server-default-beans</module>
-		<module>server-all-beans</module>	
+		<module>server-all-beans</module>
 	</modules>
-        	
+
 	<dependencyManagement>
-		<dependencies>			
+		<dependencies>
 			<dependency>
 				<groupId>org.mobicents.cluster</groupId>
 				<artifactId>core</artifactId>
@@ -61,19 +63,25 @@
 				<groupId>org.mobicents.cluster</groupId>
 				<artifactId>timers</artifactId>
 				<version>${mobicents.cluster.version}</version>
-			</dependency>					
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
-			
+
 	<profiles>
 		<profile>
 			<id>maven-release</id>
 			<modules>
-				<module>docs</module>								
+				<module>docs</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>binary-release</id>
+			<modules>
+				<module>docs</module>
 			</modules>			
 		</profile>
-	</profiles>	
-	
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -93,5 +101,5 @@
 			</plugin>
 		</plugins>
 	</build>
-		
+
 </project>

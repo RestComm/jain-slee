@@ -1,5 +1,6 @@
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools.twiddle.docs</groupId>
@@ -86,18 +87,19 @@
 					</formats>
 					<options>
 						<xincludeSupported>true</xincludeSupported>
-						<!-- needed for uri-resolvers; can be ommitted if using 'current' uri scheme -->
+						<!-- needed for uri-resolvers; can be ommitted if using 'current' uri 
+							scheme -->
 						<!-- could also locate the docbook dependency and inspect its version... -->
-						<docbookVersion>1.72.0</docbookVersion>					
+						<docbookVersion>1.72.0</docbookVersion>
 					</options>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	<!-- 
+
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>binary-release</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -111,8 +113,9 @@
 								</goals>
 								<configuration>
 									<tasks>
-				
-										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/tools/twiddle/docs">
+										<!-- copy docs -->
+										<copy overwrite="true"
+											todir="${release.dir}/docs/tools/twiddle/user-guide">
 											<fileset dir="${basedir}/target/docbook/publish" />
 										</copy>
 									</tasks>
@@ -124,5 +127,5 @@
 			</build>
 		</profile>
 	</profiles>
-	 -->
+
 </project>
