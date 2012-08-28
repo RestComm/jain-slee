@@ -19,15 +19,15 @@
 				<para>In this form of installation, simply unzip the downloaded zip file to the directory of your choice on any operating system that supports the zip format.</para>
   				<step>
 				    <title>Unzip the release file</title>
-				    <para>Unzip the file to extract the archive contents into the location of your choice. You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named telscale-jainslee-&THIS.VERSION;.zip to the /telscale directory.</para>
+				    <para>Unzip the file to extract the archive contents into the location of your choice. You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named telscale-slee-&THIS.VERSION;.zip to the /telscale directory.</para>
 				    <screen>
 				    [usr]$ cd /telscale
-				    [usr]$ jar -xvf telscale-jainslee-&THIS.VERSION;.zip
+				    [usr]$ jar -xvf telscale-slee-&THIS.VERSION;.zip
 					</screen>
   				</step>
 				<step>
 			    	<title>Setting up JBOSS_HOME Environment Variable</title>
-				    <para> You should now have a directory called mobicents-jainslee-&THIS.VERSION;. Next you need to set your JBOSS_HOME environment variables. This is discussed in <xref linkend="jboss_home_setup"/>.</para>
+				    <para> You should now have a directory called telscale-slee-&THIS.VERSION;. Next you need to set your JBOSS_HOME environment variables. This is discussed in <xref linkend="jboss_home_setup"/>.</para>
 				</step>
 			</procedure>      
 		</section>	

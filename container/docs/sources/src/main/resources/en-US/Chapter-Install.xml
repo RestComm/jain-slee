@@ -40,7 +40,7 @@
 		</section>
 	</section>
 	
-	<xi:include href="Section-Install_Mobicents.xml"
+	<xi:include href="&THIS.PLATFORM.INSTALL_SECTION;"
 		xmlns:xi="http://www.w3.org/2001/XInclude" />	
 	
 	<section id="uninstall">

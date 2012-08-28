@@ -80,6 +80,13 @@
 				<module>docs</module>
 			</modules>			
 		</profile>
+		<profile>
+			<id>telscale</id>
+			<properties>
+				<slee.name>Telscale JAIN SLEE</slee.name>
+				<slee.vendor>Telestax</slee.vendor>
+			</properties>			
+		</profile>		
 	</profiles>
 
 	<build>
