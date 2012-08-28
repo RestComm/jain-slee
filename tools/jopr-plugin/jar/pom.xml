@@ -217,7 +217,7 @@
 
 	<profiles>
 		<profile>
-			<id>binary-release</id>
+			<id>release</id>
 			<build>
 				<plugins>
 					<plugin>
