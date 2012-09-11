@@ -27,7 +27,6 @@
 		<jboss.javaee.version>5.0.1.GA</jboss.javaee.version>
 		<jboss.security.version>2.0.3.SP1</jboss.security.version>
 		<getop.version>1.0.9</getop.version>
-		<mobicents.jslee.version>${project.version}</mobicents.jslee.version>
 	</properties>
 
 
@@ -44,17 +43,17 @@
 			<dependency>
 				<artifactId>jmx-property-editors</artifactId>
 				<groupId>org.mobicents.servers.jainslee.core</groupId>
-				<version>${mobicents.jslee.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<artifactId>activities</artifactId>
 				<groupId>org.mobicents.servers.jainslee.core</groupId>
-				<version>${mobicents.jslee.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<artifactId>spi</artifactId>
 				<groupId>org.mobicents.servers.jainslee.core</groupId>
-				<version>${mobicents.jslee.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.slee</groupId>
