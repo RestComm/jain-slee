@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 	<section id="install_alternatives">
 		<title>Install Alternatives</title>
 		
@@ -17,15 +20,15 @@
 		        </listitem>
 		    </varlistentry>
 		    <varlistentry>
-		        <term>Trunk Source Building</term>
+		        <term>Master Source Building</term>
 		        <listitem>
-		            <para>Similar as the Release Source Building, but done on the trunk (current development) source code.</para>
+		            <para>Similar as the Release Source Building, but done on the master (current development) source code.</para>
 		        </listitem>
 		    </varlistentry>
 		    <varlistentry>
 		        <term>Binary Release Snapshot</term>
 		        <listitem>
-		            <para>The binary release snapshot is a build of the trunk source code done daily and upoaded to a public web site.</para>
+		            <para>The binary release snapshot is a build of the master source code done daily and upoaded to a public web site.</para>
 		        </listitem>
 		    </varlistentry>		    
 		</variablelist>
@@ -52,7 +55,7 @@
 
 		<section id="binary_release_snapshot">
 			<title>Binary Release Snapshot</title>
-			<para>You can download the Binary Snapshot zip files from <ulink url="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Slee-2.x-Release/"/>. The installation is similar to the <xref linkend="binary_release"/> one.</para>
+			<para>You can download the Binary Snapshot zip files from <ulink url="https://mobicents.ci.cloudbees.com/job/SLEE-Master-Release/"/>. The installation is similar to the <xref linkend="binary_release"/> one.</para>
 		</section>	
 		
 		<section id="release_source_building">
@@ -61,10 +64,14 @@
 				<step>
 				    <title>Downloading the source code</title>
 				    <important>
-				    	<para>Subversion is used to manage its source code. Instructions for using Suversion, including install, can be found at <ulink url="http://svnbook.red-bean.com" /></para>
+				    	<para>Git is used to manage Mobicents JAIN SLEE source code. Instructions for downloading, installing and using Git can be found at <ulink url="http://git-scm.com/" /></para>
 				    </important>
-				    <para>Use SVN to checkout the specific release source, the base URL is http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/ , then add the specific release version, lets consider &THIS.VERSION;.</para>
-				    <programlisting>[usr]$ svn co http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/&THIS.VERSION; mobicents-slee-core-&THIS.VERSION;</programlisting>				    
+				    <para>Use Git to checkout the specific release source, the Git repository URL is https://code.google.com/p/jain-slee/ , then switch to the specific release version, lets consider &THIS.VERSION;.</para>
+				    <programlisting>
+				    [usr]$ git clone https://code.google.com/p/jain-slee.release mobicents-jain-slee-release
+				    [usr]$ cd mobicents-jain-slee-release
+				    [usr]$ git checkout tags/&THIS.VERSION;
+					</programlisting>
   				</step>
 				<step>
 				    <title>Building the source code</title>
@@ -73,17 +80,19 @@
 				    </important>
 				    <para>Use Ant to build the binary.</para>
 				    <programlisting>
-				    [usr]$ cd mobicents-slee-core-&THIS.VERSION;/release
 				    [usr]$ ant
 				    </programlisting>
 				    <para>Once the process finishes you should have a mobicents-jainslee-&THIS.VERSION;.zip file, installation is the same as for <xref linkend="binary_release"/>.</para>
   				</step>
-			</procedure>      
-		</section>	
+			</procedure>
+		</section>
 		
-		<section id="trunk_source_building">
-			<title>Trunk Source Building</title>
-			<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the SVN source code URL, which is http://mobicents.googlecode.com/svn/trunk/servers/jain-slee.</para>
-		</section>	
+		<section id="master_source_building">
+			<title>Master Source Building</title>
+			<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the Git reference should be the <literal>master</literal>. The <literal>git checkout tags/&THIS.VERSION;</literal> command should not be performed. If already performed, the following should be used in order to switch back to the master:</para>
+		    <programlisting>
+		    [usr]$ git checkout master
+			</programlisting>
+		</section>
 	
 	</section>

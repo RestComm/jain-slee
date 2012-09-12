@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="advanced_topics">
@@ -29,7 +32,7 @@
 mvn install</screen>		        
 			</listitem>
 		    <listitem>
-		        <para>Setup JAVA_OPTS environment variable to include -XX:MaxPermSize=128M -Djboss.defined.home=<literal>/Volumes/2/jboss-5.1.0.GA</literal> -Djava.security.manager=default -Djava.security.policy=<literal>file:///Volumes/2/workspace/mobicents-jainslee-2/</literal>tck/jain-slee-1.1/tck-security.policy, replacing the <literal>absolute paths</literal> with $JBOSS_HOME and the path of the svn checkout.</para>
+		        <para>Setup JAVA_OPTS environment variable to include -XX:MaxPermSize=128M -Djboss.defined.home=<literal>/Volumes/2/jboss-5.1.0.GA</literal> -Djava.security.manager=default -Djava.security.policy=<literal>file:///Volumes/2/workspace/mobicents-jainslee-2/</literal>tck/jain-slee-1.1/tck-security.policy, replacing the <literal>absolute paths</literal> with $JBOSS_HOME and the path of the Git checkout.</para>
 		    </listitem>
 		    <listitem>
 		        <para>Unzip and run the JAIN SLEE 1.1 TCK distribution:</para>

@@ -57,7 +57,7 @@
 		<para>To uninstall &THIS.PLATFORM; &MANAGEMENT.PLATFORM; simply delete the <filename>slee-management-console.war</filename> file from <filename><parameter>JBOSS_HOME</parameter>/server/<parameter>&lt;node&gt;</parameter>/deploy/</filename> directory.</para>
 	</section>
 	
-	<section id="build">
+	<section id="release_source_building">
 		<title>Building &THIS.PLATFORM; &MANAGEMENT.PLATFORM; from source</title>
 		<para>&THIS.PLATFORM; &MANAGEMENT.PLATFORM; can be built from source by using Maven build tool, following these steps:</para>
 		<para>
@@ -65,12 +65,14 @@
 				<step>
 					<title>Downloading the source code</title>
 					<important>
-						<para>Subversion is used to manage its source code. Instructions for using Subversion, including install, can be found at <ulink url="http://svnbook.red-bean.com" /></para>
+				    	<para>Git is used to manage Mobicents JAIN SLEE source code. Instructions for downloading, installing and using Git can be found at <ulink url="http://git-scm.com/" /></para>
 					</important>
-					<para>Use SVN to checkout a specific release source, the base URL is &THIS.RELEASE_SOURCE_CODE_URL;, then add the specific release version, eg: &THIS.VERSION;.</para>
-					<programlisting>[usr]$ svn co http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/slee-management-console/&THIS.VERSION;/ slee-management-console-&THIS.VERSION;</programlisting>
-					<para>If desired, it could be downloaded from the SVN trunk, but this is not always stable or even guaranteed to build correctly. To do so, use:</para>
-					<programlisting>[usr]$ svn co http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/slee-management-console/ slee-management-console</programlisting>
+				    <para>Use Git to checkout a specific release source, the Git repository URL is https://code.google.com/p/jain-slee/ , then switch to the specific release version, lets consider &THIS.VERSION;.</para>
+					<programlisting>
+				    [usr]$ git clone https://code.google.com/p/jain-slee mobicents-jain-slee-core
+				    [usr]$ cd mobicents-jain-slee-core
+				    [usr]$ git checkout tags/&THIS.VERSION;
+					</programlisting>
 				</step>
 				<step>
 					<title>Building the source code</title>
@@ -81,11 +83,20 @@
 						<para>Make sure to have the JBOSS_HOME environment variable set and pointing to the desired &THIS.PLATFORM; installation.</para>
 					</important>
 					<para>Use Maven to build the binaries.</para>
-					<programlisting>[usr]$ cd slee-management-console-&THIS.VERSION;
-[usr]$ mvn clean install</programlisting>
+					<programlisting>
+					[usr]$ cd tools/slee-management-console
+					[usr]$ mvn clean install
+					</programlisting>
 					<para>Once the process finishes you should have the <filename>slee-management-console.war</filename> file in the <filename><parameter>JBOSS_HOME</parameter>/server/<parameter>&lt;node&gt;</parameter>/deploy/</filename> directory.</para>
 				</step>
 			</procedure>	
 		</para>
+	</section>
+	<section id="master_source_building">
+		<title>Development Master Source Building</title>
+		<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the Git reference should be the <literal>master</literal>. The <literal>git checkout tags/&THIS.VERSION;</literal> command should not be performed. If already performed, the following should be used in order to switch back to the master:</para>
+	    <programlisting>
+	    [usr]$ git checkout master
+		</programlisting>
 	</section>
 </chapter>

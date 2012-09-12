@@ -14,9 +14,7 @@
 	<properties>
 		<THIS.PLATFORM>Mobicents</THIS.PLATFORM>
 		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
-		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/mobicents/issues/list</THIS.ISSUE_TRACKER_URL>
-		<THIS.RELEASE_SOURCE_CODE_URL>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/tools/${docs.application.dirname}</THIS.RELEASE_SOURCE_CODE_URL>
-		<THIS.TRUNK_SOURCE_CODE_URL>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/${docs.application.dirname}</THIS.TRUNK_SOURCE_CODE_URL>
+		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/jain-slee/issues/list</THIS.ISSUE_TRACKER_URL>
 		<author.email.bartosz>baranowb (at) gmail.com</author.email.bartosz>
 	</properties>
 
