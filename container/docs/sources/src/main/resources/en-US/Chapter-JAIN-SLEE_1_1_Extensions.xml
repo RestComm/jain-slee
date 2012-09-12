@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="slee_1_1_extensions">
@@ -10,9 +13,9 @@
 	
 	<para>The extensions were discussed among multiple <acronym>JAIN SLEE</acronym> vendors, and should become part of the standard in next revision, but there is no guarantee that portability won't be lost when using those.</para>
 	
-	<para>The extensions source code is available in the Mobicents Community SVN, specifically at <ulink url="http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/api/extensions/1.0.0.BETA1"/>. The setup for the source project in Eclipse IDE is similar to the container core, as seen in  <xref linkend="eclipse_ide"/>.</para>
-	
-	<para>Java archives (JARs) with compiled classes, javadocs and sources are available in the JBoss Maven Repository at <ulink url="http://repository.jboss.org/nexus/content/groups/public/org/mobicents/servers/jainslee/api/jain-slee-11-ext/1.0.0.BETA1/"/></para>
+	<para>The extensions source code is available in the &PLATFORM_NAME; SLEE Community Git repository, specifically at api/extensions subdirectory. Its javadocs are bundled in the SLEE binary release, in docs/container/javadoc subdirectory. The setup for the source project in Eclipse IDE is similar to the container core, as seen in  <xref linkend="eclipse_ide"/>.</para>	
+
+	<para>Java archives (JARs) with compiled classes, javadocs and sources are available in the Sonatype Maven Repository at <ulink url="https://oss.sonatype.org/content/groups/public/org/mobicents/servers/jainslee/api/jain-slee-11-ext/"/></para>
 	
 	<xi:include href="Section-Extension_SbbContext.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />

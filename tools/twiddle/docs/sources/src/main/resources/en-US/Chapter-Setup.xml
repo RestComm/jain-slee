@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter id="setup">
 
@@ -29,10 +32,14 @@
 				<step>
 				    <title>Downloading the source code</title>
 				    <important>
-				    	<para>Subversion is used to manage its source code. Instructions for using Subversion, including install, can be found at <ulink url="http://svnbook.red-bean.com" /></para>
+				    	<para>Git is used to manage Mobicents JAIN SLEE source code. Instructions for downloading, installing and using Git can be found at <ulink url="http://git-scm.com/" /></para>
 				    </important>
-				    <para>Use SVN to checkout a specific release source, the base URL is &THIS.RELEASE_SOURCE_CODE_URL;, then add the specific release version, lets consider &THIS.VERSION;.</para>
-				    <programlisting>[usr]$ svn co &THIS.RELEASE_SOURCE_CODE_URL;/&THIS.VERSION; &THIS.APPLICATION.DIRNAME;-&THIS.VERSION;</programlisting>
+				    <para>Use Git to checkout a specific release source, the Git repository URL is https://code.google.com/p/jain-slee/ , then switch to the specific release version, lets consider &THIS.VERSION;.</para>
+					<programlisting>
+				    [usr]$ git clone https://code.google.com/p/jain-slee mobicents-jain-slee-core
+				    [usr]$ cd mobicents-jain-slee-core
+				    [usr]$ git checkout tags/&THIS.VERSION;
+					</programlisting>
   				</step>
 				<step>
 				    <title>Building the source code</title>
@@ -41,7 +48,7 @@
 				    </important>
 				    <para>Use Maven to build the binaries.</para>
 				    <programlisting>
-				    [usr]$ cd &THIS.APPLICATION.DIRNAME;-&THIS.VERSION;
+				    [usr]$ cd tools/twiddle
 				    [usr]$ mvn install
 				    </programlisting>
 				    <para>Once the process finishes you should have the <literal>binary</literal> jar file in the <filename>target</filename> directory. Also <filename>&THIS.APPLICATION.BINARY.DIRNAME;</filename> directory should be present
@@ -50,9 +57,12 @@
 			</procedure>      
 		</section>	
 		
-		<section id="trunk_source_building">
-			<title>Development Trunk Source Building</title>
-			<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the SVN source code URL, which is &THIS.TRUNK_SOURCE_CODE_URL;.</para>
+		<section id="master_source_building">
+			<title>Development Master Source Building</title>
+			<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the Git reference should be the <literal>master</literal>. The <literal>git checkout tags/&THIS.VERSION;</literal> command should not be performed. If already performed, the following should be used in order to switch back to the master:</para>
+		    <programlisting>
+		    [usr]$ git checkout master
+			</programlisting>
 		</section>	
 		
 	</section>

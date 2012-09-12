@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="install">
@@ -14,7 +17,7 @@
 			<variablelist>
 				<varlistentry>
 					<term>Sufficient Disk Space</term>
-					<listitem><para>Once unzipped, the JAIN SLEE binary release requires <emphasis>at least</emphasis> 300MB of free disk space.  Keep in mind that disk space requirements may change from release to release.</para></listitem>
+					<listitem><para>Once unzipped, the &THIS.PLATFORM; JAIN SLEE binary release requires <emphasis>at least</emphasis> 500MB of free disk space. Keep in mind that disk space requirements may change from release to release.</para></listitem>
 				</varlistentry>
 				<varlistentry>
 					<term>Anything Java Itself Will Run On</term>

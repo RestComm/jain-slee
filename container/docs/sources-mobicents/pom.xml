@@ -16,7 +16,7 @@
 		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
 		<MANAGEMENT.PLATFORM>Jopr</MANAGEMENT.PLATFORM>
 		<THIS.PLATFORM.INSTALL_SECTION>Section-Install_Mobicents.xml</THIS.PLATFORM.INSTALL_SECTION>
-		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/mobicents/issues/list</THIS.ISSUE_TRACKER_URL>
+		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/jain-slee/issues/list</THIS.ISSUE_TRACKER_URL>
 		<author.email.ivelin>ivelin.atanasoff.ivanov (at) gmail.com</author.email.ivelin>
 		<author.email.eduardo>emmartins (at) gmail.com</author.email.eduardo>
 		<author.email.alex>brainslog (at) gmail.com</author.email.alex>
