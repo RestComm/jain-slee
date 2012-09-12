@@ -15,37 +15,37 @@
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>spi</artifactId>
-			<version>${mobicents.jslee.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>activities</artifactId>
-			<version>${mobicents.jslee.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>common</artifactId>
-			<version>${mobicents.jslee.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>services</artifactId>
-			<version>${mobicents.jslee.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>router</artifactId>
-			<version>${mobicents.jslee.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>congestion</artifactId>
-			<version>${mobicents.jslee.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<!--

@@ -112,8 +112,7 @@
 								<configuration>
 									<tasks>
 										<!-- copy docs -->
-										<copy overwrite="true"
-											todir="${release.dir}/docs/tools/twiddle/user-guide">
+										<copy overwrite="true" todir="${release.dir}/docs/tools/twiddle/user-guide">
 											<fileset dir="${basedir}/target/docbook/publish" />
 										</copy>
 									</tasks>
