@@ -18,7 +18,6 @@
 		<checkout.username>ze carlos</checkout.username>
 		<checkout.password />
 		<tag.version>ts1</tag.version>
-
 		<!-- GIT -->
 		<!--
 		<core.scmVersion>${tag.version}</core.scmVersion>
@@ -75,10 +74,12 @@
 		<sip.scmVersionType>branch</sip.scmVersionType>	
 		<smpp.scmVersion>ts1</smpp.scmVersion>
 		<smpp.scmVersionType>branch</smpp.scmVersionType>		
+		<!--
 		<ss7.scmVersion>ts1</ss7.scmVersion>
 		<ss7.scmVersionType>branch</ss7.scmVersionType>	
 		<tftp.scmVersion>ts1</tftp.scmVersion>
 		<tftp.scmVersionType>branch</tftp.scmVersionType>		
+		-->
 		<xcap.scmVersion>ts1</xcap.scmVersion>
 		<xcap.scmVersionType>branch</xcap.scmVersionType>		
 		<xmpp.scmVersion>ts1</xmpp.scmVersion>
@@ -328,6 +329,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
+					<!--
 					<execution>
 						<id>ss7-checkout</id>
 						<goals>
@@ -345,6 +347,8 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
+					-->
+					<!--
 					<execution>
 						<id>tftp-checkout</id>
 						<goals>
@@ -362,6 +366,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
+					-->
 					<execution>
 						<id>xcap-checkout</id>
 						<goals>

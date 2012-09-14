@@ -9,32 +9,22 @@
 	<property name="tmp.jboss.home" value="${output.dir}/tmp" />
 
 	<property name="jboss.version" value="5.1.0.GA" />
-	<property name="release.version" value="6.1.0-TelScale-SNAPSHOT" />
+	<property name="release.version" value="6.1.1-TelScale-SNAPSHOT" />
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip" />
 	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/" />
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
 	<property name="jboss.config" value="default" />
 	<property name="release.profile" value="telscale" />
 
-	<!--
-	<property name="mms.version" value="2.1.0.BETA4" />
-	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-2.1.0-b5.zip"/>
-	<property name="mms.download.url" value ="http://hudson.qa.jboss.com/hudson/view/Mobicents/job/Mobicents-MediaServer-2.x-Release/544/artifact/mms-server-r21834-120202212603.zip"/>	
-	-->
 	<property name="mms.download.url" value="http://mobicents.googlecode.com/files/mms-server-r21834-120202212603.zip" />
-	<property name="mms.distro.zip.path" value="media-server.zip" />
+	<property name="mms.distro.zip.path" value="telscale-mms.zip" />
 
-	<property name="ss7.version" value="1.0.0.FINAL" />
-	<property name="ss7.download.url" value="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Protocols%20Suite/${ss7.version}/mobicents-ss7-${ss7.version}.zip" />
-	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip" />
+	<property name="ss7.download.url" value="https://www.dropbox.com/s/pa9er1atzex0hno/TelScale-jSS7-6.1.1.GA.zip?dl=1" />
+	<property name="ss7.distro.zip.path" value="telscale-ss7.zip" />
 
 
-	<property name="diameter.version" value="1.4.0.FINAL" />
-	<property name="diameter.download.url" value="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip" />
-	<!--
-	<property name="diameter.download.url" value ="http://ci.jboss.org/jenkins/view/Mobicents/job/Mobicents-Diameter-1.x-Release/lastSuccessfulBuild/artifact/mobicents-diameter-mux-jboss5-1.4.0-SNAPSHOT-201109060020.sar.zip"/>	
-	-->
-	<property name="diameter.distro.zip.path" value="diameter-mux.zip" />
+	<property name="diameter.download.url" value="https://www.dropbox.com/s/guctrkslevubtzz/TelScale-diameter-mux-jboss5-6.1.1.GA.sar.zip?dl=1" />
+	<property name="diameter.distro.zip.path" value="telscale-diameter.zip" />
 
 	<!--
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_2.0.0-SNAPSHOT.jar"/>
@@ -160,17 +150,21 @@
 	</target>
 
 	<target name="build-ss7" description="">
+		<!--
 		<antcall target="build-package">
 			<param name="package.name" value="ss7" />
-			<param name="javadoc.dirs" value="resources/map,resources/jcc" />
+			<param name="javadoc.dirs" value="resources/map" />
 		</antcall>
+		-->
 	</target>
 
 	<target name="build-tftp" description="">
+		<!--
 		<antcall target="build-package">
 			<param name="package.name" value="tftp" />
 			<param name="javadoc.dirs" value="resources/tftp-server" />
 		</antcall>
+		-->
 	</target>
 
 	<target name="build-xcap" description="">
@@ -320,35 +314,43 @@
 
 	<available file="${ant.file.mobicents.release}/../${mms.distro.zip.path}" property="got.mms" />
 	<target name="get-mms" unless="got.mms">
-		<echo>Downloading Mobicents Media Server</echo>
+		<!--
+		<echo>Downloading Media Server</echo>
 		<get dest="${ant.file.mobicents.release}/../${mms.distro.zip.path}" src="${mms.download.url}" />
+		-->
 	</target>
 
 	<target name="unzip-mms">
-		<delete dir="${release.dir}/extra/mobicents-media-server" failonerror="false" />
-		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/mobicents-media-server" />
+		<!--
+		<delete dir="${release.dir}/extra/telscale-media-server" failonerror="false" />
+		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/telscale-media-server" />
+		-->
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" property="got.ss7" />
 	<target name="get-ss7" unless="got.ss7">
-		<echo>Downloading Mobicents SS7</echo>
+		<!--
+		<echo>Downloading SS7</echo>
 		<get dest="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" src="${ss7.download.url}" />
+		-->
 	</target>
 
 	<target name="unzip-ss7">
-		<delete dir="${release.dir}/extra/mobicents-ss7" failonerror="false" />
-		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/mobicents-ss7" />
+		<!--
+		<delete dir="${release.dir}/extra/telscale-ss7" failonerror="false" />
+		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/telscale-ss7" />
+		-->
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" property="got.diameter" />
 	<target name="get-diameter" unless="got.diameter">
-		<echo>Downloading Mobicents Diameter</echo>
+		<echo>Downloading Diameter</echo>
 		<get dest="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" src="${diameter.download.url}" />
 	</target>
 
 	<target name="unzip-diameter">
-		<delete dir="${release.dir}/extra/mobicents-diameter" failonerror="false" />
-		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/extra/mobicents-diameter" />
+		<delete dir="${release.dir}/extra/telscale-diameter" failonerror="false" />
+		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/extra/telscale-diameter" />
 	</target>
 
 	<target name="get-eclipslee">
