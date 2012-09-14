@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="install">
@@ -8,18 +11,18 @@
 
 	<section id="preinstall_requirements_and_prerequisites">
 		<title>Pre-Install Requirements and Prerequisites</title>
-		<para>Ensure that the following requirements have been met before continuing with the install.</para>
+		<para>As you would expect from any server installation, having the proper environment is conducive to getting a functional product. You need to ensure that the following requirements are met before proceeding with the installation.</para>
 		<section id="hardware_requirements">
 			<title>Hardware Requirements</title>
 			<variablelist>
 				<varlistentry>
 					<term>Sufficient Disk Space</term>
-					<listitem><para>Once unzipped, the JAIN SLEE binary release requires <emphasis>at least</emphasis> 300MB of free disk space.  Keep in mind that disk space requirements may change from release to release.</para></listitem>
+					<listitem><para>Once unzipped, the JAIN SLEE binary release requires <emphasis>a minimum of</emphasis> 300MB of free disk space.  The minimum disk space is subject to change in future releases. </para></listitem>
 				</varlistentry>
 				<varlistentry>
 					<term>Anything Java Itself Will Run On</term>
 					<listitem>
-						<para>The &THIS.PLATFORM; JAIN SLEE container, and bundled JAIN SLEE components are 100% java. The JAIN SLEE will run on the same hardware that the &JEE.PLATFORM; runs on, but it is recommended at least 2GB or 4GB of RAM memory, for 32 or 64 bit Operating Systems.</para>
+						<para>The &THIS.PLATFORM; JAIN SLEE container and the bundled JAIN SLEE components are 100% java. The JAIN SLEE will run on the same hardware that the &JEE.PLATFORM; runs on. It is recommended that your server have a minimum of 2GB of RAM (4GB will be better). The operating system can either be 32 bits or 64 bits.</para>
 					</listitem>
 				</varlistentry>
 			</variablelist>	
@@ -30,7 +33,7 @@
 				<varlistentry>
 					<term>JDK 6</term>
 					<listitem>
-						<para>A working installation of the Java Development Kit (<acronym>JDK</acronym>) version 6 is required in order to run the &THIS.PLATFORM; JAIN SLEE. Note that the &JEE.PLATFORM; is a runtime dependency, but comes bundled with the binary distribution.</para>
+						<para>A working installation of the Java Development Kit (<acronym>JDK</acronym>) version 6 is required in order to run the &THIS.PLATFORM; JAIN SLEE. Note that the &JEE.PLATFORM; is runtime dependent. It comes pre-packaged with the binary distribution.</para>
 						
 						<para>For instructions on how to install the JDK, refer to <xref
 							linkend="jdk-installing_configuring_and_running"/>.</para>							
@@ -45,7 +48,7 @@
 	
 	<section id="uninstall">
 		<title>Uninstall &THIS.PLATFORM; JAIN SLEE</title>
-		<para>To uninstall simply delete the directory containing &THIS.PLATFORM; JAIN SLEE.</para>
+		<para>To uninstall, simply delete the directory containing &THIS.PLATFORM; JAIN SLEE.</para>
 	</section>			
 	
 </chapter>

@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 	<section id="install_alternatives">
 		<title>Install Alternatives</title>
 		
@@ -14,12 +17,13 @@
 
 		<section id="binary_release">
 			<title>Binary Release</title>
-			<para>You can download the Binary zip files from <ulink url="?"/>.</para>
+			<para>You can download the Binary zip files from <ulink url=" http://ci.telestax.com/job/Telscale-SLEE-Release/">DOWNLOAD LATEST SLEE RELEASE  </ulink> </para>
 			<procedure>
-				<para>In this form of installation, simply unzip the downloaded zip file to the directory of your choice on any operating system that supports the zip format.</para>
+				<para>To perform the installation, simply extract the content of the downloaded zip file to the directory of your choice on your computer.
+</para>
   				<step>
-				    <title>Unzip the release file</title>
-				    <para>Unzip the file to extract the archive contents into the location of your choice. You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named telscale-slee-&THIS.VERSION;.zip to the /telscale directory.</para>
+				    <title>Extract the release file</title>
+				    <para>Unzip the file to extract the archive contents into the location of your choice. You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below, it is assumed that the downloaded zip file is named telscale-slee-&THIS.VERSION;.zip and it is located in the /telscale directory.</para>
 				    <screen>
 				    [usr]$ cd /telscale
 				    [usr]$ jar -xvf telscale-slee-&THIS.VERSION;.zip

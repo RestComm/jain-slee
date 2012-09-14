@@ -40,7 +40,7 @@
 	<section id="management_persistent_deployer_additional_behavior">
 		<title>Beyond Deployable Unit (Un)Install</title>
 		<variablelist>
-			<para>The file deployer provides additional behavior then simply (un)install deployable unit jars, as done through the JAIN SLEE 1.1 DeploymentMBean:</para>					
+			<para>The file deployer provides additional features other than simply (un)install deployable unit jars, as done through the JAIN SLEE 1.1 DeploymentMBean:</para>					
 	  		<varlistentry>
 		   	    <term>Service (De)Activation</term>
 		        <listitem>

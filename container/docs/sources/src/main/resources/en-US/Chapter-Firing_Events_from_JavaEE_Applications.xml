@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="slee_connection_factory">
@@ -19,7 +22,7 @@
 		
 		<section id="remote_slee_connection_factory">
 			<title>Remote SLEE Connection Factory</title>
-			<para>JAIN SLEE includes a tool, named Remote SLEE Connection Tool, which is a JCA connector that can be deployed in any Java EE application server. Once deployed this connector installs the factory into JNDI, which communicates with the remote SLEE container through RMI.</para>
+			<para>JAIN SLEE includes a tool, named Remote SLEE Connection Tool, which is a JCA connector that can be deployed in any Java EE application server. Once deployed, this connector installs the factory into JNDI, which communicates with the remote SLEE container through RMI.</para>
 			<para>&THIS.PLATFORM; Remote SLEE Connection Tool is bundled in all &THIS.PLATFORM; JAIN SLEE releases, in the tools/remote-slee-connection directory, including its own documentation.</para>
 		</section>
 		

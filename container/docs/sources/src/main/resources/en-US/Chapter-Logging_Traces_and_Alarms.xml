@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="logging_traces_and_alarms">
@@ -9,7 +12,7 @@
 	<section id="log4j_service">
 		<title>Log4j Logging Service</title>
 		<para>In &THIS.PLATFORM; JAIN SLEE <literal>Apache log4j</literal> is used for logging. If you are not familiar with the log4j package and would like to use it in your applications, you can read more about it at the <ulink url="http://jakarta.apache.org/log4j/">Jakarta web site</ulink>.</para>
-    	<para>Logging is controlled from a central <filename>conf/jboss-log4j.xml</filename> file, in each server configuration profile. This file defines a set of appenders specifying the log files, what categories of messages should go there, the message format and the level of filtering. By default, in &THIS.PLATFORM; produces output to both the console and a log file (<filename>log/server.log</filename>).</para>
+    	<para>Logging is controlled from a central <filename>conf/jboss-log4j.xml</filename> file, in each server configuration profile. This file defines a set of appenders specifying the log files, what categories of messages should go there, the message format and the level of filtering. By default,  &THIS.PLATFORM; produces output to both the console and a log file (<filename>log/server.log</filename>).</para>
     	<para>There are 6 basic log levels used: TRACE, DEBUG, INFO, WARN, ERROR and FATAL. </para>
     	<para>Logging is organized in categories and appenders. Appenders control destination of log entries. Different appenders differ in configuration, however each supports threshold. Threshold filters log entries based on their level. Threshold set to WARN will allow log entry to pass into appender if its level is WARN, ERROR or FATAL, other entries will be discarded. For more details on appender configuration please refer to its documentation or java doc.</para>
     	<para>The logging threshold on the console is INFO, by default.  In contrast, there is no threshold set for the server.log file, so all generated logging messages are  logged there. </para>
@@ -111,10 +114,27 @@
 			<para>Multiple notification sources may have tracers with same name in SLEE. Comparing with common logging frameworks, this would mean that the notification source would be part of the log category or name.</para>
 		</important>
 		<para>For further information on how to use <literal>JAIN SLEE Trace Facility</literal> and receive JMX notifications refer to the JAIN SLEE 1.1 Specification.</para>
+
+
 		<section id="tracers_vs_log4j">
 			<title>JAIN SLEE Tracers and Log4j</title>
 			<para>&THIS.PLATFORM; JAIN SLEE Tracers additionally log messages to <application>Apache Log4j</application>, being the log4j category, for notification source <literal>X</literal>, defined as <literal>javax.slee.</literal> concatenated with the <literal>X.toString()</literal>.</para>
-			<para>For instance, the full log4j logger <literal>name</literal> for tracer named <literal>GoogleTalkBotSbb</literal>, of sbb notification source with <literal>SbbID[name=GoogleTalkBotSbb,vendor=mobicents,version=1.0]</literal> and <literal>ServiceID[name=GoogleTalkBotService,vendor=mobicents,version=1.0]</literal>, would be <literal>javax.slee.SbbNotification[service=ServiceID[name=GoogleTalkBotService, vendor=mobicents,version=0.1], sbb=SbbID[name=GoogleTalkBotSbb,vendor=mobicents, version=0.1]].GoogleTalkBotSbb</literal> (without the spaces or breaks), which means a log4j category defining its level as <literal>DEBUG</literal> could be:</para>
+
+<screen>
+
+For instance, the full log4j logger  name for tracer named  GoogleTalkBotSbb, of sbb notification source with 
+SbbID[name=GoogleTalkBotSbb,vendor=mobicents,version=1.0] and
+ ServiceID[name=GoogleTalkBotService,vendor=mobicents,version=1.0]
+would be 
+ javax.slee.SbbNotification[service=ServiceID[name=GoogleTalkBotService, 
+vendor=mobicents,version=0.1], sbb=SbbID[name=GoogleTalkBotSbb,vendor=mobicents, version=0.1]].GoogleTalkBotSbb
+(without the spaces or breaks),
+
+</screen>
+
+which means a log4j category defining its level as  DEBUG  could be:
+
+
 			<programlisting language="XML" role="XML"><![CDATA[
 <category
 	name="javax.slee.SbbNotification[service=ServiceID[name=GoogleTalkBotService,

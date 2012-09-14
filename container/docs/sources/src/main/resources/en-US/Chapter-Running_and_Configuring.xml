@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="configuration_and_running">
@@ -9,18 +12,18 @@
 	
 	<section id="server_profiles">
 		<title>Server Profiles</title>
-		<para>&THIS.PLATFORM; JAIN SLEE reuses &JEE.PLATFORM; server profiles to expose different configurations for different needs:</para>
+		<para>&THIS.PLATFORM; JAIN SLEE reuses &JEE.PLATFORM; server profiles. There are two main profiles that can be configured and adapted according to your needs.</para>
 		<variablelist>
 		    <varlistentry>
 		        <term>Default Profile</term>
 		        <listitem>
-		            <para>The <application>default</application> profile is proper for standalone or pure high availability. It provides the best performance per cluster node, with linear scaling, but there is no state replication in the cluster, which means that there is no support for failover, neither there is any kind of state gravitation (one node sending state so another node continues its work.</para>
+		            <para>The <application>default</application> profile is suitable for standalone and for high availability. It provides the best performance per cluster node, with linear scaling, but there is no state replication in the cluster. The lack of state replication means means that there is no support for failover nor is state gravitation available. State gravitation is when one node sends state information leaving the other node to continue servicing client requests).</para>
 		        </listitem>
 		    </varlistentry>
 		    <varlistentry>
 		        <term>All Profile</term>
 		        <listitem>
-		            <para>The <application>all</application> profile is proper for more flexible high availability and failover support. Performance per node decreases but the cluster does state replication or gravitation.</para>
+		            <para>The <application>All</application> profile is used for more flexible high availability and failover support. Performance per node decreases but the cluster does state replication or gravitation.</para>
 		        </listitem>
 		    </varlistentry>
 		</variablelist>
@@ -29,11 +32,21 @@
 	
 	<section id="running">
 		<title>Running &THIS.PLATFORM; JAIN SLEE</title>
-		<para>Starting or stopping &THIS.PLATFORM; JAIN SLEE is no different than starting or stopping &JEE.PLATFORM;</para>
+		<para>Starting or stopping &THIS.PLATFORM; JAIN SLEE is no different from starting or stopping &JEE.PLATFORM;</para>
 		<section
 			id="starting">
 			<title>Starting</title>
-			<para>Once installed, you can run server(s) by executing the run.sh (Unix) or run.bat (Microsoft Windows) startup scripts in the <filename>&lt;install_directory&gt;/bin</filename> directory (on Unix or Windows).</para>
+			<para>Once you have installed &THIS.PLATFORM;, you can start the process by executing the run.sh (Unix and Linux) or run.bat (Microsoft Windows) startup scripts in the <filename>$JBOSS_HOME/bin</filename> directory (on Unix, Linux or Windows).</para>
+
+
+<note>
+<title> Root Directory</title>
+
+<para>
+In this guide, the root directoy in which you extracted the &THIS.PLATFORM; binary is refered to as $JBOSS_HOME.
+</para>
+
+</note>
 			<section
 			id="starting_paramaters">
 				<title>Starting Parameters</title>
@@ -42,14 +55,43 @@
 				   	    <term>Server Profile</term>
 				        <listitem>
 				            <para>To specify the server profile use <command>-c profile_name</command>, for instance, to use the <application>all</application> profile then start the server with <command>-c all</command></para>
-				            <important><para>If not specified the <application>default</application> profile is used.</para></important>
+			
+
+<screen>
+
+In the $JBOSS_HOME/bin/ directory type
+
+./run.sh -c all
+
+</screen>	      
+
+<!--
+      <important><para>If not specified the <application>default</application> profile is used.</para></important>
+-->
 		    		    </listitem>
 					</varlistentry>
 				    <varlistentry>
 				    	<term>IP / Host</term>
 		        		<listitem>
 				            <para>To specify the IP/Host which the server binds, use <command>-b IP</command>, for instance, to use the 192.168.0.1 IP then start the server with <command>-b 192.168.0.1</command></para>
-				            <important><para>If not specified then <application>127.0.0.1</application> is used.</para></important>
+				            
+<screen>
+
+In the $JBOSS_HOME/bin/ directory type
+
+./run.sh -b 192.168.0.1
+
+</screen>
+
+<!--
+<important><para>If not specified then <application>127.0.0.1</application> is used.</para></important>
+-->
+
+
+
+
+
+
 				        </listitem>
 				    </varlistentry>
 				</variablelist>
@@ -58,7 +100,20 @@
 		<section
 			id="stopping">
 			<title>Stopping</title>
-			<para>You can shut down the server(s) by executing the <command>shutdown.sh -s</command> (Unix) or <command>shutdown.bat -s</command> (Microsoft Windows) scripts in the <filename>&lt;install_directory&gt;/bin</filename> directory (on Unix or Windows). Note that if you properly stop the server, you will see the following three lines as the last output in the Unix terminal or Command Prompt:</para>
+			<para>You can shut down &THIS.PLATFORM; by executing the <command>shutdown.sh -s</command> (Unix and Linux) or <command>shutdown.bat -s</command> (Microsoft Windows) scripts in the <filename>&lt;install_directory&gt;/bin</filename> directory (on Unix or Windows).</para>
+
+
+<screen>
+
+In the $JBOSS_HOME/bin/ directory type
+
+./shutdown.sh -s
+
+</screen>
+
+
+<para>
+Note that if the server is correctly stopped, you will see the following three lines as the last output in the Unix, Linux terminal or Command Prompt:</para>
 			<screen><![CDATA[[Server] Shutdown complete
 Shutdown complete
 Halting VM]]></screen>
@@ -67,7 +122,7 @@ Halting VM]]></screen>
 	
 	<section id="configuration">
 		<title>Configuring &THIS.PLATFORM; JAIN SLEE</title>
-		<para>JAIN SLEE is configured through an XML descriptor for each <xref linkend="server_profiles" />. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/META-INF</filename>, where <application>profile_name</application> is the server profile name.</para>
+		<para>JAIN SLEE is configured through an XML descriptor for each <xref linkend="server_profiles" />. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/META-INF</filename>, where <application>profile_name</application> is the server profile name (all or default).</para>
     <warning>
       <para>
       This configuration greatly affects performance or correctness of the container behavior. This is for advanced users that know the internals of the container.

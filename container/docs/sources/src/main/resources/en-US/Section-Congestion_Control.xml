@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <section id="congestion_control">
 	
@@ -7,7 +10,7 @@
 	
 	<para>JAIN SLEE can monitor the memory available in the JVM. In case it drops to a certain level (percentage), new events and/or activity startups are rejected, and at the same time a JAIN SLEE Alarm (which can send JMX notifications) is raised. This feature is called Congestion Control, and the container will turn it off automatically once another available memory level is reached.</para>
 	
-	<para>If Congestion Control rejects an operation, a <classname>javax.slee.SleeException</classname> is thrown. This means that if the feature is to be used, the Resource Adaptors and Applications need to handle such use case, and behave properly.</para>
+	<para>If Congestion Control rejects an operation, a <classname>javax.slee.SleeException</classname> is thrown. This means that if the feature is to be used, the Resource Adaptors and Applications need to handle such use case.</para>
 	
 	<para>The type of JAIN SLEE Alarm raised is <application>org.mobicents.slee.management.alarm.congestion</application>.</para>
 	
@@ -16,7 +19,7 @@
 	<section id="congestion_control_configuration">
 		<title>Congestion Control Configuration</title>
 	
-		<para>The Congestion Control feature is configured through an XML file or through a JMX MBean. Changes applied through JMX are not persisted, and once the container is restarted the configuration will revert to the one in the XML file.</para>
+		<para>The Congestion Control feature is configured through an XML file or through a JMX MBean. Changes applied through JMX are not persistent, and once the container is restarted the configuration will revert to the one in the XML file.</para>
 	
 		<section id="congestion_control_persistent_configuration">
 			<title>Congestion Control Persistent Configuration</title>
@@ -82,7 +85,7 @@
 		
 		<section id="congestion_control_jmx_configuration">
 			<title>Congestion Control JMX Configuration</title>
-			<para>Through JMX, the Congestion Control feature configuration can be changed with the container running. These configuration changes are not persisted.</para>
+			<para>Through JMX, the Congestion Control feature configuration can be changed with the container running. These configuration changes are not persistent.</para>
 			
 			<para>The JMX MBean which can be used to change the Congestion Control configuration is named <application>org.mobicents.slee:name=CongestionControlConfiguration</application>, and provides getters and setters to change each property defined in the persistent configuration. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
 		</section>	

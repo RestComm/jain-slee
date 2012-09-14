@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <section id="slee_1_1_extensions_library_references">
 	
@@ -7,9 +10,9 @@
 	
 	<para>JAIN SLEE 1.1 standard introduced the Library component, a wrapper for a set of jars and/or classes to be referenced and used by other components types, such as SBBs.</para>
 	
-	<para>The usage of the standard Library component is very limited, each Library can only refer other Library components. Due to this limitation a developer may not be able to include classes in a Library that depend, just as example, on Resource Adaptor Type interfaces, unless of course those interfaces are in a Library too.</para>
+	<para>The usage of the standard Library component is very limited, each Library can only refer other Library components. Due to this limitation a developer may not be able to include classes in a dependent Library. For example, on Resource Adaptor Type interfaces, you will be unable to include clases unless those interfaces are in a Library too.</para>
 	
-	<para>This extension allows libraries to reference other component types, which the developer should use when the classes in the Library need to use classes from that component, by simply extending the JAIN SLEE 1.1 Library Jar XML descriptor.</para>
+	<para>This extension allows libraries to reference other component types by simply extending the JAIN SLEE 1.1 Library Jar XML descriptor.</para>
 	
 	<section id="slee_1_1_ext_library_jar_xml_descriptor_dtd">
 		<title>Extended Library Jar XML Descriptor DTD</title>
