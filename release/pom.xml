@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.23-SNAPSHOT</version>
+		<version>6.1.2.GA-TelScale</version>
 	</parent>
 	
 	<artifactId>sources-checkout</artifactId>
@@ -47,13 +47,13 @@
 		<xmpp.scmVersion>${tag.version}</xmpp.scmVersion>
 		<xmpp.scmVersionType>tag</xmpp.scmVersionType>
 		-->
-		<cluster.scmVersion>ts111ga</cluster.scmVersion>
+		<cluster.scmVersion>ts112ga</cluster.scmVersion>
 		<cluster.scmVersionType>tag</cluster.scmVersionType>
-		<jain-sip-ext.scmVersion>ts111ga</jain-sip-ext.scmVersion>
+		<jain-sip-ext.scmVersion>ts112ga</jain-sip-ext.scmVersion>
 		<jain-sip-ext.scmVersionType>tag</jain-sip-ext.scmVersionType>
-		<jain-sip-ha.scmVersion>ts111ga</jain-sip-ha.scmVersion>
+		<jain-sip-ha.scmVersion>ts112ga</jain-sip-ha.scmVersion>
 		<jain-sip-ha.scmVersionType>tag</jain-sip-ha.scmVersionType>
-		<sip-balancer.scmVersion>ts111ga</sip-balancer.scmVersion>
+		<sip-balancer.scmVersion>ts112ga</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
 		
 		<core.scmVersion>ts1</core.scmVersion>
@@ -74,9 +74,9 @@
 		<sip.scmVersionType>branch</sip.scmVersionType>	
 		<smpp.scmVersion>ts1</smpp.scmVersion>
 		<smpp.scmVersionType>branch</smpp.scmVersionType>		
-		<!--
 		<ss7.scmVersion>ts1</ss7.scmVersion>
 		<ss7.scmVersionType>branch</ss7.scmVersionType>	
+		<!--
 		<tftp.scmVersion>ts1</tftp.scmVersion>
 		<tftp.scmVersionType>branch</tftp.scmVersionType>		
 		-->
@@ -329,7 +329,6 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
-					<!--
 					<execution>
 						<id>ss7-checkout</id>
 						<goals>
@@ -347,7 +346,6 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
-					-->
 					<!--
 					<execution>
 						<id>tftp-checkout</id>
@@ -434,19 +432,31 @@
 
 	<repositories>
                 <repository>
-                        <id>mobicents-public-repository-group</id>
-                        <name>Mobicents Public Maven Repository Group</name>
-                        <url>https://oss.sonatype.org/content/groups/public</url>
-                        <layout>default</layout>
-                        <releases>
-                                <enabled>true</enabled>
-                                <updatePolicy>never</updatePolicy>
-                        </releases>
-                        <snapshots>
-                                <enabled>true</enabled>
-                                <updatePolicy>never</updatePolicy>
-                        </snapshots>
+                  <id>telscale-releases-repository</id>
+                  <name>TelScale Releases Repository</name>
+                  <url>http://telestax.artifactoryonline.com/telestax/releases</url>
+                  <releases>
+                    <enabled>true</enabled>
+                    <updatePolicy>never</updatePolicy>
+                  </releases>
+                  <snapshots>
+                    <enabled>false</enabled>
+                    <updatePolicy>never</updatePolicy>
+                  </snapshots>                            
                 </repository>
+                <repository>
+                  <id>telscale-snapshots-repository</id>
+                  <name>TelScale Snapshots Repository</name>
+                  <url>http://telestax.artifactoryonline.com/telestax/snapshots</url>
+                  <releases>
+                    <enabled>false</enabled>
+                    <updatePolicy>never</updatePolicy>
+                  </releases>
+                  <snapshots>
+                    <enabled>true</enabled>
+                    <updatePolicy>never</updatePolicy>
+                  </snapshots>                            
+                </repository>                
         </repositories>
 	
 </project>

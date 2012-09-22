@@ -1,28 +1,28 @@
-========================================================
-! Welcome to Mobicents - The Open Source JAIN SLEE     !
-========================================================
+=================================================================
+! Welcome to Telscale - The Open Source Carrier Grade JAIN SLEE !
+=================================================================
 
-Mobicents is the First and Only Certified Open Source implementation of JAIN-SLEE 1.1.  
+Telscale JAIN SLEE is the First and Only Certified Open Source implementation of JAIN-SLEE 1.1, carrier grade and with professional support.  
 
-Mobicents home page: http://www.mobicents.org
+Telscale JAIN SLEE home page: http://www.telestax.com
 
-This is the binary release of Mobicents JAIN SLEE 2.x.
+This is the binary release of Telscale JAIN SLEE 6.x.
 
 Directory Structure
 -------------------
 
- +--- jboss-5.X.Y.GA				(JBoss AS with the JAIN SLEE 2.x container deployed)
- +--- resources						(JAIN SLEE Resource Adaptors and related scripts)
- +--- enablers						(JAIN SLEE Application Enablers)
- +--- examples						(JAIN SLEE Application Examples)
- +--- tools/jopr-plugin		(JOPR Management Console)
+ +--- jboss-5.X.Y.GA			(JBoss AS with the JAIN SLEE container deployed)
+ +--- resources				(JAIN SLEE Resource Adaptors and related scripts)
+ +--- enablers				(JAIN SLEE Application Enablers)
+ +--- examples				(JAIN SLEE Application Examples)
+ +--- tools/jopr-plugin		(Jopr Management Console)
  +--- tools/remote-slee-connection	(Remote SLEE Connection Tool)
- +--- tools/twiddle					(Twiddle Command Line Interface)
- +--- tools/eclipslee				(EclipSLEE Plugin)
- +--- extra/mobicents-media-server  (Mobicents Media Server Standalone, required by some examples, MGCP and MSControl RAs)
- +--- extra/mobicents-diameter		(Mobicents Diameter Mux, required by Diameter RAs)
- +--- extra/mobicents-ss7			(Mobicents SS7, required by JCC and MAP RAs)
- +--- extra/sip-balancer			(Mobicents SIP Load Balancer)
+ +--- tools/twiddle			(Twiddle Command Line Interface)
+ +--- tools/eclipslee			(EclipSLEE Plugin)
+ +--- extra/mobicents-media-server  	(Mobicents Media Server Standalone, a community (not supported) media server for an easy trial of MGCP related examples)
+ +--- extra/telscale-diameter		(Telscale Diameter Mux, required by Diameter RAs)
+ +--- extra/telscale-ss7		(Telscale SS7, required by MAP RA)
+ +--- extra/sip-balancer		(Telscale SIP Load Balancer)
  
 Quick start
 -----------
@@ -36,15 +36,15 @@ Quick start
 
 Make sure that you have Apache Ant 1.7 or later installed and configured.
 
-If you want to deploy with the mobicents DU deployer in the Application Server run this:
-ant -f resources/<radir>/build.xml deploy (or undeploy)
+If you want to deploy with the persistent DU deployer in the Application Server run this:
+ant -f resources/<ra.dir>/build.xml
 
 (*) To deploy and run Examples 
 
 Make sure that you have Apache Ant 1.7 installed and configured.
 
 Simply run this script and the deployment should start:
-ant -f examples/<exampledir>/build.xml deploy-all
+ant -f examples/<example.dir>/build.xml
 
 EclipSLEE Plugin
 ----------------

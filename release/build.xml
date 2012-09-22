@@ -16,8 +16,8 @@
 	<property name="jboss.config" value="default" />
 	<property name="release.profile" value="telscale" />
 
-	<property name="mms.download.url" value="http://mobicents.googlecode.com/files/mms-server-r21834-120202212603.zip" />
-	<property name="mms.distro.zip.path" value="telscale-mms.zip" />
+	<property name="mms.download.url" value="http://mediaserver.googlecode.com/files/2.4.0.Final.zip" />
+	<property name="mms.distro.zip.path" value="mobicents-media-server.zip" />
 
 	<property name="ss7.download.url" value="https://www.dropbox.com/s/pa9er1atzex0hno/TelScale-jSS7-6.1.1.GA.zip?dl=1" />
 	<property name="ss7.distro.zip.path" value="telscale-ss7.zip" />
@@ -111,7 +111,7 @@
 	<target name="build-media" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="media" />
-			<param name="javadoc.dirs" value="resources/mgcp,resources/mscontrol" />
+			<param name="javadoc.dirs" value="resources/mgcp" />
 		</antcall>
 	</target>
 
@@ -150,12 +150,10 @@
 	</target>
 
 	<target name="build-ss7" description="">
-		<!--
 		<antcall target="build-package">
 			<param name="package.name" value="ss7" />
 			<param name="javadoc.dirs" value="resources/map" />
 		</antcall>
-		-->
 	</target>
 
 	<target name="build-tftp" description="">
@@ -206,20 +204,17 @@
 	</target>
 
 	<!--
-	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-core,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
--->
-	<!-- build-core,build-eclipslee,build-javaee,build-jdbc,build-sip,build-media,build-diameter,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp -->
-
+	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-ss7,build-sources-for-debug-zip">
+	-->
 	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-core,build-eclipslee,build-javaee,build-jdbc,build-sip,build-media,build-diameter,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
-
-		<!-- hack to replace diameter cluster libs 
-		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/cache-1.12.jar" failonerror="true"/>
-		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/core-1.12.jar" failonerror="true"/>
-		<delete file="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/timers-1.12.jar" failonerror="true"/>
-		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/lib/cache-1.13-SNAPSHOT.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/cache-1.13-SNAPSHOT.jar"/>
-		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/lib/core-1.13-SNAPSHOT.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/core-1.13-SNAPSHOT.jar"/>
-		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/lib/timers-1.13-SNAPSHOT.jar" tofile="${release.dir}/extra/mobicents-diameter/mobicents-diameter-mux-1.4.0.CR1.sar/lib/timers-1.13-SNAPSHOT.jar"/>
-		-->
+	
+		<!-- hack to replace diameter cluster libs --> 
+		<delete file="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/cache-1.13.jar" failonerror="true"/>
+		<delete file="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/core-1.13.jar" failonerror="true"/>
+		<delete file="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/timers-1.13.jar" failonerror="true"/>
+		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/lib/cache-6.1.2.GA-TelScale.jar" tofile="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/cache-6.1.2.GA-TelScale.jar"/>
+		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/lib/core-6.1.2.GA-TelScale.jar" tofile="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/core-6.1.2.GA-TelScale.jar"/>
+		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/lib/timers-6.1.2.GA-TelScale.jar" tofile="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/timers-6.1.2.GA-TelScale.jar"/>
 
 		<!-- copy log4j presets -->
 		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/default/conf/jboss-log4j.xml" overwrite="true" />
@@ -314,32 +309,24 @@
 
 	<available file="${ant.file.mobicents.release}/../${mms.distro.zip.path}" property="got.mms" />
 	<target name="get-mms" unless="got.mms">
-		<!--
 		<echo>Downloading Media Server</echo>
 		<get dest="${ant.file.mobicents.release}/../${mms.distro.zip.path}" src="${mms.download.url}" />
-		-->
 	</target>
 
 	<target name="unzip-mms">
-		<!--
-		<delete dir="${release.dir}/extra/telscale-media-server" failonerror="false" />
-		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/telscale-media-server" />
-		-->
+		<delete dir="${release.dir}/extra/mobicents-media-server" failonerror="false" />
+		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/mobicents-media-server" />
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" property="got.ss7" />
 	<target name="get-ss7" unless="got.ss7">
-		<!--
 		<echo>Downloading SS7</echo>
 		<get dest="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" src="${ss7.download.url}" />
-		-->
 	</target>
 
 	<target name="unzip-ss7">
-		<!--
 		<delete dir="${release.dir}/extra/telscale-ss7" failonerror="false" />
 		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/telscale-ss7" />
-		-->
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" property="got.diameter" />
