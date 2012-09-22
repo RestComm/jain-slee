@@ -16,8 +16,8 @@
 	<property name="jboss.config" value="default" />
 	<property name="release.profile" value="telscale" />
 
-	<property name="mms.download.url" value="http://mediaserver.googlecode.com/files/2.4.0.Final.zip" />
-	<property name="mms.distro.zip.path" value="mobicents-media-server.zip" />
+	<property name="mms.download.url" value="http://mobicents.googlecode.com/files/mms-server-r21834-120202212603.zip" />
+	<property name="mms.distro.zip.path" value="media-server.zip" />
 
 	<property name="ss7.download.url" value="https://www.dropbox.com/s/pa9er1atzex0hno/TelScale-jSS7-6.1.1.GA.zip?dl=1" />
 	<property name="ss7.distro.zip.path" value="telscale-ss7.zip" />
