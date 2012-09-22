@@ -18,7 +18,7 @@
 		<slee.version>${pom.version}</slee.version>
 		<slee.codename>???</slee.codename>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<mobicents.cluster.version>6.1.1.GA-TelScale</mobicents.cluster.version>
+		<mobicents.cluster.version>6.1.2.GA-TelScale</mobicents.cluster.version>
 	</properties>
 
 	<modules>
