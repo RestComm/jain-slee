@@ -36,3 +36,4 @@ tools/slee-management-console/docs/sources-mobicents/src/
 tools/slee-management-console/docs/sources-telscale/src/
 tools/twiddle/docs/sources-mobicents/src/
 tools/twiddle/docs/sources-telscale/src/
+${release.dir}
