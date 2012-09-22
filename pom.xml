@@ -58,7 +58,7 @@
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
 
 	<repositories>
-                <repository>
+            <repository>
                   <id>telscale-releases-repository</id>
                   <name>TelScale Releases Repository</name>
                   <url>http://telestax.artifactoryonline.com/telestax/releases</url>
@@ -70,8 +70,8 @@
                     <enabled>false</enabled>
                     <updatePolicy>never</updatePolicy>
                   </snapshots>                            
-                </repository>
-                <repository>
+            </repository>
+            <repository>
                   <id>telscale-snapshots-repository</id>
                   <name>TelScale Snapshots Repository</name>
                   <url>http://telestax.artifactoryonline.com/telestax/snapshots</url>
@@ -83,7 +83,7 @@
                     <enabled>true</enabled>
                     <updatePolicy>never</updatePolicy>
                   </snapshots>                            
-                </repository>                
-        </repositories>
+            </repository>                
+    </repositories>
 	
 </project>
