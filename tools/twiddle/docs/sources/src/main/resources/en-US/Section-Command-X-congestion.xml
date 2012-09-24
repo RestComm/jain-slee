@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="congestion">
 
 	<title>congestion</title>
@@ -7,11 +10,11 @@
 		<literal>congestion</literal>
 		command interacts with
 		<literal>org.mobincets.slee:name=CongestionControlConfiguration</literal>
-		Bean. It is non standard 
+		Bean. It is a non standard 
 		<acronym>SLEE</acronym>
 		MBean. Please refer to its documentation for details.
 		<literal>congestion</literal>
-		 allows to change how configuration of congestion mechanism. for instance free memory level which will disable congestion mechanism. It supports following operations:
+		 allows you to change configuration of congestion mechanism. For instance, free memory level which will disable congestion mechanism. It supports the following operations:
 	</para>
 	<table frame="all" pgwide="1">
 		<title>
@@ -97,7 +100,7 @@
 	<section id="congestion_disable_level">
 		<title></title>
 		<para>
-			<literal>disable-level</literal> operation allows to manage minimum level of free memory for congestion mechanism to stop limiting container.
+			<literal>disable-level</literal> operation allows you to manage minimum level of free memory for congestion mechanism to stop better optimize the container.
 			It does not support argument. It supports following options
 			
 			<variablelist>
@@ -119,7 +122,7 @@
 	<section id="congestion_enable_level">
 		<title>enable-level</title>
 		<para>
-			<literal>enable-level</literal> operation allows to manage minimum level of free memory to trigger congestion mechanism. It does
+			<literal>enable-level</literal> operation allows you to manage minimum level of free memory to trigger congestion mechanism. It does
 			not support argument. It support following options:
 			
 			<variablelist>
@@ -141,14 +144,14 @@
 	<section id="congestion_refuse_event">
 		<title>refuse-event</title>
 		<para>
-			<literal>refuse-event</literal> operation allows to manage how congestion mechanism behaves. This operation allows to manage whether events are
+			<literal>refuse-event</literal> operation allows you to manage how congestion mechanism behaves. This operation allows you to manage whether events are
 			allowed to be fired into container or not. It does not support argument. It supports following options:
 			
 			<variablelist>
 				<varlistentry>
 					<term>--get</term>
 					<listitem>
-						<para>instructs operation to check if events will be refused to be fired in case of congestion. Does not support argument.</para>
+						<para>instructs operation to check if events will not be fired in case of congestion. Does not support argument.</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
@@ -163,7 +166,7 @@
 	<section id="congestion_refuse_activity">
 		<title>refuse-activity</title>
 		<para>
-			<literal>refuse-activity</literal> operation allows to manage how congestion mechanism behaves. This operation allows to manage whether new activities 
+			<literal>refuse-activity</literal> operation allows you to manage how congestion mechanism behaves. This operation allows you to manage whether new activities 
 			can be created in container or not. It does not support argument. It supports following options:
 			<variablelist>
 				<varlistentry>

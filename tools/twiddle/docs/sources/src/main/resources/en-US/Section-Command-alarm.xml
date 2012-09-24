@@ -1,12 +1,15 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="alarm">
 
 	<title>alarm</title>
 	<para><literal>alarm</literal> command interacts with
-		<literal>javax.slee.management:name=Alarm</literal> Bean. It is standard
+		<literal>javax.slee.management:name=Alarm</literal> Bean. It is a standard
 		<acronym>SLEE</acronym>
-		MBean. <literal>alarm</literal> command allows to manage alarms, for instance check for existence or remove. 
+		MBean. <literal>alarm</literal> command allows you to manage alarms for instance check, for existence or removal. 
 		   . It supports following operations:</para>
 		<table frame="all" pgwide="1">
 			<title>Operations table for <literal>alarm</literal> command</title>

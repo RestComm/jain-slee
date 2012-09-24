@@ -7,7 +7,7 @@
 <section id="SLEE">
 	<title>"<acronym>SLEE</acronym>" View</title>
 
-	<para>In this view, it is possible to view the ID of the server, such as name, vendor, version and codename and also the <acronym>SLEE</acronym> state.</para>
+	<para>In the main view, you can see the ID of the server, such as name, vendor, version, codename and the <acronym>SLEE</acronym> state.</para>
 
 	<para>
 		<figure>
@@ -17,7 +17,7 @@
 					<imagedata width="100%" align="center" fileref="images/img-smc-SLEE-main-view.png" format="PNG"/>
 				</imageobject>
 				<textobject>
-					<para>The SLEE Main View, showing the current state and buttons for allowing changes.</para>
+					<para>The SLEE Main View, showing the current state and function buttons.</para>
 				</textobject>
 			</mediaobject>
 		</figure>
@@ -27,7 +27,7 @@
 		<itemizedlist>
 			<listitem>
 				<para><literal>STOPPED</literal></para>
-				<para>The <acronym>SLEE</acronym> environment is configured and initialized, ready to be started. This means resource adaptor objects for resource adaptor entities in the <literal>ACTIVE</literal> state are loaded and initialized, and <acronym>SBB</acronym>s corresponding to Services in the <literal>ACTIVE</literal> state are loaded and ready to be instantiated. However the entire event-driven subsystem is idle. Resource adaptor entities and the <acronym>SLEE</acronym> are not actively producing events, and the event router is not operating. <acronym>SBB</acronym> entities are not created in this state.</para>
+				<para>The <acronym>SLEE</acronym> environment is configured and initialized, ready to be started. This means resource adaptor objects for resource adaptor entities in the <literal>ACTIVE</literal> state are loaded and initialized, and <acronym>SBB</acronym>s corresponding to Services in the <literal>ACTIVE</literal> state are loaded and ready to be instantiated. However, the entire event-driven subsystem is idle. Resource adaptor entities and the <acronym>SLEE</acronym> are not actively producing events, and the event router is not operating. <acronym>SBB</acronym> entities are not created in this state.</para>
 			</listitem>
 			<listitem>
 				<para><literal>STARTING</literal></para>
@@ -48,15 +48,15 @@
 		<itemizedlist>
 			<listitem>
 				<para><guibutton>Start</guibutton></para>
-				<para>In order to use this button the <acronym>SLEE</acronym> must be in the <literal>STOPPED</literal> state. It will move the <acronym>SLEE</acronym> to the <literal>STARTING</literal> state and once the start operations complete, switch to the <literal>RUNNING</literal> state.</para>
+				<para>In order to use this button, the <acronym>SLEE</acronym> must be in the <literal>STOPPED</literal> state. It will move the <acronym>SLEE</acronym> to the <literal>STARTING</literal> state and once the start operations complete, switch to the <literal>RUNNING</literal> state.</para>
 			</listitem>
 			<listitem>
 				<para><guibutton>Stop</guibutton></para>
-				<para>In order to use this button the <acronym>SLEE</acronym> must be in the <literal>STARTED</literal> state. It will move the <acronym>SLEE</acronym> to the <literal>STOPING</literal> state and once the stop operations complete, switch to the <literal>STOPPED</literal> state.</para>
+				<para>In order to use this button, the <acronym>SLEE</acronym> must be in the <literal>STARTED</literal> state. It will move the <acronym>SLEE</acronym> to the <literal>STOPING</literal> state and once the stop operations complete, switch to the <literal>STOPPED</literal> state.</para>
 			</listitem>
 			<listitem>
 				<para><guibutton>Shutdown</guibutton></para>
-				<para>In order to use this button the <acronym>SLEE</acronym> must be in the <literal>STOPPED</literal> state. It will shutdown completely the <acronym>SLEE</acronym> container as well as the &JEE.PLATFORM;.</para>
+				<para>In order to use this button, the <acronym>SLEE</acronym> must be in the <literal>STOPPED</literal> state. It will shutdown completely the <acronym>SLEE</acronym> container as well as the &JEE.PLATFORM;.</para>
 			</listitem>
 		</itemizedlist>
 	</para>

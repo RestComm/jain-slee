@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="activity">
 
 	<title>activity</title>
@@ -7,11 +10,11 @@
 		<literal>activity</literal>
 		command interacts with
 		<literal>org.mobincets.slee:name=ActivityManagementMBean</literal>
-		Bean. It is non standard 
+		Bean. It is a non standard 
 		<acronym>SLEE</acronym>
 		MBean. Please refer to its documentation for details.
 		<literal>activity</literal>
-		allows to access information about activities and perform management
+		allows you to access information about activities and perform management
 		operations. It supports following operations:
 	</para>
 	<table frame="all" pgwide="1">

@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="trace">
 
 	<title>trace</title>
@@ -7,11 +10,11 @@
 		<literal>trace</literal>
 		command interacts with
 		<literal>javax.slee.management:name=Trace</literal>
-		MBean. It is standard
+		MBean. It is a standard
 		<acronym>JSLEE</acronym>
 		MBean.
 		<literal>trace</literal>
-		allows to manage trace level and tracers instances. Based on options
+		allows you to manage trace level and tracers instances. Based on options
 		passed to operations it performs operations on 1.1 and 1.0 logging
 		facilities. It supports following operations:
 	</para>

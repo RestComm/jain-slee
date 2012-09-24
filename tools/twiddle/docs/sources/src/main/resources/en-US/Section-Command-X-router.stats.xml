@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="router.stats">
 
 	<title>router.stats</title>
@@ -7,12 +10,12 @@
 		<literal>activity</literal>
 		command interacts with
 		<literal>org.mobincets.slee:name=EventRouterStatistics</literal>
-		Bean. It is non standard
+		Bean. It is a non standard
 		<acronym>SLEE</acronym>
 		MBean.
 		<literal>router.stats</literal>
-		allows to access statistics information of router and container
-		executors. Note time statistics are measured in milliseconds. It
+		allows you to access statistics information of router and container
+		executors. Note that time statistics are measured in milliseconds. It
 		supports following operations:
 	</para>
 	<table frame="all" pgwide="1">
@@ -124,7 +127,7 @@
 		<title>avg-time</title>
 		<para>
 			<literal>avg-time</literal>
-			operation return average time spent on routing certain event type. It
+			operation return average time spent on routing certain event types. It
 			does not support argument. It requires
 			<replaceable>--eventTypeId</replaceable>
 			option to be present.
@@ -165,7 +168,7 @@ EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,versio
 			events. It does not support argument. It requires
 			<replaceable>--eventTypeId</replaceable>
 			option to be present.
-			It support following options:
+			It supports the following options:
 		</para>
 		<variablelist>
 			<varlistentry>
@@ -220,7 +223,7 @@ EventTypeID[name=javax.slee.profile.ProfileUpdatedEvent,vendor=javax.slee,versio
 		<title>routing-time</title>
 		<para>
 			<literal>routing-time</literal>
-			operation returns time spent on routing of events. If optional argument is specified(executor index), operation returns time spent on routing by particular executor. It support following options:
+			operation returns time spent on routing of events. If optional argument is specified(executor index), operation returns time spent on routing by particular executor. It supports the following options:
 		</para>
 		<variablelist>
 			<varlistentry>

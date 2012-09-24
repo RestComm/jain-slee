@@ -1,11 +1,14 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="service">
 
 	<title>service</title>
 	<para><literal>service</literal> command interacts with <literal>javax.slee.management:name=ServiceManagement</literal>
-		MBean. It is standard
-		<acronym>JSLEE</acronym> MBean. <literal>service</literal> command allows to perform basic management operations on services
+		MBean. It is a standard
+		<acronym>JSLEE</acronym> MBean. <literal>service</literal> command allows you to perform basic management operations on services
 		, like activation, deactivation, state query   . It supports following operations:</para>
 		<table frame="all" pgwide="1">
 			<title>Operations table for <literal>service</literal> command</title>

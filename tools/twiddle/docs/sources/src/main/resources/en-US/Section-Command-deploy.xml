@@ -1,12 +1,15 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="deploy">
 
 	<title>deploy</title>
 	<para>
 		<literal>deploy</literal>
 		command interacts with
-		<literal>javax.slee.management:name=Deployment</literal> Bean. It is standard
+		<literal>javax.slee.management:name=Deployment</literal> Bean. It is a standard
 		<acronym>SLEE</acronym>
 		MBean. <literal>deploy</literal> allows to access information about deployed components and change list of deployed components.
 		Also it allows access to components meta data. It supports following operations:
@@ -175,7 +178,7 @@ twiddle.sh deploy -l \
 		<title>installed</title>
 		<para>
 			<literal>installed</literal>
-			operation checks if certain component is deployed in container. Does not take argument. Requires one of options to be present. Supports following options:
+			operation checks if certain component is deployed in container. Does not take argument. Requires one of the options to be present. Supports following options:
 		</para>
 		<variablelist>
 			<varlistentry>
@@ -189,7 +192,7 @@ twiddle.sh deploy -l \
 				<term>--cid
 				</term>
 				<listitem>
-					<para>checks if component is deployed. Option requires argument which is valid component ID, that is ServiceID, SbbID, etc.</para>
+					<para>checks if component is deployed. Option requires argument which is a valid component ID, that is ServiceID, SbbID, etc.</para>
 					<example>
 					<title>Check if profile specification is deployed</title>
 						<!-- <screen> --><programlisting>
@@ -226,7 +229,7 @@ twiddle.sh deploy --install=file:///C:/workspace/resources/sip11-ra-DU-2.2.0-SNA
 		<title>un-install</title>
 		<para>
 			<literal>un-install</literal>
-			operation removes DeployableUnit from container. Does not support options. It requires valid deployableUnitID as argument: DeployableUnitID[url=file:/E:/servers/jboss-5.1.0.GA/server/default/deploy/call-controller2-DU-2.2.0-SNAPSHOT.jar/]
+			operation removes DeployableUnit from container. Does not support options. It requires a valid deployableUnitID as argument: DeployableUnitID[url=file:/E:/servers/jboss-5.1.0.GA/server/default/deploy/call-controller2-DU-2.2.0-SNAPSHOT.jar/]
 		</para>
 		<example>
 		<title>UnDeploy DU</title>

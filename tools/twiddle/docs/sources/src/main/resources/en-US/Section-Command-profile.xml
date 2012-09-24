@@ -1,12 +1,15 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="profile">
 
 	<title>profile</title>
 	<para><literal>profile</literal>
 		command interacts with <literal>javax.slee.management:name=ProfileProvisioning</literal>
-		MBean. It is standard
-		<acronym>JSLEE</acronym> MBean. This command allows to perform basic management operations on profile tables and profiles, like creation and removal . It supports following operations:</para>
+		MBean. It is a standard
+		<acronym>JSLEE</acronym> MBean. This command allows you to perform basic management operations on profile tables and profiles, like creation and removal . It supports following operations:</para>
 		<table frame="all" pgwide="1">
 			<title>Operations table for <literal>profile</literal> command</title>
 			<tgroup colsep="1" cols="5">
@@ -116,7 +119,7 @@ ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0
 	</section>	
 	<section id="profile_remove">
 		<title>remove</title>
-		<para><literal>remove</literal> operation removes component based no options. It does not support argument. It supports following options:</para>
+		<para><literal>remove</literal> operation removes component based on options. It does not support argument. It supports following options:</para>
 		<variablelist>
 			<varlistentry>
 				<term>--table-name</term>

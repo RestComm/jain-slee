@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="usage.service">
 
 	<title>usage.service</title>
@@ -8,11 +11,11 @@
 		command interacts with service specific usage MBeans and Usage
 		Notification manager MBean.
 		<literal>usage.service</literal>
-		allows to manage usage sets and parameters, for instance get value of
-		parameter
+		allows you to manage usage sets and parameters. For example, you can get the value of
+		parameters
 		or turn on
 		<acronym>JMX</acronym>
-		notification for certain parameter. General form of command looks as
+		notification for certain parameters. General form of command is as
 		follows:
 		<!-- <screen> --><programlisting>usage.service &lt;ServiceID&gt; [SbbID] [SetName] &lt;-operation[[arg] | [--option[=arg]]*]&gt; <!-- </screen> --></programlisting>
 		Note that access to default set does not require [SetName] to be
@@ -90,7 +93,7 @@
 		<para>
 			<literal>list</literal>
 			operation lists certain information about parameter sets. It does not
-			support argument. It support following options:
+			support arguments. It support the following options:
 		</para>
 		<variablelist>
 			<varlistentry>
@@ -129,7 +132,7 @@ SbbID[name=example,vendor=mobicents,version=0.1] -l --parameters<!-- </screen> -
 		<para>
 			<literal>get</literal>
 			operation fetches value of parameter in certain set(default or
-			named). It does not support argument. It supports following options:
+			named). It does not support arguments. It supports following options:
 		</para>
 		<variablelist>
 			<varlistentry>
@@ -145,8 +148,8 @@ SbbID[name=example,vendor=mobicents,version=0.1] -l --parameters<!-- </screen> -
 				<term>--rst
 				</term>
 				<listitem>
-					<para>instructs operation that parameter should be reset after once
-						value is obtained. Does not support argument, its a "flag" like
+					<para>instructs operation that parameter should be reset after 
+						value is obtained. Does not support argument, it is a "flag" like
 						option.</para>
 
 				</listitem>
@@ -238,8 +241,8 @@ SbbID[name=example,vendor=mobicents,version=0.1] Drake -d<!-- </screen> --></pro
 		<title>notify</title>
 		<para>
 			<literal>notify</literal>
-			operation performs actions on notification aspect of usage sets. It
-			allows to to run on/off notifications for certain parameter and query
+			operation performs actions on the notification aspect of usage sets. It
+			allows you to run on/off notifications for certain parameter and query
 			about state of notification.
 			It does not support argument. It supports
 			following options:
@@ -274,7 +277,7 @@ SbbID[name=example,vendor=mobicents,version=0.1] Drake \
 				<term>--is
 				</term>
 				<listitem>
-					<para>instructs operation to check state of notification. This option does not support arument.</para>
+					<para>instructs operation to check state of notification. This option does not support argument.</para>
 					<example>
 						<title>Check state of notifications</title>
 						<!-- <screen> --><programlisting>

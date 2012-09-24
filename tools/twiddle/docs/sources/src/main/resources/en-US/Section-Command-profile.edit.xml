@@ -1,9 +1,12 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="profile.edit">
 
 	<title>profile.edit</title>
-	<para><literal>profile.edit</literal> command interacts with specific profile MBean. This MBean is standard <acronym>SLEE</acronym> bean. It is generated based on profile specification. <literal>profile.edit</literal> allows to edit profile data(specific profile and default). 
+	<para><literal>profile.edit</literal> command interacts with specific profile MBean. This MBean is a standard <acronym>SLEE</acronym> bean. It is generated based on profile specification. <literal>profile.edit</literal> allows to edit profile data(specific profile and default). 
 	Profile MBean follows state machine depicted on diagram below:
 	
 	</para>
@@ -19,7 +22,7 @@
 	</mediaobject>
 	
 	<para>
-	<literal>profile.edit</literal> command expects two non operation/option arguments. Form of invocation looks as follows:
+	<literal>profile.edit</literal> command expects two non operation/option arguments. Form of invocation is as follows:
 	<!-- <screen> --><programlisting>profile.edit &lt;profileTableName&gt; &lt;profileName&gt; &lt;-operation[[arg] | [--option[=arg]]]*><!-- </screen> --></programlisting>
 	It supports following operations:</para>
 		<table frame="all" pgwide="1">

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter id="introduction">
 
@@ -18,8 +21,8 @@
 	</para>
 	<para>
 		As such, it requires
-		management tools to access and manage different aspects of container. &THIS.APPLICATION;
-		is command line tool enabling user to interact with container in
-		various way, through standard management interfaces.
+		management tools to access and manage different aspects of the container. &THIS.APPLICATION;
+		is a command line tool that enables user to interact with the container in
+		various way through a standard management interfaces.
 	</para>
 </chapter>

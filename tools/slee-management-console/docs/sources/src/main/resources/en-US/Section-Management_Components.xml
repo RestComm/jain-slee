@@ -7,7 +7,7 @@
 <section id="Components_top">
 	<title>"Components" View</title>
 
-	<para>In this view, the components installed in SLEE are shown, grouped by their types. It is possible to view the components, their details and search for specific components.</para>
+	<para>In this view, the components installed in SLEE are displayed and grouped by their types. You can view the components, their details and search for specific components.</para>
 
 	<para>
 		<figure>
@@ -26,7 +26,7 @@
 	<section id="Components_details">
 		<title>View Components Details</title>
 
-		<para>In the <guilabel>Browse Components</guilabel> tab a list of components is shown, grouped by their type. When clicking on one of the Component Types, a list of the available components of that type is shown, identified by their Name, Vendor and Version.</para>
+		<para>In the <guilabel>Browse Components</guilabel> tab a list of components is shown, grouped by their type. When clicking on one of the Component Types, a list of the available components of that type is shown, identified by  Name, Vendor and Version.</para>
 		
 		<para>
 			<figure>
@@ -42,7 +42,7 @@
 			</figure>
 		</para>
 
-		<para>If one of this components is clicked, it's details are shown. The following component types and details are available:</para>
+		<para>If one of this components is clicked, its details are shown. The following component types and details are available:</para>
 
 		<para>The following details are common to all component types:</para>
 		<itemizedlist>
@@ -176,7 +176,7 @@
 	<section id="Components_search">
 		<title>Search Components</title>
 
-		<para>In order to find specific components, use the <guilabel>Search</guilabel> tab, where it is possible to specify a string to search for and click the <guibutton>Search</guibutton> button to list the components for which the name matches the given string.</para>
+		<para>In order to find specific components, go to the <guilabel>Search</guilabel> tab, specify a string to search and click the <guibutton>Search</guibutton> button to list the components for which the name matches the given string.</para>
 
 		<para>
 			<figure>
@@ -194,7 +194,7 @@
 
 		<important>
 			<title>Regular Expression not supported in Component Search</title>
-			<para>When searching for components, it is not possible to use regular expressions. So using "diam*" may not return anything, while "diameter" may return something.</para>
+			<para>When searching for components, it is not possible to use regular expressions. For example, using "diam*" will not produce results, while "diameter" will.</para>
 		</important>
 	</section>
 

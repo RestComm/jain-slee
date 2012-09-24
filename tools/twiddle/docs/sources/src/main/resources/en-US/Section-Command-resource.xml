@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="resource">
 
 	<title>resource</title>
@@ -7,7 +10,7 @@
 		<literal>resource</literal>
 		command interacts with
 		<literal>javax.slee.management:name=ResourceManagement</literal>
-		Bean. It is standard
+		Bean. It is a standard
 		<acronym>SLEE</acronym>
 		MBean.
 		<literal>resource</literal>
@@ -190,7 +193,7 @@
 				<term>--config</term>
 				<listitem>
 					<para>Specifies ConfigurationProperties passed to ResourceAdaptorObject during configuration part of its life-cycle.
-					Requires string representation of ConfigProperties.  Config property has general form of: (name:java.type=value) and array has different form, than in components, members are separated with <replaceable>,</replaceable> : [(cnf.prop),(cnf.prop)] </para>
+					Requires string representation of ConfigProperties.  Config property has general form of: (name:java.type=value) and array has different form than in components, members are separated with <replaceable>,</replaceable> : [(cnf.prop),(cnf.prop)] </para>
 				</listitem>
 			</varlistentry>
 		</variablelist>
@@ -237,7 +240,7 @@ ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1
 				<term>--config</term>
 				<listitem>
 					<para>Specifies ConfigurationProperties passed to ResourceAdaptorObject during confgiuration part of its lifecycle.
-					Requires string representation of ConfigProperties.  Config property has general form of: (name:java.type=value) and array has different form, than in components, members are separated with <replaceable>,</replaceable> : [(cnf.prop),(cnf.prop)] </para>
+					Requires string representation of ConfigProperties.  Config property has general form of: (name:java.type=value) and array has different form than in components, members are separated with <replaceable>,</replaceable> : [(cnf.prop),(cnf.prop)] </para>
 				</listitem>
 			</varlistentry>
 		</variablelist>
@@ -313,7 +316,7 @@ ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1
 				<term>--sbbs
 				</term>
 				<listitem>
-					<para>instructs operation to list SBB IDs which declare reference Resource Adaptor Entity link. Requires link name as argument:</para>
+					<para>instructs operation to list SBB IDs that declare reference Resource Adaptor Entity link. Requires link name as argument:</para>
 					<example>
 						<title>List SBBs for Sip RA</title>
 						<!-- <screen> --><programlisting>./twiddle.sh resource -l --sbbs=SIP_30<!-- </screen> --></programlisting>
@@ -327,7 +330,7 @@ ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1
 		<title>get</title>
 		<para>
 			<literal>get</literal>
-			operation fetches certain information from container. It does not support argument, it requires one option to be present:
+			operation fetches certain information from the container. It does not support argument, it requires one option to be present:
 		</para>
 		<variablelist>
 			<varlistentry>

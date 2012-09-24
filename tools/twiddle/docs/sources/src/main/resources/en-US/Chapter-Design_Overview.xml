@@ -1,13 +1,16 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter id="design_overview">
 
 	<title>Design Overview</title>
 	
-	<para>&THIS.PLATFORM; &THIS.APPLICATION; is command line tool. It is based on <literal>JBoss</literal> <acronym>JMX</acronym> <literal>Twiddle</literal>.
-	&THIS.PLATFORM; specific interaction capabilities are created over base provided by <literal>JBoss</literal> <literal>Twiddle</literal>.
-	Top overview of design is depicted on diagram below:
+	<para>&THIS.PLATFORM; &THIS.APPLICATION; is a command line tool. It is based on <literal>JBoss</literal> <acronym>JMX</acronym> <literal>Twiddle</literal>.
+	&THIS.PLATFORM; specific interaction capabilities are created over the core provided by <literal>JBoss</literal> <literal>Twiddle</literal>.
+	Top overview of design is depicted in the diagram below:
 	</para>
 	<mediaobject id="jslee_cli_twiddle_overview_1">
 		<imageobject>
@@ -20,8 +23,8 @@
 			</para>
 		</caption>
 	</mediaobject>
-	<para> &THIS.PLATFORM; &THIS.APPLICATION; acts on base of <literal>command</literal> and <literal>operation</literal>. <literal>Command</literal> supports various operations. Operation 
-	is aware of specific resource that needs to be called and how it should be accessed to perform certain task. It also knows how to present specific result to user. 
+	<para> &THIS.PLATFORM; &THIS.APPLICATION; acts based on <literal>command</literal> and <literal>operation</literal>. <literal>Command</literal> supports multiple operations. Operation 
+	is aware of specific resource that needs to be called and how it should be accessed to perform certain tasks. It also knows how to present specific result to user. 
 	</para>
 	<mediaobject id="jslee_cli_twiddle_overview_2">
 		<imageobject>
@@ -35,8 +38,8 @@
 		</caption>
 	</mediaobject>
 	<para>
-	Based on user input, <literal>command</literal> makes decision which operation 
-	should be created and invoked.  Top overview of <literal>command</literal> and <literal>operation</literal> relation is depicted on diagram below:</para>
+	Based on user input, <literal>command</literal> makes decision about which operation 
+	should be created and invoked.  Top overview of <literal>command</literal> and <literal>operation</literal> relation is depicted in diagram below:</para>
 	<mediaobject id="jslee_cli_twiddle_overview_3">
 		<imageobject>
 			<imagedata width="300px" align="center"

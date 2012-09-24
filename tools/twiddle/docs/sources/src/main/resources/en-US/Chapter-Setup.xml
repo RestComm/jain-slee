@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter id="setup">
 
@@ -45,14 +48,14 @@
 				    [usr]$ mvn install
 				    </programlisting>
 				    <para>Once the process finishes you should have the <literal>binary</literal> jar file in the <filename>target</filename> directory. Also <filename>&THIS.APPLICATION.BINARY.DIRNAME;</filename> directory should be present
-				    in <filename>target</filename> directory. It contains required libraries and scripts which allow to invoke &THIS.APPLICATION;.</para>
+				    in <filename>target</filename> directory. It contains the required libraries and scripts that are used to invoke &THIS.APPLICATION;.</para>
   				</step>
 			</procedure>      
 		</section>	
 		
 		<section id="trunk_source_building">
 			<title>Development Trunk Source Building</title>
-			<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the SVN source code URL, which is &THIS.TRUNK_SOURCE_CODE_URL;.</para>
+			<para>This is a similar process to the one described in <xref linkend="release_source_building"/>. The only change is the SVN source code URL, which is &THIS.TRUNK_SOURCE_CODE_URL;.</para>
 		</section>	
 		
 	</section>

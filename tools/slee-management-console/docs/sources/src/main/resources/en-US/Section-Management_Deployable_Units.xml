@@ -7,7 +7,7 @@
 <section id="DeployableUnits_top">
 	<title>"Deployable Units" View</title>
 
-	<para>In this view, it is possible to view, search, install and uninstall Deployable Units in the SLEE. A list showing the deployable units, identified by their filename, is shown.</para>
+	<para>In this view, it is possible to view, search, install and uninstall Deployable Units in the SLEE. A list showing the deployable units, identified by their filename, is displayed.</para>
 
 	<para>
 		<figure>
@@ -17,7 +17,7 @@
 					<imagedata width="100%" align="center" fileref="images/img-smc-Deployable-Units-main-view.png" format="PNG"/>
 				</imageobject>
 				<textobject>
-					<para>The Deployable Units Main View, showing the currently deployed units, and an action link to uninstall them.</para>
+					<para>The Deployable Units Main View, showing the currently deployed units and action link to uninstall them.</para>
 				</textobject>
 			</mediaobject>
 		</figure>
@@ -26,7 +26,7 @@
 	<section id="DeployableUnits_details">
 		<title>View Deployable Units Details</title>
 
-		<para>It is possible to see detailed information about the deployable units by clicking on it's name.</para>
+		<para>It is possible to see detailed information about the deployable units by clicking on its name.</para>
 
 		<para>
 			<figure>
@@ -46,7 +46,7 @@
 			<itemizedlist>
 				<listitem>
 					<para>Name</para>
-					<para>The Deployable Unit name, extracted from it's filename.</para>
+					<para>The Deployable Unit name, extracted from its filename.</para>
 				</listitem>
 				<listitem>
 					<para>ID</para>
@@ -58,7 +58,7 @@
 				</listitem>
 				<listitem>
 					<para>URL</para>
-					<para>The <acronym>URL</acronym> from where this deployable unit was deployed from.</para>
+					<para>The <acronym>URL</acronym>  where this deployable unit was deployed from.</para>
 				</listitem>
 				<listitem>
 					<para>Components</para>
@@ -89,7 +89,7 @@
 
 		<important>
 			<title>Regular Expression not supported in Deployable Unit Search</title>
-			<para>When searching for deployable units, it is not possible to use regular expressions. So using "diam*" may not return anything, while "diameter" may return something.</para>
+			<para>When searching for deployable units, it is not possible to use regular expressions.  For example, using "diam*" will not produce results, while "diameter" will.</para>
 		</important>
 
 	</section>
@@ -115,7 +115,7 @@
 
 		<important>
 			<title>Deployable Unit Installation</title>
-			<para>Please note that only the deployable unit will be installed, no further operations will be performed. If you need to, you will need to activate services, create Resource Adaptor Entities and Links, etc.</para>
+			<para>After installing a Deployable Unit, you will need to activate additional services (create Resource Adaptor Entities and Links, etc) as needed as these are not part of the installation process.</para>
 		</important>
 	</section>
 
@@ -126,7 +126,7 @@
 
 		<important>
 			<title>Deployable Unit Uninstall</title>
-			<para>Please note that the deployable unit will be uninstalled, only if there are no components depending on it, no Links or Entities in case of Resource Adaptors and in case of services, they must be deactivated.</para>
+			<para>Please note that the deployable unit will be uninstalled, only if there are no components depending on it, no Links or Entities in the case of Resource Adaptors and services, they must be deactivated.</para>
 		</important>
 	</section>
 
