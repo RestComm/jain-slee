@@ -5,7 +5,7 @@
 <section>
 	<title>Document Conventions</title>
 	<para>
-		This manual uses several conventions to highlight certain words and phrases and draw attention to specific pieces of information.
+		This manual uses several conventions to highlight specific pieces of information.
 	</para>
 	<para>
 		In PDF and paper editions, this manual uses typefaces drawn from the <ulink url="https://fedorahosted.org/liberation-fonts/">Liberation Fonts</ulink> set. The Liberation Fonts set is also used in HTML editions if the set is installed on your system. If not, alternative but equivalent typefaces are displayed. Note: Red Hat Enterprise Linux 5 and later includes the Liberation Fonts set by default.
@@ -13,7 +13,7 @@
 	<section>
 		<title>Typographic Conventions</title>
 		<para>
-			Four typographic conventions are used to call attention to specific words and phrases. These conventions, and the circumstances they apply to, are as follows.
+			Four typographic conventions thare used used in this user guide are explained below.
 		</para>
 		<para>
 			<literal>Mono-spaced Bold</literal>
@@ -23,7 +23,7 @@
 		</para>
 		<blockquote>
 			<para>
-				To see the contents of the file <filename>my_next_bestselling_novel</filename> in your current working directory, enter the <command>cat my_next_bestselling_novel</command> command at the shell prompt and press <keycap>Enter</keycap> to execute the command.
+				To see the content of the file <filename>my_next_bestselling_novel</filename> in your current working directory, enter the <command>cat my_next_bestselling_novel</command> command at the shell prompt and press <keycap>Enter</keycap> to execute the command.
 			</para>
 		</blockquote>
 		<para>
@@ -89,7 +89,7 @@
 			</para>
 		</blockquote>
 		<para>
-			Note the words in bold italics above &mdash; username, domain.name, file-system, package, version and release. Each word is a placeholder, either for text you enter when issuing a command or for text displayed by the system.
+			Note the words in bold italics above &mdash; username, domain.name, file-system, package, version and release. Each word is a placeholder, either for text you entered when issuing a command or for text displayed by the system.
 		</para>
 		<para>
 			Aside from standard usage for presenting the title of a work, italics denotes the first use of a new and important term. For example:
@@ -150,7 +150,7 @@ public class ExClient
 		<note>
 			<title>Note</title>
 			<para>
-				A note is a tip or shortcut or alternative approach to the task at hand. Ignoring a note should have no negative consequences, but you might miss out on a trick that makes your life easier.
+				A note is a tip or shortcut or alternative approach to the task at hand. Ignoring a note should have no negative consequences, but you might miss out on a trick that could make your life easier.
 			</para>
 		</note>
 		<important>

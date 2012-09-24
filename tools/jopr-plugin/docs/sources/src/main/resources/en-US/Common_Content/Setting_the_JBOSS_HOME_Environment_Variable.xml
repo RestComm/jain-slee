@@ -1,11 +1,14 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <appendix id="jboss_home_setup">
 	<title>Setting the JBOSS_HOME Environment Variable</title>
 	<para>
 		The <application>&THIS.PLATFORM; Platform</application> (<application>&THIS.PLATFORM;</application>) is built on top of the <application>&JEE.PLATFORM;</application>. You do not need to set the <envar>JBOSS_HOME</envar> environment variable to run any of the <application>&THIS.PLATFORM; Platform</application> servers <emphasis>unless</emphasis> <envar>JBOSS_HOME</envar> is <emphasis>already</emphasis> set.
 	</para>
-	<para>The best way to know for sure whether <envar>JBOSS_HOME</envar> was set previously or not is to perform a simple check which may save you time and frustration.</para>
+
 	<formalpara>
 		<title>Checking to See If JBOSS_HOME is Set on Unix</title>
 		<para>At the command line, <command>echo</command>
@@ -13,15 +16,20 @@
 	</formalpara>
 	<!--  ~]$ echo $JBOSS_HOME  -->
 	<screen>~]$ echo $JBOSS_HOME</screen>
-	<para>The <application>&THIS.PLATFORM; Platform</application> and most &THIS.PLATFORM; servers are built on top of the <application>&JEE.PLATFORM;</application> (<application>&JEE.PLATFORM;</application>). When the <application>&THIS.PLATFORM; Platform</application> or &THIS.PLATFORM; servers are built <emphasis>from source</emphasis>, then <envar>JBOSS_HOME</envar> <emphasis>must</emphasis> be set, because the &THIS.PLATFORM; files are installed into (or <quote>over top of</quote> if you prefer) a clean <application>&JEE.PLATFORM;</application> installation, and the build process assumes that the location pointed to by the <envar>JBOSS_HOME</envar> environment variable at the time of building is the <application>&JEE.PLATFORM;</application> installation into which you want it to install the &THIS.PLATFORM; files.
+	<para>The <application>&THIS.PLATFORM; Platform</application> and most &THIS.PLATFORM; servers are built on top of the <application>&JEE.PLATFORM;</application> (<application>&JEE.PLATFORM;</application>). When the <application>&THIS.PLATFORM; Platform</application> or &THIS.PLATFORM; servers are built <emphasis>from source</emphasis>, the <envar>JBOSS_HOME</envar> <emphasis>must</emphasis> be set. A clean <application>&JEE.PLATFORM;</application> installation, and the build process assumes that the location pointed to by the <envar>JBOSS_HOME</envar> environment variable during the build process is the <application>&JEE.PLATFORM;</application> installation into which you want to install the &THIS.PLATFORM; files.
 	</para>
 	<para>This guide does not detail building the <application>&THIS.PLATFORM; Platform</application> or any &THIS.PLATFORM; servers from source. It is nevertheless useful to understand the role played by <application>JBoss AS</application> and <envar>JBOSS_HOME</envar> in the &THIS.PLATFORM; ecosystem.</para>
+<!--
 	<para>
 		The immediately-following section considers whether you need to set <envar>JBOSS_HOME</envar> at all and, if so, when. The subsequent sections detail how to set <envar>JBOSS_HOME</envar> on Unix and Windows
 	</para>
-	<important>
+	
+
+-->
+
+<important>
 		<para>
-			Even if you fall into the category below of <emphasis>not needing</emphasis> to set <envar>JBOSS_HOME</envar>, you may want to for various reasons anyway. Also, even if you are instructed that you do <emphasis>not need</emphasis> to set <envar>JBOSS_HOME</envar>, it is good practice nonetheless to check and make sure that <envar>JBOSS_HOME</envar> actually <emphasis>isn&#39;t</emphasis> set or defined on your system for some reason. This can save you both time and frustration.
+			If your configuration doesn't require that you set the <envar>JBOSS_HOME</envar> variable, it is still good practice to have it defined. 
 		</para>
 	</important>
 	<bridgehead>You <emphasis>DO NOT NEED</emphasis> to set <envar>JBOSS_HOME</envar> if...</bridgehead>
@@ -50,17 +58,22 @@
 			</para>
 		</listitem>
 	</itemizedlist>
+
+<!--
 	<para>
 		Naturally, if you installed the <application>&THIS.PLATFORM; Platform</application> or one of the &THIS.PLATFORM; server binary releases which <emphasis>do not</emphasis> bundle <application>&JEE.PLATFORM;</application>, yet requires it to run, then you should install before setting <envar>JBOSS_HOME</envar> or proceeding with anything else.
 	</para>
+
+-->
+
 	<formalpara>
 		<title>Setting the JBOSS_HOME Environment Variable on Unix</title>
 		<para>
-			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase><application>&THIS.PLATFORM; Platform</application> or individual &THIS.PLATFORM; server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
+			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase><application>&THIS.PLATFORM; Platform</application> or individual &THIS.PLATFORM; server</phrase> that you installed. The topmost directory contains a <filename>bin</filename> subdirectory.
 		</para>
 	</formalpara>
 	<para>
-		Setting <envar>JBOSS_HOME</envar> in your personal <filename>~/.bashrc</filename> startup script carries the advantage of retaining effect over reboots. Each time you log in, the environment variable is sure to be set for you, as a user. On Unix, it is possible to set <envar>JBOSS_HOME</envar> as a system-wide environment variable, by defining it in <filename>/etc/bashrc</filename>, but this method is neither recommended nor detailed in these instructions.
+		Setting <envar>JBOSS_HOME</envar> in your personal <filename>~/.bashrc</filename> startup script makes it persistent over reboots. Each time you log in, the environment variable is set for you, as a user. On Unix, it is possible to set <envar>JBOSS_HOME</envar> as a system-wide environment variable, by defining it in <filename>/etc/bashrc</filename>, but this method is neither recommended nor detailed in these instructions.
 	</para>
 	<procedure>
 		<title>To Set JBOSS_HOME on Unix...</title>
@@ -107,7 +120,7 @@
 	<formalpara>
 		<title>Setting the JBOSS_HOME Environment Variable on Windows</title>
 		<para>
-			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase>&THIS.PLATFORM; Platform or individual &THIS.PLATFORM; server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
+			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase>&THIS.PLATFORM; Platform or individual &THIS.PLATFORM; server</phrase> that you installed. The topmost directory contains a <filename>bin</filename> subdirectory.
 		</para>
 	</formalpara>
 	<para>

@@ -8,7 +8,7 @@
 	<title>Managing and Monitoring JAIN SLEE Resource Adaptor Entity Links</title>
 	<section id="management_slee_ra_entity_link_summary">
 		<title>View Resource Adaptor Entity Link Summary</title>
-		<para>In the top, at the summary section, some details regarding the Resource Adaptor Entity Link can be seen, such as the Resource Adaptor Entity it belongs to (in <guilabel>Description</guilabel>).</para>
+		<para>At the top, under the summary section, details regarding the Resource Adaptor Entity Link can be seen, such as the Resource Adaptor Entity it belongs to (in <guilabel>Description</guilabel>).</para>
 		
 		<figure>
 			<title>Resource Adaptor Entity Link Summary View.</title>
@@ -24,7 +24,7 @@
 	</section>
 	<section id="management_slee_ra_entity_link_availability">
 		<title>Monitor JAIN SLEE RA Entity Link Availability over time</title>
-		<para>By accessing the <guilabel>MONITOR</guilabel> tab it's possible to see a graph showing the availability of the Resource Adaptor Entity Link over time.</para>
+		<para>Accessing the <guilabel>MONITOR</guilabel> tab, a graph showing the availability of the Resource Adaptor Entity Link over time will be displayed</para>
 
 		<figure>
 			<title>Monitoring JAIN SLEE Resource Adaptor Entity Link Availability.</title>
@@ -40,15 +40,15 @@
 	</section>
 	<section id="management_slee_ra_entity_link_op_listboundsbbs">
 		<title>List SBBs bound to RA Entity Link</title>
-		<para>In the <guilabel>OPERATIONS</guilabel> tab, an operation to list all SBBs bound to a specific link is available, named <guilabel>List bound Sbbs</guilabel>.</para>
+		<para>In the <guilabel>OPERATIONS</guilabel> tab, an operation to list all SBBs bound to a specific link is available. It is named <guilabel>List bound Sbbs</guilabel>.</para>
 		
 		<para>This action takes no parameters.</para>
 		
-		<note><para>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>					
+		<note><para>Similar to most operations on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time and can have a defined timeout and/or include additional notes.</para></note>					
 
-		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After completion, it is shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
 
-		<para>The result is presented in the following form:</para>
+		<para>The result is presented as follows:</para>
 
 		<figure>
 			<title>Sample result of invoking List bound Sbbs on RA Entity Link.</title>

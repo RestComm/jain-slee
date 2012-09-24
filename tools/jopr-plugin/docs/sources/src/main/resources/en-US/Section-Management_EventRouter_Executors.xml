@@ -9,7 +9,7 @@
 	
 	<para>Event Router Executors are the heart of the JAIN SLEE Core, they are responsible for executing critical tasks for the container.</para>
 
-	<para>In order to have a better view over the JAIN SLEE container health, a few metrics are made available in this section.</para>
+	<para>In order to have a better understanding of the JAIN SLEE container health, a few metrics are made available in this section.</para>
 
 	<section id="management_ere_summary">
 		<title>View Event Router Executors Summary</title>
@@ -30,7 +30,7 @@
 
 	<section id="management_ere_metrics">
 		<title>Monitor Event Router Executors metrics</title>
-		<para>By accessing the <guilabel>MONITOR</guilabel> tab it's possible to see a lot of metrics for each executor:</para>
+		<para>By accessing the <guilabel>MONITOR</guilabel> tab,  it is possible available metrics for each executor:</para>
 
 		<itemizedlist>
 			<listitem>
@@ -81,6 +81,6 @@
 			<para>The "... per Minute" metrics are calculated by &MANAGEMENT.PLATFORM; so, they may not be accurate for container lifetime, ie, they are based on values gathered while &MANAGEMENT.PLATFORM; agent is running.</para>
 		</note>
 		
-		<para>It is possible to enable and disable metrics and also set the collection interval by accessing the <guilabel>SCHEDULES</guilabel> sub-menu, in <guilabel>MONITOR</guilabel> tab.</para>
+		<para>It is possible to enable, disable metrics and also set the collection interval by accessing the <guilabel>SCHEDULES</guilabel> sub-menu, in <guilabel>MONITOR</guilabel> tab.</para>
 	</section>
 </section>

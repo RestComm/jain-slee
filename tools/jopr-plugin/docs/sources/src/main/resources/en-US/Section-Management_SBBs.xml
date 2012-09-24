@@ -1,11 +1,14 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <section id="management_slee_sbb_top">
 	<title>Managing and Monitoring JAIN SLEE Service Building Blocks (SBBs)</title>
 	<section id="management_slee_sbb_summary">
 		<title>View SBB Summary</title>
-		<para>In the top, at the summary section, some details regarding the SBB can be seen, such as the Component ID (in <guilabel>Description</guilabel>), the Version, the State Code (UP/DOWN) and its Parent Component (JSLEE Server).</para>
+		<para>At the top, under the summary section, some details regarding the SBB can be seen, such as the Component ID (in <guilabel>Description</guilabel>), the Version, the State Code (UP/DOWN) and its Parent Component (JSLEE Server).</para>
 		
 		<figure>
 			<title>SBB Summary View.</title>
@@ -38,7 +41,7 @@
 	</section>
 	<section id="management_slee_sbb_availability">
 		<title>Monitor JAIN SLEE SBB Availability over time</title>
-		<para>By accessing the <guilabel>MONITOR</guilabel> tab it's possible to see a graph showing the availability of the SBB over time.</para>
+		<para>By accessing the <guilabel>MONITOR</guilabel> tab, a graph showing the availability of the SBB over time will be displayed.</para>
 
 		<figure>
 			<title>Monitoring JAIN SLEE SBB Availability.</title>

@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="management">
@@ -8,11 +11,11 @@
 
 	<section id="main_view">
 		<title>&MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin Main View</title>
-		<para>This section describes the main view of &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
+		<para>This section gives an overview of the main page of &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
 		
-		<para>In order to access this, go to the top menu and select <menuchoice><guimenu>Resources</guimenu><guisubmenu>Servers</guisubmenu></menuchoice>. A list should be presented, where <acronym>JAIN SLEE</acronym> server is present. Click it to access server details.</para>
+		<para>In order to access the page, go to the top menu and select <menuchoice><guimenu>Resources</guimenu><guisubmenu>Servers</guisubmenu></menuchoice>. A list will be presented, where <acronym>JAIN SLEE</acronym> server is listed. Click on it to access server details.</para>
 		
-		<para>You should have something similar to the following figure:</para>
+		<para>You should have something similar to the following snapshot.</para>
 
 		<figure>
 			<title>&MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin Main View.</title>
@@ -26,7 +29,7 @@
 			</mediaobject>
 		</figure>
 
-		<para>As you can see in the left side menu you have the following components that can be managed by &MANAGEMENT.PLATFORM;:</para>
+		<para>As you can see in the left side menu you have the  components that can be managed by &MANAGEMENT.PLATFORM;:</para>
 
 		<itemizedlist>
 			<listitem>
@@ -43,9 +46,9 @@
 			</listitem>
 		</itemizedlist>
 
-		<para>Each one will be described and explained in it's own section.</para>
+		<para>Each one will be described and explained in a separate section.</para>
 
-		<para>Not a component of JAIN SLEE itself, but as a crucial part of it's core is the Event Router and it's Executors. This component is also described in it's own section.</para>
+		<para>Event Router and its Executors are not part of the components of JAIN SLEE but, they are crucial part of its internal workings.</para>
 
 	</section>
 	

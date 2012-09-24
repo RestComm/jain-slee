@@ -8,7 +8,7 @@
 	<title>Managing and Monitoring JAIN SLEE Deployable Units</title>
 	<section id="management_slee_du_summary">
 		<title>View JAIN SLEE Deployable Unit Summary</title>
-		<para>In the top, at the summary section, some details regarding the Deployable Unit can be seen, such as the Type, Parent Component (JSLEE Server) and the date it was deployed on, in <guilabel>Description</guilabel>.</para>
+		<para>At the top, under the summary section, some data regarding the Deployable Unit can be seen, such as the Type, Parent Component (JSLEE Server) and the date on which it was deployed. These are displayed in the <guilabel>Description</guilabel>.</para>
 		
 		<figure>
 			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Deployable Unit Summary View.</title>
@@ -24,7 +24,7 @@
 	</section>
 	<section id="management_slee_du_availability">
 		<title>Monitor JAIN SLEE DU Availability over time</title>
-		<para>By accessing the <guilabel>MONITOR</guilabel> tab it's possible to see a graph showing the availability of the deployable unit over time.</para>
+		<para>Accessing the <guilabel>MONITOR</guilabel> tab, a graph showing the availability of the deployable unit over time can be seen.</para>
 		
 		<figure>
 			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Deployable Unit Availability View.</title>
@@ -40,20 +40,20 @@
 		
 		<note>
 			<title>Deployable Unit Availability Feature</title>
-			<para>For a deployable unit, availability refers to whether the DU was or not installed. It only works for deployable units with the same name.</para>
+			<para>The Availability refers to whether the DU was or not installed. It only works for deployable units with the same name.</para>
 		</note>
 	</section>
 	<section id="management_slee_du_op_listcomponents">
 		<title>List Component IDs</title>
-		<para>The only operation available for Deployment Units is to view the IDs of the components that it contains, it can be done by executing the <guilabel>List Component IDs</guilabel> operation.</para>
+		<para>Executing the <guilabel>List Component IDs</guilabel> will display the only available operation, IDs of the components </para>
 		
 		<para>This action takes no parameters.</para>
 		
-		<note><para>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>					
+		<note><para>This operation can be scheduled for a later time and have a defined timeout and/or include additional notes.</para></note>					
 
-		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it is shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
 
-		<para>The result is presented in the following form:</para>
+		<para>The result is presented in the snapshot below</para>
 
 		<figure>
 			<title>Sample result of invoking List Component IDs.</title>
