@@ -309,13 +309,17 @@
 
 	<available file="${ant.file.mobicents.release}/../${mms.distro.zip.path}" property="got.mms" />
 	<target name="get-mms" unless="got.mms">
+		<!--
 		<echo>Downloading Media Server</echo>
 		<get dest="${ant.file.mobicents.release}/../${mms.distro.zip.path}" src="${mms.download.url}" />
+		-->
 	</target>
 
 	<target name="unzip-mms">
+		<!--
 		<delete dir="${release.dir}/extra/mobicents-media-server" failonerror="false" />
 		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/mobicents-media-server" />
+		-->
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" property="got.ss7" />

@@ -19,7 +19,6 @@ Directory Structure
  +--- tools/remote-slee-connection	(Remote SLEE Connection Tool)
  +--- tools/twiddle			(Twiddle Command Line Interface)
  +--- tools/eclipslee			(EclipSLEE Plugin)
- +--- extra/mobicents-media-server  	(Mobicents Media Server Standalone, a community (not supported) media server for an easy trial of MGCP related examples)
  +--- extra/telscale-diameter		(Telscale Diameter Mux, required by Diameter RAs)
  +--- extra/telscale-ss7		(Telscale SS7, required by MAP RA)
  +--- extra/sip-balancer		(Telscale SIP Load Balancer)
