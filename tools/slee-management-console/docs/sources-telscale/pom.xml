@@ -13,7 +13,8 @@
 			
 	<properties>
 		<THIS.PLATFORM>Telscale Platform</THIS.PLATFORM>
-		<JEE.PLATFORM>JBoss Enterprise Application Platform</JEE.PLATFORM>
+		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
+		<THIS.SOURCE_CODE_URL>https://code.google.com/p/jain-slee</THIS.SOURCE_CODE_URL>
 		<MANAGEMENT.PLATFORM>JAIN SLEE Management Console</MANAGEMENT.PLATFORM>
 		<author.email.alexandre>amendonca@redhat.com</author.email.alexandre>
 	</properties>

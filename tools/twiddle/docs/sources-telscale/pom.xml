@@ -15,7 +15,8 @@
 	<name>Mobicents Twiddle CLI :: Docs :: ${pom.artifactId}</name>
 	<properties>
 		<THIS.PLATFORM>Telscale</THIS.PLATFORM>
-		<JEE.PLATFORM>JBoss Enterprise Application Platform</JEE.PLATFORM>
+		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
+		<THIS.SOURCE_CODE_URL>https://code.google.com/p/jain-slee</THIS.SOURCE_CODE_URL>
 		<THIS.ISSUE_TRACKER_URL>https://telestax.zendesk.com/home</THIS.ISSUE_TRACKER_URL>
 		<author.email.bartosz>bbaranow (at) redhat.com</author.email.bartosz>
 	</properties>
