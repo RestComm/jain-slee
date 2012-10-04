@@ -207,6 +207,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
+					<!--
 					<execution>
 						<id>eclipslee-checkout</id>
 						<goals>
@@ -224,6 +225,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
+					-->
 					<execution>
 						<id>javaee-checkout</id>
 						<goals>
