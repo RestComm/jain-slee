@@ -198,13 +198,16 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements Activit
     return dateFormat.format(date);
   }
 
-  private static String toTTL(String millis, long timeout) {
-    long lastAccess = Long.parseLong(millis);
-    java.util.Date date = new java.util.Date();
-    long current = date.getTime();
-    long ttl = timeout - (current - lastAccess);
-    ttl /= 1000;
-    return Long.toString(ttl);
+  /**
+   * Calculates the Activity TTL
+   * 
+   * @param lastAccess time of last access to activity (in milliseconds)
+   * @param timeout activity max idle time (in seconds)
+   * @return a String with TTL value (in seconds)
+   */
+  private static String toTTL(String lastAccess, long timeout) {
+    Long ttl = timeout - ((System.currentTimeMillis() - Long.parseLong(lastAccess)) / 1000);
+    return ttl.toString();
   }
 
   public ActivityContextInfo[] retrieveActivityContextIDBySbbID(String id) throws ManagementConsoleException {
