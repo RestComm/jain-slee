@@ -25,6 +25,7 @@
  */
 package org.mobicents.slee.runtime.eventrouter.stats;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,6 +60,12 @@ public class EventRouterExecutorStatisticsImpl implements
 
 	private final long startTime = System.nanoTime();
 
+	private final Collection<Runnable> executorWorkingQueue; 
+	
+	public EventRouterExecutorStatisticsImpl(Collection<Runnable> executorWorkingQueue) {
+		this.executorWorkingQueue = executorWorkingQueue;
+	}
+	
 	private void taskExecuted(long executionTime) {
 		tasksExecuted++;
 		taskExecutingTime += executionTime;
@@ -259,6 +266,11 @@ public class EventRouterExecutorStatisticsImpl implements
 		taskExecuted(executionTime);
 	}
 
+	@Override
+	public int getWorkingQueueSize() {
+		return executorWorkingQueue.size();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -276,6 +288,7 @@ public class EventRouterExecutorStatisticsImpl implements
 		sb.append("Idle Time: ").append(getIdleTime()).append('\n');
 		sb.append("Misc Tasks Executed: ").append(getMiscTasksExecuted()).append('\n');
 		sb.append("Misc Tasks Executing Time: ").append(getMiscTasksExecutingTime()).append('\n');
+		sb.append("Working Queue Size: ").append(getWorkingQueueSize()).append('\n');
 		return sb.toString();
 	}
 }
