@@ -226,6 +226,24 @@ public class EventRouterStatistics implements
 
 	/*
 	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean#getWorkingQueueSize()
+	 */
+	@Override
+	public int getWorkingQueueSize() throws ManagementException {
+		return getEventRouterStatistics().getWorkingQueueSize();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean#getWorkingQueueSize(int)
+	 */
+	@Override
+	public int getWorkingQueueSize(int executor) throws ManagementException {
+		return getEventRouterStatistics().getWorkingQueueSize(executor);
+	}
+	
+	/*
+	 * (non-Javadoc)
 	 * @see org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean#printAllStats()
 	 */
 	public String printAllStats() throws ManagementException {

@@ -91,5 +91,21 @@ public interface EventRouterStatisticsMBean {
 	 */
 	public long getRoutingTime(int executor, EventTypeID eventTypeID) throws ManagementException;
 
+	/**
+	 * Retrieves the size of the event router working queue.
+	 * 
+	 * @return
+	 */
+	public int getWorkingQueueSize() throws ManagementException;
+	
+	/**
+	 * Retrieves the size of the specified executor's working queue.
+	 * 
+	 * @param executor
+	 *            the executor number
+	 * @return
+	 */
+	public int getWorkingQueueSize(int executor) throws ManagementException;
+	
 	public String printAllStats() throws ManagementException;
 }

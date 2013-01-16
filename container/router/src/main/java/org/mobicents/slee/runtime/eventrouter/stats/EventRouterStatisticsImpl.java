@@ -230,6 +230,25 @@ public class EventRouterStatisticsImpl implements EventRouterStatistics {
 		return executorStats == null ? 0 : executorStats.getRoutingTime(eventTypeID);
 	}
 
+	@Override
+	public int getWorkingQueueSize() {
+		int result = 0;
+		for (int i = 0; i < getExecutors().length; i++) {
+			result += getWorkingQueueSize(i);			
+		}
+		return result;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.eventrouter.stats.EventRouterStatistics#getWorkingQueueSize(int)
+	 */
+	@Override
+	public int getWorkingQueueSize(int executor) {		
+		final EventRouterExecutorStatistics executorStats = getExecutors()[executor].getStatistics();
+		return executorStats == null ? 0 : executorStats.getWorkingQueueSize();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -242,6 +261,7 @@ public class EventRouterStatisticsImpl implements EventRouterStatistics {
 		sb.append("\tAverage event routing time: ").append(getAverageEventRoutingTime()).append('\n');
 		sb.append("\tExecuted Tasks: ").append(getExecutedTasks()).append('\n');
 		sb.append("\tMisc Tasks Executed: ").append(getMiscTasksExecuted()).append('\n');
+		sb.append("\tWorking Queue Size: ").append(getWorkingQueueSize()).append('\n');
 		for (EventTypeID eventTypeID : eventRouter.getSleeContainer().getComponentManagement().getComponentRepository().getEventComponentIDs()) {
 			sb.append('\n');
 			sb.append(eventTypeID).append(" statistics:\n");

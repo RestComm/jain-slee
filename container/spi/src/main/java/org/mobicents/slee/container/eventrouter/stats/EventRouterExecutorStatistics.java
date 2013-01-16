@@ -136,4 +136,11 @@ public interface EventRouterExecutorStatistics {
 	 * @return
 	 */
 	public long getAverageEventRoutingTime(EventTypeID eventTypeID);
+	
+	/**
+	 * Retrieves the size of the executor's working queue. 
+	 * @return
+	 */
+	public int getWorkingQueueSize();
+	
 }
