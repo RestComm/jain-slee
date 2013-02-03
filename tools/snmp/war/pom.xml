@@ -1,0 +1,80 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
+		<artifactId>snmp-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<!-- is this correct? -->
+	<artifactId>adaptor</artifactId>
+	<packaging>war</packaging>
+
+	<name>Mobicents JAIN SLEE SNMP Adaptor</name>
+
+	<properties>
+		<assemble.directory>${project.build.directory}/snmp-adaptor</assemble.directory>
+		<mibgen.plugin.version>${snmp.adaptor.version}</mibgen.plugin.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<artifactId>slee-core</artifactId>
+			<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<finalName>mobicents-slee-snmp</finalName>
+		<plugins>
+			<plugin>
+				<!-- should this be in generate resources? and included in jar? or shoudl it be in separate profile/module? -->
+
+				<groupId>org.mobicents.tools.snmp.mib</groupId>
+				<artifactId>maven-plugin</artifactId>
+				<version>${mibgen.plugin.version}</version>
+				<configuration>
+					<attributesFile>${basedir}/src/main/webapp/WEB-INF/attributes.xml</attributesFile>
+					<notificationsFile>${basedir}/src/main/webapp/WEB-INF/notifications.xml</notificationsFile>
+					<moduleName>SLEE-MIB</moduleName>
+					<outputFile>${basedir}/src/main/webapp/WEB-INF/mobicents-slee.mib</outputFile>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>generate-mib</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+					<warSourceDirectory>
+						${basedir}/src/main/webapp
+					</warSourceDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<!-- TODO: add deploy code here -->
+		</profile>
+	</profiles>
+
+
+
+</project>

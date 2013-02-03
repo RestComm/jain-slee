@@ -25,6 +25,18 @@ ehthumbs.db
 Thumbs.db
 
 # Mobicents
+=======
+# kate/linux tmp files #
+########################
+*~
+
+# snmp #
+########
+*.mib
+
+# Mobicents #
+#############
+${env.JBOSS_HOME}
 container/components/test-du/test/src/test/resources/components-test-du-*.jar
 container/docs/sources-mobicents/src/
 container/docs/sources-telscale/src/

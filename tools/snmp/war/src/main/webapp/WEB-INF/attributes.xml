@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+
+<attribute-mappings>
+   
+   <!-- 
+   		Those OIDS we just invent :)
+   		OID for mobicents                      : .1.3.6.1.4.1.2312.101
+        OID for server 1                       : .1.3.6.1.4.1.2312.101.1
+        OID for jslee mgmt(javax.slee....)     : .1.3.6.1.4.1.2312.101.1.100
+        OID for mobicents mgmt(org.mobicents)  : .1.3.6.1.4.1.2312.101.1.200
+        OID for app mgmt(app specific space )  : .1.3.6.1.4.1.2312.101.1.300
+        
+        
+        example - jslee SleeManagement bean OID                  : .1.3.6.1.4.1.2312.101.1.100.1
+        		  jslee management SleeManagement bean attributes: .1.3.6.1.4.1.2312.101.1.100.1.[1-100]
+                  as above, notifications attributes             : .1.3.6.1.4.1.2312.101.1.100.1.[101+] 
+        -->
+   
+   <mbean name="javax.slee.management:name=SleeManagement" oid-prefix=".1.3.6.1.4.1.2312.101.1.100.1" definition-name="sleeManagement">
+      <attribute name="State" oid=".1" mode="r" max-access="read-only" snmp-type="OCTETSTRING"/>
+      <attribute name="SleeName" oid=".2" mode="r" max-access="read-only" snmp-type="OCTETSTRING"/>
+      <attribute name="SleeVendor" oid=".3" mode="r" max-access="read-only" snmp-type="OCTETSTRING"/>
+      <attribute name="SleeVersion" oid=".4" mode="r" max-access="read-only" snmp-type="OCTETSTRING"/>
+      <attribute name="Subsystems" oid=".5.1" mode="r" max-access="read-only" table="true"/>
+   </mbean>
+   
+   <mbean name="javax.slee.management:name=Alarm" oid-prefix=".1.3.6.1.4.1.2312.101.1.100.2" definition-name="alarmManagement">
+      <attribute name="Alarms" oid=".1" mode="r" max-access="read-only" table="true"/>
+   </mbean>
+   
+   <!-- JBOSS section, those are jboss defaults -->
+
+   <!-- basic system information -->
+   <mbean name="jboss.system:type=ServerInfo" oid-prefix=".1.3.6.1.4.1.2312.100.1.1" definition-name="jbossAsObjects">
+      <attribute name="ActiveThreadCount" oid=".1" snmp-type="INTEGER" max-access="read-only" description="The amount of active threads the server is handling." status="current"/>
+      <attribute name="FreeMemory" oid=".2" description="The amount of free memory on the server."/>
+      <attribute name="MaxMemory" oid=".3" description="The maximum usable amount of memory on the server."/>
+   </mbean>
+
+   <!-- tomcat global http request processing -->
+   <!--<mbean name="jboss.web:name=http-0.0.0.0-8080,type=GlobalRequestProcessor">
+      <attribute name="requestCount" oid=".1.3.6.1.4.1.2312.100.1.1.5" snmp-type="INTEGER" description="Number of requests that have been processed." status="obsolete"/>
+   </mbean>-->
+   
+   <mbean name="jboss.jmx:name=SnmpAgent,service=snmp,type=adaptor" oid-prefix=".1.3.6.1.4.1.2312.100.1.1">
+     <attribute name="InstantiationTime" oid=".4" snmp-type="DisplayString" description="The start time of the SNMP agent."/>
+     <attribute name="TrapCount" oid=".5" snmp-type="DisplayString" description="The number of traps emitted by the agent."/>
+     <attribute name="BindAddress" oid=".6" snmp-type="DisplayString" description="The address to which the agent is bound."/>
+   </mbean>
+   
+   <!-- DefaultDS statistics -->
+   <mbean name="jboss.jca:name=DefaultDS,service=ManagedConnectionPool" oid-prefix=".1.3.6.1.4.1.2312.100.1.1">
+      <attribute name="InUseConnectionCount" oid=".7" description="The amount of connections currently in use."/>
+      <attribute name="MaxConnectionsInUseCount" oid=".8" description="The maximum possible amount of connections available for use."/>
+   </mbean>
+   
+   <!-- Tx Manager statistics -->
+   <mbean name="jboss:service=TransactionManager">
+      <attribute name="CommitCount" oid=".1.3.6.1.4.1.2312.100.1.1.9"/>
+      <attribute name="RollbackCount" oid=".1.3.6.1.4.1.2312.100.1.1.10"/>
+      <attribute name="TransactionCount" oid=".1.3.6.1.4.1.2312.100.1.1.11"/>
+   </mbean>
+   
+   <mbean name="jboss.web:host=localhost,path=*,type=Manager" oid-prefix=".1.3.6.1.4.1.2312.100.1.1.12.1" table-name="metrics" description="Table containing standard metrics for any webapp deployed on JBossAS" status="current">
+      <attribute name="distributable" oid=".2" snmp-type="INTEGER"/> 
+      <attribute name="sessionCounter" oid=".3" snmp-type="INTEGER" description="The amount of sessions this web application has handled."/>
+      <attribute name="activeSessions" oid=".4" snmp-type="INTEGER" description="The amount of currently active sessions this web application is handling."/>
+      <attribute name="maxActiveSessions" oid=".5" mode="rw" snmp-type="INTEGER" description="The maximum amount of active sessions this web application can handle at once."/>
+      <attribute name="sessionAverageAliveTime" oid=".6" snmp-type="INTEGER" description="The average time a session is active on this web application."/>
+      <attribute name="expiredSessions" oid=".7" snmp-type="INTEGER" description="The amount of expired sessions related to this web application."/>
+      <attribute name="rejectedSessions" oid=".8" snmp-type="INTEGER" description="The amount of rejected sessions related to this web application."/>
+      <attribute name="maxInactiveInterval" oid=".9" snmp-type="INTEGER" description="The amount of time that must expire before a session is considered inactive."/>
+      <attribute name="sessionMaxAliveTime" oid=".10" snmp-type="INTEGER" description="The maximum amount of time a session can remain active."/>
+   </mbean>
+   <!-- system information group see RFC-1213 -->
+   <mbean name="jboss.jmx:name=SnmpAgent,service=MIB2SystemGroup" oid-prefix=".1.3.6.1.2.1.1" definition-name="system">
+      <attribute name="SysDescr" oid=".1" mode="rw" description="A description of this System."/> <!-- can be modified over snmp -->
+      <attribute name="SysObjectId" oid=".2" description="The OID Denoting this system."/>
+      <attribute name="SysUpTime" oid=".3" description="The time this system has been online."/>
+      <attribute name="SysContact" oid=".4" description="The person who is admin to this system."/>
+      <attribute name="SysName" oid=".5" description="The name this system is known by."/>
+      <attribute name="SysLocation" oid=".6" description="The physical location of this system."/>
+      <attribute name="SysServices" oid=".7" description="The services provided by this system."/>
+   </mbean>
+</attribute-mappings>

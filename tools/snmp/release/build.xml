@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Release_build" default="deploy">
+
+	<property name="home" value="${ant.file.Release_build}/../" />
+
+	<property name="jboss.home" value="${home}/@JBOSS.PATH@/" />
+	<property name="jboss.config" value="@JBOSS.CONFIG@" />
+
+
+	<target name="deploy">
+		<echo>Deploying SNMP adaptor. Ensure that container is not running!!!</echo>
+		<copy failonerror="true" overwrite="false" file="${JBOSS_HOME}/server/${jboss.config}/deployers//metadata-deployer-jboss-beans.xml" tofile="${basedir}/deployer.overrides/metadata-deployer-jboss-beans_bck.xml" />
+		<copy failonerror="true" overwrite="true" file="${basedir}/deployer.overrides/metadata-deployer-jboss-beans.xml" todir="${JBOSS_HOME}/server/${jboss.config}/deployers/" />
+
+		<copy failonerror="true" todir="${JBOSS_HOME}/server/${jboss.config}/deployers/snmp-deployer.sar">
+			<fileset dir="${basedir}/deployer.sar">
+				<include name="**" />
+			</fileset>
+		</copy>
+
+		<copy failonerror="true" todir="${JBOSS_HOME}/server/${jboss.config}/deployers/snmp-adaptor.sar">
+			<fileset dir="${basedir}/adaptor.sar">
+				<include name="**" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="undeploy">
+		<copy failonerror="true" overwrite="true" file="${basedir}/deployer.overrides/metadata-deployer-jboss-beans_bck.xml" todir="${JBOSS_HOME}/server/${jboss.config}/deployers/" />
+		<delete dir="${JBOSS_HOME}/server/${jboss.config}/deployers/snmp-deployer.sar"/>
+		<delete dir="${JBOSS_HOME}/server/${jboss.config}/deployers/snmp-adaptor.sar"/>
+	</target>
+
+</project>

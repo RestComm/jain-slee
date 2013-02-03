@@ -31,6 +31,7 @@
 				<module>tools/jopr-plugin</module>
 				<module>tools/slee-management-console</module>				
 				<module>tools/twiddle</module>				
+				<module>tools/snmp</module>				
 			</modules>			
 			<build>
 				<plugins>
@@ -50,7 +51,8 @@
 			<modules>
 				<module>tools/jopr-plugin</module>
 				<module>tools/slee-management-console</module>				
-				<module>tools/twiddle</module>				
+				<module>tools/twiddle</module>		
+				<module>tools/snmp</module>				
 			</modules>								
 		</profile>
 	</profiles>	

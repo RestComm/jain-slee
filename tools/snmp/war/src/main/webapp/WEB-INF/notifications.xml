@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<notification-map-list>
+
+	<!-- NOTE: 'enterprise' must be equal to OID of MBean! -->
+  <!-- SLEE MGMT --> 
+  
+  <mapping name="sleeManagement" notification-type="javax.slee.management.sleestatechange" generic="6" specific="10" enterprise=".1.3.6.1.4.1.2312.101.1.100.1" definition-name="sleeManagementNotifications" security-name="TEST">
+    <var-bind-list wrapper-class="org.mobicents.slee.tools.snmp.SleeStateNotificationWrapperSupport">
+    	<var-bind tag="n:oldState" oid="1.3.6.1.4.1.2312.101.1.100.1.101" type="OCTET STRING"/>
+      	<var-bind tag="n:newState" oid="1.3.6.1.4.1.2312.101.1.100.1.102" type="OCTET STRING"/>
+    </var-bind-list>               
+  </mapping>
+
+
+  <!-- ALARMS: define with *, since this is matched as regexp, we want to cover all by default      -->     
+  <mapping name="alarmManagement" notification-type="javax.slee.management.alarm.*" generic="6" specific="11" enterprise=".1.3.6.1.4.1.2312.101.1.100.2" definition-name="alarmFacilityNotifications" security-name="TEST">
+    <var-bind-list wrapper-class="org.mobicents.slee.tools.snmp.AlarmNotificationWrapperSupport"> 
+      <var-bind tag="n:source" oid="1.3.6.1.4.1.2312.101.1.100.2.101" type="OCTET STRING"/>
+      <var-bind tag="n:level" oid="1.3.6.1.4.1.2312.101.1.100.2.102" type="OCTET STRING"/>
+      <var-bind tag="n:instanceId" oid="1.3.6.1.4.1.2312.101.1.100.2.103" type="OCTET STRING"/>
+      <var-bind tag="n:id" oid="1.3.6.1.4.1.2312.101.1.100.2.104" type="OCTET STRING"/>
+      <var-bind tag="n:type" oid="1.3.6.1.4.1.2312.101.1.100.105" type="OCTET STRING"/>
+    </var-bind-list>               
+  </mapping>
+  
+  <!-- JBOSS section, those are jboss defaults -->
+  <mapping name="jbossAsHeartbeatNotification" notification-type="jboss.snmp.agent.heartbeat" generic="0" specific="3" enterprise="1.3.6.1.4.1.2312.100.1.2" definition-name="jbossAsTraps">
+    <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
+      <var-bind tag="a:uptime" oid="1.3.6.1.2.1.1.3"/>
+      <var-bind tag="a:trapCount" oid="1.3.6.1.4.1.2312.100.1.1.5"/>
+      <var-bind tag="n:message" oid="1.3.6.1.4.1.2312.100.1.1.30"/>
+      <var-bind tag="n:sequenceNumber" oid="1.3.6.1.4.1.2312.100.1.1.31"/>
+    </var-bind-list>               
+  </mapping>        
+        
+  <mapping name="jbossAsColdstartNotification" notification-type="jboss.snmp.agent.coldstart" generic="0" specific="1" enterprise="1.3.6.1.4.1.2312.100.1.2" inform="false" security-name="TEST">
+    <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
+      <var-bind tag="a:startTime" oid="1.3.6.1.4.1.2312.100.1.1.4"/>
+      <var-bind tag="a:trapCount" oid="1.3.6.1.4.1.2312.100.1.1.5"/>
+    </var-bind-list>               
+  </mapping>
+  
+  <mapping name="jbossAsClusterViewChangedNotification" notification-type="org.jboss.cache.ViewChanged" generic="0" specific="0" enterprise="1.3.6.1.4.1.2312.100.1.2" inform="false" security-name="TEST">    
+    <var-bind-list wrapper-class="org.jboss.jmx.adaptor.snmp.agent.NotificationWrapperSupport">
+      <var-bind tag="a:startTime" oid="1.3.6.1.4.1.2312.100.1.1.4"/>
+      <var-bind tag="a:trapCount" oid="1.3.6.1.4.1.2312.100.1.1.5"/>  
+      <var-bind tag="n:message" oid="1.3.6.1.4.1.2312.100.1.1.1000" definition-name="viewChangedMessage"/>    
+    </var-bind-list>               
+  </mapping>
+</notification-map-list>
