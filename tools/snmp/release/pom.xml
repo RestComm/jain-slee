@@ -3,13 +3,12 @@
 	<packaging>pom</packaging>
 
 	<parent>
-		<artifactId>http-client-parent</artifactId>
-		<groupId>org.mobicents.resources</groupId>
-		<version>2.8.0-SNAPSHOT</version>
+		<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
+		<artifactId>mobicents-slee-tools-snmp-parent</artifactId>
+		<version>6.1.2-TelScale-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>http-client-ra-release</artifactId>
-	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
+	<artifactId>mobicents-slee-tools-snmp-release</artifactId>
 
 	<profiles>
 		<profile>
@@ -27,20 +26,10 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy overwrite="true" todir="${release.dir}/tools/snmp-adaptor/adaptor.sar">
-											<fileset dir="${basedir}/../core/target">
-												<include name="**.jar" />
-											</fileset>
+										<copy overwrite="true" todir="${release.dir}/tools/snmp/snmp-adaptor.sar">
+											<fileset dir="${basedir}/../adaptor/target/snmp-adaptor.sar"/>
 										</copy>
-										<copy overwrite="true" todir="${release.dir}/tools/snmp-adaptor/adaptor.sar">
-                                            <fileset dir="${basedir}/../war/src/main/webapp/WEB-INF">
-                                                <include name="attributes.xml" />
-                                                <include name="notifications.xml" />
-                                                <include name="mobicents-slee.mib" />
-                                            </fileset>
-                                        </copy>
-
-										<copy overwrite="true" file="${basedir}/build.xml" todir="${release.dir}/tools/snmp-adaptor">
+										<copy overwrite="true" file="${basedir}/build.xml" todir="${release.dir}/tools/snmp">
 											<filterset>
 												<filter token="JBOSS.PATH" value="${jboss.path}" />
 												<filter token="JBOSS.CONFIG" value="${node}" />

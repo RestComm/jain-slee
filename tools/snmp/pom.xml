@@ -6,22 +6,18 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.mobicents</groupId>
-		<artifactId>mobicents-parent</artifactId>
-		<version>2.23</version>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>mobicents-slee-core</artifactId>
+		<version>6.1.2-TelScale-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
 	</parent>
 
-	<!-- is this correct? -->
 	<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
-	<artifactId>snmp-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<artifactId>mobicents-slee-tools-snmp-parent</artifactId>
+	
 	<packaging>pom</packaging>
 
-	<name>Mobicents JAIN SLEE SNMP Parent</name>
-	<description>Configuration for JBoss SNMP adaptor and conversion utility classes.</description>
-
 	<properties>
-		<mobicents.jslee.version>2.8.0-SNAPSHOT</mobicents.jslee.version>
 		<snmp.adaptor.version>1.0.0-SNAPSHOT</snmp.adaptor.version>
 	</properties>
 
@@ -38,77 +34,8 @@
 	<modules>
 		<module>core</module>
 		<module>war</module>
-		<!-- deployer is broken -->
+		<module>adaptor</module>
 	</modules>
-
-
-
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<groupId>org.mobicents.tools</groupId>
-				<inherited>false</inherited>
-				<executions />
-				<configuration>
-					<excludePoms />
-					<classpathExcludes>
-						<exclude>xml-apis:xml-apis</exclude>
-						<exclude>jtidy:jtidy</exclude>
-					</classpathExcludes>
-					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-tools-snmp</eclipseProjectName>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-
-	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
-
-	<repositories>
-		<repository>
-			<id>jboss-public-repository-group</id>
-			<name>JBoss Public Maven Repository Group</name>
-			<url>https://repository.jboss.org/nexus/content/groups/public</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>snmp4j-repository</id>
-			<name>SNMP4J Maven Repository Release</name>
-			<url>https://server.oosnmp.net/dist/release/</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>jboss-deprecated-repository</id>
-			<name>JBoss Deprecated Maven Repository</name>
-			<url>https://repository.jboss.org/nexus/content/repositories/deprecated/</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-		</repository>
-	</repositories>
 
 	<profiles>
 		<profile>

@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	
 	<parent>
-		<artifactId>snmp-slee-adaptor-docs</artifactId>
 		<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
-		<version>1.0.0-SNAPSHOT</version>
+		<artifactId>mobicents-slee-tools-snmp-docs</artifactId>
+		<version>6.1.2-TelScale-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>snmp-slee-adaptor-docs-jdocbook-mobicents</artifactId>
+	<artifactId>mobicents-slee-tools-snmp-docs-jdocbook-telscale</artifactId>
 		
 	<modelVersion>4.0.0</modelVersion>
 		
@@ -30,7 +30,7 @@
 								<configuration>
 									<tasks>
 										<!-- copy docs -->
-										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/tools/snmp-slee-adaptor/docs">
+										<copy overwrite="true" todir="${release.dir}/docs/tools/snmp/user-guide">
 											<fileset dir="${basedir}/target/docbook/publish" />
 										</copy>
 									</tasks>
@@ -59,7 +59,7 @@
 							<artifactItems>								
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>
-									<artifactId>snmp-slee-adaptor-docs-sources-mobicents</artifactId>
+									<artifactId>mobicents-slee-tools-snmp-docs-sources-telscale</artifactId>
 									<version>${pom.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
@@ -101,7 +101,7 @@
 						<format>
 							<formatName>pdf</formatName>
 							<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-							<finalName>Mobicents_SLEE_SNMP_Adaptor_User_Guide.pdf</finalName>
+							<finalName>Telscale_SLEE_SNMP_Adaptor_User_Guide.pdf</finalName>
 						</format>
 						<format>
 							<formatName>html</formatName>
