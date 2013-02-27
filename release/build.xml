@@ -9,7 +9,7 @@
 	<property name="tmp.jboss.home" value="${output.dir}/tmp" />
 
 	<property name="jboss.version" value="5.1.0.GA" />
-	<property name="release.version" value="6.1.1.GA" />
+	<property name="release.version" value="6.1.2.GA-SNAPSHOT" />
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip" />
 	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/" />
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
@@ -19,11 +19,10 @@
 	<property name="mms.download.url" value="http://mobicents.googlecode.com/files/mms-server-r21834-120202212603.zip" />
 	<property name="mms.distro.zip.path" value="media-server.zip" />
 
-	<property name="ss7.download.url" value="https://www.dropbox.com/s/pa9er1atzex0hno/TelScale-jSS7-6.1.1.GA.zip?dl=1" />
+	<property name="ss7.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKU1VUOEpoU2tScEE&amp;export=download" />
 	<property name="ss7.distro.zip.path" value="telscale-ss7.zip" />
 
-
-	<property name="diameter.download.url" value="https://www.dropbox.com/s/guctrkslevubtzz/TelScale-diameter-mux-jboss5-6.1.1.GA.sar.zip?dl=1" />
+	<property name="diameter.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKNDRXMFloQ2YybGM&amp;export=download" />
 	<property name="diameter.distro.zip.path" value="telscale-diameter.zip" />
 
 	<property name="eclipslee.download.url" value="https://www.dropbox.com/s/dqj9l6x0ebbnec7/org.mobicents.eclipslee.servicecreation_6.1.1.GA-TelScale.jar?dl=1" />
@@ -72,7 +71,7 @@
 
 	<target name="build-core" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
-			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Prelease,set-svn-revision,${release.profile}" />
+			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Prelease,set-git-hash,${release.profile}" />
 		</exec>
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
 			<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/container -DdestDir=javadoc" />
@@ -117,7 +116,7 @@
 	<target name="build-http" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="http" />
-			<param name="javadoc.dirs" value="resources/http-servlet,resources/http-client,enablers/rest-client" />
+			<param name="javadoc.dirs" value="resources/http-servlet,resources/http-client,resources/http-client-nio,enablers/rest-client" />
 		</antcall>
 	</target>
 
@@ -130,7 +129,7 @@
 
 	<target name="build-package" description="builds a SLEE package, use package.name and javadoc.dirs to pass the package singularities">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}">
-			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-svn-revision,${release.profile}" />
+			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
 		</exec>
 		<for delimiter="," param="dir.name" list="${javadoc.dirs}">
 			<sequential>
@@ -144,7 +143,7 @@
 	<target name="build-ss7" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="ss7" />
-			<param name="javadoc.dirs" value="resources/map" />
+			<param name="javadoc.dirs" value="resources/cap,resources/isup,resources/map,resources/tcap" />
 		</antcall>
 	</target>
 
@@ -180,7 +179,7 @@
 
 	<target name="build-sip-balancer" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer">
-			<arg line="clean install -P set-svn-revision,maven-release -Dmaven.test.skip=true" />
+			<arg line="clean install -P set-git-hash,maven-release -Dmaven.test.skip=true" />
 		</exec>
 		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
 			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/jar/target">
@@ -195,19 +194,41 @@
 		</copy>
 	</target>
 
-	<!--
-	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-ss7,build-sources-for-debug-zip">
-	-->
-	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-core,build-eclipslee,build-javaee,build-jdbc,build-sip,build-media,build-diameter,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
+	<target name="build-snmp-adaptor" description="Builds snmp adaptor from commscale and SLEE resources">
+                <exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor">
+					<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
+                </exec>
+
+                <unjar dest="${release.dir}/tools/snmp/snmp-adaptor.sar">
+                        <fileset dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/adaptor-service/target">
+                                <include name="**sar.jar" />
+                        </fileset>
+                </unjar>
+                <delete file="${release.dir}/tools/snmp/snmp-adaptor/adaptor.mib"/>
+                <unjar dest="${release.dir}/tools/snmp/snmp.deployer">
+                        <fileset dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/deployer-service/target">
+                                <include name="**sar.jar" />
+                        </fileset>
+                </unjar>
+                
+                <copy failonerror="true" file="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/deployer-service/overrides/metadata-deployer-jboss-beans.xml" 
+                        todir="${release.dir}/tools/snmp"/> 
+        </target>
+    <!--  
+	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-sources-for-debug-zip">
+	 --> 
+	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-jdbc,build-sip,build-media,build-diameter,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
 	
-		<!-- hack to replace diameter cluster libs --> 
+	
+		<!-- hack to replace diameter cluster libs 
 		<delete file="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/cache-1.13.jar" failonerror="true"/>
 		<delete file="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/core-1.13.jar" failonerror="true"/>
 		<delete file="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/timers-1.13.jar" failonerror="true"/>
 		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/lib/cache-6.1.2.GA-TelScale.jar" tofile="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/cache-6.1.2.GA-TelScale.jar"/>
 		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/lib/core-6.1.2.GA-TelScale.jar" tofile="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/core-6.1.2.GA-TelScale.jar"/>
 		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/lib/timers-6.1.2.GA-TelScale.jar" tofile="${release.dir}/extra/telscale-diameter/mobicents-diameter-mux-6.1.1.GA-TelScale.sar/lib/timers-6.1.2.GA-TelScale.jar"/>
-
+		--> 
+		
 		<!-- copy log4j presets -->
 		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/default/conf/jboss-log4j.xml" overwrite="true" />
 		<copy file="${jboss.home}/server/all/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/all/conf/jboss-log4j.xml" overwrite="true" />

@@ -20,8 +20,10 @@
 		<tag.version>ts111ga</tag.version>
 		<!-- GIT -->
 
+<!--
 		<core.scmVersion>${tag.version}</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
+-->
 		<diameter.scmVersion>${tag.version}</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
 		<eclipslee.scmVersion>${tag.version}</eclipslee.scmVersion>
@@ -30,16 +32,22 @@
 		<javaee.scmVersionType>tag</javaee.scmVersionType>
 		<jdbc.scmVersion>${tag.version}</jdbc.scmVersion>
 		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
+<!--
 		<http.scmVersion>${tag.version}</http.scmVersion>
 		<http.scmVersionType>tag</http.scmVersionType>
+-->
 		<media.scmVersion>${tag.version}</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
+<!--
 		<sip.scmVersion>${tag.version}</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
+-->
 		<smpp.scmVersion>${tag.version}</smpp.scmVersion>
 		<smpp.scmVersionType>tag</smpp.scmVersionType>
+<!--
 		<ss7.scmVersion>${tag.version}</ss7.scmVersion>
 		<ss7.scmVersionType>tag</ss7.scmVersionType>
+-->
 		<tftp.scmVersion>${tag.version}</tftp.scmVersion>
 		<tftp.scmVersionType>tag</tftp.scmVersionType>
 		<xcap.scmVersion>${tag.version}</xcap.scmVersion>
@@ -54,9 +62,13 @@
 		<jain-sip-ha.scmVersionType>tag</jain-sip-ha.scmVersionType>
 		<sip-balancer.scmVersion>ts112ga</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
-<!--		
+<!--	
+		<snmp.core.scmVersion>?</snmp.core.scmVersion>
+        <snmp.core.scmVersionType>tag</snmp.core.scmVersionType>
+-->	
 		<core.scmVersion>ts1</core.scmVersion>
 		<core.scmVersionType>branch</core.scmVersionType>
+<!--
 		<diameter.scmVersion>ts1</diameter.scmVersion>
 		<diameter.scmVersionType>branch</diameter.scmVersionType>		
 		<eclipslee.scmVersion>ts1</eclipslee.scmVersion>
@@ -65,17 +77,22 @@
 		<javaee.scmVersionType>branch</javaee.scmVersionType>	
 		<jdbc.scmVersion>ts1</jdbc.scmVersion>
 		<jdbc.scmVersionType>branch</jdbc.scmVersionType>	
+-->
 		<http.scmVersion>ts1</http.scmVersion>
 		<http.scmVersionType>branch</http.scmVersionType>	
+<!--
 		<media.scmVersion>ts1</media.scmVersion>
 		<media.scmVersionType>branch</media.scmVersionType>	
+-->
 		<sip.scmVersion>ts1</sip.scmVersion>
 		<sip.scmVersionType>branch</sip.scmVersionType>	
+<!--
 		<smpp.scmVersion>ts1</smpp.scmVersion>
 		<smpp.scmVersionType>branch</smpp.scmVersionType>		
+-->
 		<ss7.scmVersion>ts1</ss7.scmVersion>
 		<ss7.scmVersionType>branch</ss7.scmVersionType>	
-
+<!--
 		<tftp.scmVersion>ts1</tftp.scmVersion>
 		<tftp.scmVersionType>branch</tftp.scmVersionType>		
 		<xcap.scmVersion>ts1</xcap.scmVersion>
@@ -89,8 +106,10 @@
 		<jain-sip-ha.scmVersion>ts1</jain-sip-ha.scmVersion>
 		<jain-sip-ha.scmVersionType>branch</jain-sip-ha.scmVersionType>		
 		<sip-balancer.scmVersion>ts1</sip-balancer.scmVersion>
-		<sip-balancer.scmVersionType>branch</sip-balancer.scmVersionType>		
-		 -->
+		<sip-balancer.scmVersionType>branch</sip-balancer.scmVersionType>
+-->		
+		<snmp.core.scmVersion>ts1</snmp.core.scmVersion>
+        <snmp.core.scmVersionType>branch</snmp.core.scmVersionType>		
 	</properties>
 	
 	<profiles>
@@ -120,7 +139,8 @@
 								scm:git:https://code.google.com/p/commscale.cluster/
 							</connectionUrl>
 						</configuration>
-					</execution>					
+					</execution>
+										
 					<execution>
 						<id>jain-sip-ext-checkout</id>
 						<goals>
@@ -172,7 +192,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
-					
+				
 					<execution>
 						<id>core-checkout</id>
 						<goals>
@@ -190,6 +210,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
+					
 					<execution>
 						<id>diameter-checkout</id>
 						<goals>
@@ -207,6 +228,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
+
 					<execution>
 						<id>eclipslee-checkout</id>
 						<goals>
@@ -326,6 +348,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
+			
 					<execution>
 						<id>ss7-checkout</id>
 						<goals>
@@ -343,6 +366,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
+					
 					<!--
 					<execution>
 						<id>tftp-checkout</id>
@@ -362,6 +386,7 @@
 						</configuration>
 					</execution>
 					-->
+
 					<execution>
 						<id>xcap-checkout</id>
 						<goals>
@@ -396,9 +421,24 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
-					
-																			
-					
+
+					<execution>
+                        <id>snmp-core-checkout</id>
+                        <goals>
+                            <goal>checkout</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <scmVersion>${snmp.core.scmVersion}</scmVersion>
+                            <scmVersionType>${snmp.core.scmVersionType}</scmVersionType>
+                            <checkoutDirectory>
+                                ${checkout.basedir}/extra/snmp-adaptor
+                            </checkoutDirectory>
+                            <connectionUrl>
+                                scm:git:https://code.google.com/p/commscale.snmp-adaptor/
+                            </connectionUrl>
+                        </configuration>
+                    </execution>
 
 				</executions>
 			</plugin>			
