@@ -9,26 +9,50 @@
 	<target name="deploy">
 		<echo>Deploying SNMP adaptor. Ensure that container is not running!!!</echo>
 
-		<copy failonerror="true" overwrite="false" file="${jboss.home}/server/${jboss.config}/deployers/metadata-deployer-jboss-beans.xml" tofile="${home}/metadata-deployer-jboss-beans_bck.xml" />
+		<!-- backup -->
+		<mkdir dir="${home}/backup/${jboss.config}" />
+		<copy failonerror="true" overwrite="false" file="${jboss.home}/server/${jboss.config}/deployers/metadata-deployer-jboss-beans.xml" tofile="${home}/backup/${jboss.config}/metadata-deployer-jboss-beans.xml" />
+		<copy failonerror="false" todir="${home}/backup/${jboss.config}/snmp.deployer">
+			<fileset dir="${jboss.home}/server/${jboss.config}/deployers/snmp.deployer">
+				<include name="**" />
+			</fileset>
+		</copy>
+		<copy failonerror="false" todir="${home}/backup/${jboss.config}/snmp-adaptor.sar">
+			<fileset dir="${jboss.home}/server/${jboss.config}/deploy/snmp-adaptor.sar">
+				<include name="**" />
+			</fileset>
+		</copy>
+		
+		<!-- deploy -->
 		<copy failonerror="true" overwrite="true" file="${home}/metadata-deployer-jboss-beans.xml" todir="${jboss.home}/server/${jboss.config}/deployers/" />
-
 		<copy failonerror="true" todir="${jboss.home}/server/${jboss.config}/deployers/snmp.deployer">
 			<fileset dir="${home}/snmp.deployer">
 				<include name="**" />
 			</fileset>
 		</copy>
-		-->
 		<copy failonerror="true" todir="${jboss.home}/server/${jboss.config}/deploy/snmp-adaptor.sar">
 			<fileset dir="${home}/snmp-adaptor.sar">
 				<include name="**" />
 			</fileset>
 		</copy>
+
 	</target>
 
-	<target name="undeploy">
-		<copy failonerror="true" overwrite="true" file="${home}/metadata-deployer-jboss-beans_bck.xml" todir="${jboss.home}/server/${jboss.config}/deployers/" />
+	<target name="undeploy">		
+		<copy failonerror="true" overwrite="true" file="${home}/backup/${jboss.config}/metadata-deployer-jboss-beans.xml" todir="${jboss.home}/server/${jboss.config}/deployers/" />
 		<delete dir="${jboss.home}/server/${jboss.config}/deployers/snmp.deployer"/>
 		<delete dir="${jboss.home}/server/${jboss.config}/deploy/snmp-adaptor.sar"/>
+		<copy failonerror="false" todir="${jboss.home}/server/${jboss.config}/deployers/snmp.deployer">
+			<fileset dir="${home}/backup/${jboss.config}/snmp.deployer">
+				<include name="**" />
+			</fileset>
+		</copy>
+		<copy failonerror="false" todir="${jboss.home}/server/${jboss.config}/deploy/snmp-adaptor.sar">
+			<fileset dir="${home}/backup/${jboss.config}/snmp-adaptor.sar">
+				<include name="**" />
+			</fileset>
+		</copy>		
+		<delete dir="${home}/backup/${jboss.config}"/>
 	</target>
 
 </project>
