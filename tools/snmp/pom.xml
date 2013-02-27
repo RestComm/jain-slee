@@ -18,7 +18,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<snmp.adaptor.version>1.0.0-SNAPSHOT</snmp.adaptor.version>
+		<snmp.adaptor.version>6.1.3-TelScale-SNAPSHOT</snmp.adaptor.version>
 	</properties>
 
 	<dependencyManagement>
