@@ -329,7 +329,6 @@ public class SbbEntityImpl implements SbbEntity {
 			if (this.sbbObject == null) {
 				this.assignSbbObject();
 			}
-			sbbObject.sbbStore();
 			removeAndReleaseSbbObject();
 		} catch (Exception e) {
 			try {
@@ -382,8 +381,7 @@ public class SbbEntityImpl implements SbbEntity {
 			boolean removeRollback) {
 		if (sbbObject != null) {
 			sbbObject.sbbRolledBack(event,activityContextInterface,removeRollback);
-			sbbObject.sbbStore();
-			sbbObject.sbbPassivate();
+			passivateAndReleaseSbbObject();
 		}
 	}
 
@@ -557,11 +555,16 @@ public class SbbEntityImpl implements SbbEntity {
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#passivateAndReleaseSbbObject()
 	 */
-	public void passivateAndReleaseSbbObject() throws Exception {
+	public void passivateAndReleaseSbbObject() {
+		this.sbbObject.sbbStore();
 		this.sbbObject.sbbPassivate();
 		this.sbbObject.setState(SbbObjectState.POOLED);
 		this.sbbObject.setSbbEntity(null);
-		getObjectPool().returnObject(this.sbbObject);
+		try {
+			getObjectPool().returnObject(this.sbbObject);
+		} catch (Exception e) {
+			log.error("failed to return sbb object "+sbbObject+" to pool",e);
+		}
 		this.sbbObject = null;
 		if (childsWithSbbObjects != null) {
 			for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
@@ -589,6 +592,7 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @throws Exception
 	 */
 	public void removeAndReleaseSbbObject() throws Exception {
+		this.sbbObject.sbbStore();
 		this.sbbObject.sbbRemove();
 		this.sbbObject.setState(SbbObjectState.POOLED);
 		this.sbbObject.setSbbEntity(null);
