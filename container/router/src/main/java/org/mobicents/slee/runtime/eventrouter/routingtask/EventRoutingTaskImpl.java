@@ -539,10 +539,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 						handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, container,false);
 					} else if (sbbEntity != null && !txMgr.getRollbackOnly()
 							&& sbbEntity.getSbbObject() != null) {
-
-						sbbObject.sbbStore();
 						sbbEntity.passivateAndReleaseSbbObject();
-
 					}
 
 					if (txMgr.getRollbackOnly()) {

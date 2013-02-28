@@ -181,7 +181,7 @@ public interface SbbEntity {
 	 * 
 	 * @throws Exception
 	 */
-	public void passivateAndReleaseSbbObject() throws Exception;
+	public void passivateAndReleaseSbbObject();
 	
 	/**
 	 * Retrieves the child relation impl with the specified name, if it's a
