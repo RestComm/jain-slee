@@ -144,7 +144,7 @@
 	<target name="build-ss7" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="ss7" />
-			<param name="javadoc.dirs" value="resources/cap,resources/isup,resources/map,resources/tcap" />
+			<param name="javadoc.dirs" value="resources/cap,resources/map,resources/tcap" />
 		</antcall>
 	</target>
 

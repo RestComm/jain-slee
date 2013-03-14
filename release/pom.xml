@@ -35,10 +35,8 @@
 <!--
 		<http.scmVersion>${tag.version}</http.scmVersion>
 		<http.scmVersionType>tag</http.scmVersionType>
--->
 		<media.scmVersion>${tag.version}</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
-<!--
 		<sip.scmVersion>${tag.version}</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
 -->
@@ -80,10 +78,8 @@
 -->
 		<http.scmVersion>ts1</http.scmVersion>
 		<http.scmVersionType>branch</http.scmVersionType>	
-<!--
 		<media.scmVersion>ts1</media.scmVersion>
 		<media.scmVersionType>branch</media.scmVersionType>	
--->
 		<sip.scmVersion>ts1</sip.scmVersion>
 		<sip.scmVersionType>branch</sip.scmVersionType>	
 <!--
