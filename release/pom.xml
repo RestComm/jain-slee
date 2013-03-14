@@ -90,7 +90,7 @@
 		<smpp.scmVersion>ts1</smpp.scmVersion>
 		<smpp.scmVersionType>branch</smpp.scmVersionType>		
 -->
-		<ss7.scmVersion>ts1</ss7.scmVersion>
+		<ss7.scmVersion>ts1-temp</ss7.scmVersion>
 		<ss7.scmVersionType>branch</ss7.scmVersionType>	
 <!--
 		<tftp.scmVersion>ts1</tftp.scmVersion>
