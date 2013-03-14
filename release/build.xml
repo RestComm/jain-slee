@@ -25,7 +25,8 @@
 	<property name="diameter.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKNDRXMFloQ2YybGM&amp;export=download" />
 	<property name="diameter.distro.zip.path" value="telscale-diameter.zip" />
 
-	<property name="eclipslee.download.url" value="https://www.dropbox.com/s/dqj9l6x0ebbnec7/org.mobicents.eclipslee.servicecreation_6.1.1.GA-TelScale.jar?dl=1" />
+	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_6.1.1.GA-TelScale.jar" />
+	<property name="eclipslee.download.url" value="https://www.dropbox.com/s/dqj9l6x0ebbnec7/${eclipslee.jar}?dl=1" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
