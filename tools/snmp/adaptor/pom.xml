@@ -40,6 +40,11 @@
                                                 <include name="mobicents-slee.mib" />
                                             </fileset>
                                         </copy>
+                                        <copy overwrite="true" todir="${project.build.directory}/snmp-adaptor.sar/META-INF">
+                                            <fileset dir="${basedir}/../war/src/main/service">
+                                                <include name="jboss-service.xml" />
+                                            </fileset>
+                                        </copy>
 									</tasks>
 								</configuration>
 							</execution>

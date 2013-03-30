@@ -124,6 +124,9 @@
 		<!-- SLEE mgmt:alarms -->
 		<mbean name="javax.slee.management:name=Alarm">
         	<notification type="javax.slee.management.alarm"/>
+        	<!-- 
+        	<notification type="javax.slee.management.alarm.*"/>
+        	 -->
         </mbean>
 		<!-- SLEE mgmt:state change -->
 		<mbean name="javax.slee.management:name=SleeManagement">
