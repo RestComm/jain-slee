@@ -205,7 +205,7 @@
                                 <include name="**sar.jar" />
                         </fileset>
                 </unjar>
-                <delete file="${release.dir}/tools/snmp/snmp-adaptor/adaptor.mib"/>
+                <delete file="${release.dir}/tools/snmp/snmp-adaptor.sar/adaptor.mib"/>
                 <unjar dest="${release.dir}/tools/snmp/snmp.deployer">
                         <fileset dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/deployer-service/target">
                                 <include name="**sar.jar" />
