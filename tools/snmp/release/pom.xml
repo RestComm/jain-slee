@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
 		<artifactId>mobicents-slee-tools-snmp-parent</artifactId>
-		<version>6.1.2-TelScale-SNAPSHOT</version>
+		<version>6.1.2.GA-TelScale</version>
 	</parent>
 
 	<artifactId>mobicents-slee-tools-snmp-release</artifactId>
@@ -27,7 +27,7 @@
 								<configuration>
 									<tasks>
 										<copy overwrite="true" todir="${release.dir}/tools/snmp/snmp-adaptor.sar">
-											<fileset dir="${basedir}/../adaptor/target/snmp-adaptor.sar"/>
+											<fileset dir="${basedir}/../adaptor/target/snmp-adaptor.sar" />
 										</copy>
 										<copy overwrite="true" file="${basedir}/build.xml" todir="${release.dir}/tools/snmp">
 											<filterset>

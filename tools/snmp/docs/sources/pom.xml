@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools.snmp</groupId>
 		<artifactId>mobicents-slee-tools-snmp-docs</artifactId>
-		<version>6.1.2-TelScale-SNAPSHOT</version>
+		<version>6.1.2.GA-TelScale</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-tools-snmp-docs-sources</artifactId>
