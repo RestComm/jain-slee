@@ -34,7 +34,8 @@ import org.mobicents.slee.container.eventrouter.stats.EventTypeRoutingStatistics
  * Impl of {@link EventRouterExecutorStatistics}. This class is not thread safe
  * due to performance overhead introduced when collecting stats, i.e., errors in
  * values due to multiple threads accessing the statistics state are not
- * important.
+ * important. Note that stats updates are not concurrent, each instance belongs
+ * and is used by a single {@link EventRouterExecutorStatisticsImpl}.
  * 
  * @author martins
  * 
@@ -60,7 +61,7 @@ public class EventTypeRoutingStatisticsImpl implements
 	 * Adds the time for an event routing.
 	 * 
 	 * @param routingTime
-	 *            the time spent to route the event, in milliseconds
+	 *            the time spent to route the event, in nanos
 	 */
 	public void eventRouted(long routingTime) {
 		this.eventsRouted++;
