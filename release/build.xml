@@ -9,7 +9,7 @@
 	<property name="tmp.jboss.home" value="${output.dir}/tmp" />
 
 	<property name="jboss.version" value="5.1.0.GA" />
-	<property name="release.version" value="6.1.2.GA-SNAPSHOT" />
+	<property name="release.version" value="6.1.2.GA" />
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip" />
 	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/" />
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
