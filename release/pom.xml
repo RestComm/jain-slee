@@ -448,8 +448,8 @@
 	</build>
 	
 	<scm>
-      <connection>scm:git:ssh://git@bitbucket.org:telestax/telscale-jain-slee.git</connection>
-      <developerConnection>scm:git:ssh://git@bitbucket.org:telestax/telscale-jain-slee.git</developerConnection>
+      <connection>scm:git:ssh://git@bitbucket.org/telestax/telscale-jain-slee.git</connection>
+      <developerConnection>scm:git:ssh://git@bitbucket.org/telestax/telscale-jain-slee.git</developerConnection>
   	</scm>
   
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
