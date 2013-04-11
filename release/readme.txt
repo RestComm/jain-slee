@@ -11,17 +11,18 @@ This is the binary release of Telscale JAIN SLEE 6.x.
 Directory Structure
 -------------------
 
- +--- jboss-5.X.Y.GA			(JBoss AS with the JAIN SLEE container deployed)
- +--- resources				(JAIN SLEE Resource Adaptors and related scripts)
- +--- enablers				(JAIN SLEE Application Enablers)
- +--- examples				(JAIN SLEE Application Examples)
- +--- tools/jopr-plugin		(Jopr Management Console)
+ +--- jboss-5.X.Y.GA				(JBoss AS with the JAIN SLEE container deployed)
+ +--- resources						(JAIN SLEE Resource Adaptors and related scripts)
+ +--- enablers						(JAIN SLEE Application Enablers)
+ +--- examples						(JAIN SLEE Application Examples)
+ +--- tools/eclipslee				(EclipSLEE Plugin)
+ +--- tools/jopr-plugin				(Jopr Management Console)
  +--- tools/remote-slee-connection	(Remote SLEE Connection Tool)
- +--- tools/twiddle			(Twiddle Command Line Interface)
- +--- tools/eclipslee			(EclipSLEE Plugin)
- +--- extra/telscale-diameter		(Telscale Diameter Mux, required by Diameter RAs)
- +--- extra/telscale-ss7		(Telscale SS7, required by MAP RA)
- +--- extra/sip-balancer		(Telscale SIP Load Balancer)
+ +--- tools/snmp					(SNMP Adaptor)
+ +--- tools/twiddle					(Twiddle Command Line Interface)
+ +--- extra/telscale-diameter		(Telscale Diameter Stack, required by Diameter RAs)
+ +--- extra/telscale-ss7			(Telscale SS7 Stack, required by SS7 RAs)
+ +--- extra/sip-balancer			(Telscale SIP Load Balancer)
  
 Quick start
 -----------
