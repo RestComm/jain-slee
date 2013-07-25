@@ -32,7 +32,6 @@ import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityContextInterfaceFactory;
-import org.mobicents.slee.container.util.JndiRegistrationManager;
 
 /**
  *Implementation of null activity context interface.
@@ -45,9 +44,6 @@ public class NullActivityContextInterfaceFactoryImpl extends AbstractSleeContain
 
 	@Override
 	public void sleeInitialization() {
-		JndiRegistrationManager.registerWithJndi("slee/nullactivity",
-				"nullactivitycontextinterfacefactory",
-				this);
 	}
 	
     /* (non-Javadoc)

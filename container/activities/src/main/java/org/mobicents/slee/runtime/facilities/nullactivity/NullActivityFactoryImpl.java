@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityFactory;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityHandle;
-import org.mobicents.slee.container.util.JndiRegistrationManager;
 
 /**
  * Implementation of the null activity factory.
@@ -50,9 +49,7 @@ public class NullActivityFactoryImpl extends AbstractSleeContainerModule
 			.getLogger(NullActivityFactoryImpl.class);
 
 	@Override
-	public void sleeInitialization() {
-		JndiRegistrationManager.registerWithJndi("slee/nullactivity", "nullactivityfactory",
-				this);
+	public void sleeInitialization() {		
 	}
 	
 	/*

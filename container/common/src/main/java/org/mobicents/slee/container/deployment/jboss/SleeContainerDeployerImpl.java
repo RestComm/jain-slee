@@ -33,12 +33,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.slee.management.DeployableUnitID;
+import javax.slee.management.DeploymentException;
 import javax.slee.management.DeploymentMBean;
 import javax.slee.management.ManagementException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.jboss.deployment.DeploymentException;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.ExternalDeployer;
@@ -91,7 +91,6 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.deployment.InternalDeployer#setExternalDeployer
 	 * (org.mobicents.slee.container.deployment.ExternalDeployer)
 	 */
-	@Override
 	public void setExternalDeployer(ExternalDeployer externalDeployer) {
 		this.externalDeployer = externalDeployer;
 	}
@@ -132,7 +131,6 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	public void sleeInitialization() {
 		// time to trigger the internal deployer
 		Runnable r = new Runnable() {
-			@Override
 			public void run() {
 
 				// establish link with external deployer
@@ -233,7 +231,6 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.deployment.InternalDeployer#accepts(java
 	 * .net.URL)
 	 */
-	@Override
 	public boolean accepts(URL deployableUnitURL) {
 		return sleeSubDeployer.accepts(deployableUnitURL);
 	}
@@ -245,7 +242,6 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.deployment.InternalDeployer#init(java.net
 	 * .URL)
 	 */
-	@Override
 	public void init(URL deployableUnitURL) throws DeploymentException {
 		synchronized (this) {
 			if (!shutdown) {
@@ -261,7 +257,6 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.deployment.InternalDeployer#start(java.net
 	 * .URL)
 	 */
-	@Override
 	public void start(URL deployableUnitURL) throws DeploymentException {
 		synchronized (this) {
 			if (!shutdown) {
@@ -281,7 +276,6 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.deployment.InternalDeployer#stop(java.net
 	 * .URL)
 	 */
-	@Override
 	public void stop(URL deployableUnitURL) throws DeploymentException {
 		synchronized (this) {
 			if (!shutdown) {
@@ -295,7 +289,7 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	}
 	
 	public DeployConfigParser getSLEEDeployConfigParser() throws IOException, SAXException, ParserConfigurationException {
-		File file = new File(SleeContainer.getDeployPath(), "deploy-config.xml");
+		File file = new File(sleeContainer.getDeployPath(), "deploy-config.xml");
 		if(!file.exists() || file.isDirectory()) {
 			return null;
 		}

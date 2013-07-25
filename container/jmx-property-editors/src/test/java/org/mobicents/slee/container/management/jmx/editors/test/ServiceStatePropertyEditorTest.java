@@ -24,10 +24,10 @@ package org.mobicents.slee.container.management.jmx.editors.test;
 
 import javax.slee.management.ServiceState;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mobicents.slee.container.management.jmx.editors.ServiceStatePropertyEditor;
+import org.mobicents.slee.container.management.jmx.editors.TextPropertyEditorSupport;
 
 /**
  * 

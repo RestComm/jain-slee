@@ -22,7 +22,6 @@
 
 package org.mobicents.slee.container;
 
-import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
@@ -33,15 +32,10 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 
 import javax.management.MBeanServer;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.slee.InvalidStateException;
 import javax.slee.management.SleeState;
 
 import org.apache.log4j.Logger;
-import org.jboss.util.naming.Util;
-import org.jboss.virtual.VFS;
-import org.jboss.virtual.VFSUtils;
 import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
@@ -57,6 +51,7 @@ import org.mobicents.slee.container.facilities.ActivityContextNamingFacility;
 import org.mobicents.slee.container.facilities.TimerFacility;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityContextInterfaceFactory;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityFactory;
+import org.mobicents.slee.container.jndi.JndiManagement;
 import org.mobicents.slee.container.management.AlarmManagement;
 import org.mobicents.slee.container.management.ComponentManagement;
 import org.mobicents.slee.container.management.ProfileManagement;
@@ -70,7 +65,6 @@ import org.mobicents.slee.container.management.jmx.editors.SleePropertyEditorReg
 import org.mobicents.slee.container.rmi.RmiServerInterface;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
-import org.mobicents.slee.container.util.JndiRegistrationManager;
 
 /**
  * Implements the SleeContainer. The SleeContainer is the anchor for the SLEE.
@@ -92,7 +86,8 @@ public class SleeContainer {
 		// http://code.google.com/p/mobicents/issues/detail?id=63
 		System.setProperty("jmx.invoke.getters", "true");
 		// establish the location of mobicents in JBoss AS deploy folder
-		try {
+		/*
+        try {
 			java.net.URL url = VFSUtils.getCompatibleURL(VFS
 					.getRoot(SleeContainer.class.getClassLoader().getResource(
 							"..")));
@@ -106,6 +101,7 @@ public class SleeContainer {
 							e);
 			deployPath = null;
 		}
+		*/
 		// Config JUL logger to use Log4J filter
 		Handler[] handlers = java.util.logging.Logger.getLogger("")
 				.getHandlers();
@@ -114,7 +110,7 @@ public class SleeContainer {
 				handler.setFilter(new MobicentsLogFilter());
 	}
 
-	private static String deployPath;
+	private final String deployPath;
 	
 	private static SleeContainer sleeContainer;
 
@@ -122,7 +118,7 @@ public class SleeContainer {
 	 * 
 	 * @return the full file system path where mobicents.sar is located
 	 */
-	public static String getDeployPath() {
+	public String getDeployPath() {
 		return deployPath;
 	}
 
@@ -189,34 +185,37 @@ public class SleeContainer {
 
 	private final SleeContainerDeployer deployer;
 	
+	private JndiManagement jndiManagement;
+	
 	/**
 	 * Creates a new instance of SleeContainer -- This is called from the
 	 * SleeManagementMBean to get the whole thing running.
 	 * 
 	 */
 	public SleeContainer(
-			MBeanServer mBeanServer,
-			ComponentManagement componentManagement,
-			SbbManagement sbbManagement,
-			ServiceManagement serviceManagement,
-			ResourceManagement resourceManagement,
-			ProfileManagement profileManagement,
-			EventContextFactory eventContextFactory,
-			EventRouter eventRouter,
-			TimerFacility timerFacility,
-			ActivityContextFactory activityContextFactory,
-			ActivityContextNamingFacility activityContextNamingFacility,
-			NullActivityContextInterfaceFactory nullActivityContextInterfaceFactory,
-			NullActivityFactory nullActivityFactory,
-			RmiServerInterface rmiServerInterface,
-			SleeTransactionManager sleeTransactionManager,
-			MobicentsCluster cluster, AlarmManagement alarmMBeanImpl,
-			TraceManagement traceMBeanImpl,
-			UsageParametersManagement usageParametersManagement,
-			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
-			SleeConnectionService sleeConnectionService, MobicentsSleeConnectionFactory sleeConnectionFactory, SleeContainerDeployer sleeContainerDeployer) throws Exception {
-		
-		this.mbeanServer = mBeanServer;
+            String deployPath, MBeanServer mBeanServer,
+            ComponentManagement componentManagement,
+            SbbManagement sbbManagement,
+            ServiceManagement serviceManagement,
+            ResourceManagement resourceManagement,
+            ProfileManagement profileManagement,
+            EventContextFactory eventContextFactory,
+            EventRouter eventRouter,
+            TimerFacility timerFacility,
+            ActivityContextFactory activityContextFactory,
+            ActivityContextNamingFacility activityContextNamingFacility,
+            NullActivityContextInterfaceFactory nullActivityContextInterfaceFactory,
+            NullActivityFactory nullActivityFactory,
+            RmiServerInterface rmiServerInterface,
+            SleeTransactionManager sleeTransactionManager,
+            MobicentsCluster cluster, AlarmManagement alarmMBeanImpl,
+            TraceManagement traceMBeanImpl,
+            UsageParametersManagement usageParametersManagement,
+            SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
+            SleeConnectionService sleeConnectionService, MobicentsSleeConnectionFactory sleeConnectionFactory, SleeContainerDeployer sleeContainerDeployer) throws Exception {
+        this.deployPath = deployPath;
+
+        this.mbeanServer = mBeanServer;
 
 		this.sleeTransactionManager = sleeTransactionManager;
 		addModule(sleeTransactionManager);
@@ -301,12 +300,22 @@ public class SleeContainer {
 	}
 
 	private void addModule(SleeContainerModule module) {
-		modules.add(module);
-		module.setSleeContainer(this);
+		if(module != null) {
+			modules.add(module);
+			module.setSleeContainer(this);
+		}
 	}
 
 	// GETTERS -- managers
 
+	public JndiManagement getJndiManagement() {
+		return jndiManagement;
+	}
+	
+	public void setJndiManagement(JndiManagement jndiManagement) {
+		this.jndiManagement = jndiManagement;
+	}
+	
 	/**
 	 * dumps the container state as a string, useful for debug/profiling
 	 * 
@@ -592,10 +601,11 @@ public class SleeContainer {
 		sleeState = null;
 	}
 
-	/**
-	 * 
-	 * @param newState
-	 */
+    /**
+     *
+     * @param request
+     * @throws InvalidStateException
+     */
 	public void setSleeState(final SleeStateChangeRequest request) throws InvalidStateException {
 
 		final SleeState newState = request.getNewState();
@@ -690,27 +700,11 @@ public class SleeContainer {
 	}
 	
 	public void beforeModulesInitialization() {
-		try {
-			// init jndi
-			Context ctx = new InitialContext();
-			ctx = Util.createSubcontext(ctx, JVM_ENV + CTX_SLEE);
-			Util.createSubcontext(ctx, "resources");
-			Util.createSubcontext(ctx, "container");
-			Util.createSubcontext(ctx, "facilities");
-			Util.createSubcontext(ctx, "sbbs");
-			ctx = Util.createSubcontext(ctx, "nullactivity");
-			Util.createSubcontext(ctx, "factory");
-			Util.createSubcontext(ctx, "nullactivitycontextinterfacefactory");
-			registerWithJndi();
-
-			// Register property editors for the composite SLEE types so that the
-			// jboss jmx console can pass it as an argument.
-			new SleePropertyEditorRegistrator().register();
-
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e.getMessage(),e);
-		}		
+		sleeContainer = this;
+		// Register property editors for the composite SLEE types so
+		// jmx console can pass it as an argument.
+		// TODO: ensure this is of any use for all containers, i.e. standard jdk jmx console or our web console takes advantage from it, if this was just a jboss as5 feature then let's move it to "build" modules 
+		new SleePropertyEditorRegistrator().register();
 	}
 	
 	public void afterModulesInitialization() {
@@ -728,6 +722,7 @@ public class SleeContainer {
 	}
 	
 	public void afterModulesShutdown() {		
+		/*
 		try {
 			unregisterWithJndi();
 			Context ctx = new InitialContext();
@@ -735,43 +730,14 @@ public class SleeContainer {
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e.getMessage(),e);
-		}
+		}*/
 	}
-
-	// JNDI RELATED
-
-	// For unit testing only -- to be removed later.
-	private static final String JNDI_NAME = "container";
-
-	public static final String JVM_ENV = "java:";
-
-	/** standard ENC name in JNDI */
-	public static final String COMP_ENV = "java:comp/env";
-
-	/** the root context for SLEE */
-	private static final String CTX_SLEE = "slee";
 
 	/**
 	 * Return the SleeContainer instance registered in the JVM scope of JNDI
 	 */
 	public static SleeContainer lookupFromJndi() {
-		if (sleeContainer == null) {
-			try {
-				sleeContainer = (SleeContainer) JndiRegistrationManager.getFromJndi("slee/" + JNDI_NAME);					
-			} catch (Throwable ex) {
-				logger.error("Unexpected error: Cannot retrieve SLEE Container!",ex);					
-			}			
-		}
 		return sleeContainer;		
-	}
-
-	private void registerWithJndi() {
-		JndiRegistrationManager.registerWithJndi("slee", JNDI_NAME, this);
-		sleeContainer = this;
-	}
-
-	private void unregisterWithJndi() {
-		JndiRegistrationManager.unregisterWithJndi("slee/" + JNDI_NAME);
 	}
 
 }

@@ -38,6 +38,7 @@ import org.mobicents.slee.container.SleeThreadLocals;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
 import org.mobicents.slee.container.eventrouter.SbbInvocationState;
+import org.mobicents.slee.container.jndi.JndiManagement;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectState;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
@@ -120,9 +121,12 @@ public class SbbObjectImpl implements SbbObject {
 			if (!invokingServiceSet) {
 				SleeThreadLocals.setInvokingService(serviceID);
 			}
+			final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+			jndiManagement.pushJndiContext(sbbComponent);
 			try {
 				this.sbbConcrete.setSbbContext(this.sbbContext);
 			} finally {
+				jndiManagement.popJndiContext();
 				if (!invokingServiceSet) {
 					SleeThreadLocals.setInvokingService(null);
 				}
@@ -202,14 +206,16 @@ public class SbbObjectImpl implements SbbObject {
 		if (sbbComponent.getAbstractSbbClassInfo().isInvokeUnsetSbbContext()) {
 			final ClassLoader oldClassLoader = SleeContainerUtils
 					.getCurrentThreadClassLoader();
-			try {
-				SleeContainerUtils
-						.setCurrentThreadClassLoader(this.sbbComponent
-								.getClassLoader());
+			SleeContainerUtils
+			.setCurrentThreadClassLoader(this.sbbComponent
+					.getClassLoader());
+			final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+			jndiManagement.pushJndiContext(sbbComponent);
+			try {				
 				if (this.sbbConcrete != null)
 					this.sbbConcrete.unsetSbbContext();
-
 			} finally {
+				jndiManagement.popJndiContext();
 				SleeContainerUtils.setCurrentThreadClassLoader(oldClassLoader);
 			}
 		}
@@ -224,7 +230,13 @@ public class SbbObjectImpl implements SbbObject {
 		
 		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbCreate()) {
 			this.invocationState = SbbInvocationState.INVOKING_SBB_CREATE;
-			this.sbbConcrete.sbbCreate();
+			final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+			jndiManagement.pushJndiContext(sbbComponent);
+			try {
+				this.sbbConcrete.sbbCreate();
+			} finally {
+				jndiManagement.popJndiContext();
+			}
 			this.invocationState = SbbInvocationState.NOT_INVOKING;
 		}
 	}
@@ -247,15 +259,27 @@ public class SbbObjectImpl implements SbbObject {
 									+ sbbComponent.getSbbID());
 				}
 				try {
-					this.invocationState = SbbInvocationState.INVOKING_SBB_POSTCREATE;
-					this.sbbConcrete.sbbPostCreate();
+					this.invocationState = SbbInvocationState.INVOKING_SBB_POSTCREATE;					
+					final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+					jndiManagement.pushJndiContext(sbbComponent);
+					try {
+						this.sbbConcrete.sbbPostCreate();
+					} finally {
+						jndiManagement.popJndiContext();
+					}
 					this.invocationState = SbbInvocationState.NOT_INVOKING;
 				} finally {
 					invokedsbbEntities.remove(sbbEntity.getSbbEntityId());
 				}
 			} else {
 				this.invocationState = SbbInvocationState.INVOKING_SBB_POSTCREATE;
-				this.sbbConcrete.sbbPostCreate();
+				final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+				jndiManagement.pushJndiContext(sbbComponent);
+				try {
+					this.sbbConcrete.sbbPostCreate();
+				} finally {
+					jndiManagement.popJndiContext();
+				}
 				this.invocationState = SbbInvocationState.NOT_INVOKING;
 			}
 		}
@@ -267,7 +291,13 @@ public class SbbObjectImpl implements SbbObject {
 			log.trace("sbbActivate()");
 		}
 		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbActivate()) {
-			this.sbbConcrete.sbbActivate();
+			final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+			jndiManagement.pushJndiContext(sbbComponent);
+			try {
+				this.sbbConcrete.sbbActivate();
+			} finally {
+				jndiManagement.popJndiContext();
+			}
 		}
 	}
 
@@ -277,7 +307,13 @@ public class SbbObjectImpl implements SbbObject {
 			log.trace("sbbPassivate()");
 		}		
 		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbPassivate()) {	
-			this.sbbConcrete.sbbPassivate();
+			final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+			jndiManagement.pushJndiContext(sbbComponent);
+			try {
+				this.sbbConcrete.sbbPassivate();
+			} finally {
+				jndiManagement.popJndiContext();
+			}
 		}
 	}
 
@@ -303,14 +339,26 @@ public class SbbObjectImpl implements SbbObject {
 				}
 				try {
 					this.invocationState = SbbInvocationState.INVOKING_SBB_LOAD;
-					sbbConcrete.sbbLoad();
+					final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+					jndiManagement.pushJndiContext(sbbComponent);
+					try {
+						sbbConcrete.sbbLoad();
+					} finally {
+						jndiManagement.popJndiContext();
+					}
 					this.invocationState = SbbInvocationState.NOT_INVOKING;
 				} finally {
 					invokedsbbEntities.remove(sbbEntity.getSbbEntityId());
 				}
 			} else {
-				this.invocationState = SbbInvocationState.INVOKING_SBB_LOAD;
-				sbbConcrete.sbbLoad();
+				this.invocationState = SbbInvocationState.INVOKING_SBB_LOAD;				
+				final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+				jndiManagement.pushJndiContext(sbbComponent);
+				try {
+					sbbConcrete.sbbLoad();
+				} finally {
+					jndiManagement.popJndiContext();
+				}
 				this.invocationState = SbbInvocationState.NOT_INVOKING;
 			}
 		}
@@ -345,7 +393,13 @@ public class SbbObjectImpl implements SbbObject {
 						}
 					}
 					this.invocationState = SbbInvocationState.INVOKING_SBB_STORE;
-					this.sbbConcrete.sbbStore();
+					final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+					jndiManagement.pushJndiContext(sbbComponent);
+					try {
+						this.sbbConcrete.sbbStore();
+					} finally {
+						jndiManagement.popJndiContext();
+					}					
 					this.invocationState = SbbInvocationState.NOT_INVOKING;
 				} finally {
 					if (invokedsbbEntities != null) {
@@ -380,7 +434,13 @@ public class SbbObjectImpl implements SbbObject {
 		}
 		sbbContext.setRollbackOnly();
 		if (invoke) {
-			this.sbbConcrete.sbbExceptionThrown(exception, eventObject, aci);
+			final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+			jndiManagement.pushJndiContext(sbbComponent);
+			try {
+				this.sbbConcrete.sbbExceptionThrown(exception, eventObject, aci);
+			} finally {
+				jndiManagement.popJndiContext();
+			}			
 		}
 	}
 
@@ -417,7 +477,13 @@ public class SbbObjectImpl implements SbbObject {
 				// invoke sbb
 				final RolledBackContextImpl sbbRolledBackContext = new RolledBackContextImpl(
 						event, activityContextInterface, removeRollback);
-				this.sbbConcrete.sbbRolledBack(sbbRolledBackContext);
+				final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+				jndiManagement.pushJndiContext(sbbComponent);
+				try {
+					this.sbbConcrete.sbbRolledBack(sbbRolledBackContext);
+				} finally {
+					jndiManagement.popJndiContext();
+				}				
 			} finally {
 				if (invokedsbbEntities != null) {
 					invokedsbbEntities.remove(sbbEntity.getSbbEntityId());
@@ -454,7 +520,13 @@ public class SbbObjectImpl implements SbbObject {
 					}
 				}
 				// invoke sbb
-				this.sbbConcrete.sbbRemove();
+				final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+				jndiManagement.pushJndiContext(sbbComponent);
+				try {
+					this.sbbConcrete.sbbRemove();
+				} finally {
+					jndiManagement.popJndiContext();
+				}				
 			} finally {
 				if (invokedsbbEntities != null) {
 					invokedsbbEntities.remove(sbbEntity.getSbbEntityId());

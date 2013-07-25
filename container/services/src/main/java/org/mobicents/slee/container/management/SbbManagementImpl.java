@@ -41,7 +41,6 @@ import javax.slee.management.DeploymentException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
-import org.jboss.naming.NonSerializableFactory;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
@@ -53,6 +52,7 @@ import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDesc
 import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.deployment.SbbClassCodeGenerator;
+import org.mobicents.slee.container.jndi.JndiManagement;
 import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionalAction;
@@ -132,7 +132,14 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 			Thread.currentThread().setContextClassLoader(
 					sbbComponent.getClassLoader());
 			// Set up the comp/env naming context for the Sbb.
-			setupSbbEnvironment(sbbComponent);
+			JndiManagement jndiManagement = sleeContainer.getJndiManagement();			
+			jndiManagement.componentInstall(sbbComponent);
+			jndiManagement.pushJndiContext(sbbComponent);
+			try {
+				setupSbbEnvironment(sbbComponent);
+			} finally {
+				jndiManagement.popJndiContext();
+			}
 			// generate class code for the sbb
 			new SbbClassCodeGenerator().process(sbbComponent);
 			
@@ -162,8 +169,8 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		
 	}
 
-	private void setupSbbEnvironment(SbbComponent sbbComponent) throws Exception {
-
+	private void setupSbbEnvironment(SbbComponent sbbComponent) throws Exception {		
+		
 		Context ctx = (Context) new InitialContext().lookup("java:comp");
 
 		if (logger.isTraceEnabled()) {
@@ -190,6 +197,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 
 		Context newCtx;
 
+		/*
 		String containerName = "java:slee/container/Container";
 		try {
 			newCtx = sleeCtx.createSubcontext("container");
@@ -203,104 +211,86 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 			newCtx.bind("Container", new LinkRef(containerName));
 		} catch (NameAlreadyBoundException ex) {
 
-		}
-
-		String nullAciFactory = "java:slee/nullactivity/nullactivitycontextinterfacefactory";
-		String nullActivityFactory = "java:slee/nullactivity/nullactivityfactory";
+		}*/
 
 		try {
 			newCtx = sleeCtx.createSubcontext("nullactivity");
 		} catch (NameAlreadyBoundException ex) {
-
-		} finally {
 			newCtx = (Context) sleeCtx.lookup("nullactivity");
 		}
-
 		try {
-			newCtx.bind("activitycontextinterfacefactory", new LinkRef(
-					nullAciFactory));
+			newCtx.bind("activitycontextinterfacefactory", sleeContainer.getNullActivityContextInterfaceFactory());
+		} catch (NameAlreadyBoundException ex) {
+
+		}
+		try {
+			newCtx.bind("factory", sleeContainer.getNullActivityFactory());
 		} catch (NameAlreadyBoundException ex) {
 
 		}
 
-		try {
-			newCtx.bind("factory", new LinkRef(nullActivityFactory));
-		} catch (NameAlreadyBoundException ex) {
-
-		}
-
-		String serviceActivityContextInterfaceFactory = "java:slee/serviceactivity/activitycontextinterfacefactory";
-		String serviceActivityFactory = "java:slee/serviceactivity/factory";
+		//String serviceActivityContextInterfaceFactory = "java:slee/serviceactivity/activitycontextinterfacefactory";
+		//String serviceActivityFactory = "java:slee/serviceactivity/factory";
 		try {
 			newCtx = sleeCtx.createSubcontext("serviceactivity");
 		} catch (NameAlreadyBoundException ex) {
-
-		} finally {
 			newCtx = (Context) sleeCtx.lookup("serviceactivity");
-
-		}
+		}		
 		try {
 			newCtx.bind("activitycontextinterfacefactory",
-					new LinkRef(serviceActivityContextInterfaceFactory));
+					sleeContainer.getServiceManagement().getServiceActivityContextInterfaceFactory());
 		} catch (NameAlreadyBoundException ex) {
 
 		}
 		try {
-			newCtx.bind("factory", new LinkRef(
-					serviceActivityFactory));
+			newCtx.bind("factory", sleeContainer.getServiceManagement().getServiceActivityFactory());
 		} catch (NameAlreadyBoundException ex) {
 
 		}
-
-		// the real names where the facilities are
-		// FIXME is this needed? why not really register the facilities? 
-		String timer = "java:slee/facilities/timer";
-		String aciNaming = "java:slee/facilities/activitycontextnaming";
-
+		
 		try {
 			newCtx = sleeCtx.createSubcontext("facilities");
 		} catch (NameAlreadyBoundException ex) {
-
-		} finally {
 			newCtx = (Context) sleeCtx.lookup("facilities");
 		}
 		try {
-			newCtx.bind("timer", new LinkRef(timer));
+			newCtx.bind("timer", sleeContainer.getTimerFacility());
 		} catch (NameAlreadyBoundException ex) {
 
 		}
 
 		try {
-			newCtx.bind("activitycontextnaming", new LinkRef(aciNaming));
+			newCtx.bind("activitycontextnaming", sleeContainer.getActivityContextNamingFacility());
 		} catch (NameAlreadyBoundException ex) {
 		}
 
-		String trace = "java:slee/facilities/trace";
 		try {
-			newCtx.bind("trace", new LinkRef(trace));
+			newCtx.bind("trace", sleeContainer.getTraceManagement().getTraceFacility());
 		} catch (NameAlreadyBoundException ex) {
 		}
 
 		try {
 			//This has to be checked, to be sure sbb have it under correct jndi binding
+			// previously "alarm" was pointing to the alarmmbeanimpl
 			AlarmFacility sbbAlarmFacility = new SbbAlarmFacilityImpl(sbbComponent.getSbbID(),sleeContainer.getAlarmManagement());
 			newCtx.bind("alarm", sbbAlarmFacility);
 			sbbComponent.setAlarmFacility(sbbAlarmFacility);
 		} catch (NameAlreadyBoundException ex) {
 		}
 
-		String profile = "java:slee/facilities/profile";
+		// profiles currently not supported
+		/*
 		try {
-			newCtx.bind("profile", new LinkRef(profile));
+			newCtx.bind("profile", sleeContainer.getSleeProfileTableManager().getProfileFacility());
 		} catch (NameAlreadyBoundException ex) {
 		}
-		String profilteTableAciFactory = "java:slee/facilities/profiletableactivitycontextinterfacefactory";
+		
 		try {
 			newCtx.bind("profiletableactivitycontextinterfacefactory",
-					new LinkRef(profilteTableAciFactory));
+					sleeContainer.getSleeProfileTableManager().getProfileTableActivityContextInterfaceFactory());
 		} catch (NameAlreadyBoundException ex) {
 
-		}
+		}*/
 
 		// For each resource that the Sbb references, bind the implementing
 		// object name to its comp/env
@@ -359,11 +349,9 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 				for (int i = 0; i < tokenCount - 1; i++) {
 					String nextTok = name.get(i);
 					try {
-						subContext.lookup(nextTok);
-					} catch (NameNotFoundException nfe) {
-						subContext.createSubcontext(nextTok);
-					} finally {
 						subContext = (Context) subContext.lookup(nextTok);
+					} catch (NameNotFoundException nfe) {
+						subContext = subContext.createSubcontext(nextTok);
 					}
 				}
 				// Bind the resource adaptor instance to where the Sbb expects
@@ -375,6 +363,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 				try {
 					Object raSbbInterface = raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef());
 					if (raSbbInterface != null) {
+						// TODO confirm this is still needed
 						NonSerializableFactory.rebind(name,raSbbInterface);
 					}
 					else {
@@ -430,7 +419,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		} catch (NameAlreadyBoundException ex) {
 			//envCtx = (Context)envCtx.lookup("ejb");
 			//6.13.4.1.1 - The SLEE specification recommends, but does not require, that all references to other EJBs be organized
-			//in the ejb subcontext of the SBB�s environment
+			//in the ejb subcontext of the SBB's environment
 			//so it can be any :/
 			envCtx.lookup("ejb");
 		}
@@ -578,12 +567,9 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		for (int a = 0; a < nameSize - 1; a++) {
 			String temp = local.get(a);
 			try {
-				tempCtx.lookup(temp);
-			} catch (NameNotFoundException ne) {
-				tempCtx.createSubcontext(temp);
-
-			} finally {
 				tempCtx = (Context) tempCtx.lookup(temp);
+			} catch (NameNotFoundException ne) {
+				tempCtx = tempCtx.createSubcontext(temp);
 			}
 		}
 		return tempCtx;
@@ -612,6 +598,8 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 			logger.debug("Removed SBB " + sbbComponent.getSbbID()
 					+ " from trace and alarm facilities");
 		}
+		
+		sleeContainer.getJndiManagement().componentUninstall(sbbComponent);
 		
 		// if we are in cluster mode we need to remove the sbb class loader domain from the replication class loader
 		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {

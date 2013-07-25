@@ -77,7 +77,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 			.getLogger(ActivityManagementMBeanImpl.class);
 
 	public ActivityManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
-		super(sleeContainer,ActivityManagementMBeanImpl.class);
+		super(sleeContainer);
 		this.acFactory = (ActivityContextFactoryImpl) sleeContainer.getActivityContextFactory();
 		this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();
 	}

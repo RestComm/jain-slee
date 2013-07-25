@@ -24,9 +24,7 @@ package org.mobicents.slee.container.management.jmx;
 
 import javax.slee.management.ManagementException;
 
-import org.jboss.system.ServiceMBean;
-
-public interface MobicentsManagementMBean extends ServiceMBean {
+public interface MobicentsManagementMBean {
 
     public final String OBJECT_NAME = "org.mobicents.slee:service=MobicentsManagement";
 

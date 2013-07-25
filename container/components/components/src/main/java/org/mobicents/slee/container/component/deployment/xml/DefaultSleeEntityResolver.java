@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Hashtable;
-import java.util.logging.Logger;
 
 
 import org.xml.sax.EntityResolver;
@@ -41,16 +40,17 @@ import org.xml.sax.InputSource;
  */
 public class DefaultSleeEntityResolver implements EntityResolver{
 
-    private Hashtable resources = null;
-    
-    private static Logger log = Logger.getLogger(DefaultSleeEntityResolver.class.getName());
-    
-    private final ClassLoader sleeClassLoader;
-    
-    public DefaultSleeEntityResolver(ClassLoader sleeClassLoader) {
-        this.sleeClassLoader = sleeClassLoader;
+    private Hashtable<String,URL> resources = null;
         
-        resources = new Hashtable();
+    private static final DefaultSleeEntityResolver instance = new DefaultSleeEntityResolver();
+    
+    public static DefaultSleeEntityResolver getInstance() {
+    	return instance;
+    }
+    
+    
+    private DefaultSleeEntityResolver() {        
+        resources = new Hashtable<String,URL>();
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Deployable Unit 1.0//EN", "dtd/slee-deployable-unit_1_0.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN", "dtd/slee-sbb-jar_1_0.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.0//EN", "dtd/slee-service-xml_1_0.dtd");
@@ -58,8 +58,6 @@ public class DefaultSleeEntityResolver implements EntityResolver{
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.0//EN", "dtd/slee-resource-adaptor-jar_1_0.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.0//EN", "dtd/slee-profile-spec-jar_1_0.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.0//EN", "dtd/slee-event-jar_1_0.dtd");
-        
-        
         //We add this, cause JAXB supports XMLNode as source, we need to parse to determine which Context we want to use, 1.0 or 1.1
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Deployable Unit 1.1//EN", "dtd/slee-deployable-unit_1_1.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN", "dtd/slee-sbb-jar_1_1.dtd");
@@ -68,10 +66,8 @@ public class DefaultSleeEntityResolver implements EntityResolver{
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.1//EN", "dtd/slee-resource-adaptor-jar_1_1.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN", "dtd/slee-profile-spec-jar_1_1.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN", "dtd/slee-event-jar_1_1.dtd");
-        registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Library 1.1//EN","dtd/slee-library-jar_1_1.dtd");
-        
+        registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Library 1.1//EN","dtd/slee-library-jar_1_1.dtd");        
         // For SLEE 1.1 Extensions
-        // TODO can't we have a single slee entity resolver, starting at deployer?
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Ext Library 1.1//EN", "dtd/slee-library-jar_1_1-ext.dtd");
         
     }
@@ -86,7 +82,7 @@ public class DefaultSleeEntityResolver implements EntityResolver{
      */
     private void registerResource(String publicID, String resourceName)
     {
-        URL url = this.sleeClassLoader.getResource(resourceName);
+        URL url = this.getClass().getClassLoader().getResource(resourceName);
         if (url != null) {
             resources.put(publicID, url);
         }
@@ -117,7 +113,7 @@ public class DefaultSleeEntityResolver implements EntityResolver{
         throws IOException
     {
     	if (publicId != null) {
-			URL resourceURL = (URL) resources.get(publicId);
+			final URL resourceURL = resources.get(publicId);
 			if (resourceURL != null) {
 				InputStream resourceStream = null;
 				resourceStream = resourceURL.openStream();

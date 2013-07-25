@@ -25,8 +25,6 @@ package org.mobicents.slee.container.management.jmx.editors;
 
 import javax.slee.management.ResourceAdaptorEntityState;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
-
 /**
  * Property Editor for the ResourceAdaptorEntityState object.
  * 

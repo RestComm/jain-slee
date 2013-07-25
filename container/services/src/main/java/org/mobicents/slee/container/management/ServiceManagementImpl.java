@@ -75,7 +75,6 @@ import org.mobicents.slee.container.service.ServiceStartedEventImpl;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.mobicents.slee.container.util.JndiRegistrationManager;
 import org.mobicents.slee.runtime.facilities.NotificationSourceWrapperImpl;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 
@@ -125,12 +124,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				.getComponentRepository();
 		serviceActivityFactory = new ServiceActivityFactoryImpl(this);
 		serviceActivityContextInterfaceFactory = new ServiceActivityContextInterfaceFactoryImpl(
-				sleeContainer);
-		JndiRegistrationManager.registerWithJndi("slee/serviceactivity/",
-				ServiceActivityFactoryImpl.JNDI_NAME, serviceActivityFactory);
-		JndiRegistrationManager.registerWithJndi("slee/serviceactivity/",
-				ServiceActivityContextInterfaceFactoryImpl.JNDI_NAME,
-				serviceActivityContextInterfaceFactory);
+				sleeContainer);		
 	}
 
 	/*

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>mobicents-slee-core-container</artifactId>
-		<version>2.8.0-SNAPSHOT</version>
+		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	
 	<packaging>pom</packaging>
@@ -15,7 +15,9 @@
 	<modules>
 		<module>descriptors</module>
 		<module>components</module>
+		<!-- TODO removed due to dependency on as5 microntainer, to be re-added using a container build independent testsuite  
 		<module>test-du</module>
+		-->		
 	</modules>
 	
 	<build>

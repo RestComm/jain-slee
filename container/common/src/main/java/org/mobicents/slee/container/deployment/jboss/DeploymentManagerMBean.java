@@ -24,8 +24,6 @@ package org.mobicents.slee.container.deployment.jboss;
 
 import java.net.URL;
 
-import org.jboss.deployers.spi.DeploymentException;
-
 public interface DeploymentManagerMBean {
 
   /**

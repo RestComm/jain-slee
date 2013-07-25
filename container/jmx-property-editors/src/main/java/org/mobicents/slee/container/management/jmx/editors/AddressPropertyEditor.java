@@ -25,8 +25,6 @@ package org.mobicents.slee.container.management.jmx.editors;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
-
 /**
  * Property Editor for {@link Address}. 
  * 

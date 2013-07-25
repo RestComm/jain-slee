@@ -39,6 +39,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 
+
 import javax.slee.ComponentID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -46,6 +47,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.TestCase;
 
 
+
+import org.mobicents.slee.container.component.deployment.xml.DefaultSleeEntityResolver;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.SAXException;
@@ -79,8 +82,7 @@ public class TCUtilityClass extends TestCase {
 	protected void setUp() throws Exception {
 
 		super.setUp();
-		this.resolver = new DefaultEntityResolver(Thread.currentThread()
-				.getContextClassLoader());
+		this.resolver = DefaultSleeEntityResolver.getInstance();
 		this.factory = DocumentBuilderFactory.newInstance();
 		this.factory.setValidating(true);
 		this.builder = this.factory.newDocumentBuilder();

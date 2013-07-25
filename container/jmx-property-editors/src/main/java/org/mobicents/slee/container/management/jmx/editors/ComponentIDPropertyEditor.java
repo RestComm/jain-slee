@@ -30,8 +30,6 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
-
 /**
  * Property Editor for ComponentID. 
  * 

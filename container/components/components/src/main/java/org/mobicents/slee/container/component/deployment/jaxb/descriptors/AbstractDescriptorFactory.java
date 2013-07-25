@@ -73,7 +73,7 @@ public abstract class AbstractDescriptorFactory {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			builder.setEntityResolver(new DefaultSleeEntityResolver(Thread.currentThread().getContextClassLoader()));
+			builder.setEntityResolver(DefaultSleeEntityResolver.getInstance());
 			builder.setErrorHandler(new PrivateErrorHandler());
 			return builder;
 		} catch (Exception e) {

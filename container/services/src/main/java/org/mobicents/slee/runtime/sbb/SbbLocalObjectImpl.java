@@ -57,7 +57,7 @@ import org.mobicents.slee.runtime.sbbentity.SbbEntityImpl;
  * have an SBB local interface. If the SBB Developer does not provide an SBB
  * local interface for an SBB, then the SBB local interface of the SBB is the
  * generic SbbLocalObject interface. The names of the SBB specific local
- * interface methods must not begin with �sbb� or �ejb�. The SLEE provides the
+ * interface methods must not begin with sbb or ejb. The SLEE provides the
  * implementation of the methods defined in the SBB local interface. More
  * precisely, the SLEE provides a concrete class that implements each SBB local
  * interface. An SBB local object is an instance of this class. The SLEE

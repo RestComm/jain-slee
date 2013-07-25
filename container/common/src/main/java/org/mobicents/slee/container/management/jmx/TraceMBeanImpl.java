@@ -38,7 +38,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanNotificationInfo;
-import javax.management.NotCompliantMBeanException;
 import javax.slee.ComponentID;
 import javax.slee.InvalidArgumentException;
 import javax.slee.UnrecognizedComponentException;
@@ -56,7 +55,6 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.TraceManagement;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.mobicents.slee.container.util.JndiRegistrationManager;
 import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 import org.mobicents.slee.runtime.facilities.TracerStorage;
@@ -82,10 +80,9 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 	/**
 	 * Creates the trace mbean.
 	 * 
-	 * @throws NotCompliantMBeanException
 	 */
-	public TraceMBeanImpl(SleeTransactionManager sleeTransactionManager) throws NotCompliantMBeanException {
-		super(TraceMBeanImplMBean.class);
+	public TraceMBeanImpl() {
+		super();
 		this.traceFacility = new TraceFacilityImpl(this);
 	}
 
@@ -164,12 +161,6 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 						+ "consumption by external management clients, such as a network management console or a management policy engine.") };
 		return mbeanNotificationInfo;
 	}
-
-	/**
-	 * the JNDI name where this facility is be bound under the facilities
-	 * context. The name is fixed by the SLEE 1.0 spec, section 13.8
-	 */
-	public static final String JNDI_NAME = "trace";
 
 	/*
 	 * (non-Javadoc)
@@ -510,7 +501,6 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 
 	@Override
 	public void sleeInitialization() {
-		JndiRegistrationManager.registerWithJndi("slee/facilities", TraceMBeanImpl.JNDI_NAME, traceFacility);
 		Runnable r = new Runnable() {			
 			public void run() {
 				for(TracerStorage ts : tracerStorage.values()) {

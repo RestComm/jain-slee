@@ -51,6 +51,7 @@ import org.mobicents.slee.container.component.sbb.SbbComponent.EventHandlerMetho
 import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
+import org.mobicents.slee.container.jndi.JndiManagement;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectPool;
 import org.mobicents.slee.container.sbb.SbbObjectState;
@@ -462,6 +463,8 @@ public class SbbEntityImpl implements SbbEntity {
 			invokedSbbentities = txContext.getInvokedNonReentrantSbbEntities();
 			invokedSbbentities.add(sbbeId);
 		}
+		final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+		jndiManagement.pushJndiContext(sbbComponent);
 		// invoke method
 		try {
 
@@ -520,6 +523,7 @@ public class SbbEntityImpl implements SbbEntity {
 			log.error(e.getMessage(),e);
 		}
 		finally {
+			jndiManagement.popJndiContext();
 			if(invokedSbbentities != null) {
 				invokedSbbentities.remove(sbbeId);
 			}

@@ -24,8 +24,6 @@ package org.mobicents.slee.container.management.jmx.editors;
 
 import javax.slee.management.DeployableUnitID;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
-
 /**
  * Property editor for {@link DeployableUnitID}
  * @author martins

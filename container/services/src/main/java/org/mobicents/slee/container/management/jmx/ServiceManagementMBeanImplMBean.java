@@ -30,5 +30,5 @@ import javax.slee.management.ServiceManagementMBean;
  *
  */
 public interface ServiceManagementMBeanImplMBean extends 
-	org.jboss.system.ServiceMBean, ServiceManagementMBean {
+	ServiceManagementMBean {
 }

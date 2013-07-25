@@ -31,10 +31,9 @@ import java.util.jar.JarFile;
 
 import javax.slee.InvalidStateException;
 import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 
 import org.apache.log4j.Logger;
-import org.jboss.deployment.DeploymentException;
-import org.jboss.deployment.SubDeployerSupport;
 import org.mobicents.slee.container.component.du.DeployableUnitDescriptor;
 import org.mobicents.slee.container.component.du.DeployableUnitDescriptorFactory;
 
@@ -47,7 +46,7 @@ import org.mobicents.slee.container.component.du.DeployableUnitDescriptorFactory
  * @version 1.0
  */
 @SuppressWarnings("deprecation")
-public class SLEESubDeployer extends SubDeployerSupport implements
+public class SLEESubDeployer implements
 		SLEESubDeployerMBean {
 	
 	// Constants -----------------------------------------------------
@@ -69,7 +68,6 @@ public class SLEESubDeployer extends SubDeployerSupport implements
 
 	public SLEESubDeployer(SleeContainerDeployerImpl sleeContainerDeployer) {
 		this.sleeContainerDeployer = sleeContainerDeployer;
-		setSuffixes(new String[] { "xml", "jar" });
 	}
 
 	// Constructors

@@ -35,7 +35,6 @@ import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.facilities.ActivityContextNamingFacility;
-import org.mobicents.slee.container.util.JndiRegistrationManager;
 
 /*
  * Ranga - Initial and refactored for Tx isolation.
@@ -60,8 +59,6 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
     
     @Override
     public void sleeInitialization() {
-    	JndiRegistrationManager.registerWithJndi("slee/facilities", "activitycontextnaming",
-				this);
     }
     
     @Override

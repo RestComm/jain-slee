@@ -33,11 +33,9 @@ package org.mobicents.slee.container.management.jmx;
 import javax.management.NotificationBroadcaster;
 import javax.slee.management.TraceMBean;
 
-import org.jboss.system.ServiceMBean;
-
 /**
  * @author Ivelin Ivanov
  */
-public interface TraceMBeanImplMBean extends ServiceMBean, NotificationBroadcaster, TraceMBean {
+public interface TraceMBeanImplMBean extends NotificationBroadcaster, TraceMBean {
 
 }

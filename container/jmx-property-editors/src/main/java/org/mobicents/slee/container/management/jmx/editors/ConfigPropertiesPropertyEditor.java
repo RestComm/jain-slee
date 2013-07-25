@@ -24,8 +24,6 @@ package org.mobicents.slee.container.management.jmx.editors;
 
 import javax.slee.resource.ConfigProperties;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
-
 /**
  * 
  * Property Editor for {@link ConfigProperties}. Note that the editor considers

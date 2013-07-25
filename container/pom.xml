@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>mobicents-slee-core</artifactId>
-		<version>2.8.0-SNAPSHOT</version>
+		<version>3.0.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -19,18 +19,18 @@
 		<slee.codename>???</slee.codename>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.cluster.version>1.13.1.FINAL</mobicents.cluster.version>
+		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
+		<trove.version>1.0.2</trove.version>
+		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
 	</properties>
 
 	<modules>
 		<module>jmx-property-editors</module>
-		<module>deployer</module>
 		<module>spi</module>
 		<module>common</module>
 		<module>usage</module>
 		<module>activities</module>
 		<module>events</module>
-		<module>profiles</module>
-		<module>remote</module>
 		<module>router</module>
 		<module>transaction</module>
 		<module>components</module>
@@ -39,15 +39,22 @@
 		<module>timers</module>
 		<module>services</module>
 		<module>congestion</module>
-		<module>ant-tasks</module>
 		<module>standard-components</module>
-		<module>server-resources</module>
-		<module>server-default-beans</module>
-		<module>server-all-beans</module>
+		<module>build</module>		 
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>jboss</groupId>
+				<artifactId>jboss-serialization</artifactId>
+				<version>${jboss-serialization.version}</version>	
+			</dependency>		
+			<dependency>
+				<groupId>trove</groupId>
+				<artifactId>trove</artifactId>
+				<version>${trove.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.mobicents.cluster</groupId>
 				<artifactId>core</artifactId>
@@ -63,6 +70,16 @@
 				<artifactId>timers</artifactId>
 				<version>${mobicents.cluster.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.mobicents.servers.jainslee.api</groupId>
+				<artifactId>jain-slee-11-ext</artifactId>
+				<version>${jain-slee-11-ext.version}</version>				
+			</dependency>
+			<dependency>
+            	<groupId>javax.resource</groupId>
+            	<artifactId>connector</artifactId>
+            	<version>1.0</version>
+        	</dependency>
 		</dependencies>
 	</dependencyManagement>
 

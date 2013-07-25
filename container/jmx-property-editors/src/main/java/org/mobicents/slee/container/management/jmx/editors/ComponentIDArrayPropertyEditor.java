@@ -24,8 +24,6 @@ package org.mobicents.slee.container.management.jmx.editors;
 
 import javax.slee.ComponentID;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
-
 /**
  *Property editor for component ID array.
  *

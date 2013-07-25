@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>mobicents-slee-core-container</artifactId>
-		<version>2.8.0-SNAPSHOT</version>
+		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>spi</artifactId>
@@ -19,7 +19,6 @@
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.api</groupId>
 			<artifactId>jain-slee-11-ext</artifactId>
-           	<version>${pom.version}</version>           	
 		</dependency>
 		
 		<dependency>
@@ -38,18 +37,36 @@
            	<version>${pom.version}</version>           	
 		</dependency>
 		
+		<!-- 
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
            	<artifactId>deployer</artifactId>
            	<version>${pom.version}</version>           	
 		</dependency>
-		
+		 -->
+		 
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>fault-tolerant-ra-api</artifactId>
 			<version>${pom.version}</version>
-		</dependency>	
+		</dependency>
+
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-serialization</artifactId>
+        </dependency>
 		
+		<dependency>
+			<groupId>trove</groupId>
+			<artifactId>trove</artifactId>			
+		</dependency>            
+            
+        <dependency>
+            <groupId>javax.resource</groupId>
+            <artifactId>connector</artifactId>
+        </dependency>
+
+        <!--
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
 			<artifactId>jboss-as-server</artifactId>
@@ -69,7 +86,7 @@
 			<groupId>jboss.jbossts</groupId>
 			<artifactId>jbossjts</artifactId>
 		</dependency>
-					
+		-->
 	</dependencies>
 	
 	<build>

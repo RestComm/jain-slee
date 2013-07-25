@@ -24,8 +24,6 @@ package org.mobicents.slee.container.management.jmx.editors;
 
 import javax.slee.facilities.Level;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
-
 /**
  * Property Editor for the Level object.
  * 

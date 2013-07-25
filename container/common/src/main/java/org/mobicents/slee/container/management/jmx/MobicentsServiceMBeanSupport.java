@@ -25,35 +25,34 @@
  */
 package org.mobicents.slee.container.management.jmx;
 
+import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
-import javax.management.NotCompliantMBeanException;
+import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
-import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 
 /**
  * @author martins
  *
  */
-public abstract class MobicentsServiceMBeanSupport extends ServiceMBeanSupport {
+public abstract class MobicentsServiceMBeanSupport extends NotificationBroadcasterSupport implements MBeanRegistration {
 
 	private ObjectName objectName;
-	
+	protected MBeanServer server;
 	protected SleeContainer sleeContainer;
 	
 	/**
 	 * 
 	 */
-	public MobicentsServiceMBeanSupport(Class<?> type) throws NotCompliantMBeanException {
-		this(null,type);
+	public MobicentsServiceMBeanSupport() {
+		this(null);
 	}
 	
 	/**
 	 * 
 	 */
-	public MobicentsServiceMBeanSupport(SleeContainer sleeContainer, Class<?> type) throws NotCompliantMBeanException {
-		super(type);
+	public MobicentsServiceMBeanSupport(SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
 	}
 		
@@ -79,6 +78,7 @@ public abstract class MobicentsServiceMBeanSupport extends ServiceMBeanSupport {
 	 */
 	public ObjectName preRegister(MBeanServer mbs, ObjectName oname) throws Exception {
 		this.objectName = oname;
+		this.server = mbs;
 		return oname;
 	}
 	
@@ -99,7 +99,7 @@ public abstract class MobicentsServiceMBeanSupport extends ServiceMBeanSupport {
 	 */
 	@Override
 	public void preDeregister() throws Exception {
-		// TODO Auto-generated method stub
+
 	}
 
 	/*
@@ -109,7 +109,7 @@ public abstract class MobicentsServiceMBeanSupport extends ServiceMBeanSupport {
 	 */
 	@Override
 	public void postDeregister() {
-		// TODO Auto-generated method stub
+	
 	}
 	
 }

@@ -25,12 +25,10 @@ package org.mobicents.slee.container.management.jmx;
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanServer;
-import javax.management.NotCompliantMBeanException;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
-import javax.management.StandardMBean;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.management.ManagementException;
@@ -53,7 +51,7 @@ import org.mobicents.slee.container.management.SleeStateChangeRequest;
  * @author Eduardo Martins
  * 
  */
-public class SleeManagementMBeanImpl extends StandardMBean implements
+public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implements
 		SleeManagementMBeanImplMBean {
 		
 	private ObjectName activityManagementMBean;
@@ -105,9 +103,8 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * 
 	 * @throws Exception
 	 */
-	public SleeManagementMBeanImpl(SleeContainer sleeContainer)
-			throws NotCompliantMBeanException {
-		super(SleeManagementMBeanImplMBean.class);
+	public SleeManagementMBeanImpl(SleeContainer sleeContainer) {
+		super(sleeContainer);
 		this.sleeContainer = sleeContainer;
 	}
 
@@ -415,8 +412,9 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	public ObjectName preRegister(MBeanServer mbs, ObjectName oname)
 			throws Exception {
-		this.objectName = oname;
-		return oname;
+		this.objectName = new ObjectName(SleeManagementMBean.OBJECT_NAME);
+		startSlee();
+		return super.preRegister(mbs, objectName);
 	}
 
 	/*
@@ -424,8 +422,8 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * 
 	 * @see javax.management.MBeanRegistration#postRegister(java.lang.Boolean)
 	 */
-	public void postRegister(Boolean arg0) {
-
+	public void postRegister(Boolean registrationDone) {
+		super.postRegister(registrationDone);
 	}
 
 	/*
@@ -434,7 +432,8 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * @see javax.management.MBeanRegistration#preDeregister()
 	 */
 	public void preDeregister() throws Exception {
-		// TODO Auto-generated method stub
+		super.preDeregister();
+		stopSlee();
 	}
 
 	/*
@@ -443,7 +442,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * @see javax.management.MBeanRegistration#postDeregister()
 	 */
 	public void postDeregister() {
-		// TODO Auto-generated method stub
+		super.postDeregister();
 	}
 
 	/*
@@ -482,25 +481,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		return MBEAN_NOTIFICATIONS;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jboss.system.Service#create()
-	 */
-	public void create() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jboss.system.Service#destroy()
-	 */
-	public void destroy() {
-		// TODO Auto-generated method stub
-
-	}
+	
 
 	public ObjectName getActivityManagementMBean() {
 		return activityManagementMBean;
@@ -528,7 +509,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	// ah ah
 
-	private static final String rLogo = " ## ## ## ## ## ## ## ";
+	private static final String rLogo = " -+-^-v-^-+-^-v-^-+- ";
 	private static final String lLogo = rLogo;
 
 	private String generateMessageWithLogo(String message) {

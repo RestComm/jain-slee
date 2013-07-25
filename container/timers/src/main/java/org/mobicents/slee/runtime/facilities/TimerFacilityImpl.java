@@ -40,7 +40,6 @@ import org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.mobicents.slee.container.util.JndiRegistrationManager;
 import org.mobicents.timers.FaultTolerantScheduler;
 
 /**
@@ -65,8 +64,6 @@ public class TimerFacilityImpl extends AbstractSleeContainerModule implements Ti
 	private static Logger logger = Logger.getLogger(TimerFacilityImpl.class);
 	
 	private static final int DEFAULT_TIMEOUT = 1000;
-
-	public static final String JNDI_NAME = "timer";
     	
 	// this is supposed to be the timer resolution in ms of the hosting
 	// OS/hardware
@@ -84,9 +81,7 @@ public class TimerFacilityImpl extends AbstractSleeContainerModule implements Ti
 	}
 	
 	@Override
-	public void sleeInitialization() {
-		JndiRegistrationManager.registerWithJndi("slee/facilities", TimerFacilityImpl.JNDI_NAME,
-				this);
+	public void sleeInitialization() {		
 	}
 	
 	@Override

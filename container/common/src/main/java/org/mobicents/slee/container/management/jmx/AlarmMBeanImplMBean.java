@@ -33,11 +33,9 @@ package org.mobicents.slee.container.management.jmx;
 import javax.management.NotificationBroadcaster;
 import javax.slee.management.AlarmMBean;
 
-import org.jboss.system.ServiceMBean;
-
 /**
  * @author Ivelin Ivanov
  */
-public interface AlarmMBeanImplMBean extends AlarmMBean, ServiceMBean, NotificationBroadcaster {
+public interface AlarmMBeanImplMBean extends AlarmMBean, NotificationBroadcaster {
 
 }

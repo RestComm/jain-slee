@@ -59,7 +59,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
   private final SbbEntityFactory sbbEntityFactory;
 
   public SbbEntitiesMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
-    super(sleeContainer, SbbEntitiesMBeanImplMBean.class);
+    super(sleeContainer);
     this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();
     PropertyEditorManager.registerEditor(SbbEntityID[].class, SbbEntityIDArrayPropertyEditor.class);
     PropertyEditorManager.registerEditor(SbbEntityID.class, SbbEntityIDPropertyEditor.class);

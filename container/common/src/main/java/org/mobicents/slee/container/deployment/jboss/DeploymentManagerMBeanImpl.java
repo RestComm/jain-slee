@@ -36,9 +36,6 @@ import java.nio.channels.FileChannel;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
-import org.jboss.deployers.spi.DeploymentException;
-import org.jboss.system.server.ServerConfigLocator;
-
 public class DeploymentManagerMBeanImpl extends StandardMBean implements DeploymentManagerMBean {
 
   private File tempDeployDir;
@@ -48,9 +45,9 @@ public class DeploymentManagerMBeanImpl extends StandardMBean implements Deploym
   
   public DeploymentManagerMBeanImpl(SleeContainerDeployerImpl sleeContainerDeployer) throws NotCompliantMBeanException {
     super(DeploymentManagerMBean.class);
-    this.tempDeployDir = createTempDUJarsDeploymentRoot();
-    this.deployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "deploy");
-    this.farmDeployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "farm");
+    //this.tempDeployDir = createTempDUJarsDeploymentRoot();
+    //this.deployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "deploy");
+    //this.farmDeployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "farm");
     this.sleeContainerDeployer = sleeContainerDeployer;
   }
 
@@ -242,12 +239,15 @@ public class DeploymentManagerMBeanImpl extends StandardMBean implements Deploym
    * @return a File object pointing to the temporary deploy folder
    */
   private File createTempDUJarsDeploymentRoot() {
-    File tempDeploymentRootDir = ServerConfigLocator.locate().getServerTempDeployDir();
+    /*
+	  File tempDeploymentRootDir = ServerConfigLocator.locate().getServerTempDeployDir();
     if (!tempDeploymentRootDir.exists()) {
       if (!tempDeploymentRootDir.mkdirs()) {
         throw new RuntimeException("Failed to create temp deployment dir: " + tempDeploymentRootDir);
       }
     }
     return tempDeploymentRootDir;
+    */
+	return null;
   }
 }

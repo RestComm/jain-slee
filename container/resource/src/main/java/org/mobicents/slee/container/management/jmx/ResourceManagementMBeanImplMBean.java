@@ -30,5 +30,5 @@ import javax.slee.management.ResourceManagementMBean;
  *
  */
 public interface ResourceManagementMBeanImplMBean extends 
-	org.jboss.system.ServiceMBean, ResourceManagementMBean {
+	ResourceManagementMBean {
 }

@@ -24,7 +24,6 @@ package org.mobicents.slee.runtime.facilities;
 
 import java.util.Arrays;
 
-import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
 import javax.slee.InvalidArgumentException;
 import javax.slee.facilities.TraceLevel;
@@ -313,8 +312,8 @@ public class TracerFrameworkTest extends TestCase {
 
 	private static class FakeTraceMBeanImpl extends TraceMBeanImpl {
 
-		public FakeTraceMBeanImpl() throws NotCompliantMBeanException {
-			super(null);
+		public FakeTraceMBeanImpl() {
+			super();
 		}
 
 		private String expectedNotificationType = null;

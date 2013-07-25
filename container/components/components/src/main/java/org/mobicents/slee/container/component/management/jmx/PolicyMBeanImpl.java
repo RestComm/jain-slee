@@ -32,8 +32,9 @@ package org.mobicents.slee.container.component.management.jmx;
 
 import java.security.Policy;
 
-import org.jboss.system.ServiceMBeanSupport;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.security.PolicyFileImpl;
+import org.mobicents.slee.container.management.jmx.MobicentsServiceMBeanSupport;
 
 /**
  * Start time:09:19:15 2009-04-16<br>
@@ -42,8 +43,10 @@ import org.mobicents.slee.container.component.security.PolicyFileImpl;
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
  */
-public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanImplMBean {
+public class PolicyMBeanImpl extends MobicentsServiceMBeanSupport implements PolicyMBeanImplMBean {
 
+	private static final Logger log = Logger.getLogger(PolicyMBeanImpl.class);
+	
 	/**
 	 * Holds defualt policy object
 	 */
@@ -67,12 +70,12 @@ public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanI
 		if (useMPolicy) {
 			// we have to check :)
 			if (previousPolicy != null) {
-				super.log.info("Already switched policy, not performing switch");
+				log.info("Already switched policy, not performing switch");
 				return;
 			}
 
 			if (isUseMPolicy()) {
-				super.log.info("Already switched policy from different bean, not performing switch");
+				log.info("Already switched policy from different bean, not performing switch");
 				return;
 			}
 			
@@ -86,13 +89,13 @@ public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanI
 			
 		} else {
 			if (!isUseMPolicy()) {
-				super.log.info("Policy is not Mobicents policy, can not remove it.");
+				log.info("Policy is not Mobicents policy, can not remove it.");
 				return;
 			}
 
 			// we have to check :)
 			if (previousPolicy == null) {
-				super.log.info("Default policy is not present, ca not switch.");
+				log.info("Default policy is not present, ca not switch.");
 				return;
 			}
 
@@ -103,23 +106,11 @@ public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanI
 		
 		
 	}
-	
-	
-
+		
 	@Override
-	protected void startService() throws Exception {
-		// TODO Auto-generated method stub
-		super.startService();
-
-	}
-
-	@Override
-	protected void stopService() throws Exception {
-		// TODO Auto-generated method stub
-		super.stopService();
+	public void postDeregister() {
+		super.postDeregister();
 		this.setUseMPolicy(false);
-
 	}
-
 
 }

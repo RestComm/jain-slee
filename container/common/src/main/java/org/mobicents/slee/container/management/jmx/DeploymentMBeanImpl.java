@@ -51,7 +51,6 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.log4j.Logger;
-import org.jboss.system.server.ServerConfigLocator;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.SleeComponent;
@@ -73,6 +72,8 @@ import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 
 /**
+ * 
+ * TODO rework all the deployment mess, there should be a single internal deployer and this mbean should just delegate operations to it.
  * Implementation of the deployment MBean.
  * 
  * @author M. Ranganathan
@@ -80,7 +81,7 @@ import org.mobicents.slee.container.transaction.SleeTransactionManager;
  *         method getDescriptor(DeplyableUnit) if no descriptor has been found
  * @author Eduardo Martins
  */
-public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
+public class DeploymentMBeanImpl extends MobicentsServiceMBeanSupport implements
 		DeploymentMBeanImplMBean {
 
 	private File tempDUJarsDeploymentRoot;
@@ -90,8 +91,8 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 
 	private final SleeContainerDeployerImpl deployer;
 	
-	public DeploymentMBeanImpl(SleeContainerDeployerImpl deployer) throws NotCompliantMBeanException {
-		super(DeploymentMBeanImplMBean.class);
+	public DeploymentMBeanImpl(SleeContainerDeployerImpl deployer) {
+		super(deployer.getSleeContainer());
 		this.tempDUJarsDeploymentRoot = createTempDUJarsDeploymentRoot();
 		this.deployer = deployer;
 		deployer.setDeploymentMBean(this);
@@ -106,8 +107,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 	 */
 	private File createTempDUJarsDeploymentRoot() {
 
-		File tempDeploymentRootDir = ServerConfigLocator.locate()
-				.getServerTempDeployDir();
+		File tempDeploymentRootDir = new File(getSleeContainer().getDeployPath());
 		if (!tempDeploymentRootDir.exists()) {
 			boolean dirCreated = tempDeploymentRootDir.mkdirs();
 			if (!dirCreated)
@@ -128,7 +128,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			DeploymentException, ManagementException {		
 
 		try {
-			final SleeContainer sleeContainer = deployer.getSleeContainer();
+			final SleeContainer sleeContainer = getSleeContainer();
 			final DeployableUnitBuilder deployableUnitBuilder = sleeContainer.getDeployableUnitManagement().getDeployableUnitBuilder();
 			final SleeTransactionManager sleeTransactionManager = sleeContainer
 					.getTransactionManager();
@@ -358,7 +358,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 
 		logger.info("Uninstalling " +deployableUnitID);
 
-		final SleeContainer sleeContainer = deployer.getSleeContainer();
+		final SleeContainer sleeContainer = getSleeContainer();
 		final SleeTransactionManager sleeTransactionManager = sleeContainer
 				.getTransactionManager();
 		final ServiceManagement serviceManagement = sleeContainer
@@ -586,7 +586,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 
 		boolean duExists = true;
 		try {
-			if (deployer.getSleeContainer().getDeployableUnitManagement()
+			if (getSleeContainer().getDeployableUnitManagement()
 					.getDeployableUnit(deployableUnitID) == null) {
 				duExists = false;
 			}
@@ -607,7 +607,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 	 */
 	public DeployableUnitID[] getDeployableUnits() throws ManagementException {
 		try {
-			return deployer.getSleeContainer().getDeployableUnitManagement()
+			return getSleeContainer().getDeployableUnitManagement()
 					.getDeployableUnits();
 		} catch (Throwable e) {
 			throw new ManagementException("failed to get deployable units", e);
@@ -624,7 +624,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getSbbs()");
 			}
-			return deployer.getSleeContainer().getComponentRepository()
+			return getSleeContainer().getComponentRepository()
 					.getSbbIDs().toArray(new SbbID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -641,7 +641,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getEventTypes()");
 			}
-			return deployer.getSleeContainer().getComponentRepository()
+			return getSleeContainer().getComponentRepository()
 					.getEventComponentIDs().toArray(new EventTypeID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -659,7 +659,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getProfileSpecifications()");
 			}
-			return deployer.getSleeContainer().getComponentRepository()
+			return getSleeContainer().getComponentRepository()
 					.getProfileSpecificationIDs().toArray(
 							new ProfileSpecificationID[0]);
 		} catch (Throwable ex) {
@@ -677,7 +677,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getServices()");
 			}
-			return deployer.getSleeContainer().getComponentRepository()
+			return getSleeContainer().getComponentRepository()
 					.getServiceIDs().toArray(new ServiceID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -695,7 +695,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getResourceAdaptorTypes()");
 			}
-			return deployer.getSleeContainer().getComponentRepository()
+			return getSleeContainer().getComponentRepository()
 					.getResourceAdaptorTypeIDs().toArray(
 							new ResourceAdaptorTypeID[0]);
 		} catch (Throwable ex) {
@@ -713,7 +713,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getResourceAdaptors()");
 			}
-			return deployer.getSleeContainer().getComponentRepository()
+			return getSleeContainer().getComponentRepository()
 					.getResourceAdaptorIDs().toArray(new ResourceAdaptorID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -730,7 +730,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			ManagementException {
 
 		try {
-			return deployer.getSleeContainer().getComponentRepository()
+			return getSleeContainer().getComponentRepository()
 					.getReferringComponents(componentId);
 		} catch (NullPointerException ex) {
 			throw ex;
@@ -759,7 +759,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getDescriptor " + deployableUnitID);
 			}
-			DeployableUnit du = deployer.getSleeContainer()
+			DeployableUnit du = getSleeContainer()
 					.getDeployableUnitManagement().getDeployableUnit(
 							deployableUnitID);
 			if (du != null) {
@@ -787,7 +787,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 		if (duIds == null)
 			throw new NullPointerException("Null arg!");
 
-		final DeployableUnitManagement deployableUnitManagement = deployer.getSleeContainer().getDeployableUnitManagement();
+		final DeployableUnitManagement deployableUnitManagement = getSleeContainer().getDeployableUnitManagement();
 		try {
 			Set<DeployableUnitDescriptor> result = new HashSet<DeployableUnitDescriptor>();
 			for (DeployableUnitID deployableUnitID : deployableUnitManagement
@@ -819,7 +819,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 		}
 
 		try {
-			ComponentRepository componentRepositoryImpl = deployer.getSleeContainer().getComponentRepository();
+			ComponentRepository componentRepositoryImpl = getSleeContainer().getComponentRepository();
 			SleeComponent component = null;
 			if (componentID instanceof EventTypeID) {
 				component = componentRepositoryImpl
@@ -886,7 +886,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 		if (deployableUnitID == null)
 			throw new NullPointerException("null deployableUnitID");
 		try {
-			return deployer.getSleeContainer().getDeployableUnitManagement()
+			return getSleeContainer().getDeployableUnitManagement()
 					.getDeployableUnit(deployableUnitID) != null;
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -903,7 +903,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 		if (componentID == null)
 			throw new NullPointerException("null componentID");
 		try {
-			return deployer.getSleeContainer().getComponentRepository()
+			return getSleeContainer().getComponentRepository()
 					.isInstalled(componentID);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -915,7 +915,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getLibraries()");
 			}
-			return deployer.getSleeContainer().getComponentRepository()
+			return getSleeContainer().getComponentRepository()
 					.getLibraryIDs().toArray(new LibraryID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -934,7 +934,7 @@ public class DeploymentMBeanImpl extends NamedServiceMBeanSupport implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getSbbs(serviceID)");
 			}
-			ComponentRepository componentRepository = deployer.getSleeContainer().getComponentRepository();
+			ComponentRepository componentRepository = getSleeContainer().getComponentRepository();
 			ServiceComponent serviceComponent = componentRepository
 					.getComponentByID(serviceID);
 			if (serviceComponent != null) {

@@ -56,7 +56,7 @@ public class ServiceManagementMBeanImpl extends MobicentsServiceMBeanSupport imp
 	private final ServiceManagementImpl serviceManagement;
 	
 	public ServiceManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
-		super(sleeContainer,ServiceManagementMBeanImplMBean.class);
+		super(sleeContainer);
 		this.serviceManagement = (ServiceManagementImpl) sleeContainer.getServiceManagement();
 	}
 	

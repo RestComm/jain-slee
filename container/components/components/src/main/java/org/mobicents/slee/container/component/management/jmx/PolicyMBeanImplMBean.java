@@ -30,8 +30,6 @@
  */
 package org.mobicents.slee.container.component.management.jmx;
 
-import org.jboss.system.ServiceMBean;
-
 /**
  * Start time:08:53:04 2009-04-16<br>
  * Project: mobicents-jainslee-server-core<br>
@@ -41,7 +39,7 @@ import org.jboss.system.ServiceMBean;
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
  */
-public interface PolicyMBeanImplMBean extends ServiceMBean {
+public interface PolicyMBeanImplMBean {
 
 	/**
 	 * Returns String form of urls that point files loaded

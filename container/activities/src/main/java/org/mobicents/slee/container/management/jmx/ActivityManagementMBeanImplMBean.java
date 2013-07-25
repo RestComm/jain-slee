@@ -24,7 +24,6 @@ package org.mobicents.slee.container.management.jmx;
 
 import javax.slee.management.ManagementException;
 
-import org.jboss.system.ServiceMBean;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 
 /**
@@ -53,7 +52,7 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
  * @author Bartosz Baranowski
  * @author Eduardo Martins
  */
-public interface ActivityManagementMBeanImplMBean extends ServiceMBean
+public interface ActivityManagementMBeanImplMBean
  {
 
 	/**

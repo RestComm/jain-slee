@@ -44,7 +44,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.MBeanNotificationInfo;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.slee.ComponentID;
 import javax.slee.SbbID;
@@ -62,9 +61,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.facilities.NotificationSourceWrapper;
 import org.mobicents.slee.container.management.AlarmManagement;
-import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.mobicents.slee.container.util.JndiRegistrationManager;
 import org.mobicents.slee.runtime.facilities.DefaultAlarmFacilityImpl;
 
 /**
@@ -78,23 +75,18 @@ import org.mobicents.slee.runtime.facilities.DefaultAlarmFacilityImpl;
 @SuppressWarnings("deprecation")
 public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements AlarmManagement,AlarmMBeanImplMBean {
 
-	public static String JNDI_NAME = "alarm";
 	private static Logger log = Logger.getLogger(AlarmMBeanImpl.class);
 
 	private Map<AlarmPlaceHolder, NotificationSource> placeHolderToNotificationSource = new ConcurrentHashMap<AlarmPlaceHolder, NotificationSource>();
 	private Map<String, AlarmPlaceHolder> alarmIdToAlarm = new ConcurrentHashMap<String, AlarmPlaceHolder>();
 
-	private final SleeTransactionManager sleeTransactionManager;
 	private final TraceMBeanImpl traceMBean;
 		
 	/**
-	 * @param sleeTransactionManager
 	 * @param traceMBean
 	 */
-	public AlarmMBeanImpl(SleeTransactionManager sleeTransactionManager,
-			TraceMBeanImpl traceMBean) throws NotCompliantMBeanException {
-		super(AlarmMBeanImplMBean.class);
-		this.sleeTransactionManager = sleeTransactionManager;
+	public AlarmMBeanImpl(TraceMBeanImpl traceMBean) {
+		super();
 		this.traceMBean = traceMBean;
 	}
 	
@@ -541,7 +533,7 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 				registeredComps.remove(sbbID);
 			}
 		};
-		sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);
+		sleeContainer.getTransactionManager().getTransactionContext().getAfterRollbackActions().add(action);
 
 	}
 
@@ -553,7 +545,7 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 					registeredComps.put(sbbID, registeredComp);
 				}
 			};
-			sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);
+			sleeContainer.getTransactionManager().getTransactionContext().getAfterRollbackActions().add(action);
 		}
 
 	}
@@ -578,7 +570,6 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 
 	@Override
 	public void sleeInitialization() {
-		JndiRegistrationManager.registerWithJndi("slee/facilities", AlarmMBeanImpl.JNDI_NAME,this);
 	}
 	
 	@Override

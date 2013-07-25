@@ -36,6 +36,7 @@ import javax.slee.TransactionRolledbackLocalException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
+import org.mobicents.slee.container.jndi.JndiManagement;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
@@ -88,6 +89,9 @@ public class SbbLocalObjectInterceptor {
 		final ClassLoader currentThreadClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
 		SleeContainerUtils.setCurrentThreadClassLoader(sbbEntity.getSbbComponent().getClassLoader());
 		
+		final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+		jndiManagement.pushJndiContext(sbbEntity.getSbbComponent());
+		
 		try {
 			if (System.getSecurityManager() == null
 					|| !sbbEntity.getSbbComponent()
@@ -122,6 +126,7 @@ public class SbbLocalObjectInterceptor {
 			// the code above always throws exception
 			return null;
 		} finally {
+			jndiManagement.popJndiContext();
 			SleeContainerUtils.setCurrentThreadClassLoader(currentThreadClassLoader);
 			if (invokedsbbEntities != null) {
 				invokedsbbEntities.remove(sbbEntity.getSbbEntityId());

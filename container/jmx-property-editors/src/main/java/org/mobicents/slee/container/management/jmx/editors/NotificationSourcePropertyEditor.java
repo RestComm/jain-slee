@@ -30,8 +30,6 @@ import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.SbbNotification;
 import javax.slee.management.SubsystemNotification;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
-
 /**
  * Property Editor for {@link NotificationSource}. 
  * 

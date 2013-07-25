@@ -60,7 +60,7 @@ public class ResourceManagementMBeanImpl extends MobicentsServiceMBeanSupport im
 	private final ResourceManagementImpl resourceManagement;
 
 	public ResourceManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
-		super(sleeContainer,ResourceManagementMBeanImplMBean.class);
+		super(sleeContainer);
 		this.resourceManagement = (ResourceManagementImpl) sleeContainer.getResourceManagement();
 	}
 

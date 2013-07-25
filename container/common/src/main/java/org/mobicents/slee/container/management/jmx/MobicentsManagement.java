@@ -33,12 +33,11 @@ import java.nio.charset.Charset;
 
 import javax.slee.management.ManagementException;
 
-import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.Version;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 
-public class MobicentsManagement extends ServiceMBeanSupport implements
+public class MobicentsManagement implements
 		MobicentsManagementMBean {
 
 	// Number of minutes after lingering entities of inactive service will be
