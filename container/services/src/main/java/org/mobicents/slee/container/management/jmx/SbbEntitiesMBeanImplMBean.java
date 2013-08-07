@@ -32,6 +32,8 @@ import javax.slee.management.ManagementException;
 
 public interface SbbEntitiesMBeanImplMBean {
 
+	public static final String OBJECT_NAME = "org.mobicents.slee:name=SbbEntitiesMBean";
+	
   /**
    * Returns an array of details about the SBB Entitiy.
    * 

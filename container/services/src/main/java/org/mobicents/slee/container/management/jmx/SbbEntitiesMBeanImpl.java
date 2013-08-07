@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.management.NotCompliantMBeanException;
 import javax.slee.ServiceID;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ServiceState;
@@ -58,9 +57,9 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 
   private final SbbEntityFactory sbbEntityFactory;
 
-  public SbbEntitiesMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
-    super(sleeContainer);
-    this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();
+  public SbbEntitiesMBeanImpl(SbbEntityFactory sbbEntityFactory) {
+    super(sbbEntityFactory.getSleeContainer());
+    this.sbbEntityFactory = sbbEntityFactory;
     PropertyEditorManager.registerEditor(SbbEntityID[].class, SbbEntityIDArrayPropertyEditor.class);
     PropertyEditorManager.registerEditor(SbbEntityID.class, SbbEntityIDPropertyEditor.class);
   }

@@ -24,7 +24,6 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.util.Arrays;
 
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
@@ -42,7 +41,6 @@ import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.ResourceAdaptorID;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ResourceManagementImpl;
 
 /**
@@ -59,9 +57,9 @@ public class ResourceManagementMBeanImpl extends MobicentsServiceMBeanSupport im
 
 	private final ResourceManagementImpl resourceManagement;
 
-	public ResourceManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
-		super(sleeContainer);
-		this.resourceManagement = (ResourceManagementImpl) sleeContainer.getResourceManagement();
+	public ResourceManagementMBeanImpl(ResourceManagementImpl resourceManagement) {
+		super(resourceManagement.getSleeContainer());
+		this.resourceManagement = resourceManagement;
 	}
 
 	// ------- MANAGEMENT OPERATIONS

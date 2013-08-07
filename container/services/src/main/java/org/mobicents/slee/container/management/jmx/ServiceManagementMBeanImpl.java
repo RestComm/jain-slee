@@ -31,7 +31,6 @@
 
 package org.mobicents.slee.container.management.jmx;
 
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
@@ -41,7 +40,6 @@ import javax.slee.management.InvalidLinkNameBindingStateException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ServiceState;
 
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ServiceManagementImpl;
 
 /**
@@ -55,9 +53,9 @@ public class ServiceManagementMBeanImpl extends MobicentsServiceMBeanSupport imp
 
 	private final ServiceManagementImpl serviceManagement;
 	
-	public ServiceManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
-		super(sleeContainer);
-		this.serviceManagement = (ServiceManagementImpl) sleeContainer.getServiceManagement();
+	public ServiceManagementMBeanImpl(ServiceManagementImpl serviceManagement) {
+		super(serviceManagement.getSleeContainer());
+		this.serviceManagement = serviceManagement;
 	}
 	
 	/* (non-Javadoc)

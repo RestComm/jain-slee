@@ -30,6 +30,8 @@ package org.mobicents.slee.container.management.jmx;
  */
 public interface EventRouterConfigurationMBean {
 
+	public static final String OBJECT_NAME = "org.mobicents.slee:name=EventRouterConfiguration";
+	
 	/**
 	 * Retrieves the number of event router threads.
 	 * 

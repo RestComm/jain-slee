@@ -32,6 +32,8 @@ package org.mobicents.slee.container.management.jmx;
  */
 public interface TimerFacilityConfigurationMBean {
 
+	public static final String OBJECT_NAME = "org.mobicents.slee:name=TimerFacilityConfiguration";
+	
 	/**
 	 * Retrieves the number of threads used by timers.
 	 * @return

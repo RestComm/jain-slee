@@ -13,7 +13,6 @@
 	<event-type-version> 1.0 </event-type-version>
 	<event-class-name> javax.slee.facilities.TimerEvent </event-class-name>
 </event-definition>
-<!--
 <event-definition>
 	<event-type-name> javax.slee.profile.ProfileAddedEvent </event-type-name>
 	<event-type-vendor> javax.slee </event-type-vendor>
@@ -32,7 +31,6 @@
 	<event-type-version> 1.0 </event-type-version>
 	<event-class-name> javax.slee.profile.ProfileRemovedEvent </event-class-name>
 </event-definition>
--->
 <event-definition>
 	<event-type-name> javax.slee.serviceactivity.ServiceStartedEvent </event-type-name>
 	<event-type-vendor> javax.slee </event-type-vendor>

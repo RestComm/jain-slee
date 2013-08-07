@@ -30,6 +30,8 @@ package org.mobicents.slee.container.management.jmx;
  */
 public interface CongestionControlConfigurationMBean {
 
+	public static final String OBJECT_NAME = "org.mobicents.slee:name=CongestionControlConfiguration";
+	
 	/**
 	 * Retrieves the minimum memory (percentage) that should be available to
 	 * turn on congestion control.

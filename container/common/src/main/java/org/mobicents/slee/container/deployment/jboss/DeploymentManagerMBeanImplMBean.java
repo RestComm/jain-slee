@@ -24,8 +24,10 @@ package org.mobicents.slee.container.deployment.jboss;
 
 import java.net.URL;
 
-public interface DeploymentManagerMBean {
+public interface DeploymentManagerMBeanImplMBean {
 
+	public static final String OBJECT_NAME = "org.mobicents.slee:name=DeployerMBean";
+	
   /**
    * Displays information regarding the JBoss JAIN SLEE DU Deployer, providing
    * information regarding deployed DU's and others with missing dependencies.

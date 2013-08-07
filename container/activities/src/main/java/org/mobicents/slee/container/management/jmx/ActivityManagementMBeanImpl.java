@@ -33,7 +33,6 @@ import java.util.TimerTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.management.NotCompliantMBeanException;
 import javax.slee.SbbID;
 import javax.slee.facilities.TimerID;
 import javax.slee.management.ManagementException;
@@ -76,7 +75,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 	private static Logger logger = Logger
 			.getLogger(ActivityManagementMBeanImpl.class);
 
-	public ActivityManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
+	public ActivityManagementMBeanImpl(SleeContainer sleeContainer) {
 		super(sleeContainer);
 		this.acFactory = (ActivityContextFactoryImpl) sleeContainer.getActivityContextFactory();
 		this.sbbEntityFactory = sleeContainer.getSbbEntityFactory();

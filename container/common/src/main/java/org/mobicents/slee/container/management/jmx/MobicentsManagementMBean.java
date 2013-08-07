@@ -26,7 +26,7 @@ import javax.slee.management.ManagementException;
 
 public interface MobicentsManagementMBean {
 
-    public final String OBJECT_NAME = "org.mobicents.slee:service=MobicentsManagement";
+    public static final String OBJECT_NAME = "org.mobicents.slee:service=MobicentsManagement";
 
 	/**
 	 * 

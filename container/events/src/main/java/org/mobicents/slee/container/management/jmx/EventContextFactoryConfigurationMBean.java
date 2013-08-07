@@ -34,6 +34,8 @@ import org.mobicents.slee.container.event.EventContextFactory;
  */
 public interface EventContextFactoryConfigurationMBean {
 
+	public static final String OBJECT_NAME = "org.mobicents.slee:name=EventContextFactoryConfiguration";
+	
 	/**
 	 * Retrieves the default timeout applied when suspending delivery of an
 	 * {@link EventContext}, that is, the timeout used on

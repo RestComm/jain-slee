@@ -33,18 +33,16 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 
-import javax.management.NotCompliantMBeanException;
-import javax.management.StandardMBean;
+import org.mobicents.slee.container.management.jmx.MobicentsServiceMBeanSupport;
 
-public class DeploymentManagerMBeanImpl extends StandardMBean implements DeploymentManagerMBean {
+public class DeploymentManagerMBeanImpl extends MobicentsServiceMBeanSupport implements DeploymentManagerMBeanImplMBean {
 
   private File tempDeployDir;
   private File deployDir;
   private File farmDeployDir;
   private final SleeContainerDeployerImpl sleeContainerDeployer;
   
-  public DeploymentManagerMBeanImpl(SleeContainerDeployerImpl sleeContainerDeployer) throws NotCompliantMBeanException {
-    super(DeploymentManagerMBean.class);
+  public DeploymentManagerMBeanImpl(SleeContainerDeployerImpl sleeContainerDeployer) {
     //this.tempDeployDir = createTempDUJarsDeploymentRoot();
     //this.deployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "deploy");
     //this.farmDeployDir = new File(ServerConfigLocator.locate().getServerHomeDir() + File.separator + "farm");

@@ -55,6 +55,8 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
 public interface ActivityManagementMBeanImplMBean
  {
 
+	public static final String OBJECT_NAME = "org.mobicents.slee:name=ActivityManagementMBean";
+	
 	/**
 	 * Defines index of String field in Object[], this String is representation
 	 * of activity context ID field

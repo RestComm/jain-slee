@@ -41,6 +41,8 @@ package org.mobicents.slee.container.component.management.jmx;
  */
 public interface PolicyMBeanImplMBean {
 
+	public static final String OBJECT_NAME = "org.mobicents.slee:name=PolicyManagementMBean";
+	
 	/**
 	 * Returns String form of urls that point files loaded
 	 * @return
