@@ -4,7 +4,11 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
+<<<<<<< HEAD
 		<version>2.23</version>
+=======
+		<version>2.24</version>
+>>>>>>> 6e03bf4... changing license to agpl
 	</parent>
 	
 	<groupId>org.mobicents.servers.jainslee.core</groupId>
