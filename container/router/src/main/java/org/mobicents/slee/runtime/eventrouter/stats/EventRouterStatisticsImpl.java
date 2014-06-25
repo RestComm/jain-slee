@@ -85,11 +85,14 @@ public class EventRouterStatisticsImpl implements EventRouterStatistics {
 		long events = 0L;
 		for (EventTypeID eventTypeID : eventRouter.getSleeContainer().getComponentManagement().getComponentRepository().getEventComponentIDs()) {
 			for (int i = 0; i < getExecutors().length; i++) {
-				EventTypeRoutingStatistics eventTypeRoutingStatistics = getEventRouterExecutorStatistics(i).getEventTypeRoutingStatistics(eventTypeID);
-				if (eventTypeRoutingStatistics != null) {
-					time += eventTypeRoutingStatistics.getRoutingTime();
-					events += eventTypeRoutingStatistics.getEventsRouted();
-				}
+				final EventRouterExecutorStatistics eventRouterExecutorStatistics = getEventRouterExecutorStatistics(i);
+                if (eventRouterExecutorStatistics != null) {
+                    EventTypeRoutingStatistics eventTypeRoutingStatistics = eventRouterExecutorStatistics.getEventTypeRoutingStatistics(eventTypeID);
+                    if (eventTypeRoutingStatistics != null) {
+                        time += eventTypeRoutingStatistics.getRoutingTime();
+                        events += eventTypeRoutingStatistics.getEventsRouted();
+                    }
+                }
 			}
 		}
 		return time == 0L ? 0L : time / events;
@@ -103,11 +106,14 @@ public class EventRouterStatisticsImpl implements EventRouterStatistics {
 		long time = 0L;
 		long events = 0L;
 		for (int i = 0; i < getExecutors().length; i++) {
-			EventTypeRoutingStatistics eventTypeRoutingStatistics = getEventRouterExecutorStatistics(i).getEventTypeRoutingStatistics(eventTypeID);
-			if (eventTypeRoutingStatistics != null) {
-				time += eventTypeRoutingStatistics.getRoutingTime();
-				events += eventTypeRoutingStatistics.getEventsRouted();
-			}
+            final EventRouterExecutorStatistics eventRouterExecutorStatistics = getEventRouterExecutorStatistics(i);
+            if (eventRouterExecutorStatistics != null) {
+                EventTypeRoutingStatistics eventTypeRoutingStatistics = eventRouterExecutorStatistics.getEventTypeRoutingStatistics(eventTypeID);
+                if (eventTypeRoutingStatistics != null) {
+                    time += eventTypeRoutingStatistics.getRoutingTime();
+                    events += eventTypeRoutingStatistics.getEventsRouted();
+                }
+            }
 		}		
 		return time == 0L ? 0L : time / events;
 	}
