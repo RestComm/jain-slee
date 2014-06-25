@@ -45,6 +45,9 @@ import org.mobicents.slee.container.transaction.SleeTransaction;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 
+import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
+import org.mobicents.slee.util.concurrent.SleeThreadFactory;
+
 /**
  * Implementation of SLEE Tx manager.
  * 
@@ -60,8 +63,10 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 
 	private static final Logger logger = Logger
 			.getLogger(SleeTransactionManagerImpl.class);
-	
-	/**
+
+    private final static SleeThreadFactory SLEE_THREAD_FACTORY = new SleeThreadFactory("SLEE-TransactionManager");
+
+    /**
 	 * the underlying JTA tx manager
 	 */
 	private final TransactionManager transactionManager;
@@ -87,7 +92,7 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 	 */
 	ExecutorService getExecutorService() {
 		if (executorService == null) {
-			executorService = Executors.newCachedThreadPool();
+			executorService = Executors.newCachedThreadPool(SLEE_THREAD_FACTORY);
 		}
 		return executorService;
 	}

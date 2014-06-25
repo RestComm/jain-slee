@@ -44,6 +44,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.ExternalDeployer;
 import org.mobicents.slee.container.deployment.InternalDeployer;
 import org.mobicents.slee.container.deployment.SleeContainerDeployer;
+import org.mobicents.slee.util.concurrent.SleeThreadFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -62,7 +63,10 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	private final static Logger LOGGER = Logger
 			.getLogger(SleeContainerDeployerImpl.class);
 
-	// FIXME these two need to be merged
+    private final static SleeThreadFactory SLEE_THREAD_FACTORY = new SleeThreadFactory("SLEE-InternalDeployer");
+
+
+    // FIXME these two need to be merged
 	private final SLEESubDeployer sleeSubDeployer = new SLEESubDeployer(this);
 	private final DeploymentManager deploymentManager = new DeploymentManager(
 			this);
@@ -200,7 +204,7 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 				}
 			}
 		};
-		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		ExecutorService executorService = Executors.newSingleThreadExecutor(SLEE_THREAD_FACTORY);
 		try {
 			executorService.submit(r).get();
 		} catch (Exception e) {

@@ -30,6 +30,7 @@ import org.mobicents.slee.container.eventrouter.EventRouterExecutorMapper;
 import org.mobicents.slee.container.eventrouter.stats.EventRouterStatistics;
 import org.mobicents.slee.container.management.jmx.EventRouterConfiguration;
 import org.mobicents.slee.runtime.eventrouter.stats.EventRouterStatisticsImpl;
+import org.mobicents.slee.util.concurrent.SleeThreadFactory;
 
 /**
  * 
@@ -81,7 +82,7 @@ public class EventRouterImpl extends AbstractSleeContainerModule implements Even
 		// create new ones
 		this.executors = new EventRouterExecutor[configuration.getEventRouterThreads()];
 		for (int i = 0; i < configuration.getEventRouterThreads(); i++) {
-			this.executors[i] = new EventRouterExecutorImpl(configuration.isCollectStats(),sleeContainer);
+			this.executors[i] = new EventRouterExecutorImpl(configuration.isCollectStats(), new SleeThreadFactory("SLEE-EventRouterExecutor-"+i), sleeContainer);
 		}	
 		// create mapper
 		try {
