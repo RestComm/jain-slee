@@ -30,13 +30,16 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
+import org.mobicents.slee.util.concurrent.SleeThreadFactory;
 
 public class RootSbbEntitiesRemovalTask implements Runnable {
 
 	private static final Logger logger = Logger
 			.getLogger(RootSbbEntitiesRemovalTask.class);
 
-	// the service id of the task
+    private final static SleeThreadFactory SLEE_THREAD_FACTORY = new SleeThreadFactory("SLEE-RootSbbEntitiesRemovalTask");
+
+    // the service id of the task
 	private ServiceComponent serviceComponent;
 
 	/**
@@ -118,7 +121,7 @@ public class RootSbbEntitiesRemovalTask implements Runnable {
 			}
 		};
 
-		ExecutorService exec = Executors.newSingleThreadExecutor();
+		ExecutorService exec = Executors.newSingleThreadExecutor(SLEE_THREAD_FACTORY);
 		try {
 			exec.submit(r).get();
 		} catch (Throwable e) {

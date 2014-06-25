@@ -78,6 +78,7 @@ import org.mobicents.slee.container.transaction.TransactionalAction;
 import org.mobicents.slee.container.util.JndiRegistrationManager;
 import org.mobicents.slee.runtime.facilities.NotificationSourceWrapperImpl;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
+import org.mobicents.slee.util.concurrent.SleeThreadFactory;
 
 /**
  * 
@@ -97,6 +98,8 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 	private ServiceActivityContextInterfaceFactoryImpl serviceActivityContextInterfaceFactory;
 
 	private final ConcurrentHashMap<ServiceID, ScheduledFuture<?>> activityEndingTasks = new ConcurrentHashMap<ServiceID, ScheduledFuture<?>>();
+
+    private final static SleeThreadFactory SLEE_THREAD_FACTORY = new SleeThreadFactory("SLEE-ServiceManagement");
 
 	/*
 	 * (non-Javadoc)
@@ -1004,7 +1007,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				}				
 			}
 		};
-		final ExecutorService executorService = Executors.newSingleThreadExecutor();
+		final ExecutorService executorService = Executors.newSingleThreadExecutor(SLEE_THREAD_FACTORY);
 		TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 		if (txContext != null) {
 			TransactionalAction txAction = new TransactionalAction() {

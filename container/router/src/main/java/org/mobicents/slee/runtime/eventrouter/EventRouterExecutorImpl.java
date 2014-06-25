@@ -25,13 +25,6 @@
  */
 package org.mobicents.slee.runtime.eventrouter;
 
-import java.util.Collections;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.event.EventContext;
@@ -40,6 +33,14 @@ import org.mobicents.slee.container.eventrouter.EventRoutingTask;
 import org.mobicents.slee.container.eventrouter.stats.EventRouterExecutorStatistics;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTaskImpl;
 import org.mobicents.slee.runtime.eventrouter.stats.EventRouterExecutorStatisticsImpl;
+
+import java.util.Collections;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -109,11 +110,11 @@ public class EventRouterExecutorImpl implements EventRouterExecutor {
 	/**
 	 * 
 	 */
-	public EventRouterExecutorImpl(boolean collectStats, SleeContainer sleeContainer) {
+	public EventRouterExecutorImpl(boolean collectStats, ThreadFactory threadFactory, SleeContainer sleeContainer) {
 		final LinkedBlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<Runnable>();
 		this.executor = new ThreadPoolExecutor(1, 1,
                         0L, TimeUnit.MILLISECONDS,
-                        executorQueue);
+                        executorQueue, threadFactory);
 		stats = collectStats ? new EventRouterExecutorStatisticsImpl(Collections.unmodifiableCollection(executorQueue)) : null;
 		this.sleeContainer = sleeContainer;
 	}
