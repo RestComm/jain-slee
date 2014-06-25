@@ -18,7 +18,7 @@
 		<slee.version>${pom.version}</slee.version>
 		<slee.codename>???</slee.codename>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<mobicents.cluster.version>1.14.0.FINAL</mobicents.cluster.version>
+		<mobicents.cluster.version>1.15.7</mobicents.cluster.version>
 	</properties>
 
 	<modules>
