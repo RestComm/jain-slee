@@ -217,7 +217,6 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.container.management.ServiceManagement#activate(javax.slee.ServiceID)
 	 */
-	@Override
 	public void activate(ServiceID serviceID) throws NullPointerException,
 			UnrecognizedServiceException, InvalidStateException,
 			InvalidLinkNameBindingStateException {
@@ -464,7 +463,6 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		if (!activityEndingTasks.contains(serviceID)) {
 			// schedule a task to force the ending of the activity after 30 secs
 			Runnable r = new Runnable() {
-				@Override
 				public void run() {
 					try {
 						activityEndingTasks.remove(serviceID);
@@ -890,7 +888,6 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		// multi service
 		// design
 		final Comparator<ServiceComponent> comparator = new Comparator<ServiceComponent>() {
-			@Override
 			public int compare(ServiceComponent o1, ServiceComponent o2) {
 				if (o2.getCreationTime() > o1.getCreationTime()) {
 					return 1;
@@ -973,7 +970,6 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 	public void activityEnded(final ServiceActivityHandle activityHandle) {
 		// do this only on tx commit and in a new thread, to escape the tx context
 		final Runnable r = new Runnable() {			
-			@Override
 			public void run() {
 				final ServiceID serviceID = activityHandle.getServiceID();
 				if (logger.isDebugEnabled()) {
@@ -1010,7 +1006,6 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 		if (txContext != null) {
 			TransactionalAction txAction = new TransactionalAction() {
-				@Override
 				public void execute() {
 					try {
 						executorService.execute(r);
