@@ -158,10 +158,23 @@
 	</target>
 
 	<target name="build-xcap" description="">
-		<antcall target="build-package">
-			<param name="package.name" value="xcap" />
-			<param name="javadoc.dirs" value="resources/xcap-client,enablers/xdm-client" />
-		</antcall>
+		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap">
+			<arg line="versions:set -DnewVersion=${release.version}" />
+		</exec>
+		<replace dir="${packages.dir}/xcap/enablers/xdm-client" value="6.1.2.GA-TelScale">
+		  <include name="**/pom.xml"/>
+		  <replacetoken><![CDATA[6.1.1.GA-TelScale]]></replacetoken>
+		</replace>		
+		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap">
+			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
+		</exec>
+		<for delimiter="," param="dir.name" list="resources/xcap-client,enablers/xdm-client">
+			<sequential>
+				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap/@{dir.name}">
+					<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+				</exec>
+			</sequential>
+		</for>
 	</target>
 
 	<target name="build-xmpp" description="">
@@ -218,7 +231,7 @@
     <!--  
 	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-sources-for-debug-zip">
 	 --> 
-	<target name="release" depends="clean,get-jboss,unzip-jboss,get-mms,unzip-mms,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-jdbc,build-sip,build-media,build-diameter,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
+	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
 	
 	
 		<!-- hack to replace diameter cluster libs 

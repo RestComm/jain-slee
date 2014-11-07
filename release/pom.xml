@@ -124,7 +124,7 @@
 								${checkout.basedir}/cluster
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://code.google.com/p/commscale.cluster/
+								scm:git:https://telscalejenkins:m0b1c3nts@bitbucket.org/telestax/telscale-cluster.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -142,7 +142,7 @@
 								${checkout.basedir}/jain-sip-ext
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://code.google.com/p/jain-sip.ext/
+								scm:git:https://telscalejenkins:m0b1c3nts@bitbucket.org/telestax/telscale-jsip-ext.git
 							</connectionUrl>
 						</configuration>
 					</execution>						
@@ -159,7 +159,7 @@
 								${checkout.basedir}/jain-sip-ha
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://code.google.com/p/jain-sip.ha/
+								scm:git:https://telscalejenkins:m0b1c3nts@bitbucket.org/telestax/telscale-jsip-ha.git
 							</connectionUrl>
 						</configuration>
 					</execution>							
@@ -176,7 +176,7 @@
 								${checkout.basedir}/extra/sip-balancer
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://code.google.com/p/commscale.load-balancer/
+								scm:git:https://telscalejenkins:m0b1c3nts@bitbucket.org/telestax/telscale-load-balancer.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -350,7 +350,7 @@
 								${checkout.basedir}/ss7
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://code.google.com/p/jain-slee.ss7/
+								scm:git:https://telscalejenkins:m0b1c3nts@bitbucket.org/telestax/telscale-jain-slee.ss7.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -423,7 +423,7 @@
                                 ${checkout.basedir}/extra/snmp-adaptor
                             </checkoutDirectory>
                             <connectionUrl>
-                                scm:git:https://code.google.com/p/commscale.snmp-adaptor/
+                                scm:git:https://telscalejenkins:m0b1c3nts@bitbucket.org/telestax/telscale-snmp-adaptor.git
                             </connectionUrl>
                         </configuration>
                     </execution>
