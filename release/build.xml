@@ -1,0 +1,388 @@
+<?xml version="1.0"?>
+<project name="mobicents.release" default="release" basedir=".">
+
+	<property environment="sys" />
+
+	<property name="output.dir" value="${basedir}/target" />
+	<property name="release.dir" value="${output.dir}/binary" />
+	<property name="packages.dir" value="${basedir}/checkout" />
+	<property name="tmp.jboss.home" value="${output.dir}/tmp" />
+
+	<property name="jboss.version" value="5.1.0.GA" />
+	<property name="release.version" value="6.1.2.GA" />
+	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip" />
+	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/" />
+	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
+	<property name="jboss.config" value="default" />
+	<property name="release.profile" value="telscale" />
+
+	<property name="mms.download.url" value="http://mobicents.googlecode.com/files/mms-server-r21834-120202212603.zip" />
+	<property name="mms.distro.zip.path" value="media-server.zip" />
+
+	<property name="ss7.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKU1VUOEpoU2tScEE&amp;export=download" />
+	<property name="ss7.distro.zip.path" value="telscale-ss7.zip" />
+
+	<property name="diameter.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKNDRXMFloQ2YybGM&amp;export=download" />
+	<property name="diameter.distro.zip.path" value="telscale-diameter.zip" />
+
+	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_6.1.1.GA-TelScale.jar" />
+	<property name="eclipslee.download.url" value="https://www.dropbox.com/s/dqj9l6x0ebbnec7/${eclipslee.jar}?dl=1" />
+
+	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${ant.file.mobicents.release}/../ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+
+	<condition property="mvn.executable" value="${sys.M2_HOME}\bin\mvn.bat">
+		<and>
+			<os family="windows" />
+			<isset property="sys.M2_HOME" />
+		</and>
+	</condition>
+
+	<condition property="mvn.executable" value="mvn.bat">
+		<and>
+			<os family="windows" />
+			<not>
+				<isset property="sys.M2_HOME" />
+			</not>
+		</and>
+	</condition>
+
+	<condition property="mvn.executable" value="${sys.M2_HOME}/bin/mvn">
+		<and>
+			<not>
+				<os family="windows" />
+			</not>
+			<isset property="sys.M2_HOME" />
+		</and>
+	</condition>
+
+	<condition property="mvn.executable" value="mvn">
+		<and>
+			<not>
+				<os family="windows" />
+			</not>
+			<not>
+				<isset property="sys.M2_HOME" />
+			</not>
+		</and>
+	</condition>
+
+	<target name="build-core" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
+			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Prelease,set-git-hash,${release.profile}" />
+		</exec>
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
+			<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/container -DdestDir=javadoc" />
+		</exec>
+	</target>
+
+	<target name="build-javaee" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="javaee" />
+			<param name="javadoc.dirs" value="" />
+		</antcall>
+	</target>
+
+	<target name="build-jdbc" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="jdbc" />
+			<param name="javadoc.dirs" value="resources/jdbc" />
+		</antcall>
+	</target>
+
+	<target name="build-sip" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="sip" />
+			<param name="javadoc.dirs" value="resources/sip11,enablers/sip-publication-client,enablers/sip-subscription-client" />
+		</antcall>
+	</target>
+
+	<target name="build-media" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="media" />
+			<param name="javadoc.dirs" value="resources/mgcp" />
+		</antcall>
+	</target>
+
+	<target name="build-diameter" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="diameter" />
+			<param name="javadoc.dirs" value="resources/diameter-base,resources/diameter-cca,resources/diameter-cx-dx,resources/diameter-gq,resources/diameter-gx,resources/diameter-rf,resources/diameter-ro,resources/diameter-rx,resources/diameter-s6a,resources/diameter-sh-client,resources/diameter-sh-server,enablers/hss-client" />
+		</antcall>
+	</target>
+
+	<target name="build-http" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="http" />
+			<param name="javadoc.dirs" value="resources/http-servlet,resources/http-client,resources/http-client-nio,enablers/rest-client" />
+		</antcall>
+	</target>
+
+	<target name="build-smpp" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="smpp" />
+			<param name="javadoc.dirs" value="resources/smpp5" />
+		</antcall>
+	</target>
+
+	<target name="build-package" description="builds a SLEE package, use package.name and javadoc.dirs to pass the package singularities">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}">
+			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
+		</exec>
+		<for delimiter="," param="dir.name" list="${javadoc.dirs}">
+			<sequential>
+				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}/@{dir.name}">
+					<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+				</exec>
+			</sequential>
+		</for>
+	</target>
+
+	<target name="build-ss7" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="ss7" />
+			<param name="javadoc.dirs" value="resources/cap,resources/map,resources/tcap" />
+		</antcall>
+	</target>
+
+	<target name="build-tftp" description="">
+		<!--
+		<antcall target="build-package">
+			<param name="package.name" value="tftp" />
+			<param name="javadoc.dirs" value="resources/tftp-server" />
+		</antcall>
+		-->
+	</target>
+
+	<target name="build-xcap" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap">
+			<arg line="versions:set -DnewVersion=${release.version}" />
+		</exec>
+		<replace dir="${packages.dir}/xcap/enablers/xdm-client" value="6.1.2.GA-TelScale">
+		  <include name="**/pom.xml"/>
+		  <replacetoken><![CDATA[6.1.1.GA-TelScale]]></replacetoken>
+		</replace>		
+		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap">
+			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
+		</exec>
+		<for delimiter="," param="dir.name" list="resources/xcap-client,enablers/xdm-client">
+			<sequential>
+				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap/@{dir.name}">
+					<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+				</exec>
+			</sequential>
+		</for>
+	</target>
+
+	<target name="build-xmpp" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="xmpp" />
+			<param name="javadoc.dirs" value="resources/xmpp" />
+		</antcall>
+	</target>
+
+	<target name="build-eclipslee" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="eclipslee" />
+			<param name="javadoc.dirs" value="" />
+		</antcall>
+	</target>
+
+	<target name="build-sip-balancer" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer">
+			<arg line="clean install -P set-git-hash,maven-release -Dmaven.test.skip=true" />
+		</exec>
+		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/jar/target">
+				<include name="**.jar" />
+			</fileset>
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/config-examples">
+				<include name="**.properties" />
+			</fileset>
+		</copy>
+		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer/docs" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/docs/jdocbook-mobicents/target/docbook/publish" />
+		</copy>
+	</target>
+
+	<target name="build-snmp-adaptor" description="Builds snmp adaptor from commscale and SLEE resources">
+                <exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor">
+					<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
+                </exec>
+
+                <unjar dest="${release.dir}/tools/snmp/snmp-adaptor.sar">
+                        <fileset dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/adaptor-service/target">
+                                <include name="**sar.jar" />
+                        </fileset>
+                </unjar>
+                <delete file="${release.dir}/tools/snmp/snmp-adaptor.sar/adaptor.mib"/>
+                <unjar dest="${release.dir}/tools/snmp/snmp.deployer">
+                        <fileset dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/deployer-service/target">
+                                <include name="**sar.jar" />
+                        </fileset>
+                </unjar>
+                
+                <copy failonerror="true" file="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/deployer-service/overrides/metadata-deployer-jboss-beans.xml" 
+                        todir="${release.dir}/tools/snmp"/> 
+        </target>
+    <!--  
+	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-sources-for-debug-zip">
+	 --> 
+	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
+	
+		<!-- copy log4j presets -->
+		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/default/conf/jboss-log4j.xml" overwrite="true" />
+		<copy file="${jboss.home}/server/all/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/all/conf/jboss-log4j.xml" overwrite="true" />
+		<!-- copy distribution readme -->
+		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
+
+		<tstamp>
+			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
+		</tstamp>
+		<delete dir="." includes="${release.profile}-slee-${release.version}.zip" />
+		<antcall target="zip-jboss">
+			<param name="zip.filename" value="${release.profile}-slee-${release.version}.zip" />
+			<param name="jboss.home" value="${jboss.home}" />
+		</antcall>
+		<delete dir="${jboss.home}" failonerror="true" />
+		<antcall target="clean" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${output.dir}" />
+	</target>
+
+	<target name="unzip-jboss">
+		<delete dir="${jboss.home}" failonerror="true" />
+		<unzip src="${jboss.distro.zip.path}" dest="${release.dir}" />
+		<antcall target="cleanup-jboss" />
+	</target>
+
+	<target name="cleanup-jboss">
+		<delete dir="${jboss.home}/server/minimal" />
+		<delete dir="${jboss.home}/server/standard" />
+		<delete dir="${jboss.home}/server/web" />
+	</target>
+
+	<!-- zip sources for debug -->
+
+	<target name="build-sources-for-debug-zip" depends="">
+		<property name="debug.src.zip.filename" value="sources.zip" />
+		<mkdir dir="${release.dir}/sources" />
+		<for param="dir.name">
+			<dirset dir="${ant.file.mobicents.release}/../checkout" includes="**/src/main/java" excludes="**/maven-archetypes/** **/management-console/**" />
+			<sequential>
+				<echo>Packaging debug src for @{dir.name}</echo>
+				<copy todir="${release.dir}/sources" includeEmptyDirs="yes">
+					<fileset dir="@{dir.name}" />
+				</copy>
+			</sequential>
+		</for>
+		<zip destfile="${release.dir}/${debug.src.zip.filename}" basedir="${release.dir}/sources" />
+		<delete dir="${release.dir}/sources" />
+	</target>
+
+	<!-- zip release -->
+
+	<target name="zip-jboss" description="">
+		<fixcrlf srcdir="${jboss.home}/bin" includes="*.sh" eol="lf" eof="remove" />
+		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" filesonly="false">
+			<zipfileset dir="${release.dir}" filemode="755" includes="**/*.sh" />
+			<zipfileset dir="${release.dir}" prefix="" excludes="**/*.sh **/server/*/data/** **/server/*/log/** **/server/*/tmp/** **/server/*/work/** **/server/tmp/**" />
+		</zip>
+		<!-- SF has checksum info, no need for this atm 
+		<antcall target="checksum">
+			<param name="source.file" value="${ant.file.mobicents.release}/../${zip.filename}" />
+			<param name="algorithm" value="sha1" />
+		</antcall>
+		-->
+	</target>
+
+	<target name="set-src-excludes">
+		<defaultexcludes add="**/target/**" />
+		<defaultexcludes add="**/docs/**" />
+		<defaultexcludes add="**/legacy/**" />
+		<defaultexcludes add="**/release/**" />
+		<defaultexcludes add="**/logs/**" />
+		<defaultexcludes add="**/tests/**" />
+		<defaultexcludes add="**/${*}/**" />
+		<defaultexcludes add="**/*JBOSS_HOME*/**" />
+		<defaultexcludes add="**/*CATALINA_HOME*/**" />
+		<defaultexcludes add="**/.gwt-cache/**" />
+		<defaultexcludes add="**/.settings/**" />
+		<defaultexcludes add="**/.project" />
+		<defaultexcludes add="**/.classpath" />
+		<defaultexcludes add="**/*.class" echo="true" />
+	</target>
+
+	<available file="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" property="got.jboss" />
+	<target name="get-jboss" unless="got.jboss">
+		<echo>Downloading JBoss AS</echo>
+		<get dest="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" src="http://downloads.sourceforge.net/jboss/jboss-${jboss.version}-jdk6.zip" />
+	</target>
+
+	<available file="${ant.file.mobicents.release}/../${mms.distro.zip.path}" property="got.mms" />
+	<target name="get-mms" unless="got.mms">
+		<!--
+		<echo>Downloading Media Server</echo>
+		<get dest="${ant.file.mobicents.release}/../${mms.distro.zip.path}" src="${mms.download.url}" />
+		-->
+	</target>
+
+	<target name="unzip-mms">
+		<!--
+		<delete dir="${release.dir}/extra/mobicents-media-server" failonerror="false" />
+		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/mobicents-media-server" />
+		-->
+	</target>
+
+	<available file="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" property="got.ss7" />
+	<target name="get-ss7" unless="got.ss7">
+		<echo>Downloading SS7</echo>
+		<get dest="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" src="${ss7.download.url}" />
+	</target>
+
+	<target name="unzip-ss7">
+		<delete dir="${release.dir}/extra/telscale-ss7" failonerror="false" />
+		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/telscale-ss7" />
+	</target>
+
+	<available file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" property="got.diameter" />
+	<target name="get-diameter" unless="got.diameter">
+		<echo>Downloading Diameter</echo>
+		<get dest="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" src="${diameter.download.url}" />
+	</target>
+
+	<target name="unzip-diameter">
+		<delete dir="${release.dir}/extra/telscale-diameter" failonerror="false" />
+		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/extra/telscale-diameter" />
+	</target>
+
+	<target name="get-eclipslee">
+		<echo>Downloading EclipSLEE</echo>
+		<mkdir dir="${release.dir}/tools/eclipslee" />
+		<get dest="${release.dir}/tools/eclipslee/${eclipslee.jar}" src="${eclipslee.download.url}" />
+	</target>
+
+	<target name="checksum">
+		<checksum file="${source.file}" algorithm="${algorithm}" fileext=".${algorithm}" forceOverwrite="yes" />
+	</target>
+
+	<target name="checkout-sources">
+		<echo>Checking out sources</echo>
+		<delete dir="${packages.dir}" />
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../">
+			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir}" />
+		</exec>
+	</target>
+
+	<target name="clean-downloads">
+		<delete file="${ant.file.mobicents.release}/../${mms.distro.zip.path}" failonerror="false" />
+		<delete file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" failonerror="false" />
+		<delete file="${ant.file.mobicents.release}/../${ss7.distro.zip.path}" failonerror="false" />
+	</target>
+
+</project>
