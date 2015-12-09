@@ -253,7 +253,7 @@
 				<para>A simple example for the usage of the Faul Tolerant Timer Task:</para>
 				
 				<programlisting language="Java" role="JAVA">
-			<![CDATA[// data, task and factory implementation
+<![CDATA[// data, task and factory implementation
 			
 package org.mobicents.slee.resource.sip11;
 
@@ -335,7 +335,8 @@ public void setFaultTolerantResourceAdaptorContext(
 	FaultTolerantTimerTaskImpl task = new FaultTolerantTimerTaskImpl(this,
 			data);
 	timer.schedule(task, 30, TimeUnit.SECONDS);
-}]]>
+}
+]]>
 		</programlisting>
 											
 			</section>

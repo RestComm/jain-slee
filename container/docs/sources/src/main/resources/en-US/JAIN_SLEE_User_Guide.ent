@@ -14,7 +14,7 @@ If this final separator is missing, then the documentation will be wrong. -->
 <!ENTITY BOOK_ID "JAIN_SLEE_User_Guide">
 <!ENTITY THIS.PLATFORM.INSTALL_SECTION "${THIS.PLATFORM.INSTALL_SECTION}">
 <!ENTITY THIS.ISSUE_TRACKER_URL "${THIS.ISSUE_TRACKER_URL}">
-<!ENTITY YEAR "2009">
+<!ENTITY YEAR "2015">
 <!ENTITY HOLDER "Telestax Inc">
 <!ENTITY AUTHOR.EMAIL.IVELIN "${author.email.ivelin}">
 <!ENTITY AUTHOR.EMAIL.EDUARDO "${author.email.eduardo}">
