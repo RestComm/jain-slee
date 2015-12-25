@@ -17,13 +17,13 @@
 		<module>api/extensions</module>
 		<module>container</module>			
 	</modules>
-		
+	
 	<scm>
 		<connection>scm:git:https://code.google.com/p/jain-slee/</connection>
 		<developerConnection>scm:git:https://code.google.com/p/jain-slee/</developerConnection>
 		<url>https://code.google.com/p/jain-slee/</url>
-	</scm>     
-			
+	</scm>
+	
 	<profiles>
 		<profile>
 			<id>maven-release</id>
