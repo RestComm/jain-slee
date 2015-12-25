@@ -8,6 +8,6 @@
 	<author>
 		<firstname>Alexandre</firstname>
 		<surname>Mendon&#231;a</surname>
-		<email>>&AUTHOR_EMAIL_ALEXANDRE;</email>
+		<email>>&AUTHOR.EMAIL.ALEXANDRE;</email>
 	</author>
 </authorgroup>
