@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <section id="slee_1_1_extensions_sbbcontext">
 	
@@ -8,7 +11,7 @@
 	<para>This extension to JAIN SLEE 1.1 introduces <filename>org.mobicents.slee.SbbContextExt</filename> interface, which extends <filename>javax.slee.SbbContext</filename> with methods to retrieve SLEE factories and facilities, avoiding the usage of JNDI context.</para>
 	
 	<programlisting language="Java" role="JAVA">
-		<![CDATA[
+<![CDATA[
 package org.mobicents.slee;
 
 import javax.slee.ActivityContextInterface;
@@ -56,7 +59,8 @@ public interface SbbContextExt extends SbbContext {
 	public ServiceActivityFactory getServiceActivityFactory();
 
 	public TimerFacility getTimerFacility();
-}]]>
+}
+]]>
     </programlisting>
     
     <variablelist>

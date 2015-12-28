@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <section id="event_router_configuration">
 	
@@ -73,7 +76,7 @@
 				    	  <row>
 				  		    <entry>executorMapperClassName</entry>
 				  		    <entry>Class</entry>
-				    	    <entry>This property defines the implementation class of Executor Mapper used by the Event Router, the one above and default uses the activity handle hashcode to do the mapping, an alternative is <classname>org.mobicents.slee.runtime.eventrouter</classname><classname>.mapping.RoundRobinEventRouterExecutorMapper</classname>, which uses Round Robin algorithm.</entry>
+				    	    <entry>This property defines the implementation class of Executor Mapper used by the Event Router, the one above and default uses the activity handle hashcode to do the mapping, an alternative is <classname>org.mobicents.slee.runtime.eventrouter</classname><classname> .mapping.RoundRobinEvent</classname><classname> RouterExecutorMapper</classname>, which uses Round Robin algorithm.</entry>
 					      </row>					 
 			    	</tbody>
 			  	</tgroup>

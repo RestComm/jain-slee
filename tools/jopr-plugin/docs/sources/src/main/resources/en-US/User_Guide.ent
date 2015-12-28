@@ -16,5 +16,5 @@ If this final separator is missing, then the documentation will be wrong. -->
 <!ENTITY YEAR "2009">
 <!ENTITY HOLDER "Red Hat Inc">
 
-<!ENTITY AUTHOR_EMAIL_ALEX "${author.email.alex}">
-<!ENTITY AUTHOR_EMAIL_IVELIN "${author.email.ivelin}">
+<!ENTITY AUTHOR.EMAIL.ALEXANDRE "${author.email.alexandre}">
+<!ENTITY AUTHOR.EMAIL.IVELIN "${author.email.ivelin}">
