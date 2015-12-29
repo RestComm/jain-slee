@@ -17,12 +17,49 @@
 	
 		<checkout.username>ze carlos</checkout.username>
 		<checkout.password />
-		<tag.version>2.8.0</tag.version>
+		<tag.version>2.8.0-SNAPSHOT</tag.version>
 		<!-- GIT -->
 
+		<core.scmVersion>2.x</core.scmVersion>
+		<core.scmVersionType>branch</core.scmVersionType>
+		<diameter.scmVersion>master</diameter.scmVersion>
+		<diameter.scmVersionType>branch</diameter.scmVersionType>
+		<eclipslee.scmVersion>master</eclipslee.scmVersion>
+		<eclipslee.scmVersionType>branch</eclipslee.scmVersionType>
+		<javaee.scmVersion>master</javaee.scmVersion>
+		<javaee.scmVersionType>branch</javaee.scmVersionType>
+		<jdbc.scmVersion>master</jdbc.scmVersion>
+		<jdbc.scmVersionType>branch</jdbc.scmVersionType>
+		<http.scmVersion>master</http.scmVersion>
+		<http.scmVersionType>branch</http.scmVersionType>
+		<media.scmVersion>master</media.scmVersion>
+		<media.scmVersionType>branch</media.scmVersionType>
+		<sip.scmVersion>master</sip.scmVersion>
+		<sip.scmVersionType>branch</sip.scmVersionType>
+		<smpp.scmVersion>master</smpp.scmVersion>
+		<smpp.scmVersionType>branch</smpp.scmVersionType>
+		<ss7.scmVersion>master</ss7.scmVersion>
+		<ss7.scmVersionType>branch</ss7.scmVersionType>
+		<tftp.scmVersion>master</tftp.scmVersion>
+		<tftp.scmVersionType>branch</tftp.scmVersionType>
+		<xcap.scmVersion>master</xcap.scmVersion>
+		<xcap.scmVersionType>branch</xcap.scmVersionType>
+		<xmpp.scmVersion>master</xmpp.scmVersion>
+		<xmpp.scmVersionType>branch</xmpp.scmVersionType>
+		<cluster.scmVersion>2.x</cluster.scmVersion>
+		<cluster.scmVersionType>branch</cluster.scmVersionType>
+		<jain-sip-ext.scmVersion>master</jain-sip-ext.scmVersion>
+		<jain-sip-ext.scmVersionType>branch</jain-sip-ext.scmVersionType>
+		<jain-sip-ha.scmVersion>master</jain-sip-ha.scmVersion>
+		<jain-sip-ha.scmVersionType>branch</jain-sip-ha.scmVersionType>
+		<sip-balancer.scmVersion>master</sip-balancer.scmVersion>
+		<sip-balancer.scmVersionType>branch</sip-balancer.scmVersionType>
+		<snmp.core.scmVersion>master</snmp.core.scmVersion>
+        	<snmp.core.scmVersionType>branch</snmp.core.scmVersionType>
+
+		<!-- 
 		<core.scmVersion>${tag.version}</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
-
 		<diameter.scmVersion>${tag.version}</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
 		<eclipslee.scmVersion>ts111ga</eclipslee.scmVersion>
@@ -56,10 +93,10 @@
 		<sip-balancer.scmVersion>ts112ga</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
 		<snmp.core.scmVersion>ts113ga</snmp.core.scmVersion>
-        <snmp.core.scmVersionType>tag</snmp.core.scmVersionType>
+		<snmp.core.scmVersionType>tag</snmp.core.scmVersionType>
+		-->
 
-<!--
-
+		<!--
 		<core.scmVersion>ts1</core.scmVersion>
 		<core.scmVersionType>branch</core.scmVersionType>
 		<diameter.scmVersion>ts1</diameter.scmVersion>
@@ -95,8 +132,8 @@
 		<sip-balancer.scmVersion>ts1</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>branch</sip-balancer.scmVersionType>
 		<snmp.core.scmVersion>ts1</snmp.core.scmVersion>
-        <snmp.core.scmVersionType>branch</snmp.core.scmVersionType>		
--->		
+        	<snmp.core.scmVersionType>branch</snmp.core.scmVersionType>		
+		-->		
 
 	</properties>
 	
@@ -178,7 +215,7 @@
 								${checkout.basedir}/extra/sip-balancer
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/load-balancer.git
+								scm:git:https://github.com/SergeyLee/load-balancer.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -196,7 +233,7 @@
 								${checkout.basedir}/core
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.git
+								scm:git:https://github.com/SergeyLee/jain-slee.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -214,7 +251,7 @@
 								${checkout.basedir}/diameter
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.diameter.git
+								scm:git:https://github.com/SergeyLee/jain-slee.diameter.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -232,10 +269,11 @@
 								${checkout.basedir}/eclipslee
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.eclipslee.git
+								scm:git:https://github.com/SergeyLee/jain-slee.eclipslee.git
 							</connectionUrl>
 						</configuration>
 					</execution>
+					
 					<execution>
 						<id>javaee-checkout</id>
 						<goals>
@@ -249,7 +287,7 @@
 								${checkout.basedir}/javaee
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.javaee.git
+								scm:git:https://github.com/SergeyLee/jain-slee.javaee.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -266,10 +304,11 @@
 								${checkout.basedir}/jdbc
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.jdbc.git
+								scm:git:https://github.com/SergeyLee/jain-slee.jdbc.git
 							</connectionUrl>
 						</configuration>
 					</execution>
+
 					<execution>
 						<id>http-checkout</id>
 						<goals>
@@ -283,10 +322,11 @@
 								${checkout.basedir}/http
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.http.git
+								scm:git:https://github.com/SergeyLee/jain-slee.http.git
 							</connectionUrl>
 						</configuration>
 					</execution>
+
 					<execution>
 						<id>media-checkout</id>
 						<goals>
@@ -300,10 +340,11 @@
 								${checkout.basedir}/media
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.media.git
+								scm:git:https://github.com/SergeyLee/jain-slee.media.git
 							</connectionUrl>
 						</configuration>
 					</execution>
+					
 					<execution>
 						<id>sip-checkout</id>
 						<goals>
@@ -317,10 +358,11 @@
 								${checkout.basedir}/sip
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.sip.git
+								scm:git:https://github.com/SergeyLee/jain-slee.sip.git
 							</connectionUrl>
 						</configuration>
 					</execution>
+					
 					<execution>
 						<id>smpp-checkout</id>
 						<goals>
@@ -334,7 +376,7 @@
 								${checkout.basedir}/smpp
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.smpp.git
+								scm:git:https://github.com/SergeyLee/jain-slee.smpp.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -352,12 +394,11 @@
 								${checkout.basedir}/ss7
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.jss7.git
+								scm:git:https://github.com/SergeyLee/jain-slee.ss7.git
 							</connectionUrl>
 						</configuration>
 					</execution>
-					
-					<!--
+										
 					<execution>
 						<id>tftp-checkout</id>
 						<goals>
@@ -371,12 +412,11 @@
 								${checkout.basedir}/tftp
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://code.google.com/p/jain-slee.tftp/
+								scm:git:https://github.com/SergeyLee/jain-slee.tftp.git
 							</connectionUrl>
 						</configuration>
 					</execution>
-					-->
-
+					
 					<execution>
 						<id>xcap-checkout</id>
 						<goals>
@@ -390,10 +430,11 @@
 								${checkout.basedir}/xcap
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.xcap.git
+								scm:git:https://github.com/SergeyLee/jain-slee.xcap.git
 							</connectionUrl>
 						</configuration>
 					</execution>
+					
 					<execution>
 						<id>xmpp-checkout</id>
 						<goals>
@@ -407,28 +448,28 @@
 								${checkout.basedir}/xmpp
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.xmpp.git
+								scm:git:https://github.com/SergeyLee/jain-slee.xmpp.git
 							</connectionUrl>
 						</configuration>
 					</execution>
 
 					<execution>
-                        <id>snmp-core-checkout</id>
-                        <goals>
-                            <goal>checkout</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <scmVersion>${snmp.core.scmVersion}</scmVersion>
-                            <scmVersionType>${snmp.core.scmVersionType}</scmVersionType>
-                            <checkoutDirectory>
-                                ${checkout.basedir}/extra/snmp-adaptor
-                            </checkoutDirectory>
-                            <connectionUrl>
-                                scm:git:https://github.com/Mobicents/jain-slee.snmp.git
-                            </connectionUrl>
-                        </configuration>
-                    </execution>
+						<id>snmp-core-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>${snmp.core.scmVersion}</scmVersion>
+							<scmVersionType>${snmp.core.scmVersionType}</scmVersionType>
+							<checkoutDirectory>
+								${checkout.basedir}/extra/snmp-adaptor
+							</checkoutDirectory>
+							<connectionUrl>
+								scm:git:https://github.com/SergeyLee/snmp-adaptor.git
+							</connectionUrl>
+						</configuration>
+					</execution>					
 
 				</executions>
 			</plugin>			
