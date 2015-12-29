@@ -128,7 +128,7 @@
 							</connectionUrl>
 						</configuration>
 					</execution>
-										
+								
 					<execution>
 						<id>jain-sip-ext-checkout</id>
 						<goals>
@@ -145,7 +145,8 @@
 								scm:git:https://github.com/Mobicents/jain-sip.ext.git
 							</connectionUrl>
 						</configuration>
-					</execution>						
+					</execution>
+						
 					<execution>
 						<id>jain-sip-ha-checkout</id>
 						<goals>
@@ -162,7 +163,8 @@
 								scm:git:https://github.com/Mobicents/jain-sip.ha.git
 							</connectionUrl>
 						</configuration>
-					</execution>							
+					</execution>
+							
 					<execution>
 						<id>sip-balancer-checkout</id>
 						<goals>

@@ -103,7 +103,7 @@
 	<target name="build-media" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="media" />
-			<param name="javadoc.dirs" value="resources/mgcp" />
+			<param name="javadoc.dirs" value="resources/mgcp,resources/mscontrol" />
 		</antcall>
 	</target>
 
@@ -144,7 +144,7 @@
 	<target name="build-ss7" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="ss7" />
-			<param name="javadoc.dirs" value="resources/cap,resources/map,resources/tcap" />
+			<param name="javadoc.dirs" value="resources/map,resources/cap,resources/tcap" />
 		</antcall>
 	</target>
 
@@ -164,7 +164,7 @@
 		<replace dir="${packages.dir}/xcap/enablers/xdm-client" value="6.1.2.GA-TelScale">
 		  <include name="**/pom.xml"/>
 		  <replacetoken><![CDATA[6.1.1.GA-TelScale]]></replacetoken>
-		</replace>		
+		</replace>
 		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap">
 			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
 		</exec>
@@ -209,30 +209,30 @@
 	</target>
 
 	<target name="build-snmp-adaptor" description="Builds snmp adaptor from commscale and SLEE resources">
-                <exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor">
-					<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
-                </exec>
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor">
+			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
+		</exec>
 
-                <unjar dest="${release.dir}/tools/snmp/snmp-adaptor.sar">
-                        <fileset dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/adaptor-service/target">
-                                <include name="**sar.jar" />
-                        </fileset>
-                </unjar>
-                <delete file="${release.dir}/tools/snmp/snmp-adaptor.sar/adaptor.mib"/>
-                <unjar dest="${release.dir}/tools/snmp/snmp.deployer">
-                        <fileset dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/deployer-service/target">
-                                <include name="**sar.jar" />
-                        </fileset>
-                </unjar>
-                
-                <copy failonerror="true" file="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/deployer-service/overrides/metadata-deployer-jboss-beans.xml" 
-                        todir="${release.dir}/tools/snmp"/> 
-        </target>
-    <!--  
-	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-sources-for-debug-zip">
-	 --> 
-	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
+		<unjar dest="${release.dir}/tools/snmp/snmp-adaptor.sar">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/adaptor-service/target">
+				<include name="**sar.jar" />
+			</fileset>
+		</unjar>
+		<delete file="${release.dir}/tools/snmp/snmp-adaptor.sar/adaptor.mib" />
+		<unjar dest="${release.dir}/tools/snmp/snmp.deployer">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/deployer-service/target">
+				<include name="**sar.jar" />
+			</fileset>
+		</unjar>
+
+		<copy failonerror="true" file="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor/deployer-service/overrides/metadata-deployer-jboss-beans.xml" todir="${release.dir}/tools/snmp" />
+	</target>
 	
+	<!--  
+	<target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-sources-for-debug-zip">
+	--> 
+	<target name="release" depends="clean,get-jboss,unzip-jboss,get-diameter,unzip-diameter,get-ss7,unzip-ss7,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-diameter,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
+
 		<!-- copy log4j presets -->
 		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/default/conf/jboss-log4j.xml" overwrite="true" />
 		<copy file="${jboss.home}/server/all/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/all/conf/jboss-log4j.xml" overwrite="true" />
