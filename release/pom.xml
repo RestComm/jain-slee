@@ -23,8 +23,8 @@
 		<core.scmVersionType>tag</core.scmVersionType>
 		<diameter.scmVersion>2.8.8</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
-		<eclipslee.scmVersion>master</eclipslee.scmVersion>
-		<eclipslee.scmVersionType>branch</eclipslee.scmVersionType>
+		<eclipslee.scmVersion>2.8.3</eclipslee.scmVersion>
+		<eclipslee.scmVersionType>tag</eclipslee.scmVersionType>
 		<javaee.scmVersion>2.8.5</javaee.scmVersion>
 		<javaee.scmVersionType>tag</javaee.scmVersionType>
 		<jdbc.scmVersion>2.8.3</jdbc.scmVersion>
@@ -52,10 +52,10 @@
 		<jain-sip-ext.scmVersionType>branch</jain-sip-ext.scmVersionType>
 		<jain-sip-ha.scmVersion>master</jain-sip-ha.scmVersion>
 		<jain-sip-ha.scmVersionType>branch</jain-sip-ha.scmVersionType>
-		<sip-balancer.scmVersion>master</sip-balancer.scmVersion>
-		<sip-balancer.scmVersionType>branch</sip-balancer.scmVersionType>
+		<sip-balancer.scmVersion>2.0.12</sip-balancer.scmVersion>
+		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
 		<snmp.core.scmVersion>master</snmp.core.scmVersion>
-        <snmp.core.scmVersionType>branch</snmp.core.scmVersionType>
+        	<snmp.core.scmVersionType>branch</snmp.core.scmVersionType>
 
 	</properties>
 	
