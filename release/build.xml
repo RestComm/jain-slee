@@ -23,10 +23,12 @@
 	<property name="mms.download.url" value="${cloudbees.url}/view/MediaServer/job/Mobicents-MediaServer-4.x/${mms.build}/artifact/bootstrap/target/mms-server.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip" />
 
-	<property name="ss7.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKU1VUOEpoU2tScEE&amp;export=download" />
-	<property name="ss7.distro.zip.path" value="telscale-ss7.zip" />
+	<!-- <property name="ss7.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKU1VUOEpoU2tScEE&amp;export=download" /> -->
+	<property name="ss7.download.url" value="${cloudbees.url}/job/Mobicents-jSS7/1317/artifact/release/mobicents-jss7-3.0.1317-1601051617.zip" />
+	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip" />
 
-	<property name="diameter.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKNDRXMFloQ2YybGM&amp;export=download" />
+	<!-- <property name="diameter.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKNDRXMFloQ2YybGM&amp;export=download" />  -->
+	<property name="diameter.download.url" value="" />
 	<property name="diameter.distro.zip.path" value="telscale-diameter.zip" />
 
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_6.1.1.GA-TelScale.jar" />
@@ -234,7 +236,7 @@
 	
 	<!-- <target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-sources-for-debug-zip"> -->
 
-	<target name="release" depends="clean,get-jboss,unzip-jboss,get-diameter,unzip-diameter,get-ss7,unzip-ss7,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-diameter,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
+	<target name="release" depends="clean,get-jboss,unzip-jboss,get-ss7,unzip-ss7,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-diameter,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
 
 		<!-- copy log4j presets -->
 		<copy file="${jboss.home}/server/default/deploy/mobicents-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/default/conf/jboss-log4j.xml" overwrite="true" />
@@ -350,7 +352,7 @@
 
 	<target name="unzip-ss7">
 		<delete dir="${release.dir}/extra/telscale-ss7" failonerror="false" />
-		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/telscale-ss7" />
+		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/mobicents-ss7" />
 	</target>
 
 	<available file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" property="got.diameter" />
@@ -361,7 +363,7 @@
 
 	<target name="unzip-diameter">
 		<delete dir="${release.dir}/extra/telscale-diameter" failonerror="false" />
-		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/extra/telscale-diameter" />
+		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/extra/mobicents-diameter" />
 	</target>
 
 	<target name="get-eclipslee">
