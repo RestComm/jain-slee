@@ -79,7 +79,7 @@
 	<target name="build-core" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
 			<!--arg line="install -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Prelease,set-git-hash,${release.profile}" /-->
-			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Pset-git-hash,${release.profile}" />
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Pset-git-hash,${release.profile}" />
 		</exec>
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
 			<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/container -DdestDir=javadoc" />
@@ -138,7 +138,7 @@
 	<target name="build-package" description="builds a SLEE package, use package.name and javadoc.dirs to pass the package singularities">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}">
 			<!--arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" /-->
-			<arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Pset-git-hash,${release.profile}" />
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Pset-git-hash,${release.profile}" />
 		</exec>
 		<for delimiter="," param="dir.name" list="${javadoc.dirs}">
 			<sequential>
