@@ -31,8 +31,8 @@
 	<property name="diameter.download.url" value="" />
 	<property name="diameter.distro.zip.path" value="telscale-diameter.zip" />
 
-	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation_6.1.1.GA-TelScale.jar" />
-	<property name="eclipslee.download.url" value="https://www.dropbox.com/s/dqj9l6x0ebbnec7/${eclipslee.jar}?dl=1" />
+	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation-2.8.3.jar" />
+	<property name="eclipslee.download.url" value="https://mobicents.ci.cloudbees.com/job/Mobicents-EclipSLEE-release/3/artifact/tools/eclipslee/plugin/plugins/org.mobicents.eclipslee.servicecreation/target/org.mobicents.eclipslee.servicecreation-2.0.0-SNAPSHOT.jar" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
