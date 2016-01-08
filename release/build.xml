@@ -32,7 +32,7 @@
 	<property name="diameter.distro.zip.path" value="telscale-diameter.zip" />
 
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation-2.8.3.jar" />
-	<property name="eclipslee.download.url" value="https://mobicents.ci.cloudbees.com/job/Mobicents-EclipSLEE-release/3/artifact/tools/eclipslee/plugin/plugins/org.mobicents.eclipslee.servicecreation/target/org.mobicents.eclipslee.servicecreation-2.0.0-SNAPSHOT.jar" />
+	<property name="eclipslee.download.url" value="${cloudbees.url}/job/Mobicents-EclipSLEE-release/3/artifact/tools/eclipslee/plugin/plugins/org.mobicents.eclipslee.servicecreation/target/org.mobicents.eclipslee.servicecreation-2.0.0-SNAPSHOT.jar" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -79,7 +79,7 @@
 	<target name="build-core" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
 			<!--arg line="install -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Prelease,set-git-hash,${release.profile}" /-->
-			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Pset-git-hash,${release.profile}" />
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Prelease,set-git-hash,${release.profile}" />
 		</exec>
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
 			<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/container -DdestDir=javadoc" />
@@ -385,7 +385,7 @@
 		<echo>Checking out sources</echo>
 		<delete dir="${packages.dir}" />
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../">
-			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir}" />
+			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} -Dcore.scmVersion=${release.version}" />
 		</exec>
 	</target>
 

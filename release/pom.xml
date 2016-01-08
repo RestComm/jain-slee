@@ -19,7 +19,7 @@
 		<checkout.password />
 		<!-- GIT -->
 
-		<core.scmVersion>2.8.5</core.scmVersion>
+		<core.scmVersion>2.8.8</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
 		<diameter.scmVersion>2.8.8</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
@@ -46,16 +46,16 @@
 		<xmpp.scmVersion>2.8.2</xmpp.scmVersion>
 		<xmpp.scmVersionType>tag</xmpp.scmVersionType>
 
-		<cluster.scmVersion>master</cluster.scmVersion>
-		<cluster.scmVersionType>branch</cluster.scmVersionType>
-		<jain-sip-ext.scmVersion>master</jain-sip-ext.scmVersion>
-		<jain-sip-ext.scmVersionType>branch</jain-sip-ext.scmVersionType>
-		<jain-sip-ha.scmVersion>master</jain-sip-ha.scmVersion>
-		<jain-sip-ha.scmVersionType>branch</jain-sip-ha.scmVersionType>
+		<cluster.scmVersion>1.15.11</cluster.scmVersion>
+		<cluster.scmVersionType>tag</cluster.scmVersionType>
+		<jain-sip-ext.scmVersion>1.3.12</jain-sip-ext.scmVersion>
+		<jain-sip-ext.scmVersionType>tag</jain-sip-ext.scmVersionType>
+		<jain-sip-ha.scmVersion>1.5.7</jain-sip-ha.scmVersion>
+		<jain-sip-ha.scmVersionType>tag</jain-sip-ha.scmVersionType>
 		<sip-balancer.scmVersion>2.0.12</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
-		<snmp.core.scmVersion>master</snmp.core.scmVersion>
-        	<snmp.core.scmVersionType>branch</snmp.core.scmVersionType>
+		<snmp.core.scmVersion>2.8.6</snmp.core.scmVersion>
+        	<snmp.core.scmVersionType>tag</snmp.core.scmVersionType>
 
 	</properties>
 	
