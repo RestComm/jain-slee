@@ -202,7 +202,8 @@
 
 	<target name="build-sip-balancer" description="">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer">
-			<arg line="clean install -P set-git-hash,maven-release -Dmaven.test.skip=true" />
+			<!--arg line="clean install -P set-git-hash,maven-release -Dmaven.test.skip=true" /-->
+			<arg line="clean install -P set-git-hash -Dmaven.test.skip=true" />
 		</exec>
 		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
 			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/jar/target">
