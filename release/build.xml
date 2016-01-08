@@ -138,7 +138,7 @@
 	<target name="build-package" description="builds a SLEE package, use package.name and javadoc.dirs to pass the package singularities">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}">
 			<!--arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" /-->
-			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Pset-git-hash,${release.profile}" />
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
 		</exec>
 		<for delimiter="," param="dir.name" list="${javadoc.dirs}">
 			<sequential>
@@ -175,7 +175,7 @@
 		</replace>
 		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap">
 			<!--arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" /-->
-			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Pset-git-hash,${release.profile}"/>
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}"/>
 		</exec>
 		<for delimiter="," param="dir.name" list="resources/xcap-client,enablers/xdm-client">
 			<sequential>
@@ -221,7 +221,7 @@
 	<target name="build-snmp-adaptor" description="Builds snmp adaptor from commscale and SLEE resources">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/extra/snmp-adaptor">
 			<!--arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" /-->
-			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Pset-git-hash,${release.profile}" />
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" />
 		</exec>
 
 		<unjar dest="${release.dir}/tools/snmp/snmp-adaptor.sar">
