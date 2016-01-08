@@ -385,7 +385,7 @@
 		<echo>Checking out sources</echo>
 		<delete dir="${packages.dir}" />
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../">
-			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} -Dcore.scmVersion=${release.version}" />
+			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} -Dcore.scmVersion=${slee.version}" />
 		</exec>
 	</target>
 
