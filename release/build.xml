@@ -213,9 +213,9 @@
 				<include name="**.properties" />
 			</fileset>
 		</copy>
-		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer/docs" overwrite="true">
+		<!--copy failonerror="true" toDir="${release.dir}/extra/sip-balancer/docs" overwrite="true">
 			<fileset dir="${ant.file.mobicents.release}/../checkout/extra/sip-balancer/docs/jdocbook-mobicents/target/docbook/publish" />
-		</copy>
+		</copy-->
 	</target>
 
 	<target name="build-snmp-adaptor" description="Builds snmp adaptor from commscale and SLEE resources">
