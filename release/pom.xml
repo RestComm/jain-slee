@@ -29,9 +29,9 @@
 		<javaee.scmVersionType>tag</javaee.scmVersionType>
 		<jdbc.scmVersion>2.8.3</jdbc.scmVersion>
 		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
-		<http.scmVersion>2.8.4</http.scmVersion>
+		<http.scmVersion>2.8.5</http.scmVersion>
 		<http.scmVersionType>tag</http.scmVersionType>
-		<media.scmVersion>2.8.4</media.scmVersion>
+		<media.scmVersion>2.8.5</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
 		<sip.scmVersion>2.8.4</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
