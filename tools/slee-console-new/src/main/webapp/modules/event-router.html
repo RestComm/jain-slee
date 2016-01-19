@@ -1,0 +1,175 @@
+<h3 style="margin: 0px;"><i class="icon-sitemap"></i> Event Router</h3>
+<hr style="margin: 10 0px;"/>
+
+<link href="resources/css/bootstrap-slider.css" rel="stylesheet">
+<script type="text/javascript" src="resources/js/bootstrap-slider.js"></script>
+<script type="text/javascript" src="resources/js/jquery-knob.js"></script>
+
+<h5>Configuration</h5>
+<div id="er-configuration-wrapper">
+	<div class="input-prepend">
+		<span class="add-on">Executor Mapper Class Name</span>
+		<input class="input-xxlarge" id="exec-mapper-class-name" type="text" placeholder="Executor Mapper Class Name" />
+	</div>
+	<div class="input-prepend">
+		<span class="add-on">Event Router Threads</span>
+		<input id="num-threads-input" type="text" class="input-mini" style="width: 25px; margin-right: 12px; text-align: center;" value="0" disabled />
+		<input id="num-threads-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" />
+	</div>
+
+	<div class="input-prepend">
+		<span class="add-on" style="margin-right: 10px;">Confirm SBB Entity Attachement</span>
+		<div id="confirm-sbb-att-toggle" class="switch" data-on-label="ON" data-off-label="OFF"><input id="confirm-sbb-att-checkbox" type="checkbox" checked /></div>
+	</div>
+	<span style="width: 100%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+	<div class="input-prepend">
+		<span class="add-on" style="margin-right: 10px;">Collect Statistics</span>
+		<div id="collect-stats-toggle" class="switch" data-on-label="ON" data-off-label="OFF"><input id="collect-stats-checkbox" type="checkbox" checked /></div>
+	</div>
+	<div class="row">
+		<span class="span12" style="text-align: right;">
+			&nbsp;<button class="btn btn-danger" onclick="updateEventRouter();"><i class="icon-undo"></i> Revert</button>
+			&nbsp;<button class="btn btn-primary" onclick="saveEventRouter();"><i class="icon-save"></i> Save</button>
+		</span>
+	</div>
+</div>
+
+<hr />
+
+<h5>Congestion Control</h5>
+<div id="congestion-control-wrapper">
+	<div class="input-prepend">
+		<span class="add-on">Period Between Checks (s)</span>
+		<input id="cc-period-input" type="text" class="input-mini" style="width: 35px; margin-right: 12px; text-align: center;" value="120" disabled />
+		<input id="cc-period-slider" type="text" class="input-xxlarge" value="" data-slider-min="0" data-slider-max="3600" data-slider-step="10" data-slider-value="120" data-slider-selection="after" />
+	</div>
+	<table style="width: 80%; margin: 10px;">
+		<tr>
+			<td style="text-align: center;"><input id="min-free-enable-knob" class="knob" data-displayPrevious="true" data-angleOffset="-125" data-angleArc="250" data-fgColor="#87CEEB" value="0" data-width="100" data-height="100" /><br />Minimum Free Memory to Enable (%)</td>
+			<td style="text-align: center;"><input id="min-free-disable-knob" class="knob" data-displayPrevious="true" data-angleOffset="-125" data-angleArc="250" data-fgColor="#87CEEB" value="100" data-width="100" data-height="100" /><br />Minimum Free Memory to Disable (%)</td>
+			<td style="text-align: center;">
+				Refuse Start Activity<br /><div id="refuse-start-activity-toggle" class="switch" data-on="danger" data-on-label="YES" data-off="success" data-off-label="NO"><input id="refuse-start-activity-checkbox" type="checkbox" checked /></div><br /><br />
+				Refuse Fire Event<br /><div id="refuse-fire-event-toggle" class="switch" data-on="danger" data-on-label="YES" data-off="success" data-off-label="NO"><input id="refuse-fire-event-checkbox" type="checkbox" /></div>
+			</td>
+		</tr>
+	</table>
+	<div class="row">
+		<span class="span12" style="text-align: right;">
+			&nbsp;<button class="btn btn-danger" onclick="updateCongestionControl();"><i class="icon-undo"></i> Revert</button>
+			&nbsp;<button class="btn btn-primary" onclick="saveCongestionControl();"><i class="icon-save"></i> Save</button>
+		</span>
+	</div>
+</div>
+
+<br />
+
+<script type="text/javascript">
+	//@ sourceURL=loadEventRouter.js
+	$(document).ready(function () {
+		$("#num-threads-slider").slider().on('slide', function(ev){ updateThreadsInput(ev.value, ev); });
+		$("#cc-period-slider").slider().on('slide', function(ev){ updatePeriodInput(ev.value, ev) });
+		$('.switch')['bootstrapSwitch']();
+		$(".knob").knob();
+
+		updateEventRouter();
+		updateCongestionControl();
+	});
+
+	function updateEventRouter() {
+		jolokia.request(
+			[
+				{ type: "read", mbean: "org.mobicents.slee:name=EventRouterConfiguration" },
+			],
+			{ success: [
+				function(response) {
+					$("#exec-mapper-class-name").val(response.value.ExecutorMapperClassName);
+					$("#num-threads-slider").slider('setValue', response.value.EventRouterThreads);
+					updateThreadsInput(response.value.EventRouterThreads);
+					$("#confirm-sbb-att-toggle").bootstrapSwitch('setState', response.value.ConfirmSbbEntityAttachement);
+					$("#collect-stats-toggle").bootstrapSwitch('setState', response.value.CollectStats);
+				}],
+				error: function(response) {
+					alert("Jolokia request failed: " + response.error);
+				} 
+			}
+		);
+	}
+	function saveEventRouter() {
+		jolokia.request(
+			[
+				{ type: "write", mbean: "org.mobicents.slee:name=EventRouterConfiguration", attribute: "ExecutorMapperClassName", value: $("#exec-mapper-class-name").val() },
+				{ type: "write", mbean: "org.mobicents.slee:name=EventRouterConfiguration", attribute: "EventRouterThreads", value: $("#num-threads-input").val() },
+				{ type: "write", mbean: "org.mobicents.slee:name=EventRouterConfiguration", attribute: "ConfirmSbbEntityAttachement", value: $("#confirm-sbb-att-checkbox").is(':checked') },
+				{ type: "write", mbean: "org.mobicents.slee:name=EventRouterConfiguration", attribute: "CollectStats", value: $("#collect-stats-checkbox").is(':checked') },
+			],
+			{
+				success: function(response) {
+					logToConsole("INFO", "Event Router configuration saved successfuly.");
+				},
+				error: function(response) {
+					handleError("Failed to save Event Router configuration, due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+	function updateCongestionControl() {
+		jolokia.request(
+			[
+				{ type: "read", mbean: "org.mobicents.slee:name=CongestionControlConfiguration" },
+			],
+			{ success: [
+				function(response) {
+					$("#min-free-enable-knob").val(response.value.MinFreeMemoryToTurnOn).change();
+					$("#min-free-disable-knob").val(response.value.MinFreeMemoryToTurnOff).change();
+					$("#cc-period-slider").slider('setValue', response.value.PeriodBetweenChecks);
+					updatePeriodInput(response.value.PeriodBetweenChecks);
+					$("#refuse-fire-event-toggle").bootstrapSwitch('setState', response.value.RefuseFireEvent);
+					$("#refuse-start-activity-toggle").bootstrapSwitch('setState', response.value.RefuseStartActivity);
+				}],
+				error: function(response) {
+					alert("Jolokia request failed: " + response.error);
+				} 
+			}
+		);
+	}
+
+	function saveCongestionControl() {
+		jolokia.request(
+			[
+				{ type: "write", mbean: "org.mobicents.slee:name=CongestionControlConfiguration", attribute: "PeriodBetweenChecks", value: $("#cc-period-input").val() == "OFF" ? 0 : $("#cc-period-input").val() },
+				{ type: "write", mbean: "org.mobicents.slee:name=CongestionControlConfiguration", attribute: "MinFreeMemoryToTurnOn", value: $("#min-free-enable-knob").val() },
+				{ type: "write", mbean: "org.mobicents.slee:name=CongestionControlConfiguration", attribute: "MinFreeMemoryToTurnOff", value: $("#min-free-disable-knob").val() },
+				{ type: "write", mbean: "org.mobicents.slee:name=CongestionControlConfiguration", attribute: "RefuseStartActivity", value: $("#refuse-start-activity-checkbox").is(':checked') },
+				{ type: "write", mbean: "org.mobicents.slee:name=CongestionControlConfiguration", attribute: "RefuseFireEvent", value: $("#refuse-fire-event-checkbox").is(':checked') },
+			],
+			{ success: function(response) {
+					logToConsole("INFO", "Congestion Control configuration saved successfuly.");
+				},
+				error: function(response) {
+					handleError("Failed to save Congestion Control configuration, due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+
+	function updateThreadsInput(value, ev) {
+		// update tooltip... not very accurate
+		if (ev) {
+			$(ev.target).prev().children(".tooltip-inner").text(value);
+		}
+		$("#num-threads-input").val(value);
+	}
+
+	function updatePeriodInput(value, ev) {
+		// update tooltip... not very accurate
+		if (ev) {
+			$(ev.target).prev().children(".tooltip-inner").text(value);			
+		}
+		if(value === 0) {
+			$("#cc-period-input").css("background-color", "#d14641").css("color", "white").val("OFF");
+		}
+		else {
+			$("#cc-period-input").css("background-color", "#EEEEEE").css("color", "").val(value);
+		}
+	}
+</script>

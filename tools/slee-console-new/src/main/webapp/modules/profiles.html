@@ -1,0 +1,366 @@
+<h3 style="margin: 0px;"><i class="icon-table"></i> Profiles</h3>
+<hr style="margin: 10 0px;"/>
+
+<div class="well" style="height: 33%">
+	<table style="width: 100%;">
+		<tr>
+			<td style="text-align: center; width: 40%;">
+				<h4>Profile Specification</h4>
+				<select id="prof-spec-select" style="width: 100%;" onchange="loadProfileTables($('#prof-spec-select option:selected').val());$('#profile-table-name, #profile-tabs, #profile-content').html('');">
+				</select>
+			</td>
+			<td style="text-align: center; width: 20%;">
+				<h1 class="prof-table-2nd-step"> <i class="icon-chevron-right"></i> </h1>
+			</td>
+			<td style="text-align: center; width: 40%;">
+				<h4 class="prof-table-2nd-step">Profile Table</h4>
+				<select class="prof-table-2nd-step" id="prof-table-select" style="width: 100%;" onchange="loadProfiles($('#prof-spec-select option:selected').val(), $('#prof-table-select option:selected').val())">
+				</select>
+				<div id="new-table-div" class="input-append" style="width: 100%; display: none;">
+					<input class="span7" id="new-table-name-input" type="text" placeholder="Table Name">
+					<button class="btn btn-primary" type="button" onclick="createProfileTable($('#prof-spec-select option:selected').val(), $(this).prev('input').val());">Create</button>
+					<button class="btn btn-inverse" type="button" onclick="$(this).parent().hide(); $('#new-table-name-input').val(''); $('#prof-table-select').val($('#prof-table-select option:first').val());">Cancel</button>
+				</div>
+				<!-- <button class="btn btn-primary pull-right">Create Table</button> -->
+			</td>
+		</tr>
+	</table>
+</div>
+<div id="profile-table-name"></div>
+<div id="profiles-wrapper" class="tabbable tabs-left">
+	<ul id="profile-tabs" class="nav nav-tabs">
+	</ul>
+	<div id="profile-content" class="tab-content">
+	</div>
+</div>
+
+<!-- New Profile Modal -->
+<div id="new-profile-modal" class="modal fade hide" tabindex="-1" role="dialog">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3><i class="icon-plus"></i> Create New Profile </h3>
+	</div>
+	<div class="modal-body">
+		<div class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" style="cursor: auto;">Profile Table</label>
+				<div class="controls">
+					<span id="new-profile-table-name" class="input-large uneditable-input"></span>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="new-profile-name">Profile Name</label>
+				<div class="controls">
+					<input class="input-large" id="new-profile-name" type="text" placeholder="Profile Name" />
+				</div>
+			</div>
+			<div class="control-group">
+				<div class="controls">
+					<label class="checkbox">
+						<input type="checkbox" checked> Commit Profile
+					</label>
+				</div>
+			</div>
+		</div>
+		<div id="profile-creation-failure" class="alert alert-error fade in" style="display: none;">
+			<a class="close" data-dismiss="alert" href="#">&times;</a>
+			Failure to create profile (<span id="profile-creation-failure-message"></span>)
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+		<button class="btn btn-primary" onclick="createProfile($('#new-profile-table-name').text(), $('#new-profile-name').val())">Create</button>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//@ sourceURL=loadProfileSpecs.js
+	function updateProfileSpecs() {
+		jolokia.request(
+			[ 
+				{ type: "read", mbean: "javax.slee.management:name=Deployment", attribute: ["ProfileSpecifications"]}
+			],
+			{ success: [ 
+				function(response) {
+					jQuery.each(response.value.ProfileSpecifications, function(i, val) {
+						// var o = new Option(val.name + " / " + val.vendor + " / " + val.version, "ProfileSpecificationID[name=" + val.name + ",vendor=" + val.vendor + ",version=" + val.version + "]");
+						var o = new Option(val.name + " / " + val.vendor + " / " + val.version, "ProfileSpecificationID[" + val.name + "#" + val.vendor + "#" + val.version + "]");
+						// jquerify the DOM object 'o' so we can use the html method
+						// $(o).text(val.name + " / " + val.vendor + " / " + val.version);
+						$("#prof-spec-select").prepend(o);
+					});
+					$("#prof-spec-select").prepend('<option value="none" disabled selected>Select a Profile Specification</option>');
+
+				}
+				],
+				error: function(response) {
+					alert("Jolokia request failed: " + response.error);
+				} 
+			}
+		);
+	}
+	function loadProfileTables(specId, callbackFunction) {
+		$("#prof-table-select").html("");
+		jolokia.request(
+			[ 
+				{ type: "exec", mbean: "javax.slee.management:name=ProfileProvisioning", operation: "getProfileTables", arguments: [specId] },
+			],
+			{ success: [ 
+				function(response) {
+					jQuery.each(response.value, function(i, val) {
+						var o = new Option(val, val);
+						// jquerify the DOM object 'o' so we can use the html method
+						// $(o).text(val.name + " / " + val.vendor + " / " + val.version);
+						$("#prof-table-select").append(o);
+					});
+
+					if ($("#prof-table-select").html() == "") {
+						$("#prof-table-select").append($(new Option("--- No Tables Available ---", "no-tables")).attr("selected", "selected").attr("disabled", "disable"));
+					}
+					else {
+						$("#prof-table-select").prepend($(new Option("Select a Profile Table", "")).attr("selected", "selected").attr("disabled", "disable"));
+					}
+					$("#prof-table-select").append($(new Option("—————————", "separator")).attr("disabled", "disable"));
+					$("#prof-table-select").append(new Option("Create Table...", "create"));
+					$(".prof-table-2nd-step").fadeIn();
+
+					if (callbackFunction) {
+						callbackFunction();
+					}
+				}
+				],
+				error: function(response) {
+					handleError("Failed to retrieve profiles tables due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+	function loadProfiles(specId, tableName, callbackFunction) {
+		if(tableName == "create") {
+			$("#new-table-div").show();
+			$("#new-table-name-input").focus();
+			return;
+		}
+		editTableNameHTML = "" + 
+			"<div id='rename-table-div' class='input-append' style='margin: 0 0 0 1px; visibility: hidden;'>" +
+				"<input type='text' id='rename-table-input' class='input' value='" + tableName + "' style='height: 1.0em; line-height: 1.0em; margin: 0;'>" + 
+				"<button class='btn btn-primary' style='line-height: 1.0em;' type='button' onclick=\"renameProfileTable($('#prof-table-select option:selected').val(), $(this).prev('input').val());\"><i class='icon-ok'></i></button>" +
+				"<button class='btn btn-inverse' style='line-height: 1.0em;' type='button' onclick=\"hideRenameTable(); $('#rename-table-input').val('" + tableName  + "');\"><i class='icon-remove'></i></button>" +
+			"</div>";
+
+		$("#profile-table-name").html("<h4>Profile Table <small id='table-name-wrapper'>'<span id='table-name-label'>" + tableName + "'</span> <i style='font-size: 12px; opacity: 0.7; cursor: pointer;' class='icon-pencil' data-toggle='tooltip' data-placement='right' title='Rename Table' onclick='showRenameTable()'></i></small>" + editTableNameHTML + "<button class='btn btn-danger btn-mini pull-right delete-table' onclick='$(\".delete-table\").hide(); $(\".delete-table-conf\").show();'>Delete Table</button><button class='btn btn-mini pull-right delete-table-conf' style='display: none;' onclick='$(\".delete-table-conf\").hide(); $(\".delete-table\").show();'> &nbsp; &nbsp; Cancel &nbsp; &nbsp; </button><span class='pull-right'>&nbsp;</span><button class='btn btn-danger btn-mini pull-right delete-table-conf' style='display: none;' onclick='deleteTable(\"" + tableName + "\");'>Delete '" + tableName + "'</button></h4><hr style='margin: 10px 0;'/>");
+		$("#profile-tabs").html("");
+		jolokia.request(
+			[ 
+				{ type: "exec", mbean: "javax.slee.management:name=ProfileProvisioning", operation: "getProfiles", arguments: [tableName] },
+			],
+			{ success: [
+				// Handle get Profiles.. create tabs
+				function(response) {
+					$("#profile-tabs").append("<li class='active'><a href='#tab-default' data-toggle='tab' onclick='loadProfile(\"" + tableName + "\",\"\")'>Default Profile</a></li>");
+					jQuery.each(response.value, function(i, val) {
+						$("#profile-tabs").append("<li><a id='tab-" + val.profileName + "' href='#tab-" + val.profileName + "' data-toggle='tab' onclick='loadProfile(\"" + tableName + "\",\"" + val.profileName + "\")'>" + val.profileName + "</a></li>");
+					});
+					$("#profile-tabs").prepend("<li data-toggle=\"popover\" data-original-title=\"<strong><i class='icon-trophy'></i> TelScale Premium Feature!</strong>\" data-content=\"<p style='text-align: left;'>This feature is only available on the TelScale™ JAIN SLEE product. For information regarding subscription, please visit <a target='_blank' href='http://www.telestax.com/'>www.telestax.com</a>.</p>\" data-html=\"true\"><a href=\"#\" onclick=\"return false;\"><i class=\"icon-search\"></i> Run Query...</a></li>");
+					$("#profile-tabs").prepend("<li><a href='#' onclick=\"$('#new-profile-modal').modal();\"><i class='icon-plus'></i> New Profile...</a></li>");
+
+					$("#profiles-wrapper").fadeIn();
+					$("[data-toggle='popover']").popover();
+					loadProfile(tableName, "");
+					if (callbackFunction) {
+						callbackFunction();
+					}
+				},
+				],
+				error: function(response) {
+					handleError("Failed to load profiles due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+	function loadProfile(tableName, profileName) {
+		//$("#profile-tabs").html("");
+		profOps = [
+			{ type: "exec", mbean: "javax.slee.management:name=ProfileProvisioning", operation: "getProfile", arguments: [tableName, profileName] },
+			{ type: "read", mbean: "javax.slee.profile:profileName=" + profileName + ",profileTableName=" + tableName + ",type=Profile" }
+		];
+		defaultOps = [
+			{ type: "exec", mbean: "javax.slee.management:name=ProfileProvisioning", operation: "getDefaultProfile", arguments: [tableName] },
+			{ type: "read", mbean: "javax.slee.profile:profileName=,profileTableName=" + tableName + ",type=Profile" },
+		];
+		jolokia.request(
+			(profileName == "" ? defaultOps : profOps),
+			{ success: [
+				// Do nothing..
+				function(response) {
+				},
+				// Get Default Profile Values.. and show them in it's tab
+				function(response) {
+					values = "";
+					jQuery.each(response.value, function(i, val) {
+						if(i != "ProfileWriteable" && i != "ProfileDirty") {
+							values += "<tr><td>" + i + "</td><td>" + ($.isArray(val) ?  (val.length == 0 ? "[ ]" : val) : val) + "</td></tr>";							
+						}
+					});
+					$("#profile-content").html(
+						"<div class='tab-pane active' id='tab-default'>" +
+							"<div class='text-right'><span class='label " + (response.value.ProfileWriteable ? "label-success" : "") + "'>WRITABLE | <i class='" + (response.value.ProfileWriteable ? "icon-check" : "icon-remove") + "'></i></span>&nbsp;&nbsp;&nbsp;<span class='label "  + (response.value.ProfileDirty ? "label-success" : "") + "'>DIRTY | <i class='" + (response.value.ProfileDirty ? "icon-check" : "icon-remove") + "'></i></span></div>" +
+							"<table class='table table-striped table-hover'>" +
+								"<thead><tr><th style='width: 25%;'>Attribute Name</th><th style='width: 75%;'>Value</th></tr>" + 
+								"<tbody>" + values + "</tbody>" +
+							"</table>" +
+						"</div>");
+					if(profileName != "") {
+						$("#profile-content").append("<br /><button class='btn btn-danger btn-mini pull-right delete-profile' onclick='$(\".delete-profile\").hide(); $(\".delete-profile-conf\").show();'>Delete Profile</button><button class='btn btn-mini pull-right delete-profile-conf' style='display: none;' onclick='$(\".delete-profile-conf\").hide(); $(\".delete-profile\").show();'> &nbsp; &nbsp; Cancel &nbsp; &nbsp; </button><span class='pull-right'>&nbsp;</span><button class='btn btn-danger btn-mini pull-right delete-profile-conf' style='display: none;' onclick='deleteProfile(\"" + tableName + "\",\"" + profileName + "\");'>Delete '" + profileName + "' @ '" + tableName + "'</button>");						
+					}
+				},
+				],
+				error: function(response) {
+					handleError("Failed to retrieve profile \"" + profileName +  "\" due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+	function createProfileTable(specId, tableName) {
+		jolokia.request(
+			[
+				{ type: "exec", mbean: "javax.slee.management:name=ProfileProvisioning", operation: "createProfileTable", arguments: [specId, tableName] },
+			],
+			{ success: [
+				// Reload ...
+				function(response) {
+					loadProfileTables(specId, function(){$('#prof-table-select').val(tableName);});
+					loadProfiles(specId, tableName);
+					$("#new-table-div").hide();
+					$('#new-table-name-input').val('');
+					logToConsole("INFO", "Profile Table '" + tableName + "' created and loaded successfuly.");
+				},
+				],
+				error: function(response) {
+					handleError("Failed to create profiles table due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+	function createProfile(tableName, profileName) {
+		jolokia.request(
+			[
+				{ type: "exec", mbean: "javax.slee.management:name=ProfileProvisioning", operation: "createProfile", arguments: [tableName, profileName] },
+				],
+			{ success: [
+				// Reload ...
+				function(response) {
+					jolokia.request(
+						[
+							{ type: "exec", mbean: "javax.slee.profile:profileName=" + profileName + ",profileTableName=" + tableName + ",type=Profile", operation: "commitProfile" }
+							],
+						{ success: [
+							// Reload ...
+							function(response) {
+								loadProfiles($('#prof-spec-select option:selected').val(), tableName, function(){$("#tab-" + profileName).click();});
+								//loadProfile(tableName, profileName);
+								$("#new-profile-modal").modal("hide");
+								logToConsole("INFO", "Profile '" + profileName + "' in table '" + tableName + "' created and loaded successfuly.");
+							},
+							],
+							error: function(response) {
+								handleError("Failed to commit profile due to \"" + response.error + "\".", response);
+							} 
+						}
+					);
+				},
+				],
+				error: function(response) {
+					$("#profile-creation-failure-message").html("\"" + response.error + "\"");
+					handleError("Failed to create profile due to \"" + response.error + "\".", response);
+					$("#profile-creation-failure").show();
+				} 
+			}
+		);
+	}
+
+	function deleteTable(tableName) {
+		jolokia.request(
+			[
+				{ type: "exec", mbean: "javax.slee.management:name=ProfileProvisioning", operation: "removeProfileTable", arguments: [tableName] },
+				],
+			{ success: [
+				// Reload ...
+				function(response) {
+					loadProfileTables($('#prof-spec-select option:selected').val());
+					$("#profile-table-name, #profile-tabs, #profile-content").html("");
+					logToConsole("INFO", "Profile Table '" + tableName + "' deleted successfuly.");
+				},
+				],
+				error: function(response) {
+					handleError("Failed to delete profile table due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+
+	function deleteProfile(tableName, profileName) {
+		jolokia.request(
+			[
+				{ type: "exec", mbean: "javax.slee.management:name=ProfileProvisioning", operation: "removeProfile", arguments: [tableName, profileName] },
+				],
+			{ success: [
+				// Reload ...
+				function(response) {
+					loadProfiles($('#prof-spec-select option:selected').val(), tableName);
+					logToConsole("INFO", "Profile '" + profileName + "' from Profile Table '" + tableName + "' deleted successfuly.");
+				},
+				],
+				error: function(response) {
+					handleError("Failed to delete profile '" + profileName + "' from table '" + tableName + "' due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+
+	function showRenameTable() {
+		$("#table-name-wrapper").hide();
+		$("#rename-table-div").css('visibility', 'visible');
+		$("#rename-table-input").focus();
+	}
+
+	function hideRenameTable() {
+		$("#rename-table-div").css('visibility', 'hidden');
+		$("#table-name-wrapper").show();
+	}
+
+	function renameProfileTable(currentTableName, newTableName) {
+		jolokia.request(
+			[
+				{ type: "exec", mbean: "javax.slee.management:name=ProfileProvisioning", operation: "renameProfileTable", arguments: [currentTableName, newTableName] },
+				],
+			{ success: [
+				// Reload ...
+				function(response) {
+					$("#table-name-label").text(newTableName);
+					hideRenameTable();
+					loadProfileTables($('#prof-spec-select option:selected').val(), function(){$('#prof-table-select').val(newTableName);});
+					logToConsole("INFO", "Profile Table '" + currentTableName + "' renamed to '" + newTableName + "' successfuly.");
+				},
+				],
+				error: function(response) {
+					handleError("Failed to rename Profile Table '" + currentTableName + "' to '" + newTableName + "' due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+
+	$('#new-profile-modal').on('show', function () {
+		$("#new-profile-table-name").text($('#prof-table-select option:selected').val());
+		$("#new-profile-name").val("");
+	});
+	$('#new-profile-modal').on('shown', function () {
+		$("#new-profile-name").focus();
+	});
+	$('#new-profile-modal').on('hidden', function () {
+	});
+	$(document).ready(function () {
+		updateProfileSpecs();
+		$("[data-toggle='tooltip']").tooltip();
+	});
+</script>

@@ -1,0 +1,112 @@
+					<h3 style="margin: 0px;"><i class="icon-copy"></i> Deployable Units</h3>
+					<hr style="margin: 10 0px;"/>
+
+					<span style="float:right;">
+						<button id="refresh" style="float: right; margin-right: 20px; margin-left: 20px;" class="btn btn-medium btn-success" data-toggle="tooltip" data-placement="left" title="Refresh Deployable Units List" onclick="updateDeployableUnits();" ><i class="icon-refresh"></i></button>
+						<input id="dus-filter-input" type="text" style="float: right; height: 28px;"class="input-large search-query" placeholder="Filter Deployable Units" onkeyup="filterDeployableUnitsList()"></input>
+					</span><span id="dus-summary"></span>
+							<table id="browse-dus-table" class="table table-hover">
+								<thead>
+									<tr>
+										<th style="width: 30px;">&nbsp;</th>
+										<th>Name</th>
+										<th style="width: 64px;">Actions</th>
+									</tr>
+								</thead>
+							</table>
+							<!-- Does not work due to filesystem fake path :(
+							<input id="realfile" type="file" style="visibility: hidden;" onchange="onFileChange();" />
+							<div id="du-filename-box" class="attachment form-inline" style="display: none;">
+								<span id="du-filename" class="text-side-label">UNDEFINED</span>
+								<span style="margin-left: 15px;">
+									<label class="checkbox text-side-label" style="font-size: 12px; font-weight: bold;">
+										<input id="du-persistent" type="checkbox" checked> Persistent
+									</label>
+								</span>
+
+								<button id="file-confirm-btn" onclick="confirmDeployableUnitInstall();"><i class="icon-ok"></i>Install</button>
+								<button id="file-remove-btn" onclick="cancelDeployableUnitInstall();"><i class="icon-remove"></i> Cancel</button>
+							</div>
+							<button id="install-du-btn" class="btn btn-small btn-inverse" style="float: right;" onclick="$('input[id=realfile]').click();" ><i class="icon-plus"></i> Install Deployable Unit...</button>
+							-->
+							<span class="span12" style="width: 95%; text-align: right;">
+							<div id="du-install-box" class="input-append" style="display: none;">
+								<input id="du-filename-path" class="span8" type="text" placeholder="Insert the path to your Deployable Unit file" />
+								<button id="jmx-install-btn" onclick="doDeployableUnitInstall(false);" class="btn" >JMX Install</button>
+								<button id="persistent-install-btn" onclick="doDeployableUnitInstall(true);" class="btn">Persistent Install</button>
+								<button id="cancel-install-btn" class="btn btn-inverse" onclick="cancelDeployableUnitInstall();">Cancel</button>
+							</div>
+							<button id="show-install-btn" class="btn btn-inverse" onclick="showDeployableUnitPathInput();" ><i class="icon-plus"></i> Install DU</button>
+							</span>
+<!--
+						</div>
+						<div class="tab-pane" id="search">S</div>
+						<div class="tab-pane" id="install">I</div>
+-->
+					</div>
+
+			<script type="text/javascript">
+					function updateDeployableUnits() {
+						jolokia.request(
+							[ 
+								{ type: "read", mbean: "javax.slee.management:name=Deployment", attribute: ["DeployableUnits"]}
+							],
+							{ success: [ 
+								function(response) {
+									dus = response.value.DeployableUnits;
+									$('#dus-summary').html('<h5>Deployable Units (' + dus.length + ')</h5>')
+									$('.du-row').remove();
+									$('.du-row-details').remove();
+
+									icons = {
+										"javax.slee.resource.ResourceAdaptorTypeID":"icon-check-empty",
+										"javax.slee.ServiceID":"icon-cogs",
+										"javax.slee.management.LibraryID":"icon-reorder",
+										"javax.slee.SbbID":"icon-cog",
+										"javax.slee.EventTypeID":"icon-bolt",
+										"javax.slee.resource.ResourceAdaptorID":"icon-signout",
+										"javax.slee.profile.ProfileSpecificationID":"icon-list-alt",
+									}
+
+									jQuery.each(response.value.DeployableUnits, function() {
+										url = this.uRL;
+										duDesc = jolokia.request(
+											[
+												{ type: "exec", mbean: "javax.slee.management:name=Deployment", operation: "getDescriptor(javax.slee.management.DeployableUnitID)", arguments: ["DeployableUnitID[" + url + "]"] }
+											]
+										);
+
+										splitURL = url.split("/");
+
+										compz = [];
+										// jQuery.each(duDesc[0].value.components, function(i, val) { compz.push( i + "[name=" + val.name + ",vendor=" + val.vendor + ",version=" + val.version + "]") })
+										jQuery.each(duDesc[0].value.components, function(i, val) { compz.push( '<span style="width: 12px; display: inline-block;"><i class="' + icons[val.class.name] + '"></i></span> ' + val.name + " / " + val.vendor + " / " + val.version) })
+
+										$('#browse-dus-table').append('<tr class="du-row"><td><i class="icon-file"></i></td><td style="cursor: pointer;" onclick="$(this).parent().next().toggle();">' + splitURL[splitURL.length - 2] + '</td><td style="text-align: center;"><button class="btn btn-danger" data-toggle="tooltip" data-placement="left" title="Uninstall Deployable Unit" onclick="uninstallDeployableUnit(\'DeployableUnitID[' + url + ']\')"><i class="icon-remove"></i></button></td><span></tr>' +
+
+											'<tr class="text-info du-row-details" style="display: none;"><td colspan=3>' + 
+											'<dl class="dl-horizontal" style="font-size: 0.8em;">' + 
+											'<dt>ID</dt> <dd>DeployableUnitID[' + duDesc[0].value.uRL + '] </dd>' + 
+											'<dt>Deployment Date</dt> <dd>' + duDesc[0].value.deploymentDate + ' </dd>' + 
+											'<dt>Filename</dt> <dd>' + duDesc[0].value.uRL + ' </dd>' + 
+											'<dt>Components</dt> <dd>' + compz.join("<br /> ")  + ' </li></dd>' + 
+											'</dl></td></tr>'
+
+											);
+
+
+										$("[data-toggle='tooltip']").tooltip();
+									});
+									filterDeployableUnitsList();
+								}
+								],
+								error: function(response) {
+									alert("Jolokia request failed: " + response.error);
+								} 
+							}
+						);
+					}
+				$(document).ready(function () {
+					updateDeployableUnits();
+				});
+			</script>

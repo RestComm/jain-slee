@@ -1,0 +1,172 @@
+<h3 style="margin: 0px;"><i class="icon-book"></i> Loggers</h3>
+<hr style="margin: 10 0px;"/>
+
+<div class="row">
+	<span class="span12" style="text-align: right;">
+		&nbsp;<button class="btn btn-small" onclick="$('textarea').toggleClass('hardcore-code');"><i class="icon-eye-open"></i></button>
+	</span>
+</div>
+
+<div id="op-wrapper" class="tabbable">
+	<ul id="op-tabs" class="nav nav-tabs">
+		<li class="active"><a href="#default-logger-tab" data-toggle="tab"><i class="icon-reorder"></i> Default</a></li>
+		<li><a href="#production-logger-tab" data-toggle="tab"><i class="icon-asterisk"></i> Production</a></li>
+		<li><a href="#debug-logger-tab" data-toggle="tab"><i class="icon-cog"></i> Debug</a></li>
+		<li><a href="#trace-logger-tab" data-toggle="tab"><i class="icon-cogs"></i> Trace</a></li>
+		<!-- <li><a href="#" onclick="$('#new-log-template-modal').modal();" data-toggle="tab"><i class="icon-plus"></i> Create New</a></li> -->
+	</ul>
+	<div id="logger-content" class="tab-content">
+		<div class="tab-pane active" id="default-logger-tab" style="margin-left: 10px;">
+			<textarea id="default-logger-text" rows="20" class="span12 code" style="resize: vertical;" onkeyup="updateCounter(this);"></textarea>
+			<span class="label label-inverse"><span id="default-logger-length">0</span> / <span class="max-len">0</span> chars</span>
+			<div class="row">
+				<span class="span12" style="text-align: right;">
+					&nbsp;<button class="btn btn-danger" onclick="updateLogger('default');"><i class="icon-undo"></i> Revert</button>
+					&nbsp;<button class="btn btn-primary" onclick="saveLogger('default');"><i class="icon-save"></i> Save Changes</button>
+					&nbsp;<button class="btn btn-inverse" onclick="switchLogger('default');"><i class="icon-copy"></i> Set Configuration</button>
+				</span>
+			</div>
+		</div>
+		<div class="tab-pane" id="production-logger-tab" style="margin-left: 10px;">
+			<textarea id="production-logger-text" rows="20" class="span12 code" style="resize: vertical;" onkeyup="updateCounter(this);"></textarea>
+			<span class="label label-inverse"><span id="production-logger-length">0</span> / <span class="max-len">0</span> chars</span>
+			<div class="row">
+				<span class="span12" style="text-align: right;">
+					&nbsp;<button class="btn btn-danger" onclick="updateLogger('production');"><i class="icon-undo"></i> Revert</button>
+					&nbsp;<button class="btn btn-primary" onclick="saveLogger('production');"><i class="icon-save"></i> Save Changes</button>
+					&nbsp;<button class="btn btn-inverse" onclick="switchLogger('production');"><i class="icon-copy"></i> Set Configuration</button>
+				</span>
+			</div>
+		</div>
+		<div class="tab-pane" id="debug-logger-tab" style="margin-left: 10px;">
+			<textarea id="debug-logger-text" rows="20" class="span12 code" style="resize: vertical;" onkeyup="updateCounter(this);"></textarea>
+			<span class="label label-inverse"><span id="debug-logger-length">0</span> / <span class="max-len">0</span> chars</span>
+			<div class="row">
+				<span class="span12" style="text-align: right;">
+					&nbsp;<button class="btn btn-danger" onclick="updateLogger('debug');"><i class="icon-undo"></i> Revert</button>
+					&nbsp;<button class="btn btn-primary" onclick="saveLogger('debug');"><i class="icon-save"></i> Save Changes</button>
+					&nbsp;<button class="btn btn-inverse" onclick="switchLogger('debug');"><i class="icon-copy"></i> Set Configuration</button>
+				</span>
+			</div>
+		</div>
+		<div class="tab-pane" id="trace-logger-tab" style="margin-left: 10px;">
+			<textarea id="trace-logger-text" rows="20" class="span12 code" style="resize: vertical;" onkeyup="updateCounter(this);"></textarea>
+			<span class="label label-inverse"><span id="trace-logger-length">0</span> / <span class="max-len">0</span> chars</span>
+			<div class="row">
+				<span class="span12" style="text-align: right;">
+					&nbsp;<button class="btn btn-danger" onclick="updateLogger('trace');"><i class="icon-undo"></i> Revert</button>
+					&nbsp;<button class="btn btn-primary" onclick="saveLogger('trace');"><i class="icon-save"></i> Save Changes</button>
+					&nbsp;<button class="btn btn-inverse" onclick="switchLogger('trace');"><i class="icon-copy"></i> Set Configuration</button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="new-log-template-modal" class="modal fade hide" tabindex="-1" role="dialog">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3><i class="icon-plus"></i> Create New Log Template </h3>
+	</div>
+	<div class="modal-body">
+		<div class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="new-log-template-name">Template Name</label>
+				<div class="controls">
+					<input class="input-large" id="new-log-template-name" type="text" placeholder="Template Name" />
+				</div>
+			</div>
+		</div>
+		<div id="log-template-creation-failure" class="alert alert-error fade in" style="display: none;">
+			<a class="close" data-dismiss="alert" href="#">&times;</a>
+			Failure to create log template (<span id="log-template-creation-failure-message"></span>)
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+		<button class="btn btn-primary" onclick="createLogTemplate($('#new-log-template-name').val())">Create</button>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+	maxLen = 2000;
+
+	//@ sourceURL=loadLogger.js
+	$(document).ready(function () {
+		updateLoggers();
+		$(".max-len").text(maxLen);
+	});
+
+	function updateLoggers() {
+		logfiles = jolokia.request(
+			[
+				{ type: "exec", mbean: "org.mobicents.slee:service=MobicentsManagement", operation: "getLoggingConfiguration", arguments: ["default"] },
+				{ type: "exec", mbean: "org.mobicents.slee:service=MobicentsManagement", operation: "getLoggingConfiguration", arguments: ["production"] },
+				{ type: "exec", mbean: "org.mobicents.slee:service=MobicentsManagement", operation: "getLoggingConfiguration", arguments: ["debug"] },
+				{ type: "exec", mbean: "org.mobicents.slee:service=MobicentsManagement", operation: "getLoggingConfiguration", arguments: ["trace"] },
+			]
+		);
+
+		$("#default-logger-text").val(logfiles[0].value);
+		$("#production-logger-text").val(logfiles[1].value);
+		$("#debug-logger-text").val(logfiles[2].value);
+		$("#trace-logger-text").val(logfiles[3].value);
+
+		setTimeout(function() {$("#default-logger-text").keyup();}, 500);
+		setTimeout(function() {$("#production-logger-text").keyup();}, 500);
+		setTimeout(function() {$("#debug-logger-text").keyup();}, 500);
+		setTimeout(function() {$("#trace-logger-text").keyup();}, 500);
+	}
+
+	function updateLogger(name) {
+		logfile = jolokia.request(
+			{ type: "exec", mbean: "org.mobicents.slee:service=MobicentsManagement", operation: "getLoggingConfiguration", arguments: [name] }
+		);
+
+		$("#" + name + "-logger-text").val(logfile.value);
+		$("#" + name + "-logger-text").keyup();
+	}
+
+	function saveLogger(name) {
+		text = jolokia.escape($("#" + name + "-logger-text").val());
+		logfile = jolokia.request(
+			{ type: "exec", mbean: "org.mobicents.slee:service=MobicentsManagement", operation: "setLoggingConfiguration", arguments: [name, text] },
+			{
+				success: function(response) {
+					logToConsole("INFO", "Logger configuration '" + name + "' saved successfuly.");
+				},
+				error: function(response) {
+					handleError("Failed to save Logger configuration '" + name + "', due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+
+	function switchLogger(name) {
+		jolokia.request(
+			{ type: "exec", mbean: "org.mobicents.slee:service=MobicentsManagement", operation: "switchLoggingConfiguration", arguments: [name] },
+			{
+				success: function(response) {
+					logToConsole("INFO", "Switched successfully to the '" + name + "' logger configuration.");
+				},
+				error: function(response) {
+					handleError("Failed to switch to the '" + name + "' logger configuration, due to \"" + response.error + "\".", response);
+				}
+			}
+		);
+	}
+
+	function updateCounter(el) {
+		len = $(el).val().length;
+		label = $(el).next("span.label");
+		label.children("span").first().text(len);
+		if(len > maxLen) {
+			label.removeClass("label-inverse label-warning").addClass("label-important");
+		}
+		else if(len > maxLen * .95) {
+			label.removeClass("label-inverse label-important").addClass("label-warning");
+		}
+
+	}
+</script>

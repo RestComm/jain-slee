@@ -1,0 +1,143 @@
+					<h3 style="margin: 0px;"><i class="icon-cogs"></i> Services</h3>
+					<hr style="margin: 10 0px;"/>
+ 					<span class="span5 offset7">
+						<button id="refresh" style="float: right; margin-right: 20px; margin-left: 20px; height: 30px;" class="btn btn-medium btn-success" data-toggle="tooltip" data-placement="left" title="Refresh Components List" onclick="updateServices();" ><i class="icon-refresh"></i></button>
+						<!-- <div class="input-prepend input-append">
+							<span class="add-on">Filter Services</span>
+							<input id="comp-filter-input-name" type="text" style="height: 30px; border-right: 0px;"class="input-medium filter-component" placeholder="Name" onkeyup="filterComponents()"></input>
+							<input id="comp-filter-input-vendor" type="text" style="height: 30px; border-right: 0px;"class="input-medium filter-component" placeholder="Vendor" onkeyup="filterComponents()"></input>
+							<input id="comp-filter-input-version" type="text" style="height: 30px;"class="input-small filter-component" placeholder="Version" onkeyup="filterComponents()"></input>
+							<button class="btn btn-danger" type="button" data-toggle="tooltip" data-placement="top" title="Clear All Filters" onclick="filterComponentsClear();">X</button>
+ 						</div> -->
+						<div class="input-prepend input-append">
+							<label class="checkbox inline">
+								<input id="cb-toggle-active" type="checkbox" onchange="this.checked ? $('.active-service').show() : $('.active-service').hide(); checkShowServices();" checked> Active&nbsp;
+							</label>
+							<label class="checkbox inline">
+								<input id="cb-toggle-inactive" type="checkbox" onchange="this.checked ? $('.inactive-service').show() : $('.inactive-service').hide(); checkShowServices();" checked> Inactive&nbsp;
+							</label>
+							<label class="checkbox inline">
+								<input id="cb-toggle-stopping" type="checkbox" onchange="this.checked ? $('.stopping-service').show() : $('.stopping-service').hide(); checkShowServices();" checked> Stopping&nbsp;
+							</label>
+						</div>
+					</span>
+
+					<span id="services-table-wrapper">
+						<table id="no-services-table" class="table" style="display: none;">
+							<tr>
+								<td>
+									<div class="alert alert-info fade in" >
+										<strong>No Services!</strong> There are no services matching the filtering criteria.
+									</div>
+								</td>
+							</tr>
+						</table>
+
+						<table id="services-table" class="table table-hover">
+							<thead>
+								<tr>
+									<th style="width: 30px;">&nbsp;</th>
+									<th>Name</th>
+									<th style="text-align: center; width: 64px;">Actions</th>
+									<th>&nbsp;</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="multi-service-operations" style="display: none;">
+									<td>&nbsp;</td>
+									<td style="color: #AAA">Selected Items</td>
+									<td style="text-align: center; width: 64px;">
+										<button class="btn btn-small btn-success" data-toggle="tooltip" title="Activate Selected" data-placement="bottom" ><i class="icon-play"> </i></button> 
+										<button class="btn btn-small btn-danger" data-toggle="tooltip" title="Deactivate Selected" data-placement="bottom" ><i class="icon-stop"> </i></button> 
+										<!-- <button class="btn btn-inverse" data-toggle="tooltip" title="Deactivate and Activate Selected" data-placement="bottom" ><i class="icon-repeat"> </i></button> -->
+									</td>
+									<td>
+										<input id="all-services-checkbox" type="checkbox" class="large-checkbox" data-toggle="tooltip" data-placement="bottom" title="Select/Deselect All" onchange="selectAllServices(this)" />
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</span>
+
+			<script type="text/javascript">
+				function updateServices() {
+					jolokia.request(
+						[
+							{ type: "read", mbean: "javax.slee.management:name=Deployment", attribute: ["Services"] }
+						],
+						{ success: 
+							function(response) {
+								events = response.value.EventTypes;
+								$('.service-row').remove();
+								$('.service-row-details').remove();
+
+								// Some constants for easier accessing response objects
+								SVC_STATE = 0;
+								SVC_DESCR = 1;
+								SVC_SBBS  = 2;
+								SBB_ENTIT = 3;
+
+								jQuery.each(response.value.Services, function() {
+									serviceDetails = jolokia.request(
+										[
+											{ type: "exec", mbean: "javax.slee.management:name=ServiceManagement", operation: "getState", arguments: ["ServiceID[" + this.name + "#" + this.vendor + "#" + this.version + "]"] },
+											{ type: "exec", mbean: "javax.slee.management:name=Deployment", operation: "getDescriptor(javax.slee.ComponentID)", arguments: ["ServiceID[" + this.name + "#" + this.vendor + "#" + this.version + "]"] },
+											{ type: "exec", mbean: "javax.slee.management:name=Deployment", operation: "getSbbs", arguments: ["ServiceID[" + this.name + "#" + this.vendor + "#" + this.version + "]"] },
+											{ type: "exec", mbean: "org.mobicents.slee:name=SbbEntitiesMBean", operation: "retrieveAllSbbEntities", arguments: [] },
+										]
+									);
+									isActive = serviceDetails[SVC_STATE].value.active;
+									isStopping = serviceDetails[SVC_STATE].value.stopping;
+									isInactive = serviceDetails[SVC_STATE].value.inactive;
+
+									serviceClass = isActive ? 'active' : (isInactive ? 'inactive' : 'stopping');
+
+									serviceDesc = serviceDetails[SVC_DESCR].value;
+									
+									sbbz = [];
+									jQuery.each(serviceDetails[SVC_SBBS].value, function(i, val) { sbbz.push( val.name + " / " + val.vendor + " / " + val.version) });
+
+									sbbe = {};
+									jQuery.each(serviceDetails[SBB_ENTIT].value, function(i, val) { sbbe[val[3]] = val; });
+
+									$('.multi-service-operations').parent().prepend('<tr class="service-row ' + serviceClass + '-service" style="' + ($("#cb-toggle-" +  serviceClass).is(":checked") ? '' : 'display: none;') + '"><td style="vertical-align: middle; text-align: center;"><i style="color: ' + (isActive ? '#51A351' : '#BD362F') + ';" class="' + (isActive ? 'icon-play-circle' : 'icon-remove-circle') + '"></i></td><td style="cursor: pointer;" onclick="$(this).parent().next().toggle();">' + this.name + '</td>' +
+										'<td style="font-size: 16px; vertical-align: middle; text-align: center; width: 110px;">' + 
+											'<button class="btn btn-small btn-success"' + (isActive || isStopping  ? 'disabled' : '') + ' data-toggle="tooltip" title="Activate Service" data-placement="bottom" onclick="serviceOperation(\'activate\', \'ServiceID[' + this.name + '#' + this.vendor + '#' + this.version + ']\')"><i class="icon-play"> </i></button> ' +
+											'<button class="btn btn-small btn-danger"' + (isInactive || isStopping ? 'disabled' : '') + ' data-toggle="tooltip" title="Deactivate Service" data-placement="bottom" onclick="serviceOperation(\'deactivate\', \'ServiceID[' + this.name + '#' + this.vendor + '#' + this.version + ']\')"><i class="icon-stop"> </i></button> ' +
+										// '<button class="btn btn-inverse"' + (isInactive || isStopping ? 'disabled' : '') + ' data-toggle="tooltip" title="Activate Selected" data-placement="bottom" onclick="serviceOperation(\'deactivateAndActivate\', \'' + this.name + '#' + this.vendor + '#' + this.version + '\')"><i class="icon-repeat"> </i></button>' +
+										'<span data-toggle="tooltip" title="View Usage Parameters" data-placement="bottom" ><button class="btn btn-small btn-info" data-placement="left" onclick="" data-toggle=\"popover\" data-original-title=\"<strong><i class=\'icon-trophy\'></i> TelScale Premium Feature!</strong>\" data-content=\"<p style=\'text-align: left;\'>This feature is only available on the TelScale™ JAIN SLEE product. For information regarding subscription, please visit <a target=\'_blank\' href=\'http://www.telestax.com/\'>www.telestax.com</a>.</p>\" data-html=\"true\"><i class="icon-bar-chart"> </i></button></span>' +
+										'</td>' +
+										'<td><input type="checkbox" class="service-checkbox large-checkbox" onchange="selectService($(this));" /></td></tr>' +
+										'<tr class="text-info service-row-details" style="display: none;"><td colspan=3>' +
+										'<dl class="dl-horizontal" style="font-size: 0.8em;">' + 
+										'<dt>ID</dt> <dd>ServiceID[name=' + serviceDesc.iD.name + ',vendor=' + serviceDesc.iD.vendor + ',version=' + serviceDesc.iD.version + '] </dd>' + 
+										'<dt>Descriptor</dt> <dd>' + serviceDesc.source + '</dd>' + 
+										'<dt>Deployable Unit</dt> <dd>DeployableUnitID[url=' + serviceDesc.deployableUnit.uRL + ']</dd>' + 
+										'<dt>Library References</dt> <dd>' + (serviceDesc.libraries.length > 0 ? serviceDesc.libraries : '-') + '</dd>' + 
+										'<hr style="margin: 5px 0;"/>' +
+										'<dt>Address Profile</dt> <dd>' + (serviceDesc.addressProfileTable ? serviceDesc.addressProfileTable : '-') + '</dd>' + 
+										'<dt>Resource Info Profile</dt> <dd>' + (serviceDesc.resourceInfoProfileTable ? serviceDesc.resourceInfoProfileTable : '-') + '</dd>' + 
+										'<dt>Root SBB</dt> <dd><i class="icon-cog"></i> ' + serviceDesc.rootSbb.name + ' / ' + serviceDesc.rootSbb.vendor + ' / ' + serviceDesc.rootSbb.version + '</dd>' + 
+										'<hr style="margin: 5px 0;"/>' +
+										'<dt>SBBs</dt> <dd><i class="icon-cog"></i> ' + sbbz.join('<br /><i class="icon-cog"></i> ') + '</dd>' + 
+										'<hr style="margin: 5px 0;"/>' +
+										'<dt>Root SBB Entities</dt> <dd>' + (sbbe['SbbID[name=' + serviceDesc.rootSbb.name + ',vendor=' + serviceDesc.rootSbb.vendor + ',version=' + serviceDesc.rootSbb.version + ']'] ? '<i class="icon-cog icon-spin" style="opacity: 0.5;"></i> ' + sbbe['SbbID[name=' + serviceDesc.rootSbb.name + ',vendor=' + serviceDesc.rootSbb.vendor + ',version=' + serviceDesc.rootSbb.version + ']'][0]  : '-') + '</dd>' + 
+										'</dl>' +
+										'<td></tr>');
+
+									tableString = '';
+									checkShowServices();
+									$("[data-toggle='popover']").popover();
+								});
+							},
+							error: function(response) {
+								handleError("Failed to retrieve services list, due to \"" + response.error + "\".", response);
+							} 
+						}
+					);
+				}
+				$(document).ready(function () {
+					updateServices();
+					setAutoCancellableInterval(30000, "updateServices", "Services");
+				});
+			</script>

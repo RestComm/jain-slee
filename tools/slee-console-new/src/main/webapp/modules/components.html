@@ -1,0 +1,76 @@
+<h3 style="margin: 0px;"><i class="icon-th-large"></i> Components</h3>
+<hr style="margin: 10 0px;"/>
+<span class="span12" style="text-align: right;">
+	<div class="input-prepend input-append">
+		<span class="add-on">Filter Components</span>
+		<input id="comp-filter-input-name" type="text" style="border-right: 0px;"class="input-medium filter-component" placeholder="Name" onkeyup="filterComponents()"></input>
+		<input id="comp-filter-input-vendor" type="text" style="border-right: 0px;"class="input-medium filter-component" placeholder="Vendor" onkeyup="filterComponents()"></input>
+		<input id="comp-filter-input-version" type="text" style=""class="input-small filter-component" placeholder="Version" onkeyup="filterComponents()"></input>
+		<button class="btn btn-danger" type="button" data-toggle="tooltip" data-placement="top" title="Clear All Filters" onclick="filterComponentsClear();">X</button>
+	</div>
+	<button id="refresh" style="margin: -10px 20px 0 20px;" class="btn btn-medium btn-success" data-toggle="tooltip" data-placement="left" title="Refresh Components List" onclick="updateComponents();" ><i class="icon-refresh"></i></button>
+</span>
+<span id="components-table-wrapper">
+	<table id="components-table" class="table table-hover">
+		<thead>
+			<tr>
+				<th style="width: 30px;">&nbsp;</th>
+				<th>Component Type</th>
+				<th style="text-align: center; width: 64px;">Count</th>
+			</tr>
+		</thead>
+	</table>
+</span>
+
+<script type="text/javascript">
+		function updateComponents() {
+			jolokia.request(
+				[ 
+					{ type: "read", mbean: "javax.slee.management:name=Deployment", attribute: ["EventTypes", "ProfileSpecifications", "Sbbs", "ResourceAdaptorTypes", "ResourceAdaptors", "Services", "Libraries"]}
+				],
+				{ success: [ 
+					function(response) {
+						events = response.value.EventTypes;
+						$('.component-row').remove();
+						$('.component-row-details').remove();
+						icons = {
+							"ResourceAdaptorTypes":"icon-check-empty",
+							"Services":"icon-cogs",
+							"Libraries":"icon-reorder",
+							"Sbbs":"icon-cog",
+							"EventTypes":"icon-bolt",
+							"ResourceAdaptors":"icon-signout",
+							"ProfileSpecifications":"icon-list-alt",
+						}
+						jQuery.each(response.value, function(i, val) {
+							$('#components-table').append('<tr class="component-row"><td style="text-align: center;"><i style="color: #CC9522;" class="' + icons[i] + '"></i></td><td>' + i + '</td><td class="component-row-count" style="text-align: center;">' + val.length + '</td>');
+
+							tableString = '<table class="table table-condensed table-striped"><thead><th> </th><th>Name</th><th>Vendor</th><th>Version</th>';
+							for (var i = 0; i < val.length; i++) {
+								url = val[i].name;
+								splitURL = url.split("/");
+								tableString += ('<tr class="component-id-row"><td> </td><td>' + val[i].name + '</td><td>' + val[i].vendor + '</td><td>' + val[i].version + '</td></tr>');
+							}
+							tableString += '</table>';
+
+							$('#components-table').append('<tr class="component-row-details" style="background-color: none;"><td class="component-row-details-cell" colspan="3">' + tableString + '</td>');
+						});
+
+						$('.component-row').on('click', function() {
+							$(this).next().toggle();
+							$(this).toggleClass("bold");
+						});
+						filterDeployableUnitsList();
+					}
+					],
+					error: function(response) {
+						alert("Jolokia request failed: " + response.error);
+					} 
+				}
+			);
+		}
+	$(document).ready(function () {
+		updateComponents();
+		$("[data-toggle='tooltip']").tooltip();
+	});
+</script>

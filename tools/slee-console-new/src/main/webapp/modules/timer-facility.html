@@ -1,0 +1,78 @@
+<h3 style="margin: 0px;"><i class="icon-time"></i> Timer Facility</h3>
+<hr style="margin: 10 0px;"/>
+
+<table class="table">
+	<tr>
+		<td style="text-align: center;">Purge Period (minutes)</td>
+		<td style="text-align: center;">Timer Threads</td>
+		<td style="text-align: center;">Task Execution Waits For Tx Commit Confirmation</td>
+	</tr>
+	<tr>
+		<td style="text-align: center;">
+			<input id="purge-period-knob" class="knob" data-displayPrevious="true" data-fgColor="#87CEEB" value="0" data-max="720" data-step="5" data-width="100" data-height="100" />
+		</td>
+		<td style="text-align: center;">
+			<input id="timer-threads-knob" class="knob" data-displayPrevious="true" data-cursor="true" data-fgColor="#88dd33" value="0" data-max="128" data-step="1" data-width="100" data-height="100" />
+		</td>
+		<td style="text-align: center;">
+			<div class="input-prepend input-append">
+				<div id="wait-tx-commit-confirmation-toggle" class="switch" data-on-label="ON" data-off-label="OFF"><input id="wait-tx-commit-confirmation-checkbox" type="checkbox" checked /></div>
+			</div>
+		</td>
+	</tr>
+</table>
+<div class="row">
+	<span class="span12" style="text-align: right;">
+		&nbsp;<button class="btn btn-danger" onclick="updateTimerFacility();"><i class="icon-undo"></i> Revert</button>
+		&nbsp;<button class="btn btn-primary" onclick="saveTimerFacility();"><i class="icon-save"></i> Save</button>
+	</span>
+</div>
+
+
+<script type="text/javascript" src="resources/js/jquery-knob.js"></script>
+
+<script type="text/javascript">
+	//@ sourceURL=loadTimerFacility.js
+	$(document).ready(function () {
+		$('.switch')['bootstrapSwitch']();
+		$(".knob").knob();
+		updateTimerFacility();
+	});
+
+	function updateTimerFacility() {
+		jolokia.request(
+			[
+				{ type: "read", mbean: "org.mobicents.slee:name=TimerFacilityConfiguration" },
+			],
+			{ success: [
+				function(response) {
+					$("#purge-period-knob").val(response.value.PurgePeriod).change();
+					$("#timer-threads-knob").val(response.value.TimerThreads).change();
+					$("#wait-tx-commit-confirmation-toggle").bootstrapSwitch('setState', response.value.TaskExecutionWaitsForTxCommitConfirmation);
+				}],
+				error: function(response) {
+					handleError("Failed to load Timer Facility configuration, due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+
+	function saveTimerFacility() {
+		jolokia.request(
+			[
+				{ type: "write", mbean: "org.mobicents.slee:name=TimerFacilityConfiguration", attribute: "PurgePeriod", value: $("#purge-period-knob").val() },
+				{ type: "write", mbean: "org.mobicents.slee:name=TimerFacilityConfiguration", attribute: "TimerThreads", value: $("#timer-threads-knob").val() },
+				{ type: "write", mbean: "org.mobicents.slee:name=TimerFacilityConfiguration", attribute: "TaskExecutionWaitsForTxCommitConfirmation", value: $("#wait-tx-commit-confirmation-checkbox").is(':checked') }
+			],
+			{
+				success: function(response) {
+					logToConsole("INFO", "Timer Facility configuration saved successfuly.");
+				},
+				error: function(response) {
+					handleError("Failed to save Timer Facility configuration, due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+</script>
+

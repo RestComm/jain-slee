@@ -1,0 +1,155 @@
+<h3 style="margin: 0px;"><i class="icon-comments-alt"></i> Activities</h3>
+<hr style="margin: 10 0px;"/>
+
+<div><h5>Configuration<span class="pull-right"><button onclick="$('#activities-configuration-wrapper').toggle(); $(this).children('i').toggleClass('icon-chevron-up').toggleClass('icon-chevron-down');" class="btn btn-mini"><i class="icon-chevron-down"></i></button></span></h5></div>
+<div id="activities-configuration-wrapper" class="form-inline" style="display: none;">
+		<div class="input-prepend input-append">
+			<span class="add-on">Liveness Queries Interval</span>
+			<input id="liveness-queries-interval-input" type="text" class="input input-mini text-right" style="text-align: center; width: 35px;" value="60">
+			<span class="add-on">seconds</span>
+		</div>
+		<span>&nbsp;</span>
+		<div class="input-prepend input-append">
+			<span class="add-on">Activity Context Max Idle Time</span>
+			<input id="act-ctx-max-idle-time-input" type="text" class="input input-mini" style="text-align: center; width: 35px;" value="60">
+			<span class="add-on">seconds</span>
+		</div>
+		<div style="width: 100%; text-align: right;">
+			&nbsp;<button class="btn btn-danger" onclick="getActivitiesConfiguration();"><i class="icon-undo"></i> Revert</button>
+			&nbsp;<button class="btn btn-primary" onclick="saveActivitiesConfiguration();"><i class="icon-save"></i> Save</button>
+		</div>
+</div>
+
+<hr/>
+
+<span class="span2 offset10">
+	<button id="acts-query-liveness" style="height: 30px;" class="btn btn-medium btn-info" data-toggle="tooltip" data-placement="left" title="Query Activity Context Liveness" onclick="updateActivities();" ><i class="icon-time"></i></button>
+	<button id="acts-refresh" style="height: 30px;" class="btn btn-medium btn-success" data-toggle="tooltip" data-placement="left" title="Refresh Activities" onclick="updateActivities();" ><i class="icon-refresh"></i></button>
+</span>
+
+<span id="acts-table-wrapper" style="display: none;">
+	<table id="acts-table" class="table table-hover">
+		<thead>
+			<tr>
+				<th style="width: 30px;">&nbsp;</th>
+				<th>Activity Context ID</th>
+				<th>TTL (s)</th>
+				<th>Class Name</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</span>
+
+<br/>
+
+<div id="acts-alert" class="alert text-center" style="display: none;">
+...
+</div>
+
+<script type="text/javascript">
+	//@ sourceURL=loadActivities.js
+	function getActivitiesConfiguration() {
+		jolokia.request(
+			{ type: "read", mbean: "org.mobicents.slee:name=ActivityManagementMBean", attribute: ["ActivityContextMaxIdleTime", "TimeBetweenLivenessQueries"] },
+			{
+				success: function(response) {
+					$("#act-ctx-max-idle-time-input").val(response.value.ActivityContextMaxIdleTime);
+					$("#liveness-queries-interval-input").val(response.value.TimeBetweenLivenessQueries);
+				},
+				error: function(response) {
+					handleError("Failed to retrieve activities configuration, due to \"" + response.error + "\".", response);
+				}
+			}
+		);
+	}
+
+	function saveActivitiesConfiguration() {
+		jolokia.request([
+			{ type: "write", mbean: "org.mobicents.slee:name=ActivityManagementMBean", attribute: "ActivityContextMaxIdleTime", value: $("#act-ctx-max-idle-time-input").val() },
+			{ type: "write", mbean: "org.mobicents.slee:name=ActivityManagementMBean", attribute: "TimeBetweenLivenessQueries", value: $("#liveness-queries-interval-input").val() },
+			],
+			{
+				success: function(response) {
+				},
+				error: function(response) {
+					handleError("Failed to save activities configuration, due to \"" + response.error + "\".", response);
+				}
+			}
+		);
+	}
+	function updateActivities() {
+		AC_ID = 0;
+		ACTIVITY_CLASS = 1;
+		LAST_ACCESS_TIME = 2;
+		RA_ENTITY = 3;
+		SBB_ATTACHMENTS = 4;
+		NAMES_BOUND_TO = 5;
+		TIMERS_ATTACHED = 6;
+		DATA_PROPERTIES = 7;
+
+		$('#acts-table-wrapper').hide();
+		$('#acts-alert').hide()
+
+		acTimeout = (60 * 1000); // default
+		curTime = new Date().getTime();
+
+		jolokia.request(
+			[
+				{ type: "read", mbean: "org.mobicents.slee:name=ActivityManagementMBean", attribute: ["ActivityContextMaxIdleTime", "TimeBetweenLivenessQueries"] },
+				{ type: "exec", mbean: "org.mobicents.slee:name=ActivityManagementMBean", operation: "listActivityContexts", arguments: ["true"] },
+			],
+			{ success: [ 
+				function(response) {
+					$("#act-ctx-max-idle-time-input").val(response.value.ActivityContextMaxIdleTime);
+					$("#liveness-queries-interval-input").val(response.value.TimeBetweenLivenessQueries);
+					acTimeout = (response.value.ActivityContextMaxIdleTime * 1000);
+				},
+				function(response) {
+					$('#acts-table').children('tbody').html("");
+					if(response.value.length > 0) {
+						jQuery.each(response.value, function() {
+							$('#acts-table').children('tbody').append(
+								'<tr class="act-row" style="cursor: pointer;" onclick="$(this).next().toggle();">' +
+									'<td style="text-align: center;"><i class="icon-comments-alt"></i></td>' +
+									'<td>' + this[AC_ID] + '</td>' +
+									'<td>' + (acTimeout - parseInt((curTime - this[LAST_ACCESS_TIME]) / 1000)) + '</td>' +
+									'<td>' + shorten(this[ACTIVITY_CLASS], 30, 30) + '</td>' + 
+								'</tr>' +
+								'<tr class="text-info" style="display: none;">' +
+									'<td colspan=4>' + 
+										'<dl class="dl-horizontal" style="font-size: 0.8em;">' + 
+											'<dt>ID</dt> <dd>' + this[AC_ID] + '</dd>' + 
+											'<dt>Activity Class</dt> <dd>' + this[ACTIVITY_CLASS] + '</dd>' + 
+											'<dt>Last Access Timestamp</dt> <dd>' + this[LAST_ACCESS_TIME] + '</dd>' + 
+											'<dt>Timers</dt> <dd>' + (this[TIMERS_ATTACHED] && this[TIMERS_ATTACHED].length > 0 ? this[TIMERS_ATTACHED] : '-') + '</dd>' + 
+											'<dt>Data Attributes</dt> <dd>' + (this[DATA_PROPERTIES] && this[DATA_PROPERTIES].length > 0 ? this[DATA_PROPERTIES] : '-') + '</dd>' + 
+											'<dt>Name Bindings</dt> <dd>' + (this[NAMES_BOUND_TO] && this[NAMES_BOUND_TO].length > 0 ? this[NAMES_BOUND_TO] : '-') + '</dd>' + 
+											'<dt>RA Entity</dt> <dd>' + (this[RA_ENTITY] && this[RA_ENTITY].length > 0 ? this[RA_ENTITY] : '-') + '</dd>' + 
+											'<dt>SBB Attachments</dt> <dd>' + (this[SBB_ATTACHMENTS] && this[SBB_ATTACHMENTS].length > 0 ? this[SBB_ATTACHMENTS] : '-') + '</dd>' + 
+										'</dl>' +
+									'</td>' +
+								'</tr>');
+						});
+						$('#acts-table-wrapper').fadeIn();
+					}
+					else {
+						$('#acts-alert').removeClass('alert-error').html("<h2>There are no activities.</h2>That means no leaks too!");
+						$('#acts-alert').fadeIn()
+					}
+				}],
+				error: function(response) {
+					$('#acts-alert').addClass('alert-error').html("<h2>Unable to retrieve activities</h2>");
+					$('#acts-alert').fadeIn()
+					handleError("Failed to retrieve activities, due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+					$("[data-toggle='tooltip']").tooltip();
+	}
+	$(document).ready(function () {
+		updateActivities();
+	});
+</script>
+

@@ -1,0 +1,273 @@
+<h3 style="margin: 0px;"><i class="icon-cloud"></i> SBB and Profile Object Pools</h3>
+<hr style="margin: 10 0px;"/>
+
+<link href="resources/css/bootstrap-slider.css" rel="stylesheet">
+<script type="text/javascript" src="resources/js/bootstrap-slider.js"></script>
+<script type="text/javascript" src="resources/js/jquery-knob.js"></script>
+
+<div id="op-wrapper" class="tabbable">
+	<ul id="op-tabs" class="nav nav-tabs">
+		<li class="active"><a href="#sbb-op-tab" data-toggle="tab"><i class="icon-cog"></i> SBB Object Pool</a></li>
+		<li><a href="#profile-op-tab" data-toggle="tab"><i class="icon-table"></i> Profile Object Pool</a></li>
+	</ul>
+	<div id="sbb-op-content" class="tab-content">
+		<div class="tab-pane active" id="sbb-op-tab" style="margin-left: 10px;">
+			<h5 style="border-bottom: 1px solid #DDD;">Active Instances Configuration</h5>
+			<div>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="maximum number of objects that can be allocated by the pool (checked out to clients, or idle awaiting checkout) at a given time"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="maximum number of objects that can be allocated by the pool (checked out to clients, or idle awaiting checkout) at a given time">
+					<span class="add-on">Maximum Active</span>
+					<input id="sbb-pool-max-active-input" type="text" class="input-mini" style="width: 60px; margin-right: 12px; text-align: center;" value="0" />
+					<!-- <input id="sbb-pool-max-active-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+				&nbsp;
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="action to take when the trying to borrow an object and the pool is exhausted (the maximum number of &quot;active&quot; objects has been reached)"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="action to take when the trying to borrow an object and the pool is exhausted (the maximum number of &quot;active&quot; objects has been reached)">
+					<span class="add-on" style="border-radius: 4px;">Action When Exhausted</span>
+					<select id="sbb-pool-exhaust-action-select" style="margin: 0 10px; width: 100px;">
+						<option>FAIL</option>
+						<option>BLOCK</option>
+						<option>GROW</option>
+					</select>
+				</span>
+				&nbsp;
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="maximum amount of time (in ms) it should block while trying to borrow an object when exhausted action is set to block"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="maximum amount of time (in ms) it should block while trying to borrow an object when exhausted action is set to block">
+					<span class="add-on">Maximum Wait</span>
+					<input id="sbb-pool-max-wait-input" type="text" class="input-mini" style="width: 60px; text-align: center;" value="0" />
+					<span style="margin-right: 12px;" class="add-on">ms</span>
+					<!-- <input id="sbb-pool-max-wait-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+			</div>
+
+			<h5 style="border-bottom: 1px solid #DDD;">Idle Instances Configuration</h5>
+			<span>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="maximum number of &quot;idle&quot; instances in the pool"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="maximum number of &quot;idle&quot; instances in the pool">
+					<span class="add-on">Maximum Idle</span>
+					<input id="sbb-pool-max-idle-input" type="text" class="input-mini" style="width: 60px; margin-right: 12px; text-align: center;" value="0" />
+					<!-- <input id="sbb-pool-max-idle-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+			</span>
+
+			<span>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="minimum number of objects allowed in the pool before the evictor thread (if active) spawns new objects"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="minimum number of objects allowed in the pool before the evictor thread (if active) spawns new objects">
+					<span class="add-on">Minimum Idle</span>
+					<input id="sbb-pool-min-idle-input" type="text" class=" input-mini" style="width: 60px; margin-right: 12px; text-align: center;" value="0" />
+				</span>
+				<!-- <input id="sbb-pool-min-idle-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+			</span>
+
+			<h5 style="border-bottom: 1px solid #DDD;">Instance Validation Configuration</h5>
+			<div>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated before being returned by the borrowObject() method. If the object fails to validate, it will be dropped from the pool, and we will attempt to borrow another"><i class="icon-info-sign"></i></span> -->
+				<div class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated before being returned by the borrowObject() method. If the object fails to validate, it will be dropped from the pool, and we will attempt to borrow another">
+					<span class="add-on" style="margin-right: 12px; border-radius: 4px;">Test on Borrow</span>
+					<div id="sbb-pool-test-borrow-toggle" class="switch" data-on-label="ON" data-off-label="OFF"><input id="sbb-pool-test-borrow-checkbox" type="checkbox" checked /></div>
+				</div>
+
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated before being returned by the borrowObject() method. If the object fails to validate, it will be dropped from the pool, and we will attempt to borrow another"><i class="icon-info-sign"></i></span> -->
+				<div class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated before being returned by the borrowObject() method. If the object fails to validate, it will be dropped from the pool, and we will attempt to borrow another">
+					<span class="add-on" style="margin-left: 12px; margin-right: 12px; border-radius: 4px;">Test on Return</span>
+					<div id="sbb-pool-test-return-toggle" class="switch" data-on-label="ON" data-off-label="OFF"><input id="sbb-pool-test-borrow-checkbox" type="checkbox" checked /></div>
+				</div>
+
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated by the idle object evictor (if any). If an object fails to validate, it will be dropped from the pool"><i class="icon-info-sign"></i></span> -->
+				<div class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated by the idle object evictor (if any). If an object fails to validate, it will be dropped from the pool">
+					<span class="add-on" style="margin-left: 12px; margin-right: 12px; border-radius: 4px;">Test while Idle</span>
+					<div id="sbb-pool-test-idle-toggle" class="switch" data-on-label="ON" data-off-label="OFF"><input id="sbb-pool-test-borrow-checkbox" type="checkbox" checked /></div>
+				</div>
+			</div>
+
+			<h5 style="border-bottom: 1px solid #DDD;">Instance Eviction Configuration</h5>
+			<div>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="number of milliseconds to sleep between runs of the idle object evictor thread"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="number of milliseconds to sleep between runs of the idle object evictor thread">
+					<span class="add-on">Eviction Runs Interval</span>
+					<input id="sbb-pool-eviction-runs-period-input" type="text" class="input-mini" style="width: 60px; text-align: center;" value="0" />
+					<span style="margin-right: 12px;" class="add-on">ms</span>
+					<!-- <input id="sbb-pool-eviction-runs-period-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+
+				&nbsp;
+
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="max number of objects to examine during each run of the idle object evictor thread (if any)"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="max number of objects to examine during each run of the idle object evictor thread (if any)">
+					<span class="add-on">Tests per Eviction Run</span>
+					<input id="sbb-pool-num-tests-eviction-run-input" type="text" class="input-mini" style="width: 60px; margin-right: 12px; text-align: center;" value="0" />
+					<!-- <input id="sbb-pool-num-tests-eviction-run-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+
+				&nbsp;
+
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="minimum amount of time an object may sit idle in the pool before it is eligible for eviction by the idle object evictor (if any)"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="minimum amount of time an object may sit idle in the pool before it is eligible for eviction by the idle object evictor (if any)">
+					<span class="add-on">Min. Evictable Idle Time</span>
+					<input id="sbb-pool-min-evictable-idle-time-input" type="text" class="input-mini" style="width: 60px; text-align: center;" value="0" />
+					<span style="margin-right: 12px;" class="add-on">ms</span>
+					<!-- <input id="sbb-pool-min-evictable-idle-time-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+			</div>
+		</div>
+		<div class="tab-pane" id="profile-op-tab" style="margin-left: 10px;">
+			<h5 style="border-bottom: 1px solid #DDD;">Active Instances Configuration</h5>
+			<div>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="maximum number of objects that can be allocated by the pool (checked out to clients, or idle awaiting checkout) at a given time"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="maximum number of objects that can be allocated by the pool (checked out to clients, or idle awaiting checkout) at a given time">
+					<span class="add-on">Maximum Active</span>
+					<input id="profile-pool-max-active-input" type="text" class="input-mini" style="width: 60px; margin-right: 12px; text-align: center;" value="0" />
+					<!-- <input id="profile-pool-max-active-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+				&nbsp;
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="action to take when the trying to borrow an object and the pool is exhausted (the maximum number of &quot;active&quot; objects has been reached)"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="action to take when the trying to borrow an object and the pool is exhausted (the maximum number of &quot;active&quot; objects has been reached)">
+					<span class="add-on" style="border-radius: 4px;">Action When Exhausted</span>
+					<select style="margin: 0 10px; width: 100px;">
+						<option>FAIL</option>
+						<option>BLOCK</option>
+						<option>GROW</option>
+					</select>
+				</span>
+				&nbsp;
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="maximum amount of time (in ms) it should block while trying to borrow an object when exhausted action is set to block"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="maximum amount of time (in ms) it should block while trying to borrow an object when exhausted action is set to block">
+					<span class="add-on">Maximum Wait</span>
+					<input id="profile-pool-max-wait-input" type="text" class="input-mini" style="width: 60px; text-align: center;" value="0" />
+					<span style="margin-right: 12px;" class="add-on">ms</span>
+					<!-- <input id="profile-pool-max-wait-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+			</div>
+
+			<h5 style="border-bottom: 1px solid #DDD;">Idle Instances Configuration</h5>
+			<span>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="maximum number of &quot;idle&quot; instances in the pool"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="maximum number of &quot;idle&quot; instances in the pool">
+					<span class="add-on">Maximum Idle</span>
+					<input id="profile-pool-max-idle-input" type="text" class="input-mini" style="width: 60px; margin-right: 12px; text-align: center;" value="0" />
+					<!-- <input id="profile-pool-max-idle-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+			</span>
+
+			<span>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="minimum number of objects allowed in the pool before the evictor thread (if active) spawns new objects"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="minimum number of objects allowed in the pool before the evictor thread (if active) spawns new objects">
+					<span class="add-on">Minimum Idle</span>
+					<input id="profile-pool-min-idle-input" type="text" class=" input-mini" style="width: 60px; margin-right: 12px; text-align: center;" value="0" />
+				</span>
+				<!-- <input id="profile-pool-min-idle-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+			</span>
+
+			<h5 style="border-bottom: 1px solid #DDD;">Instance Validation Configuration</h5>
+			<div>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated before being returned by the borrowObject() method. If the object fails to validate, it will be dropped from the pool, and we will attempt to borrow another"><i class="icon-info-sign"></i></span> -->
+				<div class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated before being returned by the borrowObject() method. If the object fails to validate, it will be dropped from the pool, and we will attempt to borrow another">
+					<span class="add-on" style="margin-right: 12px; border-radius: 4px;">Test on Borrow</span>
+					<div id="profile-pool-test-borrow-toggle" class="switch" data-on-label="ON" data-off-label="OFF"><input id="profile-pool-test-borrow-checkbox" type="checkbox" checked /></div>
+				</div>
+
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated before being returned by the borrowObject() method. If the object fails to validate, it will be dropped from the pool, and we will attempt to borrow another"><i class="icon-info-sign"></i></span> -->
+				<div class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated before being returned by the borrowObject() method. If the object fails to validate, it will be dropped from the pool, and we will attempt to borrow another">
+					<span class="add-on" style="margin-left: 12px; margin-right: 12px; border-radius: 4px;">Test on Return</span>
+					<div id="profile-pool-test-return-toggle" class="switch" data-on-label="ON" data-off-label="OFF"><input id="profile-pool-test-borrow-checkbox" type="checkbox" checked /></div>
+				</div>
+
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated by the idle object evictor (if any). If an object fails to validate, it will be dropped from the pool"><i class="icon-info-sign"></i></span> -->
+				<div class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="when true, objects will be validated by the idle object evictor (if any). If an object fails to validate, it will be dropped from the pool">
+					<span class="add-on" style="margin-left: 12px; margin-right: 12px; border-radius: 4px;">Test while Idle</span>
+					<div id="profile-pool-test-idle-toggle" class="switch" data-on-label="ON" data-off-label="OFF"><input id="profile-pool-test-borrow-checkbox" type="checkbox" checked /></div>
+				</div>
+			</div>
+
+			<h5 style="border-bottom: 1px solid #DDD;">Instance Eviction Configuration</h5>
+			<div>
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="number of milliseconds to sleep between runs of the idle object evictor thread"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="number of milliseconds to sleep between runs of the idle object evictor thread">
+					<span class="add-on">Eviction Runs Interval</span>
+					<input id="profile-pool-eviction-runs-period-input" type="text" class="input-mini" style="width: 60px; text-align: center;" value="0" />
+					<span style="margin-right: 12px;" class="add-on">ms</span>
+					<!-- <input id="profile-pool-eviction-runs-period-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+
+				&nbsp;
+
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="max number of objects to examine during each run of the idle object evictor thread (if any)"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend" data-toggle="tooltip" data-placement="bottom" title="max number of objects to examine during each run of the idle object evictor thread (if any)">
+					<span class="add-on">Tests per Eviction Run</span>
+					<input id="profile-pool-num-tests-eviction-run-input" type="text" class="input-mini" style="width: 60px; margin-right: 12px; text-align: center;" value="0" />
+					<!-- <input id="profile-pool-num-tests-eviction-run-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+
+				&nbsp;
+
+				<!-- <span style="vertical-align: top; opacity: 0.3;" class="label" data-toggle="tooltip" data-placement="bottom" title="minimum amount of time an object may sit idle in the pool before it is eligible for eviction by the idle object evictor (if any)"><i class="icon-info-sign"></i></span> -->
+				<span class="input-prepend input-append" data-toggle="tooltip" data-placement="bottom" title="minimum amount of time an object may sit idle in the pool before it is eligible for eviction by the idle object evictor (if any)">
+					<span class="add-on">Min. Evictable Idle Time</span>
+					<input id="profile-pool-min-evictable-idle-time-input" type="text" class="input-mini" style="width: 60px; text-align: center;" value="0" />
+					<span style="margin-right: 12px;" class="add-on">ms</span>
+					<!-- <input id="profile-pool-min-evictable-idle-time-slider" type="text" class="input-xxlarge" value="" data-slider-min="1" data-slider-max="256" data-slider-step="1" /> -->
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//@ sourceURL=loadEventRouter.js
+	$(document).ready(function () {
+		// $("#sbb-pool-max-active-slider").slider().on('slide', function(ev){ /*updateThreadsInput(ev.value, ev);*/ });
+		// $("#sbb-pool-max-wait-slider").slider().on('slide', function(ev){ /*updateThreadsInput(ev.value, ev);*/ });
+		// $("#sbb-pool-max-idle-slider").slider().on('slide', function(ev){ /*updateThreadsInput(ev.value, ev);*/ });
+		// $("#sbb-pool-min-idle-slider").slider().on('slide', function(ev){ updateThreadsInput(ev.value, ev); });
+		// $("#sbb-pool-eviction-runs-period-slider").slider().on('slide', function(ev){ /*updateThreadsInput(ev.value, ev);*/ });
+		// $("#sbb-pool-num-tests-eviction-run-slider").slider().on('slide', function(ev){ /*updateThreadsInput(ev.value, ev);*/ });
+		// $("#sbb-pool-min-evictable-idle-time-slider").slider().on('slide', function(ev){ /*updateThreadsInput(ev.value, ev);*/ });
+		$('.switch')['bootstrapSwitch']();
+		$(".knob").knob();
+
+		updateSBBObjectPool();
+	});
+
+	function updateSBBObjectPool() {
+		jolokia.request(
+			[
+				{ type: "read", mbean: "org.mobicents.slee:service=SbbObjectPoolManagement" },
+				{ type: "read", mbean: "org.mobicents.slee:service=ProfileObjectPoolManagement" },
+			],
+			{ success: [
+				function(response) {
+					$("#sbb-pool-max-active-input").val(response.value.MaxActive);
+					$("#sbb-pool-exhaust-action-select option:eq(" + response.value.WhenExhaustedAction + ")").prop("selected", "selected");
+					$("#sbb-pool-max-wait-input").val(response.value.MaxWait);
+					$("#sbb-pool-max-idle-input").val(response.value.MaxIdle);
+					$("#sbb-pool-min-idle-input").val(response.value.MinIdle);
+					$("#sbb-pool-test-borrow-toggle").bootstrapSwitch('setState', response.value.TestOnBorrow);
+					$("#sbb-pool-test-return-toggle").bootstrapSwitch('setState', response.value.TestOnReturn);
+					$("#sbb-pool-test-idle-toggle").bootstrapSwitch('setState', response.value.TestWhileIdle);
+					$("#sbb-pool-eviction-runs-period-input").val(response.value.TimeBetweenEvictionRunsMillis);
+					$("#sbb-pool-num-tests-eviction-run-input").val(response.value.NumTestsPerEvictionRun);
+					$("#sbb-pool-min-evictable-idle-time-input").val(response.value.MinEvictableIdleTimeMillis);
+				},
+				function(response) {
+					$("#profile-pool-max-active-input").val(response.value.MaxActive);
+					$("#profile-pool-exhaust-action-select option:eq(" + response.value.WhenExhaustedAction + ")").prop("selected", "selected");
+					$("#profile-pool-max-wait-input").val(response.value.MaxWait);
+					$("#profile-pool-max-idle-input").val(response.value.MaxIdle);
+					$("#profile-pool-min-idle-input").val(response.value.MinIdle);
+					$("#profile-pool-test-borrow-toggle").bootstrapSwitch('setState', response.value.TestOnBorrow);
+					$("#profile-pool-test-return-toggle").bootstrapSwitch('setState', response.value.TestOnReturn);
+					$("#profile-pool-test-idle-toggle").bootstrapSwitch('setState', response.value.TestWhileIdle);
+					$("#profile-pool-eviction-runs-period-input").val(response.value.TimeBetweenEvictionRunsMillis);
+					$("#profile-pool-num-tests-eviction-run-input").val(response.value.NumTestsPerEvictionRun);
+					$("#profile-pool-min-evictable-idle-time-input").val(response.value.MinEvictableIdleTimeMillis);
+				},
+				],
+				error: function(response) {
+					handleError("Failed to load Timer Facility configuration, due to \"" + response.error + "\".", response);
+				} 
+			}
+		);
+	}
+
+</script>
+

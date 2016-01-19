@@ -1,0 +1,169 @@
+				<h3 style="margin: 0px;"><i class="icon-hdd"></i> SLEE Management</h3>
+				<hr style="margin: 10 0px;"/>
+
+				<p id="slee-version"></p>
+				<div class="well" style="padding: 5px;">
+					<table style="width: 100%;">
+						<tr><td style="width: 33%"><div class="text-center"><h2><small><i class="icon-desktop"></i> CPU Usage</small></h2></div></td><td style="width: 33%"><div class="text-center"><h2><small><i class="icon-tasks"></i> Memory Usage</small></h2></div></td><td style="width: 33%"><div class="text-center"><h2><small><i class="icon-time"></i> Server Uptime</small></h2></div></td></tr>
+						<tr><td><div id="cpu-chart-container"></div></td><td><div id="mem-chart-container"></div></td><td><h1 style="text-align: center; font-family: monospace;"id="uptime-container"></h1></td></tr>
+					</table>
+				</div>
+				<p style="text-align: center;">
+					<span id="slee-state"></span>
+					<!--
+					<button id="start-slee" class="btn btn-small btn-success"><i class="icon-play"></i> Start</button> 
+					<button id="stop-slee" class="btn btn-small btn-inverse"><i class="icon-stop"></i> Stop</button> 
+					<button id="shutdown-slee" class="btn btn-small btn-danger"><i class="icon-off"></i> Shutdown</button>
+					-->
+					<button id="start-slee" class="btn btn-small" onclick="changeSleeState('start')"><i class="icon-play" style="color: #5BB75B;"></i> Start</button> 
+					<button id="stop-slee" class="btn btn-small" onclick="changeSleeState('stop')"><i class="icon-stop" style="color: #000000;"></i> Stop</button> 
+					<button id="shutdown-slee" class="btn btn-small" onclick="changeSleeState('shutdown')"><i class="icon-off" style="color: #DA4F49;"></i> Shutdown</button>
+				</p>
+
+				<script type='text/javascript'>
+					//@ sourceURL=loadGoogleCharts.js
+					function drawCharts() {
+						// var factory = new BatchRequestsFactory();
+						// factory.create({
+						// 	type: 'read',
+						// 	name: 'java.lang:type=OperatingSystem',
+						// 	attribute: 'SystemLoadAverage'
+						// });
+						// factory.create({
+						// 	type: 'read',
+						// 	name: 'java.lang:type=Memory',
+						// 	attribute: 'HeapMemoryUsage',
+						// });
+						//response = factory.doRequest();
+						cpuData = google.visualization.arrayToDataTable([
+							['Label', 'Value'],
+							['Free', 100],
+							['Used', 0],
+						]);
+						memData = google.visualization.arrayToDataTable([
+							['Label', 'Value'],
+							['used', 0],
+							['committed', 0],
+							['free', 100],
+						]);
+
+						baseOptions = {
+							width: 220,
+							height: 220,
+							backgroundColor: 'transparent',
+							legend: {position: 'none'},
+							tooltip: {trigger: 'none'},
+							pieSliceText: 'none',
+							chartArea: {left: 10, right: 10, top: 0, width: "85%", height: "85%"},
+							pieHole: 0.6,
+						};
+
+						cpuOptions = $.extend({
+							colors:['#CCCCCC','#BADABA'],
+							// title: 'Average Server Load',
+						}, baseOptions);
+
+						cpuChart = new google.visualization.PieChart(document.getElementById('cpu-chart-container'));
+						cpuChart.draw(cpuData, cpuOptions);
+
+						memOptions = $.extend({
+							colors:['#F18815','#E4BA4F','#CCCCCC'],
+							// title: 'Memory Usage',
+							pieSliceText: 'percentage',
+						}, baseOptions);
+						memOptions['tooltip'] = {trigger: 'focus', text: 'value'};
+						memOptions['legend'] = {position: 'bottom'};
+
+						memChart = new google.visualization.PieChart(document.getElementById('mem-chart-container'));
+						memChart.draw(memData, memOptions);
+					}
+				</script>
+
+			<script type="text/javascript">
+				//@ sourceURL=UpdateSLEEState.js
+				function updateState() {
+					jolokia.request(
+						[ 
+							{ type: "read", mbean: "javax.slee.management:name=SleeManagement", attribute: ["State", "SleeName", "SleeVendor", "SleeVersion"]},
+							{ type: "read", mbean: "java.lang:type=OperatingSystem", attribute: ["SystemLoadAverage"]},
+							{ type: "read", mbean: "java.lang:type=Memory", attribute: ["HeapMemoryUsage"]},
+							{ type: "read", mbean: "java.lang:type=Runtime", attribute: ["Uptime"]},
+						],
+						{ success: [ 
+							function(response) {
+								$('#slee-version').html("<h4>" + response.value.SleeName + ' v' + response.value.SleeVersion + '<small> by ' + response.value.SleeVendor+"</small></h4>");
+								sleeState = response.value.State;
+								if (sleeState.starting) {
+									$('#slee-state').html('<pre style="background-color: #EEEEEE; text-align: center;"><i class="icon-spinner icon-spin icon-2x"></i> STARTING</pre>');
+									$('#start-slee').attr('disabled', '');
+									$('#stop-slee').attr('disabled', '');
+									$('#shutdown-slee').attr('disabled', '');
+								}
+								else if (sleeState.running) {
+									$('#slee-state').html('<pre style="background-color: #BADABA; text-align: center;"><i class="icon-play-circle icon-2x"></i> RUNNING</pre>');
+									$('#start-slee').attr('disabled', '');
+									$('#stop-slee').removeAttr('disabled');
+									$('#shutdown-slee').attr('disabled', '');
+								}
+								else if (sleeState.stopping) {
+									$('#slee-state').html('<pre style="background-color: #EEEEEE; text-align: center;"><i class="icon-spinner icon-spin icon-2x"></i> STOPPING</pre>');
+									$('#start-slee').attr('disabled', '');
+									$('#stop-slee').attr('disabled', '');
+									$('#shutdown-slee').attr('disabled', '');
+								}
+								else if (sleeState.stopped) {
+									$('#slee-state').html('<pre style="background-color: #DD9388; text-align: center;"><i class="icon-minus-sign icon-2x"></i> STOPPED</pre>');
+									$('#start-slee').removeAttr('disabled');
+									$('#stop-slee').attr('disabled', '');
+									$('#shutdown-slee').removeAttr('disabled');
+								}
+								else {
+									$('#slee-state').html('<pre style="background-color: #FFFFFF; text-align: center;"><i class="icon-question-sign icon-2x"></i> UNKNOWN</pre>');
+									$('#start-slee').removeAttr('disabled');
+									$('#stop-slee').removeAttr('disabled');
+									$('#shutdown-slee').removeAttr('disabled');
+								}
+							},
+							function(response) {
+								cpuLoad = parseInt(response.value.SystemLoadAverage.toFixed(2));
+								// row, col, value
+								cpuData.setValue(0, 1, 100-cpuLoad); // the unused
+								cpuData.setValue(1, 1, cpuLoad); // the used
+								cpuChart.draw(cpuData, cpuOptions);
+								if($('#cpu-chart-center').length === 0) {
+									$("#cpu-chart-container").children("div").first().append("<span id='cpu-chart-center' style='line-height: " + (parseInt(cpuOptions['chartArea'].top + (cpuOptions['height'] * parseInt(cpuOptions['chartArea'].height)/100))) + "px;position: absolute;text-align: center;width: 100%;font-size: 2.0em; color: #555555'>" + cpuLoad + "%</span>");
+								}
+								else {
+									$('#cpu-chart-center').text(cpuLoad + "%");
+								}
+							},
+							function(response) {
+								// row, col, value
+								memData.setValue(2, 1, response.value.HeapMemoryUsage.max - response.value.HeapMemoryUsage.committed);
+								memData.setValue(1, 1, response.value.HeapMemoryUsage.committed - response.value.HeapMemoryUsage.used);
+								memData.setValue(0, 1, response.value.HeapMemoryUsage.used);
+								memChart.draw(memData, memOptions);
+								memPercentage = parseInt(response.value.HeapMemoryUsage.used / response.value.HeapMemoryUsage.max * 100);
+								if($('#mem-chart-center').length === 0) {
+									$("#mem-chart-container").children("div").first().append("<span id='mem-chart-center' style='line-height: " + (parseInt(cpuOptions['chartArea'].top + (cpuOptions['height'] * parseInt(cpuOptions['chartArea'].height)/100))) + "px;position: absolute;text-align: center;width: 100%;font-size: 2.0em; color: #555555';>" + memPercentage + "%</span>");
+								}
+								else {
+									$('#mem-chart-center').text(memPercentage + "%");
+								}
+							},
+							function(response) {
+								$("#uptime-container").html(("" + response.value.Uptime/1000).toHHMMSS());
+							}
+							],
+							error: function(response) {
+								alert("Jolokia request failed: " + response.error);
+							} 
+						}
+					);
+				}
+				$(document).ready(function () {
+					drawCharts();
+					updateState();
+					setAutoCancellableInterval(2500, "updateState", "SLEE Management");
+				});
+			</script>

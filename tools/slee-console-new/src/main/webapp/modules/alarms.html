@@ -1,0 +1,114 @@
+<h3 style="margin: 0px;"><i class="icon-bell-alt"></i> Alarms</h3>
+<hr style="margin: 10 0px;"/>
+
+<span class="span8 offset4">
+	<button id="refresh" style="float: right; margin-right: 20px; margin-left: 20px; height: 30px;" class="btn btn-medium btn-success" data-toggle="tooltip" data-placement="left" title="Refresh Components List" onclick="updateAlarms();" ><i class="icon-refresh"></i></button>
+	<div class="input-prepend input-append">
+		<label class="checkbox inline">
+			<input type="checkbox" onchange="toggleShowAlarms(this, 'critical');" checked> <span class="alarm-label-box alarm-critical">CRITICAL</span>
+		</label>
+		<label class="checkbox inline">
+			<input type="checkbox" onchange="toggleShowAlarms(this, 'major');" checked> <span class="alarm-label-box alarm-major">MAJOR</span>
+		</label>
+		<label class="checkbox inline">
+			<input type="checkbox" onchange="toggleShowAlarms(this, 'warning');" checked> <span class="alarm-label-box alarm-warning">WARNING</span>
+		</label>
+		<label class="checkbox inline">
+			<input type="checkbox" onchange="toggleShowAlarms(this, 'indeterminate');" checked> <span class="alarm-label-box alarm-indeterminate">INDETERMINATE</span>
+		</label>
+		<label class="checkbox inline">
+			<input type="checkbox" onchange="toggleShowAlarms(this, 'minor');" checked> <span class="alarm-label-box alarm-minor">MINOR</span>
+		</label>
+	</div>
+</span>
+
+<span id="alarms-table-wrapper">
+	<table id="no-alarms-table" class="table" style="display: none;">
+		<tr>
+			<td>
+				<div class="alert alert-warning fade in text-center" >
+					<h2>No Alarms have been fired.</h2>Everything going smooth!
+				</div>
+			</td>
+		</tr>
+	</table>
+
+	<table id="alarms-table" class="table table-hover">
+		<thead>
+			<tr>
+				<th style="width: 2%">&nbsp;</th>
+				<th style="width: 8%">Timestamp</th>
+				<th style="width: 10%">ID</th>
+				<!-- <th>Level</th> -->
+				<th style="width: 70%">Message</th>
+				<th style="text-align: center; width: 10%;">Actions</th>
+				<th>&nbsp;</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</span>
+
+<script type="text/javascript">
+	//@ sourceURL=loadAlarms.js
+	function updateAlarms() {
+		jolokia.request(
+			[
+				{ type: "read", mbean: "javax.slee.management:name=Alarm", attribute: ["Alarms"] }
+			],
+			{ success: 
+				function(response) {
+					alarms = response.value.Alarms;
+
+					$('#alarms-table').children('tbody').html("")
+					jQuery.each(alarms, function() {
+						alarmDetails = jolokia.request(
+								{ type: "exec", mbean: "javax.slee.management:name=Alarm", operation: "getDescriptor", arguments: [this] }
+						);
+
+						var level;
+						for(level in alarmDetails.value.alarmLevel) {
+							if (level != 'class' && alarmDetails.value.alarmLevel[level])
+								break;
+						}
+
+						$('#alarms-table').children('tbody').append(
+							'<tr class="alarm-row alarm-' + level + '" style="' + ($('span.alarm-' + level).prev("input").is(':checked') ? '' : 'display: none;') + '">' +
+								'<td class="text-center" style="cursor: pointer;" onclick="$(this).parent().next().toggle();">' + '<i class="icon-bell-alt"></i>' + '</td>' + 
+								'<td style="cursor: pointer; font-size: 0.9em; text-align: center;" onclick="$(this).parent().next().toggle();">' + new Date(alarmDetails.value.timestamp).toLocaleDateString() + '<br>' + new Date(alarmDetails.value.timestamp).toLocaleTimeString() + '</td>' + 
+								'<td style="cursor: pointer;" onclick="$(this).parent().next().toggle();">' + shorten(alarmDetails.value.alarmID, 8, 8) + '</td>' + 
+								// '<td>' + level + '</td>' + 
+								'<td style="cursor: pointer;" onclick="$(this).parent().next().toggle();">' + shorten(alarmDetails.value.message, 25, 25) + '</td>' + 
+								'<td>' + '<button onclick="clearAlarm(\'' + alarmDetails.value.alarmID + '\')" class="btn btn-small"><i class="icon-ok-sign"></i> Clear</button>' + '</td>' + 
+							'</tr>'+
+							'<tr class="text-info" style="display: none;">' +
+								'<td colspan="5">' + 
+									'<dl class="dl-horizontal" style="font-size: 0.8em;">' + 
+										'<dt>ID</dt> <dd>' + alarmDetails.value.alarmID + '</dd>' + 
+										'<dt>Level</dt> <dd>' + level.toUpperCase() + '</dd>' + 
+										'<dt>Alarm Type</dt> <dd>' + alarmDetails.value.alarmType + '</dd>' + 
+										'<dt>Instance ID</dt> <dd>' + alarmDetails.value.instanceID + '</dd>' + 
+										'<dt>Notification Source</dt> <dd>' + alarmDetails.value.notificationSource.alarmNotificationType + " / " + alarmDetails.value.notificationSource.entityName + '</dd>' + 
+										'<dt>Message</dt> <dd>' + alarmDetails.value.message + '</dd>' + 
+										'<dt>Cause</dt> <dd>' + (alarmDetails.value.cause ? alarmDetails.value.cause : '-') + '</dd>' + 
+									'</dl>' +
+								'</td>' +
+							'</tr>');
+
+						tableString = '';
+						$("[data-toggle='tooltip']").tooltip();
+					});
+					checkShowAlarms();
+				},
+				error: function(response) {
+					alert("Jolokia request failed: " + response.error);
+				} 
+			}
+		);
+	}
+	$(document).ready(function () {
+		updateAlarms();
+		setAutoCancellableInterval(60000, "updateAlarms", "Alarms");
+	});
+</script>

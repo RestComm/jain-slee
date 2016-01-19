@@ -1,0 +1,186 @@
+					<h3 style="margin: 0px;"><i class="icon-resize-small"></i> Resources</h3>
+					<hr style="margin: 10 0px;"/>
+
+					<span id="ras-table-wrapper">
+						<table id="ras-table" class="table table-hover">
+							<thead>
+								<tr>
+									<th style="width: 30px;">&nbsp;</th>
+									<th>Resource Adaptor</th>
+									<th>Resource Adaptor Type</th>
+									<th style="text-align: center;">Actions</th>
+<!-- 									<th>Vendor</th>
+									<th>Version</th>
+-->								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</span>
+
+				<script type="text/javascript">
+					//@ sourceURL=loadRAEntities.js
+					function loadEntities(raName, raId) {
+						if (raName) {
+							$("#ra-name").text(raName);
+						}
+						$("#add-entity-raid").val(raId);
+						$("#entities-accordion").html('');
+						raEntities = jolokia.request(
+							[
+								{ type: "exec", mbean: "javax.slee.management:name=ResourceManagement", operation: "getResourceAdaptorEntities(javax.slee.resource.ResourceAdaptorID)", arguments: [raId] },
+							]
+						);
+
+						jQuery.each(raEntities[0].value, function() {
+							ENT_CONFIG_PROPS = 0;
+							ENT_LINK_NAMES = 1;
+							ENT_STATE = 2;
+
+							raEntityDetails = jolokia.request(
+								[
+									{ type: "exec", mbean: "javax.slee.management:name=ResourceManagement", operation: "getConfigurationProperties(java.lang.String)", arguments: [this] },
+									{ type: "exec", mbean: "javax.slee.management:name=ResourceManagement", operation: "getLinkNames(java.lang.String)", arguments: [this] },
+									{ type: "exec", mbean: "javax.slee.management:name=ResourceManagement", operation: "getState(java.lang.String)", arguments: [this] }
+								]
+							);
+							entityName = this;
+
+							if(raEntityDetails[ENT_CONFIG_PROPS].value.properties && raEntityDetails[ENT_CONFIG_PROPS].value.properties.length > 0) {
+								propsHTML = '<table class="table table-condensed table-striped">' + 
+												'<thead><tr><th style="width: 30%;">Name</th><th style="width: 25%;">Type</th><th style="width: 40%;">Value</th><th>&nbsp;</th></tr></thead>' +
+												'<tbody>';
+								jQuery.each(raEntityDetails[ENT_CONFIG_PROPS].value.properties, function() {
+									propId = entityName + "-prop-" + this.name;
+									propsHTML += "<tr><td style='font-size: 0.9em;'>" + this.name + "</td><td style='font-size: 0.9em;'>" + this.type + "</td><td style='font-size: 0.9em; padding: 0;'><span id='" + propId + "-input' style='display: none;'><input type='text' class='input-small' style='height: 10px; margin: 0;' placeholder='Property Value' value='" + this.value + "'/> " +
+									"<i class='icon-ok' style='cursor: pointer;' onclick=\"$('[id^=" + propId + "]').toggle(); $('input[id^=" + propId + "]').focus();\"></i> " +
+									"<i class='icon-remove' style='cursor: pointer;' onclick=\"$('[id^=" + propId + "]').toggle(); $('input[id^=" + propId + "]').focus();\"></i>" + 
+									"</span><span id='" + propId + "-text'>" + this.value + "</span></td><td><i class='icon-pencil' data-toggle='tooltip' title='Edit' style='cursor: pointer;' onclick=\"$('[id^=" + propId + "]').toggle(); $('input[id^=" + propId + "]').focus();\"></i>" +
+									"</td>";
+								});
+								propsHTML += "</tbody></table>";
+							}
+							else {
+								propsHTML = "<div class='alert alert-warning'>No Resource Adaptor Properties defined.</div>";
+							}
+
+
+							linksHTML = "";
+
+							if(raEntityDetails[ENT_LINK_NAMES].value && raEntityDetails[ENT_LINK_NAMES].value.length > 0) {
+								linksHTML = "<table class='table table-condensed table-striped'>" +
+												"<thead><tr><th style='width: 85%;'>Link Name</th><th>&nbsp;</th></tr></thead>" +
+													"<tbody>";
+								jQuery.each(raEntityDetails[ENT_LINK_NAMES].value, function() {
+									linksHTML += "<tr><td style='font-size: 0.9em;'>" + this + "</td><td style='text-align: right;'><button class='btn btn-mini btn-warning' onclick=\"unbindLinkName('" + entityName + "', '" + this + "');\"><i class='icon-remove-sign'></i> Unbind</button></td>";
+								});
+								linksHTML += "</tbody></table>";
+							}
+							else {
+								linksHTML = "<div class='alert alert-warning'>No Resource Adaptor Entity Links defined.</div>";
+							}
+
+							$('#entities-accordion').prepend(
+								'<div class="accordion-group">' +
+									'<div class="accordion-heading">' +
+										'<a style="display: inline-block;" class="accordion-toggle" data-toggle="collapse" data-parent="#entities-accordion" href="#acc-' + this + '">' + this + '</a>' +
+										 '<div style="float: right; margin: 5px;"><!--small>ACTIVE</small--> <div id="toggle-' + this + '" class="switch switch-mini ent-switch" data-on-label="ON" data-off-label="OFF"><input id="' + entityName + '" type="checkbox" ' + (raEntityDetails[ENT_STATE].value.active ? 'checked' : '') + ' /></div></div>' +
+									'</div>' +
+									'<div id="acc-' + this + '" class="accordion-body collapse">' +
+										'<div class="accordion-inner">' +
+											'<strong><i class="icon-list"></i> Entity Configuration Properties</strong>' +
+											 propsHTML +
+											'<strong><i class="icon-link"></i> Entity Links</strong>' +
+											 linksHTML + 											
+											'<span class="input-prepend input-append pull-right">' +
+												'<span class="add-on" style="padding: 0 5px 0 5px; font-size: 12px;" >Bind Entity Link</span>' +
+												'<input id="bind-link-name" type="text" class="input-small" style="height: 12px; font-size: 12px;" onkeyup="validateLinkName(\'' + entityName + '\');" placeholder="Link Name" />' +
+												'<!-- TODO: Compare with existing names -->' +
+												'<button id="' + entityName + '-bind-link-button" class="btn btn-mini btn-primary" onclick="bindLinkName(\'' + entityName + '\', $(\'#bind-link-name\').val());" disabled>Bind</button>' +
+											'</span>' +
+										'</div>' +
+									'</div>' +
+								'</div>');
+						});
+						$('.switch')['bootstrapSwitch']();
+						$('.ent-switch').on('switch-change', function (e, data) {
+							var $el = $(data.el), value = data.value;
+							setEntityState($el.attr("id"), (value ? "activate" : "deactivate"));
+						});
+						return true;
+					}
+
+					function updateRAs() {
+						jolokia.request(
+							[
+								{ type: "read", mbean: "javax.slee.management:name=Deployment", attribute: ["ResourceAdaptors"] },
+							],
+							{ success: [ 
+								function(response) {
+									$('.ra-row').remove();
+									jQuery.each(response.value.ResourceAdaptors, function() {
+										raDesc = jolokia.request(
+											[
+												{ type: "exec", mbean: "javax.slee.management:name=Deployment", operation: "getDescriptor(javax.slee.ComponentID)", arguments: ["ResourceAdaptorID[" + this.name + "#" + this.vendor + "#" + this.version + "]"] }
+											]
+										);
+										raType = raDesc[0].value.resourceAdaptorType;
+										$('#ras-table').children('tbody').append('<tr class="ra-row"><td style="text-align: center;"><i class="icon-resize-small"></i></td>' +
+											'<td style="cursor: pointer;" onclick="$(this).parent().next().toggle();">' + this.name + '</td>' +
+											'<td style="cursor: pointer;" onclick="$(this).parent().next().toggle();">' + raType.name + ' / ' + raType.vendor + ' / ' + raType.version + '</td>' +
+											'<td style="text-align: center;"><span data-toggle="tooltip" title="View Entities"><a href="#entities-modal" role="button" class="btn btn-info btn-small" data-toggle="modal" data-placement="left" title="View Entities" onclick="loadEntities(\'' + this.name + '\',\'ResourceAdaptorID[' + this.name + '#' + this.vendor + '#' + this.version + ']\')"><i class="icon-external-link"></i></a></span>'+ 						
+												' <span data-toggle="tooltip" title="View Usage Parameters" data-placement="left"><button class="btn btn-small btn-info" data-placement="left" data-toggle=\"popover\" data-original-title=\"<strong><i class=\'icon-trophy\'></i> TelScale Premium Feature!</strong>\" data-content=\"<p style=\'text-align: left;\'>This feature is only available on the TelScale™ JAIN SLEE product. For information regarding subscription, please visit <a target=\'_blank\' href=\'http://www.telestax.com/\'>www.telestax.com</a>.</p>\" data-html=\"true\"><i class="icon-bar-chart"> </i></button></span>' +
+'</td></tr>' +
+											'<tr class="text-info" style="display: none;"><td colspan=4>' + 
+											'<dl class="dl-horizontal" style="font-size: 0.8em;">' + 
+											'<dt>ID</dt> <dd>ResourceAdaptorID[name=' + this.name + ',vendor=' + this.vendor + ',version=' + this.version + '] </dd>' + 
+											'<dt>Source</dt> <dd>' + raDesc[0].value.source + '</dd>' + 
+											'<dt>Deployable Unit</dt> <dd>DeployableUnitID[url=' + raDesc[0].value.deployableUnit.uRL + ']</dd>' + 
+											'<dt>Library References</dt> <dd>' + (raDesc[0].value.libraries.length > 0 ? raDesc[0].value.libraries : '-') + '</dd>' + 
+											'<dt>Profile Specs References</dt> <dd>' + (raDesc[0].value.profileSpecifications.length > 0 ? raDesc[0].value.profileSpecifications : '-') + '</dd>' + 
+											'<dt>Supports Active Reconfig</dt> <dd>' + '<i class="' + (raDesc[0].value.activeReconfiguration ? 'icon-check' : 'icon-ban-circle') + '"></i>' + '</dd>' + 
+
+											'<dt>Resource Adaptor Type</dt> <dd>' + 'ResourceAdaptorTypeID[name=' + raType.name + ',vendor=' + raType.vendor + ',version=' + raType.version + ']' + ' </dd>' + 
+											'</dl></td></tr>');
+
+									$("[data-toggle='popover']").popover();
+										});
+								}
+								],
+								error: function(response) {
+									alert("Jolokia request failed: " + response.error);
+								} 
+							}
+						);
+					}
+					$(document).ready(function () {
+						updateRAs();
+						$('#entities-modal').on('show', function() {
+						});
+					});
+				</script>
+
+
+<div id="entities-modal" class="modal modal-medium hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3>'<span id="ra-name"></span>' Entities</h3>
+	</div>
+	<div id="entities-modal-body" class="modal-body">
+		<p>
+			<span class="input-prepend input-append pull-right">
+				<span class="add-on">Add Entity</span>
+				<input id="add-entity-raid" type="hidden" value="UNDEFINED" />
+				<input id="add-entity-entity-name" type="text" onkeyup="validateEntityName();" placeholder="Entity Name" />
+				<!-- TODO: Compare with existing names -->
+				<button id="add-entity-button" class="btn btn btn-primary" onclick="createRAEntity($('#add-entity-raid').val(), $('#add-entity-entity-name').val());" disabled>Add</button>
+			</span>
+		</p>
+		<p>&nbsp;</p>
+		<div class="accordion" id="entities-accordion">
+		</div>
+	</div>
+	<div class="modal-footer">
+		<a href="#" onclick="$('#entities-modal').modal('hide'); return false;" class="btn">Close</a>
+	</div>
+</div>

@@ -1,0 +1,59 @@
+<h3 style="margin: 0px;"><i class="icon-signal"></i> Event Router Statistics</h3>
+<hr style="margin: 10 0px;"/>
+
+<table id="exec-stats" style="width: 100%;"></table>
+<hr>
+<div>
+	<h3>FULL TEXT DUMP<small>USEFUL FOR BUG REPORTING</small> &nbsp; <button class="btn btn-mini" id="show-hide-text-toggle" onclick="$('#full-stats-text').slideToggle('fast'); $(this).text($(this).text() == 'SHOW' ? 'HIDE' : 'SHOW');">SHOW</button></h3>
+	<pre id="full-stats-text" style="display: none;"></pre>
+</div>
+
+<script type="text/javascript">
+	//@ sourceURL=loadEventRouterStats.js
+	$(document).ready(function () {
+		setAutoCancellableInterval(2500, "updateEventRouterStats", "Event Router Statistics");
+	});
+
+	function updateEventRouterStats() {
+		CONFIG = 0;
+		STATS  = 1;
+		erData = jolokia.request(
+			[
+				{ type: "read", mbean: "org.mobicents.slee:name=EventRouterConfiguration" },
+				{ type: "exec", mbean: "org.mobicents.slee:name=EventRouterStatistics", operation: "printAllStats" },
+			]);
+		nThreads = erData[CONFIG].value.EventRouterThreads;
+		ertQueueSizeReqs = []
+		for(i = 0; i < nThreads; i++) {
+			ertQueueSizeReqs.push({ type: "exec", mbean: "org.mobicents.slee:name=EventRouterStatistics", operation: "getActivitiesMapped", arguments: [i] });
+			ertQueueSizeReqs.push({ type: "exec", mbean: "org.mobicents.slee:name=EventRouterStatistics", operation: "getWorkingQueueSize", arguments: [i] });
+			ertQueueSizeReqs.push({ type: "exec", mbean: "org.mobicents.slee:name=EventRouterStatistics", operation: "getAverageEventRoutingTime(int)", arguments: [i] });
+			ertQueueSizeReqs.push({ type: "exec", mbean: "org.mobicents.slee:name=EventRouterStatistics", operation: "getExecutedTasks(int)", arguments: [i] });
+			ertQueueSizeReqs.push({ type: "exec", mbean: "org.mobicents.slee:name=EventRouterStatistics", operation: "getExecutingTime(int)", arguments: [i] });
+			ertQueueSizeReqs.push({ type: "exec", mbean: "org.mobicents.slee:name=EventRouterStatistics", operation: "getMiscTasksExecuted(int)", arguments: [i] });
+			ertQueueSizeReqs.push({ type: "exec", mbean: "org.mobicents.slee:name=EventRouterStatistics", operation: "getMiscTasksExecutingTime(int)", arguments: [i] });
+			ertQueueSizeReqs.push({ type: "exec", mbean: "org.mobicents.slee:name=EventRouterStatistics", operation: "getIdleTime(int)", arguments: [i] });
+		}
+		ertQueueSize = jolokia.request(ertQueueSizeReqs);
+		$("#exec-stats tr").remove();
+		for(i = 0; i < ertQueueSize.length; i++) {
+			if((i % 16) === 0) {
+				$("#exec-stats").append("<tr></tr>");
+			}
+
+			text = "<h4 class='text-right'><span class='label label-info' style='font-size: 1.2em; line-height: 1.1em;'>Executor #" + i/8 + "</span></h4><hr style='margin: 10px 0;'>";
+			text += "<h4 style='margin: 7px 0;'>" + ertQueueSize[i].value + "<small> ACTIVITIES MAPPED</small></h4>";
+			text += "<h4 style='margin: 7px 0;'>" + ertQueueSize[++i].value + "<small> JOBS WAITING IN QUEUE</small></h4>";
+			text += "<h4 style='margin: 7px 0;'>" + (ertQueueSize[++i].value + "").addCommas() + "<small>ns AVERAGE EVENT ROUTING TIME</small></h4>";
+			text += "<h4 style='margin: 7px 0;'>" + ertQueueSize[++i].value + "<small> TASKS EXECUTED IN </small>" + (ertQueueSize[++i].value + "").addCommas() + "<small>ns</small></h4>";
+			text += "<h4 style='margin: 7px 0;'>" + ertQueueSize[++i].value + "<small> MISC TASKS EXECUTED IN </small>" + (ertQueueSize[++i].value + "").addCommas() + "<small>ns</small></h4>";
+			text += "<h4 style='margin: 7px 0;'>" + (ertQueueSize[++i].value + "").addCommas() + "<small>ns IDLE TIME</small></h4>";
+			//text += "<h4 style='margin: 7px 0;'>" + (ertQueueSize[++i].value/1000/1000/1000 + "").toHHMMSS().replace(/<hr>/g,'').replace(/<br>/g,'').replace(/&nbsp;/g,'') + "<small> IDLE TIME</small></h4>";
+
+			$("#exec-stats tr:last").append("<td><div style='padding: 3px; border: 0px solid #EEE; border-radius: 5px;'>" + text + "</div></td>");
+			// $("#exec-stats tr:last").append("<td><div><pre>"</pre></div></td>");
+		}
+		$("#full-stats-text").text(erData[STATS].value);
+	}
+
+</script>
