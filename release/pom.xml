@@ -33,7 +33,7 @@
 		<http.scmVersionType>tag</http.scmVersionType>
 		<media.scmVersion>2.8.5</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
-		<sip.scmVersion>2.8.4</sip.scmVersion>
+		<sip.scmVersion>2.8.5</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
 		<smpp.scmVersion>2.8.4</smpp.scmVersion>
 		<smpp.scmVersionType>tag</smpp.scmVersionType>
