@@ -28,7 +28,7 @@
 	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip" />
 
 	<!-- <property name="diameter.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKNDRXMFloQ2YybGM&amp;export=download" />  -->
-	<property name="diameter.download.url" value="${cloudbees.url}/job/Mobicents-jDiameter-1.x/72/artifact/release/restcomm-diameter-mux-jboss5-1.7.0.72.zip" />
+	<property name="diameter.download.url" value="${cloudbees.url}/job/Mobicents-jDiameter-1.x/73/artifact/release/restcomm-diameter-mux-jboss5-1.7.0.73.zip" />
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation-2.8.3.jar" />
@@ -385,7 +385,7 @@
 		<echo>Checking out sources</echo>
 		<delete dir="${packages.dir}" />
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../">
-			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} -Dcore.scmVersion=${slee.version}" />
+			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} -Dcore.scmVersion=${slee.version} -Dsip.scmVersion=${sip.version} -Dsip-balancer.scmVersion=${lb.version}" />
 		</exec>
 	</target>
 

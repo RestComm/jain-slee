@@ -55,7 +55,7 @@
 		<sip-balancer.scmVersion>2.0.12</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
 		<snmp.core.scmVersion>2.8.6</snmp.core.scmVersion>
-        	<snmp.core.scmVersionType>tag</snmp.core.scmVersionType>
+        <snmp.core.scmVersionType>tag</snmp.core.scmVersionType>
 
 	</properties>
 	
