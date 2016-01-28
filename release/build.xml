@@ -24,7 +24,7 @@
 	<property name="mms.distro.zip.path" value="media-server.zip" />
 
 	<!-- <property name="ss7.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKU1VUOEpoU2tScEE&amp;export=download" /> -->
-	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/1322/artifact/release/mobicents-jss7-3.0.1322-1601252054.zip" />
+	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/1322/artifact/release/mobicents-jss7-3.0.1322-1601130356.zip" />
 	<property name="ss7.distro.zip.path" value="mobicents-ss7.zip" />
 
 	<!-- <property name="diameter.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKNDRXMFloQ2YybGM&amp;export=download" />  -->
