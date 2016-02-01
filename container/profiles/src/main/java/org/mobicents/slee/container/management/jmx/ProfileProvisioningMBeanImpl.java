@@ -753,7 +753,7 @@ public class ProfileProvisioningMBeanImpl extends MobicentsServiceMBeanSupport i
 		} catch (UnrecognizedProfileNameException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ManagementException("Failed to remove due to system level failure.", e);
+			throw new ManagementException("Failed to remove due to system level failure.");
 		} finally {
 			try {
 				sleeTransactionManagement.requireTransactionEnd(b,rb);	
