@@ -47,7 +47,7 @@ import org.mobicents.slee.container.component.ra.ResourceAdaptorDescriptor;
  * ResourceAdaptorDescriptorImpl.java
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 4:55:40 PM Jan 29, 2009 <br>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

@@ -1,30 +1,36 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+	
 	<modelVersion>4.0.0</modelVersion>
-
+	
 	<parent>
-		<groupId>org.mobicents.servers.jainslee.tools.twiddle.docs</groupId>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>restcomm-slee-core-docs</artifactId>
 		<version>2.8.0-SNAPSHOT</version>
-		<artifactId>cli-twiddle-docs</artifactId>
 	</parent>
-
-	<artifactId>cli-twiddle-docs-sources-mobicents</artifactId>
-	<name>Mobicents Twiddle CLI :: Docs :: ${pom.artifactId}</name>
+	
+	<artifactId>restcomm-slee-core-docs-sources-restcomm</artifactId>	
+			
 	<properties>
-		<THIS.PLATFORM>Mobicents</THIS.PLATFORM>
+		<THIS.PLATFORM>Restcomm</THIS.PLATFORM>
 		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
+		<MANAGEMENT.PLATFORM>Jopr</MANAGEMENT.PLATFORM>
+		<THIS.PLATFORM.INSTALL_SECTION>Section-Install_Mobicents.xml</THIS.PLATFORM.INSTALL_SECTION>
 		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/jain-slee/issues/list</THIS.ISSUE_TRACKER_URL>
-		<author.email.bartosz>baranowb (at) gmail.com</author.email.bartosz>
+		<author.email.ivelin>ivelin.atanasoff.ivanov (at) gmail.com</author.email.ivelin>
+		<author.email.eduardo>emmartins (at) gmail.com</author.email.eduardo>
+		<author.email.alex>brainslog (at) gmail.com</author.email.alex>
+		<author.email.amit>abhayani (at) gmail.com</author.email.amit>
+		<author.email.bartosz>baranowb (at) gmail.com</author.email.bartosz>		
 	</properties>
-
+	
 	<build>
 		<resources>
 			<resource>
-				<directory>${basedir}/src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
+        		<directory>${basedir}/src/main/resources</directory>
+        		<filtering>true</filtering>
+      		</resource>
+      	</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -40,13 +46,13 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>
-									<artifactId>cli-twiddle-docs-sources</artifactId>
+									<artifactId>restcomm-slee-core-docs-sources</artifactId>
 									<version>${pom.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${basedir}/src/main/resources</outputDirectory>
 								</artifactItem>
-							</artifactItems>
+							</artifactItems>							
 						</configuration>
 					</execution>
 				</executions>
@@ -72,5 +78,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	
 </project>

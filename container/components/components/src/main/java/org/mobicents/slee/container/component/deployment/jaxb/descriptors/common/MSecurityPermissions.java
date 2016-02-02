@@ -24,7 +24,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.commo
 
 /**
  * Start time:23:53:54 2009-01-18<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

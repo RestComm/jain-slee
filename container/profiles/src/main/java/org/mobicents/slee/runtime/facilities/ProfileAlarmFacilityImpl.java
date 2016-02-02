@@ -22,7 +22,7 @@
 
 /**
  * Start time:10:51:03 2009-03-26<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -38,7 +38,7 @@ import org.mobicents.slee.container.profile.ProfileCallRecorderTransactionData;
 
 /**
  * Start time:10:51:03 2009-03-26<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * This is profile impl of alarm facility. it looks up transaction context for
  * profile call recorder. It rettrieves it to fetch notification source. NOTE:
  * this class wont work without valid transaction that has passed profile

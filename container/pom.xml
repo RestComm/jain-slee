@@ -3,22 +3,22 @@
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>mobicents-slee-core</artifactId>
+		<artifactId>restcomm-slee-core</artifactId>
 		<version>2.8.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
-	<artifactId>mobicents-slee-core-container</artifactId>
+	<artifactId>restcomm-slee-core-container</artifactId>
 
 	<packaging>pom</packaging>
 
 	<properties>
-		<slee.name>Mobicents JAIN SLEE</slee.name>
-		<slee.vendor>Mobicents</slee.vendor>
+		<slee.name>Restcomm JAIN SLEE</slee.name>
+		<slee.vendor>Restcomm</slee.vendor>
 		<slee.version>${pom.version}</slee.version>
 		<slee.codename>???</slee.codename>
-		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<mobicents.cluster.version>1.15.7</mobicents.cluster.version>
+		<!-- OTHER RESTCOMM COMPONENTS VERSIONS -->
+		<restcomm.cluster.version>1.15.7</restcomm.cluster.version>
 	</properties>
 
 	<modules>
@@ -51,17 +51,17 @@
 			<dependency>
 				<groupId>org.mobicents.cluster</groupId>
 				<artifactId>core</artifactId>
-				<version>${mobicents.cluster.version}</version>
+				<version>${restcomm.cluster.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mobicents.cluster</groupId>
 				<artifactId>cache</artifactId>
-				<version>${mobicents.cluster.version}</version>
+				<version>${restcomm.cluster.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mobicents.cluster</groupId>
 				<artifactId>timers</artifactId>
-				<version>${mobicents.cluster.version}</version>
+				<version>${restcomm.cluster.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

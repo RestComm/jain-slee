@@ -36,7 +36,7 @@ import org.mobicents.slee.container.component.event.EventTypeDescriptor;
  * EventDescriptorImpl.java
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 7:22:39 PM Jan 29, 2009 <br>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

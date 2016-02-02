@@ -28,7 +28,7 @@ import javax.slee.profile.ProfileManagement;
 /**
  * 
  * Start time:16:51:13 2009-03-13<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * Profile object interface which declares extra management methods to store
  * some runtime properties. This interface represents actual object that has

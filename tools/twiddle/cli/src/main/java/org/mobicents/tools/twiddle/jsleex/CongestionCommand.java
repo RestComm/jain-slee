@@ -46,7 +46,7 @@ public class CongestionCommand extends AbstractSleeCommand {
 
 	
 	public CongestionCommand() {
-		super("congestion", "This command performs operations on Mobicents CongestionControlConfiguration MBean.");
+		super("congestion", "This command performs operations on Restcomm CongestionControlConfiguration MBean.");
 		// TODO Auto-generated constructor stub
 	}
 

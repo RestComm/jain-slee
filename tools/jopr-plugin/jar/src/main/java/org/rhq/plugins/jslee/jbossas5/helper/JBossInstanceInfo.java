@@ -297,9 +297,9 @@ public class JBossInstanceInfo {
       }
 		}
 
-		// Let us put mobicents dir here
+		// Let us put restcomm dir here
 		String mobicentsJSleeHome = this.sysProps.getProperty(JBossProperties.SERVER_HOME_DIR) + File.separator
-				+ "deploy" + File.separator + "mobicents-slee";
+				+ "deploy" + File.separator + "restcomm-slee";
 		this.sysProps.setProperty(MobicentsJSleeProperties.JSLEE_HOME_DIR, mobicentsJSleeHome);
 
 		if (!this.sysProps.containsKey(JBossProperties.SERVER_HOME_URL)) {

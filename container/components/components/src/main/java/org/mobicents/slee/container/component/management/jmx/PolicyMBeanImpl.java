@@ -22,7 +22,7 @@
 
 /**
  * Start time:09:19:15 2009-04-16<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -37,7 +37,7 @@ import org.mobicents.slee.container.component.security.PolicyFileImpl;
 
 /**
  * Start time:09:19:15 2009-04-16<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -86,7 +86,7 @@ public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanI
 			
 		} else {
 			if (!isUseMPolicy()) {
-				super.log.info("Policy is not Mobicents policy, can not remove it.");
+				super.log.info("Policy is not Restcomm policy, can not remove it.");
 				return;
 			}
 

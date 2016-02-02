@@ -41,7 +41,7 @@ import org.mobicents.slee.container.component.profile.query.QueryExpressionType;
  * arguments to match one defined in xml descriptor. This is an abstraction from plain translation from xml structure <br>
  * 
  * Start time:11:10:10 2009-01-29<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

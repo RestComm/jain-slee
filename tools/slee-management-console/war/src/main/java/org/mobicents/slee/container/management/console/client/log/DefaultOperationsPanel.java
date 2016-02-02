@@ -60,8 +60,8 @@ public class DefaultOperationsPanel extends Composite implements CommonControl {
   private static final String _ll_Explanation = "Sets default logger level - this is used when no level is specified, loggers are being reset or create via tree.";
   private static final String _hl_Explanation = "Sets default handler level - this is used when no level is specified and handler is beeing created";
   private static final String _cfg_Explanation = "Reads java.util.logging properties file in order to configure loggers, requires URI - can be left empty";
-  private static final String _cclear_Explanation = "Set logger levels to OFF, removes all handlers. Requires regex to match logger names or empty to match mobicents domain.";
-  private static final String _reset_Explanation = "Resets logger levels to current default value. Requires regex to match logger names or empty to match mobicents domain.";
+  private static final String _cclear_Explanation = "Set logger levels to OFF, removes all handlers. Requires regex to match logger names or empty to match restcomm domain.";
+  private static final String _reset_Explanation = "Resets logger levels to current default value. Requires regex to match logger names or empty to match restcomm domain.";
   private static final String _add_Logger_Explanation = "Adds new logger specified by passed FQDN.";
   private DockPanel display = new DockPanel();
 

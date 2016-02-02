@@ -22,7 +22,7 @@
 
 /**
  * Start time:17:12:16 2009-01-30<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -35,7 +35,7 @@ import org.mobicents.slee.container.component.ComponentRepository;
 /**
  * 
  * Start time:17:12:16 2009-01-30<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * This is super interface for all validators. Validator asums that everything
  * has been loaded into component - class objects are set accordingly,

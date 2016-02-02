@@ -250,7 +250,7 @@ descriptors.
 ]]>
 		</programlisting>
 		
-		<para>This full DTD is available at <ulink url="http://mobicents.org/slee/dtd/slee-library-jar_1_1-ext.dtd" /></para>
+		<para>This full DTD is available at <ulink url="https://raw.githubusercontent.com/RestComm/jain-slee/master/api/descriptors/library/src/main/resources/slee-library-jar_1_1-ext.dtd" /></para>
 		
 	</section>
 	
@@ -261,7 +261,7 @@ descriptors.
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE library-jar PUBLIC 
 		"-//Sun Microsystems, Inc.//DTD JAIN SLEE Ext Library 1.1//EN" 
-		"http://mobicents.org/slee/dtd/slee-library-jar_1_1-ext.dtd">
+		"https://raw.githubusercontent.com/RestComm/jain-slee/master/api/descriptors/library/src/main/resources/slee-library-jar_1_1-ext.dtd">
 
 <library-jar>
 	<library>

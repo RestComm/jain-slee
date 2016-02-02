@@ -32,7 +32,7 @@ import org.mobicents.slee.container.component.service.ServiceDescriptor;
 
 /**
  * Start time:17:15:13 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>

@@ -88,7 +88,7 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 
 	public Set discoverResources(ResourceDiscoveryContext<JainSleeServerComponent> discoveryContext)
 			throws InvalidPluginConfigurationException, Exception {
-		log.trace("Discovering Mobicents JSLEE Server 2.0.0.BETA2 and above Resources...");
+		log.trace("Discovering Restcomm JSLEE Server 2.0.0.BETA2 and above Resources...");
 		Set<DiscoveredResourceDetails> resources = new HashSet<DiscoveredResourceDetails>();
 		DiscoveredResourceDetails inProcessJBossAS = discoverInProcessJBossAS(discoveryContext);
 		if (inProcessJBossAS != null) {
@@ -109,19 +109,19 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 		String jbossHomeDir = pluginConfig.getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR)
 				.getStringValue();
 
-		String mobicentsJSleeHome = jbossHomeDir + File.separator + "deploy" + File.separator + "mobicents-slee";
+		String mobicentsJSleeHome = jbossHomeDir + File.separator + "deploy" + File.separator + "restcomm-slee";
 
 		File mobicentsSlee = new File(mobicentsJSleeHome);
 
 		try {
 			if (!mobicentsSlee.getCanonicalFile().isDirectory()) {
-				log.warn("Skipping manuall add for Mobicents JAIN SLEE Server " + mobicentsJSleeHome
-						+ ", because Mobicents dir 'mobicents-slee' does not exist or is not a directory.");
+				log.warn("Skipping manuall add for Restcomm JAIN SLEE Server " + mobicentsJSleeHome
+						+ ", because Restcomm dir 'restcomm-slee' does not exist or is not a directory.");
 
 			}
 		} catch (IOException e) {
-			log.error("Skipping discovery for Mobicents JAIN SLEE Server " + mobicentsJSleeHome
-					+ ", because Mobicents dir could not be canonicalized.", e);
+			log.error("Skipping discovery for Restcomm JAIN SLEE Server " + mobicentsJSleeHome
+					+ ", because Restcomm dir could not be canonicalized.", e);
 			throw new InvalidPluginConfigurationException(e);
 		}
 
@@ -214,8 +214,8 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 				continue;
 			}
 
-			// TODO : Make sure its Mobicents 2.0.0.BETA2 and above here, because after this we are looking for folder
-			// mobicents-slee
+			// TODO : Make sure its Restcomm 2.0.0.BETA2 and above here, because after this we are looking for folder
+			// restcomm-slee
 			// Skip it if it's an AS/EAP/SOA-P version we don't support.
 			JBossInstallationInfo installInfo = cmdLine.getInstallInfo();
 			// if (!isSupportedProduct(installInfo)) {
@@ -244,14 +244,14 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 					MobicentsJSleeProperties.JSLEE_HOME_DIR));
 			try {
 				if (!mobicentsSlee.getCanonicalFile().isDirectory()) {
-					log.warn("Skipping discovery for Mobicents JAIN SLEE process " + processInfo
-							+ ", because Mobicents dir " + mobicentsSlee.getCanonicalFile().getAbsolutePath()
+					log.warn("Skipping discovery for Restcomm JAIN SLEE process " + processInfo
+							+ ", because Restcomm dir " + mobicentsSlee.getCanonicalFile().getAbsolutePath()
 							+ " does not exist or is not a directory.");
 					continue;
 				}
 			} catch (IOException e) {
-				log.error("Skipping discovery for Mobicents JAIN SLEE process " + processInfo
-						+ ", because Mobicents dir could not be canonicalized.", e);
+				log.error("Skipping discovery for Restcomm JAIN SLEE process " + processInfo
+						+ ", because Restcomm dir could not be canonicalized.", e);
 				continue;
 			}
 

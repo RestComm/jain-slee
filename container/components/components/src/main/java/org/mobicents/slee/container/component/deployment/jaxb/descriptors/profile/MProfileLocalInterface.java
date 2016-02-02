@@ -26,7 +26,7 @@ import org.mobicents.slee.container.component.profile.ProfileLocalInterfaceDescr
 
 /**
  * Start time:16:56:24 2009-01-18<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

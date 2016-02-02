@@ -69,7 +69,7 @@ public class LogPanel extends VerticalPanel {
     header.setStyleName("common-LogPanel-header");
     header.setCellWidth(padding, "100%");
 
-    padding.setHTML("&nbsp;<img src='images/log.mgmt.1.jpg' align='absbottom' /> Mobicents Management Console Log");
+    padding.setHTML("&nbsp;<img src='images/log.mgmt.1.jpg' align='absbottom' /> Restcomm Management Console Log");
 
     scrollPanel.setStyleName("common-LogPanel-area");
 

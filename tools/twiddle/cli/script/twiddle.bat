@@ -61,7 +61,7 @@ if not "%JBOSS_CLASSPATH%" == "" GOTO HAVE_JB_CP
     set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/dom4j.jar
     set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jbossx-security-client.jar
     
-    rem mobicents
+    rem restcomm
     set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/cli-twiddle.jar
     set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jain-slee-1.1.jar
     set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jmx-property-editors.jar

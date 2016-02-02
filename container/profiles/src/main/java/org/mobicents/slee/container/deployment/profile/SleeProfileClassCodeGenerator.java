@@ -29,7 +29,7 @@ import org.mobicents.slee.container.deployment.SleeComponentWithUsageParametersC
 /**
  * 
  * Start time:17:25:37 2009-03-12<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * Base class for calling profile code generation methdos.
  * 

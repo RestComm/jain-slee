@@ -11,7 +11,7 @@
 	
 		<section id="eventcontext_factory_persistent_configuration">
 			<title>EventContext Factory Persistent Configuration</title>
-			<para>Configuration is done through an XML descriptor for each &THIS.PLATFORM; Cluster. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>{JBOSS_HOME}/server/{profile_name}/deploy/mobicents-slee/META-INF</filename></para>
+			<para>Configuration is done through an XML descriptor for each &THIS.PLATFORM; Cluster. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>{JBOSS_HOME}/server/{profile_name}/deploy/restcomm-slee/META-INF</filename></para>
 			<para>The configuration is exposed a JBoss Microcontainer Bean:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <bean name="Mobicents.JAINSLEE.EventContextFactoryConfiguration"

@@ -22,7 +22,7 @@
 
 /**
  * Start time:14:49:20 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -35,7 +35,7 @@ import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDe
 
 /**
  * Start time:14:49:20 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>

@@ -32,7 +32,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
  * MResourceAdaptorJar.java
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 8:08:27 PM Jan 22, 2009 <br>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

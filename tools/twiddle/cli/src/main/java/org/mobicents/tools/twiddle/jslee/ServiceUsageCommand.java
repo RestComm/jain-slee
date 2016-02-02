@@ -65,28 +65,28 @@ public class ServiceUsageCommand extends AbstractUsageCommand {
 	protected void addExamples(PrintWriter out) {
 		out.println("");
 		out.println("     1. List usage parameters type for Service and Sbb:");
-		out.println("" + name + " ServiceID[name=XXX,vendor=mobicents,version=1.0] SbbID[name=example,vendor=mobicents,version=0.1] -l --parameters");
+		out.println("" + name + " ServiceID[name=XXX,vendor=restcomm,version=1.0] SbbID[name=example,vendor=restcomm,version=0.1] -l --parameters");
 		out.println("");
 		out.println("     2. List existing usage parameters sets:");
-		out.println("" + name + " ServiceID[name=XXX,vendor=mobicents,version=1.0] SbbID[name=example,vendor=mobicents,version=0.1] -l --sets");
+		out.println("" + name + " ServiceID[name=XXX,vendor=restcomm,version=1.0] SbbID[name=example,vendor=restcomm,version=0.1] -l --sets");
 		out.println("");
 		out.println("     3. Get value of parameter in certain set:");
-		out.println("" + name + " ServiceID[name=XXX,vendor=mobicents,version=1.0] SbbID[name=example,vendor=mobicents,version=0.1] CertainSetWithValue -g --name=CookiesCount");
+		out.println("" + name + " ServiceID[name=XXX,vendor=restcomm,version=1.0] SbbID[name=example,vendor=restcomm,version=0.1] CertainSetWithValue -g --name=CookiesCount");
 		out.println("");
 		out.println("     4. Get value of parameter in certain set and reset value:");
-		out.println("" + name + " ServiceID[name=XXX,vendor=mobicents,version=1.0] SbbID[name=example,vendor=mobicents,version=0.1] CertainSetWithValue -g --name=CookiesCount --rst");
+		out.println("" + name + " ServiceID[name=XXX,vendor=restcomm,version=1.0] SbbID[name=example,vendor=restcomm,version=0.1] CertainSetWithValue -g --name=CookiesCount --rst");
 		out.println("");
 		out.println("     5. Reset all parameters in parameter sets of service:");
-		out.println("" + name + " ServiceID[name=XXX,vendor=mobicents,version=1.0] --reset");
+		out.println("" + name + " ServiceID[name=XXX,vendor=restcomm,version=1.0] --reset");
 		out.println("");
 		out.println("     6. Reset parameters in defaulet parameter set of sbb in service:");
-		out.println("" + name + " ServiceID[name=XXX,vendor=mobicents,version=1.0] SbbID[name=example,vendor=mobicents,version=0.1] --reset");
+		out.println("" + name + " ServiceID[name=XXX,vendor=restcomm,version=1.0] SbbID[name=example,vendor=restcomm,version=0.1] --reset");
 		out.println("");
 		out.println("     7. Create parameter set:");
-		out.println("" + name + " ServiceID[name=XXX,vendor=mobicents,version=1.0] SbbID[name=example,vendor=mobicents,version=0.1] NewSet --create");
+		out.println("" + name + " ServiceID[name=XXX,vendor=restcomm,version=1.0] SbbID[name=example,vendor=restcomm,version=0.1] NewSet --create");
 		out.println("");
 		out.println("     8. Enable notification generation for parameter:");
-		out.println("" + name + " ServiceID[name=XXX,vendor=mobicents,version=1.0] SbbID[name=example,vendor=mobicents,version=0.1] -n --name=CookiesCount --value=true");
+		out.println("" + name + " ServiceID[name=XXX,vendor=restcomm,version=1.0] SbbID[name=example,vendor=restcomm,version=0.1] -n --name=CookiesCount --value=true");
 		
 	}
 

@@ -3,15 +3,15 @@
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools</groupId>
-		<artifactId>mobicents-slee-tools-management-console-parent</artifactId>
+		<artifactId>restcomm-slee-tools-management-console-parent</artifactId>
 		<version>2.8.0-SNAPSHOT</version>
 	</parent>
 
 	<packaging>war</packaging>
 
-	<artifactId>mobicents-slee-tools-management-console-war</artifactId>
+	<artifactId>restcomm-slee-tools-management-console-war</artifactId>
 
-	<name>Mobicents :: Tools :: slee-management-console-war</name>
+	<name>Restcomm :: Tools :: slee-management-console-war</name>
 
 	<build>
 		<finalName>slee-management-console</finalName>
@@ -111,7 +111,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-			<artifactId>mobicents-slee-tools-management-console-server</artifactId>
+			<artifactId>restcomm-slee-tools-management-console-server</artifactId>
 		</dependency>
 		<!-- GWT deps -->
 		<dependency>

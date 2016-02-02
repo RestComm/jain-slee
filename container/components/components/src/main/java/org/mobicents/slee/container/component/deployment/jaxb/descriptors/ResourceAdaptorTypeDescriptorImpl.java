@@ -38,7 +38,7 @@ import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeDescript
  * ResourceAdaptorTypeDescriptorImpl.java
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 5:24:59 PM Jan 23, 2009 <br>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

@@ -22,7 +22,7 @@
 
 /**
  * Start time:12:32:06 2009-02-05<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -32,7 +32,7 @@ package org.mobicents.slee.container.component.validator.sbb.abstracts.event;
 
 /**
  * Start time:12:32:06 2009-02-05<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>

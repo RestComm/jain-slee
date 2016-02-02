@@ -12,7 +12,7 @@
 	<artifactId>cli-twiddle</artifactId>
 
 
-	<name>Mobicents Twiddle CLI :: ${pom.artifactId}</name>
+	<name>Restcomm Twiddle CLI :: ${pom.artifactId}</name>
 
 	<properties>
 		<tool.directory>${project.build.directory}/release</tool.directory>
@@ -136,7 +136,7 @@
 						</goals>
 						<configuration>
 
-							<!-- Mobicents part -->
+							<!-- Restcomm part -->
 							<artifactItems>
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>

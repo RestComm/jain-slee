@@ -13,7 +13,7 @@
 	<artifactId>cli-twiddle-docs</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Mobicents Twiddle CLI :: Docs :: ${pom.artifactId}</name>
+	<name>Restcomm Twiddle CLI :: Docs :: ${pom.artifactId}</name>
 
 	<properties>
 		<docs.application.name>JSLEE Twiddle</docs.application.name>
@@ -23,8 +23,8 @@
 
 	<modules>
 		<module>sources</module>
-		<module>sources-mobicents</module>
-		<module>jdocbook-mobicents</module>
+		<module>sources-restcomm</module>
+		<module>jdocbook-restcomm</module>
 	</modules>
 
 </project>

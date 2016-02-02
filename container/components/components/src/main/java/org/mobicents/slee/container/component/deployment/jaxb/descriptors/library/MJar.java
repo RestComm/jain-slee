@@ -30,7 +30,7 @@ import org.mobicents.slee.container.component.library.JarDescriptor;
  * MJar.java
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 3:34:29 AM Jan 30, 2009 <br>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

@@ -3,7 +3,7 @@
 <plugin name="Mobicents-JSLEE" displayName="Mobicents JSLEE Server 2.x"
   package="org.rhq.plugins.jslee"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  description="Supports management and monitoring of Mobicents JAIN SLEE Server"
+  description="Supports management and monitoring of Restcomm JAIN SLEE Server"
   xmlns="urn:xmlns:rhq-plugin" xmlns:c="urn:xmlns:rhq-configuration">
 
   <depends plugin="JMX" useClasses="true" />
@@ -24,7 +24,7 @@
 
     <process-scan name="jbossas" query="process|basename|match=^java.*,arg|org.jboss.Main|match=.*" />
 
-    <operation name="sleeState" displayName="Change Slee State" description="Start/Stop or Shutdown Mobicents SLEE Server. To Shutdown, the Mobicents JSLEE Server should be first Stopped">
+    <operation name="sleeState" displayName="Change Slee State" description="Start/Stop or Shutdown Restcomm SLEE Server. To Shutdown, the Restcomm JSLEE Server should be first Stopped">
       <parameters>
         <c:simple-property name="action" default="stop">
           <c:property-options>

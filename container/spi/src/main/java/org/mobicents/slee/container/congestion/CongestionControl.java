@@ -25,7 +25,7 @@ package org.mobicents.slee.container.congestion;
 import org.mobicents.slee.container.SleeContainerModule;
 
 /**
- * Congestion Control module for the Mobicents SLEE Container.
+ * Congestion Control module for the Restcomm SLEE Container.
  * 
  * @author martins
  *

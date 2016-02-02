@@ -46,7 +46,7 @@ import org.mobicents.slee.container.transaction.SleeTransactionManager;
 
 /**
  * Start time:12:23:15 2009-03-18<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * This is stub class, that is extended and instrumented to allow access to
  * underlying Profile

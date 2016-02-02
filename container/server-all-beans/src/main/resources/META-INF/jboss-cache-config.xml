@@ -14,7 +14,7 @@
 	<serialization useRegionBasedMarshalling="true" />
 
 	<clustering
-		clusterName="${jboss.partition.name:DefaultPartition}-mobicents-slee-replicated">
+		clusterName="${jboss.partition.name:DefaultPartition}-restcomm-slee-replicated">
 		<async />
 		<jgroupsConfig multiplexerStack="${jboss.default.jgroups.stack:udp}" />
 	</clustering>

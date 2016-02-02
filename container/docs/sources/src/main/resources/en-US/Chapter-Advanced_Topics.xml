@@ -32,7 +32,7 @@
 mvn install</screen>		        
 			</listitem>
 		    <listitem>
-		        <para>Setup JAVA_OPTS environment variable to include -XX:MaxPermSize=128M -Djboss.defined.home=<literal>/Volumes/2/jboss-5.1.0.GA</literal> -Djava.security.manager=default -Djava.security.policy=<literal>file:///Volumes/2/workspace/mobicents-jainslee-2/</literal>tck/jain-slee-1.1/tck-security.policy, replacing the <literal>absolute paths</literal> with $JBOSS_HOME and the path of the Git checkout.</para>
+		        <para>Setup JAVA_OPTS environment variable to include -XX:MaxPermSize=128M -Djboss.defined.home=<literal>/Volumes/2/jboss-5.1.0.GA</literal> -Djava.security.manager=default -Djava.security.policy=<literal>file:///Volumes/2/workspace/restcomm-jainslee-2/</literal>tck/jain-slee-1.1/tck-security.policy, replacing the <literal>absolute paths</literal> with $JBOSS_HOME and the path of the Git checkout.</para>
 		    </listitem>
 		    <listitem>
 		        <para>Unzip and run the JAIN SLEE 1.1 TCK distribution:</para>
@@ -62,7 +62,7 @@ ant</screen>
         Run the following:
         </para>
         <screen>
-<![CDATA[]mvn mobicents:eclipse
+<![CDATA[]mvn restcomm:eclipse
 mvn -Declipse.workspace=YOUR_RELATIVE_PATH_TO_ECLIPSE_WORKSPACE eclipse:add-maven-repo]]>
         </screen>
       </step>

@@ -41,7 +41,7 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
 public class TimerCommand extends AbstractSleeCommand {
 
 	public TimerCommand() {
-		super("timer", "This command performs operations on Mobicents TimerFacilityConfiguration MBean.");
+		super("timer", "This command performs operations on Restcomm TimerFacilityConfiguration MBean.");
 		// TODO Auto-generated constructor stub
 	}
 

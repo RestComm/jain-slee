@@ -4,7 +4,7 @@
 <section id="management_tools_ant_tasks">
 	<title>Ant Tasks</title>
 		
-	<para>JAIN SLEE includes some tasks for Apache Ant, which can be used for common management tasks done through <acronym>JMX</acronym>, when the container is running. The tasks come bundled in <filename>$JBOSS_HOME/server/default/deploy/mobicents-slee/lib/ant-tasks.jar</filename>. To use these, the Ant script must include the following code:</para>
+	<para>JAIN SLEE includes some tasks for Apache Ant, which can be used for common management tasks done through <acronym>JMX</acronym>, when the container is running. The tasks come bundled in <filename>$JBOSS_HOME/server/default/deploy/restcomm-slee/lib/ant-tasks.jar</filename>. To use these, the Ant script must include the following code:</para>
 		
 	<programlisting language="XML" role="XML"><![CDATA[
 <property environment="system" />
@@ -12,7 +12,7 @@
 <property name="jboss.deploy" value="${system.JBOSS_HOME}/server/${node}/deploy" />
 
 <path id="project.classpath">
-	<fileset dir="${jboss.deploy}/mobicents-slee/lib">
+	<fileset dir="${jboss.deploy}/restcomm-slee/lib">
 		<include name="*.jar" />
 	</fileset>
 	<fileset dir="${system.JBOSS_HOME}/client">

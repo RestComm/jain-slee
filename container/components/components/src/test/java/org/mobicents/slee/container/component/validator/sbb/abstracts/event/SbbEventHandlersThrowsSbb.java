@@ -22,7 +22,7 @@
 
 /**
  * Start time:12:30:06 2009-02-05<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -41,7 +41,7 @@ import org.mobicents.slee.container.component.validator.sbb.abstracts.aci.ACICon
 
 /**
  * Start time:12:30:06 2009-02-05<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>

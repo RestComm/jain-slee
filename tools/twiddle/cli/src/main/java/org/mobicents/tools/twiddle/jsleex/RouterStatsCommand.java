@@ -42,7 +42,7 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
 public class RouterStatsCommand extends AbstractSleeCommand {
 
 	public RouterStatsCommand() {
-		super("router.stats", "This command performs operations on Mobicents EventRouterStatistics MBean.");
+		super("router.stats", "This command performs operations on Restcomm EventRouterStatistics MBean.");
 		// TODO Auto-generated constructor stub
 	}
 

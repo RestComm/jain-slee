@@ -34,7 +34,7 @@ import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.management.jmx.CongestionControlConfiguration;
 
 /**
- * Impl of the congestion control module of the Mobicents slee container.
+ * Impl of the congestion control module of the Restcomm slee container.
  * @author martins
  *
  */

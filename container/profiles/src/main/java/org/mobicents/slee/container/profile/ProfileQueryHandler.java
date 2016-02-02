@@ -34,7 +34,7 @@ import javax.slee.profile.UnrecognizedQueryNameException;
 /**
  * 
  * Start time:12:49:42 2009-03-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * This class handles queries call to certain ProfileTable impl objects. It must
  * be called within transaction
  * 

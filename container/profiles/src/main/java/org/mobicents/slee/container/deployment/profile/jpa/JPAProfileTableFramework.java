@@ -93,7 +93,7 @@ private void createPersistenceUnit()
       pumdProps.put(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
       pumdProps.put(Environment.DIALECT,configuration.getHibernateDialect());
       pumd.setProperties(pumdProps);
-      pumd.setName("mobicents-profile-persistence-pu");
+      pumd.setName("restcomm-profile-persistence-pu");
 
       Set classes = new HashSet<String>();
       classes.add(JPAProfileTable.class.getName());

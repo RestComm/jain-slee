@@ -67,10 +67,10 @@ set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\all\lib\jta.jar
 set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\all\lib\javassist.jar
 
 
-rem Add mobicents class and jain slee jar
-set SLEE_CLASSPATH=%JBOSS_HOME%\server\all\deploy\mobicents.sar;%SLEE_CLASSPATH%
-rem set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\all\deploy\mobicents.sar\slee.jar
-set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\all\deploy\mobicents.sar\slee_1_1.jar
+rem Add restcomm class and jain slee jar
+set SLEE_CLASSPATH=%JBOSS_HOME%\server\all\deploy\restcomm.sar;%SLEE_CLASSPATH%
+rem set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\all\deploy\restcomm.sar\slee.jar
+set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\all\deploy\restcomm.sar\slee_1_1.jar
 
 %JAVA% -classpath %JBOSS_CLASSPATH%;.;%SLEE_CLASSPATH% -Djava.security.policy=java.policy  -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory  -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces org.mobicents.slee.container.management.jmx.SleeCommandInterface %*
 

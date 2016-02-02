@@ -100,7 +100,7 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     this.deployFolder = resourceContext.getPluginConfiguration().getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + File.separator  + "deploy";
     this.farmDeployFolder = resourceContext.getPluginConfiguration().getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + File.separator  + "farm";
     this.logFilePath = resourceContext.getPluginConfiguration().getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + File.separator  + "conf" + File.separator + "jboss-log4j.xml";
-    this.logConfigurationsFolder = this.deployFolder + File.separator + "mobicents-slee" + File.separator + "log4j-templates";
+    this.logConfigurationsFolder = this.deployFolder + File.separator + "restcomm-slee" + File.separator + "log4j-templates";
     // Connect to the JBAS instance's Profile Service and JMX MBeanServer.
 
     Configuration pluginConfig = resourceContext.getPluginConfiguration();
@@ -627,15 +627,15 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
 
       if ("start".equals(action)) {
         sleeManagementMBean.start();
-        message = "Successfully started Mobicents JAIN SLEE Server";
+        message = "Successfully started Restcomm JAIN SLEE Server";
       }
       else if ("stop".equals(action)) {
         sleeManagementMBean.stop();
-        message = "Successfully stopped Mobicents JAIN SLEE Server";
+        message = "Successfully stopped Restcomm JAIN SLEE Server";
       }
       else if ("shutdown".equals(action)) {
         sleeManagementMBean.shutdown();
-        message = "Successfully shutdown Mobicents JAIN SLEE Server";
+        message = "Successfully shutdown Restcomm JAIN SLEE Server";
       }
       result.getComplexResults().put(new PropertySimple("result", message));
 

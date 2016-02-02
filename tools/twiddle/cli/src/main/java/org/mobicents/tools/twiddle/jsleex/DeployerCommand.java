@@ -43,7 +43,7 @@ public class DeployerCommand extends AbstractSleeCommand {
 	private final static String _TO_SEPARATE="Deployable Units Waiting For Uninstall";
 	
 	public DeployerCommand() {
-		super("deployer", "This command performs operations on Mobicents DeploymentManager MBean.");
+		super("deployer", "This command performs operations on Restcomm DeploymentManager MBean.");
 	}
 
 	@Override

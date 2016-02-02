@@ -42,7 +42,7 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
 public class ActivityCommand extends AbstractSleeCommand {
 
 	public ActivityCommand() {
-		super("activity", "This command performs operations on Mobicents ActivityManagement MBean.");
+		super("activity", "This command performs operations on Restcomm ActivityManagement MBean.");
 		// TODO Auto-generated constructor stub
 	}
 

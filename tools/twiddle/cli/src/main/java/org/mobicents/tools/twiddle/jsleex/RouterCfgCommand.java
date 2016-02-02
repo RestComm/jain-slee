@@ -42,7 +42,7 @@ public class RouterCfgCommand extends AbstractSleeCommand {
 	private static final String FIELD_CollectStats = "CollectStats";
 
 	public RouterCfgCommand() {
-		super("router.cfg", "This command performs operations on Mobicents EventRouterConfiguration MBean.");
+		super("router.cfg", "This command performs operations on Restcomm EventRouterConfiguration MBean.");
 		// TODO Auto-generated constructor stub
 	}
 

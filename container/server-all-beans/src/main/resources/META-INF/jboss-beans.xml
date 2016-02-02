@@ -5,7 +5,7 @@
    
 	<bean name="Mobicents.JAINSLEE.Cache" class="org.mobicents.cache.MobicentsCache">
 		<constructor>
- 		  <parameter class="java.lang.String">${jboss.server.home.dir}/deploy/mobicents-slee/META-INF/jboss-cache-config.xml</parameter> 
+ 		  <parameter class="java.lang.String">${jboss.server.home.dir}/deploy/restcomm-slee/META-INF/jboss-cache-config.xml</parameter> 
      	</constructor>
      	<demand>RealTransactionManager</demand>		
 	</bean>

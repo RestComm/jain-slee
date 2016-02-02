@@ -1005,11 +1005,11 @@ public class MobicentsLogManagerMBeanImpl extends ServiceMBeanSupport implements
 			// File lFile = new File(System.getProperty("JBOSS_HOME")
 			// + File.separator + "server" + File.separator + "all"
 			// + File.separator + "deploy" + File.separator
-			// + "mobicents.sar" + File.separator + "logging.properties");
+			// + "restcomm.sar" + File.separator + "logging.properties");
 			// URI fURI=lFile.toURI();
 			// this.reReadConf(fURI);
 
-			// classes/org/mobicents/slee/container/management/jmx/log
+			// classes/org/restcomm/slee/container/management/jmx/log
 			// URL
 			// fURL=this.getClass().getResource("../../../../../../../logging.properties");
 

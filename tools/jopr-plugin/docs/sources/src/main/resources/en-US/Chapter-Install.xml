@@ -211,7 +211,7 @@
 								<para>Stop the &MANAGEMENT.PLATFORM; server and agent if they are running.</para>
 							</listitem>
 							<listitem>
-								<para>Copy the mobicents-slee-jopr-as-5-plugin-<emphasis>&lt;version&gt;</emphasis>.jar to the jopr-server/jbossas/server/default/deploy/rhq.ear/rhq-downloads/rhq-plugins/ directory, and it will be automatically deployed.</para>
+								<para>Copy the restcomm-slee-jopr-as-5-plugin-<emphasis>&lt;version&gt;</emphasis>.jar to the jopr-server/jbossas/server/default/deploy/rhq.ear/rhq-downloads/rhq-plugins/ directory, and it will be automatically deployed.</para>
 							</listitem>
 							<listitem>
 								<para>Start the &MANAGEMENT.PLATFORM; server.</para>

@@ -49,7 +49,7 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileUpdatedEventImpl;
 
 /**
  * Start time:16:46:52 2009-03-13<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * Class representing Profile Object - this object servers as place holder for
  * selected profiles. ProfileObject can belong to only one profile table during

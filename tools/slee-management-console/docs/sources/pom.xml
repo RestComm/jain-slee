@@ -5,11 +5,11 @@
 	
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools</groupId>
-		<artifactId>mobicents-slee-tools-management-console-docs</artifactId>
+		<artifactId>restcomm-slee-tools-management-console-docs</artifactId>
 		<version>2.8.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>mobicents-slee-tools-management-console-docs-sources</artifactId>
+	<artifactId>restcomm-slee-tools-management-console-docs-sources</artifactId>
 			
 	<properties>
 		

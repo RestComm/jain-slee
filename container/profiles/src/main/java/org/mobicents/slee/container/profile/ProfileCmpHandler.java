@@ -28,7 +28,7 @@ import org.mobicents.slee.container.SleeContainer;
 
 /**
  * Start time:18:25:55 2009-03-17<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * This class encapsulates logic to set/get cmp field of profile,
  * acting as an interceptor.

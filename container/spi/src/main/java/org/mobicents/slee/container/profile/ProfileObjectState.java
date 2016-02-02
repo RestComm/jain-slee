@@ -25,7 +25,7 @@ package org.mobicents.slee.container.profile;
 /**
  * 
  * Start time:16:44:48 2009-03-13<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * Enum representing state of Profile Object - 10.13.2 (or Profile Management
  * Object - 10.9 Profile Management objects)

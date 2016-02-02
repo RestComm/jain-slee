@@ -60,7 +60,7 @@ import org.mobicents.slee.container.component.sbb.SbbRefDescriptor;
 
 /**
  * Start time:16:54:43 2009-01-19<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

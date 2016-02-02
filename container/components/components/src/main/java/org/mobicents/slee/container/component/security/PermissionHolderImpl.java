@@ -22,7 +22,7 @@
 
 /**
  * Start time:12:49:40 2009-04-13<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -45,7 +45,7 @@ import sun.security.provider.PolicyParser;
 
 /**
  * Start time:12:49:40 2009-04-13<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * this class holds permission loaded from Slee components (only from slee
  * components) PermissionsLoaded from different location are not represented by
  * this class. Set of this elements is present for each slee component (library,

@@ -5,17 +5,19 @@
 	
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools</groupId>
-		<artifactId>mobicents-slee-tools-management-console-docs</artifactId>
+		<artifactId>restcomm-slee-jopr-as-5-plugin-docs</artifactId>
 		<version>2.8.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>mobicents-slee-tools-management-console-docs-sources-mobicents</artifactId>	
+	<artifactId>restcomm-slee-jopr-as-5-plugin-docs-sources-restcomm</artifactId>	
 			
 	<properties>
-		<THIS.PLATFORM>Mobicents</THIS.PLATFORM>
+		<THIS.PLATFORM>Restcomm</THIS.PLATFORM>
 		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
-		<MANAGEMENT.PLATFORM>JAIN SLEE Management Console</MANAGEMENT.PLATFORM>
-		<author.email.alexandre>brainslog@gmail.com</author.email.alexandre>
+		<MANAGEMENT.PLATFORM>Jopr</MANAGEMENT.PLATFORM>
+		<author.email.ivelin>ivelin.atanasoff.ivanov (at) gmail.com</author.email.ivelin>
+		<author.email.alexandre>brainslog (at) gmail.com</author.email.alexandre>
+		<THIS.PLATFORM.INSTALL_SECTION>Section-Install_Mobicents.xml</THIS.PLATFORM.INSTALL_SECTION>
 	</properties>
 	
 	<build>
@@ -40,7 +42,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>
-									<artifactId>mobicents-slee-tools-management-console-docs-sources</artifactId>
+									<artifactId>restcomm-slee-jopr-as-5-plugin-docs-sources</artifactId>
 									<version>${pom.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
