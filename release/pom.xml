@@ -31,7 +31,7 @@
 		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
 		<http.scmVersion>2.8.6</http.scmVersion>
 		<http.scmVersionType>tag</http.scmVersionType>
-		<media.scmVersion>2.8.5</media.scmVersion>
+		<media.scmVersion>2.8.8</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
 		<sip.scmVersion>2.8.11</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
