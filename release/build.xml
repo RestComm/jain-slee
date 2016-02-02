@@ -18,20 +18,19 @@
 
 	<property name="cloudbees.url" value="https://mobicents.ci.cloudbees.com" />
 	
-	<property name="mms.build" value="22"/>
+	<property name="mms.build" value="27"/>
 	<property name="mms.download.url" value="${cloudbees.url}/view/MediaServer/job/Mobicents-MediaServer-4.x/${mms.build}/artifact/bootstrap/target/mms-server.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip" />
 
-	<!-- <property name="ss7.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKU1VUOEpoU2tScEE&amp;export=download" /> -->
-	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/1322/artifact/release/restcomm-jss7-3.0.1322-1601130356.zip" />
+	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/1329/artifact/release/mobicents-jss7-3.0.1329-1601292003.zip" />
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
 
-	<!-- <property name="diameter.download.url" value="https://docs.google.com/uc?id=0Bx-TqM2xc5OKNDRXMFloQ2YybGM&amp;export=download" />  -->
-	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/73/artifact/release/restcomm-diameter-mux-jboss5-1.7.0.73.zip" />
+	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/74/artifact/release/restcomm-diameter-mux-jboss5-1.7.0.74.zip" />
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
-	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation-2.8.3.jar" />
-	<property name="eclipslee.download.url" value="${cloudbees.url}/job/Mobicents-EclipSLEE-release/3/artifact/tools/eclipslee/plugin/plugins/org.mobicents.eclipslee.servicecreation/target/org.mobicents.eclipslee.servicecreation-2.0.0-SNAPSHOT.jar" />
+	<property name="eclipslee.build" value="7"/>
+	<property name="eclipslee.download.url" value="${cloudbees.url}/job/Restcomm-EclipSLEE-release/${eclipslee.build}/artifact/tools/eclipslee/plugin/plugins/org.mobicents.eclipslee.servicecreation/target/org.mobicents.eclipslee.servicecreation-2.0.0-SNAPSHOT.jar" />
+	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation-2.8.${eclipslee.build}.jar" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
