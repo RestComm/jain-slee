@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>restcomm-parent</artifactId>
-		<version>2.27.28</version>
+		<version>2.27.29</version>
 	</parent>
 	
 	<packaging>pom</packaging>
