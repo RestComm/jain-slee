@@ -18,7 +18,7 @@
 		<slee.version>${pom.version}</slee.version>
 		<slee.codename>???</slee.codename>
 		<!-- OTHER RESTCOMM COMPONENTS VERSIONS -->
-		<restcomm.cluster.version>1.15.14</restcomm.cluster.version>
+		<restcomm.cluster.version>1.15.18</restcomm.cluster.version>
 	</properties>
 
 	<modules>
