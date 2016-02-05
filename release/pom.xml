@@ -19,40 +19,40 @@
 		<checkout.password />
 		<!-- GIT -->
 
-		<core.scmVersion>2.8.24</core.scmVersion>
+		<core.scmVersion>2.8.25</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
 		<diameter.scmVersion>2.8.18</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
-		<eclipslee.scmVersion>2.8.9</eclipslee.scmVersion>
+		<eclipslee.scmVersion>2.8.10</eclipslee.scmVersion>
 		<eclipslee.scmVersionType>tag</eclipslee.scmVersionType>
-		<javaee.scmVersion>2.8.11</javaee.scmVersion>
+		<javaee.scmVersion>2.8.12</javaee.scmVersion>
 		<javaee.scmVersionType>tag</javaee.scmVersionType>
-		<jdbc.scmVersion>2.8.6</jdbc.scmVersion>
+		<jdbc.scmVersion>2.8.7</jdbc.scmVersion>
 		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
-		<http.scmVersion>2.8.7</http.scmVersion>
+		<http.scmVersion>2.8.8</http.scmVersion>
 		<http.scmVersionType>tag</http.scmVersionType>
-		<media.scmVersion>2.8.9</media.scmVersion>
+		<media.scmVersion>2.8.10</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
-		<sip.scmVersion>2.8.12</sip.scmVersion>
+		<sip.scmVersion>2.8.13</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
-		<smpp.scmVersion>2.8.6</smpp.scmVersion>
+		<smpp.scmVersion>2.8.8</smpp.scmVersion>
 		<smpp.scmVersionType>tag</smpp.scmVersionType>
 		<ss7.scmVersion>2.8.21</ss7.scmVersion>
 		<ss7.scmVersionType>tag</ss7.scmVersionType>
-		<tftp.scmVersion>2.8.5</tftp.scmVersion>
+		<tftp.scmVersion>2.8.7</tftp.scmVersion>
 		<tftp.scmVersionType>tag</tftp.scmVersionType>
-		<xcap.scmVersion>2.8.9</xcap.scmVersion>
+		<xcap.scmVersion>2.8.10</xcap.scmVersion>
 		<xcap.scmVersionType>tag</xcap.scmVersionType>
-		<xmpp.scmVersion>2.8.4</xmpp.scmVersion>
+		<xmpp.scmVersion>2.8.6</xmpp.scmVersion>
 		<xmpp.scmVersionType>tag</xmpp.scmVersionType>
 
 		<cluster.scmVersion>1.15.19</cluster.scmVersion>
 		<cluster.scmVersionType>tag</cluster.scmVersionType>
-		<jain-sip-ext.scmVersion>1.3.16</jain-sip-ext.scmVersion>
+		<jain-sip-ext.scmVersion>1.3.17</jain-sip-ext.scmVersion>
 		<jain-sip-ext.scmVersionType>tag</jain-sip-ext.scmVersionType>
-		<jain-sip-ha.scmVersion>1.5.10</jain-sip-ha.scmVersion>
+		<jain-sip-ha.scmVersion>1.5.14</jain-sip-ha.scmVersion>
 		<jain-sip-ha.scmVersionType>tag</jain-sip-ha.scmVersionType>
-		<sip-balancer.scmVersion>2.0.19</sip-balancer.scmVersion>
+		<sip-balancer.scmVersion>2.0.21</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
 		<snmp.core.scmVersion>2.8.12</snmp.core.scmVersion>
         <snmp.core.scmVersionType>tag</snmp.core.scmVersionType>
