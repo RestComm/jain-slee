@@ -19,9 +19,9 @@
 		<checkout.password />
 		<!-- GIT -->
 
-		<core.scmVersion>2.8.25</core.scmVersion>
+		<core.scmVersion>2.8.26</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
-		<diameter.scmVersion>2.8.18</diameter.scmVersion>
+		<diameter.scmVersion>2.8.20</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
 		<eclipslee.scmVersion>2.8.10</eclipslee.scmVersion>
 		<eclipslee.scmVersionType>tag</eclipslee.scmVersionType>
@@ -37,7 +37,7 @@
 		<sip.scmVersionType>tag</sip.scmVersionType>
 		<smpp.scmVersion>2.8.8</smpp.scmVersion>
 		<smpp.scmVersionType>tag</smpp.scmVersionType>
-		<ss7.scmVersion>2.8.21</ss7.scmVersion>
+		<ss7.scmVersion>2.8.24</ss7.scmVersion>
 		<ss7.scmVersionType>tag</ss7.scmVersionType>
 		<tftp.scmVersion>2.8.7</tftp.scmVersion>
 		<tftp.scmVersionType>tag</tftp.scmVersionType>

@@ -22,10 +22,10 @@
 	<property name="mms.download.url" value="${cloudbees.url}/view/MediaServer/job/Mobicents-MediaServer-4.x/${mms.build}/artifact/bootstrap/target/mms-server.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip" />
 
-	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/1329/artifact/release/mobicents-jss7-3.0.1329-1601292003.zip" />
+	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/1333/artifact/release/restcomm-jss7-3.0.1333-1602051441.zip" />
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
 
-	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/74/artifact/release/restcomm-diameter-mux-jboss5-1.7.0.74.zip" />
+	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/80/artifact/release/restcomm-diameter-mux-jboss5-1.7.0.80.zip" />
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
 	<property name="eclipslee.build" value="7"/>
