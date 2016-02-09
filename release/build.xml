@@ -28,7 +28,7 @@
 	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/80/artifact/release/restcomm-diameter-mux-jboss5-1.7.0.80.zip" />
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
-	<property name="eclipslee.build" value="7"/>
+	<property name="eclipslee.build" value="10"/>
 	<property name="eclipslee.download.url" value="${cloudbees.url}/job/Restcomm-EclipSLEE-release/${eclipslee.build}/artifact/tools/eclipslee/plugin/plugins/org.mobicents.eclipslee.servicecreation/target/org.mobicents.eclipslee.servicecreation-2.0.0-SNAPSHOT.jar" />
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation-2.8.${eclipslee.build}.jar" />
 
