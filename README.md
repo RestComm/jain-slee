@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/RestComm/jain-slee.png?label=ready&title=Ready)](https://waffle.io/RestComm/jain-slee)
 RestComm JAIN-SLEE
 ============
 
