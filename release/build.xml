@@ -18,19 +18,24 @@
 
 	<property name="cloudbees.url" value="https://mobicents.ci.cloudbees.com" />
 	
-	<property name="mms.build" value="27"/>
-	<property name="mms.download.url" value="${cloudbees.url}/view/MediaServer/job/Mobicents-MediaServer-4.x/${mms.build}/artifact/bootstrap/target/mms-server.zip"/>
-	<property name="mms.distro.zip.path" value="media-server.zip" />
-
-	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/1333/artifact/release/restcomm-jss7-3.0.1333-1602051441.zip" />
+	<property name="ms.build" value="33"/>
+	<property name="ms.download.url" value="${cloudbees.url}/view/MediaServer/job/RestComm-MediaServer-4.x/${ms.build}/artifact/bootstrap/target/restcomm-media-server.zip"/>
+	<property name="ms.distro.zip.path" value="restcomm-media-server.zip" />
+	
+	<property name="ss7.build" value="1335"/>
+	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/${ss7.build}/artifact/release/restcomm-jss7-3.0.${ss7.build}-1602101139.zip" />
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
 
-	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/80/artifact/release/restcomm-diameter-mux-jboss5-1.7.0.80.zip" />
+	<property name="dia.version" value="1.7.0.83"/>
+	<property name="dia.build" value="83"/>
+	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/${dia.build}/artifact/release/restcomm-diameter-mux-jboss5-${dia.version}.zip" />
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
-	<property name="eclipslee.build" value="10"/>
-	<property name="eclipslee.download.url" value="${cloudbees.url}/job/Restcomm-EclipSLEE-release/${eclipslee.build}/artifact/tools/eclipslee/plugin/plugins/org.mobicents.eclipslee.servicecreation/target/org.mobicents.eclipslee.servicecreation-2.0.0-SNAPSHOT.jar" />
-	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation-2.8.${eclipslee.build}.jar" />
+	<property name="eclipslee.version" value="2.8.17"/>
+	<property name="eclipslee.build" value="17"/>
+	<property name="eclipslee.path" value="tools/eclipslee/plugin/plugins/org.mobicents.eclipslee.servicecreation/target"/>
+	<property name="eclipslee.download.url" value="${cloudbees.url}/job/Restcomm-EclipSLEE-release/${eclipslee.build}/artifact/${eclipslee.path}/org.mobicents.eclipslee.servicecreation-2.0.0-SNAPSHOT.jar" />
+	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation-${eclipslee.version}.jar" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -332,18 +337,18 @@
 		<get verbose="true" dest="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" src="http://freefr.dl.sourceforge.net/project/jboss/JBoss/JBoss-${jboss.version}/jboss-${jboss.version}-jdk6.zip" />
 	</target>
 
-	<available file="${ant.file.restcomm.release}/../${mms.distro.zip.path}" property="got.mms" />
+	<available file="${ant.file.restcomm.release}/../${ms.distro.zip.path}" property="got.mms" />
 	<target name="get-mms" unless="got.mms">
 		<!--
 		<echo>Downloading Media Server</echo>
-		<get dest="${ant.file.restcomm.release}/../${mms.distro.zip.path}" src="${mms.download.url}" />
+		<get dest="${ant.file.restcomm.release}/../${ms.distro.zip.path}" src="${ms.download.url}" />
 		-->
 	</target>
 
 	<target name="unzip-mms">
 		<!--
 		<delete dir="${release.dir}/extra/restcomm-media-server" failonerror="false" />
-		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/extra/restcomm-media-server" />
+		<unzip src="${ms.distro.zip.path}" dest="${release.dir}/extra/restcomm-media-server" />
 		-->
 	</target>
 
@@ -383,12 +388,13 @@
 		<echo>Checking out sources</echo>
 		<delete dir="${packages.dir}" />
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../">
-			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} -Dcore.scmVersion=${slee.version} -Dsip.scmVersion=${sip.version} -Dsip-balancer.scmVersion=${lb.version} -Ddiameter.scmVersion=${diameter.version}" />
+			<!--<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} -Dcore.scmVersion=${slee.version} -Dsip.scmVersion=${sip.version} -Dsip-balancer.scmVersion=${lb.version} -Ddiameter.scmVersion=${slee.dia.version}" />-->
+			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} ${validate.versions}" />
 		</exec>
 	</target>
 
 	<target name="clean-downloads">
-		<delete file="${ant.file.restcomm.release}/../${mms.distro.zip.path}" failonerror="false" />
+		<delete file="${ant.file.restcomm.release}/../${ms.distro.zip.path}" failonerror="false" />
 		<delete file="${ant.file.restcomm.release}/../${diameter.distro.zip.path}" failonerror="false" />
 		<delete file="${ant.file.restcomm.release}/../${ss7.distro.zip.path}" failonerror="false" />
 	</target>
