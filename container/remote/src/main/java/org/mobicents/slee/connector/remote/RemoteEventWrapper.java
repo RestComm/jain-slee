@@ -73,7 +73,7 @@ public class RemoteEventWrapper implements Externalizable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
 	 */
 	@Override
@@ -86,18 +86,19 @@ public class RemoteEventWrapper implements Externalizable {
 		// add id?
 		out.writeInt(this.serializedEvent.length);
 		out.write(this.serializedEvent);
+        out.flush();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
 	 */
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		int len = in.readInt();
 		this.serializedEvent = new byte[len];
-		in.read(serializedEvent);
+		in.readFully(serializedEvent);
 	}
 
 	@Override
