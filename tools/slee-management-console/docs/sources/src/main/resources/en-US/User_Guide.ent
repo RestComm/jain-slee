@@ -7,7 +7,7 @@ Important: take care when changing entities for directories
 If this final separator is missing, then the documentation will be wrong. -->
 
 <!-- Common entities: same across all books except for BOOKID -->
-<!ENTITY THIS.VERSION "2.0.0.BETA1">
+<!ENTITY THIS.VERSION "${version}">
 <!ENTITY THIS.PLATFORM "${THIS.PLATFORM}">
 <!ENTITY JEE.PLATFORM "${JEE.PLATFORM}">
 <!ENTITY MANAGEMENT.PLATFORM "${MANAGEMENT.PLATFORM}">
@@ -16,4 +16,4 @@ If this final separator is missing, then the documentation will be wrong. -->
 <!ENTITY YEAR "2012">
 <!ENTITY HOLDER "Red Hat Inc">
 
-<!ENTITY AUTHOR_EMAIL_ALEX "${author.email.alexandre}">
+<!ENTITY AUTHOR.EMAIL.ALEX "${author.email.alexandre}">
