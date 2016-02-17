@@ -1009,7 +1009,7 @@ public class MobicentsLogManagerMBeanImpl extends ServiceMBeanSupport implements
 			// URI fURI=lFile.toURI();
 			// this.reReadConf(fURI);
 
-			// classes/org/restcomm/slee/container/management/jmx/log
+			// classes/org/mobicents/slee/container/management/jmx/log
 			// URL
 			// fURL=this.getClass().getResource("../../../../../../../logging.properties");
 

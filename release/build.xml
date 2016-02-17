@@ -23,7 +23,8 @@
 	<property name="ms.distro.zip.path" value="restcomm-media-server.zip" />
 	
 	<property name="ss7.build" value="1335"/>
-	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/${ss7.build}/artifact/release/restcomm-jss7-3.0.${ss7.build}-1602101139.zip" />
+	<property name="ss7.zip" value="restcomm-jss7-3.0.1335-1602101139.zip"/>
+	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/${ss7.build}/artifact/release/${ss7.zip}" />
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
 
 	<property name="dia.version" value="1.7.0.83"/>

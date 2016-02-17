@@ -15,7 +15,7 @@
 	
 	<para>The extensions source code is available in the &PLATFORM_NAME; SLEE Community Git repository, specifically at api/extensions subdirectory. Its javadocs are bundled in the SLEE binary release, in docs/container/javadoc subdirectory. The setup for the source project in Eclipse IDE is similar to the container core, as seen in  <xref linkend="eclipse_ide"/>.</para>	
 
-	<para>Java archives (JARs) with compiled classes, javadocs and sources are available in the Sonatype Maven Repository at <ulink url="https://oss.sonatype.org/content/groups/public/org/restcomm/servers/jainslee/api/jain-slee-11-ext/"/></para>
+	<para>Java archives (JARs) with compiled classes, javadocs and sources are available in the Sonatype Maven Repository at <ulink url="https://oss.sonatype.org/content/groups/public/org/mobicents/servers/jainslee/api/jain-slee-11-ext/"/></para>
 	
 	<xi:include href="Section-Extension_SbbContext.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
