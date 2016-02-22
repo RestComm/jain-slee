@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="profile">
 
 	<title>profile</title>
@@ -113,6 +116,9 @@ ProfileSpecificationID[name=CallControlProfileCMP,vendor=org.mobicents,version=0
 			<title>Create profile in table</title>
 			<!-- <screen> --><programlisting>./twiddle.sh profile -c --table-name=NewCallControl --profile-name=newuser<!-- </screen> --></programlisting>
 		</example>
+		
+		<para>After creating profile is in the read-write state allowing the management client a chance to configure the initial values for the profile attributes before it is added to the profile table. The new profile is not visible in the profile table until the Profile MBean state is committed using <literal>profile.edit</literal> command with <literal>commit</literal> operation. If the <literal>restore</literal> operation from <literal>profile.edit</literal> command is invoked on the Profile MBean before its state is committed, creation of the profile is rolled back and the profile is considered never to have been created successfully.</para>
+
 	</section>	
 	<section id="profile_remove">
 		<title>remove</title>
