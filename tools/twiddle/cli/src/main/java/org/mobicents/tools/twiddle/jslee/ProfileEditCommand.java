@@ -47,8 +47,6 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 	
 	private ObjectName PROFILE_PROVISIONING_MBEAN;
 	/**
-	 * @param name
-	 * @param desc
 	 */
 	public ProfileEditCommand() {
 		super("profile.edit", "This command performs operations on JSLEE Profile MBean like: javax.slee.profile:type=Profile,profileTableName=CallControl,profileName=");
@@ -261,7 +259,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 				super.operation.buildOperation(getopt, args);
 				break;
 			case 'c':
-				//comit
+				//commit
 				super.operation = new SimpleInvokeOperation(super.context, super.log, this,"commitProfile");
 				prepareCommand();
 				super.operation.buildOperation(getopt, args);
@@ -300,7 +298,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 			default:
 				throw new CommandException("Command: \"" + getName() + "\", found unexpected opt: " + args[getopt.getOptind() - 1]);
 
-			}	
+			}
 		}
 	}
 	
@@ -324,14 +322,32 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		}else
 		{
 			getOperationName = OPERATION_GET;
-			parms = new Object[]{profileTableName,profileName};
-			sig = new String[]{"java.lang.String","java.lang.String"};
+			parms = new Object[]{profileTableName, profileName};
+			sig = new String[]{"java.lang.String", "java.lang.String"};
 		}
+
 		try {
 			specificObjectName = (ObjectName) server.invoke(PROFILE_PROVISIONING_MBEAN, getOperationName, parms, sig);
 		}catch (Exception e) {
-			throw new CommandException("Command: \"" + getName()+"\" failed to obtain bean name for specified table name and profile. Table or profile does not exist.", e);
-		} 
+
+			// if main operation is commitProfile and execute after createProfile
+			// ProfileProvisioning MBean can not execute getProfile for new profile after createProfile execution
+			if (this.operation.getOperationName().equals("commitProfile"))
+			{
+				try {
+					String profileBeanName = "javax.slee.profile:profileName=" + this.profileName;
+					profileBeanName += ",profileTableName=" + this.profileTableName;
+					profileBeanName += ",type=Profile";
+					specificObjectName = new ObjectName(profileBeanName);
+				}catch (Exception ce) {
+					throw new CommandException ("Command: \"" + getName()+"\" failed to commit bean name for specified profile.", ce);
+				}
+			}
+			else
+			{
+				throw new CommandException("Command: \"" + getName()+"\" failed to obtain bean name for specified table name and profile. Table or profile does not exist.", e);
+			}
+		}
 		
 		//ok, now lets get bean info;
 		try{
@@ -339,7 +355,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 			
 		}catch (Exception e) {
 			throw new CommandException("Command: \"" + getName()+"\" failed to obtain bean name for specified table name and profile.", e);
-		} 
+		}
 	}
 	
 	private MBeanAttributeInfo findAttribute(String attr_name,
