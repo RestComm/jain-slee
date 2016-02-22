@@ -24,7 +24,6 @@ import java.io.PrintWriter;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.MBeanServerConnection;
 import javax.slee.profile.ProfileSpecificationID;
 
 import org.jboss.console.twiddle.command.CommandContext;
@@ -350,19 +349,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 			//FIXME: is this ok ?
 			if(super.operationName.equals(OPERATION_createProfile))
 			{
-				MBeanServerConnection server = super.context.getServer();
-				try {
-					String profile_temp = "javax.slee.profile:profileName=" + this.stringProfileName;
-					String table_name = ",profileTableName=" + this.stringTableName;
-					String type = ",type=Profile";
-					String commitObject = profile_temp + table_name + type;
-
-					server.invoke( new ObjectName(commitObject), "commitProfile", null, null);
-				}catch (Exception e) {
-					return "Command: \"" + getName()+"\" failed to commit bean name for specified profile.";
-				}
-
-				return "Profile created: " + this.stringProfileName;
+				return "Profile created: "+super.operationResult;
 			}else
 			{
 				return "Profile Table created: "+super.operationResult; //??
