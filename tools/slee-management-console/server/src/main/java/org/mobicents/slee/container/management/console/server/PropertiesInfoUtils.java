@@ -53,7 +53,7 @@ public class PropertiesInfoUtils {
 
     for (String key : propertiesInfo.keySet()) {
       String[] nameAndType = key.split(" :: ", 2);
-      String value = propertiesInfo.getProperty(nameAndType[0]);
+      String value = propertiesInfo.getProperty(key);
       Property property = new Property(nameAndType[0], nameAndType[1], value);
       properties.addProperty(property);
     }
