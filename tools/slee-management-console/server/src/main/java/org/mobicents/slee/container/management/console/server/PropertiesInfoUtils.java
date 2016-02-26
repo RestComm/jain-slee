@@ -25,6 +25,7 @@ package org.mobicents.slee.container.management.console.server;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ConfigProperties.Property;
 
+import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
 import org.mobicents.slee.container.management.console.client.PropertiesInfo;
 
 /**
@@ -48,12 +49,24 @@ public class PropertiesInfoUtils {
     return propertiesInfo;
   }
 
-  public static ConfigProperties toProperties(PropertiesInfo propertiesInfo) {
+  public static ConfigProperties toProperties(PropertiesInfo propertiesInfo) throws ManagementConsoleException {
     ConfigProperties properties = new ConfigProperties();
 
     for (String key : propertiesInfo.keySet()) {
       String[] nameAndType = key.split(" :: ", 2);
-      String value = propertiesInfo.getProperty(key);
+
+      // obtain a value depending on the type of property
+      //String value = propertiesInfo.getProperty(key);
+      Object value = propertiesInfo.getProperty(key);
+      if (nameAndType[1].equals("java.lang.Integer")) {
+        try {
+          value = Integer.valueOf((String)value);
+        } catch (NumberFormatException e) {
+          throw new ManagementConsoleException("Value of " + nameAndType[0]
+                  + " should be java.lang.Integer. " + e.getMessage());
+        }
+      }
+
       Property property = new Property(nameAndType[0], nameAndType[1], value);
       properties.addProperty(property);
     }
