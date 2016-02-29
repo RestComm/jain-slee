@@ -211,7 +211,7 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 *         will contain String represenation of integer number (which tells
 	 *         how many of certain property there is - see description of
 	 *         indexes) General description of return Object[] can be found here:
-	 *         <b>http://groups.google.com/group/restcomm-public/web/restcomm-activity-context-mbean</b>
+	 *         <b>http://groups.google.com/group/mobicents-public/web/mobicents-activity-context-mbean</b>
 	 * @param if
 	 *            <b>true</b> output will have list of all properties(lie sbb attachemtn set, etc.), not just
 	 *            number of them.
@@ -317,7 +317,7 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 * but for one, and returns it in array, which is more conveniant to parse
 	 * that String with tree.
 	 * 
-	 * @return Object[] - its structure has been defined here <b>http://groups.google.com/group/restcomm-public/web/restcomm-activity-context-mbean?version=8</b>, also You can read static fields descritpiotn in MBean interface for this MbeanImpl
+	 * @return Object[] - its structure has been defined here <b>http://groups.google.com/group/mobicents-public/web/mobicents-activity-context-mbean?version=8</b>, also You can read static fields descritpiotn in MBean interface for this MbeanImpl
 	 * @throws ManagementException
 	 *             if ac is not found
 	 */

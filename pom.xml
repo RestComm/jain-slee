@@ -58,7 +58,7 @@
 				<module>tools/slee-management-console</module>				
 				<module>tools/slee-console-new</module>				
 				<module>tools/twiddle</module>				
-			</modules>								
+			</modules>
 		</profile>
 	</profiles>	
 	
