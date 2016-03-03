@@ -83,7 +83,7 @@
 								${checkout.basedir}/cluster
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/cluster.git
+								scm:git:https://github.com/RestComm/cluster.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -101,7 +101,7 @@
 								${checkout.basedir}/jain-sip-ext
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-sip.ext.git
+								scm:git:https://github.com/RestComm/jain-sip.ext.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -119,7 +119,7 @@
 								${checkout.basedir}/jain-sip-ha
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-sip.ha.git
+								scm:git:https://github.com/RestComm/jain-sip.ha.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -137,7 +137,7 @@
 								${checkout.basedir}/extra/sip-balancer
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/load-balancer.git
+								scm:git:https://github.com/RestComm/load-balancer.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -155,7 +155,7 @@
 								${checkout.basedir}/core
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.git
+								scm:git:https://github.com/RestComm/jain-slee.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -173,7 +173,7 @@
 								${checkout.basedir}/diameter
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.diameter.git
+								scm:git:https://github.com/RestComm/jain-slee.diameter.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -191,7 +191,7 @@
 								${checkout.basedir}/eclipslee
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.eclipslee.git
+								scm:git:https://github.com/RestComm/jain-slee.eclipslee.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -209,7 +209,7 @@
 								${checkout.basedir}/javaee
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.javaee.git
+								scm:git:https://github.com/RestComm/jain-slee.javaee.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -226,7 +226,7 @@
 								${checkout.basedir}/jdbc
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.jdbc.git
+								scm:git:https://github.com/RestComm/jain-slee.jdbc.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -244,7 +244,7 @@
 								${checkout.basedir}/http
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.http.git
+								scm:git:https://github.com/RestComm/jain-slee.http.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -262,7 +262,7 @@
 								${checkout.basedir}/media
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.media.git
+								scm:git:https://github.com/RestComm/jain-slee.media.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -280,7 +280,7 @@
 								${checkout.basedir}/sip
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.sip.git
+								scm:git:https://github.com/RestComm/jain-slee.sip.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -298,7 +298,7 @@
 								${checkout.basedir}/smpp
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.smpp.git
+								scm:git:https://github.com/RestComm/jain-slee.smpp.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -316,7 +316,7 @@
 								${checkout.basedir}/ss7
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.ss7.git
+								scm:git:https://github.com/RestComm/jain-slee.ss7.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -334,7 +334,7 @@
 								${checkout.basedir}/tftp
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.tftp.git
+								scm:git:https://github.com/RestComm/jain-slee.tftp.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -352,7 +352,7 @@
 								${checkout.basedir}/xcap
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.xcap.git
+								scm:git:https://github.com/RestComm/jain-slee.xcap.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -370,7 +370,7 @@
 								${checkout.basedir}/xmpp
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/jain-slee.xmpp.git
+								scm:git:https://github.com/RestComm/jain-slee.xmpp.git
 							</connectionUrl>
 						</configuration>
 					</execution>
@@ -388,10 +388,10 @@
 								${checkout.basedir}/extra/snmp-adaptor
 							</checkoutDirectory>
 							<connectionUrl>
-								scm:git:https://github.com/Mobicents/snmp-adaptor.git
+								scm:git:https://github.com/RestComm/snmp-adaptor.git
 							</connectionUrl>
 						</configuration>
-					</execution>					
+					</execution>
 
 				</executions>
 			</plugin>			
@@ -413,8 +413,8 @@
 	</build>
 	
 	<scm>
-		<connection>scm:git:ssh://git@github.com:Mobicents/jain-slee.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:Mobicents/jain-slee.git</developerConnection>
+		<connection>scm:git:ssh://git@github.com:RestComm/jain-slee.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:RestComm/jain-slee.git</developerConnection>
   	</scm>
   
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
