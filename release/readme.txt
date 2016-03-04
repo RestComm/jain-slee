@@ -1,12 +1,12 @@
 =================================================================
-! Welcome to Telscale - The Open Source Carrier Grade JAIN SLEE !
+! Welcome to RestComm - The Open Source Carrier Grade JAIN SLEE !
 =================================================================
 
-Telscale JAIN SLEE is the First and Only Certified Open Source implementation of JAIN-SLEE 1.1, carrier grade and with professional support.  
+RestComm JAIN SLEE is the First and Only Certified Open Source implementation of JAIN-SLEE 1.1, carrier grade and with professional support.  
 
-Telscale JAIN SLEE home page: http://www.telestax.com
+RestComm JAIN SLEE home page: http://www.restcomm.com
 
-This is the binary release of Telscale JAIN SLEE 6.x.
+This is the binary release of RestComm JAIN SLEE 2.x.
 
 Directory Structure
 -------------------
@@ -20,9 +20,9 @@ Directory Structure
  +--- tools/remote-slee-connection	(Remote SLEE Connection Tool)
  +--- tools/snmp					(SNMP Adaptor)
  +--- tools/twiddle					(Twiddle Command Line Interface)
- +--- extra/telscale-diameter		(Telscale Diameter Stack, required by Diameter RAs)
- +--- extra/telscale-ss7			(Telscale SS7 Stack, required by SS7 RAs)
- +--- extra/sip-balancer			(Telscale SIP Load Balancer)
+ +--- extra/telscale-diameter		(RestComm Diameter Stack, required by Diameter RAs)
+ +--- extra/telscale-ss7			(RestComm SS7 Stack, required by SS7 RAs)
+ +--- extra/sip-balancer			(RestComm SIP Load Balancer)
  
 Quick start
 -----------
