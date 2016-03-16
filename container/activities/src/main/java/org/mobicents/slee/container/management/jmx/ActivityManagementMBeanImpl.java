@@ -339,14 +339,10 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 						// we
 						// should care. But Console is java script, and
 						// sometimes that can be pain, so lets ease it
-						o[SBB_ATTACHMENTS] = ((Object[]) o[SBB_ATTACHMENTS]).length
-						+ "";
-						o[NAMES_BOUND_TO] = ((Object[]) o[NAMES_BOUND_TO]).length
-						+ "";
-						o[TIMERS_ATTACHED] = ((Object[]) o[TIMERS_ATTACHED]).length
-						+ "";
-						o[DATA_PROPERTIES] = ((Object[]) o[DATA_PROPERTIES]).length
-						+ "";
+					    o[SBB_ATTACHMENTS] = Integer.toString(((Object[]) o[SBB_ATTACHMENTS]).length);
+						o[NAMES_BOUND_TO] = Integer.toString(((Object[]) o[NAMES_BOUND_TO]).length);
+						o[TIMERS_ATTACHED] = Integer.toString(((Object[]) o[TIMERS_ATTACHED]).length);
+						o[DATA_PROPERTIES] = Integer.toString(((Object[]) o[DATA_PROPERTIES]).length);
 					}
 
 					singleResult = o;
