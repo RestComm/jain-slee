@@ -293,7 +293,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public Set getAttachedTimers() {
 		final Node node = getAttachedTimersNode(false);
-		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;								
+		return node != null ? node.getChildrenNames() : Collections.emptySet();								
 	}
 
 	/**
@@ -335,7 +335,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public Set getNamesBoundCopy() {
 		final Node node = getNamesBoundNode(false);
-		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
+		return node != null ? node.getChildrenNames() : Collections.emptySet();
 	}
 
 	/**
@@ -386,7 +386,7 @@ public class ActivityContextCacheData extends CacheData {
 	public Map getCmpAttributesCopy() {
 		final Node node = getCmpAttributesNode(false);
 		if(node == null) {
-			return Collections.EMPTY_MAP;
+			return Collections.emptyMap();
 		}
 		else {
 			Map result = new HashMap();
