@@ -65,7 +65,7 @@ public class MCMPField implements ProfileCMPFieldDescriptor {
     this.uniqueCollatorRef = cmpField11.getUniqueCollatorRef();
 
     this.indexHints = new ArrayList<MIndexHint>();
-    if(cmpField11.getIndexHint() != null && cmpField11.getIndexHint().size()>0)
+    if(cmpField11.getIndexHint() != null && !cmpField11.getIndexHint().isEmpty())
     {
       for(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint ih : cmpField11.getIndexHint())
       {

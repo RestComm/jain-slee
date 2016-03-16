@@ -199,7 +199,7 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
       info[SBB_ENTITY_SERV_CONV_NAME] = entity.getSbbEntityId().getServiceConvergenceName();
       info[SBB_ENTITY_SERVICE_ID] = String.valueOf(entity.getSbbEntityId().getServiceID());
       Set acsSet = entity.getActivityContexts();
-      if (acsSet != null && acsSet.size() > 0) {
+      if (acsSet != null && !acsSet.isEmpty()) {
         Object[] acsArray = acsSet.toArray();
         String[] acs = new String[acsArray.length];
         info[ACS] = acs;

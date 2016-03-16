@@ -171,7 +171,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		for (ActivityContextHandle ach : this.acFactory.getAllActivityContextsHandles()) {
 			factoriesSet.add(ach.getActivityType() == ActivityType.RA ? ((ResourceAdaptorActivityContextHandle)ach).getResourceAdaptorEntity().getName() : "");
 		}		
-		if (factoriesSet.size() == 0)
+		if (factoriesSet.isEmpty())
 			return null;
 		String[] ret = new String[factoriesSet.size()];
 		ret = (String[]) factoriesSet.toArray(ret);
@@ -360,7 +360,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 			}
 
 		}
-		if (lst.size() == 0)
+		if (lst.isEmpty())
 			return null;
 
 		logger.info("RETURN SIZE[" + lst.size() + "]");
