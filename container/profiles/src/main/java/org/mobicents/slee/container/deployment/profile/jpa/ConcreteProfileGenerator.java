@@ -408,7 +408,8 @@ public class ConcreteProfileGenerator {
 	private void generateCMPGetter(CtMethod method,
 			CtClass classToBeInstrumented) throws Exception {
 
-		String fieldName = Introspector.decapitalize(method.getName()
+		// see issue #23: [Profiles] getting correct fieldName from method of ProfileCMP interface
+		String fieldName = ClassGeneratorUtils.decapitalize(method.getName()
 				.replaceFirst("get", ""));
 
 		boolean isPrimitive = isPrimitiveOrPrimitiveArray(method
@@ -482,7 +483,8 @@ public class ConcreteProfileGenerator {
 	private void generateCMPSetter(CtMethod method,
 			CtClass classToBeInstrumented) throws Exception {
 
-		String fieldName = Introspector.decapitalize(method.getName()
+		// see issue #23: [Profiles] getting correct fieldName from method of ProfileCMP interface
+		String fieldName = ClassGeneratorUtils.decapitalize(method.getName()
 				.replaceFirst("set", ""));
 
 		ProfileAttribute profileAttribute = profileComponent
