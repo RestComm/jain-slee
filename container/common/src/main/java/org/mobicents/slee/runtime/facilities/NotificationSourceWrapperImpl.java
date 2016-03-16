@@ -61,7 +61,7 @@ public class NotificationSourceWrapperImpl implements NotificationSourceWrapper,
 	
 	@Override
 	public int hashCode() {
-		return ((notificationSource == null) ? 0 : notificationSource.hashCode());		
+		return (notificationSource == null) ? 0 : notificationSource.hashCode();		
 	}
 	
 	@Override

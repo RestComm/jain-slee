@@ -366,7 +366,7 @@ public class DeploymentManager {
           logger.error("Failure invoking '" + action, e);
         }
         else {
-          throw (e);
+          throw e;
         }
       }
 
