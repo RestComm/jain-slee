@@ -745,7 +745,7 @@ public class SbbEntityImpl implements SbbEntity {
 		
 		try {
 			// get one object from the pool
-			this.sbbObject = (SbbObject) getObjectPool().borrowObject();
+			this.sbbObject = getObjectPool().borrowObject();
 			// invoke the appropriate sbb life-cycle methods
 			this.sbbObject.setSbbEntity(this);
 			if (created) {

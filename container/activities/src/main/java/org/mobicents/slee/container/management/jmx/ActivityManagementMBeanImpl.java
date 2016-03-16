@@ -287,7 +287,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 					SbbID implSbbID = null;
 					for (SbbEntityID sbbEntityID : ac.getSbbAttachmentSet()) {
 						if (sbbEntityIdToSbbID.containsKey(sbbEntityID)) {
-							implSbbID = (SbbID) sbbEntityIdToSbbID.get(sbbEntityID);
+							implSbbID = sbbEntityIdToSbbID.get(sbbEntityID);
 						} else {
 							SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbEntityID,false);
 							if (sbbe == null) {
