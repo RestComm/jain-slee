@@ -61,11 +61,9 @@ public class SbbUsageMBeanImpl extends UsageMBeanImpl implements SbbUsageMBean {
 	@Override
 	public MBeanNotificationInfo[] getNotificationInfo() {
 		String[] notificationTypes = new String[] { SbbUsageMBean.USAGE_NOTIFICATION_TYPE };
-		MBeanNotificationInfo[] mbeanNotificationInfo = new MBeanNotificationInfo[] { new MBeanNotificationInfo(
+		return new MBeanNotificationInfo[] { new MBeanNotificationInfo(
 				notificationTypes, UsageNotification.class.getName(),
 				"JAIN SLEE 1.0 Usage MBean notification") };
-
-		return mbeanNotificationInfo;
 	}
 	
 	public SbbID getSbb() throws ManagementException {

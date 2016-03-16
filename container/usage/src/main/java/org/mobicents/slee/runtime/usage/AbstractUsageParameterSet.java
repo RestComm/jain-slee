@@ -183,8 +183,7 @@ public abstract class AbstractUsageParameterSet {
 	public static final AbstractUsageParameterSet newInstance(Class<?> concreteClass, NotificationSource notificationSource, String parameterSetName, SleeContainer sleeContainer)
 			throws SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		Constructor<?> constructor = concreteClass.getConstructor(NotificationSource.class, String.class, SleeContainer.class);
-		AbstractUsageParameterSet instance = (AbstractUsageParameterSet) constructor.newInstance(notificationSource, parameterSetName, sleeContainer);
-		return instance;
+		return (AbstractUsageParameterSet) constructor.newInstance(notificationSource, parameterSetName, sleeContainer);
 	}
 
 }

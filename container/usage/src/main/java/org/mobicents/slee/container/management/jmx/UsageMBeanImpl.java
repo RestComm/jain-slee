@@ -61,11 +61,10 @@ public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 				SbbNotification.USAGE_NOTIFICATION_TYPE,
 				SubsystemNotification.USAGE_NOTIFICATION_TYPE
 				};
-		MBeanNotificationInfo[] mbeanNotificationInfo = new MBeanNotificationInfo[] { new MBeanNotificationInfo(
+		return new MBeanNotificationInfo[] { new MBeanNotificationInfo(
 				notificationTypes, UsageNotification.class.getName(),
 				"JAIN SLEE 1.1 Usage MBean Notification") };
 
-		return mbeanNotificationInfo;
 	}
 		
 	private AbstractUsageParameterSet usageParameterSet;
