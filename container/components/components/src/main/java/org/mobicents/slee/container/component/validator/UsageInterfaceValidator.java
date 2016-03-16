@@ -167,7 +167,6 @@ public class UsageInterfaceValidator {
 
 			// parameters check
 
-			HashMap<String, String> parameterNameToparameterType = new HashMap<String, String>();
 			Set<String> ignore = new HashSet<String>();
 			ignore.add("java.lang.Object");
 			Map<String, Method> interfaceMethods = ClassUtils.getAllInterfacesMethods(usageInterface, ignore);
@@ -503,7 +502,6 @@ public class UsageInterfaceValidator {
 		boolean passed = true;
 		boolean foundAtleastOne = false;
 		String methodName = "getDefaultSbbUsageParameterSet";
-		Class componentClass = component.getAbstractSbbClass();
 
 		Method m = null;
 
@@ -619,7 +617,6 @@ public class UsageInterfaceValidator {
 		boolean passed = true;
 		boolean foundAtleastOne = false;
 		String methodName = "getDefaultUsageParameterSet";
-		Class componentClass = component.getProfileAbstractClass();
 
 		Method m = null;
 

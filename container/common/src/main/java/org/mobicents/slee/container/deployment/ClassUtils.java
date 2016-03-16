@@ -126,7 +126,6 @@ public class ClassUtils {
 	        Map.Entry entry = (Map.Entry)iter.next();
 	        String property = (String)entry.getKey();
 	        CtMethod getter = (CtMethod)entry.getValue();
-	        String mname = getter.getName();
 	        // find matching setter
 	        CtMethod setter = (CtMethod)setters.get(property);
 	        // if setter is null, the property is not full access (read&write), therefore ignored 
