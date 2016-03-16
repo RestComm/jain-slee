@@ -372,7 +372,7 @@ public class UsageInterfaceValidator {
 			}
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
 				// System.err.println(errorBuffer);
 			}
 		}
@@ -447,7 +447,7 @@ public class UsageInterfaceValidator {
 
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
 				// ////System.err.println(errorBuffer);
 			}
 		}
@@ -489,7 +489,7 @@ public class UsageInterfaceValidator {
 
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
 				// ////System.err.println(errorBuffer);
 			}
 		}
@@ -544,7 +544,7 @@ public class UsageInterfaceValidator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
+			logger.error(errorBuffer);
 			// System.err.println(errorBuffer);
 		}
 
@@ -594,7 +594,7 @@ public class UsageInterfaceValidator {
 			errorBuffer = appendToBuffer(id, "Usage interface access method has wrong return type defined, method: " + m.getName(), section, errorBuffer);
 		}
 		if (!passed) {
-			logger.error(errorBuffer.toString());
+			logger.error(errorBuffer);
 			// System.err.println(errorBuffer);
 		}
 
@@ -662,7 +662,7 @@ public class UsageInterfaceValidator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
+			logger.error(errorBuffer);
 			// System.err.println(errorBuffer);
 		}
 
