@@ -154,9 +154,9 @@ public class ConcreteProfileEntityGenerator {
     		  CtField genField = ClassGeneratorUtils.addField( returnType, fieldName, concreteProfileEntityClass );
 
     		  // see issue #23: [Profiles] getting correct fieldName from method of ProfileCMP interface
-			  fieldName = genField.getName();
-			  
-			  String pojoCmpAccessorSufix = ClassGeneratorUtils.getPojoCmpAccessorSufix(genField.getName());
+    		  fieldName = genField.getName();
+
+    		  String pojoCmpAccessorSufix = ClassGeneratorUtils.getPojoCmpAccessorSufix(genField.getName());
     		  // create the getter
     		  CtMethod ctMethod = CtNewMethod.getter( "get" + pojoCmpAccessorSufix, genField );
     		  ProfileAttribute profileAttribute = profileComponent.getProfileAttributes().get(fieldName);
