@@ -152,10 +152,14 @@ public class ConcreteProfileEntityGenerator {
     		  boolean array = method.getReturnType().isArray();
     		  CtClass returnType = array ? listClass : method.getReturnType();
     		  CtField genField = ClassGeneratorUtils.addField( returnType, fieldName, concreteProfileEntityClass );
+
+    		  // see issue #23: [Profiles] getting correct fieldName from method of ProfileCMP interface
+    		  fieldName = genField.getName();
+
     		  String pojoCmpAccessorSufix = ClassGeneratorUtils.getPojoCmpAccessorSufix(genField.getName());
     		  // create the getter
     		  CtMethod ctMethod = CtNewMethod.getter( "get" + pojoCmpAccessorSufix, genField );
-    		  ProfileAttribute profileAttribute = profileComponent.getProfileAttributes().get(fieldName);    		  
+    		  ProfileAttribute profileAttribute = profileComponent.getProfileAttributes().get(fieldName);
     		  concreteProfileEntityClass.addMethod(ctMethod);
     		  if (array) {
     			  // we need to generate a class for this attribute, to hold the one to many relation
