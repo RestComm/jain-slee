@@ -22,11 +22,12 @@
 
 package org.mobicents.slee.container.management.console.server;
 
-import javax.slee.resource.ConfigProperties;
-import javax.slee.resource.ConfigProperties.Property;
-
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
 import org.mobicents.slee.container.management.console.client.PropertiesInfo;
+
+import javax.slee.resource.ConfigProperties;
+import javax.slee.resource.ConfigProperties.Property;
+import java.lang.reflect.Constructor;
 
 /**
  * 
@@ -58,13 +59,13 @@ public class PropertiesInfoUtils {
       // obtain a value depending on the type of property
       //String value = propertiesInfo.getProperty(key);
       Object value = propertiesInfo.getProperty(key);
-      if (nameAndType[1].equals("java.lang.Integer")) {
-        try {
-          value = Integer.valueOf((String)value);
-        } catch (NumberFormatException e) {
+      try {
+        Class clazz = Class.forName(nameAndType[1]);
+        Constructor con = clazz.getConstructor(String.class);
+        value = con.newInstance((String)value);
+      } catch (Exception e) {
           throw new ManagementConsoleException("Value of " + nameAndType[0]
-                  + " should be java.lang.Integer. " + e.getMessage());
-        }
+                  + " is not supported for type " + nameAndType[1] + ". " + e.getMessage());
       }
 
       Property property = new Property(nameAndType[0], nameAndType[1], value);
