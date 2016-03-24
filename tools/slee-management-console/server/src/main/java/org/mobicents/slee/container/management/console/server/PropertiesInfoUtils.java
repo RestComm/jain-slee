@@ -65,7 +65,7 @@ public class PropertiesInfoUtils {
         value = con.newInstance((String)value);
       } catch (Exception e) {
           throw new ManagementConsoleException("Value of " + nameAndType[0]
-                  + " is not supported for type " + nameAndType[1] + ". " + e.getMessage());
+                  + " is not supported for type " + nameAndType[1] + ".");
       }
 
       Property property = new Property(nameAndType[0], nameAndType[1], value);
