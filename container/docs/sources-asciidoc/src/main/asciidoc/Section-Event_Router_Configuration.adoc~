@@ -1,0 +1,65 @@
+
+[[_event_router_configuration]]
+= Event Router Statistics and Configuration
+
+The JAIN SLEE Event Router is the module responsible for creating new service instances and delivering events to all interested parties.
+It is capable of doing the routing of several events in parallel, through the usage of multiple executors, each bound to a different thread.
+
+The Event Router is also able to account performance and load statistics, indicating the number of activities being assigned or several timings regarding event routing, globally or for each individual executor/thread.
+Statistics are turned on by default and may be retrieved through the JMX MBean [app]`org.mobicents.slee:name=EventRouterStatistics`.
+
+An important sub-module of the Event Router is the Executor Mapper, which is responsible for assigning activities to the available executors.
+JAIN SLEE includes two different Executor Mappers.
+The default one takes into account the hashcode of the activity handle when distributing, while the alternative uses a round robin algorithm. 
+
+NOTE: In the case of advanced performance tuning, it is advised to try the different implementations available, or even provide a custom one. 
+
+The Executor Mapper is nothing more than an interface: [class]`org.mobicents.slee.container.eventrouter.EventRouterExecutorMapper`.
+To deploy a custom implementation, drop the implementation class or classes, packed in a jar file, in the server profile [path]_/deploy_ directory. 
+
+The whole Event Router is a critical component with respect to the container's performance.
+Its configuration can be tuned, through an XML file and a JMX MBean.
+
+== Event Router Persistent Configuration
+
+Configuration is done through an XML descriptor for each <<_server_profiles>>.
+The XML file is named [path]_jboss-beans.xml_ and is located at [path]_$JBOSS_HOME/server/profile_name/deploy/restcomm-slee/META-INF_, where [app]`profile_name` is the server profile name.
+
+The configuration is exposed a JBoss Microcontainer Bean:
+
+[source,xml]
+----
+
+<bean name="Mobicents.JAINSLEE.EventRouterConfiguration"
+	class="org.mobicents.slee.container.management.jmx.EventRouterConfiguration">
+	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name=
+		"org.mobicents.slee:name=EventRouterConfiguration",	exposedInterface=
+		org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean.class,
+		registerDirectly=true)</annotation>
+	<property name="eventRouterThreads">8</property>
+	<property name="collectStats">true</property>
+	<property name="executorMapperClassName">
+		org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper
+	</property>
+</bean>
+----
+
+.JAIN SLEE Event Router Bean Configuration
+[cols="1,1,1", frame="all", options="header"]
+|===
+| Property Name
+| Property Type
+| Description
+
+
+
+| This property defines the implementation class of Executor Mapper used by the Event Router, the one above and default uses the activity handle hashcode to do the mapping, an alternative is org.mobicents.slee.runtime.eventrouter .mapping.RoundRobinEvent RouterExecutorMapper, which uses Round Robin algorithm.
+|===
+
+== Event Router JMX Configuration
+
+Through JMX, the Event Router module configuration can be changed while the container is running.
+These configuration changes are not persisted.
+
+The JMX MBean that can be used to change the Event Router configuration is named [app]`org.mobicents.slee:name=EventRouterConfiguration`, and provides getters and setters to change each property defined in the persistent configuration.
+See <<_management_jmx_console>> for how the JMX Console can be used to use this MBean.

@@ -1,0 +1,209 @@
+
+[[_management_tools_ant_tasks]]
+= Ant Tasks
+
+JAIN SLEE includes some tasks for Apache Ant, which can be used for common management tasks done through , when the container is running.
+The tasks come bundled in [path]_$JBOSS_HOME/server/default/deploy/restcomm-slee/lib/ant-tasks.jar_.
+To use these, the Ant script must include the following code:
+
+[source,xml]
+----
+
+<property environment="system" />
+<property name="node" value="default" />
+<property name="jboss.deploy" value="${system.JBOSS_HOME}/server/${node}/deploy" />
+
+<path id="project.classpath">
+	<fileset dir="${jboss.deploy}/restcomm-slee/lib">
+		<include name="*.jar" />
+	</fileset>
+	<fileset dir="${system.JBOSS_HOME}/client">
+		<include name="*.jar" />
+	</fileset>
+</path>
+
+<property name="project.classpath" refid="project.classpath" />
+	
+<property name="jnpHost" value="127.0.0.1" />
+<property name="jnpPort" value="1099" />
+
+<taskdef name="slee-management"
+	classname="org.mobicents.ant.MobicentsManagementAntTask"
+	classpath="${project.classpath}" />
+----
+
+It is important to understand some properties set by the code above:
+
+[parameter]`node`::
+  This property defines the server configuration profile to be used, for further information about those refer to <<_server_profiles>>.
+
+[parameter]`jnpHost`::
+  The host/ip which &THIS.PLATFORM;JAIN SLEE is bound.
+
+[parameter]`jnpPort`::
+  The port which the JMX Agent is listening.
+
+IMPORTANT: The property values can be overridden when invoking the Ant script.
+To do this, use the parameter [parameter]`-DpropertyName=propertyValue`.
+For example, the server profile can be changed from [app]`default` to [app]`all` using [parameter]`-Dnode=all`.
+
+[[_management_tools_ant_tasks_slee_management]]
+== SLEE Management Task
+
+The `slee-management` task allows a script to manage JAIN SLEE deployable units, services and resource adapters.
+The operations, or sub-tasks, are done through .
+
+[source,xml]
+----
+
+<slee-management jnpport="${jnpPort}" host="${jnpHost}">
+	<!-- sub-tasks -->
+</slee-management>
+----
+
+The attributes have the same meaning as the properties listed in the script code to import the tasks here: <<_management_tools_ant_tasks>>.
+
+[[_management_tools_ant_tasks_slee_management_install_du]]
+=== Install Deployable Unit Sub-Task
+
+The `install` sub-task installs JAIN SLEE the deployable unit jar pointed by the value of attribute [parameter]`url`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management jnpport="${jnpPort}" host="${jnpHost}">
+	<install url="file:///tmp/my-deployable-unit.jar" />
+</slee-management>
+----
+
+[[_management_tools_ant_tasks_slee_management_uninstall_du]]
+=== Uninstall Deployable Unit Sub-Task
+
+The `uninstall` sub-task uninstalls JAIN SLEE the deployable unit jar which was installed from the value of attribute [parameter]`url`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management jnpport="${jnpPort}" host="${jnpHost}">
+	<uninstall url="file:///tmp/my-deployable-unit.jar" />
+</slee-management>
+----
+
+[[_management_tools_ant_tasks_slee_management_activate_service]]
+=== Activate Service Sub-Task
+
+The `activateservice` sub-task activates an already installed JAIN SLEE service, with the id specified by the value of attribute [parameter]`componentid`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management host="${jnpHost}" jnpport="${jnpPort}">
+	<activateservice 
+		componentid="ServiceID[name=FooService,vendor=org.mobicents,version=1.0]" />
+</slee-management>
+----
+
+[[_management_tools_ant_tasks_slee_management_deactivate_service]]
+=== Deactivate Service Sub-Task
+
+The `deactivateservice` sub-task deactivates an already installed JAIN SLEE service, with the id specified by the value of attribute [parameter]`componentid`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management host="${jnpHost}" jnpport="${jnpPort}">
+	<deactivateservice
+		componentid="ServiceID[name=FooService,vendor=org.mobicents,version=1.0]" />
+</slee-management>
+----
+
+[[_management_tools_ant_tasks_slee_management_create_ra_entity]]
+=== Create Resource Adaptor Entity Sub-Task
+
+The `createraentity` sub-task creates the resource adaptor entity with the name specified by the value of attribute [parameter]`entityname`, for an already installed JAIN SLEE resource adaptor, with the id specified by the value of attribute [parameter]`componentid`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management host="${jnpHost}" jnpport="${jnpPort}">
+	<createraentity
+		componentid="ResourceAdaptorID[name=FooRA,vendor=org.mobicents,version=1.0]"
+		entityname="FooRA" />
+</slee-management>
+----
+
+[[_management_tools_ant_tasks_slee_management_remove_ra_entity]]
+=== Remove Resource Adaptor Entity Sub-Task
+
+The `removeraentity` sub-task removes the resource adaptor entity with the name specified by the value of attribute [parameter]`entityname`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management host="${jnpHost}" jnpport="${jnpPort}">
+	<removeraentity entityname="FooRA" />
+</slee-management>
+----
+
+[[_management_tools_ant_tasks_slee_management_activate_ra_entity]]
+=== Activate Resource Adaptor Entity Sub-Task
+
+The `activateraentity` sub-task activates the resource adaptor entity with the name specified by the value of attribute [parameter]`entityname`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management host="${jnpHost}" jnpport="${jnpPort}">
+	<activateraentity entityname="FooRA" />
+</slee-management>
+----
+
+[[_management_tools_ant_tasks_slee_management_deactivate_ra_entity]]
+=== Deactivate Resource Adaptor Entity Sub-Task
+
+The `deactivateraentity` sub-task deactivates the resource adaptor entity with the name specified by the value of attribute [parameter]`entityname`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management host="${jnpHost}" jnpport="${jnpPort}">
+	<deactivateraentity entityname="FooRA" />
+</slee-management>
+----
+
+[[_management_tools_ant_tasks_slee_management_bind_ra_link]]
+=== Bind Resource Adaptor Link Sub-Task
+
+The `bindralinkname` sub-task binds the resource adaptor link with the name specified by the value of attribute [parameter]`linkname`, for an already active JAIN SLEE resource adaptor entity, with the name specified by the value of attribute [parameter]`entityname`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management host="${jnpHost}" jnpport="${jnpPort}">
+	<bindralinkname entityname="FooRA"
+		linkname="FooRA" />
+</slee-management>
+----
+
+[[_management_tools_ant_tasks_slee_management_unbind_ra_link]]
+=== Unbind Resource Adaptor Link Sub-Task
+
+The `unbindralinkname` sub-task unbinds the resource adaptor link with the name specified by the value of attribute [parameter]`linkname`.
+Example of usage:
+
+[source,xml]
+----
+
+<slee-management host="${jnpHost}" jnpport="${jnpPort}">
+	<unbindralinkname linkname="FooRA" />
+</slee-management>
+----

@@ -1,0 +1,33 @@
+
+[[_slee_1_1_extensions_aci]]
+= ActivityContextInterface Extension
+
+This simple extension to JAIN SLEE 1.1 introduces [path]_org.mobicents.slee.ActivityContextInterfaceExt_ interface, which extends [path]_javax.slee.ActivityContextInterface_ with methods to retrieve the timers and names bound to the ACI.
+
+[source,java]
+----
+
+		
+package org.mobicents.slee;
+
+import javax.slee.ActivityContextInterface;
+import javax.slee.facilities.TimerID;
+
+public interface ActivityContextInterfaceExt extends ActivityContextInterface {
+
+	public TimerID[] getTimers();
+
+	public String[] getNamesBound();
+
+}
+----
+
+The `getTimers()` method:::
+  Retrieves the IDs of timers currently set which are related to the ACI.
+
+The `getNamesBound()` method:::
+  Retrieves the names currently bound to the ACI.
+
+The `suspend()` method:::
+  This feature may be used before attaching to an ActivityContextInterface, to ensure that any event fired concurrently will be received.
+  It suspends routing of events in the activity context immediately, till the active transaction ends.

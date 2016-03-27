@@ -1,0 +1,95 @@
+
+[[_slee_1_1_extensions_sbbcontext]]
+= SbbContext Extension
+
+This extension to JAIN SLEE 1.1 introduces [path]_org.mobicents.slee.SbbContextExt_ interface, which extends [path]_javax.slee.SbbContext_ with methods to retrieve SLEE factories and facilities, avoiding the usage of JNDI context.
+
+[source,java]
+----
+
+
+package org.mobicents.slee;
+
+import javax.slee.ActivityContextInterface;
+import javax.slee.Sbb;
+import javax.slee.SbbContext;
+import javax.slee.facilities.ActivityContextNamingFacility;
+import javax.slee.facilities.AlarmFacility;
+import javax.slee.facilities.TimerFacility;
+import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
+import javax.slee.nullactivity.NullActivityFactory;
+import javax.slee.profile.ProfileFacility;
+import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
+import javax.slee.resource.ResourceAdaptorTypeID;
+import javax.slee.serviceactivity.ServiceActivityContextInterfaceFactory;
+import javax.slee.serviceactivity.ServiceActivityFactory;
+
+public interface SbbContextExt extends SbbContext {
+
+	public Object getActivityContextInterfaceFactory(
+			ResourceAdaptorTypeID raTypeID) throws NullPointerException,
+			IllegalArgumentException;
+
+	public ActivityContextNamingFacility getActivityContextNamingFacility();
+
+	public AlarmFacility getAlarmFacility();
+
+	public NullActivityContextInterfaceFactory getNullActivityContextInterfaceFactory();
+
+	public NullActivityFactory getNullActivityFactory();
+
+	public ProfileFacility getProfileFacility();
+
+	public ProfileTableActivityContextInterfaceFactory getProfileTableActivityContextInterfaceFactory();
+
+	public Object getResourceAdaptorInterface(ResourceAdaptorTypeID raTypeID,
+			String raEntityLink) throws NullPointerException,
+			IllegalArgumentException;
+
+	public SbbLocalObjectExt getSbbLocalObject()
+			throws TransactionRequiredLocalException, IllegalStateException,
+			SLEEException;
+			
+	public ServiceActivityContextInterfaceFactory getServiceActivityContextInterfaceFactory();
+
+	public ServiceActivityFactory getServiceActivityFactory();
+
+	public TimerFacility getTimerFacility();
+}
+----
+
+The `getActivityContextInterfaceFactory(ResourceAdaptorTypeID)` method:::
+  Retrieves the ActivityContextInterface factory for the Resource Adaptor Type with the specified ID.
+
+The `getActivityContextNamingFacility()` method:::
+  Retrieves the Activity Context Naming Facility.
+
+The `getAlarmFacility()` method:::
+  Retrieves the Alarm Facility.
+
+The `getNullActivityContextInterfaceFactory()` method:::
+  Retrieves the Null Activity Context Interface Factory.
+
+The `getNullActivityFactory()` method:::
+  Retrieves the Null Activity Factor.
+
+The `getProfileFacility()` method:::
+  Retrieves the Profile Facility.
+
+The `getProfileTableActivityContextInterfaceFactory()` method:::
+  Retrieves the Profile Table Activity Context Interface Factory.
+
+The `getResourceAdaptorInterface(ResourceAdaptorTypeID,String)` method:::
+  Retrieves the interface to interact with a specific Resource Adaptor entity, identified by both the entity link name and the Resource Adaptor Type ID.
+
+The `getSbbLocalObject()` method:::
+  Exposes the SBB local object with the extension interface to avoid unneeded casts.
+
+The `getServiceActivityContextInterfaceFactory()` method:::
+  Retrieves the Service Activity Context Interface Factory.
+
+The `getServiceActivityFactory()` method:::
+  Retrieves the Service Activity Factory.
+
+The `getTimerFacility()` method:::
+  Retrieves the Timer Facility.

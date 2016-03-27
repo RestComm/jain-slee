@@ -1,0 +1,25 @@
+
+[[_slee_1_1_extensions_profilecontext]]
+= ProfileContext Extension
+
+This extension to JAIN SLEE 1.1 introduces [path]_org.mobicents.slee.ProfileContextExt_ interface, which extends [path]_javax.slee.ProfileContext_ with methods to retrieve SLEE alarm facility, avoiding the usage of JNDI context.
+
+[source,java]
+----
+
+		
+package org.mobicents.slee;
+
+import javax.slee.facilities.AlarmFacility;
+import javax.slee.profile.Profile;
+import javax.slee.profile.ProfileContext;
+
+public interface ProfileContextExt extends ProfileContext {
+
+	public AlarmFacility getAlarmFacility();
+
+}
+----
+
+The `getAlarmFacility()` method:::
+  Retrieves the Alarm Facility.

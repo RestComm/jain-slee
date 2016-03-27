@@ -1,0 +1,162 @@
+[[_configuration_and_running]]
+= Configuring and Running {this-platform}  JAIN SLEE
+
+[[_server_profiles]]
+== Server Profiles
+
+{this-platform} JAIN SLEE reuses &JEE.PLATFORM;server profiles to expose different configurations for different needs:
+
+Default Profile::
+  The [app]`default` profile is proper for standalone or pure high availability.
+  It provides the best performance per cluster node, with linear scaling, but there is no state replication in the cluster, which means that there is no support for failover, neither there is any kind of state gravitation (one node sending state so another node continues its work.
+
+All Profile::
+  The [app]`all` profile is proper for more flexible high availability and failover support.
+  Performance per node decreases but the cluster does state replication or gravitation.
+
+Profiles can be selected when starting the server, see <<_running>> for detailed instructions.
+
+[[_running]]
+== Running {this-platform}  JAIN SLEE
+
+Starting or stopping {this-platform} JAIN SLEE is no different than starting or stopping &JEE.PLATFORM;
+
+=== Starting
+
+Once installed, you can run server(s) by executing the run.sh (Unix) or run.bat (Microsoft Windows) startup scripts in the [path]_<install_directory>/bin_ directory (on Unix or Windows).
+
+[[_starting_paramaters]]
+==== Starting Parameters
+
+Server Profile::
+  To specify the server profile use `-c profile_name`, for instance, to use the [app]`all` profile then start the server with `-c all`
+
+IMPORTANT: If not specified the default profile is used.
+
+IP / Host::
+  To specify the IP/Host which the server binds, use `-b IP`, for instance, to use the 192.168.0.1 IP then start the server with `-b 192.168.0.1`
+
+IMPORTANT: If not specified then 127.0.0.1 is used.
+
+=== Stopping
+
+You can shut down the server(s) by executing the `shutdown.sh -s` (Unix) or `shutdown.bat -s` (Microsoft Windows) scripts in the [path]_<install_directory>/bin_ directory (on Unix or Windows). Note that if you properly stop the server, you will see the following three lines as the last output in the Unix terminal or Command Prompt:
+
+----
+[Server] Shutdown complete
+Shutdown complete
+Halting VM
+----
+
+[[_configuration]]
+== Configuring {this-platform}  JAIN SLEE
+
+JAIN SLEE is configured through an XML descriptor for each <<_server_profiles>>.
+The XML file is named [path]_jboss-beans.xml_ and is located at [path]_$JBOSS_HOME/server/profile_name/deploy/restcomm-slee/META-INF_, where [app]`profile_name` is the server profile name.
+
+WARNING: This configuration greatly affects performance or correctness of the container behavior.
+This is for advanced users that know the internals of the container. 
+
+:leveloffset: +1
+
+include::Section-EventContext_Factory_Configuration.adoc[]
+
+:leveloffset: -1
+
+:leveloffset: +1
+
+include::Section-Event_Router_Configuration.adoc[]
+
+:leveloffset: -1
+
+:leveloffset: +1
+
+include::Section-Timer_Facility_Configuration.adoc[]
+
+:leveloffset: -1
+
+[[_profiles_configuration]]
+=== Configuring JAIN SLEE Profiles
+
+JAIN SLEE Profiles is a component used to store data, usually related with a user and/or service profile.
+JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API () Datasource, through Hibernate. 
+
+There are two configurations for JAIN SLEE Profiles provided as JBoss Microcontainer Beans: 
+
+[source,xml]
+----
+
+<bean name="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig"
+	class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
+	<property name="persistProfiles">true</property>
+	<property name="clusteredProfiles">false</property>
+	<property name="hibernateDatasource">java:/DefaultDS</property>
+	<property name="hibernateDialect">org.hibernate.dialect.HSQLDialect</property>
+	<depends>jboss.jca:service=DataSourceBinding,name=DefaultDS</depends>
+</bean>
+<bean name="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig"
+	class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
+	<property name="persistProfiles">true</property>
+	<property name="clusteredProfiles">true</property>
+	<property name="hibernateDatasource">java:/PostgresDS</property>
+	<property name="hibernateDialect">org.hibernate.dialect.PostgreSQLDialect</property>
+</bean>
+----
+
+IMPORTANT: Configurations can be changed, or new ones can be added.
+For new ones, ensure that the name attribute of the bean element is unique.
+
+.JAIN SLEE Profiles Bean Configuration
+[cols="1,1,1", frame="all", options="header"]
+|===
+| Property Name | Property Type | Description
+| persistProfiles | boolean | If true, profile changes are persisted into the data source.
+| clusteredProfiles | boolean | If true, then the container is aware there is a shared data source and that updates may be done by other nodes (for example, deletion of a JAIN SLEE profile table).
+| hibernateDatasource | String | The name of the Java Datasource deployed in the JBoss Application Server.
+| hibernateDialect | String | The java class name of the hibernate dialect to use, related with the selected datasource.
+|===
+
+To switch the active configuration simply change the parameter injected in the bean named [app]`Mobicents.JAINSLEE.Container`.
+
+=== Other Configurations
+
+Other JAIN SLEE runtime configuration is done through the following JBoss Microcontainer Bean:
+
+[source,xml]
+----
+
+<bean name="Mobicents.JAINSLEE.MobicentsManagement"
+	class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
+	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(
+		name="org.mobicents.slee:service=MobicentsManagement",
+		exposedInterface=org.mobicents.slee.container.management.
+		jmx.MobicentsManagementMBean.class,
+		registerDirectly=true)</annotation>
+	<property name="entitiesRemovalDelay">1</property>
+	<property name="timerThreads">8</property>
+	<property name="loadClassesFirstFromAS">true</property>
+</bean>
+----
+
+.Other JAIN SLEE Configurations
+[cols="1,1,1", frame="all", options="header"]
+|===
+| Property Name | Property Type | Description
+| entitiesRemovalDelay | int | The number of minutes before the container forces the ending of SBB entities from a service being deactivated.
+| timerThreads | int | The number of threads used by the timer facility.
+|===
+
+This configuration can be changed with the container running with JMX.
+Note that such configuration changes are not persisted.
+
+To change the configuraton, use the JMX MBean named [app]`org.mobicents.slee:service=MobicentsManagement`, which provides getters and setters to change each property defined in the persistent configuration that is configurable with the container running.
+The JMX Console can be used to use this MBean, as described in <<_management_jmx_console>>.
+
+=== Logging Configuration
+
+Logging configuration is documented in section <<_global_logging_config>>
+
+[[_congestion_control_configuration_]]
+=== Congestion Control Configuration
+
+Congesture Control feature configuration is documented in section <<_congestion_control_configuration>>

@@ -1,0 +1,36 @@
+[[_install]]
+= Installing {this-platform}  JAIN SLEE
+
+[[_preinstall_requirements_and_prerequisites]]
+== Pre-Install Requirements and Prerequisites
+
+Ensure that the following requirements have been met before continuing with the install.
+
+=== Hardware Requirements
+
+Sufficient Disk Space::
+  Once unzipped, the {this-platform} JAIN SLEE binary release requires _at least_ 500MB of free disk space.
+  Keep in mind that disk space requirements may change from release to release.
+
+Anything Java Itself Will Run On::
+  The {this-platform} JAIN SLEE container, and bundled JAIN SLEE components are 100% java.
+  The JAIN SLEE will run on the same hardware that the {jee-platform} runs on, but it is recommended at least 2GB or 4GB of RAM memory, for 32 or 64 bit Operating Systems.
+
+=== Software Prerequisites
+
+JDK 6::
+  A working installation of the Java Development Kit () version 6 is required in order to run the {this-platform}  JAIN SLEE.
+  Note that the {jee-platform}  is a runtime dependency, but comes bundled with the binary distribution.
+  For instructions on how to install the JDK, refer to <<_jdk_installing_configuring_and_running>>
+  
+
+:leveloffset: +1
+
+include::[Section-Install_Restcomm.adoc]
+
+:leveloffset: -1
+
+[[_uninstall]]
+== Uninstall {this-platform}  JAIN SLEE
+
+To uninstall simply delete the directory containing {this-platform} JAIN SLEE.
