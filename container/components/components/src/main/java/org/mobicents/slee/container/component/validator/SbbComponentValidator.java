@@ -1816,14 +1816,26 @@ public class SbbComponentValidator implements Validator {
 					errorBuffer = appendToBuffer("Sbb descriptor declares profile spec reference without alias, id: " + ref.getComponentID(),
 							"3.1.8", errorBuffer);
 
-				} else if (declaredProfileReferences.containsKey(ref.getProfileSpecAlias())) {
+				} else if (ref.getProfileSpecAlias() != null && declaredProfileReferences.containsKey(ref.getProfileSpecAlias())) {
 					passed = false;
 					errorBuffer = appendToBuffer(
 							"Sbb descriptor declares profile spec reference more than once, alias: " + ref.getProfileSpecAlias(), "3.1.8",
 							errorBuffer);
 
+				} else if (ref.getProfileSpecAlias() == null && declaredProfileReferences.containsKey(ref.getComponentID().toString())) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares profile spec reference more than once, alias is null, ID " + ref.getComponentID(), "3.1.8",
+							errorBuffer);
+
 				} else {
-					declaredProfileReferences.put(ref.getProfileSpecAlias(), ref);
+					logger.info("No errors!");
+					String alias = ref.getProfileSpecAlias();
+					if (alias == null) {
+						alias = ref.getComponentID().toString();
+						logger.debug("Temporary Alias is: "+alias);
+					}
+					declaredProfileReferences.put(alias, ref);
 				}
 			}
 

@@ -98,7 +98,14 @@ public class ComponentRepositoryImpl implements ComponentRepository {
 
 	public ProfileSpecificationComponent getComponentByID(
 			ProfileSpecificationID id) {
-		return profileSpecificationComponents.get(id);
+		// avoid null-pointer exception with ConcurrentHashMap
+		ProfileSpecificationComponent component = null;
+		try {
+			component = profileSpecificationComponents.get(id);
+			return component;
+		} catch (NullPointerException npe) {
+			return null;
+		}
 	}
 
 	public LibraryComponent getComponentByID(LibraryID id) {
