@@ -766,6 +766,7 @@ public class ConcreteSbbGenerator {
 						}
 						else {
 							// Boolean, Byte, Char, Short, Integer, Long, Float, Double, unknown
+							/*
 							String ctClassCmpTypeName = ctClassCmpType.getName();
 							if (ctClassCmpTypeName.equals(Boolean.class.getName())) {
 								getterHandlerMethodName += "Boolean";	
@@ -795,6 +796,9 @@ public class ConcreteSbbGenerator {
 								getterHandlerMethodName += "Unknown";
 								getterHandlerMethodNeedResultCast = true;
 							}
+							*/
+							getterHandlerMethodName += "Unknown";
+							getterHandlerMethodNeedResultCast = true;
 							setterHandlerMethodName += "PrimitiveOrUnknown";
 						}
 					}
