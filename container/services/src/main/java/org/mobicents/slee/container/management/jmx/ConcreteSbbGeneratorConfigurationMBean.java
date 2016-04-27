@@ -25,7 +25,7 @@ package org.mobicents.slee.container.management.jmx;
 /**
  * JMX interface for the concrete sbb generator configuration.
  *
- * @author sergey.lee
+ * @author Sergey Povarnin
  *
  */
 public interface ConcreteSbbGeneratorConfigurationMBean {
