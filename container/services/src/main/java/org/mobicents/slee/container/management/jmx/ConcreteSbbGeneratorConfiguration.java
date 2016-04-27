@@ -22,11 +22,16 @@
 
 package org.mobicents.slee.container.management.jmx;
 
+import org.apache.log4j.Logger;
+
 /**
  * @author Sergey Povarnin
  */
 public class ConcreteSbbGeneratorConfiguration implements
         ConcreteSbbGeneratorConfigurationMBean {
+
+    private static final Logger logger = Logger
+            .getLogger(ConcreteSbbGeneratorConfiguration.class);
 
     private Boolean initializedWithNull;
 
@@ -34,13 +39,10 @@ public class ConcreteSbbGeneratorConfiguration implements
 
     public void setInitializedWithNull(boolean initializedWithNull) {
         if (this.initializedWithNull != null) {
-            //logger.warn("Setting initializedWithNull property to "
-            //        + initializedWithNull
-            //        + ". If called with server running a stop and start is need to apply changes.");
+            logger.warn("Setting initializedWithNull property to "
+                    + initializedWithNull
+                    + ". If called with server running a stop and start is need to apply changes.");
         }
-        System.out.println("**************************************************");
-        System.out.println("initializedWithNull: " + initializedWithNull);
-        System.out.println("**************************************************");
         this.initializedWithNull = initializedWithNull;
     }
 }
