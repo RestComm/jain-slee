@@ -108,7 +108,13 @@
 				<!-- <inject bean="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig" /> -->
 			</parameter>
 		</constructor>
-	</bean>	
+	</bean>
+	
+	<bean name="Mobicents.JAINSLEE.ConcreteSbbGeneratorConfiguration"
+		class="org.mobicents.slee.container.management.jmx.ConcreteSbbGeneratorConfiguration">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=ConcreteSbbGeneratorConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.ConcreteSbbGeneratorConfigurationMBean.class,registerDirectly=true)</annotation>
+		<property name="initializedWithNull">true</property>
+	</bean>
 	
 	<bean name="Mobicents.JAINSLEE.EventRouterConfiguration"
 		class="org.mobicents.slee.container.management.jmx.EventRouterConfiguration">
