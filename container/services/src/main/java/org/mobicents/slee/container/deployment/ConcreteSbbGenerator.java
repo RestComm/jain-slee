@@ -129,9 +129,7 @@ public class ConcreteSbbGenerator {
 	 * Constructor
 	 */
 	public ConcreteSbbGenerator(SbbComponent sbbComponent) {
-
-		//logger.debug("isInitializedWithNull: " + this.isInitializedWithNull());
-
+		// get configuration properties from bean
 		try {
 			InitialContext ctx = new InitialContext();
 			MBeanServerConnection mbeanServer = (MBeanServerConnection) ctx.lookup("jmx/rmi/RMIAdaptor");

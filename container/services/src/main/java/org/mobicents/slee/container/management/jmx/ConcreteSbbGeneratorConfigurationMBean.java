@@ -34,14 +34,12 @@ public interface ConcreteSbbGeneratorConfigurationMBean {
      * Is CMP Fields With Reference Data Type Initialized With Null
      * @return
      */
-    //public boolean isCMPFieldsWithReferenceDataTypeInitializedWithNull();
     public boolean isInitializedWithNull();
 
     /**
      *
      * @param initializedWithNull
      */
-    //public void setCMPFieldsWithReferenceDataTypeInitializedWithNull(boolean initializedWithNull);
     public void setInitializedWithNull(boolean initializedWithNull);
 
 }
