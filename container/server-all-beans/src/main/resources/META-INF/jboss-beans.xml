@@ -79,6 +79,7 @@
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,registerDirectly=true)</annotation>
 		<!-- 0 means entities are not removed by force -->
 		<property name="entitiesRemovalDelay">1</property>
+		<property name="initializeReferenceDataTypesWithNull">true</property>
 	</bean>
 		
 	<bean name="Mobicents.JAINSLEE.ComponentsManagement"
@@ -104,13 +105,7 @@
 			</parameter>
 		</constructor>	
 	</bean>
-	
-	<bean name="Mobicents.JAINSLEE.ConcreteSbbGeneratorConfiguration"
-		class="org.mobicents.slee.container.management.jmx.ConcreteSbbGeneratorConfiguration">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=ConcreteSbbGeneratorConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.ConcreteSbbGeneratorConfigurationMBean.class,registerDirectly=true)</annotation>
-		<property name="initializedWithNull">true</property>
-	</bean>
-	
+
 	<bean name="Mobicents.JAINSLEE.EventRouterConfiguration"
 		class="org.mobicents.slee.container.management.jmx.EventRouterConfiguration">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=EventRouterConfiguration",exposedInterface=org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean.class,registerDirectly=true)</annotation>

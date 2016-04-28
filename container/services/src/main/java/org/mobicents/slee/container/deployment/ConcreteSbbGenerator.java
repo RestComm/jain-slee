@@ -58,6 +58,7 @@ import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescript
 import org.mobicents.slee.container.component.sbb.GetProfileCMPMethodDescriptor;
 import org.mobicents.slee.container.component.sbb.SbbAbstractClassDescriptor;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
+import org.mobicents.slee.container.management.jmx.MobicentsManagementMBean;
 import org.mobicents.slee.container.sbb.SbbObjectState;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbb.SbbAbstractMethodHandler;
@@ -82,7 +83,7 @@ public class ConcreteSbbGenerator {
 	/**
 	 * configuration from bean
 	 */
-	private Boolean initializedWithNull = false;
+	private Boolean initializeReferenceDataTypesWithNull = false;
 
 	/**
 	 * the sbb component
@@ -131,13 +132,12 @@ public class ConcreteSbbGenerator {
 	public ConcreteSbbGenerator(SbbComponent sbbComponent) {
 		// get configuration properties from bean
 		try {
-			InitialContext ctx = new InitialContext();
-			MBeanServerConnection mbeanServer = (MBeanServerConnection) ctx.lookup("jmx/rmi/RMIAdaptor");
-			ObjectName configurationMBean = new ObjectName("org.mobicents.slee:name=ConcreteSbbGeneratorConfiguration");
-			this.initializedWithNull = (Boolean) mbeanServer.getAttribute(configurationMBean, "InitializedWithNull");
+			MBeanServerConnection mbeanServer = (MBeanServerConnection) new InitialContext().lookup("jmx/rmi/RMIAdaptor");
+			this.initializeReferenceDataTypesWithNull = (Boolean) mbeanServer.
+				getAttribute(new ObjectName(MobicentsManagementMBean.OBJECT_NAME), "InitializeReferenceDataTypesWithNull");
 		}
 		catch (Exception e) {
-			logger.error("InitializedWithNull is not configured in jboss-beans.xml. Exception message: " + e.getMessage());
+			logger.error("InitializeReferenceDataTypesWithNull is not configured in jboss-beans.xml. Exception message: " + e.getMessage());
 		}
 
 		this.sbbComponent = sbbComponent;
@@ -785,7 +785,7 @@ public class ConcreteSbbGenerator {
 						}
 						else {
 							// Boolean, Byte, Char, Short, Integer, Long, Float, Double, unknown
-							if (this.initializedWithNull) {
+							if (this.initializeReferenceDataTypesWithNull) {
 								getterHandlerMethodName += "Unknown";
 								getterHandlerMethodNeedResultCast = true;
 							} else { // initialized with 0

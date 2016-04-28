@@ -56,6 +56,18 @@ public class MobicentsManagement extends ServiceMBeanSupport implements
 		MobicentsManagement.entitiesRemovalDelay = entitiesRemovalDelay;
 	}
 
+	// Flag for initializing SBB CMP fields (with Reference Data Type) with null or 0
+	//
+	private static Boolean initializeReferenceDataTypesWithNull = false;
+
+	public boolean isInitializeReferenceDataTypesWithNull() {
+		return MobicentsManagement.initializeReferenceDataTypesWithNull;
+	}
+
+	public void setInitializeReferenceDataTypesWithNull(boolean initializeReferenceDataTypesWithNull) {
+		MobicentsManagement.initializeReferenceDataTypesWithNull = initializeReferenceDataTypesWithNull;
+	}
+
 	public String getVersion() {
 		return mobicentsVersion;
 	}
