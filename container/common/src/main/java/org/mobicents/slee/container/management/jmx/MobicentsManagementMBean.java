@@ -39,6 +39,19 @@ public interface MobicentsManagementMBean {
 	 * @param entitiesRemovalDelay
 	 */
 	public void setEntitiesRemovalDelay(int entitiesRemovalDelay);
+
+
+	/**
+	 * Is SBB CMP fields (with Reference Data Type) initialized with null?
+	 * @return
+	 */
+	public boolean isInitializeReferenceDataTypesWithNull();
+
+	/**
+	 *
+	 * @param initializeReferenceDataTypesWithNull
+	 */
+	public void setInitializeReferenceDataTypesWithNull(boolean initializeReferenceDataTypesWithNull);
 		
 	/**
 	 * 
