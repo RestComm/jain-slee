@@ -105,7 +105,7 @@
 					    <embedAssets>true</embedAssets>
 					    <!--stylesheet>${basedir}/src/main/asciidoc/stylesheets/telestax.css</stylesheet-->
 					    <project-version>${project.version}</project-version>
-					    <this-application>jDiameter</this-application>
+					    <this-application>JAIN-SLEE</this-application>
 					    <this-platform>Restcomm </this-platform>
 					    <jee-platform>JBoss Application Server</jee-platform>
 					    <management-platform>Jopr </management-platform>
@@ -137,7 +137,7 @@
 				                <idprefix/>
 				                <idseparator>-</idseparator>
 						<project-version>${project.version}</project-version>
-					    <this-application>jDiameter</this-application>
+					    <this-application>JAIN-SLEE</this-application>
 					    <this-platform>Restcomm </this-platform>
 					    <jee-platform>JBoss Application Server</jee-platform>
 					    <management-platform>Jopr </management-platform>
