@@ -36,6 +36,9 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.naming.InitialContext;
 import javax.slee.EventContext;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
@@ -55,6 +58,7 @@ import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescript
 import org.mobicents.slee.container.component.sbb.GetProfileCMPMethodDescriptor;
 import org.mobicents.slee.container.component.sbb.SbbAbstractClassDescriptor;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
+import org.mobicents.slee.container.management.jmx.MobicentsManagementMBean;
 import org.mobicents.slee.container.sbb.SbbObjectState;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbb.SbbAbstractMethodHandler;
@@ -75,6 +79,11 @@ import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
  * 
  */
 public class ConcreteSbbGenerator {
+
+	/**
+	 * configuration from bean
+	 */
+	private Boolean initializeReferenceDataTypesWithNull = false;
 
 	/**
 	 * the sbb component
@@ -121,6 +130,16 @@ public class ConcreteSbbGenerator {
 	 * Constructor
 	 */
 	public ConcreteSbbGenerator(SbbComponent sbbComponent) {
+		// get configuration properties from bean
+		try {
+			MBeanServerConnection mbeanServer = (MBeanServerConnection) new InitialContext().lookup("jmx/rmi/RMIAdaptor");
+			this.initializeReferenceDataTypesWithNull = (Boolean) mbeanServer.
+				getAttribute(new ObjectName(MobicentsManagementMBean.OBJECT_NAME), "InitializeReferenceDataTypesWithNull");
+		}
+		catch (Exception e) {
+			logger.error("InitializeReferenceDataTypesWithNull is not configured in jboss-beans.xml. Exception message: " + e.getMessage());
+		}
+
 		this.sbbComponent = sbbComponent;
 		this.deployDir = sbbComponent.getDeploymentDir().getAbsolutePath();
 		;
@@ -477,8 +496,8 @@ public class ConcreteSbbGenerator {
 	}
 
 	/**
-	 * @param class1
-	 * @param string
+	 * @param parameter
+	 * @param parameterName
 	 */
 	private void createField(CtClass parameter, String parameterName) {
 		// TODO Auto-generated method stub
@@ -650,7 +669,7 @@ public class ConcreteSbbGenerator {
 	/**
 	 * Create a method to retrive the entity from the SbbObject.
 	 * 
-	 * @param cmpAccessors
+	 * @param sbbConcrete
 	 * @throws DeploymentException
 	 */
 	private void createSbbEntityGetterAndSetter(CtClass sbbConcrete)
@@ -766,39 +785,32 @@ public class ConcreteSbbGenerator {
 						}
 						else {
 							// Boolean, Byte, Char, Short, Integer, Long, Float, Double, unknown
-							/*
-							String ctClassCmpTypeName = ctClassCmpType.getName();
-							if (ctClassCmpTypeName.equals(Boolean.class.getName())) {
-								getterHandlerMethodName += "Boolean";	
-							}
-							else if (ctClassCmpTypeName.equals(Byte.class.getName())) {
-								getterHandlerMethodName += "Byte";	
-							}
-							else if (ctClassCmpTypeName.equals(Character.class.getName())) {
-								getterHandlerMethodName += "Char";
-							}
-							else if (ctClassCmpTypeName.equals(Short.class.getName())) {
-								getterHandlerMethodName += "Short";
-							}
-							else if (ctClassCmpTypeName.equals(Integer.class.getName())) {
-								getterHandlerMethodName += "Integer";
-							}
-							else if (ctClassCmpTypeName.equals(Long.class.getName())) {
-								getterHandlerMethodName += "Long";
-							}
-							else if (ctClassCmpTypeName.equals(Float.class.getName())) {
-								getterHandlerMethodName += "Float";
-							}
-							else if (ctClassCmpTypeName.equals(Double.class.getName())) {
-								getterHandlerMethodName += "Double";
-							}
-							else {
+							if (this.initializeReferenceDataTypesWithNull) {
 								getterHandlerMethodName += "Unknown";
 								getterHandlerMethodNeedResultCast = true;
+							} else { // initialized with 0
+								String ctClassCmpTypeName = ctClassCmpType.getName();
+								if (ctClassCmpTypeName.equals(Boolean.class.getName())) {
+									getterHandlerMethodName += "Boolean";
+								} else if (ctClassCmpTypeName.equals(Byte.class.getName())) {
+									getterHandlerMethodName += "Byte";
+								} else if (ctClassCmpTypeName.equals(Character.class.getName())) {
+									getterHandlerMethodName += "Char";
+								} else if (ctClassCmpTypeName.equals(Short.class.getName())) {
+									getterHandlerMethodName += "Short";
+								} else if (ctClassCmpTypeName.equals(Integer.class.getName())) {
+									getterHandlerMethodName += "Integer";
+								} else if (ctClassCmpTypeName.equals(Long.class.getName())) {
+									getterHandlerMethodName += "Long";
+								} else if (ctClassCmpTypeName.equals(Float.class.getName())) {
+									getterHandlerMethodName += "Float";
+								} else if (ctClassCmpTypeName.equals(Double.class.getName())) {
+									getterHandlerMethodName += "Double";
+								} else {
+									getterHandlerMethodName += "Unknown";
+									getterHandlerMethodNeedResultCast = true;
+								}
 							}
-							*/
-							getterHandlerMethodName += "Unknown";
-							getterHandlerMethodNeedResultCast = true;
 							setterHandlerMethodName += "PrimitiveOrUnknown";
 						}
 					}
@@ -879,7 +891,7 @@ public class ConcreteSbbGenerator {
 	/**
 	 * Create the implementation of the fire event methods
 	 * 
-	 * @param firedEvents
+	 * @param mEventEntries
 	 *            the set of fire event
 	 */
 	protected void createFireEventMethods(Collection<EventEntryDescriptor> mEventEntries) {
@@ -1049,14 +1061,14 @@ public class ConcreteSbbGenerator {
 				+ "else if ( aci instanceof "
 				+ concreteActivityContextInterfaceClass.getName()
 				+ ") return aci;" + "else return  new "
-				+ concreteActivityContextInterfaceClass.getName() + " ( ("+ActivityContextInterface.class.getName()+") $1, "
+				+ concreteActivityContextInterfaceClass.getName() + " ( (" + ActivityContextInterface.class.getName() + ") $1, "
 				+ "sbbEntity.getSbbComponent());" + "}";
 		CtMethod methodTest;
 		try {
 			methodTest = CtNewMethod.make(methodToAdd, sbbConcreteClass);
 			sbbConcreteClass.addMethod(methodTest);
 			if (logger.isTraceEnabled()) {
-	            logger.trace("Method " + methodToAdd + " added");
+				logger.trace("Method " + methodToAdd + " added");
 			}
 		} catch (CannotCompileException e) {
 			throw new DeploymentException(e.getMessage(), e);

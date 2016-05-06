@@ -55,7 +55,7 @@ JAIN SLEE is configured through an XML descriptor for each <<_server_profiles>>.
 The XML file is named [path]_jboss-beans.xml_ and is located at [path]_$JBOSS_HOME/server/profile_name/deploy/restcomm-slee/META-INF_, where [app]`profile_name` is the server profile name.
 
 WARNING: This configuration greatly affects performance or correctness of the container behavior.
-This is for advanced users that know the internals of the container. 
+This is for advanced users that know the internals of the container.
 
 :leveloffset: +1
 
@@ -79,9 +79,9 @@ include::Section-Timer_Facility_Configuration.adoc[]
 === Configuring JAIN SLEE Profiles
 
 JAIN SLEE Profiles is a component used to store data, usually related with a user and/or service profile.
-JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API () Datasource, through Hibernate. 
+JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API () Datasource, through Hibernate.
 
-There are two configurations for JAIN SLEE Profiles provided as JBoss Microcontainer Beans: 
+There are two configurations for JAIN SLEE Profiles provided as JBoss Microcontainer Beans:
 
 [source,xml]
 ----
@@ -135,6 +135,7 @@ Other JAIN SLEE runtime configuration is done through the following JBoss Microc
 	<property name="entitiesRemovalDelay">1</property>
 	<property name="timerThreads">8</property>
 	<property name="loadClassesFirstFromAS">true</property>
+	<property name="initializeReferenceDataTypesWithNull">true</property>
 </bean>
 ----
 
@@ -144,6 +145,7 @@ Other JAIN SLEE runtime configuration is done through the following JBoss Microc
 | Property Name | Property Type | Description
 | entitiesRemovalDelay | int | The number of minutes before the container forces the ending of SBB entities from a service being deactivated.
 | timerThreads | int | The number of threads used by the timer facility.
+| initializeReferenceDataTypesWithNull | boolean | The flag for initializing SBB CMP fields with Numeric Reference Data types to 0 (false) or null (true).
 |===
 
 This configuration can be changed with the container running with JMX.
