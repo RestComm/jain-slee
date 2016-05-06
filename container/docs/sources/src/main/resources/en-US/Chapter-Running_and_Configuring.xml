@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="configuration_and_running">
@@ -163,6 +166,7 @@ Halting VM]]></screen>
 	<property name="entitiesRemovalDelay">1</property>
 	<property name="timerThreads">8</property>
 	<property name="loadClassesFirstFromAS">true</property>
+	<property name="initializeReferenceDataTypesWithNull">true</property>
 </bean>]]>
 			</programlisting>
 			<table frame="all" pgwide="1">
@@ -188,6 +192,11 @@ Halting VM]]></screen>
 					        <entry>timerThreads</entry>
 					        <entry>int</entry>
 					        <entry>The number of threads used by the timer facility.</entry>
+					      </row>
+					      <row>
+					        <entry>initializeReferenceDataTypesWithNull</entry>
+					        <entry>boolean</entry>
+					        <entry>The flag for initializing SBB CMP fields with Numeric Reference Data types to 0 (false) or null (true).</entry>
 					      </row>
 			    	</tbody>
 			  	</tgroup>
