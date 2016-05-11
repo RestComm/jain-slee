@@ -496,7 +496,17 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 					 */
 					if (!invokeSbbRolledBack && rootSbbEntityId == null) {
 						if (rootSbbEntityChecked != null) {
-							rootSbbEntityChecked.passivateSbbObject();
+							if (debugLogging) {
+								logger.debug("*** Test rootSbbEntityChecked Sbb object: " + rootSbbEntityChecked.getSbbObject());
+							}
+
+							if (rootSbbEntityChecked.getSbbObject() != null) {
+								if (debugLogging) {
+									logger.debug("*** Try to passivateSbbObject for rootSbbEntityChecked: " + rootSbbEntityChecked);
+								}
+
+								rootSbbEntityChecked.passivateSbbObject();
+							}
 						}
 					}
 
