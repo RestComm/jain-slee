@@ -558,13 +558,13 @@ public class SbbEntityImpl implements SbbEntity {
 		this.sbbObject.sbbStore();
 		this.sbbObject.sbbPassivate();
 		this.sbbObject.setState(SbbObjectState.POOLED);
-		//this.sbbObject.setSbbEntity(null);
+		this.sbbObject.setSbbEntity(null);
 		try {
 			getObjectPool().returnObject(this.sbbObject);
 		} catch (Exception e) {
 			log.error("failed to return sbb object "+sbbObject+" to pool",e);
 		}
-		this.sbbObject = null;
+		//this.sbbObject = null;
 		if (childsWithSbbObjects != null) {
 			for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
 					.hasNext();) {
