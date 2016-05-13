@@ -599,6 +599,8 @@ public class ClassGeneratorUtils {
     {
       if(method.getReturnType().isPrimitive())
         retType = ((Class<?>)Class.forName( ((CtPrimitiveType)method.getReturnType()).getWrapperName() ).getField( "TYPE" ).get( null )).getName();
+      else if(method.getReturnType().isArray())
+        retType = method.getReturnType().getName();
       else
         retType = Class.forName(method.getReturnType().getClassFile().getName()).getName();
     }

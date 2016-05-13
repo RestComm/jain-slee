@@ -333,6 +333,8 @@ public class ConcreteProfileGenerator {
 							pTypes[i++] = ((Class<?>) Class.forName(
 									((CtPrimitiveType) pType).getWrapperName())
 									.getField("TYPE").get(null));
+						else if (pType.isArray())
+							pTypes[i++] = org.apache.commons.lang.ClassUtils.getClass(pType.getName());
 						else
 							pTypes[i++] = Class.forName(pType.getClassFile()
 									.getName());
