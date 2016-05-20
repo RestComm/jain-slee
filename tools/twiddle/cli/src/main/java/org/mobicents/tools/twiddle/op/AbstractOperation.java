@@ -20,10 +20,12 @@ package org.mobicents.tools.twiddle.op;
 import java.beans.PropertyEditor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.management.Attribute;
 
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
@@ -86,17 +88,13 @@ public abstract class AbstractOperation {
 	 * Ususally it will just to opts.getOptarg(); but in case of more
 	 * complicated ops, it will do more.
 	 * 
-	 * @param original
-	 * @param argv
+	 * @param opts
+	 * @param args
 	 */
 	public abstract void buildOperation(Getopt opts,String[] args) throws CommandException;
 
 	/**
 	 * Method to display result of operation.
-	 * 
-	 * @param operationResult
-	 * @param context
-	 * @param log
 	 */
 	public void displayResult() {
 		//default impl of display;
@@ -150,7 +148,7 @@ public abstract class AbstractOperation {
 			
 						//TODO: this is not readable, but result can be passed into another invocation
 						Object[] arrayResult = (Object[]) operationResult;
-						resultText = unfoldArray("", arrayResult,null);
+						resultText = unfoldArray("", arrayResult, null);
 					}else
 					{
 						resultText = operationResult.toString();
@@ -172,10 +170,10 @@ public abstract class AbstractOperation {
 	 * @param array
 	 * @return
 	 */
-	protected String unfoldArray(String prefix, Object[] array,PropertyEditor editor)
+	protected String unfoldArray(String prefix, Object[] array, PropertyEditor editor)
 	{
 		StringBuffer sb = new StringBuffer("\n");
-		for(int index=0;index<array.length;index++)
+		for (int index=0;index<array.length;index++)
 		{
 			if(editor!=null)
 			{
@@ -243,7 +241,15 @@ public abstract class AbstractOperation {
 			Object[] parms = getOpArguments().toArray();
 			String[] sig = new String[getOpSignature().size()];
 			sig = getOpSignature().toArray(sig);
-			operationResult = conn.invoke(on, this.operationName, parms, sig);
+
+			if (this.operationName.substring(0, 3).equals("set")) {
+				Attribute attr = new Attribute(this.operationName.substring(3), opArguments.get(0));
+				conn.setAttribute(on, attr);
+			} else if (this.operationName.substring(0, 3).equals("get")) {
+				operationResult = conn.getAttribute(on, this.operationName.substring(3));
+			} else {
+				operationResult = conn.invoke(on, this.operationName, parms, sig);
+			}
 			displayResult();
 		} catch (Exception e) {
 			//add handle error here?

@@ -407,6 +407,27 @@ public class ConcreteProfileGenerator {
 		}
 	}
 
+	public boolean isNumericOrStringArray(CtClass ctClass) {
+		boolean result = false;
+		if (ctClass.isArray()) {
+			try {
+				String typeName = ctClass.getComponentType().getName();
+				result = typeName.equals(Boolean.class.getName()) ||
+						typeName.equals(Character.class.getName()) ||
+						typeName.equals(Byte.class.getName()) ||
+						typeName.equals(Short.class.getName()) ||
+						typeName.equals(Integer.class.getName()) ||
+						typeName.equals(Long.class.getName()) ||
+						typeName.equals(Float.class.getName()) ||
+						typeName.equals(Double.class.getName()) ||
+						typeName.equals(String.class.getName());
+			} catch (NotFoundException e) {
+			}
+		}
+
+		return result;
+	}
+
 	private void generateCMPGetter(CtMethod method,
 			CtClass classToBeInstrumented) throws Exception {
 
@@ -437,11 +458,7 @@ public class ConcreteProfileGenerator {
 		// convert it from the attr array value list
 		String methodBody = null;
 		if (method.getReturnType().isArray()) {
-			if (isPrimitiveOrPrimitiveArray(method.getReturnType())
-					|| method.getReturnType().getComponentType().getName()
-							.equals(String.class.getName())
-					|| method.getReturnType().getComponentType().getName()
-							.equals(Address.class.getName())) {
+			if (isPrimitive || isNumericOrStringArray(method.getReturnType())) {
 				methodBody = returnOpenBody
 						+ ProfileAttributeArrayValueUtils.class.getName()
 						+ ".to"
