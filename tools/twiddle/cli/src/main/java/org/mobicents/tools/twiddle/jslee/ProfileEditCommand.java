@@ -21,6 +21,9 @@ import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +32,8 @@ import javax.management.MBeanInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.slee.Address;
+import javax.slee.AddressPlan;
 
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
@@ -187,6 +192,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 				new LongOpt("set", LongOpt.NO_ARGUMENT, null, 's'),
 					//options for set
 					new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, SetAttributeOperation.name),
+					new LongOpt("separator", LongOpt.OPTIONAL_ARGUMENT, null, SetAttributeOperation.separator),
 					new LongOpt("value", LongOpt.OPTIONAL_ARGUMENT, null, SetAttributeOperation.value),
 				//new LongOpt("bussines", LongOpt.NO_ARGUMENT, null, 'b'),	
 				
@@ -494,9 +500,11 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 	private class SetAttributeOperation extends AbstractOperation {
 		//TODO: allow no value to indicate set(null);
 		public static final char name = 'n';
+		public static final char separator = 'p';
 		public static final char value = 'v';
 		
 		private String attributeName;
+		private String valueSeparator;
 		private String stringAttributeValue;
 		//so we can access MBean info.
 		private ProfileEditCommand editCommand;
@@ -521,6 +529,10 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 				case name:
 					attributeName = opts.getOptarg();
 					break;
+				case separator:
+					//this can be empty.
+					valueSeparator = opts.getOptarg();
+					break;
 				case value:
 					//this can be empty.
 					stringAttributeValue = opts.getOptarg();
@@ -544,16 +556,86 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 //			}
 
 			MBeanAttributeInfo info = findAttribute(attributeName, editCommand.beanInfo.getAttributes());
-			
+
 			//hmm
-			super.operationName = "set"+info.getName();
-			
-			try{
-				super.addArg(stringAttributeValue, info.getType(), true);
-			}catch(CommandException ce)
-			{
-				//lets add, hope server knows how to handle
-				super.addArg(stringAttributeValue, info.getType(), false);
+			super.operationName = "set" + info.getName();
+
+			if (valueSeparator != null) {
+				Class arrayClazz;
+				Class valueClazz;
+				try {
+					arrayClazz = Class.forName(info.getType());
+					if (arrayClazz.isArray()) {
+						valueClazz = arrayClazz.getComponentType();
+					} else {
+						throw new CommandException("Attribute type is not array and separator is not used.");
+					}
+				} catch (ClassNotFoundException e) {
+					throw new CommandException("Class is not found for attribute type.");
+				}
+
+				if (valueSeparator.length() > 1) {
+					throw new CommandException("Separator must contains only single character.");
+				}
+
+				String delims = "["+valueSeparator+"]";
+				String[] tokens = stringAttributeValue.split(delims);
+
+				Object array = Array.newInstance(valueClazz, tokens.length);
+
+				for (int i=0; i<tokens.length; i++) {
+
+					try {
+						if (valueClazz.isPrimitive()) {
+							// TODO:
+						}
+
+						if (!valueClazz.isPrimitive()) {
+							Object value = null;
+							if (valueClazz.getName().equals("javax.slee.Address")) {
+								try {
+									int delimerSize = 2;
+									int delimiter = tokens[i].indexOf(": ");
+									if (delimiter == -1) {
+										delimerSize = 1;
+										delimiter = tokens[i].indexOf(":");
+									}
+									if (delimiter == -1) {
+										throw new IllegalArgumentException("Address arg should be \"address plan as string\" + \": \" + \"address as string\"");
+									}
+									String addressPlan = tokens[i].substring(0, delimiter);
+									String address = tokens[i].substring(delimiter + delimerSize);
+									value = new Address(AddressPlan.fromString(addressPlan), address);
+								} catch (Exception ex) {
+									throw new IllegalArgumentException(ex.getMessage(), ex);
+								}
+							} else {
+								Constructor con = valueClazz.getConstructor(String.class);
+								if (con != null) {
+									value = con.newInstance((String) tokens[i]);
+								}
+							}
+							Array.set(array, i, value);
+						}
+
+					} catch (Exception ex) {
+						throw new CommandException("Value getting has problem: " + ex.getMessage());
+					}
+				}
+
+				try {
+					super.addArg(array, info.getType(), false);
+				} catch (CommandException ce) {
+					//lets add, hope server knows how to handle
+					//super.addArg(array, info.getType(), false);
+				}
+			} else {
+				try {
+					super.addArg(stringAttributeValue, info.getType(), true);
+				} catch (CommandException ce) {
+					//lets add, hope server knows how to handle
+					super.addArg(stringAttributeValue, info.getType(), false);
+				}
 			}
 		}
 	}
