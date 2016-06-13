@@ -1,0 +1,39 @@
+= Restcomm JAIN SLEE Resource Adaptors Documentation
+
+Resources are entities that represent and interact with other systems outside the SLEE, such as network devices, protocol stacks, directories, and databases.
+Restcomm JAIN SLEE provides the following list of Resource Adaptors (RA) :
+
+* SS7 Resource Adaptors :
+** http://documentation.telestax.com/core/jain_slee/ras/ss7/cap/User_Guide.html[User Guide to Restcomm jSS7 CAP RA]
+** http://documentation.telestax.com/core/jain_slee/ras/ss7/map/User_Guide.html[User Guide to Restcomm jSS7 MAP RA]
+** http://documentation.telestax.com/core/jain_slee/ras/ss7/tcap/User_Guide.html[User Guide to Restcomm jSS7 TCAP RA]
+** http://documentation.telestax.com/core/jain_slee/ras/ss7/isup/User_Guide.html[User Guide to Restcomm jSS7 ISUP RA]
+
+* SIP Resource Adaptor
+
+* jDiameter Resource Adaptors:
+** jDiameter Base RA
+** jDiameter Base CCA
+** jDiameter Base Cx/Dx
+** jDiameter Base Gq
+** jDiameter Base Gx
+** jDiameter Base Rf
+** jDiameter Base Ro
+** jDiameter Base Rx
+** jDiameter Base s6a
+** jDiameter Base Sh Client
+** jDiameter Base Sh Server
+
+* HTTP Resource Adaptor
+
+* JDBC Resource Adaptor
+
+* Media Resource Adaptor
+
+* MSRP Resource Adaptor
+
+* SMPP Resource Adaptor
+
+* TFTP Resource Adaptor
+
+* XCAP Resource Adaptor
