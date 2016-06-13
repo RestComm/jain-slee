@@ -1,0 +1,9 @@
+= Restcomm JAIN SLEE Documentation
+
+Restcomm JAIN SLEE is the first and only open source platform certified for JAIN SLEE 1.1 compliance, providing a highly scalable, event-driven application server with a robust component model and a fault tolerant execution environment. To better understand the project we invite you to read the following sections :
+
+* <<JAIN_SLEE_User_Guide.adoc#_introduction,Restcomm JAIN SLEE User Guide>>
+
+* <<ras/index.adoc#list,JAIN SLEE Resource Adaptors>>
+
+* <<tools/index.adoc#list,JAIN SLEE Useful Tools>>
