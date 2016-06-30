@@ -168,6 +168,7 @@ public class DeployableUnitJarComponentBuilder {
 						.parse(componentDescriptorInputStream);
 				// create components
 				for (SbbDescriptorImpl descriptor : descriptors) {
+                                        PreferredPackagesBuilder.buildPreferredPackages(descriptor, classLoaderDomain);
 					SbbComponentImpl component = new SbbComponentImpl(
 							descriptor);
 					component.setDeploymentDir(componentJarDeploymentDir);
