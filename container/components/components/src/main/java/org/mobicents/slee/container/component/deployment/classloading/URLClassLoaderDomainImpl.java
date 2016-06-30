@@ -51,6 +51,16 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	private static final Logger logger = Logger
 			.getLogger(URLClassLoaderDomainImpl.class);
 
+        private List<String> preferredPackages = new ArrayList();
+
+        public List<String> getPreferredPackages() {
+            return preferredPackages;
+        }
+
+        public void setPreferredPackages(List<String> preferredPackages) {
+            this.preferredPackages = preferredPackages;
+        }        
+        
 	/**
 	 * the set of dependencies for the domain
 	 */
@@ -75,6 +85,15 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 		if (logger.isTraceEnabled())
 			logger.trace(toString() + " adding domain " + domain
 					+ " to direct dependencies");
+                //fixes https://github.com/RestComm/jain-slee/issues/49
+                //add same prerferences to dependency, so order is respected                
+                List<String> preferredPackages1 = domain.getPreferredPackages();
+                for (String pack : this.preferredPackages) {
+                    preferredPackages1.add(pack);
+                    if (logger.isTraceEnabled())  {
+                        logger.debug("adding preferred package to dependecy:" + pack);
+                    }
+                }
 		directDependencies.add(domain);
 	}
 
@@ -135,6 +154,22 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 
 		synchronized (this) {
 			final boolean acquiredLock = acquireGlobalLock();
+                        //fixes https://github.com/RestComm/jain-slee/issues/49
+                        //classloader order is inverted for preferred packages
+                        for (String prefPack : preferredPackages)
+                        {
+                            if (name.startsWith(prefPack)) {
+                                try {
+                                    Class<?> clazz =  this.findClass(name);
+                                    return clazz;
+                                } catch (ClassNotFoundException cExp) {
+                                    //ignore
+                                    if (logger.isTraceEnabled()) {
+                                        logger.trace("Class not found" + cExp);
+                                    }
+                                }
+                            }
+                        }                        
 			try {
 				// load the class
 				if (System.getSecurityManager() != null) {
