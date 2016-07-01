@@ -9,7 +9,7 @@ Restcomm JAIN SLEE provides the following list of Resource Adaptors (RA) :
 ** http://documentation.telestax.com/core/jain_slee/ras/ss7/tcap/User_Guide.html[User Guide to Restcomm jSS7 TCAP RA]
 ** http://documentation.telestax.com/core/jain_slee/ras/ss7/isup/User_Guide.html[User Guide to Restcomm jSS7 ISUP RA]
 
-* SIP Resource Adaptor
+* http://documentation.telestax.com/core/jain_slee/ras/sip/User_Guide.html[User Guide to Restcomm SIP Resource Aadaptor]
 
 * jDiameter Resource Adaptors:
 ** jDiameter Base RA
