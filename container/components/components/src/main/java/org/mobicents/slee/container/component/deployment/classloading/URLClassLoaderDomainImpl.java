@@ -35,7 +35,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.lang.IllegalMonitorStateException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.classloading.URLClassLoaderDomain;
@@ -51,16 +53,12 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	private static final Logger logger = Logger
 			.getLogger(URLClassLoaderDomainImpl.class);
 
-        private List<String> preferredPackages = new ArrayList();
+        /**
+         * classes loaded within these packages will have classloading order
+         * inverted. That is firest try locally, then in parent.
+         */
+        private Set<String> preferredPackages = new HashSet();
 
-        public List<String> getPreferredPackages() {
-            return preferredPackages;
-        }
-
-        public void setPreferredPackages(List<String> preferredPackages) {
-            this.preferredPackages = preferredPackages;
-        }        
-        
 	/**
 	 * the set of dependencies for the domain
 	 */
@@ -85,15 +83,6 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 		if (logger.isTraceEnabled())
 			logger.trace(toString() + " adding domain " + domain
 					+ " to direct dependencies");
-                //fixes https://github.com/RestComm/jain-slee/issues/49
-                //add same prerferences to dependency, so order is respected                
-                List<String> preferredPackages1 = domain.getPreferredPackages();
-                for (String pack : this.preferredPackages) {
-                    preferredPackages1.add(pack);
-                    if (logger.isTraceEnabled())  {
-                        logger.debug("adding preferred package to dependecy:" + pack);
-                    }
-                }
 		directDependencies.add(domain);
 	}
 
@@ -126,74 +115,130 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	}
 	
 	private static final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
-
+        private static final long WAIT_FOR_LOCK = 10;
+        private static final long MAX_WAIT_FOR_LOCK = 10000;        
+        private static final long MAX_ATTEMPTS = MAX_WAIT_FOR_LOCK / WAIT_FOR_LOCK;        
+        
+        /**
+         * Tries to acquire lock for a given time.
+         * 
+         * @return false if lock is already held by curretn thread. This means
+         * no release is necessary on this iteration.
+         * @throws IllegalMonitorStateException if lock was not acquired
+         */
 	private boolean acquireGlobalLock() {
+                boolean acquired = false;
 		if (GLOBAL_LOCK.isHeldByCurrentThread()) {
-			return false;
-		}
-		while (!GLOBAL_LOCK.tryLock()) {
-			try {
-				this.wait(10);
-			} catch (InterruptedException e) {
-				// ignore
-			}
-		}
-		return true;
+			acquired = false;
+		} else {
+                    int attempts = 0;
+                    try {
+                        //prevent an infinite loop by limiting the acquire attempts
+                        while (!acquired && attempts < MAX_ATTEMPTS) {
+                                acquired = GLOBAL_LOCK.tryLock(WAIT_FOR_LOCK, TimeUnit.MILLISECONDS);
+                                attempts = attempts + 1;
+                        }
+                    } catch (InterruptedException ex) {
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Interrupted while acquiring.", ex);                    
+                        }
+                    }
+                    if (!acquired) {
+                        //throw a runtime exception so error is reported upstream
+                        throw new IllegalMonitorStateException("Unable to acquire global lock.");
+                    }
+                }
+		return acquired;
 	}
 
 	private void releaseGlobalLock() {
 		GLOBAL_LOCK.unlock();
 	}
+        
+        private boolean isPreferredPacakge(String className) {
+            boolean isPreferred = false;
+            for (String prefPack : preferredPackages)
+            {
+                if (className.startsWith(prefPack)) {
+                    isPreferred = true;
+                }
+            }            
+            return isPreferred;
+        }
 
+        
 	@Override
-	protected Class<?> loadClass(final String name, final boolean resolve)
+	protected synchronized Class<?> loadClass(final String name, final boolean resolve)
 			throws ClassNotFoundException {
 
-		if (logger.isTraceEnabled())
-			logger.trace(toString() + " loadClass: " + name);
+            Class foundClass = null;
+            ClassNotFoundException localException = null;
+            
+            if (logger.isTraceEnabled())
+                    logger.trace(toString() + " loadClass: " + name);
 
-		synchronized (this) {
-			final boolean acquiredLock = acquireGlobalLock();
-                        //fixes https://github.com/RestComm/jain-slee/issues/49
-                        //classloader order is inverted for preferred packages
-                        for (String prefPack : preferredPackages)
-                        {
-                            if (name.startsWith(prefPack)) {
-                                try {
-                                    Class<?> clazz =  this.findClass(name);
-                                    return clazz;
-                                } catch (ClassNotFoundException cExp) {
-                                    //ignore
-                                    if (logger.isTraceEnabled()) {
-                                        logger.trace("Class not found" + cExp);
-                                    }
-                                }
+            boolean acquiredLock = false;
+
+            try {
+                    acquiredLock = acquireGlobalLock();
+                
+                    //fixes https://github.com/RestComm/jain-slee/issues/49
+                    //classloader order is inverted for preferred packages                
+                    if (isPreferredPacakge(name)) {
+                        try {
+                            Class<?> loaded = this.findLoadedClass(name);
+                            if (loaded == null) {
+                                Class<?> clazz =  this.findClass(name);
+                                foundClass = clazz;
+                            } else {
+                                foundClass = loaded;
                             }
-                        }                        
-			try {
-				// load the class
-				if (System.getSecurityManager() != null) {
-					try {
-						return AccessController
-								.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
-									public Class<?> run()
-											throws ClassNotFoundException {
-										return URLClassLoaderDomainImpl.super
-												.loadClass(name, resolve);
-									}
-								});
-					} catch (PrivilegedActionException e) {
-						throw (ClassNotFoundException) e.getException();
-					}
-				} else {
-					return super.loadClass(name, resolve);
-				}
-			} finally {
-				if (acquiredLock) {
-					releaseGlobalLock();
-				}
-			}
-		}
+                        } catch (ClassNotFoundException cExp) {
+                            //ignore, try with parent before raising exception
+                            //save exception in case parent dont find it
+                            localException = cExp;
+                            if (logger.isTraceEnabled()) {
+                                logger.trace("Class not found" + cExp);
+                            }
+                        }
+                    }
+
+                    if (foundClass == null ) {
+                        //now try with parent
+                        // load the class
+                        if (System.getSecurityManager() != null) {
+                                try {
+                                        return AccessController
+                                                        .doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+                                                                public Class<?> run()
+                                                                                throws ClassNotFoundException {
+                                                                        return URLClassLoaderDomainImpl.super
+                                                                                        .loadClass(name, resolve);
+                                                                }
+                                                        });
+                                } catch (PrivilegedActionException e) {
+                                        throw (ClassNotFoundException) e.getException();
+                                }
+                        } else {
+                                foundClass = super.loadClass(name, resolve);
+                        }
+                    }
+            } finally {
+                    //in any case always releas lock
+                    if (acquiredLock) {
+                            releaseGlobalLock();
+                    }
+            }
+            if (foundClass != null) {
+                return foundClass;
+            } else {
+                //ensure we raise proper exception
+                if (localException != null) {
+                    throw localException;
+                } else {
+                    throw new ClassNotFoundException(name);
+                }
+            }
 	}
 
 	@Override
@@ -328,5 +373,14 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	public void clear() {
 		directDependencies.clear();
 	}
+        
+        public Set<String> getPreferredPackages() {
+            return preferredPackages;
+        }
+
+        public void setPreferredPackages(Set<String> preferredPackages) {
+            this.preferredPackages = preferredPackages;
+        }        
+                
 
 }
