@@ -177,13 +177,6 @@ public interface SbbEntity {
 	public boolean isRemoved();
 	
 	/**
-	 * Invoke sbbPassivate()
-	 *
-	 * @throws Exception
-	 */
-	public void passivateSbbObject();
-	
-	/**
 	 * Invoke sbbPassivate() and then release the sbb object from the entity
 	 * 
 	 * @throws Exception

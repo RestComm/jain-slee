@@ -100,10 +100,11 @@ public class SbbEntityImpl implements SbbEntity {
 	 * Call this constructor when there's no cached image and the Sbb entity is
 	 * being created for the first time.
 	 * 
-	 * @param sbbEntityId
-	 * @param cacheData
-	 * @param created
-	 * @param sbbEntityFactory
+	 * @param container
+	 * @param sbbeId
+	 * @param sbbID
+	 * @param convergenceName
+	 * @param svcId
 	 */
 	SbbEntityImpl(SbbEntityID sbbEntityId, SbbEntityCacheData cacheData, boolean created, SbbEntityFactoryImpl sbbEntityFactory) {
 		this.sbbEntityFactory = sbbEntityFactory;
@@ -546,41 +547,6 @@ public class SbbEntityImpl implements SbbEntity {
 				String s = "Could not create Custom ACI!";
 				// log.error(s, e);
 				throw new SLEEException(s, e);
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#passivateSbbObject()
-	 */
-	public void passivateSbbObject() {
-		this.sbbObject.sbbStore();
-		this.sbbObject.sbbPassivate();
-		this.sbbObject.setState(SbbObjectState.POOLED);
-		this.sbbObject.setSbbEntity(null);
-		try {
-			getObjectPool().returnObject(this.sbbObject);
-		} catch (Exception e) {
-			log.error("failed to return sbb object "+sbbObject+" to pool",e);
-		}
-		//this.sbbObject = null;
-		if (childsWithSbbObjects != null) {
-			for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
-					.hasNext();) {
-				SbbEntity childSbbEntity = i.next();
-				if (childSbbEntity.getSbbObject() != null) {
-					Thread t = Thread.currentThread();
-					ClassLoader cl = t.getContextClassLoader();
-					t.setContextClassLoader(childSbbEntity.getSbbComponent().getClassLoader());
-					try {
-						childSbbEntity.passivateSbbObject();
-					}
-					finally {
-						t.setContextClassLoader(cl);
-					}
-				}
-				i.remove();
 			}
 		}
 	}

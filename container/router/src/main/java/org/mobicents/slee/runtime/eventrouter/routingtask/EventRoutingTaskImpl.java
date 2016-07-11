@@ -131,6 +131,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 	 * Delivers to SBBs an event off the top of the queue for an activity
 	 * context
 	 * 
+	 * @param de
 	 * @return true if the event processing suceeds
 	 */
 	private void routeQueuedEvent() {
@@ -196,7 +197,6 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 						+ serviceComponents);
 			
 			boolean finished;
-			SbbEntity rootSbbEntityChecked;
 			SbbEntityID rootSbbEntityId;
 			ClassLoader invokerClassLoader;
 			SbbEntity sbbEntity;
@@ -217,7 +217,6 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 				
 				// For each SBB that is attached to this activity context and active service to process event as initial
 
-				rootSbbEntityChecked = null;
 				rootSbbEntityId = null;
 				invokerClassLoader = null;
 				sbbEntity = null;
@@ -416,8 +415,8 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 
 								// CHECK IF WE CAN CLAIM THE ROOT SBB ENTITY
 								if (rootSbbEntityId != null) {
-									rootSbbEntityChecked = container.getSbbEntityFactory().getSbbEntity(rootSbbEntityId,false);
-									if (rootSbbEntityChecked == null || rootSbbEntityChecked.getAttachmentCount() != 0) {
+									SbbEntity rootSbbEntity = container.getSbbEntityFactory().getSbbEntity(rootSbbEntityId,false);
+									if (rootSbbEntity == null || rootSbbEntity.getAttachmentCount() != 0) {
 										if (debugLogging) {
 											logger
 											.debug("Not removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
@@ -489,28 +488,6 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 					ClassLoader rootInvokerClassLoader = null;
 					SbbEntity rootSbbEntity = null;
 
-
-					/*
-					 * If the root sbb entity is not be claimed (it has attachments)
-					 * we invoke passivate root sbb object without release it
-					 */
-					if (!invokeSbbRolledBack && rootSbbEntityId == null) {
-						if (rootSbbEntityChecked != null) {
-							if (debugLogging) {
-								logger.debug("*** Test rootSbbEntityChecked Sbb object: " + rootSbbEntityChecked.getSbbObject());
-							}
-
-							if (rootSbbEntityChecked.getSbbObject() != null) {
-								if (debugLogging) {
-									logger.debug("*** Try to passivateSbbObject for rootSbbEntityChecked: " + rootSbbEntityChecked);
-								}
-
-								rootSbbEntityChecked.passivateSbbObject();
-							}
-						}
-					}
-
-
 					if (!invokeSbbRolledBack && rootSbbEntityId != null) {
 						/*
 						 * If we get here this means that we need to do a
@@ -564,7 +541,6 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 							&& sbbEntity.getSbbObject() != null) {
 						sbbEntity.passivateAndReleaseSbbObject();
 					}
-
 
 					if (txMgr.getRollbackOnly()) {
 						if (debugLogging) {
