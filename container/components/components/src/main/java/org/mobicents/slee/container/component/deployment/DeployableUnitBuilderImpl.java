@@ -31,7 +31,6 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -317,7 +316,7 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 							.getDeployableUnitRepository().getComponentByID(
 									(LibraryID) componentID);
                                         //fixes https://github.com/RestComm/jain-slee/issues/49
-                                        //add same prerferences to dependency, so order is respected                
+                                        //add same preferences to dependency, so order is respected                
                                         Set<String> preferredPackages1 = dependency.getClassLoaderDomain().getPreferredPackages();
                                         for (String pack : classLoaderDomain.getPreferredPackages()) {
                                             preferredPackages1.add(pack);
