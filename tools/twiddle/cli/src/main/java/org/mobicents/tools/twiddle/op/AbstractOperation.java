@@ -241,15 +241,7 @@ public abstract class AbstractOperation {
 			Object[] parms = getOpArguments().toArray();
 			String[] sig = new String[getOpSignature().size()];
 			sig = getOpSignature().toArray(sig);
-
-			if (this.operationName.substring(0, 3).equals("set")) {
-				Attribute attr = new Attribute(this.operationName.substring(3), opArguments.get(0));
-				conn.setAttribute(on, attr);
-			} else if (this.operationName.substring(0, 3).equals("get")) {
-				operationResult = conn.getAttribute(on, this.operationName.substring(3));
-			} else {
-				operationResult = conn.invoke(on, this.operationName, parms, sig);
-			}
+			operationResult = conn.invoke(on, this.operationName, parms, sig);
 			displayResult();
 		} catch (Exception e) {
 			//add handle error here?
