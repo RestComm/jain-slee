@@ -34,7 +34,9 @@
 					
 	<xi:include href="Section-Extension_Library_References.xml"
 			xmlns:xi="http://www.w3.org/2001/XInclude" />
-	
+
+	<xi:include href="Section-Extension_Preferred_Packages.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
 	 			
 </chapter>
 
