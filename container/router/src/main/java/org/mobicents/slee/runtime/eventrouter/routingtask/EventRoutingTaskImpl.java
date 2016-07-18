@@ -24,6 +24,7 @@ package org.mobicents.slee.runtime.eventrouter.routingtask;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -47,6 +48,7 @@ import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
+import org.mobicents.slee.container.transaction.TransactionalAction;
 
 public class EventRoutingTaskImpl implements EventRoutingTask {
 
@@ -540,6 +542,30 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 					} else if (sbbEntity != null && !txMgr.getRollbackOnly()
 							&& sbbEntity.getSbbObject() != null) {
 						sbbEntity.passivateAndReleaseSbbObject();
+
+						//fixes https://github.com/RestComm/jain-slee/issues/53
+						/* add new tx action before tx commit in which
+						 * get all sbb entities in the tx context except target sbb entity
+						 * and invoke passivateAndReleaseSbbObject method if the sbb object is not null
+						 */
+						final Collection coll = txMgr.getTransactionContext().getData().keySet();
+						final SbbEntityID ongoingEntID = sbbEntity.getSbbEntityId();
+						TransactionalAction removeLoadedSBBAction = new TransactionalAction() {
+							@Override
+							public void execute() {
+								for (Object obj : coll) {
+									if (obj instanceof SbbEntityID) {
+										if (!obj.equals(ongoingEntID)) {
+											SbbEntity currentEntity = (SbbEntity) txMgr.getTransactionContext().getData().get(obj);
+											if (currentEntity.getSbbObject() != null) {
+												currentEntity.passivateAndReleaseSbbObject();
+											}
+										}
+									}
+								}
+							}
+						};
+						txMgr.getTransactionContext().getBeforeCommitPriorityActions().add(removeLoadedSBBAction);
 					}
 
 					if (txMgr.getRollbackOnly()) {
