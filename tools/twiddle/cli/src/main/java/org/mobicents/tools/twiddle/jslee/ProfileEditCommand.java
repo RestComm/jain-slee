@@ -101,6 +101,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		out.println("    -g, --get                      Returns value of profile attribute. Requires attribute name, ie. : \"voiceMailEnabled\".");
 		out.println("    -s, --set                      Sets value of profile attribute. Supports mandatory options:.");
 		out.println("         --name                    Specifies name of profile attribute. Requires attribute name as parameter.");
+		out.println("         --separator               Specifies separator for parsing profile attribute value and creating arrays. Does not require separator as parameter if profile attribute value is not array.");
 		out.println("         --value                   Specifies string representation of profile attribute value. Requires value as parameter.");
 		out.println("                                   Command tries locally registered JMX Editor to parse value and optimize call, if editor is not found");
 		out.println("                                   it dispatches call in hope that server side has better luck.");
@@ -124,7 +125,10 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		out.println("     4. Set attribute:");
 		out.println("" + name + " CallControl mobile.user -s --name=userPhone --value=sip:ala@ma.kota:5090");
 		out.println("");
-		out.println("     5. Commit changes:");
+		out.println("     5. Set attribute with array:");
+		out.println("" + name + " CallControl mobile.user -s --name=users --separator=\";\" --value=\"Bob;Alice;John\"");
+		out.println("");
+		out.println("     6. Commit changes:");
 		out.println("" + name + " CallControl mobile.user -c");
 		
 		out.flush(); 
@@ -587,7 +591,8 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 
 					try {
 						if (valueClazz.isPrimitive()) {
-							// TODO:
+							// TODO: issue #47
+							throw new CommandException("Arrays with primitive types are not supported now.");
 						}
 
 						if (!valueClazz.isPrimitive()) {
