@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="profile.edit">
 
 	<title>profile.edit</title>
@@ -151,6 +154,10 @@
 				<listitem><para>specifies name of attribute to be changed.</para></listitem>
 			</varlistentry>
 			<varlistentry>
+				<term>--separator</term>
+				<listitem><para>specifies separator for parsing profile attribute value and creating arrays.</para></listitem>
+			</varlistentry>
+			<varlistentry>
 				<term>--value</term>
 				<listitem><para>specifies value to be set in profile attribute. Supported value types are:</para>
 					<itemizedlist>
@@ -162,6 +169,9 @@
 						</listitem>
 						<listitem>
 							<para>JSLEE types - ComponentIDs and management classes, like Address</para>
+						</listitem>
+						<listitem>
+							<para>arrays of Address, String or Numeric reference data types, like Integer</para>
 						</listitem>
 					</itemizedlist>
 				</listitem>
