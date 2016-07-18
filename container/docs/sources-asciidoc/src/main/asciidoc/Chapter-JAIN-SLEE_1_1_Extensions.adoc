@@ -46,3 +46,9 @@ include::Section-Extension_ActivityContextInterface.adoc[]
 include::Section-Extension_Library_References.adoc[]
 
 :leveloffset: -1
+
+:leveloffset: +1
+
+include::Section-Extension_Preferred_Packages.adoc[]
+
+:leveloffset: -1

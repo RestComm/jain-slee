@@ -1,0 +1,22 @@
+
+[[_slee_1_1_extensions_preferred_packages]]
+= Preferred Packages Extension
+
+This extension to JAIN SLEE 1.1 introduces the ability to override server provided classes from SBB/Lib components.
+
+The SBB developer may define the list of packages to be overriden, by using an special environment entry in SBB descriptor.
+If SBB declares SLEE library dependencies, the list of preferred packages will be applied to the library as well.
+
+[source,xml]
+----
+<env-entry>
+	<env-entry-name>org.restcomm.slee.preferred-package-list</env-entry-name>
+	<env-entry-type>java.lang.String</env-entry-type>
+	<env-entry-value>org.hibernate,dom4j,javax.transaction,org.jboss.logging,javax.persistence,net.sf.ehcache</env-entry-value>
+</env-entry>
+----
+
+The "org.restcomm.slee.preferred-package-list" entry  contains  a comma
+separated list of base packages that will be used during class loading.
+Any class under those packages, will have the classloading order inverted, so
+local class definition to SBB will be taken before server classes.
