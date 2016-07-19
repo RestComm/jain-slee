@@ -25,7 +25,7 @@
 	
 	<property name="ss7.build" value="1339"/>
 	<property name="ss7.zip" value="restcomm-jss7-3.0.1339-1603250217.zip"/>
-	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7/${ss7.build}/artifact/release/${ss7.zip}" />
+	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7-non-netty/${ss7.build}/artifact/release/${ss7.zip}" />
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
 
 	<property name="dia.version" value="1.7.0.93"/>
