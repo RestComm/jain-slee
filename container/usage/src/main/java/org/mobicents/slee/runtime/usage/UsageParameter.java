@@ -47,7 +47,6 @@ public class UsageParameter implements Serializable {
 	// NOTE: it seems that javassit does some sort of magic here - cause with
 	// generated code and "long" tck passes ... 
 	// private long value;
-	private static final int NOT_INITIALIZED_VALUE = 0;
 	private BigDecimal value;
 	private long min;
 	private long max;
@@ -79,9 +78,6 @@ public class UsageParameter implements Serializable {
 	}
 
 	public long getMin() {
-		if (this.count == 0) {
-			return NOT_INITIALIZED_VALUE;
-		}
 		return min;
 	}
 
@@ -90,9 +86,6 @@ public class UsageParameter implements Serializable {
 	}
 
 	public long getMax() {
-		if (this.count == 0) {
-			return NOT_INITIALIZED_VALUE;
-		}
 		return max;
 	}
 
