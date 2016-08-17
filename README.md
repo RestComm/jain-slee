@@ -2,6 +2,8 @@
 RestComm JAIN-SLEE
 ============
 
+[![Join the chat at https://gitter.im/RestComm/jain-slee](https://badges.gitter.im/RestComm/jain-slee.svg)](https://gitter.im/RestComm/jain-slee?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 RestComm JAIN SLEE is a highly scalable event-driven application server with a robust component model and fault tolerant execution environment. 
 
 RestComm JAIN-SLEE is the first and only Open Source Platform compliant with JAIN-SLEE 1.1 (JSR 240). 
