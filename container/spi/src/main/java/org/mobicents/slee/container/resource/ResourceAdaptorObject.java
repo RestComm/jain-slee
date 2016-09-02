@@ -44,6 +44,7 @@ import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 
 /**
  * @author martins
+ * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
  *
  */
 public interface ResourceAdaptorObject {

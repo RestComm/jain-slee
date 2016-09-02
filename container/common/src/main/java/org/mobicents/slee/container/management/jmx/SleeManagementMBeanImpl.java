@@ -22,6 +22,11 @@
 
 package org.mobicents.slee.container.management.jmx;
 
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.Version;
+import org.mobicents.slee.container.management.SleeStateChangeRequest;
+
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanServer;
@@ -40,17 +45,13 @@ import javax.slee.management.SleeStateChangeNotification;
 import javax.slee.management.UnrecognizedSubsystemException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
-import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.Version;
-import org.mobicents.slee.container.management.SleeStateChangeRequest;
-
 /**
  * Implementation of the Slee Management MBean for SLEE 1.1 specs
  * 
  * @author M. Ranganathan
  * @author Ivelin Ivanov
  * @author Eduardo Martins
+ * @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
  * 
  */
 public class SleeManagementMBeanImpl extends StandardMBean implements
@@ -166,6 +167,11 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 						}
 
 						@Override
+						public boolean isGraceful() {
+							return false;
+						}
+
+						@Override
 						public boolean isBlockingRequest() {
 							return true;
 						}
@@ -181,13 +187,18 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 						logger.error(
 								"Failed to set container in RUNNING state", e);
 						try {
-							stop(false);
+							stop(false, false);
 						} catch (Throwable f) {
 							logger.error(
 									"Failed to set container in STOPPED state, after failure to set in RUNNING state",
 									e);
 						}
 					}
+				}
+
+				@Override
+				public boolean isGraceful() {
+					return false;
 				}
 
 				@Override
@@ -221,18 +232,36 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	}
 
 	/**
+	 * Requests SLEE container to enter graceful STOPPING state. Should do it in a non-blocking manner.
+	 */
+	public void gracefulStop() throws InvalidStateException, ManagementException {
+		logger.info("gracefulStop called");
+		stop(false, true);
+	}
+
+	/**
 	 * Gracefully stop the SLEE. Should do it in a non-blocking manner.
 	 * 
 	 * @see javax.slee.management.SleeManagementMBean#stop()
 	 */
 	public void stop() throws InvalidStateException, ManagementException {
-		stop(false);
+		stop(false, false);
 	}
 
-	private void stop(final boolean block) throws InvalidStateException,
+	private void stop(final boolean block, final boolean graceful) throws InvalidStateException,
 			ManagementException {
 		try {
+			final SleeStateChangeRequest stoppingRequest = createStoppingRequest(block, graceful);
+			sleeContainer.setSleeState(stoppingRequest);
 
+		} catch (InvalidStateException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new ManagementException(ex.getMessage(), ex);
+		}
+	}
+
+	private SleeStateChangeRequest createStoppingRequest(final boolean block, final boolean graceful) {
 			// request to change to STOPPING
 			final SleeStateChangeRequest stoppingRequest = new SleeStateChangeRequest() {
 
@@ -244,38 +273,24 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 				@Override
 				public void requestCompleted() {
+					if (graceful) {
+						if(logger.isTraceEnabled()) {
+							logger.trace("nothing to do in requestCompleted in graceful stopping mode");
+						}
+						return;
+					}
 					// inner request, executed when the parent completes, to change to STOPPED
-					final SleeStateChangeRequest stopRequest = new SleeStateChangeRequest() {
-
-						private SleeState oldState;
-
-						@Override
-						public void stateChanged(SleeState oldState) {
-							logger.info(generateMessageWithLogo("stopped"));
-							this.oldState = oldState;
-						}
-
-						@Override
-						public void requestCompleted() {
-							notifyStateChange(oldState, getNewState());
-						}
-
-						@Override
-						public boolean isBlockingRequest() {
-							return true;
-						}
-
-						@Override
-						public SleeState getNewState() {
-							return SleeState.STOPPED;
-						}
-					};
+					final SleeStateChangeRequest stopRequest = createStopRequest();
 					try {
 						sleeContainer.setSleeState(stopRequest);
 					} catch (Throwable e) {
-						logger.error(
-								"Failed to set container in STOPPED state", e);
+						logger.error("Failed to set container in STOPPED state", e);
 					}
+				}
+
+				@Override
+				public boolean isGraceful() {
+					return graceful;
 				}
 
 				@Override
@@ -288,13 +303,42 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 					return SleeState.STOPPING;
 				}
 			};
-			sleeContainer.setSleeState(stoppingRequest);
+		return stoppingRequest;
+	}
 
-		} catch (InvalidStateException ex) {
-			throw ex;
-		} catch (Exception ex) {
-			throw new ManagementException(ex.getMessage(), ex);
-		}
+	private SleeStateChangeRequest createStopRequest() {
+		// request to change to STOPPED
+		final SleeStateChangeRequest stopRequest = new SleeStateChangeRequest() {
+
+			private SleeState oldState;
+
+			@Override
+			public void stateChanged(SleeState oldState) {
+				logger.info(generateMessageWithLogo("stopped"));
+				this.oldState = oldState;
+			}
+
+			@Override
+			public void requestCompleted() {
+				notifyStateChange(oldState, getNewState());
+			}
+
+			@Override
+			public boolean isGraceful() {
+				return false;
+			}
+
+			@Override
+			public boolean isBlockingRequest() {
+				return true;
+			}
+
+			@Override
+			public SleeState getNewState() {
+				return SleeState.STOPPED;
+			}
+		};
+		return stopRequest;
 	}
 
 	/**
@@ -346,7 +390,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	/**
 	 * set the ObjectName of the ServiceManagementMBean
 	 * 
-	 * @see javax.slee.management.SleeManagementMBean#setServiceManagementMBean()
+	 * @see javax.slee.management.SleeManagementMBean
 	 */
 	public void setServiceManagementMBean(ObjectName newSMM) {
 		this.serviceManagementMBean = newSMM;
@@ -365,7 +409,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	/**
 	 * set the ObjectName of the ProfileProvisioningMBean
 	 * 
-	 * @see javax.slee.management.SleeManagementMBean#setProfileProvisioningMBean()
+	 * @see javax.slee.management.SleeManagementMBean
 	 */
 	public void setProfileProvisioningMBean(ObjectName newPPM) {
 		this.profileProvisioningMBean = newPPM;
@@ -653,7 +697,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	public void stopSlee() {
 		try {
-			stop(true);
+			stop(true, false);
 			shutdown();
 		} catch (Exception e) {
 			logger.error("Failed in SLEE stop", e);
