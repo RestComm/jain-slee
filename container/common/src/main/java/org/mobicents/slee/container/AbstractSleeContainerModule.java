@@ -25,9 +25,6 @@
  */
 package org.mobicents.slee.container;
 
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.SleeContainerModule;
-
 /**
  * @author martins
  * 

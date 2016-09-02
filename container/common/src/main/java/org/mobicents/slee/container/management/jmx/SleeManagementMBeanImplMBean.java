@@ -35,13 +35,17 @@ package org.mobicents.slee.container.management.jmx;
 
 import javax.management.MBeanRegistration;
 import javax.management.NotificationBroadcaster;
+import javax.slee.InvalidStateException;
+import javax.slee.management.ManagementException;
 import javax.slee.management.SleeManagementMBean;
 
 /**
  * @author Ivelin Ivanov
+ * @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
  * 
  */
 public interface SleeManagementMBeanImplMBean extends SleeManagementMBean,
 		MBeanRegistration, NotificationBroadcaster {
-	
+
+	public void gracefulStop() throws InvalidStateException, ManagementException;
 }

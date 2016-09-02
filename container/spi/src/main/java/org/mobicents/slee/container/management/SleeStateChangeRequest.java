@@ -28,6 +28,7 @@ import javax.slee.management.SleeState;
  * A request to change SLEE state.
  * 
  * @author martins
+ * @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
  *
  */
 public interface SleeStateChangeRequest {
@@ -54,5 +55,11 @@ public interface SleeStateChangeRequest {
 	 * Indicates that the whole process of state change completed.
 	 */
 	public void requestCompleted();
+
+	/**
+	 * Indicates graceful mode of request
+	 * @return
+     */
+	public boolean isGraceful();
 	
 }

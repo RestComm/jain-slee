@@ -19,15 +19,6 @@ package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
-
-import java.io.PrintWriter;
-import java.util.Arrays;
-
-import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.slee.management.SleeState;
-
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
@@ -35,15 +26,21 @@ import org.mobicents.tools.twiddle.AbstractSleeCommand;
 import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
 
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.io.PrintWriter;
+import java.util.Arrays;
+
 /**
  * @author baranowb
+ * @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
  * 
  */
 public class SleeCommand extends AbstractSleeCommand {
 
 	/**
-	 * @param name
-	 * @param desc
+	 * This command performs operations on JSLEE SleeManagementMBean
 	 */
 	public SleeCommand() {
 		super("slee", "This command performs operations on JSLEE SleeManagementMBean.");
@@ -65,7 +62,8 @@ public class SleeCommand extends AbstractSleeCommand {
 		out.println();
 		out.println("operation:");
 		out.println("    -r, --start                     Starts container.");
-		out.println("    -s, --stopt                     Stops container.");
+		out.println("    -s, --stop                      Stops container.");
+		out.println("    -g, --gracefulStop              Requests container to enter graceful stopping state.");
 		out.println("    -d, --shutdown                  Shutdowns container.");
 		out.println("    -i, --info                      Displays information about SLEE container(vendor, version, etc.).");
 		//no more supported, since we dont have subsystems?
@@ -82,11 +80,12 @@ public class SleeCommand extends AbstractSleeCommand {
 	 */
 	@Override
 	protected void processArguments(String[] args) throws CommandException {
-		String sopts = ":rsdi";
+		String sopts = ":rsgdi";
 
 		LongOpt[] lopts = {
 				new LongOpt("start", LongOpt.NO_ARGUMENT, null, 'r'),
-				new LongOpt("stopt", LongOpt.NO_ARGUMENT, null, 's'),
+				new LongOpt("stop", LongOpt.NO_ARGUMENT, null, 's'),
+				new LongOpt("gracefulStop", LongOpt.NO_ARGUMENT, null, 'g'),
 				new LongOpt("shutdown", LongOpt.NO_ARGUMENT, null, 'd'),
 				new LongOpt("info", LongOpt.NO_ARGUMENT, null, 'i'),
 				
@@ -105,23 +104,26 @@ public class SleeCommand extends AbstractSleeCommand {
 				throw new CommandException("Invalid (or ambiguous) option: " + args[getopt.getOptind() - 1]);
 
 			case 'r':
-
 				super.operation = new StartOperation(super.context, super.log, this);
 				super.operation.buildOperation(getopt, args);
 				break;
 
 			case 's':
-
 				super.operation = new StopOperation(super.context, super.log, this);
 				super.operation.buildOperation(getopt, args);
 				break;
-			case 'd':
 
+			case 'g':
+				super.operation = new GracefulStopOperation(super.context, super.log, this);
+				super.operation.buildOperation(getopt, args);
+				break;
+
+			case 'd':
 				super.operation = new ShutdownOperation(super.context, super.log, this);
 				super.operation.buildOperation(getopt, args);
 				break;
-			case 'i':
 
+			case 'i':
 				super.operation = new InfoOperation(super.context, super.log, this);
 				super.operation.buildOperation(getopt, args);
 				break;
@@ -147,6 +149,7 @@ public class SleeCommand extends AbstractSleeCommand {
 	private class StartOperation extends AbstractOperation
 	{
 		private static final String OPERATION_start= "start";
+
 		public StartOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			super.operationName =OPERATION_start;
@@ -158,6 +161,7 @@ public class SleeCommand extends AbstractSleeCommand {
 			
 		}
 	}
+
 	private class StopOperation extends AbstractOperation
 	{
 		private static final String OPERATION_stop = "stop";
@@ -173,9 +177,26 @@ public class SleeCommand extends AbstractSleeCommand {
 			
 		}
 	}
+
+	private class GracefulStopOperation extends AbstractOperation {
+		private static final String OPERATION_graceful_stop = "gracefulStop";
+
+		public GracefulStopOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
+			super(context, log, sleeCommand);
+			super.operationName = OPERATION_graceful_stop;
+		}
+
+		@Override
+		public void buildOperation(Getopt opts, String[] args) throws CommandException {
+			// TODO Auto-generated method stub
+
+		}
+	}
+
 	private class ShutdownOperation extends AbstractOperation
 	{
 		private static final String OPERATION_shutdown = "shutdown";
+
 		public ShutdownOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			super.operationName = OPERATION_shutdown;
@@ -197,6 +218,7 @@ public class SleeCommand extends AbstractSleeCommand {
 				"Subsystems",
 				"State",
 		};
+
 		public InfoOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			//no name, since its complicated op. It performs more than one call.
