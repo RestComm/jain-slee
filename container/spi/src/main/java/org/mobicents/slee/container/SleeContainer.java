@@ -22,22 +22,6 @@
 
 package org.mobicents.slee.container;
 
-import java.io.File;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-
-import javax.management.MBeanServer;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.slee.InvalidStateException;
-import javax.slee.management.SleeState;
-
 import org.apache.log4j.Logger;
 import org.jboss.util.naming.Util;
 import org.jboss.virtual.VFS;
@@ -72,6 +56,21 @@ import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.util.JndiRegistrationManager;
 
+import javax.management.MBeanServer;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.slee.InvalidStateException;
+import javax.slee.management.SleeState;
+import java.io.File;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+
 /**
  * Implements the SleeContainer. The SleeContainer is the anchor for the SLEE.
  * It is the central location from where all container modules are accessible.
@@ -82,6 +81,7 @@ import org.mobicents.slee.container.util.JndiRegistrationManager;
  * @author Emil Ivov
  * @author Tim Fox
  * @author eduardomartins
+ * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
  */
 public class SleeContainer {
 
@@ -135,6 +135,18 @@ public class SleeContainer {
 	private final MBeanServer mbeanServer;
 	/** The lifecycle state of the SLEE */
 	private SleeState sleeState;
+	/** Indicates if SLEE is gracefully shutdown */
+	private boolean isGracefullyStopping = false;
+	/**
+	 * Graceful stop min activities threshold value.
+	 * When the number of all GS capable RA entities activities drops below this value then container shall be stopped in standard mode.
+	 */
+	private int gracefulStopActivitiesCountThreshold = Integer.MAX_VALUE;
+	/**
+	 * Graceful stop waiting time value in seconds.
+	 * When the contained is not stopped withing this time then it shall be stopped in standard mode.
+	 */
+	private long gracefulStopWaitTime = Long.MAX_VALUE;
 
 	// the class that actually posts events to the SBBs.
 	// This should be made into a facility and registered with jmx and jndi
@@ -298,6 +310,7 @@ public class SleeContainer {
 		this.deployer = sleeContainerDeployer;
 		addModule(sleeContainerDeployer);	
 
+		this.isGracefullyStopping = false;
 	}
 
 	private void addModule(SleeContainerModule module) {
@@ -516,6 +529,39 @@ public class SleeContainer {
 	}
 
 	/**
+	 * Indicates if SLEE container entered graceful stopping mode
+	 *
+	 * @return true if graceful stopping mode is active
+	 */
+	public boolean isGracefullyStopping() {
+		return this.isGracefullyStopping;
+	}
+
+	/**
+	 * Gets gracefulStopWaitTime value in seconds
+	 * @return Graceful Stop max Time
+	 */
+	public long getGracefulStopWaitTime() {
+		return gracefulStopWaitTime;
+	}
+
+	public void setGracefulStopWaitTime(long gracefulStopWaitTime) {
+		this.gracefulStopWaitTime = gracefulStopWaitTime;
+	}
+
+	/**
+	 * Gets gracefulStopActivitiesCountThreshold value
+	 * @return Graceful Stop Activities Count Threshold
+	 */
+	public int getGracefulStopActivitiesCountThreshold() {
+		return gracefulStopActivitiesCountThreshold;
+	}
+
+	public void setGracefulStopActivitiesCountThreshold(int gracefulStopActivitiesCountThreshold) {
+		this.gracefulStopActivitiesCountThreshold = gracefulStopActivitiesCountThreshold;
+	}
+
+	/**
 	 * 
 	 * @return
 	 */
@@ -594,7 +640,7 @@ public class SleeContainer {
 
 	/**
 	 * 
-	 * @param newState
+	 * @param request
 	 */
 	public void setSleeState(final SleeStateChangeRequest request) throws InvalidStateException {
 
@@ -616,6 +662,7 @@ public class SleeContainer {
 			public void run() {
 				try {
 					if (newState == SleeState.STARTING) {
+						isGracefullyStopping = false;
 						for (Iterator<SleeContainerModule> i = modules.iterator(); i.hasNext();) {
 							i.next().sleeStarting();
 						}						
@@ -626,8 +673,20 @@ public class SleeContainer {
 						}
 					}
 					else if (newState == SleeState.STOPPING) {
+						isGracefullyStopping = request.isGraceful();
 						for (Iterator<SleeContainerModule> i = modules.descendingIterator(); i.hasNext();) {
-							i.next().sleeStopping();
+							SleeContainerModule sleeContainerModule = i.next();
+							if(isGracefullyStopping && !(sleeContainerModule instanceof ResourceManagement)) {
+								// in graceful stopping mode stop only RAs
+								if (logger.isTraceEnabled()) {
+									logger.trace("skip stopping " + sleeContainerModule.getClass().getSimpleName() + " in graceful stopping mode" );
+								}
+								continue;
+							}
+							if (logger.isInfoEnabled()) {
+								logger.info("stopping " + sleeContainerModule.toString() + (isGracefullyStopping ?" gracefully":"") );
+							}
+							sleeContainerModule.sleeStopping();
 						}
 					}
 					else if (newState == SleeState.STOPPED) {
@@ -682,7 +741,7 @@ public class SleeContainer {
 				return;
 			}
 		} else if (oldState == SleeState.STOPPING) {
-			if (newState == SleeState.STOPPED) {
+			if (newState == SleeState.STOPPED || newState == SleeState.STOPPING) {
 				return;
 			}
 		}

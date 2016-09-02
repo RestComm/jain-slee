@@ -1,0 +1,108 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<section id="x.slee">
+
+	<title>slee</title>
+	<para>
+		<literal>slee</literal>
+		Extended commands interacts with <literal>javax.slee.management:name=SleeManagement</literal>
+		MBean. Extended <literal>slee</literal> allows additional operations apart from standard start/stop.
+		</para>
+		<para> 
+		 It supports following extended operations:
+		<table frame="all" pgwide="1">
+			<title>Operations table for extended <literal>slee</literal> command</title>
+			<tgroup colsep="1" cols="5">
+				<colspec colnum="1" colname="c0" />
+				<colspec colnum="2" colname="c1" />
+				<colspec colnum="3" colname="c2" />
+				<colspec colnum="4" colname="c3" />
+				<thead>
+					<row>
+						<entry>Operation</entry>
+						<entry>Short form</entry>
+						<entry>Long form</entry>
+						<entry>Argument</entry>
+						<entry>Options</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>gracefulStop</entry>
+						<entry>-g</entry>
+						<entry>--gracefulStop</entry>
+						<entry>No</entry>
+						<entry>Yes</entry>
+					</row>
+				</tbody>
+			</tgroup>
+		</table>
+	</para>
+
+	<section id="x.slee_graceful_stop">
+		<title>gracefulStop</title>
+		<para><literal>gracefulStop</literal> operation stops container gracefully.
+			It means that all graceful shutdown compliant Resource Adaptors are notified to go into graceful stopping state
+			and other RAs work normally (stay in ACTIVE state).
+			The graceful stop process is broken and standard stop is invoked when number of active sessions (activities) threshold will be reached
+			or specified wait time elapses.
+			Container has to be in  <literal>RUNNING</literal> state.
+			It does not take argument. Options can be present, to indicate when graceful stop procedure is broken.
+			If any option is not specified the container default value is applied.
+			Example invocation:
+			<example>
+				<title>Stop container gracefully using default AST and wait time values</title>
+				<!-- <screen> --><programlisting>./twiddle.sh slee -g<!-- </screen> --></programlisting>
+				<!-- <screen> --><programlisting>./twiddle.sh slee --gracefulStop<!-- </screen> --></programlisting>
+			</example>
+			<example>
+				<title>Stop container gracefully using user specified AST and wait time values</title>
+				<!-- <screen> --><programlisting>./twiddle.sh slee -g --ast 30 --time 300<!-- </screen> --></programlisting>
+				<!-- <screen> --><programlisting>./twiddle.sh slee --gracefulStop --ast 30 --time 300<!-- </screen> --></programlisting>
+			</example>
+
+			<literal>gracefulStop</literal> supports following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--ast
+				</term>
+				<listitem>
+					<para>specifies Active Sessions Threshold value.
+						When the total number of graceful shutdown capable RAs related activities drops below
+						AST value then the container is stopped in standard way.
+						When no AST value is provided the container default value is applied.
+						Option requires argument in form of integer value.
+						Example calls: </para>
+					<example>
+						<title>Stop container gracefully till number of monitored activites drops below 30</title>
+						<!-- <screen> --><programlisting>
+						twiddle.sh slee -g --ast 30
+						<!-- </screen> --></programlisting>
+					</example>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--time
+				</term>
+				<listitem>
+					<para>specifies graceful shutdown maximum waiting time value in seconds.
+						When the specified time passes the container is stopped in standard mode.
+						When no wait time value is provided the container default value is applied.
+						Option requires argument in form of long value [seconds].
+						Example calls: </para>
+					<example>
+						<title>Stopping container gracefully for 5 mins</title>
+						<!-- <screen> --><programlisting>
+						twiddle.sh slee -g --time 300
+						<!-- </screen> --></programlisting>
+					</example>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>
+
+</section>	

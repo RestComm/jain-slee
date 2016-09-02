@@ -25,7 +25,8 @@
  */
 package org.mobicents.slee.container.resource;
 
-import java.util.Set;
+import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
 
 import javax.slee.EventTypeID;
 import javax.slee.InvalidStateException;
@@ -44,9 +45,7 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
-
-import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
+import java.util.Set;
 
 /**
  * @author martins
@@ -200,7 +199,7 @@ public interface ResourceAdaptorEntity {
 	 * Indicates a service was activated, the entity will forward this
 	 * notification to the ra object.
 	 * 
-	 * @param serviceInfo
+	 * @param serviceID
 	 */
 	public void serviceActive(ServiceID serviceID);
 
@@ -208,7 +207,7 @@ public interface ResourceAdaptorEntity {
 	 * Indicates a service was deactivated, the entity will forward this
 	 * notification to the ra object.
 	 * 
-	 * @param serviceInfo
+	 * @param serviceID
 	 */
 	public void serviceInactive(ServiceID serviceID);
 
@@ -216,7 +215,7 @@ public interface ResourceAdaptorEntity {
 	 * Indicates a service is stopping, the entity will forward this
 	 * notification to the ra object.
 	 * 
-	 * @param serviceInfo
+	 * @param serviceID
 	 */
 	public void serviceStopping(ServiceID serviceID);
 	
@@ -239,4 +238,9 @@ public interface ResourceAdaptorEntity {
 	public void updateConfigurationProperties(ConfigProperties properties)
 			throws InvalidConfigurationException, InvalidStateException;
 
+	/**
+	 * Gets the current number of activities handled by this RA entity.
+	 * @return
+	 */
+	public int getRaEntityActivitiesCount();
 }

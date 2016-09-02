@@ -103,8 +103,10 @@ public class ActivityHandleReferenceFactory {
 		if (doTraceLogs) {
 			logger.trace("remove()");
 		}
-		clusteredCacheData.remove();
-		clusteredCacheData = null;
+		if(clusteredCacheData != null) {
+			clusteredCacheData.remove();
+			clusteredCacheData = null;
+		}
 		resourceManagement.getSleeContainer().getCluster().removeFailOverListener(failOverListener);
 	}
 	

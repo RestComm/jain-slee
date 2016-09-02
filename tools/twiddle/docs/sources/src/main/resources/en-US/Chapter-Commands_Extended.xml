@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter id="commands.extended">
 
@@ -7,7 +10,7 @@
 	<para>This chapter describes commands that are specific to &THIS.PLATFORM; <acronym>JSLEE</acronym> container.
 	Following commands are not bound to work on any other implementation of  <acronym>JSLEE</acronym> specification.</para>
 	
-	<para>This set of commands is invoked exactly in the same way as commands interacting with standard <acronym>JLSEE</acronym> 
+	<para>This set of commands is invoked exactly in the same way as commands interacting with standard <acronym>JSLEE</acronym>
 	management interface.</para>
 	
 	
@@ -16,6 +19,7 @@
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Command-X-router.stats.xml" />
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Command-X-deployer.xml" />
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Command-X-congestion.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Command-X-slee.xml" />
 
 	
 	
