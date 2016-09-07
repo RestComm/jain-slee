@@ -19,10 +19,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-/**
- * 
- */
 package org.mobicents.slee.container.eventrouter;
 
 import javax.slee.ActivityContextInterface;
@@ -31,24 +27,23 @@ import org.mobicents.slee.container.event.EventContext;
 
 /**
  * The context of event routing stored in the transaction.
- * 
+ *
  * @author martins
- * 
+ *
  */
 public interface EventRoutingTransactionData {
 
-	/**
-	 * Retrieves the aci, which is receiving the event
-	 * 
-	 * @return
-	 */
-	public ActivityContextInterface getAciReceivingEvent();
+    /**
+     * Retrieves the aci, which is receiving the event
+     *
+     * @return
+     */
+    public ActivityContextInterface getAciReceivingEvent();
 
-	/**
-	 * Retrieves the event being delivered
-	 * 
-	 * @return
-	 */
-	public EventContext getEventBeingDelivered();
-
+    /**
+     * Retrieves the event being delivered
+     *
+     * @return
+     */
+    public EventContext getEventBeingDelivered();
 }

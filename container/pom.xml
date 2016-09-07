@@ -9,13 +9,12 @@
 	</parent>
 
 	<artifactId>restcomm-slee-core-container</artifactId>
-
 	<packaging>pom</packaging>
 
 	<properties>
 		<slee.name>Restcomm JAIN SLEE</slee.name>
 		<slee.vendor>Restcomm</slee.vendor>
-		<slee.version>${pom.version}</slee.version>
+		<slee.version>${project.parent.version}</slee.version>
 		<slee.codename>???</slee.codename>
 	</properties>
 
@@ -48,12 +47,12 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.mobicents.cluster</groupId>
-				<artifactId>core</artifactId>
+				<artifactId>cache</artifactId>
 				<version>${restcomm.cluster.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mobicents.cluster</groupId>
-				<artifactId>cache</artifactId>
+				<artifactId>core</artifactId>
 				<version>${restcomm.cluster.version}</version>
 			</dependency>
 			<dependency>

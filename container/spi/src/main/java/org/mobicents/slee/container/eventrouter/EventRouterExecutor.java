@@ -19,10 +19,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-/**
- * 
- */
 package org.mobicents.slee.container.eventrouter;
 
 import java.util.concurrent.ExecutionException;
@@ -32,63 +28,59 @@ import org.mobicents.slee.container.event.EventContext;
 import org.mobicents.slee.container.eventrouter.stats.EventRouterExecutorStatistics;
 
 /**
- * An {@link EventRouter} executor, used to route events and execute misc tasks
- * for multiple {@link ActivityContextHandle} at the same time, but in a
- * serialized way.
- * 
+ * An {@link EventRouter} executor, used to route events and execute misc tasks for multiple
+ * {@link ActivityContextHandle} at the same time, but in a serialized way.
+ *
  * @author martins
- * 
  */
 public interface EventRouterExecutor {
 
-	/**
-	 * Indicates to the executor that it was mapped to the activity with the
-	 * specified handle.
-	 * 
-	 * @param ach
-	 */
-	public void activityMapped(ActivityContextHandle ach);
-	
-	/**
-	 * Indicates to the executor that it was unmapped to the activity with the
-	 * specified handle.
-	 * 
-	 * @param ach
-	 */
-	public void activityUnmapped(ActivityContextHandle ach);
-	
-	/**
-	 * Executes a misc {@link Runnable} task.
-	 * 
-	 * @param task
-	 */
-	public void execute(Runnable task);
+    /**
+     * Indicates to the executor that it was mapped to the activity with the specified handle.
+     *
+     * @param ach
+     */
+    public void activityMapped(ActivityContextHandle ach);
 
-	/**
-	 * Executes a misc {@link Runnable} task, blocking till execution ends.
-	 * 
-	 * @param task
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
-	 */
-	public void executeNow(Runnable task) throws InterruptedException, ExecutionException;
-	
-	/**
-	 * Retrieves the performance and load statistics for the executor.
-	 * 
-	 * @return null if the executor is not collecting stats.
-	 */
-	public EventRouterExecutorStatistics getStatistics();
+    /**
+     * Indicates to the executor that it was unmapped to the activity with the specified handle.
+     *
+     * @param ach
+     */
+    public void activityUnmapped(ActivityContextHandle ach);
 
-	/**
-	 * Routes the specified event.
-	 * @param event
-	 */
-	public void routeEvent(EventContext event);
+    /**
+     * Executes a misc {@link Runnable} task.
+     *
+     * @param task
+     */
+    public void execute(Runnable task);
 
-	/**
-	 * Shuts down the executor.
-	 */
-	public void shutdown();
+    /**
+     * Executes a misc {@link Runnable} task, blocking till execution ends.
+     *
+     * @param task
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public void executeNow(Runnable task) throws InterruptedException, ExecutionException;
 
+    /**
+     * Retrieves the performance and load statistics for the executor.
+     *
+     * @return null if the executor is not collecting stats.
+     */
+    public EventRouterExecutorStatistics getStatistics();
+
+    /**
+     * Routes the specified event.
+     *
+     * @param event
+     */
+    public void routeEvent(EventContext event);
+
+    /**
+     * Shuts down the executor.
+     */
+    public void shutdown();
 }

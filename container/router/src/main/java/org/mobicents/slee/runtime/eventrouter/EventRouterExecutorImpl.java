@@ -20,6 +20,14 @@
  */
 package org.mobicents.slee.runtime.eventrouter;
 
+import java.util.Collections;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.event.EventContext;
@@ -29,167 +37,146 @@ import org.mobicents.slee.container.eventrouter.stats.EventRouterExecutorStatist
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTaskImpl;
 import org.mobicents.slee.runtime.eventrouter.stats.EventRouterExecutorStatisticsImpl;
 
-import java.util.Collections;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 /**
- * 
+ *
  * @author martins
- * 
  */
 public class EventRouterExecutorImpl implements EventRouterExecutor {
 
-	private final ExecutorService executor;
-	private final EventRouterExecutorStatisticsImpl stats;
-	private final SleeContainer sleeContainer;
-	
-	/**
-	 * Used to collect executing stats of an {@link EventRoutingTask}.
-	 * 
-	 * @author martins
-	 * 
-	 */
-	private class EventRoutingTaskStatsCollector implements Runnable {
+    private static final Logger LOGGER = Logger.getLogger(EventRouterExecutorImpl.class);
+    private final ExecutorService executorService;
+    private final EventRouterExecutorStatisticsImpl executorStats;
+    private final SleeContainer sleeContainer;
 
-		private final EventRoutingTask eventRoutingTask;
+    /**
+     * Used to collect executing stats of an {@link EventRoutingTask}.
+     *
+     * @author martins
+     *
+     */
+    private class EventRoutingTaskStatsCollector implements Runnable {
 
-		public EventRoutingTaskStatsCollector(EventRoutingTask eventRoutingTask) {
-			this.eventRoutingTask = eventRoutingTask;
-		}
+        private final EventRoutingTask eventRoutingTask;
 
-		/*
+        public EventRoutingTaskStatsCollector(EventRoutingTask eventRoutingTask) {
+            this.eventRoutingTask = eventRoutingTask;
+        }
+
+        /*
 		 * (non-Javadoc)
-		 * 
 		 * @see java.lang.Runnable#run()
-		 */
-		public void run() {
-			final long startTime = System.nanoTime();
-			eventRoutingTask.run();
-			stats.eventRouted(eventRoutingTask.getEventContext().getEventTypeId(), System
-					.nanoTime()
-					- startTime);
-		}
-	}
+         */
+        public void run() {
+            final long startTime = System.nanoTime();
+            eventRoutingTask.run();
+            executorStats.eventRouted(eventRoutingTask.getEventContext().getEventTypeId(), System.nanoTime() - startTime);
+        }
+    }
 
-	/**
-	 * Used to collect executing stats of a misc {@link Runnable} task.
-	 * 
-	 * @author martins
-	 * 
-	 */
-	private class MiscTaskStatsCollector implements Runnable {
+    /**
+     * Used to collect executing stats of a misc {@link Runnable} task.
+     *
+     * @author martins
+     */
+    private class MiscTaskStatsCollector implements Runnable {
 
-		private final Runnable runnable;
+        private final Runnable runnable;
 
-		public MiscTaskStatsCollector(Runnable runnable) {
-			this.runnable = runnable;
-		}
+        public MiscTaskStatsCollector(Runnable runnable) {
+            this.runnable = runnable;
+        }
 
-		/*
+        /*
 		 * (non-Javadoc)
-		 * 
 		 * @see java.lang.Runnable#run()
-		 */
-		public void run() {
-			final long startTime = System.nanoTime();
-			runnable.run();
-			stats.miscTaskExecuted(System.nanoTime() - startTime);
-		}
-	}
+         */
+        public void run() {
+            final long startTime = System.nanoTime();
+            runnable.run();
+            executorStats.miscTaskExecuted(System.nanoTime() - startTime);
+        }
+    }
 
-	/**
-	 * 
-	 */
-	public EventRouterExecutorImpl(boolean collectStats, ThreadFactory threadFactory, SleeContainer sleeContainer) {
-		final LinkedBlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<Runnable>();
-		this.executor = new ThreadPoolExecutor(1, 1,
-                        0L, TimeUnit.MILLISECONDS,
-                        executorQueue, threadFactory);
-		stats = collectStats ? new EventRouterExecutorStatisticsImpl(Collections.unmodifiableCollection(executorQueue)) : null;
-		this.sleeContainer = sleeContainer;
-	}
+    public EventRouterExecutorImpl(boolean collectStats, ThreadFactory threadFactory, SleeContainer sleeContainer) {
+        final LinkedBlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<Runnable>();
+        executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, executorQueue, threadFactory);
+        executorStats = collectStats ? new EventRouterExecutorStatisticsImpl(Collections.unmodifiableCollection(executorQueue)) : null;
+        this.sleeContainer = sleeContainer;
+    }
 
-	/*
+    /*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#getStatistics
-	 * ()
-	 */
-	public EventRouterExecutorStatistics getStatistics() {
-		return stats;
-	}
+	 * @see org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#getStatistics()
+     */
+    public EventRouterExecutorStatistics getStatistics() {
+        return executorStats;
+    }
 
-	/*
+    /*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#shutdown()
-	 */
-	public void shutdown() {
-		executor.shutdown();
-	}
+	 * @see org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#shutdown()
+     */
+    public void shutdown() {
+        executorService.shutdown();
+    }
 
-	/*
+    /*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#execute(java
-	 * .lang.Runnable)
-	 */
-	public void execute(Runnable task) {
-		if (stats == null) {
-			executor.execute(task);
-		} else {
-			executor.execute(new MiscTaskStatsCollector(task));
-		}
-	}
+	 * @see org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#execute(java.lang.Runnable)
+     */
+    public void execute(Runnable task) {
+        if (executorStats == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Executing runnable");
+            }
+            executorService.execute(task);
+        } else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Executing runnable with stats collector");
+            }
+            executorService.execute(new MiscTaskStatsCollector(task));
+        }
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.mobicents.slee.core.runtime.eventrouter.EventRouterExecutor#executeNow(java.lang.Runnable)
-	 */
-	public void executeNow(Runnable task) throws InterruptedException, ExecutionException {
-		if (stats == null) {
-			executor.submit(task).get();
-		} else {
-			executor.submit(new MiscTaskStatsCollector(task)).get();
-		}
-	}
-	
-	/* (non-Javadoc)
+     */
+    public void executeNow(Runnable task) throws InterruptedException, ExecutionException {
+        if (executorStats == null) {
+            executorService.submit(task).get();
+        } else {
+            executorService.submit(new MiscTaskStatsCollector(task)).get();
+        }
+    }
+
+    /* (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#activityMapped(org.mobicents.slee.runtime.activity.ActivityContextHandle)
-	 */
-	public void activityMapped(ActivityContextHandle ach) {
-		if (stats != null) {
-			stats.activityMapped(ach);
-		}
-	}
-	
-	/* (non-Javadoc)
+     */
+    public void activityMapped(ActivityContextHandle ach) {
+        if (executorStats != null) {
+            executorStats.activityMapped(ach);
+        }
+    }
+
+    /* (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#activityUnmapped(org.mobicents.slee.runtime.activity.ActivityContextHandle)
-	 */
-	public void activityUnmapped(ActivityContextHandle ach) {
-		if (stats != null) {
-			stats.activityUnmapped(ach);
-		}
-	}
-	
-	/* (non-Javadoc)
+     */
+    public void activityUnmapped(ActivityContextHandle ach) {
+        if (executorStats != null) {
+            executorStats.activityUnmapped(ach);
+        }
+    }
+
+    /* (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.eventrouter.EventRouterExecutor#routeEvent(org.mobicents.slee.core.event.SleeEvent)
-	 */
-	public void routeEvent(EventContext event) {
-		final EventRoutingTaskImpl eventRoutingTask = new EventRoutingTaskImpl(event,sleeContainer);
-		if (stats == null) {
-			executor.execute(eventRoutingTask);
-		} else {
-			executor.execute(new EventRoutingTaskStatsCollector(
-					eventRoutingTask));
-		}
-	}
+     */
+    public void routeEvent(EventContext event) {
+        final EventRoutingTaskImpl eventRoutingTask = new EventRoutingTaskImpl(event, sleeContainer);
+        if (executorStats == null) {
+            executorService.execute(eventRoutingTask);
+        } else {
+            executorService.execute(new EventRoutingTaskStatsCollector(eventRoutingTask));
+        }
+    }
 
 }

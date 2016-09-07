@@ -18,7 +18,6 @@
  *
  * This file incorporates work covered by the following copyright contributed under the GNU LGPL : Copyright 2007-2011 Red Hat.
  */
-
 package org.mobicents.slee.runtime.activity;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -27,104 +26,74 @@ import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
 import org.mobicents.slee.container.eventrouter.EventRoutingTask;
 
 public class LocalActivityContextImpl implements LocalActivityContext {
-	
-	/**
-	 * 
-	 */
-	private final ActivityContextHandle ach;
-	
-	/**
-	 * 
-	 */
-	private EventRouterExecutor executor;
-	
-	/**
-	 * 
-	 */
-	private final ActivityEventQueueManagerImpl eventQueueManager;
-	
-	/**
-	 * 
-	 */
-	private EventRoutingTask routingTask;
-	
-	/**
-	 * 
-	 */
-	private final int activityFlags;
-	
-	/**
-	 * 
-	 */
-	private final ActivityContextFactoryImpl acFactory;
 
-	/**
-	 * 
-	 */
-	private Runnable activityReferencesCheck;
-
-    /**
-     *  
-     */
+    private final ActivityContextFactoryImpl acFactory;
+    private final ActivityContextHandle ach;
+    private final int activityFlags;
+    private final ActivityEventQueueManagerImpl eventQueueManager;
     private final String stringId;
 
-	public LocalActivityContextImpl(ActivityContextHandle ach, int activityFlags, String stringId, ActivityContextFactoryImpl acFactory) {
+    private Runnable activityReferencesCheck;
+    private EventRouterExecutor executor;
+    private EventRoutingTask routingTask;
+
+    public LocalActivityContextImpl(ActivityContextHandle ach, int activityFlags, String stringId, ActivityContextFactoryImpl acFactory) {
         this.ach = ach;
-		this.eventQueueManager = new ActivityEventQueueManagerImpl(this);
-		this.activityFlags = activityFlags;
-		this.acFactory = acFactory;
+        this.eventQueueManager = new ActivityEventQueueManagerImpl(this);
+        this.activityFlags = activityFlags;
+        this.acFactory = acFactory;
         this.stringId = stringId;
     }
-	
-	public ActivityEventQueueManagerImpl getEventQueueManager() {
-		return eventQueueManager;
-	}
-	
-	public EventRouterExecutor getExecutorService() {
-		return executor;
-	}
-	
-	public void setExecutorService(EventRouterExecutor executor) {
-		this.executor = executor;
-	}
-	
-	public ActivityContextHandle getActivityContextHandle() {
-		return ach;
-	}
-	
-	/* (non-Javadoc)
+
+    public ActivityEventQueueManagerImpl getEventQueueManager() {
+        return eventQueueManager;
+    }
+
+    public EventRouterExecutor getExecutorService() {
+        return executor;
+    }
+
+    public void setExecutorService(EventRouterExecutor executor) {
+        this.executor = executor;
+    }
+
+    public ActivityContextHandle getActivityContextHandle() {
+        return ach;
+    }
+
+    /* (non-Javadoc)
 	 * @see org.mobicents.slee.container.activity.LocalActivityContext#getCurrentEventRoutingTask()
-	 */
-	public EventRoutingTask getCurrentEventRoutingTask() {
-		return routingTask;
-	}
-	
-	/* (non-Javadoc)
+     */
+    public EventRoutingTask getCurrentEventRoutingTask() {
+        return routingTask;
+    }
+
+    /* (non-Javadoc)
 	 * @see org.mobicents.slee.container.activity.LocalActivityContext#setCurrentEventRoutingTask(org.mobicents.slee.container.eventrouter.EventRoutingTask)
-	 */
-	public void setCurrentEventRoutingTask(EventRoutingTask eventRoutingTask) {
-		this.routingTask = eventRoutingTask;
-	}
-	
-	public int getActivityFlags() {
-		return activityFlags;
-	}
-	
-	public ActivityContextFactoryImpl getAcFactory() {
-		return acFactory;
-	}
-	
-	public ActivityContextImpl getActivityContext() {
-		return acFactory.getActivityContext(ach);
-	}
-	
-	public Runnable getActivityReferencesCheck() {
-		return activityReferencesCheck;
-	}
-	
-	public void setActivityReferencesCheck(Runnable activityReferencesCheck) {
-		this.activityReferencesCheck = activityReferencesCheck;
-	}
+     */
+    public void setCurrentEventRoutingTask(EventRoutingTask eventRoutingTask) {
+        this.routingTask = eventRoutingTask;
+    }
+
+    public int getActivityFlags() {
+        return activityFlags;
+    }
+
+    public ActivityContextFactoryImpl getAcFactory() {
+        return acFactory;
+    }
+
+    public ActivityContextImpl getActivityContext() {
+        return acFactory.getActivityContext(ach);
+    }
+
+    public Runnable getActivityReferencesCheck() {
+        return activityReferencesCheck;
+    }
+
+    public void setActivityReferencesCheck(Runnable activityReferencesCheck) {
+        this.activityReferencesCheck = activityReferencesCheck;
+    }
 
     @Override
     public String getStringId() {
@@ -132,19 +101,17 @@ public class LocalActivityContextImpl implements LocalActivityContext {
     }
 
     @Override
-	public boolean equals(Object obj) {
-		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((LocalActivityContextImpl) obj).stringId
-					.equals(this.stringId);
-		} else {
-			return false;
-		}
-	}
+    public boolean equals(Object obj) {
+        if (obj != null && obj.getClass() == this.getClass()) {
+            return ((LocalActivityContextImpl) obj).stringId.equals(this.stringId);
+        } else {
+            return false;
+        }
+    }
 
-	@Override
-	public int hashCode() {
-		return stringId.hashCode();
-	}
-	
-	
+    @Override
+    public int hashCode() {
+        return stringId.hashCode();
+    }
+
 }

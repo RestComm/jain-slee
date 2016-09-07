@@ -19,7 +19,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
 package org.mobicents.slee.container.event;
 
 import java.util.LinkedList;
@@ -110,8 +109,7 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 	/* (non-Javadoc)
 	 * @see javax.slee.EventContext#isSuspended()
 	 */
-	public boolean isSuspended() throws TransactionRequiredLocalException,
-			SLEEException {
+	public boolean isSuspended() throws TransactionRequiredLocalException, SLEEException {
 		suspensionHandlerLazyInit();
 		return suspensionHandler.isSuspended();
 	}
@@ -126,8 +124,7 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 	/* (non-Javadoc)
 	 * @see javax.slee.EventContext#resumeDelivery()
 	 */
-	public void resumeDelivery() throws IllegalStateException,
-			TransactionRequiredLocalException, SLEEException {
+	public void resumeDelivery() throws IllegalStateException, TransactionRequiredLocalException, SLEEException {
 		suspensionHandlerLazyInit();
 		suspensionHandler.resumeDelivery();
 	}
@@ -135,17 +132,15 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 	/* (non-Javadoc)
 	 * @see javax.slee.EventContext#suspendDelivery()
 	 */
-	public void suspendDelivery() throws IllegalStateException,
-			TransactionRequiredLocalException, SLEEException {
+	public void suspendDelivery() throws IllegalStateException, TransactionRequiredLocalException, SLEEException {
 		suspendDelivery(factory.getConfiguration().getDefaultEventContextSuspensionTimeout());
 	}
 	
 	/* (non-Javadoc)
 	 * @see javax.slee.EventContext#suspendDelivery(int)
 	 */
-	public void suspendDelivery(int arg0) throws IllegalArgumentException,
-			IllegalStateException, TransactionRequiredLocalException,
-			SLEEException {
+	public void suspendDelivery(int arg0) throws IllegalArgumentException, IllegalStateException,
+            TransactionRequiredLocalException, SLEEException {
 		suspensionHandlerLazyInit();
 		suspensionHandler.suspendDelivery(arg0);
 	}
@@ -206,8 +201,7 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EventContext[").append(
-				data).append(']').toString();
+		return new StringBuilder("EventContext[").append(data).append(']').toString();
 	}
 	
 	/* (non-Javadoc)

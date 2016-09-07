@@ -19,36 +19,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-/**
- * 
- */
 package org.mobicents.slee.container.eventrouter;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 
 /**
  * Maps {@link EventRouterExecutor} to Activity Contexts.
- * 
+ *
  * @author martins
- * 
+ *
  */
 public interface EventRouterExecutorMapper {
 
-	/**
-	 * 
-	 * @param executors
-	 */
-	public void setExecutors(EventRouterExecutor[] executors);
+    /**
+     *
+     * @param executors
+     */
+    public void setExecutors(EventRouterExecutor[] executors);
 
-	/**
-	 * Retrieves the executor for the activity context with the specified
-	 * handle.
-	 * 
-	 * @param activityContextHandle
-	 * @return
-	 */
-	public EventRouterExecutor getExecutor(
-			ActivityContextHandle activityContextHandle);
-
+    /**
+     * Retrieves the executor for the activity context with the specified handle.
+     *
+     * @param activityContextHandle
+     * @return
+     */
+    public EventRouterExecutor getExecutor(ActivityContextHandle activityContextHandle);
 }

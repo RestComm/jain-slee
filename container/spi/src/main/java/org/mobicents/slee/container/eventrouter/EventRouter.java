@@ -19,7 +19,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
 package org.mobicents.slee.container.eventrouter;
 
 import org.mobicents.slee.container.SleeContainerModule;
@@ -27,31 +26,30 @@ import org.mobicents.slee.container.eventrouter.stats.EventRouterStatistics;
 
 /**
  * Interface for the container's Event Router
- * 
+ *
  * @author Eduardo Martins
- * 
+ *
  */
 public interface EventRouter extends SleeContainerModule {
 
-	/**
-	 * Returns the event router executor's mapper.
-	 * 
-	 * @return
-	 */
-	public EventRouterExecutorMapper getEventRouterExecutorMapper();
+    /**
+     * Returns the event router executor's mapper.
+     *
+     * @return
+     */
+    public EventRouterExecutorMapper getEventRouterExecutorMapper();
 
-	/**
-	 * Retrieves the event router stats.
-	 * 
-	 * @return
-	 */
-	public EventRouterStatistics getEventRouterStatistics();
+    /**
+     * Retrieves the event router stats.
+     *
+     * @return
+     */
+    public EventRouterStatistics getEventRouterStatistics();
 
-	/**
-	 * Retrieves the event router executors.
-	 * 
-	 * @return
-	 */
-	public EventRouterExecutor[] getExecutors();
-
+    /**
+     * Retrieves the event router executors.
+     *
+     * @return
+     */
+    public EventRouterExecutor[] getExecutors();
 }

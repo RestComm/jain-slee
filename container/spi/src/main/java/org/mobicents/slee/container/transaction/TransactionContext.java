@@ -19,7 +19,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
 package org.mobicents.slee.container.transaction;
 
 import java.util.List;
@@ -30,82 +29,84 @@ import org.mobicents.slee.container.eventrouter.EventRoutingTransactionData;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
- * 
- * The local context of a transaction. 
- * 
- * Provides a {@link Map} to store data in the transaction.
- * 
- * Provides various {@link List}s for {@link TransactionalAction}s to be added. Those lists can be:
- * 
- *   + Before Commit Action, an action to execute before the transaction is committed
- *   
- *   + After Commit Priority Action, an action to execute first after the transaction is committed
- *   
- *   + After Commit Action, an action to execute after the transaction is committed and the priority actions execution
- *   
- *   + After Rollback Action, an action to execute after the transaction rollbacks 
- * 
- * @author ? 
- * @author martins
+ * The local context of a transaction.
  *
+ * Provides a {@link Map} to store data in the transaction.
+ *
+ * Provides various {@link List}s for {@link TransactionalAction}s to be added. Those lists can be:
+ *
+ * + Before Commit Action, an action to execute before the transaction is committed
+ *
+ * + After Commit Priority Action, an action to execute first after the transaction is committed
+ *
+ * + After Commit Action, an action to execute after the transaction is committed and the priority actions execution
+ *
+ * + After Rollback Action, an action to execute after the transaction rollbacks
+ *
+ * @author ?
+ * @author martins
  */
 public interface TransactionContext {
-	
-	/**
-	 * Retrieves the list of actions which should be executed after commit succeeds 
-	 * @return
-	 */
-	public List<TransactionalAction> getAfterCommitActions();
 
-	/**
-	 * Retrieves the list of actions which should be executed first after commit succeeds 
-	 * @return
-	 */
-	public List<TransactionalAction> getAfterCommitPriorityActions();
+    /**
+     * Retrieves the list of actions which should be executed after commit succeeds
+     *
+     * @return
+     */
+    public List<TransactionalAction> getAfterCommitActions();
 
-	/**
-	 * Retrieves the list of actions which should be executed after rollback
-	 * @return
-	 */
-	public List<TransactionalAction> getAfterRollbackActions();
+    /**
+     * Retrieves the list of actions which should be executed first after commit succeeds
+     *
+     * @return
+     */
+    public List<TransactionalAction> getAfterCommitPriorityActions();
 
-	/**
-	 * Retrieves the list of actions which should be executed before commit
-	 * @return
-	 */
-	public List<TransactionalAction> getBeforeCommitActions();
-	
-	/**
-	 * Retrieves the list of actions which should be executed before commit at first
-	 * @return
-	 */
-	public List<TransactionalAction> getBeforeCommitPriorityActions();
+    /**
+     * Retrieves the list of actions which should be executed after rollback
+     *
+     * @return
+     */
+    public List<TransactionalAction> getAfterRollbackActions();
 
-	/**
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("rawtypes")
-	public Map getData();
+    /**
+     * Retrieves the list of actions which should be executed before commit
+     *
+     * @return
+     */
+    public List<TransactionalAction> getBeforeCommitActions();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public EventRoutingTransactionData getEventRoutingTransactionData();
+    /**
+     * Retrieves the list of actions which should be executed before commit at first
+     *
+     * @return
+     */
+    public List<TransactionalAction> getBeforeCommitPriorityActions();
 
-	/**
-	 * 
-	 * @param eventRoutingTransactionData
-	 */
-	public void setEventRoutingTransactionData(EventRoutingTransactionData eventRoutingTransactionData);
-	
-	/**
-	 * Retrieves a set with the non reentrant sbb entities in the call tree, since the
-	 * event was passed to the event handler method
-	 * 
-	 * @return
-	 */
-	public Set<SbbEntityID> getInvokedNonReentrantSbbEntities();
-	
+    /**
+     *
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public Map getData();
+
+    /**
+     *
+     * @return
+     */
+    public EventRoutingTransactionData getEventRoutingTransactionData();
+
+    /**
+     *
+     * @param eventRoutingTransactionData
+     */
+    public void setEventRoutingTransactionData(EventRoutingTransactionData eventRoutingTransactionData);
+
+    /**
+     * Retrieves a set with the non reentrant sbb entities in the call tree, since the event was passed to the event
+     * handler method
+     *
+     * @return
+     */
+    public Set<SbbEntityID> getInvokedNonReentrantSbbEntities();
 }
