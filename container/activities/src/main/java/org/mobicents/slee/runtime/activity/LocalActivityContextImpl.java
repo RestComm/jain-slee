@@ -113,5 +113,4 @@ public class LocalActivityContextImpl implements LocalActivityContext {
     public int hashCode() {
         return stringId.hashCode();
     }
-
 }
