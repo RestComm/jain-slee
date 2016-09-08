@@ -18,15 +18,12 @@
  *
  * This file incorporates work covered by the following copyright contributed under the GNU LGPL : Copyright 2007-2011 Red Hat.
  */
-
 package org.mobicents.slee.runtime.activity;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
-
 import org.apache.log4j.Logger;
 import org.jboss.cache.Fqn;
 import org.mobicents.cluster.DataRemovalListener;
@@ -50,23 +47,18 @@ import org.mobicents.slee.container.transaction.TransactionalAction;
  * @author Tim Fox
  * @author eduardomartins second version
  * @version 2.0
- * 
- * 
  */
 public class ActivityContextFactoryImpl extends AbstractSleeContainerModule implements ActivityContextFactory {
 
-	private static Logger logger = Logger.getLogger(ActivityContextFactoryImpl.class);
+	private final static Logger LOGGER = Logger.getLogger(ActivityContextFactoryImpl.class);
+	private final static boolean isTraceEnabled = LOGGER.isTraceEnabled();
 	
 	/**
 	 * a map with the local resources related with an activity context, which hold all runtime structures related to the activity
 	 */
-	private final ConcurrentHashMap<ActivityContextHandle, LocalActivityContextImpl> localActivityContexts = new ConcurrentHashMap<ActivityContextHandle, LocalActivityContextImpl>();
-	
-	private ActivityContextFactoryCacheData cacheData;
-	
 	private final ActivityManagementConfiguration configuration;
-	
-	private final static boolean doTraceLogs = logger.isTraceEnabled();
+	private final ConcurrentHashMap<ActivityContextHandle, LocalActivityContextImpl> localActivityContexts = new ConcurrentHashMap<ActivityContextHandle, LocalActivityContextImpl>();
+	private ActivityContextFactoryCacheData cacheData;
 	
 	public ActivityContextFactoryImpl(ActivityManagementConfiguration configuration) {
 		this.configuration = configuration;
@@ -95,6 +87,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.container.AbstractSleeContainerModule#getSleeContainer()
 	 */
+    @Override
 	public SleeContainer getSleeContainer() {
 		return sleeContainer;
 	}
@@ -128,7 +121,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 								executor.execute(r);								
 							}
 							catch (Throwable e) {
-								logger.error("Failed to rollback removal of AC local resources",e);
+								LOGGER.error("Failed to rollback removal of AC local resources",e);
 							}
 							
 						}
@@ -140,28 +133,28 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		return localActivityContext;
 	}
 	
-	/*
+    /*
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#createActivityContext(org.mobicents.slee.container.activity.ActivityContextHandle, int)
-	 */
-	public ActivityContextImpl createActivityContext(final ActivityContextHandle ach, int activityFlags) throws ActivityAlreadyExistsException {
-		
-		if (sleeContainer.getCongestionControl().refuseStartActivity()) {
-			throw new SLEEException("congestion control refused activity start");
-		}
-		
-		// create ac
-		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
-		if (activityContextCacheData.exists()) {
-			throw new ActivityAlreadyExistsException(ach.toString());
-		}
-				
-		ActivityContextImpl ac = new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach,true),Integer.valueOf(activityFlags),this);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Created activity context with handle "+ach);			
-		}
-		return ac;
-	}
+     */
+    public ActivityContextImpl createActivityContext(final ActivityContextHandle ach, int activityFlags)
+            throws ActivityAlreadyExistsException {
+        if (sleeContainer.getCongestionControl().refuseStartActivity()) {
+            throw new SLEEException("congestion control refused activity start");
+        }
+
+        // create ac
+        ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
+        if (activityContextCacheData.exists()) {
+            throw new ActivityAlreadyExistsException(ach.toString());
+        }
+
+        ActivityContextImpl ac = new ActivityContextImpl(ach, activityContextCacheData, tracksIdleTime(ach, true), activityFlags, this);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Created activity context with handle " + ach);
+        }
+        return ac;
+    }
 
 	private boolean tracksIdleTime(ActivityContextHandle ach, boolean updateLastAccessTime) {
 		if(!updateLastAccessTime) {
@@ -186,7 +179,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 				return new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach, updateLastAccessTime),this);
 			}
 			catch (Throwable e) {
-				logger.error("Failed to load AC.",e);
+				LOGGER.error("Failed to load AC.",e);
 				// force cache data & local resources removal
 				final LocalActivityContextImpl localActivityContext = localActivityContexts.remove(ach);
 				if (localActivityContext != null) {
@@ -207,8 +200,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	}
 
 	@Override
-	public ActivityContext getActivityContext(String sid,
-			boolean updateLastAccessTime) {
+	public ActivityContext getActivityContext(String sid, boolean updateLastAccessTime) {
 		// TODO add alternative strategy where there is a cache data mapping from sid to
 		// ach, and configuration option to select strategy
 		ActivityContextImpl ac = null;
@@ -230,9 +222,8 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	}
 	
 	public void removeActivityContext(final ActivityContextImpl ac) {
-
-		if (doTraceLogs) {
-			logger.trace("Removing activity context "+ac.getActivityContextHandle());
+		if (isTraceEnabled) {
+			LOGGER.trace("Removing activity context " +ac.getActivityContextHandle());
 		}
 		
 		// remove runtime resources
@@ -241,8 +232,8 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 			localActivityContext.getExecutorService().activityUnmapped(ac.getActivityContextHandle());
 		}
 				
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removed activity context with handle "+ac.getActivityContextHandle());			
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Removed activity context with handle " +ac.getActivityContextHandle());			
 		}
 	}
 	
@@ -280,8 +271,8 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 				if (executor != null) {
 					executor.activityUnmapped(localActivityContext.getActivityContextHandle());
 				}
-				if(doTraceLogs) {
-					logger.trace("Remotely removed local AC for "+ach);
+				if(isTraceEnabled) {
+					LOGGER.trace("Remotely removed local AC for " + ach);
 				}
 			}
 		}
@@ -290,6 +281,5 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		public Fqn getBaseFqn() {
 			return ActivityContextFactoryCacheData.NODE_FQN;
 		}
-		
 	}
 }

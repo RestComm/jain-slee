@@ -444,146 +444,122 @@ public class SbbAbstractMethodHandler {
 		return sbbEntity.getChildRelation(childRelationMethodName);
 	}
 
-	// EVENT FIRING
+    // EVENT FIRING
+    /**
+     * The logic to fire an event from an SLEE 1.0 Sbb
+     *
+     * @param sbbEntity an sbb entity with an object assigned
+     * @param eventTypeID the id of the event to fire
+     * @param eventObject the event object, can't be null
+     * @param aci the activity context where the event will be fired, can't be null
+     * @param address the optional address to fire the event
+     */
+    public static void fireEvent(SbbEntity sbbEntity, EventTypeID eventTypeID, Object eventObject,
+            ActivityContextInterface aci, Address address) {
+        fireEvent(sbbEntity, eventTypeID, eventObject, aci, address, null);
+    }
 
-	/**
-	 * The logic to fire an event from an SLEE 1.0 Sbb
-	 * 
-	 * @param sbbEntity
-	 *            an sbb entity with an object assigned
-	 * @param eventTypeID
-	 *            the id of the event to fire
-	 * @param eventObject
-	 *            the event object, can't be null
-	 * @param aci
-	 *            the activity context where the event will be fired, can't be
-	 *            null
-	 * @param address
-	 *            the optional address to fire the event
-	 */
-	public static void fireEvent(SbbEntity sbbEntity, EventTypeID eventTypeID,
-			Object eventObject, ActivityContextInterface aci, Address address) {
-		fireEvent(sbbEntity, eventTypeID, eventObject, aci, address, null);
-	}
+    /**
+     * The logic to fire an event from an SLEE 1.1 Sbb
+     *
+     * @param sbbEntity an sbb entity with an object assigned
+     * @param eventTypeID the id of the event to fire
+     * @param eventObject the event object, can't be null
+     * @param aci the activity context where the event will be fired, can't be null
+     * @param address the optional address to fire the event
+     * @param serviceID the optional service id to fire the event
+     */
+    public static void fireEvent(SbbEntity sbbEntity, EventTypeID eventTypeID, Object eventObject,
+            ActivityContextInterface aci, Address address, ServiceID serviceID) {
 
-	/**
-	 * The logic to fire an event from an SLEE 1.1 Sbb
-	 * 
-	 * @param sbbEntity
-	 *            an sbb entity with an object assigned
-	 * @param eventTypeID
-	 *            the id of the event to fire
-	 * @param eventObject
-	 *            the event object, can't be null
-	 * @param aci
-	 *            the activity context where the event will be fired, can't be
-	 *            null
-	 * @param address
-	 *            the optional address to fire the event
-	 * @param serviceID
-	 *            the optional service id to fire the event
-	 */
-	public static void fireEvent(SbbEntity sbbEntity, EventTypeID eventTypeID,
-			Object eventObject, ActivityContextInterface aci, Address address,
-			ServiceID serviceID) {
+        if (sleeContainer.getCongestionControl().refuseFireEvent()) {
+            throw new SLEEException("congestion control refused event");
+        }
 
-		if (sleeContainer.getCongestionControl().refuseFireEvent()) {
-			throw new SLEEException("congestion control refused event");
-		}
+        // JAIN SLEE (TM) specs - Section 8.4.1
+        // The SBB object must have an assigned SBB entity when it invokes this
+        // method.
+        // Otherwise, this method throws a java.lang.IllegalStateException.
+        if (sbbEntity == null || sbbEntity.getSbbObject() == null
+                || sbbEntity.getSbbObject().getState() != SbbObjectState.READY) {
+            throw new IllegalStateException("SbbObject not assigned!");
+        }
 
-		// JAIN SLEE (TM) specs - Section 8.4.1
-		// The SBB object must have an assigned SBB entity when it invokes this
-		// method.
-		// Otherwise, this method throws a java.lang.IllegalStateException.
-		if (sbbEntity == null || sbbEntity.getSbbObject() == null
-				|| sbbEntity.getSbbObject().getState() != SbbObjectState.READY)
-			throw new IllegalStateException("SbbObject not assigned!");
+        // JAIN SLEE (TM) specs - Section 8.4.1
+        // The event ... cannot be null. If ... argument is null, the fire
+        // event method throws a java.lang.NullPointerException.
+        if (eventObject == null) {
+            throw new NullPointerException(
+                    "JAIN SLEE (TM) specs - Section 8.4.1: The event ... cannot be null. If ... argument is null, the fire event method throws a java.lang.NullPointerException.");
+        }
 
-		// JAIN SLEE (TM) specs - Section 8.4.1
-		// The event ... cannot be null. If ... argument is null, the fire
-		// event method throws a java.lang.NullPointerException.
-		if (eventObject == null)
-			throw new NullPointerException(
-					"JAIN SLEE (TM) specs - Section 8.4.1: The event ... cannot be null. If ... argument is null, the fire event method throws a java.lang.NullPointerException.");
+        // JAIN SLEE (TM) specs - Section 8.4.1
+        // The activity ... cannot be null. If ... argument is null, the fire
+        // event method throws a java.lang.NullPointerException.
+        if (aci == null) {
+            throw new NullPointerException(
+                    "JAIN SLEE (TM) specs - Section 8.4.1: The activity ... cannot be null. If ... argument is null, the fire event method throws a java.lang.NullPointerException.");
+        }
 
-		// JAIN SLEE (TM) specs - Section 8.4.1
-		// The activity ... cannot be null. If ... argument is null, the fire
-		// event method throws a java.lang.NullPointerException.
-		if (aci == null)
-			throw new NullPointerException(
-					"JAIN SLEE (TM) specs - Section 8.4.1: The activity ... cannot be null. If ... argument is null, the fire event method throws a java.lang.NullPointerException.");
+        // JAIN SLEE (TM) specs - Section 8.4.1
+        // It is a mandatory transactional method (see Section 9.6.1).
+        final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
+        txManager.mandateTransaction();
 
-		// JAIN SLEE (TM) specs - Section 8.4.1
-		// It is a mandatory transactional method (see Section 9.6.1).
-		final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
-		txManager.mandateTransaction();
+        // rebuild the ac from the aci in the 2nd argument of the invoked
+        // method, check it's state
+        ActivityContext ac = ((org.mobicents.slee.container.activity.ActivityContextInterface) aci).getActivityContext();
+        if (logger.isTraceEnabled()) {
+            logger.trace("invoke(): firing event on " + ac);
+        }
 
-		// rebuild the ac from the aci in the 2nd argument of the invoked
-		// method, check it's state
-		ActivityContext ac = ((org.mobicents.slee.container.activity.ActivityContextInterface) aci)
-				.getActivityContext();
-		if (logger.isTraceEnabled()) {
-			logger.trace("invoke(): firing event on "
-					+ ac);
-		}
-		
-		// exception not in specs by mandated by
-		// tests/activities/activitycontext/Test560Test.xml , it's preferable to
-		// do double check on here than have the aci fire method throwing it and
-		// the ra slee endpoint having to translate it to activity ending
-		// exception, it is not common to have custom event firing in sbbs
-		if (ac.isEnding()) {
-			throw new IllegalStateException("activity context "
-					+ ac.getActivityContextHandle() + " is ending");
-		}
-		
-		final EventRoutingTransactionData transactionData = txManager.getTransactionContext().getEventRoutingTransactionData();
-		if (transactionData != null) {
-			final EventContext eventBeingDelivered = transactionData.getEventBeingDelivered();
-			if (eventBeingDelivered != null && eventBeingDelivered.getEvent() == eventObject) {
-				// there is an event being delivered by this tx and it matches the event being fired, lets copy the ref handler
-				// fire the event
-				ac.fireEvent(eventTypeID, eventObject, (Address) address, serviceID, eventBeingDelivered);
-				return;
-			}
-		}
-		// seems it is not a refire
-		ac.fireEvent(eventTypeID, eventObject, (Address) address, serviceID, null, null, null);	
+        // exception not in specs by mandated by
+        // tests/activities/activitycontext/Test560Test.xml , it's preferable to
+        // do double check on here than have the aci fire method throwing it and
+        // the ra slee endpoint having to translate it to activity ending
+        // exception, it is not common to have custom event firing in sbbs
+        if (ac.isEnding()) {
+            throw new IllegalStateException("activity context " + ac.getActivityContextHandle() + " is ending");
+        }
 
-	}
+        final EventRoutingTransactionData transactionData = txManager.getTransactionContext().getEventRoutingTransactionData();
+        if (transactionData != null) {
+            final EventContext eventBeingDelivered = transactionData.getEventBeingDelivered();
+            if (eventBeingDelivered != null && eventBeingDelivered.getEvent() == eventObject) {
+                // there is an event being delivered by this tx and it matches the event being fired, lets copy the ref handler
+                // fire the event
+                ac.fireEvent(eventTypeID, eventObject, address, serviceID, eventBeingDelivered);
+                return;
+            }
+        }
+        // seems it is not a refire
+        ac.fireEvent(eventTypeID, eventObject, address, serviceID, null, null, null);
+    }
 
-	// GET PROFILE CMP METHODS
+    // GET PROFILE CMP METHODS
+    /**
+     * Retrieves a profile given the cmp method name and profile id
+     */
+    public static Object getProfileCMPMethod(SbbEntity sbbEntity, String getProfileCMPMethodName, ProfileID profileID)
+            throws UnrecognizedProfileTableNameException, UnrecognizedProfileNameException {
 
-	/**
-	 * Retrieves a profile given the cmp method name and profile id
-	 */
-	public static Object getProfileCMPMethod(SbbEntity sbbEntity,
-			String getProfileCMPMethodName, ProfileID profileID)
-			throws UnrecognizedProfileTableNameException,
-			UnrecognizedProfileNameException {
+        GetProfileCMPMethodDescriptor mGetProfileCMPMethod = sbbEntity.getSbbComponent()
+                .getDescriptor().getGetProfileCMPMethods().get(getProfileCMPMethodName);
+        if (mGetProfileCMPMethod == null) {
+            throw new AbstractMethodError("Profile CMP Method not found");
+        }
+        if (sbbEntity.getSbbObject().getState() != SbbObjectState.READY) {
+            throw new IllegalStateException(
+                    "Could not invoke getProfileCMP Method, Sbb Object is not in the READY state!");
+        }
 
-		GetProfileCMPMethodDescriptor mGetProfileCMPMethod = sbbEntity.getSbbComponent()
-				.getDescriptor().getGetProfileCMPMethods().get(
-						getProfileCMPMethodName);
-		if (mGetProfileCMPMethod == null)
-			throw new AbstractMethodError("Profile CMP Method not found");
-
-		if (sbbEntity.getSbbObject().getState() != SbbObjectState.READY) {
-			throw new IllegalStateException(
-					"Could not invoke getProfileCMP Method, Sbb Object is not in the READY state!");
-		}
-
-		ProfileManagement sleeProfileManager = sleeContainer
-				.getSleeProfileTableManager();
-
-		ProfileTable profileTable = sleeProfileManager.getProfileTable(profileID.getProfileTableName());
-
-		if (!profileTable.profileExists(profileID.getProfileName())) {
-			throw new UnrecognizedProfileNameException(profileID.toString());
-		}
-	
-		return profileTable.getProfile(profileID.getProfileName()).getProfileCmpSlee10Wrapper();		
-	}
+        ProfileManagement sleeProfileManager = sleeContainer.getSleeProfileTableManager();
+        ProfileTable profileTable = sleeProfileManager.getProfileTable(profileID.getProfileTableName());
+        if (!profileTable.profileExists(profileID.getProfileName())) {
+            throw new UnrecognizedProfileNameException(profileID.toString());
+        }
+        return profileTable.getProfile(profileID.getProfileName()).getProfileCmpSlee10Wrapper();
+    }
 
 	// SBB USAGE PARAMS
 
@@ -608,11 +584,8 @@ public class SbbAbstractMethodHandler {
 				.getDefaultInstalledUsageParameterSet(sbbEntity.getSbbId());
 	}
 
-	private static ServiceUsageMBeanImpl getServiceUsageMBeanImpl(
-			ServiceID serviceID) {
-		return (ServiceUsageMBeanImpl) sleeContainer
-				.getComponentRepository().getComponentByID(serviceID)
+	private static ServiceUsageMBeanImpl getServiceUsageMBeanImpl(ServiceID serviceID) {
+		return (ServiceUsageMBeanImpl) sleeContainer.getComponentRepository().getComponentByID(serviceID)
 				.getServiceUsageMBean();
 	}
-	
 }

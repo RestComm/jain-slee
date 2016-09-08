@@ -66,14 +66,14 @@ public class EventRouterImpl extends AbstractSleeContainerModule implements Even
 
     @Override
     public void sleeStarting() {
-        // get ridden of old executors, if any
+        // shutdown old executors, if any
         if (this.executors != null) {
             LOGGER.debug("Shutting down old executors.");
             for (EventRouterExecutor executor : this.executors) {
                 executor.shutdown();
             }
         }
-        // create new ones
+        // create new executors
         this.executors = new EventRouterExecutor[configuration.getEventRouterThreads()];
         for (int i = 0; i < configuration.getEventRouterThreads(); i++) {
             this.executors[i] = new EventRouterExecutorImpl(configuration.isCollectStats(), new SleeThreadFactory("SLEE-EventRouterExecutor-" + i), sleeContainer);

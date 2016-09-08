@@ -23,10 +23,9 @@ package org.mobicents.slee.runtime.eventrouter;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -52,7 +51,6 @@ public class EventRouterExecutorImpl implements EventRouterExecutor {
      * Used to collect executing stats of an {@link EventRoutingTask}.
      *
      * @author martins
-     *
      */
     private class EventRoutingTaskStatsCollector implements Runnable {
 
@@ -99,7 +97,8 @@ public class EventRouterExecutorImpl implements EventRouterExecutor {
 
     public EventRouterExecutorImpl(boolean collectStats, ThreadFactory threadFactory, SleeContainer sleeContainer) {
         final LinkedBlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<Runnable>();
-        executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, executorQueue, threadFactory);
+//        executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, executorQueue, threadFactory);
+        executorService = Executors.newCachedThreadPool(threadFactory);
         executorStats = collectStats ? new EventRouterExecutorStatisticsImpl(Collections.unmodifiableCollection(executorQueue)) : null;
         this.sleeContainer = sleeContainer;
     }
@@ -178,5 +177,4 @@ public class EventRouterExecutorImpl implements EventRouterExecutor {
             executorService.execute(new EventRoutingTaskStatsCollector(eventRoutingTask));
         }
     }
-
 }

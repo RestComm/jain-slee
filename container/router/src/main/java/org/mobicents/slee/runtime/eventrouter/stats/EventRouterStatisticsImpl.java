@@ -66,8 +66,7 @@ public class EventRouterStatisticsImpl implements EventRouterStatistics {
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.eventrouter.stats.EventRouterStatistics#getEventRouterExecutorStatistics(int)
 	 */
-	public EventRouterExecutorStatistics getEventRouterExecutorStatistics(
-			int executor) {
+	public EventRouterExecutorStatistics getEventRouterExecutorStatistics(int executor) {
 		return getExecutors()[executor].getStatistics();
 	}
 

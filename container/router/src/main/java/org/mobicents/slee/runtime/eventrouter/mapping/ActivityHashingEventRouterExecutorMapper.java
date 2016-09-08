@@ -19,10 +19,6 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-/**
- * 
- */
 package org.mobicents.slee.runtime.eventrouter.mapping;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -33,7 +29,6 @@ import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
  * using the hashcode of the latter.
  * 
  * @author martins
- * 
  */
 public class ActivityHashingEventRouterExecutorMapper extends
 		AbstractEventRouterExecutorMapper {
@@ -41,15 +36,11 @@ public class ActivityHashingEventRouterExecutorMapper extends
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.mobicents.slee.runtime.eventrouter.mapping.
-	 * AbstractEventRouterExecutorMapper
-	 * #getExecutor(org.mobicents.slee.runtime.activity.ActivityContextHandle)
+	 * @seeorg.mobicents.slee.runtime.eventrouter.mapping.AbstractEventRouterExecutorMapper#getExecutor
+     * (org.mobicents.slee.runtime.activity.ActivityContextHandle)
 	 */
 	@Override
-	public EventRouterExecutor getExecutor(
-			ActivityContextHandle activityContextHandle) {
-		return executors[(activityContextHandle.hashCode() & Integer.MAX_VALUE)
-				% executors.length];
+	public EventRouterExecutor getExecutor(ActivityContextHandle activityContextHandle) {
+		return executors[(activityContextHandle.hashCode() & Integer.MAX_VALUE) % executors.length];
 	}
-
 }

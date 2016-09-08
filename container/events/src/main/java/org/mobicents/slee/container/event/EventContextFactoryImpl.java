@@ -19,26 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-/**
- * 
- */
 package org.mobicents.slee.container.event;
 
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.ServiceID;
-
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.management.jmx.EventContextFactoryConfiguration;
 
 /**
- * @author martins
  * 
+ * @author martins
  */
-public class EventContextFactoryImpl extends AbstractSleeContainerModule
-		implements EventContextFactory {
+public class EventContextFactoryImpl extends AbstractSleeContainerModule implements EventContextFactory {
 
 	private final EventContextFactoryDataSource dataSource;
 
@@ -48,7 +42,7 @@ public class EventContextFactoryImpl extends AbstractSleeContainerModule
 	 * @param dataSource
 	 */
 	public EventContextFactoryImpl(EventContextFactoryDataSource dataSource,
-			EventContextFactoryConfiguration configuration) {
+            EventContextFactoryConfiguration configuration) {
 		super();
 		this.dataSource = dataSource;
 		this.configuration = configuration;
@@ -57,13 +51,10 @@ public class EventContextFactoryImpl extends AbstractSleeContainerModule
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.mobicents.slee.container.event.EventContextFactory#
-	 * createActivityEndEventContext
-	 * (org.mobicents.slee.container.activity.ActivityContext,
-	 * org.mobicents.slee.container.event.EventUnreferencedCallback)
+	 * @ see org.mobicents.slee.container.event.EventContextFactory#createActivityEndEventContext
+	 * (org.mobicents.slee.container.activity.ActivityContext, org.mobicents.slee.container.event.EventUnreferencedCallback)
 	 */
-	public EventContext createActivityEndEventContext(ActivityContext ac,
-			EventUnreferencedCallback unreferencedCallback) {
+	public EventContext createActivityEndEventContext(ActivityContext ac, EventUnreferencedCallback unreferencedCallback) {
 		final EventReferencesHandlerImpl referencesHandler = new EventReferencesHandlerImpl();
 		final EventContextData data = dataSource.newEventContextData(
 				ActivityEndEventImpl.EVENT_TYPE_ID,
@@ -78,8 +69,7 @@ public class EventContextFactoryImpl extends AbstractSleeContainerModule
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.mobicents.slee.container.event.EventContextFactory#createEventContext
+	 * @see org.mobicents.slee.container.event.EventContextFactory#createEventContext
 	 * (javax.slee.EventTypeID, java.lang.Object,
 	 * org.mobicents.slee.container.activity.ActivityContext,
 	 * javax.slee.Address, javax.slee.ServiceID,
@@ -132,8 +122,7 @@ public class EventContextFactoryImpl extends AbstractSleeContainerModule
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.mobicents.slee.container.event.EventContextFactory#getEventContext
+	 * @see org.mobicents.slee.container.event.EventContextFactory#getEventContext
 	 * (org.mobicents.slee.container.event.EventContextHandle)
 	 */
 	public EventContext getEventContext(EventContextHandle handle) {
