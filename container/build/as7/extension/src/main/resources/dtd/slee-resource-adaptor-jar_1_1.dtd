@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+This is the XML DTD for the JAIN SLEE 1.1 resource adaptor component jar file
+deployment descriptor.  All JAIN SLEE 1.1 resource adaptor component jar file
+deployment descriptors must include a DOCTYPE of the following form:
+
+  <!DOCTYPE resource-adaptor-jar PUBLIC
+        "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.1//EN"
+        "http://java.sun.com/dtd/slee-resource-adaptor-jar_1_1.dtd">
+-->
+
+
+<!--
+The resource-adaptor-jar element is the root element of the resource adaptor
+jar deployment descriptor.  It contains an optional description about the
+resource adaptor jar file, one or more resource adaptor definitions, and
+optional specification of security permissions that should be granted to
+classes residing in the resource adaptor jar file.
+-->
+<!ELEMENT resource-adaptor-jar (description?, resource-adaptor+, 
+          security-permissions?)>
+
+<!--
+The description element may contain any descriptive text about the parent
+element.
+
+Used in: resource-adaptor-jar, resource-adaptor, resource-adaptor-type-ref,
+         library-ref, profile-spec-ref, resource-adaptor-classes,
+         resource-adaptor-class, resource-adaptor-usage-parameters-interface,
+         config-property, security-permissions
+-->
+<!ELEMENT description (#PCDATA)>
+
+<!--
+The resource-adaptor element defines a resource adaptor component.  It contains
+an optional description about the resource adaptor being defined, the name,
+vendor, and version of the resource adaptor, one or more references to the
+resource adaptor types implemented by the resource adaptor, zero or more
+references to any required library components, zero or more references to
+any required profile specifications, mandatory information about the resource
+adaptor classes, and zero or more optional configuration properties defined by
+the resource adaptor.
+
+The ignore-ra-type-event-type-check attribute of this element determines
+whether or not the SLEE places event type limitations on the resource
+adaptor.  If the value of this attribute is False, then the SLEE will only
+allow the resource adaptor to fire events of event types referenced by the
+resource adaptor types implemented by the resource adaptor, and similarly will
+only provide service receivable event type information to the resource adaptor
+concerning the same limited set of event types.  If the value of this attribute
+is True, then the SLEE will provide the resource adaptor with information about
+all event types received by all services, and will allow the resource adaptor
+to fire events of any event type.  The default value of this attribute is
+False.
+
+Used in: in resource-adaptor-jar
+-->
+<!ELEMENT resource-adaptor (description?, resource-adaptor-name,
+          resource-adaptor-vendor, resource-adaptor-version,
+          resource-adaptor-type-ref+, library-ref*, profile-spec-ref*,
+          resource-adaptor-classes, config-property*)>
+
+<!--
+The resource-adaptor-name element contains the name of the resource adaptor
+component.
+
+Used in: resource-adaptor
+
+Example:
+    <resource-adaptor-name>MyJccImplementation</resource-adaptor-name>
+-->
+<!ELEMENT resource-adaptor-name (#PCDATA)>
+
+<!--
+The resource-adaptor-vendor element contains the vendor of the resource
+adaptor component.
+
+Used in: resource-adaptor
+
+Example:
+    <resource-adaptor-vendor>MyCompany, Inc.</resource-adaptor-vendor>
+-->
+<!ELEMENT resource-adaptor-vendor (#PCDATA)>
+
+<!--
+The resource-adaptor-version element contains the version of the resource
+adaptor component.  The version number typically should have the general form
+"major-version.minor-version".
+
+Used in: resource-adaptor
+
+Example:
+    <resource-adaptor-version>1.1</resource-adaptor-version>
+-->
+<!ELEMENT resource-adaptor-version (#PCDATA)>
+
+<!--
+The resource-adaptor-type-ref element declares a resource adaptor type the
+resource adaptor implements.  It contains an optional description and the name,
+vendor, and version of the resource adaptor type.
+
+Used in: resource-adaptor
+-->
+<!ELEMENT resource-adaptor-type-ref (description?, resource-adaptor-type-name,
+          resource-adaptor-type-vendor, resource-adaptor-type-version)>
+
+<!--
+The resource-adaptor-type-name element contains the name of a resource
+adaptor type component implemented by the resource adaptor.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-name>JCC</resource-adaptor-type-name>
+-->
+<!ELEMENT resource-adaptor-type-name (#PCDATA)>
+
+<!--
+The resource-adaptor-type-vendor element contains the vendor of a resource
+adaptor type component implemented by the resource adaptor.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-vendor>
+        javax.csapi.cc.jcc
+    </resource-adaptor-type-vendor>
+-->
+<!ELEMENT resource-adaptor-type-vendor (#PCDATA)>
+
+<!--
+The resource-adaptor-type-version element contains the version of a resource
+adaptor type component implemented by the resource adaptor.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-version>1.1</resource-adaptor-type-version>
+-->
+<!ELEMENT resource-adaptor-type-version (#PCDATA)>
+
+<!--
+The library-ref element declares a reference to a library component containing
+common classes that the resource adaptor requires.  It contains an optional
+description and the name, vendor, and version of the library component.
+
+Used in: resource-adaptor
+-->
+<!ELEMENT library-ref (description?, library-name, library-vendor,
+          library-version)>
+
+<!--
+The library-name element contains the name of a library component.
+
+Used in: library-ref
+
+Example:
+    <library-name>JCC</library-name>
+-->
+<!ELEMENT library-name (#PCDATA)>
+
+<!--
+The library-vendor element contains the vendor of a library component.
+
+Used in: library-ref
+
+Example:
+    <library-vendor>javax.csapi.cc.jcc</library-vendor>
+-->
+<!ELEMENT library-vendor (#PCDATA)>
+
+<!--
+The library-version element contains the version of a library component.  The
+version number typically should have the general form
+"major-version.minor-version".
+
+Used in: library-ref
+
+Example:
+    <library-version>1.1</library-version>
+-->
+<!ELEMENT library-version (#PCDATA)>
+
+<!--
+The profile-spec-ref element declares a reference to a profile specification
+component type used by the resource adaptor.  It contains an optional
+description about the reference, and the name, vendor, and version of the
+referenced profile specification.
+
+Used in: resource-adaptor
+-->
+<!ELEMENT profile-spec-ref (description?, profile-spec-name,
+          profile-spec-vendor, profile-spec-version)>
+
+<!--
+The profile-spec-name element contains the name of a profile specification
+component.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-name>AddressProfileSpec</profile-spec-name>
+-->
+<!ELEMENT profile-spec-name (#PCDATA)>
+
+<!--
+The profile-spec-vendor element contains the vendor of a profile specification
+component.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-name>javax.slee</profile-spec-name>
+-->
+<!ELEMENT profile-spec-vendor (#PCDATA)>
+
+<!--
+The profile-spec-version element contains the version of a profile
+specification component.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-version>1.0</profile-spec-version>
+-->
+<!ELEMENT profile-spec-version (#PCDATA)>
+
+<!--
+The resource-adaptor-classes element contains an optional description about
+the classes and interfaces defined, a mandatory resource adaptor class
+declaration, and an optional usage parameters interface declaration.
+
+Used in: resource-adaptor
+-->
+<!ELEMENT resource-adaptor-classes (description?, resource-adaptor-class,
+          resource-adaptor-usage-parameters-interface?)>
+
+<!--
+The resource-adaptor-class element contains an optional description about the
+resource adaptor class, along with the name of the class.
+
+The supports-active-reconfiguration attribute of this element determines
+when resource adaptor entities may be reconfigured with new configuration
+properties.  If the value of the supports-active-reconfiguration attribute is
+True then the resource adaptor entities may be reconfigured when in any valid
+state.  If the value of this attribute is Fale, then the resource adaptor
+entities may only be reconfigured when in the Inactive state.  The default
+value of this attribute is False.
+
+Used in: resource-adaptor-classes
+-->
+<!ELEMENT resource-adaptor-class (description?, resource-adaptor-class-name)>
+
+<!--
+The resource-adaptor-class-name element contains the fully-qualified name of
+the resource adaptor class.
+
+Used in: resource-adaptor-class
+-->
+<!ELEMENT resource-adaptor-class-name (#PCDATA)>
+
+<!--
+The resource-adaptor-usage-parameters-interface element declares a usage
+parameters interface for the resource adaptor.  It contains an optional
+description, the name of the usage parameters interface, and properties for
+zero or more usage parameters in the usage parameters interface.
+
+Used in: resource-adaptor-classes
+-->
+<!ELEMENT resource-adaptor-usage-parameters-interface (description?,
+          resource-adaptor-usage-parameters-interface-name, usage-parameter*)>
+
+<!--
+The resource-adaptor-usage-parameters-interface-name element contains the
+fully-qualified name of the resource-adaptor's usage parameters interface.
+
+Used in: resource-adaptor-usage-parameters-interface
+
+Example:
+    <resource-adaptor-usage-parameters-interface-name>
+        com.mycompany.sbb.MyResourceAdaptorUsageParameters
+    </resource-adaptor-usage-parameters-interface-name>
+-->
+<!ELEMENT resource-adaptor-usage-parameters-interface-name (#PCDATA)>
+
+<!--
+The usage-parameter element allows various properties of a usage parameter to
+be specified at deployment time.  The name attribute of this element contains
+the name of a usage parameter defined in the usage parameters interface.  The
+notifications-enabled attribute allows the initial state of the notification
+generation flag for the usage parameter in each usage parameter set it appears
+in to be specified.
+
+Used in: resource-adaptor-usage-parameters-interface
+
+Example:
+    <usage-parameter name="counter" notifications-enabled="False">
+-->
+<!ELEMENT usage-parameter (#PCDATA)>
+
+<!--
+The config-property element defines a JavaBean configuration property supported
+by the resource adaptor.  The element contains an optional description about
+the configuration property being defined, the name and Java type of the
+configuration property, and an optional default value.  If a default value is
+not specified, a value for the configuration property must be supplied during
+creation of a resource adaptor entity.
+
+Used in: resource-adaptor
+-->
+<!ELEMENT config-property (description?, config-property-name,
+          config-property-type, config-property-value?)>
+
+<!--
+The config-propert-name element contains the name of a JavaBean configuration
+property defined in the resource adaptor class.
+
+Used in: config-property
+
+Example: <config-property-name>host</config-property-name>
+-->
+<!ELEMENT config-property-name (#PCDATA)>
+
+<!--
+The config-property-type element contains the fully-qualified Java class name
+of a a JavaBean configuration property defined in the resource adaptor class.
+The following are the legal values of config-property-type: java.lang.Boolean,
+java.lang.String, java.lang.Character, java.lang.Integer, java.lang.Double,
+java.lang.Byte, java.lang.Short, java.lang.Long, and java.lang.Float.
+
+Used in: config-property
+
+Example: <config-property-type>java.lang.String</config-property-type>
+-->
+<!ELEMENT config-property-type (#PCDATA)> 
+
+<!--
+The config-property-value element contains the default value of a JavaBean
+configuration property defined in the resource adaptor class.  The value must
+be a string that is valid for the constructor of the configuration property's
+declared type that takes a single java.lang.String parameter, or for
+java.lang.Character configuration properties, a single character.
+
+Used in: config-property 
+
+Example: <config-property-value>localhost</config-property-value>
+-->
+<!ELEMENT config-property-value (#PCDATA)>
+
+<!-- 
+The security-permissions element allows additional permissions to be granted to
+classes included in the resource adaptor jar, over and above the default
+permissions granted by the SLEE.  It contains an optional description and a
+mandatory security permission specification.
+
+Used in: resource-adaptor-jar
+-->
+<!ELEMENT security-permissions (description?, security-permission-spec)>
+
+<!--
+The security-permission-spec element specifies security permissions based on
+the security policy file syntax. Refer to the following URL for definition of
+Sun's security policy file syntax:
+
+http://java.sun.com/j2se/1.4.2/docs/guide/security/PolicyFiles.html#FileSyntax
+
+Note: The codeBase argument of any grant entries in the security permission
+specification is ignored.  The SLEE assumes the code base to be resource
+adaptor component jar file.
+
+The security permissions specified here are granted to classes loaded from the
+resource adaptor component jar file only.  They are not granted to classes
+loaded from any other dependent jar required by resource adaptors defined in
+the resource adaptor component jar's deployment descriptor, nor to any
+dependent library jars.
+
+Used in: security-permissions
+
+Example:
+<security-permission-spec>
+    grant {
+        permission java.lang.RuntimePermission "modifyThreadGroup";
+    };
+</security-permission-spec>
+-->
+<!ELEMENT security-permission-spec (#PCDATA)>
+
+
+<!-- 
+The ID mechanism is to allow tools that produce additional deployment
+information (ie. information beyond that contained by the standard SLEE
+deployment descriptors) to store the non-standard information in a separate
+file, and easily refer from those tools-specific files to the information in
+the standard deployment descriptor.  The SLEE architecture does not allow the
+tools to add the non-standard information into the SLEE-defined deployment
+descriptors.
+-->
+<!ATTLIST resource-adaptor-jar id ID #IMPLIED>
+<!ATTLIST description id ID #IMPLIED>
+<!ATTLIST resource-adaptor
+            ignore-ra-type-event-type-check (True|False) "False"
+            id ID #IMPLIED>
+<!ATTLIST resource-adaptor-name id ID #IMPLIED>
+<!ATTLIST resource-adaptor-vendor id ID #IMPLIED>
+<!ATTLIST resource-adaptor-version id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-ref id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-name id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-vendor id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-version id ID #IMPLIED>
+<!ATTLIST library-ref id ID #IMPLIED>
+<!ATTLIST library-name id ID #IMPLIED>
+<!ATTLIST library-vendor id ID #IMPLIED>
+<!ATTLIST library-version id ID #IMPLIED>
+<!ATTLIST profile-spec-ref id ID #IMPLIED>
+<!ATTLIST profile-spec-name id ID #IMPLIED>
+<!ATTLIST profile-spec-vendor id ID #IMPLIED>
+<!ATTLIST profile-spec-version id ID #IMPLIED>
+<!ATTLIST resource-adaptor-classes id ID #IMPLIED>
+<!ATTLIST resource-adaptor-class
+            supports-active-reconfiguration (True|False) "False"
+            id ID #IMPLIED>
+<!ATTLIST resource-adaptor-class-name id ID #IMPLIED>
+<!ATTLIST resource-adaptor-usage-parameters-interface id ID #IMPLIED>
+<!ATTLIST resource-adaptor-usage-parameters-interface-name id ID #IMPLIED>
+<!ATTLIST usage-parameter
+            name CDATA #REQUIRED
+            notifications-enabled (True|False) "False"
+            id ID #IMPLIED>
+<!ATTLIST config-property id ID #IMPLIED>
+<!ATTLIST config-property-name id ID #IMPLIED>
+<!ATTLIST config-property-type id ID #IMPLIED>
+<!ATTLIST config-property-value id ID #IMPLIED>
+<!ATTLIST security-permissions id ID #IMPLIED>
+<!ATTLIST security-permission-spec id ID #IMPLIED>
