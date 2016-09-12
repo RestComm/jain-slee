@@ -15,6 +15,7 @@
 		<module.path>org/telestax/slee/container/lib</module.path>
 
 		<javax.slee.jain-slee.version>${jain-slee.version}</javax.slee.jain-slee.version>
+		<javassist.javassist.version>${javassist.version}</javassist.javassist.version>
 		<jboss.jboss-serialization.version>${jboss-serialization.version}</jboss.jboss-serialization.version>
 		<trove.trove.version>${trove.version}</trove.trove.version>
 		<jgroups.jgroups.version>2.6.10.GA</jgroups.jgroups.version>
@@ -274,6 +275,44 @@
 								<configuration>
 									<tasks>									
 										<delete failonerror="false" dir="${jboss.home}/modules/${module.path}"/>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>deploy-module-as72</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>deploy</id>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<copy todir="${jboss.home}/modules/system/layers/base/${module.path}">
+											<fileset dir="${project.build.directory}/module"/>
+										</copy>
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>undeploy</id>
+								<phase>clean</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>									
+										<delete failonerror="false" dir="${jboss.home}/modules/system/layers/base/${module.path}"/>
 									</tasks>
 								</configuration>
 							</execution>
