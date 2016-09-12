@@ -141,6 +141,7 @@ public class SbbDescriptorImpl extends AbstractComponentWithLibraryRefsDescripto
 			this.ejbRefs = sbb.getEjbRef();
 			this.profileSpecRefs = sbb.getProfileSpecRef();
 
+			/*
 			String addressProfileSpecAliasRef = sbb
 					.getAddressProfileSpecAliasRef();
 			if (addressProfileSpecAliasRef != null) {
@@ -174,6 +175,7 @@ public class SbbDescriptorImpl extends AbstractComponentWithLibraryRefsDescripto
 							"AddressProfileSpec", "javax.slee", "1.0");
 				}
 			}
+			*/
 
 			this.sbbRefs = sbb.getSbbRef();
 
@@ -285,7 +287,7 @@ public class SbbDescriptorImpl extends AbstractComponentWithLibraryRefsDescripto
 	private void buildDependenciesSet() {
 
 		this.dependenciesSet.addAll(eventEntries.keySet());
-		this.dependenciesSet.add(addressProfileSpecRef);
+		//this.dependenciesSet.add(addressProfileSpecRef);
 
 		for (SbbRefDescriptor sbbRef : sbbRefs) {
 			this.dependenciesSet.add(sbbRef.getComponentID());
