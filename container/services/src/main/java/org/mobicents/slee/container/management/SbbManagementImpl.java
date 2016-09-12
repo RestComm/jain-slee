@@ -22,25 +22,8 @@
 
 package org.mobicents.slee.container.management;
 
-import java.lang.reflect.Method;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.LinkRef;
-import javax.naming.Name;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NameParser;
-import javax.naming.NamingException;
-import javax.rmi.PortableRemoteObject;
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
-import javax.slee.facilities.AlarmFacility;
-import javax.slee.facilities.Level;
-import javax.slee.management.DeploymentException;
-import javax.transaction.SystemException;
-
 import org.apache.log4j.Logger;
+import org.jboss.as.naming.context.NamespaceContextSelector;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
@@ -59,6 +42,18 @@ import org.mobicents.slee.container.transaction.TransactionalAction;
 import org.mobicents.slee.runtime.facilities.SbbAlarmFacilityImpl;
 import org.mobicents.slee.runtime.sbb.SbbObjectPoolImpl;
 import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagementImpl;
+
+import javax.naming.*;
+import javax.rmi.PortableRemoteObject;
+import javax.slee.SbbID;
+import javax.slee.ServiceID;
+import javax.slee.facilities.AlarmFacility;
+import javax.slee.facilities.Level;
+import javax.slee.management.DeploymentException;
+import javax.transaction.SystemException;
+import java.lang.reflect.Method;
+
+//import javax.naming.InitialContext;
 
 /**
  * Manages sbbs in container
@@ -132,7 +127,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 			Thread.currentThread().setContextClassLoader(
 					sbbComponent.getClassLoader());
 			// Set up the comp/env naming context for the Sbb.
-			JndiManagement jndiManagement = sleeContainer.getJndiManagement();			
+			JndiManagement jndiManagement = sleeContainer.getJndiManagement();
 			jndiManagement.componentInstall(sbbComponent);
 			jndiManagement.pushJndiContext(sbbComponent);
 			try {
@@ -171,7 +166,9 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 
 	private void setupSbbEnvironment(SbbComponent sbbComponent) throws Exception {		
 		
-		Context ctx = (Context) new InitialContext().lookup("java:comp");
+		//Context ctx = (Context) new InitialContext().lookup("java:comp");
+		Context ctx = NamespaceContextSelector.getCurrentSelector().getContext("comp");
+		logger.warn("We get java:comp. " + ctx + ", class: " + ctx.getClass().getName());
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Setting up SBB env. Initial context is " + ctx);
@@ -179,16 +176,22 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 
 		Context envCtx = null;
 		try {
+			logger.info("Try to createSubcontext(\"env\")");
 			envCtx = ctx.createSubcontext("env");
+
+
 		} catch (NameAlreadyBoundException ex) {
+			logger.info("Failed");
 			envCtx = (Context) ctx.lookup("env");
 		}
 
 		Context sleeCtx = null;
 
 		try {
+			logger.info("Try to createSubcontext(\"slee\")");
 			sleeCtx = envCtx.createSubcontext("slee");
 		} catch (NameAlreadyBoundException ex) {
+			logger.info("Failed");
 			sleeCtx = (Context) envCtx.lookup("slee");
 		}
 
@@ -214,68 +217,85 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		}*/
 
 		try {
+			logger.info("Try to createSubcontext(\"nullactivity\")");
 			newCtx = sleeCtx.createSubcontext("nullactivity");
 		} catch (NameAlreadyBoundException ex) {
+			logger.info("Failed");
 			newCtx = (Context) sleeCtx.lookup("nullactivity");
 		}
 		try {
+			logger.info("Try to bind NullActivityContextInterfaceFactory");
 			newCtx.bind("activitycontextinterfacefactory", sleeContainer.getNullActivityContextInterfaceFactory());
 		} catch (NameAlreadyBoundException ex) {
-
+			logger.info("Failed");
 		}
 		try {
+			logger.info("Try to bind NullActivityFactory");
 			newCtx.bind("factory", sleeContainer.getNullActivityFactory());
 		} catch (NameAlreadyBoundException ex) {
-
+			logger.info("Failed");
 		}
 
 		//String serviceActivityContextInterfaceFactory = "java:slee/serviceactivity/activitycontextinterfacefactory";
 		//String serviceActivityFactory = "java:slee/serviceactivity/factory";
 		try {
+			logger.info("Try to createSubcontext(\"serviceactivity\")");
 			newCtx = sleeCtx.createSubcontext("serviceactivity");
 		} catch (NameAlreadyBoundException ex) {
+			logger.info("Failed");
 			newCtx = (Context) sleeCtx.lookup("serviceactivity");
 		}		
 		try {
+			logger.info("Try to bind ServiceActivityContextInterfaceFactory");
 			newCtx.bind("activitycontextinterfacefactory",
 					sleeContainer.getServiceManagement().getServiceActivityContextInterfaceFactory());
 		} catch (NameAlreadyBoundException ex) {
-
+			logger.info("Failed");
 		}
 		try {
+			logger.info("Try to bind ServiceActivityFactory");
 			newCtx.bind("factory", sleeContainer.getServiceManagement().getServiceActivityFactory());
 		} catch (NameAlreadyBoundException ex) {
-
+			logger.info("Failed");
 		}
 		
 		try {
+			logger.info("Try to createSubcontext(\"facilities\")");
 			newCtx = sleeCtx.createSubcontext("facilities");
 		} catch (NameAlreadyBoundException ex) {
+			logger.info("Failed");
 			newCtx = (Context) sleeCtx.lookup("facilities");
 		}
 		try {
+			logger.info("Try to bind TimerFacility");
 			newCtx.bind("timer", sleeContainer.getTimerFacility());
 		} catch (NameAlreadyBoundException ex) {
-
+			logger.info("Failed");
 		}
 
 		try {
+			logger.info("Try to bind ActivityContextNamingFacility");
 			newCtx.bind("activitycontextnaming", sleeContainer.getActivityContextNamingFacility());
 		} catch (NameAlreadyBoundException ex) {
+			logger.info("Failed");
 		}
 
 		try {
+			logger.info("Try to bind TraceFacility");
 			newCtx.bind("trace", sleeContainer.getTraceManagement().getTraceFacility());
 		} catch (NameAlreadyBoundException ex) {
+			logger.info("Failed");
 		}
 
 		try {
 			//This has to be checked, to be sure sbb have it under correct jndi binding
 			// previously "alarm" was pointing to the alarmmbeanimpl
+			logger.info("Try to bind AlarmFacility");
 			AlarmFacility sbbAlarmFacility = new SbbAlarmFacilityImpl(sbbComponent.getSbbID(),sleeContainer.getAlarmManagement());
 			newCtx.bind("alarm", sbbAlarmFacility);
 			sbbComponent.setAlarmFacility(sbbAlarmFacility);
 		} catch (NameAlreadyBoundException ex) {
+			logger.info("Failed");
 		}
 
 		// profiles currently not supported
