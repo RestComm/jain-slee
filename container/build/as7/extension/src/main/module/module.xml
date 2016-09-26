@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="urn:jboss:module:1.0" name="${module.name}">
 
     <resources>
@@ -12,6 +13,7 @@
         <module name="org.jboss.as.jmx"/>
         <module name="org.jboss.as.server"/>
         <module name="org.jboss.as.transactions"/>
+        <module name="org.jboss.as.naming"/>
         <module name="org.jboss.modules"/>
         <module name="org.jboss.msc"/>
         <module name="org.jboss.logging"/>

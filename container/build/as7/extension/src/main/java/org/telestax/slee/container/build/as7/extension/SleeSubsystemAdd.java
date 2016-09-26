@@ -45,23 +45,29 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
             ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
 
-        //Add deployment processors here
-        //Remove this if you don't need to hook into the deployers, or you can add as many as you like
-        //see SubDeploymentProcessor for explanation of the phases
+        // Add deployment processors here
+        // Remove this if you don't need to hook into the deployers, or you can add as many as you like
+        // see SubDeploymentProcessor for explanation of the phases
         context.addStep(new AbstractDeploymentChainStep() {
             public void execute(DeploymentProcessorTarget processorTarget) {
-                processorTarget.addDeploymentProcessor(SleeDeploymentParseProcessor.PHASE, SleeDeploymentParseProcessor.PRIORITY, new SleeDeploymentParseProcessor());
-                processorTarget.addDeploymentProcessor(SleeDeploymentInstallProcessor.PHASE, SleeDeploymentInstallProcessor.PRIORITY, new SleeDeploymentInstallProcessor());
+                processorTarget.addDeploymentProcessor(SleeExtension.SUBSYSTEM_NAME,
+                        SleeDeploymentParseProcessor.PHASE,
+                        SleeDeploymentParseProcessor.PRIORITY,
+                        new SleeDeploymentParseProcessor());
+                processorTarget.addDeploymentProcessor(SleeExtension.SUBSYSTEM_NAME,
+                        SleeDeploymentInstallProcessor.PHASE,
+                        SleeDeploymentInstallProcessor.PRIORITY,
+                        new SleeDeploymentInstallProcessor());
             }
         }, OperationContext.Stage.RUNTIME);
-        
-    	// installs the msc service which builds the SleeContainer instance and its modules
+
+    	// Installs the msc service which builds the SleeContainer instance and its modules
         final ServiceTarget target = context.getServiceTarget();
         final SleeContainerService sleeContainerService = new SleeContainerService();
         newControllers.add(target.addService(SleeServiceNames.SLEE_CONTAINER, sleeContainerService)
                 //.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, service.getPathManagerInjector())
                 .addDependency(MBeanServerService.SERVICE_NAME, MBeanServer.class, sleeContainerService.getMbeanServer())
-                .addDependency(TransactionManagerService.SERVICE_NAME,TransactionManager.class,sleeContainerService.getTransactionManager())
+                .addDependency(TransactionManagerService.SERVICE_NAME, TransactionManager.class, sleeContainerService.getTransactionManager())
                 .setInitialMode(Mode.ACTIVE)
                 .install());
     }

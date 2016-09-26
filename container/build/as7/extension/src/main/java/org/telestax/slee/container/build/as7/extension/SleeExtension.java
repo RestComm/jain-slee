@@ -1,9 +1,6 @@
 package org.telestax.slee.container.build.as7.extension;
 
-import org.jboss.as.controller.Extension;
-import org.jboss.as.controller.ExtensionContext;
-import org.jboss.as.controller.PathElement;
-import org.jboss.as.controller.SubsystemRegistration;
+import org.jboss.as.controller.*;
 import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
 import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler;
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
@@ -67,7 +64,12 @@ public class SleeExtension implements Extension {
     public void initialize(ExtensionContext context) {
         final SubsystemRegistration subsystem = context.registerSubsystem(SUBSYSTEM_NAME, 3, 0);
         final ManagementResourceRegistration registration = subsystem.registerSubsystemModel(SleeSubsystemDefinition.INSTANCE);
-        registration.registerOperationHandler(DESCRIBE, GenericSubsystemDescribeHandler.INSTANCE, GenericSubsystemDescribeHandler.INSTANCE, false, OperationEntry.EntryType.PRIVATE);
+
+        final OperationDefinition describeOp = new SimpleOperationDefinitionBuilder(DESCRIBE,
+                getResourceDescriptionResolver(null))
+                    .setEntryType(OperationEntry.EntryType.PRIVATE)
+                    .build();
+        registration.registerOperationHandler(describeOp, GenericSubsystemDescribeHandler.INSTANCE, false);
 
         subsystem.registerXMLElementWriter(parser);
     }

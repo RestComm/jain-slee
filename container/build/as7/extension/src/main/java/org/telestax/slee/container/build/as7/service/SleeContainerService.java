@@ -1,16 +1,5 @@
 package org.telestax.slee.container.build.as7.service;
 
-import java.util.LinkedList;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.slee.management.AlarmMBean;
-import javax.slee.management.DeploymentMBean;
-import javax.slee.management.ResourceManagementMBean;
-import javax.slee.management.ServiceManagementMBean;
-import javax.slee.management.TraceMBean;
-import javax.transaction.TransactionManager;
-
 import org.jboss.cache.config.Configuration;
 import org.jboss.cache.config.RuntimeConfig;
 import org.jboss.logging.Logger;
@@ -27,13 +16,11 @@ import org.mobicents.slee.connector.local.SleeConnectionService;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentManagementImpl;
-import org.mobicents.slee.container.component.management.jmx.PolicyMBeanImpl;
-import org.mobicents.slee.container.component.management.jmx.PolicyMBeanImplMBean;
 import org.mobicents.slee.container.congestion.CongestionControl;
 import org.mobicents.slee.container.congestion.CongestionControlImpl;
 import org.mobicents.slee.container.deployment.ExternalDeployer;
-import org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBeanImplMBean;
 import org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBeanImpl;
+import org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBeanImplMBean;
 import org.mobicents.slee.container.deployment.jboss.SleeContainerDeployerImpl;
 import org.mobicents.slee.container.event.DefaultEventContextFactoryDataSource;
 import org.mobicents.slee.container.event.EventContextFactory;
@@ -44,37 +31,8 @@ import org.mobicents.slee.container.facilities.ActivityContextNamingFacility;
 import org.mobicents.slee.container.facilities.TimerFacility;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityContextInterfaceFactory;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityFactory;
-import org.mobicents.slee.container.management.ComponentManagement;
-import org.mobicents.slee.container.management.ProfileManagement;
-import org.mobicents.slee.container.management.ResourceManagementImpl;
-import org.mobicents.slee.container.management.SbbManagement;
-import org.mobicents.slee.container.management.SbbManagementImpl;
-import org.mobicents.slee.container.management.ServiceManagementImpl;
-import org.mobicents.slee.container.management.UsageParametersManagement;
-import org.mobicents.slee.container.management.UsageParametersManagementImpl;
-import org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImpl;
-import org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean;
-import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
-import org.mobicents.slee.container.management.jmx.CongestionControlConfiguration;
-import org.mobicents.slee.container.management.jmx.CongestionControlConfigurationMBean;
-import org.mobicents.slee.container.management.jmx.DeploymentMBeanImpl;
-import org.mobicents.slee.container.management.jmx.EventContextFactoryConfiguration;
-import org.mobicents.slee.container.management.jmx.EventContextFactoryConfigurationMBean;
-import org.mobicents.slee.container.management.jmx.EventRouterConfiguration;
-import org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean;
-import org.mobicents.slee.container.management.jmx.EventRouterStatistics;
-import org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean;
-import org.mobicents.slee.container.management.jmx.MobicentsManagement;
-import org.mobicents.slee.container.management.jmx.MobicentsManagementMBean;
-import org.mobicents.slee.container.management.jmx.ResourceManagementMBeanImpl;
-import org.mobicents.slee.container.management.jmx.SbbEntitiesMBeanImpl;
-import org.mobicents.slee.container.management.jmx.SbbEntitiesMBeanImplMBean;
-import org.mobicents.slee.container.management.jmx.ServiceManagementMBeanImpl;
-import org.mobicents.slee.container.management.jmx.SleeManagementMBeanImpl;
-import org.mobicents.slee.container.management.jmx.SleeManagementMBeanImplMBean;
-import org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration;
-import org.mobicents.slee.container.management.jmx.TimerFacilityConfigurationMBean;
-import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
+import org.mobicents.slee.container.management.*;
+import org.mobicents.slee.container.management.jmx.*;
 import org.mobicents.slee.container.rmi.RmiServerInterface;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
@@ -91,6 +49,12 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManagerImpl;
 import org.telestax.slee.container.build.as7.deployment.ExternalDeployerImpl;
 import org.telestax.slee.container.build.as7.naming.JndiManagementImpl;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.slee.management.*;
+import javax.transaction.TransactionManager;
+import java.util.LinkedList;
+
 public class SleeContainerService implements Service<SleeContainer> {
 
 	Logger log = Logger.getLogger(SleeContainerService.class);
@@ -105,6 +69,12 @@ public class SleeContainerService implements Service<SleeContainer> {
 	private final LinkedList<String> registeredMBeans = new LinkedList<String>();
 	
 	private SleeContainer sleeContainer;
+
+	private ExternalDeployer externalDeployer;
+
+	public ExternalDeployer getExternalDeployer() {
+		return externalDeployer;
+	}
 
 	@Override
 	public SleeContainer getValue() throws IllegalStateException,
@@ -152,8 +122,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 		eventRouterConfiguration.setConfirmSbbEntityAttachement(true);
 		try {
 			eventRouterConfiguration
-					.setExecutorMapperClassName(ActivityHashingEventRouterExecutorMapper.class
-							.getName());
+				.setExecutorMapperClassName(ActivityHashingEventRouterExecutorMapper.class.getName());
 		} catch (ClassNotFoundException e) {
 			throw new StartException(e);
 		}
@@ -204,19 +173,18 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final CongestionControl congestionControl = new CongestionControlImpl(
 				congestionControlConfiguration);
 
-		// FIXME deployer stuff
-		final ExternalDeployer externalDeployer = new ExternalDeployerImpl();
+		this.externalDeployer = new ExternalDeployerImpl();
 		final SleeContainerDeployerImpl internalDeployer = new SleeContainerDeployerImpl();
-		internalDeployer.setExternalDeployer(externalDeployer);
+		internalDeployer.setExternalDeployer(this.externalDeployer);
 
 		// FIXME this needs further work on dependencies
 		// final PolicyMBeanImpl policyMBeanImpl = new PolicyMBeanImpl();
 		// policyMBeanImpl.setUseMPolicy(true);
 		
 		try {
-			sleeContainer = new SleeContainer(deployPath, getMbeanServer()
-					.getValue(), componentManagement, sbbManagement,
-					serviceManagement, resourceManagement, profileManagement,
+			sleeContainer = new SleeContainer(deployPath, getMbeanServer().getValue(),
+					componentManagement, sbbManagement, serviceManagement,
+					resourceManagement, profileManagement,
 					eventContextFactory, eventRouter, timerFacility,
 					activityContextFactory, activityContextNamingFacility,
 					nullActivityContextInterfaceFactory, nullActivityFactory,
@@ -247,11 +215,11 @@ public class SleeContainerService implements Service<SleeContainer> {
 		registerMBean(new ResourceManagementMBeanImpl(resourceManagement), ResourceManagementMBean.OBJECT_NAME);
 		registerMBean(new SbbEntitiesMBeanImpl(sbbEntityFactory), SbbEntitiesMBeanImplMBean.OBJECT_NAME);
 		registerMBean(new ActivityManagementMBeanImpl(sleeContainer), ActivityManagementMBeanImplMBean.OBJECT_NAME);
+		// TODO PolicyMBeanImpl
 		//registerMBean(policyMBeanImpl, PolicyMBeanImplMBean.OBJECT_NAME);
 		
 		// slee management mbean
 		registerMBean(new SleeManagementMBeanImpl(sleeContainer), SleeManagementMBeanImplMBean.OBJECT_NAME);
-
 	}
 
 	private MobicentsCache initCache() {
