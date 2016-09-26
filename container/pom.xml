@@ -50,7 +50,7 @@
 				<groupId>jboss</groupId>
 				<artifactId>jboss-serialization</artifactId>
 				<version>${jboss-serialization.version}</version>	
-			</dependency>		
+			</dependency>
 			<dependency>
 				<groupId>trove</groupId>
 				<artifactId>trove</artifactId>
@@ -75,6 +75,11 @@
 				<groupId>org.mobicents.servers.jainslee.api</groupId>
 				<artifactId>jain-slee-11-ext</artifactId>
 				<version>${jain-slee-11-ext.version}</version>				
+			</dependency>
+			<dependency>
+				<groupId>javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>${javassist.version}</version>
 			</dependency>
 			<dependency>
             	<groupId>javax.resource</groupId>
