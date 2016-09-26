@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+    <deployment>
+        <exclude-subsystems>
+            <subsystem name="ejb3" />
+        </exclude-subsystems>
+        <dependencies>
+            <module name="org.telestax.slee.container.lib" export="true" />
+            <!--<module name="javax.slee.api"/>-->
+        </dependencies>
+    </deployment>
+</jboss-deployment-structure>
