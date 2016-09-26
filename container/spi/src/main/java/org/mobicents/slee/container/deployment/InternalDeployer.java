@@ -22,8 +22,9 @@
 
 package org.mobicents.slee.container.deployment;
 
-import javax.slee.management.DeploymentException;
 import java.net.URL;
+
+import javax.slee.management.DeploymentException;
 
 /**
  * The interface for the deployer inside the SLEE Container.
@@ -33,14 +34,39 @@ import java.net.URL;
  */
 public interface InternalDeployer {
 
+    /**
+     * Sets the external deployer.
+     *
+     * @param deployer
+     */
 	void setExternalDeployer(ExternalDeployer deployer);
 
+    /**
+     *
+     * @param deployableUnitURL
+     * @return
+     */
     boolean accepts(URL deployableUnitURL);
 
+    /**
+     *
+     * @param deployableUnitURL
+     * @throws DeploymentException
+     */
     void init(URL deployableUnitURL) throws DeploymentException;
 
+    /**
+     *
+     * @param deployableUnitURL
+     * @throws DeploymentException
+     */
     void start(URL deployableUnitURL) throws DeploymentException;
 
+    /**
+     *
+     * @param deployableUnitURL
+     * @throws DeploymentException
+     */
     void stop(URL deployableUnitURL) throws DeploymentException;
 
 }

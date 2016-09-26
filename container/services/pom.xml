@@ -22,7 +22,12 @@
 			<groupId>junit</groupId>
 			<scope>test</scope>
 		</dependency>
-					
+		<dependency>
+			<groupId>org.jboss.as</groupId>
+			<artifactId>jboss-as-naming</artifactId>
+			<version>7.2.0.Final</version>
+		</dependency>
+		
 	</dependencies>
 	
 </project>

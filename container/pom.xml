@@ -19,6 +19,7 @@
 		<slee.codename>???</slee.codename>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.cluster.version>1.13.1.FINAL</mobicents.cluster.version>
+		<javassist.version>3.9.0.GA</javassist.version>
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
@@ -40,7 +41,7 @@
 		<module>services</module>
 		<module>congestion</module>
 		<module>standard-components</module>
-		<module>build</module>		 
+		<module>build</module>
 	</modules>
 
 	<dependencyManagement>
