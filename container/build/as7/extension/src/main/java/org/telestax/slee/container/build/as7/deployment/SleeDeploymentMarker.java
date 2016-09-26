@@ -28,13 +28,41 @@ public class SleeDeploymentMarker {
         URL rootURL = null;
         try {
             rootURL = VFSUtils.getRootURL(root);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             log.error("Cannot get URL for deployable unit: " + ex.getLocalizedMessage());
         }
         setDeployableUnitJarURL(deploymentUnit, rootURL);
 
+        // to parse deployment unit
+        if(log.isTraceEnabled()) {
+            log.trace("Deployment unit parsing: " + deploymentUnit);
+        }
         SleeDeploymentMetaData metaData = new SleeDeploymentMetaData(deploymentUnit);
+
+        // SergeyLee: ClassLoadingMetaData migrating
+        /*
+        if(metaData.componentType == SleeDeploymentMetaData.ComponentType.DU) {
+
+            ClassLoadingMetaData classLoadingMetaData = du.getAttachment(ClassLoadingMetaData.class);
+
+            if(log.isTraceEnabled()) {
+                log.trace("Got Classloading MetaData: " + classLoadingMetaData);
+            }
+
+            classLoadingMetaData = new ClassLoadingMetaData10();
+            classLoadingMetaData.setName(du.getSimpleName());
+            classLoadingMetaData.setIncludedPackages("");
+
+            if(log.isTraceEnabled()) {
+                log.trace("Set Classloading MetaData: " + classLoadingMetaData);
+            }
+
+            du.addAttachment(ClassLoadingMetaData.class, classLoadingMetaData);
+
+            return _sdmd;
+        }
+        */
+
         setDeployableUnitJarMetaData(deploymentUnit, metaData);
     }
 

@@ -25,30 +25,32 @@ public class SleeDeploymentParseProcessor implements DeploymentUnitProcessor {
 
     @Override
     public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
-
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
         final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
 
         if(!deploymentRoot.getRootName().toLowerCase(Locale.ENGLISH).endsWith(".jar")) {
             return;
         }
-
         final VirtualFile descriptor = deploymentRoot.getRoot().getChild("META-INF/deployable-unit.xml");
         if (descriptor == null) {
             return;
         }
 
-
-
-        // TODO mark deployment as SLEE by storing the jar URL
         SleeDeploymentMarker.mark(deploymentUnit);
-        //SleeDeploymentMarker.setDeployableUnitJarURL(deploymentUnit, rootURL);
-        //SleeDeploymentMarker.setDeployableUnitJarMetaData(deploymentUnit, metaData);
     }
 
     @Override
     public void undeploy(DeploymentUnit deploymentUnit) {
-        // nothing todo
+        final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
+        if(!deploymentRoot.getRootName().toLowerCase(Locale.ENGLISH).endsWith(".jar")) {
+            return;
+        }
+        final VirtualFile descriptor = deploymentRoot.getRoot().getChild("META-INF/deployable-unit.xml");
+        if (descriptor == null) {
+            return;
+        }
+
+        SleeDeploymentMarker.mark(deploymentUnit);
     }
 
 }

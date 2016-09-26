@@ -7,6 +7,7 @@ import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.jboss.SleeContainerDeployerImpl;
+import org.telestax.slee.container.build.as7.service.SleeContainerService;
 import org.telestax.slee.container.build.as7.service.SleeServiceNames;
 
 import java.net.URL;
@@ -30,51 +31,54 @@ public class SleeDeploymentInstallProcessor implements DeploymentUnitProcessor {
     @Override
     public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
-        log.info("deploymentUnit "+deploymentUnit);
+        log.info("Deploy: "+deploymentUnit);
 
         final URL deployableUnitJarURL = SleeDeploymentMarker.getDeployableUnitJarURL(deploymentUnit);
-        log.info("deployableUnitJarURL "+deployableUnitJarURL);
         if (deployableUnitJarURL == null) {
             return;
         }
 
         final SleeDeploymentMetaData deployableUnitJarMetaData = SleeDeploymentMarker.getDeployableUnitJarMetaData(deploymentUnit);
-        log.info("deployableUnitJarMetaData "+deployableUnitJarMetaData);
         if (deployableUnitJarMetaData == null) {
             return;
         }
 
-        SleeContainer container = getSleeContainer(phaseContext.getServiceRegistry(), SleeServiceNames.SLEE_CONTAINER);
+        //SleeDeploymentMarker.setDeployableUnitJarURL(deploymentUnit, null);
+        //SleeDeploymentMarker.setDeployableUnitJarMetaData(deploymentUnit, null);
 
-        getExternalDeployer(container).deploy(deploymentUnit, deployableUnitJarURL, deployableUnitJarMetaData);
+        ExternalDeployerImpl externalDeployer = getExternalDeployer(phaseContext.getServiceRegistry(), SleeServiceNames.SLEE_CONTAINER);
+        if (externalDeployer != null) {
+            externalDeployer.deploy(deploymentUnit, deployableUnitJarURL, deployableUnitJarMetaData);
+        }
     }
 
     @Override
     public void undeploy(DeploymentUnit deploymentUnit) {
+        log.info("Undeploy: "+deploymentUnit);
+
     	final URL deployableUnitJarURL = SleeDeploymentMarker.getDeployableUnitJarURL(deploymentUnit);
         if (deployableUnitJarURL == null) {
         	return;
         }
-        // TODO: undeploy from SLEE
-    }
-
-    private SleeContainer getSleeContainer(ServiceRegistry registry, ServiceName serviceName) {
-        ServiceController<?> service = registry.getService(serviceName);
-        log.info("getSleeContainerService service: " + service);
-        if (service != null) {
-            SleeContainer container = (SleeContainer) service.getValue();
-            log.info("getSleeContainer container: " + container);
-            return container;
+        final SleeDeploymentMetaData deployableUnitJarMetaData = SleeDeploymentMarker.getDeployableUnitJarMetaData(deploymentUnit);
+        if (deployableUnitJarMetaData == null) {
+            return;
         }
-        return null;
+
+        //SleeDeploymentMarker.setDeployableUnitJarURL(deploymentUnit, null);
+        //SleeDeploymentMarker.setDeployableUnitJarMetaData(deploymentUnit, null);
+
+        ExternalDeployerImpl externalDeployer = getExternalDeployer(deploymentUnit.getServiceRegistry(), SleeServiceNames.SLEE_CONTAINER);
+        if (externalDeployer != null) {
+            externalDeployer.undeploy(deploymentUnit, deployableUnitJarURL, deployableUnitJarMetaData);
+        }
     }
 
-    private ExternalDeployerImpl getExternalDeployer(SleeContainer container) {
-        if (container != null) {
-            SleeContainerDeployerImpl internalDeployer = (SleeContainerDeployerImpl)container.getDeployer();
-            ExternalDeployerImpl externalDeployer = (ExternalDeployerImpl)internalDeployer.getExternalDeployer();
-            log.info("service internalDeployer " + internalDeployer);
-            log.info("service externalDeployer " + externalDeployer);
+    private ExternalDeployerImpl getExternalDeployer(ServiceRegistry registry, ServiceName serviceName) {
+        ServiceController<?> serviceController = registry.getService(serviceName);
+        SleeContainerService service = (SleeContainerService) serviceController.getService();
+        if (service != null) {
+            ExternalDeployerImpl externalDeployer = (ExternalDeployerImpl) service.getExternalDeployer();
             return externalDeployer;
         }
         return null;
