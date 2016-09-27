@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>mobicents-slee-core-container</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.5</version>
 	</parent>
 
 	<artifactId>slee-timers</artifactId>
