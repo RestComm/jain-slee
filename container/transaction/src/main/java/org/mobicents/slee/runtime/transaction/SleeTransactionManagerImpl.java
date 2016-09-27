@@ -45,7 +45,7 @@ import org.mobicents.slee.container.transaction.SleeTransaction;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 
-import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
+//import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
 import org.mobicents.slee.util.concurrent.SleeThreadFactory;
 
 /**
