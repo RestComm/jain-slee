@@ -19,34 +19,32 @@
 	</modules>
 		
 	<scm>
-		<connection>scm:git:https://code.google.com/p/jain-slee/</connection>
-		<developerConnection>scm:git:https://code.google.com/p/jain-slee/</developerConnection>
-		<url>https://code.google.com/p/jain-slee/</url>
-	</scm>     
-			
-	
-	
+		<connection>scm:git:https://github.com/RestComm/jain-slee.git</connection>
+		<developerConnection>scm:git:git@github.com:RestComm/jain-slee.git</developerConnection>
+		<url>https://github.com/RestComm/jain-slee</url>
+	</scm>
+
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
 
 	<repositories>
-                <repository>
-                        <id>mobicents-public-repository-group</id>
-                        <name>Mobicents Public Maven Repository Group</name>
-                        <url>https://oss.sonatype.org/content/groups/public</url>
-                        <layout>default</layout>
-                        <releases>
-                                <enabled>true</enabled>
-                                <updatePolicy>never</updatePolicy>
-                        </releases>
-                        <snapshots>
-                                <enabled>true</enabled>
-                                <updatePolicy>never</updatePolicy>
-                        </snapshots>
-                </repository>
-                <repository>
-				    <id>java.net</id>
-				    <url>http://download.java.net/maven/2/</url>
-				</repository>
-        </repositories>
+		<repository>
+			<id>mobicents-public-repository-group</id>
+			<name>Mobicents Public Maven Repository Group</name>
+			<url>https://oss.sonatype.org/content/groups/public</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>java.net</id>
+			<url>http://download.java.net/maven/2/</url>
+		</repository>
+	</repositories>
 	
 </project>
