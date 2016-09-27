@@ -390,11 +390,18 @@
 									<tasks>										
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</extensions>]]></replacetoken>
-  											<replacevalue><![CDATA[<extension module="org.telestax.slee.container.extension"/></extensions>]]></replacevalue>
+  											<replacevalue><![CDATA[<extension module="org.telestax.slee.container.extension"/>
+  											</extensions>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</profile>]]></replacetoken>
-  											<replacevalue><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0"/></profile>]]></replacevalue>
+  											<replacevalue><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0"/>
+  											</profile>]]></replacevalue>
+										</replace>
+										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
+											<replacetoken><![CDATA[</dependencies>]]></replacetoken>
+											<replacevalue><![CDATA[<module name="org.telestax.slee.container.lib"/>
+  											</dependencies>]]></replacevalue>
 										</replace>
 									</tasks>
 								</configuration>
@@ -414,6 +421,10 @@
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0"/>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
+										</replace>
+										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
+											<replacetoken><![CDATA[<module name="org.telestax.slee.container.lib"/>]]></replacetoken>
+											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
 									</tasks>
 								</configuration>
