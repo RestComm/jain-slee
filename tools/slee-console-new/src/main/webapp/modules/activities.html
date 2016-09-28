@@ -49,7 +49,10 @@
 </div>
 
 <script type="text/javascript">
-	//@ sourceURL=loadActivities.js
+	//# sourceURL=loadActivities.js
+	function htmlEncode(value){
+		return $('<div/>').text(value).html();
+	}
 	function getActivitiesConfiguration() {
 		jolokia.request(
 			{ type: "read", mbean: "org.mobicents.slee:name=ActivityManagementMBean", attribute: ["ActivityContextMaxIdleTime", "TimeBetweenLivenessQueries"] },
@@ -125,7 +128,7 @@
 											'<dt>Last Access Timestamp</dt> <dd>' + this[LAST_ACCESS_TIME] + '</dd>' + 
 											'<dt>Timers</dt> <dd>' + (this[TIMERS_ATTACHED] && this[TIMERS_ATTACHED].length > 0 ? this[TIMERS_ATTACHED] : '-') + '</dd>' + 
 											'<dt>Data Attributes</dt> <dd>' + (this[DATA_PROPERTIES] && this[DATA_PROPERTIES].length > 0 ? this[DATA_PROPERTIES] : '-') + '</dd>' + 
-											'<dt>Name Bindings</dt> <dd>' + (this[NAMES_BOUND_TO] && this[NAMES_BOUND_TO].length > 0 ? this[NAMES_BOUND_TO] : '-') + '</dd>' + 
+											'<dt>Name Bindings</dt> <dd>' + (this[NAMES_BOUND_TO] && this[NAMES_BOUND_TO].length > 0 ? htmlEncode(this[NAMES_BOUND_TO]) : '-') + '</dd>' +
 											'<dt>RA Entity</dt> <dd>' + (this[RA_ENTITY] && this[RA_ENTITY].length > 0 ? this[RA_ENTITY] : '-') + '</dd>' + 
 											'<dt>SBB Attachments</dt> <dd>' + (this[SBB_ATTACHMENTS] && this[SBB_ATTACHMENTS].length > 0 ? this[SBB_ATTACHMENTS] : '-') + '</dd>' + 
 										'</dl>' +
