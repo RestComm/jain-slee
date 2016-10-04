@@ -24,6 +24,7 @@ package org.telestax.slee.container.build.as7.deployment;
 
 import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentUnit;
+import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.logging.Logger;
 import org.jboss.vfs.VirtualFile;
 import org.w3c.dom.Document;
@@ -81,7 +82,19 @@ public class SleeDeploymentMetaData
 
     public SleeDeploymentMetaData(DeploymentUnit du)
     {
-        final VirtualFile rootFile = du.getAttachment(Attachments.DEPLOYMENT_ROOT).getRoot();
+        final ResourceRoot deploymentRoot = du.getAttachment(Attachments.DEPLOYMENT_ROOT);
+        log.info("METADATA deploymentRoot: "+deploymentRoot);
+        final VirtualFile rootFile = deploymentRoot.getRoot();
+
+        parseRootFile(rootFile);
+    }
+
+    public SleeDeploymentMetaData(VirtualFile rootFile) {
+        parseRootFile(rootFile);
+    }
+
+    private void parseRootFile(VirtualFile rootFile) {
+        log.info("METADATA rootFile: "+rootFile);
 
         InputStream is = null;
 
@@ -112,6 +125,7 @@ public class SleeDeploymentMetaData
     private void parseDUContents(InputStream is)
     {
         try {
+            log.info("parseDUContents");
             // Parse the DU to see which jars we should process
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -127,6 +141,7 @@ public class SleeDeploymentMetaData
                 if(nodeList.item(i) instanceof Element) {
                     Element elem = (Element) nodeList.item(i);
                     if(elem.getNodeName().equals("jar") || elem.getNodeName().equals("service-xml")) {
+                        log.info("duContents add: "+elem.getTextContent());
                         duContents.add(elem.getTextContent());
                     }
                 }

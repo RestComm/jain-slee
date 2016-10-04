@@ -5,8 +5,6 @@ import org.jboss.logging.Logger;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.deployment.jboss.SleeContainerDeployerImpl;
 import org.telestax.slee.container.build.as7.service.SleeContainerService;
 import org.telestax.slee.container.build.as7.service.SleeServiceNames;
 
@@ -48,7 +46,7 @@ public class SleeDeploymentInstallProcessor implements DeploymentUnitProcessor {
 
         ExternalDeployerImpl externalDeployer = getExternalDeployer(phaseContext.getServiceRegistry(), SleeServiceNames.SLEE_CONTAINER);
         if (externalDeployer != null) {
-            externalDeployer.deploy(deploymentUnit, deployableUnitJarURL, deployableUnitJarMetaData);
+            externalDeployer.deploy(deploymentUnit, deployableUnitJarURL, deployableUnitJarMetaData, null);
         }
     }
 

@@ -8,6 +8,10 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
+import org.jboss.vfs.TempFileProvider;
+import org.jboss.vfs.VFS;
+import org.jboss.vfs.VFSUtils;
+import org.jboss.vfs.VirtualFile;
 import org.mobicents.cache.MobicentsCache;
 import org.mobicents.cluster.DefaultMobicentsCluster;
 import org.mobicents.cluster.MobicentsCluster;
@@ -47,13 +51,20 @@ import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImp
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManagerImpl;
 import org.telestax.slee.container.build.as7.deployment.ExternalDeployerImpl;
+import org.telestax.slee.container.build.as7.deployment.SleeDeploymentMetaData;
 import org.telestax.slee.container.build.as7.naming.JndiManagementImpl;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.slee.management.*;
 import javax.transaction.TransactionManager;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.LinkedList;
+import java.util.Locale;
+import java.util.concurrent.Executors;
 
 public class SleeContainerService implements Service<SleeContainer> {
 
@@ -220,6 +231,70 @@ public class SleeContainerService implements Service<SleeContainer> {
 		
 		// slee management mbean
 		registerMBean(new SleeManagementMBeanImpl(sleeContainer), SleeManagementMBeanImplMBean.OBJECT_NAME);
+
+
+		//
+		try {
+			installInternalDeployments();
+		} catch (IOException e) {
+			//e.printStackTrace();
+			throw new StartException(e);
+		}
+	}
+
+	private void installInternalDeployments() throws IOException {
+		String deploymentFolderName = "deployments";
+		URL deplURL = this.getClass().getClassLoader().getResource(deploymentFolderName + "/");
+		if (deplURL == null || !deplURL.getProtocol().equals("jar")) {
+			return;
+		}
+
+		String urlExtension = deplURL.toString().substring(
+				deplURL.toString().indexOf("file:")+5, deplURL.toString().indexOf("!"));
+
+		TempFileProvider provider = TempFileProvider.create("temp", Executors.newScheduledThreadPool(2));
+		Closeable extensionCloseable = null;
+		Closeable deploymentClosable = null;
+		VirtualFile extensionVfs = VFS.getChild(urlExtension);
+		File extensionFile;
+		try {
+			extensionFile = extensionVfs.getPhysicalFile();
+			extensionCloseable = VFS.mountZipExpanded(extensionFile, extensionVfs, provider);
+
+			for (VirtualFile resourcesVfs: extensionVfs.getChildren()) {
+				if (resourcesVfs.toString().contains(deploymentFolderName)) {
+					File deploymentFile;
+					URL deploymentRootURL = null;
+					for (VirtualFile deploymentVfs: resourcesVfs.getChildren()) {
+						deploymentFile = deploymentVfs.getPhysicalFile();
+
+						if (!deploymentFile.getAbsolutePath().toLowerCase(Locale.ENGLISH).endsWith(".jar")) {
+							continue;
+						}
+
+						deploymentClosable = VFS.mountZip(deploymentFile, deploymentVfs, provider);
+
+						try {
+							deploymentRootURL = VFSUtils.getRootURL(deploymentVfs);
+						} catch (Exception ex) {
+							log.error("Cannot get URL for deployable unit: " + ex.getLocalizedMessage());
+						}
+
+						SleeDeploymentMetaData deploymentMetaData = new SleeDeploymentMetaData(deploymentVfs);
+						((ExternalDeployerImpl) externalDeployer)
+							.deploy(null, deploymentRootURL, deploymentMetaData, deploymentVfs);
+					}
+				}
+			}
+		} finally {
+			if (extensionCloseable != null) {
+				extensionCloseable.close();
+			}
+			if (deploymentClosable != null) {
+				deploymentClosable.close();
+			}
+			provider.close();
+		}
 	}
 
 	private MobicentsCache initCache() {

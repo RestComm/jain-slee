@@ -26,8 +26,9 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 	private List<URL> waitingList = new ArrayList<URL>();
 
 	private static class DeploymentUnitRecord {
-		DeploymentUnit du;
-		SleeDeploymentMetaData sdmd;
+		DeploymentUnit deploymentUnit;
+		SleeDeploymentMetaData deploymentMetaData;
+		VirtualFile defaultRoot;
 	}
 
 	private Map<URL, DeploymentUnitRecord> records = new HashMap<URL, DeploymentUnitRecord>();
@@ -63,32 +64,38 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 		this.waitingList.clear();
 	}
 
-	public void deploy(DeploymentUnit du, URL deployableUnitURL, SleeDeploymentMetaData sdmd) {
+	public void deploy(DeploymentUnit deploymentUnit, URL deployableUnitURL, SleeDeploymentMetaData deploymentMetaData, VirtualFile defaultRoot) {
 		if (log.isTraceEnabled()) {
 			log.trace("ExternalDeployerImpl 'deploy' called:");
-			log.trace("DeploymentUnit..........." + du);
-			log.trace("SleeDeploymentMetaData..." + sdmd);
+			log.trace("DeploymentUnit..........." + deploymentUnit);
+			log.trace("SleeDeploymentMetaData..." + deploymentMetaData);
 		}
 
-		if (sdmd != null) {
+		if (deploymentMetaData != null) {
+			String deploymentUnitName = deploymentUnit != null ?
+					deploymentUnit.getName() : "default deployment: " + defaultRoot.getName();
+
 			try {
 				// create record and store it
 				DeploymentUnitRecord record = new DeploymentUnitRecord();
-				record.sdmd = sdmd;
-				record.du = du;
+				record.deploymentMetaData = deploymentMetaData;
+				record.deploymentUnit = deploymentUnit;
+				record.defaultRoot = defaultRoot;
 				records.put(deployableUnitURL, record);
 
 				// deploy if possible
 				if (internalDeployer == null) {
-					log.debug("Unable to INSTALL "
-							+ du.getName()
-							+ " right now. Waiting for Container to start.");
+					if (log.isDebugEnabled()) {
+						log.debug("Unable to INSTALL " + deploymentUnitName
+								+ " right now. Waiting for Container to start.");
+						log.debug("deployableUnitURL: "+deployableUnitURL);
+					}
 					waitingList.add(deployableUnitURL);
 				} else {
 					callSubDeployer(deployableUnitURL, record);
 				}
 			} catch (Exception e) {
-				log.error("Failure while deploying " + du.getName(), e);
+				log.error("Failure while deploying " + deploymentUnitName, e);
 			}
 		}
 	}
@@ -97,10 +104,16 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 		internalDeployer.accepts(deployableUnitURL);
 		internalDeployer.init(deployableUnitURL);
 
-		final VirtualFile duFile = record.du.getAttachment(Attachments.DEPLOYMENT_ROOT).getRoot();
+		VirtualFile duFile = null;
+		if (record.deploymentUnit != null) {
+			duFile = record.deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT).getRoot();
+		} else
+		if (record.defaultRoot != null) {
+			duFile = record.defaultRoot;
+		}
 		VirtualFile componentFile;
 		URL componentURL;
-		for (String componentJar : record.sdmd.duContents) {
+		for (String componentJar : record.deploymentMetaData.duContents) {
 			try {
 				componentFile = duFile.getChild(componentJar);
 				componentURL = VFSUtils.getVirtualURL(componentFile);

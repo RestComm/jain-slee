@@ -28,7 +28,7 @@ public class SleeDeploymentParseProcessor implements DeploymentUnitProcessor {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
         final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
 
-        if(!deploymentRoot.getRootName().toLowerCase(Locale.ENGLISH).endsWith(".jar")) {
+        if (!deploymentRoot.getRootName().toLowerCase(Locale.ENGLISH).endsWith(".jar")) {
             return;
         }
         final VirtualFile descriptor = deploymentRoot.getRoot().getChild("META-INF/deployable-unit.xml");
