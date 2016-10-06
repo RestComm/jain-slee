@@ -1,0 +1,14 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="urn:telestax:slee-container:3.0"
+            xmlns="urn:telestax:slee-container:3.0"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified"
+            version="3.0">
+
+    <!-- The subsystem root element -->
+    <xs:element name="subsystem" type="subsystemType"/>
+
+    <xs:complexType name="subsystemType">
+    </xs:complexType>
+    
+</xs:schema>

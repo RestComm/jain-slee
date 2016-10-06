@@ -4,17 +4,17 @@
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>mobicents-slee-core-container</artifactId>
+		<artifactId>slee-container-build</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>slee-container-build</artifactId>
+	<artifactId>slee-container-build-as10</artifactId>
 
 	<packaging>pom</packaging>
 
 	<modules>
-		<!--<module>as7</module>-->
-		<module>as10</module>
+		<module>modules</module>
+		<module>extension</module>
 	</modules>
 
 </project>
