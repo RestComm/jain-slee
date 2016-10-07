@@ -29,11 +29,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.slee.ServiceID;
 
 import org.apache.log4j.Logger;
-import org.jboss.cache.Fqn;
+import org.restcomm.cache.tree.Fqn;
 import org.jboss.cache.notifications.annotation.CacheListener;
 import org.jboss.cache.notifications.annotation.NodeRemoved;
 import org.jboss.cache.notifications.event.NodeRemovedEvent;
-import org.mobicents.cache.MobicentsCache;
+import org.restcomm.cache.MobicentsCache;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 

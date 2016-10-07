@@ -28,10 +28,10 @@ import java.util.Set;
 
 import javax.slee.EventTypeID;
 
-import org.jboss.cache.Fqn;
-import org.jboss.cache.Node;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cache.MobicentsCache;
+import org.restcomm.cache.tree.Fqn;
+import org.restcomm.cache.tree.Node;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cache.MobicentsCache;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 

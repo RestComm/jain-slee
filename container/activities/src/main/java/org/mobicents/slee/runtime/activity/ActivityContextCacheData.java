@@ -29,10 +29,10 @@ import java.util.Set;
 
 import javax.slee.facilities.TimerID;
 
-import org.jboss.cache.Fqn;
-import org.jboss.cache.Node;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cluster.MobicentsCluster;
+import org.restcomm.cache.tree.Fqn;
+import org.restcomm.cache.tree.Node;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 

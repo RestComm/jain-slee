@@ -22,12 +22,12 @@
 
 package org.mobicents.slee.resource.cluster;
 
+import org.mobicents.slee.container.SleeContainer;
+import org.restcomm.timers.FaultTolerantScheduler;
+import org.restcomm.timers.PeriodicScheduleStrategy;
+
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
-
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.timers.FaultTolerantScheduler;
-import org.mobicents.timers.PeriodicScheduleStrategy;
 
 /**
  * Implementation of the FT RA Timer.

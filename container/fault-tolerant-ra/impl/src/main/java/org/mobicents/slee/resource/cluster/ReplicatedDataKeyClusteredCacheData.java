@@ -27,9 +27,9 @@ package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
-import org.jboss.cache.Fqn;
-import org.mobicents.cluster.MobicentsCluster;
-import org.mobicents.cluster.cache.ClusteredCacheData;
+import org.restcomm.cache.tree.Fqn;
+import org.restcomm.cluster.MobicentsCluster;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
 /**
  * @author martins

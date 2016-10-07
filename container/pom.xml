@@ -19,7 +19,9 @@
 		<slee.codename>???</slee.codename>
 
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<mobicents.cluster.version>1.13.1.FINAL</mobicents.cluster.version>
+		<!--<mobicents.cluster.version>1.13.1.FINAL</mobicents.cluster.version>-->
+		<restcomm.cluster.version>3.0.0.5</restcomm.cluster.version>
+		<javassist.version>3.9.0.GA</javassist.version>
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
@@ -64,19 +66,19 @@
 				<version>${trove.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.mobicents.cluster</groupId>
+				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>core</artifactId>
-				<version>${mobicents.cluster.version}</version>
+				<version>${restcomm.cluster.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.mobicents.cluster</groupId>
+				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>cache</artifactId>
-				<version>${mobicents.cluster.version}</version>
+				<version>${restcomm.cluster.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.mobicents.cluster</groupId>
+				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>timers</artifactId>
-				<version>${mobicents.cluster.version}</version>
+				<version>${restcomm.cluster.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mobicents.servers.jainslee.api</groupId>

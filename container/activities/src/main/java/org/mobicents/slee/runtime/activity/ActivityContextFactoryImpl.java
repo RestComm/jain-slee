@@ -29,8 +29,8 @@ import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
 
 import org.apache.log4j.Logger;
-import org.jboss.cache.Fqn;
-import org.mobicents.cluster.DataRemovalListener;
+import org.restcomm.cache.tree.Fqn;
+import org.restcomm.cluster.DataRemovalListener;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;

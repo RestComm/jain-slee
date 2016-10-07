@@ -37,9 +37,9 @@
         <resource-root path="trove-${trove.trove.version}.jar"/>
         <resource-root path="jgroups-${jgroups.jgroups.version}.jar"/>
         <resource-root path="jbosscache-core-${org.jboss.cache.jbosscache-core.version}.jar"/>
-        <resource-root path="cache-${org.mobicents.cluster.cache.version}.jar"/>
-        <resource-root path="core-${org.mobicents.cluster.core.version}.jar"/>
-        <resource-root path="timers-${org.mobicents.cluster.timers.version}.jar"/>
+        <resource-root path="cache-${org.restcomm.cluster.cache.version}.jar"/>
+        <resource-root path="core-${org.restcomm.cluster.core.version}.jar"/>
+        <resource-root path="timers-${org.restcomm.cluster.timers.version}.jar"/>
         <resource-root path="jain-slee-11-ext-${org.mobicents.servers.jainslee.api.jain-slee-11-ext.version}.jar"/>
     </resources>
 

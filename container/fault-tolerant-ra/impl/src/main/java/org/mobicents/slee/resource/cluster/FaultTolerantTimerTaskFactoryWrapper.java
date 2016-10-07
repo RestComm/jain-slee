@@ -22,9 +22,9 @@
 
 package org.mobicents.slee.resource.cluster;
 
-import org.mobicents.timers.TimerTask;
-import org.mobicents.timers.TimerTaskData;
-import org.mobicents.timers.TimerTaskFactory;
+import org.restcomm.timers.TimerTask;
+import org.restcomm.timers.TimerTaskData;
+import org.restcomm.timers.TimerTaskFactory;
 
 /**
  * Wrapps the FT RA Timer task factory into the factory used by Mobicents
@@ -53,7 +53,7 @@ public class FaultTolerantTimerTaskFactoryWrapper implements TimerTaskFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.mobicents.timers.TimerTaskFactory#newTimerTask(org.mobicents.timers
+	 * org.restcomm.timers.TimerTaskFactory#newTimerTask(org.restcomm.timers
 	 * .TimerTaskData)
 	 */
 	@Override
