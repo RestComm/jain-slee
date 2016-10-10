@@ -22,6 +22,8 @@
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
+
+		<javassist.version>3.18.1-GA</javassist.version>
 	</properties>
 
 	<modules>
@@ -108,6 +110,7 @@
 				<slee.vendor>Telestax</slee.vendor>
 			</properties>			
 		</profile>
+		<!--
 		<profile>
 			<id>build-as72</id>
 			<activation>
@@ -123,6 +126,7 @@
 				<javassist.version>3.18.1-GA</javassist.version>
 			</properties>
 		</profile>
+		-->
 	</profiles>
 
 	<build>
