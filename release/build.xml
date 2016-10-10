@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<project name="restcomm.release" default="release-as72" basedir=".">
+
+	<property environment="sys" />
+
+	<property name="output.dir" value="${basedir}/target" />
+	<property name="release.dir" value="${output.dir}/binary" />
+	<property name="packages.dir" value="${basedir}/checkout" />
+	<property name="tmp.jboss.home" value="${output.dir}/tmp" />
+
+	<property name="release.version" value="3.0.0" />
+
+	<property name="jboss.version" value="7.2.0.Final" />
+	<property name="jboss.name" value="jboss-as" />
+	
+	<property name="jboss.distro.zip.path" value="${jboss.name}-${jboss.version}.zip" />
+	<property name="jboss.home.relative.path" value="${jboss.name}-${jboss.version}/" />
+	
+	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
+	
+	<property name="jboss.config" value="standalone" />
+	
+	<property name="core.version" value="as72" />
+	<property name="release.profile" value="restcomm" />
+	<property name="core.profiles" value="build-${core.version},deploy-module-${core.version},deploy-configuration-${core.version}" />
+
+	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${ant.file.restcomm.release}/../ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+
+	<condition property="mvn.executable" value="${sys.M2_HOME}\bin\mvn.bat">
+		<and>
+			<os family="windows" />
+			<isset property="sys.M2_HOME" />
+		</and>
+	</condition>
+
+	<condition property="mvn.executable" value="mvn.bat">
+		<and>
+			<os family="windows" />
+			<not>
+				<isset property="sys.M2_HOME" />
+			</not>
+		</and>
+	</condition>
+
+	<condition property="mvn.executable" value="${sys.M2_HOME}/bin/mvn">
+		<and>
+			<not>
+				<os family="windows" />
+			</not>
+			<isset property="sys.M2_HOME" />
+		</and>
+	</condition>
+
+	<condition property="mvn.executable" value="mvn">
+		<and>
+			<not>
+				<os family="windows" />
+			</not>
+			<not>
+				<isset property="sys.M2_HOME" />
+			</not>
+		</and>
+	</condition>
+
+	<target name="build-core" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Pset-git-hash,${core.profiles}" />
+		</exec>
+		<!--
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
+			<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/container -DdestDir=javadoc" />
+		</exec>
+		-->
+	</target>
+
+	<target name="release-as72" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-core">
+		<tstamp>
+			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
+		</tstamp>
+		<delete dir="." includes="${release.profile}-slee-${release.version}-${core.version}.zip" />
+		<antcall target="zip-jboss">
+			<param name="zip.filename" value="${release.profile}-slee-${release.version}-${core.version}.zip" />
+			<param name="jboss.home" value="${jboss.home}" />
+		</antcall>
+		<delete dir="${jboss.home}" failonerror="true" />
+		<antcall target="clean" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${output.dir}" />
+	</target>
+
+	<available file="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" property="got.jboss" />
+	<target name="get-jboss" unless="got.jboss">
+		<echo message="Downloading JBoss AS ${jboss.version}"/>
+		<get verbose="true" dest="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" src="https://app.box.com/shared/static/xaw5io4mj1dd7yzsoxlg.zip" />
+	</target>
+	<target name="get-wildfly" unless="got.jboss">
+		<echo message="Downloading WildFly ${wildfly.version}"/>
+		<get verbose="true" dest="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" src="http://download.jboss.org/wildfly/${jboss.version}/wildfly-${jboss.version}.zip" />
+	</target>
+
+	<target name="unzip-jboss">
+		<delete dir="${jboss.home}" failonerror="true" />
+		<unzip src="${jboss.distro.zip.path}" dest="${release.dir}" />
+	</target>
+	
+	<target name="checkout-sources">
+		<echo>Checking out sources</echo>
+		<delete dir="${packages.dir}" />
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../">
+			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} -Dcore.scmVersion=${jslee.version}" />
+			<!--<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} ${validate.versions}" />-->
+		</exec>
+	</target>
+
+	<target name="zip-jboss" description="">
+		<fixcrlf srcdir="${jboss.home}/bin" includes="*.sh" eol="lf" eof="remove" />
+		<zip destfile="${ant.file.restcomm.release}/../${zip.filename}" filesonly="false">
+			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${core.version}" filemode="755" includes="**/*.sh" />
+			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${core.version}" />
+		</zip>
+	</target>
+
+
+</project>
