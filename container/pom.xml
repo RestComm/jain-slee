@@ -19,7 +19,6 @@
 		<slee.codename>???</slee.codename>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.cluster.version>1.13.1.FINAL</mobicents.cluster.version>
-		<javassist.version>3.9.0.GA</javassist.version>
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
@@ -77,7 +76,7 @@
 				<version>${jain-slee-11-ext.version}</version>				
 			</dependency>
 			<dependency>
-				<groupId>javassist</groupId>
+				<groupId>org.javassist</groupId>
 				<artifactId>javassist</artifactId>
 				<version>${javassist.version}</version>
 			</dependency>
@@ -108,7 +107,22 @@
 				<slee.name>Telscale JAIN SLEE</slee.name>
 				<slee.vendor>Telestax</slee.vendor>
 			</properties>			
-		</profile>		
+		</profile>
+		<profile>
+			<id>build-module-as72</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<javassist.version>3.15.0-GA</javassist.version>
+			</properties>
+		</profile>
+		<profile>
+			<id>build-module-as10</id>
+			<properties>
+				<javassist.version>3.18.1-GA</javassist.version>
+			</properties>
+		</profile>
 	</profiles>
 
 	<build>

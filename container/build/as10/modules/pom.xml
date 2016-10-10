@@ -15,7 +15,6 @@
 		<module.path>org/telestax/slee/container/lib</module.path>
 
 		<javax.slee.jain-slee.version>${jain-slee.version}</javax.slee.jain-slee.version>
-		<javassist.javassist.version>${javassist.version}</javassist.javassist.version>
 		<jboss.jboss-serialization.version>${jboss-serialization.version}</jboss.jboss-serialization.version>
 		<trove.trove.version>${trove.version}</trove.trove.version>
 		<jgroups.jgroups.version>2.6.10.GA</jgroups.jgroups.version>
@@ -33,11 +32,6 @@
 		<dependency>
 			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>javassist</groupId>
-			<artifactId>javassist</artifactId>
 		</dependency>
 
 		<dependency>
