@@ -109,7 +109,7 @@
 			</properties>			
 		</profile>
 		<profile>
-			<id>build-module-as72</id>
+			<id>build-as72</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
@@ -118,7 +118,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>build-module-as10</id>
+			<id>build-as10</id>
 			<properties>
 				<javassist.version>3.18.1-GA</javassist.version>
 			</properties>
