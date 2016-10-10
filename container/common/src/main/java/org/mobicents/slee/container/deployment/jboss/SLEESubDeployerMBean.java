@@ -22,10 +22,8 @@
 
 package org.mobicents.slee.container.deployment.jboss;
 
-import java.net.URL;
-
-import javax.management.ObjectName;
 import javax.slee.management.DeploymentException;
+import java.net.URL;
 
 
 /**
@@ -47,12 +45,12 @@ public interface SLEESubDeployerMBean {
 
   long getWaitTimeBetweenOperations();
 
-  boolean accepts(URL deployableUnitURL) throws DeploymentException;
+  boolean accepts(URL deployableUnitURL, String deployableUnitName) throws DeploymentException;
 
-  void init(URL deployableUnitURL) throws DeploymentException;
+  void init(URL deployableUnitURL, String deployableUnitName) throws DeploymentException;
 
-  void start(URL deployableUnitURL) throws DeploymentException;
+  void start(URL deployableUnitURL, String deployableUnitName) throws DeploymentException;
 
-  void stop(URL deployableUnitURL) throws DeploymentException;
+  void stop(URL deployableUnitURL, String deployableUnitName) throws DeploymentException;
 
 }

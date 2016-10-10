@@ -99,6 +99,10 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		final String deployPath = System.getProperty(TEMP_DIR) + "/slee";
 
+		this.externalDeployer = new ExternalDeployerImpl();
+		final SleeContainerDeployerImpl internalDeployer = new SleeContainerDeployerImpl();
+		internalDeployer.setExternalDeployer(this.externalDeployer);
+
 		// inits the SLEE cache and cluster
 		final MobicentsCache cache = initCache();
 		final MobicentsCluster cluster = new DefaultMobicentsCluster(cache,
@@ -183,10 +187,6 @@ public class SleeContainerService implements Service<SleeContainer> {
 		congestionControlConfiguration.setRefuseFireEvent(false);
 		final CongestionControl congestionControl = new CongestionControlImpl(
 				congestionControlConfiguration);
-
-		this.externalDeployer = new ExternalDeployerImpl();
-		final SleeContainerDeployerImpl internalDeployer = new SleeContainerDeployerImpl();
-		internalDeployer.setExternalDeployer(this.externalDeployer);
 
 		// FIXME this needs further work on dependencies
 		// final PolicyMBeanImpl policyMBeanImpl = new PolicyMBeanImpl();

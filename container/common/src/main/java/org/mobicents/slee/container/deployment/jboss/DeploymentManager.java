@@ -274,7 +274,7 @@ public class DeploymentManager {
       // If it is ready for being uninstalled, follow the same procedure
       if (waitingDU.isReadyToUninstall()) {
         // Schedule removal
-        sleeContainerDeployer.getSleeSubDeployer().stop(waitingDU.getURL());
+        sleeContainerDeployer.getSleeSubDeployer().stop(waitingDU.getURL(), waitingDU.getDeploymentInfoShortName());
 
         // Remove the DU from the waiting list. If it fails, will go back.
         waitingForUninstallDUs.remove(waitingDU);
