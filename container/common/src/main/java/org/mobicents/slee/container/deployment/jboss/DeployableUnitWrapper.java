@@ -22,11 +22,11 @@
 
 package org.mobicents.slee.container.deployment.jboss;
 
+import org.jboss.logging.Logger;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import org.jboss.logging.Logger;
 
 /**
  * 
@@ -44,9 +44,14 @@ public class DeployableUnitWrapper {
 
   private String fullPath;
 
-  public DeployableUnitWrapper(URL url) {
+  public DeployableUnitWrapper(URL url, String name) {
     try {
       gatherInfoFromURL(url);
+
+      // Only for WildFly
+      if (this.fileName.contentEquals("content")) {
+        this.fileName = name;
+      }
     }
     catch (MalformedURLException e) {
       logger.error(e.getLocalizedMessage(), e);

@@ -101,8 +101,9 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 	}
 
 	private void callSubDeployer(URL deployableUnitURL, DeploymentUnitRecord record) throws Exception {
-		internalDeployer.accepts(deployableUnitURL);
-		internalDeployer.init(deployableUnitURL);
+		String deployableUnitName = record.deploymentUnit != null ? record.deploymentUnit.getName() : "";
+		internalDeployer.accepts(deployableUnitURL, deployableUnitName);
+		internalDeployer.init(deployableUnitURL, deployableUnitName);
 
 		VirtualFile duFile = null;
 		if (record.deploymentUnit != null) {
@@ -132,33 +133,34 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 			}
 
 			try {
-				internalDeployer.accepts(componentURL);
-				internalDeployer.init(componentURL);
-				internalDeployer.start(componentURL);
+				internalDeployer.accepts(componentURL, "");
+				internalDeployer.init(componentURL, "");
+				internalDeployer.start(componentURL, "");
 			} finally {
 				if (closeable != null) {
 					closeable.close();
 				}
 			}
 		}
-		internalDeployer.start(deployableUnitURL);
+		internalDeployer.start(deployableUnitURL, deployableUnitName);
 	}
 
-	public void undeploy(DeploymentUnit du, URL deployableUnitURL, SleeDeploymentMetaData sdmd) {
+	public void undeploy(DeploymentUnit deploymentUnit, URL deployableUnitURL, SleeDeploymentMetaData deploymentMetaData) {
 		if (log.isTraceEnabled()) {
 			log.trace("ExternalDeployerImpl 'undeploy' called:");
-			log.trace("DeploymentUnit..........." + du);
-			log.trace("SleeDeploymentMetaData..." + sdmd);
+			log.trace("DeploymentUnit..........." + deploymentUnit);
+			log.trace("SleeDeploymentMetaData..." + deploymentMetaData);
 		}
 		
 		if (deployableUnitURL != null) {
 			records.remove(deployableUnitURL);
 			if (internalDeployer != null) {
+				String deployableUnitName = deploymentUnit != null ? deploymentUnit.getName() : "";
 				try {
-					internalDeployer.stop(deployableUnitURL);
+					internalDeployer.stop(deployableUnitURL, deployableUnitName);
 				} catch (Exception e) {
 					log.error(
-						"Failure while undeploying " + du.getName(), e);
+						"Failure while undeploying " + deployableUnitName, e);
 				}
 			}
 		}

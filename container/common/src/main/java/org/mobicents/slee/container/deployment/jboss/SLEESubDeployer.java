@@ -22,20 +22,19 @@
 
 package org.mobicents.slee.container.deployment.jboss;
 
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.component.du.DeployableUnitDescriptor;
+import org.mobicents.slee.container.component.du.DeployableUnitDescriptorFactory;
+
+import javax.slee.InvalidStateException;
+import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import javax.slee.InvalidStateException;
-import javax.slee.management.DependencyException;
-import javax.slee.management.DeploymentException;
-
-import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.du.DeployableUnitDescriptor;
-import org.mobicents.slee.container.component.du.DeployableUnitDescriptorFactory;
 
 /**
  * This is the Deployer main class where the AS will invoke the lifecycle
@@ -76,13 +75,13 @@ public class SLEESubDeployer implements
 	/**
 	 * Method for deciding whether or not to accept the file.
 	 */
-	public boolean accepts(URL deployableUnitURL) {
-		DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL);
+	public boolean accepts(URL deployableUnitURL, String deployableUnitName) {
+		DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL, deployableUnitName);
 
 		URL url = du.getUrl();
 
 		if (logger.isTraceEnabled()) {
-			logger.trace("Method accepts called for " + url);
+			logger.trace("Method accepts called for " + url + " [DU: " + deployableUnitName + "]");
 		}
 
 		try {
@@ -136,12 +135,12 @@ public class SLEESubDeployer implements
 	 * Initializer method for accepted files. Will parse descriptors at this
 	 * point.
 	 */
-	public void init(URL deployableUnitURL) throws DeploymentException {
+	public void init(URL deployableUnitURL, String deployableUnitName) throws DeploymentException {
 		URL url = deployableUnitURL;
-		DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL);
+		DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL, deployableUnitName);
 
 		if (logger.isTraceEnabled()) {
-			logger.trace("Method init called for " + deployableUnitURL);
+			logger.trace("Method init called for " + deployableUnitURL + " [DU: " + deployableUnitName + "]");
 		}
 
 		// Get the full path and filename for this du
@@ -260,11 +259,11 @@ public class SLEESubDeployer implements
 	/**
 	 * This is where the fun begins. Time to deploy!
 	 */
-	public void start(URL deployableUnitURL) throws DeploymentException {
-		DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL);
+	public void start(URL deployableUnitURL, String deployableUnitName) throws DeploymentException {
+		DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL, deployableUnitName);
 
 		if (logger.isTraceEnabled()) {
-			logger.trace("Method start called for " + du.getUrl());
+			logger.trace("Method start called for " + du.getUrl() + " [DU: " + deployableUnitName + "]");
 		}
 
 		try {
@@ -286,13 +285,13 @@ public class SLEESubDeployer implements
 	/**
 	 * Fun has ended. Time to undeploy.
 	 */
-	public void stop(URL deployableUnitURL) throws DeploymentException {
+	public void stop(URL deployableUnitURL, String deployableUnitName) throws DeploymentException {
 		
 		if (logger.isTraceEnabled()) {
 			logger.trace("stop( deployableUnitURL = : " + deployableUnitURL+" )");
 		}
 		
-		DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL);
+		DeployableUnitWrapper du = new DeployableUnitWrapper(deployableUnitURL, deployableUnitName);
 
 		DeployableUnit realDU = null;
 

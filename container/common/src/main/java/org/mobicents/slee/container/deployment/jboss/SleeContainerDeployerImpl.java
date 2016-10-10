@@ -22,6 +22,19 @@
 
 package org.mobicents.slee.container.deployment.jboss;
 
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.deployment.ExternalDeployer;
+import org.mobicents.slee.container.deployment.InternalDeployer;
+import org.mobicents.slee.container.deployment.SleeContainerDeployer;
+import org.mobicents.slee.util.concurrent.SleeThreadFactory;
+import org.xml.sax.SAXException;
+
+import javax.slee.management.DeployableUnitID;
+import javax.slee.management.DeploymentException;
+import javax.slee.management.DeploymentMBean;
+import javax.slee.management.ManagementException;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,21 +44,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.slee.management.DeployableUnitID;
-import javax.slee.management.DeploymentException;
-import javax.slee.management.DeploymentMBean;
-import javax.slee.management.ManagementException;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.log4j.Logger;
-import org.mobicents.slee.container.AbstractSleeContainerModule;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.deployment.ExternalDeployer;
-import org.mobicents.slee.container.deployment.InternalDeployer;
-import org.mobicents.slee.container.deployment.SleeContainerDeployer;
-import org.mobicents.slee.util.concurrent.SleeThreadFactory;
-import org.xml.sax.SAXException;
 
 /**
  * The SLEE module responsible for persistent deployments. It complements the
@@ -235,8 +233,8 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.deployment.InternalDeployer#accepts(java
 	 * .net.URL)
 	 */
-	public boolean accepts(URL deployableUnitURL) {
-		return sleeSubDeployer.accepts(deployableUnitURL);
+	public boolean accepts(URL deployableUnitURL, String deployableUnitName) {
+		return sleeSubDeployer.accepts(deployableUnitURL, deployableUnitName);
 	}
 
 	/*
@@ -246,10 +244,10 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.deployment.InternalDeployer#init(java.net
 	 * .URL)
 	 */
-	public void init(URL deployableUnitURL) throws DeploymentException {
+	public void init(URL deployableUnitURL, String deployableUnitName) throws DeploymentException {
 		synchronized (this) {
 			if (!shutdown) {
-				sleeSubDeployer.init(deployableUnitURL);
+				sleeSubDeployer.init(deployableUnitURL, deployableUnitName);
 			}
 		}
 	}
@@ -261,10 +259,10 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.deployment.InternalDeployer#start(java.net
 	 * .URL)
 	 */
-	public void start(URL deployableUnitURL) throws DeploymentException {
+	public void start(URL deployableUnitURL, String deployableUnitName) throws DeploymentException {
 		synchronized (this) {
 			if (!shutdown) {
-				sleeSubDeployer.start(deployableUnitURL);
+				sleeSubDeployer.start(deployableUnitURL, deployableUnitName);
 			}
 			else {
 				if (LOGGER.isDebugEnabled())
@@ -280,10 +278,10 @@ public class SleeContainerDeployerImpl extends AbstractSleeContainerModule
 	 * org.mobicents.slee.container.deployment.InternalDeployer#stop(java.net
 	 * .URL)
 	 */
-	public void stop(URL deployableUnitURL) throws DeploymentException {
+	public void stop(URL deployableUnitURL, String deployableUnitName) throws DeploymentException {
 		synchronized (this) {
 			if (!shutdown) {
-				sleeSubDeployer.stop(deployableUnitURL);
+				sleeSubDeployer.stop(deployableUnitURL, deployableUnitName);
 			}
 			else {
 				if (LOGGER.isDebugEnabled())
