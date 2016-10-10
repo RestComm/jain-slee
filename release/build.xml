@@ -8,21 +8,18 @@
 	<property name="packages.dir" value="${basedir}/checkout" />
 	<property name="tmp.jboss.home" value="${output.dir}/tmp" />
 
+	<property name="release.profile" value="restcomm" />
 	<property name="release.version" value="3.0.0" />
-
+	<property name="core.version" value="as72" />
+	<property name="core.profiles" value="build-${core.version},deploy-module-${core.version},deploy-configuration-${core.version}" />
+	
 	<property name="jboss.version" value="7.2.0.Final" />
 	<property name="jboss.name" value="jboss-as" />
 	
 	<property name="jboss.distro.zip.path" value="${jboss.name}-${jboss.version}.zip" />
 	<property name="jboss.home.relative.path" value="${jboss.name}-${jboss.version}/" />
-	
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
-	
 	<property name="jboss.config" value="standalone" />
-	
-	<property name="core.version" value="as72" />
-	<property name="release.profile" value="restcomm" />
-	<property name="core.profiles" value="build-${core.version},deploy-module-${core.version},deploy-configuration-${core.version}" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -89,6 +86,19 @@
 		<delete dir="${jboss.home}" failonerror="true" />
 		<antcall target="clean" />
 	</target>
+	
+	<target name="release-as10" depends="clean,get-wildfly,unzip-jboss,checkout-sources,build-core">
+		<tstamp>
+			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
+		</tstamp>
+		<delete dir="." includes="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}}.zip" />
+		<antcall target="zip-jboss">
+			<param name="zip.filename" value="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}}.zip" />
+			<param name="jboss.home" value="${jboss.home}" />
+		</antcall>
+		<delete dir="${jboss.home}" failonerror="true" />
+		<antcall target="clean" />
+	</target>
 
 	<target name="clean">
 		<delete dir="${output.dir}" />
@@ -121,8 +131,8 @@
 	<target name="zip-jboss" description="">
 		<fixcrlf srcdir="${jboss.home}/bin" includes="*.sh" eol="lf" eof="remove" />
 		<zip destfile="${ant.file.restcomm.release}/../${zip.filename}" filesonly="false">
-			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${core.version}" filemode="755" includes="**/*.sh" />
-			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${core.version}" />
+			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}" filemode="755" includes="**/*.sh" />
+			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}" />
 		</zip>
 	</target>
 
