@@ -628,8 +628,12 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			properties.setProperty(
 					"hibernate.jndi.java.naming.factory.url.pkgs",
 					"org.jboss.naming:org.jnp.interfaces");
+
+			// TODO:
 			properties.setProperty(Environment.CACHE_PROVIDER,
 					"org.hibernate.cache.HashtableCacheProvider");
+
+			// SEE: https://developer.jboss.org/thread/172307
 			properties.setProperty(Environment.TRANSACTION_MANAGER_STRATEGY,
 					"org.hibernate.transaction.JBossTransactionManagerLookup");
 			properties.setProperty(
