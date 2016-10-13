@@ -10,16 +10,8 @@
 
 	<property name="release.profile" value="restcomm" />
 	<property name="release.version" value="3.0.0" />
-	<property name="core.version" value="as72" />
-	<property name="core.profiles" value="build-${core.version},deploy-module-${core.version},deploy-configuration-${core.version}" />
-	
-	<property name="jboss.version" value="7.2.0.Final" />
-	<property name="jboss.name" value="jboss-as" />
 	<property name="jslee.version" value="3.0.0" />
-	
-	<property name="jboss.distro.zip.path" value="${jboss.name}-${jboss.version}.zip" />
-	<property name="jboss.home.relative.path" value="${jboss.name}-${jboss.version}/" />
-	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
+
 	<property name="jboss.config" value="standalone" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
@@ -65,6 +57,7 @@
 	</condition>
 
 	<target name="build-core" description="">
+		<property name="core.profiles" value="build-${core.version},deploy-module-${core.version},deploy-configuration-${core.version}" />
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
 			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Pset-git-hash,${core.profiles}" />
 		</exec>
@@ -75,7 +68,26 @@
 		-->
 	</target>
 
-	<target name="release-as72" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-core">
+	<target name="as72prop">
+		<property name="core.version" value="as72" />
+		<property name="jboss.version" value="7.2.0.Final" />
+		<property name="jboss.name" value="jboss-as" />
+	</target>
+
+	<target name="as10prop">
+		<property name="core.version" value="as10" />
+		<property name="jboss.version" value="10.0.0.Final" />
+		<property name="jboss.name" value="wildfly" />
+	</target>
+
+	<target name="common">
+		<property name="jboss.distro.zip.path" value="${jboss.name}-${jboss.version}.zip" />
+		<property name="jboss.home.relative.path" value="${jboss.name}-${jboss.version}/" />
+		<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
+		<available file="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" property="got.jboss" />
+	</target>
+
+	<target name="release-as72" depends="as72prop,common,clean,get-jboss,unzip-jboss,checkout-sources,build-core">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
@@ -87,8 +99,8 @@
 		<delete dir="${jboss.home}" failonerror="true" />
 		<antcall target="clean" />
 	</target>
-	
-	<target name="release-as10" depends="clean,get-wildfly,unzip-jboss,checkout-sources,build-core">
+
+	<target name="release-as10" depends="as10prop,common,clean,get-wildfly,unzip-jboss,checkout-sources,build-core">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
@@ -105,8 +117,10 @@
 		<delete dir="${output.dir}" />
 	</target>
 
-	<available file="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" property="got.jboss" />
+
 	<target name="get-jboss" unless="got.jboss">
+		<property name="jboss.version" value="7.2.0.Final" />
+		<property name="jboss.name" value="jboss-as" />
 		<echo message="Downloading JBoss AS ${jboss.version}"/>
 		<get verbose="true" dest="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" src="https://app.box.com/shared/static/xaw5io4mj1dd7yzsoxlg.zip" />
 	</target>
