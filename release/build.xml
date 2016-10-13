@@ -15,6 +15,7 @@
 	
 	<property name="jboss.version" value="7.2.0.Final" />
 	<property name="jboss.name" value="jboss-as" />
+	<property name="jslee.version" value="3.0.0" />
 	
 	<property name="jboss.distro.zip.path" value="${jboss.name}-${jboss.version}.zip" />
 	<property name="jboss.home.relative.path" value="${jboss.name}-${jboss.version}/" />
@@ -80,7 +81,7 @@
 		</tstamp>
 		<delete dir="." includes="${release.profile}-slee-${release.version}-${core.version}.zip" />
 		<antcall target="zip-jboss">
-			<param name="zip.filename" value="${release.profile}-slee-${release.version}-${core.version}.zip" />
+			<param name="zip.filename" value="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}.zip" />
 			<param name="jboss.home" value="${jboss.home}" />
 		</antcall>
 		<delete dir="${jboss.home}" failonerror="true" />
@@ -93,7 +94,7 @@
 		</tstamp>
 		<delete dir="." includes="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}}.zip" />
 		<antcall target="zip-jboss">
-			<param name="zip.filename" value="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}}.zip" />
+			<param name="zip.filename" value="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}.zip" />
 			<param name="jboss.home" value="${jboss.home}" />
 		</antcall>
 		<delete dir="${jboss.home}" failonerror="true" />
@@ -110,7 +111,7 @@
 		<get verbose="true" dest="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" src="https://app.box.com/shared/static/xaw5io4mj1dd7yzsoxlg.zip" />
 	</target>
 	<target name="get-wildfly" unless="got.jboss">
-		<echo message="Downloading WildFly ${wildfly.version}"/>
+		<echo message="Downloading WildFly ${jboss.version}"/>
 		<get verbose="true" dest="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" src="http://download.jboss.org/wildfly/${jboss.version}/wildfly-${jboss.version}.zip" />
 	</target>
 
