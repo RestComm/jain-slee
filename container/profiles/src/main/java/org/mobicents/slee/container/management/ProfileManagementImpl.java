@@ -22,22 +22,6 @@
 
 package org.mobicents.slee.container.management;
 
-import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingException;
-import javax.slee.SLEEException;
-import javax.slee.management.DeploymentException;
-import javax.slee.profile.ProfileFacility;
-import javax.slee.profile.ProfileSpecificationID;
-import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
-import javax.slee.profile.ProfileTableAlreadyExistsException;
-import javax.slee.profile.UnrecognizedProfileSpecificationException;
-import javax.slee.profile.UnrecognizedProfileTableNameException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.activity.ActivityContext;
@@ -54,10 +38,19 @@ import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.container.profile.entity.ProfileEntityFramework;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.mobicents.slee.container.util.JndiRegistrationManager;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileFacilityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingException;
+import javax.slee.SLEEException;
+import javax.slee.management.DeploymentException;
+import javax.slee.profile.*;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -103,12 +96,12 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 		this.objectPoolManagement = new ProfileObjectPoolManagement(sleeContainer);
 		this.objectPoolManagement.register();
 		this.profileTableActivityContextInterfaceFactory = new ProfileTableActivityContextInterfaceFactoryImpl(sleeContainer,this);
-		JndiRegistrationManager.registerWithJndi("slee/facilities",
-				ProfileTableActivityContextInterfaceFactoryImpl.JNDI_NAME,
-				profileTableActivityContextInterfaceFactory);
+		//JndiRegistrationManager.registerWithJndi("slee/facilities",
+		//		ProfileTableActivityContextInterfaceFactoryImpl.JNDI_NAME,
+		//		profileTableActivityContextInterfaceFactory);
 		this.profileFacility = new ProfileFacilityImpl(this);		
-		JndiRegistrationManager.registerWithJndi("slee/facilities", ProfileFacilityImpl.JNDI_NAME,
-				profileFacility);
+		//JndiRegistrationManager.registerWithJndi("slee/facilities", ProfileFacilityImpl.JNDI_NAME,
+		//		profileFacility);
 		// FIXME if it is a framework then it should be passed as arg in the beans xml, and if possible be independent of slee 
 		this.profileTableFramework = new JPAProfileTableFramework(this, sleeContainer.getTransactionManager(), configuration);		
 	}
@@ -150,7 +143,7 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 			ProfileEntityFramework profileEntityFramework = new JPAProfileEntityFramework(component,configuration,sleeContainer.getTransactionManager());
 			profileEntityFramework.install();
 			sleeProfileClassCodeGenerator.process(component);
-			profileTableFramework.loadProfileTables(component);			
+			profileTableFramework.loadProfileTables(component);
 		} catch (DeploymentException de) {
 			throw de;
 		} catch (Throwable t) {

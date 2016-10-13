@@ -22,32 +22,6 @@
 
 package org.mobicents.slee.container.deployment.profile.jpa;
 
-import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.naming.InitialContext;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
-import javax.slee.InvalidArgumentException;
-import javax.slee.SLEEException;
-import javax.slee.profile.AttributeTypeMismatchException;
-import javax.slee.profile.UnrecognizedAttributeException;
-import javax.slee.profile.UnrecognizedQueryNameException;
-import javax.slee.profile.query.QueryExpression;
-import javax.transaction.Transaction;
-
 import org.apache.log4j.Logger;
 import org.hibernate.cfg.Environment;
 import org.hibernate.ejb.HibernatePersistence;
@@ -62,6 +36,24 @@ import org.mobicents.slee.container.profile.entity.ProfileEntityFramework;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+
+import javax.naming.InitialContext;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
+import javax.slee.InvalidArgumentException;
+import javax.slee.SLEEException;
+import javax.slee.profile.AttributeTypeMismatchException;
+import javax.slee.profile.UnrecognizedAttributeException;
+import javax.slee.profile.UnrecognizedQueryNameException;
+import javax.slee.profile.query.QueryExpression;
+import javax.transaction.Transaction;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.util.*;
 
 /**
  * 
