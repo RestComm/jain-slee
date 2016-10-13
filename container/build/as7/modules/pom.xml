@@ -59,6 +59,14 @@
 			<artifactId>jbosscache-core</artifactId>
 		</dependency>
 
+		<!--
+		<dependency>
+			<groupId>org.jboss.jpa</groupId>
+			<artifactId>jboss-jpa-deployers</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		-->
+
 		<dependency>
 			<groupId>org.mobicents.cluster</groupId>
 			<artifactId>cache</artifactId>
@@ -135,6 +143,12 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>jmx-property-editors</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>profiles</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

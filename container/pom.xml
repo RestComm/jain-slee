@@ -33,6 +33,7 @@
 		<module>usage</module>
 		<module>activities</module>
 		<module>events</module>
+		<module>profiles</module>
 		<module>router</module>
 		<module>transaction</module>
 		<module>components</module>
