@@ -23,6 +23,7 @@
 package org.mobicents.slee.container.management;
 
 import org.apache.log4j.Logger;
+import org.jboss.as.naming.context.NamespaceContextSelector;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -33,6 +34,7 @@ import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGener
 import org.mobicents.slee.container.deployment.profile.jpa.Configuration;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileEntityFramework;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileTableFramework;
+import org.mobicents.slee.container.jndi.JndiManagement;
 import org.mobicents.slee.container.profile.ProfileObjectPoolManagement;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.container.profile.entity.ProfileEntityFramework;
@@ -88,7 +90,6 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 	public ProfileManagementImpl(Configuration configuration) {
 		this.profileTablesLocalObjects = new ConcurrentHashMap<String, ProfileTableImpl>();
 		this.configuration = configuration;
-		
 	}
 
 	@Override
@@ -103,7 +104,7 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 		//JndiRegistrationManager.registerWithJndi("slee/facilities", ProfileFacilityImpl.JNDI_NAME,
 		//		profileFacility);
 		// FIXME if it is a framework then it should be passed as arg in the beans xml, and if possible be independent of slee 
-		this.profileTableFramework = new JPAProfileTableFramework(this, sleeContainer.getTransactionManager(), configuration);		
+		this.profileTableFramework = new JPAProfileTableFramework(this, sleeContainer.getTransactionManager(), configuration);
 	}
 	
 	/**
@@ -138,7 +139,16 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 		}
 
 		try {
-			this.createJndiSpace(component);
+			JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+			logger.debug("JndiManagement: "+jndiManagement+" for ProfileSpecificationComponent: "+component);
+			jndiManagement.componentInstall(component);
+			jndiManagement.pushJndiContext(component);
+			try {
+				this.createJndiSpace(component);
+			} finally {
+				jndiManagement.popJndiContext();
+			}
+
 			// FIXME: we wont use trace and alarm in 1.0 way wont we?
 			ProfileEntityFramework profileEntityFramework = new JPAProfileEntityFramework(component,configuration,sleeContainer.getTransactionManager());
 			profileEntityFramework.install();
@@ -178,7 +188,7 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 	 * @throws Exception
 	 */
 	private void createJndiSpace(ProfileSpecificationComponent component) throws Exception {
-		Context ctx = (Context) new InitialContext().lookup("java:comp");
+		Context ctx = NamespaceContextSelector.getCurrentSelector().getContext("comp");
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Setting up Profile Spec env. Initial context is " + ctx);
