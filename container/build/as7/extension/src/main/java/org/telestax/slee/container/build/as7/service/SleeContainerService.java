@@ -55,6 +55,7 @@ import org.telestax.slee.container.build.as7.deployment.SleeDeploymentMetaData;
 import org.telestax.slee.container.build.as7.naming.JndiManagementImpl;
 
 import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.slee.management.*;
 import javax.transaction.TransactionManager;
@@ -103,6 +104,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final SleeContainerDeployerImpl internalDeployer = new SleeContainerDeployerImpl();
 		internalDeployer.setExternalDeployer(this.externalDeployer);
 
+		log.debug("TransactionManager: "+getTransactionManager().getValue());
+
 		// inits the SLEE cache and cluster
 		final MobicentsCache cache = initCache();
 		final MobicentsCluster cluster = new DefaultMobicentsCluster(cache,
@@ -111,6 +114,9 @@ public class SleeContainerService implements Service<SleeContainer> {
 		// init the tx manager
 		final SleeTransactionManager sleeTransactionManager = new SleeTransactionManagerImpl(
 				getTransactionManager().getValue());
+		log.debug("SLEE TransactionManager: "+sleeTransactionManager);
+
+		log.debug("TransactionManager Class: "+sleeTransactionManager.getRealTransactionManager().getClass().getName());
 
 		final TraceMBeanImpl traceMBean = new TraceMBeanImpl();
 		
@@ -125,11 +131,19 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		final ServiceManagementImpl serviceManagement = new ServiceManagementImpl();
 
-		final ResourceManagementImpl resourceManagement = ResourceManagementImpl
-				.getInstance();
+		final ResourceManagementImpl resourceManagement = ResourceManagementImpl.getInstance();
 
 		// TODO profile management and its config
-		final ProfileManagement profileManagement = null;
+		final org.mobicents.slee.container.deployment.
+				profile.jpa.Configuration profileConfiguration = new org.mobicents.slee.container.deployment.
+				profile.jpa.Configuration();
+
+		profileConfiguration.setPersistProfiles(true);
+		profileConfiguration.setClusteredProfiles(false);
+		profileConfiguration.setHibernateDatasource("java:jboss/datasources/ExampleDS");
+		profileConfiguration.setHibernateDialect("org.hibernate.dialect.H2Dialect");
+		final ProfileManagement profileManagement = new ProfileManagementImpl(profileConfiguration);
+		//log.debug("SLEE profileManagement: "+profileManagement);
 
 		final EventRouterConfiguration eventRouterConfiguration = new EventRouterConfiguration();
 		eventRouterConfiguration.setEventRouterThreads(8);
@@ -221,8 +235,15 @@ public class SleeContainerService implements Service<SleeContainer> {
 		registerMBean(congestionControlConfiguration, CongestionControlConfigurationMBean.OBJECT_NAME);
 		registerMBean(new DeploymentManagerMBeanImpl(internalDeployer), DeploymentManagerMBeanImplMBean.OBJECT_NAME);
 		registerMBean(new DeploymentMBeanImpl(internalDeployer), DeploymentMBean.OBJECT_NAME);		
-		registerMBean(new ServiceManagementMBeanImpl(serviceManagement), ServiceManagementMBean.OBJECT_NAME);		
+		registerMBean(new ServiceManagementMBeanImpl(serviceManagement), ServiceManagementMBean.OBJECT_NAME);
+
 		// TODO ProfileProvisioningMBeanImpl
+		try {
+			registerMBean(new ProfileProvisioningMBeanImpl(sleeContainer), ProfileProvisioningMBeanImpl.OBJECT_NAME);
+		} catch (NotCompliantMBeanException e) {
+			e.printStackTrace();
+		}
+
 		registerMBean(new ResourceManagementMBeanImpl(resourceManagement), ResourceManagementMBean.OBJECT_NAME);
 		registerMBean(new SbbEntitiesMBeanImpl(sbbEntityFactory), SbbEntitiesMBeanImplMBean.OBJECT_NAME);
 		registerMBean(new ActivityManagementMBeanImpl(sleeContainer), ActivityManagementMBeanImplMBean.OBJECT_NAME);
