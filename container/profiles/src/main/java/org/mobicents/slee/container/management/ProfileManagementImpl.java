@@ -45,7 +45,6 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileFacilityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
 
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingException;
 import javax.slee.SLEEException;
@@ -216,6 +215,24 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 		} catch (NameAlreadyBoundException ex) {
 			facilitiesCtx = (Context) sleeCtx.lookup("facilities");
 		}
+
+		try
+		{
+			facilitiesCtx.bind(ProfileTableActivityContextInterfaceFactoryImpl.JNDI_NAME,
+					this.profileTableActivityContextInterfaceFactory);
+		}
+		catch (NamingException e) {
+			// ignore.
+		}
+
+		try
+		{
+			facilitiesCtx.bind(ProfileFacilityImpl.JNDI_NAME,
+					this.profileFacility);
+		}
+		catch (NamingException e) {
+			// ignore.
+		}
 		
 		ProfileAlarmFacilityImpl alarmFacility = new ProfileAlarmFacilityImpl(this.sleeContainer.getAlarmManagement());		
 		// FIXME: Alexandre: This should be AlarmFacility.JNDI_NAME. Any problem if already bound?
@@ -225,8 +242,8 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 		  component.setAlarmFacility(alarmFacility);
 		}
 		catch (NamingException e) {
-      // ignore.
-    }
+		  // ignore.
+		}
 		
 		
 		for (EnvEntryDescriptor mEnvEntry : component.getDescriptor().getEnvEntries()) {
