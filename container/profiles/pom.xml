@@ -15,7 +15,6 @@
 			<artifactId>usage</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
@@ -26,12 +25,11 @@
 			<artifactId>hibernate-entitymanager</artifactId>
 			<version>4.2.0.CR1</version>
 		</dependency>
-
 		<dependency>
-			<groupId>org.jboss.jpa</groupId>
-			<artifactId>jboss-jpa-deployers</artifactId>
-			<version>1.0.0</version>
+			<groupId>org.jboss.as</groupId>
+			<artifactId>jboss-as-jpa</artifactId>
+			<version>7.2.0.Final</version>
 		</dependency>
 	</dependencies>
-	
+
 </project>

@@ -25,8 +25,8 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 import org.apache.log4j.Logger;
 import org.hibernate.cfg.Environment;
 import org.hibernate.ejb.HibernatePersistence;
-import org.jboss.jpa.deployment.PersistenceUnitInfoImpl;
-import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
+import org.jboss.as.jpa.config.PersistenceUnitMetadataImpl;
+import org.jboss.as.jpa.spi.PersistenceUnitMetadata;
 import org.mobicents.slee.container.component.profile.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.ProfileManagementImpl;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
@@ -36,11 +36,12 @@ import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
+import javax.persistence.ValidationMode;
+import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.slee.SLEEException;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTableAlreadyExistsException;
 import javax.transaction.Transaction;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -67,62 +68,97 @@ public class JPAProfileTableFramework {
     private void createPersistenceUnit() {
         try {
             HibernatePersistence hp = new HibernatePersistence();
-            PersistenceUnitMetaData pumd = new PersistenceUnitMetaData();
+            PersistenceUnitMetadata pumd = new PersistenceUnitMetadataImpl();
+            pumd.setTransactionType(PersistenceUnitTransactionType.JTA);
+            pumd.setValidationMode(ValidationMode.NONE);
 
-            pumd.setProvider("org.hibernate.ejb.HibernatePersistence");
-            pumd.setJtaDataSource(configuration.getHibernateDatasource());
+            pumd.setPersistenceProviderClassName(HibernatePersistence.class.getName());
+            pumd.setJtaDataSourceName(configuration.getHibernateDatasource());
             pumd.setExcludeUnlistedClasses(false);
 
             boolean persistProfiles = configuration.isPersistProfiles();
 
-            Map pumdProps = new HashMap();
-            pumdProps.put(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
-            pumdProps.put(Environment.DIALECT, configuration.getHibernateDialect());
-            pumd.setProperties(pumdProps);
-            pumd.setName("mobicents-profile-persistence-pu");
-
-            Set classes = new HashSet<String>();
-            classes.add(JPAProfileTable.class.getName());
-
-            pumd.setClasses(classes);
-
             Properties properties = new Properties();
-            properties.setProperty(Environment.DATASOURCE, configuration.getHibernateDatasource());
 
-            properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.ejb.transaction.JoinableCMTTransactionFactory");
-            properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider");
-            properties.setProperty("hibernate.jndi.java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
+            // Remote invocations via JNDI?
+            // https://docs.jboss.org/author/display/AS71/Remote+EJB+invocations+via+JNDI+-+EJB+client+API+or+remote-naming+project
+            //properties.setProperty("hibernate.jndi.java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
+            //properties.setProperty(Environment.JNDI_PREFIX+"."+ Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
 
-			// TODO:
-            //properties.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
+            properties.setProperty(Environment.JNDI_CLASS, "org.jboss.as.naming.InitialContextFactory");
+            //properties.setProperty("hibernate.jndi.java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
+            //properties.setProperty(Environment.JNDI_PREFIX+"."+Context.INITIAL_CONTEXT_FACTORY, "org.jboss.as.naming.InitialContextFactory");
+
+            properties.setProperty(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
+            properties.setProperty(Environment.DIALECT, configuration.getHibernateDialect());
+            pumd.setPersistenceUnitName("mobicents-profile-persistence-pu");
+
+            List<String> classes = new ArrayList<String>();
+            classes.add(JPAProfileTable.class.getName());
+            pumd.setManagedClassNames(classes);
+
+            properties.setProperty(Environment.DATASOURCE, pumd.getJtaDataSourceName());
+
+            if(pumd.getJtaDataSourceName() != null) {
+                pumd.setJtaDataSource((javax.sql.DataSource) new InitialContext().lookup(pumd.getJtaDataSourceName()));
+            }
+            else if (pumd.getTransactionType() == PersistenceUnitTransactionType.JTA) {
+                throw new RuntimeException("Specification violation [EJB3 JPA 6.2.1.2] - "
+                        + "You have not defined a jta-data-source for a JTA enabled persistence context named: "
+                        + pumd.getPersistenceUnitName());
+            }
+
+            //properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JTATransactionFactory");
+            properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.CMTTransactionFactory");
+            //properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.engine.transaction.internal.jta.CMTTransactionFactory");
 
             // SEE: https://developer.jboss.org/thread/172307
             //properties.setProperty(Environment.TRANSACTION_MANAGER_STRATEGY, "org.hibernate.transaction.JBossTransactionManagerLookup");
 
-            properties.setProperty("hibernate.jndi.java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
+            //properties.setProperty(Environment.JTA_PLATFORM, "org.hibernate.service.jta.platform.spi.JtaPlatform");
+            //properties.setProperty(Environment.JTA_PLATFORM, "org.hibernate.service.jta.platform.internal.JBossStandAloneJtaPlatform");
+            properties.setProperty(Environment.JTA_PLATFORM, "org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform");
+
+
+            properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider");
+
+            // TODO:
+            //properties.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
+
             properties.setProperty(Environment.DIALECT, configuration.getHibernateDialect());
             // FIXME: Should be Environment.JACC_CONTEXTID but it's
             // hibernate.jacc_context_id vs hibernate.jacc.ctx.id. Bug?
             properties.setProperty("hibernate.jacc.ctx.id", "persistence.xml");
-            properties.setProperty(Environment.CACHE_REGION_PREFIX, "persistence.unit:unitName=#" + pumd.getName());
-            properties.setProperty(Environment.SESSION_FACTORY_NAME, "persistence.unit:unitName=#" + pumd.getName());
-            properties.setProperty(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
+            properties.setProperty(Environment.CACHE_REGION_PREFIX, "persistence.unit:unitName=#" + pumd.getPersistenceUnitName());
+
+            properties.setProperty(Environment.SESSION_FACTORY_NAME, "persistence.unit:unitName=#" + pumd.getPersistenceUnitName());
+            //properties.setProperty(Environment.SESSION_FACTORY_NAME, "");
+
+            // SessionFactory binding
+            // WARN [org.hibernate.internal.SessionFactoryRegistry] HHH000277: Could not bind factory to JNDI:
+            // org.hibernate.service.jndi.JndiException: Error performing bind [persistence.unit:unitName=#JSLEEProfiles...]
+            // java.lang.UnsupportedOperationException: JBAS011859: Naming context is read-only
+            properties.setProperty(Environment.SESSION_FACTORY_NAME_IS_JNDI, "false");
+
+            // Validation?
+            properties.setProperty(Environment.CHECK_NULLABILITY, "true");
+
             properties.setProperty(Environment.USE_REFLECTION_OPTIMIZER, "false");
             properties.setProperty(Environment.BYTECODE_PROVIDER, "javassist");
             properties.setProperty(Environment.STATEMENT_BATCH_SIZE, "0");
             properties.setProperty(Environment.SHOW_SQL, "false");
             properties.setProperty(Environment.FORMAT_SQL, "false");
 
-            PersistenceUnitInfoImpl pi = new PersistenceUnitInfoImpl(pumd,
-                    properties, Thread.currentThread().getContextClassLoader(),
-                    ClassLoader.getSystemResource("."), new ArrayList<URL>(),
-                    new InitialContext());
+            pumd.setProperties(properties);
+            pumd.setClassLoader(Thread.currentThread().getContextClassLoader());
+            pumd.setPersistenceUnitRootUrl(ClassLoader.getSystemResource("."));
+            pumd.setJarFiles(new ArrayList<String>());
 
             Transaction tx = null;
 
             try {
                 tx = sleeTransactionManager.suspend();
-                entityManagerFactory = hp.createContainerEntityManagerFactory(pi, null);
+                entityManagerFactory = hp.createContainerEntityManagerFactory(pumd, null);
                 isInitialized = true;
             } catch (Exception e) {
                 logger.error("Failure creating Persistence Unit for profile persistency.", e);
