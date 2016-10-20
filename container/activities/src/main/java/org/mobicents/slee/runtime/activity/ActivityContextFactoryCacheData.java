@@ -25,8 +25,8 @@ package org.mobicents.slee.runtime.activity;
 import java.util.Collections;
 import java.util.Set;
 
-import org.restcomm.cache.tree.Fqn;
-import org.restcomm.cache.tree.Node;
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextHandle;

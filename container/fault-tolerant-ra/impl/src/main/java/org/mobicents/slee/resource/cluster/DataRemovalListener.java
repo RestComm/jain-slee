@@ -22,9 +22,9 @@
 
 package org.mobicents.slee.resource.cluster;
 
-import java.io.Serializable;
+import org.infinispan.tree.Fqn;
 
-import org.restcomm.cache.tree.Fqn;
+import java.io.Serializable;
 
 public class DataRemovalListener<K extends Serializable, V extends Serializable> implements org.restcomm.cluster.DataRemovalListener {
 
@@ -33,7 +33,7 @@ public class DataRemovalListener<K extends Serializable, V extends Serializable>
 
 	/**
 	 * @param ra
-	 * @param baseFqn
+	 * @param baseCacheData
 	 */
 	public DataRemovalListener(FaultTolerantResourceAdaptor<K, V> ra,
 			ReplicatedDataCacheData<K, V> baseCacheData) {

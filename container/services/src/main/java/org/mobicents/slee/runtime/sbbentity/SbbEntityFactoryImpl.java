@@ -22,16 +22,6 @@
 
 package org.mobicents.slee.runtime.sbbentity;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.slee.CreateException;
-import javax.slee.SLEEException;
-import javax.slee.ServiceID;
-
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
@@ -39,6 +29,15 @@ import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+
+import javax.slee.CreateException;
+import javax.slee.SLEEException;
+import javax.slee.ServiceID;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 
@@ -65,6 +64,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	
 	@Override
 	public void sleeInitialization() {
+		// SergeyLee: test
 		this.lockFacility = new SbbEntityLockFacility(sleeContainer);
 	}
 	
@@ -287,7 +287,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	/**
 	 * 
 	 * @param sbbEntity
-	 * @param txManager
+	 * @param txContext
 	 */
 	@SuppressWarnings("unchecked")
 	private static void storeSbbEntityInTx(SbbEntityImpl sbbEntity,
@@ -300,7 +300,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	/**
 	 * 
 	 * @param sbbeId
-	 * @param txManager
+	 * @param txContext
 	 * @return
 	 */
 	private static SbbEntityImpl getSbbEntityFromTx(SbbEntityID sbbeId,

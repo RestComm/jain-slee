@@ -22,18 +22,17 @@
 
 package org.mobicents.slee.runtime.sbbentity;
 
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
+import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cache.MobicentsCache;
+
+import javax.slee.EventTypeID;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.slee.EventTypeID;
-
-import org.restcomm.cache.tree.Fqn;
-import org.restcomm.cache.tree.Node;
-import org.restcomm.cache.CacheData;
-import org.restcomm.cache.MobicentsCache;
-import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * 
@@ -239,7 +238,7 @@ public class SbbEntityCacheData extends CacheData {
 
 	public Set<SbbEntityID> getAllChildSbbEntities() {
 		Node childRelationsNode = getChildRelationsChildNode(false);
-		if (childRelationsNode == null || childRelationsNode.isLeaf()) {
+		if (childRelationsNode == null || childRelationsNode.getChildrenNames().isEmpty()) {
 			return Collections.emptySet();
 		}
 		else {

@@ -25,12 +25,12 @@
  */
 package org.mobicents.slee.resource.cluster;
 
-import java.io.Serializable;
-
-import org.restcomm.cache.tree.Fqn;
-import org.jgroups.Address;
+import org.infinispan.remoting.transport.Address;
+import org.infinispan.tree.Fqn;
 import org.restcomm.cluster.cache.ClusteredCacheData;
 import org.restcomm.cluster.election.ClientLocalListenerElector;
+
+import java.io.Serializable;
 
 /**
  * @author martins
@@ -44,7 +44,7 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 
 	/**
 	 * @param ra
-	 * @param baseFqn
+	 * @param baseCacheData
 	 */
 	public FailOverListener(FaultTolerantResourceAdaptor<K, V> ra,
 			ReplicatedDataCacheData<K, V> baseCacheData) {

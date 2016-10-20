@@ -22,19 +22,9 @@
 
 package org.mobicents.slee.resource;
 
-import java.rmi.dgc.VMID;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.slee.resource.ActivityAlreadyExistsException;
-import javax.slee.resource.ActivityHandle;
-
 import org.apache.log4j.Logger;
-import org.restcomm.cache.tree.Fqn;
-import org.jgroups.Address;
-import org.restcomm.cluster.MobicentsCluster;
-import org.restcomm.cluster.election.ClientLocalListenerElector;
+import org.infinispan.remoting.transport.Address;
+import org.infinispan.tree.Fqn;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -43,6 +33,15 @@ import org.mobicents.slee.container.management.ResourceManagementImpl;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+import org.restcomm.cluster.MobicentsCluster;
+import org.restcomm.cluster.election.ClientLocalListenerElector;
+
+import javax.slee.resource.ActivityAlreadyExistsException;
+import javax.slee.resource.ActivityHandle;
+import java.rmi.dgc.VMID;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Manages the creation and removal of {@link ActivityHandleReference}s, which
@@ -81,7 +80,7 @@ public class ActivityHandleReferenceFactory {
 	
 	/**
 	 * 
-	 * @param raEntity
+	 * @param resourceManagement
 	 */
 	public ActivityHandleReferenceFactory(ResourceManagementImpl resourceManagement) {
 		this.resourceManagement = resourceManagement;

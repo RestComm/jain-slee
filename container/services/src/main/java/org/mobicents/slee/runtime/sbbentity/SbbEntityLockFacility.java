@@ -22,27 +22,26 @@
 
 package org.mobicents.slee.runtime.sbbentity;
 
+import org.apache.log4j.Logger;
+import org.infinispan.notifications.Listener;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
+import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
+import org.infinispan.tree.Fqn;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
+import org.restcomm.cache.MobicentsCache;
+
+import javax.slee.ServiceID;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.slee.ServiceID;
-
-import org.apache.log4j.Logger;
-import org.restcomm.cache.tree.Fqn;
-import org.jboss.cache.notifications.annotation.CacheListener;
-import org.jboss.cache.notifications.annotation.NodeRemoved;
-import org.jboss.cache.notifications.event.NodeRemovedEvent;
-import org.restcomm.cache.MobicentsCache;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * 
  * @author martins
  *
  */
-@CacheListener(sync = false)
+@Listener
 public class SbbEntityLockFacility {
 
 	private static final Logger logger = Logger.getLogger(SbbEntityLockFacility.class);
@@ -56,13 +55,16 @@ public class SbbEntityLockFacility {
 	/**
 	 * 
 	 */
+
 	public SbbEntityLockFacility(SleeContainer container) {
 		//container.getCluster().addDataRemovalListener(new DataRemovaClusterListener());
 		MobicentsCache cache = container.getCluster().getMobicentsCache();
 		if (!cache.isLocalMode()) {
-			cache.getJBossCache().addCacheListener(this);
+			// SergeyLee: test
+			cache.getJBossCache().getCache().addListener(this);
 		}
 	}
+
 	
 	/**
 	 * 
@@ -127,11 +129,13 @@ public class SbbEntityLockFacility {
 		
 	}*/
 	
-	@NodeRemoved
-	public void onNodeRemovedEvent(NodeRemovedEvent event) {
-		if(!event.isOriginLocal() && !event.isPre()) {			
+	@CacheEntryRemoved
+	public void onNodeRemovedEvent(CacheEntryRemovedEvent event) {
+		if(!event.isOriginLocal() && !event.isPre()) {
 			// remote node removal
-			Fqn<?> fqn = event.getFqn();
+			// SergeyLee: test
+			//Fqn<?> fqn = event.getFqn();
+			Fqn fqn = (Fqn)event.getValue();
 			if(doTraceLogs) {
 				logger.trace("onNodeRemovedEvent( fqn = "+fqn+", size = "+fqn.size()+" )");
 			}

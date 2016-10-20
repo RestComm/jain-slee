@@ -22,15 +22,8 @@
 
 package org.mobicents.slee.runtime.activity;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.slee.SLEEException;
-import javax.slee.resource.ActivityAlreadyExistsException;
-
 import org.apache.log4j.Logger;
-import org.restcomm.cache.tree.Fqn;
-import org.restcomm.cluster.DataRemovalListener;
+import org.infinispan.tree.Fqn;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
@@ -40,6 +33,12 @@ import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+import org.restcomm.cluster.DataRemovalListener;
+
+import javax.slee.SLEEException;
+import javax.slee.resource.ActivityAlreadyExistsException;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Activity context factory -- return an activity context given an activity or

@@ -22,12 +22,12 @@
 
 package org.mobicents.slee.container.service;
 
-import javax.slee.ServiceID;
-
-import org.restcomm.cache.tree.Fqn;
+import org.infinispan.tree.Fqn;
+import org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryCacheData;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;
-import org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryCacheData;
+
+import javax.slee.ServiceID;
 
 public class ServiceCacheData extends CacheData {
 

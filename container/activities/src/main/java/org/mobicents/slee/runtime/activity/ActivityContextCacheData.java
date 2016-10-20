@@ -22,19 +22,18 @@
 
 package org.mobicents.slee.runtime.activity;
 
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
+import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cluster.MobicentsCluster;
+
+import javax.slee.facilities.TimerID;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import javax.slee.facilities.TimerID;
-
-import org.restcomm.cache.tree.Fqn;
-import org.restcomm.cache.tree.Node;
-import org.restcomm.cache.CacheData;
-import org.restcomm.cluster.MobicentsCluster;
-import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * 
@@ -236,7 +235,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noSbbEntitiesAttached() {
 		final Node node  = getAttachedSbbsNode(false);
-		return node != null ? node.isLeaf() : true;		
+		return node != null ? node.getChildrenNames().isEmpty() : true;
 	}
 
 	/**
@@ -283,7 +282,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noTimersAttached() {
 		final Node node = getAttachedTimersNode(false);
-		return node != null ? node.isLeaf() : true;		
+		return node != null ? node.getChildrenNames().isEmpty() : true;
 	}
 
 	/**
@@ -325,7 +324,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noNamesBound() {
 		final Node node = getNamesBoundNode(false);
-		return node != null ? node.isLeaf() : true;
+		return node != null ? node.getChildrenNames().isEmpty() : true;
 	}
 
 	/**
