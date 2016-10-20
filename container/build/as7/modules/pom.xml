@@ -17,8 +17,7 @@
 		<javax.slee.jain-slee.version>${jain-slee.version}</javax.slee.jain-slee.version>
 		<jboss.jboss-serialization.version>${jboss-serialization.version}</jboss.jboss-serialization.version>
 		<trove.trove.version>${trove.version}</trove.trove.version>
-		<jgroups.jgroups.version>2.6.10.GA</jgroups.jgroups.version>
-		<org.jboss.cache.jbosscache-core.version>3.1.0.GA</org.jboss.cache.jbosscache-core.version>
+		<jgroups.jgroups.version>3.2.7.Final</jgroups.jgroups.version>
 		<org.restcomm.cluster.cache.version>${restcomm.cluster.version}</org.restcomm.cluster.cache.version>
 		<org.restcomm.cluster.core.version>${restcomm.cluster.version}</org.restcomm.cluster.core.version>
 		<org.restcomm.cluster.timers.version>${restcomm.cluster.version}</org.restcomm.cluster.timers.version>
@@ -45,24 +44,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>jgroups</groupId>
-			<artifactId>jgroups</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.jboss.cache</groupId>
-			<artifactId>jbosscache-core</artifactId>
-		</dependency>
-
-		<!--
-		<dependency>
-			<groupId>org.jboss.jpa</groupId>
-			<artifactId>jboss-jpa-deployers</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		-->
-
-		<dependency>
 			<groupId>org.restcomm.cluster</groupId>
 			<artifactId>cache</artifactId>
 		</dependency>
@@ -75,6 +56,12 @@
 		<dependency>
 			<groupId>org.restcomm.cluster</groupId>
 			<artifactId>timers</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-tree</artifactId>
+			<version>${infinispan.tree.version}</version>
 		</dependency>
 
 		<dependency>

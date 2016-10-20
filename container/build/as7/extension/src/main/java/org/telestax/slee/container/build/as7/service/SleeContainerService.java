@@ -1,8 +1,12 @@
 package org.telestax.slee.container.build.as7.service;
 
 import org.jboss.as.naming.ManagedReferenceFactory;
-import org.jboss.cache.config.Configuration;
-import org.jboss.cache.config.RuntimeConfig;
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.global.GlobalConfiguration;
+import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.configuration.global.ShutdownHookBehavior;
 import org.jboss.logging.Logger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
@@ -13,9 +17,6 @@ import org.jboss.vfs.TempFileProvider;
 import org.jboss.vfs.VFS;
 import org.jboss.vfs.VFSUtils;
 import org.jboss.vfs.VirtualFile;
-import org.restcomm.cache.MobicentsCache;
-import org.restcomm.cluster.DefaultMobicentsCluster;
-import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
 import org.mobicents.slee.container.SleeContainer;
@@ -51,6 +52,9 @@ import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContextInt
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManagerImpl;
+import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.DefaultMobicentsCluster;
+import org.restcomm.cluster.MobicentsCluster;
 import org.telestax.slee.container.build.as7.deployment.ExternalDeployerImpl;
 import org.telestax.slee.container.build.as7.deployment.SleeDeploymentMetaData;
 import org.telestax.slee.container.build.as7.naming.JndiManagementImpl;
@@ -340,17 +344,17 @@ public class SleeContainerService implements Service<SleeContainer> {
 	}
 
 	private MobicentsCache initCache() {
-		RuntimeConfig runtimeConfig = new RuntimeConfig();
-		runtimeConfig.setTransactionManager(getTransactionManager().getValue());
-		Configuration configuration = new Configuration();
-		configuration.setRuntimeConfig(runtimeConfig);
-		configuration.setCacheMode("LOCAL");
-		configuration.setLockAcquisitionTimeout(3000);
-		configuration.setUseLockStriping(false);
-		configuration.setExposeManagementStatistics(false);
-		configuration.setShutdownHookBehavior("DONT_REGISTER");
-		return new MobicentsCache(configuration);
-	}	
+		Configuration defaultConfig = new ConfigurationBuilder()
+				.invocationBatching().enable()
+				.clustering().cacheMode(CacheMode.LOCAL)
+				.locking().lockAcquisitionTimeout(3000)
+				.locking().useLockStriping(false)
+				.build();
+		GlobalConfiguration globalConfig = new GlobalConfigurationBuilder()
+				.shutdown().hookBehavior(ShutdownHookBehavior.DONT_REGISTER)
+				.build();
+		return new MobicentsCache(defaultConfig, globalConfig);
+	}
 	
 	@Override
 	public void stop(StopContext context) {
