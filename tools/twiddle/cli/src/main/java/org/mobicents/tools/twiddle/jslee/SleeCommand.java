@@ -19,21 +19,18 @@ package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
-
-import java.io.PrintWriter;
-import java.util.Arrays;
-
-import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.slee.management.SleeState;
-
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
 import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
+
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.io.PrintWriter;
+import java.util.Arrays;
 
 /**
  * @author baranowb
@@ -42,8 +39,7 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
 public class SleeCommand extends AbstractSleeCommand {
 
 	/**
-	 * @param name
-	 * @param desc
+	 *
 	 */
 	public SleeCommand() {
 		super("slee", "This command performs operations on JSLEE SleeManagementMBean.");

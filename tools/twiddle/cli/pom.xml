@@ -5,12 +5,10 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools.twiddle</groupId>
 		<artifactId>cli-twiddle-parent</artifactId>
-		<version>2.8.0-SNAPSHOT</version>
+		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 
-
 	<artifactId>cli-twiddle</artifactId>
-
 
 	<name>Mobicents Twiddle CLI :: ${pom.artifactId}</name>
 
@@ -21,13 +19,22 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.jboss.jbossas</groupId>
-			<artifactId>jboss-as-console</artifactId>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
 		</dependency>
 		<dependency>
 			<artifactId>jmx-property-editors</artifactId>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-console</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>gnu-getopt</groupId>
+			<artifactId>getopt</artifactId>
+		</dependency>
+		<!--
 		<dependency>
 			<artifactId>activities</artifactId>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
@@ -36,15 +43,9 @@
 			<artifactId>spi</artifactId>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 		</dependency>
-		<dependency>
-			<groupId>javax.slee</groupId>
-			<artifactId>jain-slee</artifactId>
-		</dependency>
+		-->
 		<!-- move those to parent -->
-		<dependency>
-			<groupId>urbanophile</groupId>
-			<artifactId>java-getopt</artifactId>
-		</dependency>
+		<!--
 		<dependency>
 			<groupId>jboss.jbossas.core-libs</groupId>
 			<artifactId>jboss-jmx</artifactId>
@@ -93,6 +94,7 @@
 			<groupId>org.jboss.integration</groupId>
 			<artifactId>jboss-transaction-spi</artifactId>
 		</dependency>
+		-->
 	</dependencies>
 
 	<build>
@@ -151,7 +153,19 @@
 										cli-twiddle.jar
 									</destFileName>
 								</artifactItem>
-
+								<artifactItem>
+									<groupId>javax.slee</groupId>
+									<artifactId>jain-slee</artifactId>
+									<version>${jain-slee.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>
+										${tool.directory.lib}
+									</outputDirectory>
+									<destFileName>
+										jain-slee-1.1.jar
+									</destFileName>
+								</artifactItem>
 								<artifactItem>
 									<artifactId>jmx-property-editors</artifactId>
 									<groupId>org.mobicents.servers.jainslee.core</groupId>
@@ -164,6 +178,7 @@
 										jmx-property-editors.jar
 									</destFileName>
 								</artifactItem>
+								<!--
 								<artifactItem>
 									<artifactId>activities</artifactId>
 									<groupId>org.mobicents.servers.jainslee.core</groupId>
@@ -188,25 +203,9 @@
 										spi.jar
 									</destFileName>
 								</artifactItem>
-								<artifactItem>
-									<groupId>javax.slee</groupId>
-									<artifactId>jain-slee</artifactId>
-									<version>${jain-slee.version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										jain-slee-1.1.jar
-									</destFileName>
-								</artifactItem>
-
-
+								-->
 
 								<!-- Now twiddle part -->
-
-
 								<artifactItem>
 									<groupId>org.jboss.jbossas</groupId>
 									<artifactId>jboss-as-console</artifactId>
@@ -220,10 +219,9 @@
 										twiddle.jar
 									</destFileName>
 								</artifactItem>
-
 								<artifactItem>
-									<groupId>urbanophile</groupId>
-									<artifactId>java-getopt</artifactId>
+									<groupId>gnu-getopt</groupId>
+									<artifactId>getopt</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>
@@ -233,7 +231,6 @@
 										getopt.jar
 									</destFileName>
 								</artifactItem>
-
 								<artifactItem>
 									<groupId>log4j</groupId>
 									<artifactId>log4j</artifactId>
@@ -246,7 +243,7 @@
 										log4j.jar
 									</destFileName>
 								</artifactItem>
-
+								<!--
 								<artifactItem>
 									<groupId>jboss.jbossas.core-libs</groupId>
 									<artifactId>jboss-jmx</artifactId>
@@ -382,10 +379,6 @@
 										jbossx-security-client.jar
 									</destFileName>
 								</artifactItem>
-								
-								
-									
-								
 								<artifactItem>
 									<groupId>org.jboss.integration</groupId>
 									<artifactId>jboss-transaction-spi</artifactId>
@@ -398,10 +391,6 @@
 										jboss-transaction-spi.jar
 									</destFileName>
 								</artifactItem>
-
-
-
-
 								<artifactItem>
 									<groupId>dom4j</groupId>
 									<artifactId>dom4j</artifactId>
@@ -414,8 +403,8 @@
 										dom4j.jar  
 									</destFileName>
 								</artifactItem>
+								-->
 							</artifactItems>
-
 						</configuration>
 					</execution>
 				</executions>

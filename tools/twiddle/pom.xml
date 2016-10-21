@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>mobicents-slee-core</artifactId>
-		<version>2.8.0-SNAPSHOT</version>
+		<version>3.0.0-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
 
@@ -20,31 +20,58 @@
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
 		<!-- versions -->
+		<!--
+		<jboss.old.version>5.1.0.GA</jboss.old.version>
+		<getopt.version>1.0.9</getopt.version>
+		-->
+		<jboss.old.version>6.1.0.Final</jboss.old.version>
+		<getopt.version>1.0.13</getopt.version>
+
+		<!-- jboss-logging -->
+		<!-- 5.1.0.GA :: 3.0.0.GA -->
+		<!-- 7.2.0.Final -->
+		<!--<version.org.jboss.logging.jboss-logging>3.1.2.GA</version.org.jboss.logging.jboss-logging>-->
+
+		<!-- jboss-common-core -->
+		<!-- 5.1.0.GA :: 2.2.14.GA -->
+		<!-- 7.2.0.Final -->
+		<!--<version.org.jboss.jboss-common-core>2.2.17.GA</version.org.jboss.jboss-common-core>-->
+
 		<jboss.core.version>4.0.4.GA</jboss.core.version>
 		<jboss.jnp.version>5.0.3.GA</jboss.jnp.version>
 		<jboss.serialization.version>1.0.3.GA</jboss.serialization.version>
 		<jboss.concurrent.version>1.3.4-jboss-update1</jboss.concurrent.version> <!-- are those ppl sane? -->
 		<jboss.javaee.version>5.0.1.GA</jboss.javaee.version>
 		<jboss.security.version>2.0.3.SP1</jboss.security.version>
-		<getop.version>1.0.9</getop.version>
 	</properties>
-
 
 	<!-- NEVER EVER REMOVE CLASSIFIERs, its important in nexus now! -->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.jboss.jbossas</groupId>
-				<artifactId>jboss-as-console</artifactId>
-				<version>${jboss.version}</version>
-				<classifier>twiddle</classifier> <!-- classifier is damn important.... -->
-				<scope>compile</scope>
+				<groupId>javax.slee</groupId>
+				<artifactId>jain-slee</artifactId>
+				<version>${jain-slee.version}</version>
 			</dependency>
 			<dependency>
 				<artifactId>jmx-property-editors</artifactId>
 				<groupId>org.mobicents.servers.jainslee.core</groupId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.jboss.jbossas</groupId>
+				<artifactId>jboss-as-console</artifactId>
+				<version>${jboss.old.version}</version>
+				<classifier>twiddle</classifier> <!-- classifier is damn important.... -->
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>gnu-getopt</groupId>
+				<artifactId>getopt</artifactId>
+				<version>${getopt.version}</version>
+				<!--<scope>runtime</scope>-->
+			</dependency>
+			<!--
 			<dependency>
 				<artifactId>activities</artifactId>
 				<groupId>org.mobicents.servers.jainslee.core</groupId>
@@ -54,18 +81,6 @@
 				<artifactId>spi</artifactId>
 				<groupId>org.mobicents.servers.jainslee.core</groupId>
 				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>javax.slee</groupId>
-				<artifactId>jain-slee</artifactId>
-				<version>${jain-slee.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>urbanophile</groupId>
-				<artifactId>java-getopt</artifactId>
-				<version>${getop.version}</version>
-				<scope>runtime</scope>
 			</dependency>
 			<dependency>
 				<groupId>jboss.jbossas.core-libs</groupId>
@@ -134,10 +149,9 @@
 				<artifactId>jboss-transaction-spi</artifactId>
 				<version>${jboss.version}</version>
 			</dependency>
-			
+			-->
 		</dependencies>
 	</dependencyManagement>
-
 
 	<developers>
 		<developer>

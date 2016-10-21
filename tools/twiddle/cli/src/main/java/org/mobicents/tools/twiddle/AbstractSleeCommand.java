@@ -17,7 +17,10 @@
  */
 package org.mobicents.tools.twiddle;
 
-import java.beans.PropertyEditorManager;
+import org.jboss.console.twiddle.command.AbstractCommand;
+import org.jboss.console.twiddle.command.CommandException;
+import org.mobicents.slee.container.management.jmx.editors.*;
+import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -27,29 +30,12 @@ import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.facilities.Level;
 import javax.slee.facilities.TraceLevel;
-import javax.slee.management.DeployableUnitID;
-import javax.slee.management.LibraryID;
-import javax.slee.management.NotificationSource;
-import javax.slee.management.ResourceAdaptorEntityState;
-import javax.slee.management.ServiceState;
+import javax.slee.management.*;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
-
-import org.jboss.console.twiddle.command.AbstractCommand;
-import org.jboss.console.twiddle.command.CommandException;
-import org.mobicents.slee.container.management.jmx.editors.ComponentIDArrayPropertyEditor;
-import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
-import org.mobicents.slee.container.management.jmx.editors.ConfigPropertiesPropertyEditor;
-import org.mobicents.slee.container.management.jmx.editors.DeployableUnitIDPropertyEditor;
-import org.mobicents.slee.container.management.jmx.editors.LevelPropertyEditor;
-import org.mobicents.slee.container.management.jmx.editors.NotificationSourcePropertyEditor;
-import org.mobicents.slee.container.management.jmx.editors.ObjectPropertyEditor;
-import org.mobicents.slee.container.management.jmx.editors.ResourceAdaptorEntityStatePropertyEditor;
-import org.mobicents.slee.container.management.jmx.editors.ServiceStatePropertyEditor;
-import org.mobicents.slee.container.management.jmx.editors.TraceLevelPropertyEditor;
-import org.mobicents.tools.twiddle.op.AbstractOperation;
+import java.beans.PropertyEditorManager;
 
 /**
  * Base class for slee commands. Defines property editors for them.
