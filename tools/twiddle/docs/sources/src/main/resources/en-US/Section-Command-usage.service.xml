@@ -1,0 +1,296 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<section id="usage.service">
+
+	<title>usage.service</title>
+	<para>
+		<literal>usage.service</literal>
+		command interacts with service specific usage MBeans and Usage
+		Notification manager MBean.
+		<literal>usage.service</literal>
+		allows to manage usage sets and parameters, for instance get value of
+		parameter
+		or turn on
+		<acronym>JMX</acronym>
+		notification for certain parameter. General form of command looks as
+		follows:
+		<!-- <screen> --><programlisting>usage.service &lt;ServiceID&gt; [SbbID] [SetName] &lt;-operation[[arg] | [--option[=arg]]*]&gt; <!-- </screen> --></programlisting>
+		Note that access to default set does not require [SetName] to be
+		present.
+		It supports following operations:
+	</para>
+	<table frame="all" pgwide="1">
+		<title>
+			Operations table for
+			<literal>usage.service</literal>
+			command
+		</title>
+		<tgroup colsep="1" cols="5">
+			<colspec colnum="1" colname="c0" />
+			<colspec colnum="2" colname="c1" />
+			<colspec colnum="3" colname="c2" />
+			<colspec colnum="4" colname="c3" />
+			<thead>
+				<row>
+					<entry>Operation</entry>
+					<entry>Short form</entry>
+					<entry>Long form</entry>
+					<entry>Argument</entry>
+					<entry>Options</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>list</entry>
+					<entry>-l</entry>
+					<entry>--list</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>get</entry>
+					<entry>-g</entry>
+					<entry>--get</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>reset</entry>
+					<entry>-r</entry>
+					<entry>--reset</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>create</entry>
+					<entry>-c</entry>
+					<entry>--create</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>delete</entry>
+					<entry>-d</entry>
+					<entry>--delete</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+				</row>
+				<row>
+					<entry>notify</entry>
+					<entry>-n</entry>
+					<entry>--notify</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</table>
+	<section id="usage.service_list">
+		<title>list</title>
+		<para>
+			<literal>list</literal>
+			operation lists certain information about parameter sets. It does not
+			support argument. It support following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--sets
+				</term>
+				<listitem>
+					<para>instructs operation to list available sets for ServiceID and
+						SbbID</para>
+					<example>
+						<title>List available sets</title>
+						<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] -l --sets<!-- </screen> --></programlisting>
+					</example>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--parameters
+				</term>
+				<listitem>
+					<para>instructs operation to list parameters from set and metadata
+						associated with each.</para>
+					<example>
+						<title>List parameters in set</title>
+						<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \ 
+SbbID[name=example,vendor=mobicents,version=0.1] -l --parameters<!-- </screen> --></programlisting>
+					</example>
+
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>
+	<section id="usage.service_get">
+		<title>get</title>
+		<para>
+			<literal>get</literal>
+			operation fetches value of parameter in certain set(default or
+			named). It does not support argument. It supports following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--name
+				</term>
+				<listitem>
+					<para>specifies name of parameter. This is mandatory option.
+						Parameter name starts with upper case character. Requires
+						parameter name as argument.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--rst
+				</term>
+				<listitem>
+					<para>instructs operation that parameter should be reset after once
+						value is obtained. Does not support argument, its a "flag" like
+						option.</para>
+
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<example>
+			<title>Get parameter value from default set</title>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \ 
+SbbID[name=example,vendor=mobicents,version=0.1] -g --name=StreetName<!-- </screen> --></programlisting>
+		</example>
+		<example>
+			<title>Get parameter value from named set</title>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -g --name=StreetName<!-- </screen> --></programlisting>
+		</example>
+		<example>
+			<title>Get parameter value from named set and reset</title>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -g --name=StreetName --rst<!-- </screen> --></programlisting>
+		</example>
+	</section>
+	<section id="usage.service_reset">
+		<title>reset</title>
+		<para>
+			<literal>reset</literal>
+			operation resets all parameters in certain set or sets. It does not
+			support argument. It supports following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--all
+				</term>
+				<listitem>
+					<para>instructs operation to reset all usage sets. It does not
+						require argument.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<example>
+			<title>Reset parameters in named set</title>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -r<!-- </screen> --></programlisting>
+		</example>
+		<example>
+			<title>Reset parameters in all sets</title>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] -r --all<!-- </screen> --></programlisting>
+		</example>
+		<example>
+			<title>Reset parameters in all sets</title>
+			<!-- <screen> --><programlisting>./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] -r --all<!-- </screen> --></programlisting>
+		</example>
+	</section>
+	<section id="usage.service_create">
+		<title>create</title>
+		<para>
+			<literal>create</literal>
+			operation creates named usage parameter set. It does not support
+			argument nor options.
+		</para>
+		<example>
+			<title>Create usage parameter set</title>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -c<!-- </screen> --></programlisting>
+		</example>
+	</section>
+	<section id="usage.service_delete">
+		<title>delete</title>
+		<para>
+			<literal>delete</literal>
+			operation deletes named set from container. It does not support
+			argument nor options.
+		</para>
+		<example>
+			<title>Delete usage parameter set</title>
+			<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake -d<!-- </screen> --></programlisting>
+		</example>
+
+	</section>
+	<section id="usage.service_notify">
+		<title>notify</title>
+		<para>
+			<literal>notify</literal>
+			operation performs actions on notification aspect of usage sets. It
+			allows to to run on/off notifications for certain parameter and query
+			about state of notification.
+			It does not support argument. It supports
+			following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--name
+				</term>
+				<listitem>
+					<para>specifies name of parameter. It is mandatory. It requires
+						parameter name as argument. Parameter name starts with upper case
+						character.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--value
+				</term>
+				<listitem>
+					<para>instructs operation to change state of notification.
+						This options requires boolean argument(true - notification are
+						enabled).</para>
+					<example>
+						<title>Turn off notifications</title>
+						<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake \
+-n --name=Calls --value=false<!-- </screen> --></programlisting>
+					</example>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--is
+				</term>
+				<listitem>
+					<para>instructs operation to check state of notification. This option does not support arument.</para>
+					<example>
+						<title>Check state of notifications</title>
+						<!-- <screen> --><programlisting>
+./twiddle.sh usage.service ServiceID[name=XXX,vendor=mobicents,version=1.0] \
+SbbID[name=example,vendor=mobicents,version=0.1] Drake \
+-n --name=Calls --is<!-- </screen> --></programlisting>
+					</example>
+				</listitem>
+				
+			</varlistentry>
+		</variablelist>
+	</section>
+
+
+
+</section>	
+	
+
+

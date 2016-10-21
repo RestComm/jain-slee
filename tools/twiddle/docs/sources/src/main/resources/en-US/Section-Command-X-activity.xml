@@ -1,0 +1,201 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<section id="activity">
+
+	<title>activity</title>
+	<para>
+		<literal>activity</literal>
+		command interacts with
+		<literal>org.mobincets.slee:name=ActivityManagementMBean</literal>
+		Bean. It is non standard 
+		<acronym>SLEE</acronym>
+		MBean. Please refer to its documentation for details.
+		<literal>activity</literal>
+		allows to access information about activities and perform management
+		operations. It supports following operations:
+	</para>
+	<table frame="all" pgwide="1">
+		<title>
+			Operations table for
+			<literal>activity</literal>
+			command
+		</title>
+		<tgroup colsep="1" cols="5">
+			<colspec colnum="1" colname="c0" />
+			<colspec colnum="2" colname="c1" />
+			<colspec colnum="3" colname="c2" />
+			<colspec colnum="4" colname="c3" />
+			<thead>
+				<row>
+					<entry>Operation</entry>
+					<entry>Short form</entry>
+					<entry>Long form</entry>
+					<entry>Argument</entry>
+					<entry>Options</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>count</entry>
+					<entry>-c</entry>
+					<entry>--count</entry>
+					<entry>No</entry>
+					<entry>No</entry>
+				</row>
+
+				<row>
+					<entry>query</entry>
+					<entry>-q</entry>
+					<entry>--query</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>idle</entry>
+					<entry>-i</entry>
+					<entry>--idle</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+				<row>
+					<entry>list</entry>
+					<entry>-l</entry>
+					<entry>--list</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</table>
+	<section id="activity_count">
+		<title>count</title>
+		<para>
+			<literal>count</literal>
+			operation simply returns current count of activities. It does not
+			support argument nor options. Example call:
+			<example>
+				<title>List all deployed SBBs</title>
+				<!-- <screen> --><programlisting>
+twiddle.sh activity -c
+					<!-- </screen> --></programlisting>
+			</example>
+		</para>
+	</section>
+	<section id="activity_query">
+		<title>query</title>
+		<para>
+			<literal>query</literal>
+			operation is capable of two things. First is to manage time between activity liveliness query(Refer to &THIS.PLATFORM; <acronym>JSLEE</acronym> Guide for description of liveliness query). Second is triggering liveliness query.
+			It does not support argument. Optionally it may be followed by one of following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--set
+				</term>
+				<listitem>
+					<para>specifies number of seconds between liveliness query. Requires number as argument.</para>
+					<example>
+						<title>Set time between query to 60 seconds</title>
+						<!-- <screen> --><programlisting>
+./twiddle.sh activity -q --set=60
+						<!-- </screen> --></programlisting>
+					</example>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--get
+				</term>
+				<listitem>
+					<para>Retrieves number of seconds between liveliness queries.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<example>
+			<title>Trigger query</title>
+			<!-- <screen> --><programlisting>
+./twiddle.sh activity -q
+			<!-- </screen> --></programlisting>
+		</example>
+	</section>
+	<section id="activity_idle">
+		<title>idle</title>
+		<para>
+			<literal>idle</literal>
+			operation allows to manage maximum idle time for activity before it is eligible for garbage collection. It does not support argument. It supports following options:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--set
+				</term>
+				<listitem>
+					<para>specifies number of seconds which indicates time allowed for activity to be not accessed. If this values is exceeded, next liveliness query will try to free resource.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--get
+				</term>
+				<listitem>
+					<para>fetches number of seconds indicating how long activity may be not accessed before liveliness query will reclaim it.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+
+	</section>
+	<section id="activity_list">
+		<title>list</title>
+		<para>
+			<literal>list</literal>
+			operation lists certain information based on passed options. It does not support argument. It requires one option to be present. Following options are supported:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>--factories
+				</term>
+				<listitem>
+					<para>instructs operation to list activity contexts factories registered in container. Does not support argument. Example call:</para>
+					<example>	
+						<title>List factories</title>
+						<!-- <screen> --><programlisting>
+twiddle.sh activity -l --factories
+						<!-- </screen> --></programlisting>
+					</example>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--contexts
+				</term>
+				<listitem>
+					<para>instructs operation to list activity contexts and data associated with them. It optionally may take boolean argument. If argument is present and set to <replaceable>true</replaceable> 
+					operation will list details in text form, otherwise only statistic is printed for activity context.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--id-by-activity-type
+				</term>
+				<listitem>
+					<para>instructs operation to list ID of activity contexts based on activity type. Requires FQN of activity class as argument. </para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--id-by-ra-entity
+				</term>
+				<listitem>
+					<para>instructs operation to list ID of activity contexts based on Resource Adaptor Entity name. Requires entity name as argument. </para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--id-by-sbb-id
+				</term>
+				<listitem>
+					<para>instructs operation to list ID of activity contexts based on SbbID. Requires SbbID as argument. </para>
+				</listitem>
+			</varlistentry>
+
+		</variablelist>
+
+	</section>
+
+</section>	
+	
+
+
