@@ -20,7 +20,7 @@
 
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<!--<mobicents.cluster.version>1.13.1.FINAL</mobicents.cluster.version>-->
-		<restcomm.cluster.version>3.0.0.6.as72</restcomm.cluster.version>
+		<restcomm.cluster.version>3.0.0.6</restcomm.cluster.version>
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
