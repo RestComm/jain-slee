@@ -27,15 +27,6 @@
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.jbossas</groupId>
-			<artifactId>jboss-as-console</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>gnu-getopt</groupId>
-			<artifactId>getopt</artifactId>
-		</dependency>
-		<!--
-		<dependency>
 			<artifactId>activities</artifactId>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 		</dependency>
@@ -43,7 +34,61 @@
 			<artifactId>spi</artifactId>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 		</dependency>
-		-->
+
+
+		<dependency>
+			<groupId>org.jboss.logging</groupId>
+			<artifactId>jboss-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-console</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>gnu-getopt</groupId>
+			<artifactId>getopt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>stax</groupId>
+			<artifactId>stax-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss</groupId>
+			<artifactId>jboss-common-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.naming</groupId>
+			<artifactId>jnp-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.mx</groupId>
+			<artifactId>jboss-jmx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.picketbox</groupId>
+			<artifactId>jbosssx-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.ws.cxf</groupId>
+			<artifactId>jbossws-cxf-factories</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.spec.javax.xml.ws</groupId>
+			<artifactId>jboss-jaxws-api_2.2_spec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.spec.javax.xml.bind</groupId>
+			<artifactId>jboss-jaxb-api_2.2_spec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.spec.javax.annotation</groupId>
+			<artifactId>jboss-annotations-api_1.1_spec</artifactId>
+		</dependency>
+
 		<!-- move those to parent -->
 		<!--
 		<dependency>
@@ -113,11 +158,13 @@
 						<configuration>
 							<tasks>
 								<copy todir="${tool.directory}" verbose="true">
+									<fileset dir="script" includes="log4j.properties" />
 									<fileset dir="script" includes="*.sh" />
 									<fileset dir="script" includes="*.bat" />
 								</copy>
 								<copy todir="${tool.directory.lib}" verbose="true">
-									<fileset dir="script" includes="*.properties" />
+									<fileset dir="script" includes="slee-twiddle.properties" />
+									<fileset dir="script" includes="*.jar" />
 								</copy>
 							</tasks>
 						</configuration>
@@ -146,12 +193,8 @@
 									<version>${pom.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										cli-twiddle.jar
-									</destFileName>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>cli-twiddle.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>javax.slee</groupId>
@@ -159,103 +202,157 @@
 									<version>${jain-slee.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										jain-slee-1.1.jar
-									</destFileName>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jain-slee-1.1.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<artifactId>jmx-property-editors</artifactId>
 									<groupId>org.mobicents.servers.jainslee.core</groupId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										jmx-property-editors.jar
-									</destFileName>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jmx-property-editors.jar</destFileName>
 								</artifactItem>
-								<!--
 								<artifactItem>
 									<artifactId>activities</artifactId>
 									<groupId>org.mobicents.servers.jainslee.core</groupId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										activities.jar
-									</destFileName>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>activities.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<artifactId>spi</artifactId>
 									<groupId>org.mobicents.servers.jainslee.core</groupId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										spi.jar
-									</destFileName>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>spi.jar</destFileName>
 								</artifactItem>
-								-->
 
 								<!-- Now twiddle part -->
+								<artifactItem>
+									<groupId>org.jboss.logging</groupId>
+									<artifactId>jboss-logging</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jboss-logging.jar</destFileName>
+								</artifactItem>
 								<artifactItem>
 									<groupId>org.jboss.jbossas</groupId>
 									<artifactId>jboss-as-console</artifactId>
 									<classifier>twiddle</classifier>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										twiddle.jar
-									</destFileName>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>twiddle.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>gnu-getopt</groupId>
 									<artifactId>getopt</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										getopt.jar
-									</destFileName>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>getopt.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>javax.activation</groupId>
+									<artifactId>activation</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>activation.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>stax</groupId>
+									<artifactId>stax-api</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>stax-api.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>log4j</groupId>
 									<artifactId>log4j</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										log4j.jar
-									</destFileName>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>log4j.jar</destFileName>
 								</artifactItem>
-								<!--
 								<artifactItem>
-									<groupId>jboss.jbossas.core-libs</groupId>
+									<groupId>dom4j</groupId>
+									<artifactId>dom4j</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>dom4j.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.jboss</groupId>
+									<artifactId>jboss-common-core</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jboss-common-core.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.jboss.naming</groupId>
+									<artifactId>jnp-client</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jnp-client.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.jboss.mx</groupId>
 									<artifactId>jboss-jmx</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										jboss-jmx.jar
-									</destFileName>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jboss-jmx.jar</destFileName>
 								</artifactItem>
+								<artifactItem>
+									<groupId>org.picketbox</groupId>
+									<artifactId>jbosssx-client</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jbosssx-client.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.jboss.ws.cxf</groupId>
+									<artifactId>jbossws-cxf-factories</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jbossws-cxf-factories.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.jboss.spec.javax.xml.ws</groupId>
+									<artifactId>jboss-jaxws-api_2.2_spec</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jboss-jaxws-api_2.2_spec.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.jboss.spec.javax.xml.bind</groupId>
+									<artifactId>jboss-jaxb-api_2.2_spec</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jboss-jaxb-api_2.2_spec.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.jboss.spec.javax.annotation</groupId>
+									<artifactId>jboss-annotations-api_1.1_spec</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tool.directory.lib}</outputDirectory>
+									<destFileName>jboss-annotations-api_1.1_spec.jar</destFileName>
+								</artifactItem>
+								<!--
 								<artifactItem>
 									<groupId>jboss.jbossas.core-libs</groupId>
 									<artifactId>jboss-common-client</artifactId>
@@ -266,18 +363,6 @@
 									</outputDirectory>
 									<destFileName>
 										jboss-common-client.jar
-									</destFileName>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.jboss.naming</groupId>
-									<artifactId>jnp-client</artifactId>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										jnp-client.jar
 									</destFileName>
 								</artifactItem>
 								<artifactItem>
@@ -389,18 +474,6 @@
 									</outputDirectory>
 									<destFileName>
 										jboss-transaction-spi.jar
-									</destFileName>
-								</artifactItem>
-								<artifactItem>
-									<groupId>dom4j</groupId>
-									<artifactId>dom4j</artifactId>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-									<outputDirectory>
-										${tool.directory.lib}
-									</outputDirectory>
-									<destFileName>
-										dom4j.jar  
 									</destFileName>
 								</artifactItem>
 								-->

@@ -38,15 +38,10 @@ do
     done
 done
 
-echo "MODULES: $TWIDDLE_CLASSPATH"
-
 # Extract the directory and the program name
 # takes care of symlinks
 PRG="$0"
 DIR=`dirname "$PRG"`
-echo "PRG: $DIR"
-echo "DIR: $DIR"
-
 while [ -h "$PRG" ] ; do
   ls=`ls -ld "$PRG"`
   link=`expr "$ls" : '.*-> \(.*\)$'`
@@ -59,9 +54,6 @@ done
 DIRNAME=`pwd`
 PROGNAME=`basename "$PRG"`
 GREP="grep"
-
-echo "DIRNAME: $DIRNAME"
-echo "PROGNAME: $PROGNAME"
 
 #
 # Helper to complain.
@@ -173,28 +165,28 @@ if $cygwin; then
 fi
 
 # Display our environment
-     echo "========================================================================="
-     echo ""
-     echo "  CLI Bootstrap Environment"
-     echo ""
-     echo "  DIR      : $DIR"
-     echo ""
-     echo "  JAVA     : $JAVA"
-     echo ""
-     echo "  JAVA_OPTS: $JAVA_OPTS"
-     echo ""
-     echo "  JBOSS_CLASSPATH: $JBOSS_CLASSPATH"
-     echo ""
-     echo "  TWIDDLE_HOME: $TWIDDLE_HOME"
-     echo ""
-     echo "  TWIDDLE_CLASSPATH: $TWIDDLE_CLASSPATH"
-     echo ""
-     echo "  OPTS     : $*"
-     echo ""
-     echo "  CONF     : $SLEE_TWIDDLE_CONF"
-     echo ""
-     echo "========================================================================="
-     echo ""
+#     echo "========================================================================="
+#     echo ""
+#     echo "  CLI Bootstrap Environment"
+#     echo ""
+#     echo "  DIRNAME  : $DIRNAME"
+#     echo ""
+#     echo "  JAVA     : $JAVA"
+#     echo ""
+#     echo "  JAVA_OPTS: $JAVA_OPTS"
+#     echo ""
+#     echo "  JBOSS_CLASSPATH: $JBOSS_CLASSPATH"
+#     echo ""
+#     echo "  TWIDDLE_HOME: $TWIDDLE_HOME"
+#     echo ""
+#     echo "  TWIDDLE_CLASSPATH: $TWIDDLE_CLASSPATH"
+#     echo ""
+#     echo "  OPTS     : $*"
+#     echo ""
+#     echo "  CONF     : $SLEE_TWIDDLE_CONF"
+#     echo ""
+#     echo "========================================================================="
+#     echo ""
 
 # Execute the JVM
 #exec "$JAVA" \
