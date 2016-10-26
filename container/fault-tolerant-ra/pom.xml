@@ -15,7 +15,14 @@
 		<module>api</module>
 		<module>impl</module>
 	</modules>
-		
+
+	<dependencies>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-tree</artifactId>
+		</dependency>
+	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>

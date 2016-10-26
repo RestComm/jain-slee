@@ -20,7 +20,7 @@
 
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<!--<mobicents.cluster.version>1.13.1.FINAL</mobicents.cluster.version>-->
-		<restcomm.cluster.version>3.0.0.6</restcomm.cluster.version>
+		<restcomm.cluster.version>3.0.0-SNAPSHOT</restcomm.cluster.version>
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
@@ -63,6 +63,11 @@
 				<groupId>trove</groupId>
 				<artifactId>trove</artifactId>
 				<version>${trove.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.infinispan</groupId>
+				<artifactId>infinispan-tree</artifactId>
+				<version>${infinispan.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.restcomm.cluster</groupId>
@@ -198,6 +203,9 @@
 		</profile>
 		<profile>
 			<id>build-as10</id>
+			<activation>
+				<!--<activeByDefault>true</activeByDefault>-->
+			</activation>
 			<properties>
 				<infinispan.tree.version>8.1.0.Final</infinispan.tree.version>
 			</properties>

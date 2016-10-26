@@ -19,9 +19,9 @@
 		<trove.trove.version>${trove.version}</trove.trove.version>
 		<jgroups.jgroups.version>2.6.10.GA</jgroups.jgroups.version>
 		<org.jboss.cache.jbosscache-core.version>3.1.0.GA</org.jboss.cache.jbosscache-core.version>
-		<org.mobicents.cluster.cache.version>${mobicents.cluster.version}</org.mobicents.cluster.cache.version>
-		<org.mobicents.cluster.core.version>${mobicents.cluster.version}</org.mobicents.cluster.core.version>
-		<org.mobicents.cluster.timers.version>${mobicents.cluster.version}</org.mobicents.cluster.timers.version>
+		<org.restcomm.cluster.cache.version>${restcomm.cluster.version}</org.restcomm.cluster.cache.version>
+		<org.restcomm.cluster.core.version>${restcomm.cluster.version}</org.restcomm.cluster.core.version>
+		<org.restcomm.cluster.timers.version>${restcomm.cluster.version}</org.restcomm.cluster.timers.version>
 		<org.mobicents.servers.jainslee.api.jain-slee-11-ext.version>${jain-slee-11-ext.version}</org.mobicents.servers.jainslee.api.jain-slee-11-ext.version>
 	</properties>
 
@@ -55,18 +55,23 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.mobicents.cluster</groupId>
+			<groupId>org.restcomm.cluster</groupId>
 			<artifactId>cache</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.mobicents.cluster</groupId>
+			<groupId>org.restcomm.cluster</groupId>
 			<artifactId>core</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.mobicents.cluster</groupId>
+			<groupId>org.restcomm.cluster</groupId>
 			<artifactId>timers</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-tree</artifactId>
 		</dependency>
 
 		<dependency>

@@ -38,7 +38,7 @@
         <resource-root path="cache-${org.restcomm.cluster.cache.version}.jar"/>
         <resource-root path="core-${org.restcomm.cluster.core.version}.jar"/>
         <resource-root path="timers-${org.restcomm.cluster.timers.version}.jar"/>
-        <resource-root path="infinispan-tree-${infinispan.tree.version}.jar"/>
+        <resource-root path="infinispan-tree-${infinispan.version}.jar"/>
         <resource-root path="jain-slee-11-ext-${org.mobicents.servers.jainslee.api.jain-slee-11-ext.version}.jar"/>
     </resources>
 

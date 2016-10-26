@@ -15,6 +15,10 @@
 			<artifactId>common</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jboss</groupId>
+			<artifactId>jboss-common-core</artifactId>
+		</dependency>
         <dependency>
 			<artifactId>junit</artifactId>
 			<groupId>junit</groupId>

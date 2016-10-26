@@ -18,6 +18,7 @@
         <module name="org.jboss.msc"/>
         <module name="org.jboss.logging"/>
         <module name="org.jboss.vfs"/>
+        <module name="org.infinispan"/>
         <module name="org.telestax.slee.container.lib"/>
     </dependencies>
 </module>
