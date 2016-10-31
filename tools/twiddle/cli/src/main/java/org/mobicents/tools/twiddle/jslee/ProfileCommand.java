@@ -349,7 +349,7 @@ public class ProfileCommand extends AbstractSleeCommand {
 			//FIXME: is this ok ?
 			if(super.operationName.equals(OPERATION_createProfile))
 			{
-				return "Profile created.";
+				return "Profile created: "+super.operationResult;
 			}else
 			{
 				return "Profile Table created: "+super.operationResult; //??
