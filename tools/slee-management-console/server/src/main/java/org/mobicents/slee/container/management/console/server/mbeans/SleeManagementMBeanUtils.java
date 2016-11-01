@@ -22,16 +22,18 @@
 
 package org.mobicents.slee.container.management.console.server.mbeans;
 
+import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
+
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
-import javax.naming.InitialContext;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import javax.slee.management.SleeProvider;
 import javax.slee.management.SleeProviderFactory;
 import javax.slee.management.SleeState;
-
-import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
 
 /**
  * 
@@ -39,6 +41,8 @@ import org.mobicents.slee.container.management.console.client.ManagementConsoleE
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SleeManagementMBeanUtils {
+
+  private JMXConnector jmxConnector;
   private MBeanServerConnection mbeanServer;
 
   private ObjectName sleeManagementMBean;
@@ -62,10 +66,16 @@ public class SleeManagementMBeanUtils {
 
   public SleeManagementMBeanUtils() throws ManagementConsoleException {
     try {
-      InitialContext ctx;
-      ctx = new InitialContext();
+      // Get a connection to the MBean server on localhost
+      String host = "localhost";
+      int port = 9999;  // management-web port
+      String urlString = System.getProperty(
+              "jmx.service.url",
+              "service:jmx:remoting-jmx://" + host + ":" + port);
+      JMXServiceURL serviceURL = new JMXServiceURL(urlString);
+      jmxConnector = JMXConnectorFactory.connect(serviceURL, null);
 
-      mbeanServer = (MBeanServerConnection) ctx.lookup("jmx/rmi/RMIAdaptor");
+      mbeanServer = jmxConnector.getMBeanServerConnection();
 
       SleeProvider sleeProvider = SleeProviderFactory.getSleeProvider("org.mobicents.slee.container.management.jmx.SleeProviderImpl");
       sleeManagementMBean = sleeProvider.getSleeManagementMBean();
@@ -158,6 +168,7 @@ public class SleeManagementMBeanUtils {
   }
 
   public void removeNotificationListener(NotificationListener listener) throws ManagementConsoleException {
+    /*
     try {
       mbeanServer.removeNotificationListener(sleeManagementMBean, listener);
     }
@@ -165,6 +176,7 @@ public class SleeManagementMBeanUtils {
       e.printStackTrace();
       throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
     }
+    */
   }
 
   public String getVersion() throws ManagementConsoleException {
