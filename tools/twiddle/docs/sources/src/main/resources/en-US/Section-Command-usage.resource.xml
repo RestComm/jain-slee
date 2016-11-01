@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<section id="usage.resource">
+
+	<title>usage.resource</title>
+	<para><literal>usage.resource</literal> command interacts with service specific usage MBeans and Usage
+		Notification manager MBean.
+		<literal>usage.resource</literal>
+		allows to manage usage sets and parameters, for instance get value of
+		parameter
+		or turn on
+		<acronym>JMX</acronym>
+		notification for certain parameter. General form of command looks as
+		follows:
+		<!-- <screen> --><programlisting>usage.ra &lt;RAEntityName&gt; [SetName] &lt;-operation[[arg] | [--option[=arg]]*]&gt;<!-- </screen> --></programlisting>
+		Note that access to default set does not require [SetName] to be
+		present.</para>
+		<para>
+		For description of operations and supported options please refer to <xref linkend="usage.service"/>
+		</para>
+			
+</section>	
+	
+
+

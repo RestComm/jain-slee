@@ -1,0 +1,30 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.tools.twiddle</groupId>
+		<artifactId>cli-twiddle-parent</artifactId>
+		<version>2.8.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>org.mobicents.servers.jainslee.tools.twiddle.docs</groupId>
+	<artifactId>cli-twiddle-docs</artifactId>
+	<packaging>pom</packaging>
+
+	<name>Mobicents Twiddle CLI :: Docs :: ${pom.artifactId}</name>
+
+	<properties>
+		<docs.application.name>JSLEE Twiddle</docs.application.name>
+		<docs.application.dirname>twiddle</docs.application.dirname>
+		<docs.bookid>JSLEETwiddleCLI</docs.bookid>
+	</properties>
+
+	<modules>
+		<module>sources</module>
+		<module>sources-mobicents</module>
+		<module>jdocbook-mobicents</module>
+	</modules>
+
+</project>

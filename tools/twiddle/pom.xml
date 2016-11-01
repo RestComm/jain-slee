@@ -1,0 +1,263 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>mobicents-slee-core</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
+	</parent>
+
+	<groupId>org.mobicents.servers.jainslee.tools.twiddle</groupId>
+	<artifactId>cli-twiddle-parent</artifactId>
+	<version>3.0.0-SNAPSHOT</version>
+
+	<modules>
+		<module>cli</module>
+	</modules>
+
+	<properties>
+		<maven.test.skip>true</maven.test.skip>
+		<!-- versions -->
+		<getopt.version>1.0.13</getopt.version>
+		<jboss.old.version>6.1.0.Final</jboss.old.version>
+		<jboss.jmx.version>6.0.0.GA</jboss.jmx.version>
+		<!-- jboss-logging -->
+		<!--<version.org.jboss.logging.jboss-logging>3.1.2.GA</version.org.jboss.logging.jboss-logging>-->
+		<!-- jboss-common-core -->
+		<!--<version.org.jboss.jboss-common-core>2.2.17.GA</version.org.jboss.jboss-common-core>-->
+
+		<!--
+		<jboss.core.version>4.0.4.GA</jboss.core.version>
+		<jboss.jnp.version>5.0.3.GA</jboss.jnp.version>
+		<jboss.serialization.version>1.0.3.GA</jboss.serialization.version>
+		<jboss.concurrent.version>1.3.4-jboss-update1</jboss.concurrent.version> <!- - are those ppl sane? - ->
+		<jboss.javaee.version>5.0.1.GA</jboss.javaee.version>
+		<jboss.security.version>2.0.3.SP1</jboss.security.version>
+		-->
+	</properties>
+
+	<!-- NEVER EVER REMOVE CLASSIFIERs, its important in nexus now! -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>javax.slee</groupId>
+				<artifactId>jain-slee</artifactId>
+				<version>${jain-slee.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>jmx-property-editors</artifactId>
+				<groupId>org.mobicents.servers.jainslee.core</groupId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>activities</artifactId>
+				<groupId>org.mobicents.servers.jainslee.core</groupId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>spi</artifactId>
+				<groupId>org.mobicents.servers.jainslee.core</groupId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.jbossas</groupId>
+				<artifactId>jboss-as-console</artifactId>
+				<version>${jboss.old.version}</version>
+				<classifier>twiddle</classifier> <!-- classifier is damn important.... -->
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.logging</groupId>
+				<artifactId>jboss-logging</artifactId>
+				<version>3.1.2.GA</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${log4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>gnu-getopt</groupId>
+				<artifactId>getopt</artifactId>
+				<version>${getopt.version}</version>
+				<!--<scope>runtime</scope>-->
+			</dependency>
+			<dependency>
+				<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+				<version>1.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>stax</groupId>
+				<artifactId>stax-api</artifactId>
+				<version>1.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss</groupId>
+				<artifactId>jboss-common-core</artifactId>
+				<version>2.2.17.GA</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.naming</groupId>
+				<artifactId>jnp-client</artifactId>
+				<version>5.0.5.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.mx</groupId>
+				<artifactId>jboss-jmx</artifactId>
+				<version>${jboss.jmx.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.picketbox</groupId>
+				<artifactId>jbosssx-client</artifactId>
+				<version>3.0.0.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.ws.cxf</groupId>
+				<artifactId>jbossws-cxf-factories</artifactId>
+				<version>3.4.1.GA</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.spec.javax.xml.ws</groupId>
+				<artifactId>jboss-jaxws-api_2.2_spec</artifactId>
+				<version>1.0.0.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.spec.javax.xml.bind</groupId>
+				<artifactId>jboss-jaxb-api_2.2_spec</artifactId>
+				<version>1.0.0.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.spec.javax.annotation</groupId>
+				<artifactId>jboss-annotations-api_1.1_spec</artifactId>
+				<version>1.0.0.Final</version>
+			</dependency>
+			<!--
+			<dependency>
+				<groupId>jboss.jbossas.core-libs</groupId>
+				<artifactId>jboss-common-client</artifactId>
+				<version>${jboss.core.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.naming</groupId>
+				<artifactId>jnp-client</artifactId>
+				<version>${jboss.jnp.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>oswego-concurrent</groupId>
+				<artifactId>concurrent</artifactId>
+				<version>${jboss.concurrent.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.jbossas</groupId>
+				<artifactId>jboss-as-server</artifactId>
+				<version>${jboss.version}</version>
+				<classifier>jmx-invoker-adaptor-client</classifier>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.jbossas</groupId>
+				<artifactId>jboss-as-server</artifactId>
+				<classifier>client</classifier>
+				<version>${jboss.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jboss</groupId>
+				<artifactId>jboss-serialization</artifactId>
+				<version>${jboss.serialization.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.jbossas</groupId>
+				<artifactId>jboss-as-server</artifactId>
+				<classifier>jboss-minimal</classifier>
+				<version>${jboss.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.javaee</groupId>
+				<artifactId>jboss-javaee</artifactId>
+				<version>${jboss.javaee.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.security</groupId>
+				<artifactId>jboss-security-spi</artifactId>
+				<version>${jboss.security.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.security</groupId>
+				<artifactId>jbosssx-client</artifactId>
+				<version>${jboss.security.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.integration</groupId>
+				<artifactId>jboss-transaction-spi</artifactId>
+				<version>${jboss.version}</version>
+			</dependency>
+			-->
+		</dependencies>
+	</dependencyManagement>
+
+	<developers>
+		<developer>
+			<id>baranowb</id>
+			<name>Bartosz Baranowski</name>
+			<email>baranowb@gmail.com</email>
+			<organization>JBoss/Red Hat</organization>
+			<organizationUrl>http://www.redhat.com/</organizationUrl>
+			<roles>
+				<role>Active Developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>GNU GENERAL PUBLIC LICENSE</name>
+			<url>http://www.gnu.org/licenses/gpl.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>docs</module>
+				<module>release</module>
+			</modules>			
+		</profile>
+		<profile>
+			<id>release</id>
+			<modules>
+				<module>docs</module>
+				<module>release</module>
+			</modules>
+		</profile>
+	</profiles>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<groupId>org.mobicents.tools</groupId>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms />
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+					</classpathExcludes>
+					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<eclipseProjectName>slee-tool-twiddle</eclipseProjectName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -1,0 +1,175 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<section id="profile.edit">
+
+	<title>profile.edit</title>
+	<para><literal>profile.edit</literal> command interacts with specific profile MBean. This MBean is standard <acronym>SLEE</acronym> bean. It is generated based on profile specification. <literal>profile.edit</literal> allows to edit profile data(specific profile and default). 
+	Profile MBean follows state machine depicted on diagram below:
+	
+	</para>
+	<mediaobject id="profile_edit_fsm">
+		<imageobject>
+			<imagedata width="300px" align="center"
+				fileref="images/profile.edit.fsm.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>Profile Edit FSM
+			</para>
+		</caption>
+	</mediaobject>
+	
+	<para>
+	<literal>profile.edit</literal> command expects two non operation/option arguments. Form of invocation looks as follows:
+	<!-- <screen> --><programlisting>profile.edit &lt;profileTableName&gt; &lt;profileName&gt; &lt;-operation[[arg] | [--option[=arg]]]*><!-- </screen> --></programlisting>
+	It supports following operations:</para>
+		<table frame="all" pgwide="1">
+			<title>Operations table for <literal>profile.edit</literal> command</title>
+			<tgroup colsep="1" cols="5">
+				<colspec colnum="1" colname="c0" />
+				<colspec colnum="2" colname="c1" />
+				<colspec colnum="3" colname="c2" />
+				<colspec colnum="4" colname="c3" />
+				<thead>
+					<row>
+						<entry>Operation</entry>
+						<entry>Short form</entry>
+						<entry>Long form</entry>
+						<entry>Argument</entry>
+						<entry>Options</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>list</entry>
+						<entry>-l</entry>
+						<entry>--list</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>dirty</entry>
+						<entry>-d</entry>
+						<entry>--dirty</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>write</entry>
+						<entry>-w</entry>
+						<entry>--write</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>edit</entry>
+						<entry>-e</entry>
+						<entry>--edit</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>commit</entry>
+						<entry>-c</entry>
+						<entry>--commit</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>restore</entry>
+						<entry>-r</entry>
+						<entry>--restore</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>close</entry>
+						<entry>-o</entry>
+						<entry>--close</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>get</entry>
+						<entry>-g</entry>
+						<entry>--get</entry>
+						<entry>Yes</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>set</entry>
+						<entry>-s</entry>
+						<entry>--set</entry>
+						<entry>No</entry>
+						<entry>Yes</entry>
+					</row>
+					
+				</tbody>
+			</tgroup>
+		</table>
+	<section id="profile.edit_list">
+		<title>list</title>
+		<para><literal>list</literal> operation lists available profile attributes and information associated with each attribute. Does nor support options not arguments.</para>
+	</section>	
+	<section id="profile.edit_dirty">
+		<title>dirty</title>
+		<para><literal>dirty</literal> operation checks if profile data has been modified and not committed yet.  Does not support options nor arguments.</para>
+	</section>	
+	<section id="profile.edit_write">
+		<title>write</title>
+		<para><literal>write</literal> operation checks if profile is in edit mode, that is if data can be written into it. Does not support options nor arguments.</para>
+	</section>	
+	<section id="profile.edit_edit">
+		<title>edit</title>
+		<para><literal>edit</literal> operation marks profile as editable(writeable). Does not support options nor arguments.</para>
+	</section>	
+	<section id="profile.edit_restore">
+		<title>restore</title>
+		<para><literal>restore</literal> operation revokes all changes performed on profile and marks profile as not editable. Does not support options nor arguments.</para>
+	</section>	
+	<section id="profile.edit_commit">
+		<title>commit</title>
+		<para><literal>commit</literal> operation commits any changes performed on profile(makes them persistent) and marks profile as not editable. Does not support options nor arguments.</para>
+	</section>	
+	<section id="profile.edit_close">
+		<title>close</title>
+		<para><literal>close</literal> operation deregister profile specific MBean. Does not support options nor arguments.</para>
+	</section>	
+	<section id="profile.edit_get">
+		<title>get</title>
+		<para><literal>get</literal> operation operation fetches value of profile attribute. It requires attribute name as argument.</para>
+		<example>
+			<title>Get value of  <replaceable>voiceMailEnabled</replaceable>  attribute</title>
+			<!-- <screen> --><programlisting>./twiddle.sh profile.edit CallControl gregory12 --get=voiceMailEnabled <!-- </screen> --></programlisting>
+		</example>
+	</section>	
+	<section id="profile.edit_set">
+		<title>set</title>
+		<para><literal>set</literal> operation sets profile attribute value. It does not support argument. Requires options to be present to specify name and value:</para>
+		<variablelist>
+			<varlistentry>
+				<term>--name</term>
+				<listitem><para>specifies name of attribute to be changed.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--value</term>
+				<listitem><para>specifies value to be set in profile attribute. Supported value types are:</para>
+					<itemizedlist>
+						<listitem>
+							<para>String</para>
+						</listitem>
+						<listitem>
+							<para>java primitives</para>
+						</listitem>
+						<listitem>
+							<para>JSLEE types - ComponentIDs and management classes, like Address</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>	
+		
+</section>	
+	
+
+

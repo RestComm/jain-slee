@@ -1,0 +1,105 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<section id="slee">
+
+	<title>slee</title>
+	<para>
+		<literal>slee</literal>
+		command interacts with <literal>javax.slee.management:name=SleeManagement</literal>
+		MBean. It is standard
+		<acronym>JSLEE</acronym> MBean. <literal>slee</literal> allows basic operations like start/stop.
+		</para>
+		<para> 
+		 It supports following operations:
+		<table frame="all" pgwide="1">
+			<title>Operations table for <literal>slee</literal> command</title>
+			<tgroup colsep="1" cols="5">
+				<colspec colnum="1" colname="c0" />
+				<colspec colnum="2" colname="c1" />
+				<colspec colnum="3" colname="c2" />
+				<colspec colnum="4" colname="c3" />
+				<thead>
+					<row>
+						<entry>Operation</entry>
+						<entry>Short form</entry>
+						<entry>Long form</entry>
+						<entry>Argument</entry>
+						<entry>Options</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>start</entry>
+						<entry>-r</entry>
+						<entry>--start</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>stop</entry>
+						<entry>-s</entry>
+						<entry>--stop</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>shutdown</entry>
+						<entry>-d</entry>
+						<entry>--shutdown</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
+						<entry>info</entry>
+						<entry>-i</entry>
+						<entry>--info</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+				</tbody>
+			</tgroup>
+		</table>
+	</para>
+
+	<section id="slee_start">
+		<title>start</title>
+		<para><literal>start</literal> operation starts container. Container has to be in  <literal>STOPPED</literal> state.
+		This operation does not accept options nor arguments. Example invocation:</para>
+		<example>
+			<title>Start container</title>
+			<!-- <screen> --><programlisting>./twiddle.sh slee -r<!-- </screen> --></programlisting>
+			<!-- <screen> --><programlisting>./twiddle.sh slee --start<!-- </screen> --></programlisting>
+		</example>
+	</section>
+	<section id="slee_stop">
+		<title>stop</title>
+		<para><literal>stop</literal> operation stops container. Container has to be in  <literal>RUNNING</literal> state.
+		This operation does not accept options nor arguments.Example invocation:</para>
+		<example>
+			<title>Stop container</title>
+			<!-- <screen> --><programlisting>./twiddle.sh slee -s<!-- </screen> --></programlisting>
+			<!-- <screen> --><programlisting>./twiddle.sh slee --stop<!-- </screen> --></programlisting>
+		</example>
+		
+	</section>
+	<section id="slee_shutdown">
+		<title>shutdown</title>
+		<para><literal>shutdown</literal> operation terminates container. Difference to <literal>stop</literal> is that container is no longer accessible. 
+		This operation does not accept options nor arguments.Example invocation:</para>
+		<example>
+			<title>Shutdown container</title>
+		<!-- <screen> --><programlisting>./twiddle.sh slee -d<!-- </screen> --></programlisting>
+		<!-- <screen> --><programlisting>./twiddle.sh slee --shutdown<!-- </screen> --></programlisting>
+		</example>
+	</section>
+	<section id="slee_info">
+		<title>info</title>
+		<para><literal>info</literal> operation displays information about container. This information depends on implementation. 
+		This operation does not accept options nor arguments.Example invocation:</para>
+		<example>
+			<title>Print info about container</title>
+		<!-- <screen> --><programlisting>./twiddle.sh slee -i<!-- </screen> --></programlisting>
+		<!-- <screen> --><programlisting>./twiddle.sh slee --info<!-- </screen> --></programlisting>
+		</example>
+	</section>
+</section>	
