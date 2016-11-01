@@ -110,23 +110,21 @@
 				<slee.vendor>Telestax</slee.vendor>
 			</properties>			
 		</profile>
-		<!--
 		<profile>
 			<id>build-as72</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<javassist.version>3.15.0-GA</javassist.version>
+				<!--<javassist.version>3.15.0-GA</javassist.version>-->
 			</properties>
 		</profile>
 		<profile>
 			<id>build-as10</id>
 			<properties>
-				<javassist.version>3.18.1-GA</javassist.version>
+				<!--<javassist.version>3.18.1-GA</javassist.version>-->
 			</properties>
 		</profile>
-		-->
 	</profiles>
 
 	<build>

@@ -219,18 +219,33 @@ public class SleeContainerService implements Service<SleeContainer> {
 		registerMBean(timerFacilityConfiguration, TimerFacilityConfigurationMBean.OBJECT_NAME);
 		registerMBean(eventContextFactoryConfiguration, EventContextFactoryConfigurationMBean.OBJECT_NAME);
 		registerMBean(congestionControlConfiguration, CongestionControlConfigurationMBean.OBJECT_NAME);
-		registerMBean(new DeploymentManagerMBeanImpl(internalDeployer), DeploymentManagerMBeanImplMBean.OBJECT_NAME);
-		registerMBean(new DeploymentMBeanImpl(internalDeployer), DeploymentMBean.OBJECT_NAME);		
-		registerMBean(new ServiceManagementMBeanImpl(serviceManagement), ServiceManagementMBean.OBJECT_NAME);		
+
+		final DeploymentManagerMBeanImpl deploymentManagerMBean = new DeploymentManagerMBeanImpl(internalDeployer);
+		registerMBean(deploymentManagerMBean, DeploymentManagerMBeanImplMBean.OBJECT_NAME);
+		final DeploymentMBeanImpl deploymentMBean = new DeploymentMBeanImpl(internalDeployer);
+		registerMBean(deploymentMBean, DeploymentMBean.OBJECT_NAME);
+		final ServiceManagementMBeanImpl serviceManagementMBean = new ServiceManagementMBeanImpl(serviceManagement);
+		registerMBean(serviceManagementMBean, ServiceManagementMBean.OBJECT_NAME);
 		// TODO ProfileProvisioningMBeanImpl
-		registerMBean(new ResourceManagementMBeanImpl(resourceManagement), ResourceManagementMBean.OBJECT_NAME);
-		registerMBean(new SbbEntitiesMBeanImpl(sbbEntityFactory), SbbEntitiesMBeanImplMBean.OBJECT_NAME);
-		registerMBean(new ActivityManagementMBeanImpl(sleeContainer), ActivityManagementMBeanImplMBean.OBJECT_NAME);
+		final ResourceManagementMBeanImpl resourceManagementMBean = new ResourceManagementMBeanImpl(resourceManagement);
+		registerMBean(resourceManagementMBean, ResourceManagementMBean.OBJECT_NAME);
+		final SbbEntitiesMBeanImpl sbbEntitiesMBean = new SbbEntitiesMBeanImpl(sbbEntityFactory);
+		registerMBean(sbbEntitiesMBean, SbbEntitiesMBeanImplMBean.OBJECT_NAME);
+		final ActivityManagementMBeanImpl activityManagementMBean = new ActivityManagementMBeanImpl(sleeContainer);
+		registerMBean(activityManagementMBean, ActivityManagementMBeanImplMBean.OBJECT_NAME);
 		// TODO PolicyMBeanImpl
 		//registerMBean(policyMBeanImpl, PolicyMBeanImplMBean.OBJECT_NAME);
 		
 		// slee management mbean
-		registerMBean(new SleeManagementMBeanImpl(sleeContainer), SleeManagementMBeanImplMBean.OBJECT_NAME);
+		final SleeManagementMBeanImpl sleeManagementMBean = new SleeManagementMBeanImpl(sleeContainer);
+		sleeManagementMBean.setDeploymentMBean(deploymentMBean.getObjectName());
+		sleeManagementMBean.setServiceManagementMBean(serviceManagementMBean.getObjectName());
+		sleeManagementMBean.setResourceManagementMBean(resourceManagementMBean.getObjectName());
+		sleeManagementMBean.setSbbEntitiesMBean(sbbEntitiesMBean.getObjectName());
+		sleeManagementMBean.setActivityManagementMBean(activityManagementMBean.getObjectName());
+		sleeManagementMBean.setDeploymentMBean(deploymentMBean.getObjectName());
+
+		registerMBean(sleeManagementMBean, SleeManagementMBeanImplMBean.OBJECT_NAME);
 
 
 		//
