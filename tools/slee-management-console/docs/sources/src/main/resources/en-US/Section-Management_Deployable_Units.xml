@@ -1,0 +1,133 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="DeployableUnits_top">
+	<title>"Deployable Units" View</title>
+
+	<para>In this view, it is possible to view, search, install and uninstall Deployable Units in the SLEE. A list showing the deployable units, identified by their filename, is shown.</para>
+
+	<para>
+		<figure>
+			<title>Deployable Units Main View</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-smc-Deployable-Units-main-view.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>The Deployable Units Main View, showing the currently deployed units, and an action link to uninstall them.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+
+	<section id="DeployableUnits_details">
+		<title>View Deployable Units Details</title>
+
+		<para>It is possible to see detailed information about the deployable units by clicking on it's name.</para>
+
+		<para>
+			<figure>
+				<title>Deployable Units Details</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-smc-Deployable-Units-du-details.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>The Deployable Units Details View, showing the details of the DU.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+
+		<para>The following fields are shown:
+			<itemizedlist>
+				<listitem>
+					<para>Name</para>
+					<para>The Deployable Unit name, extracted from it's filename.</para>
+				</listitem>
+				<listitem>
+					<para>ID</para>
+					<para>The <acronym>SLEE</acronym> identifier for this Deployable Unit.</para>
+				</listitem>
+				<listitem>
+					<para>Date</para>
+					<para>The deployment date for this Deployable Unit.</para>
+				</listitem>
+				<listitem>
+					<para>URL</para>
+					<para>The <acronym>URL</acronym> from where this deployable unit was deployed from.</para>
+				</listitem>
+				<listitem>
+					<para>Components</para>
+					<para>The <acronym>SLEE</acronym> components included and deployed with this deployable unit.</para>
+				</listitem>
+			</itemizedlist>
+		</para>
+	</section>
+
+	<section id="DeployableUnits_search">
+		<title>Search Deployable Units</title>
+
+		<para>In order to find specific deployable units, use the <guilabel>Search</guilabel> tab, where it is possible to specify a string to search for and click the <guibutton>Search</guibutton> button to list the <acronym>DU</acronym>s for which the name matches the given string.</para>
+	
+		<para>
+			<figure>
+				<title>Deployable Units Search View</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-smc-Deployable-Units-search-view.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>The Deployable Units Search View, showing a field used to search for specific named deployable units.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+
+		<important>
+			<title>Regular Expression not supported in Deployable Unit Search</title>
+			<para>When searching for deployable units, it is not possible to use regular expressions. So using "diam*" may not return anything, while "diameter" may return something.</para>
+		</important>
+
+	</section>
+
+	<section id="DeployableUnits_install">
+		<title>Install Deployable Units</title>
+		
+		<para>A deployable unit can be installed to <acronym>SLEE</acronym> by going to the <guilabel>Install</guilabel> tab, clicking the <guibutton>Choose File</guibutton> button, browsing to the desired deployable unit file and clicking the <guibutton>Install</guibutton> button.</para>
+
+		<para>
+			<figure>
+				<title>Deployable Units Install View</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-smc-Deployable-Units-install-view.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>The Deployable Units Install View, showing a field used to enter/browse for deployable unit location.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+
+		<important>
+			<title>Deployable Unit Installation</title>
+			<para>Please note that only the deployable unit will be installed, no further operations will be performed. If you need to, you will need to activate services, create Resource Adaptor Entities and Links, etc.</para>
+		</important>
+	</section>
+
+	<section id="DeployableUnits_uninstall">
+		<title>Uninstall Deployable Units</title>
+		
+		<para>A deployable unit can be uninstalled from <acronym>SLEE</acronym> in the list view (both in <guilabel>Browse</guilabel> or <guilabel>Search</guilabel> tabs) by clicking the <guibutton>uninstall</guibutton> link.</para>
+
+		<important>
+			<title>Deployable Unit Uninstall</title>
+			<para>Please note that the deployable unit will be uninstalled, only if there are no components depending on it, no Links or Entities in case of Resource Adaptors and in case of services, they must be deactivated.</para>
+		</important>
+	</section>
+
+</section>

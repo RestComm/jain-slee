@@ -1,0 +1,151 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.tools</groupId>
+		<artifactId>mobicents-slee-tools-management-console-parent</artifactId>
+		<version>2.8.0-SNAPSHOT</version>
+	</parent>
+
+	<packaging>war</packaging>
+
+	<artifactId>mobicents-slee-tools-management-console-war</artifactId>
+
+	<name>Mobicents :: Tools :: slee-management-console-war</name>
+
+	<build>
+		<finalName>slee-management-console</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+
+			<!-- GWT Settings -->
+			<plugin>
+				<groupId>com.totsp.gwt</groupId>
+				<artifactId>maven-googlewebtoolkit2-plugin</artifactId>
+				<version>2.0-RC1</version>
+				<configuration>
+					<gwtVersion>${gwt.version}</gwtVersion>
+
+					<logLevel>INFO</logLevel>
+
+					<compileTargets>
+						<value>org.mobicents.slee.container.management.console.ManagementConsole</value>
+					</compileTargets>
+
+					<runTarget>org.mobicents.slee.container.management.console.ManagementConsole/ManagementConsole.html</runTarget>
+
+					<generatorRootClasses>
+						<value>org.mobicents.slee.container.management.console.ManagementConsole</value>
+					</generatorRootClasses>
+
+					<overwriteGeneratedClasses>true</overwriteGeneratedClasses>
+
+					<!-- use style OBF for prod -->
+					<!-- <style>DETAILED</style> -->
+					<!--
+						<generateGettersAndSetters> true </generateGettersAndSetters>
+					-->
+					<noServer>false</noServer>
+					<extraJvmArgs>-Xmx1024m</extraJvmArgs>
+					<!-- <extraJvmArgs>-Dgwt.coverage.enable=true</extraJvmArgs> -->
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>mergewebxml</goal>
+							<goal>compile</goal>
+							<goal>gwt</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webXml>target/web.xml</webXml>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>deploy</id>
+						<phase>install</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<copy overwrite="true" file="target/${build.finalName}.war" todir="${jboss.home}/server/default/deploy" />
+								<copy overwrite="true" file="target/${build.finalName}.war" todir="${jboss.home}/server/all/deploy" />
+								<delete failonerror="false" dir="${user.dir}/.gwt-cache" />
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>undeploy</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<delete file="${jboss.home}/server/default/deploy/${build.finalName}.war" />
+								<delete file="${jboss.home}/server/all/deploy/${build.finalName}.war" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>mobicents-slee-tools-management-console-server</artifactId>
+		</dependency>
+		<!-- GWT deps -->
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-servlet</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-dev</artifactId>
+			<classifier>${platform}</classifier>
+			<scope>provided</scope>
+		</dependency>
+
+		<!--
+			coverage patch (used to generate code coverage data for
+			GwtTestCase based tests, when -Dgwt.coverage.enable=true
+		-->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>emma</groupId>
+			<artifactId>emma</artifactId>
+			<version>2.0.5312</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>

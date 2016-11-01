@@ -1,0 +1,315 @@
+/*****************************
+ * SmartTabPanel
+ *****************************/
+
+.common-SmartTabPanel-Menu {
+  background-color: #ffffff;
+}
+
+.common-SmartTabPanel-Menu-Item-unselected {
+  padding: 3px;
+  background-color: #fff;
+  cursor: pointer;
+  cursor: hand;
+  font-weight: normal;
+  border-left: 5px solid #ffffff;
+}
+
+.common-SmartTabPanel-Menu-Item-selected {
+  padding: 3px;
+  background-color: #f8fafd;
+  cursor: default;
+  font-weight: bold;
+  border-left: 5px solid #2b4a6d;
+}
+
+.common-SmartTabPanel-Menu-Link img {
+  border: none;
+  vertical-align: bottom;
+}
+
+.common-SmartTabPanel-Menu-Link a,
+.common-SmartTabPanel-Menu-Link a:link ,
+.common-SmartTabPanel-Menu-Link a:visited {
+  text-decoration: none;
+  color: black;
+}
+
+.common-SmartTabPanel-Menu-Link a:hover {
+  color: black;
+}
+
+.common-SmartTabPanel {
+  background-color: #fff;
+}
+
+.common-SmartTabPanel-Title {
+  background-color: #FFFFFF;
+  font-weight: bold;
+  color: #2b4a6d;
+  padding-top: 5px;
+  padding-left: 12px;
+  font-size: 18px;
+}
+
+.common-SmartTabPanel-Content {
+	/* Make it more 'open', no enclosing box...
+  background-color: #f8fafd;
+  border: 2px solid #2b4a6d;
+  */
+}
+
+
+/*****************************
+* ToolBar
+*****************************/
+
+.common-ToolBar {
+  height: 30px;
+  margin-bottom: 5px;
+  border-spacing: 4px;
+}
+
+.common-ToolBar button {
+  height: 20px;
+  /*
+  border: 1px solid #ffe57f;
+  background-color: #ffffbb;
+  */
+  border: 1px solid #8eb8ff;
+  background-color: #ccdfff;
+  
+  text-decoration: none;
+  cursor: default;
+  color: #1739A7;
+}
+
+.common-ToolBar button:hover {
+  background-color: white;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.common-ToolBar a,
+.common-ToolBar a:link,
+.common-ToolBar a:visited {
+  text-decoration: none;
+}
+
+.common-ToolBar a:hover {
+  text-decoration: underline;
+}
+
+.common-ToolBar-separator {
+  width: 4px;
+}
+
+/*****************************
+* BrowseContainer
+*****************************/
+
+.common-BrowseContainer {
+  width: 100%;
+}
+
+.common-BrowseContainer-title {
+  font-weight: bold;
+  font-size: 14px;
+  margin: 8px 8px 0px 8px;
+  color: #2b4a6d;
+}
+
+.common-BrowseContainer-links {
+  border-spacing: 5px;
+}
+
+.common-BrowseContainer-BrowseLink {
+  color: #466799;
+}
+  
+.common-BrowseContainer-BrowseLink a,
+.common-BrowseContainer-BrowseLink a:link,
+.common-BrowseContainer-BrowseLink a:visited,
+.common-BrowseContainer-BrowseLink a:hover {
+  color: #466799;
+  text-decoration: none;
+}
+
+.common-BrowseContainer-BrowseLink-last a,
+.common-BrowseContainer-BrowseLink-last a:link,
+.common-BrowseContainer-BrowseLink-last a:visited,
+.common-BrowseContainer-BrowseLink-last a:hover {
+  color: #000;
+  text-decoration: none;
+  cursor: default;
+}
+
+/*****************************
+* ListPanel
+*****************************/
+
+.common-ListPanel {
+  background-color: white;
+  border: 1px solid #dfdfdf;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.common-ListPanel-header,
+.common-ListPanel-header td {
+  padding: 5px;
+  background-color: #2b4a6d;
+  color: #ffffff;
+}
+
+.common-ListPanel-cell {
+  padding: 5px;
+  font-size: 12px;
+}
+
+.common-ListPanel-cell-even {
+  background-color: #eeeeee;
+}
+
+.common-ListPanel-cell-notfirst {
+  border-top: 1px solid #dfdfdf;
+}
+
+/*****************************
+* PropertiesPanel
+*****************************/
+
+.common-PropertiesPanel {
+  background-color: white;
+  border: 1px solid #dfdfdf;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.common-PropertiesPanel-even {
+  background-color: #EEEEEE;  
+}
+
+.common-PropertiesPanel-notfirst {
+  border-top: 1px solid #DFDFDF;
+}
+
+.common-PropertiesPanel-name,
+.common-PropertiesPanel-name div {
+  padding: 3px;
+  color: #2b4a6d;
+  font-weight: bold;
+}
+
+.common-PropertiesPanel-value,
+.common-PropertiesPanel-value div {
+}
+
+/*****************************
+* Title
+*****************************/
+
+.common-Title-1 {
+}
+
+.common-Title-2 {
+  font-weight: bold;
+  color: #2b4a6d;
+  padding-top: 10px;
+}
+
+.common-Title-3 {
+}
+
+.common-Title-4 {
+}
+
+/*****************************
+ * MMC Log Panel
+ *****************************/
+
+.common-LogPanel {
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+}
+
+.common-LogPanel-area {
+  background-color: #fafafa;
+  border: 2px solid #dfdfdf;
+  padding: 2px;
+  margin: 3px;
+  font-family: monospace;
+  color: #000;
+  height: 160px;
+}
+
+.common-LogPanel-header {
+  /*background-image: url("../images/log.mgmt.1.jpg");
+  background-repeat: no-repeat;*/
+  height: 10px;
+  width: 100%;
+  color: #2b4a6d;
+
+  padding-right: 5px;
+}
+
+.common-LogPanel-header div {
+  color: #2b4a6d;
+  font-weight: bold;
+}
+
+.common-LogPanel-header a,
+.common-LogPanel-header a:link,
+.common-LogPanel-header a:visited {
+  font-weight: normal;
+  text-decoration: none;
+  color: #466799;
+}
+
+.common-LogPanel-header a:hover {
+  color: #466799;
+  border-bottom: 1px dotted #466799;
+}
+
+.common-LogPanel-text {
+  font-family: "Courier New", Courier, monospace;
+  color: #000;
+}
+
+/*****************************
+ * SLEE State Panel
+ *****************************/
+
+.sleestate-SleeStatePanel {
+  width: 99%;
+  margin: 4px;
+  border-spacing: 5px;
+  border: 1px solid #2b4a6d;
+  background-color: #f8fafd;
+}
+
+.sleestate-SleeStatePanel-state {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-weight: bold;
+}
+
+.sleestate-SleeStatePanel-state-stopped {
+  background-color: #ffaaaa;
+  border: 1px solid red;
+  color: #660000;
+}
+
+.sleestate-SleeStatePanel-state-starting,
+.sleestate-SleeStatePanel-state-stopping  {
+  background-color: #ffccaa;
+  border: 1px solid #d66000;
+  color: #d66000;
+}
+
+.sleestate-SleeStatePanel-state-running {
+  background-color: #bbeecc;
+  border: 1px solid #006600;
+  color: #006600;
+}

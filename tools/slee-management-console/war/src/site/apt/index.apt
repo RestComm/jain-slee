@@ -1,0 +1,8 @@
+GWT-Maven Sample 
+
+ This is a sample project that uses GWT-Maven for, well, GWT and Maven integration.
+
+* Overview
+
+ * Lot's of stuff, see src README. http://gwt-maven.googlecode.com/svn/trunk/maven-googlewebtoolkit2-sample/README.txt
+ 

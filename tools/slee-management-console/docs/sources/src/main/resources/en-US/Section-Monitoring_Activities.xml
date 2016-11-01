@@ -1,0 +1,137 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="Activities_top">
+	<title>"Activities" View</title>
+
+	<para>
+		<figure>
+			<title>Activities Main View</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="100%" align="center" fileref="images/img-smc-Activities-main-view.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>The Activities Main View, showing the existing Activities, and a button for query their liveness.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</para>
+
+	<para>In this view, it's possible to monitor the existing activities in the SLEE. The Activity Contexts are listed by their ID, TTL (maximum time in seconds without being accessed) and their Java Class Name.</para>
+
+	<section id="Activities_details">
+		<title>View Activities Details</title>
+
+		<para>
+			<figure>
+				<title>Activities Details View</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-smc-Activities-activity-details.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>The Activities Details View, showing the details of a selected activity.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+
+		<para>In the <guilabel>Browse Activities</guilabel> tab the list of activities is shown. When clicking on one of the Activity Context ID, it's details are shown. The following details are displayed:</para>
+
+		<itemizedlist>
+			<listitem>
+				<para>ID</para>
+				<para>The internal identifier for this Activity Context.</para>
+			</listitem>
+			<listitem>
+				<para>Activity Class</para>
+				<para>The Java class representing this activity.</para>
+			</listitem>
+			<listitem>
+				<para>Last Access Timestamp</para>
+				<para>The timestamp of when this Activity Context was last accessed.</para>
+			</listitem>
+			<listitem>
+				<para>Timers</para>
+				<para>The SLEE Timers attached to this Activity Context, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Data Attributes</para>
+				<para>The CMP attributes set in this Activity Context, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Name Bindings</para>
+				<para>The set of names given to this Activity Context, if any.</para>
+			</listitem>
+			<listitem>
+				<para>RA Entity</para>
+				<para>The Resource Adaptor Entity responsible for creating this Activity Context, if any.</para>
+			</listitem>
+			<listitem>
+				<para>SBB Attachments</para>
+				<para>The SBBs attached to this Activity Context, if any.</para>
+			</listitem>
+		</itemizedlist>
+
+		<para>It is also possible to view the details of the SBB Entities attached to the activities by clicking on it's ID.</para>
+
+		<para>
+			<figure>
+				<title>Activities SBB Entity Details View</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata width="100%" align="center" fileref="images/img-smc-Activities-sbb-entity-details.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>The Activities SBB Entity Details View, showing the details of a selected SBB entity.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</para>
+
+		<para>The following details are shown:</para>
+		<itemizedlist>
+			<listitem>
+				<para>Entity ID</para>
+				<para>The internal identifier for this SBB Entity.</para>
+			</listitem>
+			<listitem>
+				<para>Parent SBB Entity</para>
+				<para>The internal identifier for the parent SBB Entity for this SBB Entity, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Root SBB Entity</para>
+				<para>The internal identifier of the root SBB Entity for this SBB Entity, which may be itself.</para>
+			</listitem>
+			<listitem>
+				<para>SBB</para>
+				<para>The SBB component this SBB Entity represents.</para>
+			</listitem>
+			<listitem>
+				<para>Priority</para>
+				<para>The priority for this SBB Entity in it's child relation, if any.</para>
+			</listitem>
+			<listitem>
+				<para>Service Convergence Name</para>
+				<para>A name used to uniquely identify a root SBB entity belonging to a Service.</para>
+			</listitem>
+			<listitem>
+				<para>Service</para>
+				<para>The SLEE Service to which this SBB Entity belongs.</para>
+			</listitem>
+		</itemizedlist>
+
+		<para>The <guibutton>Remove</guibutton> button allows to force the removal of this identity, useful for certain development and/or troubleshooting situations where entities may be leaking.</para>
+	</section>
+
+	<section id="Activities_query_liveness">
+		<title>Query Activity Context Liveness</title>
+
+		<para>It is possible to query Resource Adaptor created activities for validity, by querying their liveness. If the Activity is not alive the Resource Adaptor is expected to end the activity. If the Activity is still alive the Resource Adaptor is not expected to do anything.</para>
+	</section>
+
+</section>
