@@ -178,7 +178,12 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 			}
 		}
 		
-		component.getProfileEntityFramework().uninstall();		
+		//component.getProfileEntityFramework().uninstall();
+	}
+
+	public void closeEntityManagerFactory(ProfileSpecificationComponent component) {
+		logger.debug("PROFILEENTITY FRAMEWORK: CLOSE ENTITYMANAGER FACTORY");
+		component.getProfileEntityFramework().closeEntityManagerFactory();
 	}
 
 	/**

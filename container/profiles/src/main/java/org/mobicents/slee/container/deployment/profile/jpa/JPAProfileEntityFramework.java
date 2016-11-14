@@ -583,6 +583,12 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 		}
 	}
 
+    public void closeEntityManagerFactory() {
+        if (entityManagerFactory != null) {
+            entityManagerFactory.close();
+        }
+    }
+
 	// AUX METHODS
 
 	/**

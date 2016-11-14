@@ -564,6 +564,7 @@ public class ProfileSpecificationComponentImpl extends AbstractSleeComponentWith
 		profileCmpInterfaceClass = null;
 		profileCmpSlee10WrapperClass = null;
 		profileConcreteClass = null;
+		profileEntityFramework.closeEntityManagerFactory();
 		profileEntityFramework = null;
 		profileLocalInterfaceClass = null;
 		profileLocalObjectConcreteClass = null;

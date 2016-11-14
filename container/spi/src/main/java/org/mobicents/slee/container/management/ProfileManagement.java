@@ -85,4 +85,11 @@ public interface ProfileManagement extends SleeContainerModule {
 			ProfileSpecificationComponent component)
 			throws UnrecognizedProfileSpecificationException;
 
+	/**
+	 * 
+	 * @param component
+	 */
+	public void closeEntityManagerFactory(
+			ProfileSpecificationComponent component);
+
 }
