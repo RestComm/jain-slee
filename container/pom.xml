@@ -23,7 +23,8 @@
 		<trove.version>1.0.2</trove.version>
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
 
-		<javassist.version>3.18.1-GA</javassist.version>
+		<!--<javassist.version>3.18.1-GA</javassist.version>-->
+		<javassist.version>3.15.0-GA</javassist.version>
 	</properties>
 
 	<modules>
