@@ -1,5 +1,6 @@
 package org.telestax.slee.container.build.as7.service;
 
+import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.cache.config.Configuration;
 import org.jboss.cache.config.RuntimeConfig;
 import org.jboss.logging.Logger;
@@ -78,6 +79,12 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 	private final InjectedValue<MBeanServer> mbeanServer = new InjectedValue<MBeanServer>();
 	private final InjectedValue<TransactionManager> transactionManager = new InjectedValue<TransactionManager>();
+	
+	private final InjectedValue<ManagedReferenceFactory> managedReferenceFactory = new InjectedValue<ManagedReferenceFactory>();
+	public InjectedValue<ManagedReferenceFactory> getManagedReferenceFactory() {
+    	return managedReferenceFactory;
+	}
+
 	private final LinkedList<String> registeredMBeans = new LinkedList<String>();
 	
 	private SleeContainer sleeContainer;
