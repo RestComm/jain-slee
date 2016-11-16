@@ -177,12 +177,15 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 				throw new SLEEException(e.getMessage(),e);
 			}
 		}
-		
+
+		// FIXME: For JBoss 7.2.0.Final:
+		// we have a problem with org.hibernate.service.UnknownServiceException:
+		// Unknown service requested [org.hibernate.event.service.spi.EventListenerRegistry]
+		// see https://hibernate.atlassian.net/browse/HHH-8586
 		//component.getProfileEntityFramework().uninstall();
 	}
 
 	public void closeEntityManagerFactory(ProfileSpecificationComponent component) {
-		logger.debug("PROFILEENTITY FRAMEWORK: CLOSE ENTITYMANAGER FACTORY");
 		component.getProfileEntityFramework().closeEntityManagerFactory();
 	}
 

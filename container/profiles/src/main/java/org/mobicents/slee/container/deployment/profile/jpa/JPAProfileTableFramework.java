@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.cfg.Environment;
 import org.hibernate.ejb.HibernatePersistence;
 import org.jboss.as.jpa.config.PersistenceUnitMetadataImpl;
-import org.jboss.as.jpa.spi.PersistenceUnitMetadata;
 import org.mobicents.slee.container.component.profile.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.ProfileManagementImpl;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
@@ -68,11 +67,13 @@ public class JPAProfileTableFramework {
     private void createPersistenceUnit() {
         try {
             HibernatePersistence hp = new HibernatePersistence();
-            PersistenceUnitMetadata pumd = new PersistenceUnitMetadataImpl();
+            PersistenceUnitMetadataImpl pumd = new PersistenceUnitMetadataImpl();
             pumd.setTransactionType(PersistenceUnitTransactionType.JTA);
             pumd.setValidationMode(ValidationMode.NONE);
 
-            pumd.setPersistenceProviderClassName(HibernatePersistence.class.getName());
+            // FIXME: Do we need this property here
+            //pumd.setPersistenceProviderClassName("org.hibernate.ejb.HibernatePersistence");
+            //pumd.setPersistenceProviderClassName("org.hibernate.jpa.HibernatePersistenceProvider");
             pumd.setJtaDataSourceName(configuration.getHibernateDatasource());
             pumd.setExcludeUnlistedClasses(false);
 
@@ -108,8 +109,9 @@ public class JPAProfileTableFramework {
                         + pumd.getPersistenceUnitName());
             }
 
+            // FIXME: Do we need this property here (Environment.TRANSACTION_STRATEGY)
             //properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JTATransactionFactory");
-            properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.CMTTransactionFactory");
+            //properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.CMTTransactionFactory");
             //properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.engine.transaction.internal.jta.CMTTransactionFactory");
 
             // SEE: https://developer.jboss.org/thread/172307
@@ -119,11 +121,9 @@ public class JPAProfileTableFramework {
             //properties.setProperty(Environment.JTA_PLATFORM, "org.hibernate.service.jta.platform.internal.JBossStandAloneJtaPlatform");
             properties.setProperty(Environment.JTA_PLATFORM, "org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform");
 
-
-            properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider");
-
-            // TODO:
-            //properties.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
+            // FIXME: Do we need this property here (Environment.CONNECTION_PROVIDER)
+            //properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider");
+            //properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl");
 
             properties.setProperty(Environment.DIALECT, configuration.getHibernateDialect());
             // FIXME: Should be Environment.JACC_CONTEXTID but it's

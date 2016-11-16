@@ -26,6 +26,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
+import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
@@ -43,6 +44,8 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.profile.entity.ProfileEntity;
 import org.mobicents.slee.container.security.Utility;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
+
+import java.util.Map;
 
 /**
  * Start time:12:23:15 2009-03-18<br>
@@ -88,7 +91,8 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 	/**
 	 * 
 	 * @param mbeanInterface
-	 * @param profileObject
+	 * @param profileName
+	 * @param profileTable
 	 * @throws NotCompliantMBeanException
 	 */
 	public AbstractProfileMBeanImpl(Class<?> mbeanInterface, String profileName, ProfileTableImpl profileTable) throws NotCompliantMBeanException, ManagementException {
@@ -307,7 +311,12 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 			// check if the tx is marked for rollback
 			if (txManager.getRollbackOnly()) {
 				// FIXME can't undertsand why the rollback and change of state, perhaps tests/profiles/lifecycle/Test1110227Test.xml is faulty??
+				// FIXME: Do we need to close EntityManager here?
+				EntityManager em = getEntityManager(txManager);
 				txManager.rollback();
+				if (em != null && em.isOpen()) {
+					em.close();
+				}
 				readMode();
 				this.transaction = null;
 				throw new RollbackException("the tx is marked for rollback, can't proceeed with commit");
@@ -456,6 +465,13 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 		return state == State.write;
 	}
 
+	private EntityManager getEntityManager(SleeTransactionManager manager) {
+		String txDataKey = new StringBuilder("jpapef.em.").append(profileTable.getProfileSpecificationComponent().getProfileSpecificationID()).toString();
+		Map transactionContextData = manager.getTransactionContext().getData();
+		EntityManager result = (EntityManager) transactionContextData.get(txDataKey);
+		return result;
+	}
+
 	public void restoreProfile() throws InvalidStateException, ManagementException {
 		
 		if (logger.isDebugEnabled()) {
@@ -469,7 +485,14 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 		final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
 		try {
 			txManager.resume(transaction);
+
+			// FIXME: Do we need to close EntityManager here?
+			EntityManager em = getEntityManager(txManager);
 			txManager.rollback();
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+
 			transaction = null;
 			readMode();
 		} catch (Throwable e) {
@@ -590,7 +613,12 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 			  try {
 				  final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
 				  if (txManager.getRollbackOnly()) {
-					  txManager.rollback();	
+					  // FIXME: Do we need to close EntityManager here?
+					  EntityManager em = getEntityManager(txManager);
+					  txManager.rollback();
+					  if (em != null && em.isOpen()) {
+						  em.close();
+					  }
 				  }
 				  else {
 					  txManager.commit();

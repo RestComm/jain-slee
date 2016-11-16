@@ -25,9 +25,8 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 import org.apache.log4j.Logger;
 import org.hibernate.cfg.Environment;
 import org.hibernate.ejb.HibernatePersistence;
-import org.hibernate.ejb.QueryImpl;
+import org.hibernate.internal.QueryImpl;
 import org.jboss.as.jpa.config.PersistenceUnitMetadataImpl;
-import org.jboss.as.jpa.spi.PersistenceUnitMetadata;
 import org.mobicents.slee.container.component.profile.ProfileAttribute;
 import org.mobicents.slee.container.component.profile.ProfileSpecificationComponent;
 import org.mobicents.slee.container.profile.entity.ProfileEntity;
@@ -263,11 +262,14 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 		}
 
 		Collection<ProfileEntity> result = query.getResultList();
+
+		/*
 		if (logger.isDebugEnabled()) {
 			logger.debug("findProfilesByAttribute : query = "
-					+ ((QueryImpl) query).getHibernateQuery().getQueryString()
+					+ ((org.hibernate.ejb.QueryImpl) query).getHibernateQuery().getQueryString()
 					+ " , result = " + result);
 		}
+		*/
 
 		return result;
 	}
@@ -600,12 +602,14 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			ProfileSpecificationComponent profileComponent) {
 		try {
 			HibernatePersistence hp = new HibernatePersistence();
-			PersistenceUnitMetadata pumd = new PersistenceUnitMetadataImpl();
+			PersistenceUnitMetadataImpl pumd = new PersistenceUnitMetadataImpl();
 
 			pumd.setTransactionType(PersistenceUnitTransactionType.JTA);
 			pumd.setValidationMode(ValidationMode.NONE);
 
-			pumd.setPersistenceProviderClassName("org.hibernate.ejb.HibernatePersistence");
+			// FIXME: Do we need this property here
+			//pumd.setPersistenceProviderClassName("org.hibernate.ejb.HibernatePersistence");
+			//pumd.setPersistenceProviderClassName("org.hibernate.jpa.HibernatePersistenceProvider");
 			pumd.setJtaDataSourceName(configuration.getHibernateDatasource());
 			pumd.setExcludeUnlistedClasses(false);
 
@@ -645,8 +649,9 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 						+ pumd.getPersistenceUnitName());
 			}
 
-            properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.CMTTransactionFactory");
-            //properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.engine.transaction.internal.jta.CMTTransactionFactory");
+			// FIXME: Do we need this property here (Environment.TRANSACTION_STRATEGY)
+            //properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.CMTTransactionFactory");
+			//properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.engine.transaction.internal.jta.CMTTransactionFactory");
             //properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JTATransactionFactory");
 
 			// SEE: https://developer.jboss.org/thread/172307
@@ -654,7 +659,9 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			//properties.setProperty(Environment.JTA_PLATFORM, "org.hibernate.service.jta.platform.internal.JBossStandAloneJtaPlatform");
 			properties.setProperty(Environment.JTA_PLATFORM, "org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform");
 
-            properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider");
+			// FIXME: Do we need this property here (Environment.CONNECTION_PROVIDER)
+			//properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider");
+            //properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl");
 
 			// TODO:
 			//properties.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
@@ -740,6 +747,9 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			// store in tx context data
 			transactionContextData.put(txDataKey, result);
 			// add a tx action to close it before tx commits
+
+			// FIXME: Do we need this after-rollback action here
+			/*
 			final EntityManager em = result;
 			TransactionalAction action = new TransactionalAction() {
 				public void execute() {
@@ -750,7 +760,9 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 					}
 				}
 			};
+
 			txContext.getAfterRollbackActions().add(action);
+			*/
 		}
 		return result;
 	}
