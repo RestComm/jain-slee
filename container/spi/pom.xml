@@ -9,8 +9,13 @@
 
 	<artifactId>spi</artifactId>
 			
-	<dependencies>				
-		
+	<dependencies>
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
@@ -20,12 +25,7 @@
 			<groupId>org.mobicents.servers.jainslee.api</groupId>
 			<artifactId>jain-slee-11-ext</artifactId>
 		</dependency>
-		
-		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
-		</dependency>
-		
+
 		<dependency>
 			<groupId>org.mobicents.cluster</groupId>
 			<artifactId>core</artifactId>
@@ -37,14 +37,6 @@
            	<version>${pom.version}</version>           	
 		</dependency>
 		
-		<!-- 
-		<dependency>
-			<groupId>${pom.groupId}</groupId>
-           	<artifactId>deployer</artifactId>
-           	<version>${pom.version}</version>           	
-		</dependency>
-		 -->
-		 
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>fault-tolerant-ra-api</artifactId>
@@ -60,7 +52,7 @@
 			<groupId>trove</groupId>
 			<artifactId>trove</artifactId>			
 		</dependency>            
-            
+
         <dependency>
             <groupId>javax.resource</groupId>
             <artifactId>connector</artifactId>

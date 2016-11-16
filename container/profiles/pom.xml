@@ -18,17 +18,17 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>4.2.0.CR1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
-			<version>4.2.0.CR1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.as</groupId>
 			<artifactId>jboss-as-jpa</artifactId>
-			<version>7.2.0.Final</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
