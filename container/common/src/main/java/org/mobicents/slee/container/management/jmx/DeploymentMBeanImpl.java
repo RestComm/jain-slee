@@ -557,6 +557,21 @@ public class DeploymentMBeanImpl extends MobicentsServiceMBeanSupport implements
 							sleeTransactionManager.rollback();
 						} else {
 							sleeTransactionManager.commit();
+
+							// FIXME: For JBoss 7.2.0.Final:
+							// we have a problem with org.hibernate.service.UnknownServiceException:
+							// Unknown service requested [org.hibernate.event.service.spi.EventListenerRegistry]
+							// see https://hibernate.atlassian.net/browse/HHH-8586
+							for (ProfileSpecificationComponent component : deployableUnit
+									.getProfileSpecificationComponents().values()) {
+								currentThread.setContextClassLoader(component
+										.getClassLoader());
+								removeSecurityPermissions(component, false);
+								sleeContainer.getSleeProfileTableManager()
+										.closeEntityManagerFactory(component);
+								logger.info("Finalized " + component);
+							}
+
 							// Clean up all the class files.
 							deployableUnit.undeploy();
 						}

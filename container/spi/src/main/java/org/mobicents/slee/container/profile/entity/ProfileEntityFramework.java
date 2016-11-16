@@ -144,4 +144,6 @@ public interface ProfileEntityFramework {
 	 */
 	public void uninstall();
 
+	public void closeEntityManagerFactory();
+
 }

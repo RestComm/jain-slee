@@ -35,11 +35,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>jboss</groupId>
 			<artifactId>jboss-serialization</artifactId>
 		</dependency>
@@ -58,6 +53,14 @@
 			<groupId>org.jboss.cache</groupId>
 			<artifactId>jbosscache-core</artifactId>
 		</dependency>
+
+		<!--
+		<dependency>
+			<groupId>org.jboss.jpa</groupId>
+			<artifactId>jboss-jpa-deployers</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		-->
 
 		<dependency>
 			<groupId>org.mobicents.cluster</groupId>
@@ -135,6 +138,12 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>jmx-property-editors</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>profiles</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

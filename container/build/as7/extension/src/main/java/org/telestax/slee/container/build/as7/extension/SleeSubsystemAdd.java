@@ -1,20 +1,18 @@
 package org.telestax.slee.container.build.as7.extension;
 
-import java.util.List;
-
-import javax.management.MBeanServer;
-import javax.transaction.TransactionManager;
-
+import org.jboss.as.connector.subsystems.datasources.DataSourceReferenceFactoryService;
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.jmx.MBeanServerService;
+import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.as.server.AbstractDeploymentChainStep;
 import org.jboss.as.server.DeploymentProcessorTarget;
 import org.jboss.as.txn.service.TransactionManagerService;
 import org.jboss.dmr.ModelNode;
 import org.jboss.logging.Logger;
+import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceTarget;
@@ -22,6 +20,10 @@ import org.telestax.slee.container.build.as7.deployment.SleeDeploymentInstallPro
 import org.telestax.slee.container.build.as7.deployment.SleeDeploymentParseProcessor;
 import org.telestax.slee.container.build.as7.service.SleeContainerService;
 import org.telestax.slee.container.build.as7.service.SleeServiceNames;
+
+import javax.management.MBeanServer;
+import javax.transaction.TransactionManager;
+import java.util.List;
 
 class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
@@ -64,12 +66,15 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
     	// Installs the msc service which builds the SleeContainer instance and its modules
         final ServiceTarget target = context.getServiceTarget();
         final SleeContainerService sleeContainerService = new SleeContainerService();
-        newControllers.add(target.addService(SleeServiceNames.SLEE_CONTAINER, sleeContainerService)
+        final ServiceBuilder<?> sleeContainerServiceBuilder = target
+                .addService(SleeServiceNames.SLEE_CONTAINER, sleeContainerService)
                 //.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, service.getPathManagerInjector())
                 .addDependency(MBeanServerService.SERVICE_NAME, MBeanServer.class, sleeContainerService.getMbeanServer())
                 .addDependency(TransactionManagerService.SERVICE_NAME, TransactionManager.class, sleeContainerService.getTransactionManager())
-                .setInitialMode(Mode.ACTIVE)
-                .install());
+                .addDependency(DataSourceReferenceFactoryService.SERVICE_NAME_BASE.append("ExampleDS"),
+                        ManagedReferenceFactory.class, sleeContainerService.getManagedReferenceFactory());
+
+        newControllers.add(sleeContainerServiceBuilder.setInitialMode(Mode.ACTIVE).install());
     }
     
 }

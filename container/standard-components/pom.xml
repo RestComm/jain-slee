@@ -13,6 +13,8 @@
 	<modules>
 		<module>standard-events-jar</module>
 		<module>standard-events11-jar</module>
+		<module>standard-profiles-jar</module>
+		<module>standard-profiles11-jar</module>
 		<module>du</module>
 	</modules>
 	

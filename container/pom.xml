@@ -17,13 +17,18 @@
 		<slee.vendor>Mobicents</slee.vendor>
 		<slee.version>${pom.version}</slee.version>
 		<slee.codename>???</slee.codename>
+
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.cluster.version>1.13.1.FINAL</mobicents.cluster.version>
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
 
-		<javassist.version>3.18.1-GA</javassist.version>
+		<version.jboss.as>7.2.0.Final</version.jboss.as>
+		<version.javassist>3.15.0-GA</version.javassist>
+		<version.hibernate>4.2.0.CR1</version.hibernate>
+		<version.vfs>3.2.0.Final</version.vfs>
+		<version.junit>4.8.2</version.junit>
 	</properties>
 
 	<modules>
@@ -33,6 +38,7 @@
 		<module>usage</module>
 		<module>activities</module>
 		<module>events</module>
+		<module>profiles</module>
 		<module>router</module>
 		<module>transaction</module>
 		<module>components</module>
@@ -77,16 +83,86 @@
 				<artifactId>jain-slee-11-ext</artifactId>
 				<version>${jain-slee-11-ext.version}</version>				
 			</dependency>
-			<dependency>
-				<groupId>org.javassist</groupId>
-				<artifactId>javassist</artifactId>
-				<version>${javassist.version}</version>
-			</dependency>
+
 			<dependency>
             	<groupId>javax.resource</groupId>
             	<artifactId>connector</artifactId>
             	<version>1.0</version>
         	</dependency>
+			<dependency>
+				<groupId>org.javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>${version.javassist}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-controller</artifactId>
+				<version>${version.jboss.as}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-jmx</artifactId>
+				<version>${version.jboss.as}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-server</artifactId>
+				<version>${version.jboss.as}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-transactions</artifactId>
+				<version>${version.jboss.as}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-connector</artifactId>
+				<version>${version.jboss.as}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss</groupId>
+				<artifactId>jboss-vfs</artifactId>
+				<version>${version.vfs}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-subsystem-test</artifactId>
+				<version>${version.jboss.as}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<scope>test</scope>
+				<version>${version.junit}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-core</artifactId>
+				<version>${version.hibernate}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-entitymanager</artifactId>
+				<version>${version.hibernate}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-jpa</artifactId>
+				<version>${version.jboss.as}</version>
+				<scope>provided</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -109,21 +185,6 @@
 				<slee.name>Telscale JAIN SLEE</slee.name>
 				<slee.vendor>Telestax</slee.vendor>
 			</properties>			
-		</profile>
-		<profile>
-			<id>build-as72</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<!--<javassist.version>3.15.0-GA</javassist.version>-->
-			</properties>
-		</profile>
-		<profile>
-			<id>build-as10</id>
-			<properties>
-				<!--<javassist.version>3.18.1-GA</javassist.version>-->
-			</properties>
 		</profile>
 	</profiles>
 

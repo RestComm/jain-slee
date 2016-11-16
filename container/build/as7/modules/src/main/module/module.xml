@@ -17,9 +17,10 @@
         <resource-root path="fault-tolerant-ra-impl-${project.version}.jar"/>
         <resource-root path="jmx-property-editors-${project.version}.jar"/>
         <!--
-        <resource-root path="profiles-${project.version}.jar"/>
+
         <resource-root path="remote-${project.version}.jar"/>
          -->
+        <resource-root path="profiles-${project.version}.jar"/>
         <resource-root path="resource-${project.version}.jar"/>
         <resource-root path="router-${project.version}.jar"/>
         <resource-root path="services-${project.version}.jar"/>
@@ -45,6 +46,7 @@
     <dependencies>
         <module name="sun.jdk"/>
         <module name="javax.api"/>
+        <module name="javax.persistence.api"/>
         <module name="javax.transaction.api"/>
         <module name="javax.xml.bind.api"/>
         <module name="org.apache.commons.logging"/>
@@ -56,10 +58,13 @@
         <module name="org.jboss.as.controller"/>
         <module name="org.jboss.as.server"/>
         <module name="org.jboss.as.naming"/>
+        <module name="org.jboss.as.jpa"/>
+        <module name="org.jboss.as.jpa.spi"/>
         <module name="org.jboss.modules"/>
         <module name="org.jboss.msc"/>
         <module name="org.jboss.logging"/>
         <module name="org.jboss.vfs"/>
         <module name="org.javassist"/>
+        <module name="org.hibernate"/>
     </dependencies>
 </module>
