@@ -19,15 +19,22 @@
 		<slee.codename>???</slee.codename>
 
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<!--<mobicents.cluster.version>1.13.1.FINAL</mobicents.cluster.version>-->
-		<restcomm.cluster.version>3.0.0-SNAPSHOT</restcomm.cluster.version>
+		<!--
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
+		-->
+
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
 
 		<version.jboss.as>7.2.0.Final</version.jboss.as>
 		<version.javassist>3.15.0-GA</version.javassist>
 		<version.hibernate>4.2.0.CR1</version.hibernate>
+
+		<restcomm.cluster.version>3.0.0-SNAPSHOT</restcomm.cluster.version>
+		<version.jgoups>3.2.7.Final</version.jgoups>
+		<version.infinispan>5.2.1.Final</version.infinispan>
+
+		<version.jboss.logging>3.1.2.GA</version.jboss.logging>
 		<version.vfs>3.2.0.Final</version.vfs>
 		<version.junit>4.8.2</version.junit>
 	</properties>
@@ -54,6 +61,7 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!--
 			<dependency>
 				<groupId>jboss</groupId>
 				<artifactId>jboss-serialization</artifactId>
@@ -64,25 +72,30 @@
 				<artifactId>trove</artifactId>
 				<version>${trove.version}</version>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>org.infinispan</groupId>
 				<artifactId>infinispan-tree</artifactId>
-				<version>${infinispan.version}</version>
+				<version>${version.infinispan}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>core</artifactId>
 				<version>${restcomm.cluster.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>cache</artifactId>
 				<version>${restcomm.cluster.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>timers</artifactId>
 				<version>${restcomm.cluster.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mobicents.servers.jainslee.api</groupId>
@@ -95,6 +108,12 @@
             	<artifactId>connector</artifactId>
             	<version>1.0</version>
         	</dependency>
+			<dependency>
+				<groupId>org.jboss.logging</groupId>
+				<artifactId>jboss-logging</artifactId>
+				<version>${version.jboss.logging}</version>
+				<scope>provided</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.javassist</groupId>
 				<artifactId>javassist</artifactId>
@@ -191,24 +210,6 @@
 				<slee.name>Telscale JAIN SLEE</slee.name>
 				<slee.vendor>Telestax</slee.vendor>
 			</properties>			
-		</profile>
-		<profile>
-			<id>build-as72</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<infinispan.tree.version>5.2.1.Final</infinispan.tree.version>
-			</properties>
-		</profile>
-		<profile>
-			<id>build-as10</id>
-			<activation>
-				<!--<activeByDefault>true</activeByDefault>-->
-			</activation>
-			<properties>
-				<infinispan.tree.version>8.1.0.Final</infinispan.tree.version>
-			</properties>
 		</profile>
 	</profiles>
 

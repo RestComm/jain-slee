@@ -15,9 +15,13 @@
 		<module.path>org/telestax/slee/container/lib</module.path>
 
 		<javax.slee.jain-slee.version>${jain-slee.version}</javax.slee.jain-slee.version>
+
+		<!--
 		<jboss.jboss-serialization.version>${jboss-serialization.version}</jboss.jboss-serialization.version>
 		<trove.trove.version>${trove.version}</trove.trove.version>
-		<jgroups.jgroups.version>3.2.7.Final</jgroups.jgroups.version>
+		-->
+
+		<jgroups.jgroups.version>${version.jgoups}</jgroups.jgroups.version>
 		<org.restcomm.cluster.cache.version>${restcomm.cluster.version}</org.restcomm.cluster.cache.version>
 		<org.restcomm.cluster.core.version>${restcomm.cluster.version}</org.restcomm.cluster.core.version>
 		<org.restcomm.cluster.timers.version>${restcomm.cluster.version}</org.restcomm.cluster.timers.version>
@@ -33,6 +37,7 @@
 			<artifactId>jain-slee</artifactId>
 		</dependency>
 
+		<!--
 		<dependency>
 			<groupId>jboss</groupId>
 			<artifactId>jboss-serialization</artifactId>
@@ -42,6 +47,7 @@
 			<groupId>trove</groupId>
 			<artifactId>trove</artifactId>
 		</dependency>
+		-->
 
 		<dependency>
 			<groupId>org.restcomm.cluster</groupId>

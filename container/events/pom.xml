@@ -14,7 +14,13 @@
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>usage</artifactId>
 			<version>${pom.version}</version>
-		</dependency>						
+		</dependency>
+
+		<dependency>
+			<groupId>org.restcomm.cluster</groupId>
+			<artifactId>core</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	
 </project>
