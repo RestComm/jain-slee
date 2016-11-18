@@ -23,6 +23,12 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.restcomm.cluster</groupId>
+			<artifactId>core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
 	
 </project>

@@ -31,8 +31,8 @@ import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.mobicents.timers.PeriodicScheduleStrategy;
-import org.mobicents.timers.TimerTaskData;
+import org.restcomm.timers.PeriodicScheduleStrategy;
+import org.restcomm.timers.TimerTaskData;
 
 /**
  * TODO

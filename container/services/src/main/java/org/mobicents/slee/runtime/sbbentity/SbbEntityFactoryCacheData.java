@@ -22,17 +22,16 @@
 
 package org.mobicents.slee.runtime.sbbentity;
 
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cluster.MobicentsCluster;
+
+import javax.slee.ServiceID;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.slee.ServiceID;
-
-import org.jboss.cache.Fqn;
-import org.jboss.cache.Node;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cluster.MobicentsCluster;
-import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
  * 

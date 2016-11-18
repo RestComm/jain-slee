@@ -15,7 +15,18 @@
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>common</artifactId>
 			<version>${pom.version}</version>
-		</dependency>	
+		</dependency>
+
+		<dependency>
+			<groupId>org.restcomm.cluster</groupId>
+			<artifactId>core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-tree</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		
 		<dependency>
 			<artifactId>junit</artifactId>

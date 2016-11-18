@@ -35,6 +35,9 @@ import javax.slee.management.SleeProvider;
 import javax.slee.management.SleeProviderFactory;
 import javax.slee.management.SleeState;
 
+import org.jboss.remotingjmx.Util;
+
+
 /**
  * 
  * @author Stefano Zappaterra
@@ -68,12 +71,25 @@ public class SleeManagementMBeanUtils {
     try {
       // Get a connection to the MBean server on localhost
       String host = "localhost";
-      int port = 9999;  // management-web port
+      int port = 9999;  // management-web port (JBoss 7)
       String urlString = System.getProperty(
               "jmx.service.url",
               "service:jmx:remoting-jmx://" + host + ":" + port);
       JMXServiceURL serviceURL = new JMXServiceURL(urlString);
-      jmxConnector = JMXConnectorFactory.connect(serviceURL, null);
+      try {
+        jmxConnector = JMXConnectorFactory.connect(serviceURL, null);
+      } catch (Exception e1) {
+        port = 9990; // management-web port (WildFly)
+        urlString = System.getProperty(
+                "jmx.service.url",
+                "service:jmx:remote+http://" + host + ":" + port);
+        serviceURL = new JMXServiceURL(urlString);
+        try {
+          jmxConnector = JMXConnectorFactory.connect(serviceURL, null);
+        } catch (Exception e2) {
+          throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e2));
+        }
+      }
 
       mbeanServer = jmxConnector.getMBeanServerConnection();
 

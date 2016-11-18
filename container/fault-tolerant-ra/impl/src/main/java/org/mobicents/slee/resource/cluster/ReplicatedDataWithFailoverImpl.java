@@ -27,7 +27,7 @@ package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
-import org.mobicents.cluster.MobicentsCluster;
+import org.restcomm.cluster.MobicentsCluster;
 
 /**
  * @author martins

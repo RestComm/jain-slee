@@ -25,18 +25,17 @@
  */
 package org.mobicents.slee.resource;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
-import javax.slee.resource.ActivityHandle;
-import javax.slee.resource.Marshaler;
-
-import org.jgroups.Address;
+import org.infinispan.remoting.transport.Address;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandle;
 import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
+
+import javax.slee.resource.ActivityHandle;
+import javax.slee.resource.Marshaler;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  * @author martins

@@ -25,7 +25,7 @@
  */
 package org.mobicents.slee.resource.cluster;
 
-import org.jgroups.Address;
+import org.infinispan.remoting.transport.Address;
 
 /**
  * @author martins

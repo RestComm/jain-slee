@@ -12,19 +12,8 @@
 
 	<packaging>pom</packaging>
 
-	<profiles>
-		<profile>
-			<id>build-as72</id>
-			<modules>
-				<module>as7</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>build-as10</id>
-			<modules>
-				<module>as10</module>
-			</modules>
-		</profile>
-	</profiles>
+	<modules>
+		<module>as7</module>
+	</modules>
 
 </project>

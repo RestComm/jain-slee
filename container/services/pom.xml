@@ -22,12 +22,24 @@
 			<artifactId>javassist</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.restcomm.cluster</groupId>
+			<artifactId>core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-tree</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		
 		<dependency>
 			<artifactId>junit</artifactId>
 			<groupId>junit</groupId>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.jboss.as</groupId>
 			<artifactId>jboss-as-naming</artifactId>

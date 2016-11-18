@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.jgroups.Address;
+import org.infinispan.remoting.transport.Address;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandleImpl;

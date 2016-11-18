@@ -36,7 +36,7 @@ import javax.slee.InvalidStateException;
 import javax.slee.management.SleeState;
 
 import org.apache.log4j.Logger;
-import org.mobicents.cluster.MobicentsCluster;
+import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
@@ -329,8 +329,8 @@ public class SleeContainer {
 				+ nullActivityFactory + "\n" 
 				+ getEventRouter() + "\n"
 				+ getEventContextFactory() + "\n"
-				+ getTransactionManager() + "\n"
-				+ cluster.getMobicentsCache().getCacheContent();
+				+ getTransactionManager() + "\n";
+				//+ cluster.getMobicentsCache().getCacheContent();
 	}
 
 	public ActivityContextFactory getActivityContextFactory() {
@@ -593,8 +593,7 @@ public class SleeContainer {
 		}
 		// slee shutdown
 		beforeModulesShutdown();
-		for (Iterator<SleeContainerModule> i = modules
-				.descendingIterator(); i.hasNext();) {
+		for (Iterator<SleeContainerModule> i = modules.descendingIterator(); i.hasNext();) {
 			i.next().sleeShutdown();
 		}
 		afterModulesShutdown();
@@ -709,8 +708,8 @@ public class SleeContainer {
 	
 	public void afterModulesInitialization() {
 		if (!cluster.getMobicentsCache().isLocalMode()) {
-			cluster.getMobicentsCache().setReplicationClassLoader(
-				this.replicationClassLoader);
+			//cluster.getMobicentsCache().setReplicationClassLoader(
+			//	this.replicationClassLoader);
 		}
 		// start cluster
 		cluster.startCluster();

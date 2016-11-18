@@ -50,7 +50,7 @@ import javax.slee.resource.ActivityFlags;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jgroups.Address;
+import org.infinispan.remoting.transport.Address;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;

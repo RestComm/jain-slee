@@ -22,9 +22,9 @@
 
 package org.mobicents.slee.container.congestion;
 
-import javax.slee.management.NotificationSource;
+import org.infinispan.remoting.transport.Address;
 
-import org.jgroups.Address;
+import javax.slee.management.NotificationSource;
 
 public class CongestionControlNotification implements NotificationSource {
 

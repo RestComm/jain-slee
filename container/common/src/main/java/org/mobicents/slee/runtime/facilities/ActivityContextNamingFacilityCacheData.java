@@ -22,16 +22,15 @@
 
 package org.mobicents.slee.runtime.facilities;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cluster.MobicentsCluster;
 
 import javax.slee.facilities.NameAlreadyBoundException;
 import javax.slee.facilities.NameNotBoundException;
-
-import org.jboss.cache.Fqn;
-import org.jboss.cache.Node;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cluster.MobicentsCluster;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -52,7 +51,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 
 	/**
 	 * 
-	 * @param txManager
+	 * @param cluster
 	 */
 	public ActivityContextNamingFacilityCacheData(MobicentsCluster cluster) {
 		super(Fqn.fromElements(CACHE_NODE_NAME),

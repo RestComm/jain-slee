@@ -22,9 +22,9 @@
 
 package org.mobicents.slee.runtime.facilities;
 
-import org.mobicents.timers.TimerTask;
-import org.mobicents.timers.TimerTaskData;
-import org.mobicents.timers.TimerTaskFactory;
+import org.restcomm.timers.TimerTask;
+import org.restcomm.timers.TimerTaskData;
+import org.restcomm.timers.TimerTaskFactory;
 
 /**
  * 
@@ -35,7 +35,7 @@ public class TimerFacilityTimerTaskFactory implements TimerTaskFactory {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.timers.TimerTaskFactory#newTimerTask(org.mobicents.timers.TimerTaskData)
+	 * @see org.restcomm.timers.TimerTaskFactory#newTimerTask(org.restcomm.timers.TimerTaskData)
 	 */
 	public TimerTask newTimerTask(TimerTaskData data) {
 		return new TimerFacilityTimerTask((TimerFacilityTimerTaskData) data);

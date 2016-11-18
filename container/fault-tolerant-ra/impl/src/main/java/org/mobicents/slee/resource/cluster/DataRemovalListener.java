@@ -22,18 +22,18 @@
 
 package org.mobicents.slee.resource.cluster;
 
+import org.infinispan.tree.Fqn;
+
 import java.io.Serializable;
 
-import org.jboss.cache.Fqn;
-
-public class DataRemovalListener<K extends Serializable, V extends Serializable> implements org.mobicents.cluster.DataRemovalListener {
+public class DataRemovalListener<K extends Serializable, V extends Serializable> implements org.restcomm.cluster.DataRemovalListener {
 
 	private final FaultTolerantResourceAdaptor<K, V> ra;
 	private final ReplicatedDataCacheData<K, V> baseCacheData;
 
 	/**
 	 * @param ra
-	 * @param baseFqn
+	 * @param baseCacheData
 	 */
 	public DataRemovalListener(FaultTolerantResourceAdaptor<K, V> ra,
 			ReplicatedDataCacheData<K, V> baseCacheData) {
@@ -45,7 +45,7 @@ public class DataRemovalListener<K extends Serializable, V extends Serializable>
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.mobicents.cluster.ClientLocalListener#getBaseFqn()
+	 * @see org.restcomm.cluster.ClientLocalListener#getBaseFqn()
 	 */
 	@SuppressWarnings("unchecked")
 	public Fqn getBaseFqn() {
@@ -54,7 +54,7 @@ public class DataRemovalListener<K extends Serializable, V extends Serializable>
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.cluster.DataRemovalListener#dataRemoved(org.jboss.cache.Fqn)
+	 * @see org.restcomm.cluster.DataRemovalListener#dataRemoved(org.restcomm.cache.tree.Fqn)
 	 */
 	@SuppressWarnings("unchecked")
 	public void dataRemoved(Fqn fqn) {

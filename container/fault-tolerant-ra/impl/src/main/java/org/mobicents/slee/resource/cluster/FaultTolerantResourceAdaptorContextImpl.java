@@ -22,10 +22,10 @@
 
 package org.mobicents.slee.resource.cluster;
 
-import java.io.Serializable;
-
-import org.jgroups.Address;
+import org.infinispan.remoting.transport.Address;
 import org.mobicents.slee.container.SleeContainer;
+
+import java.io.Serializable;
 
 /**
  * Implementation of the fault tolerant ra context.

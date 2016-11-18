@@ -25,12 +25,12 @@
  */
 package org.mobicents.slee.resource.cluster;
 
+import org.infinispan.tree.Fqn;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cluster.MobicentsCluster;
+
 import java.io.Serializable;
 import java.util.Set;
-
-import org.jboss.cache.Fqn;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cluster.MobicentsCluster;
 
 /**
  * @author martins
@@ -41,7 +41,7 @@ public class ReplicatedDataCacheData<K extends Serializable, V extends Serializa
 
 	/**
 	 * 
-	 * @param name
+	 * @param rootName
 	 * @param raEntity
 	 * @param mobicentsCluster
 	 */

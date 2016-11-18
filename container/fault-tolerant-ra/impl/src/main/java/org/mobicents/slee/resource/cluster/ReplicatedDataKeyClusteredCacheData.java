@@ -25,11 +25,11 @@
  */
 package org.mobicents.slee.resource.cluster;
 
-import java.io.Serializable;
+import org.infinispan.tree.Fqn;
+import org.restcomm.cluster.MobicentsCluster;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
-import org.jboss.cache.Fqn;
-import org.mobicents.cluster.MobicentsCluster;
-import org.mobicents.cluster.cache.ClusteredCacheData;
+import java.io.Serializable;
 
 /**
  * @author martins
@@ -41,7 +41,8 @@ public class ReplicatedDataKeyClusteredCacheData<K extends Serializable, V exten
 	private final static Boolean DATA_MAP_KEY = Boolean.TRUE;
 
 	/**
-	 * @param nodeFqn
+	 * @param parent
+	 * @param key
 	 * @param mobicentsCluster
 	 */
 	@SuppressWarnings("unchecked")

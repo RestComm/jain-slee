@@ -22,9 +22,9 @@
 
 package org.mobicents.slee.resource;
 
-import javax.slee.resource.ActivityHandle;
+import org.infinispan.remoting.transport.Address;
 
-import org.jgroups.Address;
+import javax.slee.resource.ActivityHandle;
 
 /**
  * A reference activity handle, which is used instead of the real handle when this one is not replicated.

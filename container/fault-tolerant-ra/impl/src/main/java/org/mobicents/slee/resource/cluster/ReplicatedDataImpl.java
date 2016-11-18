@@ -25,13 +25,13 @@
  */
 package org.mobicents.slee.resource.cluster;
 
+import org.infinispan.remoting.transport.Address;
+import org.restcomm.cluster.MobicentsCluster;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.jgroups.Address;
-import org.mobicents.cluster.MobicentsCluster;
 
 /**
  * @author martins
@@ -56,8 +56,11 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	private final DataRemovalListener<K, V> dataRemovalListener;
 	
 	/**
-	 * @param cacheData
+	 * @param name
 	 * @param raEntity
+	 * @param cluster
+	 * @param ra
+	 * @param activateDataRemovedCallback
 	 */
 	public ReplicatedDataImpl(String name, String raEntity,
 			MobicentsCluster cluster, FaultTolerantResourceAdaptor<K, V> ra,

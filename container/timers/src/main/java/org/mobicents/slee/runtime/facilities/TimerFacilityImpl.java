@@ -40,7 +40,7 @@ import org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.mobicents.timers.FaultTolerantScheduler;
+import org.restcomm.timers.FaultTolerantScheduler;
 
 /**
  * Implementation of the SLEE timer facility. timer is the timer object

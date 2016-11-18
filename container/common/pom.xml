@@ -18,13 +18,30 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.jboss.logging</groupId>
+			<artifactId>jboss-logging</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.restcomm.cluster</groupId>
+			<artifactId>core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-tree</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 		<!-- misc -->
-		
+
 		<dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
@@ -44,7 +61,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<dependency>
 			<artifactId>junit</artifactId>
 			<groupId>junit</groupId>
