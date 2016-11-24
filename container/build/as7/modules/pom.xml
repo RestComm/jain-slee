@@ -16,10 +16,10 @@
 
 		<javax.slee.jain-slee.version>${jain-slee.version}</javax.slee.jain-slee.version>
 
-		<!--
+
 		<jboss.jboss-serialization.version>${jboss-serialization.version}</jboss.jboss-serialization.version>
 		<trove.trove.version>${trove.version}</trove.trove.version>
-		-->
+
 
 		<jgroups.jgroups.version>${version.jgoups}</jgroups.jgroups.version>
 		<org.restcomm.cluster.cache.version>${restcomm.cluster.version}</org.restcomm.cluster.cache.version>
@@ -31,13 +31,11 @@
 	<dependencies>
 
 		<!-- SLEE CONTAINER DEPS NOT AVAILABLE IN AS7 - PLS KEEP A-Z ORDER -->
-
 		<dependency>
 			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
 		</dependency>
 
-		<!--
 		<dependency>
 			<groupId>jboss</groupId>
 			<artifactId>jboss-serialization</artifactId>
@@ -47,7 +45,6 @@
 			<groupId>trove</groupId>
 			<artifactId>trove</artifactId>
 		</dependency>
-		-->
 
 		<dependency>
 			<groupId>org.restcomm.cluster</groupId>

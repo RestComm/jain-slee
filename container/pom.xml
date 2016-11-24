@@ -19,10 +19,8 @@
 		<slee.codename>???</slee.codename>
 
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<!--
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
-		-->
 
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
 
@@ -61,7 +59,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!--
 			<dependency>
 				<groupId>jboss</groupId>
 				<artifactId>jboss-serialization</artifactId>
@@ -72,7 +69,6 @@
 				<artifactId>trove</artifactId>
 				<version>${trove.version}</version>
 			</dependency>
-			-->
 			<dependency>
 				<groupId>org.infinispan</groupId>
 				<artifactId>infinispan-tree</artifactId>
