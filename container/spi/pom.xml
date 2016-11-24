@@ -17,6 +17,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.restcomm.cluster</groupId>
+			<artifactId>core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.as</groupId>
+			<artifactId>jboss-as-naming</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
 		</dependency>			
@@ -26,12 +38,6 @@
 			<artifactId>jain-slee-11-ext</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.restcomm.cluster</groupId>
-			<artifactId>core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
            	<artifactId>jmx-property-editors</artifactId>
@@ -58,28 +64,6 @@
             <groupId>javax.resource</groupId>
             <artifactId>connector</artifactId>
         </dependency>
-
-        <!--
-		<dependency>
-			<groupId>org.jboss.jbossas</groupId>
-			<artifactId>jboss-as-server</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>xerces</groupId>
-					<artifactId>xerces</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>xml-apis</groupId>
-					<artifactId>xml-apis</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
-		<dependency>
-			<groupId>jboss.jbossts</groupId>
-			<artifactId>jbossjts</artifactId>
-		</dependency>
-		-->
 	</dependencies>
 	
 	<build>

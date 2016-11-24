@@ -17,6 +17,7 @@
         <resource-root path="fault-tolerant-ra-impl-${project.version}.jar"/>
         <resource-root path="jmx-property-editors-${project.version}.jar"/>
         <resource-root path="profiles-${project.version}.jar"/>
+        <resource-root path="remote-${project.version}.jar"/>
         <resource-root path="resource-${project.version}.jar"/>
         <resource-root path="router-${project.version}.jar"/>
         <resource-root path="services-${project.version}.jar"/>

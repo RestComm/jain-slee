@@ -8,17 +8,16 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.configuration.global.ShutdownHookBehavior;
 import org.jboss.logging.Logger;
-import org.jboss.msc.service.Service;
-import org.jboss.msc.service.StartContext;
-import org.jboss.msc.service.StartException;
-import org.jboss.msc.service.StopContext;
+import org.jboss.msc.service.*;
 import org.jboss.msc.value.InjectedValue;
 import org.jboss.vfs.TempFileProvider;
 import org.jboss.vfs.VFS;
 import org.jboss.vfs.VFSUtils;
 import org.jboss.vfs.VirtualFile;
 import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
+import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactoryImpl;
 import org.mobicents.slee.connector.local.SleeConnectionService;
+import org.mobicents.slee.connector.local.SleeConnectionServiceImpl;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentManagementImpl;
@@ -179,8 +178,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final ActivityContextNamingFacility activityContextNamingFacility = new ActivityContextNamingFacilityImpl();
 
 		// TODO SLEE Connection Factory + RMI stuff
-		final SleeConnectionService sleeConnectionService = null;
-		final MobicentsSleeConnectionFactory sleeConnectionFactory = null;
+		final SleeConnectionService sleeConnectionService = new SleeConnectionServiceImpl();
+		final MobicentsSleeConnectionFactory sleeConnectionFactory = new MobicentsSleeConnectionFactoryImpl();
 		final RmiServerInterface rmiServerInterface = null;
 
 		final UsageParametersManagement usageParametersManagement = new UsageParametersManagementImpl();
@@ -209,7 +208,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 		// policyMBeanImpl.setUseMPolicy(true);
 		
 		try {
-			sleeContainer = new SleeContainer(deployPath, getMbeanServer().getValue(),
+			sleeContainer = new SleeContainer(deployPath, serviceController, getMbeanServer().getValue(),
 					componentManagement, sbbManagement, serviceManagement,
 					resourceManagement, profileManagement,
 					eventContextFactory, eventRouter, timerFacility,
