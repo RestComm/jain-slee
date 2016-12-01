@@ -34,6 +34,9 @@ import org.mobicents.slee.container.SleeContainerModule;
  */
 public interface RmiServerInterface extends SleeContainerModule {
 		
-	public void setJndiName(String name);
-	public String getJndiName();
+	void setAddress(String name);
+	String getAddress();
+
+	void setPort(int port);
+	int getPort();
 }

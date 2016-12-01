@@ -60,14 +60,14 @@ public class MobicentsSleeConnectionFactoryImpl
 	private static final String _DEFAULT_NAME="/MobicentsConnectionFactory";
 	private static final Logger logger = Logger.getLogger(MobicentsSleeConnectionFactoryImpl.class);
 
-	private JndiRegistry registry = null;
+	//private JndiRegistry registry = null;
 	private String jndiName = _DEFAULT_NAME;
 	private List<SleeConnection> connectionList = new ArrayList<SleeConnection>();
 	private transient SleeConnectionService service;
 	
 	public MobicentsSleeConnectionFactoryImpl() {
 		super();
-		registry = new JndiRegistry();
+		//registry = new JndiRegistry();
 	}
 
 
@@ -137,13 +137,14 @@ public class MobicentsSleeConnectionFactoryImpl
 	public void sleeInitialization() {
 		this.service = super.sleeContainer.getSleeConnectionService();
 
+        /*
 		try {
 			registry.setServiceContainer(super.sleeContainer.getServiceController().getServiceContainer());
 			registry.bindToJndi("java:"+this.getJNDIName(), this);
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
-
+        */
 
 		/*
 		//ServiceTarget serviceTarget = super.sleeContainer.getServiceController().getServiceContainer();
@@ -169,11 +170,13 @@ public class MobicentsSleeConnectionFactoryImpl
 	@Override
 	public void sleeShutdown() {
 
+        /*
 		try {
 			registry.unbindFromJndi("java:"+this.getJNDIName());
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
+		*/
 
 		/*
 		//unbind

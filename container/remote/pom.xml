@@ -11,17 +11,27 @@
 			
 	<dependencies>				
 		<dependency>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>common</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		<!--
-        <dependency>
-            <groupId>org.jboss.msc</groupId>
-            <artifactId>jboss-msc</artifactId>
-            <version>1.0.4.GA</version>
-        </dependency>
-        -->
+
+		<dependency>
+			<groupId>org.jboss.msc</groupId>
+			<artifactId>jboss-msc</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.restcomm.cluster</groupId>
+			<artifactId>core</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 		
 </project>

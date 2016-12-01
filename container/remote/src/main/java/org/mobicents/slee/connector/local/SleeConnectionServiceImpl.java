@@ -54,7 +54,7 @@ import java.util.Arrays;
  * @author baranowb
  * 
  */
-public class SleeConnectionServiceImpl extends AbstractSleeContainerModule implements SleeConnectionService{
+public class SleeConnectionServiceImpl extends AbstractSleeContainerModule implements SleeConnectionService {
 
 	private static final Logger logger = Logger.getLogger(SleeConnectionServiceImpl.class);
 	/* (non-Javadoc)

@@ -34,6 +34,7 @@
  */
 package org.mobicents.slee.connector.remote;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import javax.slee.Address;
@@ -49,7 +50,7 @@ import javax.slee.connection.SleeConnection;
  * 
  * @author baranowb
  */
-public interface RemoteSleeConnectionService {
+public interface RemoteSleeConnectionService extends Remote {
 
 	/**
 	 * @see SleeConnection#createActivityHandle()
