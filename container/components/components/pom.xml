@@ -17,7 +17,7 @@
 			<artifactId>common</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>descriptors</artifactId>

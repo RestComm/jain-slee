@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
-		</dependency>			
+		</dependency>
 		
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.api</groupId>
@@ -58,12 +58,18 @@
 		<dependency>
 			<groupId>trove</groupId>
 			<artifactId>trove</artifactId>			
-		</dependency>            
+		</dependency>
 
         <dependency>
             <groupId>javax.resource</groupId>
             <artifactId>connector</artifactId>
         </dependency>
+
+		<dependency>
+			<groupId>org.jboss.msc</groupId>
+			<artifactId>jboss-msc</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	
 	<build>
