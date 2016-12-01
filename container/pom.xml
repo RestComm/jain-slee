@@ -19,8 +19,10 @@
 		<slee.codename>???</slee.codename>
 
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
+		<!--
 		<jboss-serialization.version>1.0.3.GA</jboss-serialization.version>
 		<trove.version>1.0.2</trove.version>
+		-->
 
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
 
@@ -60,6 +62,7 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!--
 			<dependency>
 				<groupId>jboss</groupId>
 				<artifactId>jboss-serialization</artifactId>
@@ -70,6 +73,14 @@
 				<artifactId>trove</artifactId>
 				<version>${trove.version}</version>
 			</dependency>
+			-->
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.6</version>
+				<scope>provided</scope>
+			</dependency>
+
 			<dependency>
 				<groupId>org.infinispan</groupId>
 				<artifactId>infinispan-tree</artifactId>
@@ -100,11 +111,6 @@
 				<version>${jain-slee-11-ext.version}</version>				
 			</dependency>
 
-			<dependency>
-            	<groupId>javax.resource</groupId>
-            	<artifactId>connector</artifactId>
-            	<version>1.0</version>
-        	</dependency>
 			<dependency>
 				<groupId>org.jboss.logging</groupId>
 				<artifactId>jboss-logging</artifactId>
@@ -143,12 +149,6 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.jboss.as</groupId>
-				<artifactId>jboss-as-connector</artifactId>
-				<version>${version.jboss.as}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.jboss</groupId>
 				<artifactId>jboss-vfs</artifactId>
 				<version>${version.vfs}</version>
@@ -183,6 +183,37 @@
 				<groupId>org.jboss.as</groupId>
 				<artifactId>jboss-as-jpa</artifactId>
 				<version>${version.jboss.as}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-naming</artifactId>
+				<version>${version.jboss.as}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.resource</groupId>
+				<artifactId>connector</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-connector</artifactId>
+				<version>${version.jboss.as}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.spec.javax.resource</groupId>
+				<artifactId>jboss-connector-api_1.6_spec</artifactId>
+				<version>1.0.1.Final</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.msc</groupId>
+				<artifactId>jboss-msc</artifactId>
+				<version>1.0.4.GA</version>
 				<scope>provided</scope>
 			</dependency>
 		</dependencies>

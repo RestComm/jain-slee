@@ -29,8 +29,10 @@
 		<!-- SLEE CONTAINER DEPS - PLS KEEP VERSION PROPERTY A-Z ORDER -->
 		<!-- each entry path is ${dep.artifactId}-${dep.version.prop.name}.jar -->
         <!-- <resource-root path="commons-pool-${commons-pool.commons-pool.version}.jar"/>  -->
+        <!--
         <resource-root path="jboss-serialization-${jboss.jboss-serialization.version}.jar"/>
         <resource-root path="trove-${trove.trove.version}.jar"/>
+        -->
 
         <resource-root path="jain-slee-${javax.slee.jain-slee.version}.jar"/>
         <resource-root path="jain-slee-11-ext-${org.mobicents.servers.jainslee.api.jain-slee-11-ext.version}.jar"/>
@@ -46,7 +48,7 @@
         <module name="javax.api"/>
         <module name="javax.persistence.api"/>
         <module name="javax.resource.api"/>
-        <module name="javax.transaction.api"/>
+        <module name="javax.transaction.api" export="true"/>
         <module name="javax.xml.bind.api"/>
         <module name="org.apache.commons.logging"/>
         <module name="org.apache.commons.pool"/>

@@ -50,6 +50,7 @@
 			<version>${pom.version}</version>
 		</dependency>
 
+		<!--
         <dependency>
             <groupId>jboss</groupId>
             <artifactId>jboss-serialization</artifactId>
@@ -58,6 +59,13 @@
 		<dependency>
 			<groupId>trove</groupId>
 			<artifactId>trove</artifactId>			
+		</dependency>
+		-->
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
         <dependency>
