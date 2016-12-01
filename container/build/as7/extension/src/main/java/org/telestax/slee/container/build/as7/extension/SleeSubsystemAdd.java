@@ -38,7 +38,10 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
     @Override
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
         log.info("Populating the model");
-        model.setEmptyObject();
+        //model.setEmptyObject();
+        SleeSubsystemDefinition.RMI_ADDRESS.validateAndSet(operation, model);
+        SleeSubsystemDefinition.RMI_PORT.validateAndSet(operation, model);
+        log.info("Populating the model END");
     }
 
     /** {@inheritDoc} */
@@ -63,9 +66,21 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
             }
         }, OperationContext.Stage.RUNTIME);
 
+        //ModelNode fullModel = Resource.Tools.readModel(context.readResource(PathAddress.EMPTY_ADDRESS));
+
+        final ModelNode rmiAddressModel = SleeSubsystemDefinition.RMI_ADDRESS.resolveModelAttribute(context, model);
+        final String rmiAddress = rmiAddressModel.isDefined() ? rmiAddressModel.asString() : null;
+
+        final ModelNode rmiPortModel = SleeSubsystemDefinition.RMI_PORT.resolveModelAttribute(context, model);
+        final int rmiPort = rmiPortModel.isDefined() ? rmiPortModel.asInt() : 5555;
+
+        log.info("rmi: "+rmiAddress+":"+rmiPort);
+
+
     	// Installs the msc service which builds the SleeContainer instance and its modules
         final ServiceTarget target = context.getServiceTarget();
-        final SleeContainerService sleeContainerService = new SleeContainerService();
+        final SleeContainerService sleeContainerService = new SleeContainerService(rmiAddress, rmiPort);
+        //final SleeContainerService sleeContainerService = new SleeContainerService("127.0.0.1", 5555);
         final ServiceBuilder<?> sleeContainerServiceBuilder = target
                 .addService(SleeServiceNames.SLEE_CONTAINER, sleeContainerService)
                 //.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, service.getPathManagerInjector())

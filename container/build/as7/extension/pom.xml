@@ -198,7 +198,7 @@
 								</goals>
 								<configuration>
 									<tasks>									
-										<delete failonerror="false" dir="${jboss.home}/modules/system/layers/base/${module.path}"/>										
+										<delete failonerror="false" dir="${jboss.home}/modules/system/layers/base/${module.path}"/>
 									</tasks>
 								</configuration>
 							</execution>
@@ -286,7 +286,7 @@
 								</goals>
 								<configuration>
 									<tasks>									
-										<delete failonerror="false" dir="${jboss.home}/modules/${module.path}"/>																				
+										<delete failonerror="false" dir="${jboss.home}/modules/${module.path}"/>
 									</tasks>
 								</configuration>
 							</execution>
@@ -374,7 +374,7 @@
 								</goals>
 								<configuration>
 									<tasks>									
-										<delete failonerror="false" dir="${jboss.home}/modules/system/layers/base/${module.path}"/>																				
+										<delete failonerror="false" dir="${jboss.home}/modules/system/layers/base/${module.path}"/>
 									</tasks>
 								</configuration>
 							</execution>

@@ -19,7 +19,7 @@
 	<dependencySets>
 		<dependencySet>
 			<outputDirectory>/</outputDirectory>
-			<useTransitiveDependencies>false</useTransitiveDependencies>						
+			<useTransitiveDependencies>false</useTransitiveDependencies>
 		</dependencySet>
 	</dependencySets>
 

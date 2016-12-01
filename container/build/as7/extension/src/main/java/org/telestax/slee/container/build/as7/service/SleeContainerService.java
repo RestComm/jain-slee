@@ -80,6 +80,9 @@ public class SleeContainerService implements Service<SleeContainer> {
 	// or expression resolve ?
 	private static final String TEMP_DIR = "jboss.server.temp.dir";
 
+	private String rmiAddress;
+	private int rmiPort;
+
 	private final InjectedValue<MBeanServer> mbeanServer = new InjectedValue<MBeanServer>();
 	private final InjectedValue<TransactionManager> transactionManager = new InjectedValue<TransactionManager>();
 	private final InjectedValue<ManagedReferenceFactory> managedReferenceFactory = new InjectedValue<ManagedReferenceFactory>();
@@ -90,6 +93,11 @@ public class SleeContainerService implements Service<SleeContainer> {
 	private ExternalDeployer externalDeployer;
 	public ExternalDeployer getExternalDeployer() {
 		return externalDeployer;
+	}
+
+	public SleeContainerService(String rmiAddress, int rmiPort) {
+		this.rmiAddress = rmiAddress;
+		this.rmiPort = rmiPort;
 	}
 
 	@Override
@@ -181,8 +189,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final SleeConnectionService sleeConnectionService = new SleeConnectionServiceImpl();
 		final MobicentsSleeConnectionFactory sleeConnectionFactory = null; // new MobicentsSleeConnectionFactoryImpl();
         final RmiServerInterface rmiServerInterface = new RmiServerInterfaceImpl();
-		rmiServerInterface.setAddress("127.0.0.1");
-		rmiServerInterface.setPort(5555);
+		rmiServerInterface.setAddress(this.rmiAddress);
+		rmiServerInterface.setPort(this.rmiPort);
 
 		final UsageParametersManagement usageParametersManagement = new UsageParametersManagementImpl();
 
