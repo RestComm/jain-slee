@@ -30,58 +30,44 @@
  *                                                 *
  ***************************************************
  *
- * Created on Dec 6, 2004 RemoteSleeEndpoint.java
+ * Created on Dec 6, 2004 ActivityHandleImpl.java
  */
-package org.mobicents.slee.connector.remote;
+package org.mobicents.slee.connector.local;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import java.util.UUID;
 
-import javax.slee.Address;
-import javax.slee.EventTypeID;
-import javax.slee.UnrecognizedEventException;
 import javax.slee.connection.ExternalActivityHandle;
-import javax.slee.connection.SleeConnection;
 
 /**
- * This interface duplicates methods from
- * {@link javax.slee.connection.SleeConnection}. However it is meant as RMI
- * interface, as such only RemoteException is declared in throws clause.
+ * @author Tim
+ * @author eduardomartins
  * 
- * @author baranowb
+ * Implementaion of a serializable handle to a null activity that lives on the SLEE
+ * 
  */
-public interface RemoteSleeConnectionService extends Remote {
+public class ExternalActivityHandleImpl implements ExternalActivityHandle {
+   private String activityContextId;
+/*
+   public ExternalActivityHandleImpl() {
+	   this.activityContextId = "ExternalActivityHandle" + UUID.randomUUID().toString();
+   }
+  */ 
+   ExternalActivityHandleImpl(String activityContextId) {
+      this.activityContextId = activityContextId;
+   }
 
-	/**
-	 * @see SleeConnection#createActivityHandle()
-	 * @return
-	 * @throws RemoteException
-	 */
-	public ExternalActivityHandle createActivityHandle() throws RemoteException;
+   public boolean equals(Object other) {
+      if(other != null && this.getClass() == other.getClass()) {
+    	  return ((ExternalActivityHandleImpl)other).activityContextId.equals(this.activityContextId);
+      }
+      else {
+    	  return false;
+      }
+   }
 
-	/**
-	 * @see SleeConnection#fireEvent(Object, EventTypeID,
-	 *      ExternalActivityHandle, Address)
-	 * @param event
-	 * @param eventType
-	 * @param activityHandle
-	 * @param address
-	 * @throws NullPointerException
-	 * @throws UnrecognizedEventException
-	 * @throws RemoteException
-	 */
-	public void fireEvent(Object event, EventTypeID eventType, ExternalActivityHandle activityHandle, Address address)
-	throws RemoteException;
-
-	/**
-	 * @see SleeConnection#getEventTypeID(String, String, String)
-	 * @param name
-	 * @param vendor
-	 * @param version
-	 * @return
-	 * @throws UnrecognizedEventException
-	 * @throws RemoteException
-	 */
-	public EventTypeID getEventTypeID(String name, String vendor, String version) throws RemoteException;
-
+   public int hashCode() {
+      return activityContextId.hashCode();
+   }
+   
+   String getActivityContextId() { return activityContextId; }
 }

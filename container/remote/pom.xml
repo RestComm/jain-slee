@@ -1,17 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>components-parent</artifactId>
+		<artifactId>mobicents-slee-core-container</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>components</artifactId>
+	<artifactId>remote</artifactId>
+			
+	<dependencies>				
+		<dependency>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+		</dependency>
 
-	<dependencies>
-		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>common</artifactId>
@@ -19,14 +22,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>descriptors</artifactId>
-			<version>${pom.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
+			<groupId>org.jboss.msc</groupId>
+			<artifactId>jboss-msc</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
@@ -35,13 +32,6 @@
 			<artifactId>core</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		
 	</dependencies>
-
+		
 </project>

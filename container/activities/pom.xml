@@ -9,7 +9,7 @@
 
 	<artifactId>activities</artifactId>
 			
-	<dependencies>				
+	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>common</artifactId>

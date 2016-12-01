@@ -8,10 +8,7 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.configuration.global.ShutdownHookBehavior;
 import org.jboss.logging.Logger;
-import org.jboss.msc.service.Service;
-import org.jboss.msc.service.StartContext;
-import org.jboss.msc.service.StartException;
-import org.jboss.msc.service.StopContext;
+import org.jboss.msc.service.*;
 import org.jboss.msc.value.InjectedValue;
 import org.jboss.vfs.TempFileProvider;
 import org.jboss.vfs.VFS;
@@ -19,6 +16,7 @@ import org.jboss.vfs.VFSUtils;
 import org.jboss.vfs.VirtualFile;
 import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
+import org.mobicents.slee.connector.local.SleeConnectionServiceImpl;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentManagementImpl;
@@ -39,6 +37,7 @@ import org.mobicents.slee.container.facilities.nullactivity.NullActivityContextI
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityFactory;
 import org.mobicents.slee.container.management.*;
 import org.mobicents.slee.container.management.jmx.*;
+import org.mobicents.slee.container.remote.RmiServerInterfaceImpl;
 import org.mobicents.slee.container.rmi.RmiServerInterface;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
@@ -179,9 +178,11 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final ActivityContextNamingFacility activityContextNamingFacility = new ActivityContextNamingFacilityImpl();
 
 		// TODO SLEE Connection Factory + RMI stuff
-		final SleeConnectionService sleeConnectionService = null;
-		final MobicentsSleeConnectionFactory sleeConnectionFactory = null;
-		final RmiServerInterface rmiServerInterface = null;
+		final SleeConnectionService sleeConnectionService = new SleeConnectionServiceImpl();
+		final MobicentsSleeConnectionFactory sleeConnectionFactory = null; // new MobicentsSleeConnectionFactoryImpl();
+        final RmiServerInterface rmiServerInterface = new RmiServerInterfaceImpl();
+		rmiServerInterface.setAddress("127.0.0.1");
+		rmiServerInterface.setPort(5555);
 
 		final UsageParametersManagement usageParametersManagement = new UsageParametersManagementImpl();
 
@@ -207,9 +208,11 @@ public class SleeContainerService implements Service<SleeContainer> {
 		// FIXME this needs further work on dependencies
 		// final PolicyMBeanImpl policyMBeanImpl = new PolicyMBeanImpl();
 		// policyMBeanImpl.setUseMPolicy(true);
+
+		ServiceController<?> serviceController = context.getController();
 		
 		try {
-			sleeContainer = new SleeContainer(deployPath, getMbeanServer().getValue(),
+			sleeContainer = new SleeContainer(deployPath, serviceController, getMbeanServer().getValue(),
 					componentManagement, sbbManagement, serviceManagement,
 					resourceManagement, profileManagement,
 					eventContextFactory, eventRouter, timerFacility,

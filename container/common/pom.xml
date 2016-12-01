@@ -9,7 +9,11 @@
 
 	<artifactId>common</artifactId>
 			
-	<dependencies>				
+	<dependencies>
+		<dependency>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+		</dependency>
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>

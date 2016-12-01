@@ -11,6 +11,10 @@
 			
 	<dependencies>
 		<dependency>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>usage</artifactId>
 			<version>${project.version}</version>

@@ -22,20 +22,8 @@
 
 package org.mobicents.slee.container;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-
-import javax.management.MBeanServer;
-import javax.slee.InvalidStateException;
-import javax.slee.management.SleeState;
-
 import org.apache.log4j.Logger;
+import org.jboss.msc.service.ServiceController;
 import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
@@ -52,19 +40,23 @@ import org.mobicents.slee.container.facilities.TimerFacility;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityContextInterfaceFactory;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityFactory;
 import org.mobicents.slee.container.jndi.JndiManagement;
-import org.mobicents.slee.container.management.AlarmManagement;
-import org.mobicents.slee.container.management.ComponentManagement;
-import org.mobicents.slee.container.management.ProfileManagement;
-import org.mobicents.slee.container.management.ResourceManagement;
-import org.mobicents.slee.container.management.SbbManagement;
-import org.mobicents.slee.container.management.ServiceManagement;
-import org.mobicents.slee.container.management.SleeStateChangeRequest;
-import org.mobicents.slee.container.management.TraceManagement;
-import org.mobicents.slee.container.management.UsageParametersManagement;
+import org.mobicents.slee.container.management.*;
 import org.mobicents.slee.container.management.jmx.editors.SleePropertyEditorRegistrator;
 import org.mobicents.slee.container.rmi.RmiServerInterface;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
+
+import javax.management.MBeanServer;
+import javax.slee.InvalidStateException;
+import javax.slee.management.SleeState;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 
 /**
  * Implements the SleeContainer. The SleeContainer is the anchor for the SLEE.
@@ -186,34 +178,38 @@ public class SleeContainer {
 	private final SleeContainerDeployer deployer;
 	
 	private JndiManagement jndiManagement;
-	
+
+	private ServiceController serviceController;
+
 	/**
 	 * Creates a new instance of SleeContainer -- This is called from the
 	 * SleeManagementMBean to get the whole thing running.
 	 * 
 	 */
 	public SleeContainer(
-            String deployPath, MBeanServer mBeanServer,
-            ComponentManagement componentManagement,
-            SbbManagement sbbManagement,
-            ServiceManagement serviceManagement,
-            ResourceManagement resourceManagement,
-            ProfileManagement profileManagement,
-            EventContextFactory eventContextFactory,
-            EventRouter eventRouter,
-            TimerFacility timerFacility,
-            ActivityContextFactory activityContextFactory,
-            ActivityContextNamingFacility activityContextNamingFacility,
-            NullActivityContextInterfaceFactory nullActivityContextInterfaceFactory,
-            NullActivityFactory nullActivityFactory,
-            RmiServerInterface rmiServerInterface,
-            SleeTransactionManager sleeTransactionManager,
-            MobicentsCluster cluster, AlarmManagement alarmMBeanImpl,
-            TraceManagement traceMBeanImpl,
-            UsageParametersManagement usageParametersManagement,
-            SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
-            SleeConnectionService sleeConnectionService, MobicentsSleeConnectionFactory sleeConnectionFactory, SleeContainerDeployer sleeContainerDeployer) throws Exception {
+			String deployPath, ServiceController serviceController, MBeanServer mBeanServer,
+			ComponentManagement componentManagement,
+			SbbManagement sbbManagement,
+			ServiceManagement serviceManagement,
+			ResourceManagement resourceManagement,
+			ProfileManagement profileManagement,
+			EventContextFactory eventContextFactory,
+			EventRouter eventRouter,
+			TimerFacility timerFacility,
+			ActivityContextFactory activityContextFactory,
+			ActivityContextNamingFacility activityContextNamingFacility,
+			NullActivityContextInterfaceFactory nullActivityContextInterfaceFactory,
+			NullActivityFactory nullActivityFactory,
+			RmiServerInterface rmiServerInterface,
+			SleeTransactionManager sleeTransactionManager,
+			MobicentsCluster cluster, AlarmManagement alarmMBeanImpl,
+			TraceManagement traceMBeanImpl,
+			UsageParametersManagement usageParametersManagement,
+			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
+			SleeConnectionService sleeConnectionService, MobicentsSleeConnectionFactory sleeConnectionFactory, SleeContainerDeployer sleeContainerDeployer) throws Exception {
         this.deployPath = deployPath;
+
+		this.serviceController = serviceController;
 
         this.mbeanServer = mBeanServer;
 
@@ -309,11 +305,15 @@ public class SleeContainer {
 	// GETTERS -- managers
 
 	public JndiManagement getJndiManagement() {
-		return jndiManagement;
+		return this.jndiManagement;
 	}
 	
 	public void setJndiManagement(JndiManagement jndiManagement) {
 		this.jndiManagement = jndiManagement;
+	}
+
+	public ServiceController getServiceController() {
+		return this.serviceController;
 	}
 	
 	/**
@@ -593,7 +593,8 @@ public class SleeContainer {
 		}
 		// slee shutdown
 		beforeModulesShutdown();
-		for (Iterator<SleeContainerModule> i = modules.descendingIterator(); i.hasNext();) {
+		for (Iterator<SleeContainerModule> i = modules
+				.descendingIterator(); i.hasNext();) {
 			i.next().sleeShutdown();
 		}
 		afterModulesShutdown();
@@ -643,7 +644,7 @@ public class SleeContainer {
 						if(logger.isInfoEnabled()) {
 							logger.info(dumpState());
 						}
-						for (Iterator<SleeContainerModule> i=modules.descendingIterator(); i.hasNext();) {
+						for (Iterator<SleeContainerModule> i = modules.descendingIterator(); i.hasNext();) {
 							i.next().sleeStopped();
 						}			
 					}	
