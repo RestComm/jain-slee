@@ -82,6 +82,10 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 	private String rmiAddress;
 	private int rmiPort;
+	private boolean persistProfiles;
+	private boolean clusteredProfiles;
+	private String hibernateDatasource;
+	private String hibernateDialect;
 
 	private final InjectedValue<MBeanServer> mbeanServer = new InjectedValue<MBeanServer>();
 	private final InjectedValue<TransactionManager> transactionManager = new InjectedValue<TransactionManager>();
@@ -95,9 +99,16 @@ public class SleeContainerService implements Service<SleeContainer> {
 		return externalDeployer;
 	}
 
-	public SleeContainerService(String rmiAddress, int rmiPort) {
+	public SleeContainerService(
+			String rmiAddress, int rmiPort,
+			boolean persistProfiles, boolean clusteredProfiles,
+			String hibernateDatasource, String hibernateDialect) {
 		this.rmiAddress = rmiAddress;
 		this.rmiPort = rmiPort;
+		this.persistProfiles = persistProfiles;
+		this.clusteredProfiles = clusteredProfiles;
+		this.hibernateDatasource = hibernateDatasource;
+		this.hibernateDialect = hibernateDialect;
 	}
 
 	@Override
@@ -144,10 +155,10 @@ public class SleeContainerService implements Service<SleeContainer> {
 				profileConfiguration = new org.mobicents.slee.container.deployment.profile.jpa.Configuration();
 
 		// TODO: ExtensionConfiguration for Profile Management
-		profileConfiguration.setPersistProfiles(true);
-		profileConfiguration.setClusteredProfiles(false);
-		profileConfiguration.setHibernateDatasource("java:jboss/datasources/ExampleDS");
-		profileConfiguration.setHibernateDialect("org.hibernate.dialect.H2Dialect");
+		profileConfiguration.setPersistProfiles(this.persistProfiles);
+		profileConfiguration.setClusteredProfiles(this.clusteredProfiles);
+		profileConfiguration.setHibernateDatasource(this.hibernateDatasource);
+		profileConfiguration.setHibernateDialect(this.hibernateDialect);
 		final ProfileManagement profileManagement = new ProfileManagementImpl(profileConfiguration);
 
 		// TODO: ExtensionConfiguration for EventRouter

@@ -1,10 +1,7 @@
 package org.telestax.slee.container.build.as7.extension;
 
 import org.jboss.as.connector.subsystems.datasources.DataSourceReferenceFactoryService;
-import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
-import org.jboss.as.controller.OperationContext;
-import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.controller.*;
 import org.jboss.as.jmx.MBeanServerService;
 import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.as.server.AbstractDeploymentChainStep;
@@ -39,9 +36,9 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
         log.info("Populating the model");
         //model.setEmptyObject();
-        SleeSubsystemDefinition.RMI_ADDRESS.validateAndSet(operation, model);
-        SleeSubsystemDefinition.RMI_PORT.validateAndSet(operation, model);
-        log.info("Populating the model END");
+        for (AttributeDefinition ad : SleeSubsystemDefinition.ATTRIBUTES) {
+            ad.validateAndSet(operation, model);
+        }
     }
 
     /** {@inheritDoc} */
@@ -68,19 +65,28 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
         //ModelNode fullModel = Resource.Tools.readModel(context.readResource(PathAddress.EMPTY_ADDRESS));
 
-        final ModelNode rmiAddressModel = SleeSubsystemDefinition.RMI_ADDRESS.resolveModelAttribute(context, model);
+        final ModelNode rmiAddressModel = SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.resolveModelAttribute(context, model);
         final String rmiAddress = rmiAddressModel.isDefined() ? rmiAddressModel.asString() : null;
 
-        final ModelNode rmiPortModel = SleeSubsystemDefinition.RMI_PORT.resolveModelAttribute(context, model);
+        final ModelNode rmiPortModel = SleeSubsystemDefinition.REMOTE_RMI_PORT.resolveModelAttribute(context, model);
         final int rmiPort = rmiPortModel.isDefined() ? rmiPortModel.asInt() : 5555;
 
         log.info("rmi: "+rmiAddress+":"+rmiPort);
 
+        final boolean persistProfiles = SleeSubsystemDefinition.PROFILES_PERSIST_PROFILES.resolveModelAttribute(context, model).asBoolean();
+        final boolean clusteredProfiles = SleeSubsystemDefinition.PROFILES_CLUSTERED_PROFILES.resolveModelAttribute(context, model).asBoolean();
+
+        final ModelNode hibernateDatasourceModel = SleeSubsystemDefinition.PROFILES_HIBERNATE_DATASOURCE.resolveModelAttribute(context, model);
+        final String hibernateDatasource = hibernateDatasourceModel.isDefined() ? hibernateDatasourceModel.asString() : "java:jboss/datasources/ExampleDS";
+        final ModelNode hibernateDialectModel = SleeSubsystemDefinition.PROFILES_HIBERNATE_DIALECT.resolveModelAttribute(context, model);
+        final String hibernateDialect = hibernateDialectModel.isDefined() ? hibernateDialectModel.asString() : "org.hibernate.dialect.H2Dialect";
 
     	// Installs the msc service which builds the SleeContainer instance and its modules
         final ServiceTarget target = context.getServiceTarget();
-        final SleeContainerService sleeContainerService = new SleeContainerService(rmiAddress, rmiPort);
+        final SleeContainerService sleeContainerService = new SleeContainerService(
+                rmiAddress, rmiPort, persistProfiles, clusteredProfiles, hibernateDatasource, hibernateDialect);
         //final SleeContainerService sleeContainerService = new SleeContainerService("127.0.0.1", 5555);
+        
         final ServiceBuilder<?> sleeContainerServiceBuilder = target
                 .addService(SleeServiceNames.SLEE_CONTAINER, sleeContainerService)
                 //.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, service.getPathManagerInjector())

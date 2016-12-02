@@ -9,14 +9,14 @@
     <xs:element name="subsystem" type="subsystemType"/>
 
     <xs:complexType name="subsystemType">
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="remote" type="remoteType"/>
-        </xs:choice>
+        <xs:sequence>
+            <xs:element name="remote-rmi-address" type="xs:string" minOccurs="0" maxOccurs="1" />
+            <xs:element name="remote-rmi-port" type="xs:int" minOccurs="0" maxOccurs="1" />
+            <xs:element name="profiles-persist-profiles" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true" />
+            <xs:element name="profiles-clustered-profiles" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false" />
+            <xs:element name="profiles-hibernate-datasource" type="xs:string" minOccurs="0" maxOccurs="1" />
+            <xs:element name="profiles-hibernate-dialect" type="xs:string" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="remoteType">
-        <xs:attribute name="rmi-address" type="xs:string" use="required" default="localhost"/>
-        <xs:attribute name="rmi-port" type="xs:int" use="required" default="5555"/>
-    </xs:complexType>
-    
 </xs:schema>
