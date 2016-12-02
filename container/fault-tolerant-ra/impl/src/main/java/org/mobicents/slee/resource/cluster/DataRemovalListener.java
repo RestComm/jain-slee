@@ -22,7 +22,7 @@
 
 package org.mobicents.slee.resource.cluster;
 
-import org.infinispan.tree.Fqn;
+import org.restcomm.cache.tree.Fqn;
 
 import java.io.Serializable;
 

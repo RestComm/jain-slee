@@ -23,7 +23,7 @@
 package org.mobicents.slee.runtime.activity;
 
 import org.apache.log4j.Logger;
-import org.infinispan.tree.Fqn;
+import org.restcomm.cache.tree.Fqn;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;

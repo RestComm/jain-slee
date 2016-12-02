@@ -28,12 +28,13 @@
 			<artifactId>core</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-tree</artifactId>
+			<artifactId>infinispan-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<artifactId>junit</artifactId>
 			<groupId>junit</groupId>

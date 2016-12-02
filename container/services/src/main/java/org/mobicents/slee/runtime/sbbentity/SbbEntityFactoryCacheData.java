@@ -22,8 +22,8 @@
 
 package org.mobicents.slee.runtime.sbbentity;
 
-import org.infinispan.tree.Fqn;
-import org.infinispan.tree.Node;
+import org.restcomm.cache.tree.Fqn;
+import org.restcomm.cache.tree.Node;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cluster.MobicentsCluster;

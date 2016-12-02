@@ -81,12 +81,22 @@
 				<scope>provided</scope>
 			</dependency>
 
+			<!--
 			<dependency>
 				<groupId>org.infinispan</groupId>
 				<artifactId>infinispan-tree</artifactId>
 				<version>${version.infinispan}</version>
 				<scope>provided</scope>
 			</dependency>
+			-->
+
+			<dependency>
+				<groupId>org.infinispan</groupId>
+				<artifactId>infinispan-core</artifactId>
+				<version>${version.infinispan}</version>
+				<scope>provided</scope>
+			</dependency>
+
 			<dependency>
 				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>core</artifactId>

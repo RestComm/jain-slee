@@ -17,10 +17,13 @@
 	</modules>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-tree</artifactId>
+			<artifactId>infinispan-core</artifactId>
+			<scope>provided</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>
