@@ -106,6 +106,7 @@ public class ObjectCloner {
 
             try {
                 logger.info("ObjectCloner._makeDeepCopy: "+orig.getClass().getCanonicalName());
+                logger.info("ObjectCloner._makeDeepCopy: "+orig.toString());
                 copy = (T) org.apache.commons.lang.SerializationUtils.clone((Serializable)orig);
             } catch (Throwable e) {
                 throw new SLEEException("Failed to create object copy.", e);

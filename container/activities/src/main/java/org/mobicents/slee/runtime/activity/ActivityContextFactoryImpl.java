@@ -197,7 +197,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 			}
 		}
 		else {
-			return null; 
+			return null;
 		}
 	}
 	
