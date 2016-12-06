@@ -44,7 +44,6 @@ import org.mobicents.slee.container.transaction.SleeTransaction;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 
-import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
 import org.mobicents.slee.util.concurrent.SleeThreadFactory;
 
 /**
@@ -284,7 +283,7 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 					transactionContext = bindToTransaction(transaction);
 				}
 			}
-			return new SleeTransactionImpl((TransactionImple)transaction,transactionContext,this);
+			return new SleeTransactionImpl((Transaction)transaction,transactionContext,this);
 		}
 		else {
 			return null;
@@ -317,8 +316,8 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 		if (transaction.getClass() == SleeTransactionImpl.class) {
 			return (SleeTransaction) transaction;
 		}
-		if (transaction instanceof TransactionImple) {
-			return new SleeTransactionImpl((TransactionImple) transaction,getTransactionContext(),this);
+		if (transaction instanceof Transaction) {
+			return new SleeTransactionImpl((Transaction) transaction,getTransactionContext(),this);
 		}
 		throw new IllegalArgumentException("unexpected transaction class type "+transaction.getClass());
 	}
