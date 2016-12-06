@@ -335,14 +335,16 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 				Name name = parser.parse("java:comp/env/"+raObjectName);
 				int tokenCount = name.size();
 
-				Context subContext = new InitialContext();
+				// ctx is Context for "java:comp"
+				Context subContext = ctx;
 
-				for (int i = 0; i < tokenCount - 1; i++) {
+				// skip 0 = "java:comp"
+				for (int i = 1; i < tokenCount - 1; i++) {
 					String nextTok = name.get(i);
 					try {
+						subContext = (Context) subContext.createSubcontext(nextTok);
+					} catch (NameAlreadyBoundException nfe) {
 						subContext = (Context) subContext.lookup(nextTok);
-					} catch (NameNotFoundException nfe) {
-						subContext = subContext.createSubcontext(nextTok);
 					}
 				}
 				// Bind the resource adaptor instance to where the Sbb expects

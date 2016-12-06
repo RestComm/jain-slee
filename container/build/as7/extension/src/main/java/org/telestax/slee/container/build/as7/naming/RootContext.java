@@ -9,6 +9,7 @@ import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingException;
 
 import org.jboss.as.naming.context.NamespaceContextSelector;
+import org.jboss.as.naming.util.NameParser;
 
 public class RootContext extends NotImplementedContext {
 
@@ -103,6 +104,14 @@ public class RootContext extends NotImplementedContext {
 	
 	public NamespaceContextSelector getNamespaceContextSelector() {
 		return namespaceContextSelector;		
+	}
+
+	public NameParser getNameParser(Name name) throws NamingException {
+		return NameParser.INSTANCE;
+	}
+
+	public NameParser getNameParser(String name) throws NamingException {
+		return NameParser.INSTANCE;
 	}
 	
 	private class NamespaceContextSelectorImpl extends NamespaceContextSelector {
