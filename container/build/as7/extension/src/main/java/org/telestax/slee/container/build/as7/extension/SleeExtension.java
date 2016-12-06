@@ -109,7 +109,11 @@ public class SleeExtension implements Extension {
 
             final ModelNode sleeSubsystem = context.getModelNode();
             SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.marshallAsElement(sleeSubsystem, writer);
-            SleeSubsystemDefinition.REMOTE_RMI_PORT.marshallAsAttribute(sleeSubsystem, writer);
+            SleeSubsystemDefinition.REMOTE_RMI_PORT.marshallAsElement(sleeSubsystem, writer);
+            SleeSubsystemDefinition.PROFILES_PERSIST_PROFILES.marshallAsElement(sleeSubsystem, writer);
+            SleeSubsystemDefinition.PROFILES_CLUSTERED_PROFILES.marshallAsElement(sleeSubsystem, writer);
+            SleeSubsystemDefinition.PROFILES_HIBERNATE_DATASOURCE.marshallAsElement(sleeSubsystem, writer);
+            SleeSubsystemDefinition.PROFILES_HIBERNATE_DIALECT.marshallAsElement(sleeSubsystem, writer);
 
             writer.writeEndElement();
         }

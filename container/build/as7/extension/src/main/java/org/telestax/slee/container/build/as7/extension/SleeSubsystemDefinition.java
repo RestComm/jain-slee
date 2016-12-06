@@ -1,11 +1,9 @@
 package org.telestax.slee.container.build.as7.extension;
 
 import org.jboss.as.controller.*;
-import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
-import org.jboss.logging.Logger;
 
 public class SleeSubsystemDefinition extends SimpleResourceDefinition {
 
