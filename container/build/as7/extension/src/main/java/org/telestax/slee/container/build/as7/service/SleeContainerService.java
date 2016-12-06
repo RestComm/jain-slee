@@ -265,8 +265,10 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final ServiceManagementMBeanImpl serviceManagementMBean = new ServiceManagementMBeanImpl(serviceManagement);
 		registerMBean(serviceManagementMBean, ServiceManagementMBean.OBJECT_NAME);
 
+		ProfileProvisioningMBeanImpl profileProvisioningMBean = null;
 		try {
-			registerMBean(new ProfileProvisioningMBeanImpl(sleeContainer), ProfileProvisioningMBeanImpl.OBJECT_NAME);
+			profileProvisioningMBean = new ProfileProvisioningMBeanImpl(sleeContainer);
+			registerMBean(profileProvisioningMBean, ProfileProvisioningMBeanImpl.OBJECT_NAME);
 		} catch (NotCompliantMBeanException e) {
 			log.error("ProfileProvisioningMBean is not compliant MBean.", e);
 		}
@@ -288,6 +290,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 		sleeManagementMBean.setSbbEntitiesMBean(sbbEntitiesMBean.getObjectName());
 		sleeManagementMBean.setActivityManagementMBean(activityManagementMBean.getObjectName());
 		sleeManagementMBean.setDeploymentMBean(deploymentMBean.getObjectName());
+		if (profileProvisioningMBean != null)
+			sleeManagementMBean.setProfileProvisioningMBean(profileProvisioningMBean.getObjectName());
 
 		registerMBean(sleeManagementMBean, SleeManagementMBeanImplMBean.OBJECT_NAME);
 
