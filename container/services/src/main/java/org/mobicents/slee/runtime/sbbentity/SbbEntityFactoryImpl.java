@@ -270,7 +270,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 		final SbbEntityID sbbEntityID = sbbEntity.getSbbEntityId();
 		txContext.getData().remove(sbbEntityID);	
-		// if sbb entity is not root add a tx action to ensure lock is removed
+		// if sbb entity is root add a tx action to ensure lock is removed
 		if (sbbEntityID.isRootSbbEntity()) {
 			TransactionalAction txAction = new TransactionalAction() {
 				@Override
