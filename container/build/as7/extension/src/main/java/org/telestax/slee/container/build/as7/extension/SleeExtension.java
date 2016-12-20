@@ -135,32 +135,12 @@ public class SleeExtension implements Extension {
             final ModelNode subsystem = new ModelNode();
             subsystem.get(OP).set(ADD);
             subsystem.get(OP_ADDR).set(address);
-
-            /*
-            final int count = reader.getAttributeCount();
-            System.out.println("count: "+count);
-            for (int i = 0; i < count; i++) {
-                requireNoNamespaceAttribute(reader, i);
-                final String value = reader.getAttributeValue(i);
-                final String name = reader.getAttributeLocalName(i);
-                //final Attribute attribute = Attribute.forName(name);
-                System.out.println("name: "+name);
-                if (name.equals("rmi-address") ||
-                        name.equals("rmi-port")) {
-                    System.out.println("attribute: "+name);
-                    subsystem.get(name).set(value);
-                }
-            }
-            */
-
             list.add(subsystem);
 
             // elements
             final EnumSet<Element> encountered = EnumSet.noneOf(Element.class);
             while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
                 final Element element = Element.forName(reader.getLocalName());
-                System.out.println("element: "+element.getLocalName());
-
                 if (!encountered.add(element)) {
                     throw ParseUtils.unexpectedElement(reader);
                 }
@@ -200,8 +180,6 @@ public class SleeExtension implements Extension {
                     }
                 }
             }
-
-            //System.out.println("list: "+list.toString());
         }
 
     }

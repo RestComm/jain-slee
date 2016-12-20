@@ -27,17 +27,26 @@
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
 
 		<version.jboss.as>7.2.0.Final</version.jboss.as>
-		<version.wildfly.as>10.0.0.Final</version.wildfly.as>
-		<version.wildfly.core>2.0.10.Final</version.wildfly.core>
-		<version.javassist>3.15.0-GA</version.javassist>
-		<version.hibernate>4.2.0.CR1</version.hibernate>
+		<!--<version.jboss.msc>1.0.4.GA</version.jboss.msc>-->
+		<version.jboss.msc>1.2.6.Final</version.jboss.msc>
+		<version.wildfly.as>10.1.0.Final</version.wildfly.as>
+		<version.wildfly.core>2.2.0.Final</version.wildfly.core>
+
+		<!--<version.javassist>3.15.0-GA</version.javassist>-->
+		<version.javassist>3.18.1-GA</version.javassist>
+		<!--<version.hibernate>4.2.0.CR1</version.hibernate>-->
+		<version.hibernate>5.0.10.Final</version.hibernate>
 
 		<restcomm.cluster.version>3.0.0-SNAPSHOT</restcomm.cluster.version>
-		<version.jgoups>3.2.7.Final</version.jgoups>
-		<version.infinispan>5.2.1.Final</version.infinispan>
+		<!--<version.jgoups>3.2.7.Final</version.jgoups>-->
+		<version.jgoups>3.6.10.Final</version.jgoups>
+		<!--<version.infinispan>5.2.1.Final</version.infinispan>-->
+		<version.infinispan>8.2.4.Final</version.infinispan>
 
-		<version.jboss.logging>3.1.2.GA</version.jboss.logging>
-		<version.vfs>3.2.0.Final</version.vfs>
+		<!--<version.jboss.logging>3.1.2.GA</version.jboss.logging>-->
+		<version.jboss.logging>3.3.0.Final</version.jboss.logging>
+		<!--<version.vfs>3.2.0.Final</version.vfs>-->
+		<version.vfs>3.2.12.Final</version.vfs>
 		<version.junit>4.8.2</version.junit>
 	</properties>
 
@@ -236,7 +245,7 @@
 			<dependency>
 				<groupId>org.jboss.msc</groupId>
 				<artifactId>jboss-msc</artifactId>
-				<version>1.0.4.GA</version>
+				<version>${version.jboss.msc}</version>
 				<scope>provided</scope>
 			</dependency>
 		</dependencies>

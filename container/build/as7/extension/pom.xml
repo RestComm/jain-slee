@@ -139,14 +139,7 @@
 	<profiles>
 		<profile>
 			<id>build-as72</id>
-			<activation>
-				<!--
-				Never use <activeByDefault>
-				<activeByDefault>true</activeByDefault>
-				https://dzone.com/articles/maven-profile-best-practices
-				-->
-				<property><name>!foo.bar</name></property>
-			</activation>
+
 			<dependencies>
 				<dependency>
 					<groupId>org.jboss.as</groupId>
@@ -182,6 +175,14 @@
 		</profile>
 		<profile>
 			<id>build-as100</id>
+			<activation>
+				<!--
+				Never use <activeByDefault>
+				<activeByDefault>true</activeByDefault>
+				https://dzone.com/articles/maven-profile-best-practices
+				-->
+				<property><name>!foo.bar</name></property>
+			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>org.wildfly.core</groupId>
