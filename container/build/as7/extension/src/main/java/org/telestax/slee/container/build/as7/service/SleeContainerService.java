@@ -23,6 +23,8 @@ import org.mobicents.slee.connector.local.SleeConnectionServiceImpl;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentManagementImpl;
+import org.mobicents.slee.container.component.management.jmx.PolicyMBeanImpl;
+import org.mobicents.slee.container.component.management.jmx.PolicyMBeanImplMBean;
 import org.mobicents.slee.container.congestion.CongestionControl;
 import org.mobicents.slee.container.congestion.CongestionControlImpl;
 import org.mobicents.slee.container.deployment.ExternalDeployer;
@@ -243,8 +245,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 				congestionControlConfiguration);
 
 		// FIXME this needs further work on dependencies
-		// final PolicyMBeanImpl policyMBeanImpl = new PolicyMBeanImpl();
-		// policyMBeanImpl.setUseMPolicy(true);
+		final PolicyMBeanImpl policyMBeanImpl = new PolicyMBeanImpl();
+		policyMBeanImpl.setUseMPolicy(true);
 
 		ServiceController<?> serviceController = context.getController();
 		
@@ -298,7 +300,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final ActivityManagementMBeanImpl activityManagementMBean = new ActivityManagementMBeanImpl(sleeContainer);
 		registerMBean(activityManagementMBean, ActivityManagementMBeanImplMBean.OBJECT_NAME);
 		// TODO PolicyMBeanImpl
-		//registerMBean(policyMBeanImpl, PolicyMBeanImplMBean.OBJECT_NAME);
+		registerMBean(policyMBeanImpl, PolicyMBeanImplMBean.OBJECT_NAME);
 		
 		// slee management mbean
 		final SleeManagementMBeanImpl sleeManagementMBean = new SleeManagementMBeanImpl(sleeContainer);
