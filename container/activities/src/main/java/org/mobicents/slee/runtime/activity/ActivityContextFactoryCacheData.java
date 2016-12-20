@@ -48,7 +48,7 @@ public class ActivityContextFactoryCacheData extends CacheData {
 
 	/**
 	 * 
-	 * @param activityContextId
+	 * @param cluster
 	 */
 	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
 		super(NODE_FQN, cluster.getMobicentsCache());
@@ -63,7 +63,35 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
 		final Node node = getNode();
-		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
+		System.out.println("#### node: "+node);
+		if (node != null) {
+			System.out.println("#### node: " + node.getFqn());
+			//System.out.println("#### node: " + node.getChildrenNames());
+			System.out.println("#### node: " + node.getChildObjects());
+		}
+		return node != null ? node.getChildObjects() : Collections.EMPTY_SET;
+	}
+
+	public void WAremove() {
+		final Node node = getNode();
+		System.out.println("$$$$ node: "+node);
+		if (node != null) {
+			if (!node.getChildren().isEmpty()) {
+				System.out.println("$$$$ is not empty");
+				for (Object cho : node.getChildren()) {
+					//Node chn = (Node)cho;
+					System.out.println("$$$$ object: "+cho);
+					//node.removeChild(cho);
+				}
+				node.removeChildren();
+			}
+
+			if (!node.getChildren().isEmpty()) {
+				System.out.println("$$$$ is not empty");
+			}
+
+			System.out.println("$$$$ is empty");
+		}
 	}
 
 }

@@ -452,6 +452,9 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				.getActivityContext(ach);
 		if (ac == null) {
 			logger.warn("unable to find and end ac " + ach);
+
+			sleeContainer.getActivityContextFactory().WAremove();
+
 			return;
 		}
 		if (!activityEndingTasks.contains(serviceID)) {
@@ -827,6 +830,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		logger.info("Ending all service activities...");
 
 		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
+		logger.debug("acf: "+acf);
 
 		try {
 			for (ActivityContextHandle ach : acf

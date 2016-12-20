@@ -84,8 +84,10 @@ public class SbbEntityCacheData extends CacheData {
 	private static final String EVENT_MASKS_CHILD_NODE_NAME = "event-mask";
 	private static final Fqn EVENT_MASKS_CHILD_NODE_FQN = 
 		Fqn.fromElements(EVENT_MASKS_CHILD_NODE_NAME);
-	private Node<ActivityContextHandle,Set<EventTypeID>> _eventMasksChildNode;
-	private Node<ActivityContextHandle,Set<EventTypeID>> getEventMasksChildNode(boolean createIfNotExists) {
+	//private Node<ActivityContextHandle,Set<EventTypeID>> _eventMasksChildNode;
+	private Node _eventMasksChildNode;
+	//private Node<ActivityContextHandle,Set<EventTypeID>> getEventMasksChildNode(boolean createIfNotExists) {
+	private Node getEventMasksChildNode(boolean createIfNotExists) {
 		if (_eventMasksChildNode == null) {
 			final Node node = getNode();
 			_eventMasksChildNode = node.getChild(EVENT_MASKS_CHILD_NODE_NAME);
@@ -99,8 +101,10 @@ public class SbbEntityCacheData extends CacheData {
 	private static final String CMP_FIELDS_CHILD_NODE_NAME = "cmp-fields";
 	private static final Fqn CMP_FIELDS_CHILD_NODE_FQN = 
 		Fqn.fromElements(CMP_FIELDS_CHILD_NODE_NAME);
-	private Node<String,Object> _cmpFieldsChildNode;
-	private Node<String,Object> getCmpFieldsChildNode(boolean createIfNotExists) {
+	//private Node<String,Object> _cmpFieldsChildNode;
+	private Node _cmpFieldsChildNode;
+	//private Node<String,Object> getCmpFieldsChildNode(boolean createIfNotExists) {
+	private Node getCmpFieldsChildNode(boolean createIfNotExists) {
 		if (_cmpFieldsChildNode == null) {
 			final Node node = getNode();
 			_cmpFieldsChildNode = node.getChild(CMP_FIELDS_CHILD_NODE_NAME);
@@ -132,7 +136,8 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public void attachActivityContext(ActivityContextHandle ac) {
-		getAttachedACsChildNode(true).put(ac, MISC_NODE_MAP_VALUE);
+		//getAttachedACsChildNode(true).put(ac, MISC_NODE_MAP_VALUE);
+		getAttachedACsChildNode(true).put(ac, ac);
 	}
 
 	public void detachActivityContext(ActivityContextHandle ac) {
@@ -143,12 +148,19 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public Set<EventTypeID> getMaskedEventTypes(ActivityContextHandle ac) {
-		final Node<ActivityContextHandle,Set<EventTypeID>> node = getEventMasksChildNode(false);
+		//final Node<ActivityContextHandle,Set<EventTypeID>> node = getEventMasksChildNode(false);
+		final Node node = getEventMasksChildNode(false);
 		if (node == null) {
 			return null;
 		}
 		else {
-			return node.get(ac); 
+			Set<EventTypeID> eventTypes = null;
+			try {
+				eventTypes = (Set<EventTypeID>)node.get(ac);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			return eventTypes;
 		}
 	}
 
@@ -156,7 +168,8 @@ public class SbbEntityCacheData extends CacheData {
 		if (eventMask != null && !eventMask.isEmpty()) {
 			getEventMasksChildNode(true).put(ac,eventMask);
 		} else {
-			final Node<ActivityContextHandle,Set<EventTypeID>> eventMasksChildNode = getEventMasksChildNode(false);
+			//final Node<ActivityContextHandle,Set<EventTypeID>> eventMasksChildNode = getEventMasksChildNode(false);
+			final Node eventMasksChildNode = getEventMasksChildNode(false);
 			if (eventMasksChildNode != null) {
 				eventMasksChildNode.remove(ac);
 			}
@@ -164,8 +177,15 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public void updateEventMask(ActivityContextHandle ac, Set<EventTypeID> maskedEvents) {
-		final Node<ActivityContextHandle,Set<EventTypeID>> eventMasksChildNode = getEventMasksChildNode(true);
-		Set<EventTypeID> currentMaskedEvents = eventMasksChildNode.get(ac);
+		//final Node<ActivityContextHandle,Set<EventTypeID>> eventMasksChildNode = getEventMasksChildNode(true);
+		final Node eventMasksChildNode = getEventMasksChildNode(true);
+		Set<EventTypeID> currentMaskedEvents = null;
+		try {
+			currentMaskedEvents = (Set<EventTypeID>)eventMasksChildNode.get(ac);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
 		if (currentMaskedEvents == null) {
 			eventMasksChildNode.put(ac,maskedEvents);
 		}
@@ -176,14 +196,31 @@ public class SbbEntityCacheData extends CacheData {
 
 	public Set<ActivityContextHandle> getActivityContexts() {
 		final Node node = getAttachedACsChildNode(false);
+        System.out.println("!!!! node: "+node);
 		Set<ActivityContextHandle> result = null;
 		if (node != null) {
-			result = node.getKeys();
+			//result = node.getKeys();
+            System.out.println("!!!! node.getChildObjects(): "+node.getChildObjects());
+			try {
+				for (Object o : node.getChildObjects()) {
+					System.out.println("!!!! o: "+o);
+					System.out.println("!!!! o: "+o.getClass().getCanonicalName());
+					if (o instanceof ActivityContextHandle) {
+						if (result == null) {
+							result = new HashSet<ActivityContextHandle>();
+						}
+						result.add((ActivityContextHandle) o);
+					}
+				}
+			} catch (NullPointerException ex) {
+				ex.printStackTrace();
+			}
 		}
 		else {
 			result = Collections.emptySet();
 		}
-		return result;			
+        System.out.println("!!!! result: "+result);
+		return result;
 	}
 
 	public boolean isAttached(ActivityContextHandle ach) {
@@ -205,12 +242,14 @@ public class SbbEntityCacheData extends CacheData {
 	}
 	
 	public void setCmpField(String cmpField, Object cmpValue) {
-		final Node<String,Object> node = getCmpFieldsChildNode(true);
+		//final Node<String,Object> node = getCmpFieldsChildNode(true);
+		final Node node = getCmpFieldsChildNode(true);
 		node.put(cmpField,cmpValue);
 	}
 
 	public Object getCmpField(String cmpField) {
-		final Node<String,Object> node = getCmpFieldsChildNode(false);
+		//final Node<String,Object> node = getCmpFieldsChildNode(false);
+		final Node node = getCmpFieldsChildNode(false);
 		if (node == null) {
 			return null;
 		}

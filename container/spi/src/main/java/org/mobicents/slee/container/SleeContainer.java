@@ -737,7 +737,7 @@ public class SleeContainer {
 	 * Return the SleeContainer instance registered in the JVM scope of JNDI
 	 */
 	public static SleeContainer lookupFromJndi() {
-		return sleeContainer;		
+		return sleeContainer;
 	}
 
 }

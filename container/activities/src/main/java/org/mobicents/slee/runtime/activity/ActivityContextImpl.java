@@ -35,6 +35,7 @@ import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityIsEndingException;
 
 import org.apache.log4j.Logger;
+import org.restcomm.cache.tree.Node;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -202,7 +203,7 @@ public class ActivityContextImpl implements ActivityContext {
 	/**
 	 * Get the shared data for the ACI.
 	 * 
-	 * @param name
+	 * @param key
 	 *            -- name we want to look up
 	 * @return the shared data for the ACI
 	 * 
@@ -338,13 +339,33 @@ public class ActivityContextImpl implements ActivityContext {
 	 * 
 	 */
 	private void removeFromCache(TransactionContext txContext) {
+		logger.debug("removeFromCache BEFORE: "+cacheData.getNodeFqn());
+		logger.debug("removeFromCache BEFORE: "+cacheData.exists());
 		cacheData.remove();
+		logger.debug("removeFromCache AFTER: "+cacheData.getNodeFqn());
+		logger.debug("removeFromCache AFTER: "+cacheData.exists());
+		logger.debug("removeFromCache AFTER: "+cacheData.isRemoved());
+
+        /*
+		try {
+			Node node = cacheData.getNode();
+			logger.debug("removeFromCache AFTER: "+node);
+			if (node != null) {
+				logger.debug("removeFromCache AFTER: " + node.getFqn());
+				logger.debug("removeFromCache AFTER: " + node.getChildrenNames());
+				logger.debug("removeFromCache AFTER: " + node.getParent());
+				logger.debug("removeFromCache AFTER: " + node.getParent().getFqn());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		*/
 	}
 
 	/**
 	 * attach an sbb entity to this AC.
 	 * 
-	 * @param sbbEntity
+	 * @param sbbEntityId
 	 *            -- sbb entity to attach.
 	 * @return true if the SBB Entity is attached successfully, otherwise when
 	 *         the SBB Entitiy has already been attached before, return false

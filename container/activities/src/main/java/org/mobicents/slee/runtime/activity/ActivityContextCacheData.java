@@ -30,10 +30,7 @@ import org.restcomm.cache.CacheData;
 import org.restcomm.cluster.MobicentsCluster;
 
 import javax.slee.facilities.TimerID;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 
@@ -209,8 +206,11 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return true if it was attached, false if already was attached
 	 */
 	public boolean attachSbbEntity(SbbEntityID sbbEntityId) {
+		System.out.println("!!!! attachSbbEntity: "+sbbEntityId);
 		final Node node = getAttachedSbbsNode(true);
+		System.out.println("!!!! node: "+node);
 		if (!node.hasChild(sbbEntityId)) {
+			System.out.println("!!!! addChild: "+Fqn.fromElements(sbbEntityId));
 			node.addChild(Fqn.fromElements(sbbEntityId));
 			return true;
 		} else {
@@ -246,7 +246,69 @@ public class ActivityContextCacheData extends CacheData {
 	@SuppressWarnings("unchecked")
 	public Set<SbbEntityID> getSbbEntitiesAttached() {
 		final Node node  = getAttachedSbbsNode(false);
-		return node != null ? node.getChildrenNames() : Collections.emptySet();		
+        System.out.println("!!!! node: "+node);
+
+		/*
+		Fqn childFqn = node.getNodeFqn();
+
+		if (childFqn.size() > 0) {
+			for (int i = 0; i < childFqn.size(); i++) {
+				System.out.println("**** childFqn: ["+i+"]: "+childFqn.get(i));
+				System.out.println("**** childFqn: ["+i+"]: "+childFqn.get(i).getClass().getCanonicalName());
+			}
+		}
+		*/
+
+		Set<SbbEntityID> result = null;
+		if (node != null) {
+			System.out.println("!!!! node Fqn: "+node.getNodeFqn());
+			//System.out.println("!!!! node.getChildren(): "+node.getChildren());
+
+			for (Node childNode : node.getChildren()) {
+				System.out.println("!!!! childNode: "+childNode);
+				System.out.println("!!!! childNode: "+childNode.getFqn());
+				Object last = childNode.getFqn().getLastElement();
+				System.out.println("!!!! last: "+last);
+				System.out.println("!!!! last: "+last.getClass().getCanonicalName());
+				if (last instanceof SbbEntityID) {
+					if (result == null) {
+						result = new HashSet<SbbEntityID>();
+					}
+					result.add((SbbEntityID) last);
+				}
+			}
+		} else {
+			result = Collections.emptySet();
+		}
+
+
+		/*
+		Set<SbbEntityID> result = null;
+		if (node != null) {
+			System.out.println("!!!! node.getChildrenNames(): "+node.getChildrenNames());
+            System.out.println("!!!! node.getChildNames(): "+node.getChildNames());
+			System.out.println("!!!! node.getChildNames2(): "+node.getChildNames2());
+			System.out.println("!!!! node.getChildObjects(): "+node.getChildObjects());
+			try {
+				for (Object o : node.getChildNames2()) {
+                    System.out.println("!!!! o: "+o);
+                    System.out.println("!!!! o: "+o.getClass().getCanonicalName());
+					if (o instanceof SbbEntityID) {
+                        if (result == null) {
+                            result = new HashSet<SbbEntityID>();
+                        }
+						result.add((SbbEntityID) o);
+					}
+				}
+			} catch (NullPointerException ex) {
+				ex.printStackTrace();
+			}
+		} else {
+			result = Collections.emptySet();
+		}
+		*/
+
+		return result;
 	}
 
 	/**
@@ -324,6 +386,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noNamesBound() {
 		final Node node = getNamesBoundNode(false);
+
 		return node != null ? node.getChildrenNames().isEmpty() : true;
 	}
 

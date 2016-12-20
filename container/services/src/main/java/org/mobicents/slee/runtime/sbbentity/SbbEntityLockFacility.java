@@ -61,7 +61,8 @@ public class SbbEntityLockFacility {
 		MobicentsCache cache = container.getCluster().getMobicentsCache();
 		if (!cache.isLocalMode()) {
 			// SergeyLee: test
-			cache.getJBossCache().getCache().addListener(this);
+			//cache.getJBossCache().getCache().addListener(this);
+			cache.getJBossCache().addListener(this);
 		}
 	}
 

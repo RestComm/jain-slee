@@ -9,8 +9,7 @@
 
 	<artifactId>services</artifactId>
 			
-	<dependencies>				
-		
+	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>usage</artifactId>

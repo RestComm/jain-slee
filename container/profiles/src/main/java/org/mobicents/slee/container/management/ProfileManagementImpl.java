@@ -523,6 +523,9 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 				try {
 					// wait a sec
 					Thread.sleep(1000);
+
+					sleeContainer.getActivityContextFactory().WAremove();
+
 				} catch (InterruptedException e) {
 					logger.error(e.getMessage(), e);
 				}

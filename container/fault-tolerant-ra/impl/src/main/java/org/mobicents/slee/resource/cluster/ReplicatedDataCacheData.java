@@ -25,11 +25,13 @@
  */
 package org.mobicents.slee.resource.cluster;
 
+import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.tree.Fqn;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cluster.MobicentsCluster;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -57,7 +59,13 @@ public class ReplicatedDataCacheData<K extends Serializable, V extends Serializa
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<K> getAllKeys() {
-		return getNode().getChildrenNames();
+		Set<K> result = Collections.emptySet();
+		if (getNode() != null) {
+			for (Object o: getNode().getChildrenNames()) {
+				result.add((K)o);
+			}
+		}
+		return result;
 	}
 
 	/**
