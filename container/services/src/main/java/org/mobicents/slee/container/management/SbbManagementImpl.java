@@ -250,12 +250,26 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		}
 
 		try {
-			newCtx.bind("activitycontextnaming", sleeContainer.getActivityContextNamingFacility());
+			newCtx.bind("activitycontextnaming",
+					sleeContainer.getActivityContextNamingFacility());
 		} catch (NameAlreadyBoundException ex) {
 		}
 
 		try {
-			newCtx.bind("trace", sleeContainer.getTraceManagement().getTraceFacility());
+			newCtx.bind("trace",
+					sleeContainer.getTraceManagement().getTraceFacility());
+		} catch (NameAlreadyBoundException ex) {
+		}
+
+		try {
+			newCtx.bind("profile",
+					sleeContainer.getSleeProfileTableManager().getProfileFacility());
+		} catch (NameAlreadyBoundException ex) {
+		}
+
+		try {
+			newCtx.bind("profiletableactivitycontextinterfacefactory",
+					sleeContainer.getSleeProfileTableManager().getProfileTableActivityContextInterfaceFactory());
 		} catch (NameAlreadyBoundException ex) {
 		}
 
@@ -338,7 +352,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 				Context subContext = ctx;
 
 				// skip 0 = "java:comp"
-				for (int i = 1; i < tokenCount - 1; i++) {
+				for (int i = 0; i < tokenCount - 1; i++) {
 					String nextTok = name.get(i);
 					try {
 						subContext = (Context) subContext.createSubcontext(nextTok);

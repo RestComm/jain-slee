@@ -1,12 +1,12 @@
 package org.telestax.slee.container.build.as7.naming;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingException;
+import javax.naming.*;
+import javax.naming.spi.NamingManager;
+import javax.naming.spi.ObjectFactory;
 
 import org.jboss.as.naming.context.NamespaceContextSelector;
 import org.jboss.as.naming.util.NameParser;
@@ -33,7 +33,53 @@ public class RootContext extends NotImplementedContext {
 		if(name.startsWith(namespace)) {
 			name = name.substring(namespace.length());
 		}
-		return entries.get(name);
+
+		Object obj = entries.get(name);
+
+		try {
+			String className = null;
+
+			if (!(obj instanceof Reference)) {
+				if( obj != null )
+					className = obj.getClass().getName();
+			} else {
+				Reference ref = (Reference) obj;
+				className = ref.getClassName();
+				Object content = ref.get(0).getContent();
+				Object raw = NamingManager.getObjectInstance(obj, getNameParser(name).parse(name), this, null);
+				if (raw instanceof LinkRef) {
+					raw = resolveLink(raw);
+				}
+				return raw;
+			}
+		} catch (Exception e) {
+			NamingException ex = new NamingException();
+			ex.setRootCause(e);
+			throw ex;
+		}
+
+		return obj;
+	}
+
+	private Object resolveLink(Object res) throws NamingException
+	{
+		Object linkResult = null;
+		try
+		{
+			LinkRef link = (LinkRef) res;
+			String ref = link.getLinkName();
+			if (ref.startsWith("./"))
+				linkResult = lookup(ref.substring(2));
+			else
+				linkResult = new InitialContext().lookup(ref);
+		}
+		catch (Exception e)
+		{
+			NamingException ex = new NamingException("Could not dereference object");
+			ex.setRootCause(e);
+			throw ex;
+		}
+		return linkResult;
 	}
 
 	@Override
