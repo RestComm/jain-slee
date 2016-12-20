@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
-import org.restcomm.cache.tree.Fqn;
+import org.infinispan.tree.Fqn;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.MobicentsCache;

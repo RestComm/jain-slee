@@ -22,7 +22,7 @@
 
 package org.mobicents.slee.resource.cluster;
 
-import org.restcomm.cache.tree.Fqn;
+import org.infinispan.tree.Fqn;
 
 import java.io.Serializable;
 
@@ -54,7 +54,7 @@ public class DataRemovalListener<K extends Serializable, V extends Serializable>
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.restcomm.cluster.DataRemovalListener#dataRemoved(org.restcomm.cache.tree.Fqn)
+	 * @see org.restcomm.cluster.DataRemovalListener#dataRemoved(org.infinispan.tree.Fqn)
 	 */
 	@SuppressWarnings("unchecked")
 	public void dataRemoved(Fqn fqn) {

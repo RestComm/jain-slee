@@ -24,7 +24,7 @@ package org.mobicents.slee.resource;
 
 import org.apache.log4j.Logger;
 import org.infinispan.remoting.transport.Address;
-import org.restcomm.cache.tree.Fqn;
+import org.infinispan.tree.Fqn;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;

@@ -25,7 +25,7 @@
  */
 package org.mobicents.slee.resource.cluster;
 
-import org.restcomm.cache.tree.Fqn;
+import org.infinispan.tree.Fqn;
 import org.restcomm.cluster.MobicentsCluster;
 import org.restcomm.cluster.cache.ClusteredCacheData;
 

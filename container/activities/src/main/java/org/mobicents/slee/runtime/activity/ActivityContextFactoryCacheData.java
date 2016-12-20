@@ -25,8 +25,8 @@ package org.mobicents.slee.runtime.activity;
 import java.util.Collections;
 import java.util.Set;
 
-import org.restcomm.cache.tree.Fqn;
-import org.restcomm.cache.tree.Node;
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -48,7 +48,7 @@ public class ActivityContextFactoryCacheData extends CacheData {
 
 	/**
 	 * 
-	 * @param activityContextId
+	 * @param cluster
 	 */
 	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
 		super(NODE_FQN, cluster.getMobicentsCache());
@@ -63,7 +63,34 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
 		final Node node = getNode();
+		System.out.println("#### node: "+node);
+		if (node != null) {
+			System.out.println("#### node: " + node.getFqn());
+			System.out.println("#### node: " + node.getChildrenNames());
+		}
 		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
+	}
+
+	public void WAremove() {
+		final Node node = getNode();
+		System.out.println("$$$$ node: "+node);
+		if (node != null) {
+			if (!node.getChildren().isEmpty()) {
+				System.out.println("$$$$ is not empty");
+				for (Object cho : node.getChildren()) {
+					//Node chn = (Node)cho;
+					System.out.println("$$$$ object: "+cho);
+					//node.removeChild(cho);
+				}
+				node.removeChildren();
+			}
+
+			if (!node.getChildren().isEmpty()) {
+				System.out.println("$$$$ is not empty");
+			}
+
+			System.out.println("$$$$ is empty");
+		}
 	}
 
 }

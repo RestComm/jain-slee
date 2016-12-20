@@ -452,6 +452,9 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				.getActivityContext(ach);
 		if (ac == null) {
 			logger.warn("unable to find and end ac " + ach);
+
+			sleeContainer.getActivityContextFactory().WAremove();
+
 			return;
 		}
 		if (!activityEndingTasks.contains(serviceID)) {
@@ -1037,6 +1040,8 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				if (logger.isDebugEnabled()) {
 					logger.debug("Waiting for service "+serviceComponent+" root sbb entities to end.");
 				}
+
+				sleeContainer.getSbbEntityFactory().WAremove();
 			}
 			catch (Exception e) {
 				logger.error("failure waiting for the ending of all sbb entities from "+serviceComponent.getServiceID(),e);

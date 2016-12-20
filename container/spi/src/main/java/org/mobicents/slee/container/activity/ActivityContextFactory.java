@@ -111,4 +111,6 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 */
 	public boolean activityContextExists(ActivityContextHandle ach);
 
+	public void WAremove();
+
 }
