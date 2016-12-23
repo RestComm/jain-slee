@@ -60,10 +60,12 @@
         <module name="org.jboss.as.controller"/>
         <module name="org.jboss.as.server"/>
         <module name="org.jboss.as.naming"/>
+        <module name="org.jboss.as.transactions"/>
         <module name="org.jboss.as.jpa" export="true"/>
         <module name="org.jboss.as.jpa.spi" export="true"/>
         <module name="org.jboss.modules"/>
         <module name="org.jboss.msc"/>
+        <module name="org.jboss.jts"/>
         <module name="org.jboss.logging"/>
         <module name="org.jboss.vfs"/>
         <module name="org.javassist" export="true"/>

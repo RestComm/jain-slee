@@ -24,6 +24,12 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.jboss.as</groupId>
+			<artifactId>jboss-as-transactions</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 		<!-- tests
 
 		<dependency>
