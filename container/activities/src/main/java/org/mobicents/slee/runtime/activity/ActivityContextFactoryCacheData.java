@@ -63,13 +63,35 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
 		final Node node = getNode();
-		System.out.println("#### node: "+node);
+
+		//// TEST: check getActivityContextHandles
+		System.out.println("#### TEST [getActivityContextHandles]: node: "+node);
 		if (node != null) {
-			System.out.println("#### node: " + node.getFqn());
-			//System.out.println("#### node: " + node.getChildrenNames());
-			System.out.println("#### node: " + node.getChildObjects());
+			System.out.println("###### node: " + node.getFqn());
+			System.out.println("###### node: " + node.getChildrenNames());
+			System.out.println("###### node: " + node.getChildrenValues());
 		}
-		return node != null ? node.getChildObjects() : Collections.EMPTY_SET;
+
+		Set<ActivityContextHandle> result = Collections.EMPTY_SET;
+
+		if (node != null) {
+			Set<Object> values = node.getChildrenValues();
+			System.out.println("#### TEST [getActivityContextHandles]: values: "+values);
+
+			for (Object object : values) {
+				System.out.println("#### TEST [getActivityContextHandles]: object: "+object);
+
+				if (object instanceof ActivityContextHandle) {
+					ActivityContextHandle ach = (ActivityContextHandle)object;
+					System.out.println("#### TEST [getActivityContextHandles]: ach: "+ach);
+
+					result.add(ach);
+				}
+			}
+		}
+
+		//return node != null ? node.getChildrenValues() : Collections.EMPTY_SET;
+		return result;
 	}
 
 	public void WAremove() {

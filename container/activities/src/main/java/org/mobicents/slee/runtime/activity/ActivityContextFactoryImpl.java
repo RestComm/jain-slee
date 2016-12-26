@@ -232,20 +232,9 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	 */
 	public Set<ActivityContextHandle> getAllActivityContextsHandles() {
 		Node node = cacheData.getNode();
-		logger.debug("node: "+node);
-		logger.debug("isRemoved: " + cacheData.isRemoved());
-		if (node != null) {
-			logger.debug("node: " + node.getFqn());
-			//logger.debug("node: " + node.getChildrenNames());
-			logger.debug("node: " + node.getChildObjects());
+		//// TEST: check getActivityContextHandles
+		System.out.println("#### TEST [getAllActivityContextsHandles]: node: "+node);
 
-			//Iterator iter = node.getChildren().iterator();
-			//while (iter.hasNext()) {
-			//	Object child = iter.next();
-			//	logger.debug("Object child: "+child);
-			//	logger.debug("Object child: "+child.getClass());
-			//}
-		}
 		return cacheData.getActivityContextHandles();
 	}
 	

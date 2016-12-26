@@ -59,19 +59,15 @@ public class ActivityContextCacheData extends CacheData {
 
 	private static final String IS_ENDING_NODE_NAME = "is-ending";
 
-	private static final Fqn ATTACHED_SBBs_FQN = Fqn
-			.fromElements(ATTACHED_SBBs_NODE_NAME);
+	private static final Fqn ATTACHED_SBBs_FQN = Fqn.fromElements(ATTACHED_SBBs_NODE_NAME);
 
-	private static final Fqn ATTACHED_TIMERS_FQN = Fqn
-			.fromElements(ATTACHED_TIMERS_NODE_NAME);
+	private static final Fqn ATTACHED_TIMERS_FQN = Fqn.fromElements(ATTACHED_TIMERS_NODE_NAME);
 
 	private static final Fqn NAMES_BOUND_FQN = Fqn.fromElements(NAMES_BOUND_NODE_NAME);
 
-	private static final Fqn CMP_ATTRIBUTES_FQN = Fqn
-			.fromElements(CMP_ATTRIBUTES_NODE_NAME);
+	private static final Fqn CMP_ATTRIBUTES_FQN = Fqn.fromElements(CMP_ATTRIBUTES_NODE_NAME);
 	
-	private static final Fqn IS_ENDING_FQN = Fqn
-	.fromElements(IS_ENDING_NODE_NAME);
+	private static final Fqn IS_ENDING_FQN = Fqn.fromElements(IS_ENDING_NODE_NAME);
 
 	private static final Boolean CMP_ATTRIBUTES_NODE_MAP_KEY = Boolean.TRUE;
 
@@ -80,11 +76,30 @@ public class ActivityContextCacheData extends CacheData {
 	private Node _attachedSbbsNode;
 	
 	private Node getAttachedSbbsNode(boolean createIfNotExists) {
+		//// TEST: check getAttachedSbbsNode
+		System.out.println("#### TEST [getAttachedSbbsNode]: _attachedSbbsNode: "+_attachedSbbsNode);
+
 		if (_attachedSbbsNode == null) {
 			final Node node = getNode();
+			System.out.println("#### TEST [getAttachedSbbsNode]: node: "+node);
+
 			_attachedSbbsNode = node.getChild(ATTACHED_SBBs_NODE_NAME);
+			System.out.println("#### TEST [getAttachedSbbsNode]: _attachedSbbsNode: "+_attachedSbbsNode);
+
 			if (_attachedSbbsNode == null && createIfNotExists) {
+				System.out.println("#### TEST [getAttachedSbbsNode]: addChild!");
+
 				_attachedSbbsNode = node.addChild(ATTACHED_SBBs_FQN);
+				System.out.println("#### TEST [getAttachedSbbsNode]: _attachedSbbsNode: "+_attachedSbbsNode);
+
+				//// TEST: check addChild
+				if (node.hasChild(ATTACHED_SBBs_FQN)) {
+					System.out.println("#### TEST [getAttachedSbbsNode]: hasChild success!");
+					final Node child = node.getChild(ATTACHED_SBBs_FQN);
+					System.out.println("#### TEST [getAttachedSbbsNode]: getChild: "+child);
+				} else {
+					System.out.println("#### TEST [getAttachedSbbsNode]: hasChild failed!");
+				}
 			}
 		}
 		return _attachedSbbsNode;
@@ -182,6 +197,16 @@ public class ActivityContextCacheData extends CacheData {
 		if (value) {
 			if (!isEnding()) {
 				getNode().addChild(IS_ENDING_FQN);
+
+				//// TEST: check addChild
+				if (getNode().hasChild(IS_ENDING_FQN)) {
+					System.out.println("#### TEST [setEnding-add]: hasChild success!");
+					final Node child = getNode().getChild(IS_ENDING_FQN);
+					System.out.println("#### TEST [setEnding-add]: getChild: "+child);
+				} else {
+					System.out.println("#### TEST [setEnding-add]: hasChild failed!");
+				}
+
 				return true;
 			}
 			else {
@@ -191,6 +216,16 @@ public class ActivityContextCacheData extends CacheData {
 		else {
 			if (isEnding()) {
 				getNode().removeChild(IS_ENDING_NODE_NAME);
+
+				//// TEST: check removeChild
+				if (getNode().hasChild(IS_ENDING_FQN)) {
+					System.out.println("#### TEST [setEnding-remove]: hasChild failed!");
+					//final Node child = getNode().getChild(IS_ENDING_FQN);
+					//System.out.println("#### TEST [setEnding]: getChild: "+child);
+				} else {
+					System.out.println("#### TEST [setEnding-remove]: hasChild success!");
+				}
+
 				return true;
 			}
 			else {
@@ -212,6 +247,16 @@ public class ActivityContextCacheData extends CacheData {
 		if (!node.hasChild(sbbEntityId)) {
 			System.out.println("!!!! addChild: "+Fqn.fromElements(sbbEntityId));
 			node.addChild(Fqn.fromElements(sbbEntityId));
+
+			//// TEST: check addChild
+			if (node.hasChild(sbbEntityId)) {
+				System.out.println("#### TEST [attachSbbEntity]: hasChild success!");
+				final Node child = node.getChild(sbbEntityId);
+				System.out.println("#### TEST [attachSbbEntity]: getChild: "+child);
+			} else {
+				System.out.println("#### TEST [attachSbbEntity]: hasChild failed!");
+			}
+
 			return true;
 		} else {
 			return false;
@@ -386,7 +431,6 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noNamesBound() {
 		final Node node = getNamesBoundNode(false);
-
 		return node != null ? node.getChildrenNames().isEmpty() : true;
 	}
 
