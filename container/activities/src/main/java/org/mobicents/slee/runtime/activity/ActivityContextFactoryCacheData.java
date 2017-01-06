@@ -71,18 +71,28 @@ public class ActivityContextFactoryCacheData extends CacheData {
 		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
 	}
 
-	public void WAremove() {
+	public void WAremove(String type) {
 		final Node node = getNode();
 		System.out.println("$$$$ node: "+node);
 		if (node != null) {
 			if (!node.getChildren().isEmpty()) {
 				System.out.println("$$$$ is not empty");
 				for (Object cho : node.getChildren()) {
-					//Node chn = (Node)cho;
 					System.out.println("$$$$ object: "+cho);
-					//node.removeChild(cho);
+					if (type != "") {
+						if (cho instanceof Node) {
+							Node chn = (Node) cho;
+							System.out.println("$$$$ object: " + chn.getFqn().getLastElementAsString());
+							if (chn.getFqn().getLastElementAsString().startsWith(type)) {
+								System.out.println("$$$$ REMOVE object: " + chn.getFqn().getLastElementAsString());
+								node.removeChild(chn.getFqn());
+							}
+						}
+					}
 				}
-				node.removeChildren();
+				if (type == "") {
+					node.removeChildren();
+				}
 			}
 
 			if (!node.getChildren().isEmpty()) {

@@ -92,8 +92,8 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		cacheData.create();
 	}
 
-	public void WAremove() {
-		cacheData.WAremove();
+	public void WAremove(String type) {
+		cacheData.WAremove(type);
 	}
 	
 	/*

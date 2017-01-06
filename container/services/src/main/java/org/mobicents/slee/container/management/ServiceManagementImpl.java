@@ -453,7 +453,8 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		if (ac == null) {
 			logger.warn("unable to find and end ac " + ach);
 
-			sleeContainer.getActivityContextFactory().WAremove();
+			logger.warn("WORKAROUND USAGE: ENDING SERVICE");
+			sleeContainer.getActivityContextFactory().WAremove("ACH=SERVICE");
 
 			return;
 		}
@@ -1041,6 +1042,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 					logger.debug("Waiting for service "+serviceComponent+" root sbb entities to end.");
 				}
 
+				logger.warn("WORKAROUND USAGE: ENDING ROOT SBB");
 				sleeContainer.getSbbEntityFactory().WAremove();
 			}
 			catch (Exception e) {

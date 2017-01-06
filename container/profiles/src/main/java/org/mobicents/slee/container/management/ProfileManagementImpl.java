@@ -524,7 +524,8 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 					// wait a sec
 					Thread.sleep(1000);
 
-					sleeContainer.getActivityContextFactory().WAremove();
+					logger.warn("WORKAROUND USAGE: ENDING ALL PROFILE TABLE ACTIVITIES");
+					sleeContainer.getActivityContextFactory().WAremove("ACH=PTABLE");
 
 				} catch (InterruptedException e) {
 					logger.error(e.getMessage(), e);
