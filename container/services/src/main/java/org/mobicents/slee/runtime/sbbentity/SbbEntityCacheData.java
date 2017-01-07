@@ -22,6 +22,7 @@
 
 package org.mobicents.slee.runtime.sbbentity;
 
+import org.apache.log4j.Logger;
 import org.restcomm.cache.tree.Fqn;
 import org.restcomm.cache.tree.Node;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -44,6 +45,7 @@ import java.util.Set;
 
 public class SbbEntityCacheData extends CacheData {
 
+	private static final Logger logger = Logger.getLogger(SbbEntityFactoryCacheData.class);
 	
 	// node map keys
 
@@ -52,23 +54,43 @@ public class SbbEntityCacheData extends CacheData {
 	private static final String PRIORITY_NODE_MAP_KEY = "priority";
 		
 	private static final String ATTACHED_ACs_CHILD_NODE_NAME = "ac";
-	private static final Fqn ATTACHED_ACs_CHILD_NODE_FQN = 
-		Fqn.fromElements(ATTACHED_ACs_CHILD_NODE_NAME);
+
+	private static final Fqn ATTACHED_ACs_CHILD_NODE_FQN = Fqn.fromElements(ATTACHED_ACs_CHILD_NODE_NAME);
+
 	private Node _attachedACsChildNode;
 	private Node getAttachedACsChildNode(boolean createIfNotExists) {
+		//// TEST: check _attachedACsChildNode
+		logger.debug("#### TEST [getAttachedACsChildNode]: _attachedACsChildNode: "+_attachedACsChildNode);
+
 		if (_attachedACsChildNode == null) {			
 			final Node node = getNode();
+			logger.debug("#### TEST [getAttachedACsChildNode]: node: "+node);
+
 			_attachedACsChildNode = node.getChild(ATTACHED_ACs_CHILD_NODE_NAME);
+			logger.debug("#### TEST [getAttachedACsChildNode]: _attachedACsChildNode: "+_attachedACsChildNode);
+
 			if (_attachedACsChildNode == null && createIfNotExists) {
+				logger.debug("#### TEST [getAttachedACsChildNode]: addChild!");
 				_attachedACsChildNode = node.addChild(ATTACHED_ACs_CHILD_NODE_FQN);
+				logger.debug("#### TEST [getAttachedACsChildNode]: _attachedACsChildNode: "+_attachedACsChildNode);
+
+				//// TEST: check addChild
+				if (node.hasChild(ATTACHED_ACs_CHILD_NODE_FQN)) {
+					logger.trace("#### TEST [getAttachedACsChildNode]: hasChild success!");
+					final Node child = node.getChild(ATTACHED_ACs_CHILD_NODE_FQN);
+					logger.trace("#### TEST [getAttachedACsChildNode]: getChild: "+child);
+				} else {
+					logger.trace("#### TEST [getAttachedACsChildNode]: hasChild failed!");
+				}
 			}
 		}
 		return _attachedACsChildNode;
 	}
 	
 	protected static final String CHILD_RELATIONs_CHILD_NODE_NAME = "chd";
-	protected static final Fqn CHILD_RELATIONs_CHILD_NODE_FQN = 
-		Fqn.fromElements(CHILD_RELATIONs_CHILD_NODE_NAME);
+
+	protected static final Fqn CHILD_RELATIONs_CHILD_NODE_FQN = Fqn.fromElements(CHILD_RELATIONs_CHILD_NODE_NAME);
+
 	private Node _childRelationsChildNode;
 	private Node getChildRelationsChildNode(boolean createIfNotExists) {
 		if (_childRelationsChildNode == null) {
@@ -82,10 +104,14 @@ public class SbbEntityCacheData extends CacheData {
 	}
 	
 	private static final String EVENT_MASKS_CHILD_NODE_NAME = "event-mask";
-	private static final Fqn EVENT_MASKS_CHILD_NODE_FQN = 
-		Fqn.fromElements(EVENT_MASKS_CHILD_NODE_NAME);
+
+	private static final Fqn EVENT_MASKS_CHILD_NODE_FQN = Fqn.fromElements(EVENT_MASKS_CHILD_NODE_NAME);
+
+	// FIXME: NodeImpl replacing
 	//private Node<ActivityContextHandle,Set<EventTypeID>> _eventMasksChildNode;
 	private Node _eventMasksChildNode;
+
+	// FIXME: NodeImpl replacing
 	//private Node<ActivityContextHandle,Set<EventTypeID>> getEventMasksChildNode(boolean createIfNotExists) {
 	private Node getEventMasksChildNode(boolean createIfNotExists) {
 		if (_eventMasksChildNode == null) {
@@ -99,10 +125,14 @@ public class SbbEntityCacheData extends CacheData {
 	}
 	
 	private static final String CMP_FIELDS_CHILD_NODE_NAME = "cmp-fields";
-	private static final Fqn CMP_FIELDS_CHILD_NODE_FQN = 
-		Fqn.fromElements(CMP_FIELDS_CHILD_NODE_NAME);
+
+	private static final Fqn CMP_FIELDS_CHILD_NODE_FQN = Fqn.fromElements(CMP_FIELDS_CHILD_NODE_NAME);
+
+	// FIXME: NodeImpl replacing
 	//private Node<String,Object> _cmpFieldsChildNode;
 	private Node _cmpFieldsChildNode;
+
+	// FIXME: NodeImpl replacing
 	//private Node<String,Object> getCmpFieldsChildNode(boolean createIfNotExists) {
 	private Node getCmpFieldsChildNode(boolean createIfNotExists) {
 		if (_cmpFieldsChildNode == null) {
@@ -136,8 +166,9 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public void attachActivityContext(ActivityContextHandle ac) {
-		//getAttachedACsChildNode(true).put(ac, MISC_NODE_MAP_VALUE);
-		getAttachedACsChildNode(true).put(ac, ac);
+		// FIXME: NodeImpl replacing
+		getAttachedACsChildNode(true).put(ac, MISC_NODE_MAP_VALUE);
+		//getAttachedACsChildNode(true).put(ac, ac);
 	}
 
 	public void detachActivityContext(ActivityContextHandle ac) {
@@ -148,6 +179,7 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public Set<EventTypeID> getMaskedEventTypes(ActivityContextHandle ac) {
+		// FIXME: NodeImpl replacing
 		//final Node<ActivityContextHandle,Set<EventTypeID>> node = getEventMasksChildNode(false);
 		final Node node = getEventMasksChildNode(false);
 		if (node == null) {
@@ -168,6 +200,7 @@ public class SbbEntityCacheData extends CacheData {
 		if (eventMask != null && !eventMask.isEmpty()) {
 			getEventMasksChildNode(true).put(ac,eventMask);
 		} else {
+			// FIXME: NodeImpl replacing
 			//final Node<ActivityContextHandle,Set<EventTypeID>> eventMasksChildNode = getEventMasksChildNode(false);
 			final Node eventMasksChildNode = getEventMasksChildNode(false);
 			if (eventMasksChildNode != null) {
@@ -177,6 +210,7 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public void updateEventMask(ActivityContextHandle ac, Set<EventTypeID> maskedEvents) {
+		// FIXME: NodeImpl replacing
 		//final Node<ActivityContextHandle,Set<EventTypeID>> eventMasksChildNode = getEventMasksChildNode(true);
 		final Node eventMasksChildNode = getEventMasksChildNode(true);
 		Set<EventTypeID> currentMaskedEvents = null;
@@ -195,31 +229,49 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public Set<ActivityContextHandle> getActivityContexts() {
+		logger.debug("#### TEST [getActivityContexts]");
 		final Node node = getAttachedACsChildNode(false);
-        System.out.println("!!!! node: "+node);
+        logger.debug("#### TEST [getActivityContexts]: node: "+node);
+
+
 		Set<ActivityContextHandle> result = null;
 		if (node != null) {
+			// FIXME: getKeys
 			//result = node.getKeys();
-            System.out.println("!!!! node.getChildObjects(): "+node.getChildObjects());
-			try {
-				for (Object o : node.getChildObjects()) {
-					System.out.println("!!!! o: "+o);
-					System.out.println("!!!! o: "+o.getClass().getCanonicalName());
-					if (o instanceof ActivityContextHandle) {
-						if (result == null) {
-							result = new HashSet<ActivityContextHandle>();
-						}
-						result.add((ActivityContextHandle) o);
-					}
+			result = new HashSet<ActivityContextHandle>();
+
+			logger.debug("#### TEST [getActivityContexts]: node Fqn: "+node.getNodeFqn());
+			logger.trace("#### TEST [getActivityContexts]: node children: "+node.getChildren());
+			logger.trace("#### TEST [getActivityContexts]: node.getNames(): "+node.getNames());
+			logger.trace("#### TEST [getActivityContexts]: node.getChildNames(): "+node.getChildNames());
+            logger.trace("#### TEST [getActivityContexts]: node.getChildKeys(): "+node.getChildKeys());
+			logger.trace("#### TEST [getActivityContexts]: node.getChildValues(): "+node.getChildValues());
+
+			//try {
+			// FIXME: getKeys
+			for (Object key : node.getKeys()) {
+				logger.trace("#### TEST [getActivityContexts]: key: "+key);
+				logger.trace("#### TEST [getActivityContexts]: key: "+key.getClass().getCanonicalName());
+				if (key instanceof ActivityContextHandle) {
+					//if (result == null) {
+					//	result = new HashSet<ActivityContextHandle>();
+					//}
+					result.add((ActivityContextHandle) key);
 				}
-			} catch (NullPointerException ex) {
-				ex.printStackTrace();
 			}
-		}
-		else {
+			//} catch (NullPointerException ex) {
+			//	ex.printStackTrace();
+			//}
+		} else {
 			result = Collections.emptySet();
 		}
-        System.out.println("!!!! result: "+result);
+
+        logger.debug("#### TEST [getActivityContexts]: result: "+result);
+
+		//if (result == null) {
+		//	result = new HashSet<ActivityContextHandle>();
+		//}
+
 		return result;
 	}
 
@@ -242,12 +294,14 @@ public class SbbEntityCacheData extends CacheData {
 	}
 	
 	public void setCmpField(String cmpField, Object cmpValue) {
+		// FIXME: NodeImpl replacing
 		//final Node<String,Object> node = getCmpFieldsChildNode(true);
 		final Node node = getCmpFieldsChildNode(true);
 		node.put(cmpField,cmpValue);
 	}
 
 	public Object getCmpField(String cmpField) {
+		// FIXME: NodeImpl replacing
 		//final Node<String,Object> node = getCmpFieldsChildNode(false);
 		final Node node = getCmpFieldsChildNode(false);
 		if (node == null) {
@@ -268,7 +322,8 @@ public class SbbEntityCacheData extends CacheData {
 			return Collections.emptySet();
 		} else {
 			Set<SbbEntityID> result = new HashSet<SbbEntityID>();
-			for(Object obj : childNode.getChildrenNames()) {
+			// FIXME: getChildNames
+			for(Object obj : childNode.getChildNames()) {
 				result.add(new NonRootSbbEntityID(sbbEntityID, getChildRelationMethod,(String)obj));
 			}			
 			return result;
@@ -277,15 +332,16 @@ public class SbbEntityCacheData extends CacheData {
 
 	public Set<SbbEntityID> getAllChildSbbEntities() {
 		Node childRelationsNode = getChildRelationsChildNode(false);
-		if (childRelationsNode == null || childRelationsNode.getChildrenNames().isEmpty()) {
+		if (childRelationsNode == null || childRelationsNode.getChildNames().isEmpty()) {
 			return Collections.emptySet();
 		}
 		else {
 			Set<SbbEntityID> result = new HashSet<SbbEntityID>();
 			Node childRelationNode = null;
+			// FIXME: getChildren
 			for (Object obj : childRelationsNode.getChildren()) {
 				childRelationNode = (Node) obj;
-				for (Object sbbEntityId : childRelationNode.getChildrenNames()) {
+				for (Object sbbEntityId : childRelationNode.getChildNames()) {
 					result.add(new NonRootSbbEntityID(sbbEntityID,(String)childRelationNode.getFqn().getLastElement(),(String)sbbEntityId));
 				}
 			}

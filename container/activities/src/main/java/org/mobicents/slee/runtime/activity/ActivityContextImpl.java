@@ -22,20 +22,7 @@
 
 package org.mobicents.slee.runtime.activity;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.slee.Address;
-import javax.slee.EventTypeID;
-import javax.slee.SLEEException;
-import javax.slee.ServiceID;
-import javax.slee.facilities.TimerID;
-import javax.slee.resource.ActivityFlags;
-import javax.slee.resource.ActivityIsEndingException;
-
 import org.apache.log4j.Logger;
-import org.restcomm.cache.tree.Node;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -55,6 +42,17 @@ import org.mobicents.slee.runtime.event.ActivityEndEventUnreferencedCallback;
 import org.mobicents.slee.runtime.event.CommitEventContextAction;
 import org.mobicents.slee.runtime.event.RollbackEventContextAction;
 
+import javax.slee.Address;
+import javax.slee.EventTypeID;
+import javax.slee.SLEEException;
+import javax.slee.ServiceID;
+import javax.slee.facilities.TimerID;
+import javax.slee.resource.ActivityFlags;
+import javax.slee.resource.ActivityIsEndingException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Create one of these when a new SipTransaction is seen by the stack. Call the
  * Slee Endpoint. This is a cached object so it is created from a factory
@@ -72,8 +70,7 @@ public class ActivityContextImpl implements ActivityContext {
 
 	static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
-	private static final Logger logger = Logger
-			.getLogger(ActivityContext.class);
+	private static final Logger logger = Logger.getLogger(ActivityContext.class);
 
 	// --- map keys for attributes cached
 	private static final String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags";
@@ -100,6 +97,12 @@ public class ActivityContextImpl implements ActivityContext {
 			final ActivityContextHandle activityContextHandle,
 			ActivityContextCacheData cacheData, boolean updateAccessTime,
 			Integer activityFlags, ActivityContextFactoryImpl factory) {
+		//// TEST
+		logger.trace("**** ActivityContextImpl: constructor");
+		logger.trace("**** ActivityContextImpl: activityContextHandle = "+activityContextHandle);
+		logger.trace("**** ActivityContextImpl: factory = "+factory);
+		logger.trace("**** ActivityContextImpl: cacheData = "+cacheData);
+
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
 		this.cacheData = cacheData;
@@ -123,9 +126,18 @@ public class ActivityContextImpl implements ActivityContext {
 	public ActivityContextImpl(ActivityContextHandle activityContextHandle,
 			ActivityContextCacheData cacheData, boolean updateAccessTime,
 			ActivityContextFactoryImpl factory) {
+		//// TEST
+		logger.trace("**** ActivityContextImpl: constructor");
+		logger.trace("**** ActivityContextImpl: activityContextHandle = "+activityContextHandle);
+		logger.trace("**** ActivityContextImpl: factory = "+factory);
+		logger.trace("**** ActivityContextImpl: cacheData = "+cacheData);
+
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
 		this.cacheData = cacheData;
+
+		logger.trace("**** ActivityContextImpl: updateAccessTime = "+updateAccessTime);
+		logger.trace("**** ActivityContextImpl: cacheData.exists() "+cacheData.exists());
 		// set access time if needed
 		if (cacheData.exists() && updateAccessTime) {
 			updateLastAccessTime(false);
@@ -339,12 +351,14 @@ public class ActivityContextImpl implements ActivityContext {
 	 * 
 	 */
 	private void removeFromCache(TransactionContext txContext) {
-		logger.debug("removeFromCache BEFORE: "+cacheData.getNodeFqn());
-		logger.debug("removeFromCache BEFORE: "+cacheData.exists());
+		logger.trace("removeFromCache BEFORE: "+cacheData.getNodeFqn());
+		logger.trace("removeFromCache BEFORE: "+cacheData.exists());
+
 		cacheData.remove();
-		logger.debug("removeFromCache AFTER: "+cacheData.getNodeFqn());
-		logger.debug("removeFromCache AFTER: "+cacheData.exists());
-		logger.debug("removeFromCache AFTER: "+cacheData.isRemoved());
+
+		logger.trace("removeFromCache AFTER: "+cacheData.getNodeFqn());
+		logger.trace("removeFromCache AFTER: "+cacheData.exists());
+		logger.trace("removeFromCache AFTER: "+cacheData.isRemoved());
 
         /*
 		try {
@@ -445,9 +459,9 @@ public class ActivityContextImpl implements ActivityContext {
 	// --- private helpers
 
 	private void updateLastAccessTime(boolean creation) {
+		logger.trace("**** ActivityContextImpl: updateLastAccessTime creation = "+creation);
 		if (creation) {
-			cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS,
-					Long.valueOf(System.currentTimeMillis()));
+			cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS, Long.valueOf(System.currentTimeMillis()));
 		} else {
 			ActivityManagementConfiguration configuration = factory
 					.getConfiguration();
@@ -455,8 +469,7 @@ public class ActivityContextImpl implements ActivityContext {
 					.getObject(NODE_MAP_KEY_LAST_ACCESS);
 			if (lastUpdate != null) {
 				final long now = System.currentTimeMillis();
-				if ((now - configuration.getMinTimeBetweenUpdatesInMs()) > lastUpdate
-						.longValue()) {
+				if ((now - configuration.getMinTimeBetweenUpdatesInMs()) > lastUpdate.longValue()) {
 					// last update
 					if (logger.isTraceEnabled()) {
 						logger.trace("Updating access time for AC with handle "

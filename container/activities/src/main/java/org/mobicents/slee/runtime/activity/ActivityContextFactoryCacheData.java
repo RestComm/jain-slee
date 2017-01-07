@@ -22,14 +22,16 @@
 
 package org.mobicents.slee.runtime.activity;
 
-import java.util.Collections;
-import java.util.Set;
-
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.restcomm.cache.CacheData;
 import org.restcomm.cache.tree.Fqn;
 import org.restcomm.cache.tree.Node;
-import org.restcomm.cache.CacheData;
 import org.restcomm.cluster.MobicentsCluster;
-import org.mobicents.slee.container.activity.ActivityContextHandle;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 
@@ -40,6 +42,8 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
  */
 
 public class ActivityContextFactoryCacheData extends CacheData {
+
+	private static Logger logger = Logger.getLogger(ActivityContextFactoryCacheData.class);
 
 	/**
 	 * the fqn of the node that holds all activity context cache child nodes
@@ -62,32 +66,72 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
+		logger.debug("#### TEST [getActivityContextHandles]");
 		final Node node = getNode();
-
 		//// TEST: check getActivityContextHandles
-		System.out.println("#### TEST [getActivityContextHandles]: node: "+node);
-		if (node != null) {
-			System.out.println("###### node: " + node.getFqn());
-			System.out.println("###### node: " + node.getChildrenNames());
-			System.out.println("###### node: " + node.getChildrenValues());
-		}
+		logger.debug("#### TEST [getActivityContextHandles]: node: "+node);
 
 		Set<ActivityContextHandle> result = Collections.EMPTY_SET;
-
 		if (node != null) {
-			Set<Object> values = node.getChildrenValues();
-			System.out.println("#### TEST [getActivityContextHandles]: values: "+values);
+			result = new HashSet<ActivityContextHandle>();
+
+			logger.debug("#### TEST [getActivityContextHandles]: node Fqn: "+node.getNodeFqn());
+
+			logger.debug("#### TEST [getActivityContextHandles]: node.getChildren(): "+node.getChildren());
+			logger.debug("#### TEST [getActivityContextHandles]: node.getChildNames: "+node.getChildNames());
+			logger.debug("#### TEST [getActivityContextHandles]: node.getChildKeys: "+node.getChildKeys());
+			logger.debug("#### TEST [getActivityContextHandles]: node.getChildValues: "+node.getChildValues());
+
+			Set<String> names = node.getChildNames();
+			for (String name : names) {
+				logger.debug("#### TEST [getActivityContextHandles]: name: "+name);
+				if (this.getMobicentsCache().getJBossCache().keySet()
+						.contains("/ac/"+name)) {
+
+					Object checkNode = this.getMobicentsCache().getJBossCache().get("/ac/" + name + "_/_" + "Node");
+					logger.info("@@@@ FOUND-2 checkNode: " + checkNode);
+
+					Fqn nodeFqn = ((Node) checkNode).getFqn();
+
+					if (nodeFqn.size() > 0) {
+						for (int i = 0; i < nodeFqn.size(); i++) {
+							logger.debug("@@@@ getChildrenNames childFqn: [" + i + "]: " + nodeFqn.get(i));
+							logger.debug("@@@@ getChildrenNames childFqn: [" + i + "]: " + nodeFqn.get(i).getClass().getCanonicalName());
+						}
+					}
+
+					Object achElement = nodeFqn.get(2-1);
+					logger.debug("#### TEST [getActivityContextHandles]: achElement: " + achElement);
+
+					if (achElement instanceof ActivityContextHandle) {
+						ActivityContextHandle ach = (ActivityContextHandle) achElement;
+						logger.debug("#### TEST [getActivityContextHandles]: ach: " + ach);
+
+						if (!result.contains(ach)) {
+							logger.debug("#### TEST [getActivityContextHandles]: ADD ach: " + ach);
+							result.add(ach);
+						} else {
+							logger.debug("#### TEST [getActivityContextHandles]: CONTAINS ach: " + ach);
+						}
+					}
+				}
+			}
+
+			/*
+			Set<Object> values = node.getChildrenNames();
+			logger.debug("#### TEST [getActivityContextHandles]: values: "+values);
 
 			for (Object object : values) {
-				System.out.println("#### TEST [getActivityContextHandles]: object: "+object);
+				logger.debug("#### TEST [getActivityContextHandles]: object: "+object);
 
 				if (object instanceof ActivityContextHandle) {
-					ActivityContextHandle ach = (ActivityContextHandle)object;
-					System.out.println("#### TEST [getActivityContextHandles]: ach: "+ach);
+					ActivityContextHandle ach = (ActivityContextHandle) object;
+					logger.debug("#### TEST [getActivityContextHandles]: ach: "+ach);
 
 					result.add(ach);
 				}
 			}
+			*/
 		}
 
 		//return node != null ? node.getChildrenValues() : Collections.EMPTY_SET;
@@ -96,23 +140,23 @@ public class ActivityContextFactoryCacheData extends CacheData {
 
 	public void WAremove() {
 		final Node node = getNode();
-		System.out.println("$$$$ node: "+node);
+		logger.debug("$$$$ node: "+node);
 		if (node != null) {
 			if (!node.getChildren().isEmpty()) {
-				System.out.println("$$$$ is not empty");
+				logger.debug("$$$$ is not empty");
 				for (Object cho : node.getChildren()) {
 					//Node chn = (Node)cho;
-					System.out.println("$$$$ object: "+cho);
+					logger.debug("$$$$ object: "+cho);
 					//node.removeChild(cho);
 				}
 				node.removeChildren();
 			}
 
 			if (!node.getChildren().isEmpty()) {
-				System.out.println("$$$$ is not empty");
+				logger.debug("$$$$ is not empty");
 			}
 
-			System.out.println("$$$$ is empty");
+			logger.debug("$$$$ is empty");
 		}
 	}
 

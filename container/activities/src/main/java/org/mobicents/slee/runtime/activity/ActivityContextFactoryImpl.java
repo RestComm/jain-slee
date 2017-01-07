@@ -22,8 +22,6 @@
 package org.mobicents.slee.runtime.activity;
 
 import org.apache.log4j.Logger;
-import org.restcomm.cache.tree.Fqn;
-import org.restcomm.cache.tree.Node;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
@@ -33,11 +31,12 @@ import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+import org.restcomm.cache.tree.Fqn;
+import org.restcomm.cache.tree.Node;
 import org.restcomm.cluster.DataRemovalListener;
 
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -185,7 +184,13 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	@Override
 	public ActivityContextImpl getActivityContext(ActivityContextHandle ach, boolean updateLastAccessTime) {
+		//// TEST
+		logger.debug("**** getActivityContext: ach = "+ach);
+
 		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
+		logger.debug("**** getActivityContext: activityContextCacheData = "+activityContextCacheData);
+		logger.debug("**** getActivityContext: activityContextCacheData.exists? "+activityContextCacheData.exists());
+
 		if (activityContextCacheData.exists()) {
 			try {
 				return new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach, updateLastAccessTime),this);
@@ -232,6 +237,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	 */
 	public Set<ActivityContextHandle> getAllActivityContextsHandles() {
 		Node node = cacheData.getNode();
+
 		//// TEST: check getActivityContextHandles
 		System.out.println("#### TEST [getAllActivityContextsHandles]: node: "+node);
 
@@ -240,8 +246,8 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	public void removeActivityContext(final ActivityContextImpl ac) {
 
-		if (doTraceLogs) {
-			logger.trace("Removing activity context "+ac.getActivityContextHandle());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Removing activity context "+ac.getActivityContextHandle());
 		}
 		
 		// remove runtime resources

@@ -22,6 +22,7 @@
 
 package org.mobicents.slee.runtime.sbbentity;
 
+import org.apache.log4j.Logger;
 import org.restcomm.cache.tree.Fqn;
 import org.restcomm.cache.tree.Node;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
@@ -42,6 +43,8 @@ import java.util.Set;
  */
 
 public class SbbEntityFactoryCacheData extends CacheData {
+
+	private static final Logger logger = Logger.getLogger(SbbEntityFactoryCacheData.class);
 
 	public static final String SBB_ENTITY_FACTORY_FQN_NAME = "sbbe";
 	
@@ -71,7 +74,9 @@ public class SbbEntityFactoryCacheData extends CacheData {
 		}
 		HashSet<SbbEntityID> result = new HashSet<SbbEntityID>();
 		ServiceID serviceID = null;
-		for (Object obj : node.getChildrenNames()) {
+
+		// FIXME: getChildValues
+		for (Object obj : node.getChildValues()) {
 			serviceID = (ServiceID) obj;
 			for (SbbEntityID sbbEntityID : getRootSbbEntityIDs(serviceID)) {
 				result.add(sbbEntityID);
@@ -82,39 +87,47 @@ public class SbbEntityFactoryCacheData extends CacheData {
 	}
 
 	public Set<SbbEntityID> getRootSbbEntityIDs(ServiceID serviceID) {
+		logger.debug("#### TEST [getRootSbbEntityIDs]");
 		final Node node = getNode();
-		System.out.println("node: "+node);
+		logger.debug("#### TEST [getRootSbbEntityIDs]: node: "+node);
+
 		if (node == null) {
 			return Collections.emptySet();
 		}
+
+		// FIXME: getChild
 		final Node serviceNode = node.getChild(serviceID);
-		System.out.println("serviceID: "+serviceID);
-		System.out.println("serviceNode: "+serviceNode);
+		logger.debug("#### TEST [getRootSbbEntityIDs]: serviceID: "+serviceID);
+		logger.debug("#### TEST [getRootSbbEntityIDs]: serviceNode: "+serviceNode);
+
 		if (serviceNode == null) {
 			return Collections.emptySet();
 		}
 		HashSet<SbbEntityID> result = new HashSet<SbbEntityID>();
 		RootSbbEntityID rootSbbEntityID = null;
-		for (Object obj : serviceNode.getChildrenNames()) {
-			System.out.println("Object: "+(String)obj);
+
+		// FIXME: getChildNames
+		for (Object obj : serviceNode.getChildNames()) {
+			logger.debug("#### TEST [getRootSbbEntityIDs]: Object: "+(String)obj);
 			rootSbbEntityID = new RootSbbEntityID(serviceID, (String)obj);
 			result.add(rootSbbEntityID);
 		}
-		System.out.println("result: "+result);
+
+		logger.debug("#### TEST [getRootSbbEntityIDs]: result: "+result);
 		return result;
 	}
 
 	public void WAremove() {
 		final Node node = getNode();
-		System.out.println("$$$$ node: "+node);
+		logger.debug("$$$$ node: "+node);
 		if (node != null) {
 			if (!node.getChildren().isEmpty()) {
-				System.out.println("$$$$ in not empty: "+node);
+				logger.debug("$$$$ in not empty: "+node);
 				node.removeChildren();
 			}
 
 			if (!node.getChildren().isEmpty()) {
-				System.out.println("$$$$ in not empty: "+node);
+				logger.debug("$$$$ in not empty: "+node);
 			}
 		}
 	}

@@ -61,7 +61,7 @@ public class ReplicatedDataCacheData<K extends Serializable, V extends Serializa
 	public Set<K> getAllKeys() {
 		Set<K> result = Collections.emptySet();
 		if (getNode() != null) {
-			for (Object o: getNode().getChildrenNames()) {
+			for (Object o: getNode().getChildValues()) {
 				result.add((K)o);
 			}
 		}
