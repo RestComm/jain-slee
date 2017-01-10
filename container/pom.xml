@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>mobicents-slee-core</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.30</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -37,7 +37,7 @@
 		<!--<version.hibernate>4.2.0.CR1</version.hibernate>-->
 		<version.hibernate>5.0.10.Final</version.hibernate>
 
-		<restcomm.cluster.version>3.0.0-SNAPSHOT</restcomm.cluster.version>
+		<restcomm.cluster.version>3.0.0.8</restcomm.cluster.version>
 		<!--<version.jgoups>3.2.7.Final</version.jgoups>-->
 		<version.jgoups>3.6.10.Final</version.jgoups>
 		<!--<version.infinispan>5.2.1.Final</version.infinispan>-->
