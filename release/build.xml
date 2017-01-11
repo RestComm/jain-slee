@@ -6,7 +6,7 @@
 	<property name="output.dir" value="${basedir}/target" />
 	<property name="release.dir" value="${output.dir}/binary" />
 	<property name="packages.dir" value="${basedir}/checkout" />
-	<property name="tmp.wildfly.home" value="${output.dir}/tmp" />
+	<property name="tmp.dir" value="${output.dir}/tmp" />
 
 	<property name="release.profile" value="restcomm" />
 	<property name="release.version" value="3.0.0" />
@@ -21,6 +21,10 @@
 	<property name="wildfly.home.relative.path" value="${wildfly.name}-${wildfly.version}/" />
 	<property name="wildfly.home" value="${release.dir}/${wildfly.home.relative.path}/" />
 	<available file="${ant.file.restcomm.release}/../${wildfly.distro.zip.path}" property="got.wildfly" />
+
+	<property name="h2.version" value="1.4.193" />
+	<property name="h2.distro.jar.path" value="h2-${h2.version}.jar" />
+	<available file="${ant.file.restcomm.release}/../${h2.distro.jar.path}" property="got.h2" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -76,7 +80,7 @@
 		-->
 	</target>
 
-	<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,build-core">
+	<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,build-core">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
@@ -101,6 +105,21 @@
 	<target name="unzip-wildfly">
 		<delete dir="${wildfly.home}" failonerror="true" />
 		<unzip src="${wildfly.distro.zip.path}" dest="${release.dir}" />
+	</target>
+
+	<target name="setup-wildfly">
+		<property name="wildfly.modules" value="${wildfly.home}/modules/system/layers/base/" />
+
+		<echo message="Downloading last H2 database ${wildfly.version}"/>
+		<get verbose="true" dest="${tmp.dir}/${wildfly.distro.zip.path}" src="http://repo2.maven.org/maven2/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" />
+
+		<delete><fileset dir="${wildfly.modules}/com/h2database/h2/main/" includes="**/*.jar"/></delete>
+		<copyfile src="${tmp.dir}/${wildfly.distro.zip.path}" dest="${wildfly.modules}/com/h2database/h2/main/"/>
+		<replaceregexp file="${wildfly.modules}/com/h2database/h2/main/module.xml"
+					   match="<resource-root path=(.*)/>"
+					   replace="<resource-root path=&quot;${h2.version}&quot;/>"
+					   byline="true"
+		/>
 	</target>
 	
 	<target name="checkout-sources">
