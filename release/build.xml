@@ -71,7 +71,7 @@
 	<target name="build-core" description="" depends="checkout-sources">
 		<property name="core.profiles" value="deploy-module-wildfly,deploy-configuration-wildfly" />
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
-			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${wildfly.home} -Djboss.path=../../${wildfly.home.relative.path} -Pset-git-hash,${core.profiles}" />
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${wildfly.home} -Djboss.path=../../${wildfly.home.relative.path} -Prelease,set-git-hash,${core.profiles}" />
 		</exec>
 		<!--
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
