@@ -492,26 +492,26 @@
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</extensions>]]></replacetoken>
   											<replacevalue><![CDATA[
-	<extension module="org.telestax.slee.container.extension"/>
+		<extension module="org.telestax.slee.container.extension"/>
 	</extensions>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</profile>]]></replacetoken>
   											<replacevalue><![CDATA[
-	<subsystem xmlns="urn:telestax:slee-container:3.0">
-		<remote-rmi-address>127.0.0.1</remote-rmi-address>
-		<remote-rmi-port>7777</remote-rmi-port>
-		<profiles-persist-profiles>true</profiles-persist-profiles>
-		<profiles-clustered-profiles>false</profiles-clustered-profiles>
-		<profiles-hibernate-datasource>java:jboss/datasources/ExampleDS</profiles-hibernate-datasource>
-		<profiles-hibernate-dialect>org.hibernate.dialect.H2Dialect</profiles-hibernate-dialect>
-	</subsystem>
+		<subsystem xmlns="urn:telestax:slee-container:3.0">
+			<remote-rmi-address>127.0.0.1</remote-rmi-address>
+			<remote-rmi-port>7777</remote-rmi-port>
+			<profiles-persist-profiles>true</profiles-persist-profiles>
+			<profiles-clustered-profiles>false</profiles-clustered-profiles>
+			<profiles-hibernate-datasource>java:jboss/datasources/ExampleDS</profiles-hibernate-datasource>
+			<profiles-hibernate-dialect>org.hibernate.dialect.H2Dialect</profiles-hibernate-dialect>
+		</subsystem>
 	</profile>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
 											<replacetoken><![CDATA[</dependencies>]]></replacetoken>
 											<replacevalue><![CDATA[
-	<module name="org.telestax.slee.container.lib"/>
+		<module name="org.telestax.slee.container.lib"/>
 	</dependencies>]]></replacevalue>
 										</replace>
 									</tasks>
@@ -524,13 +524,20 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>									
+									<tasks>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[<extension module="org.telestax.slee.container.extension"/>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0"/>]]></replacetoken>
+  											<replacetoken><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0">
+			<remote-rmi-address>127.0.0.1</remote-rmi-address>
+			<remote-rmi-port>7777</remote-rmi-port>
+			<profiles-persist-profiles>true</profiles-persist-profiles>
+			<profiles-clustered-profiles>false</profiles-clustered-profiles>
+			<profiles-hibernate-datasource>java:jboss/datasources/ExampleDS</profiles-hibernate-datasource>
+			<profiles-hibernate-dialect>org.hibernate.dialect.H2Dialect</profiles-hibernate-dialect>
+		</subsystem>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
