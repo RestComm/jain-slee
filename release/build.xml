@@ -111,10 +111,10 @@
 		<property name="wildfly.modules" value="${wildfly.home}/modules/system/layers/base/" />
 
 		<echo message="Downloading last H2 database ${wildfly.version}"/>
-		<get verbose="true" dest="${tmp.dir}/${wildfly.distro.zip.path}" src="http://repo2.maven.org/maven2/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" />
+		<get verbose="true" dest="${tmp.dir}/${h2.distro.jar.path}" src="http://repo2.maven.org/maven2/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" />
 
 		<delete><fileset dir="${wildfly.modules}/com/h2database/h2/main/" includes="**/*.jar"/></delete>
-		<copyfile src="${tmp.dir}/${wildfly.distro.zip.path}" dest="${wildfly.modules}/com/h2database/h2/main/"/>
+		<copyfile src="${tmp.dir}/${h2.distro.jar.path}" dest="${wildfly.modules}/com/h2database/h2/main/"/>
 		<replaceregexp file="${wildfly.modules}/com/h2database/h2/main/module.xml"
 					   match="&lt;resource-root path=(.*)/&gt;"
 					   replace="&lt;resource-root path=&quot;${h2.version}&quot;/&gt;"
