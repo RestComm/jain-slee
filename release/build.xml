@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="restcomm.release" default="release-as72" basedir=".">
+<project name="restcomm.release" default="release-as101" basedir=".">
 
 	<property environment="sys" />
 
@@ -57,7 +57,7 @@
 	</condition>
 
 	<target name="build-core" description="">
-		<property name="core.profiles" value="build-${core.version},deploy-module-${core.version},deploy-configuration-${core.version}" />
+		<property name="core.profiles" value="build-${core.version},deploy-module-as72,deploy-configuration-as72" />
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
 			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Pset-git-hash,${core.profiles}" />
 		</exec>
@@ -68,15 +68,17 @@
 		-->
 	</target>
 
+	<!--
 	<target name="as72prop">
 		<property name="core.version" value="as72" />
 		<property name="jboss.version" value="7.2.0.Final" />
 		<property name="jboss.name" value="jboss-as" />
 	</target>
+	-->
 
-	<target name="as10prop">
-		<property name="core.version" value="as10" />
-		<property name="jboss.version" value="10.0.0.Final" />
+	<target name="as101prop">
+		<property name="core.version" value="as100" />
+		<property name="jboss.version" value="10.1.0.Final" />
 		<property name="jboss.name" value="wildfly" />
 	</target>
 
@@ -87,6 +89,7 @@
 		<available file="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" property="got.jboss" />
 	</target>
 
+	<!--
 	<target name="release-as72" depends="as72prop,common,clean,get-jboss,unzip-jboss,checkout-sources,build-core">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
@@ -99,8 +102,9 @@
 		<delete dir="${jboss.home}" failonerror="true" />
 		<antcall target="clean" />
 	</target>
+	-->
 
-	<target name="release-as10" depends="as10prop,common,clean,get-wildfly,unzip-jboss,checkout-sources,build-core">
+	<target name="release-as101" depends="as101prop,common,clean,get-wildfly,unzip-jboss,checkout-sources,build-core">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
