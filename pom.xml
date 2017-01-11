@@ -29,7 +29,7 @@
 			<id>maven-release</id>
 			<modules>
 				<module>tools/slee-management-console</module>
-				<module>tools/twiddle</module>
+				<!--<module>tools/twiddle</module>-->
 			</modules>
 			<build>
 				<plugins>
@@ -48,7 +48,7 @@
 			<id>release</id>
 			<modules>
 				<module>tools/slee-management-console</module>
-				<module>tools/twiddle</module>
+				<!--<module>tools/twiddle</module>-->
 			</modules>
 		</profile>
 	</profiles>
