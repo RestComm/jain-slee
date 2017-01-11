@@ -24,8 +24,8 @@ package org.mobicents.slee.container.management.jmx.editors;
 
 import javax.slee.ServiceID;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
-import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
+//import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
+//import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.runtime.sbbentity.NonRootSbbEntityID;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntityID;

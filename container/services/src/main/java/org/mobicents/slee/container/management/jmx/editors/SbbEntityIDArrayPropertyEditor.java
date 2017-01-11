@@ -22,7 +22,8 @@
 
 package org.mobicents.slee.container.management.jmx.editors;
 
-import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
+//import org.jboss.util.propertyeditor.TextPropertyEditorSupport;
+//import org.jboss.common.beans.property.PropertyEditorSupport
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
