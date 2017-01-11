@@ -121,6 +121,11 @@
 					   replace="&lt;resource-root path=&quot;${h2.version}&quot;/&gt;"
 					   byline="true"
 		/>
+
+		<replace casesensitive="false" file="${wildfly.home}/standalone/configuration/standalone.xml">
+			<replacetoken><![CDATA[<connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connection-url>]]></replacetoken>
+			<replacevalue><![CDATA[<connection-url>jdbc:h2:~/test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connection-url>]]></replacevalue>
+		</replace>
 	</target>
 	
 	<target name="checkout-sources">
