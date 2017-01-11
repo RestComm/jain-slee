@@ -9,8 +9,7 @@
 
 	<artifactId>services</artifactId>
 			
-	<dependencies>				
-		
+	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>usage</artifactId>
@@ -32,6 +31,12 @@
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-tree</artifactId>
 			<scope>provided</scope>
 		</dependency>
 

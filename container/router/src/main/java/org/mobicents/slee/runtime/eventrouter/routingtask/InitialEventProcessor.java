@@ -41,6 +41,7 @@ import org.mobicents.slee.container.component.sbb.InitialEventSelectorVariables;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
 import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.event.EventContext;
+import org.mobicents.slee.container.jndi.JndiManagement;
 import org.mobicents.slee.container.profile.ProfileTable;
 import org.mobicents.slee.container.sbb.SbbObject;
 import org.mobicents.slee.container.sbb.SbbObjectPool;
@@ -90,6 +91,10 @@ public class InitialEventProcessor {
 			SbbObject sbbObject = (SbbObject) pool.borrowObject();
 			Object[] args = new Object[] { selector };
 			ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+
+			final JndiManagement jndiManagement = sleeContainer.getJndiManagement();
+			jndiManagement.pushJndiContext(sbbComponent);
+
 			try {
 				Thread.currentThread().setContextClassLoader(
 						sbbComponent.getClassLoader());
@@ -103,6 +108,7 @@ public class InitialEventProcessor {
 					return null;
 				}
 			} finally {
+				jndiManagement.popJndiContext();
 				Thread.currentThread().setContextClassLoader(oldCl);
 				pool.returnObject(sbbObject);
 			}
@@ -210,7 +216,14 @@ public class InitialEventProcessor {
 	}
 
 	private Collection<ProfileID> getAddressProfilesMatching(Address address, ServiceComponent serviceComponent, SbbComponent sbbComponent, SleeContainer sleeContainer) throws NullPointerException, UnrecognizedProfileTableNameException, SLEEException, UnrecognizedAttributeException, AttributeNotIndexedException, AttributeTypeMismatchException {
+
+		logger.trace("getAddressProfilesMatching: sbbComponent: "+sbbComponent);
+		logger.trace("getAddressProfilesMatching: sbbComponent: "+sbbComponent.getDescriptor());
+		logger.trace("getAddressProfilesMatching: sbbComponent: "+sbbComponent.getDescriptor().getSbbID());
+
 		ProfileSpecificationID addressProfileId = sbbComponent.getDescriptor().getAddressProfileSpecRef();
+		logger.trace("getAddressProfilesMatching: addressProfileId: "+addressProfileId);
+
 		ProfileSpecificationComponent profileSpecificationComponent = sleeContainer.getComponentRepository().getComponentByID(addressProfileId);
 		String addressProfileTable = serviceComponent.getDescriptor().getAddressProfileTable();
 		// Cannot find an address profile table spec. 

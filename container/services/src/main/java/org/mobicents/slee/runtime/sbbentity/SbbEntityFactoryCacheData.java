@@ -22,8 +22,8 @@
 
 package org.mobicents.slee.runtime.sbbentity;
 
-import org.restcomm.cache.tree.Fqn;
-import org.restcomm.cache.tree.Node;
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cluster.MobicentsCluster;
@@ -83,20 +83,40 @@ public class SbbEntityFactoryCacheData extends CacheData {
 
 	public Set<SbbEntityID> getRootSbbEntityIDs(ServiceID serviceID) {
 		final Node node = getNode();
+		System.out.println("node: "+node);
 		if (node == null) {
 			return Collections.emptySet();
 		}
 		final Node serviceNode = node.getChild(serviceID);
+		System.out.println("serviceID: "+serviceID);
+		System.out.println("serviceNode: "+serviceNode);
 		if (serviceNode == null) {
 			return Collections.emptySet();
 		}
 		HashSet<SbbEntityID> result = new HashSet<SbbEntityID>();
 		RootSbbEntityID rootSbbEntityID = null;
 		for (Object obj : serviceNode.getChildrenNames()) {
+			System.out.println("Object: "+(String)obj);
 			rootSbbEntityID = new RootSbbEntityID(serviceID, (String)obj);
 			result.add(rootSbbEntityID);
 		}
+		System.out.println("result: "+result);
 		return result;
+	}
+
+	public void WAremove() {
+		final Node node = getNode();
+		System.out.println("$$$$ node: "+node);
+		if (node != null) {
+			if (!node.getChildren().isEmpty()) {
+				System.out.println("$$$$ in not empty: "+node);
+				node.removeChildren();
+			}
+
+			if (!node.getChildren().isEmpty()) {
+				System.out.println("$$$$ in not empty: "+node);
+			}
+		}
 	}
 	
 	private void collectSbbEntities(SbbEntityID sbbEntityID, Set<SbbEntityID> result) {

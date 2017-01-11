@@ -22,18 +22,15 @@
 
 package org.mobicents.slee.runtime.activity;
 
-import org.restcomm.cache.tree.Fqn;
-import org.restcomm.cache.tree.Node;
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cluster.MobicentsCluster;
 
 import javax.slee.facilities.TimerID;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 

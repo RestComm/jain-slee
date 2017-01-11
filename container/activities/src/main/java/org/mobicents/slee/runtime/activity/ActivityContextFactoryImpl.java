@@ -22,7 +22,8 @@
 package org.mobicents.slee.runtime.activity;
 
 import org.apache.log4j.Logger;
-import org.restcomm.cache.tree.Fqn;
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
@@ -36,6 +37,7 @@ import org.restcomm.cluster.DataRemovalListener;
 
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -88,6 +90,10 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	public void sleeStarting() {
 		cacheData = new ActivityContextFactoryCacheData(sleeContainer.getCluster());
 		cacheData.create();
+	}
+
+	public void WAremove(String type) {
+		cacheData.WAremove(type);
 	}
 	
 	/*
@@ -225,6 +231,20 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#getAllActivityContextsHandles()
 	 */
 	public Set<ActivityContextHandle> getAllActivityContextsHandles() {
+		Node node = cacheData.getNode();
+		logger.debug("node: "+node);
+		logger.debug("isRemoved: " + cacheData.isRemoved());
+		if (node != null) {
+			logger.debug("node: " + node.getFqn());
+			logger.debug("node: " + node.getChildrenNames());
+
+			//Iterator iter = node.getChildren().iterator();
+			//while (iter.hasNext()) {
+			//	Object child = iter.next();
+			//	logger.debug("Object child: "+child);
+			//	logger.debug("Object child: "+child.getClass());
+			//}
+		}
 		return cacheData.getActivityContextHandles();
 	}
 	

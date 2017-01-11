@@ -14,6 +14,21 @@ public class ChildContext extends NotImplementedContext {
 		this.rootContext = rootContext;
 		this.contextName = contextName;
 	}
+
+	@Override
+	public String getNameInNamespace() throws NamingException {
+		return this.rootContext.getNameInNamespace() + this.contextName;
+	}
+
+	@Override
+	public Name composeName(Name name, Name prefix) throws NamingException {
+		return this.rootContext.composeName(name, prefix);
+	}
+
+	@Override
+	public String composeName(String name, String prefix) throws NamingException {
+		return this.rootContext.composeName(name, prefix);
+	}
 	
 	@Override
 	public Object lookup(Name name) throws NamingException {

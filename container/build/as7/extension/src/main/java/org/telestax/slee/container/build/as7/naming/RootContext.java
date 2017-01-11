@@ -35,6 +35,9 @@ public class RootContext extends NotImplementedContext {
 		}
 
 		Object obj = entries.get(name);
+		if (obj == null) {
+			throw new NameNotFoundException();
+		}
 
 		try {
 			String className = null;
@@ -158,6 +161,25 @@ public class RootContext extends NotImplementedContext {
 
 	public NameParser getNameParser(String name) throws NamingException {
 		return NameParser.INSTANCE;
+	}
+
+	@Override
+	public String getNameInNamespace() throws NamingException {
+		return getNamespace();
+	}
+
+	@Override
+	public Name composeName(Name name, Name prefix) throws NamingException {
+		Name result = (Name) (prefix.clone());
+		result.addAll(name);
+		return result;
+	}
+
+	@Override
+	public String composeName(String name, String prefix) throws NamingException {
+		Name result = composeName(NameParser.INSTANCE.parse(name),
+				NameParser.INSTANCE.parse(prefix));
+		return result.toString();
 	}
 	
 	private class NamespaceContextSelectorImpl extends NamespaceContextSelector {

@@ -32,11 +32,12 @@ import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
 import org.mobicents.slee.container.transaction.SleeTransaction;
 import org.mobicents.slee.container.transaction.TransactionContext;
+
+import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
 
 /**
  * Implementation of the {@link SleeTransaction}.
@@ -48,7 +49,7 @@ public class SleeTransactionImpl implements SleeTransaction {
 	/**
 	 * the wrapped JBossTS transaction
 	 */
-	private final Transaction transaction;
+	private final TransactionImple transaction;
 
 	/**
 	 * caching the wrapped transaction id
@@ -76,10 +77,10 @@ public class SleeTransactionImpl implements SleeTransaction {
 	 * @param txContext
 	 * @param transactionManager
 	 */
-	public SleeTransactionImpl(Transaction transaction,
+	public SleeTransactionImpl(TransactionImple transaction,
 			TransactionContext txContext, SleeTransactionManagerImpl transactionManager) {
 		this.transaction = transaction;
-		this.transactionId = transaction.toString();
+		this.transactionId = transaction.get_uid().toString();
 		this.txContext = txContext;
 		this.transactionManager = transactionManager;
 	}
@@ -96,7 +97,7 @@ public class SleeTransactionImpl implements SleeTransaction {
 	 * Retrieves the real jta transaction
 	 * @return
 	 */
-	Transaction getWrappedTransaction() {
+	TransactionImple getWrappedTransaction() {
 		return transaction;
 	}
 	

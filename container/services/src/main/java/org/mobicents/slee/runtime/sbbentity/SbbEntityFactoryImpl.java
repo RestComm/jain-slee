@@ -157,11 +157,17 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	public Set<SbbEntityID> getRootSbbEntityIDs(ServiceID serviceID) {
 		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster());
 		if (cacheData.exists()) {
+			logger.debug("SbbEntityFactoryCacheData: "+cacheData);
 			return cacheData.getRootSbbEntityIDs(serviceID);
 		}
 		else {
 			return Collections.emptySet();
 		}
+	}
+
+	public void WAremove() {
+		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster());
+		cacheData.WAremove();
 	}
 	
 	@Override

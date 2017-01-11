@@ -1,5 +1,9 @@
 package org.telestax.slee.container.build.as7.service;
 
+import org.infinispan.configuration.cache.VersioningScheme;
+import org.infinispan.transaction.LockingMode;
+import org.infinispan.transaction.TransactionMode;
+import org.infinispan.util.concurrent.IsolationLevel;
 import org.jboss.as.naming.ManagedReferenceFactory;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -20,6 +24,8 @@ import org.mobicents.slee.connector.local.SleeConnectionServiceImpl;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentManagementImpl;
+import org.mobicents.slee.container.component.management.jmx.PolicyMBeanImpl;
+import org.mobicents.slee.container.component.management.jmx.PolicyMBeanImplMBean;
 import org.mobicents.slee.container.congestion.CongestionControl;
 import org.mobicents.slee.container.congestion.CongestionControlImpl;
 import org.mobicents.slee.container.deployment.ExternalDeployer;
@@ -129,12 +135,27 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		// inits the SLEE cache and cluster
 		final MobicentsCache cache = initCache();
+
 		final MobicentsCluster cluster = new DefaultMobicentsCluster(cache,
 				getTransactionManager().getValue(), null);
 
 		// init the tx manager
 		final SleeTransactionManager sleeTransactionManager = new SleeTransactionManagerImpl(
 				getTransactionManager().getValue());
+
+		log.debug("sleeTransactionManager: "+sleeTransactionManager);
+		log.debug("sleeTransactionManager REAL: "+sleeTransactionManager.getRealTransactionManager());
+
+		TransactionManager cacheTransactionManager = cache.getJBossCacheContainer().getCache().getAdvancedCache().getTransactionManager();
+		log.debug("cacheTransactionManager: "+cacheTransactionManager);
+
+		Configuration config = cache.getJBossCacheContainer().getCache().getCacheConfiguration();
+		TransactionMode tm = config.transaction().transactionMode();
+		LockingMode lm = config.transaction().lockingMode();
+		IsolationLevel il = config.locking().isolationLevel();
+		int cl = config.locking().concurrencyLevel();
+		log.debug("tm: "+tm+", lm: "+lm+", il: "+il+", cl: "+cl);
+
 
 		final TraceMBeanImpl traceMBean = new TraceMBeanImpl();
 		
@@ -225,8 +246,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 				congestionControlConfiguration);
 
 		// FIXME this needs further work on dependencies
-		// final PolicyMBeanImpl policyMBeanImpl = new PolicyMBeanImpl();
-		// policyMBeanImpl.setUseMPolicy(true);
+		final PolicyMBeanImpl policyMBeanImpl = new PolicyMBeanImpl();
+		policyMBeanImpl.setUseMPolicy(true);
 
 		ServiceController<?> serviceController = context.getController();
 		
@@ -280,7 +301,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final ActivityManagementMBeanImpl activityManagementMBean = new ActivityManagementMBeanImpl(sleeContainer);
 		registerMBean(activityManagementMBean, ActivityManagementMBeanImplMBean.OBJECT_NAME);
 		// TODO PolicyMBeanImpl
-		//registerMBean(policyMBeanImpl, PolicyMBeanImplMBean.OBJECT_NAME);
+		registerMBean(policyMBeanImpl, PolicyMBeanImplMBean.OBJECT_NAME);
 		
 		// slee management mbean
 		final SleeManagementMBeanImpl sleeManagementMBean = new SleeManagementMBeanImpl(sleeContainer);
@@ -363,10 +384,18 @@ public class SleeContainerService implements Service<SleeContainer> {
 		Configuration defaultConfig = new ConfigurationBuilder()
 				.invocationBatching().enable()
 				.clustering().cacheMode(CacheMode.LOCAL)
-				.locking().lockAcquisitionTimeout(3000)
+				//.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
+				//.transaction().lockingMode(LockingMode.PESSIMISTIC)
+				.locking().isolationLevel(IsolationLevel.REPEATABLE_READ)
+				//.transaction().syncCommitPhase(true)
+				//.locking().writeSkewCheck(true)
+				//.versioning().enable().scheme(VersioningScheme.SIMPLE)
+				.locking().lockAcquisitionTimeout(30000)
 				.locking().useLockStriping(false)
+				.jmxStatistics().disable()
 				.build();
 		GlobalConfiguration globalConfig = new GlobalConfigurationBuilder()
+				.globalJmxStatistics().disable()
 				.shutdown().hookBehavior(ShutdownHookBehavior.DONT_REGISTER)
 				.build();
 		return new MobicentsCache(defaultConfig, globalConfig);

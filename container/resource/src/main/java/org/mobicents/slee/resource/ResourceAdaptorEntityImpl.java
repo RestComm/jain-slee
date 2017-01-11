@@ -452,10 +452,20 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 				if (handle.getActivityType() == ActivityType.RA) {
 					ResourceAdaptorActivityContextHandle raHandle = (ResourceAdaptorActivityContextHandle) handle;
 					if (raHandle.getResourceAdaptorEntity().equals(this)) {
+
+						logger.debug("**** AllActivityContextsHandles: "+sleeContainer
+								.getActivityContextFactory()
+								.getAllActivityContextsHandles());
+
 						if (logger.isDebugEnabled()) {
 							logger.debug("RA entity "+name+" has (at least) activity "+handle.getActivityHandle());
 						}
-						return true;											
+
+						//return true;
+
+						logger.warn("WORKAROUND USAGE: ENDING RESOURCE ADAPTOR ACTIVITIES");
+						sleeContainer.getActivityContextFactory().WAremove("RA");
+						return false;
 					}
 				}
 			}			
@@ -670,6 +680,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * @param activityFlags
 	 */
 	public void activityEnded(final ActivityHandle handle, int activityFlags) {
+		logger.trace("activityEnded( handle = " + handle + " )");
 		ActivityHandle ah = null;
 		if (handle instanceof ActivityHandleReference) {
 			// handle is a ref, derrefer and remove the ref
