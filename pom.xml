@@ -24,6 +24,35 @@
 		<url>https://github.com/RestComm/jain-slee</url>
 	</scm>
 
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>tools/slee-management-console</module>
+				<module>tools/twiddle</module>
+			</modules>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-release-plugin</artifactId>
+						<configuration>
+							<autoVersionSubmodules>true</autoVersionSubmodules>
+							<preparationGoals>clean install</preparationGoals>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>release</id>
+			<modules>
+				<module>tools/slee-management-console</module>
+				<module>tools/twiddle</module>
+			</modules>
+		</profile>
+	</profiles>
+
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
 
 	<repositories>

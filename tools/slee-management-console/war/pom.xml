@@ -84,8 +84,7 @@
 						</goals>
 						<configuration>
 							<tasks>
-								<copy overwrite="true" file="target/${build.finalName}.war" todir="${jboss.home}/server/default/deploy" />
-								<copy overwrite="true" file="target/${build.finalName}.war" todir="${jboss.home}/server/all/deploy" />
+								<copy overwrite="true" file="target/${build.finalName}.war" todir="${jboss.home}/standalone/deployments" />
 								<delete failonerror="false" dir="${user.dir}/.gwt-cache" />
 							</tasks>
 						</configuration>
@@ -98,8 +97,7 @@
 						</goals>
 						<configuration>
 							<tasks>
-								<delete file="${jboss.home}/server/default/deploy/${build.finalName}.war" />
-								<delete file="${jboss.home}/server/all/deploy/${build.finalName}.war" />
+								<delete file="${jboss.home}/standalone/deployments/${build.finalName}.war" />
 							</tasks>
 						</configuration>
 					</execution>
