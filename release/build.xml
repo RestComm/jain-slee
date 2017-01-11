@@ -118,7 +118,7 @@
 		<copy file="${tmp.dir}/${h2.distro.jar.path}" todir="${wildfly.modules}/com/h2database/h2/main/"/>
 		<replaceregexp file="${wildfly.modules}/com/h2database/h2/main/module.xml"
 					   match="&lt;resource-root path=(.*)/&gt;"
-					   replace="&lt;resource-root path=&quot;${h2.version}&quot;/&gt;"
+					   replace="&lt;resource-root path=&quot;${h2.distro.jar.path}&quot;/&gt;"
 					   byline="true"
 		/>
 
