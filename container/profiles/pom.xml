@@ -30,8 +30,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.as</groupId>
-			<artifactId>jboss-as-jpa</artifactId>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-jpa</artifactId>
 			<scope>provided</scope>
 		</dependency>
 

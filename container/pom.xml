@@ -26,11 +26,12 @@
 
 		<jain-slee-11-ext.version>${project.version}</jain-slee-11-ext.version>
 
-		<version.jboss.as>7.2.0.Final</version.jboss.as>
-		<!--<version.jboss.msc>1.0.4.GA</version.jboss.msc>-->
-		<version.jboss.msc>1.2.6.Final</version.jboss.msc>
+		<!--<version.jboss.as>7.2.0.Final</version.jboss.as>-->
 		<version.wildfly.as>10.1.0.Final</version.wildfly.as>
 		<version.wildfly.core>2.2.0.Final</version.wildfly.core>
+
+		<!--<version.jboss.msc>1.0.4.GA</version.jboss.msc>-->
+		<version.jboss.msc>1.2.6.Final</version.jboss.msc>
 
 		<!--<version.javassist>3.15.0-GA</version.javassist>-->
 		<version.javassist>3.18.1-GA</version.javassist>
@@ -130,48 +131,63 @@
 				<scope>provided</scope>
 			</dependency>
 
+			<!--
 			<dependency>
 				<groupId>org.jboss.as</groupId>
 				<artifactId>jboss-as-controller</artifactId>
 				<version>${version.jboss.as}</version>
 				<scope>provided</scope>
 			</dependency>
+			-->
+
 			<dependency>
 				<groupId>org.wildfly.core</groupId>
 				<artifactId>wildfly-controller</artifactId>
 				<version>${version.wildfly.core}</version>
 				<scope>provided</scope>
 			</dependency>
+
+			<!--
 			<dependency>
 				<groupId>org.jboss.as</groupId>
 				<artifactId>jboss-as-jmx</artifactId>
 				<version>${version.jboss.as}</version>
 				<scope>provided</scope>
 			</dependency>
+			-->
+
 			<dependency>
 				<groupId>org.wildfly.core</groupId>
 				<artifactId>wildfly-jmx</artifactId>
 				<version>${version.wildfly.core}</version>
 				<scope>provided</scope>
 			</dependency>
+
+			<!--
 			<dependency>
 				<groupId>org.jboss.as</groupId>
 				<artifactId>jboss-as-server</artifactId>
 				<version>${version.jboss.as}</version>
 				<scope>provided</scope>
 			</dependency>
+			-->
+
 			<dependency>
 				<groupId>org.wildfly.core</groupId>
 				<artifactId>wildfly-server</artifactId>
 				<version>${version.wildfly.core}</version>
 				<scope>provided</scope>
 			</dependency>
+
+			<!--
 			<dependency>
 				<groupId>org.jboss.as</groupId>
 				<artifactId>jboss-as-transactions</artifactId>
 				<version>${version.jboss.as}</version>
 				<scope>provided</scope>
 			</dependency>
+			-->
+
 			<dependency>
 				<groupId>org.wildfly</groupId>
 				<artifactId>wildfly-transactions</artifactId>
@@ -184,12 +200,16 @@
 				<version>${version.vfs}</version>
 				<scope>provided</scope>
 			</dependency>
+
+			<!--
 			<dependency>
 				<groupId>org.jboss.as</groupId>
 				<artifactId>jboss-as-subsystem-test</artifactId>
 				<version>${version.jboss.as}</version>
 				<scope>test</scope>
 			</dependency>
+			-->
+
 			<!--
             <dependency>
                 <groupId>org.wildfly.core</groupId>
@@ -198,6 +218,7 @@
                 <scope>test</scope>
             </dependency>
             -->
+
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -217,6 +238,8 @@
 				<version>${version.hibernate}</version>
 				<scope>provided</scope>
 			</dependency>
+
+			<!--
 			<dependency>
 				<groupId>org.jboss.as</groupId>
 				<artifactId>jboss-as-jpa</artifactId>
@@ -229,18 +252,36 @@
 				<version>${version.jboss.as}</version>
 				<scope>provided</scope>
 			</dependency>
+			-->
+
+			<dependency>
+				<groupId>org.wildfly</groupId>
+				<artifactId>wildfly-jpa</artifactId>
+				<version>${version.wildfly.as}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.wildfly</groupId>
+				<artifactId>wildfly-naming</artifactId>
+				<version>${version.wildfly.as}</version>
+				<scope>provided</scope>
+			</dependency>
 
 			<dependency>
 				<groupId>javax.resource</groupId>
 				<artifactId>connector</artifactId>
 				<version>1.0</version>
 			</dependency>
+
+			<!--
 			<dependency>
 				<groupId>org.jboss.as</groupId>
 				<artifactId>jboss-as-connector</artifactId>
 				<version>${version.jboss.as}</version>
 				<scope>provided</scope>
 			</dependency>
+			-->
+
 			<dependency>
 				<groupId>org.wildfly</groupId>
 				<artifactId>wildfly-connector</artifactId>
@@ -254,6 +295,14 @@
 				<version>${version.jboss.msc}</version>
 				<scope>provided</scope>
 			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.common</groupId>
+				<artifactId>jboss-common-beans</artifactId>
+				<version>2.0.0.Final</version>
+				<scope>provided</scope>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 

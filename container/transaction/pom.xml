@@ -25,13 +25,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.jboss.as</groupId>
-			<artifactId>jboss-as-transactions</artifactId>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-transactions</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
 		<!-- tests
-
 		<dependency>
 			<groupId>org.jboss.microcontainer</groupId>
 			<artifactId>jboss-kernel</artifactId>

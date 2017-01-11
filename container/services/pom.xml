@@ -47,9 +47,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.jboss.as</groupId>
-			<artifactId>jboss-as-naming</artifactId>
-			<version>7.2.0.Final</version>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-naming</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.common</groupId>
+			<artifactId>jboss-common-beans</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		
 	</dependencies>
