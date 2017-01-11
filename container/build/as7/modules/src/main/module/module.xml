@@ -5,9 +5,6 @@
 
 		<!-- SLEE CONTAINER MODULES - PLS KEEP A-Z ORDER -->
         <resource-root path="activities-${project.version}.jar"/>
-        <!-- 
-        <resource-root path="ant-tasks-${project.version}.jar"/>
-        -->
         <resource-root path="common-${project.version}.jar"/>
         <resource-root path="components-${project.version}.jar"/>
         <resource-root path="congestion-${project.version}.jar"/>
@@ -28,12 +25,6 @@
 
 		<!-- SLEE CONTAINER DEPS - PLS KEEP VERSION PROPERTY A-Z ORDER -->
 		<!-- each entry path is ${dep.artifactId}-${dep.version.prop.name}.jar -->
-        <!-- <resource-root path="commons-pool-${commons-pool.commons-pool.version}.jar"/>  -->
-        <!--
-        <resource-root path="jboss-serialization-${jboss.jboss-serialization.version}.jar"/>
-        <resource-root path="trove-${trove.trove.version}.jar"/>
-        -->
-
         <resource-root path="jain-slee-${javax.slee.jain-slee.version}.jar"/>
         <resource-root path="jain-slee-11-ext-${org.mobicents.servers.jainslee.api.jain-slee-11-ext.version}.jar"/>
 

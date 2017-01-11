@@ -134,12 +134,46 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- WildFly modules  -->
+		<dependency>
+			<groupId>org.wildfly.core</groupId>
+			<artifactId>wildfly-controller</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly.core</groupId>
+			<artifactId>wildfly-jmx</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly.core</groupId>
+			<artifactId>wildfly-server</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<!--
+        <dependency>
+            <groupId>org.wildfly.core</groupId>
+            <artifactId>wildfly-subsystem-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        -->
+		<dependency>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-transactions</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-connector</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	
 	<profiles>
+		<!--
 		<profile>
 			<id>build-as72</id>
-
 			<dependencies>
 				<dependency>
 					<groupId>org.jboss.as</groupId>
@@ -173,14 +207,17 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		-->
+
+		<!--
 		<profile>
-			<id>build-as100</id>
+			<id>build-wildfly</id>
 			<activation>
-				<!--
+				<!- -
 				Never use <activeByDefault>
 				<activeByDefault>true</activeByDefault>
 				https://dzone.com/articles/maven-profile-best-practices
-				-->
+				- ->
 				<property><name>!foo.bar</name></property>
 			</activation>
 			<dependencies>
@@ -199,13 +236,13 @@
 					<artifactId>wildfly-server</artifactId>
 					<scope>provided</scope>
 				</dependency>
-				<!--
+				<!- -
 				<dependency>
 					<groupId>org.wildfly.core</groupId>
 					<artifactId>wildfly-subsystem-test</artifactId>
 					<scope>test</scope>
 				</dependency>
-				-->
+				- ->
 				<dependency>
 					<groupId>org.wildfly</groupId>
 					<artifactId>wildfly-transactions</artifactId>
@@ -218,6 +255,9 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		-->
+
+		<!--
 		<profile>
 			<id>deploy-module-eap61</id>
 			<build>
@@ -394,8 +434,10 @@
 				</plugins>
 			</build>
 		</profile>
+		-->
+
 		<profile>
-			<id>deploy-module-as72</id>
+			<id>deploy-module-wildfly</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -433,7 +475,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>deploy-configuration-as72</id>
+			<id>deploy-configuration-wildfly</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -449,18 +491,28 @@
 									<tasks>										
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</extensions>]]></replacetoken>
-  											<replacevalue><![CDATA[<extension module="org.telestax.slee.container.extension"/>
-  											</extensions>]]></replacevalue>
+  											<replacevalue><![CDATA[
+	<extension module="org.telestax.slee.container.extension"/>
+	</extensions>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</profile>]]></replacetoken>
-  											<replacevalue><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0"/>
-  											</profile>]]></replacevalue>
+  											<replacevalue><![CDATA[
+	<subsystem xmlns="urn:telestax:slee-container:3.0">
+		<remote-rmi-address>127.0.0.1</remote-rmi-address>
+		<remote-rmi-port>7777</remote-rmi-port>
+		<profiles-persist-profiles>true</profiles-persist-profiles>
+		<profiles-clustered-profiles>false</profiles-clustered-profiles>
+		<profiles-hibernate-datasource>java:jboss/datasources/ExampleDS</profiles-hibernate-datasource>
+		<profiles-hibernate-dialect>org.hibernate.dialect.H2Dialect</profiles-hibernate-dialect>
+	</subsystem>
+	</profile>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
 											<replacetoken><![CDATA[</dependencies>]]></replacetoken>
-											<replacevalue><![CDATA[<module name="org.telestax.slee.container.lib"/>
-  											</dependencies>]]></replacevalue>
+											<replacevalue><![CDATA[
+	<module name="org.telestax.slee.container.lib"/>
+	</dependencies>]]></replacevalue>
 										</replace>
 									</tasks>
 								</configuration>

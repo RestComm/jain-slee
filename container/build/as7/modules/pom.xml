@@ -294,7 +294,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>deploy-module-as72</id>
+			<id>deploy-module-wildfly</id>
 			<build>
 				<plugins>
 					<plugin>

@@ -1,18 +1,26 @@
 <?xml version="1.0"?>
-<project name="restcomm.release" default="release-as101" basedir=".">
+<project name="restcomm.release" default="release-wildfly" basedir=".">
 
 	<property environment="sys" />
 
 	<property name="output.dir" value="${basedir}/target" />
 	<property name="release.dir" value="${output.dir}/binary" />
 	<property name="packages.dir" value="${basedir}/checkout" />
-	<property name="tmp.jboss.home" value="${output.dir}/tmp" />
+	<property name="tmp.wildfly.home" value="${output.dir}/tmp" />
 
 	<property name="release.profile" value="restcomm" />
 	<property name="release.version" value="3.0.0" />
 	<property name="jslee.version" value="3.0.0" />
 
 	<property name="jboss.config" value="standalone" />
+
+	<property name="wildfly.version" value="10.1.0.Final" />
+	<property name="wildfly.name" value="wildfly" />
+
+	<property name="wildfly.distro.zip.path" value="${wildfly.name}-${wildfly.version}.zip" />
+	<property name="wildfly.home.relative.path" value="${wildfly.name}-${wildfly.version}/" />
+	<property name="wildfly.home" value="${release.dir}/${wildfly.home.relative.path}/" />
+	<available file="${ant.file.restcomm.release}/../${wildfly.distro.zip.path}" property="got.wildfly" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -56,10 +64,10 @@
 		</and>
 	</condition>
 
-	<target name="build-core" description="">
-		<property name="core.profiles" value="build-${core.version},deploy-module-as72,deploy-configuration-as72" />
+	<target name="build-core" description="" depends="checkout-sources">
+		<property name="core.profiles" value="deploy-module-wildfly,deploy-configuration-wildfly" />
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
-			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Pset-git-hash,${core.profiles}" />
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${wildfly.home} -Djboss.path=../../${wildfly.home.relative.path} -Pset-git-hash,${core.profiles}" />
 		</exec>
 		<!--
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
@@ -68,52 +76,16 @@
 		-->
 	</target>
 
-	<!--
-	<target name="as72prop">
-		<property name="core.version" value="as72" />
-		<property name="jboss.version" value="7.2.0.Final" />
-		<property name="jboss.name" value="jboss-as" />
-	</target>
-	-->
-
-	<target name="as101prop">
-		<property name="core.version" value="as100" />
-		<property name="jboss.version" value="10.1.0.Final" />
-		<property name="jboss.name" value="wildfly" />
-	</target>
-
-	<target name="common">
-		<property name="jboss.distro.zip.path" value="${jboss.name}-${jboss.version}.zip" />
-		<property name="jboss.home.relative.path" value="${jboss.name}-${jboss.version}/" />
-		<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
-		<available file="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" property="got.jboss" />
-	</target>
-
-	<!--
-	<target name="release-as72" depends="as72prop,common,clean,get-jboss,unzip-jboss,checkout-sources,build-core">
+	<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,build-core">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
-		<delete dir="." includes="${release.profile}-slee-${release.version}-${core.version}.zip" />
-		<antcall target="zip-jboss">
-			<param name="zip.filename" value="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}.zip" />
-			<param name="jboss.home" value="${jboss.home}" />
+		<delete dir="." includes="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}}.zip" />
+		<antcall target="zip-wildfly">
+			<param name="zip.filename" value="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}.zip" />
+			<param name="wildfly.home" value="${wildfly.home}" />
 		</antcall>
-		<delete dir="${jboss.home}" failonerror="true" />
-		<antcall target="clean" />
-	</target>
-	-->
-
-	<target name="release-as101" depends="as101prop,common,clean,get-wildfly,unzip-jboss,checkout-sources,build-core">
-		<tstamp>
-			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
-		</tstamp>
-		<delete dir="." includes="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}}.zip" />
-		<antcall target="zip-jboss">
-			<param name="zip.filename" value="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}.zip" />
-			<param name="jboss.home" value="${jboss.home}" />
-		</antcall>
-		<delete dir="${jboss.home}" failonerror="true" />
+		<delete dir="${wildfly.home}" failonerror="true" />
 		<antcall target="clean" />
 	</target>
 
@@ -121,21 +93,14 @@
 		<delete dir="${output.dir}" />
 	</target>
 
-
-	<target name="get-jboss" unless="got.jboss">
-		<property name="jboss.version" value="7.2.0.Final" />
-		<property name="jboss.name" value="jboss-as" />
-		<echo message="Downloading JBoss AS ${jboss.version}"/>
-		<get verbose="true" dest="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" src="https://app.box.com/shared/static/xaw5io4mj1dd7yzsoxlg.zip" />
-	</target>
-	<target name="get-wildfly" unless="got.jboss">
-		<echo message="Downloading WildFly ${jboss.version}"/>
-		<get verbose="true" dest="${ant.file.restcomm.release}/../${jboss.distro.zip.path}" src="http://download.jboss.org/wildfly/${jboss.version}/wildfly-${jboss.version}.zip" />
+	<target name="get-wildfly" unless="got.wildfly">
+		<echo message="Downloading WildFly ${wildfly.version}"/>
+		<get verbose="true" dest="${ant.file.restcomm.release}/../${wildfly.distro.zip.path}" src="http://download.jboss.org/wildfly/${wildfly.version}/wildfly-${wildfly.version}.zip" />
 	</target>
 
-	<target name="unzip-jboss">
-		<delete dir="${jboss.home}" failonerror="true" />
-		<unzip src="${jboss.distro.zip.path}" dest="${release.dir}" />
+	<target name="unzip-wildfly">
+		<delete dir="${wildfly.home}" failonerror="true" />
+		<unzip src="${wildfly.distro.zip.path}" dest="${release.dir}" />
 	</target>
 	
 	<target name="checkout-sources">
@@ -147,11 +112,11 @@
 		</exec>
 	</target>
 
-	<target name="zip-jboss" description="">
-		<fixcrlf srcdir="${jboss.home}/bin" includes="*.sh" eol="lf" eof="remove" />
+	<target name="zip-wildfly" description="">
+		<fixcrlf srcdir="${wildfly.home}/bin" includes="*.sh" eol="lf" eof="remove" />
 		<zip destfile="${ant.file.restcomm.release}/../${zip.filename}" filesonly="false">
-			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}" filemode="755" includes="**/*.sh" />
-			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${jboss.name}-${jboss.version}" />
+			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" filemode="755" includes="**/*.sh" />
+			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" />
 		</zip>
 	</target>
 
