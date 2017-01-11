@@ -116,8 +116,8 @@
 		<delete><fileset dir="${wildfly.modules}/com/h2database/h2/main/" includes="**/*.jar"/></delete>
 		<copyfile src="${tmp.dir}/${wildfly.distro.zip.path}" dest="${wildfly.modules}/com/h2database/h2/main/"/>
 		<replaceregexp file="${wildfly.modules}/com/h2database/h2/main/module.xml"
-					   match="<resource-root path=(.*)/>"
-					   replace="<resource-root path=&quot;${h2.version}&quot;/>"
+					   match="&lt;resource-root path=(.*)/&gt;"
+					   replace="&lt;resource-root path=&quot;${h2.version}&quot;/&gt;"
 					   byline="true"
 		/>
 	</target>
