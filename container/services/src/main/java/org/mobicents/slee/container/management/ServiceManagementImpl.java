@@ -454,7 +454,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			logger.warn("unable to find and end ac " + ach);
 
 			logger.warn("WORKAROUND USAGE: ENDING SERVICE");
-			//sleeContainer.getActivityContextFactory().WAremove();
+			//sleeContainer.getActivityContextFactory().WAremove("ACH=SERVICE");
 
 			return;
 		}

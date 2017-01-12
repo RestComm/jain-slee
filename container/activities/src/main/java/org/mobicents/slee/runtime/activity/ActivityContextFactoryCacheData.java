@@ -34,62 +34,69 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 
  * Proxy object for activity context factory data management through JBoss Cache
- * 
+ *
  * @author martins
- * 
  */
 
 public class ActivityContextFactoryCacheData extends CacheData {
 
-	private static Logger logger = Logger.getLogger(ActivityContextFactoryCacheData.class);
+    private static Logger logger = Logger.getLogger(ActivityContextFactoryCacheData.class);
 
-	/**
-	 * the fqn of the node that holds all activity context cache child nodes
-	 */
-	final static Fqn NODE_FQN = Fqn.fromElements(ActivityContextCacheData.parentNodeFqn);
+    /**
+     * the fqn of the node that holds all activity context cache child nodes
+     */
+    final static Fqn NODE_FQN = Fqn.fromElements(ActivityContextCacheData.parentNodeFqn);
 
-	/**
-	 * 
-	 * @param cluster
-	 */
-	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
-		super(NODE_FQN, cluster.getMobicentsCache());
-	}
+    /**
+     * @param cluster
+     */
+    public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
+        super(NODE_FQN, cluster.getMobicentsCache());
+    }
 
-	/**
-	 * Retrieves a set containing all activity context handles in the factory's
-	 * cache data
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public Set<ActivityContextHandle> getActivityContextHandles() {
-		final Node node = getNode();
-		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
-	}
+    /**
+     * Retrieves a set containing all activity context handles in the factory's
+     * cache data
+     *
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Set<ActivityContextHandle> getActivityContextHandles() {
+        final Node node = getNode();
+        return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
+    }
 
-	public void WAremove() {
-		final Node node = getNode();
-		logger.debug("$$$$ node: "+node);
-		if (node != null) {
-			if (!node.getChildren().isEmpty()) {
-				logger.debug("$$$$ is not empty");
-				for (Object cho : node.getChildren()) {
-					//Node chn = (Node)cho;
-					logger.debug("$$$$ object: "+cho);
-					//node.removeChild(cho);
-				}
-				node.removeChildren();
-			}
+    public void WAremove(String type) {
+        final Node node = getNode();
+        logger.debug("$$$$ node: " + node);
+        if (node != null) {
+            if (!node.getChildren().isEmpty()) {
+                logger.debug("$$$$ is not empty");
+                for (Object cho : node.getChildren()) {
+                    logger.debug("$$$$ object: " + cho);
+                    if (type != "") {
+                        if (cho instanceof Node) {
+                            Node chn = (Node) cho;
+                            logger.debug("$$$$ object: " + chn.getNodeFqn().getLastElementAsString());
+                            if (chn.getNodeFqn().getLastElementAsString().startsWith(type)) {
+                                logger.debug("$$$$ REMOVE object: " + chn.getNodeFqn().getLastElementAsString());
+                                node.removeChild(chn.getNodeFqn());
+                            }
+                        }
+                    }
+                }
+                if (type == "") {
+                    node.removeChildren();
+                }
+            }
 
-			if (!node.getChildren().isEmpty()) {
-				logger.debug("$$$$ is not empty");
-			}
+            if (!node.getChildren().isEmpty()) {
+                logger.debug("$$$$ is not empty");
+            }
 
-			logger.debug("$$$$ is empty");
-		}
-	}
+            logger.debug("$$$$ is empty");
+        }
+    }
 
 }
