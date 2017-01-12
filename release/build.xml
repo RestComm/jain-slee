@@ -110,6 +110,7 @@
 	<target name="setup-wildfly">
 		<property name="wildfly.modules" value="${wildfly.home}/modules/system/layers/base/" />
 
+		<!-- H2 database -->
 		<echo message="Downloading last H2 database ${wildfly.version}"/>
 		<mkdir dir="${tmp.dir}"/>
 		<get verbose="true" dest="${tmp.dir}/${h2.distro.jar.path}" src="http://repo2.maven.org/maven2/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" />
@@ -126,6 +127,15 @@
 			<replacetoken><![CDATA[<connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connection-url>]]></replacetoken>
 			<replacevalue><![CDATA[<connection-url>jdbc:h2:~/test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connection-url>]]></replacevalue>
 		</replace>
+
+		<!-- org.apache.commons.lang -->
+		<replace casesensitive="false" file="${wildfly.modules}/org/apache/commons/lang/module.xml">
+			<replacetoken><![CDATA[</dependencies>]]></replacetoken>
+			<replacevalue><![CDATA[
+		<module name="org.telestax.slee.container.lib"/>
+	</dependencies>]]>
+			</replacevalue>
+		</replace>
 	</target>
 	
 	<target name="checkout-sources">
@@ -139,8 +149,10 @@
 
 	<target name="zip-wildfly" description="">
 		<fixcrlf srcdir="${wildfly.home}/bin" includes="*.sh" eol="lf" eof="remove" />
+		<chmod dir="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" perm="755" includes="**/*.sh"/>
 		<zip destfile="${ant.file.restcomm.release}/../${zip.filename}" filesonly="false">
 			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" filemode="755" includes="**/*.sh" />
+			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}" filemode="755" includes="**/*.sh" />
 			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" />
 		</zip>
 	</target>
