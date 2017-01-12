@@ -149,7 +149,7 @@
 
 	<target name="zip-wildfly" description="">
 		<fixcrlf srcdir="${wildfly.home}/bin" includes="*.sh" eol="lf" eof="remove" />
-		<chmod dir="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" perm="755" includes="**/*.sh"/>
+		<chmod dir="${release.dir}/${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" perm="755" includes="**/*.sh"/>
 		<zip destfile="${ant.file.restcomm.release}/../${zip.filename}" filesonly="false">
 			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" filemode="755" includes="**/*.sh" />
 			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}" filemode="755" includes="**/*.sh" />
