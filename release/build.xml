@@ -152,7 +152,6 @@
 		<!--<chmod dir="${wildfly.home}" perm="755" includes="**/*.sh"/>-->
 		<zip destfile="${ant.file.restcomm.release}/../${zip.filename}" filesonly="false">
 			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" filemode="755" includes="**/*.sh" />
-			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}" filemode="755" includes="**/*.sh" />
 			<zipfileset dir="${release.dir}" prefix="${release.profile}-slee-${release.version}-${wildfly.name}-${wildfly.version}" />
 		</zip>
 	</target>
