@@ -66,76 +66,8 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
-		logger.debug("#### TEST [getActivityContextHandles]");
 		final Node node = getNode();
-		//// TEST: check getActivityContextHandles
-		logger.debug("#### TEST [getActivityContextHandles]: node: "+node);
-
-		Set<ActivityContextHandle> result = Collections.EMPTY_SET;
-		if (node != null) {
-			result = new HashSet<ActivityContextHandle>();
-
-			logger.debug("#### TEST [getActivityContextHandles]: node Fqn: "+node.getNodeFqn());
-
-			logger.debug("#### TEST [getActivityContextHandles]: node.getChildren(): "+node.getChildren());
-			logger.debug("#### TEST [getActivityContextHandles]: node.getChildNames: "+node.getChildNames());
-			logger.debug("#### TEST [getActivityContextHandles]: node.getChildKeys: "+node.getChildKeys());
-			logger.debug("#### TEST [getActivityContextHandles]: node.getChildValues: "+node.getChildValues());
-
-			Set<String> names = node.getChildNames();
-			for (String name : names) {
-				logger.debug("#### TEST [getActivityContextHandles]: name: "+name);
-				if (this.getMobicentsCache().getJBossCache().keySet()
-						.contains("/ac/"+name)) {
-
-					Object checkNode = this.getMobicentsCache().getJBossCache().get("/ac/" + name + "_/_" + "Node");
-					logger.info("@@@@ FOUND-2 checkNode: " + checkNode);
-
-					Fqn nodeFqn = ((Node) checkNode).getFqn();
-
-					if (nodeFqn.size() > 0) {
-						for (int i = 0; i < nodeFqn.size(); i++) {
-							logger.debug("@@@@ getChildrenNames childFqn: [" + i + "]: " + nodeFqn.get(i));
-							logger.debug("@@@@ getChildrenNames childFqn: [" + i + "]: " + nodeFqn.get(i).getClass().getCanonicalName());
-						}
-					}
-
-					Object achElement = nodeFqn.get(2-1);
-					logger.debug("#### TEST [getActivityContextHandles]: achElement: " + achElement);
-
-					if (achElement instanceof ActivityContextHandle) {
-						ActivityContextHandle ach = (ActivityContextHandle) achElement;
-						logger.debug("#### TEST [getActivityContextHandles]: ach: " + ach);
-
-						if (!result.contains(ach)) {
-							logger.debug("#### TEST [getActivityContextHandles]: ADD ach: " + ach);
-							result.add(ach);
-						} else {
-							logger.debug("#### TEST [getActivityContextHandles]: CONTAINS ach: " + ach);
-						}
-					}
-				}
-			}
-
-			/*
-			Set<Object> values = node.getChildrenNames();
-			logger.debug("#### TEST [getActivityContextHandles]: values: "+values);
-
-			for (Object object : values) {
-				logger.debug("#### TEST [getActivityContextHandles]: object: "+object);
-
-				if (object instanceof ActivityContextHandle) {
-					ActivityContextHandle ach = (ActivityContextHandle) object;
-					logger.debug("#### TEST [getActivityContextHandles]: ach: "+ach);
-
-					result.add(ach);
-				}
-			}
-			*/
-		}
-
-		//return node != null ? node.getChildrenValues() : Collections.EMPTY_SET;
-		return result;
+		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
 	}
 
 	public void WAremove() {

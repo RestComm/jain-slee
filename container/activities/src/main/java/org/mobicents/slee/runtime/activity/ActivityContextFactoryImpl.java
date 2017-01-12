@@ -184,12 +184,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	@Override
 	public ActivityContextImpl getActivityContext(ActivityContextHandle ach, boolean updateLastAccessTime) {
-		//// TEST
-		logger.debug("**** getActivityContext: ach = "+ach);
-
 		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
-		logger.debug("**** getActivityContext: activityContextCacheData = "+activityContextCacheData);
-		logger.debug("**** getActivityContext: activityContextCacheData.exists? "+activityContextCacheData.exists());
 
 		if (activityContextCacheData.exists()) {
 			try {
@@ -239,7 +234,9 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		Node node = cacheData.getNode();
 
 		//// TEST: check getActivityContextHandles
-		System.out.println("#### TEST [getAllActivityContextsHandles]: node: "+node);
+		if (doTraceLogs) {
+			logger.trace("#### TEST [getAllActivityContextsHandles]: node: "+node);
+		}
 
 		return cacheData.getActivityContextHandles();
 	}

@@ -59,7 +59,6 @@ public class SbbEntityCacheData extends CacheData {
 
 	private Node _attachedACsChildNode;
 	private Node getAttachedACsChildNode(boolean createIfNotExists) {
-		//// TEST: check _attachedACsChildNode
 		logger.debug("#### TEST [getAttachedACsChildNode]: _attachedACsChildNode: "+_attachedACsChildNode);
 
 		if (_attachedACsChildNode == null) {			
@@ -93,8 +92,12 @@ public class SbbEntityCacheData extends CacheData {
 
 	private Node _childRelationsChildNode;
 	private Node getChildRelationsChildNode(boolean createIfNotExists) {
+		logger.debug("#### TEST [getChildRelationsChildNode]: _childRelationsChildNode: "+_childRelationsChildNode);
+
 		if (_childRelationsChildNode == null) {
 			final Node node = getNode();
+			logger.debug("#### TEST [getChildRelationsChildNode]: node: "+node);
+
 			_childRelationsChildNode = node.getChild(CHILD_RELATIONs_CHILD_NODE_NAME);
 			if (_childRelationsChildNode == null && createIfNotExists) {
 				_childRelationsChildNode = node.addChild(CHILD_RELATIONs_CHILD_NODE_FQN);
@@ -114,8 +117,12 @@ public class SbbEntityCacheData extends CacheData {
 	// FIXME: NodeImpl replacing
 	//private Node<ActivityContextHandle,Set<EventTypeID>> getEventMasksChildNode(boolean createIfNotExists) {
 	private Node getEventMasksChildNode(boolean createIfNotExists) {
+		logger.debug("#### TEST [getEventMasksChildNode]: _eventMasksChildNode: "+_eventMasksChildNode);
+
 		if (_eventMasksChildNode == null) {
 			final Node node = getNode();
+			logger.debug("#### TEST [getEventMasksChildNode]: node: "+node);
+
 			_eventMasksChildNode = node.getChild(EVENT_MASKS_CHILD_NODE_NAME);
 			if (_eventMasksChildNode == null && createIfNotExists) {
 				_eventMasksChildNode = node.addChild(EVENT_MASKS_CHILD_NODE_FQN);
@@ -135,8 +142,12 @@ public class SbbEntityCacheData extends CacheData {
 	// FIXME: NodeImpl replacing
 	//private Node<String,Object> getCmpFieldsChildNode(boolean createIfNotExists) {
 	private Node getCmpFieldsChildNode(boolean createIfNotExists) {
+		logger.debug("#### TEST [getCmpFieldsChildNode]: _cmpFieldsChildNode: "+_cmpFieldsChildNode);
+
 		if (_cmpFieldsChildNode == null) {
 			final Node node = getNode();
+			logger.debug("#### TEST [getCmpFieldsChildNode]: node: "+node);
+
 			_cmpFieldsChildNode = node.getChild(CMP_FIELDS_CHILD_NODE_NAME);
 			if (_cmpFieldsChildNode == null && createIfNotExists) {
 				_cmpFieldsChildNode = node.addChild(CMP_FIELDS_CHILD_NODE_FQN);
@@ -163,15 +174,18 @@ public class SbbEntityCacheData extends CacheData {
 	public SbbEntityCacheData(SbbEntityID sbbEntityId, MobicentsCache cache) {
 		super(getFqn(sbbEntityId), cache);
 		this.sbbEntityID = sbbEntityId;
+		logger.debug("#### TEST [SbbEntityCacheData]: node: "+this.getNode());
+		logger.debug("#### TEST [SbbEntityCacheData]: sbbEntityID: "+this.sbbEntityID);
 	}
 
 	public void attachActivityContext(ActivityContextHandle ac) {
 		// FIXME: NodeImpl replacing
+		logger.debug("#### TEST [attachActivityContext]: ac: "+ac);
 		getAttachedACsChildNode(true).put(ac, MISC_NODE_MAP_VALUE);
-		//getAttachedACsChildNode(true).put(ac, ac);
 	}
 
 	public void detachActivityContext(ActivityContextHandle ac) {
+		logger.debug("#### TEST [detachActivityContext]: ac: "+ac);
 		final Node node  = getAttachedACsChildNode(false);
 		if (node != null) {
 			node.remove(ac);
@@ -229,7 +243,6 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public Set<ActivityContextHandle> getActivityContexts() {
-		logger.debug("#### TEST [getActivityContexts]");
 		final Node node = getAttachedACsChildNode(false);
         logger.debug("#### TEST [getActivityContexts]: node: "+node);
 
@@ -242,7 +255,6 @@ public class SbbEntityCacheData extends CacheData {
 
 			logger.debug("#### TEST [getActivityContexts]: node Fqn: "+node.getNodeFqn());
 			logger.trace("#### TEST [getActivityContexts]: node children: "+node.getChildren());
-			logger.trace("#### TEST [getActivityContexts]: node.getNames(): "+node.getNames());
 			logger.trace("#### TEST [getActivityContexts]: node.getChildNames(): "+node.getChildNames());
             logger.trace("#### TEST [getActivityContexts]: node.getChildKeys(): "+node.getChildKeys());
 			logger.trace("#### TEST [getActivityContexts]: node.getChildValues(): "+node.getChildValues());
@@ -342,7 +354,7 @@ public class SbbEntityCacheData extends CacheData {
 			for (Object obj : childRelationsNode.getChildren()) {
 				childRelationNode = (Node) obj;
 				for (Object sbbEntityId : childRelationNode.getChildNames()) {
-					result.add(new NonRootSbbEntityID(sbbEntityID,(String)childRelationNode.getFqn().getLastElement(),(String)sbbEntityId));
+					result.add(new NonRootSbbEntityID(sbbEntityID,(String)childRelationNode.getNodeFqn().getLastElement(),(String)sbbEntityId));
 				}
 			}
 			return result;

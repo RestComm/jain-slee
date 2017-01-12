@@ -41,6 +41,7 @@ import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.runtime.event.ActivityEndEventUnreferencedCallback;
 import org.mobicents.slee.runtime.event.CommitEventContextAction;
 import org.mobicents.slee.runtime.event.RollbackEventContextAction;
+import org.restcomm.cache.tree.Node;
 
 import javax.slee.Address;
 import javax.slee.EventTypeID;
@@ -97,12 +98,6 @@ public class ActivityContextImpl implements ActivityContext {
 			final ActivityContextHandle activityContextHandle,
 			ActivityContextCacheData cacheData, boolean updateAccessTime,
 			Integer activityFlags, ActivityContextFactoryImpl factory) {
-		//// TEST
-		logger.trace("**** ActivityContextImpl: constructor");
-		logger.trace("**** ActivityContextImpl: activityContextHandle = "+activityContextHandle);
-		logger.trace("**** ActivityContextImpl: factory = "+factory);
-		logger.trace("**** ActivityContextImpl: cacheData = "+cacheData);
-
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
 		this.cacheData = cacheData;
@@ -126,18 +121,9 @@ public class ActivityContextImpl implements ActivityContext {
 	public ActivityContextImpl(ActivityContextHandle activityContextHandle,
 			ActivityContextCacheData cacheData, boolean updateAccessTime,
 			ActivityContextFactoryImpl factory) {
-		//// TEST
-		logger.trace("**** ActivityContextImpl: constructor");
-		logger.trace("**** ActivityContextImpl: activityContextHandle = "+activityContextHandle);
-		logger.trace("**** ActivityContextImpl: factory = "+factory);
-		logger.trace("**** ActivityContextImpl: cacheData = "+cacheData);
-
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
 		this.cacheData = cacheData;
-
-		logger.trace("**** ActivityContextImpl: updateAccessTime = "+updateAccessTime);
-		logger.trace("**** ActivityContextImpl: cacheData.exists() "+cacheData.exists());
 		// set access time if needed
 		if (cacheData.exists() && updateAccessTime) {
 			updateLastAccessTime(false);
@@ -351,29 +337,27 @@ public class ActivityContextImpl implements ActivityContext {
 	 * 
 	 */
 	private void removeFromCache(TransactionContext txContext) {
-		logger.trace("removeFromCache BEFORE: "+cacheData.getNodeFqn());
-		logger.trace("removeFromCache BEFORE: "+cacheData.exists());
+		logger.debug("removeFromCache BEFORE: "+cacheData.getNodeFqn());
+		logger.debug("removeFromCache BEFORE exists?: "+cacheData.exists());
 
 		cacheData.remove();
 
-		logger.trace("removeFromCache AFTER: "+cacheData.getNodeFqn());
-		logger.trace("removeFromCache AFTER: "+cacheData.exists());
-		logger.trace("removeFromCache AFTER: "+cacheData.isRemoved());
+		logger.debug("removeFromCache AFTER: "+cacheData.getNodeFqn());
+		logger.debug("removeFromCache AFTER exists?: "+cacheData.exists());
+		logger.debug("removeFromCache AFTER removed?: "+cacheData.isRemoved());
 
-        /*
-		try {
-			Node node = cacheData.getNode();
-			logger.debug("removeFromCache AFTER: "+node);
-			if (node != null) {
-				logger.debug("removeFromCache AFTER: " + node.getFqn());
-				logger.debug("removeFromCache AFTER: " + node.getChildrenNames());
-				logger.debug("removeFromCache AFTER: " + node.getParent());
-				logger.debug("removeFromCache AFTER: " + node.getParent().getFqn());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
+//		try {
+//			Node node = cacheData.getNode();
+//			logger.debug("removeFromCache AFTER: "+node);
+//			if (node != null) {
+//				logger.debug("removeFromCache AFTER: " + node.getNodeFqn());
+//				logger.debug("removeFromCache AFTER: " + node.getChildrenNames());
+//				//logger.debug("removeFromCache AFTER: " + node.getParent());
+//				//logger.debug("removeFromCache AFTER: " + node.getParent().getFqn());
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**

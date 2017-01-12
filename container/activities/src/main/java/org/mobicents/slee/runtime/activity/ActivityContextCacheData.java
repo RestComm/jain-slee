@@ -80,20 +80,20 @@ public class ActivityContextCacheData extends CacheData {
 	
 	private Node getAttachedSbbsNode(boolean createIfNotExists) {
 		//// TEST: check getAttachedSbbsNode
-		logger.debug("#### TEST [getAttachedSbbsNode]: _attachedSbbsNode: "+_attachedSbbsNode);
+		logger.trace("#### TEST [getAttachedSbbsNode]: _attachedSbbsNode: "+_attachedSbbsNode);
 
 		if (_attachedSbbsNode == null) {
 			final Node node = getNode();
-			logger.debug("#### TEST [getAttachedSbbsNode]: node: "+node);
+			logger.trace("#### TEST [getAttachedSbbsNode]: node: "+node);
 
 			_attachedSbbsNode = node.getChild(ATTACHED_SBBs_NODE_NAME);
-			logger.debug("#### TEST [getAttachedSbbsNode]: _attachedSbbsNode: "+_attachedSbbsNode);
+			logger.trace("#### TEST [getAttachedSbbsNode]: _attachedSbbsNode: "+_attachedSbbsNode);
 
 			if (_attachedSbbsNode == null && createIfNotExists) {
-				logger.debug("#### TEST [getAttachedSbbsNode]: addChild!");
+				logger.trace("#### TEST [getAttachedSbbsNode]: addChild!");
 
 				_attachedSbbsNode = node.addChild(ATTACHED_SBBs_FQN);
-				logger.debug("#### TEST [getAttachedSbbsNode]: _attachedSbbsNode: "+_attachedSbbsNode);
+				logger.trace("#### TEST [getAttachedSbbsNode]: _attachedSbbsNode: "+_attachedSbbsNode);
 
 				//// TEST: check addChild
 				if (node.hasChild(ATTACHED_SBBs_FQN)) {
@@ -193,7 +193,7 @@ public class ActivityContextCacheData extends CacheData {
 
 	public boolean isEnding() {
 		//// TEST: check hasChild
-		logger.debug("#### TEST [isEnding]: hasChild: "+getNode().hasChild(IS_ENDING_NODE_NAME));
+		logger.trace("#### TEST [isEnding]: hasChild: "+getNode().hasChild(IS_ENDING_NODE_NAME));
 
 		return getNode().hasChild(IS_ENDING_NODE_NAME);
 	}
@@ -247,25 +247,21 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return true if it was attached, false if already was attached
 	 */
 	public boolean attachSbbEntity(SbbEntityID sbbEntityId) {
-		logger.debug("#### TEST [attachSbbEntity]: "+sbbEntityId);
-
+		logger.trace("#### TEST [attachSbbEntity]: "+sbbEntityId);
 		final Node node = getAttachedSbbsNode(true);
-
-		logger.debug("#### TEST [attachSbbEntity]: node: "+node);
+		logger.trace("#### TEST [attachSbbEntity]: node: "+node);
 
 		if (!node.hasChild(sbbEntityId)) {
-
-			logger.debug("#### TEST [attachSbbEntity]: addChild: "+Fqn.fromElements(sbbEntityId));
-
+			logger.trace("#### TEST [attachSbbEntity]: addChild: "+Fqn.fromElements(sbbEntityId));
 			node.addChild(Fqn.fromElements(sbbEntityId));
 
 			//// TEST: check addChild
 			if (node.hasChild(sbbEntityId)) {
-				logger.debug("#### TEST [attachSbbEntity]: hasChild success!");
+				logger.trace("#### TEST [attachSbbEntity]: hasChild success!");
 				final Node child = node.getChild(sbbEntityId);
-				logger.debug("#### TEST [attachSbbEntity]: getChild: "+child);
+				logger.trace("#### TEST [attachSbbEntity]: getChild: "+child);
 			} else {
-				logger.debug("#### TEST [attachSbbEntity]: hasChild failed!");
+				logger.trace("#### TEST [attachSbbEntity]: hasChild failed!");
 			}
 
 			return true;
@@ -280,9 +276,9 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param sbbEntityId
 	 */
 	public boolean detachSbbEntity(SbbEntityID sbbEntityId) {
-		logger.debug("#### TEST [detachSbbEntity]: "+sbbEntityId);
+		logger.trace("#### TEST [detachSbbEntity]: "+sbbEntityId);
 		final Node node  = getAttachedSbbsNode(false);
-		logger.debug("#### TEST [detachSbbEntity]: node: "+node);
+		logger.trace("#### TEST [detachSbbEntity]: node: "+node);
 
 		boolean result = false;
 		//// TEST
@@ -310,7 +306,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noSbbEntitiesAttached() {
 		final Node node  = getAttachedSbbsNode(false);
-		return node != null ? node.getChildNames().isEmpty() : true;
+		return node == null || node.getChildren().isEmpty();
 	}
 
 	/**
@@ -320,51 +316,31 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<SbbEntityID> getSbbEntitiesAttached() {
-		logger.debug("#### TEST [getSbbEntitiesAttached]");
 		final Node node  = getAttachedSbbsNode(false);
 		logger.debug("#### TEST [getSbbEntitiesAttached]: node: "+node);
 
-		/*
-		Fqn childFqn = node.getNodeFqn();
-
-		if (childFqn.size() > 0) {
-			for (int i = 0; i < childFqn.size(); i++) {
-				logger.debug("**** childFqn: ["+i+"]: "+childFqn.get(i));
-				logger.debug("**** childFqn: ["+i+"]: "+childFqn.get(i).getClass().getCanonicalName());
-			}
-		}
-		*/
-
 		Set<SbbEntityID> result = null;
 		if (node != null) {
-			result = new HashSet<SbbEntityID>();
-
-			logger.debug("#### TEST [getSbbEntitiesAttached]: node Fqn: "+node.getNodeFqn());
-			logger.trace("#### TEST [getSbbEntitiesAttached]: node.getChildren(): "+node.getChildren());
-			logger.trace("#### TEST [getSbbEntitiesAttached]: node.getChildNames: "+node.getChildNames());
-			logger.trace("#### TEST [getSbbEntitiesAttached]: node.getChildKeys: "+node.getChildKeys());
-			logger.trace("#### TEST [getSbbEntitiesAttached]: node.getChildValues: "+node.getChildValues());
-
 			for (Node childNode : node.getChildren()) {
 				logger.trace("!!!! childNode: "+childNode);
-				logger.trace("!!!! childNode: "+childNode.getFqn());
-				Object last = childNode.getFqn().getLastElement();
+				logger.trace("!!!! childNode: "+childNode.getNodeFqn());
+				Object last = childNode.getNodeFqn().getLastElement();
 				logger.trace("!!!! last: "+last);
 				logger.trace("!!!! last: "+last.getClass().getCanonicalName());
 				if (last instanceof SbbEntityID) {
-					//if (result == null) {
-					//	result = new HashSet<SbbEntityID>();
-					//}
+					if (result == null) {
+						result = new HashSet<SbbEntityID>();
+					}
 					result.add((SbbEntityID) last);
 				}
 			}
-		} else {
-			result = Collections.emptySet();
 		}
 
+		//Set<SbbEntityID> result = (node != null) ? node.getChildrenNames() : Collections.EMPTY_SET;
 		logger.debug("#### TEST [getSbbEntitiesAttached]: result: "+result);
 
-		return result;
+		//return (node != null) ? node.getChildrenNames() : Collections.EMPTY_SET;
+		return (result != null) ? result : Collections.EMPTY_SET;
 	}
 
 	/**
@@ -390,7 +366,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean detachTimer(TimerID timerID) {
 		final Node node = getAttachedTimersNode(false);
-		return node != null ? node.removeChild(timerID) : false;			
+		return node != null && node.removeChild(timerID);
 	}
 
 	/**
@@ -400,7 +376,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noTimersAttached() {
 		final Node node = getAttachedTimersNode(false);
-		return node != null ? node.getChildNames().isEmpty() : true;
+		return node == null || node.getChildren().isEmpty();
 	}
 
 	/**
@@ -410,71 +386,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public Set getAttachedTimers() {
 		final Node node = getAttachedTimersNode(false);
-
-		Set result = Collections.EMPTY_SET;
-		if (node != null) {
-			result = new HashSet();
-
-			//logger.debug("#### TEST [getActivityContextHandles]: node Fqn: "+node.getNodeFqn());
-			//logger.debug("#### TEST [getActivityContextHandles]: node.getChildren(): "+node.getChildren());
-			//logger.debug("#### TEST [getActivityContextHandles]: node.getChildNames: "+node.getChildNames());
-			//logger.debug("#### TEST [getActivityContextHandles]: node.getChildKeys: "+node.getChildKeys());
-			//logger.debug("#### TEST [getActivityContextHandles]: node.getChildValues: "+node.getChildValues());
-
-			Set<String> names = node.getChildNames();
-			for (String name : names) {
-				logger.debug("#### TEST [getAttachedTimers]: name: "+name);
-				if (this.getMobicentsCache().getJBossCache().keySet()
-						.contains(node.getFqn().toString()+"/"+name)) {
-
-					Object checkNode = this.getMobicentsCache().getJBossCache().get(node.getFqn().toString()+"/" + name + "_/_" + "Node");
-					logger.info("@@@@ FOUND-2 checkNode: " + checkNode);
-
-					Fqn nodeFqn = ((Node) checkNode).getFqn();
-
-					if (nodeFqn.size() > 0) {
-						for (int i = 0; i < nodeFqn.size(); i++) {
-							logger.debug("@@@@ getAttachedTimers childFqn: [" + i + "]: " + nodeFqn.get(i));
-							logger.debug("@@@@ getAttachedTimers childFqn: [" + i + "]: " + nodeFqn.get(i).getClass().getCanonicalName());
-						}
-					}
-
-					Object element = nodeFqn.get(4-1);
-					logger.debug("#### TEST [getAttachedTimers]: element: " + element);
-
-					if (element instanceof TimerID) {
-						TimerID timerID = (TimerID) element;
-						logger.debug("#### TEST [getAttachedTimers]: timerID: " + timerID);
-
-						if (!result.contains(timerID)) {
-							logger.debug("#### TEST [getAttachedTimers]: ADD timerID: " + timerID);
-							result.add(timerID);
-						} else {
-							logger.debug("#### TEST [getAttachedTimers]: CONTAINS timerID: " + timerID);
-						}
-					}
-				}
-			}
-
-			/*
-			Set<Object> values = node.getChildrenNames();
-			logger.debug("#### TEST [getActivityContextHandles]: values: "+values);
-
-			for (Object object : values) {
-				logger.debug("#### TEST [getActivityContextHandles]: object: "+object);
-
-				if (object instanceof ActivityContextHandle) {
-					ActivityContextHandle ach = (ActivityContextHandle) object;
-					logger.debug("#### TEST [getActivityContextHandles]: ach: "+ach);
-
-					result.add(ach);
-				}
-			}
-			*/
-		}
-
-		//return node != null ? node.getChildNames() : Collections.EMPTY_SET;
-		return result;
+		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
 	}
 
 	/**
@@ -496,7 +408,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean nameUnbound(String name) {
 		final Node node = getNamesBoundNode(false);
-		return node != null ? node.removeChild(name) : false;
+		return node != null && node.removeChild(name);
 	}
 
 	/**
@@ -506,7 +418,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noNamesBound() {
 		final Node node = getNamesBoundNode(false);
-		return node != null ? node.getChildNames().isEmpty() : true;
+		return node == null || node.getChildren().isEmpty();
 	}
 
 	/**
@@ -516,7 +428,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public Set getNamesBoundCopy() {
 		final Node node = getNamesBoundNode(false);
-		return node != null ? node.getChildNames() : Collections.EMPTY_SET;
+		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
 	}
 
 	/**
@@ -574,7 +486,7 @@ public class ActivityContextCacheData extends CacheData {
 			Node cmpNode = null;
 			for (Object obj : node.getChildren()) {
 				cmpNode = (Node) obj;
-				result.put(cmpNode.getFqn().getLastElement(), cmpNode
+				result.put(cmpNode.getNodeFqn().getLastElement(), cmpNode
 						.get(CMP_ATTRIBUTES_NODE_MAP_KEY));
 			}
 			return result;

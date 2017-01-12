@@ -69,6 +69,8 @@ public class SbbEntityFactoryCacheData extends CacheData {
 	 */
 	public Set<SbbEntityID> getSbbEntities() {
 		final Node node = getNode();
+		logger.debug("#### TEST [getSbbEntities]: node: "+node);
+
 		if (node == null) {
 			return Collections.emptySet();
 		}
@@ -76,18 +78,19 @@ public class SbbEntityFactoryCacheData extends CacheData {
 		ServiceID serviceID = null;
 
 		// FIXME: getChildValues
-		for (Object obj : node.getChildValues()) {
+		for (Object obj : node.getChildrenNames()) {
 			serviceID = (ServiceID) obj;
 			for (SbbEntityID sbbEntityID : getRootSbbEntityIDs(serviceID)) {
 				result.add(sbbEntityID);
 				collectSbbEntities(sbbEntityID,result);
 			}
-		}		
+		}
+
+		logger.debug("#### TEST [getSbbEntities]: result: "+result);
 		return result;
 	}
 
 	public Set<SbbEntityID> getRootSbbEntityIDs(ServiceID serviceID) {
-		logger.debug("#### TEST [getRootSbbEntityIDs]");
 		final Node node = getNode();
 		logger.debug("#### TEST [getRootSbbEntityIDs]: node: "+node);
 

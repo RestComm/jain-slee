@@ -117,7 +117,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 		Object name = null;
 		for (Object obj : getNode().getChildren()) {
 			childNode = (Node) obj;
-			name = childNode.getFqn().getLastElement();
+			name = childNode.getNodeFqn().getLastElement();
 			result.put(name, childNode.get(CACHE_NODE_MAP_KEY));
 		}
 		return result;

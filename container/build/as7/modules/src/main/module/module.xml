@@ -72,5 +72,6 @@
         <module name="org.hibernate" export="true"/>
         <module name="org.infinispan"/>
         <module name="org.infinispan.commons" optional="true"/>
+        <module name="com.opencloud" export="true"/>
     </dependencies>
 </module>

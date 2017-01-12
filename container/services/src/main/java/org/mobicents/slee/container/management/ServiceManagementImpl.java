@@ -453,7 +453,8 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 		if (ac == null) {
 			logger.warn("unable to find and end ac " + ach);
 
-			sleeContainer.getActivityContextFactory().WAremove();
+			logger.warn("WORKAROUND USAGE: ENDING SERVICE");
+			//sleeContainer.getActivityContextFactory().WAremove();
 
 			return;
 		}
@@ -1041,6 +1042,9 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				if (logger.isDebugEnabled()) {
 					logger.debug("Waiting for service "+serviceComponent+" root sbb entities to end.");
 				}
+
+				logger.warn("WORKAROUND USAGE: ENDING ROOT SBB");
+				//sleeContainer.getSbbEntityFactory().WAremove();
 			}
 			catch (Exception e) {
 				logger.error("failure waiting for the ending of all sbb entities from "+serviceComponent.getServiceID(),e);
