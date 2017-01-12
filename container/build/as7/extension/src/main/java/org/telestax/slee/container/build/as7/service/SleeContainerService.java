@@ -1,5 +1,6 @@
 package org.telestax.slee.container.build.as7.service;
 
+import org.infinispan.configuration.cache.VersioningScheme;
 import org.infinispan.transaction.LockingMode;
 import org.infinispan.transaction.TransactionMode;
 import org.infinispan.util.concurrent.IsolationLevel;
@@ -385,7 +386,10 @@ public class SleeContainerService implements Service<SleeContainer> {
 				.clustering().cacheMode(CacheMode.LOCAL)
 				//.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
 				//.transaction().lockingMode(LockingMode.PESSIMISTIC)
-				//.locking().isolationLevel(IsolationLevel.REPEATABLE_READ)
+				.locking().isolationLevel(IsolationLevel.REPEATABLE_READ)
+				//.transaction().syncCommitPhase(true)
+				//.locking().writeSkewCheck(true)
+				//.versioning().enable().scheme(VersioningScheme.SIMPLE)
 				.locking().lockAcquisitionTimeout(30000)
 				.locking().useLockStriping(false)
 				.jmxStatistics().disable()
