@@ -202,7 +202,9 @@ public class SleeContainer {
 			NullActivityFactory nullActivityFactory,
 			RmiServerInterface rmiServerInterface,
 			SleeTransactionManager sleeTransactionManager,
-			MobicentsCluster cluster, AlarmManagement alarmMBeanImpl,
+			MobicentsCluster cluster,
+			ReplicationClassLoader replicationClassLoader,
+			AlarmManagement alarmMBeanImpl,
 			TraceManagement traceMBeanImpl,
 			UsageParametersManagement usageParametersManagement,
 			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
@@ -219,9 +221,7 @@ public class SleeContainer {
 		this.componentManagement = componentManagement;
 		addModule(componentManagement);
 
-		this.replicationClassLoader = componentManagement
-				.getClassLoaderFactory().newReplicationClassLoader(
-						this.getClass().getClassLoader());
+		this.replicationClassLoader = replicationClassLoader;
 
 		this.cluster = cluster;
 
@@ -708,10 +708,6 @@ public class SleeContainer {
 	}
 	
 	public void afterModulesInitialization() {
-		if (!cluster.getMobicentsCache().isLocalMode()) {
-			//cluster.getMobicentsCache().setReplicationClassLoader(
-			//	this.replicationClassLoader);
-		}
 		// start cluster
 		cluster.startCluster();
 	}

@@ -2,6 +2,8 @@ package org.telestax.slee.container.build.as7.extension;
 
 import org.jboss.as.connector.subsystems.datasources.DataSourceReferenceFactoryService;
 import org.jboss.as.controller.*;
+import org.jboss.as.controller.services.path.PathManager;
+import org.jboss.as.controller.services.path.PathManagerService;
 import org.jboss.as.jmx.MBeanServerService;
 import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.as.server.AbstractDeploymentChainStep;
@@ -89,7 +91,7 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
         
         final ServiceBuilder<?> sleeContainerServiceBuilder = target
                 .addService(SleeServiceNames.SLEE_CONTAINER, sleeContainerService)
-                //.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, service.getPathManagerInjector())
+                .addDependency(PathManagerService.SERVICE_NAME, PathManager.class, sleeContainerService.getPathManagerInjector())
                 .addDependency(MBeanServerService.SERVICE_NAME, MBeanServer.class, sleeContainerService.getMbeanServer())
                 .addDependency(TransactionManagerService.SERVICE_NAME, TransactionManager.class, sleeContainerService.getTransactionManager())
                 .addDependency(DataSourceReferenceFactoryService.SERVICE_NAME_BASE.append("ExampleDS"),

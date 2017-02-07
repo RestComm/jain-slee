@@ -53,6 +53,8 @@
         <module name="org.jboss.as.transactions"/>
         <module name="org.jboss.as.jpa" export="true"/>
         <module name="org.jboss.as.jpa.spi" export="true"/>
+        <module name="org.jboss.as.jmx"/>
+        <module name="org.jboss.as.connector"/>
         <module name="org.jboss.modules"/>
         <module name="org.jboss.msc"/>
         <module name="org.jboss.jts"/>
@@ -60,7 +62,7 @@
         <module name="org.jboss.vfs"/>
         <module name="org.javassist" export="true"/>
         <module name="org.hibernate" export="true"/>
-        <module name="org.infinispan"/>
-        <module name="org.infinispan.commons" optional="true"/>
+        <module name="org.infinispan" export="true"/>
+        <module name="org.infinispan.commons" optional="true" export="true"/>
     </dependencies>
 </module>

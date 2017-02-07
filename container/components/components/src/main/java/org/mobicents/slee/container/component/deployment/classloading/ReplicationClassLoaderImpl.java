@@ -100,7 +100,7 @@ public class ReplicationClassLoaderImpl extends ReplicationClassLoader {
 	}
 
 	@Override
-	protected Class<?> findClass(final String name) throws ClassNotFoundException {		
+	protected Class<?> findClass(final String name) throws ClassNotFoundException {
 		for (final URLClassLoaderDomainImpl domain : domains) {
 			try {
 				if (System.getSecurityManager() != null) {

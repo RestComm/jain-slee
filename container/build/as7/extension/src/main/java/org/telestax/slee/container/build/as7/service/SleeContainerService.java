@@ -1,16 +1,14 @@
 package org.telestax.slee.container.build.as7.service;
 
-import org.infinispan.configuration.cache.VersioningScheme;
-import org.infinispan.transaction.LockingMode;
-import org.infinispan.transaction.TransactionMode;
-import org.infinispan.util.concurrent.IsolationLevel;
-import org.jboss.as.naming.ManagedReferenceFactory;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.configuration.global.ShutdownHookBehavior;
+import org.infinispan.util.concurrent.IsolationLevel;
+import org.jboss.as.controller.services.path.PathManager;
+import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.logging.Logger;
 import org.jboss.msc.service.*;
 import org.jboss.msc.value.InjectedValue;
@@ -24,6 +22,7 @@ import org.mobicents.slee.connector.local.SleeConnectionServiceImpl;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentManagementImpl;
+import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
 import org.mobicents.slee.container.component.management.jmx.PolicyMBeanImpl;
 import org.mobicents.slee.container.component.management.jmx.PolicyMBeanImplMBean;
 import org.mobicents.slee.container.congestion.CongestionControl;
@@ -60,6 +59,7 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManagerImpl;
 import org.restcomm.cache.MobicentsCache;
 import org.restcomm.cluster.DefaultMobicentsCluster;
 import org.restcomm.cluster.MobicentsCluster;
+import org.restcomm.cluster.election.DefaultClusterElector;
 import org.telestax.slee.container.build.as7.deployment.ExternalDeployerImpl;
 import org.telestax.slee.container.build.as7.deployment.SleeDeploymentMetaData;
 import org.telestax.slee.container.build.as7.naming.JndiManagementImpl;
@@ -84,6 +84,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 	// TODO obtain real path through
 	// org.jboss.as.controller.services.path.PathManager (see WebServerService)
 	// or expression resolve ?
+	private static final String JBOSS_DIR = "jboss.home.dir";
+	private static final String CONFIG_DIR = "jboss.server.config.dir";
 	private static final String TEMP_DIR = "jboss.server.temp.dir";
 
 	private String rmiAddress;
@@ -94,6 +96,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 	private String hibernateDialect;
 
 	private final InjectedValue<MBeanServer> mbeanServer = new InjectedValue<MBeanServer>();
+	private final InjectedValue<PathManager> pathManagerInjector = new InjectedValue<PathManager>();
 	private final InjectedValue<TransactionManager> transactionManager = new InjectedValue<TransactionManager>();
 	private final InjectedValue<ManagedReferenceFactory> managedReferenceFactory = new InjectedValue<ManagedReferenceFactory>();
 	private final LinkedList<String> registeredMBeans = new LinkedList<String>();
@@ -127,35 +130,32 @@ public class SleeContainerService implements Service<SleeContainer> {
 	public void start(StartContext context) throws StartException {
 		log.info("Starting SLEE Container service");
 
-		final String deployPath = System.getProperty(TEMP_DIR) + "/slee";
+		final String deployPath = pathManagerInjector.getValue().getPathEntry(TEMP_DIR).resolvePath() + "/slee";
 
 		this.externalDeployer = new ExternalDeployerImpl();
 		final SleeContainerDeployerImpl internalDeployer = new SleeContainerDeployerImpl();
 		internalDeployer.setExternalDeployer(this.externalDeployer);
 
 		// inits the SLEE cache and cluster
-		final MobicentsCache cache = initCache();
 
-		final MobicentsCluster cluster = new DefaultMobicentsCluster(cache,
-				getTransactionManager().getValue(), null);
+		final ComponentManagement componentManagement = new ComponentManagementImpl();
+
+		ReplicationClassLoader replicationClassLoader = componentManagement
+				.getClassLoaderFactory().newReplicationClassLoader(
+						this.getClass().getClassLoader());
+
+		final MobicentsCache cache = initCache(replicationClassLoader);
+
+		final DefaultClusterElector elector = new DefaultClusterElector();
+
+		final MobicentsCluster cluster = new DefaultMobicentsCluster(
+				cache,
+				getTransactionManager().getValue(),
+				elector);
 
 		// init the tx manager
 		final SleeTransactionManager sleeTransactionManager = new SleeTransactionManagerImpl(
 				getTransactionManager().getValue());
-
-		log.debug("sleeTransactionManager: "+sleeTransactionManager);
-		log.debug("sleeTransactionManager REAL: "+sleeTransactionManager.getRealTransactionManager());
-
-		TransactionManager cacheTransactionManager = cache.getJBossCacheContainer().getCache().getAdvancedCache().getTransactionManager();
-		log.debug("cacheTransactionManager: "+cacheTransactionManager);
-
-		Configuration config = cache.getJBossCacheContainer().getCache().getCacheConfiguration();
-		TransactionMode tm = config.transaction().transactionMode();
-		LockingMode lm = config.transaction().lockingMode();
-		IsolationLevel il = config.locking().isolationLevel();
-		int cl = config.locking().concurrencyLevel();
-		log.debug("tm: "+tm+", lm: "+lm+", il: "+il+", cl: "+cl);
-
 
 		final TraceMBeanImpl traceMBean = new TraceMBeanImpl();
 		
@@ -163,8 +163,6 @@ public class SleeContainerService implements Service<SleeContainer> {
 		
 		final MobicentsManagement mobicentsManagement = new MobicentsManagement();
 		mobicentsManagement.setEntitiesRemovalDelay(1);
-
-		final ComponentManagement componentManagement = new ComponentManagementImpl();
 
 		final SbbManagement sbbManagement = new SbbManagementImpl();
 
@@ -258,7 +256,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 					eventContextFactory, eventRouter, timerFacility,
 					activityContextFactory, activityContextNamingFacility,
 					nullActivityContextInterfaceFactory, nullActivityFactory,
-					rmiServerInterface, sleeTransactionManager, cluster,
+					rmiServerInterface, sleeTransactionManager, cluster, replicationClassLoader,
 					alarmMBean, traceMBean, usageParametersManagement,
 					sbbEntityFactory, congestionControl, sleeConnectionService,
 					sleeConnectionFactory, internalDeployer);
@@ -380,25 +378,46 @@ public class SleeContainerService implements Service<SleeContainer> {
 		}
 	}
 
-	private MobicentsCache initCache() {
-		Configuration defaultConfig = new ConfigurationBuilder()
-				.invocationBatching().enable()
-				.clustering().cacheMode(CacheMode.LOCAL)
-				//.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
-				//.transaction().lockingMode(LockingMode.PESSIMISTIC)
-				.locking().isolationLevel(IsolationLevel.REPEATABLE_READ)
-				//.transaction().syncCommitPhase(true)
-				//.locking().writeSkewCheck(true)
-				//.versioning().enable().scheme(VersioningScheme.SIMPLE)
-				.locking().lockAcquisitionTimeout(30000)
-				.locking().useLockStriping(false)
-				.jmxStatistics().disable()
-				.build();
-		GlobalConfiguration globalConfig = new GlobalConfigurationBuilder()
-				.globalJmxStatistics().disable()
-				.shutdown().hookBehavior(ShutdownHookBehavior.DONT_REGISTER)
-				.build();
-		return new MobicentsCache(defaultConfig, globalConfig);
+	private MobicentsCache initCache(ClassLoader classLoader) {
+
+		String relativePath = pathManagerInjector.getValue().getPathEntry(CONFIG_DIR).resolvePath();
+		//String relativePath = pathManagerInjector.getValue().getPathEntry(JBOSS_DIR).resolvePath() +
+		//		"/modules/system/layers/base" +
+		//		"/org/telestax/slee/container/lib/main";
+
+		String configFile = relativePath + "/jain-slee-cache-config.xml";
+		MobicentsCache sleeCache = null;
+
+		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(classLoader);
+
+		try {
+			sleeCache = new MobicentsCache(configFile, classLoader);
+		} catch (IOException e) {
+			log.warn("Cant create Mobicents Cache from config file: "+configFile, e);
+
+			Configuration defaultConfig = new ConfigurationBuilder()
+					.invocationBatching().enable()
+					.clustering().cacheMode(CacheMode.LOCAL)
+					//.clustering().cacheMode(CacheMode.REPL_ASYNC)
+					//.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
+					.transaction().syncCommitPhase(true)
+					.locking().isolationLevel(IsolationLevel.REPEATABLE_READ)
+					.locking().lockAcquisitionTimeout(30000).useLockStriping(false)
+					.jmxStatistics().disable()
+					.build();
+
+			GlobalConfiguration globalConfig = new GlobalConfigurationBuilder()
+					.globalJmxStatistics().disable()
+					//.transport().defaultTransport()
+					.shutdown().hookBehavior(ShutdownHookBehavior.DONT_REGISTER)
+					.build();
+
+			sleeCache = new MobicentsCache(defaultConfig, globalConfig, classLoader);
+		}
+
+		Thread.currentThread().setContextClassLoader(currentClassLoader);
+		return sleeCache;
 	}
 	
 	@Override
@@ -429,6 +448,10 @@ public class SleeContainerService implements Service<SleeContainer> {
 	
 	public InjectedValue<MBeanServer> getMbeanServer() {
 		return mbeanServer;
+	}
+
+	public InjectedValue<PathManager> getPathManagerInjector() {
+		return pathManagerInjector;
 	}
 
 	public InjectedValue<TransactionManager> getTransactionManager() {
