@@ -63,28 +63,18 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
 		final Node node = getNode();
-		System.out.println("#### node: "+node);
-		if (node != null) {
-			System.out.println("#### node: " + node.getFqn());
-			System.out.println("#### node: " + node.getChildrenNames());
-		}
 		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
 	}
 
 	public void WAremove(String type) {
 		final Node node = getNode();
-		System.out.println("$$$$ node: "+node);
 		if (node != null) {
 			if (!node.getChildren().isEmpty()) {
-				System.out.println("$$$$ is not empty");
 				for (Object cho : node.getChildren()) {
-					System.out.println("$$$$ object: "+cho);
 					if (type != "") {
 						if (cho instanceof Node) {
 							Node chn = (Node) cho;
-							System.out.println("$$$$ object: " + chn.getFqn().getLastElementAsString());
 							if (chn.getFqn().getLastElementAsString().startsWith(type)) {
-								System.out.println("$$$$ REMOVE object: " + chn.getFqn().getLastElementAsString());
 								node.removeChild(chn.getFqn());
 							}
 						}
@@ -94,12 +84,6 @@ public class ActivityContextFactoryCacheData extends CacheData {
 					node.removeChildren();
 				}
 			}
-
-			if (!node.getChildren().isEmpty()) {
-				System.out.println("$$$$ is not empty");
-			}
-
-			System.out.println("$$$$ is empty");
 		}
 	}
 

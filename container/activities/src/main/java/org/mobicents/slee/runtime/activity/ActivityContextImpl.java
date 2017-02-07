@@ -339,27 +339,7 @@ public class ActivityContextImpl implements ActivityContext {
 	 * 
 	 */
 	private void removeFromCache(TransactionContext txContext) {
-		logger.debug("removeFromCache BEFORE: "+cacheData.getNodeFqn());
-		logger.debug("removeFromCache BEFORE: "+cacheData.exists());
 		cacheData.remove();
-		logger.debug("removeFromCache AFTER: "+cacheData.getNodeFqn());
-		logger.debug("removeFromCache AFTER: "+cacheData.exists());
-		logger.debug("removeFromCache AFTER: "+cacheData.isRemoved());
-
-        /*
-		try {
-			Node node = cacheData.getNode();
-			logger.debug("removeFromCache AFTER: "+node);
-			if (node != null) {
-				logger.debug("removeFromCache AFTER: " + node.getFqn());
-				logger.debug("removeFromCache AFTER: " + node.getChildrenNames());
-				logger.debug("removeFromCache AFTER: " + node.getParent());
-				logger.debug("removeFromCache AFTER: " + node.getParent().getFqn());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
 	}
 
 	/**
