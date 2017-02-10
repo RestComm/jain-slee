@@ -21,6 +21,7 @@ import java.beans.PropertyEditorManager;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.slee.Address;
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
@@ -39,6 +40,7 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.jboss.console.twiddle.command.AbstractCommand;
 import org.jboss.console.twiddle.command.CommandException;
+import org.mobicents.slee.container.management.jmx.editors.AddressPropertyEditor;
 import org.mobicents.slee.container.management.jmx.editors.ComponentIDArrayPropertyEditor;
 import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 import org.mobicents.slee.container.management.jmx.editors.ConfigPropertiesPropertyEditor;
@@ -66,6 +68,7 @@ public abstract class AbstractSleeCommand extends AbstractCommand {
 		//TODO: make this configurable.
 		//TODO: editor for facilities.Level
 		//TODO: editor for Address ?
+		PropertyEditorManager.registerEditor(Address.class, AddressPropertyEditor.class);
 		//TODO: editor for ACH?
 		//TODO: add support for definition of editors + array editing.
 		PropertyEditorManager.registerEditor(ComponentID.class, ComponentIDPropertyEditor.class);
