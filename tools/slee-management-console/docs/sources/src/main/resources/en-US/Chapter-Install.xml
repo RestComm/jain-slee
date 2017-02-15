@@ -67,9 +67,9 @@
 					<important>
 				    	<para>Git is used to manage Restcomm JAIN SLEE source code. Instructions for downloading, installing and using Git can be found at <ulink url="http://git-scm.com/" /></para>
 					</important>
-				    <para>Use Git to checkout a specific release source, the Git repository URL is https://code.google.com/p/jain-slee/ , then switch to the specific release version, lets consider &THIS.VERSION;.</para>
+				    <para>Use Git to checkout a specific release source, the Git repository URL is https://github.com/RestComm/jain-slee/ , then switch to the specific release version, lets consider &THIS.VERSION;.</para>
 					<programlisting>
-				    [usr]$ git clone https://code.google.com/p/jain-slee restcomm-jain-slee-core
+				    [usr]$ git clone https://github.com/RestComm/jain-slee restcomm-jain-slee-core
 				    [usr]$ cd restcomm-jain-slee-core
 				    [usr]$ git checkout tags/&THIS.VERSION;
 					</programlisting>
@@ -91,6 +91,13 @@
 				</step>
 			</procedure>	
 		</para>
+	</section>
+	<section id="branch_2x_source_building">
+		<title>Development Branch 2.x Source Building</title>
+		<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the Git reference should be the <literal>2.x</literal>. The <literal>git checkout tags/&THIS.VERSION;</literal> command should not be performed. If already performed, the following should be used in order to switch back to the 2.x branch:</para>
+	    <programlisting>
+	    [usr]$ git checkout 2.x
+		</programlisting>
 	</section>
 	<section id="master_source_building">
 		<title>Development Master Source Building</title>

@@ -14,7 +14,7 @@
 	<properties>
 		<THIS.PLATFORM>Restcomm</THIS.PLATFORM>
 		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
-		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/jain-slee/issues/list</THIS.ISSUE_TRACKER_URL>
+		<THIS.ISSUE_TRACKER_URL>https://github.com/RestComm/jain-slee/issues</THIS.ISSUE_TRACKER_URL>
 		<author.email.bartosz>baranowb (at) gmail.com</author.email.bartosz>
 	</properties>
 

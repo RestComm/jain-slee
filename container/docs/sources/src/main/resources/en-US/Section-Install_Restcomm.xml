@@ -88,9 +88,9 @@
 			</procedure>
 		</section>
 
-		<section id="branch_2x_source_building">
-			<title>Branch 2.x Source Building</title>
-			<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the Git reference should be the <literal>2.x</literal>. The <literal>git checkout tags/&THIS.VERSION;</literal> command should not be performed. If already performed, the following should be used in order to switch back to the 2.x:</para>
+		<section id="2x_branch_source_building">
+			<title>2.x Branch Source Building</title>
+			<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the Git reference should be the <literal>2.x</literal>. The <literal>git checkout tags/&THIS.VERSION;</literal> command should not be performed. If already performed, the following should be used in order to switch back to the 2.x branch:</para>
 		    <programlisting>
 		    [usr]$ git checkout 2.x
 			</programlisting>
