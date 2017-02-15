@@ -17,6 +17,9 @@
 		<core.scmVersion>3.0.49</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
 
+		<jdbc.scmVersion>3.0.3</jdbc.scmVersion>
+		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
+
 		<!--
 		<cluster.scmVersion>1.15.26</cluster.scmVersion>
 		<cluster.scmVersionType>tag</cluster.scmVersionType>
@@ -48,6 +51,24 @@
 								</checkoutDirectory>
 								<connectionUrl>
 									scm:git:https://github.com/RestComm/jain-slee.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>jdbc-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${jdbc.scmVersion}</scmVersion>
+								<scmVersionType>${jdbc.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/jdbc
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.jdbc.git
 								</connectionUrl>
 							</configuration>
 						</execution>
