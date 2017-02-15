@@ -1,0 +1,32 @@
+
+[[_slee_1_1_extensions_cr]]
+= ChildRelation Extension
+
+This extension to JAIN SLEE 1.1 introduces the [method]`org.mobicents.slee.ChildRelationExt` interface, which extends [class]`javax.slee.ChildRelation` with methods to create and retrieve SBB entities by name.
+
+[source,java]
+----
+
+		
+package org.mobicents.slee;
+
+public interface ChildRelationExt extends ChildRelation {
+
+	public SbbLocalObjectExt create(String name) throws CreateException,
+			TransactionRequiredLocalException, SLEEException;
+
+	public SbbLocalObjectExt get(String name)
+			throws TransactionRequiredLocalException, SLEEException;
+
+}
+----
+
+The `create(String)` method:::
+  Creates a new SBB entity of the SBB type associated with the relation, with the specified name.
+  The new SBB entity is automatically added to the relationship collection.
+  The returned object may be cast to the required local interface type using the normal Java typecast mechanism.
+  This method is a mandatory transactional method.
+
+The `get(String)` method:::
+  Retrieves the SBB entity associated with the child relation with the specified name.
+  This method is a mandatory transactional method.

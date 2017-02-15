@@ -14,9 +14,10 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<module>sources</module>
+		<module>sources-asciidoc</module>
+		<!--module>sources</module>
 		<module>sources-restcomm</module>
-		<module>jdocbook-restcomm</module>			
+		<module>jdocbook-restcomm</module-->			
 	</modules>
 	
 </project>

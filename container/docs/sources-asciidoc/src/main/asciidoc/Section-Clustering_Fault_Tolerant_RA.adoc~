@@ -1,0 +1,202 @@
+
+[[_clustering_fault_tolerant_ra_api]]
+= Fault Tolerant Resource Adaptor API
+
+JAIN SLEE Resource Adaptors exist on the boundary between the container and the underlying protocol.
+The specification contract requires the 		object to implement the `javax.slee.resource.ResourceAdaptor`		interface.
+This interface defines callbacks, which SLEE uses to interact with the 		, including one to provide the `javax.slee.resource.ResourceAdaptorContext`		object.
+The Resource Adaptor Context provides 		object facilities to interact with SLEE. 
+
+The JAIN SLEE 1.1 RA API is a major milestone, standardizing RA and JSLEE contract.
+However, it misses an API for clustering, which is critical for a RA deployed in a clustered JAIN SLEE environment.
+The JAIN SLEE 1.1 contract does not define any fault tolerant data source nor cluster state callbacks. 
+
+The [app]`Fault Tolerant RA API`	extends the JAIN SLEE 1.1 RA 	, providing missing features related to clustering.
+An effort has been made keep the API similar to the standard RA contract, so that anyone who has developed a JAIN SLEE 1.1 RA is able to easily use the proprietary API extension. 
+
+[[_fault_tolerant_resource_adaptor]]
+== The Fault Tolerant Resource Adaptor Object
+
+The core of the Fault Tolerant RA API is the `org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor
+				`				interface.
+It is intended to be used instead of the `javax.slee.resource.ResourceAdaptor`				interface from the JAIN SLEE 1.1 Specification. 
+
+The FaultTolerant interface provides three new callback methods used by the container: 
+
+`setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext context)`::
+  This method provides the RA with the `org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
+  						`						object, which gives access to facilities related with the cluster.
+  This method is invoked by SLEE after invoking `raConfigure(ConfigProperties properties)`						from JAIN SLEE 1.1 specs. 
+
+`unsetFaultTolerantResourceAdaptorContext()`::
+  This method indicates that the RA should remove any references it has to the FaultTolerantResourceAdaptorContext, as it is not valid anymore.
+  The method is invoked by SLEE before invoking `unsetResourceAdaptorContext()`						from JAIN SLEE 1.1 specs. 
+
+`failOver(K key)`::
+  Callback from SLEE when the local RA was selected to recover the state for a replicated data key, which was owned by a cluster member that failed.
+  The RA may then restore any runtime resources associated with such data.
+
+`dataRemoved(K key)`::
+  Optional callback from SLEE when the replicated data key was removed from the cluster, this may be helpful when the local RA maintains local state.
+
+[[_fault_tolerant_resource_adaptor_context]]
+== The Fault Tolerant Resource Adaptor Context
+
+The clustered RA context follows the contract of JAIN SLEE 1.1 specification interface `javax.slee.resource.ResourceAdaptorContext`	. It gives access to facilities that the RA may use when run in a clustered environment. 
+
+The cluster contract is defined in: `org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
+			`			. It provides critical information, such as if SLEE is running in local mode (not clustered), if it is the head/master member of the cluster, and what the members of the cluster are. 
+
+[[_fault_tolerant_resource_adaptor_context_replicated_data]]
+=== The Fault Tolerant Resource Adaptor Replicated Data Sources
+
+The Fault Tolerant Resource Adaptor Context provides two data sources to replicate data in cluster:
+
+`ReplicatedData`::
+  A container for serializable data, which is replicated in the SLEE cluster, but don't require any failover.
+
+`ReplicatedDataWithFailover`::
+  A `ReplicatedData`							which requires fail over callbacks, this means, that for all data stored here, when a cluster member goes down, the SLEE in another cluster member will invoke the `failOver(Key k)`							callback in the Fault Tolerant RA object. 
+
+When retrieved from the context through a boolean parameter, both types of `ReplicatedData`				can activate the callback on the `FaultTolerantResourceAdaptor`				which indicates that a specific data was removed from the cluster remotely. 
+
+[[_fault_tolerant_resource_adaptor_context_timer]]
+=== The Fault Tolerant Resource Adaptor Timer
+
+The standard Resource Adaptor Context provides a `java.util.Timer`, which can be used by the Resource Adaptor to schedule the execution of tasks, the Fault Tolerant Resource Adaptor Context provides `org.mobicents.slee.resource.cluster.FaultTolerantTimer`, an alternative scheduler which is able to fail over tasks scheduled.
+
+The Fault Tolerant Timer has an interface that resembles the JDK's `ScheduledExecutorService`, with two fundamental changes to allow a proper interaction in a cluster environment:
+
+`Task Interface`::
+  Instead of relying on pure `Runnable` tasks, tasks must follow a specific interface `FaultTolerantTimerTask`, to ensure that the timer is able to replicate the task's data, and failover the task in any cluster node.
+
+`Task Cancellation`::
+  Cancellation of task is done through the Timer interface, not through `ScheduledFuture` objects, this allows the operation to be easily done in any cluster node. 
+
+The Fault Tolerant Timer interface:
+
+`cancel(Serializable taskID)`::
+  Requests the cancellation of the FT Timer Task with the specified ID.
+
+`configure(FaultTolerantTimerTaskFactory taskFactory, int threads)`::
+  Configures the fault tolerant timer, specifying the timer task factory and the number of threads the timer uses to execute tasks.
+
+`isConfigured()`::
+  Indicates if the timer is configured.
+
+`schedule(FaultTolerantTimerTask task, long delay, TimeUnit unit)`::
+  Creates and executes a one-shot action that becomes enabled after the given delay.
+
+`scheduleAtFixedRate(FaultTolerantTimerTask task,
+			long initialDelay, long period, TimeUnit unit)`::
+  Creates and executes a periodic action that becomes enabled first after the given initial delay, and subsequently with the given period; that is executions will commence after `initialDelay` then `initialDelay+period`, then `initialDelay + 2 * period`, and so on.
+  If any execution of the task encounters an exception, subsequent executions are suppressed.
+  Otherwise, the task will only terminate via cancellation or termination of the executor.
+  If any execution of this task takes longer than its period, then subsequent executions may start late, but will not concurrently execute.
+
+`scheduleWithFixedDelay(FaultTolerantTimerTask task,
+			long initialDelay, long delay, TimeUnit unit)`::
+  Creates and executes a periodic action that becomes enabled first after the given initial delay, and subsequently with the given delay between the termination of one execution and the commencement of the next.
+  If any execution of the task encounters an exception, subsequent executions are suppressed.
+  Otherwise, the task will only terminate via cancellation or termination of the executor.
+
+IMPORTANT: There is a single Fault Tolerant Timer per RA Entity, and when first retrieved, and before any task can be scheduled, the Fault Tolerant Timer must be configured, through its configure(...) method.
+
+[[_fault_tolerant_resource_adaptor_context_timer_task_and_data]]
+==== The Fault Tolerant Resource Adaptor Timer Task
+
+As mentioned in previous section, tasks submitted to the Fault Tolerant Timer must follow a specific interface, `FaulTolerantTimerTask`, it is nothing more than a `Runnable`, which provides the replicable `FaultTolerantTimerTaskData`.
+The task data must be serializable and provide a Serializable task ID, which identifies the task, and may be used to cancel its execution.
+
+[[_fault_tolerant_resource_adaptor_context_timer_example_usage]]
+==== The Fault Tolerant Resource Adaptor Timer Example Usage
+
+A simple example for the usage of the Faul Tolerant Timer Task:
+
+[source,java]
+----
+
+// data, task and factory implementation
+			
+package org.mobicents.slee.resource.sip11;
+
+import java.io.Serializable;
+
+import org.mobicents.slee.resource.cluster.FaultTolerantTimerTaskData;
+
+public class FaultTolerantTimerTaskDataImpl implements
+		FaultTolerantTimerTaskData {
+
+	private final String taskID;
+
+	public FaultTolerantTimerTaskDataImpl(String taskID) {
+		this.taskID = taskID;
+	}
+
+	@Override
+	public Serializable getTaskID() {
+		return taskID;
+	}
+}
+
+package org.mobicents.slee.resource.sip11;
+
+import org.mobicents.slee.resource.cluster.FaultTolerantTimerTask;
+import org.mobicents.slee.resource.cluster.FaultTolerantTimerTaskData;
+import org.mobicents.slee.resource.cluster.FaultTolerantTimerTaskFactory;
+
+public class FaultTolerantTimerTaskFactoryImpl implements
+		FaultTolerantTimerTaskFactory {
+
+	private final SipResourceAdaptor ra;
+
+	public FaultTolerantTimerTaskFactoryImpl(SipResourceAdaptor ra) {
+		this.ra = ra;
+	}
+
+	@Override
+	public FaultTolerantTimerTask getTask(FaultTolerantTimerTaskData data) {
+		return new FaultTolerantTimerTaskImpl(ra, data);
+	}
+}
+
+package org.mobicents.slee.resource.sip11;
+
+import org.mobicents.slee.resource.cluster.FaultTolerantTimerTask;
+import org.mobicents.slee.resource.cluster.FaultTolerantTimerTaskData;
+
+public class FaultTolerantTimerTaskImpl implements FaultTolerantTimerTask {
+
+	private final SipResourceAdaptor ra;
+	private final FaultTolerantTimerTaskData data;
+
+	public FaultTolerantTimerTaskImpl(SipResourceAdaptor ra,
+			FaultTolerantTimerTaskData data) {
+		this.ra = ra;
+		this.data = data;
+	}
+
+	@Override
+	public void run() {
+		ra.getTracer("FaultTolerantTimerTaskImpl").info("Timer executed.");
+	}
+
+	@Override
+	public FaultTolerantTimerTaskData getTaskData() {
+		return data;
+	}
+}
+
+// ra code retrieving the timer, configuring it and submiting a task
+
+public void setFaultTolerantResourceAdaptorContext(
+		FaultTolerantResourceAdaptorContext<SipActivityHandle, String> context) {
+	this.ftRaContext = context;
+	FaultTolerantTimer timer = context.getFaultTolerantTimer();
+	timer.config(new FaultTolerantTimerTaskFactoryImpl(this), 4);
+	FaultTolerantTimerTaskDataImpl data = new FaultTolerantTimerTaskDataImpl("xyz");
+	FaultTolerantTimerTaskImpl task = new FaultTolerantTimerTaskImpl(this,
+			data);
+	timer.schedule(task, 30, TimeUnit.SECONDS);
+}
+----

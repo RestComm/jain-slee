@@ -1,0 +1,29 @@
+
+[[_jpa_slee_profiles_mapping]]
+= JAIN SLEE 1.1 Profiles JPA Mapping
+
+As mentioned in the containers configuration section, &THIS.PLATFORM;JAIN SLEE uses JPA to store all JAIN SLEE 1.1 Profiles, and in mentioned section it was explained how to define which JPA / Hibernate data source.
+In this section more details are provided about how JAIN SLEE 1.1 Profiles are mapped to a JPA datasource schema.
+
+[[_profile_jpa_tables_and_columns]]
+== Profile Specification JPA Tables And columns
+
+For each Profile Specification, at least one  Table is created, and is named `SLEE_PE_` concatenated with the Profile CMP interface simple name (`obtained as java.lang.Class.getSimpleName()`), then `_`, and finally the absolute value of the `hashCode()` method of the javax.slee.ComponentID of the Profile Specification. 
+
+This table has a primary key composed by the profile name and profile table name, and a column for each attribute of the Profile Specification CMP, except for those of array type.
+Those columns are named `C`, concatenated with the cmp attribute name. 
+
+For each Profile CMP attribute of [parameter]`array` type, a join table is created, and is named `SLEE_PEAAV_` concatenated with the Profile CMP interface simple name (`obtained as java.lang.Class.getSimpleName()`), then `_`, then the absolute value of `hashCode()` method of the javax.slee.ComponentID of the Profile Specification, and finally the CMP attribute name.
+This table has a generated primary key column named `ID`, the foreign key, and two columns to store the CMP attribute value: 
+
+`SERIALIZABLE`::
+  Used to store the value if its type does not allow it to be converted to a String. 
+
+`STRING`::
+  Used when the CMP attribute type can be converted to a `java.lang.String`, for instance an `Integer`. 
+
+[[_profile_jpa_datasource]]
+== Profile Specification JPA Datasource
+
+Unless configured manually, &THIS.PLATFORM;JAIN SLEE uses the default datasource of &JEE.PLATFORM;.
+Please refer to its documentation to learn about it.

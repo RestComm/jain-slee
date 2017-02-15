@@ -1,0 +1,69 @@
+= Advanced Topics
+
+:leveloffset: +1
+
+include::Section-Classloading.adoc[]
+
+:leveloffset: -1
+
+:leveloffset: +1
+
+include::Section-Congestion_Control.adoc[]
+
+:leveloffset: -1
+
+:leveloffset: +1
+
+include::Section-JPA_SLEE_Profiles_Mapping.adoc[]
+
+:leveloffset: -1
+
+[[_testing_tck]]
+== Testing the JAIN SLEE 1.1 TCK
+
+
+To run the JAIN SLEE 1.1 TCK:
+. Checkout and build the container source code as explained in <<_install>>.
+. Install the TCK Resource Adaptor and Plugin:
++
+----
+cd tck/jain-slee-1.1
+mvn install
+----
+
+. Setup JAVA_OPTS environment variable to include -XX:MaxPermSize=128M -Djboss.defined.home=`/Volumes/2/jboss-5.1.0.GA` -Djava.security.manager=default -Djava.security.policy=``file:///Volumes/2/workspace/restcomm-jainslee-2/``tck/jain-slee-1.1/tck-security.policy, replacing the `absolute paths` with $JBOSS_HOME and the path of the Git checkout.
+. Unzip and run the JAIN SLEE 1.1 TCK distribution:
++
+----
+unzip testsuite.zip
+cd testsuite
+ant
+----
++
+IMPORTANT: No test should fail.
+
+
+[[_eclipse_ide]]
+== Setting JAIN SLEE Source Code Projects in Eclipse IDE
+
+The JAIN SLEE Core, each RA, and each example, are worked out with separated Eclipse IDE Projects.
+
+There are two alternatives to set up a specific project: 
+
+.Procedure: Via Command Line
+. In the checked out directory of the project, and with Eclipse IDE closed, open a terminal. 
+. Run the following: 
++
+----
+
+]mvn restcomm:eclipse
+mvn -Declipse.workspace=YOUR_RELATIVE_PATH_TO_ECLIPSE_WORKSPACE eclipse:add-maven-repo
+----
+
+. Install M2Eclipse if you want to do maven builds within Eclipse. 
+
+.Procedure: With Eclipse IDE
+. Install the M2Eclipse plugin and use "Import..." and subselect the "Maven Projects" feature. 
++
+IMPORTANT: Ensure the "Resolve Workspace projects" and "Separate projects for modules" in the "Advanced" options on the bottom of the window are turned off.
+If the project is large, such as the JAIN SLEE Core, M2Eclipse may be a considerable slower option, due to dynamic Maven2 Dependency Management. 

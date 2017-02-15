@@ -1,0 +1,36 @@
+
+[[_slee_1_1_extensions_sbblo]]
+= SbbLocalObject Extension
+
+This extension to JAIN SLEE 1.1 introduces the [method]`org.mobicents.slee.SbbLocalObjectExt` interface, which extends [class]`javax.slee.SbbLocalObject` with methods to retrieve the parent SBB Entity, if any, and to also retrieve information such as the child name, and the parent child relation name.
+
+[source,java]
+----
+
+		
+package org.mobicents.slee;
+
+public interface SbbLocalObjectExt extends SbbLocalObject {
+
+	public String getChildRelation() throws TransactionRequiredLocalException,
+			SLEEException;
+
+	public String getName() throws NoSuchObjectLocalException,
+			TransactionRequiredLocalException, SLEEException;
+
+	public SbbLocalObjectExt getParent() throws NoSuchObjectLocalException,
+			TransactionRequiredLocalException, SLEEException;
+}
+----
+
+The `getChildRelation()` method:::
+  Retrieves the name of the child relation used to create this object.
+  This method is a mandatory transactional method.
+
+The `getName()` method:::
+  Retrieves the name of the object.
+  This method is a mandatory transactional method.
+
+The `getParent()` method:::
+  Retrieves the parent SBB object.
+  This method is a mandatory transactional method.

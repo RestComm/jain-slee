@@ -1,0 +1,88 @@
+[[_management]]
+= Managing {this-platform}  JAIN SLEE
+
+[[_management_jmx_agent]]
+== JAIN SLEE JMX Agent
+
+The JMX Agent exposes all MBeans running in the server, including the ones mandated by the JAIN SLEE 1.1 specification.
+
+IMPORTANT: The operations done through the JMX Agent are not kept once the server is shutdown.
+For instance, if a deployable unit is installed through JMX, and the server is shutdown, once the server is started again the deployable unit will not be installed.
+
+IMPORTANT: By default, the JMX Agent listens to port 1099, and is only available at the host/ip which the server is bound.
+
+[[_management_snmp_agent]]
+== SNMP Agent
+
+{jee-platform} provides an SNMP Agent, which can be used to ...
+
+IMPORTANT: TODO
+
+[[_management_components]]
+== Managing JAIN SLEE Components
+
+:leveloffset: +1
+
+include::Section-Management_Persistent_File_Deployer.adoc[]
+
+:leveloffset: -1
+
+:leveloffset: +1
+
+include::Section-Management_Ant_Tasks.adoc[]
+
+:leveloffset: -1
+
+== Management Consoles
+
+[[_management_jmx_console]]
+=== JMX Console
+
+{jee-platform} provides a simple web console that gives quick access to all MBeans registered in the server, which includes the ones defined by the JAIN SLEE 1.1 specification.
+
+To access the JMX console once the server is running, point a web browser to `http://ip:8080/jmx-console`, where `ip` is the IP/Host the container is bound.
+Unless set during start up, the IP/Host will be `127.0.0.1/localhost` by default.
+
+MBeans in the domain `javax.slee` are all standard JAIN SLEE 1.1 MBeans, while the ones in the domain `org.mobicents.slee` are proprietary to {this-platform}  JAIN SLEE.
+The following ones are of particular interest: 
+
+`org.mobicents.slee:service=MobicentsManagement`::
+  the MBean which can be used to make non persistent changes to the server configuration, in runtime.
+  The operation `dumpContainerState` displays a textual snapshot of the server's state, which can be used to quickly look for memory leaks or other debug/profiling related tasks.
+
+`org.mobicents.slee:name=DeployerMBean`::
+  the MBean allows interaction with the persistent deployable unit deployer.
+  The operation `showStatus` displays a textual snapshot of the deployers's state, which can be used to quickly find out if there is any deployable unit deployment pending, for instance, due to missing dependencies.
+
+`org.mobicents.slee:name=CongestionControlConfiguration`::
+  the MBean allows changing or retrieving the Congestion Control feature, with the container running.
+  Details are provided in section <<_congestion_control_configuration>>.
+
+IMPORTANT: For further information about JAIN SLEE 1.1 MBeans and their operations refer to the JAIN SLEE 1.1 Specification, all are covered with great detail.
+
+[[_management_web_console]]
+=== SLEE Management Console
+
+The JMX Console is simple but the MBeans operations were made considering its invocation by management clients, not people using browsers.
+The SLEE Management Console is a web application that provides high level management functionality for the SLEE, and comes pre-deployed in SLEE binary releases.
+To access this console point a web browser to `http://ip:8080/slee-management-console`, where `ip` is the IP/Host the container is bound.
+Unless set during start up, the IP/Host will be `127.0.0.1/localhost` by default.
+
+Full documentation for this management tool can be found in [path]_docs/tools/slee-management-console_ directory.
+
+[[_management_jon_console]]
+=== {management-platform} Console
+
+{management-platform}was developed to become Red Hat's Middleware Administration Tool, providing an unified interface and extensible model, to be used mainly to control and monitor servers individually, or clusters.
+
+{this-platform} JAIN SLEE binary release includes a {management-platform}Console in [path]_tools/jopr-plugin_, with standalone documentation on same path, but inside [path]_docs_ directory.
+
+[[_management_twiddle_cli]]
+=== TWIDDLE CLI
+
+Both,  Console and  {management-platform} Console, are graphic(web) based tools.
+Some deployments may require command line access to {this-platform}  .
+To aid such cases, {this-platform}  offers `TWIDDLE` based .
+It allows to manage single instance (remote or local) of {this-platform}   server. 
+
+{this-platform} JAIN SLEE binary release includes a `TWIDDLE`  in [path]_tools/twiddle_, with standalone documentation on same path, but inside [path]_docs_ directory.

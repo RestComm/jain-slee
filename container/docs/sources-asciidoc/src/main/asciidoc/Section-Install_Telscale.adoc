@@ -1,0 +1,29 @@
+
+= Install Alternatives
+
+Binary Release::
+  The binary release is a zip file containing an already built binary release of Telscale JAIN SLEE
+
+== Binary Release
+
+You can download the Binary zip files from link:?.
+
+
+
+In this form of installation, simply unzip the downloaded zip file to the directory of your choice on any operating system that supports the zip format.
+. Unzip the release file
++
+Unzip the file to extract the archive contents into the location of your choice.
+You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named telscale-slee-&THIS.VERSION;.zip to the /telscale directory.
++
+----
+
+				    [usr]$ cd /telscale
+				    [usr]$ jar -xvf telscale-slee-.zip
+----
+
+. Setting up JBOSS_HOME Environment Variable
++
+You should now have a directory called telscale-slee-&THIS.VERSION;.
+Next you need to set your JBOSS_HOME environment variables.
+This is discussed in <<_jboss_home_setup>>.

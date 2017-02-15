@@ -1,0 +1,42 @@
+
+= EventContext Factory Configuration
+
+The EventContext Factory is responsible for managing all EventContexts in the SLEE Container, and its behavior is configurable.
+
+The EventContext Factory configuration can be changed through an XML file and a JMX MBean.
+
+== EventContext Factory Persistent Configuration
+
+Configuration is done through an XML descriptor for each {this-platform} Cluster.
+The XML file is named [path]_jboss-beans.xml_ and is located at [path]_{JBOSS_HOME}/server/{profile_name}/deploy/restcomm-slee/META-INF_
+
+The configuration is exposed a JBoss Microcontainer Bean:
+
+[source,xml]
+----
+
+<bean name="Mobicents.JAINSLEE.EventContextFactoryConfiguration"
+	class="org.mobicents.slee.container.management.jmx.EventContextFactoryConfiguration">
+	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name=
+		"org.mobicents.slee:name=EventContextFactoryConfiguration",exposedInterface=
+		org.mobicents.slee.container.management.jmx.EventContextFactoryConfigurationMBean.class,
+		registerDirectly=true)</annotation>
+	<property name="defaultEventContextSuspensionTimeout">60000</property>
+</bean>
+----
+
+.EventContext Factory Bean Configuration
+[cols="1,1,1", frame="all", options="header"]
+|===
+| Property Name
+| Property Type
+| Description
+|===
+
+== EventContext Factory JMX Configuration
+
+Through JMX the EventContext Factory module configuration can be changed with the container running.
+Note that such configuration changes are not persisted.
+
+The JMX MBean which can be used to change the EventContext Factory configuration is named [app]`org.mobicents.slee:name=EventContextFactoryConfiguration`, and provides getters and setters to change each property defined in the persistent configuration.
+The JMX Console can be used to use this MBean, see <<_management_jmx_console>>.

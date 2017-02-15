@@ -1,0 +1,109 @@
+[[_clustering]]
+= {this-platform}  JAIN SLEE Clustering
+
+JAIN SLEE supports clustering, whether it is simple high availability () or complete fault tolerance () support.
+This is achieved through the replication of the container state.
+The {this-platform}  JAIN SLEE implementation also exposes a clustering extension  for Resource Adaptors components, which live outside the container.
+
+[[_container_clustering]]
+== High Availability and Fault Tolerance
+
+The used JAIN SLEE clustering mode is defined by the selected server profile:
+
+IMPORTANT: JAIN SLEE reuses the {jee-platform} clustering framework, and if all nodes of a cluster are in the same network then the underlying {jee-platform} clustering will automatically handle the discovery of new cluster nodes and join these to the cluster.
+For more complicated setups, refer to the {jee-platform} clustering documentation.
+
+[[_container_clustering_high_availability_profile]]
+=== High Availability Mode
+
+High availability mode provides no clustering functionality per say.
+The mode is useful when deploying for example single node, non-replicated or hot-cold configurations.
+In this mode all clustering needs to be explicitly done by the developer where applicable.
+In this sense,  mode is not a clustered mode.
+
+The `default` server profile is used to start the server in  mode.
+
+[[_container_clustering_fault_tolerant_profile]]
+=== Fault Tolerant Mode
+
+The fault tolerant mode is a fully clustered mode with state replication.
+An FT cluster can be viewed as one virtual container that extend over all the JAIN SLEE nodes that are active in the cluster.
+All activity context and Sbb entity data is replicated across the cluster nodes and is hence fully redundant.
+Events are not failed over, due to performance constraints, which means that an event fired and not yet routed will be lost if its cluster node fails.
+
+The `all` server profile is used to start the server in  mode.
+
+[[_container_clustering_fault_tolerant]]
+== Component Redundancy in Fault Tolerant Clusters
+
+The fault tolerant clustering mode provides clustering for most of the JAIN SLEE components.
+JAIN SLEE components can be divided into internal and external components.
+Internal components are logically contained by the JAIN SLEE container, and external components are at least partly outside the container.
+
+For a concrete example of how the container behaves in  mode, see <<_fault_tolerant_cluster_example>>.
+
+[[_container_clustering_ft_internal_components]]
+=== Internal Component Redundancy
+
+Internal SLEE components are components that are completely inside the JAIN SLEE container.
+This group of components include  entities, internal activities, events and timers.
+With the exception of events, all internal components will be fully redundant in a  JAIN SLEE configuration.
+
+SBB entities are fully replicated.  entities are always serialized and saved by the container, regardless of the clustering profile.
+In an  environment the container will replicate this serialized state to other nodes in the cluster so that it can be retrieved if the node fails or if the  entity is processed in another node.
+All  entities will hence be accessible by any node in the cluster at any given time.
+
+Timers are fully replicated.
+Timers created in a given node will be executed in that same node.
+If the node leaves the cluster, all active timers from that node are recreated and run in another node.
+
+Activity context interfaces (), as well as activity handles are fully replicated.
+The s for all activities are replicated within a fault tolerant cluster.
+However, the activity object is not replicated by default and needs to be handled by the resource adaptor that owns the activity in question if replication is required.
+The activity objects for all internal activities, e.g.
+null activities, profile table activities and service activities, are fully replicated.
+
+Events are not replicated because of performance constraints.
+Hence, all events fired in a node is routed only in that node.
+However, if an event is fired in one node, and an  entity created in another node has attached to that , the  entity will be retrieved in the node that fired the event and the event will be delivered to it.
+Hence, even though the event is fired in a single node, the effects will be cluster-wide.
+Because the events are not replicated, any event currently being routed in a node that fails, will be lost.
+
+[[_container_clustering_ft_external_components]]
+=== External Component Redundancy
+
+External JAIN SLEE components are components that are on the border between the SLEE container and the outside environment.
+This group of components include resource adaptors and external activities, neither of which are replicated by default.
+
+The Resource adaptors may use the Fault Tolerant Resource Adaptor API extension of the JAIN SLEE 1.1 specification in order to be cluster-aware.
+Refer to the <<_clustering_fault_tolerant_ra_api>> and <<_container_clustering_ra_activity_replication>> sections for more information on how to achieve resource adaptor and activity object redundancy.
+
+[[_container_clustering_components_management]]
+== Managing Components in {this-platform}  JAIN SLEE Cluster
+
+JAIN SLEE clustering does not require special components management.
+Components can be deployed and undeployed in all cluster modes, including fault tolerant setups, and the cluster will handle the operation correctly.
+However, there are certain behaviours in fault tolerance setups to be aware of: 
+
+`Service Activation`::
+  JAIN SLEE Service started events are only fired on the first cluster node started. 
+
+`Service Deactivation`::
+  Only the last node will force the removal of the service's  entities. 
+
+`Resource Adaptor Entity Deactivation`::
+  Only the last node will force the removal of all its activities. 
+
+:leveloffset: 1
+include::Section-Clustering_Fault_Tolerant_RA.adoc[]
+:leveloffset: 0
+
+[[_container_clustering_ra_activity_replication]]
+== Resource Adaptor Activity Replication
+
+The Resource Adaptor API includes an optional component named [class]`javax.slee.resource.Marshaler`, which is responsible, besides other functions, for converting Activity Handles to byte arrays and vice-versa.
+Also relevant, the Resource Adaptor, when starting activities, may provide a flag indicating that the container may marshall the activity (using the Marshaler). In case of a container cluster with data replication, if an activity is to be replicated then the Marshaler must be provided and the activity flags must activate the flag MAY_MARSHALL, otherwise the activity is not replicated and if a node fails all its activities are removed from the container cluster. 
+
+NOTE: The activity replication doesn't mean that the activity object is replicated by any means, only the related Activity Handle.
+The Resource Adaptor must use the Fault Tolerant RA API or its own means to replicate any additional data to support that presence of the activity in all nodes of the cluster.
+Usage of the Fault Tolerant RA API is recommended since it reuses the clustering setup of the container. 

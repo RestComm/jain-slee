@@ -1,0 +1,36 @@
+[[_slee_1_1_extensions]]
+= JAIN SLEE 1.1 Extensions
+
+&THIS.PLATFORM; exposes proprietary extensions to the  1.1 specification, to allow the development of easier or more powerful application code.
+
+The extensions were discussed among multiple  vendors, and should become part of the standard in next revision, but there is no guarantee that portability won't be lost when using those.
+
+The extensions source code is available in the &PLATFORM_NAME;SLEE Community Git repository, specifically at api/extensions subdirectory.
+Its javadocs are bundled in the SLEE binary release, in docs/container/javadoc subdirectory.
+The setup for the source project in Eclipse IDE is similar to the container core, as seen in  <<_eclipse_ide>>.
+
+Java archives (JARs) with compiled classes, javadocs and sources are available in the Sonatype Maven Repository at https://oss.sonatype.org/content/groups/public/org/mobicents/servers/jainslee/api/jain-slee-11-ext/
+
+:leveloffset: 1
+include::Section-Extension_SbbContext.adoc[]
+:leveloffset: 0
+
+:leveloffset: 1
+include::Section-Extension_ChildRelation.adoc[]
+:leveloffset: 0
+
+:leveloffset: 1
+include::Section-Extension_SbbLocalObject.adoc[]
+:leveloffset: 0
+
+:leveloffset: 1
+include::Section-Extension_ProfileContext.adoc[]
+:leveloffset: 0
+
+:leveloffset: 1
+include::Section-Extension_ActivityContextInterface.adoc[]
+:leveloffset: 0
+
+:leveloffset: 1
+include::Section-Extension_Library_References.adoc[]
+:leveloffset: 0

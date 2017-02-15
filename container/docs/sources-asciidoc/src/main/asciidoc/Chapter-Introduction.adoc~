@@ -1,0 +1,20 @@
+[[_introduction]]
+= Introduction to {this-platform}  JAIN SLEE
+
+JAIN SLEE is the specification for a Java Service Logic and Execution Environment (SLEE) architecture, created in the Java Community Process (JCP) by several individuals and companies, including Red Hat.
+A SLEE is an application server, or service container, which defines a component model for structuring the logic of communications services as a collection of reusable components, and for combining these components into even more sophisticated services.
+This model was designed and optimized for event-driven applications.
+
+In addition to the service component model, the SLEE also defines management interfaces used to administer the container and the service components executing within, and a set of standard facilities, which provide common features, such as timers, traces and alarms, to JAIN SLEE components.
+
+{this-platform} JAIN SLEE is the first and only open source platform certified for JAIN SLEE 1.1 compliance, providing a highly scalable, event-driven application server with a robust component model and a fault tolerant execution environment.
+
+.Overview of JAIN SLEE
+image::images/introduction-slee_and_jee.png[]
+
+{this-platform}  is built on top of the open source award winning {jee-platform} , which means that {this-platform}   complements  with Java Enterprise () 5 container features, allowing strong convergence of different application models, for even feature richer communication services, for instance, the Web and  can be combined to achieve a more sophisticated and natural user experience. {this-platform}   inherits quality management features and tools from {jee-platform} , such as the JMX Console, {management-platform} Plugins and SNMP Adaptor.
+
+.{this-platform}  Platform
+image::images/introduction-platform.png[]
+
+{this-platform} JAIN SLEE can also be complemented with {this-platform}  Servlets and {this-platform}  Media Server, providing unique value and integration features not found elsewhere.
