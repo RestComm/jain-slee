@@ -336,7 +336,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 					logger.error("Got exception invoking raInactive() for entity "+name, t);
 				}
 			}
-			if (state.isStopping()) {
+			if (state != null && state.isStopping()) {
 				state = ResourceAdaptorEntityState.INACTIVE;
 			}
 		}
