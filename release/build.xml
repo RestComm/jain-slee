@@ -30,7 +30,7 @@
 
 	<property name="dia.version" value="1.7.0.93"/>
 	<property name="dia.build" value="93"/>
-	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/${dia.build}/artifact/release/restcomm-diameter-mux-jboss5-${dia.version}.zip" />
+	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/${dia.build}/artifact/release/restcomm-diameter-mux-jboss-5-${dia.version}.zip" />
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
 	<property name="eclipslee.version" value="2.8.31"/>
