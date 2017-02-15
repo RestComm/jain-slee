@@ -10,6 +10,7 @@
 
     <xs:complexType name="subsystemType">
         <xs:sequence>
+            <xs:element name="cache-config" type="xs:string" minOccurs="0" maxOccurs="1" />
             <xs:element name="remote-rmi-address" type="xs:string" minOccurs="0" maxOccurs="1" />
             <xs:element name="remote-rmi-port" type="xs:int" minOccurs="0" maxOccurs="1" />
             <xs:element name="profiles-persist-profiles" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true" />

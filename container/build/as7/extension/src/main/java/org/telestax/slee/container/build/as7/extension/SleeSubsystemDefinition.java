@@ -7,6 +7,13 @@ import org.jboss.dmr.ModelType;
 
 public class SleeSubsystemDefinition extends SimpleResourceDefinition {
 
+    protected static final SimpleAttributeDefinition CACHE_CONFIG =
+            new SimpleAttributeDefinitionBuilder(SleeSubsystemModel.CACHE_CONFIG, ModelType.STRING, false)
+                    .setAllowExpression(true)
+                    .setXmlName(SleeSubsystemModel.CACHE_CONFIG)
+                    .setDefaultValue(new ModelNode(""))
+                    .build();
+
     protected static final SimpleAttributeDefinition REMOTE_RMI_ADDRESS =
             new SimpleAttributeDefinitionBuilder(SleeSubsystemModel.REMOTE_RMI_ADDRESS, ModelType.STRING, false)
                     .setAllowExpression(true)
@@ -50,6 +57,7 @@ public class SleeSubsystemDefinition extends SimpleResourceDefinition {
                     .build();
 
     static final AttributeDefinition[] ATTRIBUTES = {
+            CACHE_CONFIG,
             REMOTE_RMI_ADDRESS,
             REMOTE_RMI_PORT,
             PROFILES_PERSIST_PROFILES,

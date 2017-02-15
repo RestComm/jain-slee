@@ -5,6 +5,7 @@ import java.util.Map;
 
 enum Element {
 
+    CACHE_CONFIG(SleeSubsystemDefinition.CACHE_CONFIG.getXmlName()),
     REMOTE_RMI_ADDRESS(SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.getXmlName()),
     REMOTE_RMI_PORT(SleeSubsystemDefinition.REMOTE_RMI_PORT.getXmlName()),
     PROFILES_PERSIST_PROFILES(SleeSubsystemDefinition.PROFILES_PERSIST_PROFILES.getXmlName()),

@@ -67,13 +67,14 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
         //ModelNode fullModel = Resource.Tools.readModel(context.readResource(PathAddress.EMPTY_ADDRESS));
 
+        final ModelNode cacheConfigModel = SleeSubsystemDefinition.CACHE_CONFIG.resolveModelAttribute(context, model);
+        final String cacheConfig = cacheConfigModel.isDefined() ? cacheConfigModel.asString() : null;
+
         final ModelNode rmiAddressModel = SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.resolveModelAttribute(context, model);
         final String rmiAddress = rmiAddressModel.isDefined() ? rmiAddressModel.asString() : null;
 
         final ModelNode rmiPortModel = SleeSubsystemDefinition.REMOTE_RMI_PORT.resolveModelAttribute(context, model);
         final int rmiPort = rmiPortModel.isDefined() ? rmiPortModel.asInt() : 5555;
-
-        log.info("rmi: "+rmiAddress+":"+rmiPort);
 
         final boolean persistProfiles = SleeSubsystemDefinition.PROFILES_PERSIST_PROFILES.resolveModelAttribute(context, model).asBoolean();
         final boolean clusteredProfiles = SleeSubsystemDefinition.PROFILES_CLUSTERED_PROFILES.resolveModelAttribute(context, model).asBoolean();
@@ -86,7 +87,9 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
     	// Installs the msc service which builds the SleeContainer instance and its modules
         final ServiceTarget target = context.getServiceTarget();
         final SleeContainerService sleeContainerService = new SleeContainerService(
-                rmiAddress, rmiPort, persistProfiles, clusteredProfiles, hibernateDatasource, hibernateDialect);
+                cacheConfig,
+                rmiAddress, rmiPort,
+                persistProfiles, clusteredProfiles, hibernateDatasource, hibernateDialect);
         //final SleeContainerService sleeContainerService = new SleeContainerService("127.0.0.1", 5555);
         
         final ServiceBuilder<?> sleeContainerServiceBuilder = target

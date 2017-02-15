@@ -108,6 +108,7 @@ public class SleeExtension implements Extension {
             context.startSubsystemElement(SleeExtension.NAMESPACE, false);
 
             final ModelNode sleeSubsystem = context.getModelNode();
+            SleeSubsystemDefinition.CACHE_CONFIG.marshallAsElement(sleeSubsystem, writer);
             SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.marshallAsElement(sleeSubsystem, writer);
             SleeSubsystemDefinition.REMOTE_RMI_PORT.marshallAsElement(sleeSubsystem, writer);
             SleeSubsystemDefinition.PROFILES_PERSIST_PROFILES.marshallAsElement(sleeSubsystem, writer);
@@ -145,6 +146,11 @@ public class SleeExtension implements Extension {
                     throw ParseUtils.unexpectedElement(reader);
                 }
                 switch (element) {
+                    case CACHE_CONFIG: {
+                        final String value = parseCacheConfig(reader);
+                        SleeSubsystemDefinition.CACHE_CONFIG.parseAndSetParameter(value, subsystem, reader);
+                        break;
+                    }
                     case REMOTE_RMI_ADDRESS: {
                         final String value = parseRemoteRmiAddress(reader);
                         SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.parseAndSetParameter(value, subsystem, reader);
@@ -182,6 +188,20 @@ public class SleeExtension implements Extension {
             }
         }
 
+    }
+
+    static String parseCacheConfig(XMLExtendedStreamReader reader) throws XMLStreamException {
+        // we don't expect any attributes for this element.
+        ParseUtils.requireNoAttributes(reader);
+
+        final String value = reader.getElementText();
+
+        if (value == null || value.trim().isEmpty()) {
+            throw new XMLStreamException(
+                    "Invalid value: " + value + " for '" + Element.CACHE_CONFIG.getLocalName() + "' element",
+                    reader.getLocation());
+        }
+        return value.trim();
     }
 
     static String parseRemoteRmiAddress(XMLExtendedStreamReader reader) throws XMLStreamException {

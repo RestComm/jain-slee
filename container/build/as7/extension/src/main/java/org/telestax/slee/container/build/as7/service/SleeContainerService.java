@@ -1,12 +1,15 @@
 package org.telestax.slee.container.build.as7.service;
 
+import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.configuration.global.ShutdownHookBehavior;
+import org.infinispan.manager.CacheContainer;
 import org.infinispan.util.concurrent.IsolationLevel;
+
 import org.jboss.as.controller.services.path.PathManager;
 import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.logging.Logger;
@@ -69,10 +72,9 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.slee.management.*;
 import javax.transaction.TransactionManager;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.concurrent.Executors;
@@ -88,6 +90,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 	private static final String CONFIG_DIR = "jboss.server.config.dir";
 	private static final String TEMP_DIR = "jboss.server.temp.dir";
 
+	private String cacheConfig;
 	private String rmiAddress;
 	private int rmiPort;
 	private boolean persistProfiles;
@@ -109,9 +112,11 @@ public class SleeContainerService implements Service<SleeContainer> {
 	}
 
 	public SleeContainerService(
+			String cacheConfig,
 			String rmiAddress, int rmiPort,
 			boolean persistProfiles, boolean clusteredProfiles,
 			String hibernateDatasource, String hibernateDialect) {
+		this.cacheConfig = cacheConfig;
 		this.rmiAddress = rmiAddress;
 		this.rmiPort = rmiPort;
 		this.persistProfiles = persistProfiles;
@@ -144,14 +149,14 @@ public class SleeContainerService implements Service<SleeContainer> {
 				.getClassLoaderFactory().newReplicationClassLoader(
 						this.getClass().getClassLoader());
 
-		final MobicentsCache cache = initCache(replicationClassLoader);
-
 		final DefaultClusterElector elector = new DefaultClusterElector();
 
+		final MobicentsCache cache = initCache(replicationClassLoader);
+
 		final MobicentsCluster cluster = new DefaultMobicentsCluster(
-				cache,
-				getTransactionManager().getValue(),
-				elector);
+					cache,
+					getTransactionManager().getValue(),
+					elector);
 
 		// init the tx manager
 		final SleeTransactionManager sleeTransactionManager = new SleeTransactionManagerImpl(
@@ -380,21 +385,18 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 	private MobicentsCache initCache(ClassLoader classLoader) {
 
-		String relativePath = pathManagerInjector.getValue().getPathEntry(CONFIG_DIR).resolvePath();
-		//String relativePath = pathManagerInjector.getValue().getPathEntry(JBOSS_DIR).resolvePath() +
-		//		"/modules/system/layers/base" +
-		//		"/org/telestax/slee/container/lib/main";
+        InputStream cacheConfigStream =
+                new ByteArrayInputStream(this.cacheConfig.getBytes(StandardCharsets.UTF_8));
 
-		String configFile = relativePath + "/jain-slee-cache-config.xml";
-		MobicentsCache sleeCache = null;
+        MobicentsCache sleeCache = null;
 
 		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 
 		try {
-			sleeCache = new MobicentsCache(configFile, classLoader);
+            sleeCache = new MobicentsCache(cacheConfigStream, classLoader);
 		} catch (IOException e) {
-			log.warn("Cant create Mobicents Cache from config file: "+configFile, e);
+			log.warn("Cant create Mobicents Cache from config stream: "+this.cacheConfig, e);
 
 			Configuration defaultConfig = new ConfigurationBuilder()
 					.invocationBatching().enable()
