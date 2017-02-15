@@ -22,22 +22,6 @@
 
 package org.mobicents.slee.resource;
 
-import javax.slee.Address;
-import javax.slee.SLEEException;
-import javax.slee.TransactionRequiredLocalException;
-import javax.slee.resource.ActivityAlreadyExistsException;
-import javax.slee.resource.ActivityFlags;
-import javax.slee.resource.ActivityHandle;
-import javax.slee.resource.ActivityIsEndingException;
-import javax.slee.resource.EventFlags;
-import javax.slee.resource.FireEventException;
-import javax.slee.resource.FireableEventType;
-import javax.slee.resource.IllegalEventException;
-import javax.slee.resource.ReceivableService;
-import javax.slee.resource.StartActivityException;
-import javax.slee.resource.UnrecognizedActivityHandleException;
-import javax.transaction.SystemException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
@@ -55,6 +39,22 @@ import org.mobicents.slee.container.transaction.SleeTransaction;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+
+import javax.slee.Address;
+import javax.slee.SLEEException;
+import javax.slee.TransactionRequiredLocalException;
+import javax.slee.resource.ActivityAlreadyExistsException;
+import javax.slee.resource.ActivityFlags;
+import javax.slee.resource.ActivityHandle;
+import javax.slee.resource.ActivityIsEndingException;
+import javax.slee.resource.EventFlags;
+import javax.slee.resource.FireEventException;
+import javax.slee.resource.FireableEventType;
+import javax.slee.resource.IllegalEventException;
+import javax.slee.resource.ReceivableService;
+import javax.slee.resource.StartActivityException;
+import javax.slee.resource.UnrecognizedActivityHandleException;
+import javax.transaction.SystemException;
 
 /**
  * 
@@ -273,7 +273,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			throw new NullPointerException("null activity");
 		}
 		// check ra state
-		if (raEntity.getResourceAdaptorObject().getState() != ResourceAdaptorObjectState.ACTIVE) {
+		if (raEntity.getResourceAdaptorObject().getState() != ResourceAdaptorObjectState.ACTIVE && raEntity.getResourceAdaptorObject().getState() != ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			throw new IllegalStateException("ra is in state "
 					+ raEntity.getResourceAdaptorObject().getState());
 		}

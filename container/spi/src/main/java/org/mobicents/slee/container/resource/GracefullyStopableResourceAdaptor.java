@@ -20,46 +20,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.container.management;
-
-import javax.slee.management.SleeState;
+/**
+ * 
+ */
+package org.mobicents.slee.container.resource;
 
 /**
- * A request to change SLEE state.
- * 
- * @author martins
- * @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
+ * Interface to be implemented by RA objects that support SLEE Graceful Shutdown feature.
+ *
+ *
+ * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
  *
  */
-public interface SleeStateChangeRequest {
+public interface GracefullyStopableResourceAdaptor {
+
+	public static String RA_GRACEFUL_STOP_METHOD_NAME = "gracefulRaStopping";
 
 	/**
-	 * The state to set
-	 * @return
+	 * Initiates graceful stopping of the RA object
 	 */
-	public SleeState getNewState();
-	
-	/**
-	 * Indicates if the container operations, which result from state change, should be completed before returning from state change request.
-	 * @return
-	 */
-	public boolean isBlockingRequest();
-	
-	/**
-	 * Indicates that the state has now changed.
-	 * @param oldState
-	 */
-	public void stateChanged(SleeState oldState);
-	
-	/**
-	 * Indicates that the whole process of state change completed.
-	 */
-	public void requestCompleted();
-
-	/**
-	 * Indicates graceful mode of request
-	 * @return
-     */
-	public boolean isGraceful();
-	
+	public void gracefulRaStopping();
 }

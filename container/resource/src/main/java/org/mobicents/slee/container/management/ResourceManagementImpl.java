@@ -22,13 +22,25 @@
 
 package org.mobicents.slee.container.management;
 
-import java.io.ObjectStreamException;
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ComponentRepository;
+import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
+import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDescriptor;
+import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDescriptor;
+import org.mobicents.slee.container.component.sbb.SbbComponent;
+import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
+import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
+import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
+import org.mobicents.slee.container.transaction.TransactionContext;
+import org.mobicents.slee.container.transaction.TransactionalAction;
+import org.mobicents.slee.resource.ActivityHandleReferenceFactory;
+import org.mobicents.slee.resource.ResourceAdaptorEntityImpl;
+import org.mobicents.slee.resource.deployment.ResourceAdaptorClassCodeGenerator;
+import org.mobicents.slee.resource.deployment.ResourceAdaptorTypeClassCodeGenerator;
 
 import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
@@ -52,32 +64,20 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
-
-import org.apache.log4j.Logger;
-import org.mobicents.slee.container.AbstractSleeContainerModule;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
-import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
-import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
-import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDescriptor;
-import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDescriptor;
-import org.mobicents.slee.container.component.sbb.SbbComponent;
-import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
-import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
-import org.mobicents.slee.container.transaction.TransactionContext;
-import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.mobicents.slee.resource.ActivityHandleReferenceFactory;
-import org.mobicents.slee.resource.ResourceAdaptorEntityImpl;
-import org.mobicents.slee.resource.deployment.ResourceAdaptorClassCodeGenerator;
-import org.mobicents.slee.resource.deployment.ResourceAdaptorTypeClassCodeGenerator;
+import java.io.ObjectStreamException;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
  * Manages deployed resource adaptor components.
  * 
  * @author Eduardo Martins
+ * @author @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
  * 
  */
 public final class ResourceManagementImpl extends AbstractSleeContainerModule implements ResourceManagement {
@@ -1062,9 +1062,19 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	
 	@Override
 	public void sleeStopping() {
-		
-		logger.info("Stopping all active resource adaptors ...");
-		
+		boolean stoppingGracefully = sleeContainer.isGracefullyStopping();
+		int currentActivitiesCount = 0;
+		int activitiesCountThreshold = sleeContainer.getGracefulStopActivitiesCountThreshold();
+		long gracefulStopThreshold = System.currentTimeMillis() + (sleeContainer.getGracefulStopWaitTime() * 1000);
+
+		String stopMsg = "Stopping";
+		if(stoppingGracefully) {
+			stopMsg += " gracefully all compliant resource adaptors ...";
+		} else {
+			stopMsg += " all capable resource adaptors ...";
+		}
+		logger.info(stopMsg);
+
 		// inform all ra entities that we are stopping the container
 		final Thread currentThread = Thread.currentThread();
 		final ClassLoader currentThreadClassLoader = currentThread.getContextClassLoader();
@@ -1072,24 +1082,38 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			try {
 				currentThread.setContextClassLoader(raEntity.getComponent().getClassLoader());
 				raEntity.sleeStopping();
+				if(raEntity.getResourceAdaptorObject().getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+					currentActivitiesCount += raEntity.getRaEntityActivitiesCount();
+				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(),e);
 			}			
 		}
 		currentThread.setContextClassLoader(currentThreadClassLoader);
-		
+
+		if(stoppingGracefully && logger.isInfoEnabled()) {
+			logger.info("Graceful stopping mode is active - waiting till all compliant ra entities objects are stopped");
+			logger.info("Initial GS compliant RA activities count = " + currentActivitiesCount + " of " + sleeContainer.getActivityContextFactory().getActivityContextCount() + " activities total");
+		}
+
 		// wait till all ra entity objects are stopped
 		boolean loop;
 		boolean sleepInLastLoop = false;
 		do {
 			loop = false;
+			currentActivitiesCount = 0;
 			for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
 				try {
-					if (raEntity.getResourceAdaptorObject()
-							.getState() == ResourceAdaptorObjectState.STOPPING) {
-						logger.info("Waiting for ra entity "+raEntity.getName()+" to stop...");
+					ResourceAdaptorObjectState raObjState = raEntity.getResourceAdaptorObject().getState();
+					if (raObjState == ResourceAdaptorObjectState.STOPPING || raObjState == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 						loop = true;
 						sleepInLastLoop = true;
+						int entityActivitiesCount = 0;
+						if(raObjState == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+							entityActivitiesCount = raEntity.getRaEntityActivitiesCount();
+							currentActivitiesCount += entityActivitiesCount;
+						}
+						logger.info("Waiting for ra entity "+raEntity.getName()+" to stop "+(stoppingGracefully?"gracefully... Activities left: " + entityActivitiesCount:"..."));
 					}
 				} catch (Exception e) {
 					if (logger.isDebugEnabled()) {
@@ -1097,6 +1121,19 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 					}
 				}
 			}
+
+			if(stoppingGracefully) {
+				logger.info("Stopping... Current total GS compliant RA entities activities count = " + currentActivitiesCount);
+				if (currentActivitiesCount < activitiesCountThreshold) {
+					logger.warn("Current GS compliant RA entities activities count is lower than AST (" + activitiesCountThreshold + "). Breaking graceful RAs stop!");
+					break;
+				}
+				if (System.currentTimeMillis() > gracefulStopThreshold) {
+					logger.warn("Max graceful stop time has passed (" + sleeContainer.getGracefulStopWaitTime() + "s). Breaking graceful RAs stop!");
+					break;
+				}
+			}
+
 			if (loop || sleepInLastLoop) {
 				try {
 					// wait a sec

@@ -34,6 +34,19 @@
 					</simplelist>
 				</revdescription>
                         </revision>
+			<revision>
+				<revnumber>1.2</revnumber>
+				<date>2016-09-29</date>
+				<author>
+					<firstname>Grzegorz</firstname>
+					<surname>Figiel</surname>
+				</author>
+				<revdescription>
+					<simplelist>
+						<member>Advanced topics updated for Graceful Stop feature</member>
+					</simplelist>
+				</revdescription>
+			</revision>
 		</revhistory>
 	</simpara>
 </appendix>

@@ -24,10 +24,11 @@ package org.mobicents.slee.container.resource;
 /**
  * The states for the Resource Adaptor state machine (see SLEE 1.1 specs 15.7.1)
  * @author martins
+ * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
  *
  */
 public enum ResourceAdaptorObjectState {
 
-	UNCONFIGURED, INACTIVE, ACTIVE, STOPPING
-	
+	UNCONFIGURED, INACTIVE, ACTIVE, STOPPING, STOPPING_GRACEFULLY
+
 }

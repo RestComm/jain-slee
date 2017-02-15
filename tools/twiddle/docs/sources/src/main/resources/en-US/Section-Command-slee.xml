@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="slee">
 
 	<title>slee</title>
@@ -43,6 +46,13 @@
 						<entry>No</entry>
 					</row>
 					<row>
+						<entry>gracefulStop</entry>
+						<entry>-g</entry>
+						<entry>--gracefulStop</entry>
+						<entry>No</entry>
+						<entry>Yes</entry>
+					</row>
+					<row>
 						<entry>shutdown</entry>
 						<entry>-d</entry>
 						<entry>--shutdown</entry>
@@ -81,6 +91,11 @@
 			<!-- <screen> --><programlisting>./twiddle.sh slee --stop<!-- </screen> --></programlisting>
 		</example>
 		
+	</section>
+	<section id="slee_graceful_stop">
+		<title>gracefulStop</title>
+		<para><literal>gracefulStop</literal> operation stops container gracefully.
+			This is an extended command. Please see <xref linkend="x.slee">Commands Extended</xref> chapter for details.</para>
 	</section>
 	<section id="slee_shutdown">
 		<title>shutdown</title>

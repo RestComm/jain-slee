@@ -376,6 +376,10 @@
 			<value-factory bean="Mobicents.JAINSLEE.ActivityManagementMBean"
 				method="getObjectName" />
 		</property>
+		<!--Graceful shutdown defaults-->
+		<property name="defaultActiveSessionsThreshold">30</property>
+		<property name="defaultGracefulShutdownWaitTime">300</property>
+
 		<start method="startSlee"/>
     	<stop method="stopSlee"/>
 	</bean>
