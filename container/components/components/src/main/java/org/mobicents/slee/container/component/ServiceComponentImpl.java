@@ -45,7 +45,7 @@ import org.mobicents.slee.container.management.jmx.ServiceUsageMBean;
 
 /**
  * Start time:16:00:31 2009-01-25<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>

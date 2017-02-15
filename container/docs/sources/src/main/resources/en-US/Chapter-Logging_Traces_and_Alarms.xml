@@ -87,7 +87,7 @@
 				</varlistentry>
 			</variablelist>
 			
-			<para>Custom presets can be easily deployed in the application server too. Simply name the configuration file as <filename>jboss-log4j.xml.PRESET_NAME</filename>, where <literal>PRESET_NAME</literal> should be unique preset name, and copy it to directory <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/log4j-templates</filename>, where <application>profile_name</application> is the server profile name.</para>
+			<para>Custom presets can be easily deployed in the application server too. Simply name the configuration file as <filename>jboss-log4j.xml.PRESET_NAME</filename>, where <literal>PRESET_NAME</literal> should be unique preset name, and copy it to directory <filename>$JBOSS_HOME/server/profile_name/deploy/restcomm-slee/log4j-templates</filename>, where <application>profile_name</application> is the server profile name.</para>
 			
 			<note><para>These procedures changes the whole &JEE.PLATFORM; Platform logging configuration, so it will affect also logging for other running applications besides the JAIN SLEE container.</para></note>
 			
@@ -114,12 +114,12 @@
 		<section id="tracers_vs_log4j">
 			<title>JAIN SLEE Tracers and Log4j</title>
 			<para>&THIS.PLATFORM; JAIN SLEE Tracers additionally log messages to <application>Apache Log4j</application>, being the log4j category, for notification source <literal>X</literal>, defined as <literal>javax.slee.</literal> concatenated with the <literal>X.toString()</literal>.</para>
-			<para>For instance, the full log4j logger <literal>name</literal> for tracer named <literal>GoogleTalkBotSbb</literal>, of sbb notification source with <literal>SbbID[name=GoogleTalkBotSbb,vendor=mobicents,version=1.0]</literal> and <literal>ServiceID[name=GoogleTalkBotService,vendor=mobicents,version=1.0]</literal>, would be <literal>javax.slee.SbbNotification[service=ServiceID[name=GoogleTalkBotService, vendor=mobicents,version=0.1], sbb=SbbID[name=GoogleTalkBotSbb,vendor=mobicents, version=0.1]].GoogleTalkBotSbb</literal> (without the spaces or breaks), which means a log4j category defining its level as <literal>DEBUG</literal> could be:</para>
+			<para>For instance, the full log4j logger <literal>name</literal> for tracer named <literal>GoogleTalkBotSbb</literal>, of sbb notification source with <literal>SbbID[name=GoogleTalkBotSbb,vendor=restcomm,version=1.0]</literal> and <literal>ServiceID[name=GoogleTalkBotService,vendor=restcomm,version=1.0]</literal>, would be <literal>javax.slee.SbbNotification[service=ServiceID[name=GoogleTalkBotService, vendor=restcomm,version=0.1], sbb=SbbID[name=GoogleTalkBotSbb,vendor=restcomm, version=0.1]].GoogleTalkBotSbb</literal> (without the spaces or breaks), which means a log4j category defining its level as <literal>DEBUG</literal> could be:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <category
 	name="javax.slee.SbbNotification[service=ServiceID[name=GoogleTalkBotService,
-	vendor=mobicents,version=0.1],sbb=SbbID[name=GoogleTalkBotSbb,
-	vendor=mobicents,version=0.1]]"> 
+	vendor=restcomm,version=0.1],sbb=SbbID[name=GoogleTalkBotSbb,
+	vendor=restcomm,version=0.1]]"> 
     <priority value="DEBUG" /> 
 </category>]]>	
 			</programlisting>	

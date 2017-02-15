@@ -30,7 +30,7 @@ import javax.slee.connection.SleeConnectionFactory;
 import org.mobicents.slee.container.SleeContainerModule;
 
 /**
- * Interface for Mobicents SleeConnectionFactory to comply with. 
+ * Interface for Restcomm SleeConnectionFactory to comply with. 
  * @author baranowb
  *
  */

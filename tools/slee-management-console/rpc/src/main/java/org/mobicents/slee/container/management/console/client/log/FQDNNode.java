@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- * This class represents node - like "org","mobicents" or "net" in fqdn - org.mobicents.slee.container.SomeClass This class is intended to
+ * This class represents node - like "org","restcomm" or "net" in fqdn - org.mobicents.slee.container.SomeClass This class is intended to
  * ease logger tree creation - this process could be achieved along with parsing, but its tricky and error prone.
  * 
  * @author baranowb

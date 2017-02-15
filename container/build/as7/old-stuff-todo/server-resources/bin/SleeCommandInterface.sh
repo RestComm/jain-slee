@@ -47,10 +47,10 @@ JBOSS_CLASSPATH="$JBOSS_CLASSPATH:$JBOSS_HOME/lib/xml-apis.jar"
 JBOSS_CLASSPATH="$JBOSS_CLASSPATH:$JBOSS_HOME/lib/xercesImpl.jar"
 
 
-#Add mobicents class and jain slee jar
-export SLEE_CLASSPATH=$JBOSS_HOME/server/all/deploy/mobicents.sar:$SLEE_CLASSPATH
-#JBOSS_CLASSPATH="$JBOSS_CLASSPATH:$JBOSS_HOME/server/all/deploy/mobicents.sar/slee.jar"
-JBOSS_CLASSPATH="$JBOSS_CLASSPATH:$JBOSS_HOME/server/all/deploy/mobicents.sar/slee_1_1.jar"
+#Add restcomm class and jain slee jar
+export SLEE_CLASSPATH=$JBOSS_HOME/server/all/deploy/restcomm.sar:$SLEE_CLASSPATH
+#JBOSS_CLASSPATH="$JBOSS_CLASSPATH:$JBOSS_HOME/server/all/deploy/restcomm.sar/slee.jar"
+JBOSS_CLASSPATH="$JBOSS_CLASSPATH:$JBOSS_HOME/server/all/deploy/restcomm.sar/slee_1_1.jar"
 
 exec $JAVA \
    -classpath "$JBOSS_CLASSPATH:.:$SLEE_CLASSPATH" \

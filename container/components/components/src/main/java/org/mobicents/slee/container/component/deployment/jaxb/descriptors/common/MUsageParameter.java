@@ -29,7 +29,7 @@ import org.mobicents.slee.container.component.UsageParameterDescriptor;
  * MUsageParameter.java
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 5:47:05 PM Jan 22, 2009 <br>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

@@ -66,7 +66,7 @@ import org.mobicents.slee.container.util.ObjectCloner;
  * Generates the ProfileConcrete impl for a specific Profile Specification.
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 11:16:57 AM Mar 23, 2009 <br>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

@@ -142,7 +142,7 @@ TWIDDLE_BOOT_CLASSPATH="$TWIDDLE_HOME/lib/twiddle.jar"
     JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/dom4j.jar"
     JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jbossx-security-client.jar"
     
-    #mobicents
+    #restcomm
     JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/cli-twiddle.jar"
     JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jain-slee-1.1.jar"
     JBOSS_CLASSPATH="$JBOSS_CLASSPATH:${DIRNAME}/lib/jmx-property-editors.jar"

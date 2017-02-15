@@ -37,7 +37,7 @@ import org.mobicents.slee.container.transaction.SleeTransactionManager;
  * ProfileManagementHandler.java
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 3:26:16 PM Apr 3, 2009 <br>
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>

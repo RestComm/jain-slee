@@ -23,7 +23,7 @@
 /*
  * **************************************************
  *                                                 *
- *  Mobicents: The Open Source JSLEE Platform      *
+ *  Restcomm: The Open Source JSLEE Platform      *
  *                                                 *
  *  Distributable under LGPL license.              *
  *  See terms of license at gnu.org.               *

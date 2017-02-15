@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>cli-twiddle-docs-sources</artifactId>
-	<name>Mobicents Twiddle CLI :: Docs :: ${pom.artifactId}</name>
+	<name>Restcomm Twiddle CLI :: Docs :: ${pom.artifactId}</name>
 	<properties>
 
 	</properties>

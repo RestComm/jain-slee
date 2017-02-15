@@ -29,13 +29,13 @@ Thumbs.db
 ${env.JBOSS_HOME}
 ${release.dir}
 container/components/test-du/test/src/test/resources/components-test-du-*.jar
-container/docs/sources-mobicents/src/
+container/docs/sources-restcomm/src/
 container/docs/sources-telscale/src/
 container/server-all-beans/src/main/resources/standard-components-du.jar
 container/server-default-beans/src/main/resources/standard-components-du.jar
-tools/jopr-plugin/docs/sources-mobicents/src/
+tools/jopr-plugin/docs/sources-restcomm/src/
 tools/jopr-plugin/docs/sources-telscale/src/
-tools/slee-management-console/docs/sources-mobicents/src/
+tools/slee-management-console/docs/sources-restcomm/src/
 tools/slee-management-console/docs/sources-telscale/src/
-tools/twiddle/docs/sources-mobicents/src/
+tools/twiddle/docs/sources-restcomm/src/
 tools/twiddle/docs/sources-telscale/src/

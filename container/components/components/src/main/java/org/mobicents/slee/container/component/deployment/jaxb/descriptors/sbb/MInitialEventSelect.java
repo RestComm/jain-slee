@@ -22,7 +22,7 @@
 
 /**
  * Start time:13:10:35 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -34,7 +34,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEv
 
 /**
  * Start time:13:10:35 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>

@@ -27,7 +27,7 @@
  * 
  * Created by: M. Ranganathan
  *
- * The Mobicents Open SLEE project
+ * The Restcomm Open SLEE project
  * 
  * A SLEE for the people!
  *

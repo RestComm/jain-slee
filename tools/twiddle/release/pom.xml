@@ -12,7 +12,7 @@
 
 	<artifactId>cli-twiddle-release</artifactId>
 
-	<name>Mobicents Twiddle CLI :: ${pom.artifactId}</name>
+	<name>Restcomm Twiddle CLI :: ${pom.artifactId}</name>
 
 	<profiles>
 		<profile>

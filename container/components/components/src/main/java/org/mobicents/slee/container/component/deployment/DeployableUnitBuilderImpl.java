@@ -623,7 +623,7 @@ public class DeployableUnitBuilderImpl implements DeployableUnitBuilder {
 			// been nice if the File class had a createTempDir() method
 			// IVELIN -- do not use jarName here because windows cannot see the
 			// path (exceeds system limit)
-			File tempFile = File.createTempFile("mobicents-slee-du-", "",
+			File tempFile = File.createTempFile("restcomm-slee-du-", "",
 					deploymentRoot);
 			File tempDUDeploymentDir = new File(tempFile.getAbsolutePath()
 					+ "-contents");

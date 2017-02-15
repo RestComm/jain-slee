@@ -25,7 +25,7 @@ package org.mobicents.slee.resource.cluster;
 import org.restcomm.timers.TimerTask;
 
 /**
- * Wrapps the FT RA timer task into the task used by Mobicents Cluster
+ * Wrapps the FT RA timer task into the task used by Restcomm Cluster
  * framework.
  * 
  * @author martins

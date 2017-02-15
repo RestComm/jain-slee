@@ -22,7 +22,7 @@
 
 /**
  * Start time:11:43:35 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski
  *         </a>
@@ -39,7 +39,7 @@ import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescript
 
 /**
  * Start time:11:43:35 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">Bartosz Baranowski
  *         </a>

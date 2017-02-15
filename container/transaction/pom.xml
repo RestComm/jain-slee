@@ -4,7 +4,7 @@
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>mobicents-slee-core-container</artifactId>
+		<artifactId>restcomm-slee-core-container</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 
@@ -52,7 +52,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>mobicents-slee-core-transaction</finalName>
+		<finalName>restcomm-slee-core-transaction</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
@@ -69,7 +69,7 @@
 						true
 					</resolveTransitiveDependencies>
 					<eclipseProjectName>
-						mobicents-slee-core-transaction
+						restcomm-slee-core-transaction
 					</eclipseProjectName>
 				</configuration>
 			</plugin>

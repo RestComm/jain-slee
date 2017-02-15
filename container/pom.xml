@@ -3,18 +3,18 @@
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>mobicents-slee-core</artifactId>
+		<artifactId>restcomm-slee-core</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
-	<artifactId>mobicents-slee-core-container</artifactId>
+	<artifactId>restcomm-slee-core-container</artifactId>
 
 	<packaging>pom</packaging>
 
 	<properties>
-		<slee.name>Mobicents JAIN SLEE</slee.name>
-		<slee.vendor>Mobicents</slee.vendor>
+		<slee.name>Restcomm JAIN SLEE</slee.name>
+		<slee.vendor>Restcomm</slee.vendor>
 		<slee.version>${pom.version}</slee.version>
 		<slee.codename>???</slee.codename>
 

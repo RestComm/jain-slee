@@ -22,7 +22,7 @@
 
 /**
  * Start time:08:53:04 2009-04-16<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -32,7 +32,7 @@ package org.mobicents.slee.container.component.management.jmx;
 
 /**
  * Start time:08:53:04 2009-04-16<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * 
  * Simple MBean to allow access to some info so we know whats going on inside and provide means of polite instalation of policy.

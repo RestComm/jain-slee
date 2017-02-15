@@ -22,7 +22,7 @@
 
 /**
  * Start time:19:32:15 2009-02-05<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -53,7 +53,7 @@ import org.mobicents.slee.container.component.UsageParameterDescriptor;
 
 /**
  * Start time:19:32:15 2009-02-05<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * This class is place where common elements like usage parameter interface is
  * validated. In 1.1 specs its widely usable - ra, profiles, sbbs. In 1.0 only

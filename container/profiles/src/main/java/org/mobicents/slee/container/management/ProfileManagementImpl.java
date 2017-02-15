@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 
  * Start time:16:56:21 2009-03-13<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * Class that manages ProfileSpecification, profile tables, ProfileObjects. It
  * is responsible for setting up profile specification env.
  * 

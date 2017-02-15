@@ -5,11 +5,11 @@
 	
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>mobicents-slee-core-docs</artifactId>
+		<artifactId>restcomm-slee-core-docs</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>mobicents-slee-core-docs-sources</artifactId>
+	<artifactId>restcomm-slee-core-docs-sources</artifactId>
 			
 	<properties>
 		

@@ -4,24 +4,18 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>mobicents-slee-core-docs</artifactId>
+		<groupId>org.mobicents.servers.jainslee.tools</groupId>
+		<artifactId>restcomm-slee-tools-management-console-docs</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>mobicents-slee-core-docs-sources-mobicents</artifactId>	
+	<artifactId>restcomm-slee-tools-management-console-docs-sources-restcomm</artifactId>	
 			
 	<properties>
-		<THIS.PLATFORM>Mobicents</THIS.PLATFORM>
+		<THIS.PLATFORM>Restcomm</THIS.PLATFORM>
 		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
-		<MANAGEMENT.PLATFORM>Jopr</MANAGEMENT.PLATFORM>
-		<THIS.PLATFORM.INSTALL_SECTION>Section-Install_Mobicents.xml</THIS.PLATFORM.INSTALL_SECTION>
-		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/jain-slee/issues/list</THIS.ISSUE_TRACKER_URL>
-		<author.email.ivelin>ivelin.atanasoff.ivanov (at) gmail.com</author.email.ivelin>
-		<author.email.eduardo>emmartins (at) gmail.com</author.email.eduardo>
-		<author.email.alex>brainslog (at) gmail.com</author.email.alex>
-		<author.email.amit>abhayani (at) gmail.com</author.email.amit>
-		<author.email.bartosz>baranowb (at) gmail.com</author.email.bartosz>		
+		<MANAGEMENT.PLATFORM>JAIN SLEE Management Console</MANAGEMENT.PLATFORM>
+		<author.email.alexandre>brainslog@gmail.com</author.email.alexandre>
 	</properties>
 	
 	<build>
@@ -46,7 +40,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>
-									<artifactId>mobicents-slee-core-docs-sources</artifactId>
+									<artifactId>restcomm-slee-tools-management-console-docs-sources</artifactId>
 									<version>${pom.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>

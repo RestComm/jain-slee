@@ -75,9 +75,9 @@ public class SleeContainer {
 
 	static {
 		// Force this property to allow invocation of getters.
-		// http://code.google.com/p/mobicents/issues/detail?id=63
+		// http://code.google.com/p/restcomm/issues/detail?id=63
 		System.setProperty("jmx.invoke.getters", "true");
-		// establish the location of mobicents in JBoss AS deploy folder
+		// establish the location of restcomm in JBoss AS deploy folder
 		/*
         try {
 			java.net.URL url = VFSUtils.getCompatibleURL(VFS
@@ -89,7 +89,7 @@ public class SleeContainer {
 		} catch (Exception e) {
 			logger
 					.error(
-							"Failed to establish path to Mobicents root deployment directory",
+							"Failed to establish path to Restcomm root deployment directory",
 							e);
 			deployPath = null;
 		}
@@ -108,7 +108,7 @@ public class SleeContainer {
 
 	/**
 	 * 
-	 * @return the full file system path where mobicents.sar is located
+	 * @return the full file system path where restcomm.sar is located
 	 */
 	public String getDeployPath() {
 		return deployPath;

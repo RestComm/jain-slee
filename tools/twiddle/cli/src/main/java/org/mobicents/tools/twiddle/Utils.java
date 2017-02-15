@@ -41,7 +41,7 @@ public final class Utils {
 	public static final String SLEE_TRACE = javax.slee.management.TraceMBean.OBJECT_NAME;
 
 	
-	//some mobicents specific;
+	//some restcomm specific;
 	public static final String MC_ACTIVITY_MANAGEMENT = "org.mobicents.slee:name=ActivityManagementMBean";
 	public static final String MC_CONGESTION_CONTROL = "org.mobicents.slee:name=CongestionControlConfiguration";
 	public static final String MC_DEPLOYER = "org.mobicents.slee:name=DeployerMBean";

@@ -4,7 +4,7 @@
 	
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>mobicents-slee-core-container</artifactId>
+		<artifactId>restcomm-slee-core-container</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	
@@ -31,7 +31,7 @@
 					<excludePoms />
 					<classpathExcludes />
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-core-components</eclipseProjectName>
+					<eclipseProjectName>restcomm-slee-core-components</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		

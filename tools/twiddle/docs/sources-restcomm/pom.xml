@@ -9,10 +9,10 @@
 		<artifactId>cli-twiddle-docs</artifactId>
 	</parent>
 
-	<artifactId>cli-twiddle-docs-sources-mobicents</artifactId>
-	<name>Mobicents Twiddle CLI :: Docs :: ${pom.artifactId}</name>
+	<artifactId>cli-twiddle-docs-sources-restcomm</artifactId>
+	<name>Restcomm Twiddle CLI :: Docs :: ${pom.artifactId}</name>
 	<properties>
-		<THIS.PLATFORM>Mobicents</THIS.PLATFORM>
+		<THIS.PLATFORM>Restcomm</THIS.PLATFORM>
 		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
 		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/jain-slee/issues/list</THIS.ISSUE_TRACKER_URL>
 		<author.email.bartosz>baranowb (at) gmail.com</author.email.bartosz>

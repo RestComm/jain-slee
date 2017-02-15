@@ -38,7 +38,7 @@ import org.mobicents.slee.runtime.facilities.TracerImpl;
 
 /**
  * Start time:17:11:23 2009-03-13<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * This class represents ProfileContext. Note that profile context object MUST
  * belong to one profile table during its life time, profile(object) can change. <br>

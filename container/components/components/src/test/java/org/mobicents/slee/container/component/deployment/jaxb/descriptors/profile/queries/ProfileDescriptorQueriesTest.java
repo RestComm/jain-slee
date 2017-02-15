@@ -22,7 +22,7 @@
 
 /**
  * Start time:13:14:54 2009-01-29<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -47,7 +47,7 @@ import org.mobicents.slee.container.component.profile.query.RangeMatchDescriptor
 
 /**
  * Start time:13:14:54 2009-01-29<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>

@@ -44,7 +44,7 @@ public class MobicentsManagement implements
 	// removed.
 	public static int entitiesRemovalDelay = 0;
 
-	// mobicents version
+	// restcomm version
 	private String mobicentsVersion = Version.instance.toString();
 
 	public int getEntitiesRemovalDelay() {
@@ -81,7 +81,7 @@ public class MobicentsManagement implements
 
     private static String log4jConfigFilePath = System.getProperty("jboss.server.home.dir") + File.separator + "conf" + File.separator + "jboss-log4j.xml";
     private static String log4jTemplatesPath = System.getProperty("jboss.server.home.dir") + File.separator + "deploy" + 
-      File.separator + "mobicents-slee" + File.separator + "log4j-templates" + File.separator + "jboss-log4j.xml.";
+      File.separator + "restcomm-slee" + File.separator + "log4j-templates" + File.separator + "jboss-log4j.xml.";
 	
 	public String getLoggingConfiguration(String profile) throws ManagementException {
 	  try {

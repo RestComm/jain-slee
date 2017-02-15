@@ -22,7 +22,7 @@
 
 /**
  * Start time:16:39:44 2009-06-12<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
@@ -50,7 +50,7 @@ import org.mobicents.slee.container.profile.ProfileObject;
 
 /**
  * Start time:16:39:44 2009-06-12<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * Dev class, to test logic, put all security related methods here to delegate to org.mobicents domain.
  * 

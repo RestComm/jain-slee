@@ -10,7 +10,7 @@
 		    <varlistentry>
 		        <term>Binary Release</term>
 		        <listitem>
-		            <para>The binary release is a zip file containing an already built binary release of Mobicents JAIN SLEE</para>
+		            <para>The binary release is a zip file containing an already built binary release of Restcomm JAIN SLEE</para>
 		        </listitem>
 		    </varlistentry>
 		    <varlistentry>
@@ -35,20 +35,20 @@
 
 		<section id="binary_release">
 			<title>Binary Release</title>
-			<para>You can download the Binary zip files from <ulink url="http://sourceforge.net/projects/mobicents/files/Mobicents JAIN SLEE Server"/>.</para>
+			<para>You can download the Binary zip files from <ulink url="http://sourceforge.net/projects/restcomm/files/Mobicents JAIN SLEE Server"/>.</para>
 			<procedure>
 				<para>In this form of installation, simply unzip the downloaded zip file to the directory of your choice on any operating system that supports the zip format.</para>
   				<step>
 				    <title>Unzip the release file</title>
-				    <para>Unzip the file to extract the archive contents into the location of your choice. You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named mobicents-jainslee-&THIS.VERSION;.zip to the /mobicents directory.</para>
+				    <para>Unzip the file to extract the archive contents into the location of your choice. You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named restcomm-jainslee-&THIS.VERSION;.zip to the /restcomm directory.</para>
 				    <programlisting>
-				    [usr]$ cd /mobicents
-				    [usr]$ jar -xvf mobicents-jainslee-&THIS.VERSION;.zip
+				    [usr]$ cd /restcomm
+				    [usr]$ jar -xvf restcomm-jainslee-&THIS.VERSION;.zip
 					</programlisting>
   				</step>
 				<step>
 			    	<title>Setting up JBOSS_HOME Environment Variable</title>
-				    <para> You should now have a directory called mobicents-jainslee-&THIS.VERSION;. Next you need to set your JBOSS_HOME environment variables. This is discussed in <xref linkend="jboss_home_setup"/>.</para>
+				    <para> You should now have a directory called restcomm-jainslee-&THIS.VERSION;. Next you need to set your JBOSS_HOME environment variables. This is discussed in <xref linkend="jboss_home_setup"/>.</para>
 				</step>
 			</procedure>      
 		</section>	
@@ -64,12 +64,12 @@
 				<step>
 				    <title>Downloading the source code</title>
 				    <important>
-				    	<para>Git is used to manage Mobicents JAIN SLEE source code. Instructions for downloading, installing and using Git can be found at <ulink url="http://git-scm.com/" /></para>
+				    	<para>Git is used to manage Restcomm JAIN SLEE source code. Instructions for downloading, installing and using Git can be found at <ulink url="http://git-scm.com/" /></para>
 				    </important>
 				    <para>Use Git to checkout the specific release source, the Git repository URL is https://code.google.com/p/jain-slee/ , then switch to the specific release version, lets consider &THIS.VERSION;.</para>
 				    <programlisting>
-				    [usr]$ git clone https://code.google.com/p/jain-slee.release mobicents-jain-slee-release
-				    [usr]$ cd mobicents-jain-slee-release
+				    [usr]$ git clone https://code.google.com/p/jain-slee.release restcomm-jain-slee-release
+				    [usr]$ cd restcomm-jain-slee-release
 				    [usr]$ git checkout tags/&THIS.VERSION;
 					</programlisting>
   				</step>
@@ -82,7 +82,7 @@
 				    <programlisting>
 				    [usr]$ ant
 				    </programlisting>
-				    <para>Once the process finishes you should have a mobicents-jainslee-&THIS.VERSION;.zip file, installation is the same as for <xref linkend="binary_release"/>.</para>
+				    <para>Once the process finishes you should have a restcomm-jainslee-&THIS.VERSION;.zip file, installation is the same as for <xref linkend="binary_release"/>.</para>
   				</step>
 			</procedure>
 		</section>

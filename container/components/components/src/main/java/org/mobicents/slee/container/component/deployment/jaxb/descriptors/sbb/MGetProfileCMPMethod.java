@@ -22,7 +22,7 @@
 
 /**
  * Start time:11:32:55 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -37,7 +37,7 @@ import org.mobicents.slee.container.component.sbb.GetProfileCMPMethodDescriptor;
 
 /**
  * Start time:11:32:55 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>

@@ -27,7 +27,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.servi
  * MService.java
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 3:45:00 AM Feb 12, 2009 <br>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

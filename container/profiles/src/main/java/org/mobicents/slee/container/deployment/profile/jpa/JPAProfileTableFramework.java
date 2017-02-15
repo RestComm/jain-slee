@@ -92,7 +92,7 @@ public class JPAProfileTableFramework {
 
             properties.setProperty(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
             properties.setProperty(Environment.DIALECT, configuration.getHibernateDialect());
-            pumd.setPersistenceUnitName("mobicents-profile-persistence-pu");
+            pumd.setPersistenceUnitName("restcomm-profile-persistence-pu");
 
             List<String> classes = new ArrayList<String>();
             classes.add(JPAProfileTable.class.getName());

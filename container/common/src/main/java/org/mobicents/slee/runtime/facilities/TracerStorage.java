@@ -38,7 +38,7 @@ import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
  * implicitly creates ancestor tracers for requested name. It holds reference
  * TraceName->TracerImpl. It also associates parent to a child.<br>
  * Start time:19:20:19 2009-03-09<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski</a>
  * 

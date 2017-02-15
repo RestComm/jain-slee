@@ -26,7 +26,7 @@ import org.restcomm.timers.PeriodicScheduleStrategy;
 import org.restcomm.timers.TimerTaskData;
 
 /**
- * Wrapps the FT timer task data, into the task data used by Mobicents Cluster
+ * Wrapps the FT timer task data, into the task data used by Restcomm Cluster
  * framework.
  * 
  * @author martins

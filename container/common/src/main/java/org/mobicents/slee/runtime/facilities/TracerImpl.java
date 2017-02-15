@@ -40,7 +40,7 @@ import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 /**
  * 
  * Start time:21:04:04 2009-03-09<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * Implementation of Tracer object that allows slee comopnents to send
  * notification on some interesting ocasions.
  * 

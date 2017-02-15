@@ -38,7 +38,7 @@ import org.mobicents.slee.container.transaction.TransactionContext;
 /**
  * 
  * Start time:17:47:16 2009-03-25<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * This is class that carefully records calls to profile classes. On calls
  * within transaction this records profile name that has been called. In case of
  * reentrant profile we look for:

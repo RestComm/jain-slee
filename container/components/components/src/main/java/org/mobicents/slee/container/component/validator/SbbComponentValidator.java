@@ -22,7 +22,7 @@
 
 /**
  * Start time:17:06:21 2009-01-30<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -75,7 +75,7 @@ import org.mobicents.slee.container.component.sbb.SbbRefDescriptor;
 
 /**
  * Start time:17:06:21 2009-01-30<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * base validator for sbb components. It validates all sbb class constraints.
  * However it does not check referential constraints and similar. Checks that
  * have to be done before this class is used are: reference checks(this includes

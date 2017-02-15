@@ -22,7 +22,7 @@
 
 /**
  * Start time:12:56:13 2009-04-08<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -33,7 +33,7 @@ package org.mobicents.slee.container.component.security;
 
 /**
  * Start time:12:56:13 2009-04-08<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * test impl of policy handling code
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski

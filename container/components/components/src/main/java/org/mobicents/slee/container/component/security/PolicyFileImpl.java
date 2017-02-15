@@ -22,7 +22,7 @@
 
 /**
  * Start time:13:40:09 2009-04-13<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -76,7 +76,7 @@ import sun.security.util.SecurityConstants;
 
 /**
  * Start time:13:40:09 2009-04-13<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -712,7 +712,7 @@ public class PolicyFileImpl extends org.mobicents.slee.container.component.secur
 
 	/**
 	 * This class holds globaly active policies. Start time:13:42:44 2009-04-13<br>
-	 * Project: mobicents-jainslee-server-core<br>
+	 * Project: restcomm-jainslee-server-core<br>
 	 * 
 	 * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
 	 *         </a>
@@ -758,7 +758,7 @@ public class PolicyFileImpl extends org.mobicents.slee.container.component.secur
 	 * <ul>
 	 * <li><b>1 -
 	 * </b>jar:file:/D:/java/servers/jboss-5.0.0.GA/server/default/deploy
-	 * /mobicents.sar/lib/jar.jar!/</li>
+	 * /restcomm.sar/lib/jar.jar!/</li>
 	 * <li><b>2 -
 	 * </b>file:/D:/java/servers/jboss-5.0.0.GA/server/default/deploy/-</li>
 	 * </ul>

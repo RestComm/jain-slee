@@ -4,18 +4,18 @@
 	
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools</groupId>
-		<artifactId>mobicents-slee-tools-management-console-parent</artifactId>
+		<artifactId>restcomm-slee-tools-management-console-parent</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>mobicents-slee-tools-management-console-docs</artifactId>
+	<artifactId>restcomm-slee-tools-management-console-docs</artifactId>
 		
 	<packaging>pom</packaging>
 	
 	<modules>
 		<module>sources</module>
-		<module>sources-mobicents</module>
-		<module>jdocbook-mobicents</module>		
+		<module>sources-restcomm</module>
+		<module>jdocbook-restcomm</module>		
 	</modules>
 
 </project>

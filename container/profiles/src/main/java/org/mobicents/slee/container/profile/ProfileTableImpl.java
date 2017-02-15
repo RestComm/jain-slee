@@ -69,7 +69,7 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
 /**
  * 
  * Start time:11:20:19 2009-03-14<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>

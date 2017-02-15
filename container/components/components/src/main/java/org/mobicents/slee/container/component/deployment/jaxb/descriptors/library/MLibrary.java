@@ -43,7 +43,7 @@ import org.mobicents.slee.container.component.library.JarDescriptor;
  * MLibrary.java
  * 
  * <br>
- * Project: mobicents <br>
+ * Project: restcomm <br>
  * 3:19:02 AM Jan 30, 2009 <br>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>

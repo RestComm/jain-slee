@@ -117,7 +117,7 @@
 							<title>Set trace level in 1.0 facility</title>
 							<!-- <screen> --><programlisting>
 ./twiddle.sh trace -s --cid=\
-SbbID[name=ProxySbb,vendor=mobicents,version=1.1] --level=WARNING<!-- </screen> --></programlisting>
+SbbID[name=ProxySbb,vendor=restcomm,version=1.1] --level=WARNING<!-- </screen> --></programlisting>
 						</example>
 					</para>
 				</listitem>
@@ -229,7 +229,7 @@ SbbID[name=ProxySbb,vendor=mobicents,version=1.1] --level=WARNING<!-- </screen> 
 						option. Example call:
 						<example>
 							<title>Get trace level in 1.0 facility</title>
-							<!-- <screen> --><programlisting>./twiddle.sh trace -g --cid=SbbID[name=ProxySbb,vendor=mobicents,version=1.1]<!-- </screen> --></programlisting>
+							<!-- <screen> --><programlisting>./twiddle.sh trace -g --cid=SbbID[name=ProxySbb,vendor=restcomm,version=1.1]<!-- </screen> --></programlisting>
 						</example>
 					</para>
 				</listitem>

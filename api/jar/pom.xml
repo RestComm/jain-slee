@@ -3,7 +3,7 @@
 	
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>mobicents-slee-core</artifactId>
+		<artifactId>restcomm-slee-core</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	

@@ -22,7 +22,7 @@
 
 /**
  * Start time:14:26:21 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -34,7 +34,7 @@ import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
 
 /**
  * Start time:14:26:21 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>

@@ -38,7 +38,7 @@ import org.mobicents.slee.container.profile.entity.ProfileEntity;
 
 /**
  * Start time:14:20:46 2009-03-14<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * This class implements profile local interface to provide all required
  * methods. It obtains on the fly ProfileObject to perform its tasks.
  * 

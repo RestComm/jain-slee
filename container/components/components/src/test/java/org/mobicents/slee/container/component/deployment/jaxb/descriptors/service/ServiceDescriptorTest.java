@@ -22,7 +22,7 @@
 
 /**
  * Start time:14:23:34 2009-01-23<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Start time:14:23:34 2009-01-23<br>
- * Project: mobicents-jainslee-server-core<br>
+ * Project: restcomm-jainslee-server-core<br>
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
