@@ -211,8 +211,7 @@
 		</copy-->
 	</target>
 
-	<!--<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,get-extra,checkout-sources,build-core,build-resources">-->
-	<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,get-extra,build-core,build-resources">
+	<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,get-extra,checkout-sources,build-core,build-resources">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
