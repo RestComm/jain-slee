@@ -14,16 +14,40 @@
 	<version>3.0.0-SNAPSHOT</version>
 	
 	<properties>
-		<core.scmVersion>3.0.49</core.scmVersion>
+		<core.scmVersion>3.0.53</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
 
 		<jdbc.scmVersion>3.0.3</jdbc.scmVersion>
 		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
+		<sip.scmVersion>3.0.3</sip.scmVersion>
+		<sip.scmVersionType>tag</sip.scmVersionType>
+
+		<http.scmVersion>3.0.9</http.scmVersion>
+		<http.scmVersionType>tag</http.scmVersionType>
+		<media.scmVersion>3.0.1</media.scmVersion>
+		<media.scmVersionType>tag</media.scmVersionType>
+		<tftp.scmVersion>3.0.2</tftp.scmVersion>
+		<tftp.scmVersionType>tag</tftp.scmVersionType>
+		<xcap.scmVersion>3.0.1</xcap.scmVersion>
+		<xcap.scmVersionType>tag</xcap.scmVersionType>
+		<xmpp.scmVersion>3.0.1</xmpp.scmVersion>
+		<xmpp.scmVersionType>tag</xmpp.scmVersionType>
+
+		<diameter.scmVersion>3.0.6</diameter.scmVersion>
+		<diameter.scmVersionType>tag</diameter.scmVersionType>
+		<ss7.scmVersion>8.1.2</ss7.scmVersion>
+		<ss7.scmVersionType>tag</ss7.scmVersionType>
+		<smpp.scmVersion>7.1.1</smpp.scmVersion>
+		<smpp.scmVersionType>tag</smpp.scmVersionType>
 
 		<!--
 		<cluster.scmVersion>1.15.26</cluster.scmVersion>
 		<cluster.scmVersionType>tag</cluster.scmVersionType>
 		-->
+
+		<sip-balancer.scmVersion>8.0.145</sip-balancer.scmVersion>
+		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
+
 	</properties>
 	
 	<profiles>
@@ -69,6 +93,188 @@
 								</checkoutDirectory>
 								<connectionUrl>
 									scm:git:https://github.com/RestComm/jain-slee.jdbc.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>sip-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${sip.scmVersion}</scmVersion>
+								<scmVersionType>${sip.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/sip
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.sip.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>http-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${http.scmVersion}</scmVersion>
+								<scmVersionType>${http.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/http
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.http.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>media-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${media.scmVersion}</scmVersion>
+								<scmVersionType>${media.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/media
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.media.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>smpp-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${smpp.scmVersion}</scmVersion>
+								<scmVersionType>${smpp.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/smpp
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.smpp.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>tftp-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${tftp.scmVersion}</scmVersion>
+								<scmVersionType>${tftp.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/tftp
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.tftp.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>xcap-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${xcap.scmVersion}</scmVersion>
+								<scmVersionType>${xcap.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/xcap
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.xcap.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>xmpp-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${xmpp.scmVersion}</scmVersion>
+								<scmVersionType>${xmpp.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/xmpp
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.xmpp.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>diameter-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${diameter.scmVersion}</scmVersion>
+								<scmVersionType>${diameter.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/diameter
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.diameter.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<execution>
+							<id>ss7-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${ss7.scmVersion}</scmVersion>
+								<scmVersionType>${ss7.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/ss7
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.ss7.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<!-- -->
+
+						<execution>
+							<id>sip-balancer-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${sip-balancer.scmVersion}</scmVersion>
+								<scmVersionType>${sip-balancer.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/extra/sip-balancer
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/load-balancer.git
 								</connectionUrl>
 							</configuration>
 						</execution>

@@ -23,6 +23,33 @@
 	<property name="h2.distro.jar.path" value="h2-${h2.version}.jar" />
 	<available file="${ant.file.restcomm.release}/../${h2.distro.jar.path}" property="got.h2" />
 
+	<property name="cloudbees.url" value="https://mobicents.ci.cloudbees.com" />
+
+	<!-- Diameter -->
+	<!-- https://mobicents.ci.cloudbees.com/view/JSLEE/job/RestComm-jDiameter-1.x/134/artifact/release/restcomm-diameter-mux-wildfly-1.7.0.134.zip -->
+	<property name="diameter.build" value="134"/>
+	<property name="diameter.version" value="1.7.0.${diameter.build}"/>
+	<property name="diameter.zip" value="restcomm-diameter-mux-wildfly-${diameter.version}.zip"/>
+	<property name="diameter.download.url"
+			  value="${cloudbees.url}/job/RestComm-jDiameter-1.x/${diameter.build}/artifact/release/${diameter.zip}" />
+	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
+
+	<!-- SS7 -->
+	<property name="ss7.build" value="73"/>
+	<property name="ss7.version" value="8.0.${ss7.build}"/>
+	<property name="ss7.zip" value="restcomm-jss7-${ss7.version}.zip"/>
+	<property name="ss7.download.url"
+			  value="${cloudbees.url}/job/Restcomm-jSS7/${ss7.build}/artifact/release/${ss7.zip}" />
+	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
+
+	<!-- SMPP Extensions -->
+	<property name="smppext.build" value="11"/>
+	<property name="smppext.version" value="1.0.${smppext.build}"/>
+	<property name="smppext.zip" value="restcomm-smpp-extensions-${smppext.version}.zip"/>
+	<property name="smppext.download.url"
+			  value="${cloudbees.url}/job/Restcomm-SMPP-Extensions/${smppext.build}/artifact/release/${smppext.zip}" />
+	<property name="smppext.distro.zip.path" value="restcomm-smpp-extensions.zip" />
+
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="${ant.file.restcomm.release}/../ant-contrib-1.0b3.jar" />
@@ -65,7 +92,7 @@
 		</and>
 	</condition>
 
-	<target name="build-core" description="" depends="checkout-sources">
+	<target name="build-core" description="">
 		<property name="core.profiles" value="deploy-module-wildfly,deploy-configuration-wildfly" />
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
 			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${wildfly.home} -Djboss.path=../../${wildfly.home.relative.path} -Prelease,set-git-hash,${core.profiles}" />
@@ -75,7 +102,7 @@
 		</exec>
 	</target>
 
-	<target name="build-resources" depends="build-jdbc">
+	<target name="build-resources" depends="build-jdbc,build-sip,build-http,build-media,build-tftp,build-xcap,build-xmpp,build-diameter,build-ss7,build-smpp">
 		<echo message="Build Resources"/>
 	</target>
 
@@ -100,7 +127,92 @@
 		</antcall>
 	</target>
 
-	<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,build-core,build-resources">
+	<target name="build-sip" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="sip" />
+			<param name="javadoc.dirs" value="resources/sip11,enablers/sip-publication-client,enablers/sip-subscription-client" />
+		</antcall>
+	</target>
+
+	<target name="build-http" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="http" />
+			<param name="javadoc.dirs" value="resources/http-servlet,resources/http-client,resources/http-client-nio,enablers/rest-client" />
+		</antcall>
+	</target>
+
+	<target name="build-media" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="media" />
+			<param name="javadoc.dirs" value="resources/mgcp,resources/mscontrol" />
+		</antcall>
+	</target>
+
+	<target name="build-tftp" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="tftp" />
+			<param name="javadoc.dirs" value="resources/tftp-server" />
+		</antcall>
+	</target>
+
+	<target name="build-xcap" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="xcap" />
+			<param name="javadoc.dirs" value="resources/xcap-client,enablers/xdm-client" />
+		</antcall>
+	</target>
+
+	<target name="build-xmpp" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="xmpp" />
+			<param name="javadoc.dirs" value="resources/xmpp" />
+		</antcall>
+	</target>
+
+	<target name="build-diameter" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="diameter" />
+			<param name="javadoc.dirs" value="resources/diameter-base,resources/diameter-cca,resources/diameter-cx-dx,resources/diameter-gq,resources/diameter-gx,resources/diameter-rf,resources/diameter-ro,resources/diameter-rx,resources/diameter-s6a,resources/diameter-sh-client,resources/diameter-sh-server,enablers/hss-client" />
+		</antcall>
+	</target>
+
+	<target name="build-ss7" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="ss7" />
+			<param name="javadoc.dirs" value="resources/map,resources/cap,resources/tcap,resources/isup" />
+		</antcall>
+	</target>
+
+	<target name="build-smpp" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="smpp" />
+			<param name="javadoc.dirs" value="resources/smpp" />
+		</antcall>
+	</target>
+
+	<target name="build-sip-balancer" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/extra/sip-balancer">
+			<!--arg line="clean install -P set-git-hash,maven-release -Dmaven.test.skip=true" /-->
+			<arg line="clean install -P set-git-hash -Dmaven.test.skip=true" />
+		</exec>
+
+		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
+			<fileset dir="${ant.file.restcomm.release}/../checkout/extra/sip-balancer/jar/target">
+				<include name="**.jar" />
+			</fileset>
+			<fileset dir="${ant.file.restcomm.release}/../checkout/extra/sip-balancer">
+				<include name="lb-configuration.xml" />
+				<include name="lb-log4j.xml" />
+			</fileset>
+		</copy>
+
+		<!--copy failonerror="true" toDir="${release.dir}/extra/sip-balancer/docs" overwrite="true">
+			<fileset dir="${ant.file.restcomm.release}/../checkout/extra/sip-balancer/docs/jdocbook-restcomm/target/docbook/publish" />
+		</copy-->
+	</target>
+
+	<!--<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,get-extra,checkout-sources,build-core,build-resources">-->
+	<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,get-extra,build-core,build-resources">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
@@ -109,8 +221,8 @@
 			<param name="zip.filename" value="${release.profile}-slee-${release.version}-wildfly-${wildfly.version}.zip" />
 			<param name="wildfly.home" value="${wildfly.home}" />
 		</antcall>
-		<delete dir="${wildfly.home}" failonerror="true" />
-		<antcall target="clean" />
+		<!--<delete dir="${wildfly.home}" failonerror="true" />-->
+		<!--<antcall target="clean" />-->
 	</target>
 
 	<target name="clean">
@@ -119,7 +231,7 @@
 
 	<target name="get-wildfly" unless="got.wildfly">
 		<echo message="Downloading WildFly ${wildfly.version}"/>
-		<get verbose="true" dest="${ant.file.restcomm.release}/../${wildfly.distro.zip.path}" src="http://download.jboss.org/wildfly/${wildfly.version}/wildfly-${wildfly.version}.zip" />
+		<get verbose="false" dest="${ant.file.restcomm.release}/../${wildfly.distro.zip.path}" src="http://download.jboss.org/wildfly/${wildfly.version}/wildfly-${wildfly.version}.zip" />
 	</target>
 
 	<target name="unzip-wildfly">
@@ -133,7 +245,7 @@
 		<!-- H2 database -->
 		<echo message="Downloading last H2 database ${wildfly.version}"/>
 		<mkdir dir="${tmp.wildfly.home}"/>
-		<get verbose="true" dest="${tmp.wildfly.home}/${h2.distro.jar.path}" src="http://repo2.maven.org/maven2/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" />
+		<get verbose="false" dest="${tmp.wildfly.home}/${h2.distro.jar.path}" src="http://repo2.maven.org/maven2/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" />
 
 		<delete><fileset dir="${wildfly.modules}/com/h2database/h2/main/" includes="**/*.jar"/></delete>
 		<copy file="${tmp.wildfly.home}/${h2.distro.jar.path}" todir="${wildfly.modules}/com/h2database/h2/main/"/>
@@ -157,6 +269,57 @@
 			</replacevalue>
 		</replace>
 	</target>
+
+	<target name="get-extra" depends="get-diameter,unzip-diameter,get-ss7,unzip-ss7,setup-ss7,get-smppext,unzip-smppext,setup-smppext">
+	</target>
+
+	<available file="${ant.file.restcomm.release}/../${diameter.distro.zip.path}" property="got.diameter" />
+	<target name="get-diameter" unless="got.diameter">
+		<echo>Downloading Diameter</echo>
+		<get dest="${ant.file.restcomm.release}/../${diameter.distro.zip.path}" src="${diameter.download.url}" />
+	</target>
+
+	<target name="unzip-diameter">
+		<delete dir="${release.dir}/extra/restcomm-diameter" failonerror="true" />
+		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/extra/restcomm-diameter" />
+	</target>
+
+	<available file="${ant.file.restcomm.release}/../${ss7.distro.zip.path}" property="got.ss7" />
+	<target name="get-ss7" unless="got.ss7">
+		<echo>Downloading SS7</echo>
+		<get dest="${ant.file.restcomm.release}/../${ss7.distro.zip.path}" src="${ss7.download.url}" />
+	</target>
+
+	<target name="unzip-ss7">
+		<delete dir="${release.dir}/extra/restcomm-ss7" failonerror="false" />
+		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/restcomm-ss7" />
+	</target>
+
+	<target name="setup-ss7">
+		<property name="ss7.release.dir" value="${release.dir}/extra/restcomm-ss7/restcomm-jss7-${ss7.version}" />
+		<delete dir="${ss7.release.dir}/ss7/restcomm-ss7-service/lib" failonerror="true" />
+		<delete dir="${ss7.release.dir}/ss7/restcomm-ss7-service/META-INF" failonerror="true" />
+		<delete file="${ss7.release.dir}/ss7/build-jboss5.xml" failonerror="true" />
+		<move file="${ss7.release.dir}/ss7/build-wildfly.xml"
+			  tofile="${ss7.release.dir}/ss7/build.xml" failonerror="true"/>
+	</target>
+
+	<available file="${ant.file.restcomm.release}/../${smppext.distro.zip.path}" property="got.smppext" />
+	<target name="get-smppext" unless="got.smppext">
+		<echo>Downloading SMPP Extensions</echo>
+		<get dest="${ant.file.restcomm.release}/../${smppext.distro.zip.path}" src="${smppext.download.url}" />
+	</target>
+
+	<target name="unzip-smppext">
+		<delete dir="${release.dir}/extra/restcomm-smpp-extensions" failonerror="true" />
+		<unzip src="${smppext.distro.zip.path}" dest="${release.dir}/extra/restcomm-smpp-extensions" />
+	</target>
+
+	<target name="setup-smppext">
+		<property name="smppext.release.dir"
+				  value="${release.dir}/extra/restcomm-smpp-extensions/restcomm-smpp-extensions-${smppext.version}" />
+		<delete dir="${smppext.release.dir}/jboss5" failonerror="true" />
+	</target>
 	
 	<target name="checkout-sources">
 		<echo>Checking out sources</echo>
@@ -166,6 +329,26 @@
 			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} ${validate.versions}" />
 		</exec>
 	</target>
+
+	<!-- zip sources for debug -->
+
+	<target name="build-sources-for-debug-zip" depends="">
+		<property name="debug.src.zip.filename" value="sources.zip" />
+		<mkdir dir="${release.dir}/sources" />
+		<for param="dir.name">
+			<dirset dir="${ant.file.restcomm.release}/../checkout" includes="**/src/main/java" excludes="**/maven-archetypes/** **/management-console/**" />
+			<sequential>
+				<echo>Packaging debug src for @{dir.name}</echo>
+				<copy todir="${release.dir}/sources" includeEmptyDirs="yes">
+					<fileset dir="@{dir.name}" />
+				</copy>
+			</sequential>
+		</for>
+		<zip destfile="${release.dir}/${debug.src.zip.filename}" basedir="${release.dir}/sources" />
+		<delete dir="${release.dir}/sources" />
+	</target>
+
+	<!-- zip release -->
 
 	<target name="zip-wildfly" description="">
 		<fixcrlf srcdir="${wildfly.home}/bin" includes="*.sh" eol="lf" eof="remove" />
