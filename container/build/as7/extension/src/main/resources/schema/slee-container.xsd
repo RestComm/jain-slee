@@ -11,13 +11,22 @@
     <xs:complexType name="subsystemType">
         <xs:sequence>
             <xs:element name="cache-config" type="xs:string" minOccurs="0" maxOccurs="1" />
-            <xs:element name="remote-rmi-address" type="xs:string" minOccurs="0" maxOccurs="1" />
-            <xs:element name="remote-rmi-port" type="xs:int" minOccurs="0" maxOccurs="1" />
-            <xs:element name="profiles-persist-profiles" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true" />
-            <xs:element name="profiles-clustered-profiles" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false" />
-            <xs:element name="profiles-hibernate-datasource" type="xs:string" minOccurs="0" maxOccurs="1" />
-            <xs:element name="profiles-hibernate-dialect" type="xs:string" minOccurs="0" maxOccurs="1" />
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="mbean" type="mbeanType"/>
+            </xs:choice>
         </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="mbeanType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="property" type="propertyType"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="propertyType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="value" type="xs:string" use="required"/>
     </xs:complexType>
 
 </xs:schema>

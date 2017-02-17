@@ -15,7 +15,7 @@ public class SleeMbeanPropertyDefinition extends SimpleResourceDefinition {
     public enum Element {
         UNKNOWN(null),
         NAME("name"),
-        TYPE("type"),
+        //TYPE("type"),
         VALUE("value");
 
         private final String name;
@@ -47,8 +47,8 @@ public class SleeMbeanPropertyDefinition extends SimpleResourceDefinition {
 
     public static final SimpleAttributeDefinition NAME_ATTR = new SimpleAttributeDefinition(
             Element.NAME.localName(), ModelType.STRING, true);
-    public static final SimpleAttributeDefinition TYPE_ATTR = new SimpleAttributeDefinition(
-            Element.TYPE.localName(), ModelType.STRING, true);
+    //public static final SimpleAttributeDefinition TYPE_ATTR = new SimpleAttributeDefinition(
+    //        Element.TYPE.localName(), ModelType.STRING, true);
     public static final SimpleAttributeDefinition VALUE_ATTR = new SimpleAttributeDefinition(
             Element.VALUE.localName(), ModelType.STRING, true);
 
@@ -58,7 +58,7 @@ public class SleeMbeanPropertyDefinition extends SimpleResourceDefinition {
 
     protected static final SimpleAttributeDefinition[] PROPERTY_ATTRIBUTES = {
             //NAME_ATTR, // name is read-only
-            TYPE_ATTR,
+            //TYPE_ATTR,
             VALUE_ATTR
     };
 

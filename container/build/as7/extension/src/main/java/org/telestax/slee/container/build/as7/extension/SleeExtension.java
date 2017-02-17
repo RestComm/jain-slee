@@ -128,7 +128,7 @@ public class SleeExtension implements Extension {
                         final ModelNode propertyEntry = propertyProp.getValue();
 
                         SleeMbeanPropertyDefinition.NAME_ATTR.marshallAsAttribute(propertyEntry, true, writer);
-                        SleeMbeanPropertyDefinition.TYPE_ATTR.marshallAsAttribute(propertyEntry, true, writer);
+                        //SleeMbeanPropertyDefinition.TYPE_ATTR.marshallAsAttribute(propertyEntry, true, writer);
                         SleeMbeanPropertyDefinition.VALUE_ATTR.marshallAsAttribute(propertyEntry, true, writer);
 
                         writer.writeEndElement();
@@ -235,10 +235,10 @@ public class SleeExtension implements Extension {
                     SleeMbeanPropertyDefinition.NAME_ATTR.parseAndSetParameter(value, property, reader);
                     break;
                 }
-                case TYPE: {
-                    SleeMbeanPropertyDefinition.TYPE_ATTR.parseAndSetParameter(value, property, reader);
-                    break;
-                }
+                //case TYPE: {
+                //    SleeMbeanPropertyDefinition.TYPE_ATTR.parseAndSetParameter(value, property, reader);
+                //    break;
+                //}
                 case VALUE: {
                     SleeMbeanPropertyDefinition.VALUE_ATTR.parseAndSetParameter(value, property, reader);
                     break;
