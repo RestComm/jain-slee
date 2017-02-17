@@ -14,7 +14,7 @@
 	<version>3.0.0-SNAPSHOT</version>
 	
 	<properties>
-		<core.scmVersion>3.0.53</core.scmVersion>
+		<core.scmVersion>3.0.54</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
 
 		<jdbc.scmVersion>3.0.3</jdbc.scmVersion>
@@ -33,7 +33,7 @@
 		<xmpp.scmVersion>3.0.1</xmpp.scmVersion>
 		<xmpp.scmVersionType>tag</xmpp.scmVersionType>
 
-		<diameter.scmVersion>3.0.6</diameter.scmVersion>
+		<diameter.scmVersion>3.0.7</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
 		<ss7.scmVersion>8.1.2</ss7.scmVersion>
 		<ss7.scmVersionType>tag</ss7.scmVersionType>
