@@ -499,13 +499,45 @@
   											<replacetoken><![CDATA[</profile>]]></replacetoken>
   											<replacevalue><![CDATA[
 		<subsystem xmlns="urn:telestax:slee-container:3.0">
-			<remote-rmi-address>127.0.0.1</remote-rmi-address>
-			<remote-rmi-port>7777</remote-rmi-port>
-			<profiles-persist-profiles>true</profiles-persist-profiles>
-			<profiles-clustered-profiles>false</profiles-clustered-profiles>
-			<profiles-hibernate-datasource>java:jboss/datasources/ExampleDS</profiles-hibernate-datasource>
-			<profiles-hibernate-dialect>org.hibernate.dialect.H2Dialect</profiles-hibernate-dialect>
-		</subsystem>
+            <cache-config>
+                &lt;?xml version="1.0" encoding="UTF-8"?>
+				&lt;infinispan
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="urn:infinispan:config:8.2 http://www.infinispan.org/schemas/infinispan-config-8.2.xsd"
+					xmlns="urn:infinispan:config:8.2">
+					&lt;cache-container default-cache="default" statistics="false" shutdown-hook="DONT_REGISTER">
+						&lt;local-cache name="default">
+							&lt;locking isolation="REPEATABLE_READ" acquire-timeout="30000" striping="false" />
+							&lt;transaction mode="BATCH"/>
+						&lt;/local-cache>
+					&lt;/cache-container>
+				&lt;/infinispan>
+            </cache-config>
+            <mbean name="EventContextFactoryConfiguration">
+				<property name="defaultEventContextSuspensionTimeout" value="10000" />
+			</mbean>
+			<mbean name="EventRouterConfiguration">
+				<property name="eventRouterThreads" value="8" />
+				<property name="collectStats" value="true" />
+				<property name="confirmSbbEntityAttachement" value="true" />
+				<property name="executorMapperClassName"
+					value="org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper" />
+			</mbean>
+			<mbean name="MobicentsManagement">
+				<property name="entitiesRemovalDelay" value="1" />
+				<property name="initializeReferenceDataTypesWithNull" value="true" />
+			</mbean>
+            <mbean name="H2DBConfig">
+            	<property name="persistProfiles" value="true" />
+            	<property name="clusteredProfiles" value="false" />
+            	<property name="hibernateDatasource" value="java:jboss/datasources/ExampleDS" />
+            	<property name="hibernateDialect" value="org.hibernate.dialect.H2Dialect" />
+            </mbean>
+            <mbean name="RmiServerInterface">
+            	<property name="rmiAddress" value="127.0.0.1" />
+            	<property name="rmiPort" value="7777" />
+            </mbean>
+        </subsystem>
 	</profile>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
@@ -529,6 +561,7 @@
   											<replacetoken><![CDATA[<extension module="org.telestax.slee.container.extension"/>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
+										<!--
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0">
 			<remote-rmi-address>127.0.0.1</remote-rmi-address>
@@ -540,6 +573,7 @@
 		</subsystem>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
+										-->
 										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
 											<replacetoken><![CDATA[<module name="org.telestax.slee.container.lib"/>]]></replacetoken>
 											<replacevalue><![CDATA[]]></replacevalue>
