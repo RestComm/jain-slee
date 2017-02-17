@@ -6,12 +6,6 @@ import java.util.Map;
 enum Element {
 
     CACHE_CONFIG(SleeSubsystemDefinition.CACHE_CONFIG.getXmlName()),
-    REMOTE_RMI_ADDRESS(SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.getXmlName()),
-    REMOTE_RMI_PORT(SleeSubsystemDefinition.REMOTE_RMI_PORT.getXmlName()),
-    PROFILES_PERSIST_PROFILES(SleeSubsystemDefinition.PROFILES_PERSIST_PROFILES.getXmlName()),
-    PROFILES_CLUSTERED_PROFILES(SleeSubsystemDefinition.PROFILES_CLUSTERED_PROFILES.getXmlName()),
-    PROFILES_HIBERNATE_DATASOURCE(SleeSubsystemDefinition.PROFILES_HIBERNATE_DATASOURCE.getXmlName()),
-    PROFILES_HIBERNATE_DIALECT(SleeSubsystemDefinition.PROFILES_HIBERNATE_DIALECT.getXmlName()),
     UNKNOWN(null);
 
     private final String name;

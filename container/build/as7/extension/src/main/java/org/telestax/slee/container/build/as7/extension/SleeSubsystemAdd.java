@@ -2,6 +2,7 @@ package org.telestax.slee.container.build.as7.extension;
 
 import org.jboss.as.connector.subsystems.datasources.DataSourceReferenceFactoryService;
 import org.jboss.as.controller.*;
+import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.controller.services.path.PathManager;
 import org.jboss.as.controller.services.path.PathManagerService;
 import org.jboss.as.jmx.MBeanServerService;
@@ -65,33 +66,15 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
             }
         }, OperationContext.Stage.RUNTIME);
 
-        //ModelNode fullModel = Resource.Tools.readModel(context.readResource(PathAddress.EMPTY_ADDRESS));
+        ModelNode fullModel = Resource.Tools.readModel(context.readResource(PathAddress.EMPTY_ADDRESS));
 
         final ModelNode cacheConfigModel = SleeSubsystemDefinition.CACHE_CONFIG.resolveModelAttribute(context, model);
         final String cacheConfig = cacheConfigModel.isDefined() ? cacheConfigModel.asString() : null;
 
-        final ModelNode rmiAddressModel = SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.resolveModelAttribute(context, model);
-        final String rmiAddress = rmiAddressModel.isDefined() ? rmiAddressModel.asString() : null;
-
-        final ModelNode rmiPortModel = SleeSubsystemDefinition.REMOTE_RMI_PORT.resolveModelAttribute(context, model);
-        final int rmiPort = rmiPortModel.isDefined() ? rmiPortModel.asInt() : 5555;
-
-        final boolean persistProfiles = SleeSubsystemDefinition.PROFILES_PERSIST_PROFILES.resolveModelAttribute(context, model).asBoolean();
-        final boolean clusteredProfiles = SleeSubsystemDefinition.PROFILES_CLUSTERED_PROFILES.resolveModelAttribute(context, model).asBoolean();
-
-        final ModelNode hibernateDatasourceModel = SleeSubsystemDefinition.PROFILES_HIBERNATE_DATASOURCE.resolveModelAttribute(context, model);
-        final String hibernateDatasource = hibernateDatasourceModel.isDefined() ? hibernateDatasourceModel.asString() : "java:jboss/datasources/ExampleDS";
-        final ModelNode hibernateDialectModel = SleeSubsystemDefinition.PROFILES_HIBERNATE_DIALECT.resolveModelAttribute(context, model);
-        final String hibernateDialect = hibernateDialectModel.isDefined() ? hibernateDialectModel.asString() : "org.hibernate.dialect.H2Dialect";
-
     	// Installs the msc service which builds the SleeContainer instance and its modules
         final ServiceTarget target = context.getServiceTarget();
-        final SleeContainerService sleeContainerService = new SleeContainerService(
-                cacheConfig,
-                rmiAddress, rmiPort,
-                persistProfiles, clusteredProfiles, hibernateDatasource, hibernateDialect);
-        //final SleeContainerService sleeContainerService = new SleeContainerService("127.0.0.1", 5555);
-        
+        final SleeContainerService sleeContainerService = new SleeContainerService(fullModel, cacheConfig);
+
         final ServiceBuilder<?> sleeContainerServiceBuilder = target
                 .addService(SleeServiceNames.SLEE_CONTAINER, sleeContainerService)
                 .addDependency(PathManagerService.SERVICE_NAME, PathManager.class, sleeContainerService.getPathManagerInjector())

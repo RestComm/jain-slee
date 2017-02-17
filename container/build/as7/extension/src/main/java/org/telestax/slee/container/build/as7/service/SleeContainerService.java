@@ -1,17 +1,16 @@
 package org.telestax.slee.container.build.as7.service;
 
-import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.configuration.global.ShutdownHookBehavior;
-import org.infinispan.manager.CacheContainer;
 import org.infinispan.util.concurrent.IsolationLevel;
 
 import org.jboss.as.controller.services.path.PathManager;
 import org.jboss.as.naming.ManagedReferenceFactory;
+import org.jboss.dmr.ModelNode;
 import org.jboss.logging.Logger;
 import org.jboss.msc.service.*;
 import org.jboss.msc.value.InjectedValue;
@@ -74,7 +73,6 @@ import javax.slee.management.*;
 import javax.transaction.TransactionManager;
 import java.io.*;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.concurrent.Executors;
@@ -91,12 +89,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 	private static final String TEMP_DIR = "jboss.server.temp.dir";
 
 	private String cacheConfig;
-	private String rmiAddress;
-	private int rmiPort;
-	private boolean persistProfiles;
-	private boolean clusteredProfiles;
-	private String hibernateDatasource;
-	private String hibernateDialect;
+	private ModelNode fullModel;
 
 	private final InjectedValue<MBeanServer> mbeanServer = new InjectedValue<MBeanServer>();
 	private final InjectedValue<PathManager> pathManagerInjector = new InjectedValue<PathManager>();
@@ -111,18 +104,44 @@ public class SleeContainerService implements Service<SleeContainer> {
 		return externalDeployer;
 	}
 
-	public SleeContainerService(
-			String cacheConfig,
-			String rmiAddress, int rmiPort,
-			boolean persistProfiles, boolean clusteredProfiles,
-			String hibernateDatasource, String hibernateDialect) {
+	public SleeContainerService(ModelNode model, String cacheConfig) {
+		this.fullModel = model;
 		this.cacheConfig = cacheConfig;
-		this.rmiAddress = rmiAddress;
-		this.rmiPort = rmiPort;
-		this.persistProfiles = persistProfiles;
-		this.clusteredProfiles = clusteredProfiles;
-		this.hibernateDatasource = hibernateDatasource;
-		this.hibernateDialect = hibernateDialect;
+	}
+
+	private ModelNode peek(ModelNode node, String... args) {
+		for (String arg : args) {
+			if (!node.hasDefined(arg)) { return null; }
+			node = node.get(arg);
+		}
+		return node;
+	}
+
+	private String getPropertyString(String mbeanName, String propertyName, String defaultValue) {
+		String result = defaultValue;
+		ModelNode propertyNode = peek(fullModel, "mbean", mbeanName, "property", propertyName);
+		if (propertyNode != null && propertyNode.isDefined()) {
+			result = propertyNode.get("value").asString();
+		}
+		return (result == null) ? defaultValue : result;
+	}
+
+	private int getPropertyInt(String mbeanName, String propertyName, int defaultValue) {
+		int result = defaultValue;
+		ModelNode propertyNode = peek(fullModel, "mbean", mbeanName, "property", propertyName);
+		if (propertyNode != null && propertyNode.isDefined()) {
+			result = propertyNode.get("value").asInt();
+		}
+		return result;
+	}
+
+	private boolean getPropertyBoolean(String mbeanName, String propertyName, boolean defaultValue) {
+		boolean result = defaultValue;
+		ModelNode propertyNode = peek(fullModel, "mbean", mbeanName, "property", propertyName);
+		if (propertyNode != null && propertyNode.isDefined()) {
+			result = propertyNode.get("value").asBoolean();
+		}
+		return result;
 	}
 
 	@Override
@@ -167,7 +186,10 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final AlarmMBeanImpl alarmMBean = new AlarmMBeanImpl(traceMBean);		
 		
 		final MobicentsManagement mobicentsManagement = new MobicentsManagement();
-		mobicentsManagement.setEntitiesRemovalDelay(1);
+		mobicentsManagement.setEntitiesRemovalDelay(
+				getPropertyInt("MobicentsManagement", "entitiesRemovalDelay", 1));
+		mobicentsManagement.setInitializeReferenceDataTypesWithNull(
+				getPropertyBoolean("MobicentsManagement", "initializeReferenceDataTypesWithNull", true));
 
 		final SbbManagement sbbManagement = new SbbManagementImpl();
 
@@ -179,20 +201,26 @@ public class SleeContainerService implements Service<SleeContainer> {
 				profileConfiguration = new org.mobicents.slee.container.deployment.profile.jpa.Configuration();
 
 		// TODO: ExtensionConfiguration for Profile Management
-		profileConfiguration.setPersistProfiles(this.persistProfiles);
-		profileConfiguration.setClusteredProfiles(this.clusteredProfiles);
-		profileConfiguration.setHibernateDatasource(this.hibernateDatasource);
-		profileConfiguration.setHibernateDialect(this.hibernateDialect);
+		profileConfiguration.setPersistProfiles(getPropertyBoolean("H2DBConfig", "persistProfiles", true));
+		profileConfiguration.setClusteredProfiles(getPropertyBoolean("H2DBConfig", "clusteredProfiles", false));
+		profileConfiguration.setHibernateDatasource(
+				getPropertyString("H2DBConfig", "hibernateDatasource", "java:jboss/datasources/ExampleDS"));
+		profileConfiguration.setHibernateDialect(
+				getPropertyString("H2DBConfig", "hibernateDialect", "org.hibernate.dialect.H2Dialect"));
 		final ProfileManagement profileManagement = new ProfileManagementImpl(profileConfiguration);
 
 		// TODO: ExtensionConfiguration for EventRouter
 		final EventRouterConfiguration eventRouterConfiguration = new EventRouterConfiguration();
-		eventRouterConfiguration.setEventRouterThreads(8);
-		eventRouterConfiguration.setCollectStats(true);
-		eventRouterConfiguration.setConfirmSbbEntityAttachement(true);
+		eventRouterConfiguration.setEventRouterThreads(
+				getPropertyInt("EventRouterConfiguration", "eventRouterThreads", 8));
+		eventRouterConfiguration.setCollectStats(
+				getPropertyBoolean("EventRouterConfiguration", "collectStats", true));
+		eventRouterConfiguration.setConfirmSbbEntityAttachement(
+				getPropertyBoolean("EventRouterConfiguration", "confirmSbbEntityAttachement", true));
 		try {
-			eventRouterConfiguration
-				.setExecutorMapperClassName(ActivityHashingEventRouterExecutorMapper.class.getName());
+			eventRouterConfiguration.setExecutorMapperClassName(
+					getPropertyString("EventRouterConfiguration", "executorMapperClassName",
+							"org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper"));
 		} catch (ClassNotFoundException e) {
 			throw new StartException(e);
 		}
@@ -224,8 +252,9 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final SleeConnectionService sleeConnectionService = new SleeConnectionServiceImpl();
 		final MobicentsSleeConnectionFactory sleeConnectionFactory = null; // new MobicentsSleeConnectionFactoryImpl();
         final RmiServerInterface rmiServerInterface = new RmiServerInterfaceImpl();
-		rmiServerInterface.setAddress(this.rmiAddress);
-		rmiServerInterface.setPort(this.rmiPort);
+		rmiServerInterface.setAddress(
+				getPropertyString("RmiServerInterface", "rmiAddress", "127.0.0.1"));
+		rmiServerInterface.setPort(getPropertyInt("RmiServerInterface", "rmiPort", 7777));
 
 		final UsageParametersManagement usageParametersManagement = new UsageParametersManagementImpl();
 
@@ -233,8 +262,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		final EventContextFactoryDataSource eventContextFactoryDataSource = new DefaultEventContextFactoryDataSource();
 		final EventContextFactoryConfiguration eventContextFactoryConfiguration = new EventContextFactoryConfiguration();
-		eventContextFactoryConfiguration
-				.setDefaultEventContextSuspensionTimeout(10000);
+		eventContextFactoryConfiguration.setDefaultEventContextSuspensionTimeout(
+				getPropertyInt("EventContextFactoryConfiguration", "defaultEventContextSuspensionTimeout", 10000));
 		final EventContextFactory eventContextFactory = new EventContextFactoryImpl(
 				eventContextFactoryDataSource, eventContextFactoryConfiguration);
 
@@ -384,41 +413,44 @@ public class SleeContainerService implements Service<SleeContainer> {
 	}
 
 	private MobicentsCache initCache(ClassLoader classLoader) {
-
-        InputStream cacheConfigStream =
-                new ByteArrayInputStream(this.cacheConfig.getBytes(StandardCharsets.UTF_8));
-
-        MobicentsCache sleeCache = null;
-
-		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(classLoader);
+		MobicentsCache sleeCache = null;
 
 		try {
-            sleeCache = new MobicentsCache(cacheConfigStream, classLoader);
-		} catch (IOException e) {
-			log.warn("Cant create Mobicents Cache from config stream: "+this.cacheConfig, e);
+			InputStream cacheConfigStream =
+					new ByteArrayInputStream(this.cacheConfig.getBytes("UTF-8"));
 
-			Configuration defaultConfig = new ConfigurationBuilder()
-					.invocationBatching().enable()
-					.clustering().cacheMode(CacheMode.LOCAL)
-					//.clustering().cacheMode(CacheMode.REPL_ASYNC)
-					//.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
-					.transaction().syncCommitPhase(true)
-					.locking().isolationLevel(IsolationLevel.REPEATABLE_READ)
-					.locking().lockAcquisitionTimeout(30000).useLockStriping(false)
-					.jmxStatistics().disable()
-					.build();
+			ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(classLoader);
 
-			GlobalConfiguration globalConfig = new GlobalConfigurationBuilder()
-					.globalJmxStatistics().disable()
-					//.transport().defaultTransport()
-					.shutdown().hookBehavior(ShutdownHookBehavior.DONT_REGISTER)
-					.build();
+			try {
+				sleeCache = new MobicentsCache(cacheConfigStream, classLoader);
+			} catch (IOException e1) {
+				log.warn("Cant create Mobicents Cache from config stream: " + this.cacheConfig, e1);
 
-			sleeCache = new MobicentsCache(defaultConfig, globalConfig, classLoader);
+				Configuration defaultConfig = new ConfigurationBuilder()
+						.invocationBatching().enable()
+						.clustering().cacheMode(CacheMode.LOCAL)
+						//.clustering().cacheMode(CacheMode.REPL_ASYNC)
+						//.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
+						.transaction().syncCommitPhase(true)
+						.locking().isolationLevel(IsolationLevel.REPEATABLE_READ)
+						.locking().lockAcquisitionTimeout(30000).useLockStriping(false)
+						.jmxStatistics().disable()
+						.build();
+
+				GlobalConfiguration globalConfig = new GlobalConfigurationBuilder()
+						.globalJmxStatistics().disable()
+						//.transport().defaultTransport()
+						.shutdown().hookBehavior(ShutdownHookBehavior.DONT_REGISTER)
+						.build();
+
+				sleeCache = new MobicentsCache(defaultConfig, globalConfig, classLoader);
+			}
+
+			Thread.currentThread().setContextClassLoader(currentClassLoader);
+		} catch (UnsupportedEncodingException e2) {
 		}
 
-		Thread.currentThread().setContextClassLoader(currentClassLoader);
 		return sleeCache;
 	}
 	

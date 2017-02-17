@@ -1,10 +1,8 @@
 package org.telestax.slee.container.build.as7.extension;
 
 import org.jboss.as.controller.*;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
 import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler;
-import org.jboss.as.controller.operations.common.Util;
 import org.jboss.as.controller.parsing.Attribute;
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.parsing.Namespace;
@@ -20,18 +18,20 @@ import org.jboss.staxmapper.XMLElementWriter;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
 import org.jboss.staxmapper.XMLExtendedStreamWriter;
 
-import javax.slee.SLEEException;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import java.util.EnumSet;
+import java.util.Collections;
 import java.util.List;
 
+import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIBE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
-import static org.jboss.as.controller.parsing.ParseUtils.requireNoNamespaceAttribute;
+import static org.jboss.as.controller.parsing.ParseUtils.*;
+import static org.jboss.as.controller.parsing.ParseUtils.missingRequired;
+import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
 
 /**
  *
@@ -84,16 +84,17 @@ public class SleeExtension implements Extension {
         registration.registerOperationHandler(describeOp, GenericSubsystemDescribeHandler.INSTANCE, false);
 
         subsystem.registerXMLElementWriter(parser);
+
+        // here we can register submodels
+        final ManagementResourceRegistration mbeans = registration.registerSubModel(SleeMbeanDefinition.INSTANCE);
     }
 
-    /*
     private static ModelNode createAddSubsystemOperation() {
         final ModelNode subsystem = new ModelNode();
         subsystem.get(OP).set(ADD);
         subsystem.get(OP_ADDR).add(SUBSYSTEM, SUBSYSTEM_NAME);
         return subsystem;
     }
-    */
 
     /**
      * The subsystem parser, which uses stax to read and write to and from xml
@@ -107,14 +108,35 @@ public class SleeExtension implements Extension {
         public void writeContent(XMLExtendedStreamWriter writer, SubsystemMarshallingContext context) throws XMLStreamException {
             context.startSubsystemElement(SleeExtension.NAMESPACE, false);
 
-            final ModelNode sleeSubsystem = context.getModelNode();
-            SleeSubsystemDefinition.CACHE_CONFIG.marshallAsElement(sleeSubsystem, writer);
-            SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.marshallAsElement(sleeSubsystem, writer);
-            SleeSubsystemDefinition.REMOTE_RMI_PORT.marshallAsElement(sleeSubsystem, writer);
-            SleeSubsystemDefinition.PROFILES_PERSIST_PROFILES.marshallAsElement(sleeSubsystem, writer);
-            SleeSubsystemDefinition.PROFILES_CLUSTERED_PROFILES.marshallAsElement(sleeSubsystem, writer);
-            SleeSubsystemDefinition.PROFILES_HIBERNATE_DATASOURCE.marshallAsElement(sleeSubsystem, writer);
-            SleeSubsystemDefinition.PROFILES_HIBERNATE_DIALECT.marshallAsElement(sleeSubsystem, writer);
+            final ModelNode node = context.getModelNode();
+            final ModelNode mbean = node.get(SleeMbeanDefinition.MBEAN);
+
+            SleeSubsystemDefinition.CACHE_CONFIG.marshallAsElement(node, writer);
+
+            for (Property mbeanProp : mbean.asPropertyList()) {
+                writer.writeStartElement(SleeMbeanDefinition.MBEAN);
+
+                final ModelNode mbeanEntry = mbeanProp.getValue();
+
+                SleeMbeanDefinition.NAME_ATTR.marshallAsAttribute(mbeanEntry, true, writer);
+
+                final ModelNode property = mbeanEntry.get(SleeMbeanPropertyDefinition.PROPERTY);
+                if (property != null && property.isDefined()) {
+                    for (Property propertyProp : property.asPropertyList()) {
+                        writer.writeStartElement(SleeMbeanPropertyDefinition.PROPERTY);
+
+                        final ModelNode propertyEntry = propertyProp.getValue();
+
+                        SleeMbeanPropertyDefinition.NAME_ATTR.marshallAsAttribute(propertyEntry, true, writer);
+                        SleeMbeanPropertyDefinition.TYPE_ATTR.marshallAsAttribute(propertyEntry, true, writer);
+                        SleeMbeanPropertyDefinition.VALUE_ATTR.marshallAsAttribute(propertyEntry, true, writer);
+
+                        writer.writeEndElement();
+                    }
+                }
+
+                writer.writeEndElement();
+            }
 
             writer.writeEndElement();
         }
@@ -124,70 +146,120 @@ public class SleeExtension implements Extension {
          */
         @Override
         public void readElement(XMLExtendedStreamReader reader, List<ModelNode> list) throws XMLStreamException {
-            // Require no content
-            //ParseUtils.requireNoContent(reader);
-            //list.add(createAddSubsystemOperation());
-            ParseUtils.requireNoAttributes(reader);
-
-            final ModelNode address = new ModelNode();
-            address.add(SUBSYSTEM, SleeExtension.SUBSYSTEM_NAME);
-            address.protect();
+            PathAddress address = PathAddress.pathAddress(PathElement.pathElement(SUBSYSTEM, SleeExtension.SUBSYSTEM_NAME));
 
             final ModelNode subsystem = new ModelNode();
             subsystem.get(OP).set(ADD);
-            subsystem.get(OP_ADDR).set(address);
+            subsystem.get(OP_ADDR).set(address.toModelNode());
             list.add(subsystem);
 
-            // elements
-            final EnumSet<Element> encountered = EnumSet.noneOf(Element.class);
+            // mbean elements
             while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-                final Element element = Element.forName(reader.getLocalName());
-                if (!encountered.add(element)) {
-                    throw ParseUtils.unexpectedElement(reader);
-                }
-                switch (element) {
-                    case CACHE_CONFIG: {
+                if (reader.getNamespaceURI().equals(SleeExtension.NAMESPACE)) {
+                    final String tagName = reader.getLocalName();
+                    if (tagName.equals(SleeSubsystemModel.CACHE_CONFIG)) {
                         final String value = parseCacheConfig(reader);
                         SleeSubsystemDefinition.CACHE_CONFIG.parseAndSetParameter(value, subsystem, reader);
-                        break;
+                    } else if (tagName.equals(SleeMbeanDefinition.MBEAN)) {
+                        parseMbean(reader, address, list);
                     }
-                    case REMOTE_RMI_ADDRESS: {
-                        final String value = parseRemoteRmiAddress(reader);
-                        SleeSubsystemDefinition.REMOTE_RMI_ADDRESS.parseAndSetParameter(value, subsystem, reader);
-                        break;
-                    }
-                    case REMOTE_RMI_PORT: {
-                        final String value = parseRemoteRmiPort(reader);
-                        SleeSubsystemDefinition.REMOTE_RMI_PORT.parseAndSetParameter(value, subsystem, reader);
-                        break;
-                    }
-                    case PROFILES_PERSIST_PROFILES: {
-                        final String value = parseProfilesPersistProfiles(reader);
-                        SleeSubsystemDefinition.PROFILES_PERSIST_PROFILES.parseAndSetParameter(value, subsystem, reader);
-                        break;
-                    }
-                    case PROFILES_CLUSTERED_PROFILES: {
-                        final String value = parseProfilesClusteredProfiles(reader);
-                        SleeSubsystemDefinition.PROFILES_CLUSTERED_PROFILES.parseAndSetParameter(value, subsystem, reader);
-                        break;
-                    }
-                    case PROFILES_HIBERNATE_DATASOURCE: {
-                        final String value = parseProfilesHibernateDatasource(reader);
-                        SleeSubsystemDefinition.PROFILES_HIBERNATE_DATASOURCE.parseAndSetParameter(value, subsystem, reader);
-                        break;
-                    }
-                    case PROFILES_HIBERNATE_DIALECT: {
-                        final String value = parseProfilesHibernateDialect(reader);
-                        SleeSubsystemDefinition.PROFILES_HIBERNATE_DIALECT.parseAndSetParameter(value, subsystem, reader);
-                        break;
-                    }
-                    default: {
-                        throw ParseUtils.unexpectedElement(reader);
-                    }
+                } else {
+                    throw unexpectedElement(reader);
                 }
             }
         }
 
+    }
+
+    static void parseMbean(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list)
+            throws XMLStreamException {
+        String name = null;
+        final ModelNode mbean = new ModelNode();
+
+        // MBean Attributes
+        final int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            requireNoNamespaceAttribute(reader, i);
+            final String attribute = reader.getAttributeLocalName(i);
+            final String value = reader.getAttributeValue(i);
+            switch (SleeMbeanDefinition.Element.of(attribute)) {
+                case NAME: {
+                    name = value;
+                    SleeMbeanDefinition.NAME_ATTR.parseAndSetParameter(value, mbean, reader);
+                    break;
+                }
+                default: {
+                    throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        //ParseUtils.requireNoContent(reader);
+
+        if (name == null) {
+            throw missingRequired(reader, Collections.singleton(Attribute.NAME));
+        }
+
+        mbean.get(OP).set(ADD);
+        PathAddress address = PathAddress.pathAddress(parent,
+                PathElement.pathElement(SleeMbeanDefinition.MBEAN, name));
+        mbean.get(OP_ADDR).set(address.toModelNode());
+        list.add(mbean);
+
+        // properties elements
+        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            if (reader.getNamespaceURI().equals(SleeExtension.NAMESPACE)) {
+                final String tagName = reader.getLocalName();
+                if (tagName.equals(SleeMbeanPropertyDefinition.PROPERTY)) {
+                    parseProperty(reader, address, list);
+                }
+            } else {
+                throw unexpectedElement(reader);
+            }
+        }
+    }
+
+    static void parseProperty(XMLExtendedStreamReader reader, PathAddress parent, List<ModelNode> list)
+            throws XMLStreamException {
+        String name = null;
+        final ModelNode property = new ModelNode();
+
+        final int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            requireNoNamespaceAttribute(reader, i);
+            final String attribute = reader.getAttributeLocalName(i);
+            final String value = reader.getAttributeValue(i);
+            switch (SleeMbeanPropertyDefinition.Element.of(attribute)) {
+                case NAME: {
+                    name = value;
+                    SleeMbeanPropertyDefinition.NAME_ATTR.parseAndSetParameter(value, property, reader);
+                    break;
+                }
+                case TYPE: {
+                    SleeMbeanPropertyDefinition.TYPE_ATTR.parseAndSetParameter(value, property, reader);
+                    break;
+                }
+                case VALUE: {
+                    SleeMbeanPropertyDefinition.VALUE_ATTR.parseAndSetParameter(value, property, reader);
+                    break;
+                }
+                default: {
+                    throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        ParseUtils.requireNoContent(reader);
+
+        if (name == null) {
+            throw missingRequired(reader, Collections.singleton(Attribute.NAME));
+        }
+
+        property.get(OP).set(ADD);
+        PathAddress address = PathAddress.pathAddress(parent,
+                PathElement.pathElement(SleeMbeanPropertyDefinition.PROPERTY, name));
+        property.get(OP_ADDR).set(address.toModelNode());
+        list.add(property);
     }
 
     static String parseCacheConfig(XMLExtendedStreamReader reader) throws XMLStreamException {
@@ -203,83 +275,4 @@ public class SleeExtension implements Extension {
         }
         return value.trim();
     }
-
-    static String parseRemoteRmiAddress(XMLExtendedStreamReader reader) throws XMLStreamException {
-        // we don't expect any attributes for this element.
-        ParseUtils.requireNoAttributes(reader);
-
-        final String value = reader.getElementText();
-        if (value == null || value.trim().isEmpty()) {
-            throw new XMLStreamException(
-                    "Invalid value: " + value + " for '" + Element.REMOTE_RMI_ADDRESS.getLocalName() + "' element",
-                    reader.getLocation());
-        }
-        return value.trim();
-    }
-
-    static String parseRemoteRmiPort(XMLExtendedStreamReader reader) throws XMLStreamException {
-        // we don't expect any attributes for this element.
-        ParseUtils.requireNoAttributes(reader);
-
-        final String value = reader.getElementText();
-        if (value == null || value.trim().isEmpty()) {
-            throw new XMLStreamException(
-                    "Invalid value: " + value + " for '" + Element.REMOTE_RMI_PORT.getLocalName() + "' element",
-                    reader.getLocation());
-        }
-        return value.trim();
-    }
-
-    static String parseProfilesPersistProfiles(XMLExtendedStreamReader reader) throws XMLStreamException {
-        // we don't expect any attributes for this element.
-        ParseUtils.requireNoAttributes(reader);
-
-        final String value = reader.getElementText();
-        if (value == null || value.trim().isEmpty()) {
-            throw new XMLStreamException(
-                    "Invalid value: " + value + " for '" + Element.PROFILES_PERSIST_PROFILES.getLocalName() + "' element",
-                    reader.getLocation());
-        }
-        return value.trim();
-    }
-
-    static String parseProfilesClusteredProfiles(XMLExtendedStreamReader reader) throws XMLStreamException {
-        // we don't expect any attributes for this element.
-        ParseUtils.requireNoAttributes(reader);
-
-        final String value = reader.getElementText();
-        if (value == null || value.trim().isEmpty()) {
-            throw new XMLStreamException(
-                    "Invalid value: " + value + " for '" + Element.PROFILES_CLUSTERED_PROFILES.getLocalName() + "' element",
-                    reader.getLocation());
-        }
-        return value.trim();
-    }
-
-    static String parseProfilesHibernateDatasource(XMLExtendedStreamReader reader) throws XMLStreamException {
-        // we don't expect any attributes for this element.
-        ParseUtils.requireNoAttributes(reader);
-
-        final String value = reader.getElementText();
-        if (value == null || value.trim().isEmpty()) {
-            throw new XMLStreamException(
-                    "Invalid value: " + value + " for '" + Element.PROFILES_HIBERNATE_DATASOURCE.getLocalName() + "' element",
-                    reader.getLocation());
-        }
-        return value.trim();
-    }
-
-    static String parseProfilesHibernateDialect(XMLExtendedStreamReader reader) throws XMLStreamException {
-        // we don't expect any attributes for this element.
-        ParseUtils.requireNoAttributes(reader);
-
-        final String value = reader.getElementText();
-        if (value == null || value.trim().isEmpty()) {
-            throw new XMLStreamException(
-                    "Invalid value: " + value + " for '" + Element.PROFILES_HIBERNATE_DIALECT.getLocalName() + "' element",
-                    reader.getLocation());
-        }
-        return value.trim();
-    }
-
 }

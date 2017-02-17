@@ -14,57 +14,10 @@ public class SleeSubsystemDefinition extends SimpleResourceDefinition {
                     .setDefaultValue(new ModelNode(""))
                     .build();
 
-    protected static final SimpleAttributeDefinition REMOTE_RMI_ADDRESS =
-            new SimpleAttributeDefinitionBuilder(SleeSubsystemModel.REMOTE_RMI_ADDRESS, ModelType.STRING, false)
-                    .setAllowExpression(true)
-                    .setXmlName(SleeSubsystemModel.REMOTE_RMI_ADDRESS)
-                    .setDefaultValue(new ModelNode("localhost"))
-                    .build();
-
-    protected static final SimpleAttributeDefinition REMOTE_RMI_PORT =
-            new SimpleAttributeDefinitionBuilder(SleeSubsystemModel.REMOTE_RMI_PORT, ModelType.INT, false)
-                    .setAllowExpression(true)
-                    .setXmlName(SleeSubsystemModel.REMOTE_RMI_PORT)
-                    .setDefaultValue(new ModelNode(5555))
-                    .build();
-
-    protected static final SimpleAttributeDefinition PROFILES_PERSIST_PROFILES =
-            new SimpleAttributeDefinitionBuilder(SleeSubsystemModel.PROFILES_PERSIST_PROFILES, ModelType.BOOLEAN, false)
-                    .setAllowExpression(true)
-                    .setXmlName(SleeSubsystemModel.PROFILES_PERSIST_PROFILES)
-                    .setDefaultValue(new ModelNode(true))
-                    .build();
-
-    protected static final SimpleAttributeDefinition PROFILES_CLUSTERED_PROFILES =
-            new SimpleAttributeDefinitionBuilder(SleeSubsystemModel.PROFILES_CLUSTERED_PROFILES, ModelType.BOOLEAN, false)
-                    .setAllowExpression(true)
-                    .setXmlName(SleeSubsystemModel.PROFILES_CLUSTERED_PROFILES)
-                    .setDefaultValue(new ModelNode(false))
-                    .build();
-
-    protected static final SimpleAttributeDefinition PROFILES_HIBERNATE_DATASOURCE =
-            new SimpleAttributeDefinitionBuilder(SleeSubsystemModel.PROFILES_HIBERNATE_DATASOURCE, ModelType.STRING, false)
-                    .setAllowExpression(true)
-                    .setXmlName(SleeSubsystemModel.PROFILES_HIBERNATE_DATASOURCE)
-                    .setDefaultValue(new ModelNode(""))
-                    .build();
-
-    protected static final SimpleAttributeDefinition PROFILES_HIBERNATE_DIALECT =
-            new SimpleAttributeDefinitionBuilder(SleeSubsystemModel.PROFILES_HIBERNATE_DIALECT, ModelType.STRING, false)
-                    .setAllowExpression(true)
-                    .setXmlName(SleeSubsystemModel.PROFILES_HIBERNATE_DIALECT)
-                    .setDefaultValue(new ModelNode(""))
-                    .build();
-
     static final AttributeDefinition[] ATTRIBUTES = {
-            CACHE_CONFIG,
-            REMOTE_RMI_ADDRESS,
-            REMOTE_RMI_PORT,
-            PROFILES_PERSIST_PROFILES,
-            PROFILES_CLUSTERED_PROFILES,
-            PROFILES_HIBERNATE_DATASOURCE,
-            PROFILES_HIBERNATE_DIALECT
+            CACHE_CONFIG
     };
+
 
     public static final SleeSubsystemDefinition INSTANCE = new SleeSubsystemDefinition();
 
