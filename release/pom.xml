@@ -14,10 +14,10 @@
 	<version>3.0.0-SNAPSHOT</version>
 	
 	<properties>
-		<core.scmVersion>3.0.54</core.scmVersion>
+		<core.scmVersion>3.0.56</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
 
-		<jdbc.scmVersion>3.0.3</jdbc.scmVersion>
+		<jdbc.scmVersion>3.0.4</jdbc.scmVersion>
 		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
 		<sip.scmVersion>3.0.3</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
