@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools</groupId>
 		<artifactId>restcomm-slee-tools-management-console-parent</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.56</version>
 	</parent>
 
 	<artifactId>restcomm-slee-tools-management-console-rpc</artifactId>
