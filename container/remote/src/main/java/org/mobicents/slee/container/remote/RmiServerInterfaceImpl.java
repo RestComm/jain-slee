@@ -64,7 +64,6 @@ public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implemen
 					super.sleeContainer.getSleeConnectionService(),
 					super.sleeContainer.getComponentRepository());
 
-			//register(InetAddress.getByName("127.0.0.1"), 5555);
             register(InetAddress.getByName(this.address), this.port);
 		} catch (Exception e) {
 			logger.error("Failed to start RMI server for Remote slee service", e);

@@ -22,6 +22,7 @@
 
 package org.mobicents.slee.container.deployment;
 
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,9 +37,8 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
-import javax.management.MBeanServerConnection;
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.naming.InitialContext;
 import javax.slee.EventContext;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
@@ -132,7 +132,8 @@ public class ConcreteSbbGenerator {
 	public ConcreteSbbGenerator(SbbComponent sbbComponent) {
 		// get configuration properties from bean
 		try {
-			MBeanServerConnection mbeanServer = (MBeanServerConnection) new InitialContext().lookup("jmx/rmi/RMIAdaptor");
+			//MBeanServerConnection mbeanServer = (MBeanServerConnection) new InitialContext().lookup("jmx/rmi/RMIAdaptor");
+			MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 			this.initializeReferenceDataTypesWithNull = (Boolean) mbeanServer.
 				getAttribute(new ObjectName(MobicentsManagementMBean.OBJECT_NAME), "InitializeReferenceDataTypesWithNull");
 		}
