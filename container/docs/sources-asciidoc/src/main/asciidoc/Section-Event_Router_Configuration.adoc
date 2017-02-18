@@ -20,28 +20,22 @@ To deploy a custom implementation, drop the implementation class or classes, pac
 The whole Event Router is a critical component with respect to the container's performance.
 Its configuration can be tuned, through an XML file and a JMX MBean.
 
+
 == Event Router Persistent Configuration
 
-Configuration is done through an XML descriptor for each <<_server_profiles>>.
-The XML file is named [path]_jboss-beans.xml_ and is located at [path]_$JBOSS_HOME/server/profile_name/deploy/restcomm-slee/META-INF_, where [app]`profile_name` is the server profile name.
+JAIN SLEE is deployed as {jee-platform} extension and is configured through an standalone.xml. This file is located at [path]_$JBOSS_HOME/standalone/configuration_.
 
 The configuration is exposed a JBoss Microcontainer Bean:
 
 [source,xml]
 ----
-
-<bean name="Mobicents.JAINSLEE.EventRouterConfiguration"
-	class="org.mobicents.slee.container.management.jmx.EventRouterConfiguration">
-	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name=
-		"org.mobicents.slee:name=EventRouterConfiguration",	exposedInterface=
-		org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean.class,
-		registerDirectly=true)</annotation>
-	<property name="eventRouterThreads">8</property>
-	<property name="collectStats">true</property>
-	<property name="executorMapperClassName">
-		org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper
-	</property>
-</bean>
+<mbean name="EventRouterConfiguration">
+	<property name="eventRouterThreads" value="8" />
+	<property name="collectStats" value="true" />
+	<property name="confirmSbbEntityAttachement" value="true" />
+	<property name="executorMapperClassName"
+	    value="org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper" />
+</mbean>
 ----
 
 .JAIN SLEE Event Router Bean Configuration
@@ -60,4 +54,5 @@ Through JMX, the Event Router module configuration can be changed while the cont
 These configuration changes are not persisted.
 
 The JMX MBean that can be used to change the Event Router configuration is named [app]`org.mobicents.slee:name=EventRouterConfiguration`, and provides getters and setters to change each property defined in the persistent configuration.
-See <<_management_jmx_console>> for how the JMX Console can be used to use this MBean.
+
+The JConsole can be used to use this MBean, see <<_management_jconsole>>

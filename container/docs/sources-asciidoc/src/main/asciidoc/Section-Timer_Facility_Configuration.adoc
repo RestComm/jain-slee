@@ -7,22 +7,15 @@ The Timer Facility configuration can be changed through an XML file and a JMX MB
 
 == Timer Facility Persistent Configuration
 
-Configuration is done through an XML descriptor for each {this-platform} Cluster.
-The XML file is named [path]_jboss-beans.xml_ and is located at [path]_{JBOSS_HOME}/server/{profile_name}/deploy/restcomm-slee/META-INF_
+JAIN SLEE is deployed as {jee-platform} extension and is configured through an standalone.xml. This file is located at [path]_$JBOSS_HOME/standalone/configuration_.
 
 The configuration is exposed a JBoss Microcontainer Bean:
 
 [source,xml]
 ----
-
-<bean name="Mobicents.JAINSLEE.TimerFacilityConfiguration"
-	class="org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration">
-	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name=
-		"org.mobicents.slee:name=TimerFacilityConfiguration",exposedInterface=
-		org.mobicents.slee.container.management.jmx.TimerFacilityConfigurationMBean.class,
-		registerDirectly=true)</annotation>
-	<property name="timerThreads">4</property>
-</bean>
+<mbean name="TimerFacilityConfiguration">
+	<property name="timerThreads" value="4" />
+</mbean>
 ----
 
 .JAIN SLEE Timer Facility Bean Configuration
@@ -39,4 +32,5 @@ Through JMX the Timer Facility module configuration can be changed with the cont
 Note that such configuration changes are not persisted.
 
 The JMX MBean which can be used to change the Timer Facility configuration is named [app]`org.mobicents.slee:name=TimerFacilityConfiguration`, and provides getters and setters to change each property defined in the persistent configuration.
-The JMX Console can be used to use this MBean, see <<_management_jmx_console>>.
+
+The JConsole can be used to use this MBean, see <<_management_jconsole>>.

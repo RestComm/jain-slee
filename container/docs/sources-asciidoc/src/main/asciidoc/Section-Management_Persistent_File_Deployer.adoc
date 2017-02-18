@@ -1,6 +1,6 @@
 
 [[_management_persistent_file_deployer]]
-= Persistent Deployable Unit Management
+== Persistent Deployable Unit Management
 
 JAIN SLEE provides a file deployer that greatly simplifies the management of JAIN SLEE deployable unit jars.
 The deployer: 
@@ -14,7 +14,7 @@ All operations are persistent, which means that unlike management done through J
 [[_management_persistent_du_install]]
 == Persistent Deployable Unit Install
 
-To install a deployable unit jar simply copy the file to [path]_$JBOSS_HOME/server/profile_name/deploy/_, where [app]`profile_name` is the server profile name.
+To install a deployable unit jar simply copy the file to [path]_$JBOSS_HOME/standalone/deployments/_.
 Child directories can be used.
 
 [[_management_persistent_du_uninstall]]

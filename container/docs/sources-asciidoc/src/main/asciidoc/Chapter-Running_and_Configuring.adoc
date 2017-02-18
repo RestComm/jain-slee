@@ -4,55 +4,78 @@
 [[_server_profiles]]
 == Server Profiles
 
-{this-platform} JAIN SLEE reuses &JEE.PLATFORM;server profiles to expose different configurations for different needs:
+{this-platform} JAIN SLEE reuses {jee-platform} server modes to expose different configurations for different needs. {jee-platform} can be booted in two different modes. A managed domain allows you to run and manage a multi-server topology. Alternatively, you can run a standalone server instance.
 
-Default Profile::
-  The [app]`default` profile is proper for standalone or pure high availability.
-  It provides the best performance per cluster node, with linear scaling, but there is no state replication in the cluster, which means that there is no support for failover, neither there is any kind of state gravitation (one node sending state so another node continues its work.
+Standalone Server::
 
-All Profile::
-  The [app]`all` profile is proper for more flexible high availability and failover support.
-  Performance per node decreases but the cluster does state replication or gravitation.
+  For many use cases, the centralized management capability available via a managed domain is not necessary. For these use cases, a {jee-platform} instance can be run as a `standalone server`. A standalone server instance is an independent process, much like an JBoss Application Server 3, 4, 5, or 6 instance is. Standalone instances can be launched via the standalone.sh or standalone.bat launch scripts.
+::
+  If more than one standalone instance is launched and multi-server management is desired, it is the user's responsibility to coordinate management across the servers. For example, to deploy an application across all of the standalone servers, the user would need to individually deploy the application on each server.
+::
+  It is perfectly possible to launch multiple standalone server instances and have them form an HA cluster, just like it was possible with JBoss Application Server 3, 4, 5 and 6.
+
+Managed Domain::
+  One of the primary new features of {jee-platform} is the ability to manage multiple {jee-platform} instances from a single control point. A collection of such servers is referred to as the members of a `domain` with a single Domain Controller process acting as the central management control point. All of the {jee-platform} instances in the domain share a common management policy, with the Domain Controller acting to ensure that each server is configured according to that policy. Domains can span multiple physical (or virtual) machines, with all {jee-platform} instances on a given host under the control of a special Host Controller process. One Host Controller instance is configured to act as the central Domain Controller. The Host Controller on each host interacts with the Domain Controller to control the lifecycle of the application server instances running on its host and to assist the Domain Controller in managing them.
 
 Profiles can be selected when starting the server, see <<_running>> for detailed instructions.
 
 [[_running]]
-== Running {this-platform}  JAIN SLEE
+== Running {this-platform} JAIN SLEE
 
-Starting or stopping {this-platform} JAIN SLEE is no different than starting or stopping &JEE.PLATFORM;
+Starting or stopping {this-platform} JAIN SLEE is no different than starting or stopping {jee-platform}
 
 === Starting
 
-Once installed, you can run server(s) by executing the run.sh (Unix) or run.bat (Microsoft Windows) startup scripts in the [path]_<install_directory>/bin_ directory (on Unix or Windows).
+Once installed, you can run server(s) by executing the standalone.sh (Unix) or standalone.bat (Microsoft Windows) startup scripts in the [path]_<install_directory>/bin_ directory (on Unix or Windows).
 
 [[_starting_paramaters]]
 ==== Starting Parameters
 
-Server Profile::
-  To specify the server profile use `-c profile_name`, for instance, to use the [app]`all` profile then start the server with `-c all`
+Server Config::
+  If you choose to start your server with one of the other provided configurations, they can be accessed by passing the --server-config argument with the server-config file to be used.
 
-IMPORTANT: If not specified the default profile is used.
+----
+$JBOSS_HOME/bin/standalone.sh --server-config=standalone-full-ha.xml
+----
+
+IMPORTANT: If not specified the default config is used.
 
 IP / Host::
   To specify the IP/Host which the server binds, use `-b IP`, for instance, to use the 192.168.0.1 IP then start the server with `-b 192.168.0.1`
 
+----
+$JBOSS_HOME/bin/standalone.sh -b=192.168.100.10
+----
+
 IMPORTANT: If not specified then 127.0.0.1 is used.
+
+More details on command line parameters you can read here:
+https://docs.jboss.org/author/display/WFLY10/Command+line+parameters
 
 === Stopping
 
-You can shut down the server(s) by executing the `shutdown.sh -s` (Unix) or `shutdown.bat -s` (Microsoft Windows) scripts in the [path]_<install_directory>/bin_ directory (on Unix or Windows). Note that if you properly stop the server, you will see the following three lines as the last output in the Unix terminal or Command Prompt:
+You can shut down the server(s) by executing
 
 ----
-[Server] Shutdown complete
-Shutdown complete
-Halting VM
+$JBOSS_HOME/bin/jboss-cli.sh --connect command=:shutdown
 ----
+
+Or you can stop server with Ctrl + C.
+
+Note that if you properly stop the server, you will see the following three lines as the last output in the Unix terminal or Command Prompt:
+
+----
+14:57:43,783 INFO  [org.jboss.as] (MSC service thread 1-8) WFLYSRV0050: WildFly Full 10.1.0.Final (WildFly Core 2.2.0.Final) stopped in 403ms
+----
+
+More details on command line interface you can read here:
+https://docs.jboss.org/author/display/WFLY10/Admin+Guide#AdminGuide-CommandLineInterface
+
 
 [[_configuration]]
-== Configuring {this-platform}  JAIN SLEE
+== Configuring {this-platform} JAIN SLEE
 
-JAIN SLEE is configured through an XML descriptor for each <<_server_profiles>>.
-The XML file is named [path]_jboss-beans.xml_ and is located at [path]_$JBOSS_HOME/server/profile_name/deploy/restcomm-slee/META-INF_, where [app]`profile_name` is the server profile name.
+JAIN SLEE is deployed as {jee-platform} extension and is configured through an standalone.xml. This file is located at [path]_$JBOSS_HOME/standalone/configuration_.
 
 WARNING: This configuration greatly affects performance or correctness of the container behavior.
 This is for advanced users that know the internals of the container.
@@ -81,26 +104,16 @@ include::Section-Timer_Facility_Configuration.adoc[]
 JAIN SLEE Profiles is a component used to store data, usually related with a user and/or service profile.
 JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API () Datasource, through Hibernate.
 
-There are two configurations for JAIN SLEE Profiles provided as JBoss Microcontainer Beans:
+There is configuration for JAIN SLEE Profiles provided as JBoss Microcontainer Beans:
 
 [source,xml]
 ----
-
-<bean name="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig"
-	class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
-	<property name="persistProfiles">true</property>
-	<property name="clusteredProfiles">false</property>
-	<property name="hibernateDatasource">java:/DefaultDS</property>
-	<property name="hibernateDialect">org.hibernate.dialect.HSQLDialect</property>
-	<depends>jboss.jca:service=DataSourceBinding,name=DefaultDS</depends>
-</bean>
-<bean name="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig"
-	class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
-	<property name="persistProfiles">true</property>
-	<property name="clusteredProfiles">true</property>
-	<property name="hibernateDatasource">java:/PostgresDS</property>
-	<property name="hibernateDialect">org.hibernate.dialect.PostgreSQLDialect</property>
-</bean>
+<mbean name="H2DBConfig">
+    <property name="persistProfiles" value="true" />
+    <property name="clusteredProfiles" value="false" />
+    <property name="hibernateDatasource" value="java:jboss/datasources/ExampleDS" />
+    <property name="hibernateDialect" value="org.hibernate.dialect.H2Dialect" /
+</mbean>
 ----
 
 IMPORTANT: Configurations can be changed, or new ones can be added.
@@ -116,7 +129,6 @@ For new ones, ensure that the name attribute of the bean element is unique.
 | hibernateDialect | String | The java class name of the hibernate dialect to use, related with the selected datasource.
 |===
 
-To switch the active configuration simply change the parameter injected in the bean named [app]`Mobicents.JAINSLEE.Container`.
 
 === Other Configurations
 
@@ -125,18 +137,10 @@ Other JAIN SLEE runtime configuration is done through the following JBoss Microc
 [source,xml]
 ----
 
-<bean name="Mobicents.JAINSLEE.MobicentsManagement"
-	class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
-	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(
-		name="org.mobicents.slee:service=MobicentsManagement",
-		exposedInterface=org.mobicents.slee.container.management.
-		jmx.MobicentsManagementMBean.class,
-		registerDirectly=true)</annotation>
-	<property name="entitiesRemovalDelay">1</property>
-	<property name="timerThreads">8</property>
-	<property name="loadClassesFirstFromAS">true</property>
-	<property name="initializeReferenceDataTypesWithNull">true</property>
-</bean>
+<mbean name="MobicentsManagement">
+	<property name="entitiesRemovalDelay" value="1" />
+	<property name="initializeReferenceDataTypesWithNull" value="true" />
+</mbean>
 ----
 
 .Other JAIN SLEE Configurations
@@ -144,7 +148,6 @@ Other JAIN SLEE runtime configuration is done through the following JBoss Microc
 |===
 | Property Name | Property Type | Description
 | entitiesRemovalDelay | int | The number of minutes before the container forces the ending of SBB entities from a service being deactivated.
-| timerThreads | int | The number of threads used by the timer facility.
 | initializeReferenceDataTypesWithNull | boolean | The flag for initializing SBB CMP fields with Numeric Reference Data types to 0 (false) or null (true).
 |===
 
@@ -152,7 +155,7 @@ This configuration can be changed with the container running with JMX.
 Note that such configuration changes are not persisted.
 
 To change the configuraton, use the JMX MBean named [app]`org.mobicents.slee:service=MobicentsManagement`, which provides getters and setters to change each property defined in the persistent configuration that is configurable with the container running.
-The JMX Console can be used to use this MBean, as described in <<_management_jmx_console>>.
+The JConsole can be used to use this MBean, as described in <<_management_jconsole>>.
 
 === Logging Configuration
 

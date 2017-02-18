@@ -13,10 +13,10 @@ Master Source Building::
 Binary Release Snapshot::
   The binary release snapshot is a build of the master source code done daily and upoaded to a public web site.
 
+
 == Binary Release
 
-You can download the Binary zip files from https://mobicents.ci.cloudbees.com/job/Restcomm-JAIN-SLEE-Release/lastSuccessfulBuild/artifact/release/.
-
+You can download the Binary zip files from https://mobicents.ci.cloudbees.com/job/Restcomm-JAIN-SLEE-7-Release/lastSuccessfulBuild/artifact/release/.
 
 
 In this form of installation, simply unzip the downloaded zip file to the directory of your choice on any operating system that supports the zip format.
@@ -24,18 +24,17 @@ In this form of installation, simply unzip the downloaded zip file to the direct
 . Unzip the release file
 +
 Unzip the file to extract the archive contents into the location of your choice.
-You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named restcomm-jainslee-{project-version} .zip to the /restcomm directory.
+You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named restcomm-slee-{project-version}.zip to the /restcomm directory.
 +
 [source]
 ----
-
-				    [usr]$ cd /restcomm
-				    [usr]$ jar -xvf restcomm-jainslee.zip
+[usr]$ cd /restcomm
+[usr]$ jar -xvf restcomm-slee-{project-version}.zip
 ----
 
 . Setting up JBOSS_HOME Environment Variable
 +
-You should now have a directory called restcomm-jainslee-{project-version} .
+You should now have a directory called restcomm-slee-{project-version}.
 Next you need to set your JBOSS_HOME environment variables.
 This is discussed in <<_jboss_home_setup>>.
 
@@ -45,22 +44,21 @@ This is discussed in <<_jboss_home_setup>>.
 You can download the Binary Snapshot zip files from https://github.com/RestComm/jain-slee/releases/latest.
 The installation is similar to the <<_binary_release>> one.
 
-== Release Source Building
 
+== Release Source Building
 
 . Downloading the source code
 +
 IMPORTANT: Git is used to manage Restcomm JAIN SLEE source code.
 Instructions for downloading, installing and using Git can be found at http://git-scm.com/
 +
-Use Git to checkout the specific release source, the Git repository URL is https://github.com/RestComm/jain-slee/ , then switch to the specific release version, lets consider {project-version} .
+Use Git to checkout the specific release source, the Git repository URL is https://github.com/RestComm/jain-slee/, then switch to the specific release version, lets consider {project-version}.
 +
 [source]
 ----
-
 [usr]$ git clone https://github.com/RestComm/jain-slee restcomm-jain-slee-release
 [usr]$ cd restcomm-jain-slee-release
-[usr]$ git checkout tags/
+[usr]$ git checkout tags/{project-version}
 [usr]$ cd release
 ----
 
@@ -73,25 +71,11 @@ Use Ant to build the binary.
 +
 [source]
 ----
-
-				    [usr]$ ant
+[usr]$ ant
 ----
 +
-Once the process finishes you should have a restcomm-jainslee-{project-version}.zip file, installation is the same as for <<_binary_release>>.
+Once the process finishes you should have a restcomm-slee-{project-version}.zip file, installation is the same as for <<_binary_release>>.
 
-
-[[_2x_branch_source_building]]
-== 2.x Branch Source Building
-
-Similar process as for <<_release_source_building>>, the only change is the Git reference should be the `2.x`.
-The `git checkout tags/{project-version}` command should not be performed.
-If already performed, the following should be used in order to switch back to the 2.x branch:
-
-[source]
-----
-
-		    [usr]$ git checkout 2.x
-----
 
 == Master Source Building
 
@@ -101,6 +85,5 @@ If already performed, the following should be used in order to switch back to th
 
 [source]
 ----
-
-		    [usr]$ git checkout master
+[usr]$ git checkout master
 ----

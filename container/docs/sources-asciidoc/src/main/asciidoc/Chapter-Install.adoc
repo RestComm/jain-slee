@@ -1,5 +1,5 @@
 [[_install]]
-= Installing {this-platform}  JAIN SLEE
+= Installing {this-platform} JAIN SLEE
 
 [[_preinstall_requirements_and_prerequisites]]
 == Pre-Install Requirements and Prerequisites

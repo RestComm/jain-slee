@@ -12,9 +12,9 @@ In addition to the service component model, the SLEE also defines management int
 .Overview of JAIN SLEE
 image::images/introduction-slee_and_jee.png[]
 
-{this-platform}  is built on top of the open source award winning {jee-platform} , which means that {this-platform}   complements  with Java Enterprise () 5 container features, allowing strong convergence of different application models, for even feature richer communication services, for instance, the Web and  can be combined to achieve a more sophisticated and natural user experience. {this-platform}   inherits quality management features and tools from {jee-platform} , such as the JMX Console, {management-platform} Plugins and SNMP Adaptor.
+{this-platform} is built on top of the open source award winning {jee-platform}, which means that {this-platform} complements with Java Enterprise (JEE) 7 container features, allowing strong convergence of different application models, for even feature richer communication services, for instance, the Web and  can be combined to achieve a more sophisticated and natural user experience. [.line-through]#{this-platform} inherits quality management features and tools from {jee-platform} , such as the JMX Console, {management-platform} Plugins and SNMP Adaptor.#
 
 .{this-platform}  Platform
 image::images/introduction-platform.png[]
 
-{this-platform} JAIN SLEE can also be complemented with {this-platform} SIP Servlets and {this-platform}  Media Server, providing unique value and integration features not found elsewhere.
+{this-platform} JAIN SLEE can also be complemented with {this-platform} SIP Servlets and {this-platform} Media Server, providing unique value and integration features not found elsewhere.

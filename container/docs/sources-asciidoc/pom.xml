@@ -74,7 +74,7 @@
 				            <project-version>${project.version}</project-version>
 					    <this-application>JAIN-SLEE</this-application>
 					    <this-platform>Restcomm </this-platform>
-					    <jee-platform>JBoss Application Server</jee-platform>
+					    <jee-platform>WildFly</jee-platform>
 					    <management-platform>Jopr </management-platform>
 					    <this-issue-tracker-url>https://github.com/Restcomm/jain-slee/issues</this-issue-tracker-url>
 					    <this-release-source-code-url>https://github.com/Restcomm/jain-slee</this-release-source-code-url>
@@ -107,7 +107,7 @@
 					    <project-version>${project.version}</project-version>
 					    <this-application>JAIN-SLEE</this-application>
 					    <this-platform>Restcomm </this-platform>
-					    <jee-platform>JBoss Application Server</jee-platform>
+					    <jee-platform>WildFly</jee-platform>
 					    <management-platform>Jopr </management-platform>
 					    <this-issue-tracker-url>https://github.com/Restcomm/jain-slee/issues</this-issue-tracker-url>
 					    <this-release-source-code-url>https://github.com/Restcomm/jain-slee</this-release-source-code-url>
@@ -139,7 +139,7 @@
 						<project-version>${project.version}</project-version>
 					    <this-application>JAIN-SLEE</this-application>
 					    <this-platform>Restcomm </this-platform>
-					    <jee-platform>JBoss Application Server</jee-platform>
+					    <jee-platform>WildFly</jee-platform>
 					    <management-platform>Jopr </management-platform>
 					    <this-issue-tracker-url>https://github.com/Restcomm/jain-slee/issues</this-issue-tracker-url>
 					    <this-release-source-code-url>https://github.com/Restcomm/jain-slee</this-release-source-code-url>
