@@ -14,30 +14,30 @@
 	<version>3.0.0-SNAPSHOT</version>
 	
 	<properties>
-		<core.scmVersion>3.0.56</core.scmVersion>
+		<core.scmVersion>3.0.57</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
 
-		<jdbc.scmVersion>3.0.4</jdbc.scmVersion>
+		<jdbc.scmVersion>3.0.6</jdbc.scmVersion>
 		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
-		<sip.scmVersion>3.0.3</sip.scmVersion>
+		<sip.scmVersion>3.0.8</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
 
-		<http.scmVersion>3.0.9</http.scmVersion>
+		<http.scmVersion>3.0.11</http.scmVersion>
 		<http.scmVersionType>tag</http.scmVersionType>
-		<media.scmVersion>3.0.1</media.scmVersion>
+		<media.scmVersion>3.0.3</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
-		<tftp.scmVersion>3.0.2</tftp.scmVersion>
+		<tftp.scmVersion>3.0.3</tftp.scmVersion>
 		<tftp.scmVersionType>tag</tftp.scmVersionType>
-		<xcap.scmVersion>3.0.1</xcap.scmVersion>
+		<xcap.scmVersion>3.0.2</xcap.scmVersion>
 		<xcap.scmVersionType>tag</xcap.scmVersionType>
-		<xmpp.scmVersion>3.0.1</xmpp.scmVersion>
+		<xmpp.scmVersion>3.0.2</xmpp.scmVersion>
 		<xmpp.scmVersionType>tag</xmpp.scmVersionType>
 
-		<diameter.scmVersion>3.0.7</diameter.scmVersion>
+		<diameter.scmVersion>3.0.9</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
-		<ss7.scmVersion>8.1.8</ss7.scmVersion>
+		<ss7.scmVersion>8.1.9</ss7.scmVersion>
 		<ss7.scmVersionType>tag</ss7.scmVersionType>
-		<smpp.scmVersion>7.1.1</smpp.scmVersion>
+		<smpp.scmVersion>7.1.9</smpp.scmVersion>
 		<smpp.scmVersionType>tag</smpp.scmVersionType>
 
 		<!--
