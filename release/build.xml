@@ -212,7 +212,7 @@
 	</target>
 
 	<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,get-extra,checkout-sources,
-											build-core,build-resources,build-sip-balancer,build-sources-for-debug-zip">
+											build-core,build-resources,build-sip-balancer,copy-asciidocs,build-sources-for-debug-zip">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
@@ -223,6 +223,73 @@
 		</antcall>
 		<!--<delete dir="${wildfly.home}" failonerror="true" />-->
 		<!--<antcall target="clean" />-->
+	</target>
+
+    <target name="copy-asciidocs" depends="copy-core-asciidoc,copy-sip-asciidoc,copy-ss7-asciidoc">
+        <echo message="Copying AsciiDocs"/>
+    </target>
+
+    <target name="copy-core-asciidoc">
+		<antcall target="copy-asciidoc">
+			<param name="generated.docs"
+				   value="${ant.file.restcomm.release}/../checkout/core/container/docs/sources-asciidoc/target/generated-docs" />
+			<param name="docs.dir" value="container" />
+		</antcall>
+    </target>
+
+    <target name="copy-sip-asciidoc">
+		<antcall target="copy-asciidoc">
+			<param name="generated.docs"
+				   value="${ant.file.restcomm.release}/../checkout/sip/resources/sip11/docs/sources-asciidoc/target/generated-docs" />
+			<param name="docs.dir" value="resources/sip11" />
+		</antcall>
+    </target>
+
+    <target name="copy-ss7-asciidoc">
+		<antcall target="copy-asciidoc">
+			<param name="generated.docs"
+				   value="${ant.file.restcomm.release}/../checkout/ss7/resources/cap/docs/sources-asciidoc/target/generated-docs" />
+			<param name="docs.dir" value="resources/cap" />
+		</antcall>
+		<antcall target="copy-asciidoc">
+			<param name="generated.docs"
+				   value="${ant.file.restcomm.release}/../checkout/ss7/resources/map/docs/sources-asciidoc/target/generated-docs" />
+			<param name="docs.dir" value="resources/map" />
+		</antcall>
+		<antcall target="copy-asciidoc">
+			<param name="generated.docs"
+				   value="${ant.file.restcomm.release}/../checkout/ss7/resources/tcap/docs/sources-asciidoc/target/generated-docs" />
+			<param name="docs.dir" value="resources/tcap" />
+		</antcall>
+		<antcall target="copy-asciidoc">
+			<param name="generated.docs"
+				   value="${ant.file.restcomm.release}/../checkout/ss7/resources/isup/docs/sources-asciidoc/target/generated-docs" />
+			<param name="docs.dir" value="resources/isup" />
+		</antcall>
+    </target>
+
+	<!--
+    <target name="copy-smpp-asciidoc">
+		<antcall target="copy-asciidoc">
+			<param name="generated.docs"
+				   value="${ant.file.restcomm.release}/../checkout/smpp/resources/smpp/docs/sources-asciidoc/target/generated-docs" />
+			<param name="docs.dir" value="resources/smpp" />
+		</antcall>
+    </target>
+    -->
+
+	<target name="copy-asciidoc">
+		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/html-book">
+			<fileset dir="${generated.docs}/html-book"/>
+		</copy>
+		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/html-website">
+			<fileset dir="${generated.docs}/html-website"/>
+		</copy>
+		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/pdf">
+			<fileset dir="${generated.docs}/pdf">
+				<include name="**/*User_Guide.pdf"/>
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="clean">
