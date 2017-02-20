@@ -279,13 +279,13 @@
     -->
 
 	<target name="copy-asciidoc">
-		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/html-book">
+		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/html-book" failonerror="false">
 			<fileset dir="${generated.docs}/html-book"/>
 		</copy>
-		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/html-website">
+		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/html-website" failonerror="false">
 			<fileset dir="${generated.docs}/html-website"/>
 		</copy>
-		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/pdf">
+		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/pdf" failonerror="false">
 			<fileset dir="${generated.docs}/pdf">
 				<include name="**/*User_Guide.pdf"/>
 			</fileset>
