@@ -18,7 +18,6 @@ import org.jboss.vfs.TempFileProvider;
 import org.jboss.vfs.VFS;
 import org.jboss.vfs.VFSUtils;
 import org.jboss.vfs.VirtualFile;
-import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
 import org.mobicents.slee.connector.local.SleeConnectionServiceImpl;
 import org.mobicents.slee.container.SleeContainer;
@@ -250,7 +249,6 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		// TODO SLEE Connection Factory + RMI stuff
 		final SleeConnectionService sleeConnectionService = new SleeConnectionServiceImpl();
-		final MobicentsSleeConnectionFactory sleeConnectionFactory = null; // new MobicentsSleeConnectionFactoryImpl();
         final RmiServerInterface rmiServerInterface = new RmiServerInterfaceImpl();
 		rmiServerInterface.setAddress(
 				getPropertyString("RmiServerInterface", "rmiAddress", "127.0.0.1"));
@@ -292,8 +290,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 					nullActivityContextInterfaceFactory, nullActivityFactory,
 					rmiServerInterface, sleeTransactionManager, cluster, replicationClassLoader,
 					alarmMBean, traceMBean, usageParametersManagement,
-					sbbEntityFactory, congestionControl, sleeConnectionService,
-					sleeConnectionFactory, internalDeployer);
+					sbbEntityFactory, congestionControl, sleeConnectionService, internalDeployer);
 		} catch (Throwable e) {
 			throw new StartException(e);
 		}

@@ -25,7 +25,6 @@ package org.mobicents.slee.container;
 import org.apache.log4j.Logger;
 import org.jboss.msc.service.ServiceController;
 import org.restcomm.cluster.MobicentsCluster;
-import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentRepository;
@@ -173,8 +172,6 @@ public class SleeContainer {
 	
 	private final SleeConnectionService sleeConnectionService;
  	
-	private final MobicentsSleeConnectionFactory sleeConnectionFactory; 
-
 	private final SleeContainerDeployer deployer;
 	
 	private JndiManagement jndiManagement;
@@ -208,7 +205,7 @@ public class SleeContainer {
 			TraceManagement traceMBeanImpl,
 			UsageParametersManagement usageParametersManagement,
 			SbbEntityFactory sbbEntityFactory, CongestionControl congestionControl,
-			SleeConnectionService sleeConnectionService, MobicentsSleeConnectionFactory sleeConnectionFactory, SleeContainerDeployer sleeContainerDeployer) throws Exception {
+			SleeConnectionService sleeConnectionService, SleeContainerDeployer sleeContainerDeployer) throws Exception {
         this.deployPath = deployPath;
 
 		this.serviceController = serviceController;
@@ -272,9 +269,6 @@ public class SleeContainer {
 		
 		this.sleeConnectionService = sleeConnectionService;
 		addModule(sleeConnectionService);
-		
-		this.sleeConnectionFactory = sleeConnectionFactory;
-		addModule(sleeConnectionFactory);
 
 		// these must be the last ones to be notified of startup, and in this
 		// order
@@ -444,14 +438,6 @@ public class SleeContainer {
 		return this.nullActivityContextInterfaceFactory;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public MobicentsSleeConnectionFactory getSleeConnectionFactory() {
-		return sleeConnectionFactory;
-	}
-		
 	/**
 	 * 
 	 * @return

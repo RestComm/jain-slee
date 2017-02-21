@@ -25,7 +25,6 @@
  */
 package org.mobicents.slee.container.rmi;
 
-import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.container.SleeContainerModule;
 
 /**
