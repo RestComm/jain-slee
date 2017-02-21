@@ -33,8 +33,7 @@ The configuration is exposed a JBoss Microcontainer Bean:
 	<property name="eventRouterThreads" value="8" />
 	<property name="collectStats" value="true" />
 	<property name="confirmSbbEntityAttachement" value="true" />
-	<property name="executorMapperClassName"
-	    value="org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper" />
+	<property name="executorMapperClassName" value="org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper" />
 </mbean>
 ----
 

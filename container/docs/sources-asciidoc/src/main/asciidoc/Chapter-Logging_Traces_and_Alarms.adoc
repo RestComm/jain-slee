@@ -30,8 +30,7 @@ Explicit category definition for {this-platform}  JAIN SLEE looks like:
 
 [source,xml]
 ----
-
-<category name="org.mobicents.slee"> 
+<category name="org.mobicents.slee">
     <priority value="INFO"/> 
 </category>
 ----
@@ -43,8 +42,7 @@ For instance, to provide detailed information on {this-platform} JAIN SLEE trans
 
 [source,xml]
 ----
-
-<appender name="TXMANAGER" class="org.jboss.logging.appender.RollingFileAppender"> 
+<appender name="TXMANAGER" class="org.jboss.logging.appender.RollingFileAppender">
     <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/> 
     <param name="File" value="${jboss.server.home.dir}/log/txmanager.log"/> 
     <param name="Append" value="false"/> 

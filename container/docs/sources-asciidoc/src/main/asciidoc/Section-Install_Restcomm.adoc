@@ -1,3 +1,4 @@
+:project-version: 5
 
 = Install Alternatives
 
@@ -13,7 +14,7 @@ Master Source Building::
 Binary Release Snapshot::
   The binary release snapshot is a build of the master source code done daily and upoaded to a public web site.
 
-
+[[_binary_release]]
 == Binary Release
 
 You can download the Binary zip files from https://mobicents.ci.cloudbees.com/job/Restcomm-JAIN-SLEE-7-Release/lastSuccessfulBuild/artifact/release/.
@@ -24,17 +25,18 @@ In this form of installation, simply unzip the downloaded zip file to the direct
 . Unzip the release file
 +
 Unzip the file to extract the archive contents into the location of your choice.
-You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named restcomm-slee-{project-version}.zip to the /restcomm directory.
+You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named restcomm-slee-{project-version}-wildfly-10.1.0.Final.zip to the /restcomm directory.
 +
-[source]
+
+[source,subs="attributes"]
 ----
 [usr]$ cd /restcomm
-[usr]$ jar -xvf restcomm-slee-{project-version}.zip
+[usr]$ jar -xvf restcomm-slee-{project-version}-wildfly-10.1.0.Final.zip
 ----
 
 . Setting up JBOSS_HOME Environment Variable
 +
-You should now have a directory called restcomm-slee-{project-version}.
+You should now have a directory called restcomm-slee-{project-version}-wildfly-10.1.0.Final.
 Next you need to set your JBOSS_HOME environment variables.
 This is discussed in <<_jboss_home_setup>>.
 
@@ -44,7 +46,7 @@ This is discussed in <<_jboss_home_setup>>.
 You can download the Binary Snapshot zip files from https://github.com/RestComm/jain-slee/releases/latest.
 The installation is similar to the <<_binary_release>> one.
 
-
+[[_release_source_building]]
 == Release Source Building
 
 . Downloading the source code
@@ -54,7 +56,7 @@ Instructions for downloading, installing and using Git can be found at http://gi
 +
 Use Git to checkout the specific release source, the Git repository URL is https://github.com/RestComm/jain-slee/, then switch to the specific release version, lets consider {project-version}.
 +
-[source]
+[source,subs="attributes"]
 ----
 [usr]$ git clone https://github.com/RestComm/jain-slee restcomm-jain-slee-release
 [usr]$ cd restcomm-jain-slee-release

@@ -41,10 +41,10 @@ $JBOSS_HOME/bin/standalone.sh --server-config=standalone-full-ha.xml
 IMPORTANT: If not specified the default config is used.
 
 IP / Host::
-  To specify the IP/Host which the server binds, use `-b IP`, for instance, to use the 192.168.0.1 IP then start the server with `-b 192.168.0.1`
+  To specify the IP/Host which the server binds, use `-b=IP`, for instance, to use the 192.168.0.1 IP then start the server with `-b=192.168.0.1`
 
 ----
-$JBOSS_HOME/bin/standalone.sh -b=192.168.100.10
+$JBOSS_HOME/bin/standalone.sh -b=192.168.0.1
 ----
 
 IMPORTANT: If not specified then 127.0.0.1 is used.
@@ -102,7 +102,7 @@ include::Section-Timer_Facility_Configuration.adoc[]
 === Configuring JAIN SLEE Profiles
 
 JAIN SLEE Profiles is a component used to store data, usually related with a user and/or service profile.
-JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API () Datasource, through Hibernate.
+JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API (JPA) Datasource, through Hibernate.
 
 There is configuration for JAIN SLEE Profiles provided as JBoss Microcontainer Beans:
 

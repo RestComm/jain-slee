@@ -1,4 +1,4 @@
-= User Guide to {this-platform} {this-application} {project-version} 
+= User Guide to {this-platform} {this-application} 7.0
 :doctype: book
 :sectnums:
 :toc: left
