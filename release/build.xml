@@ -102,7 +102,7 @@
 		</exec>
 	</target>
 
-	<target name="build-resources" depends="build-jdbc,build-sip,build-http,build-media,build-tftp,build-xcap,build-xmpp,build-diameter,build-ss7,build-smpp">
+	<target name="build-resources" depends="build-jdbc,build-sip,build-http,build-media,build-tftp,build-xcap,build-xmpp,build-diameter,build-ss7,build-smpp,build-javaee">
 		<echo message="Build Resources"/>
 	</target>
 
@@ -209,6 +209,13 @@
 		<!--copy failonerror="true" toDir="${release.dir}/extra/sip-balancer/docs" overwrite="true">
 			<fileset dir="${ant.file.restcomm.release}/../checkout/extra/sip-balancer/docs/jdocbook-restcomm/target/docbook/publish" />
 		</copy-->
+	</target>
+
+	<target name="build-javaee" description="">
+		<antcall target="build-package">
+			<param name="package.name" value="javaee" />
+			<param name="javadoc.dirs" value="" />
+		</antcall>
 	</target>
 
 	<target name="release-wildfly" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,get-extra,checkout-sources,

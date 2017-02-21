@@ -40,6 +40,9 @@
 		<smpp.scmVersion>7.1.2</smpp.scmVersion>
 		<smpp.scmVersionType>tag</smpp.scmVersionType>
 
+		<javaee.scmVersion>3.0.6</javaee.scmVersion>
+		<javaee.scmVersionType>tag</javaee.scmVersionType>
+
 		<!--
 		<cluster.scmVersion>1.15.26</cluster.scmVersion>
 		<cluster.scmVersionType>tag</cluster.scmVersionType>
@@ -152,24 +155,6 @@
 						</execution>
 
 						<execution>
-							<id>smpp-checkout</id>
-							<goals>
-								<goal>checkout</goal>
-							</goals>
-							<phase>validate</phase>
-							<configuration>
-								<scmVersion>${smpp.scmVersion}</scmVersion>
-								<scmVersionType>${smpp.scmVersionType}</scmVersionType>
-								<checkoutDirectory>
-									${checkout.basedir}/smpp
-								</checkoutDirectory>
-								<connectionUrl>
-									scm:git:https://github.com/RestComm/jain-slee.smpp.git
-								</connectionUrl>
-							</configuration>
-						</execution>
-
-						<execution>
 							<id>tftp-checkout</id>
 							<goals>
 								<goal>checkout</goal>
@@ -259,8 +244,43 @@
 							</configuration>
 						</execution>
 
-						<!-- -->
+						<execution>
+							<id>smpp-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${smpp.scmVersion}</scmVersion>
+								<scmVersionType>${smpp.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/smpp
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.smpp.git
+								</connectionUrl>
+							</configuration>
+						</execution>
 
+						<execution>
+							<id>javaee-checkout</id>
+							<goals>
+								<goal>checkout</goal>
+							</goals>
+							<phase>validate</phase>
+							<configuration>
+								<scmVersion>${javaee.scmVersion}</scmVersion>
+								<scmVersionType>${javaee.scmVersionType}</scmVersionType>
+								<checkoutDirectory>
+									${checkout.basedir}/javaee
+								</checkoutDirectory>
+								<connectionUrl>
+									scm:git:https://github.com/RestComm/jain-slee.javaee.git
+								</connectionUrl>
+							</configuration>
+						</execution>
+
+						<!-- -->
 						<execution>
 							<id>sip-balancer-checkout</id>
 							<goals>

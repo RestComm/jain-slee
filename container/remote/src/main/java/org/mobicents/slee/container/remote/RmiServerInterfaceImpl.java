@@ -93,9 +93,12 @@ public class RmiServerInterfaceImpl extends AbstractSleeContainerModule implemen
 
 	private void register(InetAddress serverAddress, int rmiRegistryPort) {
 		try {
+			System.setProperty("java.rmi.server.hostname", serverAddress.getHostName()) ;
+
 			registry = LocateRegistry.createRegistry(
 					rmiRegistryPort, null,
 					new BindingAddressCorrectnessSocketFactory(serverAddress));
+
 			registry.bind("RemoteSleeConnectionService", remoteService);
             if (logger.isDebugEnabled()) {
                 logger.debug("RMI listener bound, port " + rmiRegistryPort);
