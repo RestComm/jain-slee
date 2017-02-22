@@ -94,7 +94,8 @@ public class MobicentsManagement implements
     private static String log4jConfigFilePath = System.getProperty("jboss.server.home.dir") + File.separator + "conf" + File.separator + "jboss-log4j.xml";
     private static String log4jTemplatesPath = System.getProperty("jboss.server.home.dir") + File.separator + "deploy" + 
       File.separator + "restcomm-slee" + File.separator + "log4j-templates" + File.separator + "jboss-log4j.xml.";
-	
+
+	/*
 	public String getLoggingConfiguration(String profile) throws ManagementException {
 	  try {
 	    return readFile(getLog4jPath(profile));
@@ -125,6 +126,7 @@ public class MobicentsManagement implements
         throw new ManagementException("Failed to update log4j configuration file for profile '" + newProfile + "'.", ioe);
       }
     }
+    */
 
 	private String getLog4jPath(String profile) {
 	  return (profile == null || profile.equals("") || profile.equalsIgnoreCase("current")) ? log4jConfigFilePath : log4jTemplatesPath + profile;

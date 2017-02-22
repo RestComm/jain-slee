@@ -67,9 +67,9 @@ public interface MobicentsManagementMBean {
 	 */
 	public String dumpState() throws ManagementException;
 	
-    public String getLoggingConfiguration(String configuration) throws ManagementException;
+    //public String getLoggingConfiguration(String configuration) throws ManagementException;
 
-    public void setLoggingConfiguration(String configuration, String contents) throws ManagementException;
+    //public void setLoggingConfiguration(String configuration, String contents) throws ManagementException;
     
-    public void switchLoggingConfiguration(String newProfile) throws ManagementException;
+    //public void switchLoggingConfiguration(String newProfile) throws ManagementException;
 }
