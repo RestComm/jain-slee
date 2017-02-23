@@ -31,11 +31,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
 
 //import org.apache.log4j.Logger;
 
@@ -78,23 +84,29 @@ public class SleeDeploymentMetaData
 
     protected ArrayList<String> duContents = new ArrayList<String>();
 
+    private boolean dependencyItemsPassed = true;
+
+    public boolean isDependencyItemsPassed() {
+        return dependencyItemsPassed;
+    }
+
     // Constructors --------------------------------------------------
 
-    public SleeDeploymentMetaData(DeploymentUnit du)
+    public SleeDeploymentMetaData(DeploymentUnit du, boolean isDeploy)
     {
         final ResourceRoot deploymentRoot = du.getAttachment(Attachments.DEPLOYMENT_ROOT);
         log.info("METADATA deploymentRoot: "+deploymentRoot);
         final VirtualFile rootFile = deploymentRoot.getRoot();
 
-        parseRootFile(rootFile);
+        parseRootFile(rootFile, isDeploy);
     }
 
-    public SleeDeploymentMetaData(VirtualFile rootFile) {
-        parseRootFile(rootFile);
+    public SleeDeploymentMetaData(VirtualFile rootFile, boolean isDeploy) {
+        parseRootFile(rootFile, isDeploy);
     }
 
-    private void parseRootFile(VirtualFile rootFile) {
-        log.info("METADATA rootFile: "+rootFile);
+    private void parseRootFile(VirtualFile rootFile, boolean isDeploy) {
+        log.debug("METADATA rootFile: "+rootFile);
 
         InputStream is = null;
 
@@ -103,7 +115,7 @@ public class SleeDeploymentMetaData
                 // This is a SLEE DU
                 this.componentType = ComponentType.DU;
 
-                this.parseDUContents(is);
+                this.parseDUContents(rootFile, is, isDeploy);
             } else if (rootFile.getChild("META-INF/event-jar.xml").openStream() != null) {
                 this.componentType = ComponentType.EVENT;
             } else if (rootFile.getChild("META-INF/sbb-jar.xml").openStream() != null) {
@@ -122,10 +134,10 @@ public class SleeDeploymentMetaData
         }
     }
 
-    private void parseDUContents(InputStream is)
+    private void parseDUContents(VirtualFile rootFile, InputStream is, boolean isDeploy)
     {
         try {
-            log.info("parseDUContents");
+            log.debug("parse DU contents");
             // Parse the DU to see which jars we should process
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -141,14 +153,71 @@ public class SleeDeploymentMetaData
                 if(nodeList.item(i) instanceof Element) {
                     Element elem = (Element) nodeList.item(i);
                     if(elem.getNodeName().equals("jar") || elem.getNodeName().equals("service-xml")) {
-                        log.info("duContents add: "+elem.getTextContent());
+                        log.debug("duContents add: "+elem.getTextContent());
                         duContents.add(elem.getTextContent());
                     }
                 }
             }
+
+            if (isDeploy) {
+                InputStream dependsInputStream = null;
+                try {
+                    dependsInputStream = rootFile.getChild("META-INF/jboss-dependency.xml").openStream();
+                    if (dependsInputStream != null) {
+                        log.debug("parse jboss-dependency.xml");
+
+                        DocumentBuilder dependsDocBuilder = docBuilderFactory.newDocumentBuilder();
+                        Document dependsDoc = dependsDocBuilder.parse(dependsInputStream);
+
+                        NodeList dependsNodeList = dependsDoc.getDocumentElement().getChildNodes();
+                        // <item whenRequired="Real" dependentState="Installed">CAPSS7Service</item>
+                        boolean checkItems = true;
+                        for (int i = 0; i < dependsNodeList.getLength(); i++) {
+                            if (dependsNodeList.item(i) instanceof Element) {
+                                Element elem = (Element) dependsNodeList.item(i);
+                                if (elem.getNodeName().equals("item")) {
+                                    log.debug("Item [" + i + "]: " + elem.getTextContent());
+                                    if (!elem.getTextContent().isEmpty()) {
+                                        checkItems = checkItems && checkDependencyItem(elem.getTextContent());
+                                    }
+                                }
+                            }
+                        }
+                        this.dependencyItemsPassed = checkItems;
+                        //log.debug("dependencyItemsPassed: "+this.dependencyItemsPassed);
+                    }
+                } catch (IOException e) {
+                    log.info("Cannot open stream (META-INF): " + e.getLocalizedMessage());
+                }
+            }
+
         }
         catch (Exception e) {
             log.error("Error parsing Deployable Unit to build SLEE Deployer MetaData.", e);
         }
+    }
+
+    private boolean checkDependencyItem(String itemName) {
+        MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+        Set mbeans = mbeanServer.queryNames(null, null);
+        ObjectName mbeanName = null;
+        for (Object mbean : mbeans) {
+            mbeanName = (ObjectName)mbean;
+            if (mbeanName.getCanonicalName().contains(itemName)) {
+                //log.debug("MBean: " + mbeanName.getCanonicalName());
+                try {
+                    Object object = mbeanServer.getAttribute(mbeanName, "Started");
+                    if (object != null && object instanceof Boolean) {
+                        return (Boolean)object;
+                    }
+                } catch(Exception e) {
+                    log.warn("Cant get attribute Started for MBean: "+mbeanName, e);
+                }
+                return true;
+            }
+        }
+
+        log.warn("Deployment \""+itemName+"\"  is in error due to the following reason(s): ** NOT FOUND Depends on '"+itemName+"' **");
+        return false;
     }
 }

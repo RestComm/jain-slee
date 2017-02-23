@@ -392,7 +392,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 							log.error("Cannot get URL for deployable unit: " + ex.getLocalizedMessage());
 						}
 
-						SleeDeploymentMetaData deploymentMetaData = new SleeDeploymentMetaData(deploymentVfs);
+						SleeDeploymentMetaData deploymentMetaData = new SleeDeploymentMetaData(deploymentVfs, true);
 						((ExternalDeployerImpl) externalDeployer)
 							.deploy(null, deploymentRootURL, deploymentMetaData, deploymentVfs);
 					}

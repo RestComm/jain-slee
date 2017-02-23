@@ -22,7 +22,7 @@ public class SleeDeploymentMarker {
     private static final AttachmentKey<URL> URL_KEY = AttachmentKey.create(URL.class);
     private static final AttachmentKey<SleeDeploymentMetaData> SLEEMETADATA_KEY = AttachmentKey.create(SleeDeploymentMetaData.class);
 
-    public static void mark(final DeploymentUnit deploymentUnit) {
+    public static void mark(final DeploymentUnit deploymentUnit, final boolean isDeploy) {
         final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
         final VirtualFile root = deploymentRoot.getRoot();
         URL rootURL = null;
@@ -37,7 +37,7 @@ public class SleeDeploymentMarker {
         if(log.isTraceEnabled()) {
             log.trace("Deployment unit parsing: " + deploymentUnit);
         }
-        SleeDeploymentMetaData metaData = new SleeDeploymentMetaData(deploymentUnit);
+        SleeDeploymentMetaData metaData = new SleeDeploymentMetaData(deploymentUnit, isDeploy);
 
         // SergeyLee: ClassLoadingMetaData migrating
         /*

@@ -36,7 +36,7 @@ public class SleeDeploymentParseProcessor implements DeploymentUnitProcessor {
             return;
         }
 
-        SleeDeploymentMarker.mark(deploymentUnit);
+        SleeDeploymentMarker.mark(deploymentUnit, true);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SleeDeploymentParseProcessor implements DeploymentUnitProcessor {
             return;
         }
 
-        SleeDeploymentMarker.mark(deploymentUnit);
+        SleeDeploymentMarker.mark(deploymentUnit, false);
     }
 
 }
