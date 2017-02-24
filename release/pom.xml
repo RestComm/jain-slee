@@ -24,7 +24,7 @@
 
 		<http.scmVersion>7.0.13</http.scmVersion>
 		<http.scmVersionType>tag</http.scmVersionType>
-		<media.scmVersion>7.0.4</media.scmVersion>
+		<media.scmVersion>7.0.5</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
 		<tftp.scmVersion>7.0.6</tftp.scmVersion>
 		<tftp.scmVersionType>tag</tftp.scmVersionType>
