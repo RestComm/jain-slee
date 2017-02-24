@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="urn:telestax:slee-container:3.0"
-            xmlns="urn:telestax:slee-container:3.0"
+            targetNamespace="urn:restcomm:slee-container:3.0"
+            xmlns="urn:restcomm:slee-container:3.0"
             elementFormDefault="qualified"
             attributeFormDefault="unqualified"
             version="3.0">

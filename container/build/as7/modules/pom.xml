@@ -11,8 +11,8 @@
 	<artifactId>slee-container-build-as7-modules</artifactId>
 
 	<properties>
-		<module.name>org.telestax.slee.container.lib</module.name>
-		<module.path>org/telestax/slee/container/lib</module.path>
+		<module.name>org.restcomm.slee.container.lib</module.name>
+		<module.path>org/restcomm/slee/container/lib</module.path>
 
 		<javax.slee.jain-slee.version>${jain-slee.version}</javax.slee.jain-slee.version>
 

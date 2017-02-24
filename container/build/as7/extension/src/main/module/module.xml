@@ -24,6 +24,6 @@
         <module name="org.javassist"/>
         <module name="org.hibernate"/>
         <module name="org.infinispan"/>
-        <module name="org.telestax.slee.container.lib"/>
+        <module name="org.restcomm.slee.container.lib"/>
     </dependencies>
 </module>

@@ -5,7 +5,7 @@
             <subsystem name="ejb3" />
         </exclude-subsystems>
         <dependencies>
-            <module name="org.telestax.slee.container.lib" export="true" />
+            <module name="org.restcomm.slee.container.lib" export="true" />
             <!--<module name="javax.slee.api"/>-->
         </dependencies>
     </deployment>

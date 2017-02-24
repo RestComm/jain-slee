@@ -13,8 +13,8 @@
 	<artifactId>slee-container-build-as7-extension</artifactId>
 
 	<properties>
-		<module.name>org.telestax.slee.container.extension</module.name>
-		<module.path>org/telestax/slee/container/extension</module.path>
+		<module.name>org.restcomm.slee.container.extension</module.name>
+		<module.path>org/restcomm/slee/container/extension</module.path>
 	</properties>
 
 	<build>
@@ -313,11 +313,11 @@
 									<tasks>										
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</extensions>]]></replacetoken>
-  											<replacevalue><![CDATA[<extension module="org.telestax.slee.container.extension"/></extensions>]]></replacevalue>
+  											<replacevalue><![CDATA[<extension module="org.restcomm.slee.container.extension"/></extensions>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</profile>]]></replacetoken>
-  											<replacevalue><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0"/></profile>]]></replacevalue>
+  											<replacevalue><![CDATA[<subsystem xmlns="urn:restcomm:slee-container:3.0"/></profile>]]></replacevalue>
 										</replace>
 									</tasks>
 								</configuration>
@@ -331,11 +331,11 @@
 								<configuration>
 									<tasks>									
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[<extension module="org.telestax.slee.container.extension"/>]]></replacetoken>
+  											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0"/>]]></replacetoken>
+  											<replacetoken><![CDATA[<subsystem xmlns="urn:restcomm:slee-container:3.0"/>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
 									</tasks>
@@ -401,11 +401,11 @@
 									<tasks>										
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</extensions>]]></replacetoken>
-  											<replacevalue><![CDATA[<extension module="org.telestax.slee.container.extension"/></extensions>]]></replacevalue>
+  											<replacevalue><![CDATA[<extension module="org.restcomm.slee.container.extension"/></extensions>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</profile>]]></replacetoken>
-  											<replacevalue><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0"/></profile>]]></replacevalue>
+  											<replacevalue><![CDATA[<subsystem xmlns="urn:restcomm:slee-container:3.0"/></profile>]]></replacevalue>
 										</replace>
 									</tasks>
 								</configuration>
@@ -419,11 +419,11 @@
 								<configuration>
 									<tasks>									
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[<extension module="org.telestax.slee.container.extension"/>]]></replacetoken>
+  											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0"/>]]></replacetoken>
+  											<replacetoken><![CDATA[<subsystem xmlns="urn:restcomm:slee-container:3.0"/>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
 									</tasks>
@@ -492,13 +492,13 @@
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</extensions>]]></replacetoken>
   											<replacevalue><![CDATA[
-		<extension module="org.telestax.slee.container.extension"/>
+		<extension module="org.restcomm.slee.container.extension"/>
 	</extensions>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</profile>]]></replacetoken>
   											<replacevalue><![CDATA[
-		<subsystem xmlns="urn:telestax:slee-container:3.0">
+		<subsystem xmlns="urn:restcomm:slee-container:3.0">
             <cache-config>
                 &lt;?xml version="1.0" encoding="UTF-8"?>
 				&lt;infinispan
@@ -543,7 +543,7 @@
 										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
 											<replacetoken><![CDATA[</dependencies>]]></replacetoken>
 											<replacevalue><![CDATA[
-		<module name="org.telestax.slee.container.lib"/>
+		<module name="org.restcomm.slee.container.lib"/>
 	</dependencies>]]></replacevalue>
 										</replace>
 									</tasks>
@@ -558,12 +558,12 @@
 								<configuration>
 									<tasks>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[<extension module="org.telestax.slee.container.extension"/>]]></replacetoken>
+  											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
 										<!--
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[<subsystem xmlns="urn:telestax:slee-container:3.0">
+  											<replacetoken><![CDATA[<subsystem xmlns="urn:restcomm:slee-container:3.0">
 			<remote-rmi-address>127.0.0.1</remote-rmi-address>
 			<remote-rmi-port>7777</remote-rmi-port>
 			<profiles-persist-profiles>true</profiles-persist-profiles>
@@ -575,7 +575,7 @@
 										</replace>
 										-->
 										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
-											<replacetoken><![CDATA[<module name="org.telestax.slee.container.lib"/>]]></replacetoken>
+											<replacetoken><![CDATA[<module name="org.restcomm.slee.container.lib"/>]]></replacetoken>
 											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
 									</tasks>

@@ -338,7 +338,7 @@
 		<replace casesensitive="false" file="${wildfly.modules}/org/apache/commons/lang/main/module.xml">
 			<replacetoken><![CDATA[</dependencies>]]></replacetoken>
 			<replacevalue><![CDATA[
-		<module name="org.telestax.slee.container.lib"/>
+		<module name="org.restcomm.slee.container.lib"/>
 	</dependencies>]]>
 			</replacevalue>
 		</replace>

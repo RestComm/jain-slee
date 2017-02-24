@@ -7,7 +7,7 @@
         </exclude-subsystems>
         -->
         <dependencies>
-            <module name="org.telestax.slee.container.lib" export="true" />
+            <module name="org.restcomm.slee.container.lib" export="true" />
             <!--<module name="javax.slee.api"/>-->
             <module name="org.jboss.remoting-jmx" services="import"/>
             <module name="org.jboss.remoting3" services="import"/>
