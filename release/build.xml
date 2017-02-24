@@ -27,7 +27,7 @@
 
 	<!-- Diameter -->
 	<!-- https://mobicents.ci.cloudbees.com/view/JSLEE/job/RestComm-jDiameter-1.x/134/artifact/release/restcomm-diameter-mux-wildfly-1.7.0.134.zip -->
-	<property name="diameter.build" value="137"/>
+	<property name="diameter.build" value="139"/>
 	<property name="diameter.version" value="1.7.0.${diameter.build}"/>
 	<property name="diameter.zip" value="restcomm-diameter-mux-wildfly-${diameter.version}.zip"/>
 	<property name="diameter.download.url"
@@ -35,7 +35,7 @@
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
 	<!-- SS7 -->
-	<property name="ss7.build" value="73"/>
+	<property name="ss7.build" value="76"/>
 	<property name="ss7.version" value="8.0.${ss7.build}"/>
 	<property name="ss7.zip" value="restcomm-jss7-${ss7.version}.zip"/>
 	<property name="ss7.download.url"

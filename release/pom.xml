@@ -14,33 +14,33 @@
 	<version>3.0.0-SNAPSHOT</version>
 	
 	<properties>
-		<core.scmVersion>3.0.60</core.scmVersion>
+		<core.scmVersion>7.0.63</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
 
-		<jdbc.scmVersion>3.0.9</jdbc.scmVersion>
+		<jdbc.scmVersion>7.0.11</jdbc.scmVersion>
 		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
-		<sip.scmVersion>3.0.11</sip.scmVersion>
+		<sip.scmVersion>7.0.13</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
 
-		<http.scmVersion>3.0.12</http.scmVersion>
+		<http.scmVersion>7.0.13</http.scmVersion>
 		<http.scmVersionType>tag</http.scmVersionType>
-		<media.scmVersion>3.0.4</media.scmVersion>
+		<media.scmVersion>7.0.4</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
-		<tftp.scmVersion>3.0.4</tftp.scmVersion>
+		<tftp.scmVersion>7.0.6</tftp.scmVersion>
 		<tftp.scmVersionType>tag</tftp.scmVersionType>
-		<xcap.scmVersion>3.0.3</xcap.scmVersion>
+		<xcap.scmVersion>7.0.6</xcap.scmVersion>
 		<xcap.scmVersionType>tag</xcap.scmVersionType>
-		<xmpp.scmVersion>3.0.3</xmpp.scmVersion>
+		<xmpp.scmVersion>7.0.5</xmpp.scmVersion>
 		<xmpp.scmVersionType>tag</xmpp.scmVersionType>
 
-		<diameter.scmVersion>3.0.10</diameter.scmVersion>
+		<diameter.scmVersion>7.0.11</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
-		<ss7.scmVersion>8.1.10</ss7.scmVersion>
+		<ss7.scmVersion>8.1.11</ss7.scmVersion>
 		<ss7.scmVersionType>tag</ss7.scmVersionType>
-		<smpp.scmVersion>7.1.3</smpp.scmVersion>
+		<smpp.scmVersion>7.1.4</smpp.scmVersion>
 		<smpp.scmVersionType>tag</smpp.scmVersionType>
 
-		<javaee.scmVersion>3.0.7</javaee.scmVersion>
+		<javaee.scmVersion>7.0.8</javaee.scmVersion>
 		<javaee.scmVersionType>tag</javaee.scmVersionType>
 
 		<!--
@@ -48,7 +48,7 @@
 		<cluster.scmVersionType>tag</cluster.scmVersionType>
 		-->
 
-		<sip-balancer.scmVersion>8.0.145</sip-balancer.scmVersion>
+		<sip-balancer.scmVersion>8.1.152</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
 
 	</properties>
