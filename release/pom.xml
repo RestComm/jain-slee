@@ -35,7 +35,7 @@
 
 		<diameter.scmVersion>7.0.11</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
-		<ss7.scmVersion>8.1.11</ss7.scmVersion>
+		<ss7.scmVersion>8.1.13</ss7.scmVersion>
 		<ss7.scmVersionType>tag</ss7.scmVersionType>
 		<smpp.scmVersion>7.1.4</smpp.scmVersion>
 		<smpp.scmVersionType>tag</smpp.scmVersionType>

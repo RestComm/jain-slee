@@ -35,7 +35,7 @@
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
 	<!-- SS7 -->
-	<property name="ss7.build" value="76"/>
+	<property name="ss7.build" value="77"/>
 	<property name="ss7.version" value="8.0.${ss7.build}"/>
 	<property name="ss7.zip" value="restcomm-jss7-${ss7.version}.zip"/>
 	<property name="ss7.download.url"
