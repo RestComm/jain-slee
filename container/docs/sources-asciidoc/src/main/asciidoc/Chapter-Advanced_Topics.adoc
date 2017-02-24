@@ -25,14 +25,43 @@ include::Section-JPA_SLEE_Profiles_Mapping.adoc[]
 To run the JAIN SLEE 1.1 TCK:
 
 . Checkout and build the container source code as explained in <<_install>>.
-. Install the TCK Resource Adaptor and Plugin:
+. Setup JBOSS_HOME environment variable to WildFly with JAIN SLEE container.
+. Download source code
++
+Use Git to checkout the specific source, the Git repository URL
+is https://github.com/RestComm/jain-slee.more/
++
+[source,subs="attributes"]
+----
+[usr]$ git clone https://github.com/RestComm/jain-slee.more restcomm-jain-slee-more
+----
+. Setup TCK_HOME environment variable to [path]_tck/jain-slee-1.1_.
 +
 ----
-cd tck/jain-slee-1.1
+export TCK_HOME=restcomm-jain-slee-more/tck/jain-slee-1.1
+----
+. Install the TCK Plugin and Resource Adaptor:
++
+----
+cd $TCK_HOME
 mvn install
 ----
 
-. Setup JAVA_OPTS environment variable to include -XX:MaxPermSize=128M -Djboss.defined.home=`/Volumes/2/jboss-5.1.0.GA` -Djava.security.manager=default -Djava.security.policy=``file:///Volumes/2/workspace/restcomm-jainslee-2/``tck/jain-slee-1.1/tck-security.policy, replacing the `absolute paths` with $JBOSS_HOME and the path of the Git checkout.
+. Copy OpenCloud JAIN SLEE TCK 1.1 module from [path]_tck/kain-slee-1.1/release/opencloud_
+to [path]_$JBOSS_HOME/modules/system/layers/base/com/opencloud_.
+
+. Start Restcomm JAIN SLEE with the Security Manager:
++
+----
+$JBOSS_HOME/bin/standalone.sh -secmgr
+----
+
+. Setup JAVA_OPTS environment variable
++
+----
+export JAVA_OPTS="-Djboss.defined.home=$JBOSS_HOME -Djava.security.manager=default -Djava.security.policy=file://$TCK_HOME/tck-security-wildfly.policy"
+----
+
 . Unzip and run the JAIN SLEE 1.1 TCK distribution:
 +
 ----
