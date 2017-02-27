@@ -22,7 +22,12 @@
 
 package org.mobicents.slee.resource;
 
-import java.io.Serializable;
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.resource.GracefullyStopableResourceAdaptor;
+import org.mobicents.slee.container.resource.ResourceAdaptorObject;
+import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 
 import javax.slee.Address;
 import javax.slee.InvalidStateException;
@@ -35,18 +40,14 @@ import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
-
-import org.apache.log4j.Logger;
-import org.mobicents.slee.container.resource.ResourceAdaptorObject;
-import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
-import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
-import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
 /**
  * A wrapper for an ra object, managing its state and configuration
  * 
  * @author Eduardo Martins
- * 
+ * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
  */
 public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 
@@ -77,7 +78,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 * Creates a new instance, for the specified ra object and with the
 	 * specified configuration properties.
 	 * 
-	 * @param raAdaptorEntity
+	 * @param raEntity
 	 * @param object
 	 * @param configProperties
 	 */
@@ -266,17 +267,42 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	 *             if the ra object is not in ACTIVE state
 	 */
 	public void raStopping() throws InvalidStateException {
+		boolean stoppingGracefully = raEntity.getSleeContainer().isGracefullyStopping();
 
 		if (doTraceLogs) {
-			logger.trace("raStopping()");
+			logger.trace("raStopping() " + (stoppingGracefully?"gracefully":""));
 		}
 
-		if (state == ResourceAdaptorObjectState.ACTIVE) {
-			state = ResourceAdaptorObjectState.STOPPING;
-			object.raStopping();
+		if (state == ResourceAdaptorObjectState.ACTIVE || state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
+			if(stoppingGracefully) {
+				stopRaGracefully();
+			} else {
+				state = ResourceAdaptorObjectState.STOPPING;
+				object.raStopping();
+			}
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
+	}
+
+	private boolean stopRaGracefully() {
+		boolean isSuccess = false;
+		Method method = null;
+		try {
+			method = object.getClass().getMethod(GracefullyStopableResourceAdaptor.RA_GRACEFUL_STOP_METHOD_NAME);
+			method.invoke(object);
+			state = ResourceAdaptorObjectState.STOPPING_GRACEFULLY;
+			if(!raEntity.hasActivities()) {
+				raEntity.allActivitiesEnded();
+			}
+			isSuccess = true;
+		} catch (Throwable t) {
+			logger.warn("RA object of entity: " + raEntity.getName() + " does not support graceful stopping mode. Cause: " + t.getClass() + " " + t.getMessage());
+			if(doTraceLogs) {
+				logger.warn("Exception on RA graceful stopping method (" +GracefullyStopableResourceAdaptor.RA_GRACEFUL_STOP_METHOD_NAME+ ") invocation on " + raEntity.getName(), t);
+			}
+		}
+		return isSuccess;
 	}
 
 	/**
@@ -292,7 +318,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 			logger.trace("raInactive()");
 		}
 
-		if (state == ResourceAdaptorObjectState.STOPPING) {
+		if (state == ResourceAdaptorObjectState.STOPPING || state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			state = ResourceAdaptorObjectState.INACTIVE;
 			object.raInactive();
 		} else {
@@ -364,7 +390,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	}
 
 	/**
-	 * @see ResourceAdaptor#getResourceAdaptorInterface(ResourceAdaptorTypeID)
+	 * @see ResourceAdaptor#getResourceAdaptorInterface(String)
 	 */
 	public Object getResourceAdaptorInterface(String className) {
 
@@ -377,7 +403,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	}
 
 	/**
-	 * @see ResourceAdaptor#getMarshaller()
+	 * @see ResourceAdaptor#getMarshaler()
 	 */
 	public Marshaler getMarshaler() {
 
@@ -572,7 +598,8 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 		}
 
 		if (this.state == ResourceAdaptorObjectState.ACTIVE
-				|| this.state == ResourceAdaptorObjectState.STOPPING) {
+				|| this.state == ResourceAdaptorObjectState.STOPPING
+				|| this.state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			object.eventProcessingSuccessful(handle, eventType, event, address,
 					service, flags);
 		}
@@ -600,7 +627,8 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 		}
 
 		if (this.state == ResourceAdaptorObjectState.ACTIVE
-				|| this.state == ResourceAdaptorObjectState.STOPPING) {
+				|| this.state == ResourceAdaptorObjectState.STOPPING
+				|| this.state == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			object.eventUnreferenced(handle, eventType, event, address,
 					service, flags);
 		}

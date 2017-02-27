@@ -1,0 +1,87 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="graceful_stop">
+	
+	<title>Graceful Stop</title>
+	
+	<para>JAIN SLEE container can be stopped gracefully. operation stops container gracefully.
+		It means that all graceful shutdown compliant Resource Adaptors are notified to go into graceful stopping state
+		and other RAs work normally (they stay in <literal>ACTIVE</literal> state).
+		The graceful stop process is broken and standard stop is invoked when total number of active compliant RAs activities reaches configured Active Sessions Threshold value or specified maximum graceful shutdown wait time elapses.</para>
+
+	<para>During graceful shutdown phase the following occurs:
+		<variablelist>
+			<varlistentry>
+				Compliant RAs do not accept new activities creation – all initial events which are not related to existing sessions are rejected (messages such as e.g. CAP IDP or SIP INVITE are rejected);
+			</varlistentry>
+			<varlistentry>
+				Active services SBBs keep handling activities according to their business logic until they are finished as usually.
+			</varlistentry>
+		</variablelist>
+	</para>
+
+	<section id="graceful_stop_configuration">
+		<title>Graceful Stop Configuration</title>
+	
+		<para>The Graceful Stop feature is configured through an XML file or through a JMX MBean.
+			Changes applied through JMX are not persisted, and once the container is restarted the configuration will revert to the one in the XML file.</para>
+		<para>User defined Graceful Stop process parameters can be also optionally provided while invoking appropriate SLEE management command</para>
+	
+		<section id="graceful_stop_persistent_configuration">
+			<title>Graceful Stop Persistent Configuration</title>
+			<para>Configuration is done through a XML descriptor for each <xref linkend="server_profiles" />. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/META-INF</filename>, where <application>profile_name</application> is the server profile name.</para>
+			<para>The configuration is exposed a JBoss Microcontainer Bean:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+<bean name="Mobicents.JAINSLEE.SleeManagement"
+		class="org.mobicents.slee.container.management.jmx.SleeManagementMBeanImpl">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=SleeManagement",exposedInterface=org.mobicents.slee.container.management.jmx.SleeManagementMBeanImplMBean.class,registerDirectly=true)</annotation>
+
+		<!--Graceful shutdown defaults-->
+		<property name="defaultActiveSessionsThreshold">30</property>
+		<property name="defaultGracefulShutdownWaitTime">300</property>
+</bean>]]>
+			</programlisting>
+			<table frame="all" pgwide="1">
+			  	<title>JAIN SLEE Bean Graceful Stop related Configuration</title>
+				<tgroup colsep="1" cols="3">
+			    	<colspec colnum="1" colname="c0"/>
+				    <colspec colnum="2" colname="c1"/>
+				    <colspec colnum="3" colname="c2"/>
+				    <thead>
+						<row>
+					        <entry>Property Name</entry>
+				    	    <entry>Property Type</entry>
+					    	<entry>Description</entry>
+	      				</row>
+				    </thead>
+				    <tbody>
+					      <row>
+					      	<entry>defaultActiveSessionsThreshold</entry>
+				    	    <entry>int</entry>
+				       		<entry>This property defines container default Active Sessions Threshold (AST) value.
+							</entry>
+					      </row>
+					      <row>
+					        <entry>defaultGracefulShutdownWaitTime</entry>
+					        <entry>long</entry>
+					        <entry>This property defines the maximum time period when the container is waiting for finishing existing sessions/activities.</entry>
+					      </row>
+			    	</tbody>
+			  	</tgroup>
+			</table>
+		</section>
+		
+		<section id="graceful_stop_jmx_configuration">
+			<title>Graceful Stop JMX Configuration</title>
+			<para>Through JMX, the Graceful Stop feature configuration can be changed with the container running. These configuration changes are not persisted.</para>
+			
+			<para>The JMX MBean which can be used to change the Graceful Stop configuration is named <application>javax.slee.management:name=SleeManagement</application>, and provides getters and setters to change each property defined in the persistent configuration. The JMX Console can be used to use this MBean, see <xref linkend="management_jmx_console"/>.</para>
+		</section>	
+	
+	</section>	
+	
+</section>

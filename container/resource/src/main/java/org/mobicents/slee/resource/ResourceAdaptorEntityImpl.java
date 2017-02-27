@@ -22,9 +22,19 @@
 
 package org.mobicents.slee.resource;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TimerTask;
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.activity.ActivityType;
+import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.management.ResourceManagementImpl;
+import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
+import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandle;
+import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
+import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContextImpl;
 
 import javax.slee.EventTypeID;
 import javax.slee.InvalidArgumentException;
@@ -47,26 +57,16 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
-
-import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.mobicents.slee.container.activity.ActivityType;
-import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
-import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
-import org.mobicents.slee.container.management.ResourceManagementImpl;
-import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
-import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandle;
-import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
-import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
-import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContextImpl;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TimerTask;
 
 /**
  * 
  * Implementation of the logical Resource Adaptor Entity and its life cycle.
  * 
  * @author Eduardo Martins
+ * @author <a href="mailto:grzegorz.figiel@pro-ids.com"> Grzegorz Figiel (ProIDS sp. z o.o.)</a>
  */
 public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 
@@ -132,6 +132,8 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	
 	@SuppressWarnings("rawtypes")
 	private FaultTolerantResourceAdaptorContextImpl ftResourceAdaptorContext;
+
+	private boolean isGracefullyStoppable;
 	
 	/**
 	 * Creates a new entity with the specified name, for the specified ra
@@ -316,7 +318,9 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 			catch (Throwable t) {
 				logger.error("Got exception from RA object",t);
 			}
-			scheduleAllActivitiesEnd();
+			if(!sleeContainer.isGracefullyStopping()) {
+				scheduleAllActivitiesEnd();
+			}
 		}
 	}
 
@@ -328,7 +332,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 			timerTask = null;
 		}
 		if (!this.state.isInactive()) {
-			if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
+			if (object.getState() == ResourceAdaptorObjectState.STOPPING || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 				try {
 					object.raInactive();
 				}
@@ -392,7 +396,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 					+ this.state);
 		}
 		this.state = ResourceAdaptorEntityState.STOPPING;
-		if (object.getState() == ResourceAdaptorObjectState.ACTIVE) {
+		if (object.getState() == ResourceAdaptorObjectState.ACTIVE || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			object.raStopping();
 		}
 		// tck requires that the method returns with stopping state so do
@@ -403,7 +407,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 				try {
 					cancel();
 					if (state == ResourceAdaptorEntityState.STOPPING) {
-						if (object.getState() == ResourceAdaptorObjectState.STOPPING) {	
+						if (object.getState() == ResourceAdaptorObjectState.STOPPING || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 							scheduleAllActivitiesEnd();
 						}
 						else {
@@ -441,10 +445,9 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 
 	/**
 	 * Checks if the entity has activities besides the one passed as parameter (if not null).
-	 * @param exceptHandle
 	 * @return
 	 */
-	private boolean hasActivities() {
+	public boolean hasActivities() {
 		try {	
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
@@ -476,7 +479,31 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		return false;
 	}
 
-	private EndAllActivitiesRAEntityTimerTask timerTask;
+	/**
+	 * Gets the current number of activities handled by this RA entity.
+	 * @return
+	 */
+	public int getRaEntityActivitiesCount() {
+		int activitiesCount = 0;
+		try {
+			if(!this.state.isInactive()) {
+				for (ActivityContextHandle handle : sleeContainer.getActivityContextFactory().getAllActivityContextsHandles()) {
+					if (handle.getActivityType() == ActivityType.RA) {
+						ResourceAdaptorActivityContextHandle raHandle = (ResourceAdaptorActivityContextHandle) handle;
+						if (raHandle.getResourceAdaptorEntity().equals(this)) {
+							activitiesCount++;
+						}
+					}
+				}
+			}
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return activitiesCount;
+	}
+
+		private EndAllActivitiesRAEntityTimerTask timerTask;
 	
 	/**
 	 * Removes the entity, it will unconfigure and unset the ra context, the
@@ -552,7 +579,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * Indicates a service was activated, the entity will forward this
 	 * notification to the ra object.
 	 * 
-	 * @param serviceInfo
+	 * @param serviceID
 	 */
 	public void serviceActive(ServiceID serviceID) {
 		try {
@@ -570,7 +597,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * Indicates a service is stopping, the entity will forward this
 	 * notification to the ra object.
 	 * 
-	 * @param serviceInfo
+	 * @param serviceID
 	 */
 	public void serviceStopping(ServiceID serviceID) {
 		try {
@@ -588,7 +615,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	 * Indicates a service was deactivated, the entity will forward this
 	 * notification to the ra object.
 	 * 
-	 * @param serviceInfo
+	 * @param serviceID
 	 */
 	public void serviceInactive(ServiceID serviceID) {
 		try {
@@ -693,7 +720,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 		if (ah != null && ActivityFlags.hasRequestEndedCallback(activityFlags)) {
 			object.activityEnded(ah);
 		}
-		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
+		if (object.getState() == ResourceAdaptorObjectState.STOPPING || object.getState() == ResourceAdaptorObjectState.STOPPING_GRACEFULLY) {
 			synchronized (this) {
 				// the ra object is stopping, check if the timer task is still
 				// needed
@@ -716,7 +743,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public ActivityHandleReferenceFactory getHandleReferenceFactory() {

@@ -22,6 +22,11 @@
 
 package org.mobicents.slee.container.management.jmx;
 
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.Version;
+import org.mobicents.slee.container.management.SleeStateChangeRequest;
+
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanServer;
@@ -38,17 +43,13 @@ import javax.slee.management.SleeStateChangeNotification;
 import javax.slee.management.UnrecognizedSubsystemException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
-import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.Version;
-import org.mobicents.slee.container.management.SleeStateChangeRequest;
-
 /**
  * Implementation of the Slee Management MBean for SLEE 1.1 specs
  * 
  * @author M. Ranganathan
  * @author Ivelin Ivanov
  * @author Eduardo Martins
+ * @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
  * 
  */
 public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implements
@@ -84,6 +85,12 @@ public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implem
 	private static final MBeanNotificationInfo[] MBEAN_NOTIFICATIONS;
 
 	private ObjectName objectName;
+
+	/**
+	 * Graceful shutdown feature defaults config.
+	 */
+	private int defaultActiveSessionsThreshold;
+	private long defaultGracefulShutdownWaitTime;
 
 	static {
 		MBEAN_NOTIFICATIONS = new MBeanNotificationInfo[] { new MBeanNotificationInfo(
@@ -163,6 +170,11 @@ public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implem
 						}
 
 						@Override
+						public boolean isGraceful() {
+							return false;
+						}
+
+						@Override
 						public boolean isBlockingRequest() {
 							return true;
 						}
@@ -178,13 +190,18 @@ public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implem
 						logger.error(
 								"Failed to set container in RUNNING state", e);
 						try {
-							stop(false);
+							stop(false, false);
 						} catch (Throwable f) {
 							logger.error(
 									"Failed to set container in STOPPED state, after failure to set in RUNNING state",
 									e);
 						}
 					}
+				}
+
+				@Override
+				public boolean isGraceful() {
+					return false;
 				}
 
 				@Override
@@ -217,19 +234,134 @@ public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implem
 						newState, oldState, sleeStateChangeSequenceNumber++));
 	}
 
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	public static void setLogger(Logger logger) {
+		SleeManagementMBeanImpl.logger = logger;
+	}
+
+	public int getDefaultActiveSessionsThreshold() {
+		return defaultActiveSessionsThreshold;
+	}
+
+	public void setDefaultActiveSessionsThreshold(int defaultActiveSessionsThreshold) {
+		this.defaultActiveSessionsThreshold = defaultActiveSessionsThreshold;
+		if(this.sleeContainer != null) {
+			this.sleeContainer.setGracefulStopActivitiesCountThreshold(defaultActiveSessionsThreshold);
+		}
+	}
+
+	public long getDefaultGracefulShutdownWaitTime() {
+		return defaultGracefulShutdownWaitTime;
+	}
+
+	public void setDefaultGracefulShutdownWaitTime(long defaultGracefulShutdownWaitTime) {
+		this.defaultGracefulShutdownWaitTime = defaultGracefulShutdownWaitTime;
+		if(this.sleeContainer != null) {
+			this.sleeContainer.setGracefulStopWaitTime(defaultGracefulShutdownWaitTime);
+		}
+	}
+
 	/**
 	 * Gracefully stop the SLEE. Should do it in a non-blocking manner.
+	 * Requests SLEE container to enter graceful STOPPING state.
+	 * @return Status and the number of active sessions remaining after invocation of Graceful Shutdown command
+	 */
+	public String gracefulStop(Integer ast, Long time) throws InvalidStateException, ManagementException {
+		if(ast != null && ast >= 0){
+			sleeContainer.setGracefulStopActivitiesCountThreshold(ast);
+		} else {
+			logger.info("Using default defaultActiveSessionsThreshold value for graceful shutdown (" + defaultActiveSessionsThreshold + ")" );
+			sleeContainer.setGracefulStopActivitiesCountThreshold(defaultActiveSessionsThreshold);
+		}
+		if(time != null && time > 0) {
+			sleeContainer.setGracefulStopWaitTime(time);
+		} else {
+			logger.info("Using default defaultGracefulShutdownWaitTime value for graceful shutdown (" + defaultGracefulShutdownWaitTime + ")");
+			sleeContainer.setGracefulStopWaitTime(defaultGracefulShutdownWaitTime);
+		}
+
+		logger.info("gracefulStop called. ast=" + sleeContainer.getGracefulStopActivitiesCountThreshold() + " time=" + sleeContainer.getGracefulStopWaitTime());
+
+		stop(false, true);
+
+		return "Container Graceful Shutdown requested successfully.";
+	}
+
+	/**
+	 * Stop the SLEE. Should do it in a non-blocking manner.
 	 * 
 	 * @see javax.slee.management.SleeManagementMBean#stop()
 	 */
 	public void stop() throws InvalidStateException, ManagementException {
-		stop(false);
+		stop(false, false);
 	}
 
-	private void stop(final boolean block) throws InvalidStateException,
+	private void stop(final boolean block, final boolean graceful) throws InvalidStateException,
 			ManagementException {
 		try {
+			SleeStateChangeRequest stoppingRequest = null;
+			if(graceful) {
+				stoppingRequest = createGracefulStoppingRequest(block);
+			} else {
+				stoppingRequest = createStoppingRequest(block);
 
+			}
+			sleeContainer.setSleeState(stoppingRequest);
+
+		} catch (InvalidStateException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new ManagementException(ex.getMessage(), ex);
+		}
+	}
+
+	private SleeStateChangeRequest createGracefulStoppingRequest(final boolean block) {
+		// request to change to STOPPING (gracefully)
+		final SleeStateChangeRequest gracefulStoppingRequest = new SleeStateChangeRequest() {
+
+			@Override
+			public void stateChanged(SleeState oldState) {
+				logger.info(generateMessageWithLogo("gracefully stopping"));
+				notifyStateChange(oldState, getNewState());
+			}
+
+			@Override
+			public void requestCompleted() {
+				// inner request, executed when the parent completes, to stop other containers modules
+				if(logger.isInfoEnabled()) {
+					logger.info("Graceful stopping request completed. Stopping whole container.");
+				}
+
+				final SleeStateChangeRequest stoppingRequest = createStoppingRequest(block);
+				try {
+					sleeContainer.setSleeState(stoppingRequest);
+				} catch (Throwable e) {
+					logger.error("Failed to set whole container in STOPPING state", e);
+				}
+			}
+
+			@Override
+			public boolean isGraceful() {
+				return true;
+			}
+
+			@Override
+			public boolean isBlockingRequest() {
+				return block;
+			}
+
+			@Override
+			public SleeState getNewState() {
+				return SleeState.STOPPING;
+			}
+		};
+		return gracefulStoppingRequest;
+	}
+
+	private SleeStateChangeRequest createStoppingRequest(final boolean block) {
 			// request to change to STOPPING
 			final SleeStateChangeRequest stoppingRequest = new SleeStateChangeRequest() {
 
@@ -242,37 +374,17 @@ public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implem
 				@Override
 				public void requestCompleted() {
 					// inner request, executed when the parent completes, to change to STOPPED
-					final SleeStateChangeRequest stopRequest = new SleeStateChangeRequest() {
-
-						private SleeState oldState;
-
-						@Override
-						public void stateChanged(SleeState oldState) {
-							logger.info(generateMessageWithLogo("stopped"));
-							this.oldState = oldState;
-						}
-
-						@Override
-						public void requestCompleted() {
-							notifyStateChange(oldState, getNewState());
-						}
-
-						@Override
-						public boolean isBlockingRequest() {
-							return true;
-						}
-
-						@Override
-						public SleeState getNewState() {
-							return SleeState.STOPPED;
-						}
-					};
+					final SleeStateChangeRequest stopRequest = createStopRequest();
 					try {
 						sleeContainer.setSleeState(stopRequest);
 					} catch (Throwable e) {
-						logger.error(
-								"Failed to set container in STOPPED state", e);
+						logger.error("Failed to set container in STOPPED state", e);
 					}
+				}
+
+				@Override
+				public boolean isGraceful() {
+					return false;
 				}
 
 				@Override
@@ -285,13 +397,42 @@ public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implem
 					return SleeState.STOPPING;
 				}
 			};
-			sleeContainer.setSleeState(stoppingRequest);
+		return stoppingRequest;
+	}
 
-		} catch (InvalidStateException ex) {
-			throw ex;
-		} catch (Exception ex) {
-			throw new ManagementException(ex.getMessage(), ex);
-		}
+	private SleeStateChangeRequest createStopRequest() {
+		// request to change to STOPPED
+		final SleeStateChangeRequest stopRequest = new SleeStateChangeRequest() {
+
+			private SleeState oldState;
+
+			@Override
+			public void stateChanged(SleeState oldState) {
+				logger.info(generateMessageWithLogo("stopped"));
+				this.oldState = oldState;
+			}
+
+			@Override
+			public void requestCompleted() {
+				notifyStateChange(oldState, getNewState());
+			}
+
+			@Override
+			public boolean isGraceful() {
+				return false;
+			}
+
+			@Override
+			public boolean isBlockingRequest() {
+				return true;
+			}
+
+			@Override
+			public SleeState getNewState() {
+				return SleeState.STOPPED;
+			}
+		};
+		return stopRequest;
 	}
 
 	/**
@@ -343,7 +484,7 @@ public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implem
 	/**
 	 * set the ObjectName of the ServiceManagementMBean
 	 * 
-	 * @see javax.slee.management.SleeManagementMBean#setServiceManagementMBean()
+	 * @see javax.slee.management.SleeManagementMBean
 	 */
 	public void setServiceManagementMBean(ObjectName newSMM) {
 		this.serviceManagementMBean = newSMM;
@@ -362,7 +503,7 @@ public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implem
 	/**
 	 * set the ObjectName of the ProfileProvisioningMBean
 	 * 
-	 * @see javax.slee.management.SleeManagementMBean#setProfileProvisioningMBean()
+	 * @see javax.slee.management.SleeManagementMBean
 	 */
 	public void setProfileProvisioningMBean(ObjectName newPPM) {
 		this.profileProvisioningMBean = newPPM;
@@ -634,7 +775,7 @@ public class SleeManagementMBeanImpl extends MobicentsServiceMBeanSupport implem
 
 	public void stopSlee() {
 		try {
-			stop(true);
+			stop(true, false);
 			shutdown();
 		} catch (Exception e) {
 			logger.error("Failed in SLEE stop", e);

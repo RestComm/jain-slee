@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <authorgroup
 	id="authors">
 	<author>
@@ -41,5 +44,11 @@
 		<firstname>Carl-Magnus</firstname>
 		<surname>Bjorkell</surname>
 		<email>carl-magnus.bjorkell@emblacom.com</email>
+	</author>
+	<author>
+		<firstname>Grzegorz</firstname>
+		<surname>Figiel</surname>
+		<affiliation>ProIDS www.pro-ids.com</affiliation>
+		<email>grzegorz.figiel (at) pro-ids.com</email>
 	</author>
 </authorgroup>
