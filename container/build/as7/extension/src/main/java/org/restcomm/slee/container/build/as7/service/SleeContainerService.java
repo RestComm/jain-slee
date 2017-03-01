@@ -342,6 +342,12 @@ public class SleeContainerService implements Service<SleeContainer> {
 		if (profileProvisioningMBean != null)
 			sleeManagementMBean.setProfileProvisioningMBean(profileProvisioningMBean.getObjectName());
 
+		sleeManagementMBean.setDefaultGracefulShutdownWaitTime(
+				(long)getPropertyInt("SleeManagement", "defaultGracefulShutdownWaitTime", 300));
+		sleeManagementMBean.setDefaultActiveSessionsThreshold(
+				getPropertyInt("SleeManagement", "defaultActiveSessionsThreshold", 30)
+		);
+
 		registerMBean(sleeManagementMBean, SleeManagementMBeanImplMBean.OBJECT_NAME);
 
 		// Install internal deployments: standard-components DU
