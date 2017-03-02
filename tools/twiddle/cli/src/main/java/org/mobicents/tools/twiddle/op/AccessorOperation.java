@@ -29,12 +29,12 @@ public class AccessorOperation extends AbstractOperation {
     protected Class<?> fieldClass;
 	protected boolean usJMXEditors;
 	
-    public AccessorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand, String beanFieldName,Class<?> fieldClass, boolean useJMXEditors) {
+    public AccessorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand, String beanFieldName, Class<?> fieldClass, boolean useJMXEditors) {
 		super(context, log, sleeCommand);
+
+		// TODO: replace first char.
 		this.beanFieldName = beanFieldName;
-		if(Character.isLowerCase(this.beanFieldName.charAt(0)))
-		{
-			//TODO:replace first char. 
+		if (Character.isLowerCase(this.beanFieldName.charAt(0))) {
 			char c = this.beanFieldName.charAt(0);
 			c = Character.toUpperCase(c);
 			StringBuffer sb =  new StringBuffer();
@@ -42,39 +42,41 @@ public class AccessorOperation extends AbstractOperation {
 			sb.append(this.beanFieldName.substring(1));
 			this.beanFieldName = sb.toString();
 		}
+
+		//this.beanFieldName = beanFieldName.substring(0, 1).toUpperCase() + beanFieldName.substring(1);
+
 		this.fieldClass = fieldClass;
 		this.usJMXEditors = useJMXEditors;
-
 	}
-    public AccessorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand, String beanFieldName,Class<?> fieldClass) {
-		this(context, log, sleeCommand, beanFieldName,fieldClass,false);
+
+    public AccessorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand, String beanFieldName, Class<?> fieldClass) {
+		this(context, log, sleeCommand, beanFieldName, fieldClass, false);
 		
 
 	}
     public AccessorOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand, String beanFieldName) {
-		this(context, log, sleeCommand, beanFieldName,null,false);
+		this(context, log, sleeCommand, beanFieldName, null, false);
 		
 
 	}
+
     /**
      * User should overide it to provide different name, for instance for boolean \"is\" prefix
      */
 	protected void makeGetter() {
-		if(fieldClass.equals(boolean.class) || fieldClass.equals(Boolean.class))
-		{
+		if(fieldClass.equals(boolean.class) || fieldClass.equals(Boolean.class)) {
 			super.operationName = "is" + this.beanFieldName;
-		}else
-		{
+		} else {
 			super.operationName = "get" + this.beanFieldName;
 		}
 	}
 
-
 	protected void makeSetter() {
 		super.operationName = "set" + this.beanFieldName;
 	}
+
 	/**
-	 * This method is called to convert optArg from string form, if no  conversion is needed it should return passed object.
+	 * This method is called to convert optArg from string form, if no conversion is needed it should return passed object.
 	 * @param optArg
 	 * @return
 	 * @throws NoSuchMethodException 
@@ -88,7 +90,7 @@ public class AccessorOperation extends AbstractOperation {
 	protected Object convert(String optArg) throws SecurityException, NoSuchMethodException, IllegalArgumentException,
 			InstantiationException, IllegalAccessException, InvocationTargetException, CommandException {
 		if (fieldClass.isPrimitive()) {
-	
+			// TODO: to optimize, to rework new to valueOf
 			if (fieldClass.equals(int.class)) {
 				return new Integer(optArg);
 			} else if (fieldClass.equals(long.class)) {
@@ -105,17 +107,18 @@ public class AccessorOperation extends AbstractOperation {
 				return new Double(optArg);
 			} else if (fieldClass.equals(boolean.class)) {
 				return new Boolean(optArg);
-			} else if(fieldClass.equals(char.class)){return new Character(optArg.charAt(0));} //?
+			} else if(fieldClass.equals(char.class)) {
+				return new Character(optArg.charAt(0));
+			} //?
 
 			throw new CommandException("Unpredicted place. Please report.");
 		} else if (isClassNumber()) {
-			//Handle Long,Integer,....,Boolean
+			//Handle Long, Integer, .., Boolean
 			Constructor<?> con = fieldClass.getConstructor(String.class);
 			return con.newInstance(optArg);
 		}
 
 		return optArg;
-
 	}
 	
 	private boolean isClassNumber()
@@ -123,10 +126,8 @@ public class AccessorOperation extends AbstractOperation {
 		@SuppressWarnings("rawtypes")
 		Class[] all = fieldClass.getClasses();
 		
-		for(Class<?> c:all)
-		{
-			if(c.equals(Number.class) || c.equals(Boolean.class))
-			{
+		for(Class<?> c : all) {
+			if(c.equals(Number.class) || c.equals(Boolean.class)) {
 				return true;
 			}
 		}
@@ -135,7 +136,6 @@ public class AccessorOperation extends AbstractOperation {
 	
 	@Override
 	public void buildOperation(Getopt opts, String[] args) throws CommandException {
-
 		int code;
 		String optArg;
 		while ((code = opts.getopt()) != -1) {
@@ -150,7 +150,6 @@ public class AccessorOperation extends AbstractOperation {
 				throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
 			case set:
-
 				makeSetter();
 				optArg = opts.getOptarg();
 				try {
