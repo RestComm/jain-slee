@@ -249,7 +249,7 @@ public abstract class AbstractOperation {
 
 			MBeanInfo mbeanInfo = conn.getMBeanInfo(on);
 			if (isOperation(mbeanInfo, this.operationName)) {
-				log.debug("We have operation: " + this.operationName);
+				// we have operation
 				operationResult = conn.invoke(on, this.operationName, parms, sig);
 			} else {
 				// check if we have attribute setter/getter
@@ -257,9 +257,10 @@ public abstract class AbstractOperation {
 				if (this.operationName.substring(0, 3).equals("set")) {
 					attributeName = this.operationName.substring(3);
 					if (isAttribute(mbeanInfo, attributeName)) {
-						log.debug("We have attribute setter: " + this.operationName);
+						// we have attribute setter
 						Attribute attr = new Attribute(attributeName, opArguments.get(0));
 						conn.setAttribute(on, attr);
+                        operationResult = null; // success
 					} else {
 						throw new CommandException("Failed to invoke \"" + this.operationName + "\"." +
 								" Attribute \"" + attributeName + "\" is not existing.");
@@ -267,13 +268,16 @@ public abstract class AbstractOperation {
 				} else if (this.operationName.substring(0, 3).equals("get")) {
 					attributeName = this.operationName.substring(3);
 					if (isAttribute(mbeanInfo, attributeName)) {
-						log.debug("We have attribute getter: " + this.operationName);
+						// we have attribute getter
 						operationResult = conn.getAttribute(on, this.operationName.substring(3));
 					} else {
 						throw new CommandException("Failed to invoke \"" + this.operationName + "\"." +
 								" Attribute \"" + attributeName + "\" is not existing.");
 					}
-				}
+				} else {
+                    throw new CommandException("Failed to invoke \"" + this.operationName + "\"." +
+                            " It is not MBean operation or attribute.");
+                }
 			}
 
 			displayResult();
