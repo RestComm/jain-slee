@@ -1,81 +1,116 @@
 @echo off
 rem -------------------------------------------------------------------------
-rem JBoss JVM Launcher
+rem twiddle script for Windows
 rem -------------------------------------------------------------------------
+rem
+rem A script for running twiddle for the JBoss
 
-rem $Id: twiddle.bat 88145 2009-05-04 12:24:46Z ispringer $
+rem $Id$
 
-if not "%ECHO%" == ""  echo %ECHO%
-if "%OS%" == "Windows_NT"  setlocal
+@if not "%ECHO%" == ""  echo %ECHO%
+@if "%OS%" == "Windows_NT" setlocal
 
-set MAIN_JAR_NAME=twiddle.jar
-set MAIN_CLASS=org.jboss.console.twiddle.Twiddle
+if "%OS%" == "Windows_NT" (
+  set "DIRNAME=%~dp0%"
+) else (
+  set DIRNAME=.\
+)
 
-set DIRNAME=.\
-if "%OS%" == "Windows_NT" set DIRNAME=%~dp0%
-set PROGNAME=run.bat
-if "%OS%" == "Windows_NT" set PROGNAME=%~nx0%
+pushd "%DIRNAME%.."
+set "RESOLVED_TWIDDLE_HOME=%CD%"
+popd
 
-rem Find MAIN_JAR, or we can't continue
+if "x%TWIDDLE_HOME%" == "x" (
+  set "TWIDDLE_HOME=%RESOLVED_TWIDDLE_HOME%"
+)
 
-set MAIN_JAR=%DIRNAME%\lib\%MAIN_JAR_NAME%
-if exist "%MAIN_JAR%" goto FOUND_MAIN_JAR
-echo Could not locate %MAIN_JAR%. Please check that you are in the
-echo bin directory when running this script.
-goto END
+pushd "%TWIDDLE_HOME%"
+set "SANITIZED_TWIDDLE_HOME=%CD%"
+popd
 
-:FOUND_MAIN_JAR
+if "%RESOLVED_TWIDDLE_HOME%" NEQ "%SANITIZED_TWIDDLE_HOME%" (
+    echo WARNING TWIDDLE_HOME may be pointing to a different installation - unpredictable results may occur.
+)
 
-if not "%JAVA_HOME%" == "" goto HAVE_JAVA_HOME
+rem Setup %JAVA_HOME%
+if "x%JAVA_HOME%" == "x" (
+  set  JAVA=java
+  echo JAVA_HOME is not set. Unexpected results may occur.
+  echo Set JAVA_HOME to the directory of your local JDK to avoid this message.
+  goto END
+) else (
+  set "JAVA=%JAVA_HOME%\bin\java"
+)
 
-set JAVA=java
+rem Setup %JBOSS_HOME%
+if "x%JBOSS_HOME%" == "x" (
+  echo JBOSS_HOME is not set. Unable to locate the jars needed to run twiddle.
+  goto END
+)
 
-echo JAVA_HOME is not set.  Unexpected results may occur.
-echo Set JAVA_HOME to the directory of your local JDK to avoid this message.
-goto SKIP_SET_JAVA_HOME
+rem Set default module root paths
+rem WildFly 8+ -----------------------------------------
+if "x%JBOSS_MODULEPATH%" == "x" (
+  set  "JBOSS_MODULEPATH=%JBOSS_HOME%\modules\system\layers\base"
+)
 
-:HAVE_JAVA_HOME
 
-set JAVA=%JAVA_HOME%\bin\java
+rem Setup The Classpath
+rem WildFly 8+ -----------------------------------------
+set "CLASSPATH=%TWIDDLE_HOME%\lib\twiddle.jar"
+set "CLASSPATH=%CLASSPATH%;%TWIDDLE_HOME%\lib\jbossall-client.jar"
 
-:SKIP_SET_JAVA_HOME
+rem Restcomm JSLEE
+set "CLASSPATH=%CLASSPATH%;%TWIDDLE_HOME%\lib\cli-twiddle.jar"
+set "CLASSPATH=%CLASSPATH%;%TWIDDLE_HOME%\lib\jain-slee-1.1.jar"
+set "CLASSPATH=%CLASSPATH%;%TWIDDLE_HOME%\lib\jmx-property-editors.jar"
+set "CLASSPATH=%CLASSPATH%;%TWIDDLE_HOME%\lib\activities.jar"
+set "CLASSPATH=%CLASSPATH%;%TWIDDLE_HOME%\lib\spi.jar"
+set "CLASSPATH=%CLASSPATH%;%TWIDDLE_HOME%\lib"
 
-rem only include jbossall-client.jar in classpath, if
-rem JBOSS_CLASSPATH was not yet set
-if not "%JBOSS_CLASSPATH%" == "" GOTO HAVE_JB_CP
-    rem jboss
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%MAIN_JAR%
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/getopt.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/log4j.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jboss-jmx.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jboss-common-client.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jmx-invoker-adaptor-client.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jmx-client.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jnp-client.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jboss-serialization.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jboss-minimal.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/javaee-api.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jboss-security-spi.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jboss-transaction-spi.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/concurrent.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/dom4j.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jbossx-security-client.jar
-    
-    rem restcomm
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/cli-twiddle.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jain-slee-1.1.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/jmx-property-editors.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/activities.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/spi.jar
-    set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%/lib
-	set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%DIRNAME%lib/slee-twiddle.properties
+rem WildFly modules
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\remoting-jmx\main"
 
-:HAVE_JB_CP
-rem Set conf file path
-set SLEE_TWIDDLE_CONF=%DIRNAME%lib\slee-twiddle.properties
+rem remoting3 for JBoss 7.2 and remoting for WildFly 8+
+rem call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\remoting3\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\remoting\main"
 
-set JAVA_OPTS=%JAVA_OPTS% -Djboss.boot.loader.name=%PROGNAME%
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\logging\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\xnio\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\xnio\nio\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\sasl\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\marshalling\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\marshalling\river\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\as\cli\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\staxmapper\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\as\protocol\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\dmr\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\as\controller-client\main"
+call :SearchForJars "%JBOSS_MODULEPATH%\org\jboss\threads\main"
 
-"%JAVA%" %JAVA_OPTS% -classpath "%JBOSS_CLASSPATH%" %MAIN_CLASS% -c file:/%SLEE_TWIDDLE_CONF% %*
+rem echo %CLASSPATH%
+
+rem Run Twiddle
+
+"%JAVA%" %JAVA_OPTS% ^
+	-classpath "%CLASSPATH%" ^
+    org.jboss.console.twiddle.Twiddle ^
+     %*
+
+
+rem ------------------------------------------------------------------------
 
 :END
+goto :EOF
+
+:SearchForJars
+pushd %1
+for %%j in (*.jar) do call :ClasspathAdd %%j
+popd
+goto :EOF
+
+:ClasspathAdd
+set "CLASSPATH=%CLASSPATH%;%CD%\%1"
+goto :EOF
+
+:EOF

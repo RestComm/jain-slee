@@ -228,6 +228,7 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 
 			case 0x1000:
 				break;
+
 			case 1:
 				// non opt args, table and profile name(maybe)
 				switch (nonOptArgIndex) {
@@ -621,7 +622,30 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 			getSpecificUsageMBeanOName();
 
 		}
-		
+
+		@Override
+		public void invoke() throws CommandException {
+			try {
+				ObjectName on = sleeCommand.getBeanOName();
+				MBeanServerConnection conn = context.getServer();
+
+				Object[] parms = getOpArguments().toArray();
+				String[] sig = new String[getOpSignature().size()];
+				sig = getOpSignature().toArray(sig);
+
+				operationResult = conn.invoke(on, this.operationName, parms, sig);
+				displayResult();
+
+			} catch(javax.management.InstanceNotFoundException infe) {
+				//this means no slee running/deployed
+				super.operationResult = "No JSLEE container deployed.";
+				displayResult();
+
+			} catch (Exception e) {
+				//add handle error here?
+				throw new CommandException("Failed to invoke \"" + this.operationName + "\" due to: ", e);
+			}
+		}
 	}
 	
 	protected class ResetOperation extends AbstractOperation {

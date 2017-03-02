@@ -20,9 +20,11 @@ package org.mobicents.tools.twiddle.op;
 import java.beans.PropertyEditor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanInfo;
+import javax.management.MBeanOperationInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.Attribute;
@@ -193,6 +195,7 @@ public abstract class AbstractOperation {
 		
 		return  sb.toString();
 	}
+
 	protected void addArg(Object arg, Class<? extends Object> argClass, boolean usPE) throws CommandException {
 		if (usPE) {
 			PropertyEditor pe = PropertyEditors.getEditor(argClass);
@@ -208,6 +211,7 @@ public abstract class AbstractOperation {
 		opSignature.add(argClass.getName());
 
 	}
+
 	protected void addArg(Object arg, String argClass, boolean usPE) throws CommandException {
 		if (usPE) {
 			try{
@@ -230,9 +234,10 @@ public abstract class AbstractOperation {
 		} else {
 			opArguments.add(arg);
 		}
-		opSignature.add(argClass);
 
+		opSignature.add(argClass);
 	}
+
 	public void invoke() throws CommandException {
 		try {
 			ObjectName on = sleeCommand.getBeanOName();
@@ -241,12 +246,64 @@ public abstract class AbstractOperation {
 			Object[] parms = getOpArguments().toArray();
 			String[] sig = new String[getOpSignature().size()];
 			sig = getOpSignature().toArray(sig);
-			operationResult = conn.invoke(on, this.operationName, parms, sig);
+
+			MBeanInfo mbeanInfo = conn.getMBeanInfo(on);
+			if (isOperation(mbeanInfo, this.operationName)) {
+				// we have operation
+				operationResult = conn.invoke(on, this.operationName, parms, sig);
+			} else {
+				// check if we have attribute setter/getter
+				String attributeName;
+				if (this.operationName.substring(0, 3).equals("set")) {
+					attributeName = this.operationName.substring(3);
+					if (isAttribute(mbeanInfo, attributeName)) {
+						// we have attribute setter
+						Attribute attr = new Attribute(attributeName, opArguments.get(0));
+						conn.setAttribute(on, attr);
+                        operationResult = null; // success
+					} else {
+						throw new CommandException("Failed to invoke \"" + this.operationName + "\"." +
+								" Attribute \"" + attributeName + "\" is not existing.");
+					}
+				} else if (this.operationName.substring(0, 3).equals("get")) {
+					attributeName = this.operationName.substring(3);
+					if (isAttribute(mbeanInfo, attributeName)) {
+						// we have attribute getter
+						operationResult = conn.getAttribute(on, this.operationName.substring(3));
+					} else {
+						throw new CommandException("Failed to invoke \"" + this.operationName + "\"." +
+								" Attribute \"" + attributeName + "\" is not existing.");
+					}
+				} else {
+                    throw new CommandException("Failed to invoke \"" + this.operationName + "\"." +
+                            " It is not MBean operation or attribute.");
+                }
+			}
+
 			displayResult();
+
 		} catch (Exception e) {
 			//add handle error here?
 			throw new CommandException("Failed to invoke \"" + this.operationName + "\" due to: ", e);
 		}
+	}
+
+	private boolean isAttribute(MBeanInfo mbeanInfo, String attrName) {
+		for (MBeanAttributeInfo attrInfo : mbeanInfo.getAttributes()) {
+			if (attrInfo.getName().equals(attrName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isOperation(MBeanInfo mbeanInfo, String operName) {
+		for (MBeanOperationInfo operInfo : mbeanInfo.getOperations()) {
+			if (operInfo.getName().equals(operName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
