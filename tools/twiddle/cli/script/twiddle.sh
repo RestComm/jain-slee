@@ -23,12 +23,12 @@
 #TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$JBOSS_HOME/bin/client/jboss-client.jar"
 
 # JBoss AS72
-JBOSS_MODULEPATH=$JBOSS_HOME/modules/system/layers/base/
-MODULES="org/jboss/remoting-jmx org/jboss/remoting3 org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads org/jboss/as/controller"
+#JBOSS_MODULEPATH=$JBOSS_HOME/modules/system/layers/base/
+#MODULES="org/jboss/remoting-jmx org/jboss/remoting3 org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads org/jboss/as/controller"
 
 # WildFly
-#JBOSS_MODULEPATH=$JBOSS_HOME/modules/system/layers/base/
-#MODULES="org/jboss/remoting-jmx org/jboss/remoting org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads org/wildfly/security/manager" 
+JBOSS_MODULEPATH=$JBOSS_HOME/modules/system/layers/base/
+MODULES="org/jboss/remoting-jmx org/jboss/remoting org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads"
 
 for MODULE in $MODULES
 do
