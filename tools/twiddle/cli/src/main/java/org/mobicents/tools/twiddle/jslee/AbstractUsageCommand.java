@@ -626,19 +626,17 @@ public abstract class AbstractUsageCommand extends AbstractSleeCommand {
 		@Override
 		public void invoke() throws CommandException {
 			try {
+				ObjectName on = sleeCommand.getBeanOName();
+				MBeanServerConnection conn = context.getServer();
 
-                ObjectName on = sleeCommand.getBeanOName();
-                MBeanServerConnection conn = context.getServer();
+				Object[] parms = getOpArguments().toArray();
+				String[] sig = new String[getOpSignature().size()];
+				sig = getOpSignature().toArray(sig);
 
-                Object[] parms = getOpArguments().toArray();
-                String[] sig = new String[getOpSignature().size()];
-                sig = getOpSignature().toArray(sig);
-
-                operationResult = conn.invoke(on, this.operationName, parms, sig);
-                displayResult();
+				operationResult = conn.invoke(on, this.operationName, parms, sig);
+				displayResult();
 
 			} catch(javax.management.InstanceNotFoundException infe) {
-
 				//this means no slee running/deployed
 				super.operationResult = "No JSLEE container deployed.";
 				displayResult();
