@@ -162,7 +162,7 @@
 				<listitem><para>specifies value to be set in profile attribute. Supported value types are:</para>
 					<itemizedlist>
 						<listitem>
-							<para>String</para>
+							<para>String - best practice to use the double quotes</para>
 						</listitem>
 						<listitem>
 							<para>java primitives</para>
