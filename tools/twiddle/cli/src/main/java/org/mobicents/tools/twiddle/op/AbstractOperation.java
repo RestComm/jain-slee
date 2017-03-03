@@ -20,6 +20,7 @@ package org.mobicents.tools.twiddle.op;
 import java.beans.PropertyEditor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.management.MBeanAttributeInfo;
@@ -118,8 +119,7 @@ public abstract class AbstractOperation {
 		if (operationResult != null) {
 				
 				try {
-					if(operationResult instanceof Collection)
-					{
+					if (operationResult instanceof Collection) {
 						//convert to array?
 						Collection c = (Collection) operationResult;
 						Object[] arrayO = c.toArray();
@@ -127,35 +127,62 @@ public abstract class AbstractOperation {
 					}
 					
 					//here we may have array as result, dont want that, we will handle how its displayed.
-					if(operationResult.getClass().isArray())
-					{
-						Object[] resultArray = (Object[]) operationResult;
-						Class memberClass =resultArray.getClass().getComponentType(); // get type of array stored classes.
-						PropertyEditor editor = PropertyEditors.getEditor(memberClass);
-						resultText = unfoldArray("", resultArray,editor);
-					}else
-					{
+					if (operationResult.getClass().isArray()) {
+						if (!operationResult.getClass().getComponentType().isPrimitive()) {
+							Object[] resultArray = (Object[]) operationResult;
+							Class memberClass = resultArray.getClass().getComponentType(); // get type of array stored classes.
+							PropertyEditor editor = PropertyEditors.getEditor(memberClass);
+							resultText = unfoldArray("", resultArray, editor);
+						} else {
+                            // array of primitives
+							switch (operationResult.getClass().getComponentType().getCanonicalName()) {
+								case "byte": {
+									resultText = Arrays.toString((byte[])operationResult);
+									break; }
+								case "short": {
+									resultText = Arrays.toString((short[])operationResult);
+									break; }
+								case "int": {
+									resultText = Arrays.toString((int[])operationResult);
+									break; }
+								case "long": {
+									resultText = Arrays.toString((long[])operationResult);
+									break; }
+								case "float": {
+									resultText = Arrays.toString((float[])operationResult);
+									break; }
+								case "double": {
+									resultText = Arrays.toString((double[])operationResult);
+									break; }
+								case "boolean": {
+									resultText = Arrays.toString((boolean[])operationResult);
+									break; }
+								case "char": {
+									resultText = Arrays.toString((char[])operationResult);
+									break; }
+								default: {
+									resultText = "'failed'";
+									break; }
+							}
+
+                        }
+					} else {
 						PropertyEditor editor = PropertyEditors.getEditor(operationResult.getClass());
 						editor.setValue(operationResult);
 						resultText = editor.getAsText();
 					}
-					
 				} catch (RuntimeException e) {
 					// No property editor found or some conversion problem
 					//TODO: add something more sophisticated here
 					log.debug("No editor found: ",e);
 					//fallback op
-					if(operationResult.getClass().isArray())
-					{
-			
+					if (operationResult.getClass().isArray()) {
 						//TODO: this is not readable, but result can be passed into another invocation
 						Object[] arrayResult = (Object[]) operationResult;
 						resultText = unfoldArray("", arrayResult, null);
-					}else
-					{
+					} else {
 						resultText = operationResult.toString();
 					}
-					
 				}
 		
 				log.debug("Converted result: " + resultText);

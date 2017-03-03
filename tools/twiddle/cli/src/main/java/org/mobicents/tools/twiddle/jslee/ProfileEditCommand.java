@@ -591,8 +591,38 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 
 					try {
 						if (valueClazz.isPrimitive()) {
-							// TODO: issue #47
-							throw new CommandException("Arrays with primitive types are not supported now.");
+							// Fixing issue #47
+                            String token = tokens[i];
+							switch (array.getClass().getComponentType().getCanonicalName()) {
+								case "byte": {
+									Array.set(array, i, Byte.parseByte(token));
+									break; }
+								case "short": {
+									Array.set(array, i, Short.parseShort(token));
+									break; }
+								case "int": {
+									Array.set(array, i, Integer.parseInt(token));
+									break; }
+								case "long": {
+									Array.set(array, i, Long.parseLong(token));
+									break; }
+								case "float": {
+									Array.set(array, i, Float.parseFloat(token));
+									break; }
+								case "double": {
+									Array.set(array, i, Double.parseDouble(token));
+									break; }
+								case "boolean": {
+									Array.set(array, i, Boolean.parseBoolean(token));
+									break; }
+								case "char": {
+									Array.set(array, i, token.charAt(0));
+									break; }
+								default: {
+									System.out.println("Did not find cast method for type: " + valueClazz.getCanonicalName());
+									break; }
+							}
+
 						}
 
 						if (!valueClazz.isPrimitive()) {
