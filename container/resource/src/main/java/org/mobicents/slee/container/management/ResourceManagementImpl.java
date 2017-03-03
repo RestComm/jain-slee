@@ -22,13 +22,25 @@
 
 package org.mobicents.slee.container.management;
 
-import java.io.ObjectStreamException;
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ComponentRepository;
+import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
+import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDescriptor;
+import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDescriptor;
+import org.mobicents.slee.container.component.sbb.SbbComponent;
+import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
+import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
+import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
+import org.mobicents.slee.container.transaction.TransactionContext;
+import org.mobicents.slee.container.transaction.TransactionalAction;
+import org.mobicents.slee.resource.ActivityHandleReferenceFactory;
+import org.mobicents.slee.resource.ResourceAdaptorEntityImpl;
+import org.mobicents.slee.resource.deployment.ResourceAdaptorClassCodeGenerator;
+import org.mobicents.slee.resource.deployment.ResourceAdaptorTypeClassCodeGenerator;
 
 import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
@@ -52,32 +64,20 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
-
-import org.apache.log4j.Logger;
-import org.mobicents.slee.container.AbstractSleeContainerModule;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
-import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
-import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
-import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDescriptor;
-import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDescriptor;
-import org.mobicents.slee.container.component.sbb.SbbComponent;
-import org.mobicents.slee.container.management.jmx.ResourceUsageMBean;
-import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.container.resource.ResourceAdaptorObjectState;
-import org.mobicents.slee.container.transaction.TransactionContext;
-import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.mobicents.slee.resource.ActivityHandleReferenceFactory;
-import org.mobicents.slee.resource.ResourceAdaptorEntityImpl;
-import org.mobicents.slee.resource.deployment.ResourceAdaptorClassCodeGenerator;
-import org.mobicents.slee.resource.deployment.ResourceAdaptorTypeClassCodeGenerator;
+import java.io.ObjectStreamException;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
  * Manages deployed resource adaptor components.
  * 
  * @author Eduardo Martins
+ * @author @author <a href="mailto:info@pro-ids.com">ProIDS sp. z o.o.</a>
  * 
  */
 public final class ResourceManagementImpl extends AbstractSleeContainerModule implements ResourceManagement {
@@ -1062,9 +1062,10 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	
 	@Override
 	public void sleeStopping() {
-		
-		logger.info("Stopping all active resource adaptors ...");
-		
+
+		boolean stoppingGracefully = sleeContainer.isGracefullyStopping();
+		logger.info("Stopping "+(stoppingGracefully?"gracefully":"")+" all active resource adaptors ...");
+
 		// inform all ra entities that we are stopping the container
 		final Thread currentThread = Thread.currentThread();
 		final ClassLoader currentThreadClassLoader = currentThread.getContextClassLoader();
@@ -1077,7 +1078,12 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 			}			
 		}
 		currentThread.setContextClassLoader(currentThreadClassLoader);
-		
+
+		if(stoppingGracefully) {
+			logger.trace("Graceful stopping mode is active - skip waiting till all ra entity objects are stopped");
+			return;
+		}
+
 		// wait till all ra entity objects are stopped
 		boolean loop;
 		boolean sleepInLastLoop = false;
