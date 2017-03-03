@@ -21,6 +21,7 @@ import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -124,19 +125,21 @@ public class TraceCommand extends AbstractSleeCommand {
 	protected void processArguments(String[] args) throws CommandException {
 		String sopts = ":a:f:sug";
 
-		LongOpt[] lopts = { new LongOpt("tracers-used", LongOpt.REQUIRED_ARGUMENT, null, 'a'),
-				new LongOpt("tracers-set", LongOpt.REQUIRED_ARGUMENT, null, 'f'), new LongOpt("set-level", LongOpt.NO_ARGUMENT, null, 's'),
-				new LongOpt("cid", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.cid),
-				new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.nsrc),
-				new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.name),
-				new LongOpt("level", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.level),
+		LongOpt[] lopts = {
+				new LongOpt("tracers-used", LongOpt.REQUIRED_ARGUMENT, null, 'a'),
+				new LongOpt("tracers-set", LongOpt.REQUIRED_ARGUMENT, null, 'f'),
+				new LongOpt("set-level", LongOpt.NO_ARGUMENT, null, 's'),
+					new LongOpt("cid", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.cid),
+					new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.nsrc),
+					new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.name),
+					new LongOpt("level", LongOpt.REQUIRED_ARGUMENT, null, SetLevelOperation.level),
 				new LongOpt("un-set-level", LongOpt.NO_ARGUMENT, null, 'u'),
-				new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, UnsetLevelOperation.nsrc),
-				new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, UnsetLevelOperation.name),
+					new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, UnsetLevelOperation.nsrc),
+					new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, UnsetLevelOperation.name),
 				new LongOpt("get-level", LongOpt.NO_ARGUMENT, null, 'g'),
-				new LongOpt("cid", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.cid),
-				new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.nsrc),
-				new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.name), };
+					new LongOpt("cid", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.cid),
+					new LongOpt("nsrc", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.nsrc),
+					new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, GetLevelOperation.name), };
 
 		Getopt getopt = new Getopt(null, args, sopts, lopts);
 		// getopt.setOpterr(false);
@@ -264,76 +267,77 @@ public class TraceCommand extends AbstractSleeCommand {
 			int code;
 			while ((code = opts.getopt()) != -1) {
 				switch (code) {
-				case ':':
-					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
-				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
-				case cid:
-					stringCID = opts.getOptarg();
-					break;
-				case nsrc:
-					stringNSRC = opts.getOptarg();
-					break;
-				case name:
-					stringName = opts.getOptarg();
-					break;
-				case level:
-					stringLevel = opts.getOptarg();
-					break;
-				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
+					case cid:
+						stringCID = opts.getOptarg();
+						break;
+					case nsrc:
+						stringNSRC = opts.getOptarg();
+						break;
+					case name:
+						stringName = opts.getOptarg();
+						break;
+					case level:
+						stringLevel = opts.getOptarg();
+						break;
+					default:
+						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+								+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
 
 				}
-				if ((stringCID == null && stringNSRC == null) || (stringNSRC != null && stringCID != null)) {
+			}
+
+			if ((stringCID == null && stringNSRC == null) || (stringNSRC != null && stringCID != null)) {
+				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+						+ "\", expects either \"--nsrc\" or \"--cid\" to be present");
+			}
+
+			if (stringCID != null) {
+				// its 1.0
+				if (stringLevel == null) {
 					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", expects either \"--nsrc\" or \"--cid\" to be present");
+							+ "\", expects  \"--level\" to be present");
+				}
+				try {
+					addArg(stringCID, ComponentID.class, true);
+				} catch (Exception e) {
+					throw new CommandException("Failed to parse ComponentID: \"" + stringCID + "\"", e);
+				}
+				try {
+					addArg(stringLevel, Level.class, true);
+				} catch (Exception e) {
+					throw new CommandException("Failed to parse Level: \"" + stringLevel + "\"", e);
+				}
+			} else {
+
+				if (stringLevel == null) {
+					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+							+ "\", expects  \"--level\" to be present");
+				}
+				if (stringName == null) {
+					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+							+ "\", expects  \"--name\" to be present");
 				}
 
-				if (stringCID != null) {
-					// its 1.0
-					if (stringLevel == null) {
-						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-								+ "\", expects  \"--level\" to be present");
-					}
-					try {
-						addArg(stringCID, ComponentID.class, true);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse ComponentID: \"" + stringCID + "\"", e);
-					}
-					try {
-						addArg(stringLevel, Level.class, true);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse Level: \"" + stringLevel + "\"", e);
-					}
-				} else {
-
-					if (stringLevel == null) {
-						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-								+ "\", expects  \"--level\" to be present");
-					}
-					if (stringName == null) {
-						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-								+ "\", expects  \"--name\" to be present");
-					}
-
-					try {
-						addArg(stringNSRC, NotificationSource.class, true);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse NotificationSource: \"" + stringNSRC + "\"", e);
-					}
-					try {
-						addArg(stringName, String.class, false);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse Name: \"" + stringName + "\"", e);
-					}
-					try {
-						addArg(stringLevel, TraceLevel.class, true);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse TraceLevel: \"" + stringLevel + "\"", e);
-					}
+				try {
+					addArg(stringNSRC, NotificationSource.class, true);
+				} catch (Exception e) {
+					throw new CommandException("Failed to parse NotificationSource: \"" + stringNSRC + "\"", e);
+				}
+				try {
+					addArg(stringName, String.class, false);
+				} catch (Exception e) {
+					throw new CommandException("Failed to parse Name: \"" + stringName + "\"", e);
+				}
+				try {
+					addArg(stringLevel, TraceLevel.class, true);
+				} catch (Exception e) {
+					throw new CommandException("Failed to parse TraceLevel: \"" + stringLevel + "\"", e);
 				}
 			}
 
@@ -343,9 +347,9 @@ public class TraceCommand extends AbstractSleeCommand {
 
 	private class GetLevelOperation extends AbstractOperation {
 
-		public static final char cid = 'g';
-		public static final char nsrc = 'h';
-		public static final char name = 'j';
+		public static final char cid = 'z';
+		public static final char nsrc = 'x';
+		public static final char name = 'v';
 		private static final String OPERATION_getTraceLevel = "getTraceLevel";
 		private String stringCID;
 
@@ -363,70 +367,70 @@ public class TraceCommand extends AbstractSleeCommand {
 			int code;
 			while ((code = opts.getopt()) != -1) {
 				switch (code) {
-				case ':':
-					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
-				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
-				case cid:
-					stringCID = opts.getOptarg();
-					break;
-				case nsrc:
-					stringNSRC = opts.getOptarg();
-					break;
-				case name:
-					stringName = opts.getOptarg();
-					break;
+					case cid:
+						stringCID = opts.getOptarg();
+						break;
+					case nsrc:
+						stringNSRC = opts.getOptarg();
+						break;
+					case name:
+						stringName = opts.getOptarg();
+						break;
 
-				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
-
-				}
-				if ((stringCID == null && stringNSRC == null) || (stringNSRC != null && stringCID != null)) {
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", expects either \"--nsrc\" or \"--cid\" to be present");
-				}
-
-				if (stringCID != null) {
-					// its 1.0
-
-					try {
-						addArg(stringCID, ComponentID.class, true);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse ComponentID: \"" + stringCID + "\"", e);
-					}
-
-				} else {
-
-					if (stringName == null) {
+					default:
 						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-								+ "\", expects  \"--name\" to be present");
-					}
-
-					try {
-						addArg(stringNSRC, NotificationSource.class, true);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse NotificationSource: \"" + stringNSRC + "\"", e);
-					}
-					try {
-						addArg(stringName, String.class, false);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse Name: \"" + stringName + "\"", e);
-					}
+								+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
 
 				}
 			}
 
+			if ((stringCID == null && stringNSRC == null) || (stringNSRC != null && stringCID != null)) {
+				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+						+ "\", expects either \"--nsrc\" or \"--cid\" to be present");
+			}
+
+			if (stringCID != null) {
+				// its 1.0
+
+				try {
+					addArg(stringCID, ComponentID.class, true);
+				} catch (Exception e) {
+					throw new CommandException("Failed to parse ComponentID: \"" + stringCID + "\"", e);
+				}
+
+			} else {
+
+				if (stringName == null) {
+					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+							+ "\", expects  \"--name\" to be present");
+				}
+
+				try {
+					addArg(stringNSRC, NotificationSource.class, true);
+				} catch (Exception e) {
+					throw new CommandException("Failed to parse NotificationSource: \"" + stringNSRC + "\"", e);
+				}
+				try {
+					addArg(stringName, String.class, false);
+				} catch (Exception e) {
+					throw new CommandException("Failed to parse Name: \"" + stringName + "\"", e);
+				}
+
+			}
 		}
 
 	}
 
 	private class UnsetLevelOperation extends AbstractOperation {
 
-		public static final char nsrc = 'o';
-		public static final char name = 'p';
+		public static final char nsrc = 'x';
+		public static final char name = 'v';
 
 		private String stringNSRC;
 		private String stringName;
@@ -442,46 +446,45 @@ public class TraceCommand extends AbstractSleeCommand {
 			int code;
 			while ((code = opts.getopt()) != -1) {
 				switch (code) {
-				case ':':
-					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
-				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
-				case nsrc:
-					stringNSRC = opts.getOptarg();
-					break;
-				case name:
-					stringName = opts.getOptarg();
-					break;
+					case nsrc:
+						stringNSRC = opts.getOptarg();
+						break;
+					case name:
+						stringName = opts.getOptarg();
+						break;
 
-				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
+					default:
+						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+								+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
 
 				}
-				if (stringNSRC == null) {
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", expects \"--nsrc\" to be present");
-				}
-				if (stringName == null) {
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", expects \"--name\" to be present");
-				}
-
-				try {
-					addArg(stringNSRC, NotificationSource.class, true);
-				} catch (Exception e) {
-					throw new CommandException("Failed to parse NotificationSource: \"" + stringNSRC + "\"", e);
-				}
-				try {
-					addArg(stringName, String.class, false);
-				} catch (Exception e) {
-					throw new CommandException("Failed to parse Name: \"" + stringName + "\"", e);
-				}
-
 			}
 
+			if (stringNSRC == null) {
+				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+						+ "\", expects \"--nsrc\" to be present");
+			}
+			if (stringName == null) {
+				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+						+ "\", expects \"--name\" to be present");
+			}
+
+			try {
+				addArg(stringNSRC, NotificationSource.class, true);
+			} catch (Exception e) {
+				throw new CommandException("Failed to parse NotificationSource: \"" + stringNSRC + "\"", e);
+			}
+			try {
+				addArg(stringName, String.class, false);
+			} catch (Exception e) {
+				throw new CommandException("Failed to parse Name: \"" + stringName + "\"", e);
+			}
 		}
 
 	}
