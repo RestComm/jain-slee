@@ -114,6 +114,7 @@
 									<fileset dir="script" includes="slee-twiddle.properties" />
 									<fileset dir="script" includes="*.jar" />
 								</copy>
+								<chmod dir="${tool.directory}" perm="ugo+rx" includes="**/*.sh"/>
 							</tasks>
 						</configuration>
 					</execution>

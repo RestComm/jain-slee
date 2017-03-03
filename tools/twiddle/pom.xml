@@ -20,18 +20,20 @@
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
+
 		<!-- versions -->
 		<getopt.version>1.0.13</getopt.version>
+		<javax.activation.version>1.1.1</javax.activation.version>
+		<stax.api.version>1.0.1</stax.api.version>
+
 		<jboss.old.version>6.1.0.Final</jboss.old.version>
+		<jboss.common.core.version>2.2.17.GA</jboss.common.core.version>
+		<jboss.logging.version>3.1.2.GA</jboss.logging.version>
 		<jboss.jmx.version>6.0.0.GA</jboss.jmx.version>
 		<jboss.jnp.client.version>5.0.5.Final</jboss.jnp.client.version>
 		<jboss.sx.client.version>3.0.0.Final</jboss.sx.client.version>
 		<jboss.ws.cxf.version>3.4.1.GA</jboss.ws.cxf.version>
-		<jboss.common.core.version>2.2.17.GA</jboss.common.core.version>
-		<jboss.logging.version>3.1.2.GA</jboss.logging.version>
 		<jboss.spec.javax.version>1.0.0.Final</jboss.spec.javax.version>
-		<javax.activation.version>1.1.1</javax.activation.version>
-		<stax.api.version>1.0.1</stax.api.version>
 	</properties>
 
 	<!-- NEVER EVER REMOVE CLASSIFIERs, its important in nexus now! -->
