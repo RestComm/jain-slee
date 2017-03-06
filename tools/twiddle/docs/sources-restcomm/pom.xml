@@ -5,7 +5,7 @@
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools.twiddle.docs</groupId>
-		<version>2.8.0-SNAPSHOT</version>
+		<version>7.0.0-SNAPSHOT</version>
 		<artifactId>cli-twiddle-docs</artifactId>
 	</parent>
 
@@ -13,7 +13,7 @@
 	<name>Restcomm Twiddle CLI :: Docs :: ${pom.artifactId}</name>
 	<properties>
 		<THIS.PLATFORM>Restcomm</THIS.PLATFORM>
-		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
+		<JEE.PLATFORM>WildFly</JEE.PLATFORM>
 		<THIS.ISSUE_TRACKER_URL>https://github.com/RestComm/jain-slee/issues</THIS.ISSUE_TRACKER_URL>
 		<author.email.bartosz>baranowb (at) gmail.com</author.email.bartosz>
 	</properties>

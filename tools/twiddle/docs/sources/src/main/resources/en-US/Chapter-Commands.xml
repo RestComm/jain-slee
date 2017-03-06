@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter id="commands">
 
@@ -93,6 +96,10 @@
 				</listitem>
 			</varlistentry>
 		</variablelist>
+
+		<important>
+			<para>To access and retrieve values from an Wildfly instance you need to specify the remoting protocol over HTTP management port 9990, like <command>-s service:jmx:remote+http://localhost:9990</command></para>
+		</important>
 
 	</section>
 	

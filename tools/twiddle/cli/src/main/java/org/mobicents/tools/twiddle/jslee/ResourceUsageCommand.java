@@ -33,7 +33,7 @@ public class ResourceUsageCommand extends AbstractUsageCommand {
 	public ResourceUsageCommand() {
 		super(
 				"usage.resource",
-				"This command performs operations on JSLEE MBeans which are associated with usage parameter sets - be it specific MBean for parameter set, notifiaction management MBean...");
+				"This command performs operations on JSLEE MBeans which are associated with usage parameter sets - be it specific MBean for parameter set, notification management MBean...");
 	}
 
 	/*
