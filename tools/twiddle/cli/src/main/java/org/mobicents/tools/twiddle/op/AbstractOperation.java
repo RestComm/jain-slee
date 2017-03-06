@@ -117,75 +117,74 @@ public abstract class AbstractOperation {
 		String resultText = null;
 
 		if (operationResult != null) {
-				
-				try {
-					if (operationResult instanceof Collection) {
-						//convert to array?
-						Collection c = (Collection) operationResult;
-						Object[] arrayO = c.toArray();
-						operationResult = arrayO;
-					}
-					
-					//here we may have array as result, dont want that, we will handle how its displayed.
-					if (operationResult.getClass().isArray()) {
-						if (!operationResult.getClass().getComponentType().isPrimitive()) {
-							Object[] resultArray = (Object[]) operationResult;
-							Class memberClass = resultArray.getClass().getComponentType(); // get type of array stored classes.
-							PropertyEditor editor = PropertyEditors.getEditor(memberClass);
-							resultText = unfoldArray("", resultArray, editor);
-						} else {
-                            // array of primitives
-							switch (operationResult.getClass().getComponentType().getCanonicalName()) {
-								case "byte": {
-									resultText = Arrays.toString((byte[])operationResult);
-									break; }
-								case "short": {
-									resultText = Arrays.toString((short[])operationResult);
-									break; }
-								case "int": {
-									resultText = Arrays.toString((int[])operationResult);
-									break; }
-								case "long": {
-									resultText = Arrays.toString((long[])operationResult);
-									break; }
-								case "float": {
-									resultText = Arrays.toString((float[])operationResult);
-									break; }
-								case "double": {
-									resultText = Arrays.toString((double[])operationResult);
-									break; }
-								case "boolean": {
-									resultText = Arrays.toString((boolean[])operationResult);
-									break; }
-								case "char": {
-									resultText = Arrays.toString((char[])operationResult);
-									break; }
-								default: {
-									resultText = "'failed'";
-									break; }
-							}
+            try {
+                if (operationResult instanceof Collection) {
+                    //convert to array?
+                    Collection c = (Collection) operationResult;
+                    Object[] arrayO = c.toArray();
+                    operationResult = arrayO;
+                }
 
+                //here we may have array as result, dont want that, we will handle how its displayed.
+                if (operationResult.getClass().isArray()) {
+                    if (!operationResult.getClass().getComponentType().isPrimitive()) {
+                        Object[] resultArray = (Object[]) operationResult;
+                        Class memberClass = resultArray.getClass().getComponentType(); // get type of array stored classes.
+                        PropertyEditor editor = PropertyEditors.getEditor(memberClass);
+                        resultText = unfoldArray("", resultArray, editor);
+                    } else {
+                        // array of primitives
+                        switch (operationResult.getClass().getComponentType().getCanonicalName()) {
+                            case "byte": {
+                                resultText = Arrays.toString((byte[])operationResult);
+                                break; }
+                            case "short": {
+                                resultText = Arrays.toString((short[])operationResult);
+                                break; }
+                            case "int": {
+                                resultText = Arrays.toString((int[])operationResult);
+                                break; }
+                            case "long": {
+                                resultText = Arrays.toString((long[])operationResult);
+                                break; }
+                            case "float": {
+                                resultText = Arrays.toString((float[])operationResult);
+                                break; }
+                            case "double": {
+                                resultText = Arrays.toString((double[])operationResult);
+                                break; }
+                            case "boolean": {
+                                resultText = Arrays.toString((boolean[])operationResult);
+                                break; }
+                            case "char": {
+                                resultText = Arrays.toString((char[])operationResult);
+                                break; }
+                            default: {
+                                resultText = "'failed'";
+                                break; }
                         }
-					} else {
-						PropertyEditor editor = PropertyEditors.getEditor(operationResult.getClass());
-						editor.setValue(operationResult);
-						resultText = editor.getAsText();
-					}
-				} catch (RuntimeException e) {
-					// No property editor found or some conversion problem
-					//TODO: add something more sophisticated here
-					log.debug("No editor found: ",e);
-					//fallback op
-					if (operationResult.getClass().isArray()) {
-						//TODO: this is not readable, but result can be passed into another invocation
-						Object[] arrayResult = (Object[]) operationResult;
-						resultText = unfoldArray("", arrayResult, null);
-					} else {
-						resultText = operationResult.toString();
-					}
-				}
-		
-				log.debug("Converted result: " + resultText);
+
+                    }
+                } else {
+                    PropertyEditor editor = PropertyEditors.getEditor(operationResult.getClass());
+                    editor.setValue(operationResult);
+                    resultText = editor.getAsText();
+                }
+            } catch (RuntimeException e) {
+                // No property editor found or some conversion problem
+                //TODO: add something more sophisticated here
+                log.debug("No editor found: ", e);
+                //fallback op
+                if (operationResult.getClass().isArray()) {
+                    //TODO: this is not readable, but result can be passed into another invocation
+                    Object[] arrayResult = (Object[]) operationResult;
+                    resultText = unfoldArray("", arrayResult, null);
+                } else {
+                    resultText = operationResult.toString();
+                }
+            }
+
+            log.debug("Converted result: " + resultText);
 			
 		} else {
 			resultText = "'success'";
@@ -201,26 +200,24 @@ public abstract class AbstractOperation {
 	 */
 	protected String unfoldArray(String prefix, Object[] array, PropertyEditor editor)
 	{
-		StringBuffer sb = new StringBuffer("\n");
-		for (int index=0;index<array.length;index++)
-		{
-			if(editor!=null)
-			{
+		//StringBuffer sb = new StringBuffer("\n");
+        StringBuffer sb = new StringBuffer("[");
+		for (int index = 0; index<array.length; index++) {
+			if (editor != null) {
 				editor.setValue(array[index]);
 				sb.append(editor.getAsText());
-			}
-			else
-			{
+			} else {
 				sb.append(array[index].toString());
 			}
 			 
-                if (index < array.length-1) {
-                	//sb.append(CID_SEPARATOR);
-                	sb.append("\n");
-                }
+            if (index < array.length-1) {
+                sb.append(CID_SEPARATOR);
+                //sb.append("\n");
+            }
 		}
+		sb.append("]");
 		
-		return  sb.toString();
+		return sb.toString();
 	}
 
 	protected void addArg(Object arg, Class<? extends Object> argClass, boolean usPE) throws CommandException {

@@ -23,7 +23,6 @@ import gnu.getopt.LongOpt;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -86,6 +85,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		//out.println("    -p, --profile                  Specifies profile name of profile to be accessed. Requires profile name as argument.");
 		out.println("operation:");
 		out.println("    -l, --list                     Returns list of available attributes and information associated with each.");
+        out.println("    -x, --extlist                  Returns extended list of available attributes, information and value associated with each.");
 		out.println("    -d, --dirty                    Returns indication if profile is dirty. Does not require argument.");
 		//isProfileDirty()
 		out.println("    -w, --write                    Returns indication if profile is in write mode. Does not require argument.");
@@ -176,7 +176,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 	protected void processArguments(String[] args) throws CommandException {
 		//first, we must get atleast -t, possibly -p, depending on those we call different method on ProfileProvisioningMBean
 		//String sopts = ":t:p:ldwecrog:s";
-		String sopts = "-:ldwecrog:s";
+		String sopts = "-:l:xdwecrog:s";
 	
 		LongOpt[] lopts = { 
 				//conf part
@@ -185,6 +185,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 				 new LongOpt("noprefix", LongOpt.NO_ARGUMENT, null, 0x1000),
 				//operration part
 				new LongOpt("list", LongOpt.NO_ARGUMENT, null, 'l'),
+                new LongOpt("extlist", LongOpt.NO_ARGUMENT, null, 'x'),
 				new LongOpt("dirty", LongOpt.NO_ARGUMENT, null, 'd'),
 				new LongOpt("write", LongOpt.NO_ARGUMENT, null, 'w'),
 				new LongOpt("edit", LongOpt.NO_ARGUMENT, null, 'e'),
@@ -198,10 +199,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 					new LongOpt("name", LongOpt.REQUIRED_ARGUMENT, null, SetAttributeOperation.name),
 					new LongOpt("separator", LongOpt.OPTIONAL_ARGUMENT, null, SetAttributeOperation.separator),
 					new LongOpt("value", LongOpt.OPTIONAL_ARGUMENT, null, SetAttributeOperation.value),
-				//new LongOpt("bussines", LongOpt.NO_ARGUMENT, null, 'b'),	
-				
-					
-
+				//new LongOpt("bussines", LongOpt.NO_ARGUMENT, null, 'b'),
 				};
 
 		Getopt getopt = new Getopt(null, args, sopts, lopts);
@@ -250,6 +248,12 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 				prepareCommand();
 				super.operation.buildOperation(getopt, args);
 				break;
+            case 'x':
+                //extlist
+                super.operation = new ExtListOperation(super.context, super.log, this);
+                prepareCommand();
+                super.operation.buildOperation(getopt, args);
+                break;
 			case 'd':
 				//dirt
 				super.operation = new SimpleInvokeOperation(super.context, super.log, this,"isProfileDirty");
@@ -323,8 +327,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		String[] sig;
 		Object[] parms;
 		MBeanServerConnection server = super.context.getServer();
-		if(profileName == null)
-		{
+		if(profileName == null) {
 			//default;
 			getOperationName = OPERATION_DEFAULT_GET;
 			parms = new Object[]{profileTableName};
@@ -338,7 +341,9 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 
 		try {
 			specificObjectName = (ObjectName) server.invoke(PROFILE_PROVISIONING_MBEAN, getOperationName, parms, sig);
-		}catch (Exception e) {
+            System.out.println("specificObjectName 1: "+specificObjectName);
+
+		} catch (Exception e) {
 
 			// if main operation is commitProfile and execute after createProfile
 			// ProfileProvisioning MBean can not execute getProfile for new profile after createProfile execution
@@ -349,6 +354,7 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 					profileBeanName += ",profileTableName=" + this.profileTableName;
 					profileBeanName += ",type=Profile";
 					specificObjectName = new ObjectName(profileBeanName);
+                    System.out.println("specificObjectName 2: "+specificObjectName);
 				}catch (Exception ce) {
 					throw new CommandException ("Command: \"" + getName()+"\" failed to commit bean name for specified profile.", ce);
 				}
@@ -447,6 +453,88 @@ public class ProfileEditCommand extends AbstractSleeCommand {
 		}
 		
 	}
+
+    private class ExtListOperation extends AbstractOperation {
+
+        //so we can access MBean info.
+        private ProfileEditCommand editCommand;
+        public ExtListOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
+            super(context, log, sleeCommand);
+            //not set, since its complicated :)
+        }
+
+        @Override
+        public void buildOperation(Getopt opts, String[] args) throws CommandException {
+            //nothing
+        }
+        @Override
+        public void invoke() throws CommandException {
+            try {
+                //we dont need to invoke anything, we have everything already :)
+                displayResult();
+            } catch (Exception e) {
+                //add handle error here?
+                throw new CommandException("Failed to invoke \"" + this.operationName + "\" due to: ", e);
+            }
+        }
+
+        /* (non-Javadoc)
+         * @see org.mobicents.tools.twiddle.op.AbstractOperation#displayResult()
+         */
+        @Override
+        public void displayResult() {
+            if (!context.isQuiet()) {
+                MBeanServerConnection conn = context.getServer();
+
+                Set<String> notDisplayed = new HashSet<String>();
+                notDisplayed.add("ProfileDirty");
+                notDisplayed.add("ProfileWriteable");
+                // Translate the result to text
+                String resultText = null;
+                PrintWriter out = context.getWriter();
+                //dont look at operationResult, we want info
+
+                try {
+                    if (beanInfo != null) {
+                        MBeanAttributeInfo[] infos = beanInfo.getAttributes();
+                        for (MBeanAttributeInfo info : infos) {
+                            if (notDisplayed.contains(info.getName())) {
+                                //skip
+                                continue;
+                            }
+                            out.println();
+                            //out.println("Class: "+info.getClass());
+                            out.println("Desc : " + info.getDescription());
+                            out.println("Name : " + info.getName());
+                            out.println("Type : " + info.getType());
+                            out.println("r/w  : " + info.isReadable() + "/" + info.isWritable());
+                            out.println("isIs : " + info.isIs()); // LOL :)
+
+                            if (info.isReadable()) {
+                                operationResult = conn.getAttribute(specificObjectName, info.getName());
+                                if (operationResult == null) {
+                                    resultText = "undefined";
+                                } else {
+                                    resultText = prepareResultText();
+                                }
+                                out.println("Value : " + resultText);
+                            }
+
+                        }
+                    } else {
+                        resultText = "'success'";
+                        out.println(resultText);
+                    }
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+                // render results to out
+                out.flush();
+            }
+        }
+
+    }
+
 	/**
 	 * Simple op to invoke some non arg methods.
 	 * @author baranowb

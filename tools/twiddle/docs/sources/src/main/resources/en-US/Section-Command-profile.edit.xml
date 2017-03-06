@@ -50,6 +50,13 @@
 						<entry>No</entry>
 					</row>
 					<row>
+						<entry>extlist</entry>
+						<entry>-x</entry>
+						<entry>--extlist</entry>
+						<entry>No</entry>
+						<entry>No</entry>
+					</row>
+					<row>
 						<entry>dirty</entry>
 						<entry>-d</entry>
 						<entry>--dirty</entry>
@@ -112,7 +119,11 @@
 	<section id="profile.edit_list">
 		<title>list</title>
 		<para><literal>list</literal> operation lists available profile attributes and information associated with each attribute. Does nor support options not arguments.</para>
-	</section>	
+	</section>
+	<section id="profile.edit_extlist">
+		<title>extlist</title>
+		<para><literal>extlist</literal> operation lists available profile attributes, information and values associated with each attribute. Does nor support options not arguments.</para>
+	</section>
 	<section id="profile.edit_dirty">
 		<title>dirty</title>
 		<para><literal>dirty</literal> operation checks if profile data has been modified and not committed yet.  Does not support options nor arguments.</para>
