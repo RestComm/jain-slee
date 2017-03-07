@@ -212,12 +212,13 @@ public class SleeContainerService implements Service<SleeContainer> {
 
         allConfigurations.put("H2DBConfig", h2ProfileConfiguration);
 
-        final org.mobicents.slee.container.deployment.profile.jpa.Configuration
-                postgreProfileConfiguration = new org.mobicents.slee.container.deployment.profile.jpa.Configuration();
+        org.mobicents.slee.container.deployment.profile.jpa.Configuration
+				postgreProfileConfiguration = null;
 
         // check
         ModelNode postgreNode = peek(fullModel, "mbean", "PostgreDBConfig");
         if (postgreNode != null && postgreNode.isDefined()) {
+			postgreProfileConfiguration = new org.mobicents.slee.container.deployment.profile.jpa.Configuration();
             postgreProfileConfiguration.setPersistProfiles(getPropertyBoolean("PostgreDBConfig", "persistProfiles", true));
             postgreProfileConfiguration.setClusteredProfiles(getPropertyBoolean("PostgreDBConfig", "clusteredProfiles", false));
             postgreProfileConfiguration.setHibernateDatasource(

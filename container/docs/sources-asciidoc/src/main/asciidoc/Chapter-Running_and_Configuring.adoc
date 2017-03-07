@@ -112,7 +112,17 @@ There is configuration for JAIN SLEE Profiles provided as JBoss Microcontainer B
     <property name="persistProfiles" value="true" />
     <property name="clusteredProfiles" value="false" />
     <property name="hibernateDatasource" value="java:jboss/datasources/ExampleDS" />
-    <property name="hibernateDialect" value="org.hibernate.dialect.H2Dialect" /
+    <property name="hibernateDialect" value="org.hibernate.dialect.H2Dialect" />
+</mbean>
+<mbean name="PostgreDBConfig">
+    <property name="persistProfiles" value="true" />
+    <property name="clusteredProfiles" value="false" />
+    <property name="hibernateDatasource" value="java:jboss/datasources/PostgreDS" />
+    <property name="hibernateDialect" value="org.hibernate.dialect.PostgreSQL94Dialect" />
+    <property name="datasourceServiceName" value="PostgreDS" />
+</mbean>
+<mbean name="ProfileManagement">
+    <property name="dbConfigMBean" value="PostgreDBConfig" />
 </mbean>
 ----
 
@@ -125,8 +135,10 @@ For new ones, ensure that the name attribute of the bean element is unique.
 | Property Name | Property Type | Description
 | persistProfiles | boolean | If true, profile changes are persisted into the data source.
 | clusteredProfiles | boolean | If true, then the container is aware there is a shared data source and that updates may be done by other nodes (for example, deletion of a JAIN SLEE profile table).
-| hibernateDatasource | String | The name of the Java Datasource deployed in the JBoss Application Server.
-| hibernateDialect | String | The java class name of the hibernate dialect to use, related with the selected datasource.
+| hibernateDatasource | String | The name of the Java Datasource deployed in the WildFly.
+| hibernateDialect | String | The java class name of the hibernate dialect to use, related with
+ the selected datasource.
+| datasourceServiceName | String | The pool name of Datasource from WildFly configuration.
 |===
 
 
