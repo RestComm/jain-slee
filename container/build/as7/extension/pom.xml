@@ -528,10 +528,21 @@
 				<property name="initializeReferenceDataTypesWithNull" value="true" />
 			</mbean>
             <mbean name="H2DBConfig">
-            	<property name="persistProfiles" value="true" />
-            	<property name="clusteredProfiles" value="false" />
-            	<property name="hibernateDatasource" value="java:jboss/datasources/ExampleDS" />
-            	<property name="hibernateDialect" value="org.hibernate.dialect.H2Dialect" />
+                <property name="persistProfiles" value="true"/>
+                <property name="clusteredProfiles" value="false"/>
+                <property name="hibernateDatasource" value="java:jboss/datasources/ExampleDS"/>
+                <property name="hibernateDialect" value="org.hibernate.dialect.H2Dialect"/>
+                <property name="datasourceServiceName" value="ExampleDS"/>
+            </mbean>
+			<mbean name="PostgreDBConfig">
+                <property name="persistProfiles" value="true"/>
+                <property name="clusteredProfiles" value="false"/>
+                <property name="hibernateDatasource" value="java:jboss/datasources/PostgreDS"/>
+                <property name="hibernateDialect" value="org.hibernate.dialect.PostgreSQL94Dialect"/>
+                <property name="datasourceServiceName" value="PostgreDS"/>
+            </mbean>
+            <mbean name="ProfileManagement">
+                <property name="dbConfigMBean" value="PostgreDBConfig"/>
             </mbean>
             <mbean name="RmiServerInterface">
             	<property name="rmiAddress" value="127.0.0.1" />

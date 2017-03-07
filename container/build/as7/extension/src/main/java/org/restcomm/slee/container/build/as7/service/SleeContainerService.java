@@ -71,8 +71,10 @@ import javax.slee.management.*;
 import javax.transaction.TransactionManager;
 import java.io.*;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 public class SleeContainerService implements Service<SleeContainer> {
@@ -195,19 +197,48 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		final ResourceManagementImpl resourceManagement = ResourceManagementImpl.getInstance();
 
+        // Profile Management
+        Map<String, org.mobicents.slee.container.deployment.profile.jpa.Configuration> allConfigurations =
+                new HashMap<String, org.mobicents.slee.container.deployment.profile.jpa.Configuration>();
 		final org.mobicents.slee.container.deployment.profile.jpa.Configuration
-				profileConfiguration = new org.mobicents.slee.container.deployment.profile.jpa.Configuration();
+				h2ProfileConfiguration = new org.mobicents.slee.container.deployment.profile.jpa.Configuration();
 
-		// TODO: ExtensionConfiguration for Profile Management
-		profileConfiguration.setPersistProfiles(getPropertyBoolean("H2DBConfig", "persistProfiles", true));
-		profileConfiguration.setClusteredProfiles(getPropertyBoolean("H2DBConfig", "clusteredProfiles", false));
-		profileConfiguration.setHibernateDatasource(
+        h2ProfileConfiguration.setPersistProfiles(getPropertyBoolean("H2DBConfig", "persistProfiles", true));
+        h2ProfileConfiguration.setClusteredProfiles(getPropertyBoolean("H2DBConfig", "clusteredProfiles", false));
+        h2ProfileConfiguration.setHibernateDatasource(
 				getPropertyString("H2DBConfig", "hibernateDatasource", "java:jboss/datasources/ExampleDS"));
-		profileConfiguration.setHibernateDialect(
+        h2ProfileConfiguration.setHibernateDialect(
 				getPropertyString("H2DBConfig", "hibernateDialect", "org.hibernate.dialect.H2Dialect"));
-		final ProfileManagement profileManagement = new ProfileManagementImpl(profileConfiguration);
 
-		// TODO: ExtensionConfiguration for EventRouter
+        allConfigurations.put("H2DBConfig", h2ProfileConfiguration);
+
+        final org.mobicents.slee.container.deployment.profile.jpa.Configuration
+                postgreProfileConfiguration = new org.mobicents.slee.container.deployment.profile.jpa.Configuration();
+
+        // check
+        ModelNode postgreNode = peek(fullModel, "mbean", "PostgreDBConfig");
+        if (postgreNode != null && postgreNode.isDefined()) {
+            postgreProfileConfiguration.setPersistProfiles(getPropertyBoolean("PostgreDBConfig", "persistProfiles", true));
+            postgreProfileConfiguration.setClusteredProfiles(getPropertyBoolean("PostgreDBConfig", "clusteredProfiles", false));
+            postgreProfileConfiguration.setHibernateDatasource(
+                    getPropertyString("PostgreDBConfig", "hibernateDatasource", "java:jboss/datasources/ExampleDS"));
+            postgreProfileConfiguration.setHibernateDialect(
+                    getPropertyString("PostgreDBConfig", "hibernateDialect", "org.hibernate.dialect.H2Dialect"));
+
+            allConfigurations.put("PostgreDBConfig", postgreProfileConfiguration);
+        }
+
+        final org.mobicents.slee.container.deployment.profile.jpa.Configuration
+                profileConfiguration = allConfigurations.get(
+                        getPropertyString("ProfileManagement", "dbConfigMBean", "H2DBConfig"));
+
+        ProfileManagement profileManagement = null;
+        if (profileConfiguration != null) {
+            profileManagement = new ProfileManagementImpl(profileConfiguration);
+        } else {
+            log.error("Profile configuration is not configured properly.");
+        }
+
 		final EventRouterConfiguration eventRouterConfiguration = new EventRouterConfiguration();
 		eventRouterConfiguration.setEventRouterThreads(
 				getPropertyInt("EventRouterConfiguration", "eventRouterThreads", 8));
@@ -224,7 +255,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 		}
 		final EventRouter eventRouter = new EventRouterImpl(eventRouterConfiguration);
 
-		// TODO: ExtensionConfiguration for TimerFacility
+
 		final TimerFacilityConfiguration timerFacilityConfiguration = new TimerFacilityConfiguration();
 		timerFacilityConfiguration.setTimerThreads(4);
 		timerFacilityConfiguration.setPurgePeriod(0);

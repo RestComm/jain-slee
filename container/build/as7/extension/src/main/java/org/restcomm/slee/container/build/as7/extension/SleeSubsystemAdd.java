@@ -75,15 +75,35 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
         final ServiceTarget target = context.getServiceTarget();
         final SleeContainerService sleeContainerService = new SleeContainerService(fullModel, cacheConfig);
 
+        String dbConfigMBean = getPropertyString(fullModel, "ProfileManagement", "dbConfigMBean", "H2DBConfig");
+        String datasourceServiceName = getPropertyString(fullModel, dbConfigMBean, "datasourceServiceName", "ExampleDS");
+
         final ServiceBuilder<?> sleeContainerServiceBuilder = target
                 .addService(SleeServiceNames.SLEE_CONTAINER, sleeContainerService)
                 .addDependency(PathManagerService.SERVICE_NAME, PathManager.class, sleeContainerService.getPathManagerInjector())
                 .addDependency(MBeanServerService.SERVICE_NAME, MBeanServer.class, sleeContainerService.getMbeanServer())
                 .addDependency(TransactionManagerService.SERVICE_NAME, TransactionManager.class, sleeContainerService.getTransactionManager())
-                .addDependency(DataSourceReferenceFactoryService.SERVICE_NAME_BASE.append("ExampleDS"),
+                .addDependency(DataSourceReferenceFactoryService.SERVICE_NAME_BASE.append(datasourceServiceName),
                         ManagedReferenceFactory.class, sleeContainerService.getManagedReferenceFactory());
 
         newControllers.add(sleeContainerServiceBuilder.setInitialMode(Mode.ACTIVE).install());
+    }
+
+    private ModelNode peek(ModelNode node, String... args) {
+        for (String arg : args) {
+            if (!node.hasDefined(arg)) { return null; }
+            node = node.get(arg);
+        }
+        return node;
+    }
+
+    private String getPropertyString(ModelNode model, String mbeanName, String propertyName, String defaultValue) {
+        String result = defaultValue;
+        ModelNode propertyNode = peek(model, "mbean", mbeanName, "property", propertyName);
+        if (propertyNode != null && propertyNode.isDefined()) {
+            result = propertyNode.get("value").asString();
+        }
+        return (result == null) ? defaultValue : result;
     }
     
 }
