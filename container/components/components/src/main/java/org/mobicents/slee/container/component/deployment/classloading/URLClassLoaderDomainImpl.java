@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
@@ -51,11 +52,11 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	private static final Logger logger = Logger
 			.getLogger(URLClassLoaderDomainImpl.class);
 
-        /**
-         * classes loaded within these packages will have classloading order
-         * inverted. That is first try locally, then in parent.
-         */
-        private Set<String> preferredPackages = new HashSet();
+    /**
+     * classes loaded within these packages will have classloading order
+     * inverted. That is first try locally, then in parent.
+     */
+    private Set<String> preferredPackages = new HashSet();
 
 	/**
 	 * the set of dependencies for the domain
@@ -113,35 +114,51 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	}
 	
 	private static final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
+	private static final long WAIT_FOR_LOCK = 10;
+	private static final long MAX_WAIT_FOR_LOCK = 10000;
+	private static final long MAX_ATTEMPTS = MAX_WAIT_FOR_LOCK / WAIT_FOR_LOCK;
 
 	private boolean acquireGlobalLock() {
+		boolean acquired = false;
+
 		if (GLOBAL_LOCK.isHeldByCurrentThread()) {
 			return false;
-		}
-		while (!GLOBAL_LOCK.tryLock()) {
+		} else {
+			int attempts = 0;
 			try {
-				this.wait(10);
-			} catch (InterruptedException e) {
-				// ignore
+				//prevent an infinite loop by limiting the acquire attempts
+				while (!acquired && attempts < MAX_ATTEMPTS) {
+					acquired = GLOBAL_LOCK.tryLock(WAIT_FOR_LOCK, TimeUnit.MILLISECONDS);
+					attempts = attempts + 1;
+				}
+			} catch (InterruptedException ex) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Interrupted while acquiring.", ex);
+				}
+			}
+			if (!acquired) {
+				//throw a runtime exception so error is reported upstream
+				throw new IllegalMonitorStateException("Unable to acquire global lock.");
 			}
 		}
-		return true;
+
+		return acquired;
 	}
 
 	private void releaseGlobalLock() {
 		GLOBAL_LOCK.unlock();
 	}
         
-        private boolean isPreferredPackage(String className) {
-            boolean isPreferred = false;
-            for (String prefPack : preferredPackages)
-            {
-                if (className.startsWith(prefPack)) {
-                    isPreferred = true;
-                }
-            }            
-            return isPreferred;
+    private boolean isPreferredPackage(String className) {
+        boolean isPreferred = false;
+        for (String prefPack : preferredPackages)
+        {
+            if (className.startsWith(prefPack)) {
+                isPreferred = true;
+            }
         }
+        return isPreferred;
+    }
 
         
 	@Override
@@ -351,13 +368,12 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 		directDependencies.clear();
 	}
         
-        public Set<String> getPreferredPackages() {
-            return preferredPackages;
-        }
+    public Set<String> getPreferredPackages() {
+        return preferredPackages;
+    }
 
-        public void setPreferredPackages(Set<String> preferredPackages) {
-            this.preferredPackages = preferredPackages;
-        }        
-                
+    public void setPreferredPackages(Set<String> preferredPackages) {
+        this.preferredPackages = preferredPackages;
+    }
 
 }
