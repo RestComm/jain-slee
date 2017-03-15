@@ -103,21 +103,16 @@ public class StatisticsResourceAdaptor implements ResourceAdaptor {
 				if (tracer.isFineEnabled()) {
 					tracer.fine("RA Entity: " + raEntity);
 				}
-				//System.out.println("RA Entity: " + raEntity);
 
 				try {
 					ObjectName usageMBeanName = resourceManagement.getResourceUsageMBean(raEntity);
-					//System.out.println("usageMBeanName: " + usageMBeanName);
 
 					// null for default set
-					// new Object[] {"NAME"} for named set
 					String usageParameterSetName = null; // "statisitcs";
 					Object usageParameterSet = ManagementFactory.getPlatformMBeanServer()
 							.invoke(usageMBeanName, "getInstalledUsageParameterSet",
 									new Object[] {usageParameterSetName},
 									new String[] {String.class.getName()});
-
-					//System.out.println("usageParameterSet: " + usageParameterSet);
 
 					if (usageParameterSet != null) {
 						try {
@@ -129,7 +124,6 @@ public class StatisticsResourceAdaptor implements ResourceAdaptor {
 							if (tracer.isFineEnabled()) {
 								tracer.fine("calls: " + calls);
 							}
-							System.out.println("calls: " + calls);
 							counterCalls.inc(calls);
 
 							Long messages = (Long) method.invoke(usageParameterSet, "messages", true);
@@ -157,13 +151,10 @@ public class StatisticsResourceAdaptor implements ResourceAdaptor {
 
 				} catch (UnrecognizedResourceAdaptorEntityException e) {
 					// TODO
-					//e.printStackTrace();
 				} catch (InvalidArgumentException e) {
 					// TODO
-					//e.printStackTrace();
 				} catch (Exception e) {
 					// TODO
-					//e.printStackTrace();
 				}
 			} // end of for
 
@@ -189,8 +180,8 @@ public class StatisticsResourceAdaptor implements ResourceAdaptor {
 			statisticsServer = DEFAULT_STATISTICS_SERVER;
 		}
 
-		if (tracer.isInfoEnabled()) {
-			tracer.info("statisticsServer: " + statisticsServer);
+		if (tracer.isFineEnabled()) {
+			tracer.fine("statisticsServer: " + statisticsServer);
 		}
 
 		//define remote server address (optionally)
