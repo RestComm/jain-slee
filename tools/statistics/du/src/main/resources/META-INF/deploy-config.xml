@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy-config>
+  <ra-entity resource-adaptor-id="ResourceAdaptorID[name=StatisticsResourceAdaptor,vendor=org.restcomm,version=1.0]" entity-name="StatisticsRA">
+    <properties>
+    </properties>
+    <ra-link name="StatisticsRA" />
+  </ra-entity>
+</deploy-config>

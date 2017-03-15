@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>restcomm-slee-core</artifactId>
+		<version>7.0.0-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
+	</parent>
+
+	<artifactId>restcomm-slee-ra-statistics</artifactId>
+	<groupId>org.mobicents.resources</groupId>
+
+	<name>Restcomm :: Resources :: ${project.artifactId}</name>
+
+	<modules>
+		<module>library</module>
+		<module>ratype</module>
+		<module>ra</module>
+		<module>du</module>
+	</modules>
+
+	<properties>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.mobicents.servers.jainslee.core</groupId>
+				<artifactId>spi</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+   				<groupId>org.mobicents.tools</groupId>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms />
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>																		
+					</classpathExcludes>
+					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<eclipseProjectName>slee-ra-statistics</eclipseProjectName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<!--
+	<profiles>
+		<profile>
+			<id>release</id>
+			<modules>
+				<module>docs</module>
+				<module>release</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>docs</module>
+				<module>release</module>
+			</modules>					
+		</profile>
+	</profiles>
+	-->
+
+</project>

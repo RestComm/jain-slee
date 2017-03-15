@@ -30,6 +30,7 @@
 			<modules>
 				<module>tools/slee-management-console</module>
 				<module>tools/twiddle</module>
+				<module>tools/statistics</module>
 			</modules>
 			<build>
 				<plugins>
@@ -49,6 +50,7 @@
 			<modules>
 				<module>tools/slee-management-console</module>
 				<module>tools/twiddle</module>
+				<module>tools/statistics</module>
 			</modules>
 		</profile>
 	</profiles>
