@@ -550,6 +550,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 		
 		ensureMBeanIsNotClosed();
 		try {
+			defaultUsageMBean.resetAllUsageParameters();
 			for (UsageMBeanImpl usageMBeanImpl : usageMBeans.values()) {
 				usageMBeanImpl.resetAllUsageParameters();
 			}
