@@ -209,7 +209,7 @@ public class SleeDeploymentMetaData
                         return (Boolean)object;
                     }
                 } catch(Exception e) {
-                    log.warn("Cant get attribute Started for MBean: "+mbeanName, e);
+                    log.debug("Cant get attribute Started for MBean: "+mbeanName);
                 }
                 return true;
             }
