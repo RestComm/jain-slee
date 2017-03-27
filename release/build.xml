@@ -3,19 +3,20 @@
 
 	<property environment="sys" />
 
+	<property name="release.version" value="3.0.0" />
+	<property name="release.profile" value="restcomm" />
+	<property name="validate.versions" value="" />
+	<property name="wildfly.config" value="standalone" />
+
 	<property name="output.dir" value="${basedir}/target" />
 	<property name="release.dir" value="${output.dir}/binary" />
 	<property name="packages.dir" value="${basedir}/checkout" />
 	<property name="tmp.wildfly.home" value="${output.dir}/tmp" />
 
 	<property name="wildfly.version" value="10.1.0.Final" />
-	<property name="release.version" value="3.0.0" />
 	<property name="wildfly.distro.zip.path" value="wildfly-${wildfly.version}.zip" />
 	<property name="wildfly.home.relative.path" value="wildfly-${wildfly.version}/" />
 	<property name="wildfly.home" value="${release.dir}/${wildfly.home.relative.path}/" />
-	<property name="wildfly.config" value="standalone" />
-	<property name="release.profile" value="restcomm" />
-	<property name="validate.versions" value="" />
 
 	<available file="${ant.file.restcomm.release}/../${wildfly.distro.zip.path}" property="got.wildfly" />
 
