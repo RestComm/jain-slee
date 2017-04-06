@@ -41,11 +41,6 @@ public class SleeDeploymentInstallProcessor implements DeploymentUnitProcessor {
             return;
         }
 
-        if (!deployableUnitJarMetaData.isDependencyItemsPassed()) {
-            log.warn("Deployment "+deploymentUnit.getName()+" is missing the preceding dependencies.");
-            return;
-        }
-
         ExternalDeployerImpl externalDeployer = getExternalDeployer(phaseContext.getServiceRegistry(), SleeServiceNames.SLEE_CONTAINER);
         if (externalDeployer != null) {
             externalDeployer.deploy(deploymentUnit, deployableUnitJarURL, deployableUnitJarMetaData, null);

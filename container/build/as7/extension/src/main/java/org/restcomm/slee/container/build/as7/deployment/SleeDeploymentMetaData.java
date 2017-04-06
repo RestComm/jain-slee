@@ -158,40 +158,47 @@ public class SleeDeploymentMetaData
             }
 
             if (isDeploy) {
-                InputStream dependsInputStream = null;
-                try {
-                    dependsInputStream = rootFile.getChild("META-INF/jboss-dependency.xml").openStream();
-                    if (dependsInputStream != null) {
-                        log.debug("parse jboss-dependency.xml");
-
-                        DocumentBuilder dependsDocBuilder = docBuilderFactory.newDocumentBuilder();
-                        Document dependsDoc = dependsDocBuilder.parse(dependsInputStream);
-
-                        NodeList dependsNodeList = dependsDoc.getDocumentElement().getChildNodes();
-                        // <item whenRequired="Real" dependentState="Installed">CAPSS7Service</item>
-                        boolean checkItems = true;
-                        for (int i = 0; i < dependsNodeList.getLength(); i++) {
-                            if (dependsNodeList.item(i) instanceof Element) {
-                                Element elem = (Element) dependsNodeList.item(i);
-                                if (elem.getNodeName().equals("item")) {
-                                    log.debug("Item [" + i + "]: " + elem.getTextContent());
-                                    if (!elem.getTextContent().isEmpty()) {
-                                        checkItems = checkItems && checkDependencyItem(elem.getTextContent());
-                                    }
-                                }
-                            }
-                        }
-                        this.dependencyItemsPassed = checkItems;
-                        //log.debug("dependencyItemsPassed: "+this.dependencyItemsPassed);
-                    }
-                } catch (IOException e) {
-                    log.info("Cannot open stream (META-INF): " + e.getLocalizedMessage());
-                }
+                checkDependency(rootFile);
             }
 
         }
-        catch (Exception e) {
-            log.error("Error parsing Deployable Unit to build SLEE Deployer MetaData.", e);
+        catch (Exception ex) {
+            log.error("Error parsing Deployable Unit to build SLEE Deployer MetaData.", ex);
+        }
+    }
+
+    public void checkDependency(VirtualFile rootFile) {
+        try {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+
+            InputStream dependsInputStream = null;
+            dependsInputStream = rootFile.getChild("META-INF/jboss-dependency.xml").openStream();
+            if (dependsInputStream != null) {
+                log.debug("parse jboss-dependency.xml");
+
+                DocumentBuilder dependsDocBuilder = docBuilderFactory.newDocumentBuilder();
+                Document dependsDoc = dependsDocBuilder.parse(dependsInputStream);
+
+                NodeList dependsNodeList = dependsDoc.getDocumentElement().getChildNodes();
+                boolean checkItems = true;
+                for (int i = 0; i < dependsNodeList.getLength(); i++) {
+                    if (dependsNodeList.item(i) instanceof Element) {
+                        Element elem = (Element) dependsNodeList.item(i);
+                        if (elem.getNodeName().equals("item")) {
+                            log.debug("Item [" + i + "]: " + elem.getTextContent());
+                            if (!elem.getTextContent().isEmpty()) {
+                                checkItems = checkItems && checkDependencyItem(elem.getTextContent());
+                            }
+                        }
+                    }
+                }
+                this.dependencyItemsPassed = checkItems;
+            }
+        } catch (IOException e) {
+            log.info("Cannot open stream (META-INF): " + e.getLocalizedMessage());
+        } catch (Exception ex) {
+            log.error("Error parsing Deployable Unit to build SLEE Deployer MetaData.", ex);
         }
     }
 
