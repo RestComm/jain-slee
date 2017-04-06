@@ -2,6 +2,7 @@ package org.restcomm.slee.container.build.as7.deployment;
 
 import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentUnit;
+import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.logging.Logger;
 import org.jboss.vfs.TempFileProvider;
 import org.jboss.vfs.VFS;
@@ -23,7 +24,8 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 	/**
 	 * a list of URLs which the deployer was asked to deploy before it actually started
 	 */
-	private List<URL> waitingList = new ArrayList<URL>();
+	private List<URL> waitingDeployerList = new ArrayList<URL>();
+	private List<URL> waitingDependencyList = new ArrayList<URL>();
 
 	private static class DeploymentUnitRecord {
 		DeploymentUnit deploymentUnit;
@@ -37,6 +39,42 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 
 	public ExternalDeployerImpl() {
 		log.info("Mobicents SLEE External Deployer initialized.");
+
+		Timer waitingDependencyTimer = new Timer();
+		waitingDependencyTimer.schedule(new WaitingDependencyTimerTask(), 0, 2000);
+	}
+
+	private class WaitingDependencyTimerTask extends TimerTask {
+		@Override
+		public void run() {
+			if (waitingDependencyList.size() == 0) {
+				return;
+			}
+
+			// do the deployments on waiting dependency list
+			for (Iterator<URL> it = waitingDependencyList.iterator(); it.hasNext();) {
+				URL deployableUnitURL = it.next();
+				try {
+					DeploymentUnitRecord record = records.get(deployableUnitURL);
+
+					ResourceRoot deploymentRoot = record.deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
+					VirtualFile rootFile = deploymentRoot.getRoot();
+
+					record.deploymentMetaData.checkDependency(rootFile);
+					if (record.deploymentMetaData.isDependencyItemsPassed()) {
+						it.remove();
+						callSubDeployer(deployableUnitURL, records.get(deployableUnitURL));
+					}
+				} catch (Exception e) {
+					log.error("Failure during deployment procedures.", e);
+				}
+			}
+
+			// cancel timer after all deployments were deployed
+			if (waitingDependencyList.size() == 0) {
+				cancel();
+			}
+		}
 	}
 
 	@Override
@@ -46,7 +84,7 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 
 		// do the deployments on waiting list
 		int failCount = 0;
-		for (Iterator<URL> it = this.waitingList.iterator(); it.hasNext();) {
+		for (Iterator<URL> it = this.waitingDeployerList.iterator(); it.hasNext();) {
 			URL deployableUnitURL = it.next();
 			it.remove();
 			try {
@@ -61,7 +99,7 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 				log.info("SLEE External Deployer startup: " + failCount + " DUs rejected by the SLEE Internal Deployer, due to errors.");
 			}
 		}
-		this.waitingList.clear();
+		this.waitingDeployerList.clear();
 	}
 
 	public void deploy(DeploymentUnit deploymentUnit, URL deployableUnitURL, SleeDeploymentMetaData deploymentMetaData, VirtualFile defaultRoot) {
@@ -84,13 +122,16 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 				records.put(deployableUnitURL, record);
 
 				// deploy if possible
-				if (internalDeployer == null) {
+				if (!deploymentMetaData.isDependencyItemsPassed()) {
+					log.warn("Deployment " + deploymentUnit.getName() + " is missing the preceding dependencies. Added to waiting list.");
+					waitingDependencyList.add(deployableUnitURL);
+				} else if (internalDeployer == null) {
 					if (log.isDebugEnabled()) {
 						log.debug("Unable to INSTALL " + deploymentUnitName
 								+ " right now. Waiting for Container to start.");
-						log.debug("deployableUnitURL: "+deployableUnitURL);
+						log.debug("deployableUnitURL: " + deployableUnitURL);
 					}
-					waitingList.add(deployableUnitURL);
+					waitingDeployerList.add(deployableUnitURL);
 				} else {
 					callSubDeployer(deployableUnitURL, record);
 				}
