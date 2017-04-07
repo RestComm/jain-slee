@@ -57,6 +57,11 @@
 		</classpath>
 	</taskdef>
 
+	<path id="xmltask.path">
+		<pathelement path="${basedir}/xmltask.jar" />
+	</path>
+	<taskdef name="xmltask" classpathref="xmltask.path" classname="com.oopsconsultancy.xmltask.ant.XmlTask" />
+
 	<condition property="mvn.executable" value="${sys.M2_HOME}\bin\mvn.bat">
 		<and>
 			<os family="windows" />
@@ -343,6 +348,19 @@
 	</dependencies>]]>
 			</replacevalue>
 		</replace>
+
+		<!-- adding of a security domain into standalone.xml -->
+		<xmltask source="${wildfly.home}/standalone/configuration/standalone.xml" dest="${wildfly.home}/standalone/configuration/standalone.xml">
+			<remove path="/:server/:profile/*[local-name()='subsystem']/*[local-name()='security-domains']/*[local-name()='security-domain' and @name='jmx-console']"/>
+			<insert path="/:server/:profile/*[local-name()='subsystem']/*[local-name()='security-domains']/*[local-name()='security-domain'][last()]" position="after" file="template/security-domains.txt"/>
+		</xmltask>
+
+		<copy overwrite="true" todir="${wildfly.home}/standalone/configuration">
+			<fileset dir="${basedir}/template">
+				<include name="jmx-roles.properties" />
+				<include name="jmx-users.properties" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="get-extra" depends="get-diameter,unzip-diameter,get-ss7,unzip-ss7,setup-ss7,get-smppext,unzip-smppext,setup-smppext">
