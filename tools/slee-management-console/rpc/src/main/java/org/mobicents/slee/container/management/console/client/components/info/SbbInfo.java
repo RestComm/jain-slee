@@ -42,6 +42,8 @@ public class SbbInfo extends ComponentInfo implements IsSerializable {
 
   private String[] sbbIDs;
 
+  private String[] envEntries;
+
   public SbbInfo() {
     super();
   }
@@ -82,5 +84,10 @@ public class SbbInfo extends ComponentInfo implements IsSerializable {
   public String[] getResourceAdaptorTypeIDs() {
     return resourceAdaptorTypeIDs;
   }
-
+  public String[] getEnvEntries() {
+	  return envEntries;
+  }
+  public void setEnvEntries(String[] envEntries) {
+	  this.envEntries = envEntries;
+  }
 }

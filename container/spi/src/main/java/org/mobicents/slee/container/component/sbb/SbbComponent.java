@@ -27,6 +27,7 @@ package org.mobicents.slee.container.component.sbb;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 import javax.slee.EventTypeID;
@@ -34,6 +35,7 @@ import javax.slee.SbbID;
 import javax.slee.facilities.AlarmFacility;
 
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
+import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
 
 /**
  * 
@@ -54,6 +56,13 @@ public interface SbbComponent extends SleeComponentWithUsageParametersInterface 
 	 * @return
 	 */
 	public SbbID getSbbID();
+
+	/**
+	 * Retrieves the EnvEntry Descriptor
+	 *
+	 * @return
+	 */
+	public List<EnvEntryDescriptor> getEnvEntries();
 
 	/**
 	 * Retrieves the sbb abstract class

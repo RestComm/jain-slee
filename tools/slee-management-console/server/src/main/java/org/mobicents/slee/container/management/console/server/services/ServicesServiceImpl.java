@@ -25,6 +25,7 @@ package org.mobicents.slee.container.management.console.server.services;
 import java.util.ArrayList;
 
 import javax.slee.SbbID;
+import javax.slee.ComponentID;
 import javax.slee.ServiceID;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.SbbDescriptor;
@@ -32,6 +33,7 @@ import javax.slee.management.ServiceDescriptor;
 import javax.slee.management.ServiceState;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
+import org.mobicents.slee.container.management.console.client.components.info.SbbInfo;
 import org.mobicents.slee.container.management.console.client.components.info.ComponentInfo;
 import org.mobicents.slee.container.management.console.client.services.ServiceInfoHeader;
 import org.mobicents.slee.container.management.console.client.services.ServicesService;
@@ -122,7 +124,14 @@ public class ServicesServiceImpl extends RemoteServiceServlet implements Service
     referringSbbIDs = resultSbbIDArrayList.toArray(referringSbbIDs);
 
     ComponentDescriptor[] referringSbbComponentDescriptors = deploymentMBeanUtils.getDescriptors(referringSbbIDs);
-
-    return ComponentInfoUtils.toComponentInfos(referringSbbComponentDescriptors);
+    ComponentInfo[] componentInfos = new ComponentInfo[referringSbbComponentDescriptors.length];
+	for (int i = 0; i < referringSbbComponentDescriptors.length; i++){
+		componentInfos[i] = ComponentInfoUtils.toComponentInfo(referringSbbComponentDescriptors[i]);
+		if(referringSbbComponentDescriptors[i] instanceof SbbDescriptor){
+			String[] envEntries = deploymentMBeanUtils.getEnvEntries((ComponentID)referringSbbComponentDescriptors[i].getID());
+			((SbbInfo)componentInfos[i]).setEnvEntries(envEntries);
+		}
+	}
+    return componentInfos;
   }
 }
