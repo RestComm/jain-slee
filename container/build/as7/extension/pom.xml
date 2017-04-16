@@ -488,13 +488,27 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>										
+									<tasks>
+										<!-- Remove all , then add -->
+										<!-- fix for https://github.com/RestComm/jain-slee/issues/104-->
+										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
+											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
+											<replacevalue></replacevalue>
+										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</extensions>]]></replacetoken>
   											<replacevalue><![CDATA[
 		<extension module="org.restcomm.slee.container.extension"/>
 	</extensions>]]></replacevalue>
 										</replace>
+										<!-- Remove all , then add -->
+										<!-- fix for https://github.com/RestComm/jain-slee/issues/104-->
+										<replaceregexp file="${jboss.home}/standalone/configuration/standalone.xml"
+										               match="&lt;subsystem xmlns=&quot;urn:restcomm:slee-container:3.0&quot;&gt;.+?&lt;/subsystem&gt;"
+										               replace=""
+										               byline="false"
+										               flags="gis"
+										/>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</profile>]]></replacetoken>
   											<replacevalue><![CDATA[
@@ -550,6 +564,12 @@
             </mbean>
         </subsystem>
 	</profile>]]></replacevalue>
+										</replace>
+										<!-- Remove all , then add -->
+										<!-- fix for https://github.com/RestComm/jain-slee/issues/104-->
+										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
+											<replacetoken><![CDATA[<module name="org.restcomm.slee.container.lib"/>]]></replacetoken>
+											<replacevalue></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
 											<replacetoken><![CDATA[</dependencies>]]></replacetoken>
