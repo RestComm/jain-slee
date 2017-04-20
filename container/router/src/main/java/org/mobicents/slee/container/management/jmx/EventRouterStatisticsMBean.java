@@ -22,12 +22,18 @@
 
 package org.mobicents.slee.container.management.jmx;
 
+
+import java.lang.Integer;
+import java.lang.Long;
 import javax.slee.EventTypeID;
 import javax.slee.management.ManagementException;
 
 public interface EventRouterStatisticsMBean {
 
     public static final String OBJECT_NAME = "org.mobicents.slee:name=EventRouterStatistics";
+        
+	// TODO
+	// Old interface should be remove next major release
     /**
      * Return number of all activities mapped to executors.
      */
@@ -108,4 +114,88 @@ public interface EventRouterStatisticsMBean {
 	public int getWorkingQueueSize(int executor) throws ManagementException;
 	
 	public String printAllStats() throws ManagementException;
+	
+	// Duplicated new interface 
+	// Fix for issue https://github.com/RestComm/jain-slee/issues/106
+    /**
+     * Return number of all activities mapped to executors.
+     *
+     **/
+	public Integer retrieveActivitiesMapped() throws ManagementException;
+	/**
+	 * Return number of activities mapped to executor with passed index.
+	 */
+	public Integer retrieveActivitiesMapped(Integer executor) throws ManagementException;
+	/**
+	 * Return avg routing time within container. This stat includes all executors.
+	 */
+    public Long retrieveAverageEventRoutingTime() throws ManagementException;
+	/**
+	 * Retrun avg routing time of particular event type. This includes routing in all executors.
+	 */
+	public Long retrieveAverageEventRoutingTime(String eventTypeIDPattern) throws ManagementException;
+	/**
+	 * Return avg routing time for executor with passed index.
+	 */
+	public Long retrieveAverageEventRoutingTime(Integer executor) throws ManagementException;
+	/**
+	 * Return avg routing time for particular event type in specific executor.
+	 */
+	public Long retrieveAverageEventRoutingTime(Integer executor, String eventTypeIDPattern) throws ManagementException;
+	/**
+	 * Return number of events routed of this event type.
+	 */
+	public Long retrieveEventsRouted(String eventTypeIDPattern) throws ManagementException;
+	/**
+	 * Return number of events routed of this event type in particular executor..
+	 */
+	public Long retrieveEventsRouted(Integer executor, String eventTypeIDPattern) throws ManagementException;
+	/**
+	 * Return number of all tasks executed in executors, this includes event routing and misc tasks.
+	 */
+	public Long retrieveExecutedTasks() throws ManagementException;
+	/**
+	 * Return number of all tasks executed in particular executor, this includes event routing and misc tasks .
+	 */
+	public Long retrieveExecutedTasks(Integer executor) throws ManagementException;
+	/**
+	 * Return time spent on executing tasks in executor.
+	 */
+	public Long retrieveExecutingTime(Integer executor) throws ManagementException;
+	/**
+	 *Return Idle time on executing tasks in executor..
+	 */
+	public Long retrieveIdleTime(Integer executor) throws ManagementException;
+	/**
+	 * Return number of misc tasks executed, that is all tasks not related to event routing.
+	 */
+	public Long retrieveMiscTasksExecuted() throws ManagementException;
+	/**
+	 * Return number of misc tasks executed in particular executor, that is all tasks not related to event routing.
+	 */
+	public Long retrieveMiscTasksExecuted(Integer executor) throws ManagementException;
+	/**
+	 * Return time spent for execution of misc tasks in executor(total time).
+	 */
+	public Long retrieveMiscTasksExecutingTime(Integer executor) throws ManagementException;
+	/**
+	 * Return time spent on routing particular eventType in executor(total time).
+	 */
+	public Long retrieveRoutingTime(Integer executor, String eventTypeIDPattern) throws ManagementException;
+	/**
+	 * Retrieves the size of the event router working queue.
+	 * 
+	 * @return
+	 */
+	public Integer retrieveWorkingQueueSize() throws ManagementException;
+	/**
+	 * Retrieves the size of the specified executor's working queue.
+	 * 
+	 * @param executor
+	 *            the executor number
+	 * @return
+	 */
+	public Integer retrieveWorkingQueueSize(Integer executor) throws ManagementException;
+	
+	
 }
