@@ -27,6 +27,7 @@ package org.mobicents.slee.resource.cluster;
 
 import org.infinispan.remoting.transport.Address;
 import org.infinispan.tree.Fqn;
+import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.cache.ClusteredCacheData;
 import org.restcomm.cluster.election.ClientLocalListenerElector;
 
@@ -69,8 +70,8 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 	 * @see org.restcomm.cluster.ClientLocalListener#getBaseFqn()
 	 */
 	@SuppressWarnings("unchecked")
-	public Fqn getBaseFqn() {
-		return baseCacheData.getNodeFqn();
+	public FqnWrapper getBaseFqn() {
+		return new FqnWrapper(baseCacheData.getNodeFqn());
 	}
 
 	/*

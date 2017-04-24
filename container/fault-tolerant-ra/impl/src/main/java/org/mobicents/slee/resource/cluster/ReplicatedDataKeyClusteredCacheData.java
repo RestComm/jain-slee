@@ -26,6 +26,7 @@
 package org.mobicents.slee.resource.cluster;
 
 import org.infinispan.tree.Fqn;
+import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 import org.restcomm.cluster.cache.ClusteredCacheData;
 
@@ -49,7 +50,7 @@ public class ReplicatedDataKeyClusteredCacheData<K extends Serializable, V exten
 	public ReplicatedDataKeyClusteredCacheData(
 			ReplicatedDataCacheData parent, K key,
 			MobicentsCluster mobicentsCluster) {
-		super(Fqn.fromRelativeElements(parent.getNodeFqn(), key),
+		super(FqnWrapper.fromRelativeElementsWrapper(new FqnWrapper(parent.getNodeFqn()), key),
 				mobicentsCluster);
 	}
 

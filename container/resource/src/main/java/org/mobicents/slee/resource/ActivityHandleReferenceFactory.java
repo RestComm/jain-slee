@@ -33,6 +33,7 @@ import org.mobicents.slee.container.management.ResourceManagementImpl;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 import org.restcomm.cluster.election.ClientLocalListenerElector;
 
@@ -379,7 +380,7 @@ public class ActivityHandleReferenceFactory {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public ClusteredCacheData(Fqn baseFqn,
 				MobicentsCluster cluster) {
-			super(Fqn.fromRelativeElements(baseFqn, cluster.getLocalAddress()), cluster);
+			super(FqnWrapper.fromRelativeElementsWrapper(new FqnWrapper(baseFqn), cluster.getLocalAddress()), cluster);
 		}
 	}
 	
@@ -426,8 +427,8 @@ public class ActivityHandleReferenceFactory {
 		 * @see org.restcomm.cluster.FailOverListener#getBaseFqn()
 		 */
 		@SuppressWarnings("rawtypes")
-		public Fqn getBaseFqn() {
-			return baseFqn;
+		public FqnWrapper getBaseFqn() {
+			return new FqnWrapper(baseFqn);
 		}
 
 		/*

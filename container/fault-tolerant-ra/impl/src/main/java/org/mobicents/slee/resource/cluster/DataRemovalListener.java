@@ -23,6 +23,7 @@
 package org.mobicents.slee.resource.cluster;
 
 import org.infinispan.tree.Fqn;
+import org.restcomm.cache.FqnWrapper;
 
 import java.io.Serializable;
 
@@ -48,8 +49,8 @@ public class DataRemovalListener<K extends Serializable, V extends Serializable>
 	 * @see org.restcomm.cluster.ClientLocalListener#getBaseFqn()
 	 */
 	@SuppressWarnings("unchecked")
-	public Fqn getBaseFqn() {
-		return baseCacheData.getNodeFqn();
+	public FqnWrapper getBaseFqn() {
+		return new FqnWrapper(baseCacheData.getNodeFqn());
 	}
 
 	/*
@@ -57,7 +58,8 @@ public class DataRemovalListener<K extends Serializable, V extends Serializable>
 	 * @see org.restcomm.cluster.DataRemovalListener#dataRemoved(org.infinispan.tree.Fqn)
 	 */
 	@SuppressWarnings("unchecked")
-	public void dataRemoved(Fqn fqn) {
+	public void dataRemoved(FqnWrapper fqnWrapper) {
+		final Fqn fqn = fqnWrapper.getFqn();
 		ra.dataRemoved((K)fqn.getLastElement());
 	}
 
