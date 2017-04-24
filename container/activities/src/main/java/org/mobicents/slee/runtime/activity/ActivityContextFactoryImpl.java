@@ -33,6 +33,7 @@ import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.DataRemovalListener;
 
 import javax.slee.SLEEException;
@@ -277,8 +278,9 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	private class DataRemovalClusterListener implements DataRemovalListener {
 		
 		@SuppressWarnings("rawtypes")
-		public void dataRemoved(Fqn arg0) {
-			final ActivityContextHandle ach = (ActivityContextHandle) arg0.getLastElement();
+		public void dataRemoved(FqnWrapper dataFqnWrapper) {
+			final Fqn dataFqn = dataFqnWrapper.getFqn();
+			final ActivityContextHandle ach = (ActivityContextHandle) dataFqn.getLastElement();
 			final LocalActivityContextImpl localActivityContext = localActivityContexts.remove(ach);
 			if(localActivityContext != null) {
 				final EventRouterExecutor executor = localActivityContext.getExecutorService(); 
@@ -292,8 +294,8 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		}
 
 		@SuppressWarnings("rawtypes")
-		public Fqn getBaseFqn() {
-			return ActivityContextFactoryCacheData.NODE_FQN;
+		public FqnWrapper getBaseFqn() {
+			return new FqnWrapper(ActivityContextFactoryCacheData.NODE_FQN);
 		}
 		
 	}
