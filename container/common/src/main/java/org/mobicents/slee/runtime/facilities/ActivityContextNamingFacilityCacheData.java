@@ -25,6 +25,7 @@ package org.mobicents.slee.runtime.facilities;
 import org.infinispan.tree.Fqn;
 import org.infinispan.tree.Node;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 
 import javax.slee.facilities.NameAlreadyBoundException;
@@ -54,7 +55,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @param cluster
 	 */
 	public ActivityContextNamingFacilityCacheData(MobicentsCluster cluster) {
-		super(Fqn.fromElements(CACHE_NODE_NAME),
+		super(FqnWrapper.fromElementsWrapper(CACHE_NODE_NAME),
 				cluster.getMobicentsCache());
 	}
 

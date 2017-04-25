@@ -28,6 +28,7 @@ import java.util.Set;
 import org.infinispan.tree.Fqn;
 import org.infinispan.tree.Node;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 
@@ -51,7 +52,7 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	 * @param cluster
 	 */
 	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
-		super(NODE_FQN, cluster.getMobicentsCache());
+		super(new FqnWrapper(NODE_FQN), cluster.getMobicentsCache());
 	}
 
 	/**
