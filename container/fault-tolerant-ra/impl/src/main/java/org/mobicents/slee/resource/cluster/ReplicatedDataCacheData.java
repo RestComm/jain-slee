@@ -28,6 +28,7 @@ package org.mobicents.slee.resource.cluster;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.infinispan.tree.Fqn;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 
 import java.io.Serializable;
@@ -49,7 +50,7 @@ public class ReplicatedDataCacheData<K extends Serializable, V extends Serializa
 	 */
 	public ReplicatedDataCacheData(String rootName, String raEntity,
 			MobicentsCluster mobicentsCluster) {
-		super(Fqn.fromElements(rootName, raEntity), mobicentsCluster
+		super(FqnWrapper.fromElementsWrapper(rootName, raEntity), mobicentsCluster
 				.getMobicentsCache());
 	}
 

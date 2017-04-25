@@ -25,6 +25,7 @@ package org.mobicents.slee.container.service;
 import org.infinispan.tree.Fqn;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryCacheData;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cache.MobicentsCache;
 
 import javax.slee.ServiceID;
@@ -33,7 +34,7 @@ public class ServiceCacheData extends CacheData {
 
 	@SuppressWarnings("unchecked")
 	public ServiceCacheData(ServiceID serviceID, MobicentsCache mobicentsCache) {
-		super(Fqn.fromElements(
+		super(FqnWrapper.fromElementsWrapper(
 				SbbEntityFactoryCacheData.SBB_ENTITY_FACTORY_FQN_NAME,
 				serviceID), mobicentsCache);
 	}

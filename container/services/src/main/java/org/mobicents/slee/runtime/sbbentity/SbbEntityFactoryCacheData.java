@@ -26,6 +26,7 @@ import org.infinispan.tree.Fqn;
 import org.infinispan.tree.Node;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 
 import javax.slee.ServiceID;
@@ -55,7 +56,7 @@ public class SbbEntityFactoryCacheData extends CacheData {
 	 * @param cluster
 	 */
 	public SbbEntityFactoryCacheData(MobicentsCluster cluster) {
-		super(SBB_ENTITY_FACTORY_FQN, cluster.getMobicentsCache());
+		super(new FqnWrapper(SBB_ENTITY_FACTORY_FQN), cluster.getMobicentsCache());
 	}
 
 	/**
