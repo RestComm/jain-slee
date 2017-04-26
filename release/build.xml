@@ -28,7 +28,7 @@
 
 	<!-- Diameter -->
 	<!-- https://mobicents.ci.cloudbees.com/view/JSLEE/job/RestComm-jDiameter-1.x/134/artifact/release/restcomm-diameter-mux-wildfly-1.7.0.134.zip -->
-	<property name="diameter.build" value="139"/>
+	<property name="diameter.build" value="160"/>
 	<property name="diameter.version" value="1.7.0.${diameter.build}"/>
 	<property name="diameter.zip" value="restcomm-diameter-mux-wildfly-${diameter.version}.zip"/>
 	<property name="diameter.download.url"
@@ -36,15 +36,15 @@
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
 	<!-- SS7 -->
-	<property name="ss7.build" value="77"/>
-	<property name="ss7.version" value="8.0.${ss7.build}"/>
+	<property name="ss7.build" value="1392"/>
+	<property name="ss7.version" value="7.3.${ss7.build}"/>
 	<property name="ss7.zip" value="restcomm-jss7-${ss7.version}.zip"/>
 	<property name="ss7.download.url"
-			  value="${cloudbees.url}/job/Restcomm-jSS7/${ss7.build}/artifact/release/${ss7.zip}" />
+			  value="${cloudbees.url}/job/Restcomm-jSS7-non-netty/${ss7.build}/artifact/release/${ss7.zip}" />
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
 
 	<!-- SMPP Extensions -->
-	<property name="smppext.build" value="11"/>
+	<property name="smppext.build" value="17"/>
 	<property name="smppext.version" value="1.0.${smppext.build}"/>
 	<property name="smppext.zip" value="restcomm-smpp-extensions-${smppext.version}.zip"/>
 	<property name="smppext.download.url"
@@ -126,6 +126,20 @@
 		</for>
 	</target>
 
+	<target name="build-extra-package" description="builds a SLEE package, use package.name and javadoc.dirs to pass the package singularities">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}">
+			<!--arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" /-->
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${tmp.wildfly.home} -Djboss.path=../../${wildfly.home.relative.path} -Prelease-wildfly,set-git-hash,${release.profile}" />
+		</exec>
+		<for delimiter="," param="dir.name" list="${javadoc.dirs}">
+			<sequential>
+				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}/@{dir.name}">
+					<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+				</exec>
+			</sequential>
+		</for>
+	</target>
+
 	<target name="build-jdbc" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="jdbc" />
@@ -176,21 +190,21 @@
 	</target>
 
 	<target name="build-diameter" description="">
-		<antcall target="build-package">
+		<antcall target="build-extra-package">
 			<param name="package.name" value="diameter" />
 			<param name="javadoc.dirs" value="resources/diameter-base,resources/diameter-cca,resources/diameter-cx-dx,resources/diameter-gq,resources/diameter-gx,resources/diameter-rf,resources/diameter-ro,resources/diameter-rx,resources/diameter-s6a,resources/diameter-sh-client,resources/diameter-sh-server,enablers/hss-client" />
 		</antcall>
 	</target>
 
 	<target name="build-ss7" description="">
-		<antcall target="build-package">
+		<antcall target="build-extra-package">
 			<param name="package.name" value="ss7" />
 			<param name="javadoc.dirs" value="resources/map,resources/cap,resources/tcap,resources/isup" />
 		</antcall>
 	</target>
 
 	<target name="build-smpp" description="">
-		<antcall target="build-package">
+		<antcall target="build-extra-package">
 			<param name="package.name" value="smpp" />
 			<param name="javadoc.dirs" value="resources/smpp" />
 		</antcall>
@@ -390,11 +404,7 @@
 
 	<target name="setup-ss7">
 		<property name="ss7.release.dir" value="${release.dir}/extra/restcomm-ss7/restcomm-jss7-${ss7.version}" />
-		<delete dir="${ss7.release.dir}/ss7/restcomm-ss7-service/lib" failonerror="true" />
-		<delete dir="${ss7.release.dir}/ss7/restcomm-ss7-service/META-INF" failonerror="true" />
-		<delete file="${ss7.release.dir}/ss7/build-jboss5.xml" failonerror="true" />
-		<move file="${ss7.release.dir}/ss7/build-wildfly.xml"
-			  tofile="${ss7.release.dir}/ss7/build.xml" failonerror="true"/>
+        <delete dir="${ss7.release.dir}/ss7-jboss" failonerror="true" />
 	</target>
 
 	<available file="${ant.file.restcomm.release}/../${smppext.distro.zip.path}" property="got.smppext" />
