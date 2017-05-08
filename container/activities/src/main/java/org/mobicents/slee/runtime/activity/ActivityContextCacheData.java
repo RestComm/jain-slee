@@ -24,6 +24,7 @@ package org.mobicents.slee.runtime.activity;
 
 import org.infinispan.tree.Fqn;
 import org.infinispan.tree.Node;
+import org.mobicents.slee.container.activity.ActivityContextCacheDataInterface;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
@@ -31,6 +32,7 @@ import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 
 import javax.slee.facilities.TimerID;
+
 import java.util.*;
 
 /**
@@ -41,7 +43,7 @@ import java.util.*;
  * 
  */
 @SuppressWarnings("rawtypes")
-public class ActivityContextCacheData extends CacheData {
+public class ActivityContextCacheData extends CacheData implements ActivityContextCacheDataInterface{
 
 	/**
 	 * the fqn of the node that holds all activity context cache child nodes
