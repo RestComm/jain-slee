@@ -63,6 +63,7 @@ import org.restcomm.cluster.election.DefaultClusterElector;
 import org.restcomm.slee.container.build.as7.deployment.ExternalDeployerImpl;
 import org.restcomm.slee.container.build.as7.deployment.SleeDeploymentMetaData;
 import org.restcomm.slee.container.build.as7.naming.JndiManagementImpl;
+import org.restcomm.slee.container.build.as7.tckwrapper.SleeTCKPluginWrapper;
 
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
@@ -343,6 +344,11 @@ public class SleeContainerService implements Service<SleeContainer> {
 			sleeManagementMBean.setProfileProvisioningMBean(profileProvisioningMBean.getObjectName());
 
 		registerMBean(sleeManagementMBean, SleeManagementMBeanImplMBean.OBJECT_NAME);
+
+		log.info("Registering SleeTCKPluginWrapper");
+		final SleeTCKPluginWrapper tckPluginWrapper = new SleeTCKPluginWrapper();
+		registerMBean(tckPluginWrapper, SleeTCKPluginWrapper.OBJECT_NAME);
+		tckPluginWrapper.startService();
 
 		// Install internal deployments: standard-components DU
 		try {

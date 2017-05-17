@@ -119,6 +119,13 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.opencloud</groupId>
+			<artifactId>sleetck</artifactId>
+			<version>1.1.r111.redhat</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>slee-container-build-as7-modules</artifactId>
 			<version>${project.version}</version>
