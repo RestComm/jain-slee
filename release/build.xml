@@ -252,6 +252,20 @@
 		<!--<antcall target="clean" />-->
 	</target>
 
+	<target name="release-wildfly-core-only" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,checkout-sources,
+											build-core,copy-core-asciidoc,build-sources-for-debug-zip">
+		<tstamp>
+			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
+		</tstamp>
+		<delete dir="." includes="${release.profile}-slee-${release.version}-wildfly-${wildfly.version}}.zip" />
+		<antcall target="zip-wildfly">
+			<param name="zip.filename" value="${release.profile}-slee-${release.version}-wildfly-${wildfly.version}.zip" />
+			<param name="wildfly.home" value="${wildfly.home}" />
+		</antcall>
+		<!--<delete dir="${wildfly.home}" failonerror="true" />-->
+		<!--<antcall target="clean" />-->
+	</target>
+
     <target name="copy-asciidocs" depends="copy-core-asciidoc,copy-sip-asciidoc,copy-ss7-asciidoc">
         <echo message="Copying AsciiDocs"/>
     </target>
@@ -430,6 +444,14 @@
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../">
 			<!--<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} -Dcore.scmVersion=${jslee.version}" />-->
 			<arg line="validate -Pcheckout -Dcheckout.basedir=${packages.dir} ${validate.versions}" />
+		</exec>
+	</target>
+
+	<target name="checkout-core-sources">
+		<echo>Checking out core sources</echo>
+		<delete dir="${packages.dir}" />
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../">
+			<arg line="validate -Pcheckout-core -Dcheckout.basedir=${packages.dir} ${validate.versions}" />
 		</exec>
 	</target>
 
