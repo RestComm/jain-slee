@@ -60,7 +60,7 @@ public class ReplicatedDataCacheData<K extends Serializable, V extends Serializa
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<K> getAllKeys() {
-		return getNode().getChildrenNames();
+		return this.getNodeChildrenNames();
 	}
 
 	/**
@@ -69,6 +69,6 @@ public class ReplicatedDataCacheData<K extends Serializable, V extends Serializa
 	 * @return
 	 */
 	public boolean containsKey(K key) {
-		return getNode().hasChild(key);
+		return this.hasChildNode(key);
 	}
 }

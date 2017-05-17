@@ -22,7 +22,6 @@
 
 package org.mobicents.slee.runtime.activity;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.infinispan.tree.Fqn;
@@ -63,12 +62,12 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
-		final Node node = getNode();
-		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
+		return this.getNodeChildrenNames();
 	}
 
 	public void WAremove(String type) {
 		final Node node = getNode();
+		//System.out.println("WAremove: node: "+node);
 		if (node != null) {
 			if (!node.getChildren().isEmpty()) {
 				for (Object cho : node.getChildren()) {
@@ -76,6 +75,7 @@ public class ActivityContextFactoryCacheData extends CacheData {
 						if (cho instanceof Node) {
 							Node chn = (Node) cho;
 							if (chn.getFqn().getLastElementAsString().startsWith(type)) {
+								//System.out.println("WAremove: chn: "+chn);
 								node.removeChild(chn.getFqn());
 							}
 						}

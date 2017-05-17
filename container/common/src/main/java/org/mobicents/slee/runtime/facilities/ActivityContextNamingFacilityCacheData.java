@@ -67,11 +67,10 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 */
 	public void bindName(Object ach, String name)
 			throws NameAlreadyBoundException {
-		final Node node = getNode();
-		if (node.hasChild(name)) {
+		if (this.hasChildNode(name)) {
 			throw new NameAlreadyBoundException("name already bound");
 		} else {
-			node.addChild(Fqn.fromElements(name)).put(CACHE_NODE_MAP_KEY, ach);
+			this.putChildNodeValue(FqnWrapper.fromElementsWrapper(name), CACHE_NODE_MAP_KEY, ach);
 		}
 	}
 
@@ -82,13 +81,12 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @throws NameNotBoundException
 	 */
 	public Object unbindName(String name) throws NameNotBoundException {
-		final Node node = getNode();
-		final Node childNode = node.getChild(name);
+		final Node childNode = (Node) this.getChildNode(name);
 		if (childNode == null) {
 			throw new NameNotBoundException("name not bound");
 		} else {
-			final Object ach = childNode.get(CACHE_NODE_MAP_KEY);
-			node.removeChild(name);
+			final Object ach = this.getChildNodeValue(name, CACHE_NODE_MAP_KEY);
+			this.removeChildNode(name);
 			return ach;
 		}
 	}
@@ -99,11 +97,11 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @return
 	 */
 	public Object lookupName(String name) {
-		final Node childNode = getNode().getChild(name);
+		final Node childNode = (Node) this.getChildNode(name);
 		if (childNode == null) {
 			return null;
 		} else {
-			return childNode.get(CACHE_NODE_MAP_KEY);
+			return this.getChildNodeValue(name, CACHE_NODE_MAP_KEY);
 		}
 	}
 

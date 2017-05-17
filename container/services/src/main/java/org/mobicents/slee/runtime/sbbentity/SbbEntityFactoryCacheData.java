@@ -72,7 +72,8 @@ public class SbbEntityFactoryCacheData extends CacheData {
 		}
 		HashSet<SbbEntityID> result = new HashSet<SbbEntityID>();
 		ServiceID serviceID = null;
-		for (Object obj : node.getChildrenNames()) {
+		Set childrenNames = this.getNodeChildrenNames();
+		for (Object obj : childrenNames) {
 			serviceID = (ServiceID) obj;
 			for (SbbEntityID sbbEntityID : getRootSbbEntityIDs(serviceID)) {
 				result.add(sbbEntityID);
@@ -87,13 +88,15 @@ public class SbbEntityFactoryCacheData extends CacheData {
 		if (node == null) {
 			return Collections.emptySet();
 		}
-		final Node serviceNode = node.getChild(serviceID);
+		//final Node serviceNode = node.getChild(serviceID);
+		final Node serviceNode = (Node) this.getChildNode(serviceID);
 		if (serviceNode == null) {
 			return Collections.emptySet();
 		}
 		HashSet<SbbEntityID> result = new HashSet<SbbEntityID>();
 		RootSbbEntityID rootSbbEntityID = null;
-		for (Object obj : serviceNode.getChildrenNames()) {
+		Set serviceNodeChildrenNames = this.getChildNodeChildrenNames(serviceID);
+		for (Object obj : serviceNodeChildrenNames) {
 			rootSbbEntityID = new RootSbbEntityID(serviceID, (String)obj);
 			result.add(rootSbbEntityID);
 		}
@@ -110,10 +113,10 @@ public class SbbEntityFactoryCacheData extends CacheData {
 	}
 	
 	private void collectSbbEntities(SbbEntityID sbbEntityID, Set<SbbEntityID> result) {
-		final SbbEntityCacheData sbbEntityCacheData = new SbbEntityCacheData(sbbEntityID,super.getMobicentsCache());
+		final SbbEntityCacheData sbbEntityCacheData = new SbbEntityCacheData(sbbEntityID, super.getMobicentsCache());
 		for (SbbEntityID childSbbEntityID : sbbEntityCacheData.getAllChildSbbEntities()) {
 			result.add(childSbbEntityID);
-			collectSbbEntities(childSbbEntityID,result);
+			collectSbbEntities(childSbbEntityID, result);
 		}
 	}
 
