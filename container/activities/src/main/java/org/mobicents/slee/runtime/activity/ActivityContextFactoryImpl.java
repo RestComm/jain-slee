@@ -23,7 +23,6 @@ package org.mobicents.slee.runtime.activity;
 
 import org.apache.log4j.Logger;
 import org.infinispan.tree.Fqn;
-import org.infinispan.tree.Node;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
@@ -38,7 +37,6 @@ import org.restcomm.cluster.DataRemovalListener;
 
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -186,10 +184,12 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	@Override
 	public ActivityContextImpl getActivityContext(ActivityContextHandle ach, boolean updateLastAccessTime) {
+		ActivityContextImpl activityContext = null;
 		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
+
 		if (activityContextCacheData.exists()) {
 			try {
-				return new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach, updateLastAccessTime),this);
+				activityContext = new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach, updateLastAccessTime),this);
 			}
 			catch (Throwable e) {
 				logger.error("Failed to load AC.",e);
@@ -199,12 +199,10 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 					localActivityContext.getExecutorService().activityUnmapped(ach);
 				}
 				activityContextCacheData.remove();
-				return null;
 			}
 		}
-		else {
-			return null;
-		}
+
+		return activityContext;
 	}
 	
 	@Override

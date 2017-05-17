@@ -206,18 +206,12 @@ public class SbbEntityCacheData extends CacheData {
 	}
 	
 	public void setCmpField(String cmpField, Object cmpValue) {
-		final Node<String,Object> node = getCmpFieldsChildNode(true);
-		node.put(cmpField,cmpValue);
+		this.putChildNodeValue(CMP_FIELDS_CHILD_NODE_NAME, true,
+				cmpField, cmpValue);
 	}
 
 	public Object getCmpField(String cmpField) {
-		final Node<String,Object> node = getCmpFieldsChildNode(false);
-		if (node == null) {
-			return null;
-		}
-		else {
-			return node.get(cmpField);
-		}
+		return this.getChildNodeValue(CMP_FIELDS_CHILD_NODE_NAME, cmpField);
 	}
 	
 	public Set<SbbEntityID> getChildRelationSbbEntities(String getChildRelationMethod) {

@@ -132,7 +132,7 @@ public class SbbEntityImpl implements SbbEntity {
 			log.debug("Sbb entity "+getSbbEntityId()+" getting cmp field "+cmpFieldName);
 		}
 		sleeContainer.getTransactionManager().mandateTransaction();
-		return cacheData.getCmpField(cmpFieldName); 
+		return cacheData.getCmpField(cmpFieldName);
 	}
 		
 	/*
@@ -143,7 +143,7 @@ public class SbbEntityImpl implements SbbEntity {
 		if (log.isDebugEnabled()) {
 			log.debug("Sbb entity "+getSbbEntityId()+" setting cmp field "+cmpFieldName+" to value "+cmpFieldValue);
 		}
-		sleeContainer.getTransactionManager().mandateTransaction();							
+		sleeContainer.getTransactionManager().mandateTransaction();
 		cacheData.setCmpField(cmpFieldName, cmpFieldValue);
 	}
 

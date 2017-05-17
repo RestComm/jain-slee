@@ -160,7 +160,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	@SuppressWarnings("unchecked")
 	public Object getObject(Object key) {
-		return getNode().get(key);
+		return this.getNodeValue(key);
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class ActivityContextCacheData extends CacheData {
 	}
 
 	public boolean isEnding() {
-		return getNode().hasChild(IS_ENDING_NODE_NAME);
+		return this.hasChildNode(IS_ENDING_NODE_NAME);
 	}
 	
 	
@@ -243,8 +243,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<SbbEntityID> getSbbEntitiesAttached() {
-		final Node node  = getAttachedSbbsNode(false);
-		return node != null ? node.getChildrenNames() : Collections.emptySet();		
+		return this.getChildNodeChildrenNames(ATTACHED_SBBs_NODE_NAME);
 	}
 
 	/**

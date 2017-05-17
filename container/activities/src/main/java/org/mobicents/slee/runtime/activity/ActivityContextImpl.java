@@ -35,7 +35,6 @@ import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityIsEndingException;
 
 import org.apache.log4j.Logger;
-import org.infinispan.tree.Node;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -164,7 +163,7 @@ public class ActivityContextImpl implements ActivityContext {
 						.getObject(NODE_MAP_KEY_ACTIVITY_FLAGS);
 			}
 		}
-		return flags;
+		return flags == null ? 0 : flags;
 	}
 
 	/**

@@ -463,7 +463,6 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 
 						//return true;
 
-						logger.warn("WORKAROUND USAGE: ENDING RESOURCE ADAPTOR ACTIVITIES");
 						sleeContainer.getActivityContextFactory().WAremove("RA");
 						return false;
 					}
