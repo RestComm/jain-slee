@@ -345,10 +345,16 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		registerMBean(sleeManagementMBean, SleeManagementMBeanImplMBean.OBJECT_NAME);
 
-		log.info("Registering SleeTCKPluginWrapper");
-		final SleeTCKPluginWrapper tckPluginWrapper = new SleeTCKPluginWrapper();
-		registerMBean(tckPluginWrapper, SleeTCKPluginWrapper.OBJECT_NAME);
-		tckPluginWrapper.startService();
+		boolean sleeTCKPlugin = (peek ( fullModel, "mbean", "SleeTCKPluginWrapper") != null);
+		if (sleeTCKPlugin) {
+			sleeTCKPlugin = getPropertyBoolean("SleeTCKPluginWrapper", "active", false);
+		}
+		if (sleeTCKPlugin) {
+			log.debug("Registering SleeTCKPluginWrapper");
+			final SleeTCKPluginWrapper tckPluginWrapper = new SleeTCKPluginWrapper();
+			registerMBean(tckPluginWrapper, SleeTCKPluginWrapper.OBJECT_NAME);
+			tckPluginWrapper.startService();
+		}
 
 		// Install internal deployments: standard-components DU
 		try {
