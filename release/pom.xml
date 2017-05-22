@@ -55,6 +55,38 @@
 	
 	<profiles>
 		<profile>
+			<id>checkout-core</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-scm-plugin</artifactId>
+						<version>1.9.4</version>
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<id>core-checkout</id>
+								<goals>
+									<goal>checkout</goal>
+								</goals>
+								<phase>validate</phase>
+								<configuration>
+									<scmVersion>${core.scmVersion}</scmVersion>
+									<scmVersionType>${core.scmVersionType}</scmVersionType>
+									<checkoutDirectory>
+										${checkout.basedir}/core
+									</checkoutDirectory>
+									<connectionUrl>
+										scm:git:https://github.com/RestComm/jain-slee.git
+									</connectionUrl>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 		<id>checkout</id>
 		<build>
 			<plugins>
