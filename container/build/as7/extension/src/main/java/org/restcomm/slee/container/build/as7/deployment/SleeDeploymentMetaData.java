@@ -159,6 +159,10 @@ public class SleeDeploymentMetaData
 
             if (isDeploy) {
                 checkDependency(rootFile);
+
+                log.warn("Deployment \""+rootFile.getName()+
+                        "\"  is in error due to the following reason(s): ** NOT FOUND Dependency **." +
+                        "See META-INF/jboss-dependency.xml.");
             }
 
         }
@@ -216,13 +220,12 @@ public class SleeDeploymentMetaData
                         return (Boolean)object;
                     }
                 } catch(Exception e) {
-                    log.warn("Cant get attribute Started for MBean: "+mbeanName, e);
+                    log.debug("Cant get attribute Started for MBean: "+mbeanName, e);
                 }
                 return true;
             }
         }
 
-        log.warn("Deployment \""+itemName+"\"  is in error due to the following reason(s): ** NOT FOUND Depends on '"+itemName+"' **");
         return false;
     }
 }
