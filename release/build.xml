@@ -252,7 +252,7 @@
 		<!--<antcall target="clean" />-->
 	</target>
 
-	<target name="release-wildfly-core-only" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,checkout-sources,
+	<target name="release-wildfly-core-only" depends="clean,get-wildfly,unzip-wildfly,setup-wildfly,checkout-core-sources,
 											build-core,copy-core-asciidoc,build-sources-for-debug-zip">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
