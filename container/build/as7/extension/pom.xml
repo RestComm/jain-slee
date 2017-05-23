@@ -512,8 +512,8 @@
 					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 					xsi:schemaLocation="urn:infinispan:config:8.2 http://www.infinispan.org/schemas/infinispan-config-8.2.xsd"
 					xmlns="urn:infinispan:config:8.2">
-					&lt;cache-container default-cache="default" statistics="false" shutdown-hook="DONT_REGISTER">
-						&lt;local-cache name="default">
+					&lt;cache-container default-cache="slee-default" statistics="false" shutdown-hook="DONT_REGISTER">
+						&lt;local-cache name="slee-default">
 							&lt;locking isolation="REPEATABLE_READ" acquire-timeout="30000" striping="false" />
 							&lt;transaction mode="BATCH"/>
 						&lt;/local-cache>
@@ -543,6 +543,9 @@
             <mbean name="RmiServerInterface">
             	<property name="rmiAddress" value="127.0.0.1" />
             	<property name="rmiPort" value="7777" />
+            </mbean>
+            <mbean name="SleeTCKPluginWrapper">
+                <property name="active" value="true"/>
             </mbean>
         </subsystem>
 	</profile>]]></replacevalue>
