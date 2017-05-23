@@ -461,11 +461,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 							logger.debug("RA entity "+name+" has (at least) activity "+handle.getActivityHandle());
 						}
 
-						//return true;
-
-						logger.warn("WORKAROUND USAGE: ENDING RESOURCE ADAPTOR ACTIVITIES");
-						sleeContainer.getActivityContextFactory().WAremove("RA");
-						return false;
+						return true;
 					}
 				}
 			}			

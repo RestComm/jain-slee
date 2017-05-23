@@ -41,7 +41,7 @@ public class ExternalDeployerImpl implements ExternalDeployer {
 		log.info("Mobicents SLEE External Deployer initialized.");
 
 		Timer waitingDependencyTimer = new Timer();
-		waitingDependencyTimer.schedule(new WaitingDependencyTimerTask(), 0, 2000);
+		waitingDependencyTimer.schedule(new WaitingDependencyTimerTask(), 0, 5000);
 	}
 
 	private class WaitingDependencyTimerTask extends TimerTask {

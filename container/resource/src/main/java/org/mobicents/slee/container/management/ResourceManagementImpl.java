@@ -1081,6 +1081,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		// wait till all ra entity objects are stopped
 		boolean loop;
 		boolean sleepInLastLoop = false;
+		int loopCount = 0;
 		do {
 			loop = false;
 			for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
@@ -1090,6 +1091,12 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 						logger.info("Waiting for ra entity "+raEntity.getName()+" to stop...");
 						loop = true;
 						sleepInLastLoop = true;
+						loopCount++;
+
+						if (loopCount >= 10) {
+							raEntity.getResourceAdaptorObject().raInactive();
+							sleeContainer.getActivityContextFactory().WAremove("RA");
+						}
 					}
 				} catch (Exception e) {
 					if (logger.isDebugEnabled()) {

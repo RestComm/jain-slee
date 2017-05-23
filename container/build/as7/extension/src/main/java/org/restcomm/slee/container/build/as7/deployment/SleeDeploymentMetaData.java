@@ -135,7 +135,7 @@ public class SleeDeploymentMetaData
     private void parseDUContents(VirtualFile rootFile, InputStream is, boolean isDeploy)
     {
         try {
-            log.debug("parse DU contents");
+            log.trace("parse DU contents");
             // Parse the DU to see which jars we should process
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -151,7 +151,7 @@ public class SleeDeploymentMetaData
                 if(nodeList.item(i) instanceof Element) {
                     Element elem = (Element) nodeList.item(i);
                     if(elem.getNodeName().equals("jar") || elem.getNodeName().equals("service-xml")) {
-                        log.debug("duContents add: "+elem.getTextContent());
+                        log.trace("duContents add: "+elem.getTextContent());
                         duContents.add(elem.getTextContent());
                     }
                 }
@@ -179,7 +179,7 @@ public class SleeDeploymentMetaData
             InputStream dependsInputStream = null;
             dependsInputStream = rootFile.getChild("META-INF/jboss-dependency.xml").openStream();
             if (dependsInputStream != null) {
-                log.debug("parse jboss-dependency.xml");
+                log.trace("parse jboss-dependency.xml");
 
                 DocumentBuilder dependsDocBuilder = docBuilderFactory.newDocumentBuilder();
                 Document dependsDoc = dependsDocBuilder.parse(dependsInputStream);
@@ -190,7 +190,7 @@ public class SleeDeploymentMetaData
                     if (dependsNodeList.item(i) instanceof Element) {
                         Element elem = (Element) dependsNodeList.item(i);
                         if (elem.getNodeName().equals("item")) {
-                            log.debug("Item [" + i + "]: " + elem.getTextContent());
+                            log.trace("Item [" + i + "]: " + elem.getTextContent());
                             if (!elem.getTextContent().isEmpty()) {
                                 checkItems = checkItems && checkDependencyItem(elem.getTextContent());
                             }
@@ -213,7 +213,6 @@ public class SleeDeploymentMetaData
         for (Object mbean : mbeans) {
             mbeanName = (ObjectName)mbean;
             if (mbeanName.getCanonicalName().contains(itemName)) {
-                //log.debug("MBean: " + mbeanName.getCanonicalName());
                 try {
                     Object object = mbeanServer.getAttribute(mbeanName, "Started");
                     if (object != null && object instanceof Boolean) {
