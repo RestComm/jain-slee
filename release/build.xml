@@ -192,7 +192,7 @@
 	<target name="build-diameter" description="">
 		<antcall target="build-extra-package">
 			<param name="package.name" value="diameter" />
-			<param name="javadoc.dirs" value="resources/diameter-base,resources/diameter-cca,resources/diameter-cx-dx,resources/diameter-gq,resources/diameter-gx,resources/diameter-rf,resources/diameter-ro,resources/diameter-rx,resources/diameter-s6a,resources/diameter-sh-client,resources/diameter-sh-server,enablers/hss-client" />
+			<param name="javadoc.dirs" value="resources/diameter-base,resources/diameter-cca,resources/diameter-cx-dx,resources/diameter-gq,resources/diameter-gx,resources/diameter-rf,resources/diameter-ro,resources/diameter-rx,resources/diameter-s6a,resources/diameter-s13,resources/diameter-sh-client,resources/diameter-sh-server,enablers/hss-client" />
 		</antcall>
 	</target>
 
