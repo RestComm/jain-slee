@@ -556,8 +556,16 @@ public class ProfileObjectImpl implements ProfileObject {
 			if (logger.isTraceEnabled()) {
 				logger.trace("firing profile removed event for profile named "+profileEntity);
 			}
-			profileTable.getActivityContext().fireEvent(event.getEventTypeID(), event,
-					event.getProfileAddress(), null, null,null,null);
+			ActivityContext ac = null;
+			try {
+				ac = profileTable.getActivityContext();
+			} catch (IllegalStateException stateException) {
+			}
+
+			if (ac != null) {
+				ac.fireEvent(event.getEventTypeID(), event,
+						event.getProfileAddress(), null, null, null, null);
+			}
 		}
 		
 		if(profileEntity.getProfileName() != null && !isUninstall) {

@@ -34,6 +34,7 @@ import javax.slee.EventTypeID;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -96,7 +97,9 @@ public class SbbEntityCacheData extends CacheData {
 		}
 		return _eventMasksChildNode;
 	}
-	
+
+	private ConcurrentHashMap<String, Object> _cmpFieldsLocal = new ConcurrentHashMap<String, Object>();
+
 	private static final String CMP_FIELDS_CHILD_NODE_NAME = "cmp-fields";
 	private static final Fqn CMP_FIELDS_CHILD_NODE_FQN = 
 		Fqn.fromElements(CMP_FIELDS_CHILD_NODE_NAME);
@@ -206,18 +209,37 @@ public class SbbEntityCacheData extends CacheData {
 	}
 	
 	public void setCmpField(String cmpField, Object cmpValue) {
-		final Node<String,Object> node = getCmpFieldsChildNode(true);
-		node.put(cmpField,cmpValue);
+		try {
+			final Node<String,Object> node = getCmpFieldsChildNode(true);
+			node.put(cmpField,cmpValue);
+
+			if (cmpField != null && cmpValue != null) {
+				_cmpFieldsLocal.put(cmpField, cmpValue);
+			}
+		} catch (IllegalStateException stateException) {
+			// this happen when transaction is rollbackOnly and Infinispan throws exception:
+			// IllegalStateException (ActionStatus.ABORT_ONLY >
+			// is not in a valid state to be invoking cache operations on)
+		}
 	}
 
 	public Object getCmpField(String cmpField) {
-		final Node<String,Object> node = getCmpFieldsChildNode(false);
-		if (node == null) {
-			return null;
+		Object value = null;
+		try {
+			final Node<String,Object> node = getCmpFieldsChildNode(false);
+			if (node == null) {
+				return null;
+			} else {
+				value = node.get(cmpField);
+			}
+		} catch (IllegalStateException stateException) {
+			// this happen when transaction is rollbackOnly and Infinispan throws exception:
+			// IllegalStateException (ActionStatus.ABORT_ONLY >
+			// is not in a valid state to be invoking cache operations on)
+			value = _cmpFieldsLocal.get(cmpField);
 		}
-		else {
-			return node.get(cmpField);
-		}
+
+		return value;
 	}
 	
 	public Set<SbbEntityID> getChildRelationSbbEntities(String getChildRelationMethod) {
@@ -253,6 +275,12 @@ public class SbbEntityCacheData extends CacheData {
 			}
 			return result;
 		}
+	}
+
+	@Override
+	public boolean remove() {
+		_cmpFieldsLocal.clear();
+		return super.remove();
 	}
 
 }

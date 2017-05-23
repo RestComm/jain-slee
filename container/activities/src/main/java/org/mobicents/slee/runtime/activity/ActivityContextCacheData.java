@@ -243,8 +243,21 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<SbbEntityID> getSbbEntitiesAttached() {
-		final Node node  = getAttachedSbbsNode(false);
-		return node != null ? node.getChildrenNames() : Collections.emptySet();		
+		Set result = null;
+
+		try {
+			final Node node = getAttachedSbbsNode(false);
+
+			if (node != null) {
+				result = node.getChildrenNames();
+			} else {
+				result = Collections.emptySet();
+			}
+		} catch (IllegalStateException stateException) {
+			result = Collections.emptySet();
+		}
+
+		return result;
 	}
 
 	/**
