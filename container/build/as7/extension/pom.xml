@@ -545,7 +545,7 @@
             	<property name="rmiPort" value="7777" />
             </mbean>
             <mbean name="SleeTCKPluginWrapper">
-                <property name="active" value="true"/>
+                <property name="active" value="false"/>
             </mbean>
         </subsystem>
 	</profile>]]></replacevalue>
