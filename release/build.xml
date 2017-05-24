@@ -44,7 +44,7 @@
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
 
 	<!-- SMPP Extensions -->
-	<property name="smppext.build" value="41"/>
+	<property name="smppext.build" value="31"/>
 	<property name="smppext.version" value="7.0.${smppext.build}"/>
 	<property name="smppext.zip" value="restcomm-smpp-extensions-${smppext.version}.zip"/>
 	<property name="smppext.download.url"
