@@ -24,16 +24,16 @@ package org.mobicents.slee.container.service;
 
 import javax.slee.ServiceID;
 
-import org.jboss.cache.Fqn;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cache.MobicentsCache;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
+import org.restcomm.cache.MobicentsCache;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryCacheData;
 
 public class ServiceCacheData extends CacheData {
 
 	@SuppressWarnings("unchecked")
 	public ServiceCacheData(ServiceID serviceID, MobicentsCache mobicentsCache) {
-		super(Fqn.fromElements(
+		super(FqnWrapper.fromElementsWrapper(
 				SbbEntityFactoryCacheData.SBB_ENTITY_FACTORY_FQN_NAME,
 				serviceID), mobicentsCache);
 	}

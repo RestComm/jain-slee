@@ -15,12 +15,12 @@
 
 	<properties>
 		<!-- OTHER RESTCOMM COMPONENTS VERSIONS -->
-		<restcomm.cluster.version>1.15.19</restcomm.cluster.version>
+		<restcomm.cluster.version>1.15.30</restcomm.cluster.version>
 	</properties>
 	
 	<modules>
 		<module>api/extensions</module>
-		<module>container</module>			
+		<module>container</module>
 	</modules>
 	
 	<scm>

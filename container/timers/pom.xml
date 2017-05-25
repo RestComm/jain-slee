@@ -18,7 +18,7 @@
 		</dependency>	
 		
 		<dependency>
-			<groupId>org.mobicents.cluster</groupId>
+			<groupId>org.restcomm.cluster</groupId>
 			<artifactId>timers</artifactId>		         	
 		</dependency>
 					

@@ -31,8 +31,9 @@ import javax.slee.facilities.TimerID;
 
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cluster.MobicentsCluster;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
+import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
@@ -139,7 +140,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public ActivityContextCacheData(ActivityContextHandle activityContextHandle,
 			MobicentsCluster cluster) {
-		super(Fqn.fromElements(parentNodeFqn, activityContextHandle),
+		super(FqnWrapper.fromElementsWrapper(parentNodeFqn, activityContextHandle),
 				cluster.getMobicentsCache());
 	}
 

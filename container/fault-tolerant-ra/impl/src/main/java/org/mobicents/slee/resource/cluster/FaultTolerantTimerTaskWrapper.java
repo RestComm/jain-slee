@@ -22,7 +22,7 @@
 
 package org.mobicents.slee.resource.cluster;
 
-import org.mobicents.timers.TimerTask;
+import org.restcomm.timers.TimerTask;
 
 /**
  * Wrapps the FT RA timer task into the task used by Restcomm Cluster
@@ -52,7 +52,7 @@ public class FaultTolerantTimerTaskWrapper extends TimerTask {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.mobicents.timers.TimerTask#runTask()
+	 * @see org.restcomm.timers.TimerTask#runTask()
 	 */
 	@Override
 	public void runTask() {

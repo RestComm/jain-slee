@@ -126,15 +126,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.mobicents.cluster</groupId>
+			<groupId>org.restcomm.cluster</groupId>
 			<artifactId>cache</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.cluster</groupId>
+			<groupId>org.restcomm.cluster</groupId>
 			<artifactId>timers</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.cluster</groupId>
+			<groupId>org.restcomm.cluster</groupId>
 			<artifactId>core</artifactId>
 		</dependency>
 

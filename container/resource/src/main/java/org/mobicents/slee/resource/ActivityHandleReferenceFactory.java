@@ -33,8 +33,9 @@ import javax.slee.resource.ActivityHandle;
 import org.apache.log4j.Logger;
 import org.jboss.cache.Fqn;
 import org.jgroups.Address;
-import org.mobicents.cluster.MobicentsCluster;
-import org.mobicents.cluster.election.ClientLocalListenerElector;
+import org.restcomm.cache.FqnWrapper;
+import org.restcomm.cluster.MobicentsCluster;
+import org.restcomm.cluster.election.ClientLocalListenerElector;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -375,12 +376,12 @@ public class ActivityHandleReferenceFactory {
 	 * 
 	 */
 	private static class ClusteredCacheData extends
-			org.mobicents.cluster.cache.ClusteredCacheData {
+			org.restcomm.cluster.cache.ClusteredCacheData {
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public ClusteredCacheData(Fqn baseFqn,
 				MobicentsCluster cluster) {
-			super(Fqn.fromRelativeElements(baseFqn, cluster.getLocalAddress()), cluster);
+			super(FqnWrapper.fromRelativeElementsWrapper(new FqnWrapper(baseFqn), cluster.getLocalAddress()), cluster);
 		}
 	}
 	
@@ -390,14 +391,14 @@ public class ActivityHandleReferenceFactory {
 	 * 
 	 */
 	private class FailOverListener implements
-			org.mobicents.cluster.FailOverListener {
+			org.restcomm.cluster.FailOverListener {
 
 		
 		/*
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * org.mobicents.cluster.FailOverListener#failOverClusterMember(org.
+		 * org.restcomm.cluster.FailOverListener#failOverClusterMember(org.
 		 * jgroups.Address)
 		 */
 		public void failOverClusterMember(Address arg0) {
@@ -424,17 +425,17 @@ public class ActivityHandleReferenceFactory {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.mobicents.cluster.FailOverListener#getBaseFqn()
+		 * @see org.restcomm.cluster.FailOverListener#getBaseFqn()
 		 */
 		@SuppressWarnings("rawtypes")
-		public Fqn getBaseFqn() {
-			return baseFqn;
+		public FqnWrapper getBaseFqn() {
+			return new FqnWrapper(baseFqn);
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.mobicents.cluster.FailOverListener#getElector()
+		 * @see org.restcomm.cluster.FailOverListener#getElector()
 		 */
 		public ClientLocalListenerElector getElector() {
 			return null;
@@ -443,7 +444,7 @@ public class ActivityHandleReferenceFactory {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.mobicents.cluster.FailOverListener#getPriority()
+		 * @see org.restcomm.cluster.FailOverListener#getPriority()
 		 */
 		public byte getPriority() {
 			return 0;
@@ -453,22 +454,22 @@ public class ActivityHandleReferenceFactory {
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * org.mobicents.cluster.FailOverListener#lostOwnership(org.mobicents
+		 * org.restcomm.cluster.FailOverListener#lostOwnership(org.mobicents
 		 * .cluster.cache.ClusteredCacheData)
 		 */
 		public void lostOwnership(
-				org.mobicents.cluster.cache.ClusteredCacheData arg0) {
+				org.restcomm.cluster.cache.ClusteredCacheData arg0) {
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
 		 * @see
-		 * org.mobicents.cluster.FailOverListener#wonOwnership(org.mobicents
+		 * org.restcomm.cluster.FailOverListener#wonOwnership(org.mobicents
 		 * .cluster.cache.ClusteredCacheData)
 		 */
 		public void wonOwnership(
-				org.mobicents.cluster.cache.ClusteredCacheData arg0) {
+				org.restcomm.cluster.cache.ClusteredCacheData arg0) {
 			
 		}
 

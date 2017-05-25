@@ -29,22 +29,23 @@ import java.io.Serializable;
 
 import org.jboss.cache.Fqn;
 import org.jgroups.Address;
-import org.mobicents.cluster.cache.ClusteredCacheData;
-import org.mobicents.cluster.election.ClientLocalListenerElector;
+import org.restcomm.cache.FqnWrapper;
+import org.restcomm.cluster.cache.ClusteredCacheData;
+import org.restcomm.cluster.election.ClientLocalListenerElector;
 
 /**
  * @author martins
  * 
  */
 public class FailOverListener<K extends Serializable, V extends Serializable>
-		implements org.mobicents.cluster.FailOverListener {
+		implements org.restcomm.cluster.FailOverListener {
 
 	private final FaultTolerantResourceAdaptor<K, V> ra;
 	private final ReplicatedDataCacheData<K, V> baseCacheData;
 
 	/**
 	 * @param ra
-	 * @param baseFqn
+	 * @param baseCacheData
 	 */
 	public FailOverListener(FaultTolerantResourceAdaptor<K, V> ra,
 			ReplicatedDataCacheData<K, V> baseCacheData) {
@@ -56,7 +57,7 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.mobicents.cluster.ClientLocalListener#failOverClusterMember(org.jgroups
+	 * org.restcomm.cluster.ClientLocalListener#failOverClusterMember(org.jgroups
 	 * .Address)
 	 */
 	public void failOverClusterMember(Address address) {
@@ -66,16 +67,16 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.mobicents.cluster.ClientLocalListener#getBaseFqn()
+	 * @see org.restcomm.cluster.ClientLocalListener#getBaseFqn()
 	 */
 	@SuppressWarnings("unchecked")
-	public Fqn getBaseFqn() {
-		return baseCacheData.getNodeFqn();
+	public FqnWrapper getBaseFqn() {
+		return new FqnWrapper(baseCacheData.getNodeFqn());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.cluster.FailOverListener#getElector()
+	 * @see org.restcomm.cluster.FailOverListener#getElector()
 	 */
 	public ClientLocalListenerElector getElector() {
 		return null;
@@ -84,7 +85,7 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.mobicents.cluster.ClientLocalListener#getPriority()
+	 * @see org.restcomm.cluster.ClientLocalListener#getPriority()
 	 */
 	public byte getPriority() {
 		return 0;
@@ -94,7 +95,7 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.mobicents.cluster.ClientLocalListener#lostOwnership(org.mobicents
+	 * org.restcomm.cluster.ClientLocalListener#lostOwnership(org.mobicents
 	 * .cluster.cache.ClusteredCacheData)
 	 */
 	public void lostOwnership(ClusteredCacheData clusteredCacheData) {
@@ -105,7 +106,7 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.mobicents.cluster.ClientLocalListener#wonOwnership(org.mobicents.
+	 * org.restcomm.cluster.ClientLocalListener#wonOwnership(org.mobicents.
 	 * cluster.cache.ClusteredCacheData)
 	 */
 	@SuppressWarnings("unchecked")

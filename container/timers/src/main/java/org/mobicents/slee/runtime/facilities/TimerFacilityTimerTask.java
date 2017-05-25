@@ -32,7 +32,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.facilities.TimerFacility;
-import org.mobicents.timers.TimerTask;
+import org.restcomm.timers.TimerTask;
 
 public class TimerFacilityTimerTask extends TimerTask {
 

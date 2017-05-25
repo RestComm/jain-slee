@@ -33,7 +33,7 @@ import org.jboss.cache.Fqn;
 import org.jboss.cache.notifications.annotation.CacheListener;
 import org.jboss.cache.notifications.annotation.NodeRemoved;
 import org.jboss.cache.notifications.event.NodeRemovedEvent;
-import org.mobicents.cache.MobicentsCache;
+import org.restcomm.cache.MobicentsCache;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 

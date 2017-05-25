@@ -41,7 +41,7 @@ import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
 import org.mobicents.slee.container.util.JndiRegistrationManager;
 import org.mobicents.slee.util.concurrent.SleeThreadFactory;
-import org.mobicents.timers.FaultTolerantScheduler;
+import org.restcomm.timers.FaultTolerantScheduler;
 
 /**
  * Implementation of the SLEE timer facility. timer is the timer object

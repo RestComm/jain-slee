@@ -29,7 +29,8 @@ import javax.slee.resource.ActivityAlreadyExistsException;
 
 import org.apache.log4j.Logger;
 import org.jboss.cache.Fqn;
-import org.mobicents.cluster.DataRemovalListener;
+import org.restcomm.cache.FqnWrapper;
+import org.restcomm.cluster.DataRemovalListener;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
@@ -272,8 +273,9 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	private class DataRemovalClusterListener implements DataRemovalListener {
 		
 		@SuppressWarnings("rawtypes")
-		public void dataRemoved(Fqn arg0) {
-			final ActivityContextHandle ach = (ActivityContextHandle) arg0.getLastElement();
+		public void dataRemoved(FqnWrapper dataFqnWrapper) {
+			final Fqn dataFqn = dataFqnWrapper.getFqn();
+			final ActivityContextHandle ach = (ActivityContextHandle) dataFqn.getLastElement();
 			final LocalActivityContextImpl localActivityContext = localActivityContexts.remove(ach);
 			if(localActivityContext != null) {
 				final EventRouterExecutor executor = localActivityContext.getExecutorService(); 
@@ -287,8 +289,8 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		}
 
 		@SuppressWarnings("rawtypes")
-		public Fqn getBaseFqn() {
-			return ActivityContextFactoryCacheData.NODE_FQN;
+		public FqnWrapper getBaseFqn() {
+			return new FqnWrapper(ActivityContextFactoryCacheData.NODE_FQN);
 		}
 		
 	}

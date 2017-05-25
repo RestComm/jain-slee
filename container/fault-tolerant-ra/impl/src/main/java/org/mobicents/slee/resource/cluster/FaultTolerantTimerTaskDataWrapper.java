@@ -22,8 +22,8 @@
 
 package org.mobicents.slee.resource.cluster;
 
-import org.mobicents.timers.PeriodicScheduleStrategy;
-import org.mobicents.timers.TimerTaskData;
+import org.restcomm.timers.PeriodicScheduleStrategy;
+import org.restcomm.timers.TimerTaskData;
 
 /**
  * Wrapps the FT timer task data, into the task data used by Restcomm Cluster

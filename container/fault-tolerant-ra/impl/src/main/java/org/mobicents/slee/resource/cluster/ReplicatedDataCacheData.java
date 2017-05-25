@@ -29,8 +29,9 @@ import java.io.Serializable;
 import java.util.Set;
 
 import org.jboss.cache.Fqn;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cluster.MobicentsCluster;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
+import org.restcomm.cluster.MobicentsCluster;
 
 /**
  * @author martins
@@ -41,13 +42,13 @@ public class ReplicatedDataCacheData<K extends Serializable, V extends Serializa
 
 	/**
 	 * 
-	 * @param name
+	 * @param rootName
 	 * @param raEntity
 	 * @param mobicentsCluster
 	 */
 	public ReplicatedDataCacheData(String rootName, String raEntity,
 			MobicentsCluster mobicentsCluster) {
-		super(Fqn.fromElements(rootName, raEntity), mobicentsCluster
+		super(FqnWrapper.fromElementsWrapper(rootName, raEntity), mobicentsCluster
 				.getMobicentsCache());
 	}
 

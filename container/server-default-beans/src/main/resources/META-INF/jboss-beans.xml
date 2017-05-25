@@ -17,13 +17,13 @@
       <property name="shutdownHookBehavior">DONT_REGISTER</property>   
    </bean>
    
-	<bean name="Mobicents.JAINSLEE.Cache" class="org.mobicents.cache.MobicentsCache">
+	<bean name="Mobicents.JAINSLEE.Cache" class="org.restcomm.cache.MobicentsCache">
 		<constructor>
           <parameter class="org.jboss.cache.config.Configuration"><inject bean="Mobicents.JAINSLEE.CacheConfig"/></parameter> 
      	</constructor>		
 	</bean>
    	
-	<bean name="Mobicents.JAINSLEE.Cluster" class="org.mobicents.cluster.DefaultMobicentsCluster">
+	<bean name="Mobicents.JAINSLEE.Cluster" class="org.restcomm.cluster.DefaultMobicentsCluster">
 		<constructor>
 			<parameter><inject bean="Mobicents.JAINSLEE.Cache"/></parameter>
 			<parameter><inject bean="RealTransactionManager"/></parameter>

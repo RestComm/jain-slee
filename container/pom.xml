@@ -47,17 +47,17 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.mobicents.cluster</groupId>
+				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>core</artifactId>
 				<version>${restcomm.cluster.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.mobicents.cluster</groupId>
+				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>cache</artifactId>
 				<version>${restcomm.cluster.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.mobicents.cluster</groupId>
+				<groupId>org.restcomm.cluster</groupId>
 				<artifactId>timers</artifactId>
 				<version>${restcomm.cluster.version}</version>
 			</dependency>
