@@ -203,6 +203,7 @@ public class TracerFrameworkTest extends TestCase {
 			if (tracersSet[1] == null)
 				return;
 			assertTrue("Tracers set element must be equal to: " + orgMobicents.getTracerName() + ", it is: " + tracersSet[1], tracersSet[1].compareTo(orgMobicents.getTracerName()) == 0);
+			this.ts.unsetTracerLevel(orgMobicents.getTracerName());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Got exception: " + e);
@@ -303,8 +304,7 @@ public class TracerFrameworkTest extends TestCase {
 			this.traceMBean.setTestHarness(this.notificationSource.getTraceNotificationType(), localSeq++, this.notificationSource, TraceLevel.SEVERE, null, true);
 			org.trace(TraceLevel.SEVERE, "TEST16");
 
-			// Now severe llevel, here we should not receive anytihn
-
+			this.ts.unsetTracerLevel(orgMobicents.getTracerName());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Got exception: " + e);
