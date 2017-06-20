@@ -40,7 +40,7 @@ public class EndAllActivitiesRAEntityTimerTask implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(EndAllActivitiesRAEntityTimerTask.class);
 	
-	private static final long delay = 45;
+	private static final long delay = 10;//45;
 	
 	private final ResourceAdaptorEntity raEntity;
 	private final SleeContainer sleeContainer;
@@ -86,6 +86,11 @@ public class EndAllActivitiesRAEntityTimerTask implements Runnable {
 							// end activity
 							ac.endActivity();							
 						}
+						else {
+							if (logger.isDebugEnabled()) {
+								logger.debug("Activity Context is null for handle 1 " + handle + " !!!");
+							}
+						}
 					} catch (Exception e) {
 						if (logger.isDebugEnabled()) {
 							logger.debug("Failed to end activity " + handle+" Pt.1", e);
@@ -126,6 +131,12 @@ public class EndAllActivitiesRAEntityTimerTask implements Runnable {
 								}
 								ac.activityEnded();							
 							}
+							else {
+								if (logger.isDebugEnabled()) {
+									logger.debug("Activity Context is null for handle " + handle + " !!!");
+								}
+							}
+								
 						} catch (Exception e) {
 							if (logger.isDebugEnabled()) {
 								logger.debug("Failed to end activity " + handle+" Pt.2", e);

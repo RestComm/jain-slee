@@ -23,6 +23,7 @@
 package org.mobicents.slee.runtime.activity;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.infinispan.tree.Fqn;
@@ -47,12 +48,15 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	 */
 	final static Fqn NODE_FQN = Fqn.fromElements(ActivityContextCacheData.parentNodeFqn);
 
+	private MobicentsCluster cluster;
+	
 	/**
 	 * 
 	 * @param cluster
 	 */
 	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
 		super(new FqnWrapper(NODE_FQN), cluster.getMobicentsCache());
+		this.cluster=cluster;
 	}
 
 	/**
@@ -64,7 +68,20 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
 		final Node node = getNode();
-		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
+		if(node==null) {
+			return Collections.EMPTY_SET;
+		}
+		
+		Set<Node> childNodes=node.getChildren();
+		Set<ActivityContextHandle> realData=new HashSet<ActivityContextHandle>();
+		for(Node currNode:childNodes)
+		{
+			CacheData nodeData=new CacheData(new FqnWrapper(currNode.getFqn()), cluster.getMobicentsCache());
+			if(nodeData.exists())
+				realData.add((ActivityContextHandle)currNode.getFqn().getLastElement());			
+		}
+		
+		return realData;
 	}
 
 	public void WAremove(String type) {

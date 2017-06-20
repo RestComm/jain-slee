@@ -106,6 +106,11 @@ public class ActivityContextImpl implements ActivityContext {
 		// ac creation, create cache data and set activity flags
 		this.cacheData.create();
 		this.cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
+		if (logger.isDebugEnabled()) {
+			logger.debug("creating activity with handle: "+activityContextHandle);
+			logger.debug("**** AllActivityContextsHandles on start: "+factory
+					.getAllActivityContextsHandles());
+		}
 		this.flags = activityFlags;
 		// set access time if needed
 		if (updateAccessTime) {
@@ -570,7 +575,10 @@ public class ActivityContextImpl implements ActivityContext {
 	}
 
 	public void activityEnded() {
-
+		if (logger.isDebugEnabled()) {
+			logger.debug("Activity ended with handle "
+					+ getActivityContextHandle());
+		}
 		// remove references to this AC in timer and ac naming facility
 		removeNamingBindings();
 		removeFromTimers(); // Spec 7.3.4.1 Step 10
@@ -582,6 +590,11 @@ public class ActivityContextImpl implements ActivityContext {
 		removeFromCache(txContext);
 		factory.removeActivityContext(this);
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("**** AllActivityContextsHandles on end: "+factory
+					.getAllActivityContextsHandles());
+		}
+		
 		if (activityContextHandle.getActivityType() == ActivityType.RA) {
 			// external activity, notify RA that the activity has ended
 			((ResourceAdaptorActivityContextHandle) activityContextHandle)
