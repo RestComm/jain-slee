@@ -20,19 +20,14 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.runtime.facilities;
+package org.mobicents.slee.runtime.facilities.cluster;
 
-import org.infinispan.tree.Fqn;
-import org.infinispan.tree.Node;
+import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.restcomm.cache.CacheData;
-import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 
 import javax.slee.facilities.NameAlreadyBoundException;
 import javax.slee.facilities.NameNotBoundException;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * 
  * Proxy object for ac naming facility data management through JBoss Cache
@@ -41,22 +36,14 @@ import java.util.Map;
  * 
  */
 
-public class ActivityContextNamingFacilityCacheData extends CacheData {
-
-	/**
-	 * the name of the cache node that holds all data
-	 */
-	public static final String CACHE_NODE_NAME = "aci-names";
-
-	private static final Boolean CACHE_NODE_MAP_KEY = Boolean.TRUE;
+public class ActivityContextNamingFacilityCacheData extends CacheData<String,ActivityContextHandle> {
 
 	/**
 	 * 
 	 * @param cluster
 	 */
-	public ActivityContextNamingFacilityCacheData(MobicentsCluster cluster) {
-		super(FqnWrapper.fromElementsWrapper(CACHE_NODE_NAME),
-				cluster.getMobicentsCache());
+	public ActivityContextNamingFacilityCacheData(String name,MobicentsCluster cluster) {
+		super(name,cluster.getMobicentsCache());
 	}
 
 	/**
@@ -65,14 +52,12 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @param name
 	 * @throws NameAlreadyBoundException
 	 */
-	public void bindName(Object ach, String name)
+	public void bindName(ActivityContextHandle ach)
 			throws NameAlreadyBoundException {
-		final Node node = getNode();
-		if (node.hasChild(name)) {
+		if(super.exists())
 			throw new NameAlreadyBoundException("name already bound");
-		} else {
-			node.addChild(Fqn.fromElements(name)).put(CACHE_NODE_MAP_KEY, ach);
-		}
+		
+		super.put(ach);		
 	}
 
 	/**
@@ -81,16 +66,12 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @return
 	 * @throws NameNotBoundException
 	 */
-	public Object unbindName(String name) throws NameNotBoundException {
-		final Node node = getNode();
-		final Node childNode = node.getChild(name);
-		if (childNode == null) {
+	public ActivityContextHandle unbindName() throws NameNotBoundException {
+		ActivityContextHandle oldValue=super.remove();
+		if(oldValue==null)
 			throw new NameNotBoundException("name not bound");
-		} else {
-			final Object ach = childNode.get(CACHE_NODE_MAP_KEY);
-			node.removeChild(name);
-			return ach;
-		}
+		
+		return oldValue;		
 	}
 
 	/**
@@ -98,29 +79,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @param name
 	 * @return
 	 */
-	public Object lookupName(String name) {
-		final Node childNode = getNode().getChild(name);
-		if (childNode == null) {
-			return null;
-		} else {
-			return childNode.get(CACHE_NODE_MAP_KEY);
-		}
-	}
-
-	/**
-	 * Retrieves a map of the bindings. Key is the aci name and Value is the activity context handle
-	 * @return
-	 */
-	public Map getNameBindings() {
-
-		Map result = new HashMap();
-		Node childNode = null;
-		Object name = null;
-		for (Object obj : getNode().getChildren()) {
-			childNode = (Node) obj;
-			name = childNode.getFqn().getLastElement();
-			result.put(name, childNode.get(CACHE_NODE_MAP_KEY));
-		}
-		return result;
+	public ActivityContextHandle lookupName() {
+		return super.get();		
 	}
 }

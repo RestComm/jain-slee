@@ -22,45 +22,24 @@
 
 package org.mobicents.slee.resource.cluster;
 
-import org.infinispan.tree.Fqn;
-import org.restcomm.cache.FqnWrapper;
-
 import java.io.Serializable;
 
 public class DataRemovalListener<K extends Serializable, V extends Serializable> implements org.restcomm.cluster.DataRemovalListener {
 
 	private final FaultTolerantResourceAdaptor<K, V> ra;
-	private final ReplicatedDataCacheData<K, V> baseCacheData;
-
+	
 	/**
 	 * @param ra
-	 * @param baseCacheData
-	 */
-	public DataRemovalListener(FaultTolerantResourceAdaptor<K, V> ra,
-			ReplicatedDataCacheData<K, V> baseCacheData) {
-		this.ra = ra;
-		this.baseCacheData = baseCacheData;
+	*/
+	public DataRemovalListener(FaultTolerantResourceAdaptor<K, V> ra) {
+		this.ra = ra;		
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.restcomm.cluster.ClientLocalListener#getBaseFqn()
-	 */
 	@SuppressWarnings("unchecked")
-	public FqnWrapper getBaseFqn() {
-		return new FqnWrapper(baseCacheData.getNodeFqn());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.restcomm.cluster.DataRemovalListener#dataRemoved(org.infinispan.tree.Fqn)
-	 */
-	@SuppressWarnings("unchecked")
-	public void dataRemoved(FqnWrapper fqnWrapper) {
-		final Fqn fqn = fqnWrapper.getFqn();
-		ra.dataRemoved((K)fqn.getLastElement());
+	@Override
+	public void dataRemoved(Object key) {
+		ra.dataRemoved((K)key);
 	}
 
 }

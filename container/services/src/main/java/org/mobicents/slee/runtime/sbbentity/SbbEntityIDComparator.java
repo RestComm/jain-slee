@@ -25,7 +25,9 @@ package org.mobicents.slee.runtime.sbbentity;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
+import org.mobicents.slee.runtime.sbbentity.cache.SbbEntityCacheDataWrapper;
 
 /**
  * Comparator used to sort a set of {@link SbbEntityID} by priority.
@@ -109,9 +111,9 @@ public class SbbEntityIDComparator implements Comparator<SbbEntityID> {
 	private LinkedList<Byte> priorityOfSbb(SbbEntityID sbbEntityID) {
 		final LinkedList<Byte> list = new LinkedList<Byte>();
 		// push priority of all non root sbb entities
-		SbbEntityCacheData sbbEntityCacheData = null;
+		SbbEntityCacheDataWrapper sbbEntityCacheData = null;
 		while (!sbbEntityID.isRootSbbEntity()) {
-			sbbEntityCacheData = new SbbEntityCacheData(sbbEntityID,sbbEntityFactory.getSleeContainer().getCluster().getMobicentsCache());
+			sbbEntityCacheData = new SbbEntityCacheDataWrapper(sbbEntityID,sbbEntityFactory.getSleeContainer().getCluster(CacheType.SBB_ENTITIES));
 			if(!sbbEntityCacheData.exists()) {
 				// edge case where a sbb entity was concurrently removed, ignore this sbb entity
 				return null;
@@ -120,7 +122,7 @@ public class SbbEntityIDComparator implements Comparator<SbbEntityID> {
 			sbbEntityID = sbbEntityID.getParentSBBEntityID();
 		}
 		// push the root one
-		sbbEntityCacheData = new SbbEntityCacheData(sbbEntityID,sbbEntityFactory.getSleeContainer().getCluster().getMobicentsCache());
+		sbbEntityCacheData = new SbbEntityCacheDataWrapper(sbbEntityID,sbbEntityFactory.getSleeContainer().getCluster(CacheType.SBB_ENTITIES));
 		if(!sbbEntityCacheData.exists()) {
 			// edge case where a sbb entity was concurrently removed, ignore this sbb entity
 			return null;

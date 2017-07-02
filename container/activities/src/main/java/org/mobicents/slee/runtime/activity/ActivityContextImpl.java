@@ -35,7 +35,6 @@ import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityIsEndingException;
 
 import org.apache.log4j.Logger;
-import org.infinispan.tree.Node;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -51,6 +50,7 @@ import org.mobicents.slee.container.resource.ResourceAdaptorActivityContextHandl
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.container.transaction.TransactionContext;
+import org.mobicents.slee.runtime.activity.cache.ActivityContextCacheDataWrapper;
 import org.mobicents.slee.runtime.event.ActivityEndEventUnreferencedCallback;
 import org.mobicents.slee.runtime.event.CommitEventContextAction;
 import org.mobicents.slee.runtime.event.RollbackEventContextAction;
@@ -75,11 +75,6 @@ public class ActivityContextImpl implements ActivityContext {
 	private static final Logger logger = Logger
 			.getLogger(ActivityContext.class);
 
-	// --- map keys for attributes cached
-	private static final String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags";
-
-	private static final String NODE_MAP_KEY_LAST_ACCESS = "time";
-
 	/**
 	 * the handle for this ac
 	 */
@@ -88,7 +83,7 @@ public class ActivityContextImpl implements ActivityContext {
 	/**
 	 * the data stored in cache for this ac
 	 */
-	protected final ActivityContextCacheData cacheData;
+	protected final ActivityContextCacheDataWrapper cacheData;
 
 	private final ActivityContextFactoryImpl factory;
 
@@ -98,19 +93,13 @@ public class ActivityContextImpl implements ActivityContext {
 
 	public ActivityContextImpl(
 			final ActivityContextHandle activityContextHandle,
-			ActivityContextCacheData cacheData, boolean updateAccessTime,
+			ActivityContextCacheDataWrapper cacheData, boolean updateAccessTime,
 			Integer activityFlags, ActivityContextFactoryImpl factory) {
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
 		this.cacheData = cacheData;
-		// ac creation, create cache data and set activity flags
-		this.cacheData.create();
-		this.cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
-		if (logger.isDebugEnabled()) {
-			logger.debug("creating activity with handle: "+activityContextHandle);
-			logger.debug("**** AllActivityContextsHandles on start: "+factory
-					.getAllActivityContextsHandles());
-		}
+		// ac creation, create cache data and set activity flags		
+		this.cacheData.create(activityFlags);		
 		this.flags = activityFlags;
 		// set access time if needed
 		if (updateAccessTime) {
@@ -126,13 +115,13 @@ public class ActivityContextImpl implements ActivityContext {
 	}
 
 	public ActivityContextImpl(ActivityContextHandle activityContextHandle,
-			ActivityContextCacheData cacheData, boolean updateAccessTime,
+			ActivityContextCacheDataWrapper cacheData, boolean updateAccessTime,
 			ActivityContextFactoryImpl factory) {
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
 		this.cacheData = cacheData;
 		// set access time if needed
-		if (cacheData.exists() && updateAccessTime) {
+		if (updateAccessTime) {
 			updateLastAccessTime(false);
 		}
 		// setup references handler if needed
@@ -165,8 +154,7 @@ public class ActivityContextImpl implements ActivityContext {
 				flags = localActivityContext.getActivityFlags();
 			} else {
 				// local ac does not exists, get from cache
-				flags = (Integer) cacheData
-						.getObject(NODE_MAP_KEY_ACTIVITY_FLAGS);
+				flags = cacheData.getFlags();
 			}
 		}
 		return flags;
@@ -185,7 +173,7 @@ public class ActivityContextImpl implements ActivityContext {
 	 * @return true if ending.
 	 */
 	public boolean isEnding() {
-		return cacheData.isEnding();
+		return cacheData.isEnding();		
 	}
 
 	/**
@@ -260,7 +248,6 @@ public class ActivityContextImpl implements ActivityContext {
 	 * 
 	 * @return Set containing String objects that are names of this ac
 	 */
-	@SuppressWarnings("unchecked")
 	public Set<String> getNamingBindings() {
 		return cacheData.getNamesBoundCopy();
 	}
@@ -321,7 +308,6 @@ public class ActivityContextImpl implements ActivityContext {
 	 * @return Set containing TimerID objects representing timers attached to
 	 *         this ac.
 	 */
-	@SuppressWarnings("unchecked")
 	public Set<TimerID> getAttachedTimers() {
 		return cacheData.getAttachedTimers();
 	}
@@ -423,7 +409,7 @@ public class ActivityContextImpl implements ActivityContext {
 	 * @return
 	 */
 	public long getLastAccessTime() {
-		final Long time = (Long) cacheData.getObject(NODE_MAP_KEY_LAST_ACCESS);
+		final Long time = cacheData.getLastAccess();
 		return time == null ? System.currentTimeMillis() : time.longValue();
 	}
 
@@ -431,13 +417,11 @@ public class ActivityContextImpl implements ActivityContext {
 
 	private void updateLastAccessTime(boolean creation) {
 		if (creation) {
-			cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS,
-					Long.valueOf(System.currentTimeMillis()));
+			cacheData.setLastAccess(System.currentTimeMillis());
 		} else {
 			ActivityManagementConfiguration configuration = factory
 					.getConfiguration();
-			Long lastUpdate = (Long) cacheData
-					.getObject(NODE_MAP_KEY_LAST_ACCESS);
+			Long lastUpdate = cacheData.getLastAccess();
 			if (lastUpdate != null) {
 				final long now = System.currentTimeMillis();
 				if ((now - configuration.getMinTimeBetweenUpdatesInMs()) > lastUpdate
@@ -447,8 +431,7 @@ public class ActivityContextImpl implements ActivityContext {
 						logger.trace("Updating access time for AC with handle "
 								+ getActivityContextHandle());
 					}
-					cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS,
-							Long.valueOf(now));
+					cacheData.setLastAccess(now);
 				} else {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Skipping update of access time for AC with handle "
@@ -456,8 +439,7 @@ public class ActivityContextImpl implements ActivityContext {
 					}
 				}
 			} else {
-				cacheData.putObject(NODE_MAP_KEY_LAST_ACCESS,
-						Long.valueOf(System.currentTimeMillis()));
+				cacheData.setLastAccess(System.currentTimeMillis());
 				if (logger.isTraceEnabled()) {
 					logger.trace("Updating access time for AC with handle "
 							+ getActivityContextHandle());
@@ -590,11 +572,6 @@ public class ActivityContextImpl implements ActivityContext {
 		removeFromCache(txContext);
 		factory.removeActivityContext(this);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("**** AllActivityContextsHandles on end: "+factory
-					.getAllActivityContextsHandles());
-		}
-		
 		if (activityContextHandle.getActivityType() == ActivityType.RA) {
 			// external activity, notify RA that the activity has ended
 			((ResourceAdaptorActivityContextHandle) activityContextHandle)

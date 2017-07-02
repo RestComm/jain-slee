@@ -22,9 +22,8 @@
 package org.mobicents.slee.runtime.activity;
 
 import org.apache.log4j.Logger;
-import org.infinispan.tree.Fqn;
-import org.infinispan.tree.Node;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
@@ -33,12 +32,14 @@ import org.mobicents.slee.container.activity.ActivityType;
 import org.mobicents.slee.container.eventrouter.EventRouterExecutor;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.restcomm.cache.FqnWrapper;
+import org.mobicents.slee.runtime.activity.cache.ActivityCacheKey;
+import org.mobicents.slee.runtime.activity.cache.ActivityCacheType;
+import org.mobicents.slee.runtime.activity.cache.ActivityContextCacheDataWrapper;
+import org.mobicents.slee.runtime.activity.cache.ActivityContextFactoryCacheData;
 import org.restcomm.cluster.DataRemovalListener;
 
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -84,19 +85,14 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	@Override
 	public void sleeInitialization() {
-		sleeContainer.getCluster().addDataRemovalListener(new DataRemovalClusterListener());		
+		sleeContainer.getCluster(CacheType.ACTIVITIES).addDataRemovalListener(new DataRemovalClusterListener());		
 	}
 	
 	@Override
 	public void sleeStarting() {
-		cacheData = new ActivityContextFactoryCacheData(sleeContainer.getCluster());
-		cacheData.create();
+		cacheData = new ActivityContextFactoryCacheData(sleeContainer.getCluster(CacheType.ACTIVITIES));		
 	}
 
-	public void WAremove(String type) {
-		cacheData.WAremove(type);
-	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.container.AbstractSleeContainerModule#getSleeContainer()
@@ -157,7 +153,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		}
 		
 		// create ac
-		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
+		ActivityContextCacheDataWrapper activityContextCacheData =getCacheData(ach);
 		if (activityContextCacheData.exists()) {
 			throw new ActivityAlreadyExistsException(ach.toString());
 		}
@@ -186,7 +182,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	@Override
 	public ActivityContextImpl getActivityContext(ActivityContextHandle ach, boolean updateLastAccessTime) {
-		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
+		ActivityContextCacheDataWrapper activityContextCacheData = getCacheData(ach);
 		if (activityContextCacheData.exists()) {
 			try {
 				return new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach, updateLastAccessTime),this);
@@ -235,6 +231,11 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		return cacheData.getActivityContextHandles();
 	}
 	
+	@Override
+	public Set<ActivityContextHandle> getAllActivityContextsHandles(ActivityType type) {
+		return cacheData.getActivityContextHandlesByType(type);
+	}
+	
 	public void removeActivityContext(final ActivityContextImpl ac) {
 
 		if (doTraceLogs) {
@@ -265,7 +266,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	 * @see org.mobicents.slee.container.activity.ActivityContextFactory#activityContextExists(org.mobicents.slee.container.activity.ActivityContextHandle)
 	 */
 	public boolean activityContextExists(ActivityContextHandle ach) {
-		return new ActivityContextCacheData(ach, sleeContainer.getCluster()).exists();
+		return getCacheData(ach).exists();
 	}	
 	
 	@Override
@@ -275,28 +276,27 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 			+ "\n+-- ACs: " + (getActivityContextCount() > 20 ? getActivityContextCount() : getAllActivityContextsHandles());
 	}
 	
-	private class DataRemovalClusterListener implements DataRemovalListener {
-		
-		@SuppressWarnings("rawtypes")
-		public void dataRemoved(FqnWrapper dataFqnWrapper) {
-			final Fqn dataFqn = dataFqnWrapper.getFqn();
-			final ActivityContextHandle ach = (ActivityContextHandle) dataFqn.getLastElement();
-			final LocalActivityContextImpl localActivityContext = localActivityContexts.remove(ach);
-			if(localActivityContext != null) {
-				final EventRouterExecutor executor = localActivityContext.getExecutorService(); 
-				if (executor != null) {
-					executor.activityUnmapped(localActivityContext.getActivityContextHandle());
-				}
-				if(doTraceLogs) {
-					logger.trace("Remotely removed local AC for "+ach);
+	private ActivityContextCacheDataWrapper getCacheData(ActivityContextHandle ach)
+	{
+		return new ActivityContextCacheDataWrapper(ach, sleeContainer.getCluster(CacheType.ACTIVITIES));
+	}
+	
+	private class DataRemovalClusterListener implements DataRemovalListener {		
+		public void dataRemoved(Object key) {
+			//metadata is the important part
+			if(key instanceof ActivityCacheKey && ((ActivityCacheKey)key).getType()==ActivityCacheType.METADATA) {
+				final ActivityContextHandle ach = ((ActivityCacheKey)key).getActivityHandle();
+				final LocalActivityContextImpl localActivityContext = localActivityContexts.remove(ach);
+				if(localActivityContext != null) {
+					final EventRouterExecutor executor = localActivityContext.getExecutorService(); 
+					if (executor != null) {
+						executor.activityUnmapped(localActivityContext.getActivityContextHandle());
+					}
+					if(doTraceLogs) {
+						logger.trace("Remotely removed local AC for "+ach);
+					}
 				}
 			}
-		}
-
-		@SuppressWarnings("rawtypes")
-		public FqnWrapper getBaseFqn() {
-			return new FqnWrapper(ActivityContextFactoryCacheData.NODE_FQN);
-		}
-		
-	}
+		}		
+	}	
 }

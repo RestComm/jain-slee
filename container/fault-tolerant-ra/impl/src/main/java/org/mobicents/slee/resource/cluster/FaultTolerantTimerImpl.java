@@ -63,7 +63,7 @@ public class FaultTolerantTimerImpl implements FaultTolerantTimer {
 			throw new IllegalArgumentException();
 		}
 		this.scheduler = new FaultTolerantScheduler("fts-raentity-" + raEntity,
-				threads, sleeContainer.getCluster(), (byte) 0, sleeContainer
+				threads, sleeContainer.getClusterFactory(), (byte) 0, sleeContainer
 						.getTransactionManager().getRealTransactionManager(),
 				new FaultTolerantTimerTaskFactoryWrapper(taskFactory));
 	}

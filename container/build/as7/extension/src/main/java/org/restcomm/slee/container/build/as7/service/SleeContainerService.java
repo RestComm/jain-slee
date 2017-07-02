@@ -1,4 +1,4 @@
-package org.restcomm.slee.container.build.as7.service;
+package org.telestax.slee.container.build.as7.service;
 
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -59,11 +59,12 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManagerImpl;
 import org.restcomm.cache.MobicentsCache;
 import org.restcomm.cluster.DefaultMobicentsCluster;
 import org.restcomm.cluster.MobicentsCluster;
+import org.restcomm.cluster.MobicentsClusterFactory;
 import org.restcomm.cluster.election.DefaultClusterElector;
-import org.restcomm.slee.container.build.as7.deployment.ExternalDeployerImpl;
-import org.restcomm.slee.container.build.as7.deployment.SleeDeploymentMetaData;
-import org.restcomm.slee.container.build.as7.naming.JndiManagementImpl;
-import org.restcomm.slee.container.build.as7.tckwrapper.SleeTCKPluginWrapper;
+import org.telestax.slee.container.build.as7.deployment.ExternalDeployerImpl;
+import org.telestax.slee.container.build.as7.deployment.SleeDeploymentMetaData;
+import org.telestax.slee.container.build.as7.naming.JndiManagementImpl;
+import org.telestax.slee.container.build.as7.tckwrapper.SleeTCKPluginWrapper;
 
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
@@ -95,10 +96,11 @@ public class SleeContainerService implements Service<SleeContainer> {
 	private final InjectedValue<TransactionManager> transactionManager = new InjectedValue<TransactionManager>();
 	private final InjectedValue<ManagedReferenceFactory> managedReferenceFactory = new InjectedValue<ManagedReferenceFactory>();
 	private final LinkedList<String> registeredMBeans = new LinkedList<String>();
-	
+
 	private SleeContainer sleeContainer;
 
 	private ExternalDeployer externalDeployer;
+
 	public ExternalDeployer getExternalDeployer() {
 		return externalDeployer;
 	}
@@ -110,7 +112,9 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 	private ModelNode peek(ModelNode node, String... args) {
 		for (String arg : args) {
-			if (!node.hasDefined(arg)) { return null; }
+			if (!node.hasDefined(arg)) {
+				return null;
+			}
 			node = node.get(arg);
 		}
 		return node;
@@ -144,8 +148,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 	}
 
 	@Override
-	public SleeContainer getValue() throws IllegalStateException,
-			IllegalArgumentException {
+	public SleeContainer getValue() throws IllegalStateException, IllegalArgumentException {
 		return sleeContainer;
 	}
 
@@ -163,30 +166,21 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		final ComponentManagement componentManagement = new ComponentManagementImpl();
 
-		ReplicationClassLoader replicationClassLoader = componentManagement
-				.getClassLoaderFactory().newReplicationClassLoader(
-						this.getClass().getClassLoader());
+		ReplicationClassLoader replicationClassLoader = componentManagement.getClassLoaderFactory()
+				.newReplicationClassLoader(this.getClass().getClassLoader());
 
-		final DefaultClusterElector elector = new DefaultClusterElector();
-
-		final MobicentsCache cache = initCache(replicationClassLoader);
-
-		final MobicentsCluster cluster = new DefaultMobicentsCluster(
-					cache,
-					getTransactionManager().getValue(),
-					elector);
+		final MobicentsClusterFactory clusterFactory = initClusterFactory(replicationClassLoader);
 
 		// init the tx manager
 		final SleeTransactionManager sleeTransactionManager = new SleeTransactionManagerImpl(
 				getTransactionManager().getValue());
 
 		final TraceMBeanImpl traceMBean = new TraceMBeanImpl();
-		
-		final AlarmMBeanImpl alarmMBean = new AlarmMBeanImpl(traceMBean);		
-		
+
+		final AlarmMBeanImpl alarmMBean = new AlarmMBeanImpl(traceMBean);
+
 		final MobicentsManagement mobicentsManagement = new MobicentsManagement();
-		mobicentsManagement.setEntitiesRemovalDelay(
-				getPropertyInt("MobicentsManagement", "entitiesRemovalDelay", 1));
+		mobicentsManagement.setEntitiesRemovalDelay(getPropertyInt("MobicentsManagement", "entitiesRemovalDelay", 1));
 		mobicentsManagement.setInitializeReferenceDataTypesWithNull(
 				getPropertyBoolean("MobicentsManagement", "initializeReferenceDataTypesWithNull", true));
 
@@ -196,8 +190,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		final ResourceManagementImpl resourceManagement = ResourceManagementImpl.getInstance();
 
-		final org.mobicents.slee.container.deployment.profile.jpa.Configuration
-				profileConfiguration = new org.mobicents.slee.container.deployment.profile.jpa.Configuration();
+		final org.mobicents.slee.container.deployment.profile.jpa.Configuration profileConfiguration = new org.mobicents.slee.container.deployment.profile.jpa.Configuration();
 
 		// TODO: ExtensionConfiguration for Profile Management
 		profileConfiguration.setPersistProfiles(getPropertyBoolean("H2DBConfig", "persistProfiles", true));
@@ -210,15 +203,14 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		// TODO: ExtensionConfiguration for EventRouter
 		final EventRouterConfiguration eventRouterConfiguration = new EventRouterConfiguration();
-		eventRouterConfiguration.setEventRouterThreads(
-				getPropertyInt("EventRouterConfiguration", "eventRouterThreads", 8));
-		eventRouterConfiguration.setCollectStats(
-				getPropertyBoolean("EventRouterConfiguration", "collectStats", true));
+		eventRouterConfiguration
+				.setEventRouterThreads(getPropertyInt("EventRouterConfiguration", "eventRouterThreads", 64));
+		eventRouterConfiguration.setCollectStats(getPropertyBoolean("EventRouterConfiguration", "collectStats", true));
 		eventRouterConfiguration.setConfirmSbbEntityAttachement(
 				getPropertyBoolean("EventRouterConfiguration", "confirmSbbEntityAttachement", true));
 		try {
-			eventRouterConfiguration.setExecutorMapperClassName(
-					getPropertyString("EventRouterConfiguration", "executorMapperClassName",
+			eventRouterConfiguration
+					.setExecutorMapperClassName(getPropertyString("EventRouterConfiguration", "executorMapperClassName",
 							"org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper"));
 		} catch (ClassNotFoundException e) {
 			throw new StartException(e);
@@ -229,10 +221,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final TimerFacilityConfiguration timerFacilityConfiguration = new TimerFacilityConfiguration();
 		timerFacilityConfiguration.setTimerThreads(4);
 		timerFacilityConfiguration.setPurgePeriod(0);
-		timerFacilityConfiguration
-				.setTaskExecutionWaitsForTxCommitConfirmation(true);
-		final TimerFacility timerFacility = new TimerFacilityImpl(
-				timerFacilityConfiguration);
+		timerFacilityConfiguration.setTaskExecutionWaitsForTxCommitConfirmation(true);
+		final TimerFacility timerFacility = new TimerFacilityImpl(timerFacilityConfiguration);
 
 		// TODO: ExtensionConfiguration for Activity Management
 		final ActivityManagementConfiguration activityManagementConfiguration = new ActivityManagementConfiguration();
@@ -249,9 +239,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		// TODO SLEE Connection Factory + RMI stuff
 		final SleeConnectionService sleeConnectionService = new SleeConnectionServiceImpl();
-        final RmiServerInterface rmiServerInterface = new RmiServerInterfaceImpl();
-		rmiServerInterface.setAddress(
-				getPropertyString("RmiServerInterface", "rmiAddress", "127.0.0.1"));
+		final RmiServerInterface rmiServerInterface = new RmiServerInterfaceImpl();
+		rmiServerInterface.setAddress(getPropertyString("RmiServerInterface", "rmiAddress", "127.0.0.1"));
 		rmiServerInterface.setPort(getPropertyInt("RmiServerInterface", "rmiPort", 7777));
 
 		final UsageParametersManagement usageParametersManagement = new UsageParametersManagementImpl();
@@ -262,8 +251,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final EventContextFactoryConfiguration eventContextFactoryConfiguration = new EventContextFactoryConfiguration();
 		eventContextFactoryConfiguration.setDefaultEventContextSuspensionTimeout(
 				getPropertyInt("EventContextFactoryConfiguration", "defaultEventContextSuspensionTimeout", 10000));
-		final EventContextFactory eventContextFactory = new EventContextFactoryImpl(
-				eventContextFactoryDataSource, eventContextFactoryConfiguration);
+		final EventContextFactory eventContextFactory = new EventContextFactoryImpl(eventContextFactoryDataSource,
+				eventContextFactoryConfiguration);
 
 		// TODO: ExtensionConfiguration for Congestion Control
 		final CongestionControlConfiguration congestionControlConfiguration = new CongestionControlConfiguration();
@@ -272,37 +261,34 @@ public class SleeContainerService implements Service<SleeContainer> {
 		congestionControlConfiguration.setMinFreeMemoryToTurnOff(20);
 		congestionControlConfiguration.setRefuseStartActivity(true);
 		congestionControlConfiguration.setRefuseFireEvent(false);
-		final CongestionControl congestionControl = new CongestionControlImpl(
-				congestionControlConfiguration);
+		final CongestionControl congestionControl = new CongestionControlImpl(congestionControlConfiguration);
 
 		// FIXME this needs further work on dependencies
 		final PolicyMBeanImpl policyMBeanImpl = new PolicyMBeanImpl();
 		policyMBeanImpl.setUseMPolicy(true);
 
 		ServiceController<?> serviceController = context.getController();
-		
+
 		try {
 			sleeContainer = new SleeContainer(deployPath, serviceController, getMbeanServer().getValue(),
-					componentManagement, sbbManagement, serviceManagement,
-					resourceManagement, profileManagement,
-					eventContextFactory, eventRouter, timerFacility,
-					activityContextFactory, activityContextNamingFacility,
-					nullActivityContextInterfaceFactory, nullActivityFactory,
-					rmiServerInterface, sleeTransactionManager, cluster, replicationClassLoader,
-					alarmMBean, traceMBean, usageParametersManagement,
-					sbbEntityFactory, congestionControl, sleeConnectionService, internalDeployer);
+					componentManagement, sbbManagement, serviceManagement, resourceManagement, profileManagement,
+					eventContextFactory, eventRouter, timerFacility, activityContextFactory,
+					activityContextNamingFacility, nullActivityContextInterfaceFactory, nullActivityFactory,
+					rmiServerInterface, sleeTransactionManager, clusterFactory, replicationClassLoader, alarmMBean, traceMBean,
+					usageParametersManagement, sbbEntityFactory, congestionControl, sleeConnectionService,
+					internalDeployer);
 		} catch (Throwable e) {
 			throw new StartException(e);
 		}
 
-		// set AS7+ Jndi Management 
+		// set AS7+ Jndi Management
 		sleeContainer.setJndiManagement(new JndiManagementImpl());
-		
+
 		// register mbeans
 		registerMBean(traceMBean, TraceMBean.OBJECT_NAME);
 		registerMBean(alarmMBean, AlarmMBean.OBJECT_NAME);
 		registerMBean(mobicentsManagement, MobicentsManagementMBean.OBJECT_NAME);
-		registerMBean(eventRouterConfiguration, EventRouterConfigurationMBean.OBJECT_NAME);		
+		registerMBean(eventRouterConfiguration, EventRouterConfigurationMBean.OBJECT_NAME);
 		registerMBean(new EventRouterStatistics(eventRouter), EventRouterStatisticsMBean.OBJECT_NAME);
 		registerMBean(timerFacilityConfiguration, TimerFacilityConfigurationMBean.OBJECT_NAME);
 		registerMBean(eventContextFactoryConfiguration, EventContextFactoryConfigurationMBean.OBJECT_NAME);
@@ -331,7 +317,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 		registerMBean(activityManagementMBean, ActivityManagementMBeanImplMBean.OBJECT_NAME);
 		// TODO PolicyMBeanImpl
 		registerMBean(policyMBeanImpl, PolicyMBeanImplMBean.OBJECT_NAME);
-		
+
 		// slee management mbean
 		final SleeManagementMBeanImpl sleeManagementMBean = new SleeManagementMBeanImpl(sleeContainer);
 		sleeManagementMBean.setDeploymentMBean(deploymentMBean.getObjectName());
@@ -345,7 +331,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		registerMBean(sleeManagementMBean, SleeManagementMBeanImplMBean.OBJECT_NAME);
 
-		boolean sleeTCKPlugin = (peek ( fullModel, "mbean", "SleeTCKPluginWrapper") != null);
+		boolean sleeTCKPlugin = (peek(fullModel, "mbean", "SleeTCKPluginWrapper") != null);
 		if (sleeTCKPlugin) {
 			sleeTCKPlugin = getPropertyBoolean("SleeTCKPluginWrapper", "active", false);
 		}
@@ -360,7 +346,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 		try {
 			installInternalDeployments();
 		} catch (IOException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			throw new StartException(e);
 		}
 	}
@@ -372,8 +358,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 			return;
 		}
 
-		String urlExtension = deplURL.toString().substring(
-				deplURL.toString().indexOf("file:")+5, deplURL.toString().indexOf("!"));
+		String urlExtension = deplURL.toString().substring(deplURL.toString().indexOf("file:") + 5,
+				deplURL.toString().indexOf("!"));
 
 		TempFileProvider provider = TempFileProvider.create("temp", Executors.newScheduledThreadPool(2));
 		Closeable extensionCloseable = null;
@@ -384,11 +370,11 @@ public class SleeContainerService implements Service<SleeContainer> {
 			extensionFile = extensionVfs.getPhysicalFile();
 			extensionCloseable = VFS.mountZipExpanded(extensionFile, extensionVfs, provider);
 
-			for (VirtualFile resourcesVfs: extensionVfs.getChildren()) {
+			for (VirtualFile resourcesVfs : extensionVfs.getChildren()) {
 				if (resourcesVfs.toString().contains(deploymentFolderName)) {
 					File deploymentFile;
 					URL deploymentRootURL = null;
-					for (VirtualFile deploymentVfs: resourcesVfs.getChildren()) {
+					for (VirtualFile deploymentVfs : resourcesVfs.getChildren()) {
 						deploymentFile = deploymentVfs.getPhysicalFile();
 
 						if (!deploymentFile.getAbsolutePath().toLowerCase(Locale.ENGLISH).endsWith(".jar")) {
@@ -404,8 +390,8 @@ public class SleeContainerService implements Service<SleeContainer> {
 						}
 
 						SleeDeploymentMetaData deploymentMetaData = new SleeDeploymentMetaData(deploymentVfs, true);
-						((ExternalDeployerImpl) externalDeployer)
-							.deploy(null, deploymentRootURL, deploymentMetaData, deploymentVfs);
+						((ExternalDeployerImpl) externalDeployer).deploy(null, deploymentRootURL, deploymentMetaData,
+								deploymentVfs);
 					}
 				}
 			}
@@ -420,54 +406,33 @@ public class SleeContainerService implements Service<SleeContainer> {
 		}
 	}
 
-	private MobicentsCache initCache(ClassLoader classLoader) {
-		MobicentsCache sleeCache = null;
+	private MobicentsClusterFactory initClusterFactory(ClassLoader classLoader) {
 
+		Configuration defaultConfig = new ConfigurationBuilder().invocationBatching().enable().clustering()
+				.cacheMode(CacheMode.LOCAL)
+				// .clustering().cacheMode(CacheMode.REPL_ASYNC)
+				// .transaction().transactionMode(TransactionMode.TRANSACTIONAL)
+				.transaction().syncCommitPhase(true).locking().isolationLevel(IsolationLevel.REPEATABLE_READ).locking()
+				.lockAcquisitionTimeout(30000).useLockStriping(false).jmxStatistics().disable().build();
+		GlobalConfiguration globalConfig = new GlobalConfigurationBuilder().globalJmxStatistics().disable()
+				// .transport().defaultTransport()
+				.shutdown().hookBehavior(ShutdownHookBehavior.DONT_REGISTER).build();
+		byte[] cacheConfigData=null;
 		try {
-			InputStream cacheConfigStream =
-					new ByteArrayInputStream(this.cacheConfig.getBytes("UTF-8"));
-
-			ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-			Thread.currentThread().setContextClassLoader(classLoader);
-
-			try {
-				sleeCache = new MobicentsCache(cacheConfigStream, classLoader);
-			} catch (IOException e1) {
-				log.warn("Cant create Mobicents Cache from config stream: " + this.cacheConfig, e1);
-
-				Configuration defaultConfig = new ConfigurationBuilder()
-						.invocationBatching().enable()
-						.clustering().cacheMode(CacheMode.LOCAL)
-						//.clustering().cacheMode(CacheMode.REPL_ASYNC)
-						//.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
-						.transaction().syncCommitPhase(true)
-						.locking().isolationLevel(IsolationLevel.REPEATABLE_READ)
-						.locking().lockAcquisitionTimeout(30000).useLockStriping(false)
-						.jmxStatistics().disable()
-						.build();
-
-				GlobalConfiguration globalConfig = new GlobalConfigurationBuilder()
-						.globalJmxStatistics().disable()
-						//.transport().defaultTransport()
-						.shutdown().hookBehavior(ShutdownHookBehavior.DONT_REGISTER)
-						.build();
-
-				sleeCache = new MobicentsCache(defaultConfig, globalConfig, classLoader);
-			}
-
-			Thread.currentThread().setContextClassLoader(currentClassLoader);
+			cacheConfigData = this.cacheConfig.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e2) {
 		}
 
-		return sleeCache;
+		return new MobicentsClusterFactory(this.cacheConfig, cacheConfigData, defaultConfig, globalConfig,
+				transactionManager.getValue(), new DefaultClusterElector(), classLoader);
 	}
-	
+
 	@Override
 	public void stop(StopContext context) {
 		// shutdown the SLEE
-		while(!registeredMBeans.isEmpty()) {
+		while (!registeredMBeans.isEmpty()) {
 			unregisterMBean(registeredMBeans.pop());
-		}		
+		}
 		sleeContainer = null;
 	}
 
@@ -479,15 +444,15 @@ public class SleeContainerService implements Service<SleeContainer> {
 		}
 		registeredMBeans.push(name);
 	}
-	
+
 	private void unregisterMBean(String name) {
 		try {
 			getMbeanServer().getValue().unregisterMBean(new ObjectName(name));
 		} catch (Throwable e) {
 			log.error("failed to unregister mbean", e);
-		}		
+		}
 	}
-	
+
 	public InjectedValue<MBeanServer> getMbeanServer() {
 		return mbeanServer;
 	}

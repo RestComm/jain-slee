@@ -42,6 +42,7 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 import javax.slee.usage.UsageNotificationManagerMBean;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
 import org.mobicents.slee.runtime.usage.AbstractUsageParameterSet;
@@ -512,7 +513,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 				removeNotificationManager();
 			}
 			//FIXME: Here possibly we should mark to be remove, or remove and throw exception o demands...?
-			boolean clustered = !sleeContainer.getCluster().isSingleMember(); 
+			boolean clustered = !sleeContainer.getCluster(CacheType.ACTIVITIES).isSingleMember(); 
 			if( !clustered)
 			{
 				//we are last, lets clear cache

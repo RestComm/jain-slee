@@ -25,8 +25,6 @@
  */
 package org.mobicents.slee.resource.cluster;
 
-import org.infinispan.tree.Fqn;
-import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 import org.restcomm.cluster.cache.ClusteredCacheData;
 
@@ -34,34 +32,27 @@ import java.io.Serializable;
 
 /**
  * @author martins
+ * @author oifa.yulian
  * 
  */
 public class ReplicatedDataKeyClusteredCacheData<K extends Serializable, V extends Serializable>
-		extends ClusteredCacheData {
-
-	private final static Boolean DATA_MAP_KEY = Boolean.TRUE;
+		extends ClusteredCacheData<K,V> {
 
 	/**
 	 * @param parent
 	 * @param key
 	 * @param mobicentsCluster
 	 */
-	@SuppressWarnings("unchecked")
-	public ReplicatedDataKeyClusteredCacheData(
-			ReplicatedDataCacheData parent, K key,
-			MobicentsCluster mobicentsCluster) {
-		super(FqnWrapper.fromRelativeElementsWrapper(new FqnWrapper(parent.getNodeFqn()), key),
-				mobicentsCluster);
+	public ReplicatedDataKeyClusteredCacheData(K key,MobicentsCluster mobicentsCluster) {
+		super(key,mobicentsCluster);
 	}
 
-	@SuppressWarnings("unchecked")
 	public V getValue() {
-		return (V) getNode().get(DATA_MAP_KEY);
+		return super.getValue();		
 	}
 
-	@SuppressWarnings("unchecked")
-	public void setValue(V value) {
-		getNode().put(DATA_MAP_KEY, value);
+	public V setValue(V value) {
+		return super.putValue(value);			
 	}
 
 }

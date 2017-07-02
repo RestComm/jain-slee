@@ -38,14 +38,12 @@
 		<!--<version.hibernate>4.2.0.CR1</version.hibernate>-->
 		<version.hibernate>5.0.10.Final</version.hibernate>
 
-		<restcomm.cluster.version>3.0.0.15</restcomm.cluster.version>
-		<!--<version.jgoups>3.2.7.Final</version.jgoups>-->
-		<version.jgoups>3.6.10.Final</version.jgoups>
-		<!--<version.infinispan>5.2.1.Final</version.infinispan>-->
-		<version.infinispan>8.2.4.Final</version.infinispan>
 
-		<!--<version.jboss.logging>3.1.2.GA</version.jboss.logging>-->
-		<version.jboss.logging>3.3.0.Final</version.jboss.logging>
+		<restcomm.cluster.version>3.0.0.15</restcomm.cluster.version>
+		<version.infinispan>8.1.2.Final-redhat-1</version.infinispan>
+		<version.infinispan.tree>8.1.2.Final</version.infinispan.tree>
+		<version.jboss.logging>3.3.0.Final-redhat-1</version.jboss.logging>
+
 		<!--<version.vfs>3.2.0.Final</version.vfs>-->
 		<version.vfs>3.2.12.Final</version.vfs>
 		<version.junit>4.8.2</version.junit>
@@ -90,7 +88,7 @@
 			<dependency>
 				<groupId>org.infinispan</groupId>
 				<artifactId>infinispan-tree</artifactId>
-				<version>${version.infinispan}</version>
+				<version>${version.infinispan.tree}</version>
 				<scope>provided</scope>
 			</dependency>
 
@@ -347,5 +345,13 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<repositories>
+		<repository>
+			<id>redhat-ga-repository</id>
+			<name>Redhat GA Repository</name>
+			<url>https://maven.repository.redhat.com/ga/</url>
+		</repository>
+	</repositories>
 
 </project>

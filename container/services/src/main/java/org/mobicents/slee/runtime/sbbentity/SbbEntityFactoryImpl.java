@@ -24,16 +24,18 @@ package org.mobicents.slee.runtime.sbbentity;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
+import org.mobicents.slee.runtime.sbbentity.cache.SbbEntityCacheDataWrapper;
+import org.mobicents.slee.runtime.sbbentity.cache.SbbEntityFactoryCacheData;
 
 import javax.slee.CreateException;
 import javax.slee.SLEEException;
 import javax.slee.ServiceID;
-import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -69,9 +71,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	}
 	
 	@Override
-	public void sleeStarting() {
-		// init cache data
-		new SbbEntityFactoryCacheData(sleeContainer.getCluster()).create();
+	public void sleeStarting() {		
 	}
 	
 	@Override
@@ -81,7 +81,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		
 		// create sbb entity
 		final NonRootSbbEntityID sbbeId = new NonRootSbbEntityID(parentSbbEntityID, parentChildRelation, childName);
-		final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
+		final SbbEntityCacheDataWrapper cacheData = new SbbEntityCacheDataWrapper(sbbeId,sleeContainer.getCluster(CacheType.SBB_ENTITIES));
 		if (cacheData.exists()) {
 			throw new CreateException("sbb entity with name "+childName+" already exists");
 		}
@@ -111,7 +111,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		// we hold the lock now
 				
 		// create sbb entity
-		final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
+		final SbbEntityCacheDataWrapper cacheData = new SbbEntityCacheDataWrapper(sbbeId,sleeContainer.getCluster(CacheType.SBB_ENTITIES));
 		SbbEntityImpl sbbEntity = null;
 		if (cacheData.create()) {
 			sbbEntity = new SbbEntityImpl(sbbeId, cacheData, true, this);
@@ -155,21 +155,10 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	
 	@Override
 	public Set<SbbEntityID> getRootSbbEntityIDs(ServiceID serviceID) {
-		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster());
-		if (cacheData.exists()) {
-			logger.debug("SbbEntityFactoryCacheData: "+cacheData);
-			return cacheData.getRootSbbEntityIDs(serviceID);
-		}
-		else {
-			return Collections.emptySet();
-		}
+		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster(CacheType.SBB_ENTITIES));
+		return cacheData.getRootSbbEntityIDs(serviceID);		
 	}
 
-	public void WAremove() {
-		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster());
-		cacheData.WAremove();
-	}
-	
 	@Override
 	public SbbEntity getSbbEntity(SbbEntityID sbbeId, boolean lockSbbEntity) {
 		
@@ -207,7 +196,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 			}															
 						
 			// get sbb entity data from cache
-			final SbbEntityCacheData cacheData = new SbbEntityCacheData(sbbeId,sleeContainer.getCluster().getMobicentsCache());
+			final SbbEntityCacheDataWrapper cacheData = new SbbEntityCacheDataWrapper(sbbeId,sleeContainer.getCluster(CacheType.SBB_ENTITIES));
 			if (!cacheData.exists()) {
 				if(lock != null) {
 					lockFacility.remove(lockedSbbEntityID);
@@ -342,13 +331,8 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 	
 	@Override
 	public Set<SbbEntityID> getSbbEntityIDs() {
-		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster());
-		if (cacheData.exists()) {
-			return cacheData.getSbbEntities();
-		}
-		else {
-			return Collections.emptySet();
-		}
+		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster(CacheType.SBB_ENTITIES));
+		return cacheData.getSbbEntities();		
 	}
 	
 	@Override

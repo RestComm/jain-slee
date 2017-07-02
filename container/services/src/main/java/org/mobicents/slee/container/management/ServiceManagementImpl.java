@@ -53,6 +53,7 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -69,7 +70,6 @@ import org.mobicents.slee.container.service.ServiceActivityFactory;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.container.service.ServiceActivityHandleImpl;
-import org.mobicents.slee.container.service.ServiceCacheData;
 import org.mobicents.slee.container.service.ServiceStartedEventImpl;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
@@ -273,7 +273,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			// in cluster, otherwise
 			// slee will do it by itself when state changes
 			if (sleeContainer.getSleeState() == SleeState.RUNNING
-					&& sleeContainer.getCluster().isHeadMember()) {
+					&& sleeContainer.getCluster(CacheType.ACTIVITIES).isHeadMember()) {
 				startActivity(serviceComponent);
 			}
 
@@ -302,10 +302,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			logger.debug("Starting " + serviceComponent.getServiceID()
 					+ " activity.");
 		}
-
-		// ensure the service cache data exists
-		new ServiceCacheData(serviceComponent.getServiceID(), sleeContainer
-				.getCluster().getMobicentsCache()).create();
+		
 		serviceComponent.setActivityEnded(false);
 		
 		// fire slee 1.0 and 1.1 service started events
@@ -402,7 +399,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			// only end activity if slee was running and is single node in
 			// cluster, otherwise not needed (cluster) or
 			// slee already did it
-			if (sleeContainer.getCluster().isSingleMember() && (sleeState == SleeState.RUNNING || sleeState == SleeState.STOPPING)) {
+			if (sleeContainer.getCluster(CacheType.ACTIVITIES).isSingleMember() && (sleeState == SleeState.RUNNING || sleeState == SleeState.STOPPING)) {
 				if (sleeState == SleeState.RUNNING) {
 					endServiceActivity(serviceID);
 				}
@@ -435,7 +432,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 							.getComponentByID(mEventEntry.getEventReference());
 					eventTypeComponent
 							.deactivatedServiceWhichDefineEventAsInitial(serviceComponent);
-				}
+				}				
 			}
 						
 		}
@@ -452,7 +449,6 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				.getActivityContext(ach);
 		if (ac == null) {
 			logger.warn("unable to find and end ac " + ach);
-			sleeContainer.getActivityContextFactory().WAremove("ACH=SERVICE");
 			return;
 		}
 		if (!activityEndingTasks.contains(serviceID)) {
@@ -807,7 +803,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 
 	@Override
 	public void sleeRunning() {
-		if (sleeContainer.getCluster().isHeadMember()) {
+		if (sleeContainer.getCluster(CacheType.ACTIVITIES).isHeadMember()) {
 			try {
 				startActiveServicesActivities();
 			} catch (Throwable e) {
@@ -818,7 +814,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 
 	@Override
 	public void sleeStopping() {
-		if (sleeContainer.getCluster().isSingleMember()) {
+		if (sleeContainer.getCluster(CacheType.ACTIVITIES).isSingleMember()) {
 			stopAllServiceActivities();
 		}
 	}
@@ -831,11 +827,9 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 
 		try {
 			for (ActivityContextHandle ach : acf
-					.getAllActivityContextsHandles()) {
-				if (ach.getActivityType() == ActivityType.SERVICE) {
-					endServiceActivity(((ServiceActivityContextHandle) ach)
-							.getActivityHandle().getServiceID());
-				}
+					.getAllActivityContextsHandles(ActivityType.SERVICE)) {
+				endServiceActivity(((ServiceActivityContextHandle) ach)
+						.getActivityHandle().getServiceID());					
 			}
 		} catch (Exception e) {
 			logger.error("Exception while ending all service activities", e);
@@ -847,13 +841,11 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			boolean noActivities = true;
 			try {
 				for (ActivityContextHandle ach : acf
-						.getAllActivityContextsHandles()) {
-					if (ach.getActivityType() == ActivityType.SERVICE) {
-						logger.info("Waiting for " + ach.getActivityHandle()
-								+ " to stop...");
-						noActivities = false;
-						break;
-					}
+						.getAllActivityContextsHandles(ActivityType.SERVICE)) {
+					logger.info("Waiting for " + ach.getActivityHandle()
+					+ " to stop...");
+					noActivities = false;
+					break;
 				}
 			} catch (Exception e) {
 				if (logger.isDebugEnabled()) {
@@ -1037,8 +1029,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 				Thread.sleep(1000);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Waiting for service "+serviceComponent+" root sbb entities to end.");
-				}
-				sleeContainer.getSbbEntityFactory().WAremove();
+				}				
 			}
 			catch (Exception e) {
 				logger.error("failure waiting for the ending of all sbb entities from "+serviceComponent.getServiceID(),e);
@@ -1052,12 +1043,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 			// force the removal of all sbb entities
 			new RootSbbEntitiesRemovalTask(serviceComponent).run();
 		}
-		// ensure service cache data is removed
-		ServiceCacheData serviceCacheData = new ServiceCacheData(serviceComponent.getServiceID(), sleeContainer
-				.getCluster().getMobicentsCache());
-		if (serviceCacheData.exists()) {
-			serviceCacheData.remove();
-		}
+		
 		// change state
 		serviceComponent.setServiceState(ServiceState.INACTIVE);
 		// notifying the resource adaptors about service state change

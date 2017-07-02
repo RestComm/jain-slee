@@ -20,23 +20,41 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.container.service;
+package org.mobicents.slee.runtime.facilities.cluster;
 
-import org.infinispan.tree.Fqn;
-import org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryCacheData;
-import org.restcomm.cache.CacheData;
-import org.restcomm.cache.FqnWrapper;
-import org.restcomm.cache.MobicentsCache;
+import java.util.Map;
 
-import javax.slee.ServiceID;
+import org.restcomm.cluster.MobicentsCluster;
+import org.mobicents.slee.container.activity.ActivityContextHandle;
 
-public class ServiceCacheData extends CacheData {
+/**
+ * 
+ * Proxy object for activity context factory data management through JBoss Cache
+ * 
+ * @author martins
+ * 
+ */
 
-	@SuppressWarnings("unchecked")
-	public ServiceCacheData(ServiceID serviceID, MobicentsCache mobicentsCache) {
-		super(FqnWrapper.fromElementsWrapper(
-				SbbEntityFactoryCacheData.SBB_ENTITY_FACTORY_FQN_NAME,
-				serviceID), mobicentsCache);
+public class ActivityContextNamingFacilityFactoryCacheData {
+
+	private MobicentsCluster cluster;
+	
+	/**
+	 * 
+	 * @param cluster
+	 */
+	public ActivityContextNamingFacilityFactoryCacheData(MobicentsCluster cluster) {
+		this.cluster=cluster;
 	}
 
+	/**
+	 * Retrieves a set containing all activity context naming in the factory's
+	 * cache data
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String,ActivityContextHandle> getNameBindings() {
+		return (Map<String,ActivityContextHandle>)this.cluster.getMobicentsCache().getAllElements();		
+	}	
 }

@@ -55,6 +55,7 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
@@ -956,7 +957,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}
 		new ResourceAdaptorClassCodeGenerator().process(component);
 		// if we are in cluster mode we need to add the RA class loader domain to the replication class loader
-		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+		if (!sleeContainer.getCluster(CacheType.ACTIVITIES).getMobicentsCache().isLocalMode()) {
 			final ReplicationClassLoader replicationClassLoader = sleeContainer.getReplicationClassLoader();
 			replicationClassLoader.addDomain(component.getClassLoaderDomain());
 			final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
@@ -995,7 +996,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 		}		
 		
 		// if we are in cluster mode we need to remove the RA class loader domain from the replication class loader
-		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+		if (!sleeContainer.getCluster(CacheType.ACTIVITIES).getMobicentsCache().isLocalMode()) {
 			final ReplicationClassLoader replicationClassLoader = sleeContainer.getReplicationClassLoader();
 			TransactionalAction action2 = new TransactionalAction() {
 				public void execute() {
@@ -1031,7 +1032,7 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 	
 	@Override
 	public void sleeInitialization() {
-		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+		if (!sleeContainer.getCluster(CacheType.ACTIVITIES).getMobicentsCache().isLocalMode()) {
 			handleReferenceFactory = new ActivityHandleReferenceFactory(this);
 		}		
 	}
@@ -1095,7 +1096,6 @@ public final class ResourceManagementImpl extends AbstractSleeContainerModule im
 
 						if (loopCount >= 10) {
 							raEntity.getResourceAdaptorObject().raInactive();
-							sleeContainer.getActivityContextFactory().WAremove("RA");
 						}
 					}
 				} catch (Exception e) {

@@ -31,6 +31,7 @@ import javax.slee.facilities.AlarmLevel;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.management.jmx.CongestionControlConfiguration;
 
 /**
@@ -70,7 +71,7 @@ public class CongestionControlImpl extends AbstractSleeContainerModule implement
 	
 	@Override
 	public void sleeInitialization() {
-		alarmFacility = sleeContainer.getAlarmManagement().newAlarmFacility(new CongestionControlNotification(sleeContainer.getCluster().getLocalAddress()));
+		alarmFacility = sleeContainer.getAlarmManagement().newAlarmFacility(new CongestionControlNotification(sleeContainer.getCluster(CacheType.ACTIVITIES).getLocalAddress()));
 	}
 	
 	@Override

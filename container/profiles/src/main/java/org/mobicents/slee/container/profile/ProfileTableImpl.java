@@ -51,6 +51,7 @@ import javax.slee.resource.ActivityFlags;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.infinispan.remoting.transport.Address;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -782,7 +783,7 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 			if (!profileManagement.getJPAConfiguration().isClusteredProfiles()) {
 				// special scenario, we may run in a cluster but without clustered
 				// profiles, so the activity must be unique for each cluster node
-				clusterLocalAddress = sleeContainer.getCluster().getLocalAddress();
+				clusterLocalAddress = sleeContainer.getCluster(CacheType.ACTIVITIES).getLocalAddress();
 			}
 			profileTableActivity = new ProfileTableActivityImpl(new ProfileTableActivityHandleImpl(this.profileTableName, clusterLocalAddress));
 		}

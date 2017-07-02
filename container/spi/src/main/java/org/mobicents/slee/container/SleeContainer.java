@@ -25,6 +25,7 @@ package org.mobicents.slee.container;
 import org.apache.log4j.Logger;
 import org.jboss.msc.service.ServiceController;
 import org.restcomm.cluster.MobicentsCluster;
+import org.restcomm.cluster.MobicentsClusterFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.component.ComponentRepository;
@@ -50,6 +51,7 @@ import javax.slee.InvalidStateException;
 import javax.slee.management.SleeState;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -117,7 +119,10 @@ public class SleeContainer {
 	private LinkedList<SleeContainerModule> modules = new LinkedList<SleeContainerModule>();
 	
 	private final SleeTransactionManager sleeTransactionManager;
-	private final MobicentsCluster cluster;
+	private final MobicentsClusterFactory clusterFactory;
+	
+	private ConcurrentHashMap<CacheType,MobicentsCluster> clustersMap=new ConcurrentHashMap<CacheType, MobicentsCluster>();
+	
 	// mbean server where the container's mbeans are registred
 	private final MBeanServer mbeanServer;
 	/** The lifecycle state of the SLEE */
@@ -199,7 +204,7 @@ public class SleeContainer {
 			NullActivityFactory nullActivityFactory,
 			RmiServerInterface rmiServerInterface,
 			SleeTransactionManager sleeTransactionManager,
-			MobicentsCluster cluster,
+			MobicentsClusterFactory clusterFactory,
 			ReplicationClassLoader replicationClassLoader,
 			AlarmManagement alarmMBeanImpl,
 			TraceManagement traceMBeanImpl,
@@ -220,9 +225,10 @@ public class SleeContainer {
 
 		this.replicationClassLoader = replicationClassLoader;
 
-		this.cluster = cluster;
-
-		this.uuidGenerator = new MobicentsUUIDGenerator(cluster
+		this.clusterFactory = clusterFactory;
+		for(CacheType currType:CacheType.values())
+			this.clustersMap.put(currType, this.clusterFactory.getCluster(currType.getValue()));
+		this.uuidGenerator = new MobicentsUUIDGenerator(this.clustersMap.get(CacheType.ACTIVITIES)
 				.getMobicentsCache().isLocalMode());
 
 		this.alarmMBeanImpl = alarmMBeanImpl;
@@ -348,10 +354,14 @@ public class SleeContainer {
 	 * 
 	 * @return
 	 */
-	public MobicentsCluster getCluster() {
-		return cluster;
+	public MobicentsClusterFactory getClusterFactory() {
+		return clusterFactory;
 	}
 
+	public MobicentsCluster getCluster(CacheType type) {
+		return clustersMap.get(type);
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -695,12 +705,14 @@ public class SleeContainer {
 	
 	public void afterModulesInitialization() {
 		// start cluster
-		cluster.startCluster();
+		Iterator<MobicentsCluster> clustersIterator=clustersMap.values().iterator();
+		while(clustersIterator.hasNext())
+			clustersIterator.next().startCluster();
 	}
 	
 	public void beforeModulesShutdown() {
 		// stop the cluster
-		cluster.stopCluster();
+		clusterFactory.stop();
 	}
 	
 	public void afterModulesShutdown() {		

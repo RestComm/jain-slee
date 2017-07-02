@@ -60,6 +60,7 @@ import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionDataImpl;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
+import org.mobicents.slee.runtime.sbbentity.cache.SbbEntityCacheDataWrapper;
 
 /**
  * 
@@ -88,7 +89,7 @@ public class SbbEntityImpl implements SbbEntity {
 	private SbbComponent _sbbComponent = null;
 
 	// cache data
-	protected SbbEntityCacheData cacheData;
+	protected SbbEntityCacheDataWrapper cacheData;
 
 	private final boolean created;
 		
@@ -107,7 +108,7 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @param convergenceName
 	 * @param svcId
 	 */
-	SbbEntityImpl(SbbEntityID sbbEntityId, SbbEntityCacheData cacheData, boolean created, SbbEntityFactoryImpl sbbEntityFactory) {
+	SbbEntityImpl(SbbEntityID sbbEntityId, SbbEntityCacheDataWrapper cacheData, boolean created, SbbEntityFactoryImpl sbbEntityFactory) {
 		this.sbbEntityFactory = sbbEntityFactory;
 		this.sleeContainer = sbbEntityFactory.getSleeContainer();
 		this.sbbeId = sbbEntityId;
@@ -306,6 +307,7 @@ public class SbbEntityImpl implements SbbEntity {
 			log.trace("remove()");
 		}
 
+		System.out.println("REMOVING ENTITY");
 		// removes the SBB entity from all Activity Contexts.
 		for (Iterator<ActivityContextHandle> i = this.getActivityContexts().iterator(); i.hasNext();) {
 			ActivityContextHandle ach = i.next();
@@ -353,6 +355,7 @@ public class SbbEntityImpl implements SbbEntity {
 			}
 		}
 
+		System.out.println("REMOVING CACHE DATA");
 		cacheData.remove();
 				
 		if (log.isDebugEnabled()) {
@@ -714,7 +717,7 @@ public class SbbEntityImpl implements SbbEntity {
 	 * @see org.mobicents.slee.runtime.sbbentity.SbbEntity#isRemoved()
 	 */
 	public boolean isRemoved() {
-		return cacheData.isRemoved() || !cacheData.exists();
+		return !cacheData.exists();
 	}
 
 	/**

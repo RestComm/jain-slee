@@ -32,9 +32,13 @@ import javax.slee.facilities.NameNotBoundException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.facilities.ActivityContextNamingFacility;
+import org.mobicents.slee.runtime.facilities.cluster.ActivityContextNamingFacilityCacheData;
+import org.mobicents.slee.runtime.facilities.cluster.ActivityContextNamingFacilityFactoryCacheData;
+import org.restcomm.cluster.MobicentsCluster;
 
 /*
  * Ranga - Initial and refactored for Tx isolation.
@@ -55,7 +59,8 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
 
     private static Logger log = Logger.getLogger(ActivityContextNamingFacilityImpl.class);
     
-    private ActivityContextNamingFacilityCacheData cacheData;
+    private MobicentsCluster cluster;
+    private ActivityContextNamingFacilityFactoryCacheData acnCacheData;
     
     @Override
     public void sleeInitialization() {
@@ -63,8 +68,8 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
     
     @Override
     public void sleeStarting() {
-    	cacheData = new ActivityContextNamingFacilityCacheData(sleeContainer.getCluster());
-    	cacheData.create();    	
+    	cluster=sleeContainer.getCluster(CacheType.ACI_NAMING);  
+    	acnCacheData=new ActivityContextNamingFacilityFactoryCacheData(cluster);
     }
 
     /*
@@ -92,7 +97,8 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
         	org.mobicents.slee.container.activity.ActivityContextInterface sleeAci = (org.mobicents.slee.container.activity.ActivityContextInterface)aci;
         	ActivityContext ac = sleeAci.getActivityContext();
         	ActivityContextHandle ach = ac.getActivityContextHandle();
-        	cacheData.bindName(ach,aciName);
+        	ActivityContextNamingFacilityCacheData cacheData=new ActivityContextNamingFacilityCacheData(aciName, cluster);
+        	cacheData.bindName(ach);
 	        ac.addNameBinding(aciName);
 	        if (log.isDebugEnabled()) {
 	        	log.debug("aci name "+aciName+" bound to "+ach+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
@@ -125,7 +131,8 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
         
         try {       
             
-        	ActivityContextHandle ach = (ActivityContextHandle) cacheData.unbindName(aciName);         
+        	ActivityContextNamingFacilityCacheData cacheData=new ActivityContextNamingFacilityCacheData(aciName, cluster);
+        	ActivityContextHandle ach = cacheData.unbindName();         
             ActivityContext ac = sleeContainer.
             	getActivityContextFactory().getActivityContext(ach);
             if ( ac != null )
@@ -148,7 +155,8 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
     	if (log.isDebugEnabled()) {
     		log.debug("Removing name from facility: aci " + aciName);
     	}
-    	cacheData.unbindName(aciName);
+    	ActivityContextNamingFacilityCacheData cacheData=new ActivityContextNamingFacilityCacheData(aciName, cluster);
+    	cacheData.unbindName();    	
     }
 
     /*
@@ -167,7 +175,8 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
         
         try {        
             
-	        ActivityContextHandle ach = (ActivityContextHandle) cacheData.lookupName(acName);
+        	ActivityContextNamingFacilityCacheData cacheData=new ActivityContextNamingFacilityCacheData(acName, cluster);
+        	ActivityContextHandle ach = cacheData.lookupName();
 	        
 	        if (log.isDebugEnabled()) {
 	        	log.debug("lookup of aci name "+acName+" result is "+ach+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
@@ -178,7 +187,7 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
         	}       	
         	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
         	if (ac == null) {
-        		cacheData.unbindName(acName);
+        		cacheData.unbindName();
         		throw new FacilityException("name found but unable to retrieve activity context");
         	}
         	
@@ -190,11 +199,10 @@ public class ActivityContextNamingFacilityImpl extends AbstractSleeContainerModu
         
     }
     
-	@SuppressWarnings("rawtypes")
-	public Map getBindings() {
+	public Map<String, ActivityContextHandle> getBindings() {
     	
     	try {
-    		return cacheData.getNameBindings();
+    		return acnCacheData.getNameBindings();
 		} catch (Exception e) {
 			log.error(e.getMessage(),e);
 		}

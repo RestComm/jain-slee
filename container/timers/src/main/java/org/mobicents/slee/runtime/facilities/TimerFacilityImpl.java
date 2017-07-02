@@ -91,7 +91,7 @@ public class TimerFacilityImpl extends AbstractSleeContainerModule implements Ti
 		if (scheduler != null) {
 			scheduler.shutdownNow();
 		}
-		scheduler = new FaultTolerantScheduler("timer-facility",configuration.getTimerThreads(),sleeContainer.getCluster(),(byte)10, sleeContainer.getTransactionManager().getRealTransactionManager(),new TimerFacilityTimerTaskFactory(),configuration.getPurgePeriod(), SLEE_THREAD_FACTORY);
+		scheduler = new FaultTolerantScheduler("timer-facility",configuration.getTimerThreads(),sleeContainer.getClusterFactory(),(byte)10, sleeContainer.getTransactionManager().getRealTransactionManager(),new TimerFacilityTimerTaskFactory(),configuration.getPurgePeriod(), SLEE_THREAD_FACTORY);
 	}
 	
 	/**

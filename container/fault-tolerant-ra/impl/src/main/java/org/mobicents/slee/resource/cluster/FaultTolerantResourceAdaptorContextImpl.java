@@ -24,6 +24,7 @@ package org.mobicents.slee.resource.cluster;
 
 import org.infinispan.remoting.transport.Address;
 import org.mobicents.slee.container.SleeContainer;
+import org.restcomm.cluster.MobicentsCluster;
 
 import java.io.Serializable;
 
@@ -45,9 +46,11 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 	private final String raEntity;
 	private final SleeContainer sleeContainer;
 	private final FaultTolerantResourceAdaptor<K, V> ra;
-
 	private FaultTolerantTimerImpl timer;
 
+	private MobicentsCluster replicatedDataCluster;
+	private MobicentsCluster replicatedDataWithFailoverCluster;
+	
 	/**
 	 * @param raEntity
 	 * @param sleeContainer
@@ -58,6 +61,10 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
 		this.ra = ra;
+		this.replicatedDataCluster=sleeContainer.getClusterFactory().getCluster(REPLICATED_DATA_NAME + "-" + raEntity);
+		this.replicatedDataWithFailoverCluster=sleeContainer.getClusterFactory().getCluster(REPLICATED_DATA_WITH_FAILOVER_NAME + "-" + raEntity);
+		this.replicatedDataCluster.startCluster();
+		this.replicatedDataWithFailoverCluster.startCluster();
 	}
 
 	/*
@@ -71,8 +78,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 			boolean activateDataRemovedCallback) {
 		if (replicatedDataWithFailover == null) {
 			replicatedDataWithFailover = new ReplicatedDataWithFailoverImpl<K, V>(
-					REPLICATED_DATA_WITH_FAILOVER_NAME, raEntity,
-					sleeContainer.getCluster(), ra, activateDataRemovedCallback);
+					REPLICATED_DATA_WITH_FAILOVER_NAME, raEntity,replicatedDataWithFailoverCluster, ra, activateDataRemovedCallback);
 		}
 		return replicatedDataWithFailover;
 	}
@@ -88,7 +94,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 			boolean activateDataRemovedCallback) {
 		if (replicatedData == null) {
 			replicatedData = new ReplicatedDataImpl<K, V>(REPLICATED_DATA_NAME,
-					raEntity, sleeContainer.getCluster(), ra,
+					raEntity, replicatedDataCluster, ra,
 					activateDataRemovedCallback);
 		}
 		return replicatedData;
@@ -102,7 +108,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 	 * #isLocal()
 	 */
 	public boolean isLocal() {
-		return sleeContainer.getCluster().getMobicentsCache().isLocalMode();
+		return replicatedDataCluster.getMobicentsCache().isLocalMode();
 	}
 
 	/*
@@ -113,7 +119,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 	 * #isHeadMember()
 	 */
 	public boolean isHeadMember() {
-		return sleeContainer.getCluster().isHeadMember();
+		return replicatedDataCluster.isHeadMember();
 	}
 
 	/*
@@ -124,7 +130,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 	 * #isSingleMember()
 	 */
 	public boolean isSingleMember() {
-		return sleeContainer.getCluster().isSingleMember();
+		return replicatedDataCluster.isSingleMember();
 	}
 
 	private static final Address[] EMPTY_ADDRESS_ARRAY = {};
@@ -137,7 +143,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 	 * #getMembers()
 	 */
 	public MemberAddress[] getMembers() {
-		final Address[] addresses = sleeContainer.getCluster()
+		final Address[] addresses = replicatedDataCluster
 				.getClusterMembers().toArray(EMPTY_ADDRESS_ARRAY);
 		final MemberAddressImpl[] members = new MemberAddressImpl[addresses.length];
 		for (int i = 0; i < members.length; i++) {
@@ -154,7 +160,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 	 * #getLocalAddress()
 	 */
 	public MemberAddress getLocalAddress() {
-		Address localAddress = sleeContainer.getCluster().getLocalAddress();
+		Address localAddress = replicatedDataCluster.getLocalAddress();
 		return localAddress != null ? new MemberAddressImpl(localAddress)
 				: null;
 	}

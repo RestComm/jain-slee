@@ -46,6 +46,7 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.SbbLocalObjectExt;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
 import org.mobicents.slee.container.sbbentity.ChildRelation;
@@ -53,6 +54,7 @@ import org.mobicents.slee.container.sbbentity.SbbEntity;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
+import org.mobicents.slee.runtime.sbbentity.cache.SbbEntityCacheDataWrapper;
 
 /**
  * 
@@ -131,7 +133,7 @@ public class ChildRelationImpl implements ChildRelation {
         	return false;
         }
         
-        return new SbbEntityCacheData(sbbEntityId,sleeContainer.getCluster().getMobicentsCache()).exists();
+        return new SbbEntityCacheDataWrapper(sbbEntityId,sleeContainer.getCluster(CacheType.SBB_ENTITIES)).exists();
     }
 
     private boolean idBelongsToChildRelation(SbbEntityID sbbEntityID) {

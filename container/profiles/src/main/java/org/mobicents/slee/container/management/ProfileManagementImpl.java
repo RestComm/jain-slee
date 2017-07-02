@@ -25,6 +25,7 @@ package org.mobicents.slee.container.management;
 import org.apache.log4j.Logger;
 import org.jboss.as.naming.context.NamespaceContextSelector;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityType;
@@ -317,7 +318,7 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 		if (profileTableName == null) throw new NullPointerException("profile table name is null");
 		
 		ProfileTableImpl profileTable = null;
-		if (sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+		if (sleeContainer.getCluster(CacheType.ACTIVITIES).getMobicentsCache().isLocalMode()) {
 			// no replication, table may only exist in local resources
 			profileTable = profileTablesLocalObjects.get(profileTableName);
 			if (profileTable == null) {
@@ -449,14 +450,14 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 
 	@Override
 	public void sleeRunning() {
-		if (sleeContainer.getCluster().isHeadMember()) {
+		if (sleeContainer.getCluster(CacheType.ACTIVITIES).isHeadMember()) {
 			startAllProfileTableActivities();
 		}
 	}
 	
 	@Override
 	public void sleeStopping() {
-		if (sleeContainer.getCluster().isSingleMember()) {
+		if (sleeContainer.getCluster(CacheType.ACTIVITIES).isSingleMember()) {
 			stopAllProfileTableActivities();
 		}
 	}
@@ -469,23 +470,21 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
-					.getAllActivityContextsHandles()) {
-				if (handle.getActivityType() == ActivityType.PTABLE) {
-					try {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Ending profile table activity " + handle);
-						}
-						ActivityContext ac = sleeContainer
-						.getActivityContextFactory()
-						.getActivityContext(handle);
-						if (ac != null) {
-							ac.endActivity();
-						}
-					} catch (Exception e) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Failed to end profile table activity "
-									+ handle, e);
-						}
+					.getAllActivityContextsHandles(ActivityType.PTABLE)) {
+				try {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Ending profile table activity " + handle);
+					}
+					ActivityContext ac = sleeContainer
+					.getActivityContextFactory()
+					.getActivityContext(handle);
+					if (ac != null) {
+						ac.endActivity();
+					}
+				} catch (Exception e) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Failed to end profile table activity "
+								+ handle, e);
 					}
 				}
 			}
@@ -507,12 +506,10 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 			try {
 				for (ActivityContextHandle handle : sleeContainer
 						.getActivityContextFactory()
-						.getAllActivityContextsHandles()) {
-					if (handle.getActivityType() == ActivityType.PTABLE) {
-						logger.info("Waiting for profile table activity "+handle+" to end...");
-						loop = true;
-						break;
-					}
+						.getAllActivityContextsHandles(ActivityType.PTABLE)) {
+					logger.info("Waiting for profile table activity "+handle+" to end...");
+					loop = true;
+					break;
 				}
 			} catch (Exception e) {
 				if (logger.isDebugEnabled()) {
@@ -522,8 +519,7 @@ public class ProfileManagementImpl extends AbstractSleeContainerModule implement
 			if (loop) {
 				try {
 					// wait a sec
-					Thread.sleep(1000);
-					sleeContainer.getActivityContextFactory().WAremove("ACH=PTABLE");
+					Thread.sleep(1000);					
 				} catch (InterruptedException e) {
 					logger.error(e.getMessage(), e);
 				}

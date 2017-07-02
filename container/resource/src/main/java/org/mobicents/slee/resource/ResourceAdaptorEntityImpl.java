@@ -49,6 +49,7 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityType;
@@ -428,7 +429,7 @@ public class ResourceAdaptorEntityImpl implements ResourceAdaptorEntity {
 	private void scheduleAllActivitiesEnd() throws TransactionRequiredLocalException {
 
 		// schedule the end of all activities if the node is the single member of the cluster
-		boolean skipActivityEnding = !sleeContainer.getCluster().isSingleMember();
+		boolean skipActivityEnding = !sleeContainer.getCluster(CacheType.ACTIVITIES).isSingleMember();
 		
 		if (!skipActivityEnding && hasActivities()) {
 			logger.info("RA entity "+name+" activities end scheduled.");

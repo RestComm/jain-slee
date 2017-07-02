@@ -24,6 +24,7 @@ package org.mobicents.slee.container.management;
 import org.apache.log4j.Logger;
 import org.jboss.as.naming.context.NamespaceContextSelector;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.classloading.ReplicationClassLoader;
 import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
@@ -150,7 +151,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		sleeContainer.getAlarmManagement().registerComponent(
 				sbbComponent.getSbbID());
 		// if we are in cluster mode we need to add the sbb class loader domain to the replication class loader
-		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+		if (!sleeContainer.getCluster(CacheType.SBB_ENTITIES).getMobicentsCache().isLocalMode()) {
 			final ReplicationClassLoader replicationClassLoader = sleeContainer.getReplicationClassLoader();
 			replicationClassLoader.addDomain(sbbComponent.getClassLoaderDomain());
 			TransactionalAction action = new TransactionalAction() {
@@ -607,7 +608,7 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 		sleeContainer.getJndiManagement().componentUninstall(sbbComponent);
 		
 		// if we are in cluster mode we need to remove the sbb class loader domain from the replication class loader
-		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+		if (!sleeContainer.getCluster(CacheType.SBB_ENTITIES).getMobicentsCache().isLocalMode()) {
 			final ReplicationClassLoader replicationClassLoader = sleeContainer.getReplicationClassLoader();
 			TransactionalAction action2 = new TransactionalAction() {
 				public void execute() {

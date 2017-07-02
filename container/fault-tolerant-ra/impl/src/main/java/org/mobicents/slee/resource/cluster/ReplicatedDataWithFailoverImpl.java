@@ -50,7 +50,7 @@ public class ReplicatedDataWithFailoverImpl<K extends Serializable, V extends Se
 	public ReplicatedDataWithFailoverImpl(String name, String raEntity,
 			MobicentsCluster cluster, FaultTolerantResourceAdaptor<K, V> ra,boolean activateDataRemovedCallback) {
 		super(name, raEntity, cluster, ra, activateDataRemovedCallback);
-		clientLocalListener = new FailOverListener<K, V>(ra, getCacheData());
+		clientLocalListener = new FailOverListener<K, V>(ra);
 		cluster.addFailOverListener(clientLocalListener);
 	}
 

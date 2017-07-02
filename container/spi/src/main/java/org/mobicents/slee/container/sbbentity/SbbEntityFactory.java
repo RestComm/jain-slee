@@ -105,7 +105,4 @@ public interface SbbEntityFactory extends SleeContainerModule {
 	 * @return
 	 */
 	public Set<SbbEntityID> sortByPriority(Set<SbbEntityID> ids);
-
-	public void WAremove();
-
 }

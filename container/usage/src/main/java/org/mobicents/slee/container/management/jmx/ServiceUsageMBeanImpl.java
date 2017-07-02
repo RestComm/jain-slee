@@ -48,6 +48,7 @@ import javax.slee.usage.UsageMBean;
 import javax.slee.usage.UsageNotificationManagerMBean;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
 import org.mobicents.slee.container.component.sbb.SbbComponent;
@@ -411,7 +412,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			if (name == null && sbbComponent.isSlee11()) {
 				removeNotificationManager(sbbId);
 			}
-			boolean clustered = !sleeContainer.getCluster().isSingleMember(); 
+			boolean clustered = !sleeContainer.getCluster(CacheType.SBB_ENTITIES).isSingleMember(); 
 			if( !clustered)
 			{
 				//we are last, lets clear cache

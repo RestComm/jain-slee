@@ -26,8 +26,6 @@
 package org.mobicents.slee.resource.cluster;
 
 import org.infinispan.remoting.transport.Address;
-import org.infinispan.tree.Fqn;
-import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.cache.ClusteredCacheData;
 import org.restcomm.cluster.election.ClientLocalListenerElector;
 
@@ -41,16 +39,13 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 		implements org.restcomm.cluster.FailOverListener {
 
 	private final FaultTolerantResourceAdaptor<K, V> ra;
-	private final ReplicatedDataCacheData<K, V> baseCacheData;
-
+	
 	/**
 	 * @param ra
 	 * @param baseCacheData
 	 */
-	public FailOverListener(FaultTolerantResourceAdaptor<K, V> ra,
-			ReplicatedDataCacheData<K, V> baseCacheData) {
-		this.ra = ra;
-		this.baseCacheData = baseCacheData;
+	public FailOverListener(FaultTolerantResourceAdaptor<K, V> ra) {
+		this.ra = ra;		
 	}
 
 	/*
@@ -62,16 +57,6 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 	 */
 	public void failOverClusterMember(Address address) {
 		// nothing to do
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.restcomm.cluster.ClientLocalListener#getBaseFqn()
-	 */
-	@SuppressWarnings("unchecked")
-	public FqnWrapper getBaseFqn() {
-		return new FqnWrapper(baseCacheData.getNodeFqn());
 	}
 
 	/*
@@ -98,7 +83,7 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 	 * org.restcomm.cluster.ClientLocalListener#lostOwnership(org.mobicents
 	 * .cluster.cache.ClusteredCacheData)
 	 */
-	public void lostOwnership(ClusteredCacheData clusteredCacheData) {
+	public void lostOwnership(@SuppressWarnings("rawtypes") ClusteredCacheData clusteredCacheData) {
 		// nothing to do
 	}
 
@@ -110,7 +95,7 @@ public class FailOverListener<K extends Serializable, V extends Serializable>
 	 * cluster.cache.ClusteredCacheData)
 	 */
 	@SuppressWarnings("unchecked")
-	public void wonOwnership(ClusteredCacheData clusteredCacheData) {
-		ra.failOver((K) clusteredCacheData.getNodeFqn().getLastElement());
+	public void wonOwnership(@SuppressWarnings("rawtypes") ClusteredCacheData clusteredCacheData) {
+		ra.failOver((K) clusteredCacheData.getValue());
 	}
 }

@@ -20,18 +20,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.slee.runtime.activity;
+package org.mobicents.slee.runtime.activity.cache;
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
-import org.infinispan.tree.Fqn;
-import org.infinispan.tree.Node;
-import org.restcomm.cache.CacheData;
-import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
+import org.mobicents.slee.container.activity.ActivityType;
 
 /**
  * 
@@ -41,12 +38,7 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
  * 
  */
 
-public class ActivityContextFactoryCacheData extends CacheData {
-
-	/**
-	 * the fqn of the node that holds all activity context cache child nodes
-	 */
-	final static Fqn NODE_FQN = Fqn.fromElements(ActivityContextCacheData.parentNodeFqn);
+public class ActivityContextFactoryCacheData {
 
 	private MobicentsCluster cluster;
 	
@@ -55,7 +47,6 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	 * @param cluster
 	 */
 	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
-		super(new FqnWrapper(NODE_FQN), cluster.getMobicentsCache());
 		this.cluster=cluster;
 	}
 
@@ -67,42 +58,37 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
-		final Node node = getNode();
-		if(node==null) {
-			return Collections.EMPTY_SET;
+		//WARNING : EXPENSIVE OPERATION , CONSIDER OPTIMIZATION
+		Set<ActivityCacheKey> keys=(Set<ActivityCacheKey>)this.cluster.getMobicentsCache().getAllKeys();
+		Set<ActivityContextHandle> handles=new HashSet<ActivityContextHandle>();
+		Iterator<ActivityCacheKey> keysIterator=keys.iterator();
+		while(keysIterator.hasNext()) {
+			ActivityCacheKey curr=keysIterator.next();
+			if(curr.getType()==ActivityCacheType.METADATA)
+				handles.add(curr.getActivityHandle());
 		}
-		
-		Set<Node> childNodes=node.getChildren();
-		Set<ActivityContextHandle> realData=new HashSet<ActivityContextHandle>();
-		for(Node currNode:childNodes)
-		{
-			CacheData nodeData=new CacheData(new FqnWrapper(currNode.getFqn()), cluster.getMobicentsCache());
-			if(nodeData.exists())
-				realData.add((ActivityContextHandle)currNode.getFqn().getLastElement());			
-		}
-		
-		return realData;
+			
+		return handles;
 	}
 
-	public void WAremove(String type) {
-		final Node node = getNode();
-		if (node != null) {
-			if (!node.getChildren().isEmpty()) {
-				for (Object cho : node.getChildren()) {
-					if (type != "") {
-						if (cho instanceof Node) {
-							Node chn = (Node) cho;
-							if (chn.getFqn().getLastElementAsString().startsWith(type)) {
-								node.removeChild(chn.getFqn());
-							}
-						}
-					}
-				}
-				if (type == "") {
-					node.removeChildren();
-				}
-			}
+	/**
+	 * Retrieves a set containing all activity context handles in the factory's
+	 * cache data
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Set<ActivityContextHandle> getActivityContextHandlesByType(ActivityType type) {
+		//WARNING : EXPENSIVE OPERATION , CONSIDER OPTIMIZATION
+		Set<ActivityCacheKey> keys=(Set<ActivityCacheKey>)this.cluster.getMobicentsCache().getAllKeys();
+		Set<ActivityContextHandle> handles=new HashSet<ActivityContextHandle>();
+		Iterator<ActivityCacheKey> keysIterator=keys.iterator();
+		while(keysIterator.hasNext()) {
+			ActivityCacheKey curr=keysIterator.next();
+			if(curr.getType()==ActivityCacheType.METADATA && curr.getActivityHandle().getActivityType()==type)
+				handles.add(curr.getActivityHandle());
 		}
+			
+		return handles;
 	}
-
 }

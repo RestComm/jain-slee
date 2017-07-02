@@ -25,6 +25,7 @@
  */
 package org.mobicents.slee.resource.cluster;
 
+import org.infinispan.CacheSet;
 import org.infinispan.remoting.transport.Address;
 import org.restcomm.cluster.MobicentsCluster;
 
@@ -48,11 +49,6 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	/**
 	 * 
 	 */
-	private final ReplicatedDataCacheData<K, V> cacheData;
-	
-	/**
-	 * 
-	 */
 	private final DataRemovalListener<K, V> dataRemovalListener;
 	
 	/**
@@ -65,25 +61,14 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	public ReplicatedDataImpl(String name, String raEntity,
 			MobicentsCluster cluster, FaultTolerantResourceAdaptor<K, V> ra,
 			boolean activateDataRemovedCallback) {
-		cacheData = new ReplicatedDataCacheData<K, V>(name, raEntity,
-				cluster);
-		cacheData.create();
 		this.cluster = cluster;
 		if (activateDataRemovedCallback) {
-			this.dataRemovalListener = new DataRemovalListener<K, V>(ra, getCacheData());
+			this.dataRemovalListener = new DataRemovalListener<K, V>(ra);
 			cluster.addDataRemovalListener(dataRemovalListener);
 		}
 		else {
 			dataRemovalListener = null;
 		}
-	}
-
-	/**
-	 * 
-	 * @return the cacheData
-	 */
-	ReplicatedDataCacheData<K, V> getCacheData() {
-		return cacheData;
 	}
 
 	/**
@@ -101,7 +86,6 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 		if (dataRemovalListener != null) {
 			cluster.removeDataRemovalListener(dataRemovalListener);
 		}
-		cacheData.remove();
 	}
 
 	/*
@@ -112,15 +96,18 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 		Set<K> set = new HashSet<K>();
 		ReplicatedDataKeyClusteredCacheData<K, V> handleCacheData = null;
 		Address handleCacheDataClusterNode = null;
-		for (K handle : cacheData.getAllKeys()) {
-			handleCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(
-					cacheData, handle, cluster);
+		@SuppressWarnings("unchecked")
+		Set<K> keys=(Set<K>)this.cluster.getMobicentsCache().getAllKeys();
+		for(Object currKey:keys) {
+			@SuppressWarnings("unchecked")
+			K localKey=(K)currKey;
+			handleCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(localKey, cluster);
 			handleCacheDataClusterNode = handleCacheData
 					.getClusterNodeAddress();
 			if (handleCacheDataClusterNode == null
 					|| handleCacheDataClusterNode.equals(cluster
 							.getLocalAddress())) {
-				set.add(handle);
+				set.add(localKey);
 			}
 		}
 		return Collections.unmodifiableSet(set);
@@ -132,12 +119,9 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 */
 	public boolean put(K key, V value) {
 		final ReplicatedDataKeyClusteredCacheData<K, V> keyCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(
-				cacheData, key, cluster);
-		boolean created = keyCacheData.create();
-		if (value != null) {
-			keyCacheData.setValue(value);
-		}
-		return created;
+				key, cluster);
+		V original=keyCacheData.setValue(value);
+		return original!=null;
 	}
 
 	/*
@@ -146,8 +130,8 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 */
 	public V get(K key) {
 		final ReplicatedDataKeyClusteredCacheData<K, V> handleCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(
-				cacheData, key, cluster);
-		return handleCacheData.exists() ? handleCacheData.getValue() : null;
+				key, cluster);
+		return handleCacheData.getValue();		
 	}
 
 	/*
@@ -155,7 +139,7 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#contains(java.io.Serializable)
 	 */
 	public boolean contains(K key) {
-		return new ReplicatedDataKeyClusteredCacheData<K, V>(cacheData, key,
+		return new ReplicatedDataKeyClusteredCacheData<K, V>(key,
 				cluster).exists();
 	}
 
@@ -164,16 +148,15 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#remove(java.io.Serializable)
 	 */
 	public boolean remove(K key) {
-		return new ReplicatedDataKeyClusteredCacheData<K, V>(cacheData, key, cluster)
-				.remove();
+		return new ReplicatedDataKeyClusteredCacheData<K, V>(key, cluster).removeElement()!=null;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#getKeyset()
 	 */
+	@SuppressWarnings("unchecked")
 	public Set<K> getKeyset() {
-		return cacheData.getAllKeys();
+		return (Set<K>)this.cluster.getMobicentsCache().getAllKeys();		
 	}
-
 }

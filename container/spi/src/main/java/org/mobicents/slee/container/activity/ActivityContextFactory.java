@@ -97,6 +97,11 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 * @return Set of all registered SLEE activity context handles
 	 */
 	public Set<ActivityContextHandle> getAllActivityContextsHandles();
+	
+	/**
+	 * @return Set of all registered SLEE activity context handles by activity type
+	 */
+	public Set<ActivityContextHandle> getAllActivityContextsHandles(ActivityType type);
 
 	/**
 	 * @return
@@ -110,7 +115,4 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	 * @return
 	 */
 	public boolean activityContextExists(ActivityContextHandle ach);
-
-	public void WAremove(String type);
-
 }

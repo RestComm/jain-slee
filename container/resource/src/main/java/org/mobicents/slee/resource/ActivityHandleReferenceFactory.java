@@ -25,6 +25,7 @@ package org.mobicents.slee.resource;
 import org.apache.log4j.Logger;
 import org.infinispan.remoting.transport.Address;
 import org.infinispan.tree.Fqn;
+import org.mobicents.slee.container.CacheType;
 import org.mobicents.slee.container.activity.ActivityContext;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
@@ -33,7 +34,6 @@ import org.mobicents.slee.container.management.ResourceManagementImpl;
 import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.mobicents.slee.container.transaction.TransactionContext;
 import org.mobicents.slee.container.transaction.TransactionalAction;
-import org.restcomm.cache.FqnWrapper;
 import org.restcomm.cluster.MobicentsCluster;
 import org.restcomm.cluster.election.ClientLocalListenerElector;
 
@@ -55,6 +55,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ActivityHandleReferenceFactory {
 
+	public static final String ACTIVITY_CONTEXT_CLUSTER_NAME = "ac";
+	
 	/**
 	 * 
 	 */
@@ -65,16 +67,8 @@ public class ActivityHandleReferenceFactory {
 	 */
 	private final FailOverListener failOverListener = new FailOverListener();
 	
-	/**
-	 * 
-	 */
-	@SuppressWarnings("rawtypes")
-	private final Fqn baseFqn;
-	
 	private final static Logger logger = Logger.getLogger(ActivityHandleReferenceFactory.class);
 	private static boolean doTraceLogs = logger.isTraceEnabled();
-	
-	private ClusteredCacheData clusteredCacheData;
 	
 	private SleeTransactionManager _txManager;
 	private Address _localAddress;
@@ -84,8 +78,7 @@ public class ActivityHandleReferenceFactory {
 	 * @param resourceManagement
 	 */
 	public ActivityHandleReferenceFactory(ResourceManagementImpl resourceManagement) {
-		this.resourceManagement = resourceManagement;
-		this.baseFqn = Fqn.fromElements("ra-entity-handle-refs");
+		this.resourceManagement = resourceManagement;		
 	}
 
 	public void init() {
@@ -93,9 +86,7 @@ public class ActivityHandleReferenceFactory {
 			logger.trace("init()");
 		}
 		// lets create this cluster member cache data object with failover
-		final MobicentsCluster cluster = resourceManagement.getSleeContainer().getCluster();
-		clusteredCacheData = new ClusteredCacheData(baseFqn,cluster);
-		clusteredCacheData.create();
+		final MobicentsCluster cluster = resourceManagement.getSleeContainer().getCluster(CacheType.ACTIVITIES);		
 		cluster.addFailOverListener(failOverListener);
 	}
 	
@@ -103,14 +94,13 @@ public class ActivityHandleReferenceFactory {
 		if (doTraceLogs) {
 			logger.trace("remove()");
 		}
-		clusteredCacheData.remove();
-		clusteredCacheData = null;
-		resourceManagement.getSleeContainer().getCluster().removeFailOverListener(failOverListener);
+		
+		resourceManagement.getSleeContainer().getCluster(CacheType.ACTIVITIES).removeFailOverListener(failOverListener);
 	}
 	
 	public Address getLocalAddress() {
 		if (_localAddress == null) {
-			_localAddress = resourceManagement.getSleeContainer().getCluster().getLocalAddress();
+			_localAddress = resourceManagement.getSleeContainer().getCluster(CacheType.ACTIVITIES).getLocalAddress();
 		}
 		return _localAddress;
 	}
@@ -374,21 +364,6 @@ public class ActivityHandleReferenceFactory {
 	 * @author martins
 	 * 
 	 */
-	private static class ClusteredCacheData extends
-			org.restcomm.cluster.cache.ClusteredCacheData {
-		
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public ClusteredCacheData(Fqn baseFqn,
-				MobicentsCluster cluster) {
-			super(FqnWrapper.fromRelativeElementsWrapper(new FqnWrapper(baseFqn), cluster.getLocalAddress()), cluster);
-		}
-	}
-	
-	/**
-	 * 
-	 * @author martins
-	 * 
-	 */
 	private class FailOverListener implements
 			org.restcomm.cluster.FailOverListener {
 
@@ -405,30 +380,18 @@ public class ActivityHandleReferenceFactory {
 			final ActivityContextFactory acFactory = resourceManagement.getSleeContainer()
 			.getActivityContextFactory();
 			// ouch, this is going to be expensive
-			for (ActivityContextHandle ach : acFactory.getAllActivityContextsHandles()) {
-				if (ach.getActivityType() == ActivityType.RA) {
-					final ResourceAdaptorActivityContextHandleImpl raach = (ResourceAdaptorActivityContextHandleImpl) ach;
-					if (raach.getActivityHandle().getClass() == ActivityHandleReference.class) {
-						final ActivityHandleReference reference = (ActivityHandleReference) raach.getActivityHandle();
-						if (reference.getAddress().equals(arg0)) {
-							final ActivityContext ac = acFactory.getActivityContext(raach);
-							if (ac != null) {
-								ac.endActivity();
-							}
+			for (ActivityContextHandle ach : acFactory.getAllActivityContextsHandles(ActivityType.RA)) {
+				final ResourceAdaptorActivityContextHandleImpl raach = (ResourceAdaptorActivityContextHandleImpl) ach;
+				if (raach.getActivityHandle().getClass() == ActivityHandleReference.class) {
+					final ActivityHandleReference reference = (ActivityHandleReference) raach.getActivityHandle();
+					if (reference.getAddress().equals(arg0)) {
+						final ActivityContext ac = acFactory.getActivityContext(raach);
+						if (ac != null) {
+							ac.endActivity();
 						}
 					}
 				}
 			}
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.restcomm.cluster.FailOverListener#getBaseFqn()
-		 */
-		@SuppressWarnings("rawtypes")
-		public FqnWrapper getBaseFqn() {
-			return new FqnWrapper(baseFqn);
 		}
 
 		/*
@@ -456,6 +419,7 @@ public class ActivityHandleReferenceFactory {
 		 * org.restcomm.cluster.FailOverListener#lostOwnership(org.mobicents
 		 * .cluster.cache.ClusteredCacheData)
 		 */
+		@SuppressWarnings("rawtypes")
 		public void lostOwnership(
 				org.restcomm.cluster.cache.ClusteredCacheData arg0) {
 		}
@@ -467,6 +431,7 @@ public class ActivityHandleReferenceFactory {
 		 * org.restcomm.cluster.FailOverListener#wonOwnership(org.mobicents
 		 * .cluster.cache.ClusteredCacheData)
 		 */
+		@SuppressWarnings("rawtypes")
 		public void wonOwnership(
 				org.restcomm.cluster.cache.ClusteredCacheData arg0) {
 			
