@@ -145,6 +145,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
 
 		try {
+			System.out.println("PROCESSING EVENT:" + eventContext.getEvent());
 			final LocalActivityContext lac = eventContext.getLocalActivityContext();
 			final EventRoutingTask activityCurrentEventRoutingTask = lac.getCurrentEventRoutingTask();
 			EventContext activityCurrentEventContext = activityCurrentEventRoutingTask == null ? null : activityCurrentEventRoutingTask.getEventContext();
