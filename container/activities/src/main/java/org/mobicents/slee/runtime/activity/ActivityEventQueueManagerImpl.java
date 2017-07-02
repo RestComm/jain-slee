@@ -87,6 +87,7 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 
 	@Override
 	public void pending(final EventContext event) {
+		System.out.println("COMMITTING PENDING EVENT:" + event);
 		if (doTraceLogs) {
 			logger.trace("Pending event of type "
 					+ event.getEventTypeId() + " in AC with handle "
@@ -101,6 +102,7 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 				if (pendingEvents == null) {
 					pendingEvents = new HashSet<EventContext>(4);
 				}
+				System.out.println("STORING TO PENDING EVENTS:" + event);
 				pendingEvents.add(event);
 			}
 		};
@@ -109,10 +111,12 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 
 	@Override
 	public void commit(final EventContext event) {
+		System.out.println("COMMITTING NOT PENDING EVENT:" + event);
 		Runnable r = new Runnable() {
 			@Override
 			public void run() {
 				if (activityEndEvent == null) {
+					System.out.println("COMMITING:" + event);
 					commit(event, true);
 				} else {
 					// processing of the event failed
@@ -160,6 +164,7 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 
 	private void commit(EventContext event, boolean isPendingEvent) {
 		if (isPendingEvent) {
+			System.out.println("COMMITING,EVENT IS PENDING:" + event);
 			if (pendingEvents == null || !pendingEvents.remove(event)) {
 				// processing of the event failed
 				if (doTraceLogs) {
@@ -174,9 +179,11 @@ public class ActivityEventQueueManagerImpl implements ActivityEventQueueManager 
 			}
 		}
 		if (eventBarriers == null || eventBarriers.isEmpty()) {
+			System.out.println("NO EVENT BARRIERS:" + event);
 			// barriers are not set, proceed with commit of event
 			commitAndNotSuspended(event);
 		} else {
+			System.out.println("HAS BARRIERS,STORING TO LIST:" + event);
 			// barriers are set add the event to the frozen queue
 			if (eventsBarriered == null) {
 				eventsBarriered = new LinkedList<EventContext>();
