@@ -1,4 +1,5 @@
 [![Stories in Ready](https://badge.waffle.io/RestComm/jain-slee.png?label=ready&title=Ready)](https://waffle.io/RestComm/jain-slee)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fjain-slee.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fjain-slee?ref=badge_shield)
 RestComm JAIN-SLEE
 ============
 
@@ -45,3 +46,7 @@ Continuous Integration and Delivery
 Acknowledgements
 ========
 [See who has been contributing to JAIN-SLEE](http://www.telestax.com/open-source-2/acknowledgments/)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fjain-slee.svg?type=large)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fjain-slee?ref=badge_large)
