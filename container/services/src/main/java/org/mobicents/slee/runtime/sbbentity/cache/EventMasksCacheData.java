@@ -13,7 +13,7 @@ import org.restcomm.cache.MobicentsCache;
 public class EventMasksCacheData extends CacheData<SbbEntityCacheKey,HashMap<ActivityContextHandle,Set<EventTypeID>>> 
 {
 	public EventMasksCacheData(SbbEntityID handle, MobicentsCache cache) {
-		super(new SbbEntityCacheKey(handle, SbbEntityCacheType.ATTACHED_CONTEXTS), cache);		
+		super(new SbbEntityCacheKey(handle, SbbEntityCacheType.MASKED_EVENTS), cache);		
 	}
 	
 	public Boolean setEventMask(Boolean createIfNotExists,ActivityContextHandle handle,Set<EventTypeID> mask) {

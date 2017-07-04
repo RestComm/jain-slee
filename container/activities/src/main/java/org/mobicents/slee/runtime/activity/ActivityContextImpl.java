@@ -98,8 +98,8 @@ public class ActivityContextImpl implements ActivityContext {
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
 		this.cacheData = cacheData;
-		// ac creation, create cache data and set activity flags		
-		this.cacheData.create(activityFlags);		
+		// ac creation, create cache data and set activity flags
+		this.cacheData.create(activityFlags);
 		this.flags = activityFlags;
 		// set access time if needed
 		if (updateAccessTime) {

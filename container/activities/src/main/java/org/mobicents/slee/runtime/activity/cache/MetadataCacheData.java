@@ -2,8 +2,6 @@ package org.mobicents.slee.runtime.activity.cache;
 
 import java.util.HashMap;
 
-import javax.slee.facilities.TimerID;
-
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;

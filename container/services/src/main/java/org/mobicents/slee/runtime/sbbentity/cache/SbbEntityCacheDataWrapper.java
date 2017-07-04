@@ -1,7 +1,6 @@
 package org.mobicents.slee.runtime.sbbentity.cache;
 
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.EventTypeID;
 
@@ -21,8 +20,6 @@ public class SbbEntityCacheDataWrapper
 	private MetadataCacheData metadataCacheData;
 	private ParentEntityCacheData parentEntityCacheData;
 	
-	private ConcurrentHashMap<String, Object> _cmpFieldsLocal = new ConcurrentHashMap<String, Object>();
-
 	public SbbEntityCacheDataWrapper(SbbEntityID sbbEntityID,
 			MobicentsCluster cluster) {
 		
@@ -84,23 +81,16 @@ public class SbbEntityCacheDataWrapper
 	}
 	
 	public void setCmpField(String cmpField, Object cmpValue) {
-		cmpFieldsCacheData.setField(true, cmpField, cmpValue);
-		
-		if (cmpField != null && cmpValue != null) {
-			_cmpFieldsLocal.put(cmpField, cmpValue);
-		}
+		System.out.println("Settings CMP Field:" + cmpField + ",Value:" + cmpValue);
+		if(cmpValue==null)
+			cmpFieldsCacheData.removeField(true, cmpField);
+		else
+			cmpFieldsCacheData.setField(true, cmpField, cmpValue);
 	}
 	
 	public Object getCmpField(String cmpField) {
-		try {
-			return cmpFieldsCacheData.getField(false, cmpField);
-		}
-		catch (IllegalStateException stateException) {
-			// this happen when transaction is rollbackOnly and Infinispan throws exception:
-			// IllegalStateException (ActionStatus.ABORT_ONLY >
-			// is not in a valid state to be invoking cache operations on)
-			return _cmpFieldsLocal.get(cmpField);
-		}
+		System.out.println("Getting CMP Field:" + cmpField);
+		return cmpFieldsCacheData.getField(false, cmpField);		
 	}
 	
 	public Set<SbbEntityID> getChildRelationSbbEntities(String getChildRelationMethod) {
@@ -112,12 +102,10 @@ public class SbbEntityCacheDataWrapper
 	}
 	
 	public void remove() {
-		System.out.println("REMOVING NODE");
 		attachedActivityContextsCacheData.removeNode();
 		cmpFieldsCacheData.removeNode();
 		eventMasksCacheData.removeNode();
 		metadataCacheData.removeNode();
 		parentEntityCacheData.removeNode();
-		_cmpFieldsLocal.clear();		
 	}
 }

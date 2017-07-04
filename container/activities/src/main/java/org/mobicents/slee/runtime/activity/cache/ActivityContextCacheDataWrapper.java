@@ -21,6 +21,7 @@ public class ActivityContextCacheDataWrapper
 	private NameBoundsCacheData nameBoundsCacheData;
 	private CmpAttributesCacheData cmpAttributesCacheData;
 	private MetadataCacheData metadataCacheData;
+	private IsEndingCacheData isEndingCacheData;
 	
 	public ActivityContextCacheDataWrapper(ActivityContextHandle activityContextHandle,
 			MobicentsCluster cluster) {
@@ -30,6 +31,7 @@ public class ActivityContextCacheDataWrapper
 		this.nameBoundsCacheData=new NameBoundsCacheData(activityContextHandle, cluster.getMobicentsCache());
 		this.cmpAttributesCacheData=new CmpAttributesCacheData(activityContextHandle, cluster.getMobicentsCache());
 		this.metadataCacheData=new MetadataCacheData(activityContextHandle, cluster.getMobicentsCache());
+		this.isEndingCacheData=new IsEndingCacheData(activityContextHandle, cluster.getMobicentsCache());		
 	}
 	
 	public void create(Integer activityFlags) {
@@ -57,14 +59,14 @@ public class ActivityContextCacheDataWrapper
 	}
 	
 	public boolean isEnding() {	
-		return metadataCacheData.getObject(false, IS_ENDING_NODE_NAME)!=null;		
+		return isEndingCacheData.get()!=null;		
 	}
 	
 	
 	public boolean setEnding(boolean value) {
 		if (value) {
 			if (!isEnding()) {
-				metadataCacheData.setObject(true, IS_ENDING_NODE_NAME, true);				
+				isEndingCacheData.set(true);				
 				return true;
 			}
 			else {
@@ -73,7 +75,7 @@ public class ActivityContextCacheDataWrapper
 		}
 		else {
 			if (isEnding()) {
-				metadataCacheData.removeObject(true, IS_ENDING_NODE_NAME);
+				isEndingCacheData.remove();				
 				return true;
 			}
 			else {
@@ -234,5 +236,6 @@ public class ActivityContextCacheDataWrapper
 		nameBoundsCacheData.removeNode();
 		cmpAttributesCacheData.removeNode();
 		metadataCacheData.removeNode();
+		isEndingCacheData.remove();
 	}
 }

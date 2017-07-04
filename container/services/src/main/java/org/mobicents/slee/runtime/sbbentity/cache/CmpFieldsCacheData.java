@@ -24,8 +24,27 @@ public class CmpFieldsCacheData extends CacheData<SbbEntityCacheKey,HashMap<Stri
 			else {
 				map=new HashMap<String, Object>(map);
 				map.put(name, value);
+				super.putNonTransactional(map);
+				return true;
+			}
+		}
+		else
+			return false;
+	}
+	
+	public Boolean removeField(Boolean createIfNotExists,String name) {
+		HashMap<String, Object> map=super.get();
+		if(map==null && createIfNotExists)
+			map=new HashMap<String, Object>();
+		
+		if(map!=null) {
+			if(map.containsKey(name)) {
+				map.remove(name);
 				super.put(map);
 				return true;
+			}
+			else {
+				return false;
 			}
 		}
 		else

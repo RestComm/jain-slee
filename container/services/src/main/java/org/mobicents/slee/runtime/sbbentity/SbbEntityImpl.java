@@ -307,7 +307,6 @@ public class SbbEntityImpl implements SbbEntity {
 			log.trace("remove()");
 		}
 
-		System.out.println("REMOVING ENTITY");
 		// removes the SBB entity from all Activity Contexts.
 		for (Iterator<ActivityContextHandle> i = this.getActivityContexts().iterator(); i.hasNext();) {
 			ActivityContextHandle ach = i.next();
@@ -355,7 +354,6 @@ public class SbbEntityImpl implements SbbEntity {
 			}
 		}
 
-		System.out.println("REMOVING CACHE DATA");
 		cacheData.remove();
 				
 		if (log.isDebugEnabled()) {
