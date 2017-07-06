@@ -32,10 +32,11 @@ public class SbbEntityCacheDataWrapper
 	}
 	
 	public Boolean create() {
-		Boolean oldValue=metadataCacheData.setObject(true,EXISTS,true);
-		if(oldValue!=null && oldValue)
+		Boolean result = (Boolean) metadataCacheData.getObject(false, EXISTS);
+		if(result!=null && result)
 			return false;
 		
+		metadataCacheData.setObject(true,EXISTS,true);		
 		parentEntityCacheData.create(true);
 		return true; 
 	}
