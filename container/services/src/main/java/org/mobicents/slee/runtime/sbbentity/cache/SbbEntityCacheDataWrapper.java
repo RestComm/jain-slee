@@ -6,6 +6,7 @@ import javax.slee.EventTypeID;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
+import org.mobicents.slee.container.transaction.SleeTransactionManager;
 import org.restcomm.cluster.MobicentsCluster;
 
 public class SbbEntityCacheDataWrapper 
@@ -19,10 +20,11 @@ public class SbbEntityCacheDataWrapper
 	private EventMasksCacheData eventMasksCacheData;
 	private MetadataCacheData metadataCacheData;
 	private ParentEntityCacheData parentEntityCacheData;
-	
+	private SleeTransactionManager transactionManager;
 	public SbbEntityCacheDataWrapper(SbbEntityID sbbEntityID,
-			MobicentsCluster cluster) {
+			MobicentsCluster cluster,SleeTransactionManager transactionManager) {
 		
+		this.transactionManager=transactionManager;
 		this.attachedActivityContextsCacheData=new AttachedActivityContextsCacheData(sbbEntityID, cluster.getMobicentsCache());
 		this.childRelationsCacheData=new ChildRelationsCacheData(sbbEntityID, cluster.getMobicentsCache());
 		this.cmpFieldsCacheData=new CmpFieldsCacheData(sbbEntityID, cluster.getMobicentsCache());
@@ -84,14 +86,27 @@ public class SbbEntityCacheDataWrapper
 		eventMasksCacheData.updateEventMask(true, ac, maskedEvents);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void setCmpField(String cmpField, Object cmpValue) {
 		if(cmpValue==null)
 			cmpFieldsCacheData.removeField(true, cmpField);
 		else
 			cmpFieldsCacheData.setField(true, cmpField, cmpValue);
+		
+		if(cmpField!=null)
+		{
+			SbbEntityCacheKey rootKey=cmpFieldsCacheData.getKey();
+			SbbEntityCmpFieldCacheKey subKey=new SbbEntityCmpFieldCacheKey(rootKey.getSbbEntityID(), rootKey.getType(), cmpField);
+			transactionManager.getTransactionContext().getData().put(subKey, cmpValue);
+		}
 	}
 	
 	public Object getCmpField(String cmpField) {
+		SbbEntityCacheKey rootKey=cmpFieldsCacheData.getKey();
+		SbbEntityCmpFieldCacheKey subKey=new SbbEntityCmpFieldCacheKey(rootKey.getSbbEntityID(), rootKey.getType(), cmpField);
+		if(transactionManager.getTransactionContext().getData().containsKey(subKey))
+			return transactionManager.getTransactionContext().getData().get(subKey);
+		
 		return cmpFieldsCacheData.getField(false, cmpField);
 	}
 	

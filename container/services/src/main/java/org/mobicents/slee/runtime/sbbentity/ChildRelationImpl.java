@@ -133,7 +133,7 @@ public class ChildRelationImpl implements ChildRelation {
         	return false;
         }
         
-        return new SbbEntityCacheDataWrapper(sbbEntityId,sleeContainer.getCluster(CacheType.SBB_ENTITIES)).exists();
+        return new SbbEntityCacheDataWrapper(sbbEntityId,sleeContainer.getCluster(CacheType.SBB_ENTITIES),sleeContainer.getTransactionManager()).exists();
     }
 
     private boolean idBelongsToChildRelation(SbbEntityID sbbEntityID) {

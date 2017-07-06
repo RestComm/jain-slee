@@ -81,7 +81,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		
 		// create sbb entity
 		final NonRootSbbEntityID sbbeId = new NonRootSbbEntityID(parentSbbEntityID, parentChildRelation, childName);
-		final SbbEntityCacheDataWrapper cacheData = new SbbEntityCacheDataWrapper(sbbeId,sleeContainer.getCluster(CacheType.SBB_ENTITIES));
+		final SbbEntityCacheDataWrapper cacheData = new SbbEntityCacheDataWrapper(sbbeId,sleeContainer.getCluster(CacheType.SBB_ENTITIES),sleeContainer.getTransactionManager());
 		if (cacheData.exists()) {
 			throw new CreateException("sbb entity with name "+childName+" already exists");
 		}
@@ -111,7 +111,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 		// we hold the lock now
 				
 		// create sbb entity
-		final SbbEntityCacheDataWrapper cacheData = new SbbEntityCacheDataWrapper(sbbeId,sleeContainer.getCluster(CacheType.SBB_ENTITIES));
+		final SbbEntityCacheDataWrapper cacheData = new SbbEntityCacheDataWrapper(sbbeId,sleeContainer.getCluster(CacheType.SBB_ENTITIES),sleeContainer.getTransactionManager());
 		SbbEntityImpl sbbEntity = null;
 		if (cacheData.create()) {
 			sbbEntity = new SbbEntityImpl(sbbeId, cacheData, true, this);
@@ -196,7 +196,7 @@ public class SbbEntityFactoryImpl extends AbstractSleeContainerModule implements
 			}															
 						
 			// get sbb entity data from cache
-			final SbbEntityCacheDataWrapper cacheData = new SbbEntityCacheDataWrapper(sbbeId,sleeContainer.getCluster(CacheType.SBB_ENTITIES));
+			final SbbEntityCacheDataWrapper cacheData = new SbbEntityCacheDataWrapper(sbbeId,sleeContainer.getCluster(CacheType.SBB_ENTITIES),sleeContainer.getTransactionManager());
 			if (!cacheData.exists()) {
 				if(lock != null) {
 					lockFacility.remove(lockedSbbEntityID);
