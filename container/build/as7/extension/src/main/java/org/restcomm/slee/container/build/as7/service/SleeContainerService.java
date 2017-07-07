@@ -1,5 +1,24 @@
 package org.telestax.slee.container.build.as7.service;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.concurrent.Executors;
+
+import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+import javax.slee.management.AlarmMBean;
+import javax.slee.management.DeploymentMBean;
+import javax.slee.management.ResourceManagementMBean;
+import javax.slee.management.ServiceManagementMBean;
+import javax.slee.management.TraceMBean;
+import javax.transaction.TransactionManager;
+
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -7,12 +26,15 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.configuration.global.ShutdownHookBehavior;
 import org.infinispan.util.concurrent.IsolationLevel;
-
 import org.jboss.as.controller.services.path.PathManager;
 import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.dmr.ModelNode;
 import org.jboss.logging.Logger;
-import org.jboss.msc.service.*;
+import org.jboss.msc.service.Service;
+import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.StartContext;
+import org.jboss.msc.service.StartException;
+import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 import org.jboss.vfs.TempFileProvider;
 import org.jboss.vfs.VFS;
@@ -41,8 +63,39 @@ import org.mobicents.slee.container.facilities.ActivityContextNamingFacility;
 import org.mobicents.slee.container.facilities.TimerFacility;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityContextInterfaceFactory;
 import org.mobicents.slee.container.facilities.nullactivity.NullActivityFactory;
-import org.mobicents.slee.container.management.*;
-import org.mobicents.slee.container.management.jmx.*;
+import org.mobicents.slee.container.management.ComponentManagement;
+import org.mobicents.slee.container.management.ProfileManagement;
+import org.mobicents.slee.container.management.ProfileManagementImpl;
+import org.mobicents.slee.container.management.ResourceManagementImpl;
+import org.mobicents.slee.container.management.SbbManagement;
+import org.mobicents.slee.container.management.SbbManagementImpl;
+import org.mobicents.slee.container.management.ServiceManagementImpl;
+import org.mobicents.slee.container.management.UsageParametersManagement;
+import org.mobicents.slee.container.management.UsageParametersManagementImpl;
+import org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImpl;
+import org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean;
+import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
+import org.mobicents.slee.container.management.jmx.CongestionControlConfiguration;
+import org.mobicents.slee.container.management.jmx.CongestionControlConfigurationMBean;
+import org.mobicents.slee.container.management.jmx.DeploymentMBeanImpl;
+import org.mobicents.slee.container.management.jmx.EventContextFactoryConfiguration;
+import org.mobicents.slee.container.management.jmx.EventContextFactoryConfigurationMBean;
+import org.mobicents.slee.container.management.jmx.EventRouterConfiguration;
+import org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean;
+import org.mobicents.slee.container.management.jmx.EventRouterStatistics;
+import org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean;
+import org.mobicents.slee.container.management.jmx.MobicentsManagement;
+import org.mobicents.slee.container.management.jmx.MobicentsManagementMBean;
+import org.mobicents.slee.container.management.jmx.ProfileProvisioningMBeanImpl;
+import org.mobicents.slee.container.management.jmx.ResourceManagementMBeanImpl;
+import org.mobicents.slee.container.management.jmx.SbbEntitiesMBeanImpl;
+import org.mobicents.slee.container.management.jmx.SbbEntitiesMBeanImplMBean;
+import org.mobicents.slee.container.management.jmx.ServiceManagementMBeanImpl;
+import org.mobicents.slee.container.management.jmx.SleeManagementMBeanImpl;
+import org.mobicents.slee.container.management.jmx.SleeManagementMBeanImplMBean;
+import org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration;
+import org.mobicents.slee.container.management.jmx.TimerFacilityConfigurationMBean;
+import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.remote.RmiServerInterfaceImpl;
 import org.mobicents.slee.container.rmi.RmiServerInterface;
 import org.mobicents.slee.container.sbbentity.SbbEntityFactory;
@@ -56,26 +109,14 @@ import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContextInt
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManagerImpl;
-import org.restcomm.cache.MobicentsCache;
-import org.restcomm.cluster.DefaultMobicentsCluster;
-import org.restcomm.cluster.MobicentsCluster;
+import org.restcomm.cache.CacheDataExecutorService;
+import org.restcomm.cache.CacheExecutorConfiguration;
 import org.restcomm.cluster.MobicentsClusterFactory;
 import org.restcomm.cluster.election.DefaultClusterElector;
 import org.telestax.slee.container.build.as7.deployment.ExternalDeployerImpl;
 import org.telestax.slee.container.build.as7.deployment.SleeDeploymentMetaData;
 import org.telestax.slee.container.build.as7.naming.JndiManagementImpl;
 import org.telestax.slee.container.build.as7.tckwrapper.SleeTCKPluginWrapper;
-
-import javax.management.MBeanServer;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
-import javax.slee.management.*;
-import javax.transaction.TransactionManager;
-import java.io.*;
-import java.net.URL;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.concurrent.Executors;
 
 public class SleeContainerService implements Service<SleeContainer> {
 
@@ -137,6 +178,15 @@ public class SleeContainerService implements Service<SleeContainer> {
 		}
 		return result;
 	}
+	
+	private long getPropertyLong(String mbeanName, String propertyName, long defaultValue) {
+		long result = defaultValue;
+		ModelNode propertyNode = peek(fullModel, "mbean", mbeanName, "property", propertyName);
+		if (propertyNode != null && propertyNode.isDefined()) {
+			result = propertyNode.get("value").asLong();
+		}
+		return result;
+	}
 
 	private boolean getPropertyBoolean(String mbeanName, String propertyName, boolean defaultValue) {
 		boolean result = defaultValue;
@@ -171,6 +221,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 
 		final MobicentsClusterFactory clusterFactory = initClusterFactory(replicationClassLoader);
 
+		
 		// init the tx manager
 		final SleeTransactionManager sleeTransactionManager = new SleeTransactionManagerImpl(
 				getTransactionManager().getValue());
@@ -422,9 +473,15 @@ public class SleeContainerService implements Service<SleeContainer> {
 			cacheConfigData = this.cacheConfig.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e2) {
 		}
+		
+		int cacheExecutorThreads = getPropertyInt("CacheExecutorConfiguration", "cacheExecutorThreads", 16);
+		long cacheExecutorTerminateTimeout = getPropertyLong("CacheExecutorConfiguration", "cacheExecutorTerminateTimeout", 5000L);
+		long cacheExecutorCommandTimeout = getPropertyLong("CacheExecutorConfiguration", "cacheExecutorCommandTimeout", 1000L);
+		CacheExecutorConfiguration cacheExecutorConfiguration = new CacheExecutorConfiguration(cacheExecutorThreads, cacheExecutorTerminateTimeout, cacheExecutorCommandTimeout);
 
+		CacheDataExecutorService cacheExecutorService = new CacheDataExecutorService(cacheExecutorConfiguration);
 		return new MobicentsClusterFactory(this.cacheConfig, cacheConfigData, defaultConfig, globalConfig,
-				transactionManager.getValue(), new DefaultClusterElector(), classLoader);
+				transactionManager.getValue(), new DefaultClusterElector(), classLoader, cacheExecutorService);
 	}
 
 	@Override

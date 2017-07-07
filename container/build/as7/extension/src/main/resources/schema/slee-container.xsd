@@ -8,16 +8,16 @@
     <!-- The subsystem root element -->
     <xs:element name="subsystem" type="subsystemType"/>
 
-    <xs:complexType name="subsystemType">
+    <xs:complexType name="subsystemType">    	
         <xs:sequence>
-            <xs:element name="cache-config" type="xs:string" minOccurs="0" maxOccurs="1" />
+        	<xs:element name="cache-config" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="mbean" type="mbeanType"/>
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="mbeanType">
+	<xs:complexType name="mbeanType">
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="property" type="propertyType"/>

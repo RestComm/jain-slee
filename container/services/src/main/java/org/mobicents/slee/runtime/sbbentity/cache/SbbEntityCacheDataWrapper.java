@@ -25,12 +25,12 @@ public class SbbEntityCacheDataWrapper
 			MobicentsCluster cluster,SleeTransactionManager transactionManager) {
 		
 		this.transactionManager=transactionManager;
-		this.attachedActivityContextsCacheData=new AttachedActivityContextsCacheData(sbbEntityID, cluster.getMobicentsCache());
-		this.childRelationsCacheData=new ChildRelationsCacheData(sbbEntityID, cluster.getMobicentsCache());
-		this.cmpFieldsCacheData=new CmpFieldsCacheData(sbbEntityID, cluster.getMobicentsCache());
-		this.eventMasksCacheData=new EventMasksCacheData(sbbEntityID, cluster.getMobicentsCache());
-		this.metadataCacheData=new MetadataCacheData(sbbEntityID, cluster.getMobicentsCache());
-		this.parentEntityCacheData=new ParentEntityCacheData(sbbEntityID, cluster.getMobicentsCache());
+		this.attachedActivityContextsCacheData=new AttachedActivityContextsCacheData(sbbEntityID, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.childRelationsCacheData=new ChildRelationsCacheData(sbbEntityID, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.cmpFieldsCacheData=new CmpFieldsCacheData(sbbEntityID, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.eventMasksCacheData=new EventMasksCacheData(sbbEntityID, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.metadataCacheData=new MetadataCacheData(sbbEntityID, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.parentEntityCacheData=new ParentEntityCacheData(sbbEntityID, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
 	}
 	
 	public Boolean create() {

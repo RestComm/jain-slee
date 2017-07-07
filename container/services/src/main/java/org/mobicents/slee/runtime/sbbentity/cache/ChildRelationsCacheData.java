@@ -7,12 +7,13 @@ import java.util.Set;
 
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.CacheDataExecutorService;
 import org.restcomm.cache.MobicentsCache;
 
 public class ChildRelationsCacheData extends CacheData<SbbEntityCacheKey,HashMap<SbbEntityID,Void>> 
 {
-	public ChildRelationsCacheData(SbbEntityID sbbEntityID, MobicentsCache cache) {
-		super(new SbbEntityCacheKey(sbbEntityID, SbbEntityCacheType.CHILD_RELATIONS), cache);		
+	public ChildRelationsCacheData(SbbEntityID sbbEntityID, MobicentsCache cache, CacheDataExecutorService cacheExecutorService) {
+		super(new SbbEntityCacheKey(sbbEntityID, SbbEntityCacheType.CHILD_RELATIONS), cache, cacheExecutorService);		
 	}
 	
 	public Set<SbbEntityID> getAllChildSbbEntities(Boolean createIfNotExists) {

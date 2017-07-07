@@ -12,12 +12,11 @@ public class SleeSubsystemDefinition extends SimpleResourceDefinition {
                     .setAllowExpression(true)
                     .setXmlName(SleeSubsystemModel.CACHE_CONFIG)
                     .setDefaultValue(new ModelNode(""))
-                    .build();
-
+                    .build();    
+    
     static final AttributeDefinition[] ATTRIBUTES = {
             CACHE_CONFIG
     };
-
 
     public static final SleeSubsystemDefinition INSTANCE = new SleeSubsystemDefinition();
 

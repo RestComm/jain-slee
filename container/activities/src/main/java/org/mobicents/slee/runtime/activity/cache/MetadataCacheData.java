@@ -4,12 +4,13 @@ import java.util.HashMap;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.CacheDataExecutorService;
 import org.restcomm.cache.MobicentsCache;
 
 public class MetadataCacheData extends CacheData<ActivityCacheKey,HashMap<String,Object>> 
 {
-	public MetadataCacheData(ActivityContextHandle handle, MobicentsCache cache) {
-		super(new ActivityCacheKey(handle, ActivityCacheType.METADATA), cache);		
+	public MetadataCacheData(ActivityContextHandle handle, MobicentsCache cache, CacheDataExecutorService cacheExecutorService) {
+		super(new ActivityCacheKey(handle, ActivityCacheType.METADATA), cache, cacheExecutorService);		
 	}
 	
 	public Boolean setObject(Boolean createIfNotExists,String name,Object value) {

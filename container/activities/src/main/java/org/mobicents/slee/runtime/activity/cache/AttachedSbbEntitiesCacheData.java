@@ -7,12 +7,13 @@ import java.util.Set;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.CacheDataExecutorService;
 import org.restcomm.cache.MobicentsCache;
 
 public class AttachedSbbEntitiesCacheData extends CacheData<ActivityCacheKey,HashMap<SbbEntityID,Void>> 
 {
-	public AttachedSbbEntitiesCacheData(ActivityContextHandle handle, MobicentsCache cache) {
-		super(new ActivityCacheKey(handle, ActivityCacheType.ATTACHED_SBBS), cache);		
+	public AttachedSbbEntitiesCacheData(ActivityContextHandle handle, MobicentsCache cache, CacheDataExecutorService cacheExecutorService) {
+		super(new ActivityCacheKey(handle, ActivityCacheType.ATTACHED_SBBS), cache, cacheExecutorService);		
 	}
 	
 	public Boolean attachSbb(Boolean createIfNotExists,SbbEntityID sbbEntityID) {

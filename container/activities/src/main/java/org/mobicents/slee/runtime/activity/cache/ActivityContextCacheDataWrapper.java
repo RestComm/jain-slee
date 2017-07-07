@@ -11,7 +11,6 @@ import org.restcomm.cluster.MobicentsCluster;
 
 public class ActivityContextCacheDataWrapper 
 {
-	private static final String IS_ENDING_NODE_NAME = "is-ending";
 	private static final String STRING_ID_NODE_NAME = "str-id";
 	private static final String KEY_ACTIVITY_FLAGS_NODE_NAME = "flags";
 	private static final String KEY_LAST_ACCESS_NODE_NAME = "time";
@@ -26,12 +25,12 @@ public class ActivityContextCacheDataWrapper
 	public ActivityContextCacheDataWrapper(ActivityContextHandle activityContextHandle,
 			MobicentsCluster cluster) {
 		
-		this.attachedSbbEntitiesCacheData=new AttachedSbbEntitiesCacheData(activityContextHandle, cluster.getMobicentsCache());
-		this.attachedTimersEntitiesCacheData=new AttachedTimersEntitiesCacheData(activityContextHandle, cluster.getMobicentsCache());
-		this.nameBoundsCacheData=new NameBoundsCacheData(activityContextHandle, cluster.getMobicentsCache());
-		this.cmpAttributesCacheData=new CmpAttributesCacheData(activityContextHandle, cluster.getMobicentsCache());
-		this.metadataCacheData=new MetadataCacheData(activityContextHandle, cluster.getMobicentsCache());
-		this.isEndingCacheData=new IsEndingCacheData(activityContextHandle, cluster.getMobicentsCache());		
+		this.attachedSbbEntitiesCacheData=new AttachedSbbEntitiesCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.attachedTimersEntitiesCacheData=new AttachedTimersEntitiesCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.nameBoundsCacheData=new NameBoundsCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.cmpAttributesCacheData=new CmpAttributesCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.metadataCacheData=new MetadataCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
+		this.isEndingCacheData=new IsEndingCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());		
 	}
 	
 	public void create(Integer activityFlags) {

@@ -70,7 +70,7 @@ class SleeSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
         final ModelNode cacheConfigModel = SleeSubsystemDefinition.CACHE_CONFIG.resolveModelAttribute(context, model);
         final String cacheConfig = cacheConfigModel.isDefined() ? cacheConfigModel.asString() : null;
-
+        
     	// Installs the msc service which builds the SleeContainer instance and its modules
         final ServiceTarget target = context.getServiceTarget();
         final SleeContainerService sleeContainerService = new SleeContainerService(fullModel, cacheConfig);

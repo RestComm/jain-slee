@@ -515,11 +515,16 @@
 					&lt;cache-container default-cache="slee-default" statistics="false" shutdown-hook="DONT_REGISTER">
 						&lt;local-cache name="slee-default">
 							&lt;locking isolation="REPEATABLE_READ" acquire-timeout="30000" striping="false" />
-							&lt;transaction mode="BATCH"/>
+							&lt;transaction locking="PESSIMISTIC" mode="BATCH"/>
 						&lt;/local-cache>
 					&lt;/cache-container>
 				&lt;/infinispan>
             </cache-config>
+            <mbean name="CacheExecutorConfiguration">
+				<property name="cacheExecutorThreads" value="16"/>
+				<property name="cacheExecutorTerminateTimeout" value="1000"/>
+				<property name="cacheExecutorCommandTimeout" value="1000"/>
+			</mbean>
             <mbean name="EventContextFactoryConfiguration">
 				<property name="defaultEventContextSuspensionTimeout" value="10000" />
 			</mbean>

@@ -43,7 +43,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData<String,Act
 	 * @param cluster
 	 */
 	public ActivityContextNamingFacilityCacheData(String name,MobicentsCluster cluster) {
-		super(name,cluster.getMobicentsCache());
+		super(name,cluster.getMobicentsCache(), cluster.getCacheExecutorService());
 	}
 
 	/**

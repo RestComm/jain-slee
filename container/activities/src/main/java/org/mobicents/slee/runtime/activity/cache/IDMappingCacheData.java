@@ -6,12 +6,13 @@ import java.util.Set;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.CacheDataExecutorService;
 import org.restcomm.cache.MobicentsCache;
 
 public class IDMappingCacheData extends CacheData<ActivityCacheKey,HashMap<String,Void>> 
 {
-	public IDMappingCacheData(ActivityContextHandle handle, MobicentsCache cache) {
-		super(new ActivityCacheKey(handle, ActivityCacheType.NAMES_BOUND), cache);		
+	public IDMappingCacheData(ActivityContextHandle handle, MobicentsCache cache, CacheDataExecutorService cacheExecutorService) {
+		super(new ActivityCacheKey(handle, ActivityCacheType.NAMES_BOUND), cache, cacheExecutorService);		
 	}
 	
 	public Boolean bind(Boolean createIfNotExists,String name) {

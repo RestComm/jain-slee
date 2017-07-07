@@ -4,14 +4,15 @@ import java.util.HashMap;
 
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
+import org.restcomm.cache.CacheDataExecutorService;
 import org.restcomm.cache.MobicentsCache;
 
 public class ParentEntityCacheData extends CacheData<SbbEntityCacheKey,HashMap<SbbEntityID,Void>> 
 {
 	private SbbEntityID sbbEntityID;
 	
-	public ParentEntityCacheData(SbbEntityID sbbEntityID, MobicentsCache cache) {
-		super(new SbbEntityCacheKey(sbbEntityID.getParentSBBEntityID(), SbbEntityCacheType.CHILD_RELATIONS), cache);
+	public ParentEntityCacheData(SbbEntityID sbbEntityID, MobicentsCache cache, CacheDataExecutorService cacheExecutorService) {
+		super(new SbbEntityCacheKey(sbbEntityID.getParentSBBEntityID(), SbbEntityCacheType.CHILD_RELATIONS), cache, cacheExecutorService);
 		this.sbbEntityID=sbbEntityID;
 	}
 	
