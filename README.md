@@ -1,9 +1,8 @@
-[![Stories in Ready](https://badge.waffle.io/RestComm/jain-slee.png?label=ready&title=Ready)](https://waffle.io/RestComm/jain-slee)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fjain-slee.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fjain-slee?ref=badge_shield)
 RestComm JAIN-SLEE
 ============
 
 [![Join the chat at https://gitter.im/RestComm/jain-slee](https://badges.gitter.im/RestComm/jain-slee.svg)](https://gitter.im/RestComm/jain-slee?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fjain-slee.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fjain-slee?ref=badge_shield)
 
 RestComm JAIN SLEE is a highly scalable event-driven application server with a robust component model and fault tolerant execution environment. 
 
