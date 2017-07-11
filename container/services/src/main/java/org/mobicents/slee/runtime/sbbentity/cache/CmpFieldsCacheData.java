@@ -4,13 +4,12 @@ import java.util.HashMap;
 
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
-import org.restcomm.cache.CacheDataExecutorService;
 import org.restcomm.cache.MobicentsCache;
 
 public class CmpFieldsCacheData extends CacheData<SbbEntityCacheKey,HashMap<String,Object>> 
 {
-	public CmpFieldsCacheData(SbbEntityID sbbEntityID, MobicentsCache cache, CacheDataExecutorService cacheExecutorService) {
-		super(new SbbEntityCacheKey(sbbEntityID, SbbEntityCacheType.CMP_FIELDS), cache, cacheExecutorService);		
+	public CmpFieldsCacheData(SbbEntityID sbbEntityID, MobicentsCache cache) {
+		super(new SbbEntityCacheKey(sbbEntityID, SbbEntityCacheType.CMP_FIELDS), cache);		
 	}
 	
 	public Boolean setField(Boolean createIfNotExists,String name,Object value) {

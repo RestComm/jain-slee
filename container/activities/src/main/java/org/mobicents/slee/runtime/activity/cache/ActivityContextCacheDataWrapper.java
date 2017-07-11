@@ -25,12 +25,12 @@ public class ActivityContextCacheDataWrapper
 	public ActivityContextCacheDataWrapper(ActivityContextHandle activityContextHandle,
 			MobicentsCluster cluster) {
 		
-		this.attachedSbbEntitiesCacheData=new AttachedSbbEntitiesCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
-		this.attachedTimersEntitiesCacheData=new AttachedTimersEntitiesCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
-		this.nameBoundsCacheData=new NameBoundsCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
-		this.cmpAttributesCacheData=new CmpAttributesCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
-		this.metadataCacheData=new MetadataCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());
-		this.isEndingCacheData=new IsEndingCacheData(activityContextHandle, cluster.getMobicentsCache(), cluster.getCacheExecutorService());		
+		this.attachedSbbEntitiesCacheData=new AttachedSbbEntitiesCacheData(activityContextHandle, cluster.getMobicentsCache());
+		this.attachedTimersEntitiesCacheData=new AttachedTimersEntitiesCacheData(activityContextHandle, cluster.getMobicentsCache());
+		this.nameBoundsCacheData=new NameBoundsCacheData(activityContextHandle, cluster.getMobicentsCache());
+		this.cmpAttributesCacheData=new CmpAttributesCacheData(activityContextHandle, cluster.getMobicentsCache());
+		this.metadataCacheData=new MetadataCacheData(activityContextHandle, cluster.getMobicentsCache());
+		this.isEndingCacheData=new IsEndingCacheData(activityContextHandle, cluster.getMobicentsCache());		
 	}
 	
 	public void create(Integer activityFlags) {
