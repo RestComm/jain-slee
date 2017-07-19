@@ -191,5 +191,8 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 		if (timer != null) {
 			timer.shutdown();
 		}
+		
+		this.sleeContainer.getClusterFactory().stopCluster(REPLICATED_DATA_NAME + "-" + raEntity);
+		this.sleeContainer.getClusterFactory().stopCluster(REPLICATED_DATA_WITH_FAILOVER_NAME + "-" + raEntity);		
 	}
 }

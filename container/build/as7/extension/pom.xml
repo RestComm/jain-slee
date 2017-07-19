@@ -58,7 +58,7 @@
 						</descriptor>
 					</descriptors>
 					<appendAssemblyId>false</appendAssemblyId>
-					<finalName>module</finalName>																				
+					<finalName>module</finalName>
 				</configuration>
 				<executions>
 					<execution>
@@ -107,7 +107,8 @@
 						<configuration>
 							<tasks>
 								<delete failonerror="false">
-									<fileset dir="${project.basedir}/src/main/resources/deployments" includes="**/*.*"/>
+									<fileset dir="${project.basedir}/src/main/resources/deployments"
+										includes="**/*.*" />
 								</delete>
 							</tasks>
 						</configuration>
@@ -142,7 +143,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- WildFly modules  -->
+		<!-- WildFly modules -->
 		<dependency>
 			<groupId>org.wildfly.core</groupId>
 			<artifactId>wildfly-controller</artifactId>
@@ -158,13 +159,8 @@
 			<artifactId>wildfly-server</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!--
-        <dependency>
-            <groupId>org.wildfly.core</groupId>
-            <artifactId>wildfly-subsystem-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        -->
+		<!-- <dependency> <groupId>org.wildfly.core</groupId> <artifactId>wildfly-subsystem-test</artifactId> 
+			<scope>test</scope> </dependency> -->
 		<dependency>
 			<groupId>org.wildfly</groupId>
 			<artifactId>wildfly-transactions</artifactId>
@@ -176,93 +172,32 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	
-	<profiles>
-		<!--
-		<profile>
-			<id>build-as72</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.jboss.as</groupId>
-					<artifactId>jboss-as-controller</artifactId>
-					<scope>provided</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.as</groupId>
-					<artifactId>jboss-as-jmx</artifactId>
-					<scope>provided</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.as</groupId>
-					<artifactId>jboss-as-server</artifactId>
-					<scope>provided</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.as</groupId>
-					<artifactId>jboss-as-subsystem-test</artifactId>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.as</groupId>
-					<artifactId>jboss-as-transactions</artifactId>
-					<scope>provided</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.as</groupId>
-					<artifactId>jboss-as-connector</artifactId>
-					<scope>provided</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-		-->
 
-		<!--
-		<profile>
-			<id>build-wildfly</id>
-			<activation>
-				<!- -
-				Never use <activeByDefault>
-				<activeByDefault>true</activeByDefault>
-				https://dzone.com/articles/maven-profile-best-practices
-				- ->
-				<property><name>!foo.bar</name></property>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>org.wildfly.core</groupId>
-					<artifactId>wildfly-controller</artifactId>
-					<scope>provided</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.wildfly.core</groupId>
-					<artifactId>wildfly-jmx</artifactId>
-					<scope>provided</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.wildfly.core</groupId>
-					<artifactId>wildfly-server</artifactId>
-					<scope>provided</scope>
-				</dependency>
-				<!- -
-				<dependency>
-					<groupId>org.wildfly.core</groupId>
-					<artifactId>wildfly-subsystem-test</artifactId>
-					<scope>test</scope>
-				</dependency>
-				- ->
-				<dependency>
-					<groupId>org.wildfly</groupId>
-					<artifactId>wildfly-transactions</artifactId>
-					<scope>provided</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.wildfly</groupId>
-					<artifactId>wildfly-connector</artifactId>
-					<scope>provided</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-		-->
+	<profiles>
+		<!-- <profile> <id>build-as72</id> <dependencies> <dependency> <groupId>org.jboss.as</groupId> 
+			<artifactId>jboss-as-controller</artifactId> <scope>provided</scope> </dependency> 
+			<dependency> <groupId>org.jboss.as</groupId> <artifactId>jboss-as-jmx</artifactId> 
+			<scope>provided</scope> </dependency> <dependency> <groupId>org.jboss.as</groupId> 
+			<artifactId>jboss-as-server</artifactId> <scope>provided</scope> </dependency> 
+			<dependency> <groupId>org.jboss.as</groupId> <artifactId>jboss-as-subsystem-test</artifactId> 
+			<scope>test</scope> </dependency> <dependency> <groupId>org.jboss.as</groupId> 
+			<artifactId>jboss-as-transactions</artifactId> <scope>provided</scope> </dependency> 
+			<dependency> <groupId>org.jboss.as</groupId> <artifactId>jboss-as-connector</artifactId> 
+			<scope>provided</scope> </dependency> </dependencies> </profile> -->
+
+		<!-- <profile> <id>build-wildfly</id> <activation> <!- - Never use <activeByDefault> 
+			<activeByDefault>true</activeByDefault> https://dzone.com/articles/maven-profile-best-practices 
+			- -> <property><name>!foo.bar</name></property> </activation> <dependencies> 
+			<dependency> <groupId>org.wildfly.core</groupId> <artifactId>wildfly-controller</artifactId> 
+			<scope>provided</scope> </dependency> <dependency> <groupId>org.wildfly.core</groupId> 
+			<artifactId>wildfly-jmx</artifactId> <scope>provided</scope> </dependency> 
+			<dependency> <groupId>org.wildfly.core</groupId> <artifactId>wildfly-server</artifactId> 
+			<scope>provided</scope> </dependency> <!- - <dependency> <groupId>org.wildfly.core</groupId> 
+			<artifactId>wildfly-subsystem-test</artifactId> <scope>test</scope> </dependency> 
+			- -> <dependency> <groupId>org.wildfly</groupId> <artifactId>wildfly-transactions</artifactId> 
+			<scope>provided</scope> </dependency> <dependency> <groupId>org.wildfly</groupId> 
+			<artifactId>wildfly-connector</artifactId> <scope>provided</scope> </dependency> 
+			</dependencies> </profile> -->
 
 		<!--
 		<profile>
@@ -458,9 +393,10 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy todir="${jboss.home}/modules/system/layers/base/${module.path}">
-											<fileset dir="${project.build.directory}/module"/>
-										</copy>										
+										<copy
+											todir="${jboss.home}/modules/system/layers/base/${module.path}">
+											<fileset dir="${project.build.directory}/module" />
+										</copy>
 									</tasks>
 								</configuration>
 							</execution>
@@ -471,8 +407,9 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>									
-										<delete failonerror="false" dir="${jboss.home}/modules/system/layers/base/${module.path}"/>
+									<tasks>
+										<delete failonerror="false"
+											dir="${jboss.home}/modules/system/layers/base/${module.path}" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -495,16 +432,18 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>										
-										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[</extensions>]]></replacetoken>
-  											<replacevalue><![CDATA[
+									<tasks>
+										<replace
+											file="${jboss.home}/standalone/configuration/standalone.xml">
+											<replacetoken><![CDATA[</extensions>]]></replacetoken>
+											<replacevalue><![CDATA[
 		<extension module="org.restcomm.slee.container.extension"/>
 	</extensions>]]></replacevalue>
 										</replace>
-										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[</profile>]]></replacetoken>
-  											<replacevalue><![CDATA[
+										<replace
+											file="${jboss.home}/standalone/configuration/standalone.xml">
+											<replacetoken><![CDATA[</profile>]]></replacetoken>
+											<replacevalue><![CDATA[
 		<subsystem xmlns="urn:restcomm:slee-container:3.0">
             <cache-config>
                 &lt;?xml version="1.0" encoding="UTF-8"?>
@@ -555,11 +494,71 @@
         </subsystem>
 	</profile>]]></replacevalue>
 										</replace>
-										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
+										<replace
+											file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
 											<replacetoken><![CDATA[</dependencies>]]></replacetoken>
 											<replacevalue><![CDATA[
 		<module name="org.restcomm.slee.container.lib"/>
 	</dependencies>]]></replacevalue>
+										</replace>
+										<replace
+											file="${jboss.home}/standalone/configuration/standalone-ha.xml">
+											<replacetoken><![CDATA[</extensions>]]></replacetoken>
+											<replacevalue><![CDATA[<extension module="org.restcomm.slee.container.extension"/></extensions>]]></replacevalue>
+										</replace>
+										<replace
+											file="${jboss.home}/standalone/configuration/standalone-ha.xml">
+											<replacetoken><![CDATA[</profile>]]></replacetoken>
+											<replacevalue><![CDATA[
+		<subsystem xmlns="urn:restcomm:slee-container:3.0">
+            <cache-config>
+                &lt;?xml version="1.0" encoding="UTF-8"?>
+				&lt;infinispan
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="urn:infinispan:config:8.1 http://www.infinispan.org/schemas/infinispan-config-8.1.xsd"
+					xmlns="urn:infinispan:config:8.1">
+					&lt;cache-container default-cache="slee-default" statistics="false" shutdown-hook="DONT_REGISTER">
+						&lt;local-cache name="slee-default">
+							&lt;locking isolation="REPEATABLE_READ" acquire-timeout="30000" striping="false" />
+							&lt;transaction locking="PESSIMISTIC" mode="BATCH"/>
+						&lt;/local-cache>
+					&lt;/cache-container>
+				&lt;/infinispan>
+            </cache-config>
+            <mbean name="CacheExecutorConfiguration">
+				<property name="cacheExecutorThreads" value="16"/>
+				<property name="cacheExecutorTerminateTimeout" value="1000"/>
+				<property name="cacheExecutorCommandTimeout" value="1000"/>
+			</mbean>
+            <mbean name="EventContextFactoryConfiguration">
+				<property name="defaultEventContextSuspensionTimeout" value="10000" />
+			</mbean>
+			<mbean name="EventRouterConfiguration">
+				<property name="eventRouterThreads" value="64" />
+				<property name="collectStats" value="true" />
+				<property name="confirmSbbEntityAttachement" value="true" />
+				<property name="executorMapperClassName"
+					value="org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper" />
+			</mbean>
+			<mbean name="MobicentsManagement">
+				<property name="entitiesRemovalDelay" value="1" />
+				<property name="initializeReferenceDataTypesWithNull" value="true" />
+			</mbean>
+            <mbean name="H2DBConfig">
+            	<property name="persistProfiles" value="true" />
+            	<property name="clusteredProfiles" value="false" />
+            	<property name="hibernateDatasource" value="java:jboss/datasources/ExampleDS" />
+            	<property name="hibernateDialect" value="org.hibernate.dialect.H2Dialect" />
+            </mbean>
+            <mbean name="RmiServerInterface">
+            	<property name="rmiAddress" value="127.0.0.1" />
+            	<property name="rmiPort" value="7777" />
+            </mbean>
+            <mbean name="SleeTCKPluginWrapper">
+                <property name="active" value="false"/>
+            </mbean>
+        </subsystem>
+	</profile>]]></replacevalue>
 										</replace>
 									</tasks>
 								</configuration>
@@ -572,26 +571,23 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
-  											<replacevalue><![CDATA[]]></replacevalue>
+										<replace
+											file="${jboss.home}/standalone/configuration/standalone.xml">
+											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
+											<replacevalue><![CDATA[]]>
+											</replacevalue>
 										</replace>
-										<!--
-										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
-  											<replacetoken><![CDATA[<subsystem xmlns="urn:restcomm:slee-container:3.0">
-			<remote-rmi-address>127.0.0.1</remote-rmi-address>
-			<remote-rmi-port>7777</remote-rmi-port>
-			<profiles-persist-profiles>true</profiles-persist-profiles>
-			<profiles-clustered-profiles>false</profiles-clustered-profiles>
-			<profiles-hibernate-datasource>java:jboss/datasources/ExampleDS</profiles-hibernate-datasource>
-			<profiles-hibernate-dialect>org.hibernate.dialect.H2Dialect</profiles-hibernate-dialect>
-		</subsystem>]]></replacetoken>
-  											<replacevalue><![CDATA[]]></replacevalue>
+										<replace
+											file="${jboss.home}/standalone/configuration/standalone-ha.xml">
+											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
+											<replacevalue><![CDATA[]]>
+											</replacevalue>
 										</replace>
-										-->
-										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
+										<replace
+											file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
 											<replacetoken><![CDATA[<module name="org.restcomm.slee.container.lib"/>]]></replacetoken>
-											<replacevalue><![CDATA[]]></replacevalue>
+											<replacevalue><![CDATA[]]>
+											</replacevalue>
 										</replace>
 									</tasks>
 								</configuration>
