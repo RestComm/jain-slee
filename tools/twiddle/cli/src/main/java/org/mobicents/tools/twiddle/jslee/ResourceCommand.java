@@ -37,7 +37,7 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
 
 /**
  * @author baranowb
- *
+ * @author <a href="mailto:bartosz.krok@pro-ids.com"> Bartosz Krok (ProIDS sp. z o.o.)</a>
  */
 public class ResourceCommand extends AbstractSleeCommand {
 
@@ -63,6 +63,9 @@ public class ResourceCommand extends AbstractSleeCommand {
 		out.println("    -u, --unbind                   Unbinds a link name from a RA entity. Requires link name as argument.");
 		out.println("    -a, --activate                 Activate a RA entity. Requires entity name as argument.");
 		out.println("    -d, --deactivate               Deactivate a RA entity. Requires entity name as argument.");
+		out.println("    -s, --graceful-stop            Graceful shutdown for the RA entity. Without argument it will set default value for AST and time");
+		out.println("           --ast                   Active sessions treshold. Optional argument.");
+		out.println("           --time                  Time of graceful shutdown processing. Optional argument.");
 		out.println("    -c, --create                   Creates a RA entity. Options specify mandatory arguments:");
 		out.println("          --entity-name            Specifies RA entity name to be used, requires entity name as argument. ");
 		out.println("          --ra-id                  Specifies ResourceAdaptorID to be used, requires argument. ");
@@ -85,14 +88,14 @@ public class ResourceCommand extends AbstractSleeCommand {
 		out.println("          --config-by-id           Retrieves ConfigurationProperties for given ResourceAdaptorID. Requires ResourceAdaptorID as argument.");
 		out.println("          --config-by-name         Retrieves ConfigurationProperties for given RA entity name. Requires entity name as argument.");
 		//out.println("          --usage-mbean            Retrieves ObjectName of ResourceAdaptorUsageMBean. Requires entity name as argument.");
-//				
-//		
+//
+//
 		out.println("arg:");
 		out.println("");
 		out.println("NOTE: Config property has general form of: (name:java.type=value) and array has different form, than in components: [(cnf.prop),(cnf.prop)]");
 		out.println("     Configuration property array: [(remotePort:java.lang.Integer=40001),(localPort:java.lang.Integer=40000),(localHost:java.lang.String=127.0.0.1),(remoteHost:java.lang.String=127.0.0.1)]");
 		out.println("     ResourceAdaptorEntityState: [INACTIVE|STOPPING|ACTIVE]");
-		
+
 		out.println("");
 		out.println("Examples: ");
 		out.println("");
@@ -111,45 +114,49 @@ public class ResourceCommand extends AbstractSleeCommand {
 		out.println("     5. List all RA Entities created from specific ResourceAdaptorID:");
 		out.println("" + name + " -l --ra-entities=ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]");
 		out.flush();
-		
+
 	}
 
-	
+
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.tools.twiddle.AbstractSleeCommand#processArguments(java.lang.String[])
 	 */
 	@Override
 	protected void processArguments(String[] args) throws CommandException {
-		String sopts = ":bu:a:d:cr:plg";
-		
-		LongOpt[] lopts = { 
+		String sopts = ":bu:a:d:scr:plg";
+
+		LongOpt[] lopts = {
 				new LongOpt("bind", LongOpt.NO_ARGUMENT, null, 'b'),
-					//common options
-					new LongOpt("link-name", LongOpt.REQUIRED_ARGUMENT, null, BindOperation.ra_link_name),
-					new LongOpt("entity-name", LongOpt.REQUIRED_ARGUMENT, null, BindOperation.ra_entity_name),
+				//common options
+				new LongOpt("link-name", LongOpt.REQUIRED_ARGUMENT, null, BindOperation.ra_link_name),
+				new LongOpt("entity-name", LongOpt.REQUIRED_ARGUMENT, null, BindOperation.ra_entity_name),
 				new LongOpt("unbind", LongOpt.REQUIRED_ARGUMENT, null, 'u'),
 				new LongOpt("activate", LongOpt.REQUIRED_ARGUMENT, null, 'a'),
 				new LongOpt("deactivate", LongOpt.REQUIRED_ARGUMENT, null, 'd'),
+				new LongOpt("graceful-stop", LongOpt.NO_ARGUMENT, null, 's'),
+				new LongOpt("entity-name", LongOpt.REQUIRED_ARGUMENT, null, BindOperation.ra_entity_name),
+				new LongOpt("ast", LongOpt.REQUIRED_ARGUMENT, null, GracefulShutdownOperation.ast),
+				new LongOpt("time", LongOpt.REQUIRED_ARGUMENT, null, GracefulShutdownOperation.time),
 				new LongOpt("create", LongOpt.NO_ARGUMENT, null, 'c'),
-					//entity-name is covered
-					new LongOpt("ra-id", LongOpt.REQUIRED_ARGUMENT, null, CreateOperation.ra_id),
-					new LongOpt("config", LongOpt.REQUIRED_ARGUMENT, null, CreateOperation.config),
+				//entity-name is covered
+				new LongOpt("ra-id", LongOpt.REQUIRED_ARGUMENT, null, CreateOperation.ra_id),
+				new LongOpt("config", LongOpt.REQUIRED_ARGUMENT, null, CreateOperation.config),
 				new LongOpt("remove", LongOpt.REQUIRED_ARGUMENT, null, 'r'),
 				new LongOpt("update-config", LongOpt.NO_ARGUMENT, null, 'p'),
-					//entity-name and config are already covered
+				//entity-name and config are already covered
 				new LongOpt("list", LongOpt.NO_ARGUMENT, null, 'l'),
-					new LongOpt("ra-entities", LongOpt.OPTIONAL_ARGUMENT, null, ListOperation.ra_entities),
-					new LongOpt("ra-entities-in-state", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.ra_entities_in_state),
-					new LongOpt("ra-entities-by-link", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.ra_entities_by_link),
-					new LongOpt("links", LongOpt.OPTIONAL_ARGUMENT, null, ListOperation.links),
-					new LongOpt("sbbs", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.sbbs),
+				new LongOpt("ra-entities", LongOpt.OPTIONAL_ARGUMENT, null, ListOperation.ra_entities),
+				new LongOpt("ra-entities-in-state", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.ra_entities_in_state),
+				new LongOpt("ra-entities-by-link", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.ra_entities_by_link),
+				new LongOpt("links", LongOpt.OPTIONAL_ARGUMENT, null, ListOperation.links),
+				new LongOpt("sbbs", LongOpt.REQUIRED_ARGUMENT, null, ListOperation.sbbs),
 				new LongOpt("get", LongOpt.NO_ARGUMENT, null, 'g'),
-					//ra-id is covered
-					new LongOpt("state", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.state),
-					new LongOpt("config-by-id", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.config_by_id),
-					new LongOpt("config-by-name", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.config_by_name),
-					//new LongOpt("usage-mbean", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.usage_mbean),
-				 };
+				//ra-id is covered
+				new LongOpt("state", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.state),
+				new LongOpt("config-by-id", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.config_by_id),
+				new LongOpt("config-by-name", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.config_by_name),
+				//new LongOpt("usage-mbean", LongOpt.REQUIRED_ARGUMENT, null, GetOperation.usage_mbean),
+		};
 
 
 		Getopt getopt = new Getopt(null, args, sopts, lopts);
@@ -158,70 +165,75 @@ public class ResourceCommand extends AbstractSleeCommand {
 		int code;
 		while ((code = getopt.getopt()) != -1) {
 			switch (code) {
-			case ':':
-				throw new CommandException("Option requires an argument: " + args[getopt.getOptind() - 1]);
+				case ':':
+					throw new CommandException("Option requires an argument: " + args[getopt.getOptind() - 1]);
 
-			case '?':
-				throw new CommandException("Invalid (or ambiguous) option: " + args[getopt.getOptind() - 1]);
-				
-			case 'b':
-	
-				super.operation = new BindOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
-				break;
+				case '?':
+					throw new CommandException("Invalid (or ambiguous) option: " + args[getopt.getOptind() - 1]);
 
-				
-			case 'u':
-			
-				super.operation = new UnBindOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
-				break;
+				case 'b':
 
-		
-			case 'a':
+					super.operation = new BindOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
 
-				super.operation = new ActivateOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
-				break;
-		
-		
-			case 'd':
-				
-				super.operation = new DeactivateOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
-				break;
-		
-			case 'c':
-				
-				super.operation = new CreateOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
-				break;
-			case 'r':
-				
-				super.operation = new RemoveOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
-				break;
-	
-			case 'p':
-				
-				super.operation = new UpdateConfigOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
-				break;
-		
-			case 'l':
-				
-				super.operation = new ListOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
-				break;
-	
-			case 'g':
-				
-				super.operation = new GetOperation(super.context, super.log, this);
-				super.operation.buildOperation(getopt, args);
-				break;
-	
-			default:
-				throw new CommandException("Command: \"" + getName() + "\", found unexpected opt: " + args[getopt.getOptind() - 1]);
+
+				case 'u':
+
+					super.operation = new UnBindOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
+
+
+				case 'a':
+
+					super.operation = new ActivateOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
+
+				case 'd':
+
+					super.operation = new DeactivateOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
+
+				case 's':
+
+					super.operation = new GracefulShutdownOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
+
+				case 'c':
+
+					super.operation = new CreateOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
+				case 'r':
+
+					super.operation = new RemoveOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
+
+				case 'p':
+
+					super.operation = new UpdateConfigOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
+
+				case 'l':
+
+					super.operation = new ListOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
+
+				case 'g':
+
+					super.operation = new GetOperation(super.context, super.log, this);
+					super.operation.buildOperation(getopt, args);
+					break;
+
+				default:
+					throw new CommandException("Command: \"" + getName() + "\", found unexpected opt: " + args[getopt.getOptind() - 1]);
 
 			}
 		}
@@ -239,12 +251,12 @@ public class ResourceCommand extends AbstractSleeCommand {
 	{
 		public static final char ra_link_name = 'v';
 		public static final char ra_entity_name = 'm';
-		
+
 		private static final String OPERATION_bindLinkName = "bindLinkName";
-		
+
 		private String linkName;
 		private String entityName;
-		
+
 		public BindOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			super.operationName = OPERATION_bindLinkName;
@@ -252,30 +264,30 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			
+
 			int code;
 
 			while ((code = opts.getopt()) != -1) {
 				switch (code) {
-				case ':':
-					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
-				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
-				case ra_link_name:
+					case ra_link_name:
 
-					this.linkName = opts.getOptarg();
-					break;
-				case ra_entity_name:
+						this.linkName = opts.getOptarg();
+						break;
+					case ra_entity_name:
 
-					this.entityName = opts.getOptarg();
-					break;
-				
+						this.entityName = opts.getOptarg();
+						break;
 
-				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
+
+					default:
+						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+								+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
 
 				}
 
@@ -284,13 +296,13 @@ public class ResourceCommand extends AbstractSleeCommand {
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
 						+ "\", expects both \"--link-name\" and \"--entity-name\" to be present");
 			}
-			
+
 			super.addArg(this.entityName, String.class, false);
 			super.addArg(this.linkName, String.class, false);
 		}
-		
+
 	}
-	
+
 	private class UnBindOperation extends AbstractOperation
 	{
 
@@ -302,10 +314,10 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			
+
 			super.addArg(opts.getOptarg(), String.class, false);
 		}
-		
+
 	}
 	private class ActivateOperation extends AbstractOperation
 	{
@@ -318,16 +330,16 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			
+
 			super.addArg(opts.getOptarg(), String.class, false);
 		}
-		
+
 	}
 	private class DeactivateOperation extends AbstractOperation
 	{
 
 		private static final String OPERATION_deactivateResourceAdaptorEntity = "deactivateResourceAdaptorEntity";
-		
+
 		public DeactivateOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			super.operationName = OPERATION_deactivateResourceAdaptorEntity;
@@ -335,15 +347,87 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			
 			super.addArg(opts.getOptarg(), String.class, false);
 		}
-		
+	}
+	private class GracefulShutdownOperation extends AbstractOperation
+	{
+
+		private static final char ast='h';
+		private static final char time='t';
+		public static final char ra_entity_name = 'm';
+		private String entityName;
+
+		private static final String OPERATION_gracefulShutdownResourceAdaptorEntity = "gracefulShutdownResourceAdaptorEntity";
+
+		//ast which must be present with 'a';
+		private String activeSessionThresholdStr = "-1";
+		//time which must be present with 't';
+		private String gracefulShutdownTimeStr = "-1";
+
+		public GracefulShutdownOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
+			super(context, log, sleeCommand);
+			super.operationName = OPERATION_gracefulShutdownResourceAdaptorEntity;
+		}
+
+		@Override
+		public void buildOperation(Getopt opts, String[] args) throws CommandException {
+
+			int code;
+
+			while ((code = opts.getopt()) != -1) {
+				switch (code) {
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+
+					case ra_entity_name:
+						this.entityName = opts.getOptarg();
+						break;
+
+					case ast:
+						try {
+							activeSessionThresholdStr = opts.getOptarg();
+							Integer.parseInt(activeSessionThresholdStr);
+						} catch (Exception e) {
+							context.getErrorWriter().println("Failed to parse ast: " + activeSessionThresholdStr + " Exc: " + e.getMessage());
+							activeSessionThresholdStr = "-1";
+						}
+						break;
+
+					case time:
+						try {
+							gracefulShutdownTimeStr = opts.getOptarg();
+							Long.parseLong(gracefulShutdownTimeStr);
+						} catch (Exception e) {
+							context.getErrorWriter().println("Failed to parse time: " + activeSessionThresholdStr + " Exc: " + e.getMessage());
+							gracefulShutdownTimeStr = "-1";
+						}
+						break;
+
+					default:
+						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName() + "\", found unexpected opt: "
+								+ args[opts.getOptind() - 1]);
+				}
+			}
+
+			//Always set arguments as to enable defaults when no options is defined.
+			super.addArg(this.entityName, String.class, false);
+			super.addArg(new Integer(activeSessionThresholdStr), Integer.class, false);
+			super.addArg(new Long(gracefulShutdownTimeStr), Long.class, false);
+
+			if (this.operationName == null) {
+				throw new CommandException(sleeCommand.getName() + " command requires option to be passed.");
+			}
+		}
+
 	}
 	private class RemoveOperation extends AbstractOperation
 	{
 		private static final String OPERATION_removeResourceAdaptorEntity = "removeResourceAdaptorEntity";
-		
+
 		public RemoveOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			super.operationName = OPERATION_removeResourceAdaptorEntity;
@@ -351,20 +435,20 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			
+
 			super.addArg(opts.getOptarg(), String.class, false);
 		}
-		
+
 	}
 	private class CreateOperation extends AbstractOperation
 	{
-		
+
 		//TODO: make config param optional
 		private static final char config='i';
 		private static final char ra_id='j';
-		
+
 		private static final String OPERATION_createResourceAdaptorEntity = "createResourceAdaptorEntity";
-		
+
 		private String stringEntityName;
 		private String stringConfig;
 		private String stringRaID;
@@ -375,34 +459,34 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			
+
 			int code;
 
 			while ((code = opts.getopt()) != -1) {
 				switch (code) {
-				case ':':
-					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
-				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
-				case BindOperation.ra_entity_name:
+					case BindOperation.ra_entity_name:
 
-					this.stringEntityName = opts.getOptarg();
-					break;
-				case config:
-					this.stringConfig = opts.getOptarg();
-					
-					break;
-				case ra_id:
-					this.stringRaID = opts.getOptarg();
-					
-					break;
-					
+						this.stringEntityName = opts.getOptarg();
+						break;
+					case config:
+						this.stringConfig = opts.getOptarg();
 
-				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
+						break;
+					case ra_id:
+						this.stringRaID = opts.getOptarg();
+
+						break;
+
+
+					default:
+						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+								+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
 
 				}
 
@@ -416,18 +500,18 @@ public class ResourceCommand extends AbstractSleeCommand {
 			} catch (Exception e) {
 				throw new CommandException("Failed to parse ResourceAdaptorID: \"" + stringRaID + "\"", e);
 			}
-			
+
 			super.addArg(this.stringEntityName, String.class, false);
-			
+
 			try {
 				super.addArg(this.stringConfig, ConfigProperties.class, true);
 			} catch (Exception e) {
 				throw new CommandException("Failed to parse ConfigProperties: \"" + stringConfig + "\"", e);
 			}
 		}
-		
+
 	}
-	
+
 	private class ListOperation extends AbstractOperation
 	{
 
@@ -441,9 +525,9 @@ public class ResourceCommand extends AbstractSleeCommand {
 		private static final String OPERATION_getLinkNames = "getLinkNames";
 		private static final String OPERATION_getResourceAdaptorEntities = "getResourceAdaptorEntities";
 		private static final String OPERATION_getResourceAdaptorEntity = "getResourceAdaptorEntity";
-	
-		
-		
+
+
+
 		public ListOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			//operation is set based on arg.
@@ -459,66 +543,66 @@ public class ResourceCommand extends AbstractSleeCommand {
 							+ "\", expects only one option!");
 				}
 				switch (code) {
-				case ':':
-					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
-				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
-			
-				case sbbs:
-					super.operationName = OPERATION_getBoundSbbs;
-					String optArg = opts.getOptarg(); // arg is mandatory
-					super.addArg(optArg, String.class, false);
-					break;
-				case links:
-					super.operationName = OPERATION_getLinkNames;
-					optArg = opts.getOptarg();
-					if(optArg!=null)
-					{
-						//it must be link name
+
+					case sbbs:
+						super.operationName = OPERATION_getBoundSbbs;
+						String optArg = opts.getOptarg(); // arg is mandatory
 						super.addArg(optArg, String.class, false);
-					}
-					break;
-				case ra_entities:
-					super.operationName = OPERATION_getResourceAdaptorEntities;
-					 optArg = opts.getOptarg();
-					if(optArg!=null)
-					{
-						//it must be RA ID
-						try {
-							super.addArg(optArg, ResourceAdaptorID.class, true);
-						} catch (Exception e) {
-							throw new CommandException("Failed to parse ResourceAdaptorID: \"" + optArg + "\"", e);
+						break;
+					case links:
+						super.operationName = OPERATION_getLinkNames;
+						optArg = opts.getOptarg();
+						if(optArg!=null)
+						{
+							//it must be link name
+							super.addArg(optArg, String.class, false);
 						}
-					}
-					break;
-					
-				case ra_entities_by_link:
-					
-					 optArg = opts.getOptarg();
-					 if(optArg.contains(";"))
-					 {
-						 super.operationName = OPERATION_getResourceAdaptorEntities;
-						 super.addArg(optArg.split(";"), String[].class, false);
-					 }else
-					 {
-						 super.operationName = OPERATION_getResourceAdaptorEntity;
-						 super.addArg(optArg, String.class, false);
-					 }
-					break;
-				case ra_entities_in_state:
-					super.operationName = OPERATION_getResourceAdaptorEntities;
-					optArg = opts.getOptarg();
-					try {
-						super.addArg(optArg, ResourceAdaptorEntityState.class, true);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse ResourceAdaptorEntityState: \"" + optArg + "\"", e);
-					}
-					break;
-				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
+						break;
+					case ra_entities:
+						super.operationName = OPERATION_getResourceAdaptorEntities;
+						optArg = opts.getOptarg();
+						if(optArg!=null)
+						{
+							//it must be RA ID
+							try {
+								super.addArg(optArg, ResourceAdaptorID.class, true);
+							} catch (Exception e) {
+								throw new CommandException("Failed to parse ResourceAdaptorID: \"" + optArg + "\"", e);
+							}
+						}
+						break;
+
+					case ra_entities_by_link:
+
+						optArg = opts.getOptarg();
+						if(optArg.contains(";"))
+						{
+							super.operationName = OPERATION_getResourceAdaptorEntities;
+							super.addArg(optArg.split(";"), String[].class, false);
+						}else
+						{
+							super.operationName = OPERATION_getResourceAdaptorEntity;
+							super.addArg(optArg, String.class, false);
+						}
+						break;
+					case ra_entities_in_state:
+						super.operationName = OPERATION_getResourceAdaptorEntities;
+						optArg = opts.getOptarg();
+						try {
+							super.addArg(optArg, ResourceAdaptorEntityState.class, true);
+						} catch (Exception e) {
+							throw new CommandException("Failed to parse ResourceAdaptorEntityState: \"" + optArg + "\"", e);
+						}
+						break;
+					default:
+						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+								+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
 
 				}
 
@@ -528,7 +612,7 @@ public class ResourceCommand extends AbstractSleeCommand {
 						+ "\", expects one option!");
 			}
 		}
-		
+
 	}
 	private class GetOperation extends AbstractOperation
 	{
@@ -541,8 +625,8 @@ public class ResourceCommand extends AbstractSleeCommand {
 		private static final String OPERATION_getState = "getState";
 		private static final String OPERATION_getConfigurationProperties = "getConfigurationProperties";
 		private static final String OPERATION_getResourceUsageMBean = "getResourceUsageMBean";
-	
-		
+
+
 		public GetOperation(CommandContext context, Logger log, AbstractSleeCommand sleeCommand) {
 			super(context, log, sleeCommand);
 			//super.operationName = "removeResourceAdaptorEntity";
@@ -558,66 +642,66 @@ public class ResourceCommand extends AbstractSleeCommand {
 							+ "\", expects only one option!");
 				}
 				switch (code) {
-				case ':':
-					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
-				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
-				case CreateOperation.ra_id:
-					super.operationName = OPERATION_getResourceAdaptor;
-					String optArg = opts.getOptarg();
-					//it must be entity name
-					super.addArg(optArg, String.class, false);
-					break;
-				case state:
-					super.operationName = OPERATION_getState;
-					optArg = opts.getOptarg();
-					//it must be entity name
-					super.addArg(optArg, String.class, false);
-					break;
-					
+					case CreateOperation.ra_id:
+						super.operationName = OPERATION_getResourceAdaptor;
+						String optArg = opts.getOptarg();
+						//it must be entity name
+						super.addArg(optArg, String.class, false);
+						break;
+					case state:
+						super.operationName = OPERATION_getState;
+						optArg = opts.getOptarg();
+						//it must be entity name
+						super.addArg(optArg, String.class, false);
+						break;
+
 					//FIXME: decided to leave conf options listing as default, so its easier to copy/paste?
-				case config_by_id:
-					super.operationName = OPERATION_getConfigurationProperties; 
-					optArg = opts.getOptarg();
-					//it must be RA ID
-					try {
-						super.addArg(optArg, ResourceAdaptorID.class, true);
-					} catch (Exception e) {
-						throw new CommandException("Failed to parse ResourceAdaptorID: \"" + optArg + "\"", e);
-					}
-					break;
-				case config_by_name:
-					super.operationName = OPERATION_getConfigurationProperties; 
-					optArg = opts.getOptarg();
-					//it must be RA entity name
-	
-					super.addArg(optArg, String.class, false);
-					break;
-				case usage_mbean:
-					super.operationName = OPERATION_getResourceUsageMBean; 
-					optArg = opts.getOptarg();
-					//it must be RA entity name
-	
-					super.addArg(optArg, String.class, false);
-					break;
-				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
+					case config_by_id:
+						super.operationName = OPERATION_getConfigurationProperties;
+						optArg = opts.getOptarg();
+						//it must be RA ID
+						try {
+							super.addArg(optArg, ResourceAdaptorID.class, true);
+						} catch (Exception e) {
+							throw new CommandException("Failed to parse ResourceAdaptorID: \"" + optArg + "\"", e);
+						}
+						break;
+					case config_by_name:
+						super.operationName = OPERATION_getConfigurationProperties;
+						optArg = opts.getOptarg();
+						//it must be RA entity name
+
+						super.addArg(optArg, String.class, false);
+						break;
+					case usage_mbean:
+						super.operationName = OPERATION_getResourceUsageMBean;
+						optArg = opts.getOptarg();
+						//it must be RA entity name
+
+						super.addArg(optArg, String.class, false);
+						break;
+					default:
+						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+								+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
 
 				}
 
 			}
-			
+
 			if (super.operationName == null) {
 				throw new CommandException("Command: \"" + sleeCommand.getName()
 						+ "\", expects one option!");
 			}
 		}
-		
+
 	}
-	
+
 	private class UpdateConfigOperation extends AbstractOperation
 	{
 		private static final String OPERATION_updateConfigurationProperties = "updateConfigurationProperties";
@@ -631,30 +715,30 @@ public class ResourceCommand extends AbstractSleeCommand {
 
 		@Override
 		public void buildOperation(Getopt opts, String[] args) throws CommandException {
-			
+
 			int code;
 
 			while ((code = opts.getopt()) != -1) {
 				switch (code) {
-				case ':':
-					throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
+					case ':':
+						throw new CommandException("Option requires an argument: " + args[opts.getOptind() - 1]);
 
-				case '?':
-					throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
+					case '?':
+						throw new CommandException("Invalid (or ambiguous) option: " + args[opts.getOptind() - 1]);
 
-				case BindOperation.ra_entity_name:
+					case BindOperation.ra_entity_name:
 
-					this.stringEntityName = opts.getOptarg();
-					break;
-				case CreateOperation.config:
-					this.stringConfig = opts.getOptarg();
-					
-					break;
-				
+						this.stringEntityName = opts.getOptarg();
+						break;
+					case CreateOperation.config:
+						this.stringConfig = opts.getOptarg();
 
-				default:
-					throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
-							+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
+						break;
+
+
+					default:
+						throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
+								+ "\", found unexpected opt: " + args[opts.getOptind() - 1]);
 
 				}
 
@@ -663,17 +747,17 @@ public class ResourceCommand extends AbstractSleeCommand {
 				throw new CommandException("Operation \"" + this.operationName + "\" for command: \"" + sleeCommand.getName()
 						+ "\", expects both \"--config\"  and \"--entity-name\" to be present");
 			}
-			
-			
+
+
 			super.addArg(this.stringEntityName, String.class, false);
-			
+
 			try {
 				super.addArg(this.stringConfig, ConfigProperties.class, true);
 			} catch (Exception e) {
 				throw new CommandException("Failed to parse ConfigProperties: \"" + stringConfig + "\"", e);
 			}
 		}
-		
+
 	}
-	
+
 }

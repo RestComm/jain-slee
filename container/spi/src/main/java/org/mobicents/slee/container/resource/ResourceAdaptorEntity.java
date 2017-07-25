@@ -50,7 +50,7 @@ import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
 
 /**
  * @author martins
- * 
+ * @author <a href="mailto:bartosz.krok@pro-ids.com"> Bartosz Krok (ProIDS sp. z o.o.)</a>
  */
 public interface ResourceAdaptorEntity {
 
@@ -82,7 +82,10 @@ public interface ResourceAdaptorEntity {
 	 *             if the entity is not in ACTIVE state
 	 * @throws TransactionRequiredLocalException
 	 */
-	public void deactivate() throws InvalidStateException,
+	public void deactivate(boolean isGraceful) throws InvalidStateException,
+			TransactionRequiredLocalException;
+
+	public void forceDeactivation() throws InvalidStateException,
 			TransactionRequiredLocalException;
 
 	/**
@@ -144,7 +147,19 @@ public interface ResourceAdaptorEntity {
 	public NotificationSource getNotificationSource();
 
 	/**
-	 * 
+	 * Gets the current number of activities handled by this RA entity.
+	 * @return
+	 */
+	public int getRaEntityActivitiesCount();
+
+	/**
+	 * Gets the current number of local activities handled by this RA entity.
+	 * @return
+	 */
+	public int getRaEntityLocalActivitiesCount();
+
+	/**
+	 *
 	 * @param serviceID
 	 * @return
 	 */
@@ -230,7 +245,7 @@ public interface ResourceAdaptorEntity {
 	 * 
 	 * @throws TransactionRequiredLocalException
 	 */
-	public void sleeStopping() throws InvalidStateException,
+	public void sleeStopping(boolean isGraceful) throws InvalidStateException,
 			TransactionRequiredLocalException;
 
 	/**

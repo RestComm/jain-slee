@@ -49,19 +49,32 @@
 					</configuration>
 					</plugin>
 				</plugins>
-			</build>		
+			</build>
 		</profile>
 		<profile>
 			<id>release</id>
 			<modules>
 				<module>tools/jopr-plugin</module>
-				<module>tools/slee-management-console</module>				
-				<module>tools/slee-console-new</module>				
-				<module>tools/twiddle</module>				
+				<module>tools/slee-management-console</module>
+				<module>tools/slee-console-new</module>
+				<module>tools/twiddle</module>
 			</modules>
 		</profile>
-	</profiles>	
-	
+	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
 
 	<repositories>

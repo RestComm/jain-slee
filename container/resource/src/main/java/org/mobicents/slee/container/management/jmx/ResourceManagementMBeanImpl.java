@@ -135,6 +135,27 @@ public class ResourceManagementMBeanImpl extends MobicentsServiceMBeanSupport im
 		}
 	}
 
+	public void gracefulShutdownResourceAdaptorEntity(String entityName, Integer ast, Long time)
+			throws NullPointerException,
+			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
+			ManagementException {
+		try {
+			synchronized (getSleeContainer().getManagementMonitor()) {
+				resourceManagement.gracefulShutdownResourceAdaptorEntity(entityName, ast, time);
+			}
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (UnrecognizedResourceAdaptorEntityException e) {
+			throw e;
+		} catch (InvalidStateException e) {
+			throw e;
+		} catch (Throwable e) {
+			String s = "failed to deactivate RA entity with name " + entityName + "and paramaters: ast=" + ast + ", time= " + time;
+			logger.error(s, e);
+			throw new ManagementException(s, e);
+		}
+	}
+
 	public void removeResourceAdaptorEntity(String entityName)
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, InvalidStateException,

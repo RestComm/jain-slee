@@ -21,7 +21,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.mobicents.slee.container.management;
 
@@ -52,7 +52,7 @@ import org.mobicents.slee.container.resource.ResourceAdaptorEntity;
 
 /**
  * @author martins
- * 
+ *
  */
 public interface ResourceManagement extends SleeContainerModule {
 
@@ -89,6 +89,10 @@ public interface ResourceManagement extends SleeContainerModule {
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, InvalidStateException;
 
+	public void gracefulShutdownResourceAdaptorEntity(String entityName, Integer ast, Long time)
+			throws NullPointerException,
+			UnrecognizedResourceAdaptorEntityException, InvalidStateException;
+
 	/**
 	 * @see ResourceManagementMBean#getBoundSbbs(String)
 	 */
@@ -122,7 +126,7 @@ public interface ResourceManagement extends SleeContainerModule {
 
 	/**
 	 * Retrieves a copy of the current set of ra entity links
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<String> getLinkNamesSet();
@@ -140,7 +144,7 @@ public interface ResourceManagement extends SleeContainerModule {
 	public String[] getResourceAdaptorEntities();
 
 	/**
-	 * 
+	 *
 	 * @see ResourceManagementMBean#getResourceAdaptorEntities(ResourceAdaptorEntityState)
 	 */
 	public String[] getResourceAdaptorEntities(ResourceAdaptorEntityState state)
@@ -163,7 +167,7 @@ public interface ResourceManagement extends SleeContainerModule {
 	 * Retrieves the set of resource adaptor entities aggregated per ra type,
 	 * this is a runtime cache for optimal performance on ra type activity
 	 * context factories
-	 * 
+	 *
 	 * @param resourceAdaptorTypeID
 	 * @return
 	 */
@@ -173,7 +177,7 @@ public interface ResourceManagement extends SleeContainerModule {
 	/**
 	 * Retrieves the {@link ResourceAdaptorEntity} with the specified entity
 	 * name.
-	 * 
+	 *
 	 */
 	public ResourceAdaptorEntity getResourceAdaptorEntity(String entityName);
 
@@ -200,7 +204,7 @@ public interface ResourceManagement extends SleeContainerModule {
 
 	/**
 	 * Installs the specified {@link ResourceAdaptorComponent} in the container
-	 * 
+	 *
 	 * @param component
 	 * @throws DeploymentException
 	 */
@@ -210,7 +214,7 @@ public interface ResourceManagement extends SleeContainerModule {
 	/**
 	 * Installs the specified {@link ResourceAdaptorTypeComponent} in the
 	 * container
-	 * 
+	 *
 	 * @param component
 	 * @throws DeploymentException
 	 */
@@ -234,7 +238,7 @@ public interface ResourceManagement extends SleeContainerModule {
 	/**
 	 * Uninstalls the specified {@link ResourceAdaptorComponent} from the
 	 * container
-	 * 
+	 *
 	 * @param component
 	 * @throws DependencyException
 	 */
@@ -244,14 +248,14 @@ public interface ResourceManagement extends SleeContainerModule {
 	/**
 	 * Uninstalls the specified {@link ResourceAdaptorTypeComponent} from the
 	 * container
-	 * 
+	 *
 	 * @param component
 	 */
 	public void uninstallResourceAdaptorType(
 			ResourceAdaptorTypeComponent component);
 
 	/**
-	 * 
+	 *
 	 * @see ResourceManagementMBean#updateConfigurationProperties(String,
 	 *      ConfigProperties)
 	 */
