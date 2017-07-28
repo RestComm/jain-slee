@@ -104,27 +104,25 @@ public class SleeDeploymentMetaData
     }
 
     private void parseRootFile(VirtualFile rootFile, boolean isDeploy) {
-        log.debug("METADATA rootFile: "+rootFile);
+        log.debug("METADATA rootFile: "+rootFile);        
 
-        InputStream is = null;
-
-        try {
-            if ((is = rootFile.getChild("META-INF/deployable-unit.xml").openStream()) != null) {
+        try {        	
+            if (rootFile.getChild("META-INF/deployable-unit.xml").exists()) {
                 // This is a SLEE DU
                 this.componentType = ComponentType.DU;
-
+                InputStream is = rootFile.getChild("META-INF/deployable-unit.xml").openStream();
                 this.parseDUContents(rootFile, is, isDeploy);
-            } else if (rootFile.getChild("META-INF/event-jar.xml").openStream() != null) {
+            } else if (rootFile.getChild("META-INF/event-jar.xml").exists()) {
                 this.componentType = ComponentType.EVENT;
-            } else if (rootFile.getChild("META-INF/sbb-jar.xml").openStream() != null) {
+            } else if (rootFile.getChild("META-INF/sbb-jar.xml").exists()) {
                 this.componentType = ComponentType.SBB;
-            } else if (rootFile.getChild("META-INF/profile-spec-jar.xml").openStream() != null) {
+            } else if (rootFile.getChild("META-INF/profile-spec-jar.xml").exists()) {
                 this.componentType = ComponentType.PROFILE;
-            } else if (rootFile.getChild("META-INF/resource-adaptor-type-jar.xml").openStream() != null) {
+            } else if (rootFile.getChild("META-INF/resource-adaptor-type-jar.xml").exists()) {
                 this.componentType = ComponentType.RATYPE;
-            } else if (rootFile.getChild("META-INF/resource-adaptor-jar.xml").openStream() != null) {
+            } else if (rootFile.getChild("META-INF/resource-adaptor-jar.xml").exists()) {
                 this.componentType = ComponentType.RA;
-            } else if (rootFile.getChild("META-INF/library-jar.xml").openStream() != null) {
+            } else if (rootFile.getChild("META-INF/library-jar.xml").exists()) {
                 this.componentType = ComponentType.LIBRARY;
             }
         } catch (IOException e) {
@@ -157,14 +155,8 @@ public class SleeDeploymentMetaData
                 }
             }
 
-            if (isDeploy) {
+            if (isDeploy)
                 checkDependency(rootFile);
-
-                log.warn("Deployment \""+rootFile.getName()+
-                        "\"  is in error due to the following reason(s): ** NOT FOUND Dependency **." +
-                        "See META-INF/jboss-dependency.xml.");
-            }
-
         }
         catch (Exception ex) {
             log.error("Error parsing Deployable Unit to build SLEE Deployer MetaData.", ex);
@@ -174,13 +166,10 @@ public class SleeDeploymentMetaData
     public void checkDependency(VirtualFile rootFile) {
         try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-
-            InputStream dependsInputStream = null;
-            dependsInputStream = rootFile.getChild("META-INF/jboss-dependency.xml").openStream();
-            if (dependsInputStream != null) {
+            
+            if (rootFile.getChild("META-INF/jboss-dependency.xml").exists()) {
                 log.trace("parse jboss-dependency.xml");
-
+                InputStream dependsInputStream = rootFile.getChild("META-INF/jboss-dependency.xml").openStream();                            
                 DocumentBuilder dependsDocBuilder = docBuilderFactory.newDocumentBuilder();
                 Document dependsDoc = dependsDocBuilder.parse(dependsInputStream);
 
@@ -199,6 +188,11 @@ public class SleeDeploymentMetaData
                 }
                 this.dependencyItemsPassed = checkItems;
             }
+            /*else {
+            	log.warn("Deployment \""+rootFile.getName()+
+            			"\"  is in error due to the following reason(s): ** NOT FOUND Dependency **." +
+                        "See META-INF/jboss-dependency.xml.");
+            }*/
         } catch (IOException e) {
             log.info("Cannot open stream (META-INF): " + e.getLocalizedMessage());
         } catch (Exception ex) {
