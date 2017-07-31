@@ -24,11 +24,10 @@
 
 # JBoss AS72
 JBOSS_MODULEPATH=$JBOSS_HOME/modules/system/layers/base/
-MODULES="org/jboss/remoting-jmx org/jboss/remoting3 org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads org/jboss/as/controller"
-
+MODULES="org/jboss/remoting-jmx org/jboss/remoting3 org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads org/jboss/as/controller org/telestax/slee/container/lib"
 # WildFly
 #JBOSS_MODULEPATH=$JBOSS_HOME/modules/system/layers/base/
-#MODULES="org/jboss/remoting-jmx org/jboss/remoting org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads org/wildfly/security/manager" 
+#MODULES="org/jboss/remoting-jmx org/jboss/remoting org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads org/wildfly/security/manager org/telestax/slee/container/lib" 
 
 for MODULE in $MODULES
 do
@@ -37,6 +36,7 @@ do
         TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$JBOSS_MODULEPATH/$MODULE/main/$JAR"
     done
 done
+
 
 # Extract the directory and the program name
 # takes care of symlinks
@@ -115,8 +115,8 @@ TWIDDLE_BOOT_CLASSPATH="$TWIDDLE_HOME/lib/twiddle.jar"
 #    TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$TWIDDLE_HOME/lib/jboss-jmx.jar"
 #    TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$TWIDDLE_HOME/lib/jnp-client.jar"
     TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$TWIDDLE_HOME/lib/cli-twiddle.jar"
-    TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$TWIDDLE_HOME/lib/jain-slee-1.1.jar"
-    TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$TWIDDLE_HOME/lib/jmx-property-editors.jar"
+#    TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$TWIDDLE_HOME/lib/jain-slee-1.1.jar"
+#    TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$TWIDDLE_HOME/lib/jmx-property-editors.jar"
     TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$TWIDDLE_HOME/lib"
 #else
 #    TWIDDLE_CLASSPATH="$TWIDDLE_CLASSPATH:$TWIDDLE_BOOT_CLASSPATH"
@@ -194,6 +194,8 @@ fi
 #    -Dprogram.name="$PROGNAME" \
 #    -classpath $JBOSS_CLASSPATH \
 #    org.jboss.console.twiddle.Twiddle -c file:///$SLEE_TWIDDLE_CONF $@
+
+echo "classpash: $TWIDDLE_CLASSPATH"
     
 exec "$JAVA" \
     $JAVA_OPTS \
