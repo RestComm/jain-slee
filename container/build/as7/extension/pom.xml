@@ -486,7 +486,7 @@
             </mbean>
             <mbean name="RmiServerInterface">
             	<property name="rmiAddress" value="127.0.0.1" />
-            	<property name="rmiPort" value="7777" />
+            	<property name="rmiPort" value="1099" />
             </mbean>
             <mbean name="SleeTCKPluginWrapper">
                 <property name="active" value="false"/>
@@ -552,7 +552,7 @@
             </mbean>
             <mbean name="RmiServerInterface">
             	<property name="rmiAddress" value="127.0.0.1" />
-            	<property name="rmiPort" value="7777" />
+            	<property name="rmiPort" value="1099" />
             </mbean>
             <mbean name="SleeTCKPluginWrapper">
                 <property name="active" value="false"/>

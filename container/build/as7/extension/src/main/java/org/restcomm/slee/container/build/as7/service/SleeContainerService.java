@@ -292,7 +292,7 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final SleeConnectionService sleeConnectionService = new SleeConnectionServiceImpl();
 		final RmiServerInterface rmiServerInterface = new RmiServerInterfaceImpl();
 		rmiServerInterface.setAddress(getPropertyString("RmiServerInterface", "rmiAddress", "127.0.0.1"));
-		rmiServerInterface.setPort(getPropertyInt("RmiServerInterface", "rmiPort", 7777));
+		rmiServerInterface.setPort(getPropertyInt("RmiServerInterface", "rmiPort", 1099));
 
 		final UsageParametersManagement usageParametersManagement = new UsageParametersManagementImpl();
 
