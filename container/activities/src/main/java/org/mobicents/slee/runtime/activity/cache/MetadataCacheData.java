@@ -3,24 +3,24 @@ package org.mobicents.slee.runtime.activity.cache;
 import java.util.HashMap;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
-public class MetadataCacheData extends CacheData<ActivityCacheKey,HashMap<String,Object>> 
+public class MetadataCacheData extends ClusteredCacheData<ActivityCacheKey,HashMap<String,Object>> 
 {
 	public MetadataCacheData(ActivityContextHandle handle, MobicentsCache cache) {
 		super(new ActivityCacheKey(handle, ActivityCacheType.METADATA), cache);		
 	}
 	
 	public Boolean setObject(Boolean createIfNotExists,String name,Object value) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists)
 			map=new HashMap<String, Object>();
 		
 		if(map!=null) {
 			map=new HashMap<String, Object>(map);
 			map.put(name, value);
-			super.put(map);
+			super.putValue(map);
 			return true;
 		}
 		else
@@ -28,10 +28,10 @@ public class MetadataCacheData extends CacheData<ActivityCacheKey,HashMap<String
 	}
 	
 	public Boolean removeObject(Boolean createIfNotExists,String name) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Object>();
-			super.put(map);
+			super.putValue(map);
 			return false;
 		}
 		
@@ -41,7 +41,7 @@ public class MetadataCacheData extends CacheData<ActivityCacheKey,HashMap<String
 			else {
 				map=new HashMap<String, Object>(map);
 				map.remove(name);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		}
@@ -50,10 +50,10 @@ public class MetadataCacheData extends CacheData<ActivityCacheKey,HashMap<String
 	}
 	
 	public Object getObject(Boolean createIfNotExists,String name) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Object>();
-			super.put(map);
+			super.putValue(map);
 			return null;
 		}
 		
@@ -65,10 +65,10 @@ public class MetadataCacheData extends CacheData<ActivityCacheKey,HashMap<String
 	}
 	
 	public HashMap<String,Object> getAll(Boolean createIfNotExists) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Object>();
-			super.put(map);
+			super.putValue(map);
 			return map;
 		}
 		

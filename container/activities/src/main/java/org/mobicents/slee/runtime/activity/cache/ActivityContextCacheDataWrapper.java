@@ -58,7 +58,7 @@ public class ActivityContextCacheDataWrapper
 	}
 	
 	public boolean isEnding() {	
-		return isEndingCacheData.get()!=null;		
+		return isEndingCacheData.getElement()!=null;		
 	}
 	
 	
@@ -74,7 +74,7 @@ public class ActivityContextCacheDataWrapper
 		}
 		else {
 			if (isEnding()) {
-				isEndingCacheData.remove();				
+				isEndingCacheData.removeElement();				
 				return true;
 			}
 			else {
@@ -238,6 +238,6 @@ public class ActivityContextCacheDataWrapper
 		nameBoundsCacheData.removeNode();
 		cmpAttributesCacheData.removeNode();
 		metadataCacheData.removeNode();
-		isEndingCacheData.remove();
+		isEndingCacheData.removeElement();
 	}
 }

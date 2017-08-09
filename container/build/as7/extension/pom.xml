@@ -512,19 +512,19 @@
 											<replacevalue><![CDATA[
 		<subsystem xmlns="urn:restcomm:slee-container:3.0">
             <cache-config>
-                &lt;?xml version="1.0" encoding="UTF-8"?>
-				&lt;infinispan
+				&lt;?xml version="1.0" encoding="UTF-8"?>
+					&lt;infinispan
 					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 					xsi:schemaLocation="urn:infinispan:config:8.1 http://www.infinispan.org/schemas/infinispan-config-8.1.xsd"
 					xmlns="urn:infinispan:config:8.1">
-					&lt;cache-container default-cache="slee-default" statistics="false" shutdown-hook="DONT_REGISTER">
-						&lt;local-cache name="slee-default">
-							&lt;locking isolation="REPEATABLE_READ" acquire-timeout="30000" striping="false" />
-							&lt;transaction locking="PESSIMISTIC" mode="BATCH"/>
-						&lt;/local-cache>
+						&lt;cache-container default-cache="slee-default" statistics="false" shutdown-hook="DONT_REGISTER">
+							&lt;transport cluster="jslee-cluster"/>
+							&lt;replicated-cache name="slee-default" mode="SYNC">
+								&lt;transaction locking="PESSIMISTIC" mode="FULL_XA"/>
+							&lt;/replicated-cache>
 					&lt;/cache-container>
 				&lt;/infinispan>
-            </cache-config>
+	    	</cache-config>
             <mbean name="CacheExecutorConfiguration">
 				<property name="cacheExecutorThreads" value="16"/>
 				<property name="cacheExecutorTerminateTimeout" value="1000"/>

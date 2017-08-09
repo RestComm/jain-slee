@@ -1,9 +1,13 @@
 package org.mobicents.slee.runtime.activity.cache;
 
+import java.io.Serializable;
+
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 
-public class ActivityCacheKey 
+public class ActivityCacheKey implements Serializable
 {
+	private static final long serialVersionUID = 6480010493858490671L;
+	
 	private ActivityContextHandle activityHandle;
 	private ActivityCacheType type;
 	

@@ -1,9 +1,13 @@
 package org.mobicents.slee.runtime.sbbentity.cache;
 
+import java.io.Serializable;
+
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
-public class SbbEntityCacheKey 
+public class SbbEntityCacheKey implements Serializable
 {
+	private static final long serialVersionUID = 4080743323394471546L;
+
 	private SbbEntityID sbbEntityID;
 	private SbbEntityCacheType type;
 	

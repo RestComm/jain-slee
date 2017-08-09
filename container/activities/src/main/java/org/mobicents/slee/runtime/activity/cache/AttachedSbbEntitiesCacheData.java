@@ -8,14 +8,15 @@ import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
-public class AttachedSbbEntitiesCacheData extends CacheData<ActivityCacheKey, HashMap<SbbEntityID, Void>> {
+public class AttachedSbbEntitiesCacheData extends ClusteredCacheData<ActivityCacheKey, HashMap<SbbEntityID, Void>> {
 	public AttachedSbbEntitiesCacheData(ActivityContextHandle handle, MobicentsCache cache) {
 		super(new ActivityCacheKey(handle, ActivityCacheType.ATTACHED_SBBS), cache);
 	}
 
 	public Boolean attachSbb(Boolean createIfNotExists, SbbEntityID sbbEntityID) {
-		HashMap<SbbEntityID, Void> map = super.get();
+		HashMap<SbbEntityID, Void> map = super.getValue();
 		if (map == null && createIfNotExists)
 			map = new HashMap<SbbEntityID, Void>();
 
@@ -25,7 +26,7 @@ public class AttachedSbbEntitiesCacheData extends CacheData<ActivityCacheKey, Ha
 			} else {
 				map = new HashMap<SbbEntityID, Void>(map);
 				map.put(sbbEntityID, null);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		} else
@@ -33,10 +34,10 @@ public class AttachedSbbEntitiesCacheData extends CacheData<ActivityCacheKey, Ha
 	}
 
 	public Boolean detachSbb(Boolean createIfNotExists, SbbEntityID sbbEntityID) {
-		HashMap<SbbEntityID, Void> map = super.get();
+		HashMap<SbbEntityID, Void> map = super.getValue();
 		if (map == null && createIfNotExists) {
 			map = new HashMap<SbbEntityID, Void>();
-			super.put(map);
+			super.putValue(map);
 			return false;
 		}
 
@@ -46,7 +47,7 @@ public class AttachedSbbEntitiesCacheData extends CacheData<ActivityCacheKey, Ha
 			else {
 				map = new HashMap<SbbEntityID, Void>(map);
 				map.remove(sbbEntityID);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		} else
@@ -54,10 +55,10 @@ public class AttachedSbbEntitiesCacheData extends CacheData<ActivityCacheKey, Ha
 	}
 
 	public Boolean hasSbbs(Boolean createIfNotExists) {
-		HashMap<SbbEntityID, Void> map = super.get();
+		HashMap<SbbEntityID, Void> map = super.getValue();
 		if (map == null && createIfNotExists) {
 			map = new HashMap<SbbEntityID, Void>();
-			super.put(map);
+			super.putValue(map);
 			return false;
 		}
 
@@ -69,10 +70,10 @@ public class AttachedSbbEntitiesCacheData extends CacheData<ActivityCacheKey, Ha
 	}
 
 	public Set<SbbEntityID> getSbbs(Boolean createIfNotExists) {
-		HashMap<SbbEntityID, Void> map = super.get();
+		HashMap<SbbEntityID, Void> map = super.getValue();
 		if (map == null && createIfNotExists) {
 			map = new HashMap<SbbEntityID, Void>();
-			super.put(map);
+			super.putValue(map);
 			return map.keySet();
 		}
 

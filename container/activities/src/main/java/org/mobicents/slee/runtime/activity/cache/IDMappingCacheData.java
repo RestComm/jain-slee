@@ -5,17 +5,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
-public class IDMappingCacheData extends CacheData<ActivityCacheKey,HashMap<String,Void>> 
+public class IDMappingCacheData extends ClusteredCacheData<ActivityCacheKey,HashMap<String,Void>> 
 {
 	public IDMappingCacheData(ActivityContextHandle handle, MobicentsCache cache) {
 		super(new ActivityCacheKey(handle, ActivityCacheType.NAMES_BOUND), cache);		
 	}
 	
 	public Boolean bind(Boolean createIfNotExists,String name) {
-		HashMap<String, Void> map=super.get();
+		HashMap<String, Void> map=super.getValue();
 		if(map==null && createIfNotExists)
 			map=new HashMap<String, Void>();
 		
@@ -26,7 +26,7 @@ public class IDMappingCacheData extends CacheData<ActivityCacheKey,HashMap<Strin
 			else {
 				map=new HashMap<String, Void>(map);
 				map.put(name, null);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		}
@@ -35,10 +35,10 @@ public class IDMappingCacheData extends CacheData<ActivityCacheKey,HashMap<Strin
 	}
 	
 	public Boolean unbind(Boolean createIfNotExists,String name) {
-		HashMap<String, Void> map=super.get();
+		HashMap<String, Void> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Void>();
-			super.put(map);
+			super.putValue(map);
 			return false;
 		}
 		
@@ -48,7 +48,7 @@ public class IDMappingCacheData extends CacheData<ActivityCacheKey,HashMap<Strin
 			else {
 				map=new HashMap<String, Void>(map);
 				map.remove(name);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		}
@@ -57,10 +57,10 @@ public class IDMappingCacheData extends CacheData<ActivityCacheKey,HashMap<Strin
 	}
 	
 	public Boolean hasNameBounds(Boolean createIfNotExists) {
-		HashMap<String, Void> map=super.get();
+		HashMap<String, Void> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Void>();
-			super.put(map);
+			super.putValue(map);
 			return false;
 		}
 		
@@ -72,10 +72,10 @@ public class IDMappingCacheData extends CacheData<ActivityCacheKey,HashMap<Strin
 	}
 	
 	public Set<String> getNameBounds(Boolean createIfNotExists) {
-		HashMap<String, Void> map=super.get();
+		HashMap<String, Void> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Void>();
-			super.put(map);
+			super.putValue(map);
 			return map.keySet();
 		}
 		

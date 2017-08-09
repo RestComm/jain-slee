@@ -7,24 +7,24 @@ import javax.slee.EventTypeID;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
-import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
-public class EventMasksCacheData extends CacheData<SbbEntityCacheKey,HashMap<ActivityContextHandle,Set<EventTypeID>>> 
+public class EventMasksCacheData extends ClusteredCacheData<SbbEntityCacheKey,HashMap<ActivityContextHandle,Set<EventTypeID>>> 
 {
 	public EventMasksCacheData(SbbEntityID handle, MobicentsCache cache) {
 		super(new SbbEntityCacheKey(handle, SbbEntityCacheType.MASKED_EVENTS), cache);		
 	}
 	
 	public Boolean setEventMask(Boolean createIfNotExists,ActivityContextHandle handle,Set<EventTypeID> mask) {
-		HashMap<ActivityContextHandle, Set<EventTypeID>> map=super.get();
+		HashMap<ActivityContextHandle, Set<EventTypeID>> map=super.getValue();
 		if(map==null && createIfNotExists)
 			map=new HashMap<ActivityContextHandle, Set<EventTypeID>>();
 		
 		if(map!=null) {
 			map=new HashMap<ActivityContextHandle, Set<EventTypeID>>(map);
 			map.put(handle, mask);
-			super.put(map);
+			super.putValue(map);
 			return true;
 		}
 		else
@@ -32,20 +32,20 @@ public class EventMasksCacheData extends CacheData<SbbEntityCacheKey,HashMap<Act
 	}
 	
 	public Boolean updateEventMask(Boolean createIfNotExists,ActivityContextHandle handle,Set<EventTypeID> mask) {
-		HashMap<ActivityContextHandle, Set<EventTypeID>> map=super.get();
+		HashMap<ActivityContextHandle, Set<EventTypeID>> map=super.getValue();
 		if(map==null && createIfNotExists)
 			map=new HashMap<ActivityContextHandle, Set<EventTypeID>>();
 		if(map!=null) {
 			if(map.containsKey(handle)) {
 				map=new HashMap<ActivityContextHandle, Set<EventTypeID>>(map);
 				map.get(handle).addAll(mask);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 			else {
 				map=new HashMap<ActivityContextHandle, Set<EventTypeID>>(map);
 				map.put(handle, mask);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		}
@@ -54,10 +54,10 @@ public class EventMasksCacheData extends CacheData<SbbEntityCacheKey,HashMap<Act
 	}
 	
 	public Boolean removeMask(Boolean createIfNotExists,ActivityContextHandle handle) {
-		HashMap<ActivityContextHandle, Set<EventTypeID>> map=super.get();
+		HashMap<ActivityContextHandle, Set<EventTypeID>> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<ActivityContextHandle, Set<EventTypeID>>();
-			super.put(map);
+			super.putValue(map);
 			return false;
 		}
 		
@@ -67,7 +67,7 @@ public class EventMasksCacheData extends CacheData<SbbEntityCacheKey,HashMap<Act
 			else {
 				map=new HashMap<ActivityContextHandle, Set<EventTypeID>>(map);
 				map.remove(handle);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		}
@@ -76,10 +76,10 @@ public class EventMasksCacheData extends CacheData<SbbEntityCacheKey,HashMap<Act
 	}
 	
 	public Set<EventTypeID> getMask(Boolean createIfNotExists,ActivityContextHandle handle) {
-		HashMap<ActivityContextHandle, Set<EventTypeID>> map=super.get();
+		HashMap<ActivityContextHandle, Set<EventTypeID>> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<ActivityContextHandle, Set<EventTypeID>>();
-			super.put(map);
+			super.putValue(map);
 			return null;
 		}
 		

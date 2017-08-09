@@ -25,10 +25,10 @@
  */
 package org.mobicents.slee.resource.cluster;
 
-import org.restcomm.cluster.MobicentsCluster;
-import org.restcomm.cluster.cache.ClusteredCacheData;
-
 import java.io.Serializable;
+
+import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
 /**
  * @author martins
@@ -41,10 +41,10 @@ public class ReplicatedDataKeyClusteredCacheData<K extends Serializable, V exten
 	/**
 	 * @param parent
 	 * @param key
-	 * @param mobicentsCluster
+	 * @param mobicentsCache
 	 */
-	public ReplicatedDataKeyClusteredCacheData(K key,MobicentsCluster mobicentsCluster) {
-		super(key,mobicentsCluster);
+	public ReplicatedDataKeyClusteredCacheData(K key,MobicentsCache mobicentsCache) {
+		super(key,mobicentsCache);
 	}
 
 	public V getValue() {

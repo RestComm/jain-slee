@@ -3,24 +3,24 @@ package org.mobicents.slee.runtime.sbbentity.cache;
 import java.util.HashMap;
 
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
-import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
-public class CmpFieldsCacheData extends CacheData<SbbEntityCacheKey,HashMap<String,Object>> 
+public class CmpFieldsCacheData extends ClusteredCacheData<SbbEntityCacheKey,HashMap<String,Object>> 
 {
 	public CmpFieldsCacheData(SbbEntityID sbbEntityID, MobicentsCache cache) {
 		super(new SbbEntityCacheKey(sbbEntityID, SbbEntityCacheType.CMP_FIELDS), cache);		
 	}
 	
 	public Boolean setField(Boolean createIfNotExists,String name,Object value) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists)
 			map=new HashMap<String, Object>();
 		
 		if(map!=null) {
 			map=new HashMap<String, Object>(map);
 			map.put(name, value);
-			super.put(map);
+			super.putValue(map);
 			return true;
 		}
 		else
@@ -28,14 +28,14 @@ public class CmpFieldsCacheData extends CacheData<SbbEntityCacheKey,HashMap<Stri
 	}
 	
 	public Boolean removeField(Boolean createIfNotExists,String name) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists)
 			map=new HashMap<String, Object>();
 		
 		if(map!=null) {
 			if(map.containsKey(name)) {
 				map.remove(name);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 			else {
@@ -47,10 +47,10 @@ public class CmpFieldsCacheData extends CacheData<SbbEntityCacheKey,HashMap<Stri
 	}
 	
 	public Object getField(Boolean createIfNotExists,String name) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Object>();
-			super.put(map);
+			super.putValue(map);
 			return null;
 		}
 		
@@ -62,10 +62,10 @@ public class CmpFieldsCacheData extends CacheData<SbbEntityCacheKey,HashMap<Stri
 	}
 	
 	public HashMap<String,Object> getFields(Boolean createIfNotExists) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Object>();
-			super.put(map);
+			super.putValue(map);
 			return map;
 		}
 		

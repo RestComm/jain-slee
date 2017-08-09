@@ -101,7 +101,7 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 		for(Object currKey:keys) {
 			@SuppressWarnings("unchecked")
 			K localKey=(K)currKey;
-			handleCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(localKey, cluster);
+			handleCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(localKey, cluster.getMobicentsCache());
 			handleCacheDataClusterNode = handleCacheData
 					.getClusterNodeAddress();
 			if (handleCacheDataClusterNode == null
@@ -119,7 +119,7 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 */
 	public boolean put(K key, V value) {
 		final ReplicatedDataKeyClusteredCacheData<K, V> keyCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(
-				key, cluster);
+				key, cluster.getMobicentsCache());
 		V original=keyCacheData.setValue(value);
 		return original!=null;
 	}
@@ -130,7 +130,7 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 */
 	public V get(K key) {
 		final ReplicatedDataKeyClusteredCacheData<K, V> handleCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(
-				key, cluster);
+				key, cluster.getMobicentsCache());
 		return handleCacheData.getValue();		
 	}
 
@@ -140,7 +140,7 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 */
 	public boolean contains(K key) {
 		return new ReplicatedDataKeyClusteredCacheData<K, V>(key,
-				cluster).exists();
+				cluster.getMobicentsCache()).exists();
 	}
 
 	/*
@@ -148,7 +148,7 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#remove(java.io.Serializable)
 	 */
 	public boolean remove(K key) {
-		return new ReplicatedDataKeyClusteredCacheData<K, V>(key, cluster).removeElement()!=null;
+		return new ReplicatedDataKeyClusteredCacheData<K, V>(key, cluster.getMobicentsCache()).removeElement()!=null;
 	}
 
 	/*

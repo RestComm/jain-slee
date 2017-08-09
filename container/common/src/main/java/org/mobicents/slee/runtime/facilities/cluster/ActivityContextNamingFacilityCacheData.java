@@ -26,8 +26,8 @@ import javax.slee.facilities.NameAlreadyBoundException;
 import javax.slee.facilities.NameNotBoundException;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.restcomm.cache.CacheData;
 import org.restcomm.cluster.MobicentsCluster;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
 /**
  * 
@@ -37,7 +37,7 @@ import org.restcomm.cluster.MobicentsCluster;
  * 
  */
 
-public class ActivityContextNamingFacilityCacheData extends CacheData<String, ActivityContextHandle> {
+public class ActivityContextNamingFacilityCacheData extends ClusteredCacheData<String, ActivityContextHandle> {
 
 	/**
 	 * 
@@ -58,7 +58,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData<String, Ac
 		if (super.exists())
 			throw new NameAlreadyBoundException("name already bound");
 
-		super.put(ach);
+		super.putValue(ach);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData<String, Ac
 	 * @throws NameNotBoundException
 	 */
 	public ActivityContextHandle unbindName() throws NameNotBoundException {
-		ActivityContextHandle oldValue = super.remove();
+		ActivityContextHandle oldValue = super.removeElement();
 		if (oldValue == null)
 			throw new NameNotBoundException("name not bound");
 
@@ -83,6 +83,6 @@ public class ActivityContextNamingFacilityCacheData extends CacheData<String, Ac
 	 * @return
 	 */
 	public ActivityContextHandle lookupName() {
-		return super.get();
+		return super.getValue();
 	}
 }

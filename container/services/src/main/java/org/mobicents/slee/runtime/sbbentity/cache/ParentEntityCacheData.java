@@ -3,10 +3,10 @@ package org.mobicents.slee.runtime.sbbentity.cache;
 import java.util.HashMap;
 
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
-import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
-public class ParentEntityCacheData extends CacheData<SbbEntityCacheKey, HashMap<SbbEntityID, Void>> {
+public class ParentEntityCacheData extends ClusteredCacheData<SbbEntityCacheKey, HashMap<SbbEntityID, Void>> {
 	private SbbEntityID sbbEntityID;
 
 	public ParentEntityCacheData(SbbEntityID sbbEntityID, MobicentsCache cache) {
@@ -18,7 +18,7 @@ public class ParentEntityCacheData extends CacheData<SbbEntityCacheKey, HashMap<
 		if (sbbEntityID.isRootSbbEntity())
 			return false;
 
-		HashMap<SbbEntityID, Void> map = super.get();
+		HashMap<SbbEntityID, Void> map = super.getValue();
 		if (map == null && createIfNotExists)
 			map = new HashMap<SbbEntityID, Void>();
 
@@ -28,7 +28,7 @@ public class ParentEntityCacheData extends CacheData<SbbEntityCacheKey, HashMap<
 			} else {
 				map = new HashMap<SbbEntityID, Void>(map);
 				map.put(sbbEntityID, null);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		} else
@@ -39,14 +39,14 @@ public class ParentEntityCacheData extends CacheData<SbbEntityCacheKey, HashMap<
 		if (sbbEntityID.isRootSbbEntity())
 			return false;
 
-		HashMap<SbbEntityID, Void> map = super.get();
+		HashMap<SbbEntityID, Void> map = super.getValue();
 		if (map != null) {
 			if (!map.containsKey(sbbEntityID)) {
 				return false;
 			} else {
 				map = new HashMap<SbbEntityID, Void>(map);
 				map.remove(sbbEntityID);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		} else

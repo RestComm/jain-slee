@@ -7,17 +7,17 @@ import java.util.Set;
 import javax.slee.facilities.TimerID;
 
 import org.mobicents.slee.container.activity.ActivityContextHandle;
-import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
-public class AttachedTimersEntitiesCacheData extends CacheData<ActivityCacheKey,HashMap<TimerID,Void>> 
+public class AttachedTimersEntitiesCacheData extends ClusteredCacheData<ActivityCacheKey,HashMap<TimerID,Void>> 
 {
 	public AttachedTimersEntitiesCacheData(ActivityContextHandle handle, MobicentsCache cache) {
 		super(new ActivityCacheKey(handle, ActivityCacheType.ATTACHED_TIMERS), cache);		
 	}
 	
 	public Boolean attachTime(Boolean createIfNotExists,TimerID timerID) {
-		HashMap<TimerID, Void> map=super.get();
+		HashMap<TimerID, Void> map=super.getValue();
 		if(map==null && createIfNotExists)
 			map=new HashMap<TimerID, Void>();
 		
@@ -28,7 +28,7 @@ public class AttachedTimersEntitiesCacheData extends CacheData<ActivityCacheKey,
 			else {
 				map=new HashMap<TimerID, Void>(map);
 				map.put(timerID, null);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		}
@@ -37,10 +37,10 @@ public class AttachedTimersEntitiesCacheData extends CacheData<ActivityCacheKey,
 	}
 	
 	public Boolean detachTimer(Boolean createIfNotExists,TimerID timerID) {
-		HashMap<TimerID, Void> map=super.get();
+		HashMap<TimerID, Void> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<TimerID, Void>();
-			super.put(map);
+			super.putValue(map);
 			return false;
 		}
 		
@@ -50,7 +50,7 @@ public class AttachedTimersEntitiesCacheData extends CacheData<ActivityCacheKey,
 			else {
 				map=new HashMap<TimerID, Void>(map);
 				map.remove(timerID);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 		}
@@ -59,10 +59,10 @@ public class AttachedTimersEntitiesCacheData extends CacheData<ActivityCacheKey,
 	}
 	
 	public Boolean hasTimers(Boolean createIfNotExists) {
-		HashMap<TimerID, Void> map=super.get();
+		HashMap<TimerID, Void> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<TimerID, Void>();
-			super.put(map);
+			super.putValue(map);
 			return false;
 		}
 		
@@ -74,10 +74,10 @@ public class AttachedTimersEntitiesCacheData extends CacheData<ActivityCacheKey,
 	}
 	
 	public Set<TimerID> getTimers(Boolean createIfNotExists) {
-		HashMap<TimerID, Void> map=super.get();
+		HashMap<TimerID, Void> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<TimerID, Void>();
-			super.put(map);
+			super.putValue(map);
 			return map.keySet();
 		}
 		

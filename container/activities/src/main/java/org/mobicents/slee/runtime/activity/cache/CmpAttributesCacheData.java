@@ -5,22 +5,23 @@ import java.util.HashMap;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.restcomm.cache.CacheData;
 import org.restcomm.cache.MobicentsCache;
+import org.restcomm.cluster.cache.ClusteredCacheData;
 
-public class CmpAttributesCacheData extends CacheData<ActivityCacheKey,HashMap<String,Object>> 
+public class CmpAttributesCacheData extends ClusteredCacheData<ActivityCacheKey,HashMap<String,Object>> 
 {
 	public CmpAttributesCacheData(ActivityContextHandle handle, MobicentsCache cache) {
 		super(new ActivityCacheKey(handle, ActivityCacheType.CMP_ATTRIBUTES), cache);		
 	}
 	
 	public Boolean setAttribute(Boolean createIfNotExists,String name,Object value) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists)
 			map=new HashMap<String, Object>();
 		
 		if(map!=null) {
 			map=new HashMap<String, Object>(map);
 			map.put(name, value);
-			super.put(map);
+			super.putValue(map);
 			return true;
 		}
 		else
@@ -28,7 +29,7 @@ public class CmpAttributesCacheData extends CacheData<ActivityCacheKey,HashMap<S
 	}
 	
 	public Boolean removeAttribute(Boolean createIfNotExists,String name) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists)
 			map=new HashMap<String, Object>();
 		
@@ -36,7 +37,7 @@ public class CmpAttributesCacheData extends CacheData<ActivityCacheKey,HashMap<S
 			if(map.containsKey(name)) {
 				map=new HashMap<String, Object>(map);
 				map.remove(name);
-				super.put(map);
+				super.putValue(map);
 				return true;
 			}
 			else
@@ -47,10 +48,10 @@ public class CmpAttributesCacheData extends CacheData<ActivityCacheKey,HashMap<S
 	}
 	
 	public Object getAttribute(Boolean createIfNotExists,String name) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Object>();
-			super.put(map);
+			super.putValue(map);
 			return null;
 		}
 		
@@ -62,10 +63,10 @@ public class CmpAttributesCacheData extends CacheData<ActivityCacheKey,HashMap<S
 	}
 	
 	public HashMap<String,Object> getAttributes(Boolean createIfNotExists) {
-		HashMap<String, Object> map=super.get();
+		HashMap<String, Object> map=super.getValue();
 		if(map==null && createIfNotExists) {			
 			map=new HashMap<String, Object>();
-			super.put(map);
+			super.putValue(map);
 			return map;
 		}
 		
