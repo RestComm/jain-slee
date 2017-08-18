@@ -181,13 +181,14 @@ public class SleeDeploymentMetaData
                         if (elem.getNodeName().equals("item")) {
                             log.trace("Item [" + i + "]: " + elem.getTextContent());
                             if (!elem.getTextContent().isEmpty()) {
-                                checkItems = checkItems && checkDependencyItem(elem.getTextContent());
+                                checkItems = checkItems && checkDependencyItem(elem.getTextContent(),elem.getAttribute("attribute"),elem.getAttribute("required"));
                             }
                         }
                     }
                 }
                 this.dependencyItemsPassed = checkItems;
             }
+            
             /*else {
             	log.warn("Deployment \""+rootFile.getName()+
             			"\"  is in error due to the following reason(s): ** NOT FOUND Dependency **." +
@@ -200,25 +201,43 @@ public class SleeDeploymentMetaData
         }
     }
 
-    private boolean checkDependencyItem(String itemName) {
+    private boolean checkDependencyItem(String itemName,String customAttribute,String required) {
         MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
         Set mbeans = mbeanServer.queryNames(null, null);
         ObjectName mbeanName = null;
         for (Object mbean : mbeans) {
             mbeanName = (ObjectName)mbean;
             if (mbeanName.getCanonicalName().contains(itemName)) {
-                try {
-                    Object object = mbeanServer.getAttribute(mbeanName, "Started");
-                    if (object != null && object instanceof Boolean) {
-                        return (Boolean)object;
+            	if(customAttribute!=null && customAttribute.length()>0){
+            		try {
+            			Object object = mbeanServer.getAttribute(mbeanName, customAttribute);
+            			if(object!=null)
+            				return true;
+            			
+            		} catch(Exception e) {
+                        log.debug("Cant get attribute " + customAttribute + " for MBean: "+mbeanName, e);
                     }
-                } catch(Exception e) {
-                    log.debug("Cant get attribute Started for MBean: "+mbeanName, e);
-                }
-                return true;
-            }
+            		
+            		if(required.length()!=0 && String.valueOf(true).equalsIgnoreCase(required))
+            			return false;
+            		else
+            			return true;
+            	}
+            	else {
+            		try {
+            			Object object = mbeanServer.getAttribute(mbeanName, "Started");
+                        if (object != null && object instanceof Boolean) {
+                            return (Boolean)object;
+                        }
+                    } catch(Exception e) {
+                        log.debug("Cant get attribute Started for MBean: "+mbeanName, e);
+                    }           
+            		
+            		return true;
+            	}                             
+            }            
         }
 
         return false;
-    }
+    }    
 }

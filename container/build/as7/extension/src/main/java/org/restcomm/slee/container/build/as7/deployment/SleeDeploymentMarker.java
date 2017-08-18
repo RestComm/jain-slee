@@ -36,7 +36,7 @@ public class SleeDeploymentMarker {
         // to parse deployment unit
         if(log.isTraceEnabled()) {
             log.trace("Deployment unit parsing: " + deploymentUnit);
-        }
+        }        
         SleeDeploymentMetaData metaData = new SleeDeploymentMetaData(deploymentUnit, isDeploy);
 
         // SergeyLee: ClassLoadingMetaData migrating
