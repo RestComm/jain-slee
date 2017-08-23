@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-package org.telestax.slee.container.build.as7.service;
+package org.restcomm.slee.container.build.as7.service;
 
 import java.io.Closeable;
 import java.io.File;
@@ -132,10 +132,10 @@ import org.restcomm.cache.CacheDataExecutorService;
 import org.restcomm.cache.CacheExecutorConfiguration;
 import org.restcomm.cluster.MobicentsClusterFactory;
 import org.restcomm.cluster.election.DefaultClusterElector;
-import org.telestax.slee.container.build.as7.deployment.ExternalDeployerImpl;
-import org.telestax.slee.container.build.as7.deployment.SleeDeploymentMetaData;
-import org.telestax.slee.container.build.as7.naming.JndiManagementImpl;
-import org.telestax.slee.container.build.as7.tckwrapper.SleeTCKPluginWrapper;
+import org.restcomm.slee.container.build.as7.deployment.ExternalDeployerImpl;
+import org.restcomm.slee.container.build.as7.deployment.SleeDeploymentMetaData;
+import org.restcomm.slee.container.build.as7.naming.JndiManagementImpl;
+import org.restcomm.slee.container.build.as7.tckwrapper.SleeTCKPluginWrapper;
 
 public class SleeContainerService implements Service<SleeContainer> {
 

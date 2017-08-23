@@ -15,7 +15,7 @@
 	<properties>
 		<slee.name>Restcomm JAIN SLEE</slee.name>
 		<slee.vendor>Restcomm</slee.vendor>
-		<slee.version>${pom.version}</slee.version>
+		<slee.version>${project.version}</slee.version>
 		<slee.codename>???</slee.codename>
 
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
@@ -38,8 +38,8 @@
 		<!--<version.hibernate>4.2.0.CR1</version.hibernate>-->
 		<version.hibernate>5.0.10.Final</version.hibernate>
 
-
-		<restcomm.cluster.version>3.0.0.15</restcomm.cluster.version>
+		<version.jgoups>3.6.10.Final</version.jgoups>
+		<restcomm.cluster.version>7.0.0.16</restcomm.cluster.version>
 		<version.infinispan>8.1.2.Final-redhat-1</version.infinispan>
 		<version.infinispan.tree>8.1.2.Final</version.infinispan.tree>
 		<version.jboss.logging>3.3.0.Final-redhat-1</version.jboss.logging>

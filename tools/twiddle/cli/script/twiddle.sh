@@ -18,7 +18,7 @@
 #
 
 JBOSS_MODULEPATH=$JBOSS_HOME/modules/system/layers/base/
-MODULES="org/jboss/remoting-jmx org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads org/jboss/as/controller org/telestax/slee/container/lib"
+MODULES="org/jboss/remoting-jmx org/jboss/logging org/jboss/xnio org/jboss/xnio/nio org/jboss/sasl org/jboss/marshalling org/jboss/marshalling/river org/jboss/as/cli org/jboss/staxmapper org/jboss/as/protocol org/jboss/dmr org/jboss/as/controller-client org/jboss/threads org/jboss/as/controller org/restcomm/slee/container/lib"
 for MODULE in $MODULES
 do
     for JAR in `cd "$JBOSS_MODULEPATH/$MODULE/main/" && ls -1 *.jar`
