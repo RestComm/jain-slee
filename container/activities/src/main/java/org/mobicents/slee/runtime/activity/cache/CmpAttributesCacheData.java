@@ -18,15 +18,29 @@ public class CmpAttributesCacheData extends CacheData<ActivityCacheKey,HashMap<S
 			map=new HashMap<String, Object>();
 		
 		if(map!=null) {
+			map=new HashMap<String, Object>(map);
+			map.put(name, value);
+			super.put(map);
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	public Boolean removeAttribute(Boolean createIfNotExists,String name) {
+		HashMap<String, Object> map=super.get();
+		if(map==null && createIfNotExists)
+			map=new HashMap<String, Object>();
+		
+		if(map!=null) {
 			if(map.containsKey(name)) {
-				return false;
-			}
-			else {
 				map=new HashMap<String, Object>(map);
-				map.put(name, value);
+				map.remove(name);
 				super.put(map);
 				return true;
 			}
+			else
+				return false;
 		}
 		else
 			return false;

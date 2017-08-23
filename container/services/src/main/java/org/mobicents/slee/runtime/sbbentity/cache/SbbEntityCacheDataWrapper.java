@@ -32,8 +32,8 @@ public class SbbEntityCacheDataWrapper
 	}
 	
 	public Boolean create() {
-		Boolean created=metadataCacheData.setObject(true,EXISTS,true);
-		if(!created)
+		Boolean oldValue=metadataCacheData.setObject(true,EXISTS,true);
+		if(oldValue!=null && oldValue)
 			return false;
 		
 		parentEntityCacheData.create(true);
@@ -73,7 +73,10 @@ public class SbbEntityCacheDataWrapper
 	}
 	
 	public void setEventMask(ActivityContextHandle ac, Set<EventTypeID> eventMask) {
-		eventMasksCacheData.setEventMask(true, ac, eventMask);
+		if(eventMask!=null && eventMask.size()>0)
+			eventMasksCacheData.setEventMask(true, ac, eventMask);
+		else
+			eventMasksCacheData.removeMask(false, ac);
 	}
 	
 	public void updateEventMask(ActivityContextHandle ac, Set<EventTypeID> maskedEvents) {
@@ -81,7 +84,6 @@ public class SbbEntityCacheDataWrapper
 	}
 	
 	public void setCmpField(String cmpField, Object cmpValue) {
-		System.out.println("Settings CMP Field:" + cmpField + ",Value:" + cmpValue);
 		if(cmpValue==null)
 			cmpFieldsCacheData.removeField(true, cmpField);
 		else
@@ -89,8 +91,7 @@ public class SbbEntityCacheDataWrapper
 	}
 	
 	public Object getCmpField(String cmpField) {
-		System.out.println("Getting CMP Field:" + cmpField);
-		return cmpFieldsCacheData.getField(false, cmpField);		
+		return cmpFieldsCacheData.getField(false, cmpField);
 	}
 	
 	public Set<SbbEntityID> getChildRelationSbbEntities(String getChildRelationMethod) {

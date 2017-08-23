@@ -22,15 +22,10 @@ public class EventMasksCacheData extends CacheData<SbbEntityCacheKey,HashMap<Act
 			map=new HashMap<ActivityContextHandle, Set<EventTypeID>>();
 		
 		if(map!=null) {
-			if(map.containsKey(handle)) {
-				return false;
-			}
-			else {
-				map=new HashMap<ActivityContextHandle, Set<EventTypeID>>(map);
-				map.put(handle, mask);
-				super.put(map);
-				return true;
-			}
+			map=new HashMap<ActivityContextHandle, Set<EventTypeID>>(map);
+			map.put(handle, mask);
+			super.put(map);
+			return true;
 		}
 		else
 			return false;
@@ -40,7 +35,6 @@ public class EventMasksCacheData extends CacheData<SbbEntityCacheKey,HashMap<Act
 		HashMap<ActivityContextHandle, Set<EventTypeID>> map=super.get();
 		if(map==null && createIfNotExists)
 			map=new HashMap<ActivityContextHandle, Set<EventTypeID>>();
-		
 		if(map!=null) {
 			if(map.containsKey(handle)) {
 				map=new HashMap<ActivityContextHandle, Set<EventTypeID>>(map);

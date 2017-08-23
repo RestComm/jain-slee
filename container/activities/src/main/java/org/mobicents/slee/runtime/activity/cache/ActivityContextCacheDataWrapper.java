@@ -208,7 +208,10 @@ public class ActivityContextCacheDataWrapper
 	 * @param attrValue
 	 */
 	public void setCmpAttribute(String attrName, Object attrValue) {
-		cmpAttributesCacheData.setAttribute(true, attrName, attrValue);		
+		if(attrValue!=null)
+			cmpAttributesCacheData.setAttribute(true, attrName, attrValue);
+		/*else
+			cmpAttributesCacheData.removeAttribute(false,attrName);*/
 	}
 
 	/**

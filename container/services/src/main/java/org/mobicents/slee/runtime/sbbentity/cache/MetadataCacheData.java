@@ -18,15 +18,10 @@ public class MetadataCacheData extends CacheData<SbbEntityCacheKey,HashMap<Strin
 			map=new HashMap<String, Object>();
 		
 		if(map!=null) {
-			if(map.containsKey(name)) {
-				return false;
-			}
-			else {
-				map=new HashMap<String, Object>(map);
-				map.put(name, value);
-				super.put(map);
-				return true;
-			}
+			map=new HashMap<String, Object>(map);
+			map.put(name, value);
+			super.put(map);
+			return true;
 		}
 		else
 			return false;
