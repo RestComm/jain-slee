@@ -37,7 +37,7 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-du-plugin</artifactId>
-				<version>4.0.1</version>
+				<version>4.0.2</version>
 				<executions>
 					<execution>
 						<goals>
