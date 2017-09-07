@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <appendix
 	id="revision_history">
 	<title>Revision History</title>
@@ -15,6 +18,19 @@
 				<revdescription>
 					<simplelist>
 						<member>Creation of the &THIS.PLATFORM; &THIS.APPLICATION; User Guide.</member>
+					</simplelist>
+				</revdescription>
+			</revision>
+			<revision>
+				<revnumber>1.1</revnumber>
+				<date>2016-09-29</date>
+				<author>
+					<firstname>Grzegorz</firstname>
+					<surname>Figiel</surname>
+				</author>
+				<revdescription>
+					<simplelist>
+						<member>Updated for Graceful Stop slee command</member>
 					</simplelist>
 				</revdescription>
 			</revision>

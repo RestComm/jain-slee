@@ -39,3 +39,4 @@ tools/slee-management-console/docs/sources-restcomm/src/
 tools/slee-management-console/docs/sources-telscale/src/
 tools/twiddle/docs/sources-restcomm/src/
 tools/twiddle/docs/sources-telscale/src/
+*.versionsBackup

@@ -1,0 +1,13 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="graceful_shutdown">
+
+	<title>Graceful Shutdown</title>
+
+	<para>Graceful shutdown mode can be applied to Resource Adaptor which implements GracefullyStopableResourceAdaptor interface.</para>
+
+</section>

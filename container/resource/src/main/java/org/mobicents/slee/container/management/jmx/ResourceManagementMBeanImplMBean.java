@@ -22,13 +22,23 @@
 
 package org.mobicents.slee.container.management.jmx;
 
+import javax.slee.InvalidStateException;
+import javax.slee.management.ManagementException;
 import javax.slee.management.ResourceManagementMBean;
+import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 
 /**
- * 
+ *
  * @author martins
  *
  */
-public interface ResourceManagementMBeanImplMBean extends 
-	org.jboss.system.ServiceMBean, ResourceManagementMBean {
+public interface ResourceManagementMBeanImplMBean extends
+		org.jboss.system.ServiceMBean, ResourceManagementMBean {
+
+	void gracefulShutdownResourceAdaptorEntity(String entityName, Integer ast, Long time)
+			throws NullPointerException,
+			UnrecognizedResourceAdaptorEntityException,
+			InvalidStateException,
+			ManagementException;
+
 }

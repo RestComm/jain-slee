@@ -99,6 +99,11 @@ public interface ActivityContextFactory extends SleeContainerModule {
 	public Set<ActivityContextHandle> getAllActivityContextsHandles();
 
 	/**
+	 * @return Set of local registered SLEE activity context handles
+	 */
+	public Set<ActivityContextHandle> getLocalActivityContextHandles();
+	
+	/**
 	 * @return
 	 */
 	public int getActivityContextCount();

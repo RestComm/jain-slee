@@ -1,0 +1,4 @@
+
+= Graceful Shutdown
+
+Graceful shutdown mode can be applied to Resource Adaptor which implements GracefullyStopableResourceAdaptor interface.

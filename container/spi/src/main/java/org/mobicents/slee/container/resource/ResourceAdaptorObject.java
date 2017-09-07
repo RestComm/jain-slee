@@ -44,20 +44,23 @@ import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 
 /**
  * @author martins
+ * @author <a href="mailto:bartosz.krok@pro-ids.com"> Bartosz Krok (ProIDS sp. z o.o.)</a>
  *
  */
 public interface ResourceAdaptorObject {
 
 	/**
 	 * Retrieves the current ra object configuration
-	 * 
+	 *
 	 * @return
 	 */
 	public ConfigProperties getConfigProperties();
 
+	public ResourceAdaptor getObject();
+
 	/**
 	 * Retrieves the current ra object state
-	 * 
+	 *
 	 * @return
 	 */
 	public ResourceAdaptorObjectState getState();
@@ -123,16 +126,16 @@ public interface ResourceAdaptorObject {
 	/**
 	 * Requests the stopping of the ra object. If the operation succeeds the ra
 	 * will transition to STOPPING state.
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 *             if the ra object is not in ACTIVE state
 	 */
-	public void raStopping() throws InvalidStateException;
+	public void raStopping(boolean isGraceful) throws InvalidStateException;
 
 	/**
 	 * Requests the deactivation of the ra object. If the operation succeeds the
 	 * ra will transition to INACTIVE state.
-	 * 
+	 *
 	 * @throws InvalidStateException
 	 *             if the ra object is not in STOPPING state
 	 */

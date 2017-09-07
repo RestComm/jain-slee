@@ -19,21 +19,18 @@ package org.mobicents.tools.twiddle.jslee;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
-
-import java.io.PrintWriter;
-import java.util.Arrays;
-
-import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.slee.management.SleeState;
-
 import org.jboss.console.twiddle.command.CommandContext;
 import org.jboss.console.twiddle.command.CommandException;
 import org.jboss.logging.Logger;
 import org.mobicents.tools.twiddle.AbstractSleeCommand;
 import org.mobicents.tools.twiddle.Utils;
 import org.mobicents.tools.twiddle.op.AbstractOperation;
+
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.io.PrintWriter;
+import java.util.Arrays;
 
 /**
  * @author baranowb
@@ -42,8 +39,7 @@ import org.mobicents.tools.twiddle.op.AbstractOperation;
 public class SleeCommand extends AbstractSleeCommand {
 
 	/**
-	 * @param name
-	 * @param desc
+	 * This command performs operations on JSLEE SleeManagementMBean
 	 */
 	public SleeCommand() {
 		super("slee", "This command performs operations on JSLEE SleeManagementMBean.");
@@ -61,11 +57,11 @@ public class SleeCommand extends AbstractSleeCommand {
 
 		out.println(desc);
 		out.println();
-		out.println("usage: " + name + " <-operation>");
+		out.println("usage: " + name + " <-operation [--option=arg]*]>");
 		out.println();
 		out.println("operation:");
 		out.println("    -r, --start                     Starts container.");
-		out.println("    -s, --stopt                     Stops container.");
+		out.println("    -s, --stop                      Stops container.");
 		out.println("    -d, --shutdown                  Shutdowns container.");
 		out.println("    -i, --info                      Displays information about SLEE container(vendor, version, etc.).");
 		//no more supported, since we dont have subsystems?
@@ -86,10 +82,10 @@ public class SleeCommand extends AbstractSleeCommand {
 
 		LongOpt[] lopts = {
 				new LongOpt("start", LongOpt.NO_ARGUMENT, null, 'r'),
-				new LongOpt("stopt", LongOpt.NO_ARGUMENT, null, 's'),
+				new LongOpt("stop", LongOpt.NO_ARGUMENT, null, 's'),
 				new LongOpt("shutdown", LongOpt.NO_ARGUMENT, null, 'd'),
 				new LongOpt("info", LongOpt.NO_ARGUMENT, null, 'i'),
-				
+
 				 };
 
 		Getopt getopt = new Getopt(null, args, sopts, lopts);

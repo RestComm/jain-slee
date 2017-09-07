@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JSLEE_Twiddle_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 <section id="resource">
 
 	<title>resource</title>
@@ -63,6 +66,13 @@
 					<entry>--deactivate</entry>
 					<entry>Yes</entry>
 					<entry>No</entry>
+				</row>
+				<row>
+					<entry>graceful-stop</entry>
+					<entry>-s</entry>
+					<entry>--graceful-stop</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
 				</row>
 				<row>
 					<entry>create</entry>
@@ -160,11 +170,28 @@
 			operation renders Resource Adaptor Entity inactive. It does not support options. It requires entity name as argument.
 		</para>
 		<example>
-			<title>Activate SIP RA</title>
+			<title>Deactivate SIP RA</title>
 			<!-- <screen> --><programlisting>./twiddle.sh resource --deactivate=SipRA<!-- </screen> --></programlisting>
 		</example>
-
 	</section>
+
+	<section id="resource_graceful-stop">
+		<title>graceful-stop</title>
+		<para>
+			<literal>graceful-stop</literal>
+			operation renders Resource Adaptor Entity gracefully inactivation. This is an extended command. It does not support argument. It requires entity-name
+			option to be present. If not specified 'ast' and 'time' argument, default are set (See Resource Adaptor's Configuration Properties in RA's documentation).
+		</para>
+		<example>
+			<title>Gracefully deactivate SIP RA</title>
+			<!-- <screen> --><programlisting>./twiddle.sh resource --graceful-stop --entity-name SipRA<!-- </screen> --></programlisting>
+		</example>
+		<example>
+			<title>Gracefully deactivate SIP RA</title>
+			<!-- <screen> --><programlisting>./twiddle.sh resource --graceful-stop --entity-name SipRA --ast 30 --time 300<!-- </screen> --></programlisting>
+		</example>
+	</section>
+
 	<section id="resource_create">
 		<title>create</title>
 		<para>
