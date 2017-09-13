@@ -23,7 +23,11 @@
 		<developerConnection>scm:git:git@github.com:RestComm/jain-slee.git</developerConnection>
 		<url>https://github.com/RestComm/jain-slee</url>
 	</scm>
-
+	
+	<properties>
+		<restcomm.tools.mavenplugin.eclipse.version>1.0.1.FINAL</restcomm.tools.mavenplugin.eclipse.version>
+	</properties>
+	
 	<profiles>
 		<profile>
 			<id>maven-release</id>
@@ -92,4 +96,30 @@
 		</repository>
 	</repositories>
 	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>restcomm-public-repository-group</id>
+			<name>Restcomm Public Maven Repository Group</name>
+			<url>https://oss.sonatype.org/content/groups/public</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+		</pluginRepository>
+		<pluginRepository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Maven Repository Group</name>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
