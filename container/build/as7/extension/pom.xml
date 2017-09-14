@@ -433,11 +433,13 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<replace
-											file="${jboss.home}/standalone/configuration/standalone.xml">
-											<replacetoken><![CDATA[</extensions>]]></replacetoken>
-											<replacevalue><![CDATA[
-		<extension module="org.restcomm.slee.container.extension"/>
+									<replace file="${jboss.home}/standalone/configuration/standalone.xml">
+										<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
+										<replacevalue></replacevalue>
+									</replace>								
+										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
+  											<replacetoken><![CDATA[</extensions>]]></replacetoken>
+  											<replacevalue><![CDATA[<extension module="org.restcomm.slee.container.extension"/>
 	</extensions>]]></replacevalue>
 										</replace>
 										<replace
@@ -574,20 +576,17 @@
 										<replace
 											file="${jboss.home}/standalone/configuration/standalone.xml">
 											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
-											<replacevalue><![CDATA[]]>
-											</replacevalue>
+											<replacevalue></replacevalue>
 										</replace>
 										<replace
 											file="${jboss.home}/standalone/configuration/standalone-ha.xml">
 											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
-											<replacevalue><![CDATA[]]>
-											</replacevalue>
+											<replacevalue></replacevalue>
 										</replace>
 										<replace
 											file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
 											<replacetoken><![CDATA[<module name="org.restcomm.slee.container.lib"/>]]></replacetoken>
-											<replacevalue><![CDATA[]]>
-											</replacevalue>
+											<replacevalue></replacevalue>
 										</replace>
 									</tasks>
 								</configuration>
