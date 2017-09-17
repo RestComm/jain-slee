@@ -46,11 +46,11 @@
 		<!--
 		<cluster.scmVersion>1.15.26</cluster.scmVersion>
 		<cluster.scmVersionType>tag</cluster.scmVersionType>
-		-->
+		
 
 		<sip-balancer.scmVersion>8.1.152</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
-
+		-->
 	</properties>
 	
 	<profiles>
