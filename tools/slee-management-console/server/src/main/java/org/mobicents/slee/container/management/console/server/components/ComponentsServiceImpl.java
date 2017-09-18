@@ -26,9 +26,11 @@ import java.util.ArrayList;
 
 import javax.slee.ComponentID;
 import javax.slee.management.ComponentDescriptor;
+import javax.slee.management.SbbDescriptor;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
 import org.mobicents.slee.container.management.console.client.components.ComponentsService;
+import org.mobicents.slee.container.management.console.client.components.info.SbbInfo;
 import org.mobicents.slee.container.management.console.client.components.info.ComponentInfo;
 import org.mobicents.slee.container.management.console.client.components.info.ComponentSearchParams;
 import org.mobicents.slee.container.management.console.client.components.info.ComponentTypeInfo;
@@ -49,9 +51,15 @@ public class ComponentsServiceImpl extends RemoteServiceServlet implements Compo
   private DeploymentMBeanUtils deploymentMBeanUtils = sleeConnection.getSleeManagementMBeanUtils().getDeploymentMBeanUtils();
 
   public ComponentInfo[] getComponents() throws ManagementConsoleException {
-
-    ComponentInfo[] componentInfos = ComponentInfoUtils.toComponentInfos(deploymentMBeanUtils.getComponentDescriptors());
-
+    ComponentDescriptor[] componentDescriptors= deploymentMBeanUtils.getComponentDescriptors();
+    ComponentInfo[] componentInfos = new ComponentInfo[componentDescriptors.length];
+	for (int i = 0; i < componentDescriptors.length; i++){
+		componentInfos[i] = ComponentInfoUtils.toComponentInfo(componentDescriptors[i]);
+		if(componentDescriptors[i] instanceof SbbDescriptor){
+			String[] envEntries = deploymentMBeanUtils.getEnvEntries((ComponentID)componentDescriptors[i].getID());
+			((SbbInfo)componentInfos[i]).setEnvEntries(envEntries);
+		}
+	}
     return componentInfos;
   }
 
@@ -106,18 +114,27 @@ public class ComponentsServiceImpl extends RemoteServiceServlet implements Compo
     else {
       throw new ManagementConsoleException("Unknown component type " + componentTypeInfo.getType());
     }
-
     componentDescriptors = deploymentMBeanUtils.getDescriptors(componentIDs);
-    componentInfos = ComponentInfoUtils.toComponentInfos(componentDescriptors);
-
+    componentInfos = new ComponentInfo[componentDescriptors.length];
+	for (int i = 0; i < componentDescriptors.length; i++){
+		componentInfos[i] = ComponentInfoUtils.toComponentInfo(componentDescriptors[i]);
+		if(componentDescriptors[i] instanceof SbbDescriptor){
+			String[] envEntries = deploymentMBeanUtils.getEnvEntries((ComponentID)componentDescriptors[i].getID());
+			((SbbInfo)componentInfos[i]).setEnvEntries(envEntries);
+		}
+	}
     return componentInfos;
   }
 
   public ComponentInfo getComponentInfo(String id) throws ManagementConsoleException {
     ComponentID componentID = managementConsole.getComponentIDMap().get(id);
     ComponentDescriptor componentDescriptor = deploymentMBeanUtils.getDescriptor(componentID);
-    ComponentInfo componentInfo = ComponentInfoUtils.toComponentInfo(componentDescriptor);
-
+    ComponentInfo componentInfo = null;
+    componentInfo = ComponentInfoUtils.toComponentInfo(componentDescriptor);
+	if(componentDescriptor instanceof SbbDescriptor){
+		String[] envEntries = deploymentMBeanUtils.getEnvEntries((ComponentID)componentDescriptor.getID());
+		((SbbInfo)componentInfo).setEnvEntries(envEntries);
+	}
     return componentInfo;
   }
 
@@ -146,8 +163,14 @@ public class ComponentsServiceImpl extends RemoteServiceServlet implements Compo
     resultComponentDescriptors = new ComponentDescriptor[resultComponentDescriptorArrayList.size()];
     resultComponentDescriptors = resultComponentDescriptorArrayList.toArray(resultComponentDescriptors);
 
-    resultComponentInfos = ComponentInfoUtils.toComponentInfos(resultComponentDescriptors);
-
+    resultComponentInfos = new ComponentInfo[resultComponentDescriptors.length];
+	for (int i = 0; i < resultComponentDescriptors.length; i++){
+		resultComponentInfos[i] = ComponentInfoUtils.toComponentInfo(resultComponentDescriptors[i]);
+		if(resultComponentDescriptors[i] instanceof SbbDescriptor){
+			String[] envEntries = deploymentMBeanUtils.getEnvEntries((ComponentID)resultComponentDescriptors[i].getID());
+			((SbbInfo)resultComponentInfos[i]).setEnvEntries(envEntries);
+		}
+	}
     return resultComponentInfos;
   }
 
@@ -172,8 +195,14 @@ public class ComponentsServiceImpl extends RemoteServiceServlet implements Compo
     resultComponentDescriptors = new ComponentDescriptor[resultComponentDescriptorArrayList.size()];
     resultComponentDescriptors = resultComponentDescriptorArrayList.toArray(resultComponentDescriptors);
 
-    resultComponentInfos = ComponentInfoUtils.toComponentInfos(resultComponentDescriptors);
-
+    resultComponentInfos = new ComponentInfo[resultComponentDescriptors.length];
+	for (int i = 0; i < resultComponentDescriptors.length; i++){
+		resultComponentInfos[i] = ComponentInfoUtils.toComponentInfo(resultComponentDescriptors[i]);
+		if(resultComponentDescriptors[i] instanceof SbbDescriptor){
+			String[] envEntries = deploymentMBeanUtils.getEnvEntries((ComponentID)resultComponentDescriptors[i].getID());
+			((SbbInfo)resultComponentInfos[i]).setEnvEntries(envEntries);
+		}
+	}
     return resultComponentInfos;
   }
 
