@@ -26,6 +26,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.security.Policy;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.management.NotCompliantMBeanException;
@@ -52,6 +53,7 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.SleeComponent;
 import org.mobicents.slee.container.component.du.DeployableUnit;
@@ -817,7 +819,44 @@ public class DeploymentMBeanImpl extends MobicentsServiceMBeanSupport implements
 		}
 
 	}
+	public String[] getEnvEntries(ComponentID componentID)
+			throws NullPointerException, UnrecognizedComponentException,
+			ManagementException {
+		if (componentID == null)
+			throw new NullPointerException("null component ID");
+		if (logger.isDebugEnabled()) {
+			logger.debug("getEnvEntries: componentID " + componentID);
+		}
+		try {
+			ComponentRepository componentRepositoryImpl = getSleeContainer().getComponentRepository();
+			SleeComponent component = null;
+			if (componentID instanceof SbbID) {
+				component = componentRepositoryImpl
+						.getComponentByID((SbbID) componentID);
+				List<EnvEntryDescriptor> envEntries = ((SbbComponent)component).getEnvEntries();
+				String[] envEntriesString = new String[envEntries.size()];
+				for (int i = 0; i < envEntries.size(); i++) {
+					envEntriesString[i] = envEntries.get(i).toString();
+				}
+				return envEntriesString;
+			}
+			else
+				return null;
+		} catch (Throwable ex) {
+			throw new ManagementException(ex.getMessage(), ex);
+		}
+	}
+	 static public String[] toStringArray(EnvEntryDescriptor[] envEntries) {
+	     if (envEntries == null)
+	       return null;
 
+	     String[] stringArray = new String[envEntries.length];
+
+	     for (int i = 0; i < envEntries.length; i++)
+	       stringArray[i] = envEntries[i].toString();
+
+	     return stringArray;
+	   }
 	/*
 	 * (non-Javadoc)
 	 * 
