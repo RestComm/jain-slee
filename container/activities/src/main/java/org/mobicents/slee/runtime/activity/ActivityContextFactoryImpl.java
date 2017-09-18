@@ -27,6 +27,7 @@ import org.infinispan.tree.Node;
 import org.mobicents.slee.container.AbstractSleeContainerModule;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
+import org.mobicents.slee.container.activity.ActivityContextCacheDataInterface;
 import org.mobicents.slee.container.activity.ActivityContextFactory;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityType;
@@ -38,6 +39,7 @@ import org.restcomm.cluster.DataRemovalListener;
 
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
+
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -157,7 +159,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 		}
 		
 		// create ac
-		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
+		ActivityContextCacheDataInterface activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
 		if (activityContextCacheData.exists()) {
 			throw new ActivityAlreadyExistsException(ach.toString());
 		}
@@ -186,7 +188,7 @@ public class ActivityContextFactoryImpl extends AbstractSleeContainerModule impl
 	
 	@Override
 	public ActivityContextImpl getActivityContext(ActivityContextHandle ach, boolean updateLastAccessTime) {
-		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
+		ActivityContextCacheDataInterface activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
 		if (activityContextCacheData.exists()) {
 			try {
 				return new ActivityContextImpl(ach,activityContextCacheData,tracksIdleTime(ach, updateLastAccessTime),this);

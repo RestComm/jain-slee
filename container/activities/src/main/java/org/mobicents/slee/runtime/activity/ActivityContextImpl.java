@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 import org.infinispan.tree.Node;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.activity.ActivityContext;
+import org.mobicents.slee.container.activity.ActivityContextCacheDataInterface;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.activity.ActivityEventQueueManager;
 import org.mobicents.slee.container.activity.ActivityType;
@@ -88,7 +89,7 @@ public class ActivityContextImpl implements ActivityContext {
 	/**
 	 * the data stored in cache for this ac
 	 */
-	protected final ActivityContextCacheData cacheData;
+	protected final ActivityContextCacheDataInterface cacheData;
 
 	private final ActivityContextFactoryImpl factory;
 
@@ -98,7 +99,7 @@ public class ActivityContextImpl implements ActivityContext {
 
 	public ActivityContextImpl(
 			final ActivityContextHandle activityContextHandle,
-			ActivityContextCacheData cacheData, boolean updateAccessTime,
+			ActivityContextCacheDataInterface cacheData, boolean updateAccessTime,
 			Integer activityFlags, ActivityContextFactoryImpl factory) {
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
@@ -121,7 +122,7 @@ public class ActivityContextImpl implements ActivityContext {
 	}
 
 	public ActivityContextImpl(ActivityContextHandle activityContextHandle,
-			ActivityContextCacheData cacheData, boolean updateAccessTime,
+			ActivityContextCacheDataInterface cacheData, boolean updateAccessTime,
 			ActivityContextFactoryImpl factory) {
 		this.activityContextHandle = activityContextHandle;
 		this.factory = factory;
@@ -164,7 +165,10 @@ public class ActivityContextImpl implements ActivityContext {
 						.getObject(NODE_MAP_KEY_ACTIVITY_FLAGS);
 			}
 		}
-		return flags;
+		// Fix for issue #103: github.com/RestComm/jain-slee/issues/103
+		// Solution: return default value "NO_FLAGS" whenever "NODE_MAP_KEY_ACTIVITY_FLAGS" key
+		// not ready in cacheData.
+		return (flags != null) ? flags : ActivityFlags.NO_FLAGS;
 	}
 
 	/**
