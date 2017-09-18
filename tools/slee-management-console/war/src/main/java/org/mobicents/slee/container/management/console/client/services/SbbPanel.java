@@ -78,7 +78,7 @@ public class SbbPanel extends Composite {
 
     PropertiesPanel sbbPropertiesPanel = new PropertiesPanel();
     sbbPropertiesPanel.add("Event types", ComponentNameLabel.toArray(sbbInfo.getEventTypeIDs(), browseContainer));
-    sbbPropertiesPanel.add("Env Entry", sbbInfo.getEnvEntries());
+    sbbPropertiesPanel.add("Env Entry", ComponentNameLabel.toArray(sbbInfo.getEnvEntries()));
     sbbPropertiesPanel.add("RA entity links", sbbInfo.getResourceAdaptorEntityLinks());
     sbbPropertiesPanel.add("Resource adaptors", ComponentNameLabel.toArray(sbbInfo.getResourceAdaptorTypeIDs()));
     sbbPropertiesPanel.add("SBBs", ComponentNameLabel.toArray(sbbInfo.getSbbIDs()));
