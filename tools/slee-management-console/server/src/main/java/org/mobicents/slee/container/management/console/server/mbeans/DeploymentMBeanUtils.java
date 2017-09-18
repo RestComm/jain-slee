@@ -222,6 +222,15 @@ public class DeploymentMBeanUtils {
     return componentDescriptors;
   }
 
+  public String[] getEnvEntries(ComponentID id) throws ManagementConsoleException {
+     try {
+       return (String[]) mbeanServer.invoke(deploymentMBean, "getEnvEntries", new Object[] { id }, new String[] { ComponentID.class.getName() });
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+       throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+     }
+   }
   private void addComponentIDToArrayList(ArrayList<ComponentID> componentIDArrayList, ComponentID[] componentIDs) {
     for (int i = 0; i < componentIDs.length; i++)
       componentIDArrayList.add(componentIDs[i]);
