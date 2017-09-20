@@ -164,7 +164,7 @@ public class ActivityContextImpl implements ActivityContext {
 						.getObject(NODE_MAP_KEY_ACTIVITY_FLAGS);
 			}
 		}
-		return flags;
+		return flags != null ? flags : ActivityFlags.NO_FLAGS;
 	}
 
 	/**
