@@ -85,6 +85,10 @@ public abstract class AbstractUsageParameterSet {
 
 	protected abstract Collection<String> getParameterNames();
 
+	public Collection<String> getAllParameters() {
+		return this.getParameterNames();
+	}
+	
 	public UsageMBeanImpl getUsageMBean() {
 		return usageMBean;
 	}
