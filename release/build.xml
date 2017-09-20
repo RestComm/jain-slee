@@ -376,6 +376,13 @@
 			</replacevalue>
 		</replace>
 
+		<!-- export required for statistics RA -->
+		<replace casesensitive="false" file="${wildfly.modules}/org/restcomm/slee/container/lib/main/module.xml">
+				<replacetoken><![CDATA[<module name="sun.jdk"/>]]></replacetoken>
+				<replacevalue><![CDATA[<module name="sun.jdk" export="true"/>]]>
+			</replacevalue>
+		</replace>
+		
 		<!-- adding of a security domain into standalone.xml -->
 		<xmltask source="${wildfly.home}/standalone/configuration/standalone.xml" dest="${wildfly.home}/standalone/configuration/standalone.xml">
 			<remove path="/:server/:profile/*[local-name()='subsystem']/*[local-name()='security-domains']/*[local-name()='security-domain' and @name='jmx-console']"/>
