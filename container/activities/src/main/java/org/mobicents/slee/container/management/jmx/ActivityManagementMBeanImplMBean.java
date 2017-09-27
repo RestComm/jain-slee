@@ -248,6 +248,8 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 */
 	public void endActivity(ActivityContextHandle nullACID) throws ManagementException;
 
+	public void endActivity(String nullACID) throws ManagementException;
+	
 	/**
 	 * 
 	 * 
