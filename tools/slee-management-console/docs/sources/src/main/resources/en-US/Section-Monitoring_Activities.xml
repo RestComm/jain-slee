@@ -56,6 +56,10 @@
 				<para>The timestamp of when this Activity Context was last accessed.</para>
 			</listitem>
 			<listitem>
+				<para>Is Ending</para>
+				<para>Indicates whether activity is in pending state.</para>
+			</listitem>
+			<listitem>
 				<para>Timers</para>
 				<para>The SLEE Timers attached to this Activity Context, if any.</para>
 			</listitem>

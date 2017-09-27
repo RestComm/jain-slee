@@ -402,6 +402,8 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 				+ "]");
 		// Date d = new Date(ac.getLastAccessTime());
 		// o[LAST_ACCESS_TIME] = d;
+		o[IS_ENDING] = ac.isEnding();
+		
 		o[LAST_ACCESS_TIME] = ac.getLastAccessTime() + "";
 		logger.debug("======[getDetails][LAST_ACCESS_TIME]["
 				+ o[LAST_ACCESS_TIME] + "]["
