@@ -37,6 +37,10 @@ import javax.slee.SbbID;
 import javax.slee.facilities.TimerID;
 import javax.slee.management.ManagementException;
 import javax.slee.nullactivity.NullActivity;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -145,7 +149,14 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 						+ "]");
 			NullActivity nullActivity = (NullActivity) ac.getActivityContextHandle().getActivityObject();
 			if (nullActivity != null) {
+				sleeContainer.getTransactionManager().requireTransaction();
 				nullActivity.endActivity();
+				try {
+					sleeContainer.getTransactionManager().commit();
+				} catch (Exception e) {
+					logger.debug("Can't commit transaction while ending activity");
+					throw new IllegalArgumentException("Can't commit transaction while ending activity");
+				}
 			}
 		} else {
 			logger.debug("AC is not null activity context");
@@ -154,6 +165,38 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		}		
 	}
 
+	public void endActivity(String id) throws ManagementException {
+
+		// Again this is tx method
+		logger.info("Trying to stop null activity[" + id + "]!!");
+		ActivityContext ac = acFactory.getActivityContext(id);
+		if (ac == null) {
+			logger.debug("There is no ac associated with given acID["
+						+ id + "]!!");
+			throw new ManagementException("Can not find AC for given ID["
+					+ id + "], try again!!!");
+		}
+		if (ac.getActivityContextHandle().getActivityType() == ActivityType.NULL) {
+			logger.debug("Scheduling activity end for acID[" + id
+						+ "]");
+			NullActivity nullActivity = (NullActivity) ac.getActivityContextHandle().getActivityObject();
+			if (nullActivity != null) {
+				sleeContainer.getTransactionManager().requireTransaction();
+				nullActivity.endActivity();
+				try {
+					sleeContainer.getTransactionManager().commit();
+				} catch (Exception e) {
+					logger.debug("Can't commit transaction while ending activity");
+					throw new IllegalArgumentException("Can't commit transaction while ending activity");
+				}
+			}
+		} else {
+			logger.debug("AC is not null activity context");
+			throw new IllegalArgumentException("Given ID[" + id
+					+ "] does not point to NullActivity");
+		}		
+	}
+	
 	public void queryActivityContextLiveness() {
 
 		logger.info("Extorting liveliness query!!");

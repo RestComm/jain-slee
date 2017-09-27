@@ -249,6 +249,8 @@ public interface ActivityManagementMBeanImplMBean
 	 */
 	public void endActivity(ActivityContextHandle nullACID) throws ManagementException;
 
+	public void endActivity(String nullACID) throws ManagementException;
+	
 	/**
 	 * 
 	 * 
