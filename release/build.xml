@@ -18,6 +18,7 @@
 	<property name="validate.versions" value="" />
 
 	<property name="cloudbees.url" value="https://mobicents.ci.cloudbees.com" />
+	<property name="mvn.javadoc" value="org.apache.maven.plugins:maven-javadoc-plugin:2.10.4" />
 	
 	<property name="ms.build" value="33"/>
 	<property name="ms.download.url" value="${cloudbees.url}/view/MediaServer/job/RestComm-MediaServer-4.x/${ms.build}/artifact/bootstrap/target/restcomm-media-server.zip"/>
@@ -96,7 +97,7 @@
 			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Prelease,set-git-hash,${release.profile}" />
 		</exec>
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
-			<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/container -DdestDir=javadoc" />
+			<arg line="${mvn.javadoc}:aggregate -DreportOutputDirectory=${release.dir}/docs/container -DdestDir=javadoc" />
 		</exec>
 	</target>
 
@@ -157,7 +158,7 @@
 		<for delimiter="," param="dir.name" list="${javadoc.dirs}">
 			<sequential>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}/@{dir.name}">
-					<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+					<arg line="${mvn.javadoc}:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
 				</exec>
 			</sequential>
 		</for>
@@ -171,7 +172,7 @@
 		<for delimiter="," param="dir.name" list="${javadoc.dirs}">
 			<sequential>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}/@{dir.name}">
-					<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+					<arg line="${mvn.javadoc}:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
 				</exec>
 			</sequential>
 		</for>
@@ -208,7 +209,7 @@
 		<for delimiter="," param="dir.name" list="resources/xcap-client,enablers/xdm-client">
 			<sequential>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap/@{dir.name}">
-					<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+					<arg line="${mvn.javadoc}:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
 				</exec>
 			</sequential>
 		</for>
