@@ -37,8 +37,8 @@
 			  value="${cloudbees.url}/job/Restcomm-SMPP-Extensions/${smppext.build}/artifact/release/${smppext.zip}" />
 	<property name="smppext.distro.zip.path" value="restcomm-smpp-extensions.zip" />
 
-	<property name="dia.version" value="1.7.0.178"/>
-	<property name="dia.build" value="178"/>
+	<property name="dia.version" value="1.7.0.201"/>
+	<property name="dia.build" value="201"/>
 	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/${dia.build}/artifact/release/restcomm-diameter-mux-jboss-5-${dia.version}.zip" />
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
