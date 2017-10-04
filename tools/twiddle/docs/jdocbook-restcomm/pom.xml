@@ -3,7 +3,7 @@
 
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools.twiddle.docs</groupId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>7.2.0-21</version>
 		<artifactId>cli-twiddle-docs</artifactId>
 	</parent>
 
