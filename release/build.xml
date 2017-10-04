@@ -101,6 +101,12 @@
 		</exec>
 	</target>
 
+	<target name="build-statistics" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.telscale.release}/../checkout/statistics">
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Dnode=${jboss.config} -Djboss.path=../../${jboss.home.relative.path} -Pdeploy-DU" />
+		</exec>
+	</target>
+	
 	<target name="build-javaee" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="javaee" />

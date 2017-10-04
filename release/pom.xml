@@ -45,6 +45,8 @@
 		<xcap.scmVersionType>tag</xcap.scmVersionType>
 		<xmpp.scmVersion>2.9.13</xmpp.scmVersion>
 		<xmpp.scmVersionType>tag</xmpp.scmVersionType>
+		<statistics.scmVersion>2.9.2</statistics.scmVersion>
+		<statistics.scmVersionType>tag</statistics.scmVersionType>
 
 		<cluster.scmVersion>1.15.30</cluster.scmVersion>
 		<cluster.scmVersionType>tag</cluster.scmVersionType>
@@ -371,6 +373,24 @@
 							</checkoutDirectory>
 							<connectionUrl>
 								scm:git:https://github.com/RestComm/jain-slee.xmpp.git
+							</connectionUrl>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>statistics-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>${statistics.scmVersion}</scmVersion>
+							<scmVersionType>${statistics.scmVersionType}</scmVersionType>
+							<checkoutDirectory>
+								${checkout.basedir}/statistics
+							</checkoutDirectory>
+							<connectionUrl>
+								scm:git:https://github.com/RestComm/jain-slee.statistics.git
 							</connectionUrl>
 						</configuration>
 					</execution>
