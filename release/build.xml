@@ -276,7 +276,7 @@
 	
 	<!-- <target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-sources-for-debug-zip"> -->
 
-	<target name="release" depends="clean,get-jboss,unzip-jboss,get-ss7,unzip-ss7,get-smppext,unzip-smppext,setup-smppext,get-diameter,unzip-diameter,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-diameter,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-media,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
+	<target name="release" depends="clean,get-jboss,unzip-jboss,get-ss7,unzip-ss7,get-smppext,unzip-smppext,setup-smppext,get-diameter,unzip-diameter,checkout-sources,build-snmp-adaptor,build-core,build-statistics,build-eclipslee,build-javaee,build-diameter,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-media,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
 
 		<!-- copy log4j presets -->
 		<copy file="${jboss.home}/server/default/deploy/restcomm-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/default/conf/jboss-log4j.xml" overwrite="true" />
