@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>restcomm-slee-ra-statistics</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>7.2.0-24</version>
 	</parent>
 
 	<artifactId>restcomm-slee-ra-statistics-ratype</artifactId>
