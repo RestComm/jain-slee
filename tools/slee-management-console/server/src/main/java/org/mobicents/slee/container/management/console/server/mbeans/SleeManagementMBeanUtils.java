@@ -24,6 +24,8 @@ package org.mobicents.slee.container.management.console.server.mbeans;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
 
+import java.lang.management.ManagementFactory;
+
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.NotificationListener;
@@ -34,9 +36,6 @@ import javax.management.remote.JMXServiceURL;
 import javax.slee.management.SleeProvider;
 import javax.slee.management.SleeProviderFactory;
 import javax.slee.management.SleeState;
-
-import org.jboss.remotingjmx.Util;
-
 
 /**
  * 
@@ -174,26 +173,23 @@ public class SleeManagementMBeanUtils {
   }
 
   public void addNotificationListener(NotificationListener listener) throws ManagementConsoleException {
-    try {
-      mbeanServer.addNotificationListener(sleeManagementMBean, listener, null, null);
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
-    }
-  }
+		try {
+			// don't use JMX connection, otherwise causes exception on shutdown
+			ManagementFactory.getPlatformMBeanServer().addNotificationListener(sleeManagementMBean, listener, null, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
+	}
 
-  public void removeNotificationListener(NotificationListener listener) throws ManagementConsoleException {
-    /*
-    try {
-      mbeanServer.removeNotificationListener(sleeManagementMBean, listener);
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
-    }
-    */
-  }
+	public void removeNotificationListener(NotificationListener listener) throws ManagementConsoleException {
+		try {
+			ManagementFactory.getPlatformMBeanServer().removeNotificationListener(sleeManagementMBean, listener);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
+	}
 
   public String getVersion() throws ManagementConsoleException {
     try {
