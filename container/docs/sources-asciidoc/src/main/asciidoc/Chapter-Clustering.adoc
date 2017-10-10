@@ -21,8 +21,6 @@ The mode is useful when deploying for example single node, non-replicated or hot
 In this mode all clustering needs to be explicitly done by the developer where applicable.
 In this sense,  mode is not a clustered mode.
 
-The `default` server profile is used to start the server in  mode.
-
 [[_container_clustering_fault_tolerant_profile]]
 === Fault Tolerant Mode
 
@@ -30,8 +28,6 @@ The fault tolerant mode is a fully clustered mode with state replication.
 An FT cluster can be viewed as one virtual container that extend over all the JAIN SLEE nodes that are active in the cluster.
 All activity context and Sbb entity data is replicated across the cluster nodes and is hence fully redundant.
 Events are not failed over, due to performance constraints, which means that an event fired and not yet routed will be lost if its cluster node fails.
-
-The `all` server profile is used to start the server in  mode.
 
 [[_container_clustering_fault_tolerant]]
 == Component Redundancy in Fault Tolerant Clusters
@@ -93,6 +89,64 @@ However, there are certain behaviours in fault tolerance setups to be aware of:
 
 `Resource Adaptor Entity Deactivation`::
   Only the last node will force the removal of all its activities. 
+
+[[_container_clustering_new_cluster_implementation]]
+== New cluster implementation
+
+In previous JAIN SLEE version Jboss Cache TreeCache was used for caching and it caused many problems. First of all, it has a deprecated model in terms of caching which can be replaced now by new caching model introduced by Infinispan. Unlike the previous structure Infinispan in-memory cache approach is about storing of objects by keys using HashMap-s. 
+
+The tree structure has a considerable disadvantage: when we need to retrieve some element, we have to go through the whole tree to find it, and if the system includes many redundant functions (as in our case), the performance of operation will be significantly slower.
+
+This problem was solved by introduction of different cache types. The objects are still correspondingly stored while the structure became more simple. Here are the key points that were introduced:
+
+1) The tree structure was broken so it became flat.
+
+2) Compound key which consists of name and entity type is used.
+
+3) Map is stored in cache.
+
+Besides Jboss Cache TreeCache does not fully comply with JAIN SLEE specification. According to JAIN SLEE specification, when the transaction is rolled back, the value should be read in a dedicated thread, and this condition was ignored in previous version of JAIN SLEE. For this reason an additional executor service was added (`CacheDataExecutorService` class) for correct rollback operation support. It performs cache operations using dedicated threads.
+
+Also the pessimistic log was added to comply with JAIN SLEE and TCK specifications. The optimistic log can be used as well, but it may lead to some problems although the performance will be improved. 
+
+`MobicentsClusterFactory` is responsible for creation, storing and deleting of Mobicents clusters. Each cluster writes data to cache by key. When `getCluster` is called, it returns cache if cache is found or first it creates cache if it is not found and then returns it. After startup JAIN SLEE clustered cache implementation creates cluster instances for Activities, SbbEntities and ActivityContextNaming (activity context factory data management).
+
+The cluster is started by calling `MobicentsCluster.startCluster();` function. 
+
+`MobicentsClusterFactory.stop()` function is called to stop all clusters.
+
+`MobicentsClusterFactory.stopCluster(String name)` function is called to stop a particular cluster (cluster name should be indicated).
+
+Cluster configuration can be found in standalone.xml and standalone-ha.xml. Here is an example for a single JAIN SLEE instance:
+
+[source,xml]
+----
+<infinispan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:infinispan:config:8.1 http://www.infinispan.org/schemas/infinispan-config-8.1.xsd" xmlns="urn:infinispan:config:8.1">
+    <cache-container default-cache="slee-default" statistics="false" shutdown-hook="DONT_REGISTER">
+        <local-cache name="slee-default">
+            <locking isolation="REPEATABLE_READ" acquire-timeout="30000" striping="false" />
+            <transaction locking="PESSIMISTIC" mode="BATCH" />
+        </local-cache>
+    </cache-container>
+</infinispan>
+----
+
+Here is an example of cluster configuration for HA mode:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<infinispan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:infinispan:config:8.1 http://www.infinispan.org/schemas/infinispan-config-8.1.xsd" xmlns="urn:infinispan:config:8.1">
+    <cache-container default-cache="slee-default" statistics="false" shutdown-hook="DONT_REGISTER">
+        <transport cluster="jslee-cluster" />
+        <replicated-cache name="slee-default" mode="ASYNC">
+            <transaction locking="PESSIMISTIC" mode="BATCH" />
+        </replicated-cache>
+    </cache-container>
+</infinispan>
+----
+
+The implementations of cache objects must extend `ClusteredCacheData` class which provides basic operations for data storing, retrieving and deleting and it also provides the information on node address.
 
 :leveloffset: 1
 include::Section-Clustering_Fault_Tolerant_RA.adoc[]

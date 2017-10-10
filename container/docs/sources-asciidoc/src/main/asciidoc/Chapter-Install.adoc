@@ -18,8 +18,8 @@ Anything Java Itself Will Run On::
 
 === Software Prerequisites
 
-JDK 6::
-  A working installation of the Java Development Kit () version 6 is required in order to run the {this-platform}  JAIN SLEE.
+JDK 8::
+  A working installation of the Java Development Kit () version 8 is required in order to run the {this-platform}  JAIN SLEE.
   Note that the {jee-platform}  is a runtime dependency, but comes bundled with the binary distribution.
   For instructions on how to install the JDK, refer to <<_jdk_installing_configuring_and_running>>
   

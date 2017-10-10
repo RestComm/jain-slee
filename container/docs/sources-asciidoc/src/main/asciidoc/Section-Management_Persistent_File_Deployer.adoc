@@ -123,5 +123,3 @@ Additionally, a resource adaptor link named `SipRa` should be bound to the resou
 After the deployable unit is installed, the resource adaptor entity is created, activated and the resource adaptor link is bound.
 Before the deployable unit is uninstalled, or the server is shutdown, the link is unbound, then the resource adaptor entity is deactivated, and finally the same resource adaptor entity is removed.
 
-The SLEE includes a deploy-config.xml file at [path]_$JBOSS_HOME/server/profile_name/deploy/restcomm-slee_, where [app]`profile_name` is the server profile name, and that file can be used to specify RA entities and links too.
-If an RA is installed using the persistent deployer, then SLEE reads its own deploy-config.xml file, and if there are RA entities and/or links specified with same RA ID, then the operations to create/activate/deactivate/remove these are executed too, as if these were specified in the Deployable Unit's own deploy-config.xml.

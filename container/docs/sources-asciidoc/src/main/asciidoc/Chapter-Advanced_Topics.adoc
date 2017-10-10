@@ -8,12 +8,6 @@ include::Section-Classloading.adoc[]
 
 :leveloffset: +1
 
-include::Section-Congestion_Control.adoc[]
-
-:leveloffset: -1
-
-:leveloffset: +1
-
 include::Section-JPA_SLEE_Profiles_Mapping.adoc[]
 
 :leveloffset: -1
