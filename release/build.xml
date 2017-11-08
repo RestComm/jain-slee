@@ -115,7 +115,7 @@
 		</exec>
 	</target>
 
-	<target name="build-resources" depends="build-jdbc,build-sip,build-http,build-media,build-tftp,build-xcap,build-xmpp,build-diameter,build-ss7,build-smpp,build-javaee,build-sip-balancer">
+	<target name="build-resources" depends="build-jdbc,build-sip,build-http,build-media,build-tftp,build-xcap,build-xmpp,build-diameter,build-ss7,build-smpp,build-statistics,build-javaee,build-sip-balancer">
 		<echo message="Build Resources"/>
 	</target>
 
@@ -217,6 +217,18 @@
 		</antcall>
 	</target>
 
+	<target name="build-statistics" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/statistics">
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${wildfly.home} -Djboss.path=../../${wildfly.home.relative.path} -Pdeploy-DU" />
+		</exec>
+
+			<!-- export required for statistics RA -->
+		<replace casesensitive="false" file="${wildfly.modules}/org/restcomm/slee/container/lib/main/module.xml">
+			<replacetoken><![CDATA[<module name="sun.jdk"/>]]></replacetoken>
+			<replacevalue><![CDATA[<module name="sun.jdk" export="true"/>]]></replacevalue>
+		</replace>
+	</target>
+	
 	<target name="build-sip-balancer" description="">
 		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
 			<fileset dir="${ant.file.restcomm.release}/../target/binary/extra/sip-balancer/sip-balancer-jar-${lb.version}">
@@ -376,13 +388,6 @@
 			</replacevalue>
 		</replace>
 
-		<!-- export required for statistics RA -->
-		<replace casesensitive="false" file="${wildfly.modules}/org/restcomm/slee/container/lib/main/module.xml">
-				<replacetoken><![CDATA[<module name="sun.jdk"/>]]></replacetoken>
-				<replacevalue><![CDATA[<module name="sun.jdk" export="true"/>]]>
-			</replacevalue>
-		</replace>
-		
 		<!-- adding of a security domain into standalone.xml -->
 		<xmltask source="${wildfly.home}/standalone/configuration/standalone.xml" dest="${wildfly.home}/standalone/configuration/standalone.xml">
 			<remove path="/:server/:profile/*[local-name()='subsystem']/*[local-name()='security-domains']/*[local-name()='security-domain' and @name='jmx-console']"/>
