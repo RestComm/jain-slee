@@ -53,8 +53,8 @@
 	<property name="smppext.distro.zip.path" value="restcomm-smpp-extensions.zip" />
 
 	<!-- Sip-Load-Banalcer -->
-	<property name="lb.version" value="10.1.223" />
-	<property name="lb.build" value="223" />
+	<property name="lb.version" value="10.1.228" />
+	<property name="lb.build" value="228" />
 	<property name="lb.download.url" value="https://mobicents.ci.cloudbees.com/job/Restcomm-LoadBalancer/${lb.build}/artifact/jar/target/sip-balancer-jar-${lb.version}.zip" />
 	<property name="lb.distro.zip.path" value="sip-balancer-jar-${lb.version}.zip" />
 
