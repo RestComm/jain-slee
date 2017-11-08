@@ -29,7 +29,7 @@
 
 	<!-- Diameter -->
 	<!-- https://mobicents.ci.cloudbees.com/view/JSLEE/job/RestComm-jDiameter-1.x/134/artifact/release/restcomm-diameter-mux-wildfly-1.7.0.134.zip -->
-	<property name="diameter.build" value="178"/>
+	<property name="diameter.build" value="201"/>
 	<property name="diameter.version" value="1.7.0.${diameter.build}"/>
 	<property name="diameter.zip" value="restcomm-diameter-mux-wildfly-${diameter.version}.zip"/>
 	<property name="diameter.download.url"
