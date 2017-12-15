@@ -18,7 +18,7 @@ Congestion Control is turned off by default.
 The Congestion Control feature is configured through an XML file or through a JMX MBean.
 Changes applied through JMX are not persisted, and once the container is restarted the configuration will revert to the one in the XML file.
 
-=== Congestion Control Persistent Configuration
+=== Congestion Control Persistent Configuration (JBoss 5)
 
 Configuration is done through a XML descriptor for each <<_server_profiles>>.
 The XML file is named [path]_jboss-beans.xml_ and is located at [path]_$JBOSS_HOME/server/profile_name/deploy/restcomm-slee/META-INF_, where [app]`profile_name` is the server profile name.
@@ -40,6 +40,33 @@ The configuration is exposed a JBoss Microcontainer Bean:
 	<property name="refuseStartActivity">true</property>
 	<property name="refuseFireEvent">false</property>
 </bean>
+----
+
+.JAIN SLEE Congestion Control Bean Configuration
+[cols="1,1,1", frame="all", options="header"]
+|===
+| Property Name | Property Type | Description
+| periodBetweenChecks | int | The available memory level is checked periodically, this property defines the period, in seconds, between these checks, and if set to 0 turns off the Congestion Control feature.
+| minFreeMemoryToTurnOn | int | This property defines the minimum free memory percentage, which if reached turns ON the Congestion Control feature.
+| minFreeMemoryToTurnOff | int | This property defines the minimum free memory percentage, which if reached turns OFF the Congestion Control feature. This value should be considerably higher than minFreeMemoryToTurnOn, otherwise the feature may be turning on and off all the time.
+| refuseStartActivity | boolean | If true and the Congestion Control feature is ON, the container rejects activity startups, no matter it's a request from a Resource Adaptor or SBB.
+| refuseFireEvent | boolean | If true and the Congestion Control feature is ON, the container rejects the firing of events, no matter it's a request from a Resource Adaptor or SBB.
+|===
+
+=== Congestion Control Persistent Configuration (Wildfly 10)
+
+Configuration is done through modifying "CongestionControlConfiguration" mbean in [path]_$JBOSS_HOME/standalone/configuration/standalone.xml_.
+
+[source,xml]
+----
+
+<mbean name="CongestionControlConfiguration">
+	<property name="periodBetweenChecks" value ="0" />
+	<property name="minFreeMemoryToTurnOn" value="10" />
+	<property name="minFreeMemoryToTurnOff" value="20" />
+	<property name="refuseStartActivity" value="true" />
+	<property name="refuseFireEvent" value= "false"/>
+</mbean>
 ----
 
 .JAIN SLEE Congestion Control Bean Configuration
