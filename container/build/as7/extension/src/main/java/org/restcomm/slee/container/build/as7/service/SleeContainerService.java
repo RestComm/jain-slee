@@ -324,13 +324,12 @@ public class SleeContainerService implements Service<SleeContainer> {
 		final EventContextFactory eventContextFactory = new EventContextFactoryImpl(eventContextFactoryDataSource,
 				eventContextFactoryConfiguration);
 
-		// TODO: ExtensionConfiguration for Congestion Control
 		final CongestionControlConfiguration congestionControlConfiguration = new CongestionControlConfiguration();
-		congestionControlConfiguration.setPeriodBetweenChecks(0);
-		congestionControlConfiguration.setMinFreeMemoryToTurnOn(10);
-		congestionControlConfiguration.setMinFreeMemoryToTurnOff(20);
-		congestionControlConfiguration.setRefuseStartActivity(true);
-		congestionControlConfiguration.setRefuseFireEvent(false);
+		congestionControlConfiguration.setPeriodBetweenChecks(getPropertyInt("CongestionControlConfiguration", "periodBetweenChecks", 0));
+		congestionControlConfiguration.setMinFreeMemoryToTurnOn(getPropertyInt("CongestionControlConfiguration", "minFreeMemoryToTurnOn", 10));
+		congestionControlConfiguration.setMinFreeMemoryToTurnOff(getPropertyInt("CongestionControlConfiguration", "minFreeMemoryToTurnOff", 20));
+		congestionControlConfiguration.setRefuseStartActivity(getPropertyBoolean("CongestionControlConfiguration", "refuseStartActivity", true));
+		congestionControlConfiguration.setRefuseFireEvent(getPropertyBoolean("CongestionControlConfiguration", "refuseFireEvent", false));
 		final CongestionControl congestionControl = new CongestionControlImpl(congestionControlConfiguration);
 
 		// FIXME this needs further work on dependencies

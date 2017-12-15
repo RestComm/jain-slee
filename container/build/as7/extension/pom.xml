@@ -493,6 +493,13 @@
             <mbean name="SleeTCKPluginWrapper">
                 <property name="active" value="false"/>
             </mbean>
+            <mbean name="CongestionControlConfiguration">
+				<property name="periodBetweenChecks" value ="0" />
+				<property name="minFreeMemoryToTurnOn" value="10" />
+				<property name="minFreeMemoryToTurnOff" value="20" />
+				<property name="refuseStartActivity" value="true" />
+				<property name="refuseFireEvent" value= "false"/>
+	     	</mbean>
         </subsystem>
 	</profile>]]></replacevalue>
 										</replace>
@@ -559,6 +566,13 @@
             <mbean name="SleeTCKPluginWrapper">
                 <property name="active" value="false"/>
             </mbean>
+            <mbean name="CongestionControlConfiguration">
+				<property name="periodBetweenChecks" value ="0" />
+				<property name="minFreeMemoryToTurnOn" value="10" />
+				<property name="minFreeMemoryToTurnOff" value="20" />
+				<property name="refuseStartActivity" value="true" />
+				<property name="refuseFireEvent" value= "false"/>
+	     	</mbean>
         </subsystem>
 	</profile>]]></replacevalue>
 										</replace>
