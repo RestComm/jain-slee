@@ -9,13 +9,13 @@
 	
 	<groupId>org.mobicents.servers.jainslee.core</groupId>
 	<artifactId>restcomm-slee-core</artifactId>
-	<version>2.9.0-SNAPSHOT</version>
+	<version>2.10.0.24</version>
 			
 	<packaging>pom</packaging>
 
 	<properties>
 		<!-- OTHER RESTCOMM COMPONENTS VERSIONS -->
-		<restcomm.cluster.version>1.15.30</restcomm.cluster.version>
+		<restcomm.cluster.version>1.16.0-109</restcomm.cluster.version>
 	</properties>
 	
 	<modules>
