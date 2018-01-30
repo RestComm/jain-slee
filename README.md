@@ -13,7 +13,7 @@ SS7, MAP, CAP, TCAP, INAP, ISUP, XMPP, SIP, MGCP, HTTP, SMPP, XDM, XCAP and many
 
 Downloads
 ========
-[Get the latest release!](https://github.com/RestComm/jain-slee/releases) 
+[Get the latest release!](https://www.restcomm.com/downloads/) 
 
 Documentation
 ========
