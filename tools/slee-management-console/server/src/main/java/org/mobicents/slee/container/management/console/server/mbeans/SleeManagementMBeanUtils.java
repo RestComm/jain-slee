@@ -69,7 +69,7 @@ public class SleeManagementMBeanUtils {
   public SleeManagementMBeanUtils() throws ManagementConsoleException {
     try {
       // Get a connection to the MBean server on localhost
-      String host = "localhost";
+      String host = getJBossAddress();
       int port = 9999;  // management-web port (JBoss 7)
       String urlString = System.getProperty(
               "jmx.service.url",
@@ -254,4 +254,19 @@ public class SleeManagementMBeanUtils {
 
   }
 
+  public static String getJBossAddress() {
+		String address = null;
+		Object inetAddress = null;
+		try {
+			inetAddress = ManagementFactory.getPlatformMBeanServer()
+					.getAttribute(new ObjectName("jboss.as:interface=public"), "inet-address");			
+		} catch (Exception e) {
+		}
+
+		if (inetAddress != null) {
+			address = inetAddress.toString();
+		}
+
+		return address;
+	}
 }
