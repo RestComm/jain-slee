@@ -22,6 +22,10 @@
 
 package org.mobicents.slee.container.management.jmx;
 
+import java.lang.Integer;
+import java.lang.Long;
+import java.util.Set;
+
 import javax.slee.EventTypeID;
 import javax.slee.management.ManagementException;
 
@@ -51,7 +55,25 @@ public class EventRouterStatistics implements
 		}
 		return eventRouter.getEventRouterStatistics();
 	}
-
+	private EventTypeID findEvent(String eventName) throws ManagementException {
+		EventTypeID found = null;
+		Set<EventTypeID> eventComponentIDs = eventRouter.getSleeContainer().getComponentRepository().getEventComponentIDs();
+		if(eventComponentIDs != null){
+			for (EventTypeID event : eventComponentIDs) {
+				if (event.getName().equals(eventName))
+				{
+					found = event;
+					break;
+				}
+			}
+			if (found == null) {
+				throw new RuntimeException("event not found");
+			} else {
+				return found;
+			}
+		}
+		else throw new ManagementException("could not get Events from Slee Container");
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -248,5 +270,209 @@ public class EventRouterStatistics implements
 	 */
 	public String printAllStats() throws ManagementException {
 		return getEventRouterStatistics().toString();
+	}
+
+	// Duplicated new interface 
+	// Fix for issue https://github.com/RestComm/jain-slee/issues/106
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean#retrieveActivitiesMapped()
+	 */
+	public Integer retrieveActivitiesMapped() throws ManagementException {
+		return new Integer(getEventRouterStatistics().getActivitiesMapped());
+	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveActivitiesMapped(int)
+	 */
+	public Integer retrieveActivitiesMapped(Integer executor) throws ManagementException {
+		return new Integer(getEventRouterStatistics().getActivitiesMapped(executor));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveAverageEventRoutingTime()
+	 */
+	public Long retrieveAverageEventRoutingTime() throws ManagementException {
+		return getEventRouterStatistics().getAverageEventRoutingTime();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveAverageEventRoutingTime(String)
+	 */
+	public Long retrieveAverageEventRoutingTime(String eventTypeIDPattern)
+			throws ManagementException {
+		return new Long(getEventRouterStatistics().getAverageEventRoutingTime(findEvent(eventTypeIDPattern)));
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveAverageEventRoutingTime(Integer)
+	 */
+	public Long retrieveAverageEventRoutingTime(Integer executor)
+			throws ManagementException {
+		return new Long(getEventRouterStatistics().getAverageEventRoutingTime(executor));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveAverageEventRoutingTime(Integer, String)
+	 */
+	public Long retrieveAverageEventRoutingTime(Integer executor, String eventTypeIDPattern)
+			throws ManagementException {
+		return new Long(getEventRouterStatistics().getAverageEventRoutingTime(executor, findEvent(eventTypeIDPattern)));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveEventsRouted(String)
+	 */
+	public Long retrieveEventsRouted(String eventTypeIDPattern)
+			throws ManagementException {
+		return new Long(getEventRouterStatistics().getEventsRouted(findEvent(eventTypeIDPattern)));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveEventsRouted(Integer, String)
+	 */
+	public Long retrieveEventsRouted(Integer executor, String eventTypeIDPattern)
+			throws ManagementException {
+		return new Long(getEventRouterStatistics()
+				.getEventsRouted(executor, findEvent(eventTypeIDPattern)));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveExecutedTasks()
+	 */
+	public Long retrieveExecutedTasks() throws ManagementException {
+		return new Long(getEventRouterStatistics().getExecutedTasks());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveExecutedTasks(Integer)
+	 */
+	public Long retrieveExecutedTasks(Integer executor) throws ManagementException {
+		return new Long(getEventRouterStatistics().getExecutedTasks(executor));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveExecutingTime(Integer)
+	 */
+	public Long retrieveExecutingTime(Integer executor) throws ManagementException {
+		return new Long(getEventRouterStatistics().getExecutingTime(executor));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveIdleTime(Integer)
+	 */
+	public Long retrieveIdleTime(Integer executor) throws ManagementException {
+		return new Long(getEventRouterStatistics().getIdleTime(executor));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveMiscTasksExecuted()
+	 */
+	public Long retrieveMiscTasksExecuted() throws ManagementException {
+		return new Long(getEventRouterStatistics().getMiscTasksExecuted());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveMiscTasksExecuted(Integer)
+	 */
+	public Long retrieveMiscTasksExecuted(Integer executor) throws ManagementException {
+		return new Long(getEventRouterStatistics().getMiscTasksExecuted(executor));
+	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveMiscTasksExecutingTime(Integer)
+	 */
+	public Long retrieveMiscTasksExecutingTime(Integer executor)
+			throws ManagementException {
+		return new Long(getEventRouterStatistics().getMiscTasksExecutingTime(executor));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveRoutingTime(Integer, String)
+	 */
+	public Long retrieveRoutingTime(Integer executor, String eventTypeIDPattern)
+			throws ManagementException {
+		return new Long(getEventRouterStatistics().getRoutingTime(executor, findEvent(eventTypeIDPattern)));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveWorkingQueueSize()
+	 */
+	public Integer retrieveWorkingQueueSize() throws ManagementException {
+		return new Integer(getEventRouterStatistics().getWorkingQueueSize());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.container.management.jmx.EventRouterStatisticsMBean
+	 * #retrieveWorkingQueueSize(Integer)
+	 */
+	public Integer retrieveWorkingQueueSize(Integer executor) throws ManagementException {
+		return new Integer(getEventRouterStatistics().getWorkingQueueSize(executor));
 	}
 }
