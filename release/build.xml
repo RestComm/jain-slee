@@ -66,6 +66,20 @@
 		<and>
 			<os family="windows" />
 			<isset property="sys.M2_HOME" />
+            <resourceexists>
+                <file file="${sys.M2_HOME}\bin\mvn.bat" />
+            </resourceexists>
+		</and>
+	</condition>
+
+    <!-- Newer Maven (-windows) versions shifted from .bat to .cmd. Accomodate that -->
+	<condition property="mvn.executable" value="${sys.M2_HOME}\bin\mvn.cmd">
+		<and>
+			<os family="windows" />
+			<isset property="sys.M2_HOME" />
+            <resourceexists>
+                <file file="${sys.M2_HOME}\bin\mvn.cmd" />
+            </resourceexists>
 		</and>
 	</condition>
 
