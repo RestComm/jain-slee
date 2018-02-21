@@ -535,7 +535,6 @@ public class ClassUtils {
      * @return a String key unique for the method. 
      */
     public static String getMethodKey(CtMethod method) {
-    	String ret=method.getName() + method.getSignature();
-   		return ret;
+    	return method.getName() + method.getSignature();
     }
 }

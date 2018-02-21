@@ -151,8 +151,7 @@ public class NonSerializableFactory implements ObjectFactory
     */
     public static Object lookup(String key)
     {
-        Object value = wrapperMap.get(key);
-        return value;
+        return wrapperMap.get(key);
     }
     /** Lookup a value from the NonSerializableFactory map.
     * @param name 
@@ -161,8 +160,7 @@ public class NonSerializableFactory implements ObjectFactory
     public static Object lookup(Name name)
     {
         String key = name.toString();
-        Object value = wrapperMap.get(key);
-        return value;
+        return wrapperMap.get(key);
     }
 
     /** A convience method that simplifies the process of rebinding a
@@ -247,8 +245,7 @@ public class NonSerializableFactory implements ObjectFactory
         Reference ref = (Reference) obj;
         RefAddr addr = ref.get("nns");
         String key = (String) addr.getContent();
-        Object target = wrapperMap.get(key);
-        return target;
+        return wrapperMap.get(key);
     }
 // --- End ObjectFactory interface methods
 
