@@ -64,7 +64,7 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
 		final Node node = getNode();
-		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
+		return node != null ? node.getChildrenNames() : Collections.emptySet();
 	}
 
 	public void WAremove(String type) {

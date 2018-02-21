@@ -413,7 +413,7 @@ public class ClassUtils {
      * @return all interface methods from an interface
      */
     public static Map getInterfaceMethodsFromInterface(CtClass interfaceClass) {
-    	return getInterfaceMethodsFromInterface(interfaceClass, Collections.EMPTY_MAP);
+    	return getInterfaceMethodsFromInterface(interfaceClass, Collections.emptyMap());
     }
 
     /**
