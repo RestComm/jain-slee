@@ -507,7 +507,7 @@ public class ClassUtils {
         
 	        // this is not a precise check. Protected access for parent and Default for child will fail it.
 	        if (!(Modifier.isPublic(parent.getModifiers()) && Modifier.isPublic(child.getModifiers()))) return false;
-	        if ((!Modifier.isPrivate(parent.getModifiers()) && Modifier.isPrivate(child.getModifiers()))) return false;
+	        if (!Modifier.isPrivate(parent.getModifiers()) && Modifier.isPrivate(child.getModifiers())) return false;
 	
 	        // verify exceptions
 	        CtClass[] parentEx = parent.getExceptionTypes();
@@ -516,7 +516,7 @@ public class ClassUtils {
 		        for (int i = 0; i < parentEx.length; i++) {
 		            boolean validEx = false;
 		            for (int j = 0; j < childEx.length; j++) {
-		                if ((childEx[j]).subtypeOf((parentEx[i]))) validEx = true;
+		                if ((childEx[j]).subtypeOf(parentEx[i])) validEx = true;
 		            }
 		            if (!validEx) return false;
 		        }

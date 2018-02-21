@@ -302,7 +302,7 @@ public class DeployableUnit {
    */
   public boolean isReadyToUninstall() throws Exception {
     // Check DU for readiness ..
-    return (isInstalled && !hasReferringDU());
+    return isInstalled && !hasReferringDU();
   }
 
   /**
