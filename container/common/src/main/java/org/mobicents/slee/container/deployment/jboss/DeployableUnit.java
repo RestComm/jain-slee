@@ -130,7 +130,7 @@ public class DeployableUnit {
     .remove(dc.getComponentKey());
 
     if (postInstallActionsStrings != null
-        && postInstallActionsStrings.size() > 0) {
+        && !postInstallActionsStrings.isEmpty()) {
       installActions.addAll(postInstallActionsStrings);
     }
     
@@ -186,7 +186,7 @@ public class DeployableUnit {
     externalDependencies.removeAll(sleeContainerDeployer.getDeploymentManager().getDeployedComponents());
 
     // Some remaining?
-    if (externalDependencies.size() > 0) {
+    if (!externalDependencies.isEmpty()) {
       if (showMissing) {
         // List them to the user...
         String missingDepList = "";
@@ -221,7 +221,7 @@ public class DeployableUnit {
       }
     }
 
-    if (duplicates.size() > 0) {
+    if (!duplicates.isEmpty()) {
       logger.warn("The deployable unit '" + this.diShortName + "' contains components that are already deployed. The following are already installed:");
 
       for (String dupComponent : duplicates) {
@@ -255,7 +255,7 @@ public class DeployableUnit {
 
 	  // if we have some remaining post install actions it means it is actions related with components already installed
 	  // thus should be executed first
-	  if (postInstallActions.values().size() > 0) {
+	  if (!postInstallActions.values().isEmpty()) {
 		  for (String componentId : postInstallActions.keySet()) {
 			  iActions.addAll(postInstallActions.get(componentId));
 		  }
@@ -278,7 +278,7 @@ public class DeployableUnit {
 
 	  // if we have some remaining uninstall actions it means it is actions related with components not in DU
 	  // thus should be executed last
-	  if (preUninstallActions.values().size() > 0) {
+	  if (!preUninstallActions.values().isEmpty()) {
 		  for (String componentId : preUninstallActions.keySet()) {
 			  uActions.addAll(preUninstallActions.get(componentId));
 		  }
@@ -302,7 +302,7 @@ public class DeployableUnit {
    */
   public boolean isReadyToUninstall() throws Exception {
     // Check DU for readiness ..
-    return (isInstalled && !hasReferringDU());
+    return isInstalled && !hasReferringDU();
   }
 
   /**

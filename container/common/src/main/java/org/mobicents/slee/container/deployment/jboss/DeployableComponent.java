@@ -284,7 +284,7 @@ public class DeployableComponent {
 					List<? extends SbbDescriptor> sbbDescriptors = sbbdf
 							.parse(is);
 
-					if (sbbDescriptors.size() == 0) {
+					if (sbbDescriptors.isEmpty()) {
 						logger.warn("The "
 								+ duWrapper.getFileName()
 								+ " deployment descriptor contains no sbb definitions");
@@ -378,7 +378,7 @@ public class DeployableComponent {
 
 					// Get a list of the profile specifications in the
 					// deployable unit.
-					if (psDescriptors.size() == 0) {
+					if (psDescriptors.isEmpty()) {
 						logger.warn("The "
 								+ duWrapper.getFileName()
 								+ " deployment descriptor contains no profile-spec definitions");
@@ -455,7 +455,7 @@ public class DeployableComponent {
 					List<? extends EventTypeDescriptor> etDescriptors = etdf
 							.parse(is);
 
-					if (etDescriptors == null || etDescriptors.size() == 0) {
+					if (etDescriptors == null || etDescriptors.isEmpty()) {
 						logger.warn("The "
 								+ duWrapper.getFileName()
 								+ " deployment descriptor contains no event-type definitions");
@@ -531,7 +531,7 @@ public class DeployableComponent {
 					List<? extends ResourceAdaptorTypeDescriptor> ratDescriptors = ratdf
 							.parse(is);
 
-					if (ratDescriptors == null || ratDescriptors.size() == 0) {
+					if (ratDescriptors == null || ratDescriptors.isEmpty()) {
 						logger.warn("The "
 								+ duWrapper.getFileName()
 								+ " deployment descriptor contains no resource-adaptor-type definitions");
