@@ -167,7 +167,6 @@ public class UsageInterfaceValidator {
 
 			// parameters check
 
-			HashMap<String, String> parameterNameToparameterType = new HashMap<String, String>();
 			Set<String> ignore = new HashSet<String>();
 			ignore.add("java.lang.Object");
 			Map<String, Method> interfaceMethods = ClassUtils.getAllInterfacesMethods(usageInterface, ignore);
@@ -333,7 +332,7 @@ public class UsageInterfaceValidator {
 			Set<String> tmp = new HashSet<String>(agregatedSample);
 
 			tmp.retainAll(agregatedIncrement);
-			if (tmp.size() > 0) {
+			if (!tmp.isEmpty()) {
 				// ugh, its the end
 				passed = false;
 				errorBuffer = appendToBuffer(id, "Usage parameters can be associated only with single type - increment or sample, offending parameters: " + Arrays.toString(tmp.toArray()), "11.2",
@@ -372,7 +371,7 @@ public class UsageInterfaceValidator {
 			}
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
 				// System.err.println(errorBuffer);
 			}
 		}
@@ -447,7 +446,7 @@ public class UsageInterfaceValidator {
 
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
 				// ////System.err.println(errorBuffer);
 			}
 		}
@@ -489,7 +488,7 @@ public class UsageInterfaceValidator {
 
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
 				// ////System.err.println(errorBuffer);
 			}
 		}
@@ -503,7 +502,6 @@ public class UsageInterfaceValidator {
 		boolean passed = true;
 		boolean foundAtleastOne = false;
 		String methodName = "getDefaultSbbUsageParameterSet";
-		Class componentClass = component.getAbstractSbbClass();
 
 		Method m = null;
 
@@ -544,7 +542,7 @@ public class UsageInterfaceValidator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
+			logger.error(errorBuffer);
 			// System.err.println(errorBuffer);
 		}
 
@@ -594,7 +592,7 @@ public class UsageInterfaceValidator {
 			errorBuffer = appendToBuffer(id, "Usage interface access method has wrong return type defined, method: " + m.getName(), section, errorBuffer);
 		}
 		if (!passed) {
-			logger.error(errorBuffer.toString());
+			logger.error(errorBuffer);
 			// System.err.println(errorBuffer);
 		}
 
@@ -619,7 +617,6 @@ public class UsageInterfaceValidator {
 		boolean passed = true;
 		boolean foundAtleastOne = false;
 		String methodName = "getDefaultUsageParameterSet";
-		Class componentClass = component.getProfileAbstractClass();
 
 		Method m = null;
 
@@ -662,7 +659,7 @@ public class UsageInterfaceValidator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
+			logger.error(errorBuffer);
 			// System.err.println(errorBuffer);
 		}
 

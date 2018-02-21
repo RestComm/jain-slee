@@ -139,8 +139,7 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 	public Level getTraceLevel(ComponentID componentId) throws NullPointerException, UnrecognizedComponentException, ManagementException {
 		if (componentId == null)
 			throw new NullPointerException(" null component Id ");
-		Level level = this.traceFacility.getTraceLevel(componentId);
-		return level;
+		return this.traceFacility.getTraceLevel(componentId);
 	}
 
 
@@ -156,10 +155,9 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 			return null;
 
 		String[] notificationTypes = this.traceFacility.getNotificationTypes();
-		MBeanNotificationInfo[] mbeanNotificationInfo = new MBeanNotificationInfo[] { new MBeanNotificationInfo(notificationTypes, TraceMBean.TRACE_NOTIFICATION_TYPE,
+		return new MBeanNotificationInfo[] { new MBeanNotificationInfo(notificationTypes, TraceMBean.TRACE_NOTIFICATION_TYPE,
 				"SLEE Spec 1.0, #13.4. SBBs use the Trace Facility to generate trace messages intended for "
 						+ "consumption by external management clients, such as a network management console or a management policy engine.") };
-		return mbeanNotificationInfo;
 	}
 
 	/*
