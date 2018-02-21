@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
+import javax.slee.ServiceID;
 import javax.slee.resource.FailureReason;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
@@ -295,7 +296,16 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 										logger.debug("No sbb entities attached, which didn't already route the event, but "+serviceComponent+" defines the event type as initial, starting initial event processing");
 									// let the service process event as initial
 									serviceComponents.removeFirst();
+									
+									//fix for issue https://github.com/RestComm/jain-slee/issues/125
+									ServiceID oldService = SleeThreadLocals.getInvokingService();
+									SleeThreadLocals.setInvokingService(serviceComponent.getServiceID());
+									
 									sbbEntity = initialEventProcessor.processInitialEvent(serviceComponent, eventContext, container, ac);	
+									
+									if(sbbEntity == null)
+										SleeThreadLocals.setInvokingService(oldService);
+									
 									// if service returned no sbb entity and there are no more service components we are done
 									if (sbbEntity == null && serviceComponents.isEmpty()) {										
 										finished = true;
@@ -314,7 +324,15 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 										logger.debug("Found an sbb entity attached, which didn't already route the event, but "+serviceComponent+" defines the event type as initial and has the same or higher priority, starting initial event processing");
 									// the service has higher or equal priority as the sbb entity, let the service process the eventas initial
 									serviceComponents.removeFirst();
-									sbbEntity = initialEventProcessor.processInitialEvent(serviceComponent, eventContext, container, ac);												
+									
+									//fix for issue https://github.com/RestComm/jain-slee/issues/125
+									ServiceID oldService = SleeThreadLocals.getInvokingService();
+									SleeThreadLocals.setInvokingService(serviceComponent.getServiceID());
+									
+									sbbEntity = initialEventProcessor.processInitialEvent(serviceComponent, eventContext, container, ac);	
+									
+									if(sbbEntity == null)
+										SleeThreadLocals.setInvokingService(oldService);																		
 								}
 								else {
 									if (debugLogging)
