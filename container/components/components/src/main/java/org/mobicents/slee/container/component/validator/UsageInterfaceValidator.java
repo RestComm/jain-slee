@@ -332,7 +332,7 @@ public class UsageInterfaceValidator {
 			Set<String> tmp = new HashSet<String>(agregatedSample);
 
 			tmp.retainAll(agregatedIncrement);
-			if (tmp.size() > 0) {
+			if (!tmp.isEmpty()) {
 				// ugh, its the end
 				passed = false;
 				errorBuffer = appendToBuffer(id, "Usage parameters can be associated only with single type - increment or sample, offending parameters: " + Arrays.toString(tmp.toArray()), "11.2",

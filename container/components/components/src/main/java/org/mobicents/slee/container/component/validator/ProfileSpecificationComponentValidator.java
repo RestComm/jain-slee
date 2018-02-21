@@ -1800,7 +1800,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			tmpKeySet.addAll(javaxSleeProfileProfileTableMethods.keySet());
 			tmpKeySetToCompare.addAll(profileTableInterfaceMethods.keySet());
 			tmpKeySet.retainAll(tmpKeySetToCompare);
-			if (tmpKeySet.size() != 0) {
+			if (!tmpKeySet.isEmpty()) {
 				passed = false;
 				errorBuffer = appendToBuffer(
 						"Profile specification profile table interface declares methods that double generic profile table interface, this may cause concrete class generation/instantion to fail.",
