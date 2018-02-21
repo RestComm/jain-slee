@@ -54,7 +54,7 @@ public class TraceLevelPropertyEditor extends TextPropertyEditorSupport {
         if(level.equalsIgnoreCase(TraceLevel.SEVERE.toString()))
             super.setValue(TraceLevel.SEVERE);
         else
-            if(level.equalsIgnoreCase(TraceLevel.CONFIG_STRING.toString()))
+            if(level.equalsIgnoreCase(TraceLevel.CONFIG_STRING))
                 super.setValue(TraceLevel.CONFIG);
         else
             throw new IllegalArgumentException(" Bad level " + level);
