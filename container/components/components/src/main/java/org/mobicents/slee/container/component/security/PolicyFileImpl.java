@@ -276,7 +276,7 @@ public class PolicyFileImpl extends org.mobicents.slee.container.component.secur
 		Map<ProtectionDomain, PermissionCollection> pdMap = this.currentPolicy.get().getProtectionDomain2PermissionCollection();
 		
 
-		PermissionCollection pc = (PermissionCollection) pdMap.get(domain);
+		PermissionCollection pc = pdMap.get(domain);
 
 		if (pc != null) {
 			return pc.implies(permission);

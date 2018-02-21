@@ -88,7 +88,7 @@ public class InitialEventProcessor {
 			InitialEventSelectorImpl selector = new InitialEventSelectorImpl(eventContext,eventEntryDescriptor);
 			SbbObjectPool pool = sleeContainer.getSbbManagement().getObjectPool(serviceComponent.getServiceID(),
 					sbbComponent.getSbbID());
-			SbbObject sbbObject = (SbbObject) pool.borrowObject();
+			SbbObject sbbObject = pool.borrowObject();
 			Object[] args = new Object[] { selector };
 			ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
 

@@ -751,8 +751,7 @@ public class ServiceManagementImpl extends AbstractSleeContainerModule
 					+ serviceComponent.getServiceID());
 		}
 
-		ServiceUsageMBean serviceUsageMBean = (ServiceUsageMBean) serviceComponent
-				.getServiceUsageMBean();
+		ServiceUsageMBean serviceUsageMBean = serviceComponent.getServiceUsageMBean();
 		if (serviceUsageMBean != null) {
 			serviceUsageMBean.remove();
 			// add rollback action to re-create the mbean
