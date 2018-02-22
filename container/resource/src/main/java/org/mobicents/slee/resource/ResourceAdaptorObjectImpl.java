@@ -607,7 +607,7 @@ public class ResourceAdaptorObjectImpl implements ResourceAdaptorObject {
 	}
 
 	public boolean isFaultTolerant() {
-		return (this.object instanceof FaultTolerantResourceAdaptor);
+		return this.object instanceof FaultTolerantResourceAdaptor;
 	}
 
 	public ResourceAdaptor getResourceAdaptorObject() {

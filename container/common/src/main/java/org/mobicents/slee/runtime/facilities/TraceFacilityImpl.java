@@ -112,7 +112,7 @@ public class TraceFacilityImpl implements TraceFacility {
 	}
 
 	public void setTraceLevelOnTransaction(final ComponentID componentId, Level newLevel) throws SystemException {
-		MTraceLevel traceLevel = (MTraceLevel) this.traceLevelTable.get(componentId);
+		MTraceLevel traceLevel = this.traceLevelTable.get(componentId);
 		final Level oldLevel = traceLevel == null ? null : traceLevel.level;
 		if (traceLevel == null) {
 			this.traceLevelTable.put(componentId, new MTraceLevel(newLevel));
@@ -126,7 +126,7 @@ public class TraceFacilityImpl implements TraceFacility {
 				if (oldLevel == null) {
 					traceLevelTable.remove(componentId);
 				} else {
-					((MTraceLevel) traceLevelTable.get(componentId)).level = oldLevel;
+					traceLevelTable.get(componentId).level = oldLevel;
 				}
 			}
 		};
@@ -134,7 +134,7 @@ public class TraceFacilityImpl implements TraceFacility {
 	}
 
 	public void setTraceLevel(ComponentID componentId, Level newLevel) {
-		MTraceLevel traceLevel = (MTraceLevel) this.traceLevelTable.get(componentId);
+		MTraceLevel traceLevel = this.traceLevelTable.get(componentId);
 		if (traceLevel == null) {
 			this.traceLevelTable.put(componentId, new MTraceLevel(newLevel));
 		} else {
@@ -143,7 +143,7 @@ public class TraceFacilityImpl implements TraceFacility {
 	}
 
 	public void unSetTraceLevel(final ComponentID componentId) throws SystemException {
-		final MTraceLevel level = (MTraceLevel) traceLevelTable.remove(componentId);
+		final MTraceLevel level = traceLevelTable.remove(componentId);
 		if (level != null) {
 			// since we are in a tx and this information is not tx aware ad
 			// rollback action
@@ -169,7 +169,7 @@ public class TraceFacilityImpl implements TraceFacility {
 	 */
 	public Level getTraceLevel(ComponentID componentId) throws NullPointerException, UnrecognizedComponentException, FacilityException {
 		checkComponentID(componentId);
-		return ((MTraceLevel) this.traceLevelTable.get(componentId)).getLevel();
+		return this.traceLevelTable.get(componentId).getLevel();
 	}
 
 	/*
@@ -185,7 +185,7 @@ public class TraceFacilityImpl implements TraceFacility {
 			log.debug("createTrace: " + componentId + " level = " + level + " messageType " + messageType + " message " + message + " timeStamp " + timeStamp);
 		}
 		checkComponentID(componentId);
-		MTraceLevel tl = (MTraceLevel) this.traceLevelTable.get(componentId);
+		MTraceLevel tl = this.traceLevelTable.get(componentId);
 		this.notificationTypes.add(messageType);
 		if (tl == null)
 			throw new UnrecognizedComponentException("Could not find " + componentId);
@@ -216,7 +216,7 @@ public class TraceFacilityImpl implements TraceFacility {
 			UnrecognizedComponentException, FacilityException {
 		checkComponentID(componentId);
 
-		MTraceLevel tl = (MTraceLevel) this.traceLevelTable.get(componentId);
+		MTraceLevel tl = this.traceLevelTable.get(componentId);
 		if (log.isDebugEnabled()) {
 			log.debug(" createTrace: " + componentId + " level " + level + " messageType " + messageType + " message " + message + " cause " + cause + " time stamp " + timeStamp);
 		}

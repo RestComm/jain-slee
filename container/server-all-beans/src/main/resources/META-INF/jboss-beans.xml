@@ -3,7 +3,7 @@
 <deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="urn:jboss:bean-deployer:2.0">
    
-	<bean name="Mobicents.JAINSLEE.Cache" class="org.mobicents.cache.MobicentsCache">
+	<bean name="Mobicents.JAINSLEE.Cache" class="org.restcomm.cache.MobicentsCache">
 		<constructor>
  		  <parameter class="java.lang.String">${jboss.server.home.dir}/deploy/restcomm-slee/META-INF/jboss-cache-config.xml</parameter> 
      	</constructor>
@@ -12,11 +12,11 @@
 
    	<!-- cluster member failover elector -->
    	
-	<bean name="Mobicents.JAINSLEE.Cluster.DefaultElector" class="org.mobicents.cluster.election.DefaultClusterElector" />
+	<bean name="Mobicents.JAINSLEE.Cluster.DefaultElector" class="org.restcomm.cluster.election.DefaultClusterElector" />
 	
 	<!-- cluster control -->
 	
-	<bean name="Mobicents.JAINSLEE.Cluster" class="org.mobicents.cluster.DefaultMobicentsCluster">
+	<bean name="Mobicents.JAINSLEE.Cluster" class="org.restcomm.cluster.DefaultMobicentsCluster">
 		<constructor>
 			<parameter><inject bean="Mobicents.JAINSLEE.Cache"/></parameter>
 			<parameter><inject bean="RealTransactionManager"/></parameter>

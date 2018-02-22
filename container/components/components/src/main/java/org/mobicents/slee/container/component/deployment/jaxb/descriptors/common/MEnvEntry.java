@@ -31,6 +31,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.common;
 
 import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
+import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.EnvEntryValue;
 
 /**
  * Start time:14:26:21 2009-01-20<br>
@@ -94,5 +95,13 @@ public class MEnvEntry implements EnvEntryDescriptor {
 
 	public String getEnvEntryType() {
 		return envEntryType;
+	}
+	public String toString() {
+		StringBuffer buf = new StringBuffer();
+		buf.append("EnvEntryType").
+			append("[name=").append(envEntryName).
+			append(",value=").append(envEntryValue).
+			append(']');
+		return buf.toString();
 	}
 }

@@ -94,7 +94,7 @@ public class ActivityListPanel extends Composite {
       };
       endACLink.addClickHandler(killClickHandler);
 
-      boolean isNullActivity = activityContextInfo.getActivityClass().equals("org.mobicents.slee.runtime.facilities.NullActivityImpl");
+      boolean isNullActivity = activityContextInfo.getActivityClass().equals("org.mobicents.slee.runtime.facilities.nullactivity.NullActivityImpl");
 
       ActivityContextIdLabel id = new ActivityContextIdLabel(activityContextInfo.getId(), listener);
       listPanel.setCell(i, 0, new Image("images/activity.context.gif"));

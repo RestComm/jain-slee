@@ -9,7 +9,7 @@
 	<property name="tmp.jboss.home" value="${output.dir}/tmp" />
 
 	<property name="jboss.version" value="5.1.0.GA" />
-	<property name="release.version" value="2.8.0" />
+	<property name="release.version" value="2.9.0" />
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip" />
 	<property name="jboss.home.relative.path" value="jboss-${jboss.version}/" />
 	<property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/" />
@@ -18,23 +18,33 @@
 	<property name="validate.versions" value="" />
 
 	<property name="cloudbees.url" value="https://mobicents.ci.cloudbees.com" />
+	<property name="mvn.javadoc" value="org.apache.maven.plugins:maven-javadoc-plugin:2.10.4" />
 	
 	<property name="ms.build" value="33"/>
 	<property name="ms.download.url" value="${cloudbees.url}/view/MediaServer/job/RestComm-MediaServer-4.x/${ms.build}/artifact/bootstrap/target/restcomm-media-server.zip"/>
 	<property name="ms.distro.zip.path" value="restcomm-media-server.zip" />
 	
-	<property name="ss7.build" value="1339"/>
-	<property name="ss7.zip" value="restcomm-jss7-3.0.1339-1603250217.zip"/>
+	<property name="ss7.build" value="1398"/>
+	<property name="ss7.version" value="7.3.${ss7.build}"/>
+	<property name="ss7.zip" value="restcomm-jss7-${ss7.version}.zip"/>
 	<property name="ss7.download.url" value="${cloudbees.url}/job/Restcomm-jSS7-non-netty/${ss7.build}/artifact/release/${ss7.zip}" />
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
 
-	<property name="dia.version" value="1.7.0.93"/>
-	<property name="dia.build" value="93"/>
-	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/${dia.build}/artifact/release/restcomm-diameter-mux-jboss5-${dia.version}.zip" />
+	<!-- SMPP Extensions -->
+	<property name="smppext.build" value="31"/>
+	<property name="smppext.version" value="7.0.${smppext.build}"/>
+	<property name="smppext.zip" value="restcomm-smpp-extensions-${smppext.version}.zip"/>
+	<property name="smppext.download.url"
+			  value="${cloudbees.url}/job/Restcomm-SMPP-Extensions/${smppext.build}/artifact/release/${smppext.zip}" />
+	<property name="smppext.distro.zip.path" value="restcomm-smpp-extensions.zip" />
+
+	<property name="dia.version" value="1.7.0.201"/>
+	<property name="dia.build" value="201"/>
+	<property name="diameter.download.url" value="${cloudbees.url}/job/RestComm-jDiameter-1.x/${dia.build}/artifact/release/restcomm-diameter-mux-jboss-5-${dia.version}.zip" />
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
-	<property name="eclipslee.version" value="2.8.31"/>
-	<property name="eclipslee.build" value="31"/>
+	<property name="eclipslee.version" value="2.9.41"/>
+	<property name="eclipslee.build" value="41"/>
 	<property name="eclipslee.path" value="tools/eclipslee/plugin/plugins/org.mobicents.eclipslee.servicecreation/target"/>
 	<property name="eclipslee.download.url" value="${cloudbees.url}/job/Restcomm-EclipSLEE-release/${eclipslee.build}/artifact/${eclipslee.path}/org.mobicents.eclipslee.servicecreation-2.0.0-SNAPSHOT.jar" />
 	<property name="eclipslee.jar" value="org.mobicents.eclipslee.servicecreation-${eclipslee.version}.jar" />
@@ -49,6 +59,20 @@
 		<and>
 			<os family="windows" />
 			<isset property="sys.M2_HOME" />
+            <resourceexists>
+                <file file="${sys.M2_HOME}\bin\mvn.bat" />
+            </resourceexists>
+		</and>
+	</condition>
+
+    <!-- Newer Maven (-windows) versions shifted from .bat to .cmd. Accomodate that -->
+	<condition property="mvn.executable" value="${sys.M2_HOME}\bin\mvn.cmd">
+		<and>
+			<os family="windows" />
+			<isset property="sys.M2_HOME" />
+            <resourceexists>
+                <file file="${sys.M2_HOME}\bin\mvn.cmd" />
+            </resourceexists>
 		</and>
 	</condition>
 
@@ -87,10 +111,16 @@
 			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Prelease,set-git-hash,${release.profile}" />
 		</exec>
 		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.restcomm.release}/../checkout/core">
-			<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/container -DdestDir=javadoc" />
+			<arg line="${mvn.javadoc}:aggregate -DreportOutputDirectory=${release.dir}/docs/container -DdestDir=javadoc" />
 		</exec>
 	</target>
 
+	<target name="build-statistics" description="">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${ant.file.telscale.release}/../checkout/statistics">
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${jboss.home} -Dnode=${jboss.config} -Djboss.path=../../${jboss.home.relative.path} -Pdeploy-DU" />
+		</exec>
+	</target>
+	
 	<target name="build-javaee" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="javaee" />
@@ -120,9 +150,9 @@
 	</target>
 
 	<target name="build-diameter" description="">
-		<antcall target="build-package">
+		<antcall target="build-extra-package">
 			<param name="package.name" value="diameter" />
-			<param name="javadoc.dirs" value="resources/diameter-base,resources/diameter-cca,resources/diameter-cx-dx,resources/diameter-gq,resources/diameter-gx,resources/diameter-rf,resources/diameter-ro,resources/diameter-rx,resources/diameter-s6a,resources/diameter-sh-client,resources/diameter-sh-server,enablers/hss-client" />
+			<param name="javadoc.dirs" value="resources/diameter-base,resources/diameter-cca,resources/diameter-cx-dx,resources/diameter-gq,resources/diameter-gx,resources/diameter-rf,resources/diameter-ro,resources/diameter-rx,resources/diameter-s6a,resources/diameter-s13,resources/diameter-sh-client,resources/diameter-sh-server,enablers/hss-client" />
 		</antcall>
 	</target>
 
@@ -134,9 +164,9 @@
 	</target>
 
 	<target name="build-smpp" description="">
-		<antcall target="build-package">
+		<antcall target="build-extra-package">
 			<param name="package.name" value="smpp" />
-			<param name="javadoc.dirs" value="resources/smpp5" />
+			<param name="javadoc.dirs" value="resources/smpp" />
 		</antcall>
 	</target>
 
@@ -148,16 +178,30 @@
 		<for delimiter="," param="dir.name" list="${javadoc.dirs}">
 			<sequential>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}/@{dir.name}">
-					<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+					<arg line="${mvn.javadoc}:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+				</exec>
+			</sequential>
+		</for>
+	</target>
+
+	<target name="build-extra-package" description="builds a SLEE package, use package.name and javadoc.dirs to pass the package singularities">
+		<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}">
+			<!--arg line="install -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Prelease,set-git-hash,${release.profile}" /-->
+			<arg line="install -Dmaven.test.skip=true -Drelease.dir=${release.dir} -Djboss.home=${tmp.jboss.home} -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config} -Pdu-jboss5,release-jboss5,set-git-hash,${release.profile}" />
+		</exec>
+		<for delimiter="," param="dir.name" list="${javadoc.dirs}">
+			<sequential>
+				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/${package.name}/@{dir.name}">
+					<arg line="${mvn.javadoc}:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
 				</exec>
 			</sequential>
 		</for>
 	</target>
 
 	<target name="build-ss7" description="">
-		<antcall target="build-package">
+		<antcall target="build-extra-package">
 			<param name="package.name" value="ss7" />
-			<param name="javadoc.dirs" value="resources/map,resources/cap,resources/tcap" />
+			<param name="javadoc.dirs" value="resources/map,resources/cap,resources/tcap,resources/isup" />
 		</antcall>
 	</target>
 
@@ -185,7 +229,7 @@
 		<for delimiter="," param="dir.name" list="resources/xcap-client,enablers/xdm-client">
 			<sequential>
 				<exec failonerror="true" executable="${mvn.executable}" dir="${packages.dir}/xcap/@{dir.name}">
-					<arg line="javadoc:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
+					<arg line="${mvn.javadoc}:aggregate -DreportOutputDirectory=${release.dir}/docs/@{dir.name} -DdestDir=javadoc" />
 				</exec>
 			</sequential>
 		</for>
@@ -246,7 +290,7 @@
 	
 	<!-- <target name="release" depends="clean,get-jboss,unzip-jboss,checkout-sources,build-snmp-adaptor,build-core,build-sources-for-debug-zip"> -->
 
-	<target name="release" depends="clean,get-jboss,unzip-jboss,get-ss7,unzip-ss7,get-diameter,unzip-diameter,checkout-sources,build-snmp-adaptor,build-core,build-eclipslee,build-javaee,build-diameter,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-media,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
+	<target name="release" depends="clean,get-jboss,unzip-jboss,get-ss7,unzip-ss7,get-smppext,unzip-smppext,setup-smppext,get-diameter,unzip-diameter,checkout-sources,build-snmp-adaptor,build-core,build-statistics,build-eclipslee,build-javaee,build-diameter,build-jdbc,build-sip,build-http,build-smpp,build-ss7,build-tftp,build-media,build-xcap,build-xmpp,get-eclipslee,build-sip-balancer,build-sources-for-debug-zip">
 
 		<!-- copy log4j presets -->
 		<copy file="${jboss.home}/server/default/deploy/restcomm-slee/log4j-templates/jboss-log4j.xml.default" tofile="${jboss.home}/server/default/conf/jboss-log4j.xml" overwrite="true" />
@@ -363,6 +407,27 @@
 	<target name="unzip-ss7">
 		<delete dir="${release.dir}/extra/restcomm-ss7" failonerror="false" />
 		<unzip src="${ss7.distro.zip.path}" dest="${release.dir}/extra/restcomm-ss7" />
+
+		<!-- remove ss7-wildfly folder -->
+		<property name="ss7.release.dir" value="${release.dir}/extra/restcomm-ss7/restcomm-jss7-${ss7.version}" />
+		<delete dir="${ss7.release.dir}/ss7-wildfly" failonerror="true" />
+	</target>
+
+	<available file="${ant.file.restcomm.release}/../${smppext.distro.zip.path}" property="got.smppext" />
+	<target name="get-smppext" unless="got.smppext">
+		<echo>Downloading SMPP Extensions</echo>
+		<get dest="${ant.file.restcomm.release}/../${smppext.distro.zip.path}" src="${smppext.download.url}" />
+	</target>
+
+	<target name="unzip-smppext">
+		<delete dir="${release.dir}/extra/restcomm-smpp-extensions" failonerror="true" />
+		<unzip src="${smppext.distro.zip.path}" dest="${release.dir}/extra/restcomm-smpp-extensions" />
+	</target>
+
+	<target name="setup-smppext">
+		<property name="smppext.release.dir"
+				  value="${release.dir}/extra/restcomm-smpp-extensions/restcomm-smpp-extensions-${smppext.version}" />
+		<delete dir="${smppext.release.dir}/wildfly" failonerror="true" />
 	</target>
 
 	<available file="${ant.file.restcomm.release}/../${diameter.distro.zip.path}" property="got.diameter" />

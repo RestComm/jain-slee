@@ -47,7 +47,7 @@ public class ActivityContextDetailsPanel extends ControlContainer {
     ActivityContextPropertiesPanel props = new ActivityContextPropertiesPanel(browseContainer, activityInfo);
     setWidget(0, 0, props);
 
-    if (activityInfo.getActivityClass().equals("org.mobicents.slee.runtime.facilities.NullActivityImpl")) {
+    if (activityInfo.getActivityClass().equals("org.mobicents.slee.runtime.facilities.nullactivity.NullActivityImpl")) {
       Button endButton = new Button("End This Activity");
       ClickHandler handler = new ClickHandler() {
         public void onClick(ClickEvent event) {

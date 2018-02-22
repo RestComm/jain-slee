@@ -1,74 +1,84 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 	
-    <parent>
-        <groupId>org.mobicents.servers.jainslee.core</groupId>
-        <artifactId>restcomm-slee-core-container</artifactId>
-        <version>2.8.0-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>restcomm-slee-core-container</artifactId>
+		<version>2.9.0-SNAPSHOT</version>
+	</parent>
 
-    <artifactId>spi</artifactId>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-    </build>
+	<artifactId>spi</artifactId>
 			
-    <dependencies>				
-        <dependency>
-            <groupId>${project.parent.groupId}</groupId>
-            <artifactId>deployer</artifactId>
-            <version>${project.parent.version}</version>           	
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}</groupId>
-            <artifactId>fault-tolerant-ra-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}</groupId>
-            <artifactId>jmx-property-editors</artifactId>
-            <version>${project.parent.version}</version>           	
-        </dependency>
-        <dependency>
-            <groupId>javassist</groupId>
-            <artifactId>javassist</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.slee</groupId>
-            <artifactId>jain-slee</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jboss.jbossts</groupId>
-            <artifactId>jbossjts</artifactId>
-        </dependency>			
-        <dependency>
-            <groupId>org.jboss.jbossas</groupId>
-            <artifactId>jboss-as-server</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xerces</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.cluster</groupId>
-            <artifactId>core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.servers.jainslee.api</groupId>
-            <artifactId>jain-slee-11-ext</artifactId>
-            <version>${project.parent.version}</version>           	
-        </dependency>
-    </dependencies>
-
+	<dependencies>				
+		
+		<dependency>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+		</dependency>			
+		
+		<dependency>
+			<groupId>org.mobicents.servers.jainslee.api</groupId>
+			<artifactId>jain-slee-11-ext</artifactId>
+           	<version>${pom.version}</version>           	
+		</dependency>
+		
+		<dependency>
+			<groupId>javassist</groupId>
+			<artifactId>javassist</artifactId>
+		</dependency>		
+		
+		<dependency>
+			<groupId>org.restcomm.cluster</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+           	<artifactId>jmx-property-editors</artifactId>
+           	<version>${pom.version}</version>           	
+		</dependency>
+		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+           	<artifactId>deployer</artifactId>
+           	<version>${pom.version}</version>           	
+		</dependency>
+		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>fault-tolerant-ra-api</artifactId>
+			<version>${pom.version}</version>
+		</dependency>	
+		
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-server</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xerces</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>jboss.jbossts</groupId>
+			<artifactId>jbossjts</artifactId>
+		</dependency>
+					
+	</dependencies>
+	
+	<build>
+		<resources>
+			<resource>
+        		<directory>src/main/resources</directory>
+        		<filtering>true</filtering>
+      		</resource>
+      	</resources>
+      </build>	
+	
 </project>

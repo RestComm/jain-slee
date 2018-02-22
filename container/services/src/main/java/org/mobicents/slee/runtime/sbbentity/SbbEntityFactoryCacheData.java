@@ -30,8 +30,9 @@ import javax.slee.ServiceID;
 
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cluster.MobicentsCluster;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
+import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
 /**
@@ -56,7 +57,7 @@ public class SbbEntityFactoryCacheData extends CacheData {
 	 * @param cluster
 	 */
 	public SbbEntityFactoryCacheData(MobicentsCluster cluster) {
-		super(SBB_ENTITY_FACTORY_FQN, cluster.getMobicentsCache());
+		super(new FqnWrapper(SBB_ENTITY_FACTORY_FQN), cluster.getMobicentsCache());
 	}
 
 	/**

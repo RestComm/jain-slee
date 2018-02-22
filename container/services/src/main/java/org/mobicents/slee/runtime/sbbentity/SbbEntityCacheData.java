@@ -30,8 +30,9 @@ import javax.slee.EventTypeID;
 
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cache.MobicentsCache;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
+import org.restcomm.cache.MobicentsCache;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 import org.mobicents.slee.container.sbbentity.SbbEntityID;
 
@@ -128,7 +129,7 @@ public class SbbEntityCacheData extends CacheData {
 	 * @param sbbEntityId
 	 */
 	public SbbEntityCacheData(SbbEntityID sbbEntityId, MobicentsCache cache) {
-		super(getFqn(sbbEntityId), cache);
+		super(new FqnWrapper(getFqn(sbbEntityId)), cache);
 		this.sbbEntityID = sbbEntityId;
 	}
 

@@ -31,7 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jgroups.Address;
-import org.mobicents.cluster.MobicentsCluster;
+import org.restcomm.cluster.MobicentsCluster;
 
 /**
  * @author martins

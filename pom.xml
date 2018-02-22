@@ -1,27 +1,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 	
-    <parent>
-        <groupId>org.mobicents</groupId>
-        <artifactId>restcomm-parent</artifactId>
-        <version>2.27.36</version>
-    </parent>
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>restcomm-parent</artifactId>
+		<version>2.27.47</version>
+	</parent>
 	
-    <groupId>org.mobicents.servers.jainslee.core</groupId>
-    <artifactId>restcomm-slee-core</artifactId>
-    <version>2.8.0-SNAPSHOT</version>
+	<groupId>org.mobicents.servers.jainslee.core</groupId>
+	<artifactId>restcomm-slee-core</artifactId>
+	<version>2.9.0-SNAPSHOT</version>
 			
     <packaging>pom</packaging>
 
-    <properties>
-        <!-- OTHER RESTCOMM COMPONENTS VERSIONS -->
-        <restcomm.cluster.version>1.15.19</restcomm.cluster.version>
-    </properties>
+	<properties>
+		<!-- OTHER RESTCOMM COMPONENTS VERSIONS -->
+		<restcomm.cluster.version>1.15.30</restcomm.cluster.version>
+	</properties>
 	
-    <modules>
-        <module>api/extensions</module>
-        <module>container</module>			
-    </modules>
+	<modules>
+		<module>api/extensions</module>
+		<module>container</module>
+	</modules>
 	
     <scm>
         <connection>scm:git:https://github.com/RestComm/jain-slee.git</connection>

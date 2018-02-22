@@ -42,7 +42,7 @@ import org.apache.log4j.Logger;
 import org.jboss.util.naming.Util;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
-import org.mobicents.cluster.MobicentsCluster;
+import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.connector.local.MobicentsSleeConnectionFactory;
 import org.mobicents.slee.connector.local.SleeConnectionService;
 import org.mobicents.slee.container.activity.ActivityContextFactory;

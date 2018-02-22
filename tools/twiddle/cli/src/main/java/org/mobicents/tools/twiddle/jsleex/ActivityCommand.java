@@ -58,10 +58,10 @@ public class ActivityCommand extends AbstractSleeCommand {
 		out.println("    -c, --count                     Retrieves current count of activity contexts. Does not require argument.");
 		out.println("    -q, --query                     Performs liveliness query if no option is specified.");
 		out.println("                                    Optionally it may be followed by one of options, which alter action:");
-		out.println("    		--set                    Sets interval between queries. Requires argument of type long, interval is set in seconds.");
+		out.println("    		--set                    Sets interval between queries. Requires argument of type long, interval is set in minutes.");
 		out.println("    		--get                    Gets interval. Does not require argument.");
 		out.println("    -i, --idle                      Performs operation on activity context maximal idle time. Requires one of following options:");
-		out.println("    		--set                    Sets idle time. Requires argument of long type. Idle time is set in seconds.");
+		out.println("    		--set                    Sets idle time. Requires argument of long type. Idle time is set in minutes.");
 		out.println("    		--get                    Gets idle time. Does not require argument.");
 		//out.println("    -d, --details                   Retrieves details of underlying activity context. Requires ActivityContextHandle as argument.");
 		out.println("    -l, --list                      Depending on option lists specific information. It must be followed by one of options:");
@@ -445,6 +445,8 @@ public class ActivityCommand extends AbstractSleeCommand {
 	    public final static int TIMERS_ATTACHED=6;
 	    
 	    public final static int DATA_PROPERTIES=7;
+	    
+	    public final static int IS_ENDING=8;
 		/* (non-Javadoc)
 		 * @see org.mobicents.tools.twiddle.op.AbstractOperation#unfoldArray(java.lang.String, java.lang.Object[])
 		 */
@@ -463,6 +465,7 @@ public class ActivityCommand extends AbstractSleeCommand {
 					sb.append("ACH               : ").append(rep[AC_ID]).append("\n");
 					sb.append("Class             : ").append(rep[ACTIVITY_CLASS]).append("\n");
 					sb.append("Last access time  : ").append(rep[LAST_ACCESS_TIME]).append("\n");
+					sb.append("Is Ending  : ").append(rep[IS_ENDING]).append("\n");
 					sb.append("Resource Adaptor  : ").append(rep[RA]).append("\n");
 					if(rep[SBB_ATTACHMENTS].getClass().isArray())
 					{

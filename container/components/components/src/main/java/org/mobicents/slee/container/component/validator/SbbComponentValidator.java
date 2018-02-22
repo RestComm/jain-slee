@@ -420,7 +420,6 @@ public class SbbComponentValidator implements Validator {
 		String errorBuffer = new String("");
 		boolean passed = true;
 
-		Class sbbAbstractClass = this.component.getAbstractSbbClass();
 		Method asACIMethod = null;
 
 		// lets go through methods of sbbAbstract class,
@@ -952,7 +951,6 @@ public class SbbComponentValidator implements Validator {
 
 			// Both have to be present, lets do trick, first we can get getter
 			// so we know field type and can get setter
-			Class sbbAbstractClass = this.component.getAbstractSbbClass();
 
 			getterFieldMethod = ClassUtils.getMethodFromMap(getterName, new Class[0], sbbAbstractClassMethods, sbbAbstractMethodsFromSuperClasses);
 
@@ -1256,7 +1254,6 @@ public class SbbComponentValidator implements Validator {
 			}
 
 			Class eventClass = eventTypeComponent.getEventTypeClass();
-			Class sbbAbstractClass = this.component.getAbstractSbbClass();
 			String methodName = "on" + event.getEventName();
 
 			// lets look for basic event handler
@@ -1512,7 +1509,6 @@ public class SbbComponentValidator implements Validator {
 			}
 
 			Class eventClass = eventTypeComponent.getEventTypeClass();
-			Class sbbAbstractClass = this.component.getAbstractSbbClass();
 
 			String methodName = "fire" + event.getEventName();
 
@@ -1752,7 +1748,7 @@ public class SbbComponentValidator implements Validator {
 					}
 				}
 
-				if (possibleExcpetions.size() != 0) {
+				if (!possibleExcpetions.isEmpty()) {
 					passed = false;
 					errorBuffer = appendToBuffer("Get profile CMP interface method has decalration of throws clause, it lacks following exceptions: "
 							+ Arrays.toString(possibleExcpetions.toArray()) + " , method: " + method.getProfileCmpMethodName(), "6,7", errorBuffer);

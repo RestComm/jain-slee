@@ -126,7 +126,6 @@ public class ClassUtils {
 	        Map.Entry entry = (Map.Entry)iter.next();
 	        String property = (String)entry.getKey();
 	        CtMethod getter = (CtMethod)entry.getValue();
-	        String mname = getter.getName();
 	        // find matching setter
 	        CtMethod setter = (CtMethod)setters.get(property);
 	        // if setter is null, the property is not full access (read&write), therefore ignored 
@@ -414,7 +413,7 @@ public class ClassUtils {
      * @return all interface methods from an interface
      */
     public static Map getInterfaceMethodsFromInterface(CtClass interfaceClass) {
-    	return getInterfaceMethodsFromInterface(interfaceClass, Collections.EMPTY_MAP);
+    	return getInterfaceMethodsFromInterface(interfaceClass, Collections.emptyMap());
     }
 
     /**
@@ -508,7 +507,7 @@ public class ClassUtils {
         
 	        // this is not a precise check. Protected access for parent and Default for child will fail it.
 	        if (!(Modifier.isPublic(parent.getModifiers()) && Modifier.isPublic(child.getModifiers()))) return false;
-	        if ((!Modifier.isPrivate(parent.getModifiers()) && Modifier.isPrivate(child.getModifiers()))) return false;
+	        if (!Modifier.isPrivate(parent.getModifiers()) && Modifier.isPrivate(child.getModifiers())) return false;
 	
 	        // verify exceptions
 	        CtClass[] parentEx = parent.getExceptionTypes();
@@ -517,7 +516,7 @@ public class ClassUtils {
 		        for (int i = 0; i < parentEx.length; i++) {
 		            boolean validEx = false;
 		            for (int j = 0; j < childEx.length; j++) {
-		                if ((childEx[j]).subtypeOf((parentEx[i]))) validEx = true;
+		                if ((childEx[j]).subtypeOf(parentEx[i])) validEx = true;
 		            }
 		            if (!validEx) return false;
 		        }
@@ -536,7 +535,6 @@ public class ClassUtils {
      * @return a String key unique for the method. 
      */
     public static String getMethodKey(CtMethod method) {
-    	String ret=method.getName() + method.getSignature();
-   		return ret;
+    	return method.getName() + method.getSignature();
     }
 }

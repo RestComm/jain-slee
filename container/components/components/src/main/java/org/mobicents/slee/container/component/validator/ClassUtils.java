@@ -98,10 +98,8 @@ public class ClassUtils {
 	}
 
 	public static String getMethodKey(Method method) {
-		String ret = method.getName() + Arrays.toString(method.getParameterTypes());
+		return method.getName() + Arrays.toString(method.getParameterTypes());
 		// //System.err.println("KEY: "+ret);
-
-		return ret;
 	}
 
 	public static Map<String, Method> getConcreteMethodsFromClass(Class xClass) {

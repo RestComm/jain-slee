@@ -19,9 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.mobicents.slee.runtime.facilities;
 
 import java.util.Arrays;
+
 import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
 import javax.slee.InvalidArgumentException;
@@ -30,14 +32,17 @@ import javax.slee.facilities.Tracer;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.TraceNotification;
-import junit.framework.TestCase;
+
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
+
+import junit.framework.TestCase;
 
 public class TracerFrameworkTest extends TestCase {
 
-    //protected TraceFacilityImpl traceFacility = null;
-    protected NotificationSource notificationSource = null;
-    protected FakeTraceMBeanImpl traceMBean = null;
+	//protected TraceFacilityImpl traceFacility = null;
+	protected FakeTraceMBeanImpl traceMBean = null;
+	protected TracerStorage ts = null;
+	protected NotificationSource notificationSource = null;
     protected TracerStorage tracerStorage = null;
 
     @Override
@@ -46,8 +51,8 @@ public class TracerFrameworkTest extends TestCase {
         // akward, this will create mbean with regular trace facility, but we
         // need to check some things, in trace facility
         //traceFacility = new TraceFacilityImpl(traceMBean);
-        notificationSource = new ResourceAdaptorEntityNotification("XxX");
         traceMBean = new FakeTraceMBeanImpl();
+        notificationSource = new ResourceAdaptorEntityNotification("XxX");
         tracerStorage = new TracerStorage(notificationSource, traceMBean);
     }
 
@@ -289,7 +294,7 @@ public class TracerFrameworkTest extends TestCase {
             traceMBean.setTestHarness(notificationSource.getTraceNotificationType(), localSeq++, notificationSource, TraceLevel.SEVERE, null, true);
             org.trace(TraceLevel.SEVERE, "TEST16");
 
-            // Now severe llevel, here we should not receive anytihn
+			this.ts.unsetTracerLevel(orgMobicents.getTracerName());
         } catch (Exception e) {
             e.printStackTrace();
             fail("Got exception: " + e);
@@ -338,12 +343,13 @@ public class TracerFrameworkTest extends TestCase {
                 return;
             }
 
-            assertEquals("Notification types does not match, notification: " + notification, this.expectedNotificationType, notification.getType());
-            assertEquals("Notification sequence does not match, notification: " + notification, this.expectedNotificationSequence, notification.getSequenceNumber());
+			assertEquals("Notification types does not match, notification: " + notification, this.expectedNotificationType, notification.getType());
+			assertEquals("Notification sequence does not match, notification: " + notification, this.expectedNotificationSequence, notification.getSequenceNumber());
 
-            assertEquals("Notification source does not match, notification: " + notification, this.expectedNotificationSource, notification.getNotificationSource());
-            assertEquals("Notification level does not match, notification: " + notification, this.expectedNotificatioTraceLevel, notification.getTraceLevel());
-            // FIXME: add cause check
-        }
-    }
+			assertEquals("Notification source does not match, notification: " + notification, this.expectedNotificationSource, notification.getNotificationSource());
+			assertEquals("Notification level does not match, notification: " + notification, this.expectedNotificatioTraceLevel, notification.getTraceLevel());
+			// FIXME: add cause check
+		}
+
+	}
 }

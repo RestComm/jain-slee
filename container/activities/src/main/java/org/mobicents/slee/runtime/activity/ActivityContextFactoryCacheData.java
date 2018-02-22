@@ -27,8 +27,9 @@ import java.util.Set;
 
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
-import org.mobicents.cache.CacheData;
-import org.mobicents.cluster.MobicentsCluster;
+import org.restcomm.cache.CacheData;
+import org.restcomm.cache.FqnWrapper;
+import org.restcomm.cluster.MobicentsCluster;
 import org.mobicents.slee.container.activity.ActivityContextHandle;
 
 /**
@@ -48,10 +49,10 @@ public class ActivityContextFactoryCacheData extends CacheData {
 
 	/**
 	 * 
-	 * @param activityContextId
+	 * @param cluster
 	 */
 	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
-		super(NODE_FQN, cluster.getMobicentsCache());
+		super(new FqnWrapper(NODE_FQN), cluster.getMobicentsCache());
 	}
 
 	/**
@@ -63,7 +64,7 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	@SuppressWarnings("unchecked")
 	public Set<ActivityContextHandle> getActivityContextHandles() {
 		final Node node = getNode();
-		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
+		return node != null ? node.getChildrenNames() : Collections.emptySet();
 	}
 
 }

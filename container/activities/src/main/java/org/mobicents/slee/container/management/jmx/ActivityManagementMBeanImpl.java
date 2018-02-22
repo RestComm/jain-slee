@@ -38,6 +38,10 @@ import javax.slee.SbbID;
 import javax.slee.facilities.TimerID;
 import javax.slee.management.ManagementException;
 import javax.slee.nullactivity.NullActivity;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -146,7 +150,14 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 						+ "]");
 			NullActivity nullActivity = (NullActivity) ac.getActivityContextHandle().getActivityObject();
 			if (nullActivity != null) {
+				sleeContainer.getTransactionManager().requireTransaction();
 				nullActivity.endActivity();
+				try {
+					sleeContainer.getTransactionManager().commit();
+				} catch (Exception e) {
+					logger.debug("Can't commit transaction while ending activity");
+					throw new IllegalArgumentException("Can't commit transaction while ending activity");
+				}
 			}
 		} else {
 			logger.debug("AC is not null activity context");
@@ -155,6 +166,38 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		}		
 	}
 
+	public void endActivity(String id) throws ManagementException {
+
+		// Again this is tx method
+		logger.info("Trying to stop null activity[" + id + "]!!");
+		ActivityContext ac = acFactory.getActivityContext(id);
+		if (ac == null) {
+			logger.debug("There is no ac associated with given acID["
+						+ id + "]!!");
+			throw new ManagementException("Can not find AC for given ID["
+					+ id + "], try again!!!");
+		}
+		if (ac.getActivityContextHandle().getActivityType() == ActivityType.NULL) {
+			logger.debug("Scheduling activity end for acID[" + id
+						+ "]");
+			NullActivity nullActivity = (NullActivity) ac.getActivityContextHandle().getActivityObject();
+			if (nullActivity != null) {
+				sleeContainer.getTransactionManager().requireTransaction();
+				nullActivity.endActivity();
+				try {
+					sleeContainer.getTransactionManager().commit();
+				} catch (Exception e) {
+					logger.debug("Can't commit transaction while ending activity");
+					throw new IllegalArgumentException("Can't commit transaction while ending activity");
+				}
+			}
+		} else {
+			logger.debug("AC is not null activity context");
+			throw new IllegalArgumentException("Given ID[" + id
+					+ "] does not point to NullActivity");
+		}		
+	}
+	
 	public void queryActivityContextLiveness() {
 
 		logger.info("Extorting liveliness query!!");
@@ -172,7 +215,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		for (ActivityContextHandle ach : this.acFactory.getAllActivityContextsHandles()) {
 			factoriesSet.add(ach.getActivityType() == ActivityType.RA ? ((ResourceAdaptorActivityContextHandle)ach).getResourceAdaptorEntity().getName() : "");
 		}		
-		if (factoriesSet.size() == 0)
+		if (factoriesSet.isEmpty())
 			return null;
 		String[] ret = new String[factoriesSet.size()];
 		ret = (String[]) factoriesSet.toArray(ret);
@@ -288,7 +331,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 					SbbID implSbbID = null;
 					for (SbbEntityID sbbEntityID : ac.getSbbAttachmentSet()) {
 						if (sbbEntityIdToSbbID.containsKey(sbbEntityID)) {
-							implSbbID = (SbbID) sbbEntityIdToSbbID.get(sbbEntityID);
+							implSbbID = sbbEntityIdToSbbID.get(sbbEntityID);
 						} else {
 							SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbEntityID,false);
 							if (sbbe == null) {
@@ -340,14 +383,10 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 						// we
 						// should care. But Console is java script, and
 						// sometimes that can be pain, so lets ease it
-						o[SBB_ATTACHMENTS] = ((Object[]) o[SBB_ATTACHMENTS]).length
-						+ "";
-						o[NAMES_BOUND_TO] = ((Object[]) o[NAMES_BOUND_TO]).length
-						+ "";
-						o[TIMERS_ATTACHED] = ((Object[]) o[TIMERS_ATTACHED]).length
-						+ "";
-						o[DATA_PROPERTIES] = ((Object[]) o[DATA_PROPERTIES]).length
-						+ "";
+					    o[SBB_ATTACHMENTS] = Integer.toString(((Object[]) o[SBB_ATTACHMENTS]).length);
+						o[NAMES_BOUND_TO] = Integer.toString(((Object[]) o[NAMES_BOUND_TO]).length);
+						o[TIMERS_ATTACHED] = Integer.toString(((Object[]) o[TIMERS_ATTACHED]).length);
+						o[DATA_PROPERTIES] = Integer.toString(((Object[]) o[DATA_PROPERTIES]).length);
 					}
 
 					singleResult = o;
@@ -361,7 +400,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 			}
 
 		}
-		if (lst.size() == 0)
+		if (lst.isEmpty())
 			return null;
 
 		logger.info("RETURN SIZE[" + lst.size() + "]");
@@ -403,6 +442,8 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 				+ "]");
 		// Date d = new Date(ac.getLastAccessTime());
 		// o[LAST_ACCESS_TIME] = d;
+		o[IS_ENDING] = ac.isEnding();
+		
 		o[LAST_ACCESS_TIME] = ac.getLastAccessTime() + "";
 		logger.debug("======[getDetails][LAST_ACCESS_TIME]["
 				+ o[LAST_ACCESS_TIME] + "]["

@@ -116,12 +116,21 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 * Format of a cell is [keyOfProperty=valueOfProperrty]
 	 */
 	public final static int DATA_PROPERTIES = 7;
+	
+	/**
+	 * Defines index of field in Object[]. If boolean flag <b>inDetails</b> is
+	 * set to false ({@link #listActivityContexts(boolean)}) its value is
+	 * String representation of number of data properties set for this ac.
+	 * Otherwise it contains String[] which holds data properties in its cells.<br>
+	 * Format of a cell is [keyOfProperty=valueOfProperrty]
+	 */
+	public final static int IS_ENDING = 8;
 
 	/**
 	 * Defines ac array representation size, simply for ease modification - this
 	 * value is defined in one place.
 	 */
-	public final static int ARRAY_SIZE = 8;
+	public final static int ARRAY_SIZE = 9;
 
 	// --- STATICS FOR LISTING TYPES
 
@@ -239,6 +248,8 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 */
 	public void endActivity(ActivityContextHandle nullACID) throws ManagementException;
 
+	public void endActivity(String nullACID) throws ManagementException;
+	
 	/**
 	 * 
 	 * 

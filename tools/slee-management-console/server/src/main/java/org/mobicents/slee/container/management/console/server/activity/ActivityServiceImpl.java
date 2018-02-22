@@ -22,6 +22,7 @@
 
 package org.mobicents.slee.container.management.console.server.activity;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
@@ -144,7 +145,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements Activit
     acsTransport.setNamesBoundTo((String[]) subItems[5]);
     acsTransport.setAttachedTimers((String[]) subItems[6]);
     acsTransport.setDataAttributes((String[]) subItems[7]);
-
+    acsTransport.setIsEnding(subItems[8].toString());
     long timeout;
     try {
       timeout = getActivityContextTimeout();

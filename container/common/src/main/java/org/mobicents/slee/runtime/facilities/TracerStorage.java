@@ -113,7 +113,7 @@ public class TracerStorage {
 			if (t.isRequestedBySource())
 				names.add(t.getTracerName());
 		}
-		if(names.size()==0)
+		if(names.isEmpty())
 			return new String[0];
 		return names.toArray(new String[names.size()]);
 	}
@@ -130,7 +130,7 @@ public class TracerStorage {
 			if (t.isExplicitlySetTracerLevel())
 				names.add(t.getTracerName());
 		}
-		if(names.size()==0)
+		if(names.isEmpty())
 			return new String[0];
 		return names.toArray(new String[names.size()]);
 	}

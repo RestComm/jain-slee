@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>restcomm-parent</artifactId>
-		<version>2.27.34</version>
+		<version>2.27.47</version>
 	</parent>
 	
 	<artifactId>sources-checkout</artifactId>
 	<groupId>org.mobicents.slee.release</groupId>
-	<version>2.8.0-SNAPSHOT</version>
+	<version>2.9.0-SNAPSHOT</version>
 	
 	<properties>
 	
@@ -19,40 +19,42 @@
 		<checkout.password />
 		<!-- GIT -->
 
-		<core.scmVersion>2.8.42</core.scmVersion>
+		<core.scmVersion>2.9.128</core.scmVersion>
 		<core.scmVersionType>tag</core.scmVersionType>
-		<diameter.scmVersion>2.8.25</diameter.scmVersion>
+		<diameter.scmVersion>7.1.18</diameter.scmVersion>
 		<diameter.scmVersionType>tag</diameter.scmVersionType>
-		<eclipslee.scmVersion>2.8.31</eclipslee.scmVersion>
+		<eclipslee.scmVersion>2.9.41</eclipslee.scmVersion>
 		<eclipslee.scmVersionType>tag</eclipslee.scmVersionType>
-		<javaee.scmVersion>2.8.30</javaee.scmVersion>
+		<javaee.scmVersion>2.9.138</javaee.scmVersion>
 		<javaee.scmVersionType>tag</javaee.scmVersionType>
-		<jdbc.scmVersion>2.8.12</jdbc.scmVersion>
+		<jdbc.scmVersion>2.9.13</jdbc.scmVersion>
 		<jdbc.scmVersionType>tag</jdbc.scmVersionType>
-		<http.scmVersion>2.8.24</http.scmVersion>
+		<http.scmVersion>2.9.129</http.scmVersion>
 		<http.scmVersionType>tag</http.scmVersionType>
-		<media.scmVersion>2.8.29</media.scmVersion>
+		<media.scmVersion>2.9.131</media.scmVersion>
 		<media.scmVersionType>tag</media.scmVersionType>
-		<sip.scmVersion>2.8.36</sip.scmVersion>
+		<sip.scmVersion>2.9.94</sip.scmVersion>
 		<sip.scmVersionType>tag</sip.scmVersionType>
-		<smpp.scmVersion>2.8.24</smpp.scmVersion>
+		<smpp.scmVersion>7.0.42</smpp.scmVersion>
 		<smpp.scmVersionType>tag</smpp.scmVersionType>
-		<ss7.scmVersion>2.8.29</ss7.scmVersion>
+		<ss7.scmVersion>7.3.72</ss7.scmVersion>
 		<ss7.scmVersionType>tag</ss7.scmVersionType>
-		<tftp.scmVersion>2.8.11</tftp.scmVersion>
+		<tftp.scmVersion>2.9.14</tftp.scmVersion>
 		<tftp.scmVersionType>tag</tftp.scmVersionType>
-		<xcap.scmVersion>2.8.26</xcap.scmVersion>
+		<xcap.scmVersion>2.9.124</xcap.scmVersion>
 		<xcap.scmVersionType>tag</xcap.scmVersionType>
-		<xmpp.scmVersion>2.8.11</xmpp.scmVersion>
+		<xmpp.scmVersion>2.9.13</xmpp.scmVersion>
 		<xmpp.scmVersionType>tag</xmpp.scmVersionType>
+		<statistics.scmVersion>2.9.2</statistics.scmVersion>
+		<statistics.scmVersionType>tag</statistics.scmVersionType>
 
-		<cluster.scmVersion>1.15.26</cluster.scmVersion>
+		<cluster.scmVersion>1.15.30</cluster.scmVersion>
 		<cluster.scmVersionType>tag</cluster.scmVersionType>
-		<jain-sip-ext.scmVersion>1.3.23</jain-sip-ext.scmVersion>
+		<jain-sip-ext.scmVersion>1.3.26</jain-sip-ext.scmVersion>
 		<jain-sip-ext.scmVersionType>tag</jain-sip-ext.scmVersionType>
-		<jain-sip-ha.scmVersion>1.5.21</jain-sip-ha.scmVersion>
+		<jain-sip-ha.scmVersion>1.6.8</jain-sip-ha.scmVersion>
 		<jain-sip-ha.scmVersionType>tag</jain-sip-ha.scmVersionType>
-		<sip-balancer.scmVersion>2.0.24</sip-balancer.scmVersion>
+		<sip-balancer.scmVersion>10.0.209</sip-balancer.scmVersion>
 		<sip-balancer.scmVersionType>tag</sip-balancer.scmVersionType>
 		<snmp.core.scmVersion>2.8.14</snmp.core.scmVersion>
         <snmp.core.scmVersionType>tag</snmp.core.scmVersionType>
@@ -371,6 +373,24 @@
 							</checkoutDirectory>
 							<connectionUrl>
 								scm:git:https://github.com/RestComm/jain-slee.xmpp.git
+							</connectionUrl>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>statistics-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>${statistics.scmVersion}</scmVersion>
+							<scmVersionType>${statistics.scmVersionType}</scmVersionType>
+							<checkoutDirectory>
+								${checkout.basedir}/statistics
+							</checkoutDirectory>
+							<connectionUrl>
+								scm:git:https://github.com/RestComm/jain-slee.statistics.git
 							</connectionUrl>
 						</configuration>
 					</execution>

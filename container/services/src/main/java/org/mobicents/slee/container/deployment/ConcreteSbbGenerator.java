@@ -142,8 +142,12 @@ public class ConcreteSbbGenerator {
 
 		this.sbbComponent = sbbComponent;
 		this.deployDir = sbbComponent.getDeploymentDir().getAbsolutePath();
-		;
 		this.pool = sbbComponent.getClassPool();
+
+		// FIXED: NPE when accessing not initialized CMP
+		// see https://github.com/RestComm/jain-slee/issues/87
+		// import package javax.slee for javax.slee.TransactionRequiredLocalException
+		this.pool.getClassPool().importPackage("javax.slee");
 	}
 
 	/**
@@ -830,7 +834,14 @@ public class ConcreteSbbGenerator {
 				CtMethod concreteGetterMethod = CtNewMethod.copy(getterMethod,
 						sbbConcreteClass, null);
 				// create the method body
-				String concreteGetterMethodBody = "{ return " + ( getterHandlerMethodNeedResultCast ? "($r)" : "") + SbbAbstractMethodHandler.class.getName() + "." + getterHandlerMethodName+ "(sbbEntity,\"" + cmp.getCmpFieldName() + "\"); }";
+
+				// FIXED: NPE when accessing not initialized CMP
+				// see https://github.com/RestComm/jain-slee/issues/87
+				String concreteGetterMethodBody = "{ "
+						+ "if (sbbEntity == null) "
+						+ "    throw new TransactionRequiredLocalException(\"Cannot get CMP field. SBB entity is null\");"
+						+ "return " + ( getterHandlerMethodNeedResultCast ? "($r)" : "") + SbbAbstractMethodHandler.class.getName() + "." + getterHandlerMethodName+ "(sbbEntity,\"" + cmp.getCmpFieldName() + "\");"
+						+ " }";
 				if (logger.isTraceEnabled()) {
 		            logger.trace("Generated method " + getterMethodName
 							+ " , body = " + concreteGetterMethodBody);
@@ -859,7 +870,12 @@ public class ConcreteSbbGenerator {
 				CtMethod concreteSetterMethod = CtNewMethod.copy(setterMethod,
 						sbbConcreteClass, null);
 				// create the method body
+
+				// FIXED: NPE when accessing not initialized CMP
+				// see https://github.com/RestComm/jain-slee/issues/87
 				String concreteSetterMethodBody = "{ "
+						+ "if (sbbEntity == null) "
+						+ "    throw new TransactionRequiredLocalException(\"Cannot set CMP field. SBB entity is null\");"
 						+ SbbAbstractMethodHandler.class.getName()
 						+ "."+setterHandlerMethodName+"(sbbEntity,\"" + cmp.getCmpFieldName()
 						+ "\",$1); }";

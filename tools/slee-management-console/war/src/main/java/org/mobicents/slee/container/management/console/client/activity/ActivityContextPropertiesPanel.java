@@ -58,6 +58,7 @@ public class ActivityContextPropertiesPanel extends PropertiesPanel {
     add("ID", activityInfo.getId());
     add("Activity Class", activityInfo.getActivityClass());
     add("Last Access Timestamp", activityInfo.getLastAccessTime());
+    add("Is Ending", activityInfo.getIsEnding());
     add("Timers", arrayToString(activityInfo.getAttachedTimers()));
     add("Data Attributes", arrayToString(activityInfo.getDataAttributes()));
     add("Name Bindings", arrayToString(activityInfo.getNamesBoundTo()));

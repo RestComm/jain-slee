@@ -72,6 +72,7 @@ public class ComponentSpecificPropertiesPanel extends VerticalPanel {
       propertiesPanel.add("Address Profile Specification", new ComponentNameLabel(sbbInfo.getAddressProfileSpecificationID(), browseContainer));
       propertiesPanel.add("Event Types", ComponentNameLabel.toArray(sbbInfo.getEventTypeIDs()));
       propertiesPanel.add("Profile Specifications", ComponentNameLabel.toArray(sbbInfo.getProfileSpecificationIDs()));
+      propertiesPanel.add("Env Entry", ComponentNameLabel.toArray(sbbInfo.getEnvEntries()));
       propertiesPanel.add("Resource Adaptor Entity Links", sbbInfo.getResourceAdaptorEntityLinks());
       propertiesPanel.add("Resource Adaptor Types", ComponentNameLabel.toArray(sbbInfo.getResourceAdaptorTypeIDs()));
       propertiesPanel.add("SBBs", ComponentNameLabel.toArray(sbbInfo.getSbbIDs()));

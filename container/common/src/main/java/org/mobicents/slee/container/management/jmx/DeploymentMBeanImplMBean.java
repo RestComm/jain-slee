@@ -22,7 +22,10 @@
 
 package org.mobicents.slee.container.management.jmx;
 
+import javax.slee.ComponentID;
+import javax.slee.UnrecognizedComponentException;
 import javax.slee.management.DeploymentMBean;
+import javax.slee.management.ManagementException;
 
 /**
  * 
@@ -31,4 +34,5 @@ import javax.slee.management.DeploymentMBean;
  */
 public interface DeploymentMBeanImplMBean extends 
 	org.jboss.system.ServiceMBean, DeploymentMBean {
+	public String[] getEnvEntries(ComponentID componentID) throws NullPointerException, UnrecognizedComponentException, ManagementException;
 }

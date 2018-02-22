@@ -49,6 +49,8 @@ public class ActivityContextInfo implements IsSerializable {
 
   private String[] dataAttributes;
 
+  private String isEnding;
+  
   public ActivityContextInfo(String id) {
     this.id = id;
   }
@@ -128,4 +130,12 @@ public class ActivityContextInfo implements IsSerializable {
     TTL = ttl;
   }
 
+  public String getIsEnding() {
+	return isEnding;
+  }
+
+  public void setIsEnding(String isEnding) {
+	this.isEnding = isEnding;
+  }
+  
 }
