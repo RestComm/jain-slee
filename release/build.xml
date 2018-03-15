@@ -24,7 +24,7 @@
 	<property name="h2.distro.jar.path" value="h2-${h2.version}.jar" />
 	<available file="${ant.file.restcomm.release}/../${h2.distro.jar.path}" property="got.h2" />
 
-	<property name="cloudbees.url" value="https://mobicents.ci.cloudbees.com" />
+	<property name="github.url" value="https://github.com/RestComm" />
 	<property name="mvn.javadoc" value="org.apache.maven.plugins:maven-javadoc-plugin:2.10.4" />
 
 	<!-- Diameter -->
@@ -33,7 +33,7 @@
 	<property name="diameter.version" value="1.7.0.${diameter.build}"/>
 	<property name="diameter.zip" value="restcomm-diameter-mux-wildfly-${diameter.version}.zip"/>
 	<property name="diameter.download.url"
-			  value="${cloudbees.url}/job/RestComm-jDiameter-1.x/${diameter.build}/artifact/release/${diameter.zip}" />
+			  value="${github.url}/jdiameter/releases/download/${diameter.version}/${diameter.zip}" />
 	<property name="diameter.distro.zip.path" value="restcomm-diameter.zip" />
 
 	<!-- SS7 -->
@@ -41,22 +41,22 @@
 	<property name="ss7.version" value="7.3.${ss7.build}"/>
 	<property name="ss7.zip" value="restcomm-jss7-${ss7.version}.zip"/>
 	<property name="ss7.download.url"
-			  value="${cloudbees.url}/job/Restcomm-jSS7-non-netty/${ss7.build}/artifact/release/${ss7.zip}" />
+			  value="${github.url}/jss7/releases/download/${ss7.version}/${ss7.zip}" />
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
-
+	
 	<!-- SMPP Extensions -->
-	<property name="smppext.build" value="31"/>
-	<property name="smppext.version" value="7.0.${smppext.build}"/>
+	<property name="smppext.build" value="137"/>
+	<property name="smppext.version" value="7.2.0-${smppext.build}"/>
 	<property name="smppext.zip" value="restcomm-smpp-extensions-${smppext.version}.zip"/>
 	<property name="smppext.download.url"
-			  value="${cloudbees.url}/job/Restcomm-SMPP-Extensions/${smppext.build}/artifact/release/${smppext.zip}" />
+			  value="${github.url}/smpp-extensions/releases/download/${smppext.version}/${smppext.zip}" />
 	<property name="smppext.distro.zip.path" value="restcomm-smpp-extensions.zip" />
 
 	<!-- Sip-Load-Banalcer -->
-	<property name="lb.version" value="10.1.228" />
-	<property name="lb.build" value="228" />
-	<property name="lb.download.url" value="https://mobicents.ci.cloudbees.com/job/Restcomm-LoadBalancer/${lb.build}/artifact/jar/target/sip-balancer-jar-${lb.version}.zip" />
-	<property name="lb.distro.zip.path" value="sip-balancer-jar-${lb.version}.zip" />
+	<property name="lb.build" value="53" />
+	<property name="lb.version" value="10.1.0-${lb.build}" />
+	<property name="lb.download.url" value="${github.url}/load-balancer/releases/download/${lb.version}/sip-balancer-jar-${lb.version}-zip.zip" />
+	<property name="lb.distro.zip.path" value="sip-balancer-jar-${lb.version}-zip.zip" />
 
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
