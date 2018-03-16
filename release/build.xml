@@ -52,12 +52,6 @@
 			  value="${github.url}/smpp-extensions/releases/download/${smppext.version}/${smppext.zip}" />
 	<property name="smppext.distro.zip.path" value="restcomm-smpp-extensions.zip" />
 
-	<!-- Sip-Load-Banalcer -->
-	<property name="lb.build" value="53" />
-	<property name="lb.version" value="10.1.0-${lb.build}" />
-	<property name="lb.download.url" value="${github.url}/load-balancer/releases/download/${lb.version}/sip-balancer-jar-${lb.version}-zip.zip" />
-	<property name="lb.distro.zip.path" value="sip-balancer-jar-${lb.version}-zip.zip" />
-
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="${ant.file.restcomm.release}/../ant-contrib-1.0b3.jar" />
@@ -129,7 +123,7 @@
 		</exec>
 	</target>
 
-	<target name="build-resources" depends="build-jdbc,build-sip,build-http,build-media,build-tftp,build-xcap,build-xmpp,build-diameter,build-ss7,build-smpp,build-statistics,build-javaee,build-sip-balancer">
+	<target name="build-resources" depends="build-jdbc,build-sip,build-http,build-media,build-tftp,build-xcap,build-xmpp,build-diameter,build-ss7,build-smpp,build-statistics,build-javaee">
 		<echo message="Build Resources"/>
 	</target>
 
@@ -243,19 +237,6 @@
 		</replace>
 	</target>
 	
-	<target name="build-sip-balancer" description="">
-		<copy failonerror="true" toDir="${release.dir}/extra/sip-balancer" overwrite="true">
-			<fileset dir="${ant.file.restcomm.release}/../target/binary/extra/sip-balancer/sip-balancer-jar-${lb.version}">
-				<include name="**.jar" />
-			</fileset>
-			<fileset dir="${ant.file.restcomm.release}/../target/binary/extra/sip-balancer/sip-balancer-jar-${lb.version}">
-				<include name="lb-configuration.xml" />
-				<include name="lb-log4j.xml" />
-			</fileset>
-		</copy>
-		<delete dir="${release.dir}/extra/sip-balancer/sip-balancer-jar-${lb.version}" failonerror="true" />
-	</target>
-
 	<target name="build-javaee" description="">
 		<antcall target="build-package">
 			<param name="package.name" value="javaee" />
@@ -291,7 +272,7 @@
 		<!--<antcall target="clean" />-->
 	</target>
 
-    <target name="copy-asciidocs" depends="copy-core-asciidoc,copy-sip-asciidoc,copy-ss7-asciidoc">
+    <target name="copy-asciidocs" depends="copy-core-asciidoc,copy-sip-asciidoc,copy-ss7-asciidoc,copy-smpp-asciidoc">
         <echo message="Copying AsciiDocs"/>
     </target>
 
@@ -334,15 +315,13 @@
 		</antcall>
     </target>
 
-	<!--
-    <target name="copy-smpp-asciidoc">
+	<target name="copy-smpp-asciidoc">
 		<antcall target="copy-asciidoc">
 			<param name="generated.docs"
-				   value="${ant.file.restcomm.release}/../checkout/smpp/resources/smpp/docs/sources-asciidoc/target/generated-docs" />
+				   value="${ant.file.restcomm.release}/../checkout/smpp/resources/smpp/smpp-server-ra-docs/smpp-server-ra-docs-sources-asciidoc/target/generated-docs" />
 			<param name="docs.dir" value="resources/smpp" />
 		</antcall>
     </target>
-    -->
 
 	<target name="copy-asciidoc">
 		<copy todir="${release.dir}/docs/${docs.dir}/user-guide/html-book" failonerror="false">
@@ -416,7 +395,7 @@
 		</copy>
 	</target>
 
-	<target name="get-extra" depends="get-lb,unzip-lb,get-diameter,unzip-diameter,get-ss7,unzip-ss7,setup-ss7,get-smppext,unzip-smppext,setup-smppext">
+	<target name="get-extra" depends="get-diameter,unzip-diameter,get-ss7,unzip-ss7,setup-ss7,get-smppext,unzip-smppext,setup-smppext">
 	</target>
 
 	<available file="${ant.file.restcomm.release}/../${diameter.distro.zip.path}" property="got.diameter" />
@@ -463,17 +442,6 @@
 		<delete dir="${smppext.release.dir}/jboss5" failonerror="true" />
 	</target>
 	
-	<available file="${ant.file.restcomm.release}/../${lb.distro.zip.path}" property="got.lb" />
-	<target name="get-lb" unless="got.lb">
-		<echo>Downloading SIP Balancer</echo>
-		<get dest="${ant.file.restcomm.release}/../${lb.distro.zip.path}" src="${lb.download.url}"/>
-	</target>
-
-	<target name="unzip-lb">
-		<delete dir="${release.dir}/extra/sip-balancer" failonerror="false" />
-		<unzip src="${lb.distro.zip.path}" dest="${release.dir}/extra/sip-balancer" />
-	</target>
-
 	<target name="checkout-sources">
 		<echo>Checking out sources</echo>
 		<delete dir="${packages.dir}" />
