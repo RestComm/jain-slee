@@ -3,7 +3,7 @@
 
 	<property environment="sys" />
 
-	<property name="release.version" value="3.0.0" />
+	<property name="release.version" value="7.2.0" />
 	<property name="release.profile" value="restcomm" />
 	<property name="validate.versions" value="" />
 	<property name="wildfly.config" value="standalone" />
@@ -29,8 +29,8 @@
 
 	<!-- Diameter -->
 	<!-- https://mobicents.ci.cloudbees.com/view/JSLEE/job/RestComm-jDiameter-1.x/134/artifact/release/restcomm-diameter-mux-wildfly-1.7.0.134.zip -->
-	<property name="diameter.build" value="201"/>
-	<property name="diameter.version" value="1.7.0.${diameter.build}"/>
+	<property name="diameter.build" value="142"/>
+	<property name="diameter.version" value="1.7.1-${diameter.build}"/>
 	<property name="diameter.zip" value="restcomm-diameter-mux-wildfly-${diameter.version}.zip"/>
 	<property name="diameter.download.url"
 			  value="${github.url}/jdiameter/releases/download/${diameter.version}/${diameter.zip}" />
@@ -45,8 +45,8 @@
 	<property name="ss7.distro.zip.path" value="restcomm-ss7.zip" />
 	
 	<!-- SMPP Extensions -->
-	<property name="smppext.build" value="137"/>
-	<property name="smppext.version" value="7.2.0-${smppext.build}"/>
+	<property name="smppext.build" value="144"/>
+	<property name="smppext.version" value="7.1.0-${smppext.build}"/>
 	<property name="smppext.zip" value="restcomm-smpp-extensions-${smppext.version}.zip"/>
 	<property name="smppext.download.url"
 			  value="${github.url}/smpp-extensions/releases/download/${smppext.version}/${smppext.zip}" />
