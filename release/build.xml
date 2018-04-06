@@ -24,7 +24,7 @@
 	<property name="h2.distro.jar.path" value="h2-${h2.version}.jar" />
 	<available file="${ant.file.restcomm.release}/../${h2.distro.jar.path}" property="got.h2" />
 
-	<property name="github.url" value="https://github.com/RestComm" />
+	<property name="github.url" value="http://github.com/RestComm" />
 	<property name="mvn.javadoc" value="org.apache.maven.plugins:maven-javadoc-plugin:2.10.4" />
 
 	<!-- Diameter -->
