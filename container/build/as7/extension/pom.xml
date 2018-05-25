@@ -488,11 +488,13 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>										
+									<tasks>
+									<replace file="${jboss.home}/standalone/configuration/standalone.xml">
+										<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
+									</replace>								
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[</extensions>]]></replacetoken>
-  											<replacevalue><![CDATA[
-		<extension module="org.restcomm.slee.container.extension"/>
+  											<replacevalue><![CDATA[<extension module="org.restcomm.slee.container.extension"/>
 	</extensions>]]></replacevalue>
 										</replace>
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
@@ -572,7 +574,7 @@
   											<replacetoken><![CDATA[<extension module="org.restcomm.slee.container.extension"/>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
-										<!--
+										
 										<replace file="${jboss.home}/standalone/configuration/standalone.xml">
   											<replacetoken><![CDATA[<subsystem xmlns="urn:restcomm:slee-container:3.0">
 			<remote-rmi-address>127.0.0.1</remote-rmi-address>
@@ -584,7 +586,7 @@
 		</subsystem>]]></replacetoken>
   											<replacevalue><![CDATA[]]></replacevalue>
 										</replace>
-										-->
+										
 										<replace file="${jboss.home}/modules/system/layers/base/org/jboss/as/server/main/module.xml">
 											<replacetoken><![CDATA[<module name="org.restcomm.slee.container.lib"/>]]></replacetoken>
 											<replacevalue><![CDATA[]]></replacevalue>

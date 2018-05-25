@@ -177,7 +177,6 @@ public class PermissionHolderImpl implements Comparable<PermissionHolderImpl>, P
 					if (ge.codeBase.contains("..")) {
 						throw new IllegalArgumentException("Code contains \"..\", it must not: " + ge.codeBase);
 					}
-					String p = this.permissionCodeBaseURI.getPath();
 
 				}
 			} catch (URISyntaxException e) {

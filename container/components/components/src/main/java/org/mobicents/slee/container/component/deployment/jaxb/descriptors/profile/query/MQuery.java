@@ -48,7 +48,7 @@ public class MQuery implements QueryDescriptor {
 
     this.queryParameters = new ArrayList<MQueryParameter>();
 
-    if (query11.getQueryParameter() != null && query11.getQueryParameter().size() > 0)
+    if (query11.getQueryParameter() != null && !query11.getQueryParameter().isEmpty())
     {
       for (org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryParameter queryParameter11 : query11.getQueryParameter())
       {

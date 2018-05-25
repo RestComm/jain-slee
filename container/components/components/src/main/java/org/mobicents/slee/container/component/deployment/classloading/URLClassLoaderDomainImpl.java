@@ -162,78 +162,79 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 
         
 	@Override
-	protected synchronized Class<?> loadClass(final String name, final boolean resolve)
-			throws ClassNotFoundException {
+    protected Class<?> loadClass(final String name, final boolean resolve)
+            throws ClassNotFoundException {
 
-            Class foundClass = null;
-            ClassNotFoundException localException = null;
-            
-            if (logger.isTraceEnabled())
-                    logger.trace(toString() + " loadClass: " + name);
+        Class foundClass = null;
+        ClassNotFoundException localException = null;
 
-            boolean acquiredLock = false;
+        if (logger.isTraceEnabled()) {
+            logger.trace(toString() + " loadClass: " + name);
+        }
 
-            try {
-                    acquiredLock = acquireGlobalLock();
-                
-                    //fixes https://github.com/RestComm/jain-slee/issues/49
-                    //classloader order is inverted for preferred packages                
-                    if (isPreferredPackage(name)) {
-                        try {
-                            Class<?> loaded = this.findLoadedClass(name);
-                            if (loaded == null) {
-                                Class<?> clazz =  this.findClass(name);
-                                foundClass = clazz;
-                            } else {
-                                foundClass = loaded;
-                            }
-                        } catch (ClassNotFoundException cExp) {
-                            //ignore, try with parent before raising exception
-                            //save exception in case parent dont find it
-                            localException = cExp;
-                            if (logger.isTraceEnabled()) {
-                                logger.trace("Class not found" + cExp);
-                            }
-                        }
+        boolean acquiredLock = false;
+
+        try {
+            acquiredLock = acquireGlobalLock();
+
+            //fixes https://github.com/RestComm/jain-slee/issues/49
+            //classloader order is inverted for preferred packages                
+            if (isPreferredPackage(name)) {
+                try {
+                    Class<?> loaded = this.findLoadedClass(name);
+                    if (loaded == null) {
+                        Class<?> clazz = this.findClass(name);
+                        foundClass = clazz;
+                    } else {
+                        foundClass = loaded;
                     }
-
-                    if (foundClass == null ) {
-                        //now try with parent
-                        // load the class
-                        if (System.getSecurityManager() != null) {
-                                try {
-                                        return AccessController
-                                                        .doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
-                                                                public Class<?> run()
-                                                                                throws ClassNotFoundException {
-                                                                        return URLClassLoaderDomainImpl.super
-                                                                                        .loadClass(name, resolve);
-                                                                }
-                                                        });
-                                } catch (PrivilegedActionException e) {
-                                        throw (ClassNotFoundException) e.getException();
-                                }
-                        } else {
-                                foundClass = super.loadClass(name, resolve);
-                        }
+                } catch (ClassNotFoundException cExp) {
+                    //ignore, try with parent before raising exception
+                    //save exception in case parent dont find it
+                    localException = cExp;
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Class not found" + cExp);
                     }
-            } finally {
-                    //in any case always release lock
-                    if (acquiredLock) {
-                            releaseGlobalLock();
-                    }
-            }
-            if (foundClass != null) {
-                return foundClass;
-            } else {
-                //ensure we raise proper exception
-                if (localException != null) {
-                    throw localException;
-                } else {
-                    throw new ClassNotFoundException(name);
                 }
             }
-	}
+        } finally {
+            //in any case always release lock
+            if (acquiredLock) {
+                releaseGlobalLock();
+            }
+        }
+        if (foundClass == null) {
+            //now try with parent
+            // load the class
+            if (System.getSecurityManager() != null) {
+                try {
+                    return AccessController
+                            .doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+                                public Class<?> run()
+                                        throws ClassNotFoundException {
+                                    return URLClassLoaderDomainImpl.super
+                                            .loadClass(name, resolve);
+                                }
+                            });
+                } catch (PrivilegedActionException e) {
+                    throw (ClassNotFoundException) e.getException();
+                }
+            } else {
+                foundClass = super.loadClass(name, resolve);
+            }
+        }
+
+        if (foundClass != null) {
+            return foundClass;
+        } else {
+            //ensure we raise proper exception
+            if (localException != null) {
+                throw localException;
+            } else {
+                throw new ClassNotFoundException(name);
+            }
+        }
+    }
 
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
@@ -267,20 +268,19 @@ public class URLClassLoaderDomainImpl extends URLClassLoaderDomain {
 	 * @throws ClassNotFoundException
 	 */
 	protected Class<?> findClassLocally(String name)
-			throws ClassNotFoundException {
-		if (logger.isTraceEnabled())
-			logger.trace(toString() + " findClassLocally: " + name);
-		synchronized (this) {
-			final boolean acquiredLock = acquireGlobalLock();
-			try {
-				return findClassLocallyLocked(name);
-			} finally {
-				if (acquiredLock) {
-					releaseGlobalLock();
-				}
-			}
-		}
-	}
+            throws ClassNotFoundException {
+        if (logger.isTraceEnabled()) {
+            logger.trace(toString() + " findClassLocally: " + name);
+        }
+        final boolean acquiredLock = acquireGlobalLock();
+        try {
+            return findClassLocallyLocked(name);
+        } finally {
+            if (acquiredLock) {
+                releaseGlobalLock();
+            }
+        }
+    }
 	
 	protected Class<?> findClassLocallyLocked(String name)
 			throws ClassNotFoundException {

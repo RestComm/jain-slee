@@ -58,10 +58,10 @@ public class ActivityCommand extends AbstractSleeCommand {
 		out.println("    -c, --count                     Retrieves current count of activity contexts. Does not require argument.");
 		out.println("    -q, --query                     Performs liveliness query if no option is specified.");
 		out.println("                                    Optionally it may be followed by one of options, which alter action:");
-		out.println("    		--set                    Sets interval between queries. Requires argument of type long, interval is set in seconds.");
+		out.println("    		--set                    Sets interval between queries. Requires argument of type long, interval is set in minutes.");
 		out.println("    		--get                    Gets interval. Does not require argument.");
 		out.println("    -i, --idle                      Performs operation on activity context maximal idle time. Requires one of following options:");
-		out.println("    		--set                    Sets idle time. Requires argument of long type. Idle time is set in seconds.");
+		out.println("    		--set                    Sets idle time. Requires argument of long type. Idle time is set in minutes.");
 		out.println("    		--get                    Gets idle time. Does not require argument.");
 		//out.println("    -d, --details                   Retrieves details of underlying activity context. Requires ActivityContextHandle as argument.");
 		out.println("    -l, --list                      Depending on option lists specific information. It must be followed by one of options:");

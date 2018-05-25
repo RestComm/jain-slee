@@ -117,9 +117,8 @@ public class ConcreteUsageParameterClassGenerator {
             if (logger.isTraceEnabled())
             	logger.trace("UsageParameterGenerator Writing file "
                         + concreteClassName);
-            Class<?> retval = Thread.currentThread().getContextClassLoader()
+            return Thread.currentThread().getContextClassLoader()
                     .loadClass(concreteClassName);
-            return retval;
 		} finally {
 
 			ctClass.defrost();

@@ -241,10 +241,10 @@ public class PolicyFileImpl extends org.mobicents.slee.container.component.secur
 			// }
 			// }
 
-			if (entryPs == null || entryPs.size() == 0) {
+			if (entryPs == null || entryPs.isEmpty()) {
 
 				addPermissions = true;
-			} else if (domainPs.size() != 0) {
+			} else if (!domainPs.isEmpty()) {
 
 				// FIXME: what goes here?
 			}
@@ -276,7 +276,7 @@ public class PolicyFileImpl extends org.mobicents.slee.container.component.secur
 		Map<ProtectionDomain, PermissionCollection> pdMap = this.currentPolicy.get().getProtectionDomain2PermissionCollection();
 		
 
-		PermissionCollection pc = (PermissionCollection) pdMap.get(domain);
+		PermissionCollection pc = pdMap.get(domain);
 
 		if (pc != null) {
 			return pc.implies(permission);
@@ -724,7 +724,7 @@ public class PolicyFileImpl extends org.mobicents.slee.container.component.secur
 		private final Set<String> loadedFiles = new HashSet<String>();
 
 		public boolean isAnyPolicyLoaded() {
-			return policyHolderEntries.size() > 0;
+			return !policyHolderEntries.isEmpty();
 		}
 
 		public Map<ProtectionDomain, PermissionCollection> getProtectionDomain2PermissionCollection() {

@@ -1,6 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">	
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<artifactId>restcomm-slee-ra-statistics</artifactId>
 		<groupId>org.mobicents.resources</groupId>
@@ -13,74 +14,144 @@
 	<dependencies>
 		<!-- components -->
 		<dependency>
-            <artifactId>restcomm-slee-ra-statistics-library</artifactId>
+			<artifactId>restcomm-slee-ra-statistics-library</artifactId>
 			<groupId>${project.groupId}</groupId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-            <artifactId>restcomm-slee-ra-statistics-ratype</artifactId>
+			<artifactId>restcomm-slee-ra-statistics-ratype</artifactId>
 			<groupId>${project.groupId}</groupId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-            <artifactId>restcomm-slee-ra-statistics-ra</artifactId>
+			<artifactId>restcomm-slee-ra-statistics-ra</artifactId>
 			<groupId>${project.groupId}</groupId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
-	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.mobicents.tools</groupId>
-				<artifactId>maven-du-plugin</artifactId>
-				<version>4.0.2</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>copy-dependencies</goal>
-							<goal>generate-descriptor</goal>
-							<goal>generate-ant-management-script</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>deploy-DU</id>
-						<phase>install</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<copy overwrite="true" file="target/${project.build.finalName}.jar" todir="${jboss.home}/standalone/deployments" />
-							</tasks>
-						</configuration>
-					</execution>
-					<execution>
-						<id>undeploy-DU</id>
-						<phase>clean</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<delete file="${jboss.home}/standalone/deployments/${project.build.finalName}.jar" />
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-	
+
+	<profiles>
+		<profile>
+			<id>du-jboss5</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+						<filtering>true</filtering>
+					</resource>
+				</resources>
+				<plugins>
+					<plugin>
+						<groupId>org.mobicents.tools</groupId>
+						<artifactId>maven-du-plugin</artifactId>
+						<version>${maven.du.plugin.jboss5.version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>copy-dependencies</goal>
+									<goal>generate-descriptor</goal>
+									<goal>generate-ant-management-script</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>deploy-DU</id>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<copy overwrite="true" file="target/${project.build.finalName}.jar"
+											todir="${jboss.home}/server/${node}/deploy" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>undeploy-DU</id>
+								<phase>clean</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<delete
+											file="${jboss.home}/server/${node}/deploy/${project.build.finalName}.jar" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>du-wildfly</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+						<filtering>true</filtering>
+					</resource>
+				</resources>
+				<plugins>
+					<plugin>
+						<groupId>org.mobicents.tools</groupId>
+						<artifactId>maven-du-plugin</artifactId>
+						<version>${maven.du.plugin.wildfly.version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>copy-dependencies</goal>
+									<goal>generate-descriptor</goal>
+									<goal>generate-ant-management-script</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>deploy-DU</id>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<copy overwrite="true" file="target/${project.build.finalName}.jar"
+											todir="${jboss.home}/standalone/deployments" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>undeploy-DU</id>
+								<phase>clean</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<delete
+											file="${jboss.home}/standalone/deployments/${project.build.finalName}.jar" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 </project>

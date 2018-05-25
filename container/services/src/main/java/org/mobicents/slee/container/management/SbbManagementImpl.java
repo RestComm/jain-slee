@@ -461,7 +461,6 @@ public class SbbManagementImpl extends AbstractSleeContainerModule implements Sb
 				throw new DeploymentException("Failed to lookup ejb reference using jndi name " + jndiName,e);
 			}
 
-			Object ejb = null;
 			try {
 				Method m = homeObject.getClass().getMethod("create", null);
 				Object ejbObject = m.invoke(homeObject, null);

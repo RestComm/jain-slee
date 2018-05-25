@@ -496,7 +496,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
                   + cmpFieldName, "10.6", errorBuffer);				  
 				}
 				
-				cmpFieldName = cmpFieldName.replaceFirst(c + "", Character.toLowerCase(c) + "");
+				cmpFieldName = cmpFieldName.replaceFirst(c + "", Character.toString(Character.toLowerCase(c)));
 
 				// XXX: this will fail even for duplicate delcarations of
 				// fields, but meesages might be missleading.
@@ -1800,7 +1800,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			tmpKeySet.addAll(javaxSleeProfileProfileTableMethods.keySet());
 			tmpKeySetToCompare.addAll(profileTableInterfaceMethods.keySet());
 			tmpKeySet.retainAll(tmpKeySetToCompare);
-			if (tmpKeySet.size() != 0) {
+			if (!tmpKeySet.isEmpty()) {
 				passed = false;
 				errorBuffer = appendToBuffer(
 						"Profile specification profile table interface declares methods that double generic profile table interface, this may cause concrete class generation/instantion to fail.",
@@ -1854,8 +1854,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
           continue;				  
 				}
 				
-				queryName = queryName.replaceFirst(queryName.charAt(0) + "",
-						Character.toLowerCase(queryName.charAt(0)) + "");
+				queryName = queryName.replaceFirst(Character.toString(queryName.charAt(0)),
+						Character.toString(Character.toLowerCase(queryName.charAt(0))));
 
 				if (!nameToQueryMap.containsKey(queryName)) {
 					passed = false;
@@ -2098,9 +2098,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			case Compare:
 				// XXX: We know that attribute starts with lower case
 				attributeName = expression.getCompare().getAttributeName();
-				attributeName = attributeName.replaceFirst(""
-						+ attributeName.charAt(0), ""
-						+ Character.toUpperCase(attributeName.charAt(0)));
+				attributeName = attributeName.replaceFirst(
+						Character.toString(attributeName.charAt(0)),
+						Character.toString(Character.toUpperCase(attributeName.charAt(0))));
 				// now we have to validate CMP field and type
 				CompareDescriptor compare = expression.getCompare();
 				String op = compare.getOp();
@@ -2200,9 +2200,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			case HasPrefix:
 				HasPrefixDescriptor mhp = expression.getHasPrefix();
 				attributeName = expression.getHasPrefix().getAttributeName();
-				attributeName = attributeName.replaceFirst(""
-						+ attributeName.charAt(0), ""
-						+ Character.toUpperCase(attributeName.charAt(0)));
+				attributeName = attributeName.replaceFirst(
+						Character.toString(attributeName.charAt(0)),
+						Character.toString(Character.toUpperCase(attributeName.charAt(0))));
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
 							+ attributeName, null);
@@ -2278,9 +2278,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				LongestPrefixMatchDescriptor mlpm = expression.getLongestPrefixMatch();
 				attributeName = expression.getLongestPrefixMatch()
 						.getAttributeName();
-				attributeName = attributeName.replaceFirst(""
-						+ attributeName.charAt(0), ""
-						+ Character.toUpperCase(attributeName.charAt(0)));
+				attributeName = attributeName.replaceFirst(
+						Character.toString(attributeName.charAt(0)),
+						Character.toString(Character.toUpperCase(attributeName.charAt(0))));
 
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
@@ -2354,9 +2354,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				break;
 			case RangeMatch:
 				attributeName = expression.getRangeMatch().getAttributeName();
-				attributeName = attributeName.replaceFirst(""
-						+ attributeName.charAt(0), ""
-						+ Character.toUpperCase(attributeName.charAt(0)));
+				attributeName = attributeName.replaceFirst(
+						Character.toString(attributeName.charAt(0)),
+						Character.toString(Character.toUpperCase(attributeName.charAt(0))));
 				RangeMatchDescriptor mrm = expression.getRangeMatch();
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"

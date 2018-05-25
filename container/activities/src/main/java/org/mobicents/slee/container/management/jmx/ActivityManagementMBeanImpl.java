@@ -171,7 +171,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		for (ActivityContextHandle ach : this.acFactory.getAllActivityContextsHandles()) {
 			factoriesSet.add(ach.getActivityType() == ActivityType.RA ? ((ResourceAdaptorActivityContextHandle)ach).getResourceAdaptorEntity().getName() : "");
 		}		
-		if (factoriesSet.size() == 0)
+		if (factoriesSet.isEmpty())
 			return null;
 		String[] ret = new String[factoriesSet.size()];
 		ret = (String[]) factoriesSet.toArray(ret);
@@ -287,7 +287,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 					SbbID implSbbID = null;
 					for (SbbEntityID sbbEntityID : ac.getSbbAttachmentSet()) {
 						if (sbbEntityIdToSbbID.containsKey(sbbEntityID)) {
-							implSbbID = (SbbID) sbbEntityIdToSbbID.get(sbbEntityID);
+							implSbbID = sbbEntityIdToSbbID.get(sbbEntityID);
 						} else {
 							SbbEntity sbbe = sbbEntityFactory.getSbbEntity(sbbEntityID,false);
 							if (sbbe == null) {
@@ -339,14 +339,10 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 						// we
 						// should care. But Console is java script, and
 						// sometimes that can be pain, so lets ease it
-						o[SBB_ATTACHMENTS] = ((Object[]) o[SBB_ATTACHMENTS]).length
-						+ "";
-						o[NAMES_BOUND_TO] = ((Object[]) o[NAMES_BOUND_TO]).length
-						+ "";
-						o[TIMERS_ATTACHED] = ((Object[]) o[TIMERS_ATTACHED]).length
-						+ "";
-						o[DATA_PROPERTIES] = ((Object[]) o[DATA_PROPERTIES]).length
-						+ "";
+					    o[SBB_ATTACHMENTS] = Integer.toString(((Object[]) o[SBB_ATTACHMENTS]).length);
+						o[NAMES_BOUND_TO] = Integer.toString(((Object[]) o[NAMES_BOUND_TO]).length);
+						o[TIMERS_ATTACHED] = Integer.toString(((Object[]) o[TIMERS_ATTACHED]).length);
+						o[DATA_PROPERTIES] = Integer.toString(((Object[]) o[DATA_PROPERTIES]).length);
 					}
 
 					singleResult = o;
@@ -360,7 +356,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 			}
 
 		}
-		if (lst.size() == 0)
+		if (lst.isEmpty())
 			return null;
 
 		logger.info("RETURN SIZE[" + lst.size() + "]");

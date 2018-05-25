@@ -52,6 +52,7 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.UsageParameterDescriptor;
+import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
 import org.mobicents.slee.container.component.common.ProfileSpecRefDescriptor;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.sbb.AbstractSbbClassInfo;
@@ -164,6 +165,16 @@ public class SbbComponentImpl extends AbstractSleeComponentWithUsageParametersIn
 	 */
 	public SbbID getSbbID() {
 		return descriptor.getSbbID();
+	}
+
+	/**
+	 * Retrieves the EnvEntryDescriptor
+	 *
+	 * @return
+	 */
+
+	public List<EnvEntryDescriptor> getEnvEntries() {
+		return descriptor.getEnvEntries();
 	}
 
 	/**

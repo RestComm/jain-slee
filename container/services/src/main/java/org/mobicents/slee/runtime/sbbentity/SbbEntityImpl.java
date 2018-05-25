@@ -492,14 +492,11 @@ public class SbbEntityImpl implements SbbEntity {
 				// InvocationTarget exception when you use reflection!
 				Throwable realException = cause.getCause();
 				if (realException instanceof RuntimeException) {
-					RuntimeException re = (RuntimeException) realException;
-					throw re;
+				    throw (RuntimeException) realException;
 				} else if (realException instanceof Error) {
-					Error re = (Error) realException;
-					throw re;
+				    throw (Error) realException;
 				} else if (realException instanceof Exception) {
-					Exception re = (Exception) realException;
-					throw re;
+				    throw (Exception) realException;
 				}
 			}else
 			{
@@ -510,14 +507,11 @@ public class SbbEntityImpl implements SbbEntity {
 		} catch(InvocationTargetException ite) {
 			Throwable realException = ite.getCause();
 			if (realException instanceof RuntimeException) {
-				RuntimeException re = (RuntimeException) realException;
-				throw re;
+			    throw (RuntimeException) realException;
 			} else if (realException instanceof Error) {
-				Error re = (Error) realException;
-				throw re;
+			    throw (Error) realException;
 			} else if (realException instanceof Exception) {
-				Exception re = (Exception) realException;
-				throw re;
+			    throw (Exception) realException;
 			}
 		} catch(Exception e) {
 			log.error(e.getMessage(),e);
@@ -745,7 +739,7 @@ public class SbbEntityImpl implements SbbEntity {
 		
 		try {
 			// get one object from the pool
-			this.sbbObject = (SbbObject) getObjectPool().borrowObject();
+			this.sbbObject = getObjectPool().borrowObject();
 			// invoke the appropriate sbb life-cycle methods
 			this.sbbObject.setSbbEntity(this);
 			if (created) {
