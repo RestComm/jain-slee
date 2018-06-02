@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>restcomm-slee-core</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>7.2.0-136</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -39,7 +39,7 @@
 		<version.hibernate>5.0.10.Final</version.hibernate>
 
 		<version.jgoups>3.6.10.Final</version.jgoups>
-		<restcomm.cluster.version>7.0.0.16</restcomm.cluster.version>
+		<restcomm.cluster.version>3.0.1-141</restcomm.cluster.version>
 		<version.infinispan>8.1.2.Final-redhat-1</version.infinispan>
 		<version.infinispan.tree>8.1.2.Final</version.infinispan.tree>
 		<version.jboss.logging>3.3.0.Final-redhat-1</version.jboss.logging>
