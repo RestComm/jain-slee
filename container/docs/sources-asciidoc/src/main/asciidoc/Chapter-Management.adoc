@@ -58,3 +58,9 @@ To aid such cases, {this-platform}  offers `TWIDDLE` based CLI.
 It allows to manage single instance (remote or local) of {this-platform}   server. 
 
 {this-platform} JAIN SLEE binary release includes a TWIDDLE CLI in [path]_tools/twiddle_, with standalone documentation on same path, but inside [path]_docs_ directory.
+
+Connecting the Twiddle CLI using JMX to the JSLEE running in the same VM can be achieved as follows: 
+
+----
+./twiddle.sh --server=service:jmx:remote+http://localhost:9990 activity -l --contexts=true
+----
