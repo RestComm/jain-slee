@@ -19,7 +19,7 @@
 		<pluginRepository>
 			<id>gwt-maven-plugins</id>
 			<!--<url>http://gwt-maven.googlecode.com/svn/trunk/mavenrepo/</url>-->
-			<url>http://forum.soapui.org/repository/maven2/</url>
+			<url>http://www.soapui.org/repository/maven2/</url>
 		</pluginRepository>
 		<pluginRepository>
 			<id>jboss-developer-repository-plugins</id>
