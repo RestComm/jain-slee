@@ -26,6 +26,7 @@ import org.mobicents.slee.container.management.console.client.pages.ActivityPage
 import org.mobicents.slee.container.management.console.client.pages.AlarmsPage;
 import org.mobicents.slee.container.management.console.client.pages.ComponentsPage;
 import org.mobicents.slee.container.management.console.client.pages.DeployableUnitsPage;
+import org.mobicents.slee.container.management.console.client.pages.ProfilesPage;
 import org.mobicents.slee.container.management.console.client.pages.ResourceAdaptorsPage;
 import org.mobicents.slee.container.management.console.client.pages.ServicesPage;
 import org.mobicents.slee.container.management.console.client.pages.SleePage;
@@ -67,7 +68,8 @@ public class UserInterface extends VerticalPanel implements HasHorizontalAlignme
 
     // smartTabPanel.add(LogManagementPage.getInfo());
     smartTabPanel.add(AlarmsPage.getInfo());
-    // smartTabPanel.add(ProfilesPage.getInfo());
+
+    smartTabPanel.add(ProfilesPage.getInfo());
 
     add(topPanel);
     add(smartTabPanel);

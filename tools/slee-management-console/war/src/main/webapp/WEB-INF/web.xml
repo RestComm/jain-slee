@@ -82,7 +82,12 @@
 			org.mobicents.slee.container.management.console.server.sbb.entities.SbbEntitiesServiceImpl
 		</servlet-class>
 	</servlet>
-	
+	<servlet>
+		<servlet-name>ProfileService</servlet-name>
+		<servlet-class>
+			org.mobicents.slee.container.management.console.server.profiles.ProfileServiceImpl
+		</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>ComponentsService</servlet-name>
 		<url-pattern>/ComponentsService</url-pattern>
@@ -132,10 +137,13 @@
 		<url-pattern>/LogService</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-    <servlet-name>AlarmsService</servlet-name>
-    <url-pattern>/AlarmsService</url-pattern>
-  </servlet-mapping>
-	
+	    <servlet-name>AlarmsService</servlet-name>
+	   	 <url-pattern>/AlarmsService</url-pattern>
+	  </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ProfileService</servlet-name>
+		<url-pattern>/ProfileService</url-pattern>
+	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>

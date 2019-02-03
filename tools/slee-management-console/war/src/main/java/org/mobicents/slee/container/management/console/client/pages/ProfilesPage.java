@@ -22,23 +22,39 @@
 
 package org.mobicents.slee.container.management.console.client.pages;
 
+import org.mobicents.slee.container.management.console.client.common.CardControl;
 import org.mobicents.slee.container.management.console.client.common.SmartTabPage;
-
-import com.google.gwt.user.client.ui.Label;
+import org.mobicents.slee.container.management.console.client.profiles.ProfilesCard;
 
 public class ProfilesPage extends SmartTabPage {
 
-  public ProfilesPage() {
-    Label label = new Label("TODO");
+	private CardControl cardControl = new CardControl();
 
-    initWidget(label);
-  }
+	public ProfilesPage() {
+		initWidget(cardControl);
+	}
 
-  public static SmartTabPageInfo getInfo() {
-    return new SmartTabPageInfo("<image src='images/profiles.gif' /> Profiles", "Profiles") {
-      protected SmartTabPage createInstance() {
-        return new ProfilesPage();
-      }
-    };
-  }
+	public static SmartTabPageInfo getInfo() {
+		return new SmartTabPageInfo("<image src='images/profiles.gif' /> Profiles", "Profiles") {
+			protected SmartTabPage createInstance() {
+				return new ProfilesPage();
+			}
+		};
+	}
+
+	public void onInit() {
+		ProfilesCard profilesCard = new ProfilesCard();
+		cardControl.add(profilesCard, "<image align='absbottom' src='images/profiles.gif' /> Profile Tables", true);
+
+		cardControl.selectTab(0);
+		cardControl.setWidth("100%");
+	}
+
+	public void onHide() {
+		cardControl.onHide();
+	}
+
+	public void onShow() {
+		cardControl.onShow();
+	}
 }

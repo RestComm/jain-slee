@@ -22,8 +22,6 @@
 
 package org.mobicents.slee.container.management.console.server.mbeans;
 
-import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
-
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.NotificationListener;
@@ -35,7 +33,7 @@ import javax.slee.management.SleeProvider;
 import javax.slee.management.SleeProviderFactory;
 import javax.slee.management.SleeState;
 
-import org.jboss.remotingjmx.Util;
+import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
 
 
 /**
@@ -66,6 +64,8 @@ public class SleeManagementMBeanUtils {
   private LogManagementMBeanUtils logManagementMBeanUtils;
   
   private AlarmMBeanUtils alarmMBeanUtils;
+  
+  private ProfileMBeanUtils profileMBeanUtils;
 
   public SleeManagementMBeanUtils() throws ManagementConsoleException {
     try {
@@ -119,7 +119,9 @@ public class SleeManagementMBeanUtils {
     logManagementMBeanUtils = new LogManagementMBeanUtils(mbeanServer, sleeManagementMBean);
     
     alarmMBeanUtils = new AlarmMBeanUtils(mbeanServer, sleeManagementMBean);
-  }
+   
+    profileMBeanUtils = new ProfileMBeanUtils(mbeanServer, profileProvisioningMBeanUtils);  
+}
 
   public DeploymentMBeanUtils getDeploymentMBeanUtils() {
     return deploymentMBeanUtils;
@@ -223,6 +225,10 @@ public class SleeManagementMBeanUtils {
 
   public AlarmMBeanUtils getAlarmMBeanUtils() {
     return alarmMBeanUtils;
+  }
+
+  public ProfileMBeanUtils getProfileMBeanUtils() {
+		return profileMBeanUtils;
   }
 
   public static String doMessage(Throwable t) {
