@@ -32,6 +32,8 @@ import org.mobicents.slee.container.management.console.client.deployableunits.De
 import org.mobicents.slee.container.management.console.client.deployableunits.DeployableUnitsServiceAsync;
 import org.mobicents.slee.container.management.console.client.log.LogService;
 import org.mobicents.slee.container.management.console.client.log.LogServiceAsync;
+import org.mobicents.slee.container.management.console.client.profiles.ProfileService;
+import org.mobicents.slee.container.management.console.client.profiles.ProfileServiceAsync;
 import org.mobicents.slee.container.management.console.client.resources.ResourceService;
 import org.mobicents.slee.container.management.console.client.resources.ResourceServiceAsync;
 import org.mobicents.slee.container.management.console.client.sbb.entity.SbbEntitiesService;
@@ -76,6 +78,8 @@ public class ServerConnection {
   final static public AlarmsServiceAsync alarmsServiceAsync;
 
   final static public LogServiceAsync logServiceAsync;
+
+  final static public ProfileServiceAsync profileServiceAsync;
 
   static {
 
@@ -123,6 +127,10 @@ public class ServerConnection {
     ServiceDefTarget logEndpoint = (ServiceDefTarget) logServiceAsync;
     logEndpoint.setServiceEntryPoint(GWT.getModuleBaseURL().replaceAll("org.mobicents.slee.container.management.console.ManagementConsole", "") + "/LogService");
 
+  profileServiceAsync = (ProfileServiceAsync) GWT.create(ProfileService.class);
+		ServiceDefTarget profileEndpoint = (ServiceDefTarget) profileServiceAsync;
+		profileEndpoint.setServiceEntryPoint(GWT.getModuleBaseURL().replaceAll(
+				"org.mobicents.slee.container.management.console.ManagementConsole", "") + "/ProfileService");
   }
 
 }

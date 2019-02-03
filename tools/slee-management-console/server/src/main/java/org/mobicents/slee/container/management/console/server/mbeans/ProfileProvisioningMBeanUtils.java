@@ -22,10 +22,14 @@
 
 package org.mobicents.slee.container.management.console.server.mbeans;
 
+import java.io.IOException;
 import java.util.Collection;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
@@ -36,136 +40,217 @@ import org.mobicents.slee.container.management.console.client.ManagementConsoleE
  */
 public class ProfileProvisioningMBeanUtils {
 
-  private MBeanServerConnection mbeanServer;
+	private MBeanServerConnection mbeanServer;
 
-  private ObjectName profileProvisioningMBean;
+	private ObjectName profileProvisioningMBean;
 
-  public ProfileProvisioningMBeanUtils(MBeanServerConnection mbeanServer, ObjectName sleeManagementMBean) throws ManagementConsoleException {
-    super();
-    this.mbeanServer = mbeanServer;
+	public ProfileProvisioningMBeanUtils(MBeanServerConnection mbeanServer, ObjectName sleeManagementMBean)
+			throws ManagementConsoleException {
+		super();
+		this.mbeanServer = mbeanServer;
 
-    try {
-      profileProvisioningMBean = (ObjectName) mbeanServer.getAttribute(sleeManagementMBean, "ProfileProvisioningMBean");
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
-    }
-  }
+		try {
+			profileProvisioningMBean = (ObjectName) mbeanServer.getAttribute(sleeManagementMBean,
+					"ProfileProvisioningMBean");
+//			profileProvisioningMBean = new ObjectName("javax.slee.management:name=ProfileProvisioning");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#createProfile(java.lang.String, java.lang.String)
-   */
-  public ObjectName createProfile(String arg0, String arg1) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
-    return null;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#createProfile(java.lang.
+	 * String, java.lang.String)
+	 */
+	public ObjectName createProfile(String arg0, String arg1) throws ManagementConsoleException {
+		try {
+			return (ObjectName) mbeanServer.invoke(profileProvisioningMBean, "createProfile",
+					new Object[] { arg0, arg1 }, new String[] { String.class.getName(), String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#createProfileTable(javax.slee.profile.ProfileSpecificationID, java.lang.String)
-   */
-  public void createProfileTable(ProfileSpecificationID arg0, String arg1) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#createProfileTable(javax.
+	 * slee.profile.ProfileSpecificationID, java.lang.String)
+	 */
+	public void createProfileTable(ProfileSpecificationID arg0, String arg1) throws ManagementConsoleException {
+		try {
+			mbeanServer.invoke(profileProvisioningMBean, "createProfileTable", new Object[] { arg0, arg1 },
+					new String[] { ProfileSpecificationID.class.getName(), String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
 
-  }
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#getDefaultProfile(java.lang.String)
-   */
-  public ObjectName getDefaultProfile(String arg0) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
-    return null;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#getDefaultProfile(java.
+	 * lang.String)
+	 */
+	public ObjectName getDefaultProfile(String arg0) throws ManagementConsoleException {
+		try {
+			return (ObjectName) mbeanServer.invoke(profileProvisioningMBean, "getDefaultProfile", new Object[] { arg0 },
+					new String[] { String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#getProfile(java.lang.String, java.lang.String)
-   */
-  public ObjectName getProfile(String arg0, String arg1) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
-    return null;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#getProfile(java.lang.
+	 * String, java.lang.String)
+	 */
+	public ObjectName getProfile(String arg0, String arg1) throws ManagementConsoleException {
+		try {
+			return (ObjectName) mbeanServer.invoke(profileProvisioningMBean, "getProfile", new Object[] { arg0, arg1 },
+					new String[] { String.class.getName(), String.class.getName() });
+		} catch (InstanceNotFoundException e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		} catch (MBeanException e) {
+			try {
+				return (ObjectName) mbeanServer.invoke(profileProvisioningMBean, "getProfile", new Object[] { arg0, arg1 },
+						new String[] { String.class.getName(), String.class.getName() });
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+			} 
+		} catch (ReflectionException e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#getProfileSpecification(java.lang.String)
-   */
-  public ProfileSpecificationID getProfileSpecification(String arg0) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
-    return null;
-  }
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#getProfileTables()
-   */
-  public Collection getProfileTables() throws ManagementConsoleException {
-    try {
-      return (Collection) mbeanServer.invoke(profileProvisioningMBean, "getProfileTables", new Object[] {}, new String[] {});
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
-    }
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#getProfileSpecification(
+	 * java.lang.String)
+	 */
+	public ProfileSpecificationID getProfileSpecification(String arg0) throws ManagementConsoleException {
+		try {
+			return (ProfileSpecificationID) mbeanServer.invoke(profileProvisioningMBean, "getProfileSpecification",
+					new Object[] { arg0 }, new String[] { String.class.getName() });
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#getProfiles(java.lang.String)
-   */
-  public Collection getProfiles(String arg0) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
-    return null;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#getProfileTables()
+	 */
+	public Collection getProfileTables() throws ManagementConsoleException {
+		try {
+			return (Collection) mbeanServer.invoke(profileProvisioningMBean, "getProfileTables", new Object[] {},
+					new String[] {});
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#getProfilesByIndexedAttribute(java.lang.String, java.lang.String, java.lang.Object)
-   */
-  public Collection getProfilesByIndexedAttribute(String arg0, String arg1, Object arg2) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
-    return null;
-  }
+	public Collection getProfileTables(ProfileSpecificationID profileSpecificationID)
+			throws ManagementConsoleException {
+		try {
+			return (Collection) mbeanServer.invoke(profileProvisioningMBean, "getProfileTables",
+					new Object[] { profileSpecificationID }, new String[] { ProfileSpecificationID.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#removeProfile(java.lang.String, java.lang.String)
-   */
-  public void removeProfile(String arg0, String arg1) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#getProfiles(java.lang.
+	 * String)
+	 */
+	public Collection getProfiles(String arg0) throws ManagementConsoleException {
+		try {
+			return (Collection) mbeanServer.invoke(profileProvisioningMBean, "getProfiles", new Object[] { arg0 },
+					new String[] { String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
+	}
 
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#
+	 * getProfilesByIndexedAttribute(java.lang.String, java.lang.String,
+	 * java.lang.Object)
+	 */
+	public Collection getProfilesByIndexedAttribute(String arg0, String arg1, Object arg2)
+			throws ManagementConsoleException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#removeProfileTable(java.lang.String)
-   */
-  public void removeProfileTable(String arg0) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#removeProfile(java.lang.
+	 * String, java.lang.String)
+	 */
+	public void removeProfile(String arg0, String arg1) throws ManagementConsoleException {
+		try {
+			mbeanServer.invoke(profileProvisioningMBean, "removeProfile", new Object[] { arg0, arg1 },
+					new String[] { String.class.getName(), String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
 
-  }
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.slee.management.ProfileProvisioningMBean#renameProfileTable(java.lang.String, java.lang.String)
-   */
-  public void renameProfileTable(String arg0, String arg1) throws ManagementConsoleException {
-    // TODO Auto-generated method stub
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#removeProfileTable(java.
+	 * lang.String)
+	 */
+	public void removeProfileTable(String arg0) throws ManagementConsoleException {
+		try {
+			mbeanServer.invoke(profileProvisioningMBean, "removeProfileTable", new Object[] { arg0 },
+					new String[] { String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
+		}
+	}
 
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ProfileProvisioningMBean#renameProfileTable(java.
+	 * lang.String, java.lang.String)
+	 */
+	public void renameProfileTable(String arg0, String arg1) throws ManagementConsoleException {
+		// TODO Auto-generated method stub
+
+	}
 
 }
