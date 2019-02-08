@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.tools</groupId>
 		<artifactId>restcomm-slee-tools-management-console-docs</artifactId>
-		<version>2.9.0-SNAPSHOT</version>
+		<version>2.10.0-185</version>
 	</parent>
 	
 	<artifactId>restcomm-slee-tools-management-console-docs-sources</artifactId>
