@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>restcomm-slee-core-container</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>7.2.0-186</version>
 	</parent>
 
 	<artifactId>activities</artifactId>
