@@ -6,13 +6,13 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>restcomm-slee-core</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>7.2.0-193</version>
 		<relativePath>../..</relativePath>
 	</parent>
 
 	<groupId>org.mobicents.servers.jainslee.tools.twiddle</groupId>
 	<artifactId>cli-twiddle-parent</artifactId>
-	<version>7.0.0-SNAPSHOT</version>
+	<version>7.2.0-193</version>
 
 	<modules>
 		<module>cli</module>
