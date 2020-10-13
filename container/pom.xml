@@ -48,7 +48,7 @@
 		<version.jboss.logging>3.3.0.Final</version.jboss.logging>
 		<!--<version.vfs>3.2.0.Final</version.vfs>-->
 		<version.vfs>3.2.12.Final</version.vfs>
-		<version.junit>4.8.2</version.junit>
+		<version.junit>4.13.1</version.junit>
 	</properties>
 
 	<modules>
