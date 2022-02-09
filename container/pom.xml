@@ -42,7 +42,7 @@
 		<!--<version.jgoups>3.2.7.Final</version.jgoups>-->
 		<version.jgoups>3.6.10.Final</version.jgoups>
 		<!--<version.infinispan>5.2.1.Final</version.infinispan>-->
-		<version.infinispan>8.2.4.Final</version.infinispan>
+		<version.infinispan>11.0.6.Final</version.infinispan>
 
 		<!--<version.jboss.logging>3.1.2.GA</version.jboss.logging>-->
 		<version.jboss.logging>3.3.0.Final</version.jboss.logging>
