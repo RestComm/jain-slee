@@ -28,7 +28,7 @@
 
 		<!--<version.jboss.as>7.2.0.Final</version.jboss.as>-->
 		<version.wildfly.as>10.1.0.Final</version.wildfly.as>
-		<version.wildfly.core>2.2.0.Final</version.wildfly.core>
+		<version.wildfly.core>16.0.1.Final</version.wildfly.core>
 
 		<!--<version.jboss.msc>1.0.4.GA</version.jboss.msc>-->
 		<version.jboss.msc>1.2.6.Final</version.jboss.msc>
