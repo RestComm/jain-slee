@@ -36,7 +36,7 @@
 		<!--<version.javassist>3.15.0-GA</version.javassist>-->
 		<version.javassist>3.18.1-GA</version.javassist>
 		<!--<version.hibernate>4.2.0.CR1</version.hibernate>-->
-		<version.hibernate>5.0.10.Final</version.hibernate>
+		<version.hibernate>5.3.20.Final</version.hibernate>
 
 		<restcomm.cluster.version>3.0.0.13</restcomm.cluster.version>
 		<!--<version.jgoups>3.2.7.Final</version.jgoups>-->
