@@ -430,8 +430,7 @@ public class EventRoutingTaskImpl implements EventRoutingTask {
 									// it's a root sbb
 									if (!sbbEntity.isRemoved() && sbbEntity.getAttachmentCount() == 0) {
 										if (debugLogging) {
-											logger
-											.debug("Removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
+											logger.debug("Removing sbb entity " + sbbEntity.getSbbEntityId() + ", the attachment count is 0");
 										}
 										// If it's the same entity then this is an
 										// "Op and
