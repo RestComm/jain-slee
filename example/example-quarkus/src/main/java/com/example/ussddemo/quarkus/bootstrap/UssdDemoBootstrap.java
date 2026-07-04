@@ -125,9 +125,9 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
     public void prepareHttpSession(String sessionId, String callbackUrl, ActivityContextInterface aci) {
         sessionStore.open(sessionId);
         sessionStore.attachCallback(sessionId, callbackUrl);
-        HttpServerSbb httpSbb = new HttpServerSbb(this);
-        SimpleSbbLocalObject httpLo = container.registerSbb(httpEntityId(sessionId), httpSbb);
+        SimpleSbbLocalObject httpLo = container.acquireEntity(httpEntityId(sessionId), HttpServerSbb.class);
         httpLo.setPriority(15);
+        HttpServerSbb httpSbb = (HttpServerSbb) httpLo.getSbb();
         httpSbb.bindSelf(httpLo);
         container.attach(sessionId, httpLo);
         try {
@@ -240,10 +240,12 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
 
     private void registerSbbTypes() {
         container.registerSbbType(Ss7UssdIngressSbb.class,
-                () -> new Ss7UssdIngressSbb.$Concrete(this));
+                () -> new Ss7UssdIngressSbb.$Concrete(container));
         container.registerSbbType(GrpcClientSbb.class,
-                () -> new GrpcClientSbb(this));
-        LOG.info("Registered pooled SBB types: Ss7UssdIngress, GrpcClient");
+                () -> new GrpcClientSbb(container));
+        container.registerSbbType(HttpServerSbb.class,
+                () -> new HttpServerSbb(container));
+        LOG.info("Registered pooled SBB types: Ss7UssdIngress, GrpcClient, HttpServer");
     }
 
     // ── IES ──

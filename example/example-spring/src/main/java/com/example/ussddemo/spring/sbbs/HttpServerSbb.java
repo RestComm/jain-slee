@@ -10,7 +10,7 @@
 
 package com.example.ussddemo.spring.sbbs;
 
-import com.example.ussddemo.spring.UssdDemoContext;
+import com.example.ussddemo.spring.config.UssdDemoBootstrap;
 import com.example.ussddemo.spring.events.HttpUssdBeginEvent;
 import com.example.ussddemo.spring.events.Ss7UssdBeginEvent;
 import com.example.ussddemo.spring.events.UssdResponseEvent;
@@ -40,11 +40,18 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
     private static final Logger LOG = LogManager.getLogger(HttpServerSbb.class);
 
+    private final MicroSleeContainer container;
+    private final UssdDemoBootstrap bootstrap;
     private volatile SbbLocalObject self;
 
     /** Injected HTTP callback RA command port for async callback delivery. */
     @InjectRa(name = "httpCallbackRa")
     private volatile RaCommandPort httpCallbackPort;
+
+    public HttpServerSbb(MicroSleeContainer container, UssdDemoBootstrap bootstrap) {
+        this.container = container;
+        this.bootstrap = bootstrap;
+    }
 
     public void bindSelf(SbbLocalObject self) {
         this.self = self;
@@ -83,17 +90,16 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
             LOG.info("[HTTP-server] begin session={} msisdn={} tier={}",
                     event.getSessionId(), event.getMsisdn(), tier);
 
-            MicroSleeContainer container = UssdDemoContext.container();
-            String ss7Id = UssdDemoContext.context().ss7EntityId(event.getSessionId());
-            SimpleSbbLocalObject ss7Lo = container.acquireEntity(ss7Id, Ss7UssdIngressSbb.class);
+            String ss7Id = this.bootstrap.ss7EntityId(event.getSessionId());
+            SimpleSbbLocalObject ss7Lo = this.container.acquireEntity(ss7Id, Ss7UssdIngressSbb.class);
             ss7Lo.setPriority(10);
             Ss7UssdIngressSbb ss7Sbb = (Ss7UssdIngressSbb) ss7Lo.getSbb();
             ss7Sbb.bindSelf(ss7Lo);
             ss7Sbb.initCmp(event.getSessionId(), event.getMsisdn(), tier);
-            container.attach(event.getSessionId(), ss7Lo);
+            this.container.attach(event.getSessionId(), ss7Lo);
             waitForActivation(ss7Lo);
 
-            container.routeEvent(new Ss7UssdBeginEvent(
+            this.container.routeEvent(new Ss7UssdBeginEvent(
                     event.getSessionId(), event.getMsisdn(), event.getUssdString(), tier), aci);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -106,12 +112,12 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
     private void onUssdResponse(UssdResponseEvent event, ActivityContextInterface aci) {
         LOG.info("[HTTP-server] USSD response ready session={}", event.getSessionId());
         publishCallback(event.getSessionId(), event.getResponseText(),
-                UssdDemoContext.context().callbackUrlFor(event.getSessionId()));
-        UssdDemoContext.context().releaseSession(event.getSessionId());
+                this.bootstrap.callbackUrlFor(event.getSessionId()));
+        this.bootstrap.releaseSession(event.getSessionId());
     }
 
-    private static String lookupTier(String msisdn) {
-        return UssdDemoContext.context().tierFor(msisdn);
+    private String lookupTier(String msisdn) {
+        return this.bootstrap.tierFor(msisdn);
     }
 
     /**

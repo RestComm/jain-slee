@@ -140,11 +140,11 @@ class SpringUssdSmokeTest {
         ra.setActivityContextFactory((sid, ctx) -> container.createActivityContext(sid));
         ra.setSessionPreparer((sid, cbUrl, aci) -> {
             demoContext.storeCallbackUrl(sid, cbUrl);
-            HttpServerSbb sbb = new HttpServerSbb();
-            var lo = container.registerSbb(demoContext.httpEntityId(sid), sbb);
-            lo.setPriority(15);
-            sbb.bindSelf(lo);
-            container.attach(sid, lo);
+            var httpLo = container.acquireEntity(demoContext.httpEntityId(sid), HttpServerSbb.class);
+            httpLo.setPriority(15);
+            HttpServerSbb httpSbb = (HttpServerSbb) httpLo.getSbb();
+            httpSbb.bindSelf(httpLo);
+            container.attach(sid, httpLo);
         });
         httpEndpoint = new HttpServerRaEndpoint(ra);
         container.registerRa(httpEndpoint, httpEndpoint);
@@ -172,7 +172,7 @@ class SpringUssdSmokeTest {
                 return new GrpcMenuResponseEvent(s, st, t, e);
             }
         };
-        GrpcActivityContextLookup lookup = sid -> container.getActivityContext(sid);
+        GrpcActivityContextLookup lookup = sid -> container.getActivityContextNamingFacility().lookup(sid);
         GrpcMenuResourceAdaptor ra = new GrpcMenuResourceAdaptor();
         grpcEndpoint = new GrpcMenuRaEndpoint(ra);
         grpcEndpoint.setGrpcMenuUpstream(upstream);
@@ -182,9 +182,13 @@ class SpringUssdSmokeTest {
     }
 
     private void registerSbbTypes() {
-        container.registerSbbType(Ss7UssdIngressSbb.class, Ss7UssdIngressSbb.$Concrete::new);
-        container.registerSbbType(GrpcClientSbb.class, GrpcClientSbb::new);
-        container.registerSbbType(HttpServerSbb.class, HttpServerSbb::new);
+        UssdDemoRuntime runtime = new UssdDemoRuntime();
+        container.registerSbbType(Ss7UssdIngressSbb.class,
+                () -> new Ss7UssdIngressSbb.$Concrete(container, null, runtime));
+        container.registerSbbType(GrpcClientSbb.class,
+                () -> new GrpcClientSbb(container, null));
+        container.registerSbbType(HttpServerSbb.class,
+                () -> new HttpServerSbb(container, null));
     }
 
     private void seedProfiles() {

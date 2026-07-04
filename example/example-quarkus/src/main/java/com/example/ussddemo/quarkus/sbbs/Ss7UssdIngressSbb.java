@@ -4,10 +4,9 @@
 
 package com.example.ussddemo.quarkus.sbbs;
 
-import com.example.ussddemo.quarkus.bootstrap.UssdDemoContext;
+import com.example.ussddemo.quarkus.events.Ss7UssdBeginEvent;
 import com.example.ussddemo.quarkus.events.GrpcMenuRequestEvent;
 import com.example.ussddemo.quarkus.events.GrpcMenuResponseEvent;
-import com.example.ussddemo.quarkus.events.Ss7UssdBeginEvent;
 import com.example.ussddemo.quarkus.events.UssdResponseEvent;
 import com.microjainslee.api.ActivityContextInterface;
 import com.microjainslee.api.ChildRelation;
@@ -40,17 +39,17 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
     private static final Logger LOG = LogManager.getLogger(Ss7UssdIngressSbb.class);
     private static final long SESSION_TIMEOUT_MS = 30_000L;
 
-    private final UssdDemoContext ctx;
+    private final MicroSleeContainer container;
     private volatile SbbLocalObject self;
     private volatile long sessionTimerId = -1L;
 
-    public Ss7UssdIngressSbb(UssdDemoContext ctx) {
-        this.ctx = ctx;
+    public Ss7UssdIngressSbb(MicroSleeContainer container) {
+        this.container = container;
     }
 
     /** No-arg constructor required by IES dispatcher for TEMP instance evaluation. */
     public Ss7UssdIngressSbb() {
-        this.ctx = null;
+        this.container = null;
     }
 
     public void bindSelf(SbbLocalObject self) {
@@ -115,7 +114,7 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
         LOG.info("[SS7-ingress] MAP begin session={} msisdn={} tier={} text={}",
                 getSessionId(), getMsisdn(), getMenuTier(), event.getUssdString());
 
-        MicroSleeContainer container = ctx.container();
+        MicroSleeContainer container = this.container;
         sessionTimerId = container.getTimerPort().setTimer(SESSION_TIMEOUT_MS, self);
 
         SimpleSbbLocalObject parentLo = (SimpleSbbLocalObject) self;
@@ -129,7 +128,7 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
             ((GrpcClientSbb) ((SimpleSbbLocalObject) grpcLo).getSbb()).bindSelf(grpcLo);
         } catch (Exception e) {
             LOG.error("Failed to create GrpcClientSbb child for session={}", getSessionId(), e);
-            ctx.failSession(getSessionId(), "grpc-child-create-failed");
+            LOG.warn("Session {} failed: grpc-child-create-failed", getSessionId());
             return;
         }
 
@@ -142,20 +141,20 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
         String ussdText = "USSD menu for session " + getSessionId()
                 + " (tier " + getMenuTier() + "):\n" + event.getMenuText();
         LOG.info("[SS7-ingress] MAP response ready session={}", getSessionId());
-        ctx.container().routeEvent(
+        container.routeEvent(
                 new UssdResponseEvent(getSessionId(), ussdText), aci);
     }
 
     private void onTimer(TimerFiredEvent event, ActivityContextInterface aci) {
         if (event.getSbbLocalObject() != self) return;
         LOG.warn("[SS7-ingress] session timeout session={}", getSessionId());
-        ctx.failSession(getSessionId(), "session timeout");
-        ctx.releaseSession(getSessionId());
+        container.releaseEntity("Ss7UssdIngress/" + getSessionId());
+        container.releaseEntity("HttpServer/" + getSessionId());
     }
 
     private void cancelSessionTimer() {
         if (sessionTimerId >= 0L) {
-            ctx.container().getTimerPort().cancelTimer(sessionTimerId);
+            container.getTimerPort().cancelTimer(sessionTimerId);
             sessionTimerId = -1L;
         }
     }
@@ -174,7 +173,7 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
         private final java.util.Map<String, Object> local =
                 new java.util.concurrent.ConcurrentHashMap<>();
 
-        public $Concrete(UssdDemoContext ctx) { super(ctx); }
+        public $Concrete(MicroSleeContainer container) { super(container); }
         public $Concrete() { super(); }
 
         @Override

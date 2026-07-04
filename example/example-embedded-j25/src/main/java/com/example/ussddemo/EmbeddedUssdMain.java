@@ -43,9 +43,8 @@ public final class EmbeddedUssdMain {
 
         container = new MicroSleeContainer(configuration);
         runtime = new UssdDemoRuntime();
-        bootstrap = new EmbeddedUssdBootstrap(container);
+        bootstrap = new EmbeddedUssdBootstrap(container, runtime);
 
-        bootstrap.bindInitialEventSelector();
         container.start();
         bootstrap.install(httpPort, grpcHost, grpcPort);
 

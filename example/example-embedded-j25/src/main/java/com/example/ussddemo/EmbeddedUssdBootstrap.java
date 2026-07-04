@@ -59,6 +59,7 @@ public final class EmbeddedUssdBootstrap {
     public static final String PROFILE_TABLE = "ussdSubscribers";
 
     private final MicroSleeContainer container;
+    private final UssdDemoRuntime runtime;
     private final ConcurrentHashMap<String, String> tiersByMsisdn = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> callbackUrls = new ConcurrentHashMap<>();
 
@@ -67,8 +68,9 @@ public final class EmbeddedUssdBootstrap {
     private GrpcMenuRaEndpoint grpcMenuEndpoint;
     private ManagedChannel grpcChannel;
 
-    public EmbeddedUssdBootstrap(MicroSleeContainer container) {
+    public EmbeddedUssdBootstrap(MicroSleeContainer container, UssdDemoRuntime runtime) {
         this.container = container;
+        this.runtime = runtime;
     }
 
     public void install(int httpPort, String grpcHost, int grpcPort) {
@@ -102,9 +104,9 @@ public final class EmbeddedUssdBootstrap {
 
     public void prepareHttpSession(String sessionId, String callbackUrl, ActivityContextInterface aci) {
         storeCallbackUrl(sessionId, callbackUrl);
-        HttpServerSbb httpSbb = new HttpServerSbb();
-        SimpleSbbLocalObject httpLo = container.registerSbb(httpEntityId(sessionId), httpSbb);
+        SimpleSbbLocalObject httpLo = container.acquireEntity(httpEntityId(sessionId), HttpServerSbb.class);
         httpLo.setPriority(15);
+        HttpServerSbb httpSbb = (HttpServerSbb) httpLo.getSbb();
         httpSbb.bindSelf(httpLo);
         container.attach(sessionId, httpLo);
         try { waitForActivation(httpLo); }
@@ -118,9 +120,9 @@ public final class EmbeddedUssdBootstrap {
     }
 
     private void registerSbbTypes() {
-        container.registerSbbType(Ss7UssdIngressSbb.class, Ss7UssdIngressSbb.$Concrete::new);
-        container.registerSbbType(GrpcClientSbb.class, GrpcClientSbb::new);
-        container.registerSbbType(HttpServerSbb.class, HttpServerSbb::new);
+        container.registerSbbType(Ss7UssdIngressSbb.class, () -> new Ss7UssdIngressSbb.$Concrete(container, this, runtime));
+        container.registerSbbType(GrpcClientSbb.class, () -> new GrpcClientSbb(container, this));
+        container.registerSbbType(HttpServerSbb.class, () -> new HttpServerSbb(container, this));
         LOG.info("Registered pooled SBB types: Ss7UssdIngress, GrpcClient, HttpServer");
     }
 
@@ -216,35 +218,6 @@ public final class EmbeddedUssdBootstrap {
         container.mapEventToSbb(GrpcMenuResponseEvent.class, "Ss7UssdIngress");
         container.mapEventToSbb(UssdResponseEvent.class, "HttpServerSbb");
         LOG.info("Event-to-SBB mappings bound");
-    }
-
-    public void bindInitialEventSelector() {
-        try {
-            com.microjainslee.core.VirtualThreadSbbEntityPool pool = container.getSbbEntityPool();
-            final java.util.concurrent.atomic.AtomicLong counter = new java.util.concurrent.atomic.AtomicLong();
-            com.microjainslee.core.ies.InitialEventSelectorDispatcher.SbbEntityPool adapter =
-                    new com.microjainslee.core.ies.InitialEventSelectorDispatcher.SbbEntityPool() {
-                        public String allocateNew(Class<?> sbbClass) {
-                            String entityId = sbbClass.getSimpleName() + "#" + counter.incrementAndGet();
-                            @SuppressWarnings("unchecked")
-                            final Class<? extends com.microjainslee.api.Sbb> typedSbb =
-                                    sbbClass.asSubclass(com.microjainslee.api.Sbb.class);
-                            pool.acquire(entityId, () -> {
-                                try { return typedSbb.getDeclaredConstructor().newInstance(); }
-                                catch (Exception e) { throw new IllegalStateException("IES allocate factory failed", e); }
-                            });
-                            return entityId;
-                        }
-                        public boolean contains(String entityId) { return pool.findEntity(entityId) != null; }
-                        public void onEntityRemoved(String entityId, java.util.function.Consumer<String> callback) { callback.accept(entityId); }
-                    };
-            com.microjainslee.core.ies.InitialEventSelectorDispatcher dispatcher =
-                    new com.microjainslee.core.ies.InitialEventSelectorDispatcher(adapter);
-            container.setInitialEventSelectorDispatcher(dispatcher);
-            LOG.info("Initial Event Selector dispatcher bound (S3)");
-        } catch (RuntimeException e) {
-            LOG.warn("IES dispatcher bind failed", e);
-        }
     }
 
     private static void waitForActivation(SimpleSbbLocalObject lo) throws InterruptedException {

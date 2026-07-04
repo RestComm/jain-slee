@@ -65,6 +65,7 @@ public class UssdDemoBootstrap {
 
     @Autowired private MicroSleeContainer container;
     @Autowired private UssdDemoContext demoContext;
+    @Autowired private UssdDemoRuntime ussdDemoRuntime;
 
     @Value("${ussd.demo.http.port:8081}") private int httpPort;
     @Value("${ussd.demo.grpc.host:127.0.0.1}") private String grpcHost;
@@ -181,21 +182,24 @@ public class UssdDemoBootstrap {
     // ---- private helpers ----
 
     private void prepareHttpSession(String sid, String cbUrl, ActivityContextInterface aci) {
-        demoContext.storeCallbackUrl(sid, cbUrl);
-        HttpServerSbb sbb = new HttpServerSbb();
-        SimpleSbbLocalObject lo = container.registerSbb(demoContext.httpEntityId(sid), sbb);
-        lo.setPriority(15);
-        sbb.bindSelf(lo);
-        container.attach(sid, lo);
-        try { waitForActivation(lo); }
+        storeCallbackUrl(sid, cbUrl);
+        SimpleSbbLocalObject httpLo = container.acquireEntity(httpEntityId(sid), HttpServerSbb.class);
+        httpLo.setPriority(15);
+        HttpServerSbb httpSbb = (HttpServerSbb) httpLo.getSbb();
+        httpSbb.bindSelf(httpLo);
+        container.attach(sid, httpLo);
+        try { waitForActivation(httpLo); }
         catch (InterruptedException e) { Thread.currentThread().interrupt();
             throw new IllegalStateException("HTTP SBB activation interrupted", e); }
     }
 
     private void registerSbbTypes() {
-        container.registerSbbType(Ss7UssdIngressSbb.class, Ss7UssdIngressSbb.$Concrete::new);
-        container.registerSbbType(GrpcClientSbb.class, GrpcClientSbb::new);
-        container.registerSbbType(HttpServerSbb.class, HttpServerSbb::new);
+        container.registerSbbType(Ss7UssdIngressSbb.class,
+                () -> new Ss7UssdIngressSbb.$Concrete(container, this, ussdDemoRuntime));
+        container.registerSbbType(GrpcClientSbb.class,
+                () -> new GrpcClientSbb(container, this));
+        container.registerSbbType(HttpServerSbb.class,
+                () -> new HttpServerSbb(container, this));
         LOG.info("Registered pooled SBB types: Ss7UssdIngress, GrpcClient, HttpServer");
     }
 
@@ -249,6 +253,24 @@ public class UssdDemoBootstrap {
         } catch (RuntimeException e) {
             LOG.warn("IES dispatcher bind failed", e);
         }
+    }
+
+    // ---- session-tracking delegates (call-through to UssdDemoContext) ----
+
+    public String tierFor(String msisdn) {
+        return demoContext.tierFor(msisdn);
+    }
+
+    public String httpEntityId(String sessionId) { return demoContext.httpEntityId(sessionId); }
+    public String ss7EntityId(String sessionId) { return demoContext.ss7EntityId(sessionId); }
+
+    public void storeCallbackUrl(String sessionId, String callbackUrl) {
+        demoContext.storeCallbackUrl(sessionId, callbackUrl);
+    }
+    public String callbackUrlFor(String sessionId) { return demoContext.callbackUrlFor(sessionId); }
+
+    public void releaseSession(String sessionId) {
+        demoContext.releaseSession(sessionId);
     }
 
     private static void waitForActivation(SimpleSbbLocalObject lo) throws InterruptedException {

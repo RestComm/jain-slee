@@ -10,7 +10,8 @@
 
 package com.example.ussddemo.spring.sbbs;
 
-import com.example.ussddemo.spring.UssdDemoContext;
+import com.example.ussddemo.spring.UssdDemoRuntime;
+import com.example.ussddemo.spring.config.UssdDemoBootstrap;
 import com.example.ussddemo.spring.events.GrpcMenuRequestEvent;
 import com.example.ussddemo.spring.events.GrpcMenuResponseEvent;
 import com.example.ussddemo.spring.events.Ss7UssdBeginEvent;
@@ -42,8 +43,18 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
     private static final Logger LOG = LogManager.getLogger(Ss7UssdIngressSbb.class);
     private static final long SESSION_TIMEOUT_MS = 30_000L;
 
+    protected final MicroSleeContainer container;
+    protected final UssdDemoBootstrap bootstrap;
+    protected final UssdDemoRuntime runtime;
+
     private volatile SbbLocalObject self;
     private volatile long sessionTimerId = -1L;
+
+    protected Ss7UssdIngressSbb(MicroSleeContainer container, UssdDemoBootstrap bootstrap, UssdDemoRuntime runtime) {
+        this.container = container;
+        this.bootstrap = bootstrap;
+        this.runtime = runtime;
+    }
 
     public void bindSelf(SbbLocalObject self) { this.self = self; }
 
@@ -91,23 +102,22 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
     private void onSs7Begin(Ss7UssdBeginEvent event, ActivityContextInterface aci) {
         LOG.info("[SS7-ingress] MAP begin session={} msisdn={} tier={} text={}",
                 getSessionId(), getMsisdn(), getMenuTier(), event.getUssdString());
-        MicroSleeContainer container = UssdDemoContext.container();
-        sessionTimerId = container.getTimerPort().setTimer(SESSION_TIMEOUT_MS, self);
+        sessionTimerId = this.container.getTimerPort().setTimer(SESSION_TIMEOUT_MS, self);
         SimpleSbbLocalObject parentLo = (SimpleSbbLocalObject) self;
         ChildRelation grpcChildren = parentLo.getChildRelation("grpc",
-                container.getChildRelationFactory(GrpcClientSbb.class));
+                this.container.getChildRelationFactory(GrpcClientSbb.class));
         try {
             SbbLocalObject grpcLo = grpcChildren.create();
             grpcLo.setPriority(5);
-            container.attach(getSessionId(), grpcLo);
+            this.container.attach(getSessionId(), grpcLo);
             waitForActivation((SimpleSbbLocalObject) grpcLo);
             ((GrpcClientSbb) ((SimpleSbbLocalObject) grpcLo).getSbb()).bindSelf(grpcLo);
         } catch (Exception e) {
             LOG.error("Failed to create GrpcClientSbb child for session={}", getSessionId(), e);
-            UssdDemoContext.runtime().failSession(getSessionId(), "grpc-child-create-failed");
+            this.runtime.failSession(getSessionId(), "grpc-child-create-failed");
             return;
         }
-        container.routeEvent(new GrpcMenuRequestEvent(
+        this.container.routeEvent(new GrpcMenuRequestEvent(
                 getSessionId(), getMsisdn(), event.getUssdString()), aci);
     }
 
@@ -116,20 +126,20 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
         String ussdText = "USSD menu for session " + getSessionId()
                 + " (tier " + getMenuTier() + "):\n" + event.getMenuText();
         LOG.info("[SS7-ingress] MAP response ready session={}", getSessionId());
-        UssdDemoContext.container().routeEvent(
+        this.container.routeEvent(
                 new UssdResponseEvent(getSessionId(), ussdText), aci);
     }
 
     private void onTimer(TimerFiredEvent event, ActivityContextInterface aci) {
         if (event.getSbbLocalObject() != self) return;
         LOG.warn("[SS7-ingress] session timeout session={}", getSessionId());
-        UssdDemoContext.runtime().failSession(getSessionId(), "session timeout");
-        UssdDemoContext.context().releaseSession(getSessionId());
+        this.runtime.failSession(getSessionId(), "session timeout");
+        this.bootstrap.releaseSession(getSessionId());
     }
 
     private void cancelSessionTimer() {
         if (sessionTimerId >= 0L) {
-            UssdDemoContext.container().getTimerPort().cancelTimer(sessionTimerId);
+            this.container.getTimerPort().cancelTimer(sessionTimerId);
             sessionTimerId = -1L;
         }
     }
@@ -151,7 +161,9 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
 
     public static final class $Concrete extends Ss7UssdIngressSbb {
         private final java.util.Map<String, Object> local = new java.util.concurrent.ConcurrentHashMap<>();
-        public $Concrete() { super(); }
+        public $Concrete(MicroSleeContainer container, UssdDemoBootstrap bootstrap, UssdDemoRuntime runtime) {
+            super(container, bootstrap, runtime);
+        }
         @Override public String getSessionId() { Object v = local.get("sessionId"); return v instanceof String s ? s : (String) cmpRead(getter("getSessionId")); }
         @Override public void setSessionId(String sessionId) { local.put("sessionId", sessionId); cmpWrite(setter("setSessionId", String.class), sessionId); }
         @Override public String getMsisdn() { Object v = local.get("msisdn"); return v instanceof String s ? s : (String) cmpRead(getter("getMsisdn")); }

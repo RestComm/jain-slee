@@ -4,12 +4,13 @@
 
 package com.example.ussddemo.quarkus.sbbs;
 
-import com.example.ussddemo.quarkus.bootstrap.UssdDemoContext;
-import com.microjainslee.ra.httpclient.HttpCallbackCommand;
+import com.example.ussddemo.quarkus.bootstrap.UssdSubscriberProfile;
 import com.example.ussddemo.quarkus.events.HttpUssdBeginEvent;
 import com.example.ussddemo.quarkus.events.Ss7UssdBeginEvent;
 import com.example.ussddemo.quarkus.events.UssdResponseEvent;
 import com.microjainslee.api.ActivityContextInterface;
+import com.microjainslee.api.ProfileID;
+import com.microjainslee.api.ProfileLocalObject;
 import com.microjainslee.api.RaCommandPort;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SbbLocalObject;
@@ -19,6 +20,7 @@ import com.microjainslee.api.annotations.InjectRa;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.SbbLifecycleManager;
 import com.microjainslee.core.SimpleSbbLocalObject;
+import com.microjainslee.ra.httpclient.HttpCallbackCommand;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,15 +37,15 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
     private static final Logger LOG = LogManager.getLogger(HttpServerSbb.class);
 
-    private final UssdDemoContext ctx;
+    private final MicroSleeContainer container;
     private volatile SbbLocalObject self;
 
     /** GOAL 1-5 — injected HTTP server RA command port (vendor-ras endpoint name). */
     @InjectRa(name = "http-server-ra")
     private volatile RaCommandPort httpCommandPort;
 
-    public HttpServerSbb(UssdDemoContext ctx) {
-        this.ctx = ctx;
+    public HttpServerSbb(MicroSleeContainer container) {
+        this.container = container;
     }
 
     public void bindSelf(SbbLocalObject self) {
@@ -83,8 +85,7 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
             LOG.info("[HTTP-server] begin session={} msisdn={} tier={}",
                     event.getSessionId(), event.getMsisdn(), tier);
 
-            MicroSleeContainer container = ctx.container();
-            String ss7Id = ctx.ss7EntityId(event.getSessionId());
+            String ss7Id = "Ss7UssdIngress/" + event.getSessionId();
             SimpleSbbLocalObject ss7Lo = container.acquireEntity(ss7Id, Ss7UssdIngressSbb.class);
             ss7Lo.setPriority(10);
             Ss7UssdIngressSbb ss7Sbb = (Ss7UssdIngressSbb) ss7Lo.getSbb();
@@ -100,18 +101,24 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
             LOG.error("Interrupted while activating SS7 ingress for session={}", event.getSessionId());
         } catch (RuntimeException e) {
             LOG.error("HTTP begin handling failed for session={}", event.getSessionId(), e);
-            ctx.failSession(event.getSessionId(), e.getMessage());
+            LOG.warn("Session {} failed: {}", event.getSessionId(), e.getMessage());
         }
     }
 
     private void onUssdResponse(UssdResponseEvent event, ActivityContextInterface aci) {
         LOG.info("[HTTP-server] USSD response ready session={}", event.getSessionId());
-        ctx.completeSession(event.getSessionId(), event.getResponseText());
-        ctx.releaseSession(event.getSessionId());
+        LOG.info("Session {} completed with response: {}", event.getSessionId(), event.getResponseText());
+        container.releaseEntity("Ss7UssdIngress/" + event.getSessionId());
+        container.releaseEntity("HttpServer/" + event.getSessionId());
     }
 
     private String lookupTier(String msisdn) {
-        return ctx.tierFor(msisdn);
+        ProfileLocalObject plo = container.getProfileFacility()
+                .getProfile(new ProfileID(UssdSubscriberProfile.TABLE_NAME, msisdn));
+        if (plo != null && plo.getProfile() instanceof UssdSubscriberProfile sub) {
+            return sub.getTier();
+        }
+        return "STANDARD";
     }
 
     private static void waitForActivation(SimpleSbbLocalObject lo) throws InterruptedException {

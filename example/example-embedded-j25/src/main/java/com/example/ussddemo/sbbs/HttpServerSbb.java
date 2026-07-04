@@ -4,7 +4,7 @@
 
 package com.example.ussddemo.sbbs;
 
-import com.example.ussddemo.EmbeddedUssdMain;
+import com.example.ussddemo.EmbeddedUssdBootstrap;
 import com.example.ussddemo.events.HttpUssdBeginEvent;
 import com.example.ussddemo.events.Ss7UssdBeginEvent;
 import com.example.ussddemo.events.UssdResponseEvent;
@@ -34,11 +34,18 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
     private static final Logger LOG = LogManager.getLogger(HttpServerSbb.class);
 
+    private final MicroSleeContainer container;
+    private final EmbeddedUssdBootstrap bootstrap;
     private volatile SbbLocalObject self;
 
     /** Injected HTTP callback RA command port for async callback delivery. */
     @InjectRa(name = "httpCallbackRa")
     private volatile RaCommandPort httpCallbackPort;
+
+    public HttpServerSbb(MicroSleeContainer container, EmbeddedUssdBootstrap bootstrap) {
+        this.container = container;
+        this.bootstrap = bootstrap;
+    }
 
     public void bindSelf(SbbLocalObject self) {
         this.self = self;
@@ -77,8 +84,7 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
             LOG.info("[HTTP-server] begin session={} msisdn={} tier={}",
                     event.getSessionId(), event.getMsisdn(), tier);
 
-            MicroSleeContainer container = EmbeddedUssdMain.container();
-            String ss7Id = EmbeddedUssdMain.bootstrap().ss7EntityId(event.getSessionId());
+            String ss7Id = this.bootstrap.ss7EntityId(event.getSessionId());
             SimpleSbbLocalObject ss7Lo = container.acquireEntity(ss7Id, Ss7UssdIngressSbb.class);
             ss7Lo.setPriority(10);
             Ss7UssdIngressSbb ss7Sbb = (Ss7UssdIngressSbb) ss7Lo.getSbb();
@@ -100,12 +106,12 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
     private void onUssdResponse(UssdResponseEvent event, ActivityContextInterface aci) {
         LOG.info("[HTTP-server] USSD response ready session={}", event.getSessionId());
         publishCallback(event.getSessionId(), event.getResponseText(),
-                EmbeddedUssdMain.bootstrap().callbackUrlFor(event.getSessionId()));
-        EmbeddedUssdMain.bootstrap().releaseSession(event.getSessionId());
+                this.bootstrap.callbackUrlFor(event.getSessionId()));
+        this.bootstrap.releaseSession(event.getSessionId());
     }
 
-    private static String lookupTier(String msisdn) {
-        return EmbeddedUssdMain.bootstrap().tierFor(msisdn);
+    private String lookupTier(String msisdn) {
+        return this.bootstrap.tierFor(msisdn);
     }
 
     /**

@@ -5,7 +5,7 @@
 package com.example.ussddemo.sbbs;
 
 import com.example.ussddemo.events.GrpcMenuRequestEvent;
-import com.example.ussddemo.EmbeddedUssdMain;
+import com.example.ussddemo.EmbeddedUssdBootstrap;
 
 import com.example.ussddemo.events.GrpcMenuResponseEvent;
 import com.microjainslee.api.ActivityContextInterface;
@@ -15,6 +15,7 @@ import com.microjainslee.api.SbbLocalObject;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.InjectRa;
+import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.ra.grpc.GrpcMenuCommand;
 
 import org.apache.logging.log4j.LogManager;
@@ -28,11 +29,16 @@ public final class GrpcClientSbb implements Sbb, SleeEventHandler {
 
     private static final Logger LOG = LogManager.getLogger(GrpcClientSbb.class);
 
+    private final MicroSleeContainer container;
     private volatile SbbLocalObject self;
 
     /** Injected gRPC RA command port. */
     @InjectRa(name = "grpcMenuRa")
     private volatile RaCommandPort grpcCommandPort;
+
+    public GrpcClientSbb(MicroSleeContainer container, EmbeddedUssdBootstrap bootstrap) {
+        this.container = container;
+    }
 
     public void bindSelf(SbbLocalObject self) {
         this.self = self;
@@ -83,6 +89,6 @@ public final class GrpcClientSbb implements Sbb, SleeEventHandler {
         // Route response back onto the session activity context so the
         // parent Ss7UssdIngressSbb (which also listens on this session)
         // picks it up.
-        EmbeddedUssdMain.container().routeEvent(event, aci);
+        this.container.routeEvent(event, aci);
     }
 }
