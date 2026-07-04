@@ -1,5 +1,5 @@
 /*
- * micro-jainslee 1.1.0 — example application (ussd-quarkus-demo)
+ * micro-jainslee 1.1.0 -- example application (example-embedded-j25)
  *
  * Dual-licensed: GPLv3 (Section A) OR Commercial License (Section B).
  * See the LICENSE file at the root of this repository for the full text.

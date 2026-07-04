@@ -440,3 +440,68 @@ mvn -pl jainslee-core test -Dtest='MicroSleeContainerTest#registerRa*'
 # → assert hot-register works when container already STARTED
 # → assert deactivate() called on container stop
 ```
+
+
+---
+
+## S6 — Vendor RA Module Structure (vendor-ras/)
+
+### 4 RA modules
+
+| Module | Direction | Role | Port |
+|--------|-----------|------|------|
+| `ra-http-server` | Inbound | Nhận HTTP request từ USSD client simulator | 8080 |
+| `ra-http-client` | Outbound | Gửi HTTP callback về USSD client simulator | — |
+| `ra-grpc-client` | Outbound | Gửi gRPC request tới grpc-server-simulator | — |
+| `ra-grpc-server` | Inbound | Nhận gRPC request (placeholder) | 9090 |
+
+### Mỗi RA = 2 file Java
+
+```
+ra-http-server/src/main/java/com/microjainslee/ra/httpserver/
+├── HttpServerResourceAdaptor.java   ← extends AbstractResourceAdaptor
+└── HttpServerRaEndpoint.java        ← implements RaEndpointPort, RaCommandPort
+```
+
+- **ResourceAdaptor** → core logic: start/stop server, handle requests
+- **RaEndpoint** → 3-port contract: `activate(RaBootstrapPort)`, `deactivate()`, `sendCommand(OutboundCommand)`
+- **Collaborator interfaces** → `HttpBeginEventFactory`, `ActivityContextFactory`, `GrpcMenuUpstream`, etc.
+
+### SBB → RA communication via @InjectRa
+
+```java
+// In SBB:
+@InjectRa(name = "grpc-menu-ra")
+private volatile RaCommandPort grpcPort;
+
+// Gọi RA:
+grpcPort.sendCommand(new GrpcMenuCommand(sessionId, msisdn, ussdString, aci));
+```
+
+### Wire trong Bootstrap
+
+```java
+// 1. Tạo RA delegate
+HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
+ra.setPort(8080);
+
+// 2. Wrap vào Endpoint
+HttpServerRaEndpoint ep = new HttpServerRaEndpoint(ra);
+
+// 3. Register với container
+container.registerRa(ep, ep);  // (RaEndpointPort, RaCommandPort)
+```
+
+### Example structure (example-embedded-j25/)
+
+```
+example-embedded-j25/src/main/java/com/example/ussddemo/
+├── events/          ← 5 SleeEvent classes (HttpUssdBegin, Ss7UssdBegin, ...)
+├── sbbs/            ← 3 SBBs (HttpServerSbb, GrpcClientSbb, Ss7UssdIngressSbb)
+├── EmbeddedUssdBootstrap.java   ← wires RAs + SBBs + event mappings
+└── EmbeddedUssdMain.java        ← main()
+```
+
+**Không có ra/ directory** — tất cả RA code nằm trong vendor-ras.
+**Không có DU XML** — tất cả registration qua programmatic API.
+

@@ -23,14 +23,14 @@ public final class Ss7UssdBeginEvent implements SleeEvent {
     private final String sessionId;
     private final String msisdn;
     private final String ussdString;
-    private final String menuTier;
+    private final String tier;
 
     public Ss7UssdBeginEvent(String sessionId, String msisdn, String ussdString,
-                             String menuTier) {
+                             String tier) {
         this.sessionId = sessionId;
         this.msisdn = msisdn;
         this.ussdString = ussdString;
-        this.menuTier = menuTier;
+        this.tier = tier;
     }
 
     public String getSessionId() {
@@ -45,7 +45,7 @@ public final class Ss7UssdBeginEvent implements SleeEvent {
         return ussdString;
     }
 
-    public String getMenuTier() {
-        return menuTier;
+    public String getTier() {
+        return tier;
     }
 }

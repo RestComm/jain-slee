@@ -10,17 +10,24 @@
 
 package com.example.ussddemo.spring.sbbs;
 
+import com.example.ussddemo.spring.UssdDemoContext;
+import com.example.ussddemo.spring.events.GrpcMenuRequestEvent;
 import com.example.ussddemo.spring.events.GrpcMenuResponseEvent;
 import com.example.ussddemo.spring.events.Ss7UssdBeginEvent;
-import com.example.ussddemo.spring.events.UssdCompleteEvent;
-import com.example.ussddemo.spring.service.UssdWiring;
+import com.example.ussddemo.spring.events.UssdResponseEvent;
 import com.microjainslee.api.ActivityContextInterface;
+import com.microjainslee.api.ChildRelation;
+import com.microjainslee.api.SbbLocalObject;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
+import com.microjainslee.api.TimerFiredEvent;
 import com.microjainslee.api.annotations.CmpField;
 import com.microjainslee.api.annotations.InitialEventSelect;
 import com.microjainslee.api.annotations.SbbAnnotation;
 import com.microjainslee.core.CmpBackedSbb;
+import com.microjainslee.core.MicroSleeContainer;
+import com.microjainslee.core.SbbLifecycleManager;
+import com.microjainslee.core.SimpleSbbLocalObject;
 import com.microjainslee.core.ies.InitialEventSelectCondition;
 import com.microjainslee.core.ies.InitialEventSelectResult;
 
@@ -29,208 +36,127 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 
-/**
- * Internal SS7/MAP USSD leg. Persists session state in CMP fields and
- * delegates menu resolution to the gRPC RA.
- *
- * <p>Updated for Perfect Core S1-S5 (2026-06-28):</p>
- * <ul>
- *   <li><b>S2</b> — CMP accessors declared as {@code abstract} so the
- *       Javassist concrete generator can produce the backing getters
- *       and setters. A hand-written {@code $Concrete} companion keeps
- *       the example self-contained.</li>
- *   <li><b>S3</b> — {@link InitialEventSelect @InitialEventSelect} method
- *       routes every USSD session to the same entity by msisdn so the
- *       CMP state survives across the request / response round-trip.</li>
- *   <li><b>P1</b> — safe under {@code txEnabled=false}; CMP writes go
- *       straight to the in-memory store through {@code cmpWrite}.</li>
- * </ul>
- */
 @SbbAnnotation(name = "Ss7UssdIngress", vendor = "com.example.ussddemo", version = "1.0")
 public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEventHandler {
 
     private static final Logger LOG = LogManager.getLogger(Ss7UssdIngressSbb.class);
+    private static final long SESSION_TIMEOUT_MS = 30_000L;
 
-    private UssdWiring wiring;
+    private volatile SbbLocalObject self;
+    private volatile long sessionTimerId = -1L;
 
-    public Ss7UssdIngressSbb() {
+    public void bindSelf(SbbLocalObject self) { this.self = self; }
+
+    public void initCmp(String sessionId, String msisdn, String menuTier) {
+        setSessionId(sessionId);
+        setMsisdn(msisdn);
+        setMenuTier(menuTier);
     }
-
-    public Ss7UssdIngressSbb(UssdWiring wiring) {
-        this.wiring = wiring;
-    }
-
-    public void setWiring(UssdWiring wiring) {
-        this.wiring = wiring;
-    }
-
-    // ─────────────────────────────────────────────────────────────────
-    //  CMP accessors — abstract on purpose (Perfect Core S2).
-    // ─────────────────────────────────────────────────────────────────
 
     @CmpField("sessionId")
     public abstract String getSessionId();
-
     @CmpField("sessionId")
     public abstract void setSessionId(String sessionId);
-
     @CmpField("msisdn")
     public abstract String getMsisdn();
-
     @CmpField("msisdn")
     public abstract void setMsisdn(String msisdn);
-
     @CmpField("menuTier")
-    public abstract int getMenuTier();
-
+    public abstract String getMenuTier();
     @CmpField("menuTier")
-    public abstract void setMenuTier(int menuTier);
+    public abstract void setMenuTier(String menuTier);
 
-    // ─────────────────────────────────────────────────────────────────
-    //  Initial Event Selection (Perfect Core S3).
-    //  Runs on a TEMP instance — must be free of side effects on CMP state.
-    // ─────────────────────────────────────────────────────────────────
-
-    /**
-     * IES — convergence name = {@code msisdn}. The first
-     * {@link Ss7UssdBeginEvent} for a given msisdn is the initial event;
-     * subsequent events are routed to the same entity per spec §7.5.5.
-     */
     @InitialEventSelect(name = "ussd-session-convergence")
     public InitialEventSelectResult selectInitialEvent(InitialEventSelectCondition c) {
         Object event = c.getEvent();
-        if (event instanceof Ss7UssdBeginEvent) {
-            Ss7UssdBeginEvent e = (Ss7UssdBeginEvent) event;
+        if (event instanceof Ss7UssdBeginEvent e) {
             String msisdn = e.getMsisdn() == null ? "anon" : e.getMsisdn();
             return InitialEventSelectResult.forSession(msisdn, true);
         }
-        return InitialEventSelectResult.builder()
-                .convergenceName(null)
-                .initialEvent(false)
-                .build();
+        return InitialEventSelectResult.builder().convergenceName(null).initialEvent(false).build();
     }
 
     @Override public void sbbCreate() { LOG.debug("Ss7UssdIngressSbb created"); }
     @Override public void sbbActivate() { LOG.debug("Ss7UssdIngressSbb activated"); }
-    @Override public void sbbPassivate() { }
-    @Override public void sbbRemove() { }
+    @Override public void sbbPassivate() {}
+    @Override public void sbbRemove() { cancelSessionTimer(); }
 
     @Override
     public void onEvent(SleeEvent event, ActivityContextInterface aci) {
-        if (event instanceof Ss7UssdBeginEvent) {
-            onSs7Begin((Ss7UssdBeginEvent) event, aci);
-        } else if (event instanceof GrpcMenuResponseEvent) {
-            onGrpcResponse((GrpcMenuResponseEvent) event, aci);
-        }
+        if (event instanceof Ss7UssdBeginEvent e) onSs7Begin(e, aci);
+        else if (event instanceof GrpcMenuResponseEvent e) onGrpcResponse(e, aci);
+        else if (event instanceof TimerFiredEvent e) onTimer(e, aci);
     }
 
     private void onSs7Begin(Ss7UssdBeginEvent event, ActivityContextInterface aci) {
-        setSessionId(event.getSessionId());
-        setMsisdn(event.getMsisdn());
-        setMenuTier(event.getMenuTier());
-        LOG.infof("[SS7-ingress] MAP begin session=%s msisdn=%s tier=%d",
-                event.getSessionId(), event.getMsisdn(), event.getMenuTier());
-        if (wiring != null && wiring.grpcRa() != null) {
-            wiring.grpcRa().requestMenu(event.getSessionId(), event.getMsisdn(),
-                    event.getUssdString(), aci);
+        LOG.info("[SS7-ingress] MAP begin session={} msisdn={} tier={} text={}",
+                getSessionId(), getMsisdn(), getMenuTier(), event.getUssdString());
+        MicroSleeContainer container = UssdDemoContext.container();
+        sessionTimerId = container.getTimerPort().setTimer(SESSION_TIMEOUT_MS, self);
+        SimpleSbbLocalObject parentLo = (SimpleSbbLocalObject) self;
+        ChildRelation grpcChildren = parentLo.getChildRelation("grpc",
+                container.getChildRelationFactory(GrpcClientSbb.class));
+        try {
+            SbbLocalObject grpcLo = grpcChildren.create();
+            grpcLo.setPriority(5);
+            container.attach(getSessionId(), grpcLo);
+            waitForActivation((SimpleSbbLocalObject) grpcLo);
+            ((GrpcClientSbb) ((SimpleSbbLocalObject) grpcLo).getSbb()).bindSelf(grpcLo);
+        } catch (Exception e) {
+            LOG.error("Failed to create GrpcClientSbb child for session={}", getSessionId(), e);
+            UssdDemoContext.runtime().failSession(getSessionId(), "grpc-child-create-failed");
+            return;
         }
+        container.routeEvent(new GrpcMenuRequestEvent(
+                getSessionId(), getMsisdn(), event.getUssdString()), aci);
     }
 
     private void onGrpcResponse(GrpcMenuResponseEvent event, ActivityContextInterface aci) {
-        if (wiring == null || wiring.container() == null) {
-            return;
-        }
-        if (!"OK".equalsIgnoreCase(event.getStatus())) {
-            wiring.container().routeEvent(new UssdCompleteEvent(
-                    event.getSessionId(), null, event.getError()), aci);
-            return;
-        }
-        String ussdText = "USSD menu for session " + event.getSessionId() + ":\n"
-                + event.getMenuText();
-        LOG.infof("[SS7-ingress] MAP response ready session=%s", event.getSessionId());
-        wiring.container().routeEvent(new UssdCompleteEvent(
-                event.getSessionId(), ussdText, null), aci);
+        cancelSessionTimer();
+        String ussdText = "USSD menu for session " + getSessionId()
+                + " (tier " + getMenuTier() + "):\n" + event.getMenuText();
+        LOG.info("[SS7-ingress] MAP response ready session={}", getSessionId());
+        UssdDemoContext.container().routeEvent(
+                new UssdResponseEvent(getSessionId(), ussdText), aci);
     }
 
-    private static Method accessor(String name, Class<?>... params) {
-        try {
-            return Ss7UssdIngressSbb.class.getDeclaredMethod(name, params);
-        } catch (NoSuchMethodException e) {
-            throw new IllegalStateException(e);
+    private void onTimer(TimerFiredEvent event, ActivityContextInterface aci) {
+        if (event.getSbbLocalObject() != self) return;
+        LOG.warn("[SS7-ingress] session timeout session={}", getSessionId());
+        UssdDemoContext.runtime().failSession(getSessionId(), "session timeout");
+        UssdDemoContext.context().releaseSession(getSessionId());
+    }
+
+    private void cancelSessionTimer() {
+        if (sessionTimerId >= 0L) {
+            UssdDemoContext.container().getTimerPort().cancelTimer(sessionTimerId);
+            sessionTimerId = -1L;
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  Concrete companion (Perfect Core S2).
-    //
-    //  Production deployments generate this class at deploy-time via
-    //  {@code com.microjainslee.codegen.ConcreteSbbGenerator}; the
-    //  hand-written stub below keeps the Spring example self-contained.
-    // ─────────────────────────────────────────────────────────────────
+    private static Method getter(String name) {
+        try { return Ss7UssdIngressSbb.class.getMethod(name); }
+        catch (NoSuchMethodException e) { throw new IllegalStateException(e); }
+    }
+    private static Method setter(String name, Class<?> type) {
+        try { return Ss7UssdIngressSbb.class.getMethod(name, type); }
+        catch (NoSuchMethodException e) { throw new IllegalStateException(e); }
+    }
+    private static void waitForActivation(SimpleSbbLocalObject lo) throws InterruptedException {
+        for (int i = 0; i < 50; i++) {
+            if (lo.getEntityState().getLifecycleState() == SbbLifecycleManager.State.READY) return;
+            Thread.sleep(10L);
+        }
+    }
 
-    /**
-     * Concrete subclass generated by {@code ConcreteSbbGenerator} at
-     * deploy time.
-     */
     public static final class $Concrete extends Ss7UssdIngressSbb {
-
-        private final java.util.Map<String, Object> local =
-                new java.util.concurrent.ConcurrentHashMap<>();
-
-        public $Concrete() {
-            super();
-        }
-
-        public $Concrete(UssdWiring wiring) {
-            super(wiring);
-        }
-
-        @Override
-        public String getSessionId() {
-            Object v = local.get("sessionId");
-            return v instanceof String s ? s : (String) cmpRead(accessor("getSessionId"));
-        }
-
-        @Override
-        public void setSessionId(String sessionId) {
-            local.put("sessionId", sessionId);
-            cmpWrite(accessor("setSessionId", String.class), sessionId);
-        }
-
-        @Override
-        public String getMsisdn() {
-            Object v = local.get("msisdn");
-            return v instanceof String s ? s : (String) cmpRead(accessor("getMsisdn"));
-        }
-
-        @Override
-        public void setMsisdn(String msisdn) {
-            local.put("msisdn", msisdn);
-            cmpWrite(accessor("setMsisdn", String.class), msisdn);
-        }
-
-        @Override
-        public int getMenuTier() {
-            Object v = local.get("menuTier");
-            if (v instanceof Integer i) {
-                return i;
-            }
-            Object r = cmpRead(accessor("getMenuTier"));
-            return r instanceof Integer i ? i : 0;
-        }
-
-        @Override
-        public void setMenuTier(int menuTier) {
-            local.put("menuTier", menuTier);
-            cmpWrite(accessor("setMenuTier", int.class), menuTier);
-        }
-
-        private static Method accessor(String name, Class<?>... params) {
-            try {
-                return Ss7UssdIngressSbb.class.getMethod(name, params);
-            } catch (NoSuchMethodException e) {
-                throw new IllegalStateException(e);
-            }
-        }
+        private final java.util.Map<String, Object> local = new java.util.concurrent.ConcurrentHashMap<>();
+        public $Concrete() { super(); }
+        @Override public String getSessionId() { Object v = local.get("sessionId"); return v instanceof String s ? s : (String) cmpRead(getter("getSessionId")); }
+        @Override public void setSessionId(String sessionId) { local.put("sessionId", sessionId); cmpWrite(setter("setSessionId", String.class), sessionId); }
+        @Override public String getMsisdn() { Object v = local.get("msisdn"); return v instanceof String s ? s : (String) cmpRead(getter("getMsisdn")); }
+        @Override public void setMsisdn(String msisdn) { local.put("msisdn", msisdn); cmpWrite(setter("setMsisdn", String.class), msisdn); }
+        @Override public String getMenuTier() { Object v = local.get("menuTier"); return v instanceof String s ? s : (String) cmpRead(getter("getMenuTier")); }
+        @Override public void setMenuTier(String menuTier) { local.put("menuTier", menuTier); cmpWrite(setter("setMenuTier", String.class), menuTier); }
     }
 }

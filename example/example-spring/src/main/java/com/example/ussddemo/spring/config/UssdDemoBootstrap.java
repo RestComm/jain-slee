@@ -10,27 +10,46 @@
 
 package com.example.ussddemo.spring.config;
 
+import com.example.ussddemo.spring.UssdDemoContext;
+import com.example.ussddemo.spring.UssdDemoRuntime;
+import com.example.ussddemo.spring.UssdSubscriberProfile;
+import com.example.ussddemo.spring.events.GrpcMenuRequestEvent;
+import com.example.ussddemo.spring.events.GrpcMenuResponseEvent;
 import com.example.ussddemo.spring.events.HttpUssdBeginEvent;
-import com.example.ussddemo.spring.grpc.GrpcMenuClient;
-import com.example.ussddemo.spring.grpc.GrpcMenuResolver;
-import com.example.ussddemo.spring.profile.UssdSubscriberProfile;
-import com.example.ussddemo.spring.ra.GrpcMenuResourceAdaptor;
-import com.example.ussddemo.spring.ra.HttpIngressResourceAdaptor;
+import com.example.ussddemo.spring.events.Ss7UssdBeginEvent;
+import com.example.ussddemo.spring.events.UssdResponseEvent;
 import com.example.ussddemo.spring.sbbs.GrpcClientSbb;
 import com.example.ussddemo.spring.sbbs.HttpServerSbb;
 import com.example.ussddemo.spring.sbbs.Ss7UssdIngressSbb;
-import com.example.ussddemo.spring.service.InMemoryGrpcMenuClient;
-import com.example.ussddemo.spring.service.UssdCallbackDispatcher;
-import com.example.ussddemo.spring.service.UssdSessionStore;
-import com.example.ussddemo.spring.service.UssdWiring;
-import com.microjainslee.api.InitialEventSelector;
+import com.microjainslee.api.ActivityContextInterface;
 import com.microjainslee.api.Profile;
-import com.microjainslee.api.ProfileLocalObject;
 import com.microjainslee.api.ProfileFacility;
-import com.microjainslee.core.InMemoryProfileFacility;
+import com.microjainslee.api.ProfileLocalObject;
+import com.microjainslee.api.SleeEvent;
 import com.microjainslee.core.MicroSleeContainer;
+import com.microjainslee.core.SbbLifecycleManager;
+import com.microjainslee.core.SimpleSbbLocalObject;
 import com.microjainslee.core.ies.InitialEventSelectorDispatcher;
-import com.microjainslee.core.ra.ResourceAdaptorContextBuilder;
+import com.microjainslee.ra.grpc.GrpcActivityContextLookup;
+import com.microjainslee.ra.grpc.GrpcMenuEventFactory;
+import com.microjainslee.ra.grpc.GrpcMenuRaEndpoint;
+import com.microjainslee.ra.grpc.GrpcMenuResourceAdaptor;
+import com.microjainslee.ra.grpc.GrpcMenuUpstream;
+import com.microjainslee.ra.grpc.GrpcMenuUpstreamResult;
+import com.microjainslee.ra.httpclient.HttpCallbackClientRa;
+import com.microjainslee.ra.httpclient.HttpCallbackRaEndpoint;
+import com.microjainslee.ra.httpserver.HttpBeginEventFactory;
+import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
+import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
+import com.microjainslee.ra.httpserver.HttpServerSessionPreparer;
+
+import io.grpc.ManagedChannel;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,236 +57,204 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.SmartLifecycle;
 
-/**
- * Wires the USSD demo: SBB type pools, HTTP + gRPC RAs, profile seed,
- * and initial-event routing for {@link HttpUssdBeginEvent}.
- *
- * <p>Updated for Perfect Core S1-S5 (2026-06-28):</p>
- * <ul>
- *   <li><b>S5</b> — RA lifecycle now goes through
- *       {@link ResourceAdaptorContextBuilder#build(MicroSleeContainer,
- *       com.microjainslee.api.ResourceAdaptor, String)} instead of the
- *       legacy {@code RaBootstrapContextImpl} shim. The full facility
- *       set (EventRouter, ACNF, TimerBridge, AlarmFacility, …) is
- *       wired through the kernel-side factory.</li>
- *   <li><b>S3</b> — bind an {@link InitialEventSelectorDispatcher} so the
- *       event router honours the {@code @InitialEventSelect} method on
- *       {@link Ss7UssdIngressSbb} (msisdn-keyed convergence).</li>
- *   <li><b>P1</b> — surface {@code tx-enabled} knob on the underlying
- *       container configuration (handled by the adapter-springboot
- *       boot listener; this bootstrap just records it for metrics).</li>
- * </ul>
- */
 @Configuration
 public class UssdDemoBootstrap {
 
     private static final Logger LOG = LogManager.getLogger(UssdDemoBootstrap.class);
 
-    @Autowired
-    private MicroSleeContainer container;
+    @Autowired private MicroSleeContainer container;
+    @Autowired private UssdDemoContext demoContext;
 
-    @Autowired
-    private UssdWiring wiring;
-
-    @Autowired
-    private UssdSessionStore sessionStore;
-
-    @Autowired
-    private UssdCallbackDispatcher callbackDispatcher;
-
-    @Value("${ussd.demo.http.port:8081}")
-    private int httpPort;
-
-    @Value("${ussd.demo.grpc.host:127.0.0.1}")
-    private String grpcHost;
-
-    @Value("${ussd.demo.grpc.port:9090}")
-    private int grpcPort;
-
-    @Value("${ussd.demo.grpc.use-in-memory:false}")
-    private boolean useInMemoryGrpc;
-
-    @Value("${ussd.demo.grpc.latency-ms:10}")
-    private long inMemoryGrpcLatencyMs;
-
-    private GrpcMenuClient remoteGrpcClient;
+    @Value("${ussd.demo.http.port:8081}") private int httpPort;
+    @Value("${ussd.demo.grpc.host:127.0.0.1}") private String grpcHost;
+    @Value("${ussd.demo.grpc.port:9090}") private int grpcPort;
 
     @Bean
-    public SmartLifecycle ussdDemoLifecycle() {
-        return new SmartLifecycle() {
-            private volatile boolean running;
+    public UssdDemoRuntime ussdDemoRuntime() {
+        UssdDemoRuntime r = new UssdDemoRuntime();
+        demoContext.setRuntime(r);
+        return r;
+    }
 
-            @Override
-            public boolean isAutoStartup() {
-                return true;
-            }
+    @Bean
+    public HttpServerResourceAdaptor httpServerRa() {
+        HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
+        ra.setPort(httpPort);
+        ra.setBeginEventFactory((HttpBeginEventFactory) (sid, msisdn, ussd, cbUrl) ->
+                new HttpUssdBeginEvent(sid, msisdn, ussd, cbUrl));
+        ra.setActivityContextFactory((HttpServerResourceAdaptor.ActivityContextFactory)
+                (sid, ctx) -> container.createActivityContext(sid));
+        ra.setSessionPreparer((HttpServerSessionPreparer) this::prepareHttpSession);
+        return ra;
+    }
 
-            @Override
-            public int getPhase() {
-                return Integer.MIN_VALUE + 200;
-            }
+    @Bean public HttpServerRaEndpoint httpServerEndpoint(HttpServerResourceAdaptor ra) {
+        return new HttpServerRaEndpoint(ra);
+    }
 
-            @Override
-            public void start() {
-                wireSlee();
-                running = true;
-                LOG.info("USSD demo bootstrap complete (HTTP RA port="
-                        + wiring.httpRa().boundPort() + ")");
-            }
+    @Bean public HttpCallbackClientRa httpCallbackClientRa() {
+        return new HttpCallbackClientRa();
+    }
 
-            @Override
-            public void stop() {
-                if (remoteGrpcClient != null) {
-                    remoteGrpcClient.close();
-                    remoteGrpcClient = null;
-                }
-                running = false;
-            }
+    @Bean public HttpCallbackRaEndpoint httpCallbackEndpoint(HttpCallbackClientRa ra) {
+        return new HttpCallbackRaEndpoint(ra);
+    }
 
-            @Override
-            public boolean isRunning() {
-                return running;
+    @Bean public GrpcMenuResourceAdaptor grpcMenuRa() {
+        return new GrpcMenuResourceAdaptor();
+    }
+
+    @Bean
+    public GrpcMenuRaEndpoint grpcMenuEndpoint(GrpcMenuResourceAdaptor ra,
+                                                GrpcMenuUpstream upstream,
+                                                GrpcMenuEventFactory ef) {
+        GrpcMenuRaEndpoint ep = new GrpcMenuRaEndpoint(ra);
+        ep.setGrpcMenuUpstream(upstream);
+        ep.setEventFactory(ef);
+        ep.setActivityContextLookup(sid -> container.getActivityContextNamingFacility().lookup(sid));
+        return ep;
+    }
+
+    @Bean
+    public GrpcMenuUpstream grpcMenuUpstream() {
+        ManagedChannel ch = NettyChannelBuilder.forAddress(grpcHost, grpcPort).usePlaintext().build();
+        return (msisdn, ussdString, sessionId) -> {
+            var req = com.example.ussddemo.spring.proto.MenuRequest.newBuilder()
+                    .setMsisdn(msisdn).setUssdString(ussdString)
+                    .setSessionId(sessionId == null ? "" : sessionId).build();
+            var stub = com.example.ussddemo.spring.proto.UssdMenuServiceGrpc.newBlockingStub(ch)
+                    .withDeadlineAfter(5_000, TimeUnit.MILLISECONDS);
+            try {
+                var resp = stub.resolveMenu(req);
+                return new GrpcMenuUpstreamResult() {
+                    public String getSessionId() { return resp.getSessionId(); }
+                    public String getStatus() { return resp.getStatus(); }
+                    public String getMenuText() { return resp.getMenuText(); }
+                    public String getError() { return resp.getError(); }
+                };
+            } catch (StatusRuntimeException e) {
+                String err = e.getStatus().getCode() + ": " + e.getStatus().getDescription();
+                return new GrpcMenuUpstreamResult() {
+                    public String getSessionId() { return sessionId; }
+                    public String getStatus() { return "ERR"; }
+                    public String getMenuText() { return null; }
+                    public String getError() { return err; }
+                };
             }
         };
     }
 
-    private void wireSlee() {
-        wiring.setContainer(container);
-
-        // Keep the legacy IES customiser for HttpUssdBeginEvent routing
-        // — Perfect Core S3 still honours it as the "root SBB"
-        // resolution path. We additionally bind the IES dispatcher
-        // below so the @InitialEventSelect methods on the SBBs (e.g.
-        // Ss7UssdIngressSbb) take effect for non-root events.
-        container.setInitialEventSelectorCustomizer(this::customizeInitialEvent);
-        bindInitialEventSelector(container);
-
-        seedProfiles();
-
-        HttpIngressResourceAdaptor httpRa = new HttpIngressResourceAdaptor();
-        httpRa.setSessionStore(sessionStore);
-        httpRa.setPort(httpPort);
-        activateRa(httpRa, "http-ingress");
-        wiring.setHttpRa(httpRa);
-
-        GrpcMenuResourceAdaptor grpcRa = new GrpcMenuResourceAdaptor();
-        grpcRa.setContainer(container);
-        grpcRa.setGrpcMenuResolver(grpcResolver());
-        activateRa(grpcRa, "grpc-menu");
-        wiring.setGrpcRa(grpcRa);
+    @Bean
+    public GrpcMenuEventFactory grpcMenuEventFactory() {
+        return new GrpcMenuEventFactory() {
+            public SleeEvent createRequestEvent(String sid, String msisdn, String ussd) {
+                return new GrpcMenuRequestEvent(sid, msisdn, ussd);
+            }
+            public SleeEvent createResponseEvent(String sid, String status, String text, String err) {
+                return new GrpcMenuResponseEvent(sid, status, text, err);
+            }
+        };
     }
 
-    /**
-     * Perfect Core S5 — drive the full RA lifecycle through the
-     * kernel-side factory. The legacy {@code RaBootstrapContextImpl}
-     * shim is replaced by {@link ResourceAdaptorContextBuilder#build}
-     * which wires the RA to the live container's EventRouter, ACNF,
-     * TimerBridge, AlarmFacility, TraceFacility, NullActivityFactory,
-     * and EventLookupFacility in one call.
-     */
-    private void activateRa(com.microjainslee.api.ResourceAdaptor ra, String entityName) {
-        ResourceAdaptorContextBuilder.build(container, ra, entityName);
+    @Bean
+    public org.springframework.context.SmartLifecycle ussdDemoLifecycle() {
+        return new org.springframework.context.SmartLifecycle() {
+            private volatile boolean running;
+            @Override public boolean isAutoStartup() { return true; }
+            @Override public int getPhase() { return Integer.MIN_VALUE + 200; }
+            @Override
+            public void start() {
+                demoContext.setContainer(container);
+                seedProfiles();
+                registerSbbTypes();
+                bindEventMappings();
+                bindInitialEventSelector();
+                running = true;
+                LOG.info("USSD demo bootstrap complete (HTTP RA port={})", httpPort);
+            }
+            @Override public void stop() { running = false; }
+            @Override public boolean isRunning() { return running; }
+        };
     }
 
-    /**
-     * Perfect Core S3 — bind the Initial Event Selector dispatcher so
-     * the event router honours {@code @InitialEventSelect} methods on
-     * SBBs. Without this binding, every incoming
-     * {@link Ss7UssdBeginEvent} would create a brand-new SBB entity,
-     * breaking the USSD stateful protocol.
-     */
-    private void bindInitialEventSelector(MicroSleeContainer c) {
-        try {
-            com.microjainslee.core.VirtualThreadSbbEntityPool pool = c.getSbbEntityPool();
-            final java.util.concurrent.atomic.AtomicLong counter =
-                    new java.util.concurrent.atomic.AtomicLong();
-            InitialEventSelectorDispatcher.SbbEntityPool adapter =
-                    new InitialEventSelectorDispatcher.SbbEntityPool() {
-                        @Override
-                        public String allocateNew(Class<?> sbbClass) {
-                            String entityId = sbbClass.getSimpleName()
-                                    + "#" + counter.incrementAndGet();
-                            final Class<? extends com.microjainslee.api.Sbb> typedSbb =
-                                    sbbClass.asSubclass(com.microjainslee.api.Sbb.class);
-                            pool.acquire(entityId, () -> {
-                                try {
-                                    return typedSbb.getDeclaredConstructor().newInstance();
-                                } catch (Exception e) {
-                                    throw new IllegalStateException(
-                                            "IES allocate factory failed for "
-                                                    + sbbClass.getName(), e);
-                                }
-                            });
-                            return entityId;
-                        }
+    // ---- private helpers ----
 
-                        @Override
-                        public boolean contains(String entityId) {
-                            return pool.findEntity(entityId) != null;
-                        }
-
-                        @Override
-                        public void onEntityRemoved(String entityId,
-                                                     java.util.function.Consumer<String> callback) {
-                            callback.accept(entityId);
-                        }
-                    };
-            InitialEventSelectorDispatcher dispatcher =
-                    new InitialEventSelectorDispatcher(adapter);
-            c.setInitialEventSelectorDispatcher(dispatcher);
-            LOG.info("Initial Event Selector dispatcher bound (S3)");
-        } catch (RuntimeException e) {
-            LOG.warnf(e, "IES dispatcher bind failed — falling back to legacy allocate-per-event");
-        }
+    private void prepareHttpSession(String sid, String cbUrl, ActivityContextInterface aci) {
+        demoContext.storeCallbackUrl(sid, cbUrl);
+        HttpServerSbb sbb = new HttpServerSbb();
+        SimpleSbbLocalObject lo = container.registerSbb(demoContext.httpEntityId(sid), sbb);
+        lo.setPriority(15);
+        sbb.bindSelf(lo);
+        container.attach(sid, lo);
+        try { waitForActivation(lo); }
+        catch (InterruptedException e) { Thread.currentThread().interrupt();
+            throw new IllegalStateException("HTTP SBB activation interrupted", e); }
     }
 
-    private void customizeInitialEvent(InitialEventSelector selector) {
-        if (selector.getEvent() instanceof HttpUssdBeginEvent) {
-            String sessionId = ((HttpUssdBeginEvent) selector.getEvent()).getSessionId();
-            String httpId = sessionId + "/HttpServer";
-            HttpServerSbb httpSbb = new HttpServerSbb(wiring, sessionStore, callbackDispatcher);
-            container.registerSbb(httpId, httpSbb);
-            selector.setRootSbbId(httpId);
-        }
-    }
-
-    private GrpcMenuResolver grpcResolver() {
-        if (useInMemoryGrpc) {
-            InMemoryGrpcMenuClient inMemory = new InMemoryGrpcMenuClient(inMemoryGrpcLatencyMs);
-            return inMemory::resolveMenu;
-        }
-        remoteGrpcClient = new GrpcMenuClient(grpcHost, grpcPort);
-        return remoteGrpcClient::resolveMenu;
+    private void registerSbbTypes() {
+        container.registerSbbType(Ss7UssdIngressSbb.class, Ss7UssdIngressSbb.$Concrete::new);
+        container.registerSbbType(GrpcClientSbb.class, GrpcClientSbb::new);
+        container.registerSbbType(HttpServerSbb.class, HttpServerSbb::new);
+        LOG.info("Registered pooled SBB types: Ss7UssdIngress, GrpcClient, HttpServer");
     }
 
     private void seedProfiles() {
-        ProfileFacility facility = container.getProfileFacility();
-        if (!(facility instanceof InMemoryProfileFacility)) {
-            LOG.warn("Profile facility is not in-memory; skipping seed");
-            return;
-        }
-        InMemoryProfileFacility inMemory = (InMemoryProfileFacility) facility;
-        inMemory.createProfileTable("ussdSubscribers");
-        seedSubscriber(inMemory, "251911000001", 2);
-        seedSubscriber(inMemory, "251911000002", 1);
+        ProfileFacility f = container.getProfileFacility();
+        f.createProfileTable("ussdSubscribers");
+        seedSub(f, "251911000001", "GOLD");
+        seedSub(f, "251911000002", "SILVER");
+        LOG.info("Seeded 2 subscriber profiles");
     }
 
-    private static void seedSubscriber(InMemoryProfileFacility facility,
-                                       String msisdn, int tier) {
+    private void seedSub(ProfileFacility f, String msisdn, String tier) {
+        ProfileLocalObject plo = f.createProfile("ussdSubscribers", msisdn, UssdSubscriberProfile.class);
+        UssdSubscriberProfile sub = (UssdSubscriberProfile) plo.getProfile();
+        sub.setMsisdn(msisdn);
+        sub.setTier(tier);
+        demoContext.seedTier(msisdn, tier);
+    }
+
+    private void bindEventMappings() {
+        container.mapEventToSbb(HttpUssdBeginEvent.class, "HttpServerSbb");
+        container.mapEventToSbb(Ss7UssdBeginEvent.class, "Ss7UssdIngress");
+        container.mapEventToSbb(GrpcMenuRequestEvent.class, "GrpcClientSbb");
+        container.mapEventToSbb(GrpcMenuResponseEvent.class, "Ss7UssdIngress");
+        container.mapEventToSbb(UssdResponseEvent.class, "HttpServerSbb");
+        LOG.info("Event-to-SBB mappings bound");
+    }
+
+    private void bindInitialEventSelector() {
         try {
-            facility.createProfile("ussdSubscribers", msisdn, UssdSubscriberProfile.class);
-            ProfileLocalObject plo = facility.getProfile(
-                    new com.microjainslee.api.ProfileID("ussdSubscribers", msisdn));
-            Profile profile = plo == null ? null : plo.getProfile();
-            if (profile instanceof UssdSubscriberProfile) {
-                UssdSubscriberProfile sub = (UssdSubscriberProfile) profile;
-                sub.setMsisdn(msisdn);
-                sub.setMenuTier(tier);
-            }
-        } catch (Exception e) {
-            LOG.warnf(e, "Failed to seed profile for %s", msisdn);
+            var pool = container.getSbbEntityPool();
+            var counter = new AtomicLong();
+            InitialEventSelectorDispatcher.SbbEntityPool adapter =
+                new InitialEventSelectorDispatcher.SbbEntityPool() {
+                    public String allocateNew(Class<?> sc) {
+                        String eid = sc.getSimpleName() + "#" + counter.incrementAndGet();
+                        var typed = sc.asSubclass(com.microjainslee.api.Sbb.class);
+                        pool.acquire(eid, () -> {
+                            try { return typed.getDeclaredConstructor().newInstance(); }
+                            catch (Exception ex) { throw new IllegalStateException(ex); }
+                        });
+                        return eid;
+                    }
+                    public boolean contains(String eid) { return pool.findEntity(eid) != null; }
+                    public void onEntityRemoved(String eid, java.util.function.Consumer<String> cb) {
+                        cb.accept(eid);
+                    }
+                };
+            container.setInitialEventSelectorDispatcher(new InitialEventSelectorDispatcher(adapter));
+            LOG.info("Initial Event Selector dispatcher bound");
+        } catch (RuntimeException e) {
+            LOG.warn("IES dispatcher bind failed", e);
+        }
+    }
+
+    private static void waitForActivation(SimpleSbbLocalObject lo) throws InterruptedException {
+        for (int i = 0; i < 50; i++) {
+            if (lo.getEntityState().getLifecycleState() == SbbLifecycleManager.State.READY) return;
+            Thread.sleep(10L);
         }
     }
 }

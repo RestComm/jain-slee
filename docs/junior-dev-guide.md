@@ -2,7 +2,7 @@
 
 > **Tài liệu onboarding cho developer mới làm việc với micro-jainslee**
 >
-> Last updated: 2026-07-03 | Maintainer: nhanth87
+> Last updated: 2026-07-04 | Maintainer: nhanth87
 > Nguồn dữ liệu: Supermemory API (sm_project_default) + codebase analysis
 
 ---
@@ -694,6 +694,151 @@ micro-jainslee (Java 25):
 ---
 
 > **Remember:** micro-jainslee is for R&D only. Happy coding! 🚀
+
+---
+
+## Phụ lục C: Cấu trúc JAIN SLEE Application (Pattern từ example/)
+
+### C.1 Tổ chức thư mục
+
+```
+my-ussd-app/
+├── pom.xml                         # depends on jainslee-core + vendor-ras
+└── src/main/java/com/example/ussd/
+    ├── events/                     ← SleeEvent classes
+    │   ├── HttpUssdBeginEvent.java
+    │   ├── GrpcMenuRequestEvent.java
+    │   └── UssdResponseEvent.java
+    ├── sbbs/                       ← SBB implementations
+    │   ├── HttpServerSbb.java
+    │   ├── GrpcClientSbb.java
+    │   └── Ss7UssdIngressSbb.java  ← CMP-backed
+    ├── MyAppBootstrap.java         ← Wires RAs, SBBs, event mappings
+    └── MyAppMain.java              ← Entry point
+```
+
+### C.2 Cách thiết kế SBB
+
+```java
+@SbbAnnotation(name = "Ss7UssdIngress", vendor = "com.example", version = "1.0")
+public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEventHandler {
+
+    @CmpField("sessionId")  public abstract String getSessionId();
+    @CmpField("sessionId")  public abstract void setSessionId(String v);
+
+    @InitialEventSelect(name = "ussd-convergence")
+    public InitialEventSelectResult select(InitialEventSelectCondition c) { /* ... */ }
+
+    @Override
+    public void onEvent(SleeEvent event, ActivityContextInterface aci) { /* ... */ }
+
+    // $Concrete — hand-written (production: auto-generated)
+    public static final class $Concrete extends Ss7UssdIngressSbb {
+        private final Map<String, Object> local = new ConcurrentHashMap<>();
+        @Override public String getSessionId() { return (String) local.get("sessionId"); }
+    }
+}
+```
+
+### C.3 Cách SBB gọi Resource Adaptor
+
+Dùng `@InjectRa` để container inject `RaCommandPort`:
+
+```java
+public final class GrpcClientSbb implements Sbb, SleeEventHandler {
+
+
+### C.4 Cách thiết kế Resource Adaptor
+
+vendor-ras có 4 RA, mỗi RA = 2 class:
+
+```
+ra-http-server/src/main/java/com/microjainslee/ra/httpserver/
+├── HttpServerResourceAdaptor.java   ← extends AbstractResourceAdaptor
+└── HttpServerRaEndpoint.java        ← implements RaEndpointPort + RaCommandPort
+```
+
+Pattern Endpoint (3-port contract):
+
+```java
+public final class HttpServerRaEndpoint implements RaEndpointPort, RaCommandPort {
+    private final HttpServerResourceAdaptor delegate;
+
+    @Override public String getRaName() { return "http-server-ra"; }
+
+    @Override public void activate(RaBootstrapPort bootstrap) {
+        delegate.setResourceAdaptorContext(bridgeContext(bootstrap));
+        delegate.raConfigure();
+        delegate.raActive();
+    }
+
+    @Override public void sendCommand(OutboundCommand cmd) {
+        if (cmd instanceof HttpServerCommand c) delegate.handleCommand(c);
+    }
+}
+```
+
+Pattern RA Core (extends AbstractResourceAdaptor):
+
+```java
+public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
+    @Override public void raConfigure() { /* setup */ }
+    @Override public void raActive()    { /* start HttpServer */ }
+    @Override public void raInactive()  { /* stop HttpServer */ }
+
+    // Collaborator interfaces
+    public interface ActivityContextFactory { /* ... */ }
+}
+```
+
+### C.5 Cách wire toàn bộ application
+
+```java
+public final class MyAppBootstrap {
+    private final MicroSleeContainer container;
+
+    public void install(int httpPort) {
+        // 1. Register SBB types
+        container.registerSbbType(Ss7UssdIngressSbb.class, Ss7UssdIngressSbb.$Concrete::new);
+        container.registerSbbType(GrpcClientSbb.class, GrpcClientSbb::new);
+
+        // 2. Create & register RAs
+        HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
+        ra.setPort(httpPort);
+        ra.setBeginEventFactory((sid, msisdn, ussd, cb) -> new HttpUssdBeginEvent(sid, msisdn, ussd, cb));
+        HttpServerRaEndpoint ep = new HttpServerRaEndpoint(ra);
+        container.registerRa(ep, ep);  // RaEndpointPort, RaCommandPort
+
+        // 3. Map events → SBBs
+        container.mapEventToSbb(HttpUssdBeginEvent.class, "HttpServerSbb");
+        container.mapEventToSbb(GrpcMenuRequestEvent.class, "GrpcClientSbb");
+    }
+}
+```
+
+### C.6 Full request flow
+
+```
+ussd-client-simulator → HTTP POST → ra-http-server
+  → fireEvent(HttpUssdBeginEvent) → EventRouter
+  → HttpServerSbb → Ss7UssdIngressSbb → child GrpcClientSbb
+  → @InjectRa grpcPort.sendCommand(GrpcMenuCommand) → ra-grpc-client
+  → gRPC ResolveMenu → grpc-server-simulator → menu response
+  → fireEvent(GrpcMenuResponseEvent) → GrpcClientSbb → Ss7UssdIngressSbb
+  → UssdResponseEvent → HttpServerSbb → ra-http-client callback → simulator
+```
+
+    @InjectRa(name = "grpc-menu-ra")          // ← match với getRaName()
+    private volatile RaCommandPort grpcPort;
+
+    public void sendMenu(String sid, String msisdn, String ussd, ActivityContextInterface aci) {
+        grpcPort.sendCommand(new GrpcMenuCommand(sid, msisdn, ussd, aci));
+    }
+}
+```
+
+> **Key:** SBBs KHÔNG import RA classes trực tiếp. Chỉ biết `RaCommandPort` + `OutboundCommand`.
+
 
 
 

@@ -10,177 +10,132 @@
 
 package com.example.ussddemo.spring.sbbs;
 
+import com.example.ussddemo.spring.UssdDemoContext;
 import com.example.ussddemo.spring.events.HttpUssdBeginEvent;
 import com.example.ussddemo.spring.events.Ss7UssdBeginEvent;
-import com.example.ussddemo.spring.events.UssdCompleteEvent;
-import com.example.ussddemo.spring.profile.UssdSubscriberProfile;
-import com.example.ussddemo.spring.service.UssdCallbackDispatcher;
-import com.example.ussddemo.spring.service.UssdSessionStore;
-import com.example.ussddemo.spring.service.UssdWiring;
+import com.example.ussddemo.spring.events.UssdResponseEvent;
 import com.microjainslee.api.ActivityContextInterface;
-import com.microjainslee.api.Profile;
-import com.microjainslee.api.ProfileFacility;
-import com.microjainslee.api.ProfileLocalObject;
-import com.microjainslee.api.ProfileTable;
+import com.microjainslee.api.RaCommandPort;
 import com.microjainslee.api.Sbb;
-import com.microjainslee.api.SbbContext;
 import com.microjainslee.api.SbbLocalObject;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
-import com.microjainslee.api.TimerFiredEvent;
-import com.microjainslee.api.annotations.SbbAnnotation;
-import com.microjainslee.core.InMemoryActivityContext;
+import com.microjainslee.api.annotations.InjectRa;
+import com.microjainslee.core.MicroSleeContainer;
+import com.microjainslee.core.SbbLifecycleManager;
 import com.microjainslee.core.SimpleSbbLocalObject;
+import com.microjainslee.ra.httpclient.HttpCallbackCommand;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * GW-facing entry SBB. Receives {@link HttpUssdBeginEvent} from the HTTP RA,
- * performs profile lookup, arms a session timer, and routes to the SS7 leg.
+ * GW-facing HTTP entry SBB. Receives {@link HttpUssdBeginEvent} from the
+ * HTTP ingress RA, performs subscriber profile lookup, acquires the SS7
+ * ingress entity for the session, and routes {@link Ss7UssdBeginEvent}.
+ *
+ * <p>Registered at runtime via {@code registerSbbType}.
  */
-@SbbAnnotation(name = "HttpServer", vendor = "com.example.ussddemo", version = "1.0")
 public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
     private static final Logger LOG = LogManager.getLogger(HttpServerSbb.class);
-    private static final long SESSION_TIMEOUT_MS = 30_000L;
-    private static final String PROFILE_TABLE = "ussdSubscribers";
 
-    private UssdWiring wiring;
-    private UssdSessionStore sessionStore;
-    private UssdCallbackDispatcher callbackDispatcher;
-    private SbbContext sbbContext;
-    private long sessionTimerId;
+    private volatile SbbLocalObject self;
 
-    public HttpServerSbb() {
-    }
+    /** Injected HTTP callback RA command port for async callback delivery. */
+    @InjectRa(name = "httpCallbackRa")
+    private volatile RaCommandPort httpCallbackPort;
 
-    public HttpServerSbb(UssdWiring wiring, UssdSessionStore sessionStore,
-                         UssdCallbackDispatcher callbackDispatcher) {
-        this.wiring = wiring;
-        this.sessionStore = sessionStore;
-        this.callbackDispatcher = callbackDispatcher;
-    }
-
-    public void setWiring(UssdWiring wiring) { this.wiring = wiring; }
-    public void setSessionStore(UssdSessionStore sessionStore) { this.sessionStore = sessionStore; }
-    public void setCallbackDispatcher(UssdCallbackDispatcher callbackDispatcher) {
-        this.callbackDispatcher = callbackDispatcher;
+    public void bindSelf(SbbLocalObject self) {
+        this.self = self;
     }
 
     @Override
-    public void setSbbContext(SbbContext context) {
-        this.sbbContext = context;
+    public void sbbCreate() {
+        LOG.debug("HttpServerSbb created");
     }
 
-    @Override public void sbbCreate() { }
-    @Override public void sbbActivate() { }
-    @Override public void sbbPassivate() { }
-    @Override public void sbbRemove() { }
+    @Override
+    public void sbbActivate() {
+        LOG.debug("HttpServerSbb activated");
+    }
+
+    @Override
+    public void sbbPassivate() {
+    }
+
+    @Override
+    public void sbbRemove() {
+    }
 
     @Override
     public void onEvent(SleeEvent event, ActivityContextInterface aci) {
         if (event instanceof HttpUssdBeginEvent) {
             onHttpBegin((HttpUssdBeginEvent) event, aci);
-        } else if (event instanceof UssdCompleteEvent) {
-            onUssdComplete((UssdCompleteEvent) event);
-        } else if (event instanceof TimerFiredEvent) {
-            onTimer((TimerFiredEvent) event);
+        } else if (event instanceof UssdResponseEvent) {
+            onUssdResponse((UssdResponseEvent) event, aci);
         }
     }
 
     private void onHttpBegin(HttpUssdBeginEvent event, ActivityContextInterface aci) {
-        int tier = lookupMenuTier(event.getMsisdn());
-        LOG.infof("[HttpServer] begin session=%s msisdn=%s tier=%d",
-                event.getSessionId(), event.getMsisdn(), tier);
-
-        String aciName = aci.getActivityContextName();
-        String sessionId = event.getSessionId();
-        // Perfect Core S2 — Ss7UssdIngressSbb is abstract with @CmpField-
-        // annotated accessors; the runtime works against its concrete
-        // companion $Concrete (hand-written here, normally produced by
-        // com.microjainslee.codegen.ConcreteSbbGenerator).
-        Ss7UssdIngressSbb ss7Sbb = new Ss7UssdIngressSbb.$Concrete(wiring);
-        GrpcClientSbb grpcSbb = new GrpcClientSbb();
-        SimpleSbbLocalObject ss7 = wiring.container().registerSbb(sessionId + "/Ss7", ss7Sbb);
-        SimpleSbbLocalObject grpc = wiring.container().registerSbb(sessionId + "/Grpc", grpcSbb);
-        ss7.setPriority(7);
-        grpc.setPriority(5);
-        if (aci instanceof InMemoryActivityContext) {
-            InMemoryActivityContext ctx = (InMemoryActivityContext) aci;
-            ctx.attachImmediate(ss7);
-            ctx.attachImmediate(grpc);
-        } else {
-            wiring.container().attach(aciName, ss7);
-            wiring.container().attach(aciName, grpc);
-        }
-
-        if (sbbContext != null) {
-            sessionTimerId = sbbContext.getTimerFacility().setTimer(
-                    SESSION_TIMEOUT_MS, sbbContext.getSbbLocalObject());
-        }
-
-        wiring.container().routeEvent(
-                new Ss7UssdBeginEvent(event.getSessionId(), event.getMsisdn(),
-                        event.getUssdString(), tier),
-                aci);
-    }
-
-    private int lookupMenuTier(String msisdn) {
         try {
-            ProfileFacility facility = wiring.container().getProfileFacility();
-            if (facility == null) {
-                return 1;
-            }
-            ProfileTable table = facility.getProfileTable(PROFILE_TABLE);
-            if (table == null) {
-                return 1;
-            }
-            ProfileLocalObject plo = table.getProfile(msisdn);
-            if (plo == null) {
-                return 1;
-            }
-            Profile profile = plo.getProfile();
-            if (profile instanceof UssdSubscriberProfile) {
-                return ((UssdSubscriberProfile) profile).getMenuTier();
-            }
-            Object tier = profile.getCmpField("menuTier");
-            return tier instanceof Number ? ((Number) tier).intValue() : 1;
-        } catch (Exception e) {
-            LOG.debugf("No profile for msisdn=%s, default tier=1", msisdn);
-            return 1;
+            String tier = lookupTier(event.getMsisdn());
+            LOG.info("[HTTP-server] begin session={} msisdn={} tier={}",
+                    event.getSessionId(), event.getMsisdn(), tier);
+
+            MicroSleeContainer container = UssdDemoContext.container();
+            String ss7Id = UssdDemoContext.context().ss7EntityId(event.getSessionId());
+            SimpleSbbLocalObject ss7Lo = container.acquireEntity(ss7Id, Ss7UssdIngressSbb.class);
+            ss7Lo.setPriority(10);
+            Ss7UssdIngressSbb ss7Sbb = (Ss7UssdIngressSbb) ss7Lo.getSbb();
+            ss7Sbb.bindSelf(ss7Lo);
+            ss7Sbb.initCmp(event.getSessionId(), event.getMsisdn(), tier);
+            container.attach(event.getSessionId(), ss7Lo);
+            waitForActivation(ss7Lo);
+
+            container.routeEvent(new Ss7UssdBeginEvent(
+                    event.getSessionId(), event.getMsisdn(), event.getUssdString(), tier), aci);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.error("Interrupted while activating SS7 ingress for session={}", event.getSessionId());
+        } catch (RuntimeException e) {
+            LOG.error("HTTP begin handling failed for session={}", event.getSessionId(), e);
         }
     }
 
-    private void onUssdComplete(UssdCompleteEvent event) {
-        String sessionId = event.getSessionId();
-        if (event.getErrorMessage() != null) {
-            sessionStore.fail(sessionId, event.getErrorMessage());
-            UssdSessionStore.SessionRecord record = sessionStore.get(sessionId);
-            if (record != null && record.getCallbackUrl() != null) {
-                callbackDispatcher.dispatch(record.getCallbackUrl(), sessionId, "FAILED",
-                        null, event.getErrorMessage());
-            }
-        } else {
-            sessionStore.complete(sessionId, event.getResponseText());
-            UssdSessionStore.SessionRecord record = sessionStore.get(sessionId);
-            if (record != null && record.getCallbackUrl() != null) {
-                callbackDispatcher.dispatch(record.getCallbackUrl(), sessionId, "COMPLETED",
-                        event.getResponseText(), null);
-            }
-        }
-        if (sessionTimerId != 0L && sbbContext != null) {
-            sbbContext.getTimerFacility().cancelTimer(sessionTimerId);
-            sessionTimerId = 0L;
-        }
-        wiring.httpRa().onHttpEnd(sessionId);
-        LOG.infof("[HttpServer] session complete session=%s", sessionId);
+    private void onUssdResponse(UssdResponseEvent event, ActivityContextInterface aci) {
+        LOG.info("[HTTP-server] USSD response ready session={}", event.getSessionId());
+        publishCallback(event.getSessionId(), event.getResponseText(),
+                UssdDemoContext.context().callbackUrlFor(event.getSessionId()));
+        UssdDemoContext.context().releaseSession(event.getSessionId());
     }
 
-    private void onTimer(TimerFiredEvent event) {
-        if (event.getSbbLocalObject() != sbbContext.getSbbLocalObject()) {
+    private static String lookupTier(String msisdn) {
+        return UssdDemoContext.context().tierFor(msisdn);
+    }
+
+    /**
+     * Publish an HTTP callback through the injected RA command port.
+     * The {@link RaCommandPort} is populated via {@code @InjectRa} at SBB
+     * creation time. The RA delivers the callback payload to the external
+     * callback URL asynchronously.
+     */
+    public void publishCallback(String sessionId, String responseText, String callbackUrl) {
+        RaCommandPort port = this.httpCallbackPort;
+        if (port == null) {
+            LOG.warn("[HTTP-server] httpCallbackPort not injected yet");
             return;
         }
-        LOG.warn("[HttpServer] session timeout");
+        port.sendCommand(new HttpCallbackCommand(sessionId, callbackUrl, responseText));
+        LOG.debug("[HTTP-server] Callback command queued for session={}", sessionId);
+    }
+
+    private static void waitForActivation(SimpleSbbLocalObject lo) throws InterruptedException {
+        for (int i = 0; i < 50; i++) {
+            if (lo.getEntityState().getLifecycleState() == SbbLifecycleManager.State.READY) {
+                return;
+            }
+            Thread.sleep(10L);
+        }
     }
 }

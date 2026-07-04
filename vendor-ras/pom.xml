@@ -32,7 +32,9 @@
             See docs/micro-jainslee-compact-design.md §7 and §11.1.
         -->
         <module>ra-grpc-client</module>
-        <module>ra-http-ingress</module>
+        <module>ra-http-server</module>
+        <module>ra-http-client</module>
+        <module>ra-grpc-server</module>
         <!-- Phase 3+: <module>ra-map-jss7</module>, <module>ra-sip</module>, <module>ra-diameter</module> -->
         <!-- Phase 4+: <module>ra-camel</module> -->
     </modules>

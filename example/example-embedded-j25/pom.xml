@@ -49,6 +49,23 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Vendor RAs -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-http-server</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-http-client</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-grpc-client</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty-shaded</artifactId>
@@ -184,7 +201,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.example.ussddemo.embedded.EmbeddedUssdMain</mainClass>
+                            <mainClass>com.example.ussddemo.EmbeddedUssdMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -195,7 +212,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
-                    <mainClass>com.example.ussddemo.embedded.EmbeddedUssdMain</mainClass>
+                    <mainClass>com.example.ussddemo.EmbeddedUssdMain</mainClass>
                 </configuration>
             </plugin>
 

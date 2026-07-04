@@ -65,7 +65,7 @@ public final class GrpcSimulatorServer {
 
     public static final class Builder {
         private int port = 9090;
-        private BindableService service = new DefaultMenuServiceImpl();
+        private BindableService service = new MultiLevelMenuService();
         public Builder port(int p) { this.port = p; return this; }
         public Builder service(BindableService s) { this.service = s; return this; }
         public GrpcSimulatorServer build() { return new GrpcSimulatorServer(port, service); }

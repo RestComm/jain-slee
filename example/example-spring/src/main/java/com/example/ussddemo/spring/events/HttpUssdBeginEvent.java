@@ -13,7 +13,10 @@ package com.example.ussddemo.spring.events;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.annotations.EventType;
 
-/** Fired by the HTTP ingress RA when a USSD session begins. */
+/**
+ * Fired by the HTTP ingress RA when an external USSD gateway posts
+ * {@code /api/ussd/begin-callback} (or the polling {@code /begin} path).
+ */
 @EventType(name = "HttpUssdBegin", vendor = "com.example.ussddemo", version = "1.0")
 public final class HttpUssdBeginEvent implements SleeEvent {
 
@@ -30,8 +33,19 @@ public final class HttpUssdBeginEvent implements SleeEvent {
         this.callbackUrl = callbackUrl;
     }
 
-    public String getSessionId() { return sessionId; }
-    public String getMsisdn() { return msisdn; }
-    public String getUssdString() { return ussdString; }
-    public String getCallbackUrl() { return callbackUrl; }
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public String getMsisdn() {
+        return msisdn;
+    }
+
+    public String getUssdString() {
+        return ussdString;
+    }
+
+    public String getCallbackUrl() {
+        return callbackUrl;
+    }
 }

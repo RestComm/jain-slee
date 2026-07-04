@@ -14,7 +14,8 @@ import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.annotations.EventType;
 
 /**
- * Internal trace event fired by the gRPC RA when a menu lookup starts.
+ * Internal event fired by the gRPC RA when a menu lookup starts.
+ * Routed to {@code GrpcClientSbb} for processing.
  */
 @EventType(name = "GrpcMenuRequest", vendor = "com.example.ussddemo", version = "1.0")
 public final class GrpcMenuRequestEvent implements SleeEvent {

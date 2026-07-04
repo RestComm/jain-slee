@@ -116,6 +116,23 @@
             <artifactId>adapter-springboot</artifactId>
             <version>${microjainslee.version}</version>
         </dependency>
+
+        <!-- vendor-ras (resource adaptors) -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-http-server</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-http-client</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-grpc-client</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

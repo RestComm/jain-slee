@@ -101,6 +101,27 @@
             <version>${microjainslee.version}</version>
         </dependency>
 
+        <!-- vendor-ras: HTTP server RA (JDK HttpServer) -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-http-server</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+
+        <!-- vendor-ras: gRPC client RA -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-grpc-client</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+
+        <!-- vendor-ras: HTTP client callback RA -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-http-client</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+
         <!-- gRPC client for GrpcMenuResourceAdaptor -->
         <dependency>
             <groupId>io.grpc</groupId>

@@ -4,8 +4,7 @@
 
 package com.example.ussddemo.sbbs;
 
-import com.example.ussddemo.commands.HttpCallbackCommand;
-import com.example.ussddemo.embedded.EmbeddedUssdMain;
+import com.example.ussddemo.EmbeddedUssdMain;
 import com.example.ussddemo.events.HttpUssdBeginEvent;
 import com.example.ussddemo.events.Ss7UssdBeginEvent;
 import com.example.ussddemo.events.UssdResponseEvent;
@@ -19,6 +18,7 @@ import com.microjainslee.api.annotations.InjectRa;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.SbbLifecycleManager;
 import com.microjainslee.core.SimpleSbbLocalObject;
+import com.microjainslee.ra.httpclient.HttpCallbackCommand;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
  * HTTP ingress RA, performs subscriber profile lookup, acquires the SS7
  * ingress entity for the session, and routes {@link Ss7UssdBeginEvent}.
  *
- * <p>Registered at runtime via {@code registerSbbType} — not APT auto-deployed.
+ * <p>Registered at runtime via {@code registerSbbType}.
  */
 public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
@@ -36,9 +36,9 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
     private volatile SbbLocalObject self;
 
-    /** GOAL 1-5 — injected HTTP ingress RA command port. */
-    @InjectRa(name = "httpIngressRa")
-    private volatile RaCommandPort httpCommandPort;
+    /** Injected HTTP callback RA command port for async callback delivery. */
+    @InjectRa(name = "httpCallbackRa")
+    private volatile RaCommandPort httpCallbackPort;
 
     public void bindSelf(SbbLocalObject self) {
         this.self = self;
@@ -74,38 +74,54 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
     private void onHttpBegin(HttpUssdBeginEvent event, ActivityContextInterface aci) {
         try {
             String tier = lookupTier(event.getMsisdn());
-        LOG.info("[HTTP-server] begin session={} msisdn={} tier={}",
-                event.getSessionId(), event.getMsisdn(), tier);
+            LOG.info("[HTTP-server] begin session={} msisdn={} tier={}",
+                    event.getSessionId(), event.getMsisdn(), tier);
 
-        MicroSleeContainer container = EmbeddedUssdMain.container();
-        String ss7Id = EmbeddedUssdMain.bootstrap().ss7EntityId(event.getSessionId());
-        SimpleSbbLocalObject ss7Lo = container.acquireEntity(ss7Id, Ss7UssdIngressSbb.class);
-        ss7Lo.setPriority(10);
-        Ss7UssdIngressSbb ss7Sbb = (Ss7UssdIngressSbb) ss7Lo.getSbb();
-        ss7Sbb.bindSelf(ss7Lo);
-        ss7Sbb.initCmp(event.getSessionId(), event.getMsisdn(), tier);
-        container.attach(event.getSessionId(), ss7Lo);
-        waitForActivation(ss7Lo);
+            MicroSleeContainer container = EmbeddedUssdMain.container();
+            String ss7Id = EmbeddedUssdMain.bootstrap().ss7EntityId(event.getSessionId());
+            SimpleSbbLocalObject ss7Lo = container.acquireEntity(ss7Id, Ss7UssdIngressSbb.class);
+            ss7Lo.setPriority(10);
+            Ss7UssdIngressSbb ss7Sbb = (Ss7UssdIngressSbb) ss7Lo.getSbb();
+            ss7Sbb.bindSelf(ss7Lo);
+            ss7Sbb.initCmp(event.getSessionId(), event.getMsisdn(), tier);
+            container.attach(event.getSessionId(), ss7Lo);
+            waitForActivation(ss7Lo);
 
-        container.routeEvent(new Ss7UssdBeginEvent(
-                event.getSessionId(), event.getMsisdn(), event.getUssdString(), tier), aci);
+            container.routeEvent(new Ss7UssdBeginEvent(
+                    event.getSessionId(), event.getMsisdn(), event.getUssdString(), tier), aci);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOG.error("Interrupted while activating SS7 ingress for session={}", event.getSessionId());
         } catch (RuntimeException e) {
             LOG.error("HTTP begin handling failed for session={}", event.getSessionId(), e);
-            EmbeddedUssdMain.runtime().failSession(event.getSessionId(), e.getMessage());
         }
     }
 
     private void onUssdResponse(UssdResponseEvent event, ActivityContextInterface aci) {
         LOG.info("[HTTP-server] USSD response ready session={}", event.getSessionId());
-        EmbeddedUssdMain.runtime().completeSession(event.getSessionId(), event.getResponseText());
+        publishCallback(event.getSessionId(), event.getResponseText(),
+                EmbeddedUssdMain.bootstrap().callbackUrlFor(event.getSessionId()));
         EmbeddedUssdMain.bootstrap().releaseSession(event.getSessionId());
     }
 
     private static String lookupTier(String msisdn) {
         return EmbeddedUssdMain.bootstrap().tierFor(msisdn);
+    }
+
+    /**
+     * Publish an HTTP callback through the injected RA command port.
+     * The {@link RaCommandPort} is populated via {@code @InjectRa} at SBB
+     * creation time. The RA delivers the callback payload to the external
+     * callback URL asynchronously.
+     */
+    public void publishCallback(String sessionId, String responseText, String callbackUrl) {
+        RaCommandPort port = this.httpCallbackPort;
+        if (port == null) {
+            LOG.warn("[HTTP-server] httpCallbackPort not injected yet");
+            return;
+        }
+        port.sendCommand(new HttpCallbackCommand(sessionId, callbackUrl, responseText));
+        LOG.debug("[HTTP-server] Callback command queued for session={}", sessionId);
     }
 
     private static void waitForActivation(SimpleSbbLocalObject lo) throws InterruptedException {
@@ -115,21 +131,5 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
             }
             Thread.sleep(10L);
         }
-    }
-
-    /**
-     * GOAL 1-5 — publish an HTTP callback through the injected RA command port.
-     * The {@link RaCommandPort} is populated via {@code @InjectRa} at SBB
-     * creation time. The RA delivers the callback payload to the external
-     * callback URL asynchronously.
-     */
-    public void publishCallback(String sessionId, String responseText, String callbackUrl) {
-        RaCommandPort port = this.httpCommandPort;
-        if (port == null) {
-            LOG.warn("[HTTP-server] httpCommandPort not injected yet");
-            return;
-        }
-        port.sendCommand(new HttpCallbackCommand(sessionId, responseText, callbackUrl));
-        LOG.debug("[HTTP-server] Callback command queued for session={}", sessionId);
     }
 }

@@ -13,7 +13,10 @@ package com.example.ussddemo.spring.events;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.annotations.EventType;
 
-/** Fired by the gRPC RA when a menu lookup starts. */
+/**
+ * Internal event fired by the gRPC RA when a menu lookup starts.
+ * Routed to {@code GrpcClientSbb} for processing.
+ */
 @EventType(name = "GrpcMenuRequest", vendor = "com.example.ussddemo", version = "1.0")
 public final class GrpcMenuRequestEvent implements SleeEvent {
 
@@ -27,7 +30,15 @@ public final class GrpcMenuRequestEvent implements SleeEvent {
         this.ussdString = ussdString;
     }
 
-    public String getSessionId() { return sessionId; }
-    public String getMsisdn() { return msisdn; }
-    public String getUssdString() { return ussdString; }
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public String getMsisdn() {
+        return msisdn;
+    }
+
+    public String getUssdString() {
+        return ussdString;
+    }
 }

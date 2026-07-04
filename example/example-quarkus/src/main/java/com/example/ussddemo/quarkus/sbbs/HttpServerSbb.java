@@ -1,95 +1,138 @@
 /*
  * micro-jainslee 1.1.0 -- example application (example-quarkus)
- *
- * Dual-licensed: GPLv3 (Section A) OR Commercial License (Section B).
- * See the LICENSE file at the root of this repository for the full text.
- *
- * Copyright (c) 2026 Tran Nhan (nhanth87). All rights reserved.
- * Contact: nhanth87@gmail.com
  */
 
 package com.example.ussddemo.quarkus.sbbs;
 
+import com.example.ussddemo.quarkus.bootstrap.UssdDemoContext;
+import com.microjainslee.ra.httpclient.HttpCallbackCommand;
 import com.example.ussddemo.quarkus.events.HttpUssdBeginEvent;
 import com.example.ussddemo.quarkus.events.Ss7UssdBeginEvent;
-import com.example.ussddemo.quarkus.events.UssdCompleteEvent;
-import com.example.ussddemo.quarkus.service.UssdSbbWiring;
+import com.example.ussddemo.quarkus.events.UssdResponseEvent;
 import com.microjainslee.api.ActivityContextInterface;
+import com.microjainslee.api.RaCommandPort;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SbbLocalObject;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
-import com.microjainslee.api.TimerFiredEvent;
-import com.microjainslee.api.annotations.SbbAnnotation;
+import com.microjainslee.api.annotations.InjectRa;
+import com.microjainslee.core.MicroSleeContainer;
+import com.microjainslee.core.SbbLifecycleManager;
+import com.microjainslee.core.SimpleSbbLocalObject;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * GW-facing entry SBB — receives HTTP RA events, arms session timer,
- * routes to the internal SS7 MAP leg.
+ * GW-facing HTTP entry SBB. Receives {@link HttpUssdBeginEvent} from the
+ * HTTP ingress RA, performs subscriber profile lookup, acquires the SS7
+ * ingress entity for the session, and routes {@link Ss7UssdBeginEvent}.
+ *
+ * <p>Registered at runtime via {@code registerSbbType} — not APT auto-deployed.
+ * Uses vendor-ras {@code HttpServerResourceAdaptor} via the endpoint pattern.
  */
-@SbbAnnotation(name = "HttpServer", vendor = "com.example.ussddemo.quarkus", version = "1.0")
 public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
     private static final Logger LOG = LogManager.getLogger(HttpServerSbb.class);
 
-    private final UssdSbbWiring wiring;
+    private final UssdDemoContext ctx;
+    private volatile SbbLocalObject self;
 
-    public HttpServerSbb(UssdSbbWiring wiring) {
-        this.wiring = wiring;
+    /** GOAL 1-5 — injected HTTP server RA command port (vendor-ras endpoint name). */
+    @InjectRa(name = "http-server-ra")
+    private volatile RaCommandPort httpCommandPort;
+
+    public HttpServerSbb(UssdDemoContext ctx) {
+        this.ctx = ctx;
     }
 
-    public HttpServerSbb() {
-        this.wiring = null;
+    public void bindSelf(SbbLocalObject self) {
+        this.self = self;
     }
 
-    @Override public void sbbCreate() { LOG.debug("HttpServerSbb created"); }
-    @Override public void sbbActivate() { LOG.debug("HttpServerSbb activated"); }
-    @Override public void sbbPassivate() { }
-    @Override public void sbbRemove() { }
+    @Override
+    public void sbbCreate() {
+        LOG.debug("HttpServerSbb created");
+    }
+
+    @Override
+    public void sbbActivate() {
+        LOG.debug("HttpServerSbb activated");
+    }
+
+    @Override
+    public void sbbPassivate() {
+    }
+
+    @Override
+    public void sbbRemove() {
+    }
 
     @Override
     public void onEvent(SleeEvent event, ActivityContextInterface aci) {
         if (event instanceof HttpUssdBeginEvent) {
             onHttpBegin((HttpUssdBeginEvent) event, aci);
-        } else if (event instanceof UssdCompleteEvent) {
-            onComplete((UssdCompleteEvent) event);
-        } else if (event instanceof TimerFiredEvent) {
-            onTimer((TimerFiredEvent) event);
+        } else if (event instanceof UssdResponseEvent) {
+            onUssdResponse((UssdResponseEvent) event, aci);
         }
     }
 
     private void onHttpBegin(HttpUssdBeginEvent event, ActivityContextInterface aci) {
-        LOG.infof("[HTTP-SBB] begin session=%s msisdn=%s tier=%d",
-                event.getSessionId(), event.getMsisdn(), event.getMenuTier());
+        try {
+            String tier = lookupTier(event.getMsisdn());
+            LOG.info("[HTTP-server] begin session={} msisdn={} tier={}",
+                    event.getSessionId(), event.getMsisdn(), tier);
 
-        SbbLocalObject httpLocal = wiring.httpLocal(event.getSessionId());
-        if (httpLocal != null) {
-            long timerId = wiring.container().getTimerPort()
-                    .setTimer(wiring.sessionTimeoutMs(), httpLocal);
-            wiring.rememberTimer(event.getSessionId(), timerId);
+            MicroSleeContainer container = ctx.container();
+            String ss7Id = ctx.ss7EntityId(event.getSessionId());
+            SimpleSbbLocalObject ss7Lo = container.acquireEntity(ss7Id, Ss7UssdIngressSbb.class);
+            ss7Lo.setPriority(10);
+            Ss7UssdIngressSbb ss7Sbb = (Ss7UssdIngressSbb) ss7Lo.getSbb();
+            ss7Sbb.bindSelf(ss7Lo);
+            ss7Sbb.initCmp(event.getSessionId(), event.getMsisdn(), tier);
+            container.attach(event.getSessionId(), ss7Lo);
+            waitForActivation(ss7Lo);
+
+            container.routeEvent(new Ss7UssdBeginEvent(
+                    event.getSessionId(), event.getMsisdn(), event.getUssdString(), tier), aci);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.error("Interrupted while activating SS7 ingress for session={}", event.getSessionId());
+        } catch (RuntimeException e) {
+            LOG.error("HTTP begin handling failed for session={}", event.getSessionId(), e);
+            ctx.failSession(event.getSessionId(), e.getMessage());
         }
-
-        wiring.routeEvent(new Ss7UssdBeginEvent(
-                event.getSessionId(), event.getMsisdn(), event.getUssdString(),
-                event.getMenuTier()), aci);
     }
 
-    private void onComplete(UssdCompleteEvent event) {
-        LOG.infof("[HTTP-SBB] complete session=%s", event.getSessionId());
-        wiring.completeSession(event.getSessionId(), event.getResponseText());
+    private void onUssdResponse(UssdResponseEvent event, ActivityContextInterface aci) {
+        LOG.info("[HTTP-server] USSD response ready session={}", event.getSessionId());
+        ctx.completeSession(event.getSessionId(), event.getResponseText());
+        ctx.releaseSession(event.getSessionId());
     }
 
-    private void onTimer(TimerFiredEvent event) {
-        SbbLocalObject lo = event.getSbbLocalObject();
-        if (lo == null) {
+    private String lookupTier(String msisdn) {
+        return ctx.tierFor(msisdn);
+    }
+
+    private static void waitForActivation(SimpleSbbLocalObject lo) throws InterruptedException {
+        for (int i = 0; i < 50; i++) {
+            if (lo.getEntityState().getLifecycleState() == SbbLifecycleManager.State.READY) {
+                return;
+            }
+            Thread.sleep(10L);
+        }
+    }
+
+    /**
+     * GOAL 1-5 — publish an HTTP callback through the injected RA command port.
+     */
+    public void publishCallback(String sessionId, String responseText, String callbackUrl) {
+        RaCommandPort port = this.httpCommandPort;
+        if (port == null) {
+            LOG.warn("[HTTP-server] httpCommandPort not injected yet");
             return;
         }
-        String entityId = lo.getSbbID().getId();
-        String sessionId = entityId.endsWith("/http")
-                ? entityId.substring(0, entityId.length() - "/http".length())
-                : entityId;
-        LOG.warnf("[HTTP-SBB] session timeout session=%s", sessionId);
-        wiring.failSession(sessionId, "session timeout");
+        port.sendCommand(new HttpCallbackCommand(sessionId, callbackUrl, responseText));
+        LOG.debug("[HTTP-server] Callback command queued for session={}", sessionId);
     }
 }
