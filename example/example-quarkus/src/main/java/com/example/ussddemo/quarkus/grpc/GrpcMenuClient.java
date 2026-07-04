@@ -18,14 +18,15 @@ import io.grpc.ManagedChannel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
 
 /** gRPC client to the standalone grpc-simulator (default 127.0.0.1:9090). */
 public final class GrpcMenuClient implements GrpcMenuUpstream {
 
-    private static final Logger LOG = Logger.getLogger(GrpcMenuClient.class);
+    private static final Logger LOG = LogManager.getLogger(GrpcMenuClient.class);
 
     private final ManagedChannel channel;
     private final UssdMenuServiceGrpc.UssdMenuServiceBlockingStub stub;

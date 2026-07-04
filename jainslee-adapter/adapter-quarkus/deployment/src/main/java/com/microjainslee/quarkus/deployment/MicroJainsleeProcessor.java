@@ -10,6 +10,8 @@
 
 package com.microjainslee.quarkus.deployment;
 
+import com.microjainslee.api.RaCommandPort;
+import com.microjainslee.api.RaEndpointPort;
 import com.microjainslee.api.TimerPort;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.annotations.SbbAnnotation;
@@ -215,6 +217,80 @@ public class MicroJainsleeProcessor {
             LOG.info("Discovered @Sbb {} -> registering synthetic bean", fqn);
         }
         LOG.info("@Sbb scan complete: {} bean(s) registered", registered);
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // GOAL 2 — RA registration from build-time config
+    // ──────────────────────────────────────────────────────────
+
+    /**
+     * Discover {@link com.microjainslee.api.RaEndpointPort}/{@link com.microjainslee.api.RaCommandPort}
+     * implementations at build time and register them via the recorder.
+     * <p>
+     * Classes listed in {@code microjainslee.ra-registrations} must implement <b>both</b>
+     * {@code RaEndpointPort} and {@code RaCommandPort}. They are instantiated via no-arg
+     * constructor and registered with the container during {@code RUNTIME_INIT}.
+     */
+    @BuildStep
+    @Record(ExecutionTime.RUNTIME_INIT)
+    void registerRasFromConfig(MicroJainsleeRecorder recorder, MicroJainsleeBuildConfig config) {
+        if (!config.raRegistrations().isPresent() || config.raRegistrations().get().trim().isEmpty()) {
+            LOG.debug("No ra-registrations configured; skipping build-time RA registration");
+            return;
+        }
+        for (String fqn : splitCsv(config.raRegistrations())) {
+            // Validate the class exists and implements both ports at build time,
+            // but delegate actual instantiation to the recorder at RUNTIME_INIT.
+            try {
+                Class<?> clazz = Class.forName(fqn);
+                if (!RaEndpointPort.class.isAssignableFrom(clazz)) {
+                    LOG.warn("Class {} does not implement RaEndpointPort — skipping", fqn);
+                    continue;
+                }
+                if (!RaCommandPort.class.isAssignableFrom(clazz)) {
+                    LOG.warn("Class {} does not implement RaCommandPort — skipping", fqn);
+                    continue;
+                }
+            } catch (ClassNotFoundException e) {
+                LOG.warn("RA class not found: {} — skipping", fqn);
+                continue;
+            }
+            // Safe: passes only the class name string through to the recorder.
+            recorder.registerRaFromClassName(fqn);
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // GOAL 5 — event-to-SBB mappings from build-time config
+    // ──────────────────────────────────────────────────────────
+
+    /**
+     * Parse {@code microjainslee.event-to-sbb-mappings} and register each
+     * mapping via the recorder at {@code RUNTIME_INIT}.
+     * <p>
+     * Format: {@code com.example.EventA=sbbNameA,com.example.EventB=sbbNameB}
+     */
+    @BuildStep
+    @Record(ExecutionTime.RUNTIME_INIT)
+    void mapEventsToSbbsFromConfig(MicroJainsleeRecorder recorder, MicroJainsleeBuildConfig config) {
+        if (!config.eventToSbbMappings().isPresent() || config.eventToSbbMappings().get().trim().isEmpty()) {
+            LOG.debug("No event-to-sbb-mappings configured; skipping");
+            return;
+        }
+        for (String mapping : config.eventToSbbMappings().get().split(",")) {
+            String trimmed = mapping.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            int eqIdx = trimmed.indexOf('=');
+            if (eqIdx < 1 || eqIdx >= trimmed.length() - 1) {
+                LOG.warn("Invalid event-to-sbb mapping (expected eventClass=sbbName): {}", trimmed);
+                continue;
+            }
+            String eventClass = trimmed.substring(0, eqIdx).trim();
+            String sbbName = trimmed.substring(eqIdx + 1).trim();
+            recorder.mapEventToSbb(eventClass, sbbName);
+        }
     }
 
     @BuildStep

@@ -2,7 +2,8 @@ package com.microjainslee.tx;
 
 import jakarta.transaction.Status;
 import jakarta.transaction.SystemException;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SleeTransactionManager {
 
-    private static final Logger LOG = Logger.getLogger(SleeTransactionManager.class);
+    private static final Logger LOG = LogManager.getLogger(SleeTransactionManager.class);
 
     private final jakarta.transaction.TransactionManager tm;
 

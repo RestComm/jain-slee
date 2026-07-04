@@ -21,7 +21,8 @@ import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.TimerFiredEvent;
 import com.microjainslee.api.annotations.SbbAnnotation;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * GW-facing entry SBB — receives HTTP RA events, arms session timer,
@@ -30,7 +31,7 @@ import org.jboss.logging.Logger;
 @SbbAnnotation(name = "HttpServer", vendor = "com.example.ussddemo.quarkus", version = "1.0")
 public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
-    private static final Logger LOG = Logger.getLogger(HttpServerSbb.class);
+    private static final Logger LOG = LogManager.getLogger(HttpServerSbb.class);
 
     private final UssdSbbWiring wiring;
 

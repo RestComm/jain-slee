@@ -103,4 +103,27 @@ public interface MicroJainsleeBuildConfig {
      */
     @WithName("deployment.scan.excludes")
     Optional<String> scanExcludes();
+
+    /**
+     * Comma-separated list of RA entity class names to register via the 3-port contract.
+     * Each class must implement both {@link com.microjainslee.api.RaEndpointPort} and
+     * {@link com.microjainslee.api.RaCommandPort} (a single class serving both roles).
+     * <p>
+     * Example: {@code microjainslee.ra-registrations=com.example.MyHttpRa}
+     */
+    @WithName("ra-registrations")
+    @WithDefault("")
+    Optional<String> raRegistrations();
+
+    /**
+     * Event-to-SBB convergent routing mappings. Each entry maps a fully-qualified
+     * {@link com.microjainslee.api.SleeEvent} class name to an SBB entity name.
+     * <p>
+     * Format: {@code eventClassName1=sbbName1,eventClassName2=sbbName2}
+     * <p>
+     * Example: {@code microjainslee.event-to-sbb-mappings=com.example.UssdBeginEvent=UssdSessionSbb}
+     */
+    @WithName("event-to-sbb-mappings")
+    @WithDefault("")
+    Optional<String> eventToSbbMappings();
 }

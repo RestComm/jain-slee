@@ -17,7 +17,8 @@ import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.SbbAnnotation;
 
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Child SBB on the gRPC leg. Observes {@link GrpcMenuRequestEvent} fired
@@ -26,7 +27,7 @@ import org.jboss.logging.Logger;
 @SbbAnnotation(name = "GrpcClient", vendor = "com.example.ussddemo", version = "1.0")
 public final class GrpcClientSbb implements Sbb, SleeEventHandler {
 
-    private static final Logger LOG = Logger.getLogger(GrpcClientSbb.class);
+    private static final Logger LOG = LogManager.getLogger(GrpcClientSbb.class);
 
     @Override public void sbbCreate() { }
     @Override public void sbbActivate() { }

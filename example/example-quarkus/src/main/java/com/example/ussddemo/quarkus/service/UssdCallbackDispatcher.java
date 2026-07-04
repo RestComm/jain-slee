@@ -12,7 +12,8 @@ package com.example.ussddemo.quarkus.service;
 
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -29,7 +30,7 @@ import java.util.concurrent.Executors;
 @ApplicationScoped
 public final class UssdCallbackDispatcher {
 
-    private static final Logger LOG = Logger.getLogger(UssdCallbackDispatcher.class);
+    private static final Logger LOG = LogManager.getLogger(UssdCallbackDispatcher.class);
 
     private final HttpClient client = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(2))

@@ -11,6 +11,8 @@
 package com.microjainslee.jakartaee;
 
 import com.microjainslee.api.ActivityContextNamingFacility;
+import com.microjainslee.api.RaCommandPort;
+import com.microjainslee.api.RaEndpointPort;
 import com.microjainslee.api.TimerPort;
 import com.microjainslee.core.EventRouter;
 import com.microjainslee.core.MicroSleeConfiguration;
@@ -21,6 +23,7 @@ import jakarta.annotation.PreDestroy;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
+import jakarta.inject.Inject;
 
 import javax.naming.InitialContext;
 import javax.naming.NameAlreadyBoundException;
@@ -43,6 +46,9 @@ public class MicroSleeContainerStartup {
     public static final String CONFIG_PROPERTY_PREFIX = "microjainslee.config.";
     private MicroSleeContainer container;
 
+    @Inject
+    RaPortManager raPortManager;
+
     @PostConstruct
     void init() {
         LOG.info("Jakarta EE adapter init — building MicroSleeContainer");
@@ -57,6 +63,7 @@ public class MicroSleeContainerStartup {
         this.container.start();
         LOG.info("MicroSleeContainer started (state={})", container.getState());
         bindAll(container);
+        raPortManager.registerAll(container);
     }
 
     @PreDestroy

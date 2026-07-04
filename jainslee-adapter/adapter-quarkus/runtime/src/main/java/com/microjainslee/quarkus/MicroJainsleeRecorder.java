@@ -10,6 +10,9 @@
 
 package com.microjainslee.quarkus;
 
+import com.microjainslee.api.RaCommandPort;
+import com.microjainslee.api.RaEndpointPort;
+import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.TimerPort;
 import com.microjainslee.core.EventRouter;
 import com.microjainslee.core.MicroSleeConfiguration;
@@ -128,5 +131,112 @@ public class MicroJainsleeRecorder {
 
     public RuntimeValue<com.microjainslee.core.MicroSleeContainer.AcnfBackend> acnfRuntimeValue(MicroSleeConfiguration cfg) {
         return new RuntimeValue<com.microjainslee.core.MicroSleeContainer.AcnfBackend>(acnf);
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // GOAL 2 — 3-port local RA registration (recorder)
+    // ──────────────────────────────────────────────────────────
+
+    /**
+     * GOAL 2 — register a local Resource Adaptor via the 3-port contract.
+     * <p>
+     * The RA is registered with the container's {@link MicroSleeContainer#registerRa}
+     * and activated if the container is already started.
+     *
+     * @param name     the RA entity name (must match {@link RaEndpointPort#getRaName()})
+     * @param endpoint the RA endpoint port (lifecycle owner)
+     * @param command  the RA command port (SBB-to-RA outbound commands)
+     */
+    public void registerRa(String name, RaEndpointPort endpoint, RaCommandPort command) {
+        if (container == null) {
+            LOG.warn("registerRa() called but container is null (name={})", name);
+            return;
+        }
+        if (endpoint == null || command == null) {
+            LOG.warn("registerRa() called with null endpoint or command (name={})", name);
+            return;
+        }
+        container.registerRa(endpoint, command);
+    }
+
+    /**
+     * GOAL 2 — register a RA from a single class that implements both
+     * {@link RaEndpointPort} and {@link RaCommandPort}.
+     * <p>
+     * The class is loaded and instantiated via no-arg constructor at
+     * {@code RUNTIME_INIT}. This is the safe variant for build-time
+     * discovery: the Processor passes class names through to the
+     * recorder instead of serialising arbitrary object instances.
+     *
+     * @param className fully-qualified class name of a class implementing
+     *                  both {@code RaEndpointPort} and {@code RaCommandPort}
+     */
+    public void registerRaFromClassName(String className) {
+        if (container == null) {
+            LOG.warn("registerRaFromClassName() called but container is null (class={})", className);
+            return;
+        }
+        if (className == null || className.trim().isEmpty()) {
+            LOG.warn("registerRaFromClassName() called with empty class name");
+            return;
+        }
+        try {
+            Class<?> clazz = Class.forName(className, true,
+                    Thread.currentThread().getContextClassLoader());
+            if (!RaEndpointPort.class.isAssignableFrom(clazz)) {
+                LOG.warn("Class {} does not implement RaEndpointPort — skipping", className);
+                return;
+            }
+            if (!RaCommandPort.class.isAssignableFrom(clazz)) {
+                LOG.warn("Class {} does not implement RaCommandPort — skipping", className);
+                return;
+            }
+            Object instance = clazz.getDeclaredConstructor().newInstance();
+            RaEndpointPort endpoint = (RaEndpointPort) instance;
+            RaCommandPort command = (RaCommandPort) instance;
+            container.registerRa(endpoint, command);
+            LOG.info("Registered RA from class name: {} (class={})",
+                    endpoint.getRaName(), className);
+        } catch (ReflectiveOperationException e) {
+            LOG.warn("Failed to instantiate RA class {}: {}", className, e.getMessage());
+        }
+    }
+
+    /**
+     * GOAL 5 — map an event type to an SBB entity name for convergent routing.
+     * <p>
+     * Resolves the event class by name at runtime and delegates to
+     * {@link MicroSleeContainer#mapEventToSbb(Class, String)}.
+     *
+     * @param eventClass fully-qualified class name of a {@link SleeEvent} implementation
+     * @param sbbName    SBB entity name that handles this event type
+     */
+    @SuppressWarnings("unchecked")
+    public void mapEventToSbb(String eventClass, String sbbName) {
+        if (container == null) {
+            LOG.warn("mapEventToSbb() called but container is null (event={}, sbb={})", eventClass, sbbName);
+            return;
+        }
+        if (eventClass == null || eventClass.trim().isEmpty()) {
+            LOG.warn("mapEventToSbb() called with empty event class name (sbb={})", sbbName);
+            return;
+        }
+        if (sbbName == null || sbbName.trim().isEmpty()) {
+            LOG.warn("mapEventToSbb() called with empty SBB name (event={})", eventClass);
+            return;
+        }
+        try {
+            Class<?> rawClass = Class.forName(eventClass, true,
+                    Thread.currentThread().getContextClassLoader());
+            if (!SleeEvent.class.isAssignableFrom(rawClass)) {
+                LOG.warn("Class {} is not a SleeEvent — skipping mapping to SBB {}", eventClass, sbbName);
+                return;
+            }
+            Class<? extends SleeEvent> eventType = (Class<? extends SleeEvent>) rawClass;
+            container.mapEventToSbb(eventType, sbbName);
+        } catch (ClassNotFoundException cnfe) {
+            LOG.warn("Event class not found on classpath: {} (sbb={}) — skipping mapping",
+                    eventClass, sbbName);
+        }
     }
 }

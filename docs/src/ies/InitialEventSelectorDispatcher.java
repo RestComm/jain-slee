@@ -2,7 +2,8 @@ package com.microjainslee.core.ies;
 
 import com.microjainslee.api.ActivityContextInterface;
 import com.microjainslee.api.Sbb;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +32,7 @@ import java.util.function.Consumer;
  */
 public class InitialEventSelectorDispatcher {
 
-    private static final Logger LOG = Logger.getLogger(InitialEventSelectorDispatcher.class);
+    private static final Logger LOG = LogManager.getLogger(InitialEventSelectorDispatcher.class);
 
     /** Interface được gọi từ EventRouter để allocate/lookup SBB entity. */
     public interface SbbEntityPool {

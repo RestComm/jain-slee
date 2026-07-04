@@ -23,8 +23,8 @@ import com.microjainslee.api.SimpleActivityContextHandle;
 import com.microjainslee.api.SleeEndpointPort;
 import com.microjainslee.api.SleeEvent;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 3-port contract adapter for {@link HttpIngressResourceAdaptor}.
@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 public final class HttpIngressRaEndpoint implements RaEndpointPort, RaCommandPort {
 
     private static final Logger LOG =
-            Logger.getLogger(HttpIngressRaEndpoint.class.getName());
+            LogManager.getLogger(HttpIngressRaEndpoint.class);
 
     private final HttpIngressResourceAdaptor delegate;
     private RaBootstrapPort bootstrapPort;
@@ -98,12 +98,12 @@ public final class HttpIngressRaEndpoint implements RaEndpointPort, RaCommandPor
         try {
             delegate.raInactive();
         } catch (RuntimeException e) {
-            LOG.log(Level.WARNING, "Error during raInactive", e);
+            LOG.warn("Error during raInactive", e);
         }
         try {
             delegate.raUnconfigure();
         } catch (RuntimeException e) {
-            LOG.log(Level.WARNING, "Error during raUnconfigure", e);
+            LOG.warn("Error during raUnconfigure", e);
         }
         this.bootstrapPort = null;
         LOG.info("HTTP ingress RA endpoint deactivated");
@@ -118,7 +118,7 @@ public final class HttpIngressRaEndpoint implements RaEndpointPort, RaCommandPor
                     + command.getClass().getSimpleName()
                     + " (outbound not yet implemented)");
         } else {
-            LOG.warning(() -> "HTTP ingress RA received unknown command type: "
+            LOG.warn(() -> "HTTP ingress RA received unknown command type: "
                     + (command == null ? "null" : command.getClass().getName()));
         }
     }

@@ -13,6 +13,8 @@ package com.microjainslee.quarkus;
 import com.microjainslee.api.AlarmPort;
 import com.microjainslee.api.NamingPort;
 import com.microjainslee.api.ProfileTablePort;
+import com.microjainslee.api.RaCommandPort;
+import com.microjainslee.api.RaEndpointPort;
 import com.microjainslee.api.TimerPort;
 import com.microjainslee.api.TracePort;
 import com.microjainslee.api.UsagePort;
@@ -24,9 +26,16 @@ import io.quarkus.arc.DefaultBean;
 import io.quarkus.runtime.RuntimeValue;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * CDI producers that re-expose the build-time-constructed {@link MicroSleeContainer} and its
@@ -125,6 +134,86 @@ public class MicroJainsleeProducer {
     @DefaultBean
     public TracePort defaultTracePort() {
         return new TraceFacilityQuarkusAdapter("micro-jainslee");
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // GOAL 2 — CDI-driven RA registration (3-port contract)
+    // ──────────────────────────────────────────────────────────
+
+    /**
+     * GOAL 2 — discover all {@link RaEndpointPort} and {@link RaCommandPort} CDI beans,
+     * pair them by iteration order, and register each pair with the micro-container
+     * via {@link MicroSleeContainer#registerRa(RaEndpointPort, RaCommandPort)}.
+     *
+     * <p>Endpoints are sorted by {@code getRaName()} for deterministic ordering;
+     * commands are sorted by class simple-name. Pairs are formed 1:1 by position.
+     * If the number of commands differs from endpoints, the minimum common count
+     * is registered and a warning is logged.</p>
+     *
+     * <p>This method is annotated {@code @Produces @ApplicationScoped} so the
+     * CDI container eagerly materialises it during startup, triggering the
+     * side-effect of RA registration. User RAs must be annotated with
+     * {@code @ApplicationScoped} (or another bean-defining annotation) to be
+     * discoverable.</p>
+     */
+    @Produces
+    @ApplicationScoped
+    public void registerResourceAdaptors(
+            MicroSleeContainer container,
+            @Any Instance<RaEndpointPort> endpoints,
+            @Any Instance<RaCommandPort> commands) {
+
+        // Collect into mutable sorted lists.
+        List<RaEndpointPort> epList = new ArrayList<RaEndpointPort>();
+        for (RaEndpointPort ep : endpoints) {
+            epList.add(ep);
+        }
+        if (epList.isEmpty()) {
+            LOG.debug("No RaEndpointPort beans discovered; skipping CDI RA registration");
+            return;
+        }
+        Collections.sort(epList, new Comparator<RaEndpointPort>() {
+            @Override
+            public int compare(RaEndpointPort a, RaEndpointPort b) {
+                String na = a.getRaName() != null ? a.getRaName() : "";
+                String nb = b.getRaName() != null ? b.getRaName() : "";
+                return na.compareTo(nb);
+            }
+        });
+
+        List<RaCommandPort> cmdList = new ArrayList<RaCommandPort>();
+        for (RaCommandPort cmd : commands) {
+            cmdList.add(cmd);
+        }
+        Collections.sort(cmdList, new Comparator<RaCommandPort>() {
+            @Override
+            public int compare(RaCommandPort a, RaCommandPort b) {
+                return a.getClass().getSimpleName().compareTo(b.getClass().getSimpleName());
+            }
+        });
+
+        int count = Math.min(epList.size(), cmdList.size());
+        if (epList.size() != cmdList.size()) {
+            LOG.warn("Mismatch between RaEndpointPort count ({}) and RaCommandPort count ({}); "
+                    + "only {} pair(s) will be registered",
+                    epList.size(), cmdList.size(), count);
+        }
+
+        for (int i = 0; i < count; i++) {
+            RaEndpointPort endpoint = epList.get(i);
+            RaCommandPort command = cmdList.get(i);
+            try {
+                container.registerRa(endpoint, command);
+                LOG.info("Registered RA via CDI: {} (endpoint={}, command={})",
+                        endpoint.getRaName(),
+                        endpoint.getClass().getSimpleName(),
+                        command.getClass().getSimpleName());
+            } catch (RuntimeException re) {
+                LOG.error("Failed to register RA [{}]: {}",
+                        endpoint.getRaName(), re.getMessage(), re);
+            }
+        }
+        LOG.info("CDI RA registration complete: {} pair(s) registered", count);
     }
 
     private static Object resolveMeterRegistry() {

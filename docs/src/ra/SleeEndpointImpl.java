@@ -3,7 +3,8 @@ package com.microjainslee.ra;
 import com.microjainslee.api.*;
 import com.microjainslee.core.EventRouter;
 import com.microjainslee.core.InMemoryActivityContextNamingFacility;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SleeEndpointImpl implements SleeEndpoint {
 
-    private static final Logger LOG = Logger.getLogger(SleeEndpointImpl.class);
+    private static final Logger LOG = LogManager.getLogger(SleeEndpointImpl.class);
 
     private final EventRouter eventRouter;
     private final ActivityContextNamingFacility acnf;

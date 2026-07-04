@@ -14,7 +14,8 @@ import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.removal.EntityRemovalEvent;
 import com.microjainslee.core.removal.EntityRemovalEvent.RemovalReason;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public final class UssdSessionStore {
 
-    private static final Logger LOG = Logger.getLogger(UssdSessionStore.class);
+    private static final Logger LOG = LogManager.getLogger(UssdSessionStore.class);
 
     /** Conventional suffix the embedded SBB uses to derive entity ids. */
     private static final String ENTITY_ID_SUFFIX = "/http";

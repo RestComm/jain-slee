@@ -1,7 +1,8 @@
 package com.microjainslee.core.child;
 
 import com.microjainslee.api.SbbLocalObject;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +32,7 @@ import java.util.function.Supplier;
  */
 public class ChildRelationImpl<T extends SbbLocalObject> implements ChildRelation<T> {
 
-    private static final Logger LOG = Logger.getLogger(ChildRelationImpl.class);
+    private static final Logger LOG = LogManager.getLogger(ChildRelationImpl.class);
 
     private final String parentEntityId;
     private final Class<T> childSbbLocalObjectClass;

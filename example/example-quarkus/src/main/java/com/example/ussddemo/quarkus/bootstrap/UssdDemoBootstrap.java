@@ -38,7 +38,8 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Quarkus CDI bootstrap — starts MicroSleeContainer, wires both RAs,
@@ -48,7 +49,7 @@ import org.jboss.logging.Logger;
 @Unremovable
 public final class UssdDemoBootstrap {
 
-    private static final Logger LOG = Logger.getLogger(UssdDemoBootstrap.class);
+    private static final Logger LOG = LogManager.getLogger(UssdDemoBootstrap.class);
 
     @ConfigProperty(name = "microjainslee.buffer-size", defaultValue = "2048")
     int bufferSize;

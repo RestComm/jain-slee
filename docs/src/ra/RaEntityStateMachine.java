@@ -1,7 +1,8 @@
 package com.microjainslee.ra;
 
 import com.microjainslee.api.ResourceAdaptor;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -30,7 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class RaEntityStateMachine {
 
-    private static final Logger LOG = Logger.getLogger(RaEntityStateMachine.class);
+    private static final Logger LOG = LogManager.getLogger(RaEntityStateMachine.class);
 
     public enum State {
         INACTIVE,

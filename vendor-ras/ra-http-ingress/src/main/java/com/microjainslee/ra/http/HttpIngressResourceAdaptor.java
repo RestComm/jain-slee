@@ -29,8 +29,8 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * HTTP ingress Resource Adaptor — JDK {@link HttpServer} front-end that fires
@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  */
 public final class HttpIngressResourceAdaptor extends AbstractResourceAdaptor {
 
-    private static final Logger LOG = Logger.getLogger(HttpIngressResourceAdaptor.class.getName());
+    private static final Logger LOG = LogManager.getLogger(HttpIngressResourceAdaptor.class);
 
     private HttpServer server;
     private HttpIngressSessionStore sessionStore;
@@ -148,7 +148,7 @@ public final class HttpIngressResourceAdaptor extends AbstractResourceAdaptor {
         try {
             fireHttpBegin(sessionId, msisdn.trim(), ussdString.trim(), callbackUrl);
         } catch (RuntimeException e) {
-            LOG.log(Level.SEVERE, "HTTP begin failed session=" + sessionId, e);
+            LOG.error("HTTP begin failed session={}", sessionId, e);
             writeJson(exchange, 500, "{\"error\":\"" + HttpJson.escape(e.getMessage()) + "\"}");
             return;
         }

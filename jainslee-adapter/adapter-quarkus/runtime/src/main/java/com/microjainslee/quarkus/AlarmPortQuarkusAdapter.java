@@ -12,7 +12,8 @@ package com.microjainslee.quarkus;
 
 import com.microjainslee.api.AlarmLevel;
 import com.microjainslee.api.AlarmPort;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class AlarmPortQuarkusAdapter implements AlarmPort {
 
-    private static final Logger LOG = Logger.getLogger(AlarmPortQuarkusAdapter.class);
+    private static final Logger LOG = LogManager.getLogger(AlarmPortQuarkusAdapter.class);
 
     private final ConcurrentHashMap<String, AlarmLevel> activeAlarms =
             new ConcurrentHashMap<String, AlarmLevel>();

@@ -23,7 +23,8 @@ import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.SimpleSbbLocalObject;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Unremovable
 public final class UssdSbbWiring {
 
-    private static final Logger LOG = Logger.getLogger(UssdSbbWiring.class);
+    private static final Logger LOG = LogManager.getLogger(UssdSbbWiring.class);
 
     private volatile MicroSleeContainer container;
     private volatile UssdSessionStore sessionStore;

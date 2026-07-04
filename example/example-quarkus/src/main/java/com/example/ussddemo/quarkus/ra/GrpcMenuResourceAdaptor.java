@@ -20,7 +20,8 @@ import com.microjainslee.api.ResourceAdaptorContext;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.RaBootstrapContextImpl;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,7 +32,7 @@ import java.util.concurrent.Executors;
  */
 public final class GrpcMenuResourceAdaptor implements ResourceAdaptor {
 
-    private static final Logger LOG = Logger.getLogger(GrpcMenuResourceAdaptor.class);
+    private static final Logger LOG = LogManager.getLogger(GrpcMenuResourceAdaptor.class);
 
     private ResourceAdaptorContext context;
     private GrpcMenuUpstream client;

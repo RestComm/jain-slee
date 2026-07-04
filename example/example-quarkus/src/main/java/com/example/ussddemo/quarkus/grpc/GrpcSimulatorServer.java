@@ -13,7 +13,8 @@ package com.example.ussddemo.quarkus.grpc;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 /** Lightweight in-process gRPC AS for tests (mirrors grpc-simulator). */
 public final class GrpcSimulatorServer {
 
-    private static final Logger LOG = Logger.getLogger(GrpcSimulatorServer.class);
+    private static final Logger LOG = LogManager.getLogger(GrpcSimulatorServer.class);
 
     private final Server server;
     private final int port;

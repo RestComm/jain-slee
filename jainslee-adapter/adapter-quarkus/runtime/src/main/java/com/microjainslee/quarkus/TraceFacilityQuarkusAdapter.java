@@ -12,7 +12,8 @@ package com.microjainslee.quarkus;
 
 import com.microjainslee.api.TraceLevel;
 import com.microjainslee.api.TracePort;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Quarkus-backed trace facility using JBoss Logging.
@@ -26,7 +27,7 @@ public final class TraceFacilityQuarkusAdapter implements TracePort {
     private final Logger logger;
 
     public TraceFacilityQuarkusAdapter(String tracerName) {
-        this.logger = Logger.getLogger(tracerName == null ? "micro-jainslee" : tracerName);
+        this.logger = LogManager.getLogger(tracerName == null ? "micro-jainslee" : tracerName);
     }
 
     @Override

@@ -20,7 +20,8 @@ import com.microjainslee.api.ResourceAdaptorContext;
 import com.microjainslee.api.SleeEndpointPort;
 import com.microjainslee.core.MicroSleeContainer;
 
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -34,7 +35,7 @@ import java.util.concurrent.Executors;
  */
 public final class GrpcMenuResourceAdaptor implements ResourceAdaptor {
 
-    private static final Logger LOG = Logger.getLogger(GrpcMenuResourceAdaptor.class);
+    private static final Logger LOG = LogManager.getLogger(GrpcMenuResourceAdaptor.class);
 
     private ResourceAdaptorContext context;
     private MicroSleeContainer container;

@@ -32,7 +32,8 @@ import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.ies.InitialEventSelectorDispatcher;
 import com.microjainslee.core.ra.ResourceAdaptorContextBuilder;
 
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -62,7 +63,7 @@ import org.springframework.context.SmartLifecycle;
 @Configuration
 public class UssdDemoBootstrap {
 
-    private static final Logger LOG = Logger.getLogger(UssdDemoBootstrap.class);
+    private static final Logger LOG = LogManager.getLogger(UssdDemoBootstrap.class);
 
     @Autowired
     private MicroSleeContainer container;

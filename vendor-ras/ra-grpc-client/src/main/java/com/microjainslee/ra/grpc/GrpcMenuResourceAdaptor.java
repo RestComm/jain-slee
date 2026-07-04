@@ -19,8 +19,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Async gRPC menu Resource Adaptor - fires request/response {@link SleeEvent}s
@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  */
 public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
 
-    private static final Logger LOG = Logger.getLogger(GrpcMenuResourceAdaptor.class.getName());
+    private static final Logger LOG = LogManager.getLogger(GrpcMenuResourceAdaptor.class);
 
     private GrpcMenuUpstream upstream;
     private GrpcMenuEventFactory eventFactory;
@@ -114,20 +114,20 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
     public void requestMenu(String sessionId, String msisdn, String ussdString,
                             ActivityContextInterface responseAci) {
         if (upstream == null) {
-            LOG.warning("gRPC menu RA requestMenu called before setGrpcMenuUpstream");
+            LOG.warn("gRPC menu RA requestMenu called before setGrpcMenuUpstream");
             return;
         }
         if (eventFactory == null) {
-            LOG.warning("gRPC menu RA requestMenu called before setEventFactory");
+            LOG.warn("gRPC menu RA requestMenu called before setEventFactory");
             return;
         }
         if (activityContextLookup == null) {
-            LOG.warning("gRPC menu RA requestMenu called before setActivityContextLookup");
+            LOG.warn("gRPC menu RA requestMenu called before setActivityContextLookup");
             return;
         }
         ActivityContextInterface sessionAci = activityContextLookup.lookup(sessionId);
         if (sessionAci == null) {
-            LOG.warning(() -> "gRPC menu RA unknown session activity: " + sessionId);
+            LOG.warn(() -> "gRPC menu RA unknown session activity: " + sessionId);
             return;
         }
         // Sprint S8 - stamp a per-session monotonic sequence number.
@@ -161,7 +161,7 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
             responseEvent = eventFactory.createResponseEvent(
                     resp.getSessionId(), resp.getStatus(), resp.getMenuText(), resp.getError());
         } catch (Throwable t) {
-            LOG.log(Level.WARNING, "gRPC menu RA call failed for session=" + sessionId, t);
+            LOG.warn("gRPC menu RA call failed for session={}", sessionId, t);
             responseEvent = eventFactory.createErrorResponseEvent(sessionId, t);
         }
         routeResponse(responseAci, responseEvent);
@@ -181,7 +181,7 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
             mc.routeEvent(event, responseAci);
             return;
         }
-        LOG.warning(() -> "gRPC menu RA cannot route response to ACI - "
+        LOG.warn(() -> "gRPC menu RA cannot route response to ACI - "
                 + "no live MicroSleeContainer available; response event dropped");
     }
 }

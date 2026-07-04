@@ -1,7 +1,8 @@
 package com.microjainslee.core.child;
 
 import com.microjainslee.api.Sbb;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -31,7 +32,7 @@ import java.util.function.Function;
  */
 public class CascadeRemover {
 
-    private static final Logger LOG = Logger.getLogger(CascadeRemover.class);
+    private static final Logger LOG = LogManager.getLogger(CascadeRemover.class);
 
     /** Lookup SBB instance by entityId. */
     public interface EntityLookup {

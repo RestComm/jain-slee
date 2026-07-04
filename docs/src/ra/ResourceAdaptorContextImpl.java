@@ -2,7 +2,8 @@ package com.microjainslee.ra;
 
 import com.microjainslee.api.*;
 import com.microjainslee.core.SleeTimerSchedulerBridge;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * ResourceAdaptorContext — full SLEE facilities access từ trong RA.
@@ -29,7 +30,7 @@ import org.jboss.logging.Logger;
  */
 public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 
-    private static final Logger LOG = Logger.getLogger(ResourceAdaptorContextImpl.class);
+    private static final Logger LOG = LogManager.getLogger(ResourceAdaptorContextImpl.class);
 
     private final SleeEndpointImpl sleeEndpoint;
     private final TimerFacility timerFacility;

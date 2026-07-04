@@ -10,6 +10,8 @@
 
 package com.microjainslee.springboot;
 
+import com.microjainslee.api.RaCommandPort;
+import com.microjainslee.api.RaEndpointPort;
 import com.microjainslee.api.TimerPort;
 import com.microjainslee.core.EventRouter;
 import com.microjainslee.core.InMemoryActivityContextNamingFacility;
@@ -20,6 +22,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+
+import java.util.List;
 
 @AutoConfiguration
 @EnableConfigurationProperties(MicroJainsleeProperties.class)
@@ -67,8 +71,13 @@ public class MicroJainsleeAutoConfiguration {
     }
 
     @Bean
-    public MicroJainsleeLifecycle microJainsleeLifecycle(MicroSleeContainer container) {
-        LOG.info("Creating MicroJainsleeLifecycle bean");
-        return new MicroJainsleeLifecycle(container);
+    public MicroJainsleeLifecycle microJainsleeLifecycle(MicroSleeContainer container,
+                                                          MicroJainsleeProperties props,
+                                                          List<RaEndpointPort> raEndpoints,
+                                                          List<RaCommandPort> raCommands) {
+        LOG.info("Creating MicroJainsleeLifecycle bean (raEndpoints={}, raCommands={})",
+                raEndpoints != null ? raEndpoints.size() : 0,
+                raCommands != null ? raCommands.size() : 0);
+        return new MicroJainsleeLifecycle(container, props, raEndpoints, raCommands);
     }
 }

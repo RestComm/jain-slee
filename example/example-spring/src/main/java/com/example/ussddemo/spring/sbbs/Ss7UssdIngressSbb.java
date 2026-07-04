@@ -24,7 +24,8 @@ import com.microjainslee.core.CmpBackedSbb;
 import com.microjainslee.core.ies.InitialEventSelectCondition;
 import com.microjainslee.core.ies.InitialEventSelectResult;
 
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 
@@ -48,7 +49,7 @@ import java.lang.reflect.Method;
 @SbbAnnotation(name = "Ss7UssdIngress", vendor = "com.example.ussddemo", version = "1.0")
 public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEventHandler {
 
-    private static final Logger LOG = Logger.getLogger(Ss7UssdIngressSbb.class);
+    private static final Logger LOG = LogManager.getLogger(Ss7UssdIngressSbb.class);
 
     private UssdWiring wiring;
 

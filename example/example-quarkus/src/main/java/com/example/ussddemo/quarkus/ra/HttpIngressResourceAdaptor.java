@@ -17,7 +17,8 @@ import com.microjainslee.api.ResourceAdaptorContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class HttpIngressResourceAdaptor implements ResourceAdaptor {
 
-    private static final Logger LOG = Logger.getLogger(HttpIngressResourceAdaptor.class);
+    private static final Logger LOG = LogManager.getLogger(HttpIngressResourceAdaptor.class);
 
     private ResourceAdaptorContext context;
     private UssdSbbWiring wiring;

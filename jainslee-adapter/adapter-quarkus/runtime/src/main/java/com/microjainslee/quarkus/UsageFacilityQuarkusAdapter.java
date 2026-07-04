@@ -12,7 +12,8 @@ package com.microjainslee.quarkus;
 
 import com.microjainslee.api.UsagePort;
 import com.microjainslee.core.SimpleUsagePort;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class UsageFacilityQuarkusAdapter implements UsagePort {
 
-    private static final Logger LOG = Logger.getLogger(UsageFacilityQuarkusAdapter.class);
+    private static final Logger LOG = LogManager.getLogger(UsageFacilityQuarkusAdapter.class);
 
     private final UsagePort delegate;
     private final Object meterRegistry;

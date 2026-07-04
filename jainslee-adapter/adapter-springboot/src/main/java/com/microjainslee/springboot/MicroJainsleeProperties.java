@@ -10,6 +10,10 @@
 
 package com.microjainslee.springboot;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "microjainslee")
@@ -17,9 +21,15 @@ public class MicroJainsleeProperties {
     private final EventRouter eventRouter = new EventRouter();
     private final SbbPool sbbPool = new SbbPool();
     private final Deployment deployment = new Deployment();
+    private Map<String, String> eventToSbbMappings = new LinkedHashMap<>();
+    private List<String> raRegistrations = new ArrayList<>();
     public EventRouter getEventRouter() { return eventRouter; }
     public SbbPool getSbbPool() { return sbbPool; }
     public Deployment getDeployment() { return deployment; }
+    public Map<String, String> getEventToSbbMappings() { return eventToSbbMappings; }
+    public void setEventToSbbMappings(Map<String, String> v) { this.eventToSbbMappings = v; }
+    public List<String> getRaRegistrations() { return raRegistrations; }
+    public void setRaRegistrations(List<String> v) { this.raRegistrations = v; }
     public static class EventRouter {
         private int bufferSize = 1024;
         private boolean preferVirtualThreads = true;

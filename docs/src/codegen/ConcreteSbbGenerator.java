@@ -1,7 +1,8 @@
 package com.microjainslee.codegen;
 
 import javassist.*;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConcreteSbbGenerator {
 
-    private static final Logger LOG = Logger.getLogger(ConcreteSbbGenerator.class);
+    private static final Logger LOG = LogManager.getLogger(ConcreteSbbGenerator.class);
     static final String CONCRETE_SUFFIX = "$Concrete";
 
     // Cache: abstract class → generated concrete Class (tránh regenerate)

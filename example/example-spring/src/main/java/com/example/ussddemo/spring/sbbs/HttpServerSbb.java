@@ -32,7 +32,8 @@ import com.microjainslee.api.annotations.SbbAnnotation;
 import com.microjainslee.core.InMemoryActivityContext;
 import com.microjainslee.core.SimpleSbbLocalObject;
 
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * GW-facing entry SBB. Receives {@link HttpUssdBeginEvent} from the HTTP RA,
@@ -41,7 +42,7 @@ import org.jboss.logging.Logger;
 @SbbAnnotation(name = "HttpServer", vendor = "com.example.ussddemo", version = "1.0")
 public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
-    private static final Logger LOG = Logger.getLogger(HttpServerSbb.class);
+    private static final Logger LOG = LogManager.getLogger(HttpServerSbb.class);
     private static final long SESSION_TIMEOUT_MS = 30_000L;
     private static final String PROFILE_TABLE = "ussdSubscribers";
 

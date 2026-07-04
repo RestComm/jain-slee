@@ -15,12 +15,13 @@ import com.example.ussddemo.quarkus.grpc.proto.MenuResponse;
 import com.example.ussddemo.quarkus.grpc.proto.UssdMenuServiceGrpc;
 
 import io.grpc.stub.StreamObserver;
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /** In-process gRPC USSD AS used by smoke tests. */
 public final class DefaultMenuServiceImpl extends UssdMenuServiceGrpc.UssdMenuServiceImplBase {
 
-    private static final Logger LOG = Logger.getLogger(DefaultMenuServiceImpl.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultMenuServiceImpl.class);
 
     private static final String BALANCE_MENU =
             "Welcome to micro-jainslee demo\n1. Balance\n2. Buy bundle\n0. Exit";

@@ -56,6 +56,18 @@ public final class JndiNames {
     public static final String ACNF =
             "java:global/microjainslee/ActivityContextNamingFacility";
 
+    /**
+     * JNDI prefix for RA endpoint port bindings.
+     * Lookup yields {@code com.microjainslee.api.RaEndpointPort}.
+     */
+    public static final String RA_ENDPOINT_PORT_PREFIX = "java:comp/env/microjainslee/ra/endpoint/";
+
+    /**
+     * JNDI prefix for RA command port bindings.
+     * Lookup yields {@code com.microjainslee.api.RaCommandPort}.
+     */
+    public static final String RA_COMMAND_PORT_PREFIX = "java:comp/env/microjainslee/ra/command/";
+
     private JndiNames() {
         // No instances — constants only.
     }

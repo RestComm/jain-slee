@@ -23,8 +23,8 @@ import com.microjainslee.api.SimpleActivityContextHandle;
 import com.microjainslee.api.SleeEndpointPort;
 import com.microjainslee.api.SleeEvent;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 3-port contract adapter for {@link GrpcMenuResourceAdaptor}.
@@ -47,7 +47,7 @@ import java.util.logging.Logger;
 public final class GrpcMenuRaEndpoint implements RaEndpointPort, RaCommandPort {
 
     private static final Logger LOG =
-            Logger.getLogger(GrpcMenuRaEndpoint.class.getName());
+            LogManager.getLogger(GrpcMenuRaEndpoint.class);
 
     private final GrpcMenuResourceAdaptor delegate;
     private RaBootstrapPort bootstrapPort;
@@ -92,12 +92,12 @@ public final class GrpcMenuRaEndpoint implements RaEndpointPort, RaCommandPort {
         try {
             delegate.raInactive();
         } catch (RuntimeException e) {
-            LOG.log(Level.WARNING, "Error during raInactive", e);
+            LOG.warn("Error during raInactive", e);
         }
         try {
             delegate.raUnconfigure();
         } catch (RuntimeException e) {
-            LOG.log(Level.WARNING, "Error during raUnconfigure", e);
+            LOG.warn("Error during raUnconfigure", e);
         }
         this.bootstrapPort = null;
         LOG.info("gRPC menu RA endpoint deactivated");
@@ -114,7 +114,7 @@ public final class GrpcMenuRaEndpoint implements RaEndpointPort, RaCommandPort {
                     cmd.ussdString(),
                     cmd.responseAci());
         } else {
-            LOG.warning(() -> "gRPC menu RA received unknown command type: "
+            LOG.warn(() -> "gRPC menu RA received unknown command type: "
                     + (command == null ? "null" : command.getClass().getName()));
         }
     }
