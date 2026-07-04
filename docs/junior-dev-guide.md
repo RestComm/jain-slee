@@ -920,6 +920,48 @@ Khi event đến → EventRouter:
     (factory map)      RaEndpointPort
           │            RaCommandPort
           │                 │
+
+---
+
+## Phụ lục E: Child SBB & Cascade Removal
+
+Micro-jainslee đã implement **JAIN SLEE 1.1 §6.7** Child SBB hierarchy với cascade removal (depth-first post-order).
+
+### Cách dùng
+
+```java
+// Parent SBB tạo child:
+SimpleSbbLocalObject parentLo = (SimpleSbbLocalObject) self;
+ChildRelation grpcChildren = parentLo.getChildRelation("grpc",
+    container.getChildRelationFactory(GrpcClientSbb.class));
+SbbLocalObject grpcLo = grpcChildren.create();
+
+// Khi remove parent → tự động cascade remove children:
+parentLo.remove();
+// → sbbRemove() trên child trước, parent sau
+```
+
+### CascadeRemover algorithm
+
+```
+parent
+├── child-A
+│   └── grandchild-A1 → sbbRemove() FIRST
+│   └── grandchild-A2 → sbbRemove() SECOND
+│   child-A → sbbRemove() THIRD
+└── child-B → sbbRemove() FOURTH
+parent → sbbRemove() LAST
+```
+
+**Code:** `jainslee-core/.../child/CascadeRemover.java` (199 lines)
+**Tests:** `ChildRelationImplTest.java`, `CascadeRemoverEndToEndTest.java`, `CascadeRemoverDeepTreeTest.java`
+
+### Virtual Thread Lifecycle
+
+- Mỗi child SBB entity = 1 parked virtual thread
+- Khi `sbbRemove()` → VT unpark → cleanup → thread kết thúc
+- Cascade đảm bảo child VT kết thúc trước parent VT
+
     ┌─────┴─────┐     ┌─────┴──────────┐
     │HttpServerSbb│   │ra-http-server   │ ← listen :8082
     │            │←──│ (fireEvent)      │

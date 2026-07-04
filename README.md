@@ -1,4 +1,4 @@
-# micro-jainslee 1.2.0-P1-SNAPSHOT — Perfect Core
+# micro-jainslee 1.2.0-SNAPSHOT — Perfect Core
 
 > A lightweight, embeddable implementation of the **JAIN SLEE 1.1** (JSR-240) service
 > logic execution environment — designed to run as a plain Java library inside a
@@ -165,21 +165,21 @@ on 2026-06-28, branch `micro-jainslee` (commit range `HEAD~9..HEAD`).
 
 | Module | Artifact | Lines | Status |
 |---|---|---|---|
-| `bom` | `com.microjainslee:micro-jainslee-bom:1.2.0-P1-SNAPSHOT` | — | BOM pinning Narayana 7.0.0 / Infinispan 15 / JGroups 5 / Javassist 3.30 / LMAX Disruptor 3.4.2 |
-| `jainslee-api` | `com.microjainslee:jainslee-api:1.2.0-P1-SNAPSHOT` | **3,190** | Stable — JAIN SLEE 1.1 interfaces (added `@InitialEventSelect`, `ChildRelation<T>`, `SbbLocalObject.remove()`) |
-| `jainslee-scheduler` | `com.microjainslee:jainslee-scheduler:1.2.0-P1-SNAPSHOT` | **582** | Stable — vendored scheduler (jSS7 `LocalTimerAdapter` fallback) |
-| `jainslee-core` | `com.microjainslee:jainslee-core:1.2.0-P1-SNAPSHOT` | **10,252** | Stable — embedded container, EventRouter, IES dispatcher, CascadeRemover |
-| `jainslee-tx` | `com.microjainslee:jainslee-tx:1.2.0-P1-SNAPSHOT` | **373** | Stable — Narayana JTA 7.0 wiring (`JtaTransactionManager`, `TransactionContext`, `NoOpTransactionManager`) — *S1* |
-| `jainslee-codegen` | `com.microjainslee:jainslee-codegen:1.2.0-P1-SNAPSHOT` | **790** | Stable — Javassist CMP codegen (`ConcreteSbbGenerator`, `JavassistDeployTimeCodegen`) — *S2* |
-| `jainslee-cluster` | `com.microjainslee:jainslee-cluster:1.2.0-P1-SNAPSHOT` | **1,016** | Stable — JGroups 5 + Infinispan DIST_SYNC ACNF + `DistributedSbbEntityPool` (snapshot/replication) |
-| `jainslee-ra-spi` | `com.microjainslee:jainslee-ra-spi:1.2.0-P1-SNAPSHOT` | **1,220** | Stable — `SleeEndpointImpl` + `RaEntityStateMachine` + `ResourceAdaptorContextImpl` — *S5* |
-| `jainslee-apt` | `com.microjainslee:jainslee-apt:1.2.0-P1-SNAPSHOT` | **374** | Stable — annotation processor (`@SbbAnnotation`, `@DeployableUnit`, `@EventType`) |
-| `jainslee-tck-harness` | `com.microjainslee:jainslee-tck-harness:1.2.0-P1-SNAPSHOT` | **385** | Stable — TCK harness skeleton (`TckRunner`, `MicrojainsleeContainerAdapter`) — *S6* |
-| `adapters/adapter-quarkus` | `com.microjainslee:adapter-quarkus:1.2.0-P1-SNAPSHOT` | ~520 | Stable — Quarkus 3 extension (`@BuildStep` + `@Recorder` + synthetic CDI beans) |
-| `adapters/adapter-springboot` | `com.microjainslee:adapter-springboot:1.2.0-P1-SNAPSHOT` | **255** | Stable — Spring Boot 3 auto-config (`@AutoConfiguration` + `SmartLifecycle`) |
-| `adapters/adapter-jakartaee` | `com.microjainslee:adapter-jakartaee:1.2.0-P1-SNAPSHOT` | **247** | Stable — Jakarta EE 9 EJB (`@Singleton @Startup @LocalBean`) |
-| `ras/ra-http-ingress` | `com.microjainslee:ra-http-ingress:1.2.0-P1-SNAPSHOT` | — | Reference — HTTP ingress Resource Adaptor (USSD `/api/ussd/begin`) |
-| `ras/ra-grpc-client` | `com.microjainslee:ra-grpc-client:1.2.0-P1-SNAPSHOT` | — | Reference — gRPC menu backend Resource Adaptor |
+| `bom` | `com.microjainslee:micro-jainslee-bom:1.2.0-SNAPSHOT` | — | BOM pinning Narayana 7.0.0 / Infinispan 15 / JGroups 5 / Javassist 3.30 / LMAX Disruptor 4.0.0 |
+| `jainslee-api` | `com.microjainslee:jainslee-api:1.2.0-SNAPSHOT` | **3,190** | Stable — JAIN SLEE 1.1 interfaces (added `@InitialEventSelect`, `ChildRelation<T>`, `SbbLocalObject.remove()`) |
+| `jainslee-scheduler` | `com.microjainslee:jainslee-scheduler:1.2.0-SNAPSHOT` | **582** | Stable — vendored scheduler (jSS7 `LocalTimerAdapter` fallback) |
+| `jainslee-core` | `com.microjainslee:jainslee-core:1.2.0-SNAPSHOT` | **10,252** | Stable — embedded container, EventRouter, IES dispatcher, CascadeRemover |
+| `jainslee-tx` | `com.microjainslee:jainslee-tx:1.2.0-SNAPSHOT` | **373** | Stable — Narayana JTA 7.0 wiring (`JtaTransactionManager`, `TransactionContext`, `NoOpTransactionManager`) — *S1* |
+| `jainslee-codegen` | `com.microjainslee:jainslee-codegen:1.2.0-SNAPSHOT` | **790** | Stable — Javassist CMP codegen (`ConcreteSbbGenerator`, `JavassistDeployTimeCodegen`) — *S2* |
+| `jainslee-cluster` | `com.microjainslee:jainslee-cluster:1.2.0-SNAPSHOT` | **1,016** | Stable — JGroups 5 + Infinispan DIST_SYNC ACNF + `DistributedSbbEntityPool` (snapshot/replication) |
+| `jainslee-ra-spi` | `com.microjainslee:jainslee-ra-spi:1.2.0-SNAPSHOT` | **1,220** | Stable — `SleeEndpointImpl` + `RaEntityStateMachine` + `ResourceAdaptorContextImpl` — *S5* |
+| `jainslee-apt` | `com.microjainslee:jainslee-apt:1.2.0-SNAPSHOT` | **374** | Stable — annotation processor (`@SbbAnnotation`, `@DeployableUnit`, `@EventType`) |
+| `jainslee-tck-harness` | `com.microjainslee:jainslee-tck-harness:1.2.0-SNAPSHOT` | **385** | Stable — TCK harness skeleton (`TckRunner`, `MicrojainsleeContainerAdapter`) — *S6* |
+| `adapters/adapter-quarkus` | `com.microjainslee:adapter-quarkus:1.2.0-SNAPSHOT` | ~520 | Stable — Quarkus 3 extension (`@BuildStep` + `@Recorder` + synthetic CDI beans) |
+| `adapters/adapter-springboot` | `com.microjainslee:adapter-springboot:1.2.0-SNAPSHOT` | **255** | Stable — Spring Boot 3 auto-config (`@AutoConfiguration` + `SmartLifecycle`) |
+| `adapters/adapter-jakartaee` | `com.microjainslee:adapter-jakartaee:1.2.0-SNAPSHOT` | **247** | Stable — Jakarta EE 9 EJB (`@Singleton @Startup @LocalBean`) |
+| `ras/ra-http-ingress` | `com.microjainslee:ra-http-ingress:1.2.0-SNAPSHOT` | — | Reference — HTTP ingress Resource Adaptor (USSD `/api/ussd/begin`) |
+| `ras/ra-grpc-client` | `com.microjainslee:ra-grpc-client:1.2.0-SNAPSHOT` | — | Reference — gRPC menu backend Resource Adaptor |
 
 > The legacy **RestComm JAIN-SLEE v8** container (Mobicents, WildFly 10, ~1,400
 > modules, ~150 KLOC) lives in the sibling `container/`, `api/`, and `tools/`
@@ -1052,7 +1052,7 @@ mvn -B -ntp install -DskipTests \
   -am
 
 # 2) Start the Quarkus demo (terminal 1)
-cd example/ussd-quarkus-demo
+cd example/example-quarkus
 mvn quarkus:dev
 
 # 3) Fire a simulated SS7 USSD begin (terminal 2)
@@ -1230,7 +1230,7 @@ SUCCESS.
 | **S5 — RA full wiring** | [`a2029f26d`](https://github.com/nhanth87/micro-jainslee/commit/a2029f26d) | `RaEntityStateMachine` (INACTIVE→ACTIVE→STOPPING→INACTIVE), `SleeEndpointImpl` (validated fire), `ResourceAdaptorContextImpl` (Timer/Alarm/Trace/ACNF/EventLookup builder). | `jainslee-ra-spi` |
 | **S6 — TCK harness** (foundation) | [`0b4210f08`](https://github.com/nhanth87/micro-jainslee/commit/0b4210f08) | `TckRunner` skeleton + `MicrojainsleeContainerAdapter`. | **new** `jainslee-tck-harness` |
 | Cluster ACNF + SBB pool | [`8496efd47`](https://github.com/nhanth87/micro-jainslee/commit/8496efd47), [`8d89bdfd5`](https://github.com/nhanth87/micro-jainslee/commit/8d89bdfd5) | `ClusteredActivityContextNamingFacility` over Infinispan DIST_SYNC; `DistributedSbbEntityPool` with snapshot/replication. | `jainslee-cluster` |
-| BOM | [`fe0a27dfc`](https://github.com/nhanth87/micro-jainslee/commit/fe0a27dfc) | `micro-jainslee-bom 1.2.0-P1-SNAPSHOT` pinning Narayana/Infinispan/JGroups/Javassist/Disruptor versions across the reactor. | **new** `bom/` |
+| BOM | [`fe0a27dfc`](https://github.com/nhanth87/micro-jainslee/commit/fe0a27dfc) | `micro-jainslee-bom 1.2.0-SNAPSHOT` pinning Narayana/Infinispan/JGroups/Javassist/Disruptor versions across the reactor. | **new** `bom/` |
 
 ### Build commands by sprint
 
@@ -1335,7 +1335,7 @@ JBoss stack depends on but the SLEE semantics do not strictly require.
   in the stress test). JBoss SLEE on WildFly takes 30-90 s for full
   profile activation.
 * **Footprint** — the entire runtime is **3 KLOC** + 1.5 MB of JAR
-  dependencies (Disruptor 3.4.2 + log4j-api + jSS7 scheduler). The
+  dependencies (Disruptor 4.0.0 + log4j-api + jSS7 scheduler). The
   Mobicents container alone is **~150 KLOC** and ships as a WildFly
   subsystem requiring Infinispan, JBoss MSC, JBoss VFS, JBoss Logging,
   and Narayana.
@@ -1460,7 +1460,7 @@ INFO  SbbEntityPoolStressTest - === Done scenario 100000: total 5770 ms ===
 
 ```
 micro-jainslee/
-├── pom.xml                                    ← parent reactor (7 modules)
+├── pom.xml                                    ← parent reactor (14 modules)
 ├── README.md                                  ← this file
 ├── optimizejainsleep2.md                      ← Phase 2 (codegen) + Phase 3 plan
 ├── docs/

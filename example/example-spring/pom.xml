@@ -20,7 +20,7 @@
         <maven.compiler.target>25</maven.compiler.target>
         <maven.compiler.release>21</maven.compiler.release>
         <spring-boot.version>3.3.0</spring-boot.version>
-        <microjainslee.version>1.1.0</microjainslee.version>
+        <microjainslee.version>1.2.0-SNAPSHOT</microjainslee.version>
         <surefire.version>3.5.4</surefire.version>
         <log4j.version>2.23.1</log4j.version>
         <grpc.version>1.82.1</grpc.version>

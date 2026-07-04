@@ -135,8 +135,11 @@ public class EventRouter {
         // producerType, waitStrategy) constructor — the builder API
         // `Disruptor.<T>newBuilder()` only landed in Disruptor 3.4.4+.
         // The 5-arg ctor is marked @Deprecated in newer versions as a
-        // forward-compat hint; suppress here because we cannot yet
-        // bump the dep without breaking the other disruptor users.
+        ThreadFactory threadFactory = r -> {
+            Thread t = new Thread(r, "disruptor-worker");
+            t.setDaemon(true);
+            return t;
+        };
         @SuppressWarnings("deprecation")
         Disruptor<EventWrapper> built = new Disruptor<EventWrapper>(
                 new EventFactory<EventWrapper>() {
@@ -146,7 +149,7 @@ public class EventRouter {
                     }
                 },
                 bufferSize,
-                executor,
+                threadFactory,
                 ProducerType.MULTI,
                 new YieldingWaitStrategy());
         this.disruptor = built;

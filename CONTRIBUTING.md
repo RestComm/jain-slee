@@ -64,8 +64,7 @@ the upstream RestComm JAIN-SLEE v8 codebase.
 ### Prerequisites
 
 - **JDK 25 LTS** — required to exercise Java 25 virtual threads and the
-  full stress test. The build source/target stays at Java 8, so older
-  JDKs can still compile and run the JAIN SLEE 1.1 API surface.
+  full stress test. The build source/target is Java 25 across all modules.
 - **Maven 3.9+**.
 - **Git**.
 
@@ -137,10 +136,8 @@ mvn -pl jainslee-api,jainslee-core javadoc:aggregate
 
 These rules are enforced by review; there is no Checkstyle plugin yet.
 
-- **Java 8 source/target** on every micro-jainslee module — runtime may
-  be Java 21+ (for virtual threads). Use reflection to invoke
-  `Executors.newVirtualThreadPerTaskExecutor()` rather than
-  `Thread.ofVirtual()`.
+- **Java 25 source/target** on every micro-jainslee module — uses
+  `Thread.ofVirtual()` natively for virtual threads.
 - **One top-level class per file**, with the file name matching the
   class.
 - **All new logging via `org.apache.logging.log4j.Logger`** via

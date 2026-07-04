@@ -39,7 +39,7 @@
 
 | Goal | How we meet it |
 |---|---|
-| Run the JAIN SLEE 1.1 spec semantics inside a plain JVM | Pure JDK 8 source/target, no JBoss Modules, VFS, MSC, JMX dependency |
+| Run the JAIN SLEE 1.1 spec semantics inside a plain JVM | Pure Java 25 source/target, no JBoss Modules, VFS, MSC, JMX dependency |
 | Embeddable in popular Java frameworks | First-class adapters for Spring Boot 3, Quarkus 3, Jakarta EE 9 |
 | Scale to 100K concurrent SBBs on commodity hardware | Per-SBB virtual-thread pinning (Java 25); 14 OS threads host 100K virtual threads in our stress test |
 | Stay under 5 KLOC | Current count: ~2,900 LOC in `jainslee-core` (incl. IES / child / RA packages), ~4,500 LOC across the whole Perfect Core S1–S5 reactor |
@@ -1228,7 +1228,7 @@ WARN log.
 | `Sbb.onEvent(...)` | **One parked VT per SBB ID** | None — single-threaded by design |
 | `TimerPort.setTimer` | The SBB's own VT | None — bridge reuses the same one |
 | `Container.start` / `stop` | Main thread | `synchronized` on container instance |
-| `MicroSleeExecutors.newVirtualThreadPerTaskExecutor` | Reflection (Java 8 compat) | None |
+| `MicroSleeExecutors.newVirtualThreadPerTaskExecutor` | Native `Thread.ofVirtual()` (Java 25) | None |
 
 ### Why no `synchronized` on the SBB callback path
 
@@ -1269,12 +1269,12 @@ development.
 |---|---|---|
 | 2026-06-25 | Use LMAX Disruptor, not `BlockingQueue` for event router | Lock-free MPMC at 100M+ events/sec; tested in production by LMAX Exchange |
 | 2026-06-25 | Per-SBB parked virtual thread, not thread pool | Only way to honor JAIN SLEE §8 single-threaded ordering without locks; measured 14 OS threads for 100K VTs |
-| 2026-06-25 | Java 8 source/target on all modules | Maximises downstream portability — embedding app can be Java 21+ for VTs without forcing the SLEE itself onto Java 21 |
+| 2026-06-25 | Java 25 source/target on all modules | Native virtual thread support, sealed hierarchies, pattern matching — ZGC for sub-ms pauses |
 | 2026-06-25 | Annotation processor via SPI, not Maven plugin | Lets any IDE / build tool pick up the processor automatically; no Maven-specific glue |
 | 2026-06-25 | jSS7 `LocalTimerAdapter` for timers, not `ScheduledExecutorService` | jSS7 is the canonical SLEE timer backend; existing Infinispan HA config can drop in later for clustering |
 | 2026-06-25 | `ConcurrentHashMap` for ACNF, not Infinispan | Single-JVM R&D scope; user can back the interface with a distributed map for HA later |
 | 2026-06-26 | Dual license: GPLv3 + Commercial | Matches the MySQL / Qt / MariaDB model — open-source default, commercial escape hatch for proprietary users |
-| 2026-06-26 | `MicroSleeExecutors` reflection shim for VT executor | Keep `jainslee-core` Java 8 bytecode-compatible while transparently using VTs on Java 21+ |
+| 2026-06-26 | `MicroSleeExecutors` direct VT executor | Native `Thread.ofVirtual()` on Java 25 — no reflection shim needed |
 | 2026-06-28 | **S2** — extract `jainslee-codegen` module with Javassist generator | Reflection-based CMP access is too slow on VT-pinned hot path; codegen emits a concrete subclass per abstract SBB cached in `concreteClassCache` |
 | 2026-06-28 | **S3** — add `InitialEventSelectorDispatcher` + `@InitialEventSelect` annotation | Stateless event routing breaks all dialog-style protocols (USSD, SIP); IES is the only spec-blessed way to preserve entity state across related events |
 | 2026-06-28 | **S3** — convergence-key as a `String` from the dispatcher, not a `Map` field | String keys serialize cleanly over IES responses, work with `EntitySlotPool.indexUnder(name, entity)` and avoid object-identity pitfalls across redeploys |
