@@ -41,6 +41,10 @@ public class SbbLifecycleManager {
 
     private static final Logger LOG = LogManager.getLogger(SbbLifecycleManager.class);
 
+    // §VT-PINNING: The states map uses Collections.synchronizedMap (synchronized
+    // internally) but is only accessed during lifecycle transitions
+    // (create/activate/passivate/remove), NOT on the SBB event-delivery hot
+    // path. Safe for virtual threads.
     private final Map<Sbb, State> states =
             Collections.synchronizedMap(new WeakHashMap<Sbb, State>());
 

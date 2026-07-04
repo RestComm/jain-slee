@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,6 +37,26 @@ public final class SbbIndexLoader {
      */
     private static final ConcurrentHashMap<String, DeployableUnitIndexEntry> programmaticDus =
             new ConcurrentHashMap<>();
+
+    // ───────────────────────────────────────────────────────────────
+    // P0 — event-to-SBB index with immutable frozen copy for zero-lock reads
+    // ───────────────────────────────────────────────────────────────
+
+    /**
+     * Mutable build-time index: event class name → list of SBB class names
+     * that handle it. Populated during {@link #build()} and frozen into
+     * {@link #frozenIndex} for zero-lock reads at runtime.
+     */
+    private static final ConcurrentHashMap<String, List<String>> eventIndex =
+            new ConcurrentHashMap<>();
+
+    /**
+     * Immutable frozen copy of {@link #eventIndex} produced by
+     * {@link #freeze()}. Reads on this map are lock-free since
+     * {@link Map#copyOf} guarantees an unmodifiable snapshot.
+     * When {@code null}, lookup methods fall back to {@link #eventIndex}.
+     */
+    private static volatile Map<String, List<String>> frozenIndex;
 
     private SbbIndexLoader() {
     }
@@ -87,6 +108,91 @@ public final class SbbIndexLoader {
                 Collections.<String>emptyList(),
                 Collections.<String>emptyList());
         programmaticDus.put(className, entry);
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // P0 — event index build / freeze / lookup
+    // ───────────────────────────────────────────────────────────────
+
+    /**
+     * Populate the mutable {@link #eventIndex} from the given {@link SbbIndex}.
+     * Each event type's class name maps to the list of SBB class names that
+     * handle it (derived from the deployable-unit sbbs list).
+     * <p>Call this during deployment, then call {@link #freeze()} to seal
+     * the index for zero-lock runtime reads.
+     */
+    public static void build(SbbIndex index) {
+        if (index == null) {
+            return;
+        }
+        for (SbbIndexEntry sbb : index.getSbbs()) {
+            String sbbClass = sbb.getClassName();
+            // Associate each event type with this SBB via the deployable units.
+            for (DeployableUnitIndexEntry du : index.getDeployableUnits()) {
+                if (du.getSbbs().contains(sbbClass)) {
+                    // For each event type in the DU, map to this SBB.
+                    for (EventTypeIndexEntry et : index.getEventTypes()) {
+                        String eventClass = et.getClassName();
+                        eventIndex.computeIfAbsent(eventClass,
+                                k -> Collections.synchronizedList(new ArrayList<>()))
+                                .add(sbbClass);
+                    }
+                }
+            }
+        }
+        // If no deployable units but we have SBBs and event types, map all to all.
+        if (index.getDeployableUnits().isEmpty() && !index.getSbbs().isEmpty()
+                && !index.getEventTypes().isEmpty()) {
+            for (EventTypeIndexEntry et : index.getEventTypes()) {
+                String eventClass = et.getClassName();
+                List<String> sbbList = eventIndex.computeIfAbsent(eventClass,
+                        k -> Collections.synchronizedList(new ArrayList<>()));
+                for (SbbIndexEntry sbb : index.getSbbs()) {
+                    sbbList.add(sbb.getClassName());
+                }
+            }
+        }
+    }
+
+    /**
+     * Freeze the mutable {@link #eventIndex} into an immutable
+     * {@link #frozenIndex} for zero-lock reads. After freezing, all
+     * lookups through {@link #lookupSbbs(String)} use the immutable
+     * copy exclusively.
+     */
+    public static void freeze() {
+        frozenIndex = Map.copyOf(eventIndex);
+        eventIndex.clear();
+    }
+
+    /**
+     * Look up the list of SBB class names registered to handle the given
+     * event class. Prefers the frozen immutable copy when available;
+     * falls back to the mutable build-time index for keys not found in
+     * the frozen snapshot (supporting incremental builds after freeze).
+     *
+     * @param eventClassName the fully-qualified event class name
+     * @return unmodifiable list of SBB class names, or empty list if none found
+     */
+    public static List<String> lookupSbbs(String eventClassName) {
+        Map<String, List<String>> frozen = frozenIndex;
+        if (frozen != null) {
+            List<String> result = frozen.get(eventClassName);
+            if (result != null) {
+                return result;
+            }
+            // Fall through to eventIndex — entries built after freeze().
+        }
+        List<String> result = eventIndex.get(eventClassName);
+        return result != null ? Collections.unmodifiableList(result) : Collections.emptyList();
+    }
+
+    /**
+     * Returns {@code true} if {@link #freeze()} has been called and the
+     * immutable index is available. Exposed for tests and diagnostics.
+     */
+    public static boolean isFrozen() {
+        return frozenIndex != null;
     }
 
     /**

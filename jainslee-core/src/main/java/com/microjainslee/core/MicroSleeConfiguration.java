@@ -47,6 +47,7 @@ public final class MicroSleeConfiguration {
     // path so existing embedders see no change.
     private final boolean codegenEnabled;
     private final String deployDir;
+    private final boolean tracePinnedThreads;
 
     private MicroSleeConfiguration(Builder builder) {
         this.eventRouterBufferSize = builder.eventRouterBufferSize;
@@ -63,6 +64,7 @@ public final class MicroSleeConfiguration {
         this.nodeId = builder.nodeId;
         this.codegenEnabled = builder.codegenEnabled;
         this.deployDir = builder.deployDir;
+        this.tracePinnedThreads = builder.tracePinnedThreads;
     }
 
     public static Builder builder() {
@@ -179,6 +181,17 @@ public final class MicroSleeConfiguration {
         return deployDir;
     }
 
+    /**
+     * VT-PINNING — when {@code true}, the container sets the system property
+     * {@code jdk.tracePinnedThreads} to {@code "full"} at {@code start()} time,
+     * enabling stack traces whenever a virtual thread is pinned to its carrier.
+     * Default {@code false} (no tracing overhead). Use during development and
+     * CI to catch {@code synchronized} blocks on the SBB hot path.
+     */
+    public boolean isTracePinnedThreads() {
+        return tracePinnedThreads;
+    }
+
     public static final class Builder {
         private int eventRouterBufferSize = DEFAULT_RING_BUFFER_SIZE;
         private boolean preferVirtualThreads = true;
@@ -201,6 +214,7 @@ public final class MicroSleeConfiguration {
         // Tests can force-disable to exercise the reflection fallback.
         private boolean codegenEnabled = true;
         private String deployDir = System.getProperty("java.io.tmpdir") + "/slee-deploy";
+        private boolean tracePinnedThreads = false;
 
         public Builder eventRouterBufferSize(int eventRouterBufferSize) {
             if (eventRouterBufferSize <= 0 || Integer.bitCount(eventRouterBufferSize) != 1) {
@@ -325,6 +339,18 @@ public final class MicroSleeConfiguration {
             if (deployDir != null && !deployDir.isBlank()) {
                 this.deployDir = deployDir;
             }
+            return this;
+        }
+
+        /**
+         * VT-PINNING — enable {@code -Djdk.tracePinnedThreads=full} at
+         * container start. When {@code true}, the JVM emits a stack trace
+         * every time a virtual thread is pinned to its carrier thread
+         * (typically via {@code synchronized} blocks). Default {@code false}.
+         * Use during development and CI to audit pinning-free code paths.
+         */
+        public Builder tracePinnedThreads(boolean enable) {
+            this.tracePinnedThreads = enable;
             return this;
         }
 

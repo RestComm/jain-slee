@@ -578,6 +578,13 @@ public final class MicroSleeContainer {
         if (state == State.STARTED) {
             return;
         }
+        // VT-PINNING — enable JVM-level pinning trace when configured.
+        // Must be set before any virtual thread work begins so the
+        // trace covers the full container lifecycle.
+        if (configuration.isTracePinnedThreads()) {
+            System.setProperty("jdk.tracePinnedThreads", "full");
+            LOG.info("VT pinning trace enabled (-Djdk.tracePinnedThreads=full)");
+        }
         // The SBB entity pool's underlying executor is shut down by stop();
         // rebuild it so a stop/start round-trip yields a usable pool.
         if (sbbEntityPool == null || sbbEntityPool.isShutdown()) {
@@ -1005,6 +1012,72 @@ public final class MicroSleeContainer {
 
     /** Map of event class → SBB entity name for convergent event-to-SBB routing. */
     private final ConcurrentHashMap<Class<? extends SleeEvent>, String> eventToSbbMap = new ConcurrentHashMap<>();
+
+    // ──────────────────────────────────────────────────────────
+    // P0 — per-deployment in-flight Activity Context tracking
+    // ──────────────────────────────────────────────────────────
+
+    /** deploymentId → (acId → true) for in-flight AC counting. */
+    private final ConcurrentHashMap<String, ConcurrentHashMap<String, Boolean>> byDeployment =
+            new ConcurrentHashMap<>();
+
+    /**
+     * P0 — count the number of in-flight activity contexts created under
+     * the given deployment id.
+     *
+     * @param deploymentId the deployment identifier (must not be {@code null})
+     * @return number of in-flight ACs, or 0 if the deployment is unknown
+     */
+    public int countInFlightByDeploymentId(String deploymentId) {
+        if (deploymentId == null) {
+            return 0;
+        }
+        ConcurrentHashMap<String, Boolean> acs = byDeployment.get(deploymentId);
+        return acs == null ? 0 : acs.size();
+    }
+
+    /**
+     * P0 — track an activity context under the given deployment id.
+     * Called from {@link #createActivityContext(String)} when a deployment
+     * context is available.
+     *
+     * @param acId         the activity context id (name)
+     * @param deploymentId the deployment identifier
+     */
+    public void setDeploymentId(String acId, String deploymentId) {
+        if (acId == null || deploymentId == null) {
+            return;
+        }
+        byDeployment.computeIfAbsent(deploymentId,
+                k -> new ConcurrentHashMap<>()).put(acId, Boolean.TRUE);
+    }
+
+    /**
+     * P0 — remove an activity context from its deployment tracking.
+     * Called when an AC is ended / unbound.
+     *
+     * @param acId         the activity context id
+     * @param deploymentId the deployment identifier
+     */
+    public void clearDeploymentId(String acId, String deploymentId) {
+        if (acId == null || deploymentId == null) {
+            return;
+        }
+        ConcurrentHashMap<String, Boolean> acs = byDeployment.get(deploymentId);
+        if (acs != null) {
+            acs.remove(acId);
+            if (acs.isEmpty()) {
+                byDeployment.remove(deploymentId);
+            }
+        }
+    }
+
+    /**
+     * P0 — return the set of all deployment ids currently tracked.
+     */
+    public java.util.Set<String> getTrackedDeploymentIds() {
+        return java.util.Collections.unmodifiableSet(byDeployment.keySet());
+    }
 
     /**
      * GOAL 2 — register a local Resource Adaptor via the 3-port contract.

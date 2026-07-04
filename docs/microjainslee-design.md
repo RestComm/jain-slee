@@ -1246,7 +1246,9 @@ across non-blocking calls and never call back into the SLEE container
 while holding it.
 
 Run with `-Djdk.tracePinnedThreads=full` to catch violations during
-development.
+development, or enable programmatically via
+`MicroSleeConfiguration.builder().tracePinnedThreads(true)` (sets the
+system property at container start).
 
 ---
 

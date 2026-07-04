@@ -61,6 +61,9 @@ public final class SbbEntityState {
         return cmpFields;
     }
 
+    // §VT-PINNING: synchronized on childRelations is held only for a
+    // defensive copy — microseconds, no I/O, no callbacks. Not on the
+    // SBB hot path; safe for virtual threads.
     public List<ChildRelationImpl> getChildRelations() {
         synchronized (childRelations) {
             return new ArrayList<ChildRelationImpl>(childRelations);
@@ -84,6 +87,10 @@ public final class SbbEntityState {
      * observation across the SBB entity thread boundary), but we synchronize
      * to be defensive against concurrent transitions triggered by, e.g.,
      * cascading removal racing with normal passivation.
+     *
+     * <p>§VT-PINNING: this synchronized method is only called during
+     * lifecycle transitions (activate/passivate/remove), NOT on the
+     * SBB event-delivery hot path. Safe for virtual threads.</p>
      */
     public synchronized void transitionTo(SbbLifecycleManager.State next) {
         this.lifecycleState = next;

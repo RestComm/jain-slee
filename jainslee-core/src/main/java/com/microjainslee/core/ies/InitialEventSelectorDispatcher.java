@@ -81,6 +81,15 @@ public class InitialEventSelectorDispatcher {
     private final ConcurrentHashMap<Class<?>, Method> iesMethodCache = new ConcurrentHashMap<>();
 
     /**
+     * P0 — event type → IES result cache. Avoids repeated reflection
+     * calls (temp SBB instantiation + Method.invoke) for events whose
+     * IES result is deterministic per type. The cache is populated by
+     * {@link #select(SleeEvent)} on first encounter of each event class.
+     */
+    private final ConcurrentHashMap<Class<?>, InitialEventSelectResult> iesResultCache =
+            new ConcurrentHashMap<>();
+
+    /**
      * Sprint S8.3 — optional reference to the per-convergence
      * out-of-order buffer. When set, non-initial {@link SequencedEvent}s
      * that arrive before the entity is allocated are buffered (rather
@@ -234,6 +243,65 @@ public class InitialEventSelectorDispatcher {
         }
 
         return newId;
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // P0 — cached IES result lookup per event type
+    // ───────────────────────────────────────────────────────────────
+
+    /**
+     * P0 — cached IES result lookup. On first encounter of an event type,
+     * performs the expensive reflection-based IES lookup (temp SBB instance
+     * creation + {@code Method.invoke}) and caches the result. Subsequent
+     * events of the same type return the cached result directly, avoiding
+     * repeated reflection overhead.
+     *
+     * <p><b>Important:</b> This cache is per {@link Class event type}, not
+     * per event instance. For convergence-based IES where the convergence
+     * name varies per event (e.g. different msisdn per call), this cache
+     * should NOT be used — use {@link #resolveTarget(Object, ActivityContextInterface, Class)}
+     * directly instead. The cache is safe for stateless IES and for
+     * deployments where all events of a type share the same IES structure.
+     *
+     * @param event    the incoming event (used only for its class on cache hit)
+     * @param aci      activity context interface
+     * @param sbbClass the SBB class registered for this event type
+     * @return the IES result (may be cached), or {@code null} on error
+     */
+    public InitialEventSelectResult select(Object event, ActivityContextInterface aci,
+                                           Class<?> sbbClass) {
+        Class<?> eventType = event.getClass();
+        InitialEventSelectResult cached = iesResultCache.get(eventType);
+        if (cached != null) {
+            return cached;
+        }
+        return iesResultCache.computeIfAbsent(eventType, et -> computeIesResult(et, event, aci, sbbClass));
+    }
+
+    /**
+     * Compute the IES result for a given event type by finding and invoking
+     * the IES method on the SBB class. This is the expensive path that
+     * {@link #select} avoids on cache hits.
+     */
+    private InitialEventSelectResult computeIesResult(Class<?> eventType,
+                                                       Object event,
+                                                       ActivityContextInterface aci,
+                                                       Class<?> sbbClass) {
+        Method iesMethod = findIesMethod(sbbClass);
+        if (iesMethod == null) {
+            // No IES declared → every event is initial (stateless).
+            return InitialEventSelectResult.stateless();
+        }
+        return invokeIes(iesMethod, sbbClass, event, aci);
+    }
+
+    /**
+     * Clear the IES result cache. Useful after hot-redeploy so stale
+     * cached results don't survive a deployment change.
+     */
+    public void clearIesResultCache() {
+        iesResultCache.clear();
+        LOG.debug("IES result cache cleared ({} entries were evicted)", iesResultCache.size());
     }
 
     /**
