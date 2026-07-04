@@ -842,3 +842,96 @@ ussd-client-simulator → HTTP POST → ra-http-server
 
 
 
+
+---
+
+## Phụ lục D: Full Request Walkthrough (Step-by-Step)
+
+> Xem 711 dòng code chi tiết: [`docs/EXAMPLE_WALKTHROUGH.md`](EXAMPLE_WALKTHROUGH.md)
+
+### D.1 8 bước của 1 USSD request (từ HTTP POST đến callback)
+
+```
+STEP 1 — Client POST → HTTP Server RA
+  POST /api/ussd/begin-callback {"msisdn":"251911000001","ussdString":"*123#"}
+  → HttpServerResourceAdaptor.BeginHandler
+  → sessionPreparer.prepare() → tạo HttpServerSbb entity, attach vào sessionId
+  → beginEventFactory → new HttpUssdBeginEvent
+  → fireEvent() → EventRouter
+
+STEP 2 — EventRouter → HttpServerSbb
+  Lookup: HttpUssdBeginEvent.class → "HttpServerSbb"
+  → pool.acquire() → HttpServerSbb.onEvent()
+
+STEP 3 — HttpServerSbb internal routing
+  lookupTier(msisdn) → "GOLD" (Profile)
+  → acquireEntity Ss7UssdIngressSbb ($Concrete::new)
+  → routeEvent(new Ss7UssdBeginEvent)
+
+STEP 4 — Ss7UssdIngressSbb (core logic)
+  setTimer(30s) → child GrpcClientSbb → routeEvent(new GrpcMenuRequestEvent)
+
+STEP 5 — GrpcClientSbb → gRPC RA (outbound)
+  @InjectRa grpcCommandPort.sendCommand(new GrpcMenuCommand)
+  → GrpcMenuResourceAdaptor.requestMenu()
+  → gRPC ResolveMenu → grpc-server-simulator:9090
+
+STEP 6 — gRPC multi-level menu response
+  MultiLevelMenuService.resolveMenu() → menu text
+  → eventFactory → new GrpcMenuResponseEvent
+  → routeResponse() → EventRouter
+
+STEP 7 — Menu text → final response
+  GrpcMenuResponseEvent → Ss7UssdIngressSbb
+  cancelTimer() → routeEvent(new UssdResponseEvent)
+
+STEP 8 — HTTP callback back to simulator
+  UssdResponseEvent → HttpServerSbb
+  @InjectRa httpCallbackPort.sendCommand(new HttpCallbackCommand)
+  → HTTP POST callback URL → ussd-client-simulator
+  → releaseSession()
+```
+
+### D.2 SBB entity = parked Virtual Thread (100K sessions = ~42 OS threads)
+
+```
+HttpServerSbb entity [session-1]    → parked VT
+Ss7UssdIngressSbb entity [session-1] → parked VT  + IES + CMP + Timer
+GrpcClientSbb entity [session-1]    → parked VT  + @InjectRa grpcMenuRa
+
+Khi event đến → EventRouter:
+  unpark VT → SBB.onEvent() → park VT
+```
+
+### D.3 How everything connects
+
+```
+                     EmbeddedUssdMain.main()
+                            │
+                    new MicroSleeContainer(config)
+                            │
+                    EmbeddedUssdBootstrap.install()
+                            │
+          ┌─────────────────┼────────────────────┐
+          ▼                 ▼                    ▼
+    registerSbbTypes()  registerRa()        mapEventToSbb()
+          │                 │                    │
+    SbbEntityPool      RaRegistry           EventRouter routing table
+    (factory map)      RaEndpointPort
+          │            RaCommandPort
+          │                 │
+    ┌─────┴─────┐     ┌─────┴──────────┐
+    │HttpServerSbb│   │ra-http-server   │ ← listen :8082
+    │            │←──│ (fireEvent)      │
+    │            │──→│ra-http-client    │ ← HTTP POST callback
+    │            │   │ra-grpc-client    │ ← gRPC → :9090 simulator
+    │Ss7Ussd    │    └─────────────────┘
+    │IngressSbb │
+    │GrpcClient │
+    │Sbb        │
+    └───────────┘
+```
+
+> **Golden Rule:** SBBs KHÔNG import class RA. SBBs chỉ biết `@InjectRa RaCommandPort` + `OutboundCommand record`.
+> RA KHÔNG biết class SBB. RA chỉ biết collaborator interfaces (lambda từ bootstrap).
+
