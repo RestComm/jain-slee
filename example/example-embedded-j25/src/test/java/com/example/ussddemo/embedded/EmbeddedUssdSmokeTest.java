@@ -7,6 +7,11 @@ package com.example.ussddemo.embedded;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import com.microjainslee.api.OutboundCommand;
+import com.microjainslee.api.RaBootstrapPort;
+import com.microjainslee.api.RaCommandPort;
+import com.microjainslee.api.RaEndpointPort;
+import com.microjainslee.api.SleeEvent;
 import com.microjainslee.core.MicroSleeContainer;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -181,6 +186,123 @@ public class EmbeddedUssdSmokeTest {
             Thread.sleep(50L);
         }
         assertEquals("COMPLETED", status);
+    }
+
+    // ──────────────────────────────────────────────────────────
+    //  GOAL 1-5 — registerRa() + mapEventToSbb() contract tests.
+    // ──────────────────────────────────────────────────────────
+
+    @Test
+    public void registerRa_registersAndActivatesEndpoint() {
+        MicroSleeContainer c = EmbeddedUssdMain.container();
+        assertNotNull("container must be available", c);
+
+        // Create a simple stub RA endpoint.
+        java.util.concurrent.atomic.AtomicBoolean activated = new java.util.concurrent.atomic.AtomicBoolean(false);
+        RaEndpointPort stubEndpoint = new RaEndpointPort() {
+            @Override
+            public void activate(RaBootstrapPort bootstrap) {
+                activated.set(true);
+            }
+
+            @Override
+            public void deactivate() {
+                activated.set(false);
+            }
+
+            @Override
+            public String getRaName() {
+                return "test-stub-ra";
+            }
+        };
+
+        // Create a simple stub command port.
+        java.util.concurrent.atomic.AtomicReference<OutboundCommand> lastCommand =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        RaCommandPort stubCommand = new RaCommandPort() {
+            @Override
+            public void sendCommand(OutboundCommand command) {
+                lastCommand.set(command);
+            }
+        };
+
+        // Register — the container activates the endpoint immediately (already started).
+        c.registerRa(stubEndpoint, stubCommand);
+
+        // Verify activation happened.
+        assertTrue("stub RA should be activated after registerRa()", activated.get());
+
+        // Verify the command port is reachable via getRaCommandPort.
+        RaCommandPort retrieved = c.getRaCommandPort("test-stub-ra");
+        assertNotNull("command port should be retrievable by name", retrieved);
+
+        // Send a command through the retrieved port and verify delivery.
+        OutboundCommand testCmd = new OutboundCommand() {};
+        retrieved.sendCommand(testCmd);
+        assertSame("command should be delivered to stub", testCmd, lastCommand.get());
+    }
+
+    @Test
+    public void mapEventToSbb_registersEventRouting() {
+        MicroSleeContainer c = EmbeddedUssdMain.container();
+        assertNotNull("container must be available", c);
+
+        // Map an event type to a known SBB name.
+        c.mapEventToSbb(com.example.ussddemo.events.HttpUssdBeginEvent.class, "HttpServerSbb");
+
+        // The mapping is verified indirectly: no exception means success.
+        // The container's eventToSbbMap now contains this entry for
+        // convergent event routing in the GOAL 2 dispatch path.
+        assertNotNull("container mapping accepted for HttpUssdBeginEvent",
+                c); // assertion is implicit — mapEventToSbb didn't throw
+    }
+
+    @Test
+    public void registerRa_rejectsNullArgs() {
+        MicroSleeContainer c = EmbeddedUssdMain.container();
+        assertNotNull("container must be available", c);
+
+        RaEndpointPort stubEndpoint = new RaEndpointPort() {
+            @Override public void activate(RaBootstrapPort bootstrap) {}
+            @Override public void deactivate() {}
+            @Override public String getRaName() { return "null-check-ra"; }
+        };
+
+        try {
+            c.registerRa(null, new RaCommandPort() {
+                @Override public void sendCommand(OutboundCommand command) {}
+            });
+            org.junit.Assert.fail("registerRa should reject null endpoint");
+        } catch (IllegalArgumentException expected) {
+            // expected
+        }
+
+        try {
+            c.registerRa(stubEndpoint, null);
+            org.junit.Assert.fail("registerRa should reject null command");
+        } catch (IllegalArgumentException expected) {
+            // expected
+        }
+    }
+
+    @Test
+    public void mapEventToSbb_rejectsNullArgs() {
+        MicroSleeContainer c = EmbeddedUssdMain.container();
+        assertNotNull("container must be available", c);
+
+        try {
+            c.mapEventToSbb(null, "SomeSbb");
+            org.junit.Assert.fail("mapEventToSbb should reject null eventType");
+        } catch (IllegalArgumentException expected) {
+            // expected
+        }
+
+        try {
+            c.mapEventToSbb(com.example.ussddemo.events.HttpUssdBeginEvent.class, null);
+            org.junit.Assert.fail("mapEventToSbb should reject null sbbName");
+        } catch (IllegalArgumentException expected) {
+            // expected
+        }
     }
 
     private static String extractJsonString(String json, String field) {

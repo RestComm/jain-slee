@@ -16,13 +16,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Loads {@code META-INF/microjainslee/sbb-index.properties} produced by APT.
+ *
+ * <p>GOAL 3 — also supports programmatic SBB registration via
+ * {@link #registerSbb(Class)}. Programmatic entries take priority
+ * over descriptor-based entries from the classpath index.
  */
 public final class SbbIndexLoader {
 
     public static final String INDEX_RESOURCE = "META-INF/microjainslee/sbb-index.properties";
+
+    /**
+     * GOAL 3 — programmatic deployable-unit registrations keyed by
+     * their class name. Entries here are prepended to the descriptor-based
+     * list returned by {@link #load(ClassLoader)}.
+     */
+    private static final ConcurrentHashMap<String, DeployableUnitIndexEntry> programmaticDus =
+            new ConcurrentHashMap<>();
 
     private SbbIndexLoader() {
     }
@@ -31,17 +44,68 @@ public final class SbbIndexLoader {
         if (classLoader == null) {
             throw new IllegalArgumentException("classLoader is required");
         }
+        SbbIndex descriptorIndex;
         InputStream in = classLoader.getResourceAsStream(INDEX_RESOURCE);
         if (in == null) {
-            return SbbIndex.empty();
+            descriptorIndex = SbbIndex.empty();
+        } else {
+            try {
+                Properties props = new Properties();
+                props.load(in);
+                descriptorIndex = parse(props);
+            } finally {
+                in.close();
+            }
         }
-        try {
-            Properties props = new Properties();
-            props.load(in);
-            return parse(props);
-        } finally {
-            in.close();
+        // GOAL 3 — merge programmatic registrations (higher priority first).
+        return mergeProgrammatic(descriptorIndex);
+    }
+
+    /**
+     * GOAL 3 — register an SBB class programmatically. Creates a synthetic
+     * {@link DeployableUnitIndexEntry} that will be discovered by the container
+     * during {@code autoDeployFromClasspathIndex()}.
+     *
+     * <p>Programmatic registrations <strong>take priority</strong> over
+     * descriptor-based entries from {@code META-INF/microjainslee/sbb-index.properties}.
+     * This supplements — does not replace — existing classpath discovery.
+     *
+     * <p>Idempotent: registering the same class twice silently replaces the
+     * previous entry.
+     *
+     * @param sbbClass the SBB implementation class (must not be {@code null})
+     */
+    public static void registerSbb(Class<? extends com.microjainslee.api.Sbb> sbbClass) {
+        if (sbbClass == null) {
+            throw new IllegalArgumentException("sbbClass is required");
         }
+        String className = sbbClass.getName();
+        String name = sbbClass.getSimpleName();
+        DeployableUnitIndexEntry entry = new DeployableUnitIndexEntry(
+                className, name, "com.microjainslee", "1.0",
+                Collections.singletonList(className),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList());
+        programmaticDus.put(className, entry);
+    }
+
+    /**
+     * GOAL 3 — prepend programmatic deployable-unit entries to the
+     * descriptor-based index. Programmatic entries come first so the
+     * container processes them before any descriptor-based DU with the
+     * same class name (the container's {@code if (resourceAdaptors.containsKey(...))}
+     * guard makes the first-writer win).
+     */
+    private static SbbIndex mergeProgrammatic(SbbIndex descriptorIndex) {
+        if (programmaticDus.isEmpty()) {
+            return descriptorIndex;
+        }
+        List<DeployableUnitIndexEntry> mergedDus = new ArrayList<>(programmaticDus.values());
+        mergedDus.addAll(descriptorIndex.getDeployableUnits());
+        return new SbbIndex(
+                descriptorIndex.getSbbs(),
+                descriptorIndex.getEventTypes(),
+                Collections.unmodifiableList(mergedDus));
     }
 
     static SbbIndex parse(Properties props) {

@@ -476,6 +476,139 @@ container.stop()       ← MicroSleeContainer: STARTED → STOPPED
 
 ---
 
+## 8.5 3-Port Contract & PolyVoice Pattern (GOAL 1-5 ✅)
+
+Từ micro-jainslee 1.2.0, RA có thể dùng **3-port contract API** (`com.microjainslee.api`) thay vì `javax.slee.resource.ResourceAdaptor`. Pattern này đơn giản hóa đáng kể cách SBB và RA giao tiếp.
+
+### 8.5.1 3 interfaces cốt lõi (3 core interfaces)
+
+| Interface | Vai trò (Role) | Ai gọi (Caller) |
+|-----------|---------------|-----------------|
+| **`RaEndpointPort`** | RA lifecycle: `activate(bootstrap)`, `deactivate()`, `getRaName()` | Container |
+| **`RaCommandPort`** | SBB → RA: `sendCommand(OutboundCommand)` | SBB (qua `@InjectRa`) |
+| **`RaBootstrapPort`** | Container → RA: `createActivityHandle()`, `fireEvent()` | RA (quando cần fire event) |
+
+### 8.5.2 So sánh với ResourceAdaptor cũ (Comparison with old ResourceAdaptor)
+
+| | Old (`ResourceAdaptor`) | New GOAL 1-5 (`RaEndpointPort`) |
+|---|---|---|
+| Số lifecycle methods | 5 (`raConfigure`, `raActive`, `raStopping`, `raInactive`, `raUnconfigure`) | 2 (`activate`, `deactivate`) |
+| Fire event | `raContext.getSleeEndpoint().fireEvent(handle, etid, event, ...)` | `bootstrap.fireEvent(event, handle, address)` |
+| Activity handle | Custom `ActivityHandle` class | `bootstrap.createActivityHandle(id)` |
+| SBB lấy RA | Abstract `getXxxRa()` method | `@InjectRa private RaCommandPort` |
+| Đăng ký RA | JNDI / `@ResourceAdaptor` annotation | `container.registerRa(endpoint, command)` |
+
+### 8.5.3 Ví dụ đầy đủ (Full example)
+
+**Bước 1 — RA implement cả 2 port:**
+
+```java
+import com.microjainslee.api.*;
+
+public class UssdGatewayRa implements RaEndpointPort, RaCommandPort {
+
+    private RaBootstrapPort bootstrap;
+
+    // ── RaEndpointPort ──
+    @Override public String getRaName() { return "ussd-gateway"; }
+
+    @Override
+    public void activate(RaBootstrapPort bootstrap) {
+        this.bootstrap = bootstrap;
+        startSs7Stack();  // Mở SS7 MAP dialog listener
+    }
+
+    @Override
+    public void deactivate() {
+        stopSs7Stack();
+        this.bootstrap = null;
+    }
+
+    // ── RaCommandPort ──
+    @Override
+    public void sendCommand(OutboundCommand command) {
+        switch (command) {
+            case SendUssdResponseCommand c ->
+                sendMapResponse(c.sessionId(), c.ussdText());
+            default -> log.warn("Unknown: {}", command);
+        }
+    }
+
+    // ── Incoming event → fire vào SLEE ──
+    private void onIncomingUssd(MapDialog dialog, String msisdn, String text) {
+        ActivityHandle handle = bootstrap.createActivityHandle(dialog.getDialogId());
+        bootstrap.fireEvent(
+            new UssdBeginEvent(msisdn, text, dialog.getDialogId()),
+            handle, new Address(msisdn));
+    }
+}
+```
+
+**Bước 2 — SBB dùng @InjectRa:**
+
+```java
+public class UssdSessionSbb implements Sbb {
+
+    @InjectRa(name = "ussd-gateway")
+    private RaCommandPort ussdRa;
+
+    public void onUssdBegin(UssdBeginEvent event, ActivityContextInterface aci) {
+        // Gửi response qua RaCommandPort thay vì abstract getUssdRa()
+        ussdRa.sendCommand(new SendUssdResponseCommand(
+            event.getSessionId(), "Chào mừng đến với USSD Gateway"));
+    }
+}
+```
+
+**Bước 3 — Container wire:**
+
+```java
+MicroSleeContainer container = MicroSleeContainer.create(config);
+
+UssdGatewayRa ussdRa = new UssdGatewayRa();
+
+// registerRa(endpoint, command) — cùng object implement cả 2 interface
+container.registerRa(ussdRa, ussdRa);
+
+// Map event → SBB cho convergent routing
+container.mapEventToSbb(UssdBeginEvent.class, "UssdSessionSbb");
+
+container.start();  // Gọi ussdRa.activate(bootstrap)
+```
+
+### 8.5.4 PolyVoice Pattern với 3-Port Contract
+
+**PolyVoice** cho phép một SBB xử lý nhiều protocol (USSD, SIP, gRPC) qua cùng business logic, mỗi protocol là một RA riêng:
+
+```java
+public class PolyVoiceSbb implements Sbb {
+
+    @InjectRa(name = "ussd-gateway")
+    private RaCommandPort ussdRa;
+
+    @InjectRa(name = "sip-gateway")
+    private RaCommandPort sipRa;
+
+    @InjectRa(name = "grpc-menu")
+    private RaCommandPort grpcRa;
+
+    // Mọi protocol vào cùng một handler, dispatch theo event type
+    public void onEvent(SleeEvent event, ActivityContextInterface aci) {
+        String response = switch (event) {
+            case UssdBeginEvent e   -> processVoice("USSD", e);
+            case SipInviteEvent e   -> processVoice("SIP", e);
+            case GrpcRequestEvent e -> processVoice("gRPC", e);
+            default -> null;
+        };
+        if (response != null) {
+            routeResponse(event, response);  // Chọn đúng RA để gửi response
+        }
+    }
+}
+```
+
+---
+
 ## 9. Events — pipeline đầy đủ
 
 Demo có **5 event types**. Chúng tạo thành pipeline một chiều:

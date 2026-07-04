@@ -304,3 +304,139 @@ adapters/             (Quarkus, Spring Boot — minor: add JTA bean + RA wiring)
 Nhỏ hơn estimate ban đầu (~5.4K) vì nhiều infrastructure (ACNF, Timer, AlarmFacility)
 đã tồn tại trong codebase — chỉ cần wire, không cần rewrite.
 ```
+
+
+## GOAL 1-5 — registerRa Pattern (3-Port Contract)
+
+### File cần biết: `MicroSleeContainer.java` (GOAL 2 section, dòng ~1000)
+
+`registerRa(RaEndpointPort, RaCommandPort)` là entry point của 3-Port Contract
+API — cách mới để wire một local Resource Adaptor mà không cần thông qua
+`ResourceAdaptorContext` / `RaEntityStateMachine` truyền thống.
+
+### Flow khi gọi `container.registerRa(endpoint, command)`
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant APP as Application
+    participant CT as MicroSleeContainer
+    participant EP as RaEndpointPort
+    participant BP as BootstrapPortAdapter
+    participant SLEE as SleeEndpointPortImpl
+
+    APP->>CT: registerRa(endpoint, command)
+    CT->>CT: validate endpoint != null, command != null
+    CT->>EP: name = endpoint.getRaName()
+    CT->>CT: assert name non-blank
+    CT->>CT: endpointPorts.put(name, endpoint)
+    CT->>CT: raCommandPorts.put(name, command)
+    alt container.state == STARTED
+        CT->>SLEE: new SleeEndpointPortImpl(container, name)
+        CT->>BP: new BootstrapPortAdapter(sleeEndpoint)
+        CT->>EP: endpoint.activate(bootstrap)
+        Note over EP: RA opens sockets, starts listeners
+    else container chưa start
+        Note over CT: defer — activate trong start()
+    end
+```
+
+### Code mẫu — RA implement cả 2 port
+
+```java
+// RA tự implement cả RaEndpointPort và RaCommandPort
+public class HttpIngressRa implements RaEndpointPort, RaCommandPort {
+
+    private RaBootstrapPort bootstrap;
+    private volatile boolean active;
+
+    @Override public String getRaName() { return "http-ingress"; }
+
+    @Override
+    public void activate(RaBootstrapPort bootstrap) {
+        this.bootstrap = bootstrap;
+        this.active = true;
+        // start HTTP server...
+    }
+
+    @Override
+    public void deactivate() {
+        this.active = false;
+        // stop HTTP server...
+    }
+
+    @Override
+    public void sendCommand(OutboundCommand cmd) {
+        // handle outbound commands from SBB
+    }
+
+    // Called by HTTP handler thread
+    public void onHttpRequest(String sessionId, String body) {
+        if (!active) return;
+        ActivityHandle handle = bootstrap.createActivityHandle(sessionId);
+        bootstrap.fireEvent(
+            new HttpRequestEvent(body), handle, new StringAddress(sessionId));
+    }
+}
+
+// Wire vào container
+MicroSleeContainer container = ...;
+HttpIngressRa ra = new HttpIngressRa();
+container.registerRa(ra, ra);                          // RA vừa là endpoint, vừa là command port
+container.mapEventToSbb(HttpRequestEvent.class, "HttpSbb");
+```
+
+### `BootstrapPortAdapter` — internal bridge
+
+`BootstrapPortAdapter` là `private static final class` trong `MicroSleeContainer`,
+implement `RaBootstrapPort`. Nó đóng vai trò adapter giữa interface sạch mà RA nhìn
+thấy và implementation thực tế (`SleeEndpointPortImpl`).
+
+```
+RaEndpointPort.activate(bootstrap)
+        │
+        ▼
+BootstrapPortAdapter (implements RaBootstrapPort)
+        │
+        │  createActivityHandle(id)
+        ├──► SleeEndpointPortImpl.startActivity(RaActivityHandle, null)
+        │       → đăng ký activity với ACNF
+        │
+        │  fireEvent(event, handle, address)
+        └──► SleeEndpointPortImpl.fireEvent(ActivityContextHandle, event)
+                → publish vào Disruptor ring buffer → EventRouter
+```
+
+Tại sao cần adapter này?
+
+1. **Encapsulation** — RA không cần biết `ActivityContextHandle`, `SleeEndpointPortImpl`
+   hay bất kỳ internal class nào của `jainslee-core`.
+2. **Testability** — mock `RaBootstrapPort` dễ hơn mock `SleeEndpointPortImpl` khi unit-test RA.
+3. **Single responsibility** — `BootstrapPortAdapter` chỉ làm một việc: translate
+   từ `RaBootstrapPort` API sang `SleeEndpointPortImpl` API.
+
+### So sánh: registerRa vs registerResourceAdaptor
+
+| | `registerRa(endpoint, command)` | `registerResourceAdaptor(name, ra)` |
+|---|---|---|
+| API style | 3-port contract (PolyVoice) | JAIN SLEE §12.4 truyền thống |
+| Lifecycle | `activate(bootstrap)` / `deactivate()` | `raConfigure → raActive → raStopping → raInactive → raUnconfigure` |
+| State machine | Không — RA tự quản lý state | `RaEntityStateMachine` (INACTIVE → ACTIVE → STOPPING → INACTIVE) |
+| Outbound commands | `RaCommandPort.sendCommand()` | Không có sẵn — SBB phải tự lookup RA entity |
+| Activity creation | `bootstrap.createActivityHandle(id)` | `NullActivityFactory.createNullActivityHandle()` |
+| Phù hợp cho | Local / embedded RA, test harness | Production RA với full lifecycle validation |
+
+Cả hai đường dẫn đều được hỗ trợ trong micro-jainslee 1.2.0-P1.
+`registerRa` được khuyến nghị cho code mới vì đơn giản hơn và dễ test hơn;
+`registerResourceAdaptor` dành cho migration từ code JAIN SLEE 1.1 legacy.
+
+### Test verify
+
+```bash
+# GOAL 1-5 3-port contract tests
+mvn -pl jainslee-core test -Dtest='MicroSleeContainerTest#registerRa*'
+# → assert endpointPorts + raCommandPorts populated
+# → assert activate() called with non-null bootstrap
+# → assert hot-register works when container already STARTED
+# → assert deactivate() called on container stop
+```

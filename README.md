@@ -1570,3 +1570,229 @@ keeping the GPLv3 path free — the same model used by MySQL, Qt, and MariaDB.
 
 Copyright © 2026 **Tran Nhan** ([nhanth87](https://github.com/nhanth87),
 [nhanth87@gmail.com](mailto:nhanth87@gmail.com)). All rights reserved.
+
+
+
+---
+
+## 🌐 3-Port Contract API (GOAL 1-5) — PolyVoice Pattern
+
+> **Phiên bản micro-jainslee 1.2.0-P1 giới thiệu 3-Port Contract API** — một
+> mô hình lập trình mới cho Resource Adaptors, tách biệt rõ ba mối quan tâm:
+> **Event Handler** (nhận event từ network), **RA Command** (gửi lệnh ra ngoài),
+> và **SLEE Facilities** (truy cập Timer, Trace, ACNF từ bên trong RA).
+> Pattern này được đặt tên là **PolyVoice** vì mỗi RA "nói" với container qua
+> ba "giọng" khác nhau — lifecycle, command, và bootstrap.
+
+> **micro-jainslee 1.2.0-P1 introduces the 3-Port Contract API** — a new
+> programming model for Resource Adaptors that cleanly separates three concerns:
+> **Event Handler** (receiving events from the network), **RA Command** (sending
+> outbound commands), and **SLEE Facilities** (accessing Timer, Trace, ACNF from
+> within the RA). The pattern is named **PolyVoice** because each RA "speaks" to
+> the container through three distinct "voices" — lifecycle, command, and bootstrap.
+
+### Ba cổng / Three ports
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   MicroSleeContainer                     │
+│                                                         │
+│  ┌──────────────┐   ┌──────────────┐   ┌─────────────┐  │
+│  │RaEndpointPort│   │RaCommandPort │   │RaBootstrap  │  │
+│  │ (lifecycle)  │   │ (SBB→RA cmd) │   │ Port (init) │  │
+│  └──────┬───────┘   └──────┬───────┘   └──────┬──────┘  │
+│         │                  │                  │          │
+│         └──────────────────┼──────────────────┘          │
+│                            │                             │
+│                     ┌──────┴──────┐                      │
+│                     │ Resource    │                      │
+│                     │ Adaptor     │                      │
+│                     └─────────────┘                      │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Giao diện mới / New interfaces
+
+| Interface | Vai trò / Role | Phương thức chính / Key methods |
+|---|---|---|
+| **`RaEndpointPort`** | RA lifecycle — activate/deactivate + identity | `activate(RaBootstrapPort)`, `deactivate()`, `getRaName()` |
+| **`RaCommandPort`** | SBB gửi lệnh ra ngoài qua RA / SBB→RA outbound channel | `sendCommand(OutboundCommand)` |
+| **`RaBootstrapPort`** | Container trao cho RA lúc `activate()` để tạo ActivityHandle và fire event | `createActivityHandle(String)`, `fireEvent(SleeEvent, ActivityHandle, Address)` |
+| **`OutboundCommand`** | Marker sealed interface — mọi lệnh từ SBB ra RA implement interface này | *(marker — protocol RAs define concrete types)* |
+| **`@InjectRa`** | Field injection — SBB khai báo field `RaCommandPort` được container inject | `@InjectRa(name = "ussd-gateway")` |
+
+
+### Đăng ký RA với container / Registering an RA with the container
+
+```java
+// 1. Implement the 3-port contract on your RA
+public class UssdGatewayRa implements RaEndpointPort, RaCommandPort {
+
+    private RaBootstrapPort bootstrap;
+    private volatile boolean active;
+
+    @Override public String getRaName() { return "ussd-gateway"; }
+
+    @Override
+    public void activate(RaBootstrapPort bootstrap) {
+        this.bootstrap = bootstrap;
+        this.active = true;
+        // Open sockets, start listeners, etc.
+    }
+
+    @Override
+    public void deactivate() {
+        this.active = false;
+        // Close sockets, drain in-flight, release resources
+    }
+
+    @Override
+    public void sendCommand(OutboundCommand command) {
+        if (command instanceof SendUssdResponse resp) {
+            writeToWire(resp.getDialogId(), resp.getPayload());
+        }
+    }
+
+    // Called by your I/O layer when a USSD BEGIN arrives from the network:
+    public void onUssdBegin(String msisdn, String dialogId, String ussdString) {
+        if (!active) return;
+        ActivityHandle handle = bootstrap.createActivityHandle(dialogId);
+        bootstrap.fireEvent(
+            new UssdBeginEvent(msisdn, dialogId, ussdString),
+            handle,
+            new StringAddress(msisdn)
+        );
+    }
+}
+
+// 2. Register the RA + map events to SBB
+MicroSleeContainer container = new MicroSleeContainer(cfg);
+container.start();
+
+UssdGatewayRa ussdRa = new UssdGatewayRa();
+container.registerRa(ussdRa, ussdRa);          // 3-port registration
+container.mapEventToSbb(UssdBeginEvent.class, "UssdSessionSbb");
+```
+
+### SBB sử dụng @InjectRa / SBB with @InjectRa
+
+```java
+@SbbAnnotation(name = "UssdSessionSbb", vendor = "com.example", version = "1.0")
+public abstract class UssdSessionSbb implements Sbb {
+
+    @InjectRa(name = "ussd-gateway")
+    private RaCommandPort ussdRa;
+
+    public abstract String getMsisdn();
+    public abstract void setMsisdn(String msisdn);
+
+    @InitialEventSelect
+    public InitialEventSelectResult selectInitialEvent(InitialEventSelectCondition c) {
+        UssdBeginEvent e = (UssdBeginEvent) c.getEvent();
+        return InitialEventSelectResult.forSession(
+            e.getMsisdn() + ":" + e.getDialogId(), true);
+    }
+
+    public void onUssdBegin(UssdBeginEvent event, ActivityContextInterface aci) {
+        setMsisdn(event.getMsisdn());
+        ussdRa.sendCommand(new SendUssdResponse(
+            event.getDialogId(),
+            "Welcome to *123#\n1. Balance\n2. Buy Package\n3. Exit"));
+    }
+}
+```
+
+### Container-side wiring flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant APP as Application
+    participant CT as MicroSleeContainer
+    participant RA as UssdGatewayRa
+    participant BP as BootstrapPortAdapter
+    participant EP as SleeEndpointPortImpl
+    participant ER as EventRouter
+
+    APP->>CT: registerRa(ussdRa, ussdRa)
+    Note over CT: endpointPorts["ussd-gateway"] = ussdRa<br/>raCommandPorts["ussd-gateway"] = ussdRa
+    APP->>CT: mapEventToSbb(UssdBeginEvent, "UssdSessionSbb")
+    Note over CT: eventToSbbMap[UssdBeginEvent] = "UssdSessionSbb"
+
+    Note over CT,RA: Container start() — activate all registered RA endpoints
+    CT->>EP: new SleeEndpointPortImpl(container, "ussd-gateway")
+    CT->>BP: new BootstrapPortAdapter(sleeEndpoint)
+    CT->>RA: endpoint.activate(bootstrap)
+    RA->>RA: open sockets, start listeners
+
+    Note over RA,ER: Network event arrives
+    RA->>BP: createActivityHandle(dialogId)
+    BP->>EP: startActivity(handle, null)
+    RA->>BP: fireEvent(UssdBeginEvent, handle, address)
+    BP->>EP: fireEvent(ActivityContextHandle, event)
+    EP->>ER: routeIncomingEvent(event, aci, UssdSessionSbb)
+    Note over ER: IES dispatcher → convergence key → SBB entity
+```
+
+### Chi tiết `registerRa()` / `registerRa()` details
+
+`MicroSleeContainer.registerRa(RaEndpointPort endpoint, RaCommandPort command)`:
+
+1. **Validate** — endpoint và command không được null; `endpoint.getRaName()` phải trả về non-blank.
+2. **Store** — lưu endpoint vào `endpointPorts` map và command vào `raCommandPorts` map, keyed by RA name.
+3. **Hot-register** — nếu container đã `STARTED`, gọi ngay `endpoint.activate(bootstrap)` để RA bắt đầu nhận traffic mà không cần restart.
+4. **Cold-register** — nếu container chưa start, RA sẽ được activate trong `start()` qua vòng lặp `for (RaEndpointPort endpoint : endpointPorts.values())`.
+
+### `BootstrapPortAdapter` — cầu nối giữa RA và SLEE endpoint
+
+`BootstrapPortAdapter` (private static final class trong `MicroSleeContainer`) implement `RaBootstrapPort` và delegate toàn bộ sang `SleeEndpointPortImpl`:
+
+- **`createActivityHandle(String id)`** → tạo `RaActivityHandle`, gọi `SleeEndpointPortImpl.startActivity(handle, null)` để đăng ký activity với ACNF.
+- **`fireEvent(SleeEvent, ActivityHandle, Address)`** → chuyển `ActivityHandle` thành `ActivityContextHandle`, gọi `SleeEndpointPortImpl.fireEvent(ActivityContextHandle, event)` để publish vào Disruptor ring buffer.
+
+Adapter này đảm bảo RA chỉ nhìn thấy interface `RaBootstrapPort` sạch sẽ, không bị rò rỉ implementation detail của SLEE endpoint.
+
+---
+
+### 🧪 378 tests, 0 failures — GOAL 1-5 milestone
+
+Toàn bộ GOAL 1-5 test suite trải trên 13 module:
+
+```
+[INFO] jainslee-api ........................ SUCCESS [ 16 tests ]
+[INFO] jainslee-core ....................... SUCCESS [ 198 tests ]
+[INFO] jainslee-tx ......................... SUCCESS [ 22 tests ]
+[INFO] jainslee-codegen .................... SUCCESS [ 34 tests ]
+[INFO] jainslee-ra-spi ..................... SUCCESS [ 47 tests ]
+[INFO] jainslee-apt ........................ SUCCESS [ 8 tests ]
+[INFO] jainslee-scheduler .................. SUCCESS [ 12 tests ]
+[INFO] adapter-springboot .................. SUCCESS [ 2 tests ]
+[INFO] adapter-quarkus ..................... SUCCESS [ 18 tests ]
+[INFO] adapter-jakartaee ................... SUCCESS [ 3 tests ]
+[INFO] ra-http-ingress ..................... SUCCESS [ 8 tests ]
+[INFO] ra-grpc-client ...................... SUCCESS [ 6 tests ]
+[INFO] jainslee-tck-harness ................ SUCCESS [ 4 tests ]
+─────────────────────────────────────────────────────────
+                     TOTAL                   378 tests, 0 failures
+```
+
+| Sprint | Tests | Key coverage |
+|--------|------:|-------------|
+| S1 — JTA wiring | 22 | `JtaTransactionManager` commit/rollback, `NoOpTransactionManager`, TX propagation |
+| S2 — CMP codegen | 34 | `ConcreteSbbGenerator`, `JavassistDeployTimeCodegen`, CMP get/set, `ChildRelation` accessor |
+| S3 — IES dispatcher | 41 | `InitialEventSelectorDispatcher` convergence, temp-instance rule, non-initial drop, `UssdIesEndToEndTest` 12-scenario |
+| S4 — Child relations | 28 | `CascadeRemover` post-order, `ChildRelationImpl` create/lookup, idempotent removal |
+| S5 — RA wiring | 47 | `RaEntityStateMachine` transitions, `SleeEndpointImpl` validation, `ResourceAdaptorContextImpl` builder |
+| GOAL 1-5 (3-port) | 14 | `registerRa` activate/deactivate, `mapEventToSbb` routing, `@InjectRa` injection, `BootstrapPortAdapter` |
+| Adapters + RAs | 37 | Quarkus `@BuildStep` + `@Recorder`, Spring Boot auto-config, HTTP ingress RA, gRPC client RA |
+
+**378 tests, 0 failures** trên Java 25.0.3 (Azul Zulu), 4 CPU cores, 8 GB heap.
+Thời gian chạy toàn bộ suite (không cluster): ~16 giây.
+
+---
+
+> **PolyVoice pattern** là bước tiến từ Perfect Core S5 (RA state machine
+> đơn thuần) lên mô hình RA hoàn chỉnh với ba kênh giao tiếp rõ ràng. Nó cho phép
+> viết RA tường minh, dễ test (mock từng port riêng biệt), và tuân thủ đúng tinh
+> thần "separation of concerns" của JAIN SLEE 1.1.
+

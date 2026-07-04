@@ -10,10 +10,13 @@
 
 package com.microjainslee.core;
 
+import com.microjainslee.api.RaCommandPort;
 import com.microjainslee.api.Sbb;
+import com.microjainslee.api.annotations.InjectRa;
 import com.microjainslee.core.ies.InitialEventSelectorDispatcher;
 import com.microjainslee.core.removal.EntityRemovalEvent;
 
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
@@ -99,6 +102,8 @@ public final class VirtualThreadSbbEntityPool {
             "com.microjainslee.codegen.JavassistDeployTimeCodegen";
     private final Path deployDir;
     private volatile boolean shuttingDown;
+    /** GOAL 4 — container reference for @InjectRa resolution. Set by MicroSleeContainer. */
+    private volatile MicroSleeContainer container;
 
     public VirtualThreadSbbEntityPool(int min, int max, boolean perVirtualThread) {
         this(min, max, perVirtualThread, defaultDeployDir());
@@ -150,6 +155,44 @@ public final class VirtualThreadSbbEntityPool {
         return Paths.get(System.getProperty("java.io.tmpdir"), "slee-deploy");
     }
 
+    // ──────────────────────────────────────────────────────────
+    // GOAL 4 — RaCommandPort injection support
+    // ──────────────────────────────────────────────────────────
+
+    /** Called by {@link MicroSleeContainer} after construction. */
+    void setContainer(MicroSleeContainer container) {
+        this.container = container;
+    }
+
+    /**
+     * Scan the SBB instance for {@code @InjectRa} fields and inject
+     * the matching {@link RaCommandPort} from the container.
+     */
+    private void injectRaPorts(Sbb sbb) {
+        MicroSleeContainer c = this.container;
+        if (c == null || sbb == null) {
+            return;
+        }
+        for (Field field : sbb.getClass().getDeclaredFields()) {
+            InjectRa injectRa = field.getAnnotation(InjectRa.class);
+            if (injectRa == null) {
+                continue;
+            }
+            String raName = injectRa.name();
+            RaCommandPort port = (raName == null || raName.isEmpty())
+                    ? c.getDefaultRaCommandPort()
+                    : c.getRaCommandPort(raName);
+            if (port != null) {
+                field.setAccessible(true);
+                try {
+                    field.set(sbb, port);
+                } catch (IllegalAccessException e) {
+                    // Should not happen after setAccessible(true)
+                }
+            }
+        }
+    }
+
     public SbbEntity acquire(String sbbId, Supplier<Sbb> factory) {
         if (shuttingDown) {
             throw new IllegalStateException("SbbEntityPool is shutting down");
@@ -162,6 +205,7 @@ public final class VirtualThreadSbbEntityPool {
             return existing;
         }
         Sbb sbb = factory.get();
+        injectRaPorts(sbb);
         EntitySlot slot = slotPool.borrow();
         slot.bind(sbbId, 0L, sbb);
         SbbEntity fresh = new SbbEntity(slot, sbbId, sbb);
@@ -185,6 +229,7 @@ public final class VirtualThreadSbbEntityPool {
         if (existing != null) {
             return existing;
         }
+        injectRaPorts(sbb);
         EntitySlot slot = slotPool.borrow();
         slot.bind(sbbId, entityId, sbb);
         SbbEntity fresh = new SbbEntity(slot, sbbId, sbb);
@@ -296,6 +341,7 @@ public final class VirtualThreadSbbEntityPool {
             return existing;
         }
         Sbb sbb = instantiateSbb(sbbClass);
+        injectRaPorts(sbb);
         EntitySlot slot = slotPool.borrow();
         slot.bind(sbbId, 0L, sbb);
         SbbEntity fresh = new SbbEntity(slot, sbbId, sbb);

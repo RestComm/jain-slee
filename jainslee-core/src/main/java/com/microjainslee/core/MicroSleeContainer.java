@@ -10,18 +10,26 @@
 
 package com.microjainslee.core;
 
+import com.microjainslee.api.ActivityContextHandle;
 import com.microjainslee.api.ActivityContextInterface;
 import com.microjainslee.api.ActivityContextNamingFacility;
+import com.microjainslee.api.ActivityHandle;
+import com.microjainslee.api.Address;
 import com.microjainslee.api.CreateException;
 import com.microjainslee.api.InitialEventSelector;
+import com.microjainslee.api.OutboundCommand;
 import com.microjainslee.api.PoolableSbb;
 import com.microjainslee.api.ProfileFacility;
+import com.microjainslee.api.RaBootstrapPort;
+import com.microjainslee.api.RaCommandPort;
+import com.microjainslee.api.RaEndpointPort;
 import com.microjainslee.api.ResourceAdaptor;
 import com.microjainslee.ra.RaEntityStateMachine;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SbbID;
 import com.microjainslee.api.SbbLocalObject;
 import com.microjainslee.api.ServiceID;
+import com.microjainslee.api.SimpleActivityContextHandle;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.TimerPort;
 
@@ -87,6 +95,9 @@ public final class MicroSleeContainer {
             new ConcurrentHashMap<String, SimpleSbbLocalObject>();
     private final ConcurrentHashMap<String, RaBootstrapContextImpl> resourceAdaptors =
             new ConcurrentHashMap<String, RaBootstrapContextImpl>();
+    /** GOAL 4 — registered RaCommandPort instances keyed by RA entity name. */
+    private final ConcurrentHashMap<String, RaCommandPort> raCommandPorts =
+            new ConcurrentHashMap<String, RaCommandPort>();
     private volatile State state = State.CREATED;
     private volatile ClassLoader deploymentClassLoader;
     private volatile InitialEventSelectorCustomizer initialEventSelectorCustomizer;
@@ -209,10 +220,12 @@ public final class MicroSleeContainer {
      * pool after {@link #stop()} shut the previous one down.
      */
     private VirtualThreadSbbEntityPool newSbbEntityPool() {
-        return new VirtualThreadSbbEntityPool(
+        VirtualThreadSbbEntityPool pool = new VirtualThreadSbbEntityPool(
                 configuration.getSbbPoolMin(),
                 configuration.getSbbPoolMax(),
                 configuration.isSbbPerVirtualThread());
+        pool.setContainer(this);
+        return pool;
     }
 
     /**
@@ -614,6 +627,18 @@ public final class MicroSleeContainer {
         // ClusterManager at deploy time see a started manager.
         invokeStartOnClusterManager(this.clusterManager);
         autoDeployFromClasspathIndex();
+        // GOAL 2 — activate all registered local RA endpoints.
+        for (RaEndpointPort endpoint : endpointPorts.values()) {
+            String name = endpoint.getRaName();
+            SleeEndpointPortImpl sleeEndpoint = new SleeEndpointPortImpl(this, name);
+            RaBootstrapPort bootstrap = new BootstrapPortAdapter(sleeEndpoint);
+            try {
+                endpoint.activate(bootstrap);
+                LOG.info("Activated local RA endpoint: {}", name);
+            } catch (RuntimeException re) {
+                LOG.error("Failed to activate RA endpoint [{}]: {}", name, re.getMessage(), re);
+            }
+        }
     }
 
     public synchronized void stop() {
@@ -671,6 +696,17 @@ public final class MicroSleeContainer {
                 LOG.warn("OutOfOrderBuffer.shutdown() threw during stop(): {}", t.getMessage(), t);
             }
             this.outOfOrderBuffer = null;
+        }
+        // GOAL 2 — deactivate all registered local RA endpoints in reverse order.
+        java.util.List<RaEndpointPort> endpoints = new java.util.ArrayList<>(endpointPorts.values());
+        java.util.Collections.reverse(endpoints);
+        for (RaEndpointPort endpoint : endpoints) {
+            try {
+                endpoint.deactivate();
+                LOG.info("Deactivated local RA endpoint: {}", endpoint.getRaName());
+            } catch (RuntimeException re) {
+                LOG.warn("Error deactivating RA endpoint [{}]: {}", endpoint.getRaName(), re.getMessage());
+            }
         }
         // Production P2.1 — release JGroups threads + Infinispan resources
         // after the kernel has finished its own teardown. invokeStopOn... is
@@ -960,6 +996,65 @@ public final class MicroSleeContainer {
      */
     private final ConcurrentHashMap<String, RaEntity> raEntities = new ConcurrentHashMap<>();
 
+    // ──────────────────────────────────────────────────────────
+    // GOAL 2 — 3-port local RA registration
+    // ──────────────────────────────────────────────────────────
+
+    /** Map of RA entity name → {@link RaEndpointPort} registered via {@link #registerRa(RaEndpointPort, RaCommandPort)}. */
+    private final ConcurrentHashMap<String, RaEndpointPort> endpointPorts = new ConcurrentHashMap<>();
+
+    /** Map of event class → SBB entity name for convergent event-to-SBB routing. */
+    private final ConcurrentHashMap<Class<? extends SleeEvent>, String> eventToSbbMap = new ConcurrentHashMap<>();
+
+    /**
+     * GOAL 2 — register a local Resource Adaptor via the 3-port contract.
+     *
+     * <p>The RA's {@link RaEndpointPort#activate(RaBootstrapPort)} will be called
+     * during {@link #start()} (or immediately if the container is already started)
+     * and {@link RaEndpointPort#deactivate()} during {@link #stop()}.
+     *
+     * @param endpoint the RA endpoint port (lifecycle owner)
+     * @param command  the RA command port (used by SBBs to send outbound commands)
+     */
+    public void registerRa(RaEndpointPort endpoint, RaCommandPort command) {
+        if (endpoint == null || command == null) {
+            throw new IllegalArgumentException("endpoint and command are required");
+        }
+        String name = endpoint.getRaName();
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("RaEndpointPort.getRaName() must return a non-blank name");
+        }
+        endpointPorts.put(name, endpoint);
+        raCommandPorts.put(name, command);
+        LOG.info("Registered local RA: {}", name);
+        // If the container is already started, activate immediately.
+        if (state == State.STARTED) {
+            SleeEndpointPortImpl sleeEndpoint = new SleeEndpointPortImpl(this, name);
+            RaBootstrapPort bootstrap = new BootstrapPortAdapter(sleeEndpoint);
+            try {
+                endpoint.activate(bootstrap);
+                LOG.info("Activated local RA endpoint (hot-register): {}", name);
+            } catch (RuntimeException re) {
+                LOG.error("Failed to activate RA endpoint [{}]: {}", name, re.getMessage(), re);
+            }
+        }
+    }
+
+    /**
+     * GOAL 2 — map an event type to an SBB entity name for convergent
+     * event routing.
+     *
+     * @param eventType the event class to map
+     * @param sbbName   the SBB entity name that handles this event type
+     */
+    public void mapEventToSbb(Class<? extends SleeEvent> eventType, String sbbName) {
+        if (eventType == null || sbbName == null) {
+            throw new IllegalArgumentException("eventType and sbbName are required");
+        }
+        eventToSbbMap.put(eventType, sbbName);
+        LOG.info("Mapped event {} -> SBB {}", eventType.getSimpleName(), sbbName);
+    }
+
     /**
      * Perfect Core S5 — register a {@link ResourceAdaptor} with full
      * lifecycle wiring per JAIN SLEE 1.1 §12.4.
@@ -1030,6 +1125,8 @@ public final class MicroSleeContainer {
         built.stateMachine().activate();
 
         raEntities.put(raEntityName, new RaEntity(ra, ctx, built.stateMachine(), built.endpoint()));
+        // GOAL 4 — register a RaCommandPort so SBBs can @InjectRa it
+        registerRaCommandPort(raEntityName, new SimpleRaCommandPort(raEntityName));
         LOG.info("Registered resource adaptor entity [{}] (S5 wiring)", raEntityName);
         return ctx;
     }
@@ -1066,6 +1163,8 @@ public final class MicroSleeContainer {
             LOG.warn("raUnconfigure() failed for [{}]: {}", raEntityName, re.getMessage(), re);
         }
         entry.ra().unsetResourceAdaptorContext();
+        // GOAL 4 — unregister the command port so stale ports don't linger
+        raCommandPorts.remove(raEntityName);
         LOG.info("Stopped resource adaptor entity [{}] (S5 wiring)", raEntityName);
     }
 
@@ -1591,6 +1690,37 @@ public final class MicroSleeContainer {
         return sbbEntityPool;
     }
 
+    // ──────────────────────────────────────────────────────────
+    // GOAL 4 — RaCommandPort registry (injected into SBBs via @InjectRa)
+    // ──────────────────────────────────────────────────────────
+
+    /**
+     * Register a {@link RaCommandPort} for the named RA entity.
+     * Called during RA registration so the entity pool can later
+     * inject the port into SBB fields annotated with {@code @InjectRa}.
+     */
+    public void registerRaCommandPort(String name, RaCommandPort port) {
+        raCommandPorts.put(name, port);
+        LOG.info("Registered RaCommandPort for RA [{}]", name);
+    }
+
+    /**
+     * Look up the {@link RaCommandPort} registered for the given RA
+     * entity name. Returns {@code null} when no port is registered.
+     */
+    public RaCommandPort getRaCommandPort(String name) {
+        return raCommandPorts.get(name);
+    }
+
+    /**
+     * Return the first available {@link RaCommandPort} when no
+     * explicit RA name is specified in the {@code @InjectRa} annotation.
+     * Returns {@code null} when no ports have been registered.
+     */
+    public RaCommandPort getDefaultRaCommandPort() {
+        return raCommandPorts.values().stream().findFirst().orElse(null);
+    }
+
     /**
      * Production P2.1 — access the bound {@code ClusterManager} instance,
      * or {@code null} when no cluster layer has been bound. The return
@@ -2036,6 +2166,129 @@ public final class MicroSleeContainer {
             } catch (java.lang.IllegalAccessException iae) {
                 throw new IllegalStateException(iae);
             }
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // GOAL 2 — Bootstrap port adapter for local RA endpoints
+    // ──────────────────────────────────────────────────────────
+
+    /**
+     * Adapts the existing {@link SleeEndpointPortImpl} to the
+     * {@link RaBootstrapPort} contract required by local RAs.
+     *
+     * <p>Delegates:
+     * <ul>
+     *   <li>{@code createActivityHandle} → creates a dual-implementing
+     *       {@link RaActivityHandle} and starts the activity via
+     *       {@link SleeEndpointPortImpl#startActivity}.</li>
+     *   <li>{@code fireEvent} → {@link SleeEndpointPortImpl#fireEvent}
+     *       bridging from {@link ActivityHandle} to
+     *       {@link ActivityContextHandle}.</li>
+     * </ul>
+     */
+    private static final class BootstrapPortAdapter implements RaBootstrapPort {
+        private final SleeEndpointPortImpl endpoint;
+
+        BootstrapPortAdapter(SleeEndpointPortImpl endpoint) {
+            if (endpoint == null) {
+                throw new IllegalArgumentException("endpoint is required");
+            }
+            this.endpoint = endpoint;
+        }
+
+        @Override
+        public ActivityHandle createActivityHandle(String id) {
+            if (id == null || id.trim().isEmpty()) {
+                throw new IllegalArgumentException("handle id is required");
+            }
+            RaActivityHandle handle = new RaActivityHandle(id);
+            endpoint.startActivity(handle, null);
+            return handle;
+        }
+
+        @Override
+        public void fireEvent(SleeEvent event, ActivityHandle handle, Address address) {
+            if (event == null || handle == null) {
+                return;
+            }
+            ActivityContextHandle ach = (handle instanceof ActivityContextHandle)
+                    ? (ActivityContextHandle) handle
+                    : new SimpleActivityContextHandle(handle.getId());
+            endpoint.fireEvent(ach, event);
+        }
+    }
+
+    /**
+     * Dual-purpose handle that satisfies both {@link ActivityHandle} (used by
+     * {@link RaBootstrapPort}) and {@link ActivityContextHandle} (used by
+     * {@link SleeEndpointPortImpl}). Implemented as a simple value object
+     * keyed on the opaque id string.
+     */
+    private static final class RaActivityHandle implements ActivityHandle, ActivityContextHandle {
+        private final String id;
+
+        RaActivityHandle(String id) {
+            if (id == null || id.trim().isEmpty()) {
+                throw new IllegalArgumentException("handle id is required");
+            }
+            this.id = id;
+        }
+
+        @Override
+        public String getId() {
+            return id;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof RaActivityHandle)) return false;
+            return id.equals(((RaActivityHandle) obj).id);
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return "RaActivityHandle[" + id + "]";
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // GOAL 4 — Simple RaCommandPort for SBB @InjectRa injection
+    // ──────────────────────────────────────────────────────────
+
+    /**
+     * Minimal in-process {@link RaCommandPort} used during RA registration.
+     * Commands are stored in a thread-safe queue for the RA to poll/consume.
+     * Production embedders can replace this with a direct endpoint-backed
+     * port (e.g. one that serializes commands over the wire).
+     */
+    static final class SimpleRaCommandPort implements RaCommandPort {
+        private final String raEntityName;
+        private final java.util.Queue<OutboundCommand> queue =
+                new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+        SimpleRaCommandPort(String raEntityName) {
+            this.raEntityName = raEntityName;
+        }
+
+        @Override
+        public void sendCommand(OutboundCommand command) {
+            queue.offer(command);
+        }
+
+        /** Drain all pending commands (called by the RA poll loop). */
+        java.util.Queue<OutboundCommand> queue() {
+            return queue;
+        }
+
+        String getRaEntityName() {
+            return raEntityName;
         }
     }
 }

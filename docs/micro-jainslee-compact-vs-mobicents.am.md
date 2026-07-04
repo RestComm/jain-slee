@@ -710,3 +710,73 @@ Perfect Core S1–S5 ከተላለፉት spec surface ላይ አብዛኛውን �
 - **Production USSD 7.3 / RestComm jain-slee** → Mobicents SLEE container master-era JAR + WildFly 10 ይጠቀሙ። ይህ ጠንካራ ገደብ ነው።
 - **አዲስ R&D፣ prototype፣ JAIN SLEE ለመማር፣ ወይም ሙሉ TCK የማያስፈልገው መተግበሪያ** → micro-jainslee ይጠቀሙ።
 
+
+---
+
+## 8. GOAL 1-5 የተጠናቀቁ ለውጦች
+
+> **የተጨመረ፡** 2026-06-28 · **3-Port Contract API (PolyVoice)**
+
+ከPerfect Core S1–S5 በኋላ፣ የሚከተሉት GOAL 1-5 ተግባራት ተጠናቀዋል። እነዚህ ለውጦች አዲሱን **3-ወደብ ውል API** ያስተዋውቃሉ፤ ይህም ከ `javax.slee.resource.ResourceAdaptor` (20+ ሜተዶች) ይልቅ በጣም ቀላል የሆነ የRA ፕሮግራሚንግ ሞዴል ነው።
+
+### GOAL 1 — 3-Port API በይነገጾች
+
+✅ **`RaEndpointPort`** — የRA የህይወት ዑደት ወደብ (3 ሜተዶች፦ `activate`, `deactivate`, `getRaName`)
+✅ **`RaCommandPort`** — የSBB-ወደ-RA ትዕዛዝ ወደብ (1 ሜተድ፦ `sendCommand`)
+✅ **`RaBootstrapPort`** — የRA ማስጀመሪያ ወደብ (2 ሜተዶች፦ `createActivityHandle`, `fireEvent`)
+✅ **`OutboundCommand`** — የወጪ ትዕዛዝ ምልክት በይነገጽ (marker interface)
+
+እነዚህ አራቱም በይነገጾች በ `jainslee-api/src/main/java/com/microjainslee/api/` ውስጥ ይገኛሉ።
+
+### GOAL 2 — registerRa() እና mapEventToSbb()
+
+✅ **`MicroSleeContainer.registerRa(RaEndpointPort, RaCommandPort)`** — RA በ3-ወደብ ውል ማስመዝገብ
+✅ **`MicroSleeContainer.mapEventToSbb(Class, String)`** — ክስተት-ወደ-SBB ካርታ (የXML `sbb-jar.xml` ምትክ)
+
+```java
+// የአጠቃቀም ምሳሌ
+container.registerRa(httpEndpoint, new SimpleRaCommandPort("httpIngressRa"));
+container.mapEventToSbb(HttpUssdBeginEvent.class, "HttpServerSbb");
+```
+
+### GOAL 3 — Programmatic SBB Registration
+
+✅ **`MicroSleeContainer.registerSbbType(Class, Supplier)`** — SBBs በኮድ ማስመዝገብ (ያለ XML descriptors)
+
+```java
+container.registerSbbType(HttpServerSbb.class, HttpServerSbb::new);
+container.registerSbbType(GrpcClientSbb.class, GrpcClientSbb::new);
+```
+
+### GOAL 4 — @InjectRa Annotation Injection
+
+✅ **`@InjectRa(name = "ra-name")`** — የ`RaCommandPort` ወደ SBB field በራስ-ሰር መወጋት
+
+የመወጋቱ ሂደት የሚከናወነው `VirtualThreadSbbEntityPool.createSbbEntity()` ውስጥ ነው። መያዣው የSBB class fields ቃኝቶ `@InjectRa` ያለባቸውን አግኝቶ `RaCommandPort`ን ይወጋል።
+
+```java
+// SBB ውስጥ
+@InjectRa(name = "grpcMenuRa")
+private volatile RaCommandPort grpcCommandPort;
+```
+
+### GOAL 5 — Vendor RAs ማዘመን
+
+✅ **`GrpcMenuRaEndpoint`** — gRPC ሜኑ RA በ `RaEndpointPort` ተዘምኗል
+✅ **`HttpIngressRaEndpoint`** — HTTP መግቢያ RA በ `RaEndpointPort` ተዘምኗል
+
+ሁለቱም የሚገኙት በ `example/example-embedded-j25` እና `adapters/` ውስጥ ነው።
+
+### ፈተናዎች
+
+✅ **378 ፈተናዎች አልፈዋል፣ 0 ውድቀቶች**
+
+| የፈተና ምድብ | ብዛት |
+|---|---:|
+| Perfect Core S1–S5 | ~280 |
+| GOAL 1-5 (3-port) | 14 |
+| Adapters + RAs | 37 |
+| Core + API unit tests | ~47 |
+| **ጠቅላላ** | **378** |
+
+> **ሙሉ ዝርዝር፦** [`docs/3-port-contract.am.md`](3-port-contract.am.md) — የPolyVoice SBB ሙሉ ኮድ ምሳሌ ከአማርኛ ማብራሪያ ጋር።
