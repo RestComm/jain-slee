@@ -977,3 +977,118 @@ parent → sbbRemove() LAST
 > **Golden Rule:** SBBs KHÔNG import class RA. SBBs chỉ biết `@InjectRa RaCommandPort` + `OutboundCommand record`.
 > RA KHÔNG biết class SBB. RA chỉ biết collaborator interfaces (lambda từ bootstrap).
 
+
+---
+
+## Phụ lục F: RA Implementation Checklist (3-Port Contract)
+
+Khi implement một Resource Adaptor mới, **phải tuân thủ đúng pattern này**.
+Sai bất kỳ bước nào → RA không integrate được với container.
+
+### ✅ Checklist
+
+| # | Yêu cầu | ✅/❌ |
+|---|---------|-------|
+| 1 | Có class `XxxRaEndpoint implements RaEndpointPort, RaCommandPort` | |
+| 2 | `getRaName()` trả về tên duy nhất | |
+| 3 | `activate(RaBootstrapPort)` gọi delegate lifecycle | |
+| 4 | `deactivate()` dọn dẹp delegate | |
+| 5 | `sendCommand(OutboundCommand)` route outbound command | |
+| 6 | **KHÔNG tự tạo Disruptor riêng** — dùng `bootstrapPort.fireEvent()` | |
+| 7 | Event types là **sealed hierarchy** (không phải 1 generic event) | |
+| 8 | Outbound commands là **sealed hierarchy extends OutboundCommand** | |
+| 9 | Collaborator interfaces trong package `collab/` để user customize | |
+| 10 | Đăng ký với container: `container.registerRa(endpoint, endpoint)` | |
+
+### 🔴 Anti-Pattern (Sai — đã xảy ra với ra-sip-servlet cũ)
+
+```java
+// ❌ SAI: RA extends AbstractResourceAdaptor (old SPI), không có wrapper
+public class OldRa extends AbstractResourceAdaptor {
+    // ❌ SAI: Tự tạo Disruptor riêng — dư thừa, container đã có EventRouter
+    private final Disruptor<Event> disruptor = new Disruptor<>(...);
+    
+    // ❌ SAI: Chỉ 1 event type generic — SBB không dispatch được
+    public record GenericEvent(Object data) implements SleeEvent {}
+}
+```
+
+### 🟢 Correct Pattern (Đúng — tham khảo ra-http-server)
+
+```java
+// ✅ ĐÚNG: Wrapper implement cả RaEndpointPort + RaCommandPort
+public final class MyRaEndpoint implements RaEndpointPort, RaCommandPort {
+    private final MyResourceAdaptor delegate;
+    private RaBootstrapPort bootstrapPort;
+    
+    @Override public String getRaName() { return "my-ra"; }
+    
+    @Override
+    public void activate(RaBootstrapPort bootstrap) {
+        this.bootstrapPort = bootstrap;
+        delegate.setBootstrap(bootstrap);  // pass event-firing capability to delegate
+        delegate.raConfigure();
+        delegate.raActive();
+    }
+    
+    @Override public void deactivate() { delegate.raInactive(); delegate.raUnconfigure(); }
+    
+    @Override
+    public void sendCommand(OutboundCommand cmd) {
+        if (cmd instanceof MyOutboundCommand c) delegate.send(c);
+    }
+    
+    public MyResourceAdaptor delegate() { return delegate; }
+}
+
+// ✅ ĐÚNG: Delegate giữ transport logic
+public class MyResourceAdaptor {
+    private RaBootstrapPort bootstrap;
+    private final Map<String, ActivityHandle> sessions = new ConcurrentHashMap<>();
+    
+    public void setBootstrap(RaBootstrapPort bp) { this.bootstrap = bp; }
+    
+    private void onInboundMessage(byte[] raw) {
+        MyEvent event = classify(raw);  // typed event
+        ActivityHandle handle = sessions.computeIfAbsent(event.sessionId(),
+            id -> bootstrap.createActivityHandle(id));
+        bootstrap.fireEvent(event, handle, null);  // DÙNG CONTAINER EVENTROUTER
+    }
+}
+
+// ✅ ĐÚNG: Sealed event hierarchy
+public sealed interface MyEvent extends SleeEvent
+    permits MyBeginEvent, MyContinueEvent, MyEndEvent {}
+
+// ✅ ĐÚNG: Sealed outbound commands
+public sealed interface MyOutboundCommand extends OutboundCommand
+    permits SendStart, SendStop, SendData {}
+```
+
+### 📋 File structure chuẩn cho 1 RA
+
+```
+vendor-ras/ra-mine/
+├── pom.xml
+└── src/main/java/com/microjainslee/ra/mine/
+    ├── MineRaEndpoint.java          ← RaEndpointPort + RaCommandPort (WRAPPER)
+    ├── MineResourceAdaptor.java     ← Transport + business logic (DELEGATE)
+    ├── MineRaConfig.java            ← Config record
+    ├── collab/                       ← Collaborator interfaces (user customizable)
+    │   ├── MineEventClassifier.java
+    │   └── MineOutboundSender.java
+    ├── event/                        ← Sealed event hierarchy
+    │   ├── MineEvent.java           ← sealed interface
+    │   ├── MineBeginEvent.java
+    │   ├── MineContinueEvent.java
+    │   └── MineEndEvent.java
+    └── command/                      ← Sealed outbound command hierarchy
+        ├── MineOutboundCommand.java ← sealed interface
+        ├── SendStart.java
+        ├── SendStop.java
+        └── SendData.java
+```
+
+> **Golden Rule cho RA developer:** Mỗi khi muốn thêm `new Disruptor<>(...)` trong RA → ĐỪNG.
+> Container đã có EventRouter (LMAX Disruptor). Chỉ cần gọi `bootstrapPort.fireEvent()`.
+

@@ -13,14 +13,13 @@
     <name>micro-jainslee :: RA SIP-Servlet</name>
     <description>
         JAIN SLEE Resource Adaptor wrapping SIP-Servlets (JSR 289).
-        Supports TCP / UDP / SCTP via Netty, LMAX Disruptor event pipeline,
-        Virtual Thread executor on Java 25.
+        Supports TCP / UDP / SCTP via Netty, 3-port contract (RaEndpointPort +
+        RaCommandPort), typed SIP events, Virtual Thread compatible on Java 25.
     </description>
 
     <properties>
         <corsac-sip.version>10.1.0-31</corsac-sip.version>
         <netty.version>4.1.100.Final</netty.version>
-        <disruptor.version>3.4.4</disruptor.version>
     </properties>
 
     <dependencies>
@@ -60,13 +59,6 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>${netty.version}</version>
-        </dependency>
-
-        <!-- LMAX Disruptor -- ring-buffer event pipeline -->
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <version>${disruptor.version}</version>
         </dependency>
 
         <!-- Logging -->

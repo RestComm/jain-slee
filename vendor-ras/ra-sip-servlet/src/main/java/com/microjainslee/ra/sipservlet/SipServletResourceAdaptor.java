@@ -6,9 +6,11 @@
 
 package com.microjainslee.ra.sipservlet;
 
-import com.microjainslee.api.SleeEvent;
-import com.microjainslee.ra.spi.AbstractResourceAdaptor;
-import com.microjainslee.ra.sipservlet.dispatcher.SipEventDispatcher;
+import com.microjainslee.api.ActivityHandle;
+import com.microjainslee.api.RaBootstrapPort;
+import com.microjainslee.ra.sipservlet.collab.*;
+import com.microjainslee.ra.sipservlet.command.SipOutboundCommand;
+import com.microjainslee.ra.sipservlet.event.SipEvent;
 import com.microjainslee.ra.sipservlet.transport.*;
 
 import gov.nist.javax.sip.message.SIPMessage;
@@ -25,32 +27,60 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * SIP-Servlet Resource Adaptor — Netty + corsac-sip + LMAX Disruptor + VT.
- * Lifecycle: raConfigure → raActive → (process SIP) → raInactive → raUnconfigure.
+ * SIP-Servlet Resource Adaptor — Netty transports + 3-port contract.
+ *
+ * <p>Lifecycle: raConfigure → raActive → (process SIP) → raInactive → raUnconfigure.</p>
+ *
+ * <p>Events are typed via {@link SipEventClassifier} and fired into the SLEE
+ * through {@link RaBootstrapPort#fireEvent}. Outbound commands come in
+ * through {@link #sendOutbound} and are dispatched via
+ * {@link SipOutboundSender}.</p>
  */
-public final class SipServletResourceAdaptor extends AbstractResourceAdaptor {
+public final class SipServletResourceAdaptor {
 
     private static final Logger LOG = LogManager.getLogger(SipServletResourceAdaptor.class);
 
     private SipRaConfig config = new SipRaConfig();
     private final List<SipTransport> transports = new ArrayList<>(3);
-    private SipEventDispatcher dispatcher;
-    private ExecutorService executor;
+    private RaBootstrapPort bootstrapPort;
+    private SipEventClassifier classifier = new DefaultSipEventClassifier();
+    private SipOutboundSender outboundSender;
+    private final Map<String, ActivityHandle> dialogs = new ConcurrentHashMap<>();
     private final AtomicBoolean active = new AtomicBoolean(false);
 
-    @Override
-    public void raConfigure() {
-        LOG.info("[ra-sip-servlet] raConfigure host={} tcp={} udp={} sctp={}",
-                config.host(), config.tcpPort(), config.udpPort(), config.sctpPort());
+    // ---- collaborator injection ----
+
+    public void setBootstrapPort(RaBootstrapPort bp) {
+        this.bootstrapPort = bp;
     }
 
-    @Override
+    public void setConfig(SipRaConfig c) {
+        this.config = c;
+    }
+
+    public void setClassifier(SipEventClassifier c) {
+        this.classifier = c;
+    }
+
+    public void setOutboundSender(SipOutboundSender s) {
+        this.outboundSender = s;
+    }
+
+    // ---- accessors ----
+
+    public SipRaConfig config() { return config; }
+    public boolean isActive() { return active.get(); }
+
+    // ---- Lifecycle ----
+
+    public void raConfigure() {
+        LOG.info("[ra-sip-servlet] raConfigure host={} tcp={} udp={} sctp={} client={}",
+                config.host(), config.tcpPort(), config.udpPort(),
+                config.sctpPort(), config.clientEnabled());
+    }
+
     public void raActive() {
         if (!active.compareAndSet(false, true)) return;
-        executor = Executors.newThreadPerTaskExecutor(
-                Thread.ofVirtual().name("sip-ra-", 1).factory());
-        dispatcher = new SipEventDispatcher(config.ringBufferSize(),
-                this::onSipEvent, executor);
         if (config.tcpPort() > 0)
             transports.add(new TcpTransport(config, this::onRawMessage));
         if (config.udpPort() > 0)
@@ -58,43 +88,65 @@ public final class SipServletResourceAdaptor extends AbstractResourceAdaptor {
         if (config.sctpPort() > 0)
             transports.add(new SctpTransport(config, this::onRawMessage));
         transports.forEach(SipTransport::start);
-        dispatcher.start();
         LOG.info("[ra-sip-servlet] ACTIVE transports={}", transports.size());
     }
 
-    @Override
     public void raInactive() {
         if (!active.compareAndSet(true, false)) return;
         transports.forEach(SipTransport::stop);
         transports.clear();
-        if (dispatcher != null) { dispatcher.stop(); dispatcher = null; }
-        if (executor != null) { executor.close(); executor = null; }
+        dialogs.clear();
         LOG.info("[ra-sip-servlet] INACTIVE");
     }
 
-    @Override
     public void raUnconfigure() {
         raInactive();
         LOG.info("[ra-sip-servlet] UNCONFIGURED");
     }
 
-    // --- internal handlers ---
+    // ---- outbound (SBB → RA) ----
+
+    /**
+     * Called by {@code SipServletRaEndpoint.sendCommand} when an SBB
+     * sends an outbound SIP command.
+     */
+    public void sendOutbound(SipOutboundCommand cmd) {
+        if (outboundSender != null) {
+            outboundSender.send(cmd);
+        } else {
+            LOG.warn("[ra-sip-servlet] Outbound sender not configured, dropping: {}",
+                    cmd.getClass().getSimpleName());
+        }
+    }
+
+    // ---- inbound (transport → SLEE) ----
 
     private void onRawMessage(byte[] raw) {
         if (!active.get()) return;
         try {
             StringMsgParser parser = new StringMsgParser();
             SIPMessage sipMsg = parser.parseSIPMessage(raw, true, false, null);
-            if (sipMsg != null) dispatcher.publish(sipMsg);
+            if (sipMsg != null) onSipEvent(sipMsg);
         } catch (ParseException e) {
             LOG.warn("[ra-sip-servlet] Parse error", e);
         }
     }
 
     private void onSipEvent(SIPMessage msg) {
+        if (bootstrapPort == null) {
+            LOG.warn("[ra-sip-servlet] bootstrapPort not set, dropping message");
+            return;
+        }
         String callId = deriveCallId(msg);
-        publish(callId, new SipRaEvent(msg));
+        ActivityHandle handle = dialogs.computeIfAbsent(callId,
+                id -> bootstrapPort.createActivityHandle(id));
+        SipEvent event = classifier.classify(msg, callId);
+        if (event != null) {
+            bootstrapPort.fireEvent(event, handle, null);
+        }
     }
+
+    // ---- helpers ----
 
     private static String deriveCallId(SIPMessage msg) {
         if (msg instanceof SIPRequest r && r.getCallIdHeader() != null)
@@ -103,9 +155,5 @@ public final class SipServletResourceAdaptor extends AbstractResourceAdaptor {
             return r.getCallIdHeader().getCallId();
         return UUID.randomUUID().toString();
     }
-
-    // --- accessors ---
-    public void setConfig(SipRaConfig c) { this.config = c; }
-    public SipRaConfig config() { return config; }
-    public boolean isActive() { return active.get(); }
 }
+
