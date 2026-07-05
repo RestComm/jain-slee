@@ -6,7 +6,7 @@ import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.InjectRa;
-import com.microjainslee.ra.sipservlet.command.SipOutboundCommand;
+import com.microjainslee.ra.sipservlet.command.SelectIceCandidate;
 import com.microjainslee.ra.sipservlet.event.IceCandidateEvent;
 import com.microjainslee.ra.sipservlet.event.IceCompletedEvent;
 import com.microjainslee.ra.sipservlet.event.IceFailedEvent;
@@ -67,7 +67,7 @@ public class IceNegotiationSbb implements Sbb, SleeEventHandler {
 
         RaCommandPort port = this.sipRa;
         if (port != null) {
-            port.sendCommand(SipOutboundCommand.selectIceCandidate(
+            port.sendCommand(new SelectIceCandidate(
                     event.callId(), best.address(), best.port(), best.type()));
         } else {
             LOG.warn("[IceNegotiationSbb] sipRa not injected - candidate selection dropped");

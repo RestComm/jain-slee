@@ -6,7 +6,9 @@ import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.InjectRa;
-import com.microjainslee.ra.sipservlet.command.SipOutboundCommand;
+import com.microjainslee.ra.sipservlet.command.SendInvite;
+import com.microjainslee.ra.sipservlet.command.SendResponse;
+import com.microjainslee.ra.sipservlet.command.SendSdpUpdate;
 import com.microjainslee.ra.sipservlet.event.SipInviteEvent;
 import com.microjainslee.ra.sipservlet.event.SipResponseEvent;
 
@@ -55,7 +57,7 @@ public class ProxySbb implements Sbb, SleeEventHandler {
         LOG.info("[ProxySbb] Routing INVITE callId={} domain={} nextHop={}", event.callId(), targetDomain, nextHop);
         RaCommandPort port = this.sipRa;
         if (port != null) {
-            port.sendCommand(SipOutboundCommand.sendInvite(event.callId(), nextHop, event.fromUri(), event.sdpBody()));
+            port.sendCommand(new SendInvite(event.callId(), nextHop, event.fromUri(), event.sdpBody()));
         } else {
             LOG.warn("[ProxySbb] sipRa not injected - INVITE dropped callId={}", event.callId());
         }
@@ -71,11 +73,11 @@ public class ProxySbb implements Sbb, SleeEventHandler {
             return;
         }
         if (event.isProvisional()) {
-            port.sendCommand(SipOutboundCommand.sendResponse(event.callId(), event.statusCode(), event.reasonPhrase()));
+            port.sendCommand(new SendResponse(event.callId(), event.statusCode(), event.reasonPhrase()));
         } else if (event.isSuccess() && event.sdpBody() != null && !event.sdpBody().isEmpty()) {
-            port.sendCommand(SipOutboundCommand.sendSdpUpdate(event.callId(), event.sdpBody()));
+            port.sendCommand(new SendSdpUpdate(event.callId(), event.sdpBody()));
         } else if (event.isFinal()) {
-            port.sendCommand(SipOutboundCommand.sendResponse(event.callId(), event.statusCode(), event.reasonPhrase()));
+            port.sendCommand(new SendResponse(event.callId(), event.statusCode(), event.reasonPhrase()));
         }
     }
 

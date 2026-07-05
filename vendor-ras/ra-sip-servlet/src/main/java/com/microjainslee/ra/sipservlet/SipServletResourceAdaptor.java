@@ -95,6 +95,8 @@ public final class SipServletResourceAdaptor {
             transports.add(new UdpTransport(config, this::onRawMessage));
         if (config.sctpPort() > 0)
             transports.add(new SctpTransport(config, this::onRawMessage));
+        if (config.tlsPort() > 0)
+            transports.add(new TlsTransport(config, this::onRawMessage));
         transports.forEach(SipTransport::start);
         // DNS resolver
         if (config.dnsEnabled()) {
@@ -105,6 +107,7 @@ public final class SipServletResourceAdaptor {
                 && !config.stunServer().isBlank()) {
             stunClient = new StunClient(config.stunServer(), config.stunPort());
             iceCollector = new IceCandidateCollector(stunClient);
+            iceCollector.setBootstrapPort(bootstrapPort);
             stunClient.startKeepAlive(config.iceKeepAliveSecs());
             LOG.info("[ra-sip-servlet] STUN client started server={}",
                     config.stunServer());

@@ -11,6 +11,7 @@ public final class SipRaConfig {
     private int tcpPort = 5060;
     private int udpPort = 5060;
     private int sctpPort = 0;
+    private int tlsPort = 0;
 
     // ---- Netty tuning ----
     private long nettyBossThreads = 1L;
@@ -52,6 +53,9 @@ public final class SipRaConfig {
 
     public int sctpPort() { return sctpPort; }
     public void setSctpPort(int sctpPort) { this.sctpPort = sctpPort; }
+
+    public int tlsPort() { return tlsPort; }
+    public void setTlsPort(int v) { this.tlsPort = v; }
 
     public long nettyBossThreads() { return nettyBossThreads; }
     public void setNettyBossThreads(long n) { this.nettyBossThreads = n; }

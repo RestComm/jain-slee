@@ -23,10 +23,7 @@ import java.util.concurrent.*;
  */
 public final class StunClient implements AutoCloseable {
 
-    /** Result of a successful STUN binding. */
-    public record StunResult(String publicAddress, int publicPort) {}
-
-    // RFC 5389 constants
+        // RFC 5389 constants
     private static final int BINDING_REQUEST   = 0x0001;
     private static final int MAGIC_COOKIE      = 0x2112A442;
     private static final int ATTR_XOR_MAPPED   = 0x0020;

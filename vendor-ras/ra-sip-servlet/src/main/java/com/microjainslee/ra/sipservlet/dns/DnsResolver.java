@@ -6,6 +6,8 @@
 
 package com.microjainslee.ra.sipservlet.dns;
 
+import static com.microjainslee.ra.sipservlet.dns.DnsResult.SipServer;
+
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -25,11 +27,11 @@ import java.util.stream.*;
  */
 public final class DnsResolver {
 
-    /** Result of a DNS SRV lookup — sorted by priority/weight. */
-    public record SipServer(String host, int port, int priority, int weight) {}
+    /** Cached DNS server lists keyed by domain. */
+    private final ConcurrentMap<String, List<SipServer>> cache = new ConcurrentHashMap<>();
 
-    /** Cached DNS results (TTL-based eviction on access). */
-    private final ConcurrentMap<String, CacheEntry> cache = new ConcurrentHashMap<>();
+    /** Timestamp (nanoTime) of each cache entry for TTL eviction. */
+    private final ConcurrentMap<String, Long> cacheTimestamps = new ConcurrentHashMap<>();
 
     private final long cacheTtlNanos;
     private final boolean enabled;
@@ -55,16 +57,17 @@ public final class DnsResolver {
      */
     public CompletableFuture<List<SipServer>> resolve(String domain) {
         if (!enabled) {
-            // Fallback: resolve domain directly
             return CompletableFuture.supplyAsync(() -> directResolve(domain));
         }
         return CompletableFuture.supplyAsync(() -> {
-            CacheEntry cached = cache.get(domain);
-            if (cached != null && !cached.isExpired(cacheTtlNanos)) {
-                return cached.servers;
+            Long timestamp = cacheTimestamps.get(domain);
+            if (timestamp != null && !isExpired(timestamp)) {
+                List<SipServer> cached = cache.get(domain);
+                if (cached != null) return cached;
             }
             List<SipServer> servers = resolveSrv(domain);
-            cache.put(domain, new CacheEntry(servers));
+            cache.put(domain, servers);
+            cacheTimestamps.put(domain, System.nanoTime());
             return servers;
         });
     }
@@ -72,7 +75,6 @@ public final class DnsResolver {
     // ---- internal resolution ----
 
     private List<SipServer> resolveSrv(String domain) {
-        // Try _sip._udp.<domain> then _sip._tcp.<domain>
         List<SipServer> results = Stream.of("_sip._udp." + domain, "_sip._tcp." + domain)
             .map(this::trySrvLookup)
             .filter(Objects::nonNull)
@@ -85,15 +87,9 @@ public final class DnsResolver {
                 .thenComparing(s -> -s.weight()));
             return results;
         }
-        // Fallback: direct A/AAAA lookup
         return directResolve(domain);
     }
 
-    /**
-     * Attempt to resolve an SRV-like name. Since {@code InetAddress}
-     * cannot perform real SRV queries, we try to resolve the name as
-     * an A record and fall back to the parent domain on failure.
-     */
     private List<SipServer> trySrvLookup(String srvName) {
         try {
             InetAddress[] addrs = InetAddress.getAllByName(srvName);
@@ -104,9 +100,8 @@ public final class DnsResolver {
                     .collect(Collectors.toList());
             }
         } catch (UnknownHostException ignored) {
-            // SRV name is not resolvable as A record — try the domain directly
         }
-        return null; // signal "not found" to the caller
+        return null;
     }
 
     private List<SipServer> directResolve(String domain) {
@@ -122,25 +117,15 @@ public final class DnsResolver {
     /** Evict all cached entries. */
     public void clearCache() {
         cache.clear();
+        cacheTimestamps.clear();
+    }
+
+    private boolean isExpired(long createdAtNanos) {
+        return System.nanoTime() - createdAtNanos > cacheTtlNanos;
     }
 
     public boolean isEnabled() {
         return enabled;
     }
-
-    // ---- cache entry ----
-
-    private static final class CacheEntry {
-        final List<SipServer> servers;
-        final long createdAtNanos;
-
-        CacheEntry(List<SipServer> servers) {
-            this.servers = List.copyOf(servers);
-            this.createdAtNanos = System.nanoTime();
-        }
-
-        boolean isExpired(long ttlNanos) {
-            return System.nanoTime() - createdAtNanos > ttlNanos;
-        }
-    }
 }
+

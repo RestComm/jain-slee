@@ -6,7 +6,7 @@ import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.InjectRa;
-import com.microjainslee.ra.sipservlet.command.SipOutboundCommand;
+import com.microjainslee.ra.sipservlet.command.SendResponse;
 import com.microjainslee.ra.sipservlet.event.SipRegisterEvent;
 
 import org.apache.logging.log4j.LogManager;
@@ -69,7 +69,7 @@ public class RegistrationSbb implements Sbb, SleeEventHandler {
 
         RaCommandPort port = this.sipRa;
         if (port != null) {
-            port.sendCommand(SipOutboundCommand.sendResponse(event.callId(), 200, "OK"));
+            port.sendCommand(new SendResponse(event.callId(), 200, "OK"));
         } else {
             LOG.warn("[RegistrationSbb] sipRa not injected - cannot send 200 OK");
         }
