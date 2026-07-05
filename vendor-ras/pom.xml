@@ -35,7 +35,8 @@
         <module>ra-http-server</module>
         <module>ra-http-client</module>
         <module>ra-grpc-server</module>
-        <!-- Phase 3+: <module>ra-map-jss7</module>, <module>ra-sip</module>, <module>ra-diameter</module> -->
+        <module>ra-sip-servlet</module>
+        <!-- Phase 3+: <module>ra-map-jss7</module>, <module>ra-diameter</module> -->
         <!-- Phase 4+: <module>ra-camel</module> -->
     </modules>
 </project>

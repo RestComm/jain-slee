@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.microjainslee</groupId>
+        <artifactId>vendor-ras</artifactId>
+        <version>1.2.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>ra-sip-servlet</artifactId>
+    <packaging>jar</packaging>
+    <name>micro-jainslee :: RA SIP-Servlet</name>
+    <description>
+        JAIN SLEE Resource Adaptor wrapping SIP-Servlets (JSR 289).
+        Supports TCP / UDP / SCTP via Netty, LMAX Disruptor event pipeline,
+        Virtual Thread executor on Java 25.
+    </description>
+
+    <properties>
+        <corsac-sip.version>10.1.0-31</corsac-sip.version>
+        <netty.version>4.1.100.Final</netty.version>
+        <disruptor.version>3.4.4</disruptor.version>
+    </properties>
+
+    <dependencies>
+        <!-- SLEE API + SPI -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-ra-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- SIP protocol stack — corsac-sip -->
+        <dependency>
+            <groupId>com.mobius-software.protocols.sip</groupId>
+            <artifactId>sip-api</artifactId>
+            <version>${corsac-sip.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mobius-software.protocols.sip</groupId>
+            <artifactId>sip-ri</artifactId>
+            <version>${corsac-sip.version}</version>
+        </dependency>
+
+        <!-- SIP-Servlet core contracts -->
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-core-api</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Transport — Netty (TCP + UDP + SCTP) -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+
+        <!-- LMAX Disruptor -- ring-buffer event pipeline -->
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.23.1</version>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
