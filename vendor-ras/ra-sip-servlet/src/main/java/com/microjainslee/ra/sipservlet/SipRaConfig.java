@@ -25,6 +25,16 @@ public final class SipRaConfig {
     private boolean clientEnabled = false;
     private String outboundProxy;
 
+    // ---- DNS ----
+    private boolean dnsEnabled = true;
+    private long dnsCacheTtlSecs = 300;
+
+    // ---- STUN / ICE ----
+    private String stunServer;
+    private int stunPort;           // 0 = default 3478
+    private boolean iceEnabled = false;
+    private long iceKeepAliveSecs = 30;
+
     // ---- legacy (kept for backward compat, no longer drives Disruptor) ----
     private int ringBufferSize = 4096;
     private int virtualThreads = 0;
@@ -69,6 +79,26 @@ public final class SipRaConfig {
 
     public String outboundProxy() { return outboundProxy; }
     public void setOutboundProxy(String v) { this.outboundProxy = v; }
+
+    // ---- DNS ----
+    public boolean dnsEnabled() { return dnsEnabled; }
+    public void setDnsEnabled(boolean v) { this.dnsEnabled = v; }
+
+    public long dnsCacheTtlSecs() { return dnsCacheTtlSecs; }
+    public void setDnsCacheTtlSecs(long v) { this.dnsCacheTtlSecs = v; }
+
+    // ---- STUN / ICE ----
+    public String stunServer() { return stunServer; }
+    public void setStunServer(String v) { this.stunServer = v; }
+
+    public int stunPort() { return stunPort; }
+    public void setStunPort(int v) { this.stunPort = v; }
+
+    public boolean iceEnabled() { return iceEnabled; }
+    public void setIceEnabled(boolean v) { this.iceEnabled = v; }
+
+    public long iceKeepAliveSecs() { return iceKeepAliveSecs; }
+    public void setIceKeepAliveSecs(long v) { this.iceKeepAliveSecs = v; }
 
     public int ringBufferSize() { return ringBufferSize; }
     public void setRingBufferSize(int v) { this.ringBufferSize = v; }

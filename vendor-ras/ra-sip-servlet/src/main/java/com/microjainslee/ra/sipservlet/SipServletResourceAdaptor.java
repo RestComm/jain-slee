@@ -10,7 +10,10 @@ import com.microjainslee.api.ActivityHandle;
 import com.microjainslee.api.RaBootstrapPort;
 import com.microjainslee.ra.sipservlet.collab.*;
 import com.microjainslee.ra.sipservlet.command.SipOutboundCommand;
+import com.microjainslee.ra.sipservlet.dns.DnsResolver;
 import com.microjainslee.ra.sipservlet.event.SipEvent;
+import com.microjainslee.ra.sipservlet.stun.IceCandidateCollector;
+import com.microjainslee.ra.sipservlet.stun.StunClient;
 import com.microjainslee.ra.sipservlet.transport.*;
 
 import gov.nist.javax.sip.message.SIPMessage;
@@ -47,6 +50,11 @@ public final class SipServletResourceAdaptor {
     private SipOutboundSender outboundSender;
     private final Map<String, ActivityHandle> dialogs = new ConcurrentHashMap<>();
     private final AtomicBoolean active = new AtomicBoolean(false);
+
+    // ---- DNS / STUN / ICE ----
+    private DnsResolver dnsResolver;
+    private StunClient stunClient;
+    private IceCandidateCollector iceCollector;
 
     // ---- collaborator injection ----
 
@@ -88,6 +96,19 @@ public final class SipServletResourceAdaptor {
         if (config.sctpPort() > 0)
             transports.add(new SctpTransport(config, this::onRawMessage));
         transports.forEach(SipTransport::start);
+        // DNS resolver
+        if (config.dnsEnabled()) {
+            dnsResolver = new DnsResolver(true, config.dnsCacheTtlSecs());
+        }
+        // STUN client + ICE collector
+        if (config.iceEnabled() && config.stunServer() != null
+                && !config.stunServer().isBlank()) {
+            stunClient = new StunClient(config.stunServer(), config.stunPort());
+            iceCollector = new IceCandidateCollector(stunClient);
+            stunClient.startKeepAlive(config.iceKeepAliveSecs());
+            LOG.info("[ra-sip-servlet] STUN client started server={}",
+                    config.stunServer());
+        }
         LOG.info("[ra-sip-servlet] ACTIVE transports={}", transports.size());
     }
 
@@ -96,6 +117,9 @@ public final class SipServletResourceAdaptor {
         transports.forEach(SipTransport::stop);
         transports.clear();
         dialogs.clear();
+        if (stunClient != null) { stunClient.close(); stunClient = null; }
+        if (dnsResolver != null) { dnsResolver.clearCache(); dnsResolver = null; }
+        iceCollector = null;
         LOG.info("[ra-sip-servlet] INACTIVE");
     }
 

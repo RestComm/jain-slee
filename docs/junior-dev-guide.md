@@ -302,7 +302,8 @@ mvn clean verify
 JAVA_OPTS="--enable-preview -Xms4g -Xmx8g -XX:+UseZGC
   -XX:MaxGCPauseMillis=10
   -Djainslee.eventrouter.threads=8
-  -Djainslee.eventrouter.ringsize=262144
+  -Djainslee.eventrouter.ringsize=262144"
+```
 
 ---
 
@@ -747,6 +748,14 @@ Dùng `@InjectRa` để container inject `RaCommandPort`:
 ```java
 public final class GrpcClientSbb implements Sbb, SleeEventHandler {
 
+    @InjectRa(name = "grpc-menu-ra")          // ← match với getRaName()
+    private volatile RaCommandPort grpcPort;
+
+    public void sendMenu(String sid, String msisdn, String ussd, ActivityContextInterface aci) {
+        grpcPort.sendCommand(new GrpcMenuCommand(sid, msisdn, ussd, aci));
+    }
+}
+```
 
 ### C.4 Cách thiết kế Resource Adaptor
 
@@ -826,15 +835,6 @@ ussd-client-simulator → HTTP POST → ra-http-server
   → gRPC ResolveMenu → grpc-server-simulator → menu response
   → fireEvent(GrpcMenuResponseEvent) → GrpcClientSbb → Ss7UssdIngressSbb
   → UssdResponseEvent → HttpServerSbb → ra-http-client callback → simulator
-```
-
-    @InjectRa(name = "grpc-menu-ra")          // ← match với getRaName()
-    private volatile RaCommandPort grpcPort;
-
-    public void sendMenu(String sid, String msisdn, String ussd, ActivityContextInterface aci) {
-        grpcPort.sendCommand(new GrpcMenuCommand(sid, msisdn, ussd, aci));
-    }
-}
 ```
 
 > **Key:** SBBs KHÔNG import RA classes trực tiếp. Chỉ biết `RaCommandPort` + `OutboundCommand`.

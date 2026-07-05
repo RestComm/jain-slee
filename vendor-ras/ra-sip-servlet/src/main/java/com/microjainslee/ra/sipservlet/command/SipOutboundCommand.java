@@ -13,25 +13,50 @@ import com.microjainslee.api.OutboundCommand;
  * via {@link com.microjainslee.api.RaCommandPort#sendCommand(OutboundCommand)}.
  */
 public sealed interface SipOutboundCommand extends OutboundCommand
-        permits SendInvite, SendBye, SendResponse, SendAck, SendCancel {
+        permits SipOutboundCommand.SendInvite, SipOutboundCommand.SendBye,
+                SipOutboundCommand.SendResponse, SipOutboundCommand.SendAck,
+                SipOutboundCommand.SendCancel, SipOutboundCommand.StartIce,
+                SipOutboundCommand.SelectIceCandidate,
+                SipOutboundCommand.SendSdpUpdate,
+                SipOutboundCommand.SendMediaKeepAlive {
 
     /** Call-ID identifying the target dialog. */
     String callId();
+
+    // ── factory methods (public API for SBBs) ──
+
+    static SipOutboundCommand sendInvite(String callId, String toUri, String fromUri, String sdp) {
+        return new SendInvite(callId, toUri, fromUri, sdp);
+    }
+    static SipOutboundCommand sendBye(String callId) { return new SendBye(callId); }
+    static SipOutboundCommand sendResponse(String callId, int statusCode, String reason) {
+        return new SendResponse(callId, statusCode, reason);
+    }
+    static SipOutboundCommand sendAck(String callId) { return new SendAck(callId); }
+    static SipOutboundCommand sendCancel(String callId) { return new SendCancel(callId); }
+    static SipOutboundCommand startIce(String callId) { return new StartIce(callId); }
+    static SipOutboundCommand selectIceCandidate(String callId, String address, int port, String type) {
+        return new SelectIceCandidate(callId, address, port, type);
+    }
+    static SipOutboundCommand sendSdpUpdate(String callId, String sdp) {
+        return new SendSdpUpdate(callId, sdp);
+    }
+    static SipOutboundCommand sendMediaKeepAlive(String callId, boolean enable) {
+        return new SendMediaKeepAlive(callId, enable);
+    }
+
+    // ── concrete command records (package-private, inside interface) ──
+
+    record SendInvite(String callId, String toUri, String fromUri, String sdp)
+            implements SipOutboundCommand {}
+    record SendBye(String callId) implements SipOutboundCommand {}
+    record SendResponse(String callId, int statusCode, String reason)
+            implements SipOutboundCommand {}
+    record SendAck(String callId) implements SipOutboundCommand {}
+    record SendCancel(String callId) implements SipOutboundCommand {}
+    record StartIce(String callId) implements SipOutboundCommand {}
+    record SelectIceCandidate(String callId, String address, int port, String type)
+        implements SipOutboundCommand {}
+    record SendSdpUpdate(String callId, String sdp) implements SipOutboundCommand {}
+    record SendMediaKeepAlive(String callId, boolean enable) implements SipOutboundCommand {}
 }
-
-/** Outbound INVITE — initiate or re-INVITE a SIP dialog. */
-record SendInvite(String callId, String toUri, String fromUri, String sdp)
-        implements SipOutboundCommand {}
-
-/** Outbound BYE — terminate a SIP dialog. */
-record SendBye(String callId) implements SipOutboundCommand {}
-
-/** Outbound response — reply to an inbound request with a status code. */
-record SendResponse(String callId, int statusCode, String reason)
-        implements SipOutboundCommand {}
-
-/** Outbound ACK — acknowledge a final response to INVITE. */
-record SendAck(String callId) implements SipOutboundCommand {}
-
-/** Outbound CANCEL — cancel a pending INVITE. */
-record SendCancel(String callId) implements SipOutboundCommand {}

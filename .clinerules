@@ -1,0 +1,160 @@
+# micro-jainslee Workspace Rules — SKILL: JAINSLEE Bootstrap
+
+## Skill: /skill jainslee
+
+**Trigger syntax:**
+- `/skill jainslee app <AppName>` — tạo một JAIN SLEE application mới (SBB + events + bootstrap)
+- `/skill jainslee ra <RaName>`  — tạo một JAIN SLEE Resource Adaptor mới (3-port contract)
+
+**When triggered, you MUST generate all files listed below. Use basePackage from user's workspace context or default to `com.example.<appname>`.**
+
+**Always generate ALL files required for a working build.**
+
+---
+
+## MODE 1: `/skill jainslee app <AppName>`
+
+### Output structure:
+```
+{appName}/
+├── pom.xml
+└── src/main/java/{basePackage}/
+    ├── {AppName}Main.java           ← entry point with main()
+    ├── {AppName}Bootstrap.java      ← wires container, SBBs, event mappings
+    ├── events/
+    │   ├── {AppName}RequestEvent.java
+    │   └── {AppName}ResponseEvent.java
+    └── sbbs/
+        └── {AppName}Sbb.java
+```
+
+### Concrete templates (Java 25, micro-jainslee 1.2.0):
+
+#### pom.xml:
+- groupId = `{basePackage}`, artifactId = `{appName}`, version = `1.0.0-SNAPSHOT`
+- Dependencies: `jainslee-core`, `jainslee-api`, `jainslee-apt` (optional), `log4j-api`, `log4j-core`
+- Compiler: Java 25, annotation processor path includes `jainslee-apt`
+- Reference: `example/example-embedded-j25/pom.xml` for exact structure
+
+#### {AppName}Main.java:
+- `MicroSleeConfiguration.builder()` with bufferSize=4096, poolMin=32, poolMax=10000
+- Create `MicroSleeContainer`, create Bootstrap, call `bootstrap.install()`, call `container.start()`
+- Add shutdown hook for graceful shutdown
+- Use `Thread.currentThread().join()` to keep alive
+
+#### {AppName}Bootstrap.java:
+- `install()`: calls `registerSbbTypes()`, `bindEventMappings()`, optional `wireRas()`
+- `registerSbbTypes()`: `container.registerSbb({AppName}Sbb.class, {AppName}Sbb::new)`
+- `bindEventMappings()`: `container.mapEventToSbb({AppName}RequestEvent.class, "{AppName}Sbb")`
+- `shutdown()`: deactivates RAs in reverse order
+
+#### events/{AppName}RequestEvent.java:
+- `@EventType(name="{AppName}Request", vendor="{basePackage}", version="1.0")`
+- `final class implements SleeEvent`
+- Immutable fields: `sessionId`, `payload` (or app-specific fields)
+- All-args constructor + getters
+
+#### events/{AppName}ResponseEvent.java:
+- `@EventType(name="{AppName}Response", vendor="{basePackage}", version="1.0")`
+- `final class implements SleeEvent`
+- Immutable fields: `sessionId`, `result`
+- All-args constructor + getters
+
+#### sbbs/{AppName}Sbb.java:
+- `final class implements Sbb, SleeEventHandler`
+- `@InjectRa(name="...")` fields for RA command ports (if using RAs)
+- `onEvent()` uses Java 25 `switch` with pattern matching
+- Lifecycle: `sbbCreate()`, `sbbActivate()`, `sbbPassivate()`, `sbbRemove()`
+- Business logic in private methods called from `onEvent()`
+- Fire response events via `aci.fireEvent()`
+
+### Key rules for "app":
+1. Java 25 source/target, Virtual Threads compatible
+2. Log4j2 for logging (not java.util.logging, not SLF4J)
+3. Event classes are `final` and implement `SleeEvent`
+4. SBB classes are `final` and implement `Sbb` + `SleeEventHandler`
+5. Use `switch` with pattern matching (Java 25) in `onEvent()`
+6. `@EventType` on all event classes
+7. Package: `{basePackage}.events` for events, `{basePackage}.sbbs` for SBBs
+8. Reference: `example/example-embedded-j25/` for complete working example
+9. Reference: `docs/junior-dev-guide.md` Phụ lục C for pattern details
+
+---
+
+## MODE 2: `/skill jainslee ra <RaName>`
+
+### Output structure (3-port contract):
+```
+{raName}/
+├── pom.xml
+└── src/main/java/com/microjainslee/ra/{raname}/
+    ├── {RaName}RaEndpoint.java       ← RaEndpointPort + RaCommandPort (WRAPPER)
+    ├── {RaName}ResourceAdaptor.java  ← Transport + business logic (DELEGATE)
+    └── command/
+        └── {RaName}Command.java     ← sealed interface extends OutboundCommand
+```
+
+### Concrete templates (Java 25, micro-jainslee 1.2.0):
+
+#### pom.xml:
+- groupId = `com.microjainslee`, artifactId = `{raName}`, version = `1.2.0-SNAPSHOT`
+- Dependencies: `jainslee-api`, `jainslee-ra-spi`, `log4j-api`
+- Compiler: Java 25
+- Reference: `vendor-ras/ra-http-server/pom.xml` for exact structure
+
+#### {RaName}RaEndpoint.java (WRAPPER):
+- `final class implements RaEndpointPort, RaCommandPort`
+- Constructor takes `{RaName}ResourceAdaptor delegate`
+- Collaborator setters delegate to underlying RA
+- `getRaName()` returns `"{raName}"` (lowercase-kebab-case)
+- `activate(RaBootstrapPort)` → `delegate.setBootstrap(bp)` → `delegate.doConfigure()` → `delegate.doStart()`
+- `deactivate()` → `delegate.doStop()` → `delegate.setBootstrap(null)`
+- `sendCommand(OutboundCommand)` pattern-matches on `{RaName}Command` → `delegate.handleCommand(cmd)`
+- Expose `delegate()` method for backward compat
+- Reference: `vendor-ras/ra-http-server/.../HttpServerRaEndpoint.java`
+
+#### {RaName}ResourceAdaptor.java (DELEGATE):
+- `final class` with transport logic
+- `volatile RaBootstrapPort bootstrap` + setter
+- `AtomicBoolean active` for lifecycle guard
+- `ConcurrentHashMap<String, ActivityHandle> sessions` for tracking
+- `doConfigure()`, `doStart()`, `doStop()` lifecycle methods
+- `fireInboundEvent(SleeEvent, String sessionId)` — uses `bootstrap.createActivityHandle()` + `bootstrap.fireEvent()`
+- `handleCommand({RaName}Command)` — processes outbound commands from SBB
+- **NEVER create `new Disruptor<>()`** — always use `bootstrap.fireEvent()`
+- Reference: `vendor-ras/ra-http-server/.../HttpServerResourceAdaptor.java`
+
+#### command/{RaName}Command.java:
+- `sealed interface extends OutboundCommand`
+- Add `record` subtypes for each command type:
+  - e.g. `record SendData(String sessionId, String payload) implements {RaName}Command {}`
+- Reference: `vendor-ras/ra-http-server/.../HttpServerCommand.java`
+
+### Key rules for "ra":
+1. RA name (getRaName()) is lowercase-kebab-case: `"my-cool-ra"`
+2. WRAPPER implements BOTH `RaEndpointPort` + `RaCommandPort`
+3. DELEGATE contains all transport logic
+4. NEVER create `new Disruptor<>()` in RA — always `bootstrap.fireEvent()`
+5. `sealed interface` for command hierarchy extending `OutboundCommand`
+6. `ConcurrentHashMap` for sessions, `AtomicBoolean` for active flag
+7. Place RA module under `vendor-ras/` in the repository
+8. Reference: `docs/junior-dev-guide.md` Phụ lục F (RA Implementation Checklist)
+9. Reference: `vendor-ras/ra-http-server/` for complete working RA example
+
+---
+
+## Common rules for both modes:
+- Java 25, Virtual Threads compatible
+- Log4j2 for logging (not java.util.logging, not SLF4J)
+- No Spring/Quarkus imports in RA or API modules
+- Package: `com.microjainslee.ra.{raname}` for RAs, `{user.package}` for apps
+- All source files use `final` classes
+- Use Java 25 `switch` with pattern matching where applicable
+- Reference: `docs/junior-dev-guide.md` for detailed patterns
+- Reference: `vendor-ras/ra-http-server/` for complete RA example
+- Reference: `example/example-embedded-j25/` for complete app example
+
+## Example invocations:
+- `/skill jainslee app myUssdService` → creates `myUssdService/` with full app skeleton
+- `/skill jainslee ra my-kafka-ra`   → creates `my-kafka-ra/` with 3-port RA skeleton
+- `/skill jainslee app com.example.demo.HelloApp` → creates `helloApp/` with `com.example.demo` base package

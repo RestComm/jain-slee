@@ -15,7 +15,8 @@ import com.microjainslee.api.SleeEvent;
  */
 public sealed interface SipEvent extends SleeEvent
         permits SipInviteEvent, SipByeEvent, SipAckEvent, SipCancelEvent,
-                SipRegisterEvent, SipOptionsEvent, SipResponseEvent {
+                SipRegisterEvent, SipOptionsEvent, SipResponseEvent,
+                IceCandidateEvent, IceCompletedEvent, IceFailedEvent {
 
     /** RFC 3261 Call-ID header value — ties messages to a dialog. */
     String callId();
