@@ -99,6 +99,7 @@ cd example/example-quarkus && mvn quarkus:dev
 
 ### 4.1. `mapEventToSbb()` — cách khai báo chính (khuyến nghị)
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java
 ```java
 container.registerSbbType(ProxySbb.class, ProxySbb::new); // đăng ký type + factory
 container.createIesDispatcher();                          // bật convergence routing
@@ -116,6 +117,7 @@ Mapping match theo **cả class cha** — map `SipEvent.class` sẽ bắt mọi 
 
 IES trả lời câu hỏi *"event này thuộc về session/entity nào?"* (JSLEE 1.1 §7.5). SBB khai báo bằng annotation:
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
 ```java
 @InitialEventSelect(name = "ussd-session-convergence")
 public InitialEventSelectResult selectInitialEvent(InitialEventSelectCondition c) {

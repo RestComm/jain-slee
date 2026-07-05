@@ -19,6 +19,7 @@ SBB = một class Java chứa **logic nghiệp vụ**, được runtime gọi kh
 
 ## 2. Template chuẩn — SBB stateless
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/sbbs/ProxySbb.java
 ```java
 package com.example.myapp.sbbs;
 
@@ -63,6 +64,7 @@ public class ProxySbb implements Sbb, SleeEventHandler {
 
 Đăng ký trong bootstrap (chi tiết ở [app-guide.md](app-guide.md)):
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java
 ```java
 container.registerSbbType(ProxySbb.class, ProxySbb::new);
 container.createIesDispatcher();
@@ -76,6 +78,7 @@ container.mapEventToSbb(SipByeEvent.class,    "ProxySbb");
 
 Khi cần **một entity giữ state cho cả session** (VD: USSD dialog nhiều bước), khai báo `@InitialEventSelect`:
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
 ```java
 public class UssdSessionSbb implements Sbb, SleeEventHandler {
 
@@ -116,6 +119,7 @@ Ngữ nghĩa spec (§7.5.5):
 
 Nếu muốn state được store/load qua CMP store (phục vụ recovery/cluster), dùng abstract class + `@CmpField`:
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/Ss7UssdIngressSbb.java
 ```java
 @SbbAnnotation(name = "UssdSession", vendor = "com.example", version = "1.0")
 public abstract class UssdSessionSbb extends CmpBackedSbb implements SleeEventHandler {
@@ -149,6 +153,7 @@ Tất cả là `default` no-op — chỉ override cái cần. **Đừng** làm v
 
 ## 6. Timer
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/GrpcClientSbb.java
 ```java
 // đặt timer 30s — TimerFiredEvent sẽ được deliver về SBB local object này
 long timerId = container.getTimerPort().setTimer(30_000, sbbLocalObject);

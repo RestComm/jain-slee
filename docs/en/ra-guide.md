@@ -22,6 +22,7 @@ RA **contains no business logic** — it doesn't decide what to reply, only know
 
 ## 2. 3-Port Contract (jainslee-api)
 
+> 📄 File: jainslee-api/src/main/java/com/microjainslee/api/RaEndpointPort.java
 ```java
 // Port 1 — lifecycle, called by container
 public interface RaEndpointPort {
@@ -47,6 +48,7 @@ A single class typically implements both `RaEndpointPort` + `RaCommandPort` (see
 
 Registering with the container:
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java
 ```java
 container.registerRa(endpoint, endpoint);
 // container will call endpoint.activate(bootstrap) on start (or immediately if already started)
@@ -76,6 +78,7 @@ Sealed interface enables exhaustive `switch` pattern-matching in both SBB and RA
 
 ### 3.2. Transport — ALWAYS include peer address
 
+> 📄 File: vendor-ras/ra-sip-servlet/src/main/java/com/microjainslee/ra/sipservlet/transport/SipMessageSink.java
 ```java
 // Inbound sink: bytes + source address + transport name.
 // Missing peer address = cannot reply (UDP lesson from ra-sip-servlet).
@@ -100,6 +103,7 @@ Transport rules:
 
 ### 3.3. RA core object
 
+> 📄 File: vendor-ras/ra-sip-servlet/src/main/java/com/microjainslee/ra/sipservlet/SipServletResourceAdaptor.java
 ```java
 public final class MyProtoResourceAdaptor {
     private RaBootstrapPort bootstrap;
@@ -154,6 +158,7 @@ public final class MyProtoResourceAdaptor {
 
 ### 3.4. Endpoint (3-port wrapper)
 
+> 📄 File: vendor-ras/ra-sip-servlet/src/main/java/com/microjainslee/ra/sipservlet/SipServletRaEndpoint.java
 ```java
 public final class MyProtoRaEndpoint implements RaEndpointPort, RaCommandPort {
     private final MyProtoResourceAdaptor delegate;
@@ -193,6 +198,7 @@ Three rules, violating any = memory leak (actually happened with the old `dialog
 
 RA must **send on its own** without the app plugging anything in. Don't let `OutboundSender` be an interface with no impl (old bug: every `SendResponse` silently dropped). Correct pattern — auto-wire in `raActive()`:
 
+> 📄 File: vendor-ras/ra-sip-servlet/src/main/java/com/microjainslee/ra/sipservlet/SipServletResourceAdaptor.java
 ```java
 if (outboundSender == null) {
     outboundSender = new NettyMyOutboundSender(config, registry, transports);

@@ -28,6 +28,7 @@ Thứ tự 2 → 3 → 4 → 5 là bắt buộc: RA activate xong là event có 
 
 ## 2. pom.xml
 
+> 📄 File: example/example-quarkus-sip/pom.xml
 ```xml
 <dependencies>
     <!-- Quarkus extension của micro-jainslee: producer MicroSleeContainer + facilities -->
@@ -51,6 +52,7 @@ Thứ tự 2 → 3 → 4 → 5 là bắt buộc: RA activate xong là event có 
 
 `application.properties`:
 
+> 📄 File: example/example-quarkus-sip/src/main/resources/application.properties
 ```properties
 # tuning container (đọc bởi adapter-quarkus deployment)
 microjainslee.buffer-size=2048
@@ -65,6 +67,7 @@ sip.udp.port=5060
 
 ## 3. Bootstrap hoàn chỉnh (SIP gateway)
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java
 ```java
 @ApplicationScoped
 public final class SipGatewayBootstrap {
@@ -130,6 +133,7 @@ public final class SipGatewayBootstrap {
 
 SBB thường cần gọi service của app (session store, config…). Đưa qua **constructor trong factory**, kiểu interface:
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoContext.java
 ```java
 // app định nghĩa interface hẹp
 public interface UssdDemoContext {
@@ -184,6 +188,7 @@ curl http://127.0.0.1:8080/api/ussd/sessions/<sessionId>
 
 Bootstrap nên test được bằng plain JUnit — mẫu: `UssdDemoSmokeTest`:
 
+> 📄 File: example/example-quarkus/src/test/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoSmokeTest.java
 ```java
 @BeforeEach
 void setUp() {

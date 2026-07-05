@@ -99,6 +99,7 @@ This is the most important part of the runtime. When an RA fires an event on an 
 
 ### 4.1. `mapEventToSbb()` — the recommended primary approach
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java
 ```java
 container.registerSbbType(ProxySbb.class, ProxySbb::new); // register type + factory
 container.createIesDispatcher();                          // enable convergence routing
@@ -116,6 +117,7 @@ Mapping matches **parent classes too** — mapping `SipEvent.class` catches all 
 
 IES answers *"which session/entity does this event belong to?"* (JSLEE 1.1 §7.5). SBBs declare it via annotation:
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
 ```java
 @InitialEventSelect(name = "ussd-session-convergence")
 public InitialEventSelectResult selectInitialEvent(InitialEventSelectCondition c) {

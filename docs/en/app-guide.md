@@ -28,6 +28,7 @@ Order 2 → 3 → 4 → 5 is mandatory: once RA activates, events can arrive imm
 
 ## 2. pom.xml
 
+> 📄 File: example/example-quarkus-sip/pom.xml
 ```xml
 <dependencies>
     <!-- micro-jainslee Quarkus extension: produces MicroSleeContainer + facilities -->
@@ -51,6 +52,7 @@ Order 2 → 3 → 4 → 5 is mandatory: once RA activates, events can arrive imm
 
 `application.properties`:
 
+> 📄 File: example/example-quarkus-sip/src/main/resources/application.properties
 ```properties
 # container tuning (read by adapter-quarkus deployment)
 microjainslee.buffer-size=2048
@@ -65,6 +67,7 @@ sip.udp.port=5060
 
 ## 3. Complete bootstrap (SIP gateway)
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java
 ```java
 @ApplicationScoped
 public final class SipGatewayBootstrap {
@@ -130,6 +133,7 @@ public final class SipGatewayBootstrap {
 
 SBBs often need app services (session store, config…). Pass via **constructor in factory**, using an interface type:
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoContext.java
 ```java
 // app defines a narrow interface
 public interface UssdDemoContext {
@@ -184,6 +188,7 @@ curl http://127.0.0.1:8080/api/ussd/sessions/<sessionId>
 
 Bootstrap should be testable with plain JUnit — template: `UssdDemoSmokeTest`:
 
+> 📄 File: example/example-quarkus/src/test/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoSmokeTest.java
 ```java
 @BeforeEach
 void setUp() {

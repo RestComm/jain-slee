@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello World — JAIN SLEE + Quarkus</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 640px; margin: 80px auto; text-align: center; }
+        h1 { color: #198754; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 24px; margin: 16px 0; }
+        button { background: #0d6efd; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #0b5ed7; }
+        pre { background: #f8f9fa; padding: 12px; border-radius: 6px; text-align: left; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Hello World from JAIN SLEE + Quarkus</h1>
+
+    <div class="card">
+        <p>Static HTML served by Quarkus from <code>META-INF/resources/</code></p>
+        <p>✅ WAR/static hosting works!</p>
+    </div>
+
+    <div class="card">
+        <h3>Test ra-http-server (JAIN SLEE pipeline)</h3>
+        <button onclick="testUssd()">POST /api/ussd/begin</button>
+        <pre id="result">Click button to send USSD request to ra-http-server...</pre>
+    </div>
+
+    <script>
+        async function testUssd() {
+            const res = await fetch('http://localhost:8081/api/ussd/begin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ msisdn: '84901234567', ussdString: '*101#' })
+            });
+            const json = await res.json();
+            document.getElementById('result').textContent = JSON.stringify(json, null, 2);
+        }
+    </script>
+</body>
+</html>

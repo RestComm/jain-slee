@@ -22,6 +22,7 @@ RA **không chứa business logic** — không quyết định trả lời gì, 
 
 ## 2. 3-Port Contract (jainslee-api)
 
+> 📄 File: jainslee-api/src/main/java/com/microjainslee/api/RaEndpointPort.java
 ```java
 // Port 1 — lifecycle, container gọi
 public interface RaEndpointPort {
@@ -47,6 +48,7 @@ Một class thường implement cả `RaEndpointPort` + `RaCommandPort` (xem `Si
 
 Đăng ký với container:
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java
 ```java
 container.registerRa(endpoint, endpoint);
 // container sẽ gọi endpoint.activate(bootstrap) khi start (hoặc ngay nếu đã start)
@@ -76,6 +78,7 @@ Sealed interface giúp `switch` pattern-matching exhaustive ở cả SBB lẫn R
 
 ### 3.2. Transport — LUÔN kèm peer address
 
+> 📄 File: vendor-ras/ra-sip-servlet/src/main/java/com/microjainslee/ra/sipservlet/transport/SipMessageSink.java
 ```java
 // Sink chiều vào: bytes + địa chỉ nguồn + tên transport.
 // Thiếu peer address = không thể trả lời (bài học UDP của ra-sip-servlet).
@@ -100,6 +103,7 @@ Quy tắc transport:
 
 ### 3.3. RA core object
 
+> 📄 File: vendor-ras/ra-sip-servlet/src/main/java/com/microjainslee/ra/sipservlet/SipServletResourceAdaptor.java
 ```java
 public final class MyProtoResourceAdaptor {
     private RaBootstrapPort bootstrap;
@@ -154,6 +158,7 @@ public final class MyProtoResourceAdaptor {
 
 ### 3.4. Endpoint (3-port wrapper)
 
+> 📄 File: vendor-ras/ra-sip-servlet/src/main/java/com/microjainslee/ra/sipservlet/SipServletRaEndpoint.java
 ```java
 public final class MyProtoRaEndpoint implements RaEndpointPort, RaCommandPort {
     private final MyProtoResourceAdaptor delegate;
@@ -193,6 +198,7 @@ Ba quy tắc, vi phạm cái nào cũng ra memory leak (đã xảy ra thật v�
 
 RA phải **tự gửi được** mà không cần app cắm gì thêm. Đừng để `OutboundSender` là interface không có impl (bug cũ: mọi `SendResponse` bị drop âm thầm). Pattern đúng — auto-wire trong `raActive()`:
 
+> 📄 File: vendor-ras/ra-sip-servlet/src/main/java/com/microjainslee/ra/sipservlet/SipServletResourceAdaptor.java
 ```java
 if (outboundSender == null) {
     outboundSender = new NettyMyOutboundSender(config, registry, transports);

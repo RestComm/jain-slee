@@ -19,6 +19,7 @@ SBB = a Java class containing **business logic**, called by the runtime when eve
 
 ## 2. Standard template — stateless SBB
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/sbbs/ProxySbb.java
 ```java
 package com.example.myapp.sbbs;
 
@@ -63,6 +64,7 @@ public class ProxySbb implements Sbb, SleeEventHandler {
 
 Registration in bootstrap (details in [app-guide.md](app-guide.md)):
 
+> 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java
 ```java
 container.registerSbbType(ProxySbb.class, ProxySbb::new);
 container.createIesDispatcher();
@@ -76,6 +78,7 @@ container.mapEventToSbb(SipByeEvent.class,    "ProxySbb");
 
 When you need **one entity holding state for an entire session** (e.g., multi-step USSD dialog), declare `@InitialEventSelect`:
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
 ```java
 public class UssdSessionSbb implements Sbb, SleeEventHandler {
 
@@ -116,6 +119,7 @@ Spec semantics (§7.5.5):
 
 If you want state stored/loaded via CMP store (for recovery/clustering), use abstract class + `@CmpField`:
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/Ss7UssdIngressSbb.java
 ```java
 @SbbAnnotation(name = "UssdSession", vendor = "com.example", version = "1.0")
 public abstract class UssdSessionSbb extends CmpBackedSbb implements SleeEventHandler {
@@ -149,6 +153,7 @@ All are `default` no-ops — only override what you need. **Don't** do heavy/blo
 
 ## 6. Timer
 
+> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/GrpcClientSbb.java
 ```java
 // set 30s timer — TimerFiredEvent delivered to this SBB local object
 long timerId = container.getTimerPort().setTimer(30_000, sbbLocalObject);
