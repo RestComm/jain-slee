@@ -24,7 +24,8 @@ import com.microjainslee.api.annotations.InjectRa;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.SbbLifecycleManager;
 import com.microjainslee.core.SimpleSbbLocalObject;
-import com.microjainslee.ra.httpclient.HttpCallbackCommand;
+import com.microjainslee.ra.httpclient.command.HttpCallbackCommand;
+import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -79,8 +80,41 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
     public void onEvent(SleeEvent event, ActivityContextInterface aci) {
         if (event instanceof HttpUssdBeginEvent) {
             onHttpBegin((HttpUssdBeginEvent) event, aci);
+        } else if (event instanceof HttpWebRequestEvent req) {
+            onHttpWebRequest(req, aci);
         } else if (event instanceof UssdResponseEvent) {
             onUssdResponse((UssdResponseEvent) event, aci);
+        }
+    }
+
+    private void onHttpWebRequest(HttpWebRequestEvent req, ActivityContextInterface aci) {
+        String path = req.getPath();
+        String method = req.getMethod();
+        LOG.info("[HTTP-server] RA web request session={} {} {}", req.getSessionId(), method, path);
+
+        if ("POST".equalsIgnoreCase(method) && "/api/ussd/begin".equals(path)) {
+            String body = req.getBody();
+            if (body == null || body.isEmpty()) {
+                LOG.warn("[HTTP-server] Empty body on USSD begin, session={}", req.getSessionId());
+                return;
+            }
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper =
+                        new com.fasterxml.jackson.databind.ObjectMapper();
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, String> map = mapper.readValue(body, java.util.Map.class);
+                String msisdn = map.getOrDefault("msisdn", "unknown");
+                String ussdString = map.getOrDefault("ussdString", "");
+                String callbackUrl = map.getOrDefault("callbackUrl", null);
+
+                LOG.info("[HTTP-server] RA USSD begin parsed: msisdn={} ussd={}", msisdn, ussdString);
+                HttpUssdBeginEvent ussdEvent = new HttpUssdBeginEvent(
+                        req.getSessionId(), msisdn, ussdString, callbackUrl);
+                onHttpBegin(ussdEvent, aci);
+            } catch (Exception e) {
+                LOG.error("[HTTP-server] Failed to parse USSD body for session={}: {}",
+                        req.getSessionId(), e.getMessage());
+            }
         }
     }
 
@@ -132,7 +166,7 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
             LOG.warn("[HTTP-server] httpCallbackPort not injected yet");
             return;
         }
-        port.sendCommand(new HttpCallbackCommand(sessionId, callbackUrl, responseText));
+        port.sendCommand(new HttpCallbackCommand.CallbackRequest(sessionId, callbackUrl, responseText));
         LOG.debug("[HTTP-server] Callback command queued for session={}", sessionId);
     }
 

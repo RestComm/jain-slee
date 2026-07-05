@@ -1,5 +1,5 @@
 /*
- * micro-jainslee 1.1.0
+ * micro-jainslee 1.2.0
  *
  * Dual-licensed: GPLv3 (Section A) OR Commercial License (Section B).
  * See the LICENSE file at the root of this repository for the full text.
@@ -22,6 +22,7 @@ import com.microjainslee.api.ResourceAdaptorContext;
 import com.microjainslee.api.SimpleActivityContextHandle;
 import com.microjainslee.api.SleeEndpointPort;
 import com.microjainslee.api.SleeEvent;
+import com.microjainslee.ra.httpserver.command.HttpServerCommand;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,9 +34,9 @@ import org.apache.logging.log4j.Logger;
  * to the micro-jainslee container via the new API surface while
  * preserving the existing lifecycle on the delegate.</p>
  *
- * <p>Also implements {@link RaCommandPort} for symmetry — though
- * HTTP server is primarily inbound-only, outbound commands are
- * accepted for forward compatibility.</p>
+ * <p>Also implements {@link RaCommandPort} for outbound commands,
+ * delegating {@code HttpResponseCommand} to the delegate's
+ * {@code sendHttpResponse} method.</p>
  */
 public final class HttpServerRaEndpoint implements RaEndpointPort, RaCommandPort {
 
@@ -49,27 +50,14 @@ public final class HttpServerRaEndpoint implements RaEndpointPort, RaCommandPort
         this.delegate = delegate;
     }
 
-    // ---- collaborator setters (delegate to existing RA) ----
+    // ---- collaborator setters ----
 
     public void setPort(int port) {
         delegate.setPort(port);
     }
 
-    public void setSessionStore(HttpServerSessionStore sessionStore) {
-        delegate.setSessionStore(sessionStore);
-    }
-
-    public void setSessionPreparer(HttpServerSessionPreparer preparer) {
-        delegate.setSessionPreparer(preparer);
-    }
-
-    public void setBeginEventFactory(HttpBeginEventFactory factory) {
-        delegate.setBeginEventFactory(factory);
-    }
-
-    public void setActivityContextFactory(
-            HttpServerResourceAdaptor.ActivityContextFactory factory) {
-        delegate.setActivityContextFactory(factory);
+    public void setHost(String host) {
+        delegate.setHost(host);
     }
 
     public int port() {
@@ -113,10 +101,15 @@ public final class HttpServerRaEndpoint implements RaEndpointPort, RaCommandPort
 
     @Override
     public void sendCommand(OutboundCommand command) {
-        if (command instanceof HttpServerCommand) {
+        if (command instanceof HttpServerCommand.HttpResponseCommand hr) {
+            delegate.sendHttpResponse(hr.sessionId(), hr.statusCode(),
+                    hr.contentType(), hr.body());
+            LOG.debug(() -> "Sent HTTP response via HttpResponseCommand sessionId="
+                    + hr.sessionId() + " status=" + hr.statusCode());
+        } else if (command instanceof HttpServerCommand) {
             LOG.info(() -> "HTTP server RA received command: "
                     + command.getClass().getSimpleName()
-                    + " (outbound not yet implemented)");
+                    + " (no handler registered)");
         } else {
             LOG.warn(() -> "HTTP server RA received unknown command type: "
                     + (command == null ? "null" : command.getClass().getName()));

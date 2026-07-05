@@ -29,10 +29,8 @@ import com.microjainslee.ra.grpc.GrpcMenuUpstream;
 import com.microjainslee.ra.grpc.GrpcMenuUpstreamResult;
 import com.microjainslee.ra.httpclient.HttpCallbackClientRa;
 import com.microjainslee.ra.httpclient.HttpCallbackRaEndpoint;
-import com.microjainslee.ra.httpserver.HttpBeginEventFactory;
 import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
-import com.microjainslee.ra.httpserver.HttpServerSessionPreparer;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -146,11 +144,6 @@ public final class EmbeddedUssdBootstrap {
     private void wireHttpServerRa(int port) {
         HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
         ra.setPort(port);
-        ra.setBeginEventFactory((HttpBeginEventFactory) (sessionId, msisdn, ussdString, callbackUrl) ->
-                new HttpUssdBeginEvent(sessionId, msisdn, ussdString, callbackUrl));
-        ra.setActivityContextFactory((HttpServerResourceAdaptor.ActivityContextFactory)
-                (sessionId, ctx) -> container.createActivityContext(sessionId));
-        ra.setSessionPreparer((HttpServerSessionPreparer) this::prepareHttpSession);
         httpServerEndpoint = new HttpServerRaEndpoint(ra);
         container.registerRa(httpServerEndpoint, httpServerEndpoint);
         LOG.info("HTTP server RA wired on port {}", port);
@@ -213,6 +206,7 @@ public final class EmbeddedUssdBootstrap {
 
     private void bindEventMappings() {
         container.mapEventToSbb(HttpUssdBeginEvent.class, "HttpServerSbb");
+        container.mapEventToSbb(com.microjainslee.ra.httpserver.events.HttpWebRequestEvent.class, "HttpServerSbb");
         container.mapEventToSbb(Ss7UssdBeginEvent.class, "Ss7UssdIngress");
         container.mapEventToSbb(GrpcMenuRequestEvent.class, "GrpcClientSbb");
         container.mapEventToSbb(GrpcMenuResponseEvent.class, "Ss7UssdIngress");

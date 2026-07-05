@@ -1,15 +1,13 @@
 package com.example.helloworld.quarkus.bootstrap;
 
-import com.example.helloworld.quarkus.events.HttpWebRequestEvent;
 import com.example.helloworld.quarkus.sbbs.HelloWorldSbb;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.SbbLifecycleManager;
 import com.microjainslee.core.SimpleSbbLocalObject;
-import com.microjainslee.ra.httpserver.HttpBeginEventFactory;
 import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
-import com.microjainslee.ra.httpserver.HttpServerSessionPreparer;
-import com.microjainslee.ra.httpserver.HttpServerSessionStore;
+import com.microjainslee.ra.httpserver.collab.HttpServerSessionStore;
+import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -99,37 +97,12 @@ public final class HelloWorldBootstrap implements HelloWorldContext {
     private void wireHttpRa() {
         HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
         ra.setPort(httpRaPort);
-        ra.setSessionStore(new InMemorySessionStore(sessions));
-        ra.setBeginEventFactory((HttpBeginEventFactory) (sid, msisdn, ussd, cbUrl) ->
-                new HttpWebRequestEvent(sid, "POST", "/api/ussd/begin",
-                        "ra-http-server/" + msisdn));
-        ra.setActivityContextFactory((sid, ctx) -> container.createActivityContext(sid));
-        ra.setSessionPreparer(prepareSession());
 
         httpEndpoint = new HttpServerRaEndpoint(ra);
         httpEndpoint.setPort(httpRaPort);
-        httpEndpoint.setSessionStore(new InMemorySessionStore(sessions));
-        httpEndpoint.setBeginEventFactory((HttpBeginEventFactory) (sid, msisdn, ussd, cbUrl) ->
-                new HttpWebRequestEvent(sid, "POST", "/api/ussd/begin",
-                        "ra-http-server/" + msisdn));
-        httpEndpoint.setActivityContextFactory((sid, ctx) -> container.createActivityContext(sid));
-        httpEndpoint.setSessionPreparer(prepareSession());
 
         container.registerRa(httpEndpoint, httpEndpoint);
         LOG.info("ra-http-server registered on port {}", httpRaPort);
-    }
-
-    private HttpServerSessionPreparer prepareSession() {
-        return (sid, cbUrl, aci) -> {
-            sessions.put(sid, new SessionRecord(sid, "PROCESSING", null, null));
-            SimpleSbbLocalObject lo = container.acquireEntity(
-                    httpEntityId(sid), HelloWorldSbb.class);
-            lo.setPriority(10);
-            HelloWorldSbb sbb = (HelloWorldSbb) lo.getSbb();
-            sbb.bindSelf(lo);
-            container.attach(sid, lo);
-            waitForActivation(lo);
-        };
     }
 
     private static void waitForActivation(SimpleSbbLocalObject lo) {

@@ -25,11 +25,8 @@ import com.microjainslee.ra.grpc.GrpcMenuRaEndpoint;
 import com.microjainslee.ra.grpc.GrpcMenuResourceAdaptor;
 import com.microjainslee.ra.grpc.GrpcMenuResult;
 import com.microjainslee.ra.grpc.GrpcMenuUpstream;
-import com.microjainslee.ra.httpserver.HttpBeginEventFactory;
 import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
-import com.microjainslee.ra.httpserver.HttpServerSessionPreparer;
-import com.microjainslee.ra.httpserver.HttpServerSessionStore;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -159,19 +156,9 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
     private void wireHttpRa(int port) {
         HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
         ra.setPort(port);
-        ra.setSessionStore(sessionStore);
-        ra.setSessionPreparer((HttpServerSessionPreparer) this::prepareHttpSession);
-        ra.setBeginEventFactory((HttpBeginEventFactory) (sid, msisdn, ussd, cbUrl) ->
-                new HttpUssdBeginEvent(sid, msisdn, ussd, cbUrl));
-        ra.setActivityContextFactory((sid, ctx) -> container.createActivityContext(sid));
 
         httpEndpoint = new HttpServerRaEndpoint(ra);
         httpEndpoint.setPort(port);
-        httpEndpoint.setSessionStore(sessionStore);
-        httpEndpoint.setSessionPreparer((HttpServerSessionPreparer) this::prepareHttpSession);
-        httpEndpoint.setBeginEventFactory((HttpBeginEventFactory) (sid, msisdn, ussd, cbUrl) ->
-                new HttpUssdBeginEvent(sid, msisdn, ussd, cbUrl));
-        httpEndpoint.setActivityContextFactory((sid, ctx) -> container.createActivityContext(sid));
 
         container.registerRa(httpEndpoint, httpEndpoint);
         LOG.info("HTTP server RA registered (vendor-ras) on port {}", port);

@@ -10,10 +10,8 @@
 
 package com.microjainslee.ra.httpserver;
 
-import com.microjainslee.api.ActivityContextInterface;
-import com.microjainslee.api.ResourceAdaptorContext;
 import com.microjainslee.api.SimpleActivityContextHandle;
-import com.microjainslee.api.SleeEvent;
+import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 import com.microjainslee.ra.spi.AbstractResourceAdaptor;
 
 import io.vertx.core.Vertx;
@@ -28,27 +26,32 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * HTTP ingress Resource Adaptor on <b>Vert.x core</b> — the same engine
+ * Generic HTTP ingress Resource Adaptor on <b>Vert.x core</b> — the same engine
  * that powers {@code quarkus-vertx-http}, i.e. the fastest HTTP path in
  * the Quarkus ecosystem and fully GraalVM-native ready.
  *
  * <p>Threading model: Vert.x event loops accept/parse requests; the
- * SLEE-facing work (session prepare + fireEvent, which may briefly block
- * on entity acquisition) runs on Vert.x worker threads via
- * {@code executeBlocking}, so event loops are never blocked.</p>
+ * SLEE-facing work (fireEvent, which may briefly block on entity acquisition)
+ * runs on Vert.x worker threads via {@code executeBlocking}, so event loops
+ * are never blocked.</p>
  *
- * <p>Routes (unchanged from the legacy JDK-HttpServer implementation):</p>
+ * <p>Routes:</p>
  * <pre>
- *   GET  /health                        → {"status":"ok"}
- *   POST /api/ussd/begin                → 202 {"sessionId":..,"status":"PROCESSING"}
- *   POST /api/ussd/begin-callback       → same, requires ?callbackUrl=
- *   GET  /api/ussd/sessions/{id}        → session snapshot JSON
+ *   GET  /health      → {"status":"ok"}
+ *   ANY  /{path}      → fires {@link HttpWebRequestEvent} with full request metadata
  * </pre>
+ *
+ * <p>Application SBBs receive the event and can respond via
+ * {@link #sendHttpResponse(String, int, String, String)} which resolves
+ * the pending Vert.x response.</p>
  */
 public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
 
@@ -57,13 +60,13 @@ public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
     private Vertx vertx;
     private HttpServer server;
 
-    private HttpServerSessionStore sessionStore;
-    private HttpServerSessionPreparer sessionPreparer;
-    private HttpBeginEventFactory beginEventFactory;
-    private ActivityContextFactory activityContextFactory;
     private int port = 8080;
     private String host = "127.0.0.1";
     private int eventLoopThreads = 0;   // 0 = Vert.x default (2 × cores)
+
+    /** Maps sessionId → pending HttpServerResponse for async resolution. */
+    private final ConcurrentHashMap<String, HttpServerResponse> pendingResponses =
+            new ConcurrentHashMap<>();
 
     public void setPort(int port) {
         this.port = port;
@@ -78,26 +81,12 @@ public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
         this.eventLoopThreads = n;
     }
 
-    public void setSessionStore(HttpServerSessionStore sessionStore) {
-        this.sessionStore = sessionStore;
-    }
-
-    public void setSessionPreparer(HttpServerSessionPreparer sessionPreparer) {
-        this.sessionPreparer = sessionPreparer;
-    }
-
-    public void setBeginEventFactory(HttpBeginEventFactory beginEventFactory) {
-        this.beginEventFactory = beginEventFactory;
-    }
-
-    public void setActivityContextFactory(ActivityContextFactory activityContextFactory) {
-        this.activityContextFactory = activityContextFactory;
-    }
-
     /** Actual bound port (after ephemeral bind when configured port is 0). */
     public int port() {
         return server != null ? server.actualPort() : port;
     }
+
+    // ── lifecycle ────────────────────────────────────────────────────
 
     @Override
     public void raConfigure() {
@@ -163,6 +152,7 @@ public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
             awaitQuietly(vertxClosed);
             vertx = null;
         }
+        pendingResponses.clear();
     }
 
     // ── routing ─────────────────────────────────────────────────────
@@ -173,127 +163,85 @@ public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
             writeJson(req.response(), 200, "{\"status\":\"ok\"}");
             return;
         }
-        if ("/api/ussd/begin".equals(path) || "/api/ussd/begin-callback".equals(path)) {
-            if (req.method() != HttpMethod.POST) {
-                writeJson(req.response(), 405, "{\"error\":\"method-not-allowed\"}");
-                return;
-            }
-            boolean requireCallback = path.endsWith("begin-callback");
-            req.body().onComplete(bodyRes -> {
-                if (bodyRes.failed()) {
-                    writeJson(req.response(), 400, "{\"error\":\"body-read-failed\"}");
-                    return;
-                }
-                String body = bodyRes.result().toString(StandardCharsets.UTF_8);
-                String callbackUrl = req.getParam("callbackUrl");
-                handleBegin(req, body, callbackUrl, requireCallback);
-            });
-            return;
-        }
-        if (req.method() == HttpMethod.GET && path.startsWith("/api/ussd/sessions/")) {
-            handleSessionQuery(req, path.substring(path.lastIndexOf('/') + 1));
-            return;
-        }
-        writeJson(req.response(), 404, "{\"error\":\"not-found\"}");
-    }
 
-    private void handleBegin(HttpServerRequest req, String body, String callbackUrl,
-                             boolean requireCallback) {
-        if (requireCallback && (callbackUrl == null || callbackUrl.isEmpty())) {
-            writeJson(req.response(), 400, "{\"error\":\"callbackUrl is required\"}");
-            return;
-        }
-        String msisdn = HttpJson.extractString(body, "msisdn");
-        String ussdString = HttpJson.extractString(body, "ussdString");
-        if (msisdn == null || msisdn.trim().isEmpty()) {
-            writeJson(req.response(), 400, "{\"error\":\"msisdn is required\"}");
-            return;
-        }
-        if (ussdString == null || ussdString.trim().isEmpty()) {
-            writeJson(req.response(), 400, "{\"error\":\"ussdString is required\"}");
-            return;
-        }
-
-        String sessionId = UUID.randomUUID().toString();
-        String trimmedMsisdn = msisdn.trim();
-        String trimmedUssd = ussdString.trim();
-        // fireHttpBegin touches SLEE internals (entity acquire, attach) that
-        // may briefly block — keep it OFF the event loop.
-        vertx.executeBlocking(() -> {
-            fireHttpBegin(sessionId, trimmedMsisdn, trimmedUssd, callbackUrl);
-            return null;
-        }, false).onComplete(res -> {
-            if (res.failed()) {
-                LOG.error("HTTP begin failed session={}", sessionId, res.cause());
-                writeJson(req.response(), 500,
-                        "{\"error\":\"" + HttpJson.escape(String.valueOf(
-                                res.cause() == null ? "internal" : res.cause().getMessage())) + "\"}");
-                return;
+        // For all other requests: read body (if any) and fire generic event
+        req.body().onComplete(bodyRes -> {
+            String body = null;
+            if (bodyRes.succeeded() && bodyRes.result().length() > 0) {
+                body = bodyRes.result().toString(StandardCharsets.UTF_8);
             }
-            HttpServerResponse response = req.response();
-            response.putHeader("Content-Type", "application/json");
-            if (callbackUrl != null) {
-                response.putHeader("Location", callbackUrl + "?sessionId=" + sessionId);
-            }
-            response.setStatusCode(202)
-                    .end("{\"sessionId\":\"" + sessionId + "\",\"status\":\"PROCESSING\"}");
+            fireHttpRequest(req, body);
         });
-    }
-
-    private void handleSessionQuery(HttpServerRequest req, String sessionId) {
-        if (sessionStore == null) {
-            writeJson(req.response(), 503, "{\"error\":\"session-store-unavailable\"}");
-            return;
-        }
-        HttpServerSessionStore.SessionSnapshot rec = sessionStore.get(sessionId);
-        if (rec == null) {
-            writeJson(req.response(), 404, "{\"error\":\"unknown-session\"}");
-            return;
-        }
-        StringBuilder sb = new StringBuilder(128);
-        sb.append('{');
-        sb.append("\"sessionId\":\"").append(HttpJson.escape(sessionId)).append("\",");
-        sb.append("\"status\":\"").append(HttpJson.escape(rec.getStatus())).append("\",");
-        if (rec.getResponseText() != null) {
-            sb.append("\"responseText\":\"").append(HttpJson.escape(rec.getResponseText()))
-                    .append("\",");
-        }
-        if (rec.getErrorMessage() != null) {
-            sb.append("\"errorMessage\":\"").append(HttpJson.escape(rec.getErrorMessage()))
-                    .append("\",");
-        }
-        if (sb.charAt(sb.length() - 1) == ',') {
-            sb.setLength(sb.length() - 1);
-        }
-        sb.append('}');
-        writeJson(req.response(), 200, sb.toString());
     }
 
     // ── SLEE-facing ─────────────────────────────────────────────────
 
-    void fireHttpBegin(String sessionId, String msisdn, String ussdString, String callbackUrl) {
-        if (beginEventFactory == null) {
-            throw new IllegalStateException("HttpBeginEventFactory not configured");
-        }
-        if (activityContextFactory == null) {
-            throw new IllegalStateException("ActivityContextFactory not configured");
-        }
-        ResourceAdaptorContext ctx = context();
-        ActivityContextInterface aci = activityContextFactory.create(sessionId, ctx);
-        if (sessionPreparer != null) {
-            sessionPreparer.prepare(sessionId, callbackUrl, aci);
-        }
-        SleeEvent event = beginEventFactory.createBeginEvent(
-                sessionId, msisdn, ussdString, callbackUrl);
-        endpoint().fireEvent(new SimpleActivityContextHandle(sessionId), event);
+    /**
+     * Fires an {@link HttpWebRequestEvent} for the given request, storing the
+     * response handle so the application SBB can reply asynchronously via
+     * {@link #sendHttpResponse(String, int, String, String)}.
+     */
+    private void fireHttpRequest(HttpServerRequest req, String body) {
+        String sessionId = UUID.randomUUID().toString();
+        pendingResponses.put(sessionId, req.response());
+
+        Map<String, String> headers = new HashMap<>();
+        req.headers().forEach(e -> headers.put(e.getKey(), e.getValue()));
+
+        HttpWebRequestEvent event = new HttpWebRequestEvent(
+                sessionId,
+                req.method().name(),
+                req.path(),
+                headers,
+                body);
+
+        // fireEvent may briefly block on entity acquisition — keep it off the event loop
+        vertx.executeBlocking(() -> {
+            endpoint().fireEvent(new SimpleActivityContextHandle(sessionId), event);
+            return null;
+        }, false).onComplete(res -> {
+            if (res.failed()) {
+                LOG.error("HTTP fireEvent failed session={}", sessionId, res.cause());
+                HttpServerResponse response = pendingResponses.remove(sessionId);
+                if (response != null) {
+                    writeJson(response, 500,
+                            "{\"error\":\""
+                                    + HttpJson.escape(String.valueOf(
+                                            res.cause() == null ? "internal"
+                                                    : res.cause().getMessage()))
+                                    + "\"}");
+                }
+            }
+        });
     }
 
     /**
-     * Creates an activity context for a new HTTP session. Injected at wiring time
-     * by the application (e.g. {@code (sessionId, ctx) -> container.createActivityContext(sessionId)}).
+     * Sends an HTTP response to the pending request identified by {@code sessionId}.
+     * Called by the application SBB (via the endpoint) to reply to an inbound
+     * {@link HttpWebRequestEvent}.
+     *
+     * @param sessionId   the session ID from the original event
+     * @param statusCode  HTTP status code (e.g. 200, 404)
+     * @param contentType content-type header value (e.g. "application/json")
+     * @param body        response body (may be null for empty body)
      */
-    public interface ActivityContextFactory {
-        ActivityContextInterface create(String sessionId, ResourceAdaptorContext context);
+    public void sendHttpResponse(String sessionId, int statusCode, String contentType,
+                                  String body) {
+        HttpServerResponse response = pendingResponses.remove(sessionId);
+        if (response == null) {
+            LOG.warn(() -> "No pending response for sessionId=" + sessionId
+                    + " — may have already been sent or timed out");
+            return;
+        }
+        if (contentType != null && !contentType.isEmpty()) {
+            response.putHeader("Content-Type", contentType);
+        }
+        response.setStatusCode(statusCode);
+        if (body != null) {
+            response.end(body);
+        } else {
+            response.end();
+        }
     }
 
     // ── helpers ─────────────────────────────────────────────────────

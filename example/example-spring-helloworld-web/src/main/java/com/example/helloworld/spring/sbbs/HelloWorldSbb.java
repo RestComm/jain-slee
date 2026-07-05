@@ -11,8 +11,8 @@
 package com.example.helloworld.spring.sbbs;
 
 import com.example.helloworld.spring.HelloWorldContext;
-import com.example.helloworld.spring.events.HttpWebRequestEvent;
 import com.microjainslee.api.ActivityContextInterface;
+import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 import com.microjainslee.api.RaCommandPort;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SbbLocalObject;
@@ -80,8 +80,7 @@ public final class HelloWorldSbb implements Sbb, SleeEventHandler {
         LOG.info("[HelloWorld] web request session={} {} {}",
                 event.getSessionId(), event.getMethod(), event.getPath());
 
-        // Log the Hello World greeting — in a real app, the SBB would send
-        // a response command back through the RA command port.
-        LOG.info("[HelloWorld] Hello World! Request from: {}", event.getUserAgent());
+        String userAgent = event.getUserAgent() != null ? event.getUserAgent() : "unknown";
+        LOG.info("[HelloWorld] Hello World {}", userAgent);
     }
 }

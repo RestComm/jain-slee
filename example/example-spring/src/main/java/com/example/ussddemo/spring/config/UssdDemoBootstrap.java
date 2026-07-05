@@ -38,10 +38,8 @@ import com.microjainslee.ra.grpc.GrpcMenuUpstream;
 import com.microjainslee.ra.grpc.GrpcMenuUpstreamResult;
 import com.microjainslee.ra.httpclient.HttpCallbackClientRa;
 import com.microjainslee.ra.httpclient.HttpCallbackRaEndpoint;
-import com.microjainslee.ra.httpserver.HttpBeginEventFactory;
 import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
-import com.microjainslee.ra.httpserver.HttpServerSessionPreparer;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -82,11 +80,6 @@ public class UssdDemoBootstrap {
     public HttpServerResourceAdaptor httpServerRa() {
         HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
         ra.setPort(httpPort);
-        ra.setBeginEventFactory((HttpBeginEventFactory) (sid, msisdn, ussd, cbUrl) ->
-                new HttpUssdBeginEvent(sid, msisdn, ussd, cbUrl));
-        ra.setActivityContextFactory((HttpServerResourceAdaptor.ActivityContextFactory)
-                (sid, ctx) -> container.createActivityContext(sid));
-        ra.setSessionPreparer((HttpServerSessionPreparer) this::prepareHttpSession);
         return ra;
     }
 

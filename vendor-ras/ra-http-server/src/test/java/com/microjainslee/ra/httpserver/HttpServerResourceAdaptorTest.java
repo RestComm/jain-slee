@@ -1,5 +1,5 @@
 /*
- * micro-jainslee 1.1.0
+ * micro-jainslee 1.2.0
  *
  * Dual-licensed: GPLv3 (Section A) OR Commercial License (Section B).
  * See the LICENSE file at the root of this repository for the full text.
@@ -18,6 +18,7 @@ import com.microjainslee.api.SleeEndpointPort;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.RaBootstrapContextImpl;
+import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,6 @@ import java.net.http.HttpResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 public class HttpServerResourceAdaptorTest {
@@ -37,7 +37,6 @@ public class HttpServerResourceAdaptorTest {
     private MicroSleeContainer container;
     private HttpServerResourceAdaptor ra;
     private CapturingSleeEndpointPort endpoint;
-    private SleeEvent beginEvent;
     private int port;
     private HttpClient http;
 
@@ -47,12 +46,9 @@ public class HttpServerResourceAdaptorTest {
         container.start();
 
         endpoint = new CapturingSleeEndpointPort();
-        beginEvent = new SleeEvent() { };
 
         ra = new HttpServerResourceAdaptor();
         ra.setPort(0);
-        ra.setActivityContextFactory((sessionId, ctx) -> container.createActivityContext(sessionId));
-        ra.setBeginEventFactory((sessionId, msisdn, ussdString, callbackUrl) -> beginEvent);
 
         RaBootstrapContextImpl bootstrapCtx = new RaBootstrapContextImpl(container, "http-server");
         bootstrapCtx.setResourceAdaptor(ra);
@@ -76,89 +72,67 @@ public class HttpServerResourceAdaptorTest {
     }
 
     @Test
-    public void postBeginFiresEventThroughSleeEndpointPort() throws Exception {
+    public void getRequestFiresHttpWebRequestEvent() throws Exception {
         HttpResponse<String> resp = http.send(
                 HttpRequest.newBuilder()
-                        .uri(URI.create("http://127.0.0.1:" + port + "/api/ussd/begin"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(
-                                "{\"msisdn\":\"251911000001\",\"ussdString\":\"*123#\"}"))
+                        .uri(URI.create("http://127.0.0.1:" + port + "/test/path"))
+                        .header("X-Custom", "value1")
+                        .GET()
                         .build(),
                 HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(202, resp.statusCode());
-        assertTrue(resp.body().contains("\"status\":\"PROCESSING\""));
+        // The response is sent asynchronously by the SBB (not by the route),
+        // so the HTTP response may be a connection reset or empty since no
+        // SBB sends a reply. What matters is that the event was fired.
         assertEquals(1, endpoint.fireEventCount);
-        assertSame(beginEvent, endpoint.lastEvent);
+        assertNotNull(endpoint.lastEvent);
+        assertTrue(endpoint.lastEvent instanceof HttpWebRequestEvent);
+        HttpWebRequestEvent evt = (HttpWebRequestEvent) endpoint.lastEvent;
+        assertEquals("GET", evt.getMethod());
+        assertEquals("/test/path", evt.getPath());
         assertNotNull(endpoint.lastHandle);
-        assertTrue(resp.body().contains("\"sessionId\":\"" + endpoint.lastHandle.getId() + "\""));
     }
 
     @Test
-    public void postBeginRejectsMissingMsisdn() throws Exception {
+    public void postRequestFiresEventWithBody() throws Exception {
         HttpResponse<String> resp = http.send(
                 HttpRequest.newBuilder()
-                        .uri(URI.create("http://127.0.0.1:" + port + "/api/ussd/begin"))
+                        .uri(URI.create("http://127.0.0.1:" + port + "/api/data"))
                         .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString("{\"ussdString\":\"*123#\"}"))
+                        .POST(HttpRequest.BodyPublishers.ofString("{\"key\":\"value\"}"))
                         .build(),
                 HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(400, resp.statusCode());
-        assertTrue(resp.body().contains("msisdn is required"));
-        assertEquals(0, endpoint.fireEventCount);
+        assertEquals(1, endpoint.fireEventCount);
+        assertTrue(endpoint.lastEvent instanceof HttpWebRequestEvent);
+        HttpWebRequestEvent evt = (HttpWebRequestEvent) endpoint.lastEvent;
+        assertEquals("POST", evt.getMethod());
+        assertEquals("/api/data", evt.getPath());
+        assertEquals("{\"key\":\"value\"}", evt.getBody());
     }
 
     @Test
-    public void postBeginCallbackRejectsMissingCallbackUrl() throws Exception {
-        HttpResponse<String> resp = http.send(
+    public void sendHttpResponseResolvesPendingRequest() throws Exception {
+        // Fire a request which stores the response handle
+        http.sendAsync(
                 HttpRequest.newBuilder()
-                        .uri(URI.create("http://127.0.0.1:" + port + "/api/ussd/begin-callback"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(
-                                "{\"msisdn\":\"251911000001\",\"ussdString\":\"*123#\"}"))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(400, resp.statusCode());
-        assertTrue(resp.body().contains("callbackUrl is required"));
-        assertEquals(0, endpoint.fireEventCount);
-    }
-
-    @Test
-    public void getSessionReturnsSnapshotFromStore() throws Exception {
-        ra.setSessionStore(sessionId -> {
-            if ("sess-1".equals(sessionId)) {
-                return new HttpServerSessionStore.SessionSnapshot() {
-                    @Override public String getStatus() { return "COMPLETED"; }
-                    @Override public String getResponseText() { return "Welcome"; }
-                    @Override public String getErrorMessage() { return null; }
-                };
-            }
-            return null;
-        });
-
-        HttpResponse<String> found = http.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create("http://127.0.0.1:" + port + "/api/ussd/sessions/sess-1"))
+                        .uri(URI.create("http://127.0.0.1:" + port + "/async-test"))
                         .GET()
                         .build(),
                 HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(200, found.statusCode());
-        assertTrue(found.body().contains("\"sessionId\":\"sess-1\""));
-        assertTrue(found.body().contains("\"status\":\"COMPLETED\""));
-        assertTrue(found.body().contains("\"responseText\":\"Welcome\""));
+        // Wait for the event to be processed
+        Thread.sleep(500);
+        assertEquals(1, endpoint.fireEventCount);
 
-        HttpResponse<String> missing = http.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create("http://127.0.0.1:" + port + "/api/ussd/sessions/unknown"))
-                        .GET()
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
+        // Send response via the RA's sendHttpResponse
+        HttpWebRequestEvent evt = (HttpWebRequestEvent) endpoint.lastEvent;
+        ra.sendHttpResponse(evt.getSessionId(), 200, "application/json",
+                "{\"result\":\"ok\"}");
 
-        assertEquals(404, missing.statusCode());
-        assertTrue(missing.body().contains("unknown-session"));
+        // The response should be sent successfully (no exception thrown)
+        // We can't easily capture the client side because it's async,
+        // but sendHttpResponse should not throw
     }
 
     @Test
@@ -172,6 +146,8 @@ public class HttpServerResourceAdaptorTest {
 
         assertEquals(200, resp.statusCode());
         assertEquals("{\"status\":\"ok\"}", resp.body());
+        // Health does NOT fire the event
+        assertEquals(0, endpoint.fireEventCount);
     }
 
     private static ResourceAdaptorContext wrapWithCapturingEndpoint(

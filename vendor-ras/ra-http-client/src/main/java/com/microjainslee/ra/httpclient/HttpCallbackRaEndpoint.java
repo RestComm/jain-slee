@@ -22,6 +22,7 @@ import com.microjainslee.api.ResourceAdaptorContext;
 import com.microjainslee.api.SimpleActivityContextHandle;
 import com.microjainslee.api.SleeEndpointPort;
 import com.microjainslee.api.SleeEvent;
+import com.microjainslee.ra.httpclient.command.HttpCallbackCommand;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,6 +60,7 @@ public final class HttpCallbackRaEndpoint implements RaEndpointPort, RaCommandPo
     @Override
     public void activate(RaBootstrapPort bootstrap) {
         this.bootstrapPort = bootstrap;
+        delegate.setBootstrapPort(bootstrap);
         ResourceAdaptorContext bridgedCtx = bridgeContext(bootstrap);
         delegate.setResourceAdaptorContext(bridgedCtx);
         delegate.raConfigure();
@@ -86,8 +88,8 @@ public final class HttpCallbackRaEndpoint implements RaEndpointPort, RaCommandPo
 
     @Override
     public void sendCommand(OutboundCommand command) {
-        if (command instanceof HttpCallbackCommand cmd) {
-            delegate.sendCallback(cmd.sessionId(), cmd.callbackUrl(), cmd.responseText());
+        if (command instanceof HttpCallbackCommand.CallbackRequest req) {
+            delegate.sendCallback(req.sessionId(), req.callbackUrl(), req.payload());
         } else {
             LOG.warn(() -> "HTTP callback RA received unknown command type: "
                     + (command == null ? "null" : command.getClass().getName()));

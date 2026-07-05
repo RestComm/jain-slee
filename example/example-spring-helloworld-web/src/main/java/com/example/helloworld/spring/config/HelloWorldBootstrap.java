@@ -11,17 +11,15 @@
 package com.example.helloworld.spring.config;
 
 import com.example.helloworld.spring.HelloWorldContext;
-import com.example.helloworld.spring.events.HttpWebRequestEvent;
 import com.example.helloworld.spring.sbbs.HelloWorldSbb;
 import com.microjainslee.api.ActivityContextInterface;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.SbbLifecycleManager;
 import com.microjainslee.core.SimpleSbbLocalObject;
-import com.microjainslee.ra.httpserver.HttpBeginEventFactory;
 import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
-import com.microjainslee.ra.httpserver.HttpServerSessionPreparer;
-import com.microjainslee.ra.httpserver.HttpServerSessionStore;
+import com.microjainslee.ra.httpserver.collab.HttpServerSessionStore;
+import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -53,12 +51,6 @@ public class HelloWorldBootstrap {
     public HttpServerResourceAdaptor httpServerRa() {
         HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
         ra.setPort(httpPort);
-        ra.setSessionStore(new InMemorySessionStore(sessions));
-        ra.setBeginEventFactory((HttpBeginEventFactory) (sid, msisdn, ussd, cbUrl) ->
-                new HttpWebRequestEvent(sid, "POST", "/api/ussd/begin",
-                        "ra-http-server/" + msisdn));
-        ra.setActivityContextFactory((sid, ctx) -> container.createActivityContext(sid));
-        ra.setSessionPreparer((HttpServerSessionPreparer) this::prepareHttpSession);
         return ra;
     }
 
@@ -67,12 +59,6 @@ public class HelloWorldBootstrap {
     public HttpServerRaEndpoint httpServerEndpoint(HttpServerResourceAdaptor ra) {
         httpEndpoint = new HttpServerRaEndpoint(ra);
         httpEndpoint.setPort(httpPort);
-        httpEndpoint.setSessionStore(new InMemorySessionStore(sessions));
-        httpEndpoint.setBeginEventFactory((HttpBeginEventFactory) (sid, msisdn, ussd, cbUrl) ->
-                new HttpWebRequestEvent(sid, "POST", "/api/ussd/begin",
-                        "ra-http-server/" + msisdn));
-        httpEndpoint.setActivityContextFactory((sid, ctx) -> container.createActivityContext(sid));
-        httpEndpoint.setSessionPreparer((HttpServerSessionPreparer) this::prepareHttpSession);
         return httpEndpoint;
     }
 

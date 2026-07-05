@@ -5,6 +5,7 @@
 > Last updated: 2026-07-06 | Maintainer: nhanth87
 >
 > Bộ tài liệu gồm 4 file — đọc theo thứ tự:
+>
 > 1. **File này** — khái niệm, kiến trúc, build, event flow.
 > 2. [sbb-guide.md](sbb-guide.md) — viết SBB (service logic).
 > 3. [ra-guide.md](ra-guide.md) — viết Resource Adaptor (3-port contract).
@@ -20,16 +21,18 @@
 - Giữ lại phần lõi giá trị: **event-driven SBB model, Activity Context, event routing, timer facility, RA contract**.
 - Chạy được 3 chế độ: embedded thuần Java 25, **Quarkus (mục tiêu chính — để build GraalVM native)**, Spring Boot.
 
-> ⚠️ **Định hướng hiện tại: chỉ tập trung Quarkus.** Spring/embedded được giữ compile-xanh nhưng không đầu tư thêm. Về dài hạn transport Netty sẽ được thay bằng DPDK datapath (C++/Rust) đẩy event vào app Java native — vì vậy **mọi transport phải nằm sau interface** (xem `SipTransport`).
+> ⚠️ **Định hướng hiện tại: chỉ tập trung Quarkus.** Spring/embedded được giữ compile-xanh nhưng không đầu tư thêm. Về dài hạn transport Netty sẽ được thay bằng DPDK datapath (C++/Rust) đẩy event vào app Java native (Quarkus + Graal VM) — vì vậy **mọi transport phải nằm sau interface** (xem `SipTransport`).
 
 ### 4 khái niệm bắt buộc phải hiểu
 
-| Khái niệm | Là gì | Ví dụ |
-|---|---|---|
-| **Event** | Một sự kiện bất biến (immutable) từ mạng hoặc nội bộ. Implement `SleeEvent`. | `SipInviteEvent`, `HttpUssdBeginEvent`, `TimerFiredEvent` |
-| **Activity / ACI** | Một "phiên" protocol (SIP dialog, USSD session…). SBB attach vào `ActivityContextInterface` để nhận event của phiên đó. | Call-ID của SIP dialog = 1 activity |
-| **SBB** | Service Building Block — logic nghiệp vụ, xử lý event. Implement `Sbb` + `SleeEventHandler`. | `ProxySbb` xử lý INVITE |
-| **RA** | Resource Adaptor — cầu nối protocol ↔ SLEE. Nhận bytes từ mạng → fire event; nhận command từ SBB → gửi ra mạng. | `ra-sip-servlet`, `ra-diameter` |
+
+| Khái niệm          | Là gì                                                                                                                   | Ví dụ                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| **Event**          | Một sự kiện bất biến (immutable) từ mạng hoặc nội bộ. Implement `SleeEvent`.                                            | `SipInviteEvent`, `HttpUssdBeginEvent`, `TimerFiredEvent` |
+| **Activity / ACI** | Một "phiên" protocol (SIP dialog, USSD session…). SBB attach vào `ActivityContextInterface` để nhận event của phiên đó. | Call-ID của SIP dialog = 1 activity                       |
+| **SBB**            | Service Building Block — logic nghiệp vụ, xử lý event. Implement `Sbb` + `SleeEventHandler`.                            | `ProxySbb` xử lý INVITE                                   |
+| **RA**             | Resource Adaptor — cầu nối protocol ↔ SLEE. Nhận bytes từ mạng → fire event; nhận command từ SBB → gửi ra mạng.         | `ra-sip-servlet`, `ra-diameter`                           |
+
 
 ### Luồng event một chiều (không bao giờ ngược)
 
@@ -70,13 +73,14 @@ micro-jainslee/
 ```
 
 **Ràng buộc kiến trúc (không được vi phạm):**
+
 - `jainslee-api` và `jainslee-core`: **zero framework dependency** (không Spring/Quarkus import).
 - Hạn chế reflection trong core (mục tiêu GraalVM native).
 - App code chỉ phụ thuộc `jainslee-api` + `jainslee-core` + RA modules — không đụng internals.
 
 ---
 
-## 3. Build & chạy
+## 3. Build &amp; chạy
 
 ```bash
 # Yêu cầu: JDK 25 (mise.toml đã khai báo zulu-25), Maven 3.9+
@@ -97,9 +101,10 @@ cd example/example-quarkus && mvn quarkus:dev
 
 Đây là phần quan trọng nhất của runtime. Khi RA fire một event lên ACI, `MicroSleeContainer.routeEvent()` quyết định SBB nào nhận, theo thứ tự:
 
-### 4.1. `mapEventToSbb()` — cách khai báo chính (khuyến nghị)
+### 4.1. `mapEventToSbb()` — khai báo cấp chính quyền (khuyến nghị)
 
 > 📄 File: example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java
+
 ```java
 container.registerSbbType(ProxySbb.class, ProxySbb::new); // đăng ký type + factory
 container.createIesDispatcher();                          // bật convergence routing
@@ -107,6 +112,7 @@ container.mapEventToSbb(SipInviteEvent.class, "ProxySbb"); // event → SBB type
 ```
 
 Khi `SipInviteEvent` đến một ACI:
+
 1. Nếu ACI **đã có** một SBB đúng type attach rồi → xong (không tạo trùng).
 2. Nếu chưa → hỏi **IES dispatcher** (mục 4.2) để tìm/tạo entity theo convergence name, rồi attach.
 3. Nếu không bind IES → tạo entity định danh `Type/aciName` (1 entity / activity).
@@ -118,6 +124,7 @@ Mapping match theo **cả class cha** — map `SipEvent.class` sẽ bắt mọi 
 IES trả lời câu hỏi *"event này thuộc về session/entity nào?"* (JSLEE 1.1 §7.5). SBB khai báo bằng annotation:
 
 > 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
+
 ```java
 @InitialEventSelect(name = "ussd-session-convergence")
 public InitialEventSelectResult selectInitialEvent(InitialEventSelectCondition c) {
@@ -148,44 +155,50 @@ Không có mapping, ACI trống → chọn SBB **đăng ký sớm nhất có `Ev
 ## 5. Lifecycle
 
 ### SBB entity
+
 ```
 registerSbbType ──► acquireEntity/IES allocate ──► setSbbContext → sbbCreate
    → sbbPostCreate → sbbActivate → READY ──(events)──► remove() → sbbRemove
 ```
+
 Activation chạy **async** trên entity thread. Nếu cần chắc chắn READY trước khi gọi method trực tiếp (ngoài event path): `localObject.awaitReady(5, SECONDS)`. Event qua router **không cần** chờ — queue của entity tự bảo đảm thứ tự.
 
 ### RA (3-port)
+
 ```
 container.registerRa(endpoint, commandPort)
    → (container STARTED) endpoint.activate(bootstrapPort)   // RA mở transport
    → ... hoạt động ...
    → container.stop() → endpoint.deactivate()               // RA đóng transport
 ```
+
 Khi protocol session kết thúc (BYE, timeout…), RA **phải** gọi `bootstrapPort.endActivity(handle)` — SBB attach sẽ nhận `ActivityEndedEvent` và ACI được thu hồi. Quên bước này = memory leak.
 
 ---
 
 ## 6. Các lỗi kinh điển (đều từng xảy ra trong repo này)
 
-| # | Anti-pattern | Hậu quả | Cách đúng |
-|---|---|---|---|
-| 1 | SBB nhận event X rồi `container.routeEvent(X, aci)` lại chính event đó | **Vòng lặp vô hạn** (300k+ event/s) | Không bao giờ re-route event mình nhận. RA đã fire lên ACI, mọi SBB attach đều nhận rồi |
-| 2 | RA nhận command rồi publish lại request event lên cùng ACI | Vòng lặp SBB ↔ RA | Command là chiều đi ra — không mirror ngược thành event |
-| 3 | Tự viết IES `SbbEntityPool` adapter | Entity không có lifecycle/`@InjectRa`; convergence bị xóa ngay khi tạo | `container.createIesDispatcher()` |
-| 4 | `@InjectRa(name="grpcMenuRa")` nhưng RA đăng ký tên `grpc-menu-ra` | Port null, command bị drop im lặng | Tên trong `@InjectRa` = giá trị `RaEndpointPort.getRaName()` chính xác từng ký tự |
-| 5 | Map `dialogs`/`sessions` trong RA chỉ put không remove | OOM sau vài giờ chạy | Remove khi protocol kết thúc + idle sweeper (xem `DialogRegistry`) |
-| 6 | Transport callback chỉ nhận `byte[]` | Không biết trả lời về đâu (UDP) | Sink phải kèm peer address (`SipMessageSink`) |
-| 7 | Sleep/poll chờ entity READY | Flaky test, treo thread | `awaitReady(timeout)` hoặc để router tự xử lý |
-| 8 | Business logic gọi thẳng class RA (`ra.doSomething()`) | Không test được, gãy khi swap RA | SBB chỉ nói chuyện qua `RaCommandPort.sendCommand(cmd)` |
+
+| #   | Anti-pattern                                                           | Hậu quả                                                                | Cách đúng                                                                               |
+| --- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| 1   | SBB nhận event X rồi `container.routeEvent(X, aci)` lại chính event đó | **Vòng lặp vô hạn** (300k+ event/s)                                    | Không bao giờ re-route event mình nhận. RA đã fire lên ACI, mọi SBB attach đều nhận rồi |
+| 2   | RA nhận command rồi publish lại request event lên cùng ACI             | Vòng lặp SBB ↔ RA                                                      | Command là chiều đi ra — không mirror ngược thành event                                 |
+| 3   | Tự viết IES `SbbEntityPool` adapter                                    | Entity không có lifecycle/`@InjectRa`; convergence bị xóa ngay khi tạo | `container.createIesDispatcher()`                                                       |
+| 4   | `@InjectRa(name="grpcMenuRa")` nhưng RA đăng ký tên `grpc-menu-ra`     | Port null, command bị drop im lặng                                     | Tên trong `@InjectRa` = giá trị `RaEndpointPort.getRaName()` chính xác từng ký tự       |
+| 5   | Map `dialogs`/`sessions` trong RA chỉ put không remove                 | OOM sau vài giờ chạy                                                   | Remove khi protocol kết thúc + idle sweeper (xem `DialogRegistry`)                      |
+| 6   | Transport callback chỉ nhận `byte[]`                                   | Không biết trả lời về đâu (UDP)                                        | Sink phải kèm peer address (`SipMessageSink`)                                           |
+| 7   | Sleep/poll chờ entity READY                                            | Flaky test, treo thread                                                | `awaitReady(timeout)` hoặc để router tự xử lý                                           |
+| 8   | Business logic gọi thẳng class RA (`ra.doSomething()`)                 | Không test được, gãy khi swap RA                                       | SBB chỉ nói chuyện qua `RaCommandPort.sendCommand(cmd)`                                 |
+
 
 ---
 
 ## 7. Testing
 
 - **Unit test SBB**: gọi thẳng `onEvent(event, aci)` với ACI thật từ `container.createActivityContext("test")` — SBB là POJO.
-- **Integration**: dựng `MicroSleeContainer` thật trong `@Before` (nhanh, <100ms), đăng ký type + RA, bắn event, assert bằng latch. Mẫu chuẩn: `SipEndToEndTest` (ra-sip-servlet) — UDP socket thật → SBB → response thật.
+- **Integration**: dựng `MicroSleeContainer` thật trong `@Before` (nhanh, &lt;100ms), đăng ký type + RA, bắn event, assert bằng latch. Mẫu chuẩn: `SipEndToEndTest` (ra-sip-servlet) — UDP socket thật → SBB → response thật.
 - **Smoke E2E**: `UssdDemoSmokeTest` (example-quarkus) — HTTP begin → chuỗi 3 SBB → poll COMPLETED.
-- Chạy nhanh 1 test: `mvn -pl <module> test -Dtest='TenTest#tenMethod'`.
+- Chạy nhanh 1 test: `mvn -pl [[ORCA_RAW_HTML_INLINE:%3Cmodule%3E]] test -Dtest='TenTest#tenMethod'`.
 
 ---
 
@@ -205,39 +218,48 @@ Khi protocol session kết thúc (BYE, timeout…), RA **phải** gọi `bootstr
 
 ### Core Runtime (read in order)
 
-| File | What you'll learn |
-|---|---|
-| `jainslee-api/src/main/java/com/microjainslee/api/SleeEvent.java` | Base event interface |
-| `jainslee-api/src/main/java/com/microjainslee/api/ActivityContextInterface.java` | ACI: how SBBs attach to sessions |
-| `jainslee-api/src/main/java/com/microjainslee/api/Sbb.java` + `SleeEventHandler.java` | SBB contract |
-| `jainslee-api/src/main/java/com/microjainslee/api/RaEndpointPort.java` + `RaCommandPort.java` + `RaBootstrapPort.java` | 3-port RA contract |
-| `jainslee-core/src/main/java/com/microjainslee/core/MicroSleeContainer.java` | Container: start/stop, registerSbbType, registerRa, fireEvent, routeEvent |
-| `jainslee-core/src/main/java/com/microjainslee/core/EventRouter.java` | LMAX Disruptor ring buffer event routing |
-| `jainslee-core/src/main/java/com/microjainslee/core/IesDispatcher.java` | IES session convergence |
-| `jainslee-scheduler/src/main/java/com/microjainslee/scheduler/HashedWheelTimer.java` | Timer facility |
+
+| File                                                                                                                   | What you'll learn                                                         |
+| ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `jainslee-api/src/main/java/com/microjainslee/api/SleeEvent.java`                                                      | Base event interface                                                      |
+| `jainslee-api/src/main/java/com/microjainslee/api/ActivityContextInterface.java`                                       | ACI: how SBBs attach to sessions                                          |
+| `jainslee-api/src/main/java/com/microjainslee/api/Sbb.java` + `SleeEventHandler.java`                                  | SBB contract                                                              |
+| `jainslee-api/src/main/java/com/microjainslee/api/RaEndpointPort.java` + `RaCommandPort.java` + `RaBootstrapPort.java` | 3-port RA contract                                                        |
+| `jainslee-core/src/main/java/com/microjainslee/core/MicroSleeContainer.java`                                           | Container: start/stop, registerSbbType, registerRa, fireEvent, routeEvent |
+| `jainslee-core/src/main/java/com/microjainslee/core/EventRouter.java`                                                  | LMAX Disruptor ring buffer event routing                                  |
+| `jainslee-core/src/main/java/com/microjainslee/core/IesDispatcher.java`                                                | IES session convergence                                                   |
+| `jainslee-scheduler/src/main/java/com/microjainslee/scheduler/HashedWheelTimer.java`                                   | Timer facility                                                            |
+
 
 ### RA Reference (best example of production-quality RA)
 
-| File | What you'll learn |
-|---|---|
-| `vendor-ras/ra-sip-servlet/DESIGN.md` | Architecture decisions, thread model, DNS flow |
+
+| File                                                                         | What you'll learn                                              |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `vendor-ras/ra-sip-servlet/DESIGN.md`                                        | Architecture decisions, thread model, DNS flow                 |
 | `vendor-ras/ra-sip-servlet/src/main/java/.../SipServletResourceAdaptor.java` | RA core: parse → classify → fireEvent; command → encode → send |
-| `vendor-ras/ra-sip-servlet/src/main/java/.../SipServletRaEndpoint.java` | 3-port wrapper: activate/deactivate/sendCommand |
-| `vendor-ras/ra-sip-servlet/src/main/java/.../collab/DialogRegistry.java` | Session tracking + idle sweeper anti-leak pattern |
-| `vendor-ras/ra-sip-servlet/src/main/java/.../transport/SipTransport.java` | Transport interface (how DPDK swap works) |
-| `vendor-ras/ra-sip-servlet/src/test/java/.../SipEndToEndTest.java` | ★ How to integration-test RA+SBB end-to-end |
+| `vendor-ras/ra-sip-servlet/src/main/java/.../SipServletRaEndpoint.java`      | 3-port wrapper: activate/deactivate/sendCommand                |
+| `vendor-ras/ra-sip-servlet/src/main/java/.../collab/DialogRegistry.java`     | Session tracking + idle sweeper anti-leak pattern              |
+| `vendor-ras/ra-sip-servlet/src/main/java/.../transport/SipTransport.java`    | Transport interface (how DPDK swap works)                      |
+| `vendor-ras/ra-sip-servlet/src/test/java/.../SipEndToEndTest.java`           | ★ How to integration-test RA+SBB end-to-end                    |
+
 
 ### Bootstrap (app wiring)
 
-| File | What you'll learn |
-|---|---|
+
+| File                                                                               | What you'll learn                                                           |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `example/example-quarkus-sip/src/main/java/.../bootstrap/SipGatewayBootstrap.java` | SIP app: registerSbbType → createIesDispatcher → mapEventToSbb → registerRa |
-| `example/example-quarkus/src/main/java/.../bootstrap/UssdDemoBootstrap.java` | USSD app: same pattern + collaborator injection |
-| `example/example-quarkus/src/test/java/.../bootstrap/UssdDemoSmokeTest.java` | Plain-JUnit smoke test without CDI |
+| `example/example-quarkus/src/main/java/.../bootstrap/UssdDemoBootstrap.java`       | USSD app: same pattern + collaborator injection                             |
+| `example/example-quarkus/src/test/java/.../bootstrap/UssdDemoSmokeTest.java`       | Plain-JUnit smoke test without CDI                                          |
+
 
 ### Adapter (Quarkus extension)
 
-| File | What you'll learn |
-|---|---|
-| `jainslee-adapter/adapter-quarkus/runtime/src/main/java/...` | `MicroSleeContainer` producer, config binding |
+
+| File                                                            | What you'll learn                                              |
+| --------------------------------------------------------------- | -------------------------------------------------------------- |
+| `jainslee-adapter/adapter-quarkus/runtime/src/main/java/...`    | `MicroSleeContainer` producer, config binding                  |
 | `jainslee-adapter/adapter-quarkus/deployment/src/main/java/...` | Build-time processor: sbb-index, reflective class registration |
+
+

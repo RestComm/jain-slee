@@ -1,9 +1,9 @@
 package com.example.helloworld.quarkus.sbbs;
 
 import com.example.helloworld.quarkus.bootstrap.HelloWorldContext;
-import com.example.helloworld.quarkus.events.HttpWebRequestEvent;
 import com.microjainslee.api.ActivityContextInterface;
 import com.microjainslee.api.RaCommandPort;
+import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SbbLocalObject;
 import com.microjainslee.api.SleeEvent;
@@ -68,9 +68,10 @@ public final class HelloWorldSbb implements Sbb, SleeEventHandler {
         LOG.info("[HelloWorld] web request session={} {} {}",
                 event.getSessionId(), event.getMethod(), event.getPath());
 
-        LOG.info("[HelloWorld] Hello World! Request from: {}", event.getUserAgent());
+        String userAgent = event.getUserAgent() != null ? event.getUserAgent() : "unknown";
+        LOG.info("[HelloWorld] Hello World {}", userAgent);
 
         // Complete the session through the context bridge
-        context.completeSession(event.getSessionId(), "Hello World");
+        context.completeSession(event.getSessionId(), "Hello World " + userAgent);
     }
 }
