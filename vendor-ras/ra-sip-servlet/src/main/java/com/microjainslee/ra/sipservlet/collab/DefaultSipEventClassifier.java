@@ -53,6 +53,29 @@ public final class DefaultSipEventClassifier implements SipEventClassifier {
                     extractContact(req),
                     extractExpires(req));
             case "OPTIONS"  -> new SipOptionsEvent(callId);
+            case "SUBSCRIBE" -> new SipSubscribeEvent(callId,
+                    extractFrom(req), extractTo(req),
+                    extractEventType(req), extractExpires(req),
+                    extractAccept(req));
+            case "NOTIFY" -> new SipNotifyEvent(callId,
+                    extractFrom(req), extractTo(req),
+                    extractEventType(req), extractSubscriptionState(req),
+                    extractBody(req));
+            case "REFER" -> new SipReferEvent(callId,
+                    extractFrom(req), extractTo(req), extractReferTo(req));
+            case "MESSAGE" -> new SipMessageEvent(callId,
+                    extractFrom(req), extractTo(req),
+                    extractContentType(req), extractBody(req));
+            case "INFO"   -> new SipInfoEvent(callId,
+                    extractFrom(req), extractTo(req),
+                    extractContentType(req), extractBody(req));
+            case "UPDATE" -> new SipUpdateEvent(callId,
+                    extractFrom(req), extractTo(req), extractBody(req));
+            case "PRACK"  -> new SipPrackEvent(callId,
+                    extractRackNumber(req), extractRackMethod(req));
+            case "PUBLISH" -> new SipPublishEvent(callId,
+                    extractFrom(req), extractEventType(req),
+                    extractExpires(req), extractBody(req));
             default -> {
                 LOG.debug("Unhandled SIP method: {}", method);
                 yield null;
@@ -142,5 +165,43 @@ public final class DefaultSipEventClassifier implements SipEventClassifier {
             catch (Exception ignored) { }
         }
         return 3600;
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extractEventType(Message msg) {
+        EventHeader h = (EventHeader) msg.getHeader(EventHeader.NAME);
+        return h != null ? h.getEventType() : "";
+    }
+
+    private List<String> extractAccept(Message msg) {
+        List<String> result = new ArrayList<>();
+        ListIterator it = msg.getHeaders("Accept");
+        while (it != null && it.hasNext()) result.add(it.next().toString());
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extractSubscriptionState(Message msg) {
+        SubscriptionStateHeader h =
+                (SubscriptionStateHeader) msg.getHeader(SubscriptionStateHeader.NAME);
+        return h != null ? h.toString() : "terminated";
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extractReferTo(Message msg) {
+        ReferToHeader h = (ReferToHeader) msg.getHeader(ReferToHeader.NAME);
+        return h != null ? h.toString() : "";
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extractRackNumber(Message msg) {
+        RAckHeader h = (RAckHeader) msg.getHeader(RAckHeader.NAME);
+        return h != null ? String.valueOf(h.getRSeqNumber()) : "0";
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extractRackMethod(Message msg) {
+        RAckHeader h = (RAckHeader) msg.getHeader(RAckHeader.NAME);
+        return h != null ? h.getMethod() : "INVITE";
     }
 }
