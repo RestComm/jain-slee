@@ -47,14 +47,7 @@
             <version>${corsac-sip.version}</version>
         </dependency>
 
-        <!-- SIP-Servlet core contracts -->
-        <dependency>
-            <groupId>org.mobicents.servlet.sip</groupId>
-            <artifactId>sip-servlets-core-api</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- Transport — Netty (TCP + UDP + SCTP) -->
+        <!-- Transport — Netty (TCP + UDP + SCTP + TLS) -->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>

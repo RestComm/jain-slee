@@ -1,20 +1,19 @@
 package com.microjainslee.ra.sipservlet.collab;
 
 import com.microjainslee.ra.sipservlet.event.SipEvent;
-import gov.nist.javax.sip.message.SIPMessage;
 
 /**
- * Classifies a raw parsed {@link SIPMessage} into a typed {@link SipEvent}.
- * Injected at wiring time so applications can customize event creation.
+ * Classifies a parsed SIP message into a typed {@link SipEvent}.
+ * <p>Receives a JAIN-SIP {@code javax.sip.message.Message} (NIST
+ * {@code SIPMessage} implements it) and returns the appropriate
+ * sealed event subtype, or {@code null} to silently drop.
  */
 @FunctionalInterface
 public interface SipEventClassifier {
-    /**
-     * Classify a raw SIP message.
-     *
-     * @param msg    the parsed SIP message (request or response)
-     * @param callId pre-extracted Call-ID header value
-     * @return the typed event, or {@code null} to silently drop the message
+    /** Classify a parsed SIP message.
+     * @param msg    JAIN-SIP Message (usually NIST SIPMessage instance)
+     * @param callId pre-extracted Call-ID value
+     * @return typed event, or {@code null} to drop
      */
-    SipEvent classify(SIPMessage msg, String callId);
+    SipEvent classify(Object msg, String callId);
 }

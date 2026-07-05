@@ -1,37 +1,42 @@
 package com.microjainslee.ra.sipservlet.collab;
 
 import com.microjainslee.ra.sipservlet.event.*;
-import gov.nist.javax.sip.header.Via;
-import gov.nist.javax.sip.message.SIPMessage;
-import gov.nist.javax.sip.message.SIPRequest;
-import gov.nist.javax.sip.message.SIPResponse;
+import javax.sip.header.*;
+import javax.sip.message.Message;
+import javax.sip.message.Request;
+import javax.sip.message.Response;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Default classifier that inspects the SIP method / status line and
- * creates the appropriate typed {@link SipEvent}.
+ * Default classifier — inspects SIP method/status and creates typed {@link SipEvent}.
+ * <p>Uses only JAIN-SIP API ({@code javax.sip.*}) for header extraction.
+ * The only NIST-specific call is {@code StringMsgParser.parseSIPMessage()}
+ * in {@code SipServletResourceAdaptor.onRawMessage()}, which returns NIST
+ * {@code SIPMessage} — but that class implements {@code javax.sip.message.Message},
+ * so all downstream code uses the standard JAIN-SIP interfaces.
  */
 public final class DefaultSipEventClassifier implements SipEventClassifier {
 
     private static final Logger LOG = LogManager.getLogger(DefaultSipEventClassifier.class);
 
     @Override
-    public SipEvent classify(SIPMessage msg, String callId) {
-        if (msg instanceof SIPRequest req) {
+    public SipEvent classify(Object msg, String callId) {
+        if (msg instanceof Request req) {
             return classifyRequest(req, callId);
-        } else if (msg instanceof SIPResponse resp) {
+        } else if (msg instanceof Response resp) {
             return classifyResponse(resp, callId);
         }
         LOG.warn("Unknown SIP message type: {}", msg.getClass().getName());
         return null;
     }
 
-    private SipEvent classifyRequest(SIPRequest req, String callId) {
+    private SipEvent classifyRequest(Request req, String callId) {
         String method = req.getMethod();
         if (method == null) return null;
         return switch (method.toUpperCase()) {
@@ -55,73 +60,65 @@ public final class DefaultSipEventClassifier implements SipEventClassifier {
         };
     }
 
-    private SipEvent classifyResponse(SIPResponse resp, String callId) {
+    private SipEvent classifyResponse(Response resp, String callId) {
         return new SipResponseEvent(callId,
                 resp.getStatusCode(), resp.getReasonPhrase(),
                 extractBody(resp), extractContentType(resp),
                 extractViaHeaders(resp));
     }
 
-    // --- Header extraction helpers ---
+    // --- Header extraction (all javax.sip.* API, no NIST internals) ---
 
-    private String extractFrom(SIPMessage msg) {
-        var hdr = msg.getHeader("From");
-        return hdr != null ? hdr.toString() : "";
+    @SuppressWarnings("unchecked")
+    private String extractFrom(Message msg) {
+        FromHeader h = (FromHeader) msg.getHeader(FromHeader.NAME);
+        return h != null ? h.toString() : "";
     }
 
-    private String extractTo(SIPMessage msg) {
-        var hdr = msg.getHeader("To");
-        return hdr != null ? hdr.toString() : "";
+    @SuppressWarnings("unchecked")
+    private String extractTo(Message msg) {
+        ToHeader h = (ToHeader) msg.getHeader(ToHeader.NAME);
+        return h != null ? h.toString() : "";
     }
 
-    private String extractContact(SIPMessage msg) {
-        var hdr = msg.getHeader("Contact");
-        return hdr != null ? hdr.toString() : "";
+    @SuppressWarnings("unchecked")
+    private String extractContact(Message msg) {
+        ContactHeader h = (ContactHeader) msg.getHeader(ContactHeader.NAME);
+        return h != null ? h.toString() : "";
     }
 
-    private List<String> extractViaHeaders(SIPMessage msg) {
+    @SuppressWarnings("unchecked")
+    private List<String> extractViaHeaders(Message msg) {
         List<String> result = new ArrayList<>();
-        var it = msg.getHeaders("Via");
-        if (it != null) {
-            while (it.hasNext()) {
-                var via = it.next();
-                if (via instanceof Via v) {
-                    result.add("SIP/2.0/" + v.getTransport().toUpperCase()
-                            + " " + v.getHost() + ":" + v.getPort()
-                            + ";branch=" + v.getBranch());
-                } else {
-                    result.add(via.toString());
-                }
-            }
+        ListIterator it = msg.getHeaders(ViaHeader.NAME);
+        while (it != null && it.hasNext()) {
+            ViaHeader via = (ViaHeader) it.next();
+            result.add("SIP/2.0/" + via.getTransport().toUpperCase()
+                    + " " + via.getHost() + ":" + via.getPort()
+                    + ";branch=" + via.getBranch());
         }
         return result;
     }
 
-    private List<String> extractRecordRoute(SIPMessage msg) {
+    @SuppressWarnings("unchecked")
+    private List<String> extractRecordRoute(Message msg) {
         List<String> result = new ArrayList<>();
-        var it = msg.getHeaders("Record-Route");
-        if (it != null) {
-            while (it.hasNext()) {
-                result.add(it.next().toString());
-            }
-        }
+        ListIterator it = msg.getHeaders(RecordRouteHeader.NAME);
+        while (it != null && it.hasNext()) result.add(it.next().toString());
         return result;
     }
 
-    private List<String> extractRoute(SIPMessage msg) {
+    @SuppressWarnings("unchecked")
+    private List<String> extractRoute(Message msg) {
         List<String> result = new ArrayList<>();
-        var it = msg.getHeaders("Route");
-        if (it != null) {
-            while (it.hasNext()) {
-                result.add(it.next().toString());
-            }
-        }
+        ListIterator it = msg.getHeaders(RouteHeader.NAME);
+        while (it != null && it.hasNext()) result.add(it.next().toString());
         return result;
     }
 
-    private String extractBody(SIPMessage msg) {
+    private String extractBody(Message msg) {
         try {
-            Object body = msg.getMessageContent();
+            Object body = msg.getContent();
             if (body instanceof String s) return s;
             if (body instanceof byte[] b) return new String(b);
             return body != null ? body.toString() : "";
@@ -131,16 +128,18 @@ public final class DefaultSipEventClassifier implements SipEventClassifier {
         }
     }
 
-    private String extractContentType(SIPMessage msg) {
-        var hdr = msg.getHeader("Content-Type");
-        return hdr != null ? hdr.toString().trim() : "";
+    @SuppressWarnings("unchecked")
+    private String extractContentType(Message msg) {
+        ContentTypeHeader h = (ContentTypeHeader) msg.getHeader(ContentTypeHeader.NAME);
+        return h != null ? h.toString().trim() : "";
     }
 
-    private int extractExpires(SIPMessage msg) {
-        var hdr = msg.getHeader("Expires");
-        if (hdr != null) {
-            try { return Integer.parseInt(hdr.toString().trim()); }
-            catch (NumberFormatException ignored) { }
+    @SuppressWarnings("unchecked")
+    private int extractExpires(Message msg) {
+        ExpiresHeader h = (ExpiresHeader) msg.getHeader(ExpiresHeader.NAME);
+        if (h != null) {
+            try { return h.getExpires(); }
+            catch (Exception ignored) { }
         }
         return 3600;
     }

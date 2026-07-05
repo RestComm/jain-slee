@@ -17,8 +17,6 @@ import com.microjainslee.ra.sipservlet.stun.StunClient;
 import com.microjainslee.ra.sipservlet.transport.*;
 
 import gov.nist.javax.sip.message.SIPMessage;
-import gov.nist.javax.sip.message.SIPRequest;
-import gov.nist.javax.sip.message.SIPResponse;
 import gov.nist.javax.sip.parser.StringMsgParser;
 
 import org.apache.logging.log4j.LogManager;
@@ -175,11 +173,20 @@ public final class SipServletResourceAdaptor {
 
     // ---- helpers ----
 
+    /**
+     * Extract Call-ID using javax.sip.* API (standard, not NIST-specific).
+     * The NIST SIPMessage implements javax.sip.message.Message, so
+     * {@code msg.getHeader(CallIdHeader.NAME)} works on all message types.
+     */
+    @SuppressWarnings("unchecked")
     private static String deriveCallId(SIPMessage msg) {
-        if (msg instanceof SIPRequest r && r.getCallIdHeader() != null)
-            return r.getCallIdHeader().getCallId();
-        if (msg instanceof SIPResponse r && r.getCallIdHeader() != null)
-            return r.getCallIdHeader().getCallId();
+        javax.sip.header.CallIdHeader callIdHdr =
+                (javax.sip.header.CallIdHeader) msg.getHeader(
+                        javax.sip.header.CallIdHeader.NAME);
+        if (callIdHdr != null) {
+            String cid = callIdHdr.getCallId();
+            if (cid != null && !cid.isBlank()) return cid;
+        }
         return UUID.randomUUID().toString();
     }
 }
